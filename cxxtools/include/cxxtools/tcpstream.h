@@ -140,7 +140,6 @@ namespace tcp
    */
   class Server : public Socket
   {
-      socklen_t servaddr_len;
       union {
         struct sockaddr sockaddr;
         struct sockaddr_in sockaddr_in;
