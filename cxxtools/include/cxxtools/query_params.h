@@ -1,5 +1,5 @@
 /* cxxtools/query_params.h
-   Copyright (C) 2003,2004 Tommi Mäkitalo
+   Copyright (C) 2003,2004 Tommi Maekitalo
 
 This file is part of cxxtools.
 
