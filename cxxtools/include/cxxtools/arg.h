@@ -197,6 +197,7 @@ class arg
  * \endcode
  *
  */
+template <>
 class arg<bool>
 {
   public:
@@ -312,6 +313,7 @@ class arg<bool>
  * "const char*" werden nicht über einen istream gelesen, sondern direkt
  * verarbeitet.
  */
+template <>
 class arg<const char*>
 {
   public:
