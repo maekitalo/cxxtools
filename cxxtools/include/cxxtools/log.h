@@ -132,6 +132,7 @@ void log_init(const std::string& propertyfilename);
 
 #include <string>
 #include <cxxtools/thread.h>
+#include <iostream>
 
 #define log_(level, expr)   \
   do { \
