@@ -1,4 +1,4 @@
-/* cxxtools/log.h
+/* cxxtools/log/disable.h
    Copyright (C) 2003, 2004 Tommi Maekitalo
 
 This file is part of cxxtools.
@@ -19,35 +19,14 @@ Foundation, Inc., 59 Temple Place, Suite 330,
 Boston, MA  02111-1307  USA
 */
 
-#ifndef CXXTOOLS_LOG_H
-#define CXXTOOLS_LOG_H
+#ifndef CXXTOOLS_LOG_DISABLE_H
+#define CXXTOOLS_LOG_DISABLE_H
 
-#if  !defined(CXXTOOLS_LOG_LOG4CXX) \
-  && !defined(CXXTOOLS_LOG_LOG4CPLUS) \
-  && !defined(CXXTOOLS_LOG_LOGBUILTIN) \
-  && !defined(CXXTOOLS_LOG_DISABLE)
-#  include <cxxtools/config.h>
-#endif
+#define log_fatal(expr)        do { } while (false)
+#define log_error(expr)        do { } while (false)
+#define log_warn(expr)         do { } while (false)
+#define log_info(expr)         do { } while (false)
+#define log_debug(expr)        do { } while (false)
+#define log_define(category)
 
-
-#ifdef CXXTOOLS_LOG_LOG4CXX
-# include <cxxtools/log/log4cxx.h>
-#endif
-
-
-#ifdef CXXTOOLS_LOG_LOG4CPLUS
-# include <cxxtools/log/log4cplus.h>
-#endif
-
-
-#ifdef CXXTOOLS_LOG_LOGBUILTIN
-# include <cxxtools/log/cxxtools.h>
-#endif
-
-
-#ifdef CXXTOOLS_LOG_DISABLE
-# include <cxxtools/log/disable.h>
-#endif
-
-
-#endif // LOG_H
+#endif // CXXTOOLS_LOG_DISABLE_H

@@ -19,20 +19,13 @@ Foundation, Inc., 59 Temple Place, Suite 330,
 Boston, MA  02111-1307  USA
 */
 
-#include "config.h"
-
-#ifdef CXXTOOLS_USE_LOGBUILTIN 
-
-#include <cxxtools/log.h>
-#include <cxxtools/loginit.h>
+#include <cxxtools/log/cxxtools_init.h>
 #include <cxxtools/thread.h>
 #include <list>
 #include <algorithm>
-#include <iostream>
 #include <fstream>
 #include <time.h>
 #include <sys/time.h>
-#include <pthread.h>
 
 namespace cxxtools
 {
@@ -57,7 +50,7 @@ namespace cxxtools
 
   void logger_impl::setFile(const std::string& fname)
   {
-    outfile.open(fname.c_str());
+    outfile.open(fname.c_str(), std::ios::out | std::ios::app);
   }
 
   typedef std::list<logger*> loggers_type;
@@ -175,9 +168,11 @@ void log_init(const std::string& propertyfilename)
   enum state_type {
     state_0,
     state_token,
+    state_tokensp,
     state_category,
     state_level,
     state_rootlevel,
+    state_filename0,
     state_filename,
     state_skip
   };
@@ -214,17 +209,32 @@ void log_init(const std::string& propertyfilename)
             state = state_token;
           }
         }
-        else if (ch == '=' && token == "rootLogger")
+        else if (ch == '=' && token == "ROOTLOGGER")
           state = state_rootlevel;
-        else if (ch == '=' && token == "File")
-          state = state_filename;
+        else if (ch == '=' && token == "FILE")
+          state = state_filename0;
+        else if (ch == '\n')
+          state = state_0;
+        else if (std::isspace(ch))
+          state = state_tokensp;
         else if (std::isalnum(ch))
-          token += ch;
+          token += std::toupper(ch);
         else
         {
           token.clear();
           state = state_skip;
         }
+        break;
+
+      case state_tokensp:
+        if (ch == '=' && token == "ROOTLOGGER")
+          state = state_rootlevel;
+        else if (ch == '=' && token == "FILE")
+          state = state_filename0;
+        else if (ch == '\n')
+          state = state_0;
+        else if (!std::isspace(ch))
+          state = state_skip;
         break;
 
       case state_category:
@@ -242,6 +252,9 @@ void log_init(const std::string& propertyfilename)
 
       case state_level:
       case state_rootlevel:
+        if (ch != '\n' && std::isspace(ch))
+          break;
+
         switch (ch)
         {
           case 'F': level = cxxtools::logger::LOG_LEVEL_FATAL; break;
@@ -249,7 +262,6 @@ void log_init(const std::string& propertyfilename)
           case 'W': level = cxxtools::logger::LOG_LEVEL_WARN; break;
           case 'I': level = cxxtools::logger::LOG_LEVEL_INFO; break;
           case 'D': level = cxxtools::logger::LOG_LEVEL_DEBUG; break;
-          case 'T': level = cxxtools::logger::LOG_LEVEL_TRACE; break;
           default: level = cxxtools::logger::getStdLevel(); break;
         }
         if (state == state_rootlevel)
@@ -260,6 +272,10 @@ void log_init(const std::string& propertyfilename)
         token.clear();
         state = state_skip;
         break;
+
+      case state_filename0:
+        if (ch != '\n' && std::isspace(ch))
+          break;
 
       case state_filename:
         if (ch == '\n')
@@ -289,5 +305,3 @@ void log_init()
   else
     log_init(cxxtools::logger::LOG_LEVEL_ERROR);
 }
-
-#endif

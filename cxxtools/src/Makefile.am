@@ -27,6 +27,7 @@ libcxxtools_log_la_SOURCES = \
 
 libcxxtools_la_LIBADD = $(MAKE_ICONV) @LIBLTDL@ @LIBICONV@
 libcxxtools_la_DEPENDENCIES = $(MAKE_ICONV)
-
 libcxxtools_la_LDFLAGS = -lpthread -version-info @sonumber@
-libcxxtools_log_la_LDFLAGS = @logger_ldflags@ -version-info @sonumber@
+
+libcxxtools_log_la_LDFLAGS = -version-info @sonumber@
+libcxxtools_log_la_LIBADD = $(top_builddir)/src/libcxxtools.la

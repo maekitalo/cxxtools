@@ -9,7 +9,6 @@ nobase_include_HEADERS = \
         cxxtools/iconvstream.h \
         cxxtools/iniclass.h \
         cxxtools/log.h \
-        cxxtools/logfwd.h \
         cxxtools/loginit.h \
         cxxtools/md5.h \
         cxxtools/md5stream.h \
@@ -20,7 +19,15 @@ nobase_include_HEADERS = \
         cxxtools/sudo.h \
         cxxtools/tcpstream.h \
         cxxtools/tee.h \
-        cxxtools/thread.h
+        cxxtools/thread.h \
+        cxxtools/log/cxxtools.h \
+        cxxtools/log/cxxtools_init.h \
+        cxxtools/log/disable.h \
+        cxxtools/log/disable_init.h \
+        cxxtools/log/log4cplus.h \
+        cxxtools/log/log4cplus_init.h \
+        cxxtools/log/log4cxx.h \
+        cxxtools/log/log4cxx_init.h
 
 nobase_nodist_include_HEADERS = \
         cxxtools/config.h

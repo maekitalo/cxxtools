@@ -18,5 +18,5 @@ EXTRA_DIST = run_log
 
 INCLUDES = -I../include
 LDADD = $(top_builddir)/src/libcxxtools.la
-log_LDADD = $(top_builddir)/src/libcxxtools.la $(top_builddir)/src/libcxxtools-log.la
-logbench_LDADD = $(top_builddir)/src/libcxxtools.la $(top_builddir)/src/libcxxtools-log.la
+log_LDADD = @logger_ldflags@ $(top_builddir)/src/libcxxtools-log.la
+logbench_LDADD = @logger_ldflags@ $(top_builddir)/src/libcxxtools-log.la

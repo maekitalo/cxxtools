@@ -3,11 +3,11 @@
 #include <iostream>
 #include <stdexcept>
 
-log_define("log");
+log_define("log");  // global definition
 
 namespace ns
 {
-  log_define("log.ns");
+  log_define("log.ns");  // namespace definition
   void main()
   {
     log_fatal("fatal message in namespace ns");
@@ -17,6 +17,21 @@ namespace ns
     log_debug("debug message in namespace ns");
   }
 }
+
+class cl
+{
+    log_define("class");  // class-scope definition
+
+  public:
+    cl()
+    {
+      log_debug("constructor here");
+    }
+    ~cl()
+    {
+      log_debug("destructor here");
+    }
+};
 
 int main(int argc, char* argv[])
 {
@@ -31,6 +46,8 @@ int main(int argc, char* argv[])
     log_debug("debug message " << 5);
 
     ns::main();
+
+    cl c;
   }
   catch (const std::exception& e)
   {

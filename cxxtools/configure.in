@@ -42,7 +42,7 @@ AC_ARG_WITH(
 if test "$ac_loggertype" = "log4cxx" -o "$ac_loggertype" = "probe"; then
    AC_CHECK_HEADER(
       [log4cxx/logger.h],
-      [ AC_DEFINE([CXXTOOLS_USE_LOG4CXX],
+      [ AC_DEFINE([CXXTOOLS_LOG_LOG4CXX],
                   [],
                   [use log4cxx for logging])
         ac_loggertype=log4cxx ],
@@ -56,7 +56,7 @@ fi
 if test "$ac_loggertype" = "log4cplus" -o "$ac_loggertype" = "probe"; then
    AC_CHECK_HEADER(
       [log4cplus/logger.h],
-      [ AC_DEFINE([CXXTOOLS_USE_LOG4CPLUS],
+      [ AC_DEFINE([CXXTOOLS_LOG_LOG4CPLUS],
                   [],
                   [use log4cplus for logging])
         ac_loggertype=log4cplus ],
@@ -68,10 +68,10 @@ if test "$ac_loggertype" = "log4cplus" -o "$ac_loggertype" = "probe"; then
 fi
 
 if test "$ac_loggertype" = "builtin" -o "$ac_loggertype" = "probe"; then
-  AC_DEFINE([CXXTOOLS_USE_LOGBUILTIN], [], [use builtin logging])
+  AC_DEFINE([CXXTOOLS_LOG_BUILTIN], [], [use builtin logging])
   ac_loggertype=builtin
 elif test "$ac_loggertype" = "disable"; then
-  AC_DEFINE([CXXTOOLS_DISABLE_LOG], [], [disable logging])
+  AC_DEFINE([CXXTOOLS_LOG_DISABLE], [], [disable logging])
 fi
 
 case "$ac_loggertype" in

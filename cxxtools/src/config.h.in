@@ -1,16 +1,16 @@
 /* src/config.h.in.  Generated from configure.in by autoheader.  */
 
+/* use builtin logging */
+#undef CXXTOOLS_LOG_BUILTIN
+
 /* disable logging */
-#undef CXXTOOLS_DISABLE_LOG
+#undef CXXTOOLS_LOG_DISABLE
 
 /* use log4cplus for logging */
-#undef CXXTOOLS_USE_LOG4CPLUS
+#undef CXXTOOLS_LOG_LOG4CPLUS
 
 /* use log4cxx for logging */
-#undef CXXTOOLS_USE_LOG4CXX
-
-/* use builtin logging */
-#undef CXXTOOLS_USE_LOGBUILTIN
+#undef CXXTOOLS_LOG_LOG4CXX
 
 /* Define to 1 if you have the <dirent.h> header file, and it defines `DIR'.
    */

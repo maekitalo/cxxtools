@@ -1,14 +1,14 @@
 /* check for log4cplus */
-#undef CXXTOOLS_USE_LOG4CPLUS
+#undef CXXTOOLS_LOG_LOG4CPLUS
 
 /* check for log4cxx */
-#undef CXXTOOLS_USE_LOG4CXX
+#undef CXXTOOLS_LOG_LOG4CXX
 
 /* use logging to stdout */
-#undef CXXTOOLS_USE_LOGBUILTIN
+#undef CXXTOOLS_LOG_LOGBUILTIN
 
 /* disable logging */
-#undef CXXTOOLS_DISABLE_LOG
+#undef CXXTOOLS_LOG_DISABLE
 
 /* Define to 1 if you have the <dirent.h> header file, and it defines `DIR'.
    */

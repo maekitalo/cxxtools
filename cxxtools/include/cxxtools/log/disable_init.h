@@ -1,5 +1,5 @@
-/* cxxtools/log.h
-   Copyright (C) 2003, 2004 Tommi Maekitalo
+/* cxxtools/log/disable_init.h
+   Copyright (C) 2004 Tommi Maekitalo
 
 This file is part of cxxtools.
 
@@ -19,35 +19,24 @@ Foundation, Inc., 59 Temple Place, Suite 330,
 Boston, MA  02111-1307  USA
 */
 
-#ifndef CXXTOOLS_LOG_H
-#define CXXTOOLS_LOG_H
+#ifndef CXXTOOLS_LOG_DISABLE_INIT_H
+#define CXXTOOLS_LOG_DISABLE_INIT_H
 
-#if  !defined(CXXTOOLS_LOG_LOG4CXX) \
-  && !defined(CXXTOOLS_LOG_LOG4CPLUS) \
-  && !defined(CXXTOOLS_LOG_LOGBUILTIN) \
-  && !defined(CXXTOOLS_LOG_DISABLE)
-#  include <cxxtools/config.h>
-#endif
+#include <string>
 
+#define log_init_fatal()  do { } while(false)
+#define log_init_error()  do { } while(false)
+#define log_init_warn()   do { } while(false)
+#define log_init_info()   do { } while(false)
+#define log_init_debug()  do { } while(false)
 
-#ifdef CXXTOOLS_LOG_LOG4CXX
-# include <cxxtools/log/log4cxx.h>
-#endif
+inline void log_init(const std::string& configFileName)
+{ }
 
+inline void log_init(const char* filename)
+{ }
 
-#ifdef CXXTOOLS_LOG_LOG4CPLUS
-# include <cxxtools/log/log4cplus.h>
-#endif
+inline void log_init()
+{ }
 
-
-#ifdef CXXTOOLS_LOG_LOGBUILTIN
-# include <cxxtools/log/cxxtools.h>
-#endif
-
-
-#ifdef CXXTOOLS_LOG_DISABLE
-# include <cxxtools/log/disable.h>
-#endif
-
-
-#endif // LOG_H
+#endif // CXXTOOLS_LOG_DISABLE_INIT_H
