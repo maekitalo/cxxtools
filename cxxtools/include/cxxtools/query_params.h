@@ -224,12 +224,13 @@ class query_params
     { std::copy(unnamed_params.begin(), unnamed_params.end(), o); }
 
     // add unnamed parameter to parent or this class
-    void ret(const string& value)
+    query_params& ret(const string& value)
     {
       if (parent)
         parent->ret(value);
       else
         unnamed_params.push_back(value);
+      return *this;
     }
 
     // remove unnamed parameter
@@ -245,9 +246,10 @@ class query_params
     }
 
     // add unnamed parameter to this class
-    void add(const string& value)
+    query_params& add(const string& value)
     {
       unnamed_params.push_back(value);
+      return *this;
     }
 
     //
@@ -317,13 +319,14 @@ class query_params
     }
 
     // add named parameter to parent or this class
-    void ret(const string& name, const string& value)
+    query_params& ret(const string& name, const string& value)
     {
       named_params.erase(name);
       if (parent)
         parent->ret(name, value);
       else
         named_params[name].push_back(value);
+      return *this;
     }
 
     // remove named parameter
@@ -335,9 +338,10 @@ class query_params
     }
 
     // add named parameter to this class
-    void add(const string& name, const string& value)
+    query_params& add(const string& name, const string& value)
     {
       named_params[name].push_back(value);
+      return *this;
     }
 
     // replace named parameter
