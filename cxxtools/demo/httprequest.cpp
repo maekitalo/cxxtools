@@ -20,7 +20,6 @@ int main(int argc, char* argv[])
 
     // execute request
     request.execute();
-
     std::cout << request.rdbuf() << std::flush;
   }
   catch (const std::exception& e)

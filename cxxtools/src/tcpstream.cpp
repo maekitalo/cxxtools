@@ -202,6 +202,9 @@ namespace tcp
 
   void Stream::Connect(const char* ipaddr, unsigned short int port)
   {
+    if (getFd() < 0)
+      create(AF_INET, SOCK_STREAM, 0);
+
     struct hostent* host = ::gethostbyname(ipaddr);
     if (host == 0)
       throw Exception(std::string("invalid ipaddress ") + ipaddr);

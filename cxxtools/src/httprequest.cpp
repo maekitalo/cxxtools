@@ -25,6 +25,17 @@ namespace cxxtools
 {
   void httprequest::execute()
   {
+    if (reading)
+    {
+      if (peek() != traits_type::eof())
+      {
+        std::cerr << "reading!" << std::endl;
+        return;
+      }
+      else
+        connection.close();
+    }
+
     connection.Connect(host, port);
     switch (method)
     {
@@ -55,5 +66,6 @@ namespace cxxtools
         }
         break;
     }
+    reading = true;
   }
 }

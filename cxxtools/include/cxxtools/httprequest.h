@@ -39,6 +39,7 @@ namespace cxxtools
       std::string host;
       std::string url;
       unsigned short port;
+      bool reading;
 
       query_params params;
 
@@ -49,7 +50,8 @@ namespace cxxtools
         : std::iostream(0),
           method(method_),
           host(host_),
-          url(url_)
+          url(url_),
+          reading(false)
       {
         init(connection.rdbuf());
       }
@@ -60,7 +62,8 @@ namespace cxxtools
           method(method_),
           host(host_),
           url(url_),
-          port(port_)
+          port(port_),
+          reading(false)
       {
         init(connection.rdbuf());
       }
