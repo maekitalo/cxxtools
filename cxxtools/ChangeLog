@@ -1,3 +1,21 @@
+Version 1.2.3
+  - missing errno.h in iconvstream.cpp added
+  - support in cxxtools::arg for multiple alternative switches
+    in a single arg-variable (set-method)
+
+Version 1.2.2
+
+  - bug fixed: cxxtools::arg does not find user-specific inputstreamoperators
+  - support for log4cxx
+  - logging-library selectable at build-time
+
+Version 1.2.1
+  - removed obsolete timeclass.cpp
+  - switched dl-classes to libtool for better portability
+  - skip iconvstream if libiconv is not installed
+  - new library: logging-wrapper for log4cplus (log4cxx-support will follow)
+  - simple lightweight logging-library as a alternative for log4cplus
+
 Version 1.2 (November 25, 2004)
   - all classes moved to namespace cxxtools
   - documentation-updates (most classes documented with doxygen-style comments

@@ -56,6 +56,16 @@ class arg
 {
   public:
     /**
+     default constructor. Initializes value.
+
+     \param def    initial value
+     */
+    arg(const T& def = T())
+      : m_value(def),
+        m_isset(false)
+      { }
+
+    /**
      extract parameter.
 
      \param argc      1. parameter of main
@@ -70,25 +80,10 @@ class arg
      \endcode
      */
     arg(int& argc, char* argv[], char ch, const T& def = T())
+      : m_value(def),
+        m_isset(false)
     {
-      for (int i = 1; i < argc - 1; ++i)
-        if (argv[i][0] == '-' && argv[i][1] == ch && argv[i][2] == '\0')
-        {
-          std::istringstream s(argv[i + 1]);
-          s >> m_value;
-          if (!s.fail())
-          {
-            m_isset = true;
-            for ( ; i < argc - 2; ++i)
-              argv[i] = argv[i + 2];
-            argc -= 2;
-            argv[argc] = 0;
-            return;
-          }
-        }
-      
-      m_isset = false;
-      m_value = def;
+      set(argc, argv, ch);
     }
 
     /**
@@ -103,7 +98,76 @@ class arg
      \endcode
      */
     arg(int& argc, char* argv[], const char* str, const T& def = T())
+      : m_value(def),
+        m_isset(false)
     {
+      m_isset = set(argc, argv, str);
+    }
+
+    arg(int& argc, char* argv[])
+      : m_value(def),
+        m_isset(false)
+    {
+      m_isset = set(argc, argv);
+    }
+
+    /**
+     extract parameter.
+
+     \param argc      1. parameter of main
+     \param argv      2. of main
+     \param ch        optioncharacter
+
+     example:
+     \code
+      arg<unsigned> offset;
+      offset.set(argc, argv, 'o');
+      unsigned value = offset.getValue();
+     \endcode
+     */
+    bool set(int& argc, char* argv[], char ch)
+    {
+      // don't extract value, when already found
+      if (m_isset)
+        return false;
+
+      for (int i = 1; i < argc - 1; ++i)
+        if (argv[i][0] == '-' && argv[i][1] == ch && argv[i][2] == '\0')
+        {
+          std::istringstream s(argv[i + 1]);
+          s >> m_value;
+          if (!s.fail())
+          {
+            m_isset = true;
+            for ( ; i < argc - 2; ++i)
+              argv[i] = argv[i + 2];
+            argc -= 2;
+            argv[argc] = 0;
+            return true;
+          }
+        }
+      
+      return false;
+    }
+
+    /**
+     GNU defines long options starting with "--". This (and more) is
+     supported here. Instead of giving a single option-character, you
+     specify a string.
+
+     example:
+     \code
+       arg<int> option_number;
+       number.set(argc, argv, "--number");
+       std::cout << "number =" << option_nummer.getValue() << std::endl;
+     \endcode
+     */
+    bool set(int& argc, char* argv[], const char* str)
+    {
+      // don't extract value, when already found
+      if (m_isset)
+        return false;
+
       for (int i = 1; i < argc - 1; ++i)
         if (strcmp(argv[i], str) == 0)
         {
@@ -116,19 +180,22 @@ class arg
               argv[i] = argv[i + 2];
             argc -= 2;
             argv[argc] = 0;
-            return;
+            return true;
           }
         }
 
-      m_isset = false;
-      m_value = def;
+      return false;
     }
 
     /**
      Reads next parameter and removes it.
      */
-    arg(int& argc, char* argv[])
+    bool set(int& argc, char* argv[])
     {
+      // don't extract value, when already found
+      if (m_isset)
+        return false;
+
       if (argc > 1)
       {
         std::istringstream s(argv[1]);
@@ -146,6 +213,8 @@ class arg
       }
       else
         m_isset = false;
+
+      return m_isset;
     }
 
     /**
@@ -204,6 +273,44 @@ class arg<bool>
 {
   public:
     /**
+     default constructor. Initializes value.
+
+     \param def    initial value
+     */
+    arg(bool def = false)
+      : m_value(def),
+        m_isset(false)
+        { }
+
+    /**
+     extract parameter.
+
+     \param argc      1. parameter of main
+     \param argv      2. of main
+     \param ch        optioncharacter
+     \param def       default-value
+
+     example:
+     \code
+      arg<unsigned> offset(argc, argv, 'o', 0);
+      unsigned value = offset.getValue();
+     \endcode
+     */
+    arg(int& argc, char* argv[], char ch, bool def = false)
+      : m_value(def),
+        m_isset(false)
+    {
+      m_isset = set(argc, argv, ch);
+    }
+
+    arg(int& argc, char* argv[], const char* str, bool def = false)
+      : m_value(def),
+        m_isset(false)
+    {
+      m_isset = set(argc, argv, str);
+    }
+
+    /**
      Use this constructor to extract a bool-parameter.
 
      As a special case options can be grouped. The parameter is
@@ -246,8 +353,12 @@ class arg<bool>
      This is useful, if a program defaults to some enabled feature,
      which can be disabled.
      */
-    arg(int& argc, char* argv[], char ch)
+    bool set(int& argc, char* argv[], char ch)
     {
+      // don't extract value, when already found
+      if (m_isset)
+        return false;
+
       for (int i = 1; i < argc; ++i)
         if (argv[i][0] == '-' && argv[i][1] != '-')
         {
@@ -261,7 +372,7 @@ class arg<bool>
               argv[i] = argv[i + 1];
             argc -= 1;
             argv[argc] = 0;
-            return;
+            return true;
           }
           else if (argv[i][1] == ch && argv[i][2] == '-' && argv[i][3] == '\0')
           {
@@ -272,7 +383,7 @@ class arg<bool>
               argv[i] = argv[i + 1];
             argc -= 1;
             argv[argc] = 0;
-            return;
+            return true;
           }
           else
           {
@@ -288,17 +399,16 @@ class arg<bool>
                   *p = *(p + 1);
                 } while (*p++ != '\0');
 
-                return;
+                return true;
               }
           }
         }
 
-      m_value = false;
-      m_isset = false;
+      return false;
     }
 
     /**
-     Constructor for long-options.
+     Setter for long-options.
 
      The option-parameter is defined with a string. This can extract
      long-options like:
@@ -312,8 +422,12 @@ class arg<bool>
      \endcode
 
      */
-    arg(int& argc, char* argv[], const char* str)
+    bool set(int& argc, char* argv[], const char* str)
     {
+      // don't extract value, when already found
+      if (m_isset)
+        return false;
+
       for (int i = 1; i < argc; ++i)
         if (strcmp(argv[i], str) == 0)
         {
@@ -323,10 +437,10 @@ class arg<bool>
             argv[i] = argv[i + 1];
           argc -= 1;
           argv[argc] = 0;
-          return;
+          return true;
         }
-      m_value = false;
-      m_isset = false;
+
+      return false;
     }
 
     /**
@@ -365,11 +479,41 @@ template <>
 class arg<const char*>
 {
   public:
+    arg(const char* def = 0)
+      : m_value(def),
+        m_isset(false)
+    { }
+
+    arg(int& argc, char* argv[], char ch, const char* def = 0)
+      : m_value(def),
+        m_isset(false)
+    {
+      m_isset = set(argc, argv, ch);
+    }
+
+    arg(int& argc, char* argv[], const char* str, const char* def = 0)
+      : m_value(def),
+        m_isset(false)
+    {
+      m_isset = set(argc, argv, str);
+    }
+
+    arg(int& argc, char* argv[])
+      : m_value(0),
+        m_isset(false)
+    { 
+      m_isset = set(argc, argv);
+    }
+
     /**
      Constructor for the short form.
      */
-    arg(int& argc, char* argv[], char ch, const char* def = 0)
+    bool set(int& argc, char* argv[], char ch)
     {
+      // don't extract value, when already found
+      if (m_isset)
+        return false;
+
       for (int i = 1; i < argc - 1; ++i)
         if (argv[i][0] == '-' && argv[i][1] == ch && argv[i][2] == '\0')
         {
@@ -379,18 +523,21 @@ class arg<const char*>
             argv[i] = argv[i + 2];
           argc -= 2;
           argv[argc] = 0;
-          return;
+          return true;
         }
 
-      m_isset = false;
-      m_value = def;
+      return false;
     }
 
     /**
-     Constructor for the long form.
+     setter for the long form.
      */
-    arg(int& argc, char* argv[], const char* str, const char* def = 0)
+    bool set(int& argc, char* argv[], const char* str, const char* def = 0)
     {
+      // don't extract value, when already found
+      if (m_isset)
+        return false;
+
       for (int i = 1; i < argc - 1; ++i)
         if (strcmp(argv[i], str) == 0)
         {
@@ -400,18 +547,21 @@ class arg<const char*>
             argv[i] = argv[i + 2];
           argc -= 2;
           argv[argc] = 0;
-          return;
+          return true;
         }
 
-      m_isset = false;
-      m_value = def;
+      return false;
     }
 
     /**
      Extracts the next parameter.
      */
-    arg(int& argc, char* argv[])
+    bool set(int& argc, char* argv[])
     {
+      // don't extract value, when already found
+      if (m_isset)
+        return false;
+
       if (argc > 1)
       {
         m_value = argv[1];
@@ -420,12 +570,10 @@ class arg<const char*>
           argv[i] = argv[i + 1];
         argc -= 1;
         argv[argc] = 0;
+        return true;
       }
       else
-      {
-        m_value = 0;
-        m_isset = false;
-      }
+        return false;
     }
 
     /**
@@ -459,11 +607,50 @@ template <>
 class arg<std::string>
 {
   public:
+    arg(const std::string& def = std::string())
+      : m_value(def),
+        m_isset(false)
+    { }
+
     /**
      Constructor for the short form.
      */
     arg(int& argc, char* argv[], char ch, const std::string& def = std::string())
+      : m_value(def),
+        m_isset(false)
     {
+      m_isset = set(argc, argv, ch);
+    }
+
+    /**
+     Constructor for the long form.
+     */
+    arg(int& argc, char* argv[], const char* str, const std::string& def = std::string())
+      : m_value(def),
+        m_isset(false)
+    {
+      m_isset = set(argc, argv, str);
+    }
+
+    /**
+     Extracts the next parameter.
+     */
+    arg(int& argc, char* argv[])
+      : m_value(std::string()),
+        m_isset(false)
+    {
+      m_isset = set(argc, argv);
+    }
+
+    /**
+     setter for the short form.
+     */
+    bool set(int& argc, char* argv[], char ch)
+    {
+      // don't extract value, when already found
+      if (m_isset)
+        return false;
+
       for (int i = 1; i < argc - 1; ++i)
         if (argv[i][0] == '-' && argv[i][1] == ch && argv[i][2] == '\0')
         {
@@ -473,18 +660,21 @@ class arg<std::string>
             argv[i] = argv[i + 2];
           argc -= 2;
           argv[argc] = 0;
-          return;
+          return true;
         }
 
-      m_isset = false;
-      m_value = def;
+      return false;
     }
 
     /**
-     Constructor for the long form.
+     setter for the long form.
      */
-    arg(int& argc, char* argv[], const char* str, const std::string& def = std::string())
+    bool set(int& argc, char* argv[], const char* str)
     {
+      // don't extract value, when already found
+      if (m_isset)
+        return false;
+
       for (int i = 1; i < argc - 1; ++i)
         if (strcmp(argv[i], str) == 0)
         {
@@ -494,18 +684,21 @@ class arg<std::string>
             argv[i] = argv[i + 2];
           argc -= 2;
           argv[argc] = 0;
-          return;
+          return true;
         }
 
-      m_isset = false;
-      m_value = def;
+      return false;
     }
 
     /**
      Extracts the next parameter.
      */
-    arg(int& argc, char* argv[])
+    bool set(int& argc, char* argv[])
     {
+      // don't extract value, when already found
+      if (m_isset)
+        return false;
+
       if (argc > 1)
       {
         m_value = argv[1];
@@ -514,9 +707,34 @@ class arg<std::string>
           argv[i] = argv[i + 1];
         argc -= 1;
         argv[argc] = 0;
+        return true;
       }
       else
-        m_isset = false;
+        return false;
+    }
+
+    /**
+     Extracts the next non-option-parameter.
+     */
+    bool setNoOpt(int& argc, char* argv[])
+    {
+      // don't extract value, when already found
+      if (m_isset)
+        return false;
+
+      for (int i = 1; i < argc; ++i)
+        if (argv[i][0] != '-')
+        {
+          m_isset = true;
+          m_value = argv[i];
+          for ( ; i < argc - 1; ++i)
+            argv[i] = argv[i + 1];
+          --argc;
+          argv[argc] = 0;
+          return true;
+        }
+
+      return false;
     }
 
     /**

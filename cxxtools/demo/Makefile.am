@@ -1,4 +1,4 @@
-noinst_PROGRAMS = getini hdstream md5sum multifstream arg cgi dir \
+noinst_PROGRAMS = getini hdstream md5sum multifstream arg arg2 cgi dir \
   dlloader pool dynbuffer log logbench
 
 getini_SOURCES = getini.cpp
@@ -6,6 +6,7 @@ hdstream_SOURCES = hdstream.cpp
 md5sum_SOURCES = md5sum.cpp
 multifstream_SOURCES = multifstream.cpp
 arg_SOURCES = arg.cpp
+arg2_SOURCES = arg2.cpp
 cgi_SOURCES = cgi.cpp
 dir_SOURCES = dir.cpp
 dlloader_SOURCES = dlloader.cpp
