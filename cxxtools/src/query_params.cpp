@@ -180,17 +180,18 @@ void query_params::parse_url(std::istream& url_stream)
 
 static void appendUrl(std::string& url, char ch)
 {
-  if (ch > 32 && ch < 127 && ch != '%' && ch != '+')
+  static char hex[] = "0123456789ABCDEF";
+  if (ch > 32 && ch < 127 && ch != '%' && ch != '+' && ch != '=')
     url += ch;
   else if (ch == ' ')
     url += '+';
   else
   {
     url += '%';
-    char hi = ch >> 4;
+    char hi = (ch >> 4) & 0x0f;
     char lo = ch & 0x0f;
-    url += hi >= 10 ? (hi + 'A' - 10) : (hi + '9');
-    url += lo >= 10 ? (lo + 'A' - 10) : (lo + '9');
+    url += hex[hi];
+    url += hex[lo];
   }
 }
 
