@@ -148,10 +148,8 @@ namespace tcp
     { }
 
   Stream::Stream(const Server& server)
-    : Socket(accept(server.getFd(), 0, 0))
   {
-    if (bad())
-      throw Exception("error in accept");
+    Accept(server);
   }
 
   Stream::Stream(const string& ipaddr, int port)
@@ -168,23 +166,23 @@ namespace tcp
 
   void Stream::Accept(const Server& server)
   {
-    setFd(accept(server.getFd(), 0, 0));
+    peeraddr_len = sizeof(peeraddr);
+    setFd(accept(server.getFd(), &peeraddr.sockaddr, &peeraddr_len));
     if (bad())
       throw Exception("error in accept");
   }
 
   void Stream::Connect(const char* ipaddr, int port)
   {
-    struct sockaddr_in servaddr;
-    memset(&servaddr, 0, sizeof(servaddr));
-    servaddr.sin_family = AF_INET;
-    servaddr.sin_port = htons(port);
+    memset(&peeraddr, 0, sizeof(peeraddr));
+    peeraddr.sockaddr_in.sin_family = AF_INET;
+    peeraddr.sockaddr_in.sin_port = htons(port);
 
-    if (inet_pton(AF_INET, ipaddr, &servaddr.sin_addr) <= 0)
+    if (inet_pton(AF_INET, ipaddr, &peeraddr.sockaddr_in.sin_addr) <= 0)
       throw Exception("invalid ipaddress");
 
-    if (::connect(getFd(), (struct sockaddr *)&servaddr,
-        sizeof(servaddr)) < 0)
+    if (::connect(getFd(), &peeraddr.sockaddr,
+        sizeof(peeraddr)) < 0)
       throw Exception("error in connect");
   }
 

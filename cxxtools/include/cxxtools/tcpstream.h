@@ -9,6 +9,7 @@
 #include <iostream>
 #include <string>
 #include <stdexcept>
+#include <netinet/in.h>
 
 namespace tcp
 {
@@ -144,6 +145,12 @@ namespace tcp
    */
   class Stream : public Socket
   {
+      socklen_t peeraddr_len;
+      union {
+        struct sockaddr sockaddr;
+        struct sockaddr_in sockaddr_in;
+      } peeraddr;
+
     public:
       typedef size_t size_type;
 
@@ -159,6 +166,10 @@ namespace tcp
       /// Adresse auf. Kommt keine Verbindung zustande, wird eine Exception
       /// ausgelöst
       Stream(const char* ipaddr, int port);
+      /// Intantiiert ein Stream mit einem exisitierenden Filedeskriptor.
+      /// Die Klasse übernimmt den Besitz des Deskriptors und schliesst diesen
+      /// im Destruktor, wenn er >= 0 ist.
+      explicit Stream(int fd);
 
       /// akzeptiert eine Verbindung von einem Server. Kommt keine
       /// Verbindung zustande, wird eine Exception ausgelöst.
@@ -180,7 +191,11 @@ namespace tcp
       /// Liefert die Anzahl der geschriebenen Zeichen zurück.
       size_type Write(const char* buffer, size_type bufsize) const;
 
-    private:
+      /// gibt die aktuelle Peer-Adresse zurück
+      const struct sockaddr& getPeeraddr() const
+        { return peeraddr.sockaddr; }
+      const struct sockaddr_in& getPeeraddr_in() const
+        { return peeraddr.sockaddr_in; }
   };
 
   //////////////////////////////////////////////////////////////////////
@@ -241,6 +256,7 @@ namespace tcp
       /// Erzeugt einen nicht verbundenen Stream-Socket.
       explicit iostream(unsigned bufsize = 256, int timeout = -1)
         : std::iostream(&m_buffer),
+          Stream(-1),
           m_buffer(*this, bufsize, timeout)
         { }
 
