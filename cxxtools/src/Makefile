@@ -1,6 +1,6 @@
 CXXFLAGS=-fPIC -I../include -I../include/cxxtools -g -Wall -pedantic
 CFLAGS=-fPIC -I../include -I../include/cxxtools -O2 -Wall
-LDFLAGS=
+LDFLAGS=-ldl -lpthread
 CC=g++
 
 SRCS = dlloader.cpp dynbuffer.cpp hdstream.cpp \
@@ -26,7 +26,7 @@ libcxxtools.a: $(OBJECTS)
 	ranlib $@
 
 libcxxtools.so.$(VERSION): $(OBJECTS)
-	$(CC) -shared -Wl,-soname,libcxxtools.so.$(VERSION) -o libcxxtools.so.$(VERSION) $^
+	$(CC) -shared -Wl,-soname,libcxxtools.so.$(VERSION) $(LDFLAGS) -o libcxxtools.so.$(VERSION) $^
 
 
 include depend
