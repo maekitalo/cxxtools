@@ -1,8 +1,8 @@
-AC_INIT(cxxtools, 1.0.0, [Tommi Mäkitalo <t.maekitalo@epgmbh.de>])
-AM_INIT_AUTOMAKE(cxxtools, 1.0.0)
+AC_INIT(cxxtools, 1.1.0, [Tommi Mäkitalo <t.maekitalo@epgmbh.de>])
+AM_INIT_AUTOMAKE(cxxtools, 1.1.0)
 
 abi_current=1
-abi_revision=0
+abi_revision=1
 abi_age=0
 sonumber=${abi_current}:${abi_revision}:${abi_age}
 AC_SUBST(sonumber)

@@ -1,4 +1,4 @@
-VERSION=1.0.0
+VERSION=1.1.0
 CXXFLAGS = -Wall -O2 -I../include -fPIC $(LOCAL_CXXFLAGS)
 CFLAGS = -Wall -O2 -I../include -fPIC
 LDFLAGS = -ldl -lpthread $(LOCAL_CXXFLAGS)

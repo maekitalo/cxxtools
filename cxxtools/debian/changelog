@@ -1,3 +1,10 @@
+cxxtools (1.1) unstable; urgency=low
+
+  *  unused variable in tcpstream.h removed
+     this breaks binary-compatibility
+
+ -- Tommi Maekitalo <tommi@epgmbh.de>  Thu, 16 Sep 2004 22:23:03 +0200
+
 cxxtools (1.0-1) unstable; urgency=low
 
   * Initial Release.
