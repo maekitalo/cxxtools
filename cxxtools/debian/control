@@ -31,7 +31,7 @@ Description: cxxtools is my toolbox with reusable c++-components
  This package contains a wrapper to log4cplus or log4cxx
 
 Package: libcxxtools-log-dev
-Section: libs
+Section: devel
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: cxxtools is my toolbox with reusable c++-components
