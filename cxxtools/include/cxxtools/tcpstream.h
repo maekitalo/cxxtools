@@ -101,6 +101,9 @@ namespace tcp
       /// Liefert den Sockethandle zurück
       int getFd() const     { return m_sockFd; }
 
+      /// wrapper um ::getsocketname
+      struct sockaddr getSockAddr() const throw (Exception);
+
     protected:
       void setFd(int sockFd)
       {
@@ -121,17 +124,29 @@ namespace tcp
    */
   class Server : public Socket
   {
+      socklen_t servaddr_len;
+      union {
+        struct sockaddr sockaddr;
+        struct sockaddr_in sockaddr_in;
+      } servaddr;
+
     public:
-      /// erzeugt einen Serversocket und ruft listen auf
-      explicit Server(int backlog = 5) throw (Exception);
+      Server();
+
       /// erzeugt einen Serversocket und hört auf die angegebene Adresse
-      Server(const std::string& ipaddr, int port, int backlog = 5)
+      Server(const std::string& ipaddr, unsigned short int port, int backlog = 5)
              throw (Exception);
       /// erzeugt einen Serversocket und hört auf die angegebene Adresse
-      Server(const char* ipaddr, int port, int backlog = 5) throw (Exception);
+      Server(const char* ipaddr, unsigned short int port, int backlog = 5) throw (Exception);
 
-      void Listen(int backlog) throw (Exception);
-      void Listen(const char* ipaddr, int port, int backlog) throw (Exception);
+      void Listen(const char* ipaddr, unsigned short int port, int backlog = 5) throw (Exception);
+      void Listen(const std::string& ipaddr, unsigned short int port, int backlog = 5) throw (Exception)
+        { Listen(ipaddr.c_str(), port, backlog); }
+
+      const struct sockaddr& getAddr() const
+        { return servaddr.sockaddr; }
+      const struct sockaddr_in& getAddr_in() const
+        { return servaddr.sockaddr_in; }
 
     private:
   };
@@ -161,11 +176,11 @@ namespace tcp
       /// Initialisert einen Socket und nimmt Verbindung mit der angegebenen
       /// Adresse auf. Kommt keine Verbindung zustande, wird eine Exception
       /// ausgelöst
-      Stream(const std::string& ipaddr, int port);
+      Stream(const std::string& ipaddr, unsigned short int port);
       /// Initialisert einen Socket und nimmt Verbindung mit der angegebenen
       /// Adresse auf. Kommt keine Verbindung zustande, wird eine Exception
       /// ausgelöst
-      Stream(const char* ipaddr, int port);
+      Stream(const char* ipaddr, unsigned short int port);
       /// Intantiiert ein Stream mit einem exisitierenden Filedeskriptor.
       /// Die Klasse übernimmt den Besitz des Deskriptors und schliesst diesen
       /// im Destruktor, wenn er >= 0 ist.
@@ -178,10 +193,10 @@ namespace tcp
       void Accept(const Server& server);
       /// nimmt eine Verbindung mit der angegebenen Adresse auf. Kommt keine
       /// Verbindung zustande, wird eine Exception ausgelöst.
-      void Connect(const char* ipaddr, int port);
+      void Connect(const char* ipaddr, unsigned short int port);
       /// nimmt eine Verbindung mit der angegebenen Adresse auf. Kommt keine
       /// Verbindung zustande, wird eine Exception ausgelöst.
-      void Connect(const std::string& ipaddr, int port)
+      void Connect(const std::string& ipaddr, unsigned short int port)
       { Connect(ipaddr.c_str(), port); }
 
       /// Liest vom Socket maximal 'bufsize' Zeichen in 'buffer'.
@@ -263,21 +278,21 @@ namespace tcp
         { }
 
       /// Nimmt eine eingehende Verbindung vom angegebenen Server an.
-      explicit iostream(const Server& server, unsigned bufsize = 256)
+      explicit iostream(const Server& server, unsigned bufsize = 256, int timeout = -1)
         : std::iostream(&m_buffer),
           Stream(server),
-          m_buffer(*this, bufsize)
+          m_buffer(*this, bufsize, timeout)
         { }
 
       /// Baut eine Verbindung zum angegebenen Server auf.
-      iostream(const char* ipaddr, int port, unsigned bufsize = 256)
+      iostream(const char* ipaddr, unsigned short int port, unsigned bufsize = 256)
         : std::iostream(&m_buffer),
           Stream(ipaddr, port),
           m_buffer(*this, bufsize)
         { }
 
       /// Baut eine Verbindung zum angegebenen Server auf.
-      iostream(std::string ipaddr, int port, unsigned bufsize = 256)
+      iostream(std::string ipaddr, unsigned short int port, unsigned bufsize = 256)
         : std::iostream(&m_buffer),
           Stream(ipaddr, port),
           m_buffer(*this, bufsize)
