@@ -8,7 +8,8 @@ multifstreambuf::multifstreambuf(const char* pattern, int flags)
   : current(0)
 {
   glob(pattern, flags, 0, &mglob);
-  if (mglob.gl_pathv[current])
+
+  if (mglob.gl_pathv && mglob.gl_pathv[current])
     file.open(mglob.gl_pathv[current], std::ios::in);
 }
 
@@ -24,6 +25,9 @@ std::streambuf::int_type multifstreambuf::overflow(std::streambuf::int_type c)
 
 std::streambuf::int_type multifstreambuf::underflow()
 {
+  if (mglob.gl_pathv == 0 || mglob.gl_pathv[current] == 0)
+    return traits_type::eof();
+
   int_type r;
   do
   {
