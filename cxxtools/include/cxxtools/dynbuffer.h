@@ -120,6 +120,13 @@ class dynbuffer
     /// returns a iterator after last element
     const_iterator end() const     { return m_data + m_size; }
 
+    void spap(dynbuffer<T>& d)
+    {
+      std::swap(m_data, d.m_data);
+      std::swap(m_size, d.m_size);
+      std::swap(m_pos, d.m_pos);
+    }
+
   private:
     void append_grow(T ch);
     void reserve_grow(unsigned size);
