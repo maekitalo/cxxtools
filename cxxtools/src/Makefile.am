@@ -2,7 +2,6 @@ lib_LTLIBRARIES = libcxxtools.la
 
 libcxxtools_la_SOURCES = \
 	dlloader.cpp \
-	dynbuffer.cpp \
 	hdstream.cpp \
 	iconvstream.cpp \
 	iniclass.cpp \
