@@ -54,7 +54,7 @@ class FunctionThread : public Thread
 
     virtual void Run()
     {
-      f();
+      function();
     }
 };
 
