@@ -19,10 +19,13 @@ Foundation, Inc., 59 Temple Place, Suite 330,
 Boston, MA  02111-1307  USA
 */
 
-#ifndef TEE_H
-#define TEE_H
+#ifndef CXXTOOLS_TEE_H
+#define CXXTOOLS_TEE_H
 
 #include <iostream>
+
+namespace cxxtools
+{
 
 class teestreambuf : public std::streambuf
 {
@@ -74,4 +77,6 @@ class tee : public std::ostream
     void assign_single(std::ostream& s);
 };
 
-#endif  // TEE_H
+}
+
+#endif  // CXXTOOLS_TEE_H

@@ -19,11 +19,14 @@ Foundation, Inc., 59 Temple Place, Suite 330,
 Boston, MA  02111-1307  USA
 */
 
-#ifndef DLLOADER_H
-#define DLLOADER_H
+#ifndef CXXTOOLS_DLLOADER_H
+#define CXXTOOLS_DLLOADER_H
 
 #include <dlfcn.h>
 #include <stdexcept>
+
+namespace cxxtools
+{
 
 namespace dl
 {
@@ -71,7 +74,7 @@ namespace dl
   };
 
   /**
-   library representes a shared-library.
+   library represents a shared-library.
 
    To load a shared-library, just instantiate this class with a
    shared-library-name. The class is copyable. The library is unloaded
@@ -109,8 +112,11 @@ namespace dl
       /// Does nothing, if no library was referenced.
       void close();
 
-      /// extracts a symbol out of the library.
+      /// extracts a symbol from the library.
       symbol sym(const char* name) const;
+
+      /// extracts a symbol from the library.
+      void* operator[] (const char* name) const;
 
       /// returns true, if this is the only reference.
       bool isLastRef() const
@@ -136,7 +142,13 @@ namespace dl
       operator void* () const  { return sym; }
   };
 
-}; // namespace dl
+  /// extracts a symbol from the library.
+  inline void* library::operator[] (const char* name) const
+    { return sym(name); }
 
-#endif // DLLOADER_H
+} // namespace dl
+
+} // namespace cxxtools
+
+#endif // CXXTOOLS_DLLOADER_H
 

@@ -29,6 +29,9 @@ Boston, MA  02111-1307  USA
 #include <fcntl.h>
 #include <sys/poll.h>
 
+namespace cxxtools
+{
+
 namespace tcp
 {
   using namespace std;
@@ -330,3 +333,4 @@ namespace tcp
 
 } // namespace tcp
 
+} // namespace cxxtools

@@ -19,10 +19,13 @@ Foundation, Inc., 59 Temple Place, Suite 330,
 Boston, MA  02111-1307  USA
 */
 
-#ifndef DYNBUFFER_H
-#define DYNBUFFER_H
+#ifndef CXXTOOLS_DYNBUFFER_H
+#define CXXTOOLS_DYNBUFFER_H
 
 #include <algorithm>
+
+namespace cxxtools
+{
 
 /**
  Exceptionsafe dynamic buffer.
@@ -182,4 +185,6 @@ void dynbuffer<T>::assign(const T* data, unsigned size)
 
 typedef dynbuffer<char> DynBuffer;
 
-#endif // DYNBUFFER_H
+}
+
+#endif // CXXTOOLS_DYNBUFFER_H

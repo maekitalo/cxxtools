@@ -22,18 +22,15 @@ Boston, MA  02111-1307  USA
 #include "cxxtools/pollclass.h"
 #include <stdexcept>
 #include <iostream>
-//#include <trace.h>
 
-#undef TRACE
-#define TRACE
+namespace cxxtools
+{
 
 ////////////////////////////////////////////////////////////////////////
 // Wrapper für poll-Systemfunktion
 //
 int Poller::Poll(int timeout)
 {
-  TRACE
-
   map_type::size_type size = m_clientmap.size();
 
   // baue pollfd-Struktur
@@ -86,8 +83,6 @@ int Poller::Poll(int timeout)
 
 void Poller::add(ClientIf* pc, int fd)
 {
-  TRACE
-
   if (m_clientmap.find(fd) != m_clientmap.end())
     throw std::runtime_error("Poller::add: fd already listening");
 
@@ -96,8 +91,6 @@ void Poller::add(ClientIf* pc, int fd)
 
 void Poller::forget(ClientIf* pc, int fd)
 {
-  TRACE
-
   map_type::iterator it = m_clientmap.find(fd);
 
   if (it == m_clientmap.end()
@@ -113,8 +106,6 @@ void Poller::forget(ClientIf* pc, int fd)
 PollClient::PollClient(Poller& p, int fd, short events)
   : m_poller(p)
 {
-  TRACE
-
   m_fd = fd;
   m_events = events;
   m_poller.add(this, fd);
@@ -122,8 +113,6 @@ PollClient::PollClient(Poller& p, int fd, short events)
 
 PollClient::~PollClient()
 {
-  TRACE
-
   try
   {
     m_poller.forget(this, m_fd);
@@ -139,4 +128,6 @@ PollClient::~PollClient()
 short PollClient::GetEventMask() const
 {
   return m_events;
+}
+
 }

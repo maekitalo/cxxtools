@@ -30,9 +30,9 @@ Boston, MA  02111-1307  USA
 namespace cxxtools
 {
 
-  //////////////////////////////////////////////////////////////////////
-  /// Klasse zum lesen von Verzeichnissen.
-  ///
+  /**
+   STL-compatible container for directories.
+   */
   class dir
   {
     public:

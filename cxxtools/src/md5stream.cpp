@@ -21,6 +21,9 @@ Boston, MA  02111-1307  USA
 
 #include "cxxtools/md5stream.h"
 
+namespace cxxtools
+{
+
 ////////////////////////////////////////////////////////////////////////
 // md5streambuf
 //
@@ -110,4 +113,6 @@ const char* md5stream::getHexDigest()
   }
   *p = '\0';
   return hexdigest;
+}
+
 }

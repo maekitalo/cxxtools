@@ -21,6 +21,15 @@ Boston, MA  02111-1307  USA
 
 #include "cxxtools/multifstream.h"
 
+namespace cxxtools
+{
+
+multifstreambuf::multifstreambuf()
+  : current(0)
+{
+  mglob.gl_pathv = 0;
+}
+
 multifstreambuf::multifstreambuf(const char* pattern, int flags)
   : current(0)
 {
@@ -32,7 +41,8 @@ multifstreambuf::multifstreambuf(const char* pattern, int flags)
 
 multifstreambuf::~multifstreambuf()
 {
-  globfree(&mglob);
+  if (mglob.gl_pathv)
+    globfree(&mglob);
 }
 
 std::streambuf::int_type multifstreambuf::overflow(std::streambuf::int_type c)
@@ -43,7 +53,7 @@ std::streambuf::int_type multifstreambuf::overflow(std::streambuf::int_type c)
 std::streambuf::int_type multifstreambuf::underflow()
 {
   if (mglob.gl_pathv == 0 || mglob.gl_pathv[current] == 0)
-    return traits_type::eof();
+    open_next();
 
   int_type r;
   do
@@ -67,14 +77,40 @@ int multifstreambuf::sync()
 
 bool multifstreambuf::open_next()
 {
-  file.close();
-  if (mglob.gl_pathv[current] && mglob.gl_pathv[current + 1])
+  if (file.is_open())
+    file.close();
+
+  if (mglob.gl_pathv
+   && mglob.gl_pathv[current + 1])
   {
     ++current;
     file.open(mglob.gl_pathv[current], std::ios::in);
+    // error-handling is done in underflow()
     return true;
   }
   else
-    return false;
+  {
+    if (mglob.gl_pathv)
+      globfree(&mglob);
+
+    if (!patterns.empty())
+    {
+      glob(patterns.front().first.c_str(),
+           patterns.front().second, 0, &mglob);
+
+      current = 0;
+      if (mglob.gl_pathv && mglob.gl_pathv[0])
+        file.open(mglob.gl_pathv[0], std::ios::in);
+      patterns.pop();
+      // error-handling is done in underflow()
+      return true;
+    }
+    else
+    {
+      mglob.gl_pathv = 0;
+      return false;
+    }
+  }
 }
 
+}

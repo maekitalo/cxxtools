@@ -1,5 +1,5 @@
 /* cxxtools/query_params.h
-   Copyright (C) 2003 Tommi Mäkitalo
+   Copyright (C) 2003,2004 Tommi Mäkitalo
 
 This file is part of cxxtools.
 
@@ -19,8 +19,8 @@ Foundation, Inc., 59 Temple Place, Suite 330,
 Boston, MA  02111-1307  USA
 */
 
-#ifndef QUERY_PARAMS_H
-#define QUERY_PARAMS_H
+#ifndef CXXTOOLS_QUERY_PARAMS_H
+#define CXXTOOLS_QUERY_PARAMS_H
 
 #include <string>
 #include <vector>
@@ -29,6 +29,9 @@ Boston, MA  02111-1307  USA
 #include <algorithm>
 #include <iostream>
 #include <iterator>
+
+namespace cxxtools
+{
 
 /**
  query_params represents parameters from a HTML-Form.
@@ -449,36 +452,7 @@ class query_params
 inline std::ostream& operator<< (std::ostream& out, const query_params& p)
 { return out << p.getUrl(); }
 
-/**
- Class for easy extraction of CGI-parameters.
+}
 
- This class reads automatically GET- and POST-parameters from stdin
- and the environvariable QUERY_STRING, like CGI-programs do. This eases
- writing CGI-programs in C++.
-
- example:
- \code
-   int main()
-   {
-     cgi q;  // this parses all input-parameters
-     std::cout << "<html>\n"
-               << "<body>\n"
-               << "<form>\n"
-               << "<input type=\"text\" name=\"v\"><br>\n"
-               << "<input type=\"submit\"><br>\n"
-               << "<hr>\n"
-               << "you entered " << q["v"] << "\n"
-               << "</body>"
-               << "</html>";
-   }
- \endcode
- */
-class cgi : public query_params
-{
-  public:
-    /// constructor reads parameters from server
-    cgi();
-};
-
-#endif // QUERY_PARAMS_H
+#endif // CXXTOOLS_QUERY_PARAMS_H
 

@@ -1,3 +1,10 @@
+cxxtools (1.2.0) unstable; urgency=low
+
+  * all classes moved to namespace cxxtools
+  * documentation-updates
+
+ -- Tommi Maekitalo <tommi@epgmbh.de>  Tue, 23 Nov 2004 00:02:22 +0100
+
 cxxtools (1.1.3-1) unstable; urgency=low
 
   * error in eof-handling in base64 fixed

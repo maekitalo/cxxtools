@@ -1,4 +1,5 @@
-SUBDIRS = src include
+SUBDIRS = src include demo
+
 EXTRA_DIST = \
   debian/README.Debian \
   debian/changelog \

@@ -22,6 +22,9 @@ Boston, MA  02111-1307  USA
 #include "cxxtools/iconvstream.h"
 #include <string.h>
 
+namespace cxxtools
+{
+
 iconvstreambuf* iconvstreambuf::open(std::ostream& sink_,
   const char* tocode, const char* fromcode)
 {
@@ -135,4 +138,6 @@ void iconvstream::open(std::ostream& sink_,
 {
   if (!fail() && streambuf.open(sink_, tocode, fromcode) == 0)
     setstate(std::ios::failbit);
+}
+
 }

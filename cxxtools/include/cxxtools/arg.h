@@ -19,21 +19,13 @@ Foundation, Inc., 59 Temple Place, Suite 330,
 Boston, MA  02111-1307  USA
 */
 
-#ifndef ARG_H
-#define ARG_H
+#ifndef CXXTOOLS_ARG_H
+#define CXXTOOLS_ARG_H
 
-#if __GNUC__ <= 2
-// gcc 2.95 hat kein sstream
-#define NO_STRINGSTREAM
-#endif
+#include <sstream>
 
-#ifdef NO_STRINGSTREAM
-#  include <strstream>
-#else
-#  include <sstream>
-#endif
-
-#include <string>
+namespace cxxtools
+{
 
 ////////////////////////////////////////////////////////////////////////
 /**
@@ -53,8 +45,8 @@ Boston, MA  02111-1307  USA
  \code
    int main(int argc, char* argv[])
    {
-     arg<int> option_n(argc, argv, 'n', 0);
-     cout << "value for -n: " << option_n << endl;
+     cxxtools::arg<int> option_n(argc, argv, 'n', 0);
+     std::cout << "value for -n: " << option_n << endl;
    }
  \endcode
 
@@ -81,11 +73,7 @@ class arg
     {
       for (int i = 1; i < argc - 1; ++i)
         if (argv[i][0] == '-' && argv[i][1] == ch && argv[i][2] == '\0'
-#ifdef NO_STRINGSTREAM
-          && !( std::istrstream(argv[i + 1]) >> m_value).fail()
-#else
           && !( std::istringstream(argv[i + 1]) >> m_value).fail()
-#endif
           )
         {
           m_isset = true;
@@ -115,11 +103,7 @@ class arg
     {
       for (int i = 1; i < argc - 1; ++i)
         if (strcmp(argv[i], str) == 0
-#ifdef NO_STRINGSTREAM
-          && !( std::istrstream(argv[i + 1]) >> m_value).fail()
-#else
           && !( std::istringstream(argv[i + 1]) >> m_value).fail()
-#endif
           )
         {
           m_isset = true;
@@ -140,11 +124,7 @@ class arg
     arg(int& argc, char* argv[])
     {
       if (argc > 1
-#ifdef NO_STRINGSTREAM
-          && !( std::istrstream(argv[1]) >> m_value).fail()
-#else
           && !( std::istringstream(argv[1]) >> m_value).fail()
-#endif
           )
       {
         m_isset = true;
@@ -176,7 +156,7 @@ class arg
 
      int main(int argc, char* argv[])
      {
-       arg<int> value(argc, argv, 'v', 0);
+       cxxtools::arg<int> value(argc, argv, 'v', 0);
        print(value);   // pass argument as a int to the function
      }
      \endcode
@@ -457,4 +437,6 @@ class arg<const char*>
     bool        m_isset;
 };
 
-#endif // ARG_H
+}
+
+#endif // CXXTOOLS_ARG_H

@@ -19,10 +19,13 @@ Foundation, Inc., 59 Temple Place, Suite 330,
 Boston, MA  02111-1307  USA
 */
 
-#ifndef HDSTREAM_H
-#define HDSTREAM_H
+#ifndef CXXTOOLS_HDSTREAM_H
+#define CXXTOOLS_HDSTREAM_H
 
 #include <iostream>
+
+namespace cxxtools
+{
 
 class hdstreambuf : public std::streambuf
 {
@@ -46,6 +49,11 @@ class hdstreambuf : public std::streambuf
     unsigned offset;
 };
 
+/**
+ hexdumper as a outputstream.
+
+ Data written to a hdostream are passed as a hexdump to the given sink.
+ */
 class hdostream : public std::ostream
 {
     typedef std::ostream base_class;
@@ -62,4 +70,6 @@ class hdostream : public std::ostream
     { delete rdbuf(); }
 };
 
-#endif  // HDSTREAM_H
+}
+
+#endif  // CXXTOOLS_HDSTREAM_H

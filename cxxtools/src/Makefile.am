@@ -1,6 +1,7 @@
 lib_LTLIBRARIES = libcxxtools.la
 
 libcxxtools_la_SOURCES = \
+	cgi.cpp \
 	dlloader.cpp \
 	hdstream.cpp \
 	iconvstream.cpp \

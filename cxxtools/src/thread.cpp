@@ -22,6 +22,9 @@ Boston, MA  02111-1307  USA
 #include "cxxtools/thread.h"
 #include <errno.h>
 
+namespace cxxtools
+{
+
 Thread::Thread()
 {
   pthread_attr_init(&pthread_attr);
@@ -191,3 +194,4 @@ void Condition::Wait(ConditionLock& lock)
     throw ThreadException("error in pthread_cond_wait", ret);
 }
 
+}

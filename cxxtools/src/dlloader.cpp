@@ -21,6 +21,9 @@ Boston, MA  02111-1307  USA
 
 #include "cxxtools/dlloader.h"
 
+namespace cxxtools
+{
+
 namespace dl
 {
   error::error()
@@ -101,4 +104,6 @@ namespace dl
     return symbol(*this, sym);
   }
 
-}; // namespace dl
+} // namespace dl
+
+} // namespace cxxtools

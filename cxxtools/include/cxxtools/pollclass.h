@@ -19,14 +19,17 @@ Foundation, Inc., 59 Temple Place, Suite 330,
 Boston, MA  02111-1307  USA
 */
 
-#ifndef POLLCLASS_H
-#define POLLCLASS_H
+#ifndef CXXTOOLS_POLLCLASS_H
+#define CXXTOOLS_POLLCLASS_H
 
 #include <map>
 #include <poll.h>
 
+namespace cxxtools
+{
+
 ////////////////////////////////////////////////////////////////////////
-// Wrapper für poll-Systemfunktion
+// Wrapper for poll(2)
 //
 class Poller
 {
@@ -88,4 +91,6 @@ class PollClient : public Poller::ClientIf
     short   m_events;
 };
 
-#endif // POLLCLASS_H
+}
+
+#endif // CXXTOOLS_POLLCLASS_H

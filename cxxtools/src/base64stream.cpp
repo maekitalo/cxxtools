@@ -22,6 +22,9 @@ Boston, MA  02111-1307  USA
 #include "cxxtools/base64stream.h"
 #include <map>
 
+namespace cxxtools
+{
+
 static char cv[65] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 typedef std::map<char, unsigned> vc_type;
 static vc_type vc;
@@ -194,4 +197,6 @@ int base64stream_streambuf::getval()
         count = 0;
     }
   }
+}
+
 }

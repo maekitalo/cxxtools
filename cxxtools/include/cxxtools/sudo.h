@@ -19,11 +19,14 @@ Foundation, Inc., 59 Temple Place, Suite 330,
 Boston, MA  02111-1307  USA
 */
 
-#ifndef SUDO_H
-#define SUDO_H
+#ifndef CXXTOOLS_SUDO_H
+#define CXXTOOLS_SUDO_H
 
 #include <sys/types.h>
 #include <utility>
+
+namespace cxxtools
+{
 
 namespace sudo
 {
@@ -78,4 +81,4 @@ namespace sudo
 
 }
 
-#endif // SUDO_H
+#endif // CXXTOOLS_SUDO_H

@@ -4,18 +4,18 @@
 
 #include <cxxtools/multifstream.h>
 #include <iostream>
+#include <algorithm>
 
 int main(int argc, char* argv[])
 {
   try
   {
-    for (int a = 1; argv[a]; ++a)
-    {
-      multi_ifstream in(argv[a]);
-      char ch;
-      while (in.get(ch))
-        std::cout << ch;
-    }
+    cxxtools::multi_ifstream in;
+    std::copy(argv + 1,
+              argv + argc,
+              in.back_inserter());
+
+    std::cout << in.rdbuf();
   }
   catch (const std::exception& e)
   {

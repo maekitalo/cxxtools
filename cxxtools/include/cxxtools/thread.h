@@ -19,12 +19,15 @@ Foundation, Inc., 59 Temple Place, Suite 330,
 Boston, MA  02111-1307  USA
 */
 
-#ifndef THREAD_H
-#define THREAD_H
+#ifndef CXXTOOLS_THREAD_H
+#define CXXTOOLS_THREAD_H
 
 #include <pthread.h>
 #include <semaphore.h>
 #include <stdexcept>
+
+namespace cxxtools
+{
 
 class ThreadException : public std::runtime_error
 {
@@ -213,5 +216,7 @@ class Condition : public Mutex
     void Wait(ConditionLock& lock);
 };
 
-#endif // THREAD_H
+}
+
+#endif // CXXTOOLS_THREAD_H
 

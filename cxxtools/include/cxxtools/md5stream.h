@@ -19,11 +19,14 @@ Foundation, Inc., 59 Temple Place, Suite 330,
 Boston, MA  02111-1307  USA
 */
 
-#ifndef MD5STREAM_H
-#define MD5STREAM_H
+#ifndef CXXTOOLS_MD5STREAM_H
+#define CXXTOOLS_MD5STREAM_H
 
 #include <cxxtools/md5.h>
 #include <iostream>
+
+namespace cxxtools
+{
 
 class md5streambuf : public std::streambuf
 {
@@ -64,9 +67,7 @@ class md5streambuf : public std::streambuf
       std::ifstream in(argv[i]);
       if (in)
       {
-        std::copy(std::istreambuf_iterator<char>(in),
-                  std::istreambuf_iterator<char>(),
-                  std::ostreambuf_iterator<char>(s));
+        s << in.rdbuf();
         std::cout << s.getHexDigest() << "  " << argv[i] << std::endl;
       }
     }
@@ -91,4 +92,6 @@ class md5stream : public std::ostream
     const char* getHexDigest();
 };
 
-#endif
+}
+
+#endif  // CXXTOOLS_MD5STREAM_H

@@ -1,6 +1,7 @@
 nobase_include_HEADERS = \
         cxxtools/arg.h \
         cxxtools/base64stream.h \
+        cxxtools/cgi.h \
         cxxtools/dir.h \
         cxxtools/dlloader.h \
         cxxtools/dynbuffer.h \
@@ -13,11 +14,8 @@ nobase_include_HEADERS = \
         cxxtools/pollclass.h \
         cxxtools/pool.h \
         cxxtools/query_params.h \
-        cxxtools/stopwatch.h \
         cxxtools/sudo.h \
         cxxtools/tcpstream.h \
         cxxtools/tee.h \
-        cxxtools/thread.h \
-        cxxtools/timeclass.h \
-        cxxtools/trace.h
+        cxxtools/thread.h
 

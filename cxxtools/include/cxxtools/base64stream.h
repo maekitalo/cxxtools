@@ -24,6 +24,9 @@ Boston, MA  02111-1307  USA
 
 #include <iostream>
 
+namespace cxxtools
+{
+
 class base64stream_streambuf : public std::streambuf
 {
     std::streambuf* sinksource;
@@ -112,6 +115,8 @@ class base64istream : public std::istream
     /// the next stream after getting eof.
     void reset()  { streambuf.reset(); }
 };
+
+}
 
 #endif // CXXTOOLS_BASE64STREAM_H
 

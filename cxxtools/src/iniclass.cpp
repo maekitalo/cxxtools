@@ -22,15 +22,18 @@ Boston, MA  02111-1307  USA
 #include "cxxtools/iniclass.h"
 #include <fstream>
 
+namespace cxxtools
+{
+
 using namespace std;
 
-void IniFile::Read(const char* filename)
+void ini_file::read(const char* filename)
 {
   std::ifstream ini(filename);
-  Read(ini);
+  read(ini);
 }
 
-void IniFile::Read(std::istream& in)
+void ini_file::read(std::istream& in)
 {
   string section_name;
 
@@ -104,34 +107,13 @@ void IniFile::Read(std::istream& in)
   }
 }
 
-std::string IniFile::getStringValue(const std::string& section,
-                                    const std::string& token,
-                                    const std::string& def) const
+ostream& operator << (ostream& out, const ini_file& ini)
 {
-  // find section
-
-  const_iterator section_it = find(section);
-
-  if (section_it != end())
-  {
-    // find token
-
-    const_section_iterator token_it = (*section_it).second.find(token);
-
-    if (token_it != (*section_it).second.end())
-      return (*token_it).second;
-  }
-
-  return def;
-}
-
-ostream& operator << (ostream& out, const IniFile& ini)
-{
-  for (IniFile::const_iterator section_it = ini.begin();
+  for (ini_file::const_iterator section_it = ini.begin();
        section_it != ini.end(); ++section_it)
   {
     out << '[' << (*section_it).first << "]\n";
-    for (IniFile::const_section_iterator token_it = (*section_it).second.begin();
+    for (ini_file::const_section_iterator token_it = (*section_it).second.begin();
          token_it != (*section_it).second.end(); ++token_it)
     {
       out << (*token_it).first << '=' << (*token_it).second << '\n';
@@ -139,6 +121,8 @@ ostream& operator << (ostream& out, const IniFile& ini)
   }
 
   return out;
+}
+
 }
 
 #ifdef TEST
@@ -151,7 +135,7 @@ int main(int argc, char* argv[])
     return -1;
   }
 
-  IniFile ini(argv[1]);
+  ini_file ini(argv[1]);
   (cout << ini).flush();
 
   return 0;

@@ -1,5 +1,5 @@
 /* query_params.cpp
-   Copyright (C) 2003 Tommi Mäkitalo
+   Copyright (C) 2003,2004 Tommi Mäkitalo
 
 This file is part of cxxtools.
 
@@ -23,6 +23,9 @@ Boston, MA  02111-1307  USA
 #include <iterator>
 #include <iostream>
 #include <stdlib.h>
+
+namespace cxxtools
+{
 
 template <class iterator_type>
 void _parse_url(
@@ -175,16 +178,6 @@ void query_params::parse_url(std::istream& url_stream)
     unnamed_params, named_params);
 }
 
-cgi::cgi()
-{
-  char* q = getenv("QUERY_STRING");
-
-  if (q)
-    parse_url(q);
-
-  parse_url(std::cin);
-}
-
 static void appendUrl(std::string& url, char ch)
 {
   if (ch > 32 && ch < 127 && ch != '%' && ch != '+')
@@ -282,4 +275,6 @@ std::string query_params::dump() const
   }
 
   return ret;
+}
+
 }

@@ -19,15 +19,19 @@ Foundation, Inc., 59 Temple Place, Suite 330,
 Boston, MA  02111-1307  USA
 */
 
-#ifndef ICONVSTREAM_H
-#define ICONVSTREAM_H
+#ifndef CXXTOOLS_ICONVSTREAM_H
+#define CXXTOOLS_ICONVSTREAM_H
 
 #include <iostream>
 #include <iconv.h>
 
-////////////////////////////////////////////////////////////////////////
-/// std::streambuf-Interface für den iconv(3)-Systemaufruf.
-/// iconv konvertiert Zeichensätze.
+namespace cxxtools
+{
+
+/**
+  std::streambuf-Interface for iconv(3) and related.
+  iconv converts charactersets.
+ */
 class iconvstreambuf : public std::streambuf
 {
     std::ostream* sink;
@@ -46,18 +50,37 @@ class iconvstreambuf : public std::streambuf
       const char* tocode, const char* fromcode);
     iconvstreambuf* close() throw();
 
-    /// überladen aus std::streambuf
+    /// overloaded from std::streambuf
     int_type overflow(int_type c);
-    /// überladen aus std::streambuf
+    /// overloaded from std::streambuf
     int_type underflow();
-    /// überladen aus std::streambuf
+    /// overloaded from std::streambuf
     int sync();
 
 };
 
-////////////////////////////////////////////////////////////////////////
-/// std::ostream-Interface für den iconv(3)-Systemaufruf.
-/// iconv konvertiert Zeichensätze.
+/**
+  std::ostream-Interface for iconv(3) and related.
+  iconv converts charactersets.
+
+  To perform a character set conversion from one characterset to
+  another, instantiate a iconvstream with a std::ostream as a sink.
+  Write the data to the iconvstream and the converted stream is
+  written to the sink.
+
+  example (unix2win-filter):
+  \code
+    int main(int argc, char* argv[])
+    {
+      if (argc >= 2)
+      {
+        cxxtools::iconvstream out(std::cout, "LATIN1", "WINDOWS-1251");
+        // copy input to output:
+        out << std::cin.rdbuf();
+      }
+    }
+  \endcode
+ */
 class iconvstream : public std::ostream
 {
     iconvstreambuf streambuf;
@@ -75,5 +98,7 @@ class iconvstream : public std::ostream
       { streambuf.close(); }
 };
 
-#endif // ICONVSTREAM_H
+}
+
+#endif // CXXTOOLS_ICONVSTREAM_H
 

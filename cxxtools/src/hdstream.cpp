@@ -22,6 +22,9 @@ Boston, MA  02111-1307  USA
 #include "cxxtools/hdstream.h"
 #include <iomanip>
 
+namespace cxxtools
+{
+
 int hdstreambuf::overflow(int ch)
 {
   using namespace std;
@@ -61,4 +64,6 @@ int hdstreambuf::underflow()
 int hdstreambuf::sync()
 {
   return overflow(EOF);
+}
+
 }

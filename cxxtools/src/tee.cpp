@@ -21,6 +21,9 @@ Boston, MA  02111-1307  USA
 
 #include "cxxtools/tee.h"
 
+namespace cxxtools
+{
+
 std::streambuf::int_type teestreambuf::overflow(std::streambuf::int_type ch)
 {
   if(ch != traits_type::eof())
@@ -66,3 +69,4 @@ void tee::assign_single(std::ostream& s)
     buf->tie(s.rdbuf());
 }
 
+}

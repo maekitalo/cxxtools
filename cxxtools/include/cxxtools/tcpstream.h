@@ -19,13 +19,16 @@ Foundation, Inc., 59 Temple Place, Suite 330,
 Boston, MA  02111-1307  USA
 */
 
-#ifndef TCPSTREAM_H
-#define TCPSTREAM_H
+#ifndef CXXTOOLS_TCPSTREAM_H
+#define CXXTOOLS_TCPSTREAM_H
 
 #include <iostream>
 #include <string>
 #include <stdexcept>
 #include <netinet/in.h>
+
+namespace cxxtools
+{
 
 namespace tcp
 {
@@ -321,4 +324,6 @@ namespace tcp
 
 } // namespace tcp
 
-#endif // TCPSTREAM_H
+} // namespace cxxtools
+
+#endif // CXXTOOLS_TCPSTREAM_H
