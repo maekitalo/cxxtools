@@ -10,7 +10,6 @@
 #include <set>
 #include <map>
 #include <algorithm>
-
 #include <iostream>
 
 class query_params
@@ -134,6 +133,11 @@ class query_params
           return it;
         }
 
+        difference_type operator- (const const_iterator& it) const
+        {
+          return pos - it.pos;
+        }
+
         reference operator[] (difference_type n) const
         {
           return *(*this + n);
@@ -145,21 +149,43 @@ class query_params
     named_params_type named_params;
 
     query_params* parent;
+    bool use_parent_values;
 
   public:
     query_params()
-      : parent(0)
+      : parent(0),
+        use_parent_values(true)
     { }
-    query_params(query_params* _parent)
-      : parent(_parent)
+    query_params(query_params* _parent, bool _use_parent_values = true)
+      : parent(_parent),
+        use_parent_values(_use_parent_values)
     { }
-    query_params(query_params& _parent)
-      : parent(&_parent)
+    query_params(query_params& _parent, bool _use_parent_values = true)
+      : parent(&_parent),
+        use_parent_values(_use_parent_values)
     { }
 
-    query_params* getParent() const  { return parent; }
-    void setParent(query_params* p)  { parent = p; }
-    void setParent(query_params& p)  { parent = &p; }
+    query_params* getParent() const
+    { return parent; }
+
+    void setParent(query_params* p, bool _use_parent_values = true)
+    {
+      parent = p;
+      use_parent_values = _use_parent_values;
+    }
+
+    void setParent(query_params& p, bool _use_parent_values = true)
+    {
+      parent = &p;
+      use_parent_values = _use_parent_values;
+    }
+
+    bool useParentValues() const
+    { return parent != 0 && use_parent_values; }
+
+    // returns true, if parent exists
+    bool hasParent() const
+    { return parent != 0; }
 
     // read parameters from url
     void parse_url(const std::string& url);
@@ -175,17 +201,16 @@ class query_params
     // get unnamed parameter
     const string& param(size_type n) const
     {
-      return parent && n >= unnamed_params.size()
+      return useParentValues() && n >= unnamed_params.size()
                ? parent->param(n - unnamed_params.size())
                : unnamed_params[n];
-                                                  
     }
 
     // get number of unnamed parameters
     size_type paramcount() const
     {
       size_type ret = unnamed_params.size();
-      if (parent)
+      if (useParentValues())
         ret += parent->paramcount();
       return ret;
     }
@@ -236,7 +261,7 @@ class query_params
       named_params_type::const_iterator i = named_params.find(name);
       if (i != named_params.end() && n < i->second.size())
         return i->second[n];
-      else if (parent == 0)
+      else if (!useParentValues())
         return def;
       else
       {
@@ -256,7 +281,7 @@ class query_params
       size_type ret;
       named_params_type::const_iterator i = named_params.find(name);
       ret = i == named_params.end() ? 0 : i->second.size();
-      if (parent)
+      if (useParentValues())
         ret += parent->paramcount(name);
       return ret;
     }
@@ -272,7 +297,7 @@ class query_params
       for (named_params_type::const_iterator i = named_params.begin();
            i != named_params.end(); ++i)
         *o++ = i->first;
-      if (parent)
+      if (useParentValues())
         parent->getNames(o);
     }
 
@@ -288,7 +313,7 @@ class query_params
     bool has(const string& name) const
     {
       return named_params.find(name) != named_params.end()
-          || parent && parent->has(name);
+          || useParentValues() && parent->has(name);
     }
 
     // add named parameter to parent or this class
@@ -315,12 +340,6 @@ class query_params
       named_params[name].push_back(value);
     }
 
-    // returns true, if parent exists
-    bool hasParent() const
-    {
-      return parent != 0;
-    }
-
     // replace named parameter
     void replace(const string& name, const string& value, bool to_parent = true)
     {
@@ -337,7 +356,7 @@ class query_params
     {
       return unnamed_params.empty()
           && named_params.empty()
-          && (!parent || parent->empty());
+          && (!useParentValues() || parent->empty());
     }
 
     //
@@ -360,6 +379,9 @@ class query_params
     // get parameters for debugging
     string dump() const;
 };
+
+inline std::ostream& operator<< (std::ostream& out, const query_params& p)
+{ return out << p.getUrl(); }
 
 // extends query_params for use in CGI-programs by reading
 // parameters from std::cin until eof.

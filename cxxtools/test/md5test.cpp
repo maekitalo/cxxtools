@@ -1,4 +1,4 @@
-#include <md5stream.h>
+#include <cxxtools/md5stream.h>
 
 int main()
 {

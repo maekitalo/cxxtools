@@ -195,7 +195,7 @@ std::string query_params::getUrl() const
 {
   std::string ret;
 
-  if (parent)
+  if (useParentValues())
   {
     ret = parent->getUrl();
     if (!ret.empty())
@@ -256,7 +256,11 @@ std::string query_params::dump() const
   if (parent)
   {
     ret += "{ ";
+    if (!use_parent_values)
+      ret += '(';
     ret += parent->dump();
+    if (!use_parent_values)
+      ret += ')';
     ret += " }";
   }
 

@@ -1,6 +1,6 @@
 #include <iostream>
 #include <fstream>
-#include "hdstream.h"
+#include "cxxtools/hdstream.h"
 
 int main(int argc, char* argv[])
 {

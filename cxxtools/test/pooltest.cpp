@@ -2,8 +2,8 @@
 // pooltest.cpp
 //
 
-#include "pool.h"
-#include "thread.h"
+#include "cxxtools/pool.h"
+#include "cxxtools/thread.h"
 #include <iostream>
 
 Mutex logmutex;

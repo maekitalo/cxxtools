@@ -1,10 +1,11 @@
-#include <cgi.h>
+#include "cxxtools/query_params.h"
 #include <iostream>
 
 int main(int argc, char* argv)
 {
   std::string query_string = "uhu&blah&ttt=t1&qqq=q&ttt=t2";
-  CGI q(query_string);
+  query_params q;
+  q.parse_url(query_string);
 
   using std::cout;
   using std::endl;

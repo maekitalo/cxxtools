@@ -1,6 +1,6 @@
 // aufruf: query_params_it "a&a=4&a=blah&b=uhu&a=ttt"
 
-#include <query_params.h>
+#include <cxxtools/query_params.h>
 #include <exception>
 #include <iostream>
 #include <set>
