@@ -1,7 +1,7 @@
 Summary: some useful C++-classes
 Name: cxxtools
 Version: 1.0.0
-Release: 1
+Release: 2
 License: GPL
 Group: Development/Languages/C and C++
 Source: cxxtools-1.0.0.tgz
