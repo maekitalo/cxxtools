@@ -24,17 +24,6 @@ Boston, MA  02111-1307  USA
 
 #include <iostream>
 
-/*
- base64ostream is a base64-encoder. To base64-encode, instantiate
- a base64ostream with an outputstream. Write the data to encode into the
- stream. base64ostream writes the base64-encoded data to the outputstream.
- When ready call end() to pad and flush.
-
- base64istream is a base54-decoder. To base64-decode, instantiate
- a base64istream with an inputstream. The class reads base64-encoded
- data from the inputstream and you get encoded output.
- */
-
 class base64stream_streambuf : public std::streambuf
 {
     std::streambuf* sinksource;
@@ -66,22 +55,44 @@ class base64stream_streambuf : public std::streambuf
     int getval();
 };
 
+/**
+ base64ostream is a base64-encoder.
+ 
+ To base64-encode, instantiate a base64ostream with an outputstream.
+ Write the data to encode into the stream. base64ostream writes the
+ base64-encoded data to the outputstream.  When ready call end() to
+ pad and flush. The stream is also padded and flushed in the
+ destructor, when there are characters left.
+ */
+
 class base64ostream : public std::ostream
 {
     base64stream_streambuf streambuf;
 
   public:
+    /// instantiate encode with a output-stream, which received encoded
+    /// Data.
     base64ostream(std::ostream& out)
       : std::ostream(&streambuf),
         streambuf(out.rdbuf())
       { }
+    /// instantiate encode with a output-std::streambuf.
     base64ostream(std::streambuf* sb)
       : std::ostream(&streambuf),
         streambuf(sb)
       { }
 
+    /// pad and flush stream.
     void end()  { streambuf.end(); }
 };
+
+/**
+ base64istream is a base54-decoder.
+ 
+ To base64-decode, instantiate a base64istream with an inputstream.
+ The class reads base64-encoded data from the inputstream and you get
+ encoded output.
+ */
 
 class base64istream : public std::istream
 {
@@ -97,6 +108,8 @@ class base64istream : public std::istream
         streambuf(sb)
       { }
 
+    /// If a istream has multiple base64-streams, you can skip to
+    /// the next stream after getting eof.
     void reset()  { streambuf.reset(); }
 };
 

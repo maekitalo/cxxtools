@@ -24,6 +24,30 @@ Boston, MA  02111-1307  USA
 
 #include <algorithm>
 
+/**
+ Exceptionsafe dynamic buffer.
+
+ Sometimes programs need a buffer for temporaryly storing data. The
+ size of the buffer might be unknown at compile-time, so the program
+ can't use a array. This is where dynbuffer help.
+
+ Allocation of storage is done on request and the destructor releases
+ the memory.
+
+ example:
+ \code
+   some_func()
+   {
+     unsigned size = get_bytes_to_read();
+     dynbuffer<char> buffer(size);
+     read(buffer.data(), size);
+
+     do_something_with_data(buffer.data())
+
+   } // destructor releases the buffer even on exception here
+
+ \endcode
+ */
 template <typename T = char>
 class dynbuffer
 {
@@ -37,12 +61,14 @@ class dynbuffer
     dynbuffer& operator= (const dynbuffer&);
 
   public:
+    /// initializes empty buffer
     dynbuffer()
       : m_data(0),
         m_size(0),
         m_pos(0)
       { }
 
+    /// allocates array of 'size' elements
     explicit dynbuffer(unsigned size)
       : m_data(0),
         m_size(0),
@@ -52,24 +78,43 @@ class dynbuffer
     ~dynbuffer()
     { delete[] m_data; }
 
+    /// returns pointer to the buffer
     T*       data() const     { return m_data; }
+    /// returns size of buffer
     unsigned size() const     { return m_pos; }
+    /// returns capacity of buffer.
     unsigned capacity() const { return m_size; }
+    /// ensures, that buffer is at least 'size' elements
     void     reserve(unsigned size)
     { if (m_size < size) reserve_grow(size - m_pos); }
 
+    /// append one element to the buffer.
+    /// Allocates new memory if capacity is too small.
     void     append(T ch)
     { if (m_pos < m_size) m_data[m_pos++] = ch; else append_grow(ch); }
+    /// appends mutliple copies of one element to the buffer.
+    /// Allocates new memory if capacity is too small.
     void     append(unsigned n, T ch);
+    /// appends mutliple elements to the buffer.
+    /// Allocates new memory if capacity is too small.
     void     append(const T* data, unsigned size);
+    /// replaces content
     void     assign(const T* data, unsigned size);
+    /// replaces content with multiple copies of the element.
     void     assign(unsigned n, T ch);
+    /// reduces the size of the buffer to 0
+    /// doew not free any memory.
     void     clear()        { m_pos = 0; }
+    /// returns true, if buffer has the size 0
     bool     empty() const  { return m_pos == 0; }
 
+    /// returns a iterator to first element
     iterator begin()               { return m_data; }
+    /// returns a iterator after last element
     iterator end()                 { return m_data + m_size; }
+    /// returns a iterator to first element
     const_iterator begin() const   { return m_data; }
+    /// returns a iterator after last element
     const_iterator end() const     { return m_data + m_size; }
 
   private:

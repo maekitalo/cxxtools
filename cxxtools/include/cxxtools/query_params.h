@@ -30,6 +30,25 @@ Boston, MA  02111-1307  USA
 #include <iostream>
 #include <iterator>
 
+/**
+ query_params represents parameters from a HTML-Form.
+
+ There are 2 types of Query-Parameters from a HTML-Form: named
+ and unnamed. And names are not unique. This results in a
+ combination of a multiset and a set. this class uses a vector
+ instead of a set, because order does matter in unnamed parameters.
+
+ query_params can reference a parent-object. Parent-objects might
+ return values or just store them. This is for passing query_params as
+ parameter to functions. You can pass the object itself or a new
+ object, which has additional parameters, without changing the original
+ object. For the called function it looks like the object contains
+ all parameter. The function can still modify the parent-object by
+ using the method query_params::ret.
+
+ The class has a parser to extract parameters from a string or from a
+ input-stream.
+ */
 class query_params
 {
   public:
@@ -40,6 +59,9 @@ class query_params
     typedef std::map<string, unnamed_params_type> named_params_type;
     typedef names_type::size_type size_type;
 
+    /**
+     Iterator for named and unnamed parameters in query_params.
+     */
     class const_iterator
       : public std::iterator<std::random_access_iterator_tag, const std::string>
     {
@@ -55,19 +77,19 @@ class query_params
         }
 
       public:
-        // initialize generic end-iterator
+        /// initialize generic end-iterator
         const_iterator()
           : params(0),
             pos(0)
           { }
 
-        // initialize iterator for unnamed params
+        /// initialize iterator for unnamed params
         const_iterator(const query_params& p)
           : params(&p),
             pos(0)
           { }
 
-        // initialize iterator for named params
+        /// initialize iterator for named params
         const_iterator(const query_params& p, const std::string& n)
           : params(&p),
             name(n),
@@ -170,53 +192,60 @@ class query_params
     bool use_parent_values;
 
   public:
+    /// default constructor
     query_params()
       : parent(0),
         use_parent_values(true)
     { }
+    /// initializes class with parent
     query_params(query_params* _parent, bool _use_parent_values = true)
       : parent(_parent),
         use_parent_values(_use_parent_values)
     { }
+    /// initializes class with parent
     query_params(query_params& _parent, bool _use_parent_values = true)
       : parent(&_parent),
         use_parent_values(_use_parent_values)
     { }
 
+    /// returns the parent-object
     query_params* getParent() const
     { return parent; }
 
+    /// changes parent-object
     void setParent(query_params* p, bool _use_parent_values = true)
     {
       parent = p;
       use_parent_values = _use_parent_values;
     }
 
+    /// changes parent-object
     void setParent(query_params& p, bool _use_parent_values = true)
     {
       parent = &p;
       use_parent_values = _use_parent_values;
     }
 
+    /// returns true, when parent-object delivers values
     bool useParentValues() const
     { return parent != 0 && use_parent_values; }
 
-    // returns true, if parent exists
+    /// returns true, if parent exists
     bool hasParent() const
     { return parent != 0; }
 
-    // read parameters from url
+    /// read parameters from url
     void parse_url(const std::string& url);
-    // read parameters from url
+    /// read parameters from url
     void parse_url(const char* url);
-    // read parameters from stream
+    /// read parameters from stream
     void parse_url(std::istream& url_stream);
 
     //
     // unnamed parameter
     //
 
-    // get unnamed parameter
+    /// get unnamed parameter by number (no range-check!)
     const string& param(size_type n) const
     {
       return useParentValues() && n >= unnamed_params.size()
@@ -224,7 +253,7 @@ class query_params
                : unnamed_params[n];
     }
 
-    // get number of unnamed parameters
+    /// get number of unnamed parameters
     size_type paramcount() const
     {
       size_type ret = unnamed_params.size();
@@ -233,15 +262,17 @@ class query_params
       return ret;
     }
 
-    // get unnamed parameter with operator[]
-    const string& operator[] (size_type n) const   { return unnamed_params[n]; }
+    /// get unnamed parameter with operator[] (no range-check!)
+    const string& operator[] (size_type n) const
+    { return unnamed_params[n]; }
 
-    // get all unnamed parameters
+    /// get all unnamed parameters
     template <typename output_iterator>
     void get(output_iterator& o) const
     { std::copy(unnamed_params.begin(), unnamed_params.end(), o); }
 
-    // add unnamed parameter to parent or this class
+    /// add unnamed parameter to parent or this class if no parent
+    /// exists.
     query_params& ret(const string& value)
     {
       if (parent)
@@ -251,19 +282,19 @@ class query_params
       return *this;
     }
 
-    // remove unnamed parameter
-    void eraseUnnamed(const string& name)
+    /// remove unnamed parameter by value
+    void eraseUnnamed(const string& value)
     {
       unnamed_params_type::iterator i = std::find(unnamed_params.begin(),
-        unnamed_params.end(), name);
+        unnamed_params.end(), value);
       if (i != unnamed_params.end())
         unnamed_params.erase(i);
 
-      if (parent)
-        parent->erase(name);
+      if (parent && use_parent_values)
+        parent->erase(value);
     }
 
-    // add unnamed parameter to this class
+    /// add unnamed parameter to this class.
     query_params& add(const string& value)
     {
       unnamed_params.push_back(value);
@@ -274,7 +305,7 @@ class query_params
     // named parameter
     //
 
-    // get named parameter
+    /// get named parameter.
     const string& param(const string& name, size_type n = 0,
       const string& def = std::string()) const
     {
@@ -291,11 +322,11 @@ class query_params
       }
     }
 
-    // shortcut for first named parameter
+    /// shortcut for first named parameter
     const string& param(const string& name, const string& def) const
     { return param(name, 0, def); }
 
-    // get number of named parameters
+    /// get number of parameters with the given name
     size_type paramcount(const string& name) const
     {
       size_type ret;
@@ -306,11 +337,11 @@ class query_params
       return ret;
     }
 
-    // get named parameter with operator[]
+    /// get first named parameter with operator[]
     string operator[] (const string& name) const
     { return param(name, std::string()); }
 
-    // get all names
+    /// get all names
     template <typename output_iterator>
     void getNames(output_iterator o) const
     {
@@ -321,6 +352,7 @@ class query_params
         parent->getNames(o);
     }
 
+    /// get all values with a given name
     template <typename output_iterator>
     void getValues(const string& name, output_iterator o) const
     {
@@ -329,14 +361,14 @@ class query_params
         std::copy(i->second.begin(), i->second.end(), o);
     }
 
-    // checks if the named parameter exists here or in parent
+    /// checks if the named parameter exists
     bool has(const string& name) const
     {
       return named_params.find(name) != named_params.end()
           || useParentValues() && parent->has(name);
     }
 
-    // add named parameter to parent or this class
+    /// replace named parameter in parent or this class if no parent exists
     query_params& ret(const string& name, const string& value)
     {
       named_params.erase(name);
@@ -347,7 +379,7 @@ class query_params
       return *this;
     }
 
-    // add named parameter to parent or this class
+    /// add named parameter to parent or this class if no parent exists
     query_params& addret(const string& name, const string& value)
     {
       if (parent)
@@ -357,22 +389,22 @@ class query_params
       return *this;
     }
 
-    // remove named parameter
+    /// remove named parameter
     void erase(const string& name)
     {
       named_params.erase(name);
-      if (parent)
+      if (parent && useParentValues())
         parent->erase(name);
     }
 
-    // add named parameter to this class
+    /// add named parameter to this class
     query_params& add(const string& name, const string& value)
     {
       named_params[name].push_back(value);
       return *this;
     }
 
-    // replace named parameter
+    /// replace named parameter
     void replace(const string& name, const string& value, bool to_parent = true)
     {
       if (to_parent && parent)
@@ -384,6 +416,7 @@ class query_params
       }
     }
 
+    /// returns true, when no parameters exist (named and unnamed)
     bool empty() const
     {
       return unnamed_params.empty()
@@ -395,31 +428,55 @@ class query_params
     // iterator-methods
     //
 
-    // get iterator to unnamed parameters
+    /// get iterator to unnamed parameters
     const_iterator begin() const
     { return const_iterator(*this); }
-    // get iterator to named parameters
+    /// get iterator to named parameter
     const_iterator begin(const std::string& name) const
     { return const_iterator(*this, name); }
-    // get end-iterator
+    /// get end-iterator (named and unnamed)
     const_iterator end() const
     { return const_iterator(); }
 
-    // get parameters in url-syntax
+    /// get parameters in url-syntax
     string getUrl() const;
 
-    // get parameters for debugging
+    /// get readable parameters for debugging
     string dump() const;
 };
 
+/// output query_params in url-syntax
 inline std::ostream& operator<< (std::ostream& out, const query_params& p)
 { return out << p.getUrl(); }
 
-// extends query_params for use in CGI-programs by reading
-// parameters from std::cin until eof.
+/**
+ Class for easy extraction of CGI-parameters.
+
+ This class reads automatically GET- and POST-parameters from stdin
+ and the environvariable QUERY_STRING, like CGI-programs do. This eases
+ writing CGI-programs in C++.
+
+ example:
+ \code
+   int main()
+   {
+     cgi q;  // this parses all input-parameters
+     std::cout << "<html>\n"
+               << "<body>\n"
+               << "<form>\n"
+               << "<input type=\"text\" name=\"v\"><br>\n"
+               << "<input type=\"submit\"><br>\n"
+               << "<hr>\n"
+               << "you entered " << q["v"] << "\n"
+               << "</body>"
+               << "</html>";
+   }
+ \endcode
+ */
 class cgi : public query_params
 {
   public:
+    /// constructor reads parameters from server
     cgi();
 };
 

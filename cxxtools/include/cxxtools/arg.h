@@ -37,52 +37,45 @@ Boston, MA  02111-1307  USA
 
 ////////////////////////////////////////////////////////////////////////
 /**
- * Auswertung von Kommandozeilenoptionen.
- *
- * Optionen, die auf der Kommandozeile übergeben werden, fangen mit
- * '-' und es folgt ein einzelnes Zeichen und ein Parameter als Wort.
- * Die Klasse entfernt aus der Parameterliste der main-Funktion, die
- * durch die ersten beiden Parameter argc und argv bestimmt wird,
- * Optionen und speichert den angegebenen Wert.
- *
- * Die Optionen können in beliebiger Reihenfolge auf der Kommandozeile
- * angegeben werden.
- *
- * Der Typ des Parameters muß den operator>> (istream&, T&)
- * implementieren.
- *
- * Beispiel:
- * \code
- *   int main(int argc, char* argv[])
- *   {
- *     arg<int> option_n(argc, argv, 'n', 0);
- *     cout << "Wert für -n: " << option_n << endl;
- *   }
- * \endcode
- *
+ Read and extract commandline parameters from argc/argv.
+
+ Programs usually need some parameters. Usually they start with a '-'
+ followed by a single character and optionally a value.
+ arg<T> extracts these and other parametes.
+
+ This default class processes paramters with a value, which defines
+ a input-extractor-operator operator>> (istream&, T&).
+
+ Options are removed from the option-list, so programs can easily check
+ after all options are extracted, if there are parameters left.
+
+ example:
+ \code
+   int main(int argc, char* argv[])
+   {
+     arg<int> option_n(argc, argv, 'n', 0);
+     cout << "value for -n: " << option_n << endl;
+   }
+ \endcode
+
  */
 template <class T>
 class arg
 {
   public:
     /**
-     * Auswertung einer Kommandozeilenoption.
-     * Der Konstruktor übernimmt von der main-Funktion die ersten beiden
-     * Parameter argc und argv und entfernt die ausgewertete Option und
-     * deren Parameter. Wird die Option nicht gefunden, wird der default-
-     * Wert eingesetzt.
-     *
-     * \param argc      1. Parameter der main-Funktion
-     * \param argv      1. Parameter der main-Funktion
-     * \param ch        der Optionsbuchstabe
-     * \param def       default-Wert
-     *
-     * Beispiel:
-     * \code
-     *  arg<unsigned> offset(argc, argv, 'o', 0);
-     *  unsigned wert = ...;
-     *  wert += offset;
-     * \endcode
+     extract parameter.
+
+     \param argc      1. parameter of main
+     \param argv      2. of main
+     \param ch        optioncharacter
+     \param def       default-value
+
+     example:
+     \code
+      arg<unsigned> offset(argc, argv, 'o', 0);
+      unsigned value = offset.getValue();
+     \endcode
      */
     arg(int& argc, char* argv[], char ch, const T& def = T())
     {
@@ -108,15 +101,15 @@ class arg
     }
 
     /**
-     * Im Gegensatz zum 1. Konstruktor wird hier die Option als String
-     * übergeben. Es wird kein Minus-Zeichen angenommen. So können z. B.
-     * Langoptionen ausgewertet werden.
-     *
-     * Beispiel:
-     * \code
-     *   arg<int> option_nummer(argc, argv, "--nummer", 0);
-     *   cout << "nummer =" << option_nummer << endl;
-     * \endcode
+     GNU defines long options starting with "--". This (and more) is
+     supported here. Instead of giving a single option-character, you
+     specify a string.
+
+     example:
+     \code
+       arg<int> option_number(argc, argv, "--number", 0);
+       std::cout << "number =" << option_nummer.getValue() << std::endl;
+     \endcode
      */
     arg(int& argc, char* argv[], const char* str, const T& def = T())
     {
@@ -142,7 +135,7 @@ class arg
     }
 
     /**
-     * Liest den nächsten Parameter und entfernt ihn aus der Liste
+     Reads next parameter and removes it.
      */
     arg(int& argc, char* argv[])
     {
@@ -165,12 +158,28 @@ class arg
     }
 
     /**
-     * Liefert den Wert des Parameters
+     returns the value.
      */
     const T& getValue() const   { return m_value; }
 
     /**
-     * Liefert den Wert des Parameters
+     returns the value.
+
+     Instead of calling getValue() the argument can be converted
+     implicitely.
+
+     example:
+
+     \code
+     void print(int i)
+     { std::cout << i << std::endl; }
+
+     int main(int argc, char* argv[])
+     {
+       arg<int> value(argc, argv, 'v', 0);
+       print(value);   // pass argument as a int to the function
+     }
+     \endcode
      */
     operator T() const   { return m_value; }
 
@@ -187,41 +196,64 @@ class arg
 
 ////////////////////////////////////////////////////////////////////////
 /**
- * Spezialisierung von arg<T> für bool.
- *
- * Optionen auf der Kommandozeile, die lediglich ein- oder ausgeschaltet
- * werden können, werden normalerweise ohne Parameter übergeben. Sie
- * sind einfach entweder da oder nicht.
- *
- * Beispiel:
- * \code
- *
- *  arg<bool> option_t(argc, argv, 't');
- *  if (option_t)
- *    cout << "-t wurde angegeben" << endl;
- *
- *  arg<bool> option_blah(argc, argv, "blah");
- *  if (option_blah)
- *    cout << "blah wurde angegeben" << endl;
- *
- *  arg<bool> option_minus(argc, argv, "-");
- *  if (option_minus)
- *    cout << "- wurde angegeben" << endl;
- *
- * \endcode
- *
+ specialization for bool.
+
+ Often programs need some switches, which are switched on or off.
+ Users just enter a option without parameter.
+
+ example:
+ \code
+   arg<bool> debug(argc, argv, 'd');
+   if (debug)
+     std::cout << "debug-mode is set" << std::endl;
+ \endcode
  */
 template <>
 class arg<bool>
 {
   public:
     /**
-     * Konstruktor für die Kurzform. Optionen fangen mit einem Minus-Zeichen
-     * an und es folgt genau ein Buchstabe.
-     *
-     * Mehrere Optionen können zusammengefasst werden. Die Optionengruppe
-     * muß mit einem '-' anfangen, aber nicht mit '--' und den angegebenen
-     * Optionsbuchstaben enthalten
+     Use this constructor to extract a bool-parameter.
+
+     As a special case options can be grouped. The parameter is
+     recognized also in a argument, which starts with a '-' and contains
+     somewhere the given character.
+
+     example:
+     \code
+      arg<bool> debug(argc, argv, 'd');
+      arg<bool> ignore(argc, argv, 'i');
+     \endcode
+
+     Arguments debug and ignore are both set when the program is called
+     with:
+     \code
+      prog -id
+
+      prog -i -d
+     \endcode
+
+     Options can also switched off with a following '-' like this:
+     \code
+      prog -d-
+     \endcode
+
+     In the program use:
+     \code
+      arg<bool> debug(argc, argv, 'd');
+      if (debug.isSet())
+      {
+        if (debug)
+          std::cout << "you entered -d" << std::endl;
+        else
+          std::cout << "you entered -d-" << std::endl;
+      }
+      else
+        std::cout << "no -d option given" << std::endl;
+     \endcode
+
+     This is useful, if programs defaults to some enabled feature,
+     which can be disabled.
      */
     arg(int& argc, char* argv[], char ch)
     {
@@ -275,8 +307,19 @@ class arg<bool>
     }
 
     /**
-     * Konstruktor für die Langform. Die Option besteht aus einem beliebigen
-     * Text.
+     Constructor for long-options.
+
+     The option-parameter is defined with a string. This can extract
+     long-options like:
+     \code
+       prog --debug
+     \endcode
+
+     with
+     \code
+       arg<bool> debug(argc, argv, "--debug");
+     \endcode
+
      */
     arg(int& argc, char* argv[], const char* str)
     {
@@ -296,22 +339,22 @@ class arg<bool>
     }
 
     /**
-     * Liefert true, wenn die Option gesetzt ist.
+     returns true, if options is set.
      */
     bool isTrue() const   { return m_value; }
 
     /**
-     * Liefert true, wenn die Option nicht gesetzt ist.
+     returns true, if options is not set.
      */
     bool isFalse() const  { return !m_value; }
 
     /**
-     * Liefert true, wenn die Option gesetzt ist.
+     convertable to bool.
      */
     operator bool() const  { return m_value; }
 
     /**
-     * Liefert true zurück, wenn die Option explizit gesetzt.
+     returns true, if option is explicitly set
      */
     bool isSet() const             { return m_isset; }
 
@@ -322,19 +365,17 @@ class arg<bool>
 
 ////////////////////////////////////////////////////////////////////////
 /**
- * Spezialisierung von arg<T> für const char*
- *
- * "const char*" werden nicht über einen istream gelesen, sondern direkt
- * verarbeitet.
+ Special handling for "const char*".
+
+ "const char*" is not extracted with a stream. This is more flexible
+ and easier to process. Also parameters can contain spaces.
  */
 template <>
 class arg<const char*>
 {
   public:
     /**
-     * Konstruktor für die Kurzform. Optionen fangen mit einem
-     * Minus-Zeichen an und es folgt ein einzelner Buchstabe und
-     * ein Wert.
+     Constructor for the short form.
      */
     arg(int& argc, char* argv[], char ch, const char* def = 0)
     {
@@ -355,9 +396,7 @@ class arg<const char*>
     }
 
     /**
-     * Konstruktor für die Langform. Die Option besteht aus beliebigen
-     * Text. Die Option muß nicht mit einem Minus-Zeichen anfangen.
-     * Es folgt ein Parameterwert.
+     Constructor for the long form.
      */
     arg(int& argc, char* argv[], const char* str, const char* def = 0)
     {
@@ -378,7 +417,7 @@ class arg<const char*>
     }
 
     /**
-     * Liest den nächsten Parameter und entfernt ihn aus der Liste
+     Extracts the next parameter.
      */
     arg(int& argc, char* argv[])
     {
@@ -399,18 +438,17 @@ class arg<const char*>
     }
 
     /**
-     * Liefert den Wert des Parameters
+     returns the extracted value.
      */
     const char* getValue() const   { return m_value; }
 
     /**
-     * Liefert den Parameterwert.
+     argument is convertible to "const char*"
      */
     operator const char*() const   { return m_value; }
 
     /**
-     * Liefert true zurück, wenn die Option gefunden wurde, also nicht
-     * der Default-Wert zum Einsatz kam.
+     returns true, when the option is not set and the default is used.
      */
     bool isSet() const             { return m_isset; }
 

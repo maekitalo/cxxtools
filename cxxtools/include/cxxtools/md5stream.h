@@ -44,18 +44,50 @@ class md5streambuf : public std::streambuf
     std::streambuf::int_type sync();
 };
 
+/**
+ This is a easy an safe interface to MD5-calculation.
+
+ To get a MD5-sum of data, instantiate a md5stream, copy your data
+ into it and read the digest.
+
+ After calling getDigest or getHexDigest, the class can be reused
+ for another md5-calculation. The algorithm is automatically
+ reinitialized when the first character is received.
+
+ example:
+ \code
+  int main(int argc, char* argv[])
+  {
+    md5stream s;
+    for (int i = 1; i < argc; ++i)
+    {
+      std::ifstream in(argv[i]);
+      if (in)
+      {
+        std::copy(std::istreambuf_iterator<char>(in),
+                  std::istreambuf_iterator<char>(),
+                  std::ostreambuf_iterator<char>(s));
+        std::cout << s.getHexDigest() << "  " << argv[i] << std::endl;
+      }
+    }
+  }
+ \endcode
+ */
 class md5stream : public std::ostream
 {
     md5streambuf streambuf;
     char hexdigest[33];
 
   public:
+    /// initializes md5-calculation
     md5stream()
       : std::ostream(&streambuf)
     { }
 
+    /// ends md5-calculation and returns 16 bytes digest
     void getDigest(unsigned char digest[16])
     { streambuf.getDigest(digest); }
+    /// ends md5-calculation and digest as 32 bytes hex
     const char* getHexDigest();
 };
 

@@ -30,12 +30,18 @@ namespace dl
   class library;
   class symbol;
 
+  /**
+   base-class for errors.
+   */
   class error : public std::runtime_error
   {
     public:
       error();
   };
 
+  /**
+   this exception is thrown, when a library can't be dlopen'd.
+   */
   class dlopen_error : public error
   {
       std::string libname;
@@ -44,9 +50,13 @@ namespace dl
       ~dlopen_error() throw()
       { }
 
+      /// returns the libname, which was tried.
       const std::string& getLibname() const  { return libname; }
   };
 
+  /**
+   this exception is thrown, when a symbol is not found it a library.
+   */
   class symbol_not_found : public error
   {
       std::string symbol;
@@ -56,9 +66,17 @@ namespace dl
       ~symbol_not_found() throw()
       { }
 
+      /// returns the symbol, which was not found.
       const std::string& getSymbol() const  { return symbol; }
   };
 
+  /**
+   library representes a shared-library.
+
+   To load a shared-library, just instantiate this class with a
+   shared-library-name. The class is copyable. The library is unloaded
+   (with dlclose) when the last reference is deleted.
+   */
   class library
   {
       void* handle;
@@ -66,23 +84,35 @@ namespace dl
       mutable const library* next;
 
     public:
+      /// loads a shared library.
       library(const char* name, int flag = RTLD_NOW | RTLD_GLOBAL)
         : handle(0), prev(this), next(this)
         { open(name, flag); }
+      /// default constructor.
       library()
         : handle(0), prev(this), next(this)
         { }
+      /// Copy-constrcutor - increments reference to the library.
       library(const library& src);
+      /// unloads the library if some is referenced.
       ~library()
       { close(); }
 
       library& operator=(const library& src);
 
+      /// loads a shared library.
+      /// If the class references already another library the
+      /// reference is decremented and unloaded, if the class was the
+      /// last reference.
       void open(const char* name, int flag = RTLD_NOW);
+      /// unloads the library if some is referenced.
+      /// Does nothing, if no library was referenced.
       void close();
 
+      /// extracts a symbol out of the library.
       symbol sym(const char* name) const;
 
+      /// returns true, if this is the only reference.
       bool isLastRef() const
       { return next == this; }
   };
