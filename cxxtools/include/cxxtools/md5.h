@@ -31,6 +31,10 @@ documentation and/or software.
 The following makes PROTOTYPES default to 0 if it has not already
   been defined with C compiler flags.
  */
+
+#ifndef CXXTOOLS_MD5_H
+#define CXXTOOLS_MD5_H
+
 #ifndef PROTOTYPES
 #define PROTOTYPES 1
 #endif
@@ -60,17 +64,19 @@ typedef struct {
   UINT4 state[4];                                   /* state (ABCD) */
   UINT4 count[2];        /* number of bits, modulo 2^64 (lsb first) */
   unsigned char buffer[64];                         /* input buffer */
-} MD5_CTX;
+} cxxtools_MD5_CTX;
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void MD5Init PROTO_LIST ((MD5_CTX *));
+void MD5Init PROTO_LIST ((cxxtools_MD5_CTX *));
 void MD5Update PROTO_LIST
-  ((MD5_CTX *, const unsigned char *, unsigned int));
-void MD5Final PROTO_LIST ((unsigned char [16], MD5_CTX *));
+  ((cxxtools_MD5_CTX *, const unsigned char *, unsigned int));
+void MD5Final PROTO_LIST ((unsigned char [16], cxxtools_MD5_CTX *));
 
 #ifdef __cplusplus
 }
 #endif
+
+#endif /* CXXTOOLS_MD5_H */

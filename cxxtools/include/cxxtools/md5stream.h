@@ -19,7 +19,7 @@ class md5streambuf : public std::streambuf
   private:
     static const unsigned int bufsize = 64;
     char buffer[bufsize];
-    MD5_CTX context;
+    cxxtools_MD5_CTX context;
 
     std::streambuf::int_type overflow(std::streambuf::int_type ch);
     std::streambuf::int_type underflow();

@@ -26,6 +26,8 @@ documentation and/or software.
 #include <md5.h>
 #include <string.h>
 
+#define MD5_CTX cxxtools_MD5_CTX
+
 /* Constants for MD5Transform routine.
  */
 #define S11 7
