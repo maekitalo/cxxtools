@@ -14,7 +14,7 @@
 // 
 /////////////////////////////////////////////////////////////////////////////
 
-#include "hdstream.h"
+#include "cxxtools/hdstream.h"
 #include <iomanip>
 
 int hdstreambuf::overflow(int ch)

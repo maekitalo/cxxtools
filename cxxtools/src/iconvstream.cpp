@@ -2,7 +2,7 @@
 // iconvstreamcpp
 //
 
-#include "iconvstream.h"
+#include "cxxtools/iconvstream.h"
 #include <string.h>
 
 iconvstreambuf* iconvstreambuf::open(std::ostream& sink_,

@@ -1,55 +1,40 @@
-ifndef INSTALL_ROOT_DIR
-  INSTALL_ROOT_DIR=/usr/local
+ifndef DESTDIR
+	export DESTDIR=/
 endif
-export INSTALL_ROOT_DIR
 
-ifndef INSTALL_DIRECTORY
-  INSTALL_DIRECTORY=$(INSTALL_ROOT_DIR)/cxxtools
+ifndef LIBDIR
+	LIBDIR=$(DESTDIR)/usr/lib
 endif
-export INSTALL_DIRECTORY
 
-PROD_LIB_DIR=$(INSTALL_DIRECTORY)/lib
-PROD_MAKE_DIR=$(INSTALL_DIRECTORY)/make
-PROD_INC_DIR=$(INSTALL_DIRECTORY)/include
+ifndef INCLUDEDIR
+	INCLUDEDIR=$(DESTDIR)/usr/include
+endif
+export LIBDIR
+export INCLUDEDIR
 
-.PHONY: all depend clean install src Makefile
+.PHONY: lib debian test
 
-myinstall: all
-	@if [ ! -d $(PROD_LIB_DIR) ];  \
-	then                          \
-	  mkdir -p $(PROD_LIB_DIR);   \
-	fi
-	@rm -f $(PROD_LIB_DIR)/libcxxtools.so*
-	cp -p src/libcxxtools.so.$(VERSION) $(PROD_LIB_DIR)
-	ln -s $(PROD_LIB_DIR)/libcxxtools.so.$(VERSION) $(PROD_LIB_DIR)/libcxxtools.so
-	@if [ ! -d $(PROD_INC_DIR)/cxxtools ]; \
-	then                                         \
-	  mkdir -p $(PROD_INC_DIR)/cxxtools;  \
-	fi
-	@rm -rf $(PRODC_INC_DIR)/cxxtools/*
-	cp -p include/cxxtools/*.h $(PROD_INC_DIR)/cxxtools/
-	@if [ ! -d $(PROD_MAKE_DIR) ];  \
-	then                          \
-	  mkdir -p $(PROD_MAKE_DIR);   \
-	fi
-	cp -p make/cxxtools.mk $(PROD_MAKE_DIR)/
+all: lib
 
-all:
-	make -C src all
-
-depend:
-	make -C src depend
+lib:
+	$(MAKE) -C src
 
 clean:
-	make -C src clean
+	$(MAKE) -C src clean
 
-#for packaging
-install:
-	@if [ ! -d $(DESTDIR)/usr/lib ];  \
-	then                          \
-	  mkdir -p $(DESTDIR)/usr/lib;   \
-	fi
-	@rm -f $(DESTDIR)/usr/lib/libcxxtools.so
-	cp -p src/libcxxtools.so.$(VERSION) $(DESTDIR)/usr/lib/libcxxtools.so.$(VERSION)
-	ln -s libcxxtools.so.$(VERSION) $(DESTDIR)/usr/lib/libcxxtools.so
+$(DESTDIR)/usr/lib:
+	mkdir -p $(DESTDIR)/usr/lib
+
+$(DESTDIR)/usr/include:
+	mkdir -p $(DESTDIR)/usr/include
+
+test:
+	$(MAKE) -C test
+
+install: $(DESTDIR)/usr/lib $(DESTDIR)/usr/include
+	$(MAKE) -C src install
+	$(MAKE) -C include install
+
+debian:
+	dpkg-buildpackage -rfakeroot -b -uc
 

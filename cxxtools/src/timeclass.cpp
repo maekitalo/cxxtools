@@ -5,7 +5,7 @@
 // Date:   7.3.2002
 //
 
-#include "timeclass.h"
+#include "cxxtools/timeclass.h"
 #include <iomanip>
 #include <stdio.h>
 #if __GNUC__ <= 2

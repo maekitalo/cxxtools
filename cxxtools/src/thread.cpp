@@ -4,12 +4,8 @@
 // Tommi Mäkitalo
 //
 
-#include "thread.h"
-#include <iostream>
-#include <stdio.h>
+#include "cxxtools/thread.h"
 #include <errno.h>
-
-using namespace std;
 
 extern "C"
 void* start_routine(void* arg);
@@ -26,40 +22,16 @@ Thread::~Thread()
 
 void Thread::Create()
 {
-  int ret;
-
-  ret = pthread_create(&pthread, &pthread_attr, start_routine, (void*)this);
-
+  int ret = pthread_create(&pthread, &pthread_attr, start_routine, (void*)this);
   if (ret != 0)
-  {
-    cerr << "error " << ret << " in pthread_create" << endl;
-    switch(ret)
-    {
-      case ENOMEM: cerr << "ENOMEM" << endl; break;
-      case EINVAL: cerr << "EINVAL" << endl; break;
-      case EPERM:  cerr << "EPERM"  << endl; break;
-      default:     cerr << "unknown error " << ret << endl;
-    }
-  }
+    throw ThreadException("error in pthread_create", ret);
 }
 
 void Thread::Join()
 {
-  int ret;
-
-  ret = pthread_join(pthread, 0);
-
+  int ret = pthread_join(pthread, 0);
   if (ret != 0)
-  {
-    cerr << "error " << ret << " in pthread_join" << endl;
-    switch(ret)
-    {
-      case EINVAL:  cerr << "EINVAL"        << endl; break;
-      case ESRCH:   cerr << "ESRCH"         << endl; break;
-      case EDEADLK: cerr << "EDEADLK"       << endl; break;
-      default:      cerr << "unknown error " << ret << endl;
-    }
-  }
+    throw ThreadException("error in pthread_join", ret);
 }
 
 void* start_routine(void* arg)

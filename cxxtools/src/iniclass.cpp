@@ -5,7 +5,7 @@
 // Datum:  13.3.2002
 //
 
-#include "iniclass.h"
+#include "cxxtools/iniclass.h"
 #include <fstream>
 
 using namespace std;

@@ -2,7 +2,7 @@
 // tcpstream.cpp
 //
 
-#include "tcpstream.h"
+#include "cxxtools/tcpstream.h"
 #include <stdexcept>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -14,7 +14,6 @@
 
 namespace tcp
 {
-
   using namespace std;
 
   namespace {
@@ -78,7 +77,6 @@ namespace tcp
       throw Exception("cannot create socket");
   }
 
-
   void Socket::close()
   {
     if (m_sockFd >= 0)
@@ -88,52 +86,57 @@ namespace tcp
     }
   }
 
+  struct sockaddr Socket::getSockAddr() const throw (Exception)
+  {
+    struct sockaddr ret;
+
+    socklen_t slen = sizeof(ret);
+    if (::getsockname(getFd(), &ret, &slen) < 0)
+      throw Exception("error in getsockname");
+
+    return ret;
+  }
+
   ////////////////////////////////////////////////////////////////////////
   // implementation of Server
   //
-  Server::Server(int backlog) throw (Exception)
+  Server::Server()
     : Socket(AF_INET, SOCK_STREAM, 0)
-  {
-    Listen(backlog);
-  }
+  { }
 
-  Server::Server(const std::string& ipaddr, int port, int backlog)
+  Server::Server(const std::string& ipaddr, unsigned short int port, int backlog)
                  throw (Exception)
-    : Socket(AF_INET, SOCK_STREAM, 0)
-  {
-    Listen(ipaddr.c_str(), port, backlog);
-  }
-
-  Server::Server(const char* ipaddr, int port, int backlog) throw (Exception)
     : Socket(AF_INET, SOCK_STREAM, 0)
   {
     Listen(ipaddr, port, backlog);
   }
 
-  void Server::Listen(int backlog) throw (Exception)
+  Server::Server(const char* ipaddr, unsigned short int port,
+      int backlog) throw (Exception)
+    : Socket(AF_INET, SOCK_STREAM, 0)
   {
-    if (::listen(getFd(), backlog) < 0)
-      throw Exception("error in listen");
+    Listen(ipaddr, port, backlog);
   }
 
-  void Server::Listen(const char* ipaddr, int port, int backlog) throw (Exception)
+  void Server::Listen(const char* ipaddr, unsigned short int port,
+      int backlog) throw (Exception)
   {
-    struct sockaddr_in servaddr;
+    memset(&servaddr.sockaddr_in, 0, sizeof(servaddr.sockaddr_in));
 
-    memset(&servaddr, 0, sizeof(servaddr));
+    if (::inet_pton(AF_INET, ipaddr, &servaddr.sockaddr_in.sin_addr) <= 0)
+      throw Exception(std::string("invalid ipaddress ") + ipaddr);
 
-    if (::inet_pton(AF_INET, ipaddr, &servaddr.sin_addr) <= 0)
-      throw Exception("invalid ipaddress");
-
-    servaddr.sin_family = AF_INET;
-    servaddr.sin_port = htons(port);
+    servaddr.sockaddr_in.sin_family = AF_INET;
+    servaddr.sockaddr_in.sin_port = htons(port);
 
     int reuseAddr = 1;
     if (::setsockopt(getFd(), SOL_SOCKET, SO_REUSEADDR,
         &reuseAddr, sizeof(reuseAddr)) < 0)
       throw Exception("error in setsockopt");
 
-    if (::bind(getFd(), (struct sockaddr *)&servaddr, sizeof(servaddr)) < 0)
+    if (::bind(getFd(),
+               (struct sockaddr *)&servaddr.sockaddr_in,
+               sizeof(servaddr.sockaddr_in)) < 0)
       throw Exception("error in bind");
 
     if (::listen(getFd(), backlog) < 0)
@@ -152,13 +155,13 @@ namespace tcp
     Accept(server);
   }
 
-  Stream::Stream(const string& ipaddr, int port)
+  Stream::Stream(const string& ipaddr, unsigned short int port)
     : Socket(AF_INET, SOCK_STREAM, 0)
   {
     Connect(ipaddr, port);
   }
 
-  Stream::Stream(const char* ipaddr, int port)
+  Stream::Stream(const char* ipaddr, unsigned short int port)
     : Socket(AF_INET, SOCK_STREAM, 0)
   {
     Connect(ipaddr, port);
@@ -172,14 +175,14 @@ namespace tcp
       throw Exception("error in accept");
   }
 
-  void Stream::Connect(const char* ipaddr, int port)
+  void Stream::Connect(const char* ipaddr, unsigned short int port)
   {
     memset(&peeraddr, 0, sizeof(peeraddr));
     peeraddr.sockaddr_in.sin_family = AF_INET;
     peeraddr.sockaddr_in.sin_port = htons(port);
 
     if (inet_pton(AF_INET, ipaddr, &peeraddr.sockaddr_in.sin_addr) <= 0)
-      throw Exception("invalid ipaddress");
+      throw Exception(std::string("invalid ipaddress ") + ipaddr);
 
     if (::connect(getFd(), &peeraddr.sockaddr,
         sizeof(peeraddr)) < 0)

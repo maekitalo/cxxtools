@@ -2,7 +2,7 @@
 // query_params.cpp
 //
 
-#include <query_params.h>
+#include "cxxtools/query_params.h"
 #include <iterator>
 #include <iostream>
 #include <stdlib.h>

@@ -2,7 +2,7 @@
 // pollclass.cpp
 //
 
-#include "pollclass.h"
+#include "cxxtools/pollclass.h"
 #include <stdexcept>
 #include <iostream>
 //#include <trace.h>

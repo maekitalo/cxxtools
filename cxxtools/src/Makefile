@@ -1,44 +1,52 @@
-CXXFLAGS=-fPIC -I../include -I../include/cxxtools -O2 -Wall -pedantic
-CFLAGS=-fPIC -I../include -I../include/cxxtools -O2 -Wall
-LDFLAGS=-ldl -lpthread
-CC=g++
-ifeq ($(EP_BUILD_COMP_VER), GCC_3_0)
-  CC=g++-3.0
-endif
+VERSION=1.0.0
+CXXFLAGS = -Wall -O2 -I../include -fPIC $(LOCAL_CXXFLAGS)
+CFLAGS = -Wall -O2 -I../include -fPIC
+LDFLAGS = -ldl -lpthread $(LOCAL_CXXFLAGS)
 
-ifeq ($(EP_BUILD_COMP_VER), GCC_2_95)
-  CC=g++-2.95
-endif
+all : libcxxtools.so
 
-SRCS = dlloader.cpp dynbuffer.cpp hdstream.cpp \
-       iniclass.cpp md5stream.cpp pollclass.cpp \
-       query_params.cpp tcpstream.cpp tee.cpp \
-       thread.cpp timeclass.cpp iconvstream.cpp
+SRCS = \
+	dlloader.cpp \
+	dynbuffer.cpp \
+	hdstream.cpp \
+	iconvstream.cpp \
+	md5stream.cpp \
+	pollclass.cpp \
+	query_params.cpp \
+	tcpstream.cpp \
+	tee.cpp \
+	thread.cpp \
+	timeclass.cpp
 
-OBJECTS=$(SRCS:.cpp=.o) md5.o
+SRCS_OLD = iniclass.cpp
 
-.PHONY: all clean Makefile
+SRCS_C = md5.c
 
-all: libcxxtools.so.$(VERSION)
+OBJS = $(SRCS:.cpp=.o) $(SRCS_C:.c=.o)
+DEPS = $(SRCS:.cpp=.deps) $(SRCS_C:.c=.deps)
+
+%.deps : %.cpp
+	( echo -n $(dir $<) && $(CXX) $(CXXFLAGS) -M $< || ( rm -f $@; exit 1 )) >$@
+
+%.deps : %.c
+	( echo -n $(dir $<) && $(CC) $(CFLAGS) -M $< || ( rm -f $@; exit 1 )) >$@
+
+libcxxtools.so.$(VERSION) : $(OBJS)
+	$(CXX) -shared -o $@ $(LDFLAGS) $^
+
+libcxxtools.so: libcxxtools.so.$(VERSION)
+	ln -sf $< $@
+
+install: libcxxtools.so.$(VERSION)
+	cp $^ $(DESTDIR)/usr/lib
+	ln -sf libcxxtools.so.$(VERSION) $(DESTDIR)/usr/lib/libcxxtools.so
 
 clean:
-	rm -rf *.o lib* depend
+	rm -f $(OBJS) $(DEPS) libcxxtools.so libcxxtools.so.$(VERSION)
 
-depend: $(SRCS)
-	( for f in $(SRCS) md5.c; do $(CC) $(CXXFLAGS) -M $$f; done ) >depend
+.PHONY: depend
+depend: $(DEPS)
 
-libcxxtools.a: $(OBJECTS)
-	rm -f $@
-	ar rcs $@ $^
-	ranlib $@
-
-libcxxtools.so.$(VERSION): $(OBJECTS)
-	$(CC) -shared -Wl,-soname,libcxxtools.so.$(VERSION) $(LDFLAGS) -o libcxxtools.so.$(VERSION) $^
-
-%.o: %.cpp
-	@echo "--- C++ Compiling $<..."
-	$(CreateOutputDirectory)
-	$(CC) $(CXXFLAGS) -c $< -o $@
-
-
-include depend
+ifneq ($(MAKECMDGOALS),clean)
+include $(DEPS)
+endif

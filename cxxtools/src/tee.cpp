@@ -14,7 +14,7 @@
 // 
 /////////////////////////////////////////////////////////////////////////////
 
-#include "tee.h"
+#include "cxxtools/tee.h"
 
 std::streambuf::int_type teestreambuf::overflow(std::streambuf::int_type ch)
 {

@@ -5,7 +5,7 @@
 // Date:   22.5.2002
 //
 
-#include <dynbuffer.h>
+#include "cxxtools/dynbuffer.h"
 #include <algorithm>
 
 void DynBuffer::reserve_grow(unsigned size)
