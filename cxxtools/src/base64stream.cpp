@@ -36,7 +36,7 @@ void base64stream_streambuf::end()
     case 1:
       B = 0;
       C = 0;
-      putchar(cv[A >> 2]);
+      putchar(cv[(A >> 2) & 0x3F]);
       putchar(cv[((A << 4) | ((B >> 4) & 0xF)) & 0x3F]);
       putchar('=');
       putchar('=');
@@ -44,14 +44,14 @@ void base64stream_streambuf::end()
 
     case 2:
       C = 0;
-      putchar(cv[A >> 2]);
+      putchar(cv[(A >> 2) & 0x3F]);
       putchar(cv[((A << 4) | ((B >> 4) & 0xF)) & 0x3F]);
       putchar(cv[((B << 2) | ((C >> 6) & 0x3)) & 0x3F]);
       putchar('=');
       break;
 
     case 3:
-      putchar(cv[A >> 2]);
+      putchar(cv[(A >> 2) & 0x3F]);
       putchar(cv[((A << 4) | ((B >> 4) & 0xF)) & 0x3F]);
       putchar(cv[((B << 2) | ((C >> 6) & 0x3)) & 0x3F]);
       putchar(cv[( C                         ) & 0x3F]);
@@ -97,6 +97,9 @@ std::streambuf::int_type base64stream_streambuf::overflow(std::streambuf::int_ty
 
 std::streambuf::int_type base64stream_streambuf::underflow()
 {
+  if (eofflag)
+    return traits_type::eof();
+
   // input:
   // |....,....|....,....|....,....|
   //  <   A   > <   B   > <   C   >
@@ -168,13 +171,19 @@ int base64stream_streambuf::getval()
   {
     int ret = sinksource->sbumpc();
     if (ret == traits_type::eof())
+    {
+      eofflag = true;
       return -1;
+    }
 
     char ch = traits_type::to_char_type(ret);
     if (ch == '=')
     {
       if (++count >= 4)
+      {
+        eofflag = true;
         return -1;
+      }
     }
     else
     {

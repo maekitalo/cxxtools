@@ -42,17 +42,20 @@ class base64stream_streambuf : public std::streambuf
     char decodebuf[3];
     unsigned count;
     bool indecode;
+    bool eofflag;
 
   public:
     base64stream_streambuf(std::streambuf* sinksource_)
       : sinksource(sinksource_),
         count(0),
-        indecode(false)
+        indecode(false),
+        eofflag(false)
       { }
     ~base64stream_streambuf()
       { if (indecode) end(); }
 
     void end();
+    void reset()  { eofflag = false; }
 
   private:
     std::streambuf::int_type overflow(std::streambuf::int_type ch);
@@ -93,6 +96,8 @@ class base64istream : public std::istream
       : std::istream(&streambuf),
         streambuf(sb)
       { }
+
+    void reset()  { streambuf.reset(); }
 };
 
 #endif // CXXTOOLS_BASE64STREAM_H
