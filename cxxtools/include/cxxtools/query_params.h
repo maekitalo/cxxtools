@@ -330,6 +330,16 @@ class query_params
       return *this;
     }
 
+    // add named parameter to parent or this class
+    query_params& addret(const string& name, const string& value)
+    {
+      if (parent)
+        parent->addret(name, value);
+      else
+        named_params[name].push_back(value);
+      return *this;
+    }
+
     // remove named parameter
     void erase(const string& name)
     {
