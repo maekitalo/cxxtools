@@ -32,7 +32,7 @@ Boston, MA  02111-1307  USA
 #define log_xxxx(level, expr)   \
   do { \
     cxxtools::logger* logger = getLogger(); \
-    if (log_xxxx_enabled(level)) \
+    if (getLogger()->isEnabled(::cxxtools::logger::LOG_LEVEL_ ## level)) \
     { \
       cxxtools::MutexLock lock(cxxtools::logger::mutex); \
       logger->logentry(#level) \
