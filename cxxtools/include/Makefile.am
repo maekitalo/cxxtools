@@ -1,5 +1,6 @@
 nobase_include_HEADERS = \
         cxxtools/arg.h \
+        cxxtools/base64stream.h \
         cxxtools/dir.h \
         cxxtools/dlloader.h \
         cxxtools/dynbuffer.h \
