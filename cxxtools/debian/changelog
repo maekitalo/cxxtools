@@ -1,4 +1,4 @@
-cxxtools (1.1.1-1) unstable; urgency=low
+cxxtools (1.1.2-1) unstable; urgency=low
 
   * new class base64stream
 
