@@ -180,6 +180,7 @@ class query_params
                : unnamed_params[n];
                                                   
     }
+
     // get number of unnamed parameters
     size_type paramcount() const
     {
@@ -188,14 +189,16 @@ class query_params
         ret += parent->paramcount();
       return ret;
     }
+
     // get unnamed parameter with operator[]
     const string& operator[] (size_type n) const   { return unnamed_params[n]; }
+
     // get all unnamed parameters
     template <typename output_iterator>
     void get(output_iterator& o) const
     { std::copy(unnamed_params.begin(), unnamed_params.end(), o); }
 
-    // add unnamed parameter
+    // add unnamed parameter to parent or this class
     void ret(const string& value)
     {
       if (parent)
@@ -203,6 +206,7 @@ class query_params
       else
         unnamed_params.push_back(value);
     }
+
     // remove unnamed parameter
     void eraseUnnamed(const string& value)
     {
@@ -215,6 +219,7 @@ class query_params
         parent->erase(value);
     }
 
+    // add unnamed parameter to this class
     void add(const string& value)
     {
       unnamed_params.push_back(value);
@@ -240,9 +245,11 @@ class query_params
         return parent->param(name, n, def);
       }
     }
+
     // shortcut for first named parameter
     const string& param(const string& name, const string& def) const
     { return param(name, 0, def); }
+
     // get number of named parameters
     size_type paramcount(const string& name) const
     {
@@ -253,9 +260,11 @@ class query_params
         ret += parent->paramcount(name);
       return ret;
     }
+
     // get named parameter with operator[]
     string operator[] (const string& name) const
     { return param(name, std::string()); }
+
     // get all names
     template <typename output_iterator>
     void getNames(output_iterator o) const
@@ -275,13 +284,14 @@ class query_params
         std::copy(i->second.begin(), i->second.end(), o);
     }
 
+    // checks if the named parameter exists here or in parent
     bool has(const string& name) const
     {
       return named_params.find(name) != named_params.end()
           || parent && parent->has(name);
     }
 
-    // add named parameter
+    // add named parameter to parent or this class
     void ret(const string& name, const string& value)
     {
       named_params.erase(name);
@@ -290,6 +300,7 @@ class query_params
       else
         named_params[name].push_back(value);
     }
+
     // remove named parameter
     void erase(const string& value)
     {
@@ -298,9 +309,16 @@ class query_params
         parent->erase(value);
     }
 
+    // add named parameter to this class
     void add(const string& name, const string& value)
     {
       named_params[name].push_back(value);
+    }
+
+    // returns true, if parent exists
+    bool hasParent() const
+    {
+      return parent != 0;
     }
 
     // replace named parameter
@@ -336,10 +354,15 @@ class query_params
     const_iterator end() const
     { return const_iterator(); }
 
+    // get parameters in url-syntax
     string getUrl() const;
+
+    // get parameters for debugging
     string dump() const;
 };
 
+// extends query_params for use in CGI-programs by reading
+// parameters from std::cin until eof.
 class cgi : public query_params
 {
   public:
