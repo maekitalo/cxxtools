@@ -291,20 +291,27 @@ namespace tcp
   Stream::size_type Stream::Write(const char* buffer,
                                   Stream::size_type bufsize) const
   {
+    log_debug("Stream::Write " << bufsize << " bytes");
+
     size_t n = 0;
     size_type s = bufsize;
 
-    while (n < s)
+    while (true)
     {
       n = ::write(getFd(), buffer, s);
+      log_debug("::write returns => " << n);
+
       if (n <= 0)
+      {
         // au weia - das ging schief
-        throw Exception("tcp::Stream: error in write");
+        int errnum = errno;
+        throw Exception(strerror(errnum));
+      }
 
       buffer += n;
       s -= n;
 
-      if (s == 0)
+      if (s <= 0)
         break;
 
       struct pollfd fds;
