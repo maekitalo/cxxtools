@@ -1,3 +1,11 @@
+cxxtools (1.2.3) unstable; urgency=low
+
+  * missing errno.h in iconvstream.cpp added
+  * support in cxxtools::arg for multiple alternative switches
+    in a single arg-variable (set-method)
+
+ -- Tommi Maekitalo <tommi@fserv.eckpart.de>  Wed,  5 Jan 2005 09:26:41 +0100
+
 cxxtools (1.2.2) unstable; urgency=low
 
   * bug fixed: cxxtools::arg did not find user-defined inputstreamoperators
