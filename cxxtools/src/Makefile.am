@@ -1,6 +1,7 @@
 INCLUDES = -I../include @INCLTDL@
 
-lib_LTLIBRARIES = libcxxtools.la
+lib_LTLIBRARIES = libcxxtools.la \
+	libcxxtools-log.la
 
 libcxxtools_la_SOURCES = \
 	base64stream.cpp \
@@ -21,7 +22,11 @@ if MAKE_ICONV
 libcxxtools_la_SOURCES += iconvstream.cpp
 endif
 
+libcxxtools_log_la_SOURCES = \
+	log.cpp
+
 libcxxtools_la_LIBADD = $(MAKE_ICONV) @LIBLTDL@ @LIBICONV@
 libcxxtools_la_DEPENDENCIES = $(MAKE_ICONV)
 
 libcxxtools_la_LDFLAGS = -lpthread -version-info @sonumber@
+libcxxtools_log_la_LDFLAGS = @logger_ldflags@ -version-info @sonumber@

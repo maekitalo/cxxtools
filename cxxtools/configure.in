@@ -21,6 +21,7 @@ AM_CONDITIONAL(MAKE_ICONV, test "$am_cv_func_iconv" = yes)
 
 AC_PROG_CC(gcc-3.0 gcc cc CC)
 AC_PROG_CXX(g++-3.0 g++ c++ CC)
+AC_LANG(C++)
 
 AC_LIBTOOL_DLOPEN
 AC_LIBLTDL_CONVENIENCE
@@ -28,9 +29,28 @@ AC_PROG_LIBTOOL
 AC_SUBST(INCLTDL)
 AC_SUBST(LIBLTDL)
 
-AC_LANG_PUSH(C++)
 AC_HAVE_HEADERS(sstream)
-AC_LANG_POP(C++)
+
+loggertype=stdout
+
+AC_CHECK_HEADER([log4cplus/logger.h],[AC_DEFINE([CXXTOOLS_USE_LOG4CPLUS], [], [check for log4cplus])
+   loggertype=log4cplus
+   logger_ldflags=-llog4cplus
+   ])
+
+if test $loggertype = stdout; then
+AC_CHECK_HEADER([log4cxx/logger.h],[AC_DEFINE([CXXTOOLS_USE_LOG4CXX], [], [check for log4cxx])
+   loggertype=log4cxx
+   logger_ldflags=-llog4cxx
+   ])
+fi
+
+if test $loggertype = stdout; then
+  AC_MSG_WARN(logging to stdout only !)
+  AC_DEFINE(CXXTOOLS_USE_LOGSTDOUT, [], [use logging to stdout])
+fi
+
+AC_SUBST(logger_ldflags)
 
 AC_CONFIG_FILES([
   Makefile

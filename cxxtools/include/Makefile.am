@@ -8,6 +8,8 @@ nobase_include_HEADERS = \
         cxxtools/hdstream.h \
         cxxtools/iconvstream.h \
         cxxtools/iniclass.h \
+        cxxtools/log.h \
+        cxxtools/logfwd.h \
         cxxtools/md5.h \
         cxxtools/md5stream.h \
         cxxtools/multifstream.h \
@@ -18,4 +20,7 @@ nobase_include_HEADERS = \
         cxxtools/tcpstream.h \
         cxxtools/tee.h \
         cxxtools/thread.h
+
+nobase_nodist_include_HEADERS = \
+        cxxtools/config.h
 

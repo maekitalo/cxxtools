@@ -4,18 +4,36 @@ Maintainer: Tommi Maekitalo <t.maekitalo@epgmbh.de>
 Build-Depends: debhelper (>= 4.0.0)
 Standards-Version: 3.6.0
 
-Package: cxxtools-dev
+Package: libcxxtools-dev
 Section: devel
 Architecture: any
-Depends: cxxtools (= ${Source-Version})
+Depends: libcxxtools (= ${Source-Version})
+Replaces: cxxtools-dev
 Description: cxxtools is my toolbox with reusable c++-components
  cxxtools is my toolbox with reusable c++-components
  This package contains the development files.
 
-Package: cxxtools
+Package: libcxxtools
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Replaces: cxxtools
+Description: cxxtools is my toolbox with reusable c++-components
+ cxxtools is my toolbox with reusable c++-components
+ This package contains the library files.
+
+Package: libcxxtools-log
 Section: libs
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: cxxtools is my toolbox with reusable c++-components
  cxxtools is my toolbox with reusable c++-components
- This package contains the library files.
+ This package contains a wrapper to log4cplus or log4cxx
+
+Package: libcxxtools-log-dev
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: cxxtools is my toolbox with reusable c++-components
+ cxxtools is my toolbox with reusable c++-components
+ This package contains the development files to libcxxtools-log

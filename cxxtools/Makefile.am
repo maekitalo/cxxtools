@@ -6,6 +6,8 @@ EXTRA_DIST = \
   debian/compat \
   debian/control \
   debian/copyright \
-  debian/cxxtools-dev.install \
-  debian/cxxtools.install \
+  debian/libcxxtools-dev.install \
+  debian/libcxxtools.install \
+  debian/libcxxtools-log.install \
+  debian/libcxxtools-log-dev.install \
   debian/rules
