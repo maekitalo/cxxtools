@@ -218,7 +218,8 @@ namespace cxxtools
     struct timeval t;
     struct tm tt;
     gettimeofday(&t, 0);
-    localtime_r(&t.tv_sec, &tt);
+    time_t sec = static_cast<time_t>(t.tv_sec);
+    localtime_r(&sec, &tt);
 
     std::ostream& out = getAppender();
     out << 1900 + tt.tm_year << '-'
