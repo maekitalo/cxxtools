@@ -254,7 +254,7 @@ class query_params
       return ret;
     }
     // get named parameter with operator[]
-    const string& operator[] (const string& name) const
+    string operator[] (const string& name) const
     { return param(name, std::string()); }
     // get all names
     template <typename output_iterator>
