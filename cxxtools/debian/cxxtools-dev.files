@@ -1,3 +1,2 @@
-usr/include/*
+usr/include/cxxtools/*
 usr/lib/lib*.a
-usr/lib/lib*.so
