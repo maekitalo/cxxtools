@@ -13,7 +13,7 @@ endif
 SRCS = dlloader.cpp dynbuffer.cpp hdstream.cpp \
        iniclass.cpp md5stream.cpp pollclass.cpp \
        query_params.cpp tcpstream.cpp tee.cpp \
-       thread.cpp timeclass.cpp
+       thread.cpp timeclass.cpp iconvstream.cpp
 
 OBJECTS=$(SRCS:.cpp=.o) md5.o
 
@@ -24,8 +24,8 @@ all: libcxxtools.so.$(VERSION)
 clean:
 	rm -rf *.o lib* depend
 
-depend:
-	( for f in $(SRCS) md5.c; do $(CC) $(CXXFLAGS) -MM $$f; done ) >depend
+depend: $(SRCS)
+	( for f in $(SRCS) md5.c; do $(CC) $(CXXFLAGS) -M $$f; done ) >depend
 
 libcxxtools.a: $(OBJECTS)
 	rm -f $@
