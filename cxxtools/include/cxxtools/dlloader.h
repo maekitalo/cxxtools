@@ -120,6 +120,8 @@ namespace dl
       /// returns true, if this is the only reference.
       bool isLastRef() const
       { return next == this; }
+
+      void* getHandle() const   { return handle; }
   };
 
   class symbol

@@ -52,6 +52,9 @@ namespace dl
 
   library& library::operator=(const library& src)
   {
+    if (handle == src.handle)
+      return *this;
+
     close();
 
     handle = src.handle;
