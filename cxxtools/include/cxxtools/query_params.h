@@ -72,11 +72,20 @@ class query_params
         std::string name;
         size_type pos;
 
+        size_type size() const
+        { 
+          return (name.empty() ? params->paramcount()
+                               : params->paramcount(name));
+        }
+
         bool is_end() const
         {
-          return params == 0
-              || (name.empty() ? pos >= params->paramcount()
-                               : pos >= params->paramcount(name));
+          return params == 0 || pos >= size();
+        }
+
+        size_type getpos() const
+        {
+          return is_end() ? size() : pos;
         }
 
       public:
@@ -178,7 +187,8 @@ class query_params
 
         difference_type operator- (const const_iterator& it) const
         {
-          return pos - it.pos;
+          return is_end() ? it.is_end() ? 0 : it.size() - it.pos
+                          : it.is_end() ? pos - size() : pos - it.pos;
         }
 
         reference operator[] (difference_type n) const
