@@ -298,7 +298,7 @@ namespace tcp
   {
     log_debug("Stream::Write " << bufsize << " bytes");
 
-    size_t n = 0;
+    ssize_t n = 0;
     size_type s = bufsize;
 
     while (true)
@@ -322,7 +322,7 @@ namespace tcp
       struct pollfd fds;
       fds.fd = getFd();
       fds.events = POLLOUT;
-      int p = poll(&fds, 1, -1);
+      int p = poll(&fds, 1, getTimeout());
 
       if (p < 0)
       {
