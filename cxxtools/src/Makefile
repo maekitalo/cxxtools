@@ -19,7 +19,8 @@ SRCS = \
 	tee.cpp \
 	thread.cpp \
 	timeclass.cpp \
-	multifstream.cpp
+	multifstream.cpp \
+	sudo.cpp
 
 SRCS_OLD = iniclass.cpp
 
