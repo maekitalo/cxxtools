@@ -12,7 +12,7 @@ OBJECTS=$(SRCS:.cpp=.o) md5.o
 
 .PHONY: all clean Makefile
 
-all: libcxxtools.so
+all: libcxxtools.so.$(VERSION)
 
 clean:
 	rm -rf *.o lib* depend
@@ -25,7 +25,7 @@ libcxxtools.a: $(OBJECTS)
 	ar rcs $@ $^
 	ranlib $@
 
-libcxxtools.so: $(OBJECTS)
+libcxxtools.so.$(VERSION): $(OBJECTS)
 	$(CC) -shared -Wl,-soname,libcxxtools.so.$(VERSION) -o libcxxtools.so.$(VERSION) $^
 
 
