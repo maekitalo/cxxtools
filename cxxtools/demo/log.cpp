@@ -23,11 +23,11 @@ int main(int argc, char* argv[])
   {
     log_init();
 
-    log_fatal("fatal message");
-    log_error("error message");
-    log_warn("warn message");
-    log_info("info message");
-    log_debug("debug message");
+    log_fatal("fatal message " << 1);
+    log_error("error message " << 2);
+    log_warn("warn message " << 3);
+    log_info("info message " << 4);
+    log_debug("debug message " << 5);
 
     ns::main();
   }

@@ -56,9 +56,9 @@ namespace log4cplus
 
 #endif
 
-#ifdef CXXTOOLS_USE_LOGSTDOUT
+#ifdef CXXTOOLS_USE_LOGBUILTIN
 ////////////////////////////////////////////////////////////////////////
-// logging to stdout
+// builtin-logging
 //
 
 namespace cxxtools

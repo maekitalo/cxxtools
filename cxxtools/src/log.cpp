@@ -25,30 +25,45 @@ Boston, MA  02111-1307  USA
 
 #include <log4cxx/basicconfigurator.h>
 #include <log4cxx/helpers/stringhelper.h>
+#include <log4cxx/helpers/exception.h>
 #include <log4cxx/xml/domconfigurator.h>
 #include <log4cxx/propertyconfigurator.h>
 #include <log4cxx/logmanager.h>
 
 void log_init()
 {
-  log4cxx::BasicConfigurator::configure();
+  char* LOGPROPERTIES = ::getenv("LOGPROPERTIES");
+  if (LOGPROPERTIES)
+    log_init(LOGPROPERTIES);
+  else
+  {
+    try
+    {
+      log_init("log4j.properties");
+    }
+    catch (const log4cxx::helpers::IOException&)
+    {
+      log4cxx::BasicConfigurator::configure();
+    }
+  }
 }
 
 void log_init(log4cxx::LevelPtr level)
 {
   log4cxx::BasicConfigurator::configure();
   log4cxx::LoggerPtr rootLogger = log4cxx::Logger::getRootLogger();
-
-  log4cxx::LogManager::getLoggerRepository()->setThreshold(level);
+  rootLogger->setLevel(level);
 }
 
 void log_init(const std::string& configFileName)
 {
-  if (log4cxx::helpers::StringHelper::endsWith(configFileName, _T(".xml")))
+#ifdef LOG4CXX_HAVE_XML
+  if (log4cxx::helpers::StringHelper::endsWith(configFileName, ".xml"))
   {
     ::log4cxx::xml::DOMConfigurator::configure(configFileName);
   }
   else
+#endif
   {
     ::log4cxx::PropertyConfigurator::configure(configFileName);
   }
@@ -94,7 +109,7 @@ void log_init(const std::string& propertyfilename)
 
 #endif
 
-#ifdef CXXTOOLS_USE_LOGSTDOUT
+#ifdef CXXTOOLS_USE_LOGBUILTIN
 
 #include <cxxtools/log.h>
 #include <cxxtools/thread.h>

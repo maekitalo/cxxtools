@@ -27,13 +27,26 @@ Boston, MA  02111-1307  USA
 #ifdef CXXTOOLS_USE_LOG4CXX
 
 #include <log4cxx/logger.h>
+#include <sstream>
 
-#define log_fatal(expr)   do { LOG4CXX_FATAL(getLogger(), expr); } while(false)
-#define log_error(expr)   do { LOG4CXX_ERROR(getLogger(), expr); } while(false)
-#define log_warn(expr)    do { LOG4CXX_WARN(getLogger(), expr); } while(false)
-#define log_info(expr)    do { LOG4CXX_INFO(getLogger(), expr); } while(false)
-#define log_debug(expr)   do { LOG4CXX_DEBUG(getLogger(), expr); } while(false)
-#define log_trace(event)  ::cxxtools::log4cxx_tracer log4cxx_trace_logger(getLogger(), event)
+#define CXXTOOLS_LOG(level, expr) \
+  do { \
+    if (getLogger()->isEnabledFor(::log4cxx::Level::level)) \
+    { \
+      std::ostringstream msg; \
+      msg << expr; \
+      getLogger()->log( \
+        ::log4cxx::Level::level, \
+        msg.str(), \
+        LOG4CXX_LOCATION); \
+    } \
+  } while (false)
+
+#define log_fatal(expr)  CXXTOOLS_LOG(FATAL, expr)
+#define log_error(expr)  CXXTOOLS_LOG(ERROR, expr)
+#define log_warn(expr)  CXXTOOLS_LOG(WARN, expr)
+#define log_info(expr)  CXXTOOLS_LOG(INFO, expr)
+#define log_debug(expr)  CXXTOOLS_LOG(DEBUG, expr)
 
 #define log_init_fatal()   log_init(::log4cxx::Level::FATAL)
 #define log_init_error()   log_init(::log4cxx::Level::ERROR)
@@ -45,7 +58,7 @@ Boston, MA  02111-1307  USA
 void log_init();
 void log_init(::log4cxx::LevelPtr level);
 void log_init(const std::string& filename);
-void log_init(const char* filename)
+inline void log_init(const char* filename)
 { log_init(std::string(filename)); }
 
 namespace cxxtools
@@ -94,7 +107,7 @@ namespace cxxtools
 #define log_info(expr)   do { LOG4CPLUS_INFO(getLogger(), expr) } while(false)
 #define log_debug(expr)  do { LOG4CPLUS_DEBUG(getLogger(), expr) } while(false)
 
-#define log_trace(event)  do { LOG4CPLUS_TRACE_METHOD(getLogger(), event) } while(false)
+#define log_trace(event) do { LOG4CPLUS_TRACE_METHOD(getLogger(), event) } while(false)
 
 #define log_init_fatal()   log_init(log4cplus::FATAL_LOG_LEVEL)
 #define log_init_error()   log_init(log4cplus::ERROR_LOG_LEVEL)
@@ -128,7 +141,7 @@ void log_init(const std::string& propertyfilename);
 
 #endif
 
-#ifdef CXXTOOLS_USE_LOGSTDOUT
+#ifdef CXXTOOLS_USE_LOGBUILTIN
 
 #include <string>
 #include <cxxtools/thread.h>

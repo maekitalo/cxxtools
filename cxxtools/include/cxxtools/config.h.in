@@ -5,7 +5,7 @@
 #undef CXXTOOLS_USE_LOG4CXX
 
 /* use logging to stdout */
-#undef CXXTOOLS_USE_LOGSTDOUT
+#undef CXXTOOLS_USE_LOGBUILTIN
 
 /* Define to 1 if you have the <dirent.h> header file, and it defines `DIR'.
    */
