@@ -14,7 +14,9 @@ dynbuffer_SOURCES = dynbuffer.cpp
 log_SOURCES = log.cpp
 logbench_SOURCES = logbench.cpp
 
-EXTRA_DIST = run_log
+EXTRA_DIST = log.properties \
+    log4j.properties \
+    log4cplus.properties
 
 INCLUDES = -I../include
 LDADD = $(top_builddir)/src/libcxxtools.la
