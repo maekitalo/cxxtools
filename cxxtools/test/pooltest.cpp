@@ -5,6 +5,7 @@
 #include "cxxtools/pool.h"
 #include "cxxtools/thread.h"
 #include <iostream>
+#include <unistd.h>
 
 Mutex logmutex;
 
