@@ -175,7 +175,6 @@ namespace tcp
    */
   class Stream : public Socket
   {
-      socklen_t peeraddr_len;
       union {
         struct sockaddr sockaddr;
         struct sockaddr_in sockaddr_in;

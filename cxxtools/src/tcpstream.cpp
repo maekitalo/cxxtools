@@ -186,6 +186,7 @@ namespace tcp
 
   void Stream::Accept(const Server& server)
   {
+    socklen_t peeraddr_len;
     peeraddr_len = sizeof(peeraddr);
     setFd(accept(server.getFd(), &peeraddr.sockaddr, &peeraddr_len));
     if (bad())
