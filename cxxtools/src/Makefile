@@ -1,4 +1,4 @@
-CXXFLAGS=-fPIC -I../include -I../include/cxxtools -g -Wall -pedantic
+CXXFLAGS=-fPIC -I../include -I../include/cxxtools -O2 -Wall -pedantic
 CFLAGS=-fPIC -I../include -I../include/cxxtools -O2 -Wall
 LDFLAGS=-ldl -lpthread
 CC=g++
