@@ -24,16 +24,45 @@ EOF
     exit $1
 }
 
-log4cxx_template()
+start_template()
 {
   cat <<EOF
-log4j.rootLogger=WARN, file
+# sample logging-properties for application APP
+# put this in APP.properties and use:
+#   log_init("APP.properties");
+# in your application to initialize logging
+#
+# define categories with:
+#   log_define("some.category")
+# this defines a static function, so you must put it outside other functions.
+# you can define a category per file or a category per namespace.
+#
+# print logging-messages with:
+#   log_fatal("some fatal message");
+#   log_error("some error message");
+#   log_warn("some warn message");
+#   log_info("some info message");
+#   log_debug("some debug message");
+#
+EOF
+}
+
+log4cxx_template()
+{
+  start_template
+  cat <<EOF
+# define the root-category
+log4j.rootLogger=WARN, console
+
+# define logger-categories
 log4j.logger.APP=INFO
 
+# console-appender
 log4j.appender.console=org.apache.log4j.ConsoleAppender
 log4j.appender.console.layout=TTCCLayout
 log4j.appender.console.layout.DateFormat=ISO8601
 
+# rolling-file-appender
 log4j.appender.file=org.apache.log4j.RollingFileAppender
 log4j.appender.file.File=APP.log
 log4j.appender.file.MaxFileSize=1MB
@@ -46,14 +75,20 @@ EOF
 
 log4cplus_template()
 {
+  start_template
   cat <<EOF
+# define the root-category
 log4cplus.rootLogger=WARN, file
+
+# define logger-categories
 log4cplus.logger.APP=INFO
 
+# console-appender
 log4cplus.appender.console=log4cplus::ConsoleAppender
 log4cplus.appender.console.layout=log4cplus::TTCCLayout
 log4cplus.appender.console.ImmediateFlush=true
 
+# rolling-file-appender
 log4cplus.appender.file=log4cplus::RollingFileAppender
 log4cplus.appender.file.File=APP.log
 log4cplus.appender.file.layout=log4cplus::TTCCLayout
@@ -65,9 +100,14 @@ EOF
 
 simple_template()
 {
+  start_template
   cat <<EOF
 rootLogger=WARN
+
+# define logger-categories
 logger.APP=INFO
+
+# uncomment if you want to log to a file instead of console
 #file=APP.log
 EOF
 }
@@ -80,9 +120,6 @@ disabled_template()
 if test $# -eq 0; then
     usage
 fi
-
-cflags=false
-libs=false
 
 while test $# -gt 0; do
     case "$1" in
