@@ -1,10 +1,16 @@
+cxxtools (1.3.0) unstable; urgency=low
+
+  * modified timeout-handling in tcpstream
+
+ -- Tommi Maekitalo <tommi@epgmbh.de>  Tue, 25 Jan 2005 15:22:12 +0100
+
 cxxtools (1.2.3) unstable; urgency=low
 
   * missing errno.h in iconvstream.cpp added
   * support in cxxtools::arg for multiple alternative switches
     in a single arg-variable (set-method)
 
- -- Tommi Maekitalo <tommi@fserv.eckpart.de>  Wed,  5 Jan 2005 09:26:41 +0100
+ -- Tommi Maekitalo <tommi@epgmbh.de>  Wed,  5 Jan 2005 09:26:41 +0100
 
 cxxtools (1.2.2) unstable; urgency=low
 

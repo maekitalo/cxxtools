@@ -31,13 +31,13 @@ Boston, MA  02111-1307  USA
 #include <errno.h>
 #include <netdb.h>
 
-#undef log_define
 #undef log_warn
 #undef log_debug
 
-#define log_define(expr)
 #define log_warn(expr)
 #define log_debug(expr)
+//#define log_warn(expr)   do { std::cerr << "WARN: " << expr << std::endl; } while(false)
+//#define log_debug(expr)  do { std::cerr << "DEBUG: " << expr << std::endl; } while(false)
 
 namespace cxxtools
 {
@@ -110,7 +110,7 @@ namespace tcp
     if (getFd() >= 0)
     {
       long a = m_timeout >= 0 ? O_NONBLOCK : 0;
-      log_debug("fcntl(" << getFd() << ", F_SETFL, " << a);
+      log_debug("fcntl(" << getFd() << ", F_SETFL, " << a << ')');
       fcntl(getFd(), F_SETFL, a);
     }
   }
@@ -221,8 +221,6 @@ namespace tcp
     setTimeout(getTimeout());
   }
 
-  log_define("cxxtools.tcp");
-
   Stream::size_type Stream::Read(char* buffer, Stream::size_type bufsize) const
   {
     ssize_t n;
@@ -246,7 +244,7 @@ namespace tcp
       // try reading without timeout
       log_debug("non blocking read fd=" << getFd());
       n = ::read(getFd(), buffer, bufsize);
-      log_debug("non blocking read, return " << n);
+      log_debug("non blocking read returns " << n);
 
       if (n < 0)
       {
@@ -297,6 +295,27 @@ namespace tcp
     if (n <= 0)
       // au weia - das ging schief
       throw Exception("tcp::Stream: error in write");
+
+    while (n < bufsize)
+    {
+      buffer += n;
+      bufsize -= n;
+
+      struct pollfd fds;
+      fds.fd = getFd();
+      fds.events = POLLOUT;
+      int p = poll(&fds, 1, -1);
+
+      if (p < 0)
+      {
+        int errnum = errno;
+        throw Exception(strerror(errnum));
+      }
+      else if (p == 0)
+        throw Timeout();
+
+      n = ::write(getFd(), buffer, bufsize);
+    }
 
     return n;
   }
