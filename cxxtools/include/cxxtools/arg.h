@@ -376,7 +376,10 @@ class arg<const char*>
         argv[argc] = 0;
       }
       else
+      {
+        m_value = 0;
         m_isset = false;
+      }
     }
 
     /**
