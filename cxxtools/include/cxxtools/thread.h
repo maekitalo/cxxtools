@@ -14,6 +14,7 @@
 class ThreadException : public std::runtime_error
 {
     int m_errno;
+
   public:
     ThreadException(const std::string& w, int e)
       : std::runtime_error(w),
@@ -41,8 +42,44 @@ class Thread
   private:
 };
 
+template <typename function_type>
+class FunctionThread : public Thread
+{
+    function_type& function;
+
+  public:
+    FunctionThread(function_type& f)
+      : function(f)
+      { }
+
+    virtual void Run()
+    {
+      f();
+    }
+};
+
+template <typename object_type>
+class MethodThread : public Thread
+{
+    object_type& object;
+    void (object_type::*method)();
+
+  public:
+    MethodThread(object_type& a, void (object_type::*m)())
+      : object(a),
+        method(m)
+      { }
+
+    virtual void Run()
+    {
+      (object.*method)();
+    }
+};
+
 class Mutex
 {
+    friend class Condition;
+
     pthread_mutex_t m_mutex;
 
     // make copy and assignment private without implementation
@@ -118,6 +155,9 @@ class LockBase
         locked = false;
       }
     }
+
+    mutex_type& getMutex()
+      { return mutex; }
 };
 
 typedef LockBase<Mutex> MutexLock;
@@ -138,5 +178,21 @@ class Semaphore
     int getValue();
 };
 
+class Condition
+{
+    pthread_cond_t cond;
+
+    // no implementation
+    Condition(const Condition&);
+    const Condition& operator= (const Condition&);
+
+  public:
+    Condition();
+
+    void Signal();
+    void Broadcast();
+    void Wait(Mutex& mutex);
+    void Wait(MutexLock& lock);
+};
 #endif // THREAD_H
 

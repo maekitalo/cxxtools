@@ -178,3 +178,40 @@ int Semaphore::getValue()
     throw ThreadException("error in sem_getvalue", ret);
   return sval;
 }
+
+Condition::Condition()
+{
+  int ret = pthread_cond_init(&cond, 0);
+  if (ret != 0)
+    throw ThreadException("error in pthread_cond_init", ret);
+}
+
+void Condition::Signal()
+{
+  int ret = pthread_cond_signal(&cond);
+  if (ret != 0)
+    throw ThreadException("error in pthread_cond_signal", ret);
+}
+
+void Condition::Broadcast()
+{
+  int ret = pthread_cond_broadcast(&cond);
+  if (ret != 0)
+    throw ThreadException("error in pthread_cond_broadcast", ret);
+}
+
+void Condition::Wait(Mutex& mutex)
+{
+  MutexLock lock(mutex);
+  int ret = pthread_cond_wait(&cond, &mutex.m_mutex);
+  if (ret != 0)
+    throw ThreadException("error in pthread_cond_wait", ret);
+}
+
+void Condition::Wait(MutexLock& lock)
+{
+  int ret = pthread_cond_wait(&cond, &lock.getMutex().m_mutex);
+  if (ret != 0)
+    throw ThreadException("error in pthread_cond_wait", ret);
+}
+
