@@ -21,6 +21,12 @@ AM_CONDITIONAL(MAKE_ICONV, test "$am_cv_func_iconv" = yes)
 
 AC_PROG_CC(gcc-3.0 gcc cc CC)
 AC_PROG_CXX(g++-3.0 g++ c++ CC)
+
+AC_CHECK_LIB(nsl, setsockopt)
+AC_CHECK_LIB(socket, accept)
+AC_SEARCH_LIBS(fdatasync, [rt posix4])
+AC_SUBST(NETWORK_LIBS)
+
 AC_LANG(C++)
 
 AC_LIBTOOL_DLOPEN
