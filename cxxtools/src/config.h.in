@@ -9,7 +9,7 @@
 /* use log4cxx for logging */
 #undef CXXTOOLS_LOG_LOG4CXX
 
-/* use builtin logging */
+/* use simple logging */
 #undef CXXTOOLS_LOG_LOGBUILTIN
 
 /* Define to 1 if you have the <dirent.h> header file, and it defines `DIR'.

@@ -30,6 +30,7 @@ Boston, MA  02111-1307  USA
 #define log_init_warn()    log_init(cxxtools::logger::LOG_LEVEL_WARN)
 #define log_init_info()    log_init(cxxtools::logger::LOG_LEVEL_INFO)
 #define log_init_debug()   log_init(cxxtools::logger::LOG_LEVEL_DEBUG)
+#define log_init_trace()   log_init(cxxtools::logger::LOG_LEVEL_TRACE)
 #define log_init           log_init_cxxtools
 
 inline void log_init_cxxtools(cxxtools::logger::log_level_type level)

@@ -22,11 +22,20 @@ Boston, MA  02111-1307  USA
 #ifndef CXXTOOLS_LOG_DISABLE_H
 #define CXXTOOLS_LOG_DISABLE_H
 
+#define log_fatal_enable()        false
+#define log_error_enable()        false
+#define log_warn_enable()         false
+#define log_info_enable()         false
+#define log_debug_enable()        false
+#define log_trace_enable()        false
+
 #define log_fatal(expr)        do { } while (false)
 #define log_error(expr)        do { } while (false)
 #define log_warn(expr)         do { } while (false)
 #define log_info(expr)         do { } while (false)
 #define log_debug(expr)        do { } while (false)
+#define log_trace(expr)        do { } while (false)
+
 #define log_define(category)
 
 #endif // CXXTOOLS_LOG_DISABLE_H

@@ -36,7 +36,7 @@ Boston, MA  02111-1307  USA
 #define log_init_warn()    log_init(::log4cxx::Level::WARN)
 #define log_init_info()    log_init(::log4cxx::Level::INFO)
 #define log_init_debug()   log_init(::log4cxx::Level::DEBUG)
-#define log_init_trace()   log_init(::log4cxx::Level::TRACE)
+#define log_init_trace()   log_init(::log4cxx::Level::DEBUG)
 
 inline void log_init(const std::string& configFileName)
 {

@@ -24,8 +24,10 @@ Boston, MA  02111-1307  USA
 #include <list>
 #include <algorithm>
 #include <fstream>
+#include <sstream>
 #include <time.h>
 #include <sys/time.h>
+#include <sys/stat.h>
 
 namespace cxxtools
 {
@@ -157,6 +159,36 @@ namespace cxxtools
     return out;
   }
 
+  log_tracer::~log_tracer()
+  {
+    if (msg)
+    {
+      if (l->isEnabled(logger::LOG_LEVEL_TRACE))
+      {
+        cxxtools::MutexLock lock(cxxtools::logger::mutex);
+        l->logentry("TRACE")
+          << "EXIT " << msg->str() << std::endl;
+      }
+      delete msg;
+    }
+  }
+
+  std::ostream& log_tracer::logentry()
+  {
+    if (!msg)
+      msg = new std::ostringstream();
+    return *msg;
+  }
+
+  void log_tracer::enter()
+  {
+    if (msg && l->isEnabled(logger::LOG_LEVEL_TRACE))
+    {
+      cxxtools::MutexLock lock(cxxtools::logger::mutex);
+      l->logentry("TRACE")
+        << "ENTER " << msg->str() << std::endl;
+    }
+  }
 }
 
 void log_init(const std::string& propertyfilename)
@@ -191,7 +223,7 @@ void log_init(const std::string& propertyfilename)
       case state_0:
         if (std::isalnum(ch))
         {
-          token = ch;
+          token = std::toupper(ch);
           state = state_token;
         }
         else if (!std::isspace(ch))
@@ -201,7 +233,7 @@ void log_init(const std::string& propertyfilename)
       case state_token:
         if (ch == '.')
         {
-          if (token == "logger")
+          if (token == "LOGGER")
             state = state_category;
           else
           {
@@ -262,7 +294,8 @@ void log_init(const std::string& propertyfilename)
           case 'W': level = cxxtools::logger::LOG_LEVEL_WARN; break;
           case 'I': level = cxxtools::logger::LOG_LEVEL_INFO; break;
           case 'D': level = cxxtools::logger::LOG_LEVEL_DEBUG; break;
-          default: level = cxxtools::logger::getStdLevel(); break;
+          case 'T': level = cxxtools::logger::LOG_LEVEL_TRACE; break;
+          default:  level = cxxtools::logger::getStdLevel(); break;
         }
         if (state == state_rootlevel)
           cxxtools::logger::setRootLevel(level);
@@ -303,5 +336,12 @@ void log_init()
   if (LOGPROPERTIES)
     log_init(LOGPROPERTIES);
   else
-    log_init(cxxtools::logger::LOG_LEVEL_ERROR);
+  {
+    struct stat s;
+    if (stat("log.properties", &s) == 0)
+      log_init("log.properties");
+    else
+      log_init(cxxtools::logger::LOG_LEVEL_ERROR);
+  }
 }
+

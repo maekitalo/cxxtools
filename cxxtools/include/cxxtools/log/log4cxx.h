@@ -25,15 +25,22 @@ Boston, MA  02111-1307  USA
 #include <log4cxx/logger.h>
 #include <sstream>
 
+#define log_fatal_enabled()  getLogger()->isEnabledFor(::log4cxx::Level::FATAL)
+#define log_error_enabled()  getLogger()->isEnabledFor(::log4cxx::Level::ERROR)
+#define log_warn_enabled()   getLogger()->isEnabledFor(::log4cxx::Level::WARN)
+#define log_info_enabled()   getLogger()->isEnabledFor(::log4cxx::Level::INFO)
+#define log_debug_enabled()  getLogger()->isEnabledFor(::log4cxx::Level::DEBUG)
+#define log_trace_enabled()  getLogger()->isEnabledFor(::log4cxx::Level::DEBUG)
+
 #define log_xxxx(level, expr) \
   do { \
     if (getLogger()->isEnabledFor(::log4cxx::Level::level)) \
     { \
-      std::ostringstream msg; \
-      msg << expr; \
+      std::ostringstream _msg_; \
+      _msg_ << expr; \
       getLogger()->log( \
         ::log4cxx::Level::level, \
-        msg.str(), \
+        _msg_.str(), \
         LOG4CXX_LOCATION); \
     } \
   } while (false)
@@ -43,6 +50,13 @@ Boston, MA  02111-1307  USA
 #define log_warn(expr)   log_xxxx(WARN, expr)
 #define log_info(expr)   log_xxxx(INFO, expr)
 #define log_debug(expr)  log_xxxx(DEBUG, expr)
+#define log_trace(expr)  \
+  ::cxxtools::log4cxx_tracer tracer ## __LINE__ (getLogger());  \
+  if (log_trace_enabled()) \
+  { \
+    tracer ## __LINE__ .logentry() << expr;  \
+    tracer ## __LINE__ .enter();  \
+  }
 
 #define log_define(category) \
   static inline log4cxx::LoggerPtr& getLogger()   \
@@ -50,5 +64,39 @@ Boston, MA  02111-1307  USA
     static log4cxx::LoggerPtr l = ::log4cxx::Logger::getLogger(category); \
     return l; \
   }
+
+namespace cxxtools
+{
+  class log4cxx_tracer
+  {
+      log4cxx::LoggerPtr l;
+      std::ostringstream* msg;
+
+      log4cxx::LoggerPtr& getLogger()  { return l; }
+
+    public:
+      log4cxx_tracer(::log4cxx::LoggerPtr& l_)
+        : l(l_), msg(0)
+      { }
+      ~log4cxx_tracer()
+      {
+        if (msg && log_trace_enabled())
+          log_debug("EXIT " << msg->str());
+      }
+
+      std::ostream& logentry()
+      {
+        if (!msg)
+          msg = new std::ostringstream();
+        return *msg;
+      }
+
+      void enter()
+      {
+        if (msg && log_trace_enabled())
+          log_debug("ENTER " << msg->str());
+      }
+  };
+}
 
 #endif // CXXTOOLS_LOG_LOG4CXX_H

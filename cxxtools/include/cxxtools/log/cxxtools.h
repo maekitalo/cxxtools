@@ -26,10 +26,13 @@ Boston, MA  02111-1307  USA
 #include <cxxtools/thread.h>
 #include <iostream>
 
+#define log_xxxx_enabled(level)   \
+  getLogger()->isEnabled(::cxxtools::logger::LOG_LEVEL_ ## level)
+
 #define log_xxxx(level, expr)   \
   do { \
     cxxtools::logger* logger = getLogger(); \
-    if (logger->isEnabled(::cxxtools::logger::LOG_LEVEL_ ## level)) \
+    if (log_xxxx_enabled(level)) \
     { \
       cxxtools::MutexLock lock(cxxtools::logger::mutex); \
       logger->logentry(#level) \
@@ -37,11 +40,25 @@ Boston, MA  02111-1307  USA
     } \
   } while (false)
 
+#define log_fatal_enabled()     log_xxxx_enabled(FATAL)
+#define log_error_enabled()     log_xxxx_enabled(ERROR)
+#define log_warn_enabled()      log_xxxx_enabled(WARN)
+#define log_info_enabled()      log_xxxx_enabled(INFO)
+#define log_debug_enabled()     log_xxxx_enabled(DEBUG)
+#define log_trace_enabled()     log_xxxx_enabled(TRACE)
+
 #define log_fatal(expr)     log_xxxx(FATAL, expr)
 #define log_error(expr)     log_xxxx(ERROR, expr)
 #define log_warn(expr)      log_xxxx(WARN, expr)
 #define log_info(expr)      log_xxxx(INFO, expr)
 #define log_debug(expr)     log_xxxx(DEBUG, expr)
+#define log_trace(expr)     \
+  ::cxxtools::log_tracer tracer ## __LINE__ (getLogger());  \
+  if (log_trace_enabled()) \
+  { \
+    tracer ## __LINE__ .logentry() << expr;  \
+    tracer ## __LINE__ .enter();  \
+  }
 
 #define log_define(category) \
   static inline ::cxxtools::logger* getLogger()   \
@@ -60,7 +77,8 @@ namespace cxxtools
         LOG_LEVEL_ERROR = 100,
         LOG_LEVEL_WARN  = 200,
         LOG_LEVEL_INFO  = 300,
-        LOG_LEVEL_DEBUG = 400
+        LOG_LEVEL_DEBUG = 400,
+        LOG_LEVEL_TRACE = 500
       } log_level_type;
 
     private:
@@ -95,6 +113,21 @@ namespace cxxtools
 
       static RWLock rwmutex;
       static Mutex mutex;
+  };
+
+  class log_tracer
+  {
+      logger* l;
+      std::ostringstream* msg;
+
+    public:
+      log_tracer(logger* l_)
+        : l(l_), msg(0)
+      { }
+      ~log_tracer();
+
+      std::ostream& logentry();
+      void enter();
   };
 }
 

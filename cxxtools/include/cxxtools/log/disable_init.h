@@ -29,6 +29,7 @@ Boston, MA  02111-1307  USA
 #define log_init_warn()   do { } while(false)
 #define log_init_info()   do { } while(false)
 #define log_init_debug()  do { } while(false)
+#define log_init_trace()  do { } while(false)
 
 inline void log_init(const std::string& configFileName)
 { }

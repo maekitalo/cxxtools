@@ -35,7 +35,7 @@ AC_ARG_WITH(
    [logging],
    AS_HELP_STRING([--with-logging],
                   [specify logging-library. Accepted arguments:
-                   log4cxx, log4cplus, builtin, disable]),
+                   log4cxx, log4cplus, simple, disable]),
    [ ac_loggertype=$withval ],
    [ ac_loggertype=probe ])
 
@@ -67,9 +67,9 @@ if test "$ac_loggertype" = "log4cplus" -o "$ac_loggertype" = "probe"; then
    )
 fi
 
-if test "$ac_loggertype" = "builtin" -o "$ac_loggertype" = "probe"; then
-  AC_DEFINE([CXXTOOLS_LOG_LOGBUILTIN], [], [use builtin logging])
-  ac_loggertype=builtin
+if test "$ac_loggertype" = "simple" -o "$ac_loggertype" = "probe"; then
+  AC_DEFINE([CXXTOOLS_LOG_LOGBUILTIN], [], [use simple logging])
+  ac_loggertype=simple
 elif test "$ac_loggertype" = "disable"; then
   AC_DEFINE([CXXTOOLS_LOG_DISABLE], [], [disable logging])
 fi
@@ -83,9 +83,9 @@ case "$ac_loggertype" in
         logger_ldflags=-llog4cplus
         AC_MSG_NOTICE([loggertype is log4cplus])
         ;;
-    builtin)
+    simple)
         logger_ldflags=-lcxxtools-log
-        AC_MSG_NOTICE([loggertype is builtin])
+        AC_MSG_NOTICE([loggertype is simple])
         ;;
     disable)
         AC_MSG_NOTICE([logging is disabled])

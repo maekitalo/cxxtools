@@ -10,6 +10,8 @@ namespace ns
   log_define("log.ns");  // namespace definition
   void main()
   {
+    log_trace("main");
+
     log_fatal("fatal message in namespace ns");
     log_error("error message in namespace ns");
     log_warn("warn message in namespace ns");

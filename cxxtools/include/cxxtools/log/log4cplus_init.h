@@ -25,6 +25,7 @@ Boston, MA  02111-1307  USA
 #include <log4cplus/configurator.h>
 #include <log4cplus/consoleappender.h>
 #include <log4cplus/layout.h>
+#include <sys/stat.h>
 
 #define log_init_fatal()   log_init(log4cplus::FATAL_LOG_LEVEL)
 #define log_init_error()   log_init(log4cplus::ERROR_LOG_LEVEL)
@@ -57,9 +58,9 @@ inline void log_init()
     log_init(LOGPROPERTIES);
   else
   {
-    char* LOG4CPLUS = ::getenv("LOG4CPLUS");
-    if (LOG4CPLUS)
-      log_init(LOG4CPLUS);
+    struct stat s;
+    if (stat("log4cplus.properties", &s) == 0)
+      log_init("log4cplus.properties");
     else
       log_init(log4cplus::ERROR_LOG_LEVEL);
   }
