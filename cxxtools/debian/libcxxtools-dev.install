@@ -19,3 +19,5 @@ usr/include/cxxtools/tcpstream.h
 usr/include/cxxtools/tee.h
 usr/include/cxxtools/thread.h
 usr/lib/libcxxtools.so
+usr/share/cxxtools/cxxtools-cxxflags
+usr/share/cxxtools/cxxtools-ldflags
