@@ -8,6 +8,7 @@ int main(int argc, char* argv[])
   try
   {
     cxxtools::arg<unsigned short> port(argc, argv, 'p', 80);
+    cxxtools::arg<bool> raw(argc, argv, 'r');
 
     cxxtools::arg<std::string> host("127.0.0.1");
     host.set(argc, argv);
@@ -19,8 +20,19 @@ int main(int argc, char* argv[])
     cxxtools::httprequest request(host, port, url);
 
     // execute request
-    request.execute();
-    std::cout << request.rdbuf() << std::flush;
+    if (raw)
+    {
+      // execute request and read result including http-headers
+      request.execute();
+      std::cout << request.rdbuf() << std::flush;
+    }
+    else
+    {
+      // let httpreply parse the http-headers and read only body
+      cxxtools::httpreply reply(request);
+      std::cout << "return-code " << reply.getReturnCode() << '\n'
+                << reply.rdbuf() << std::flush;
+    }
   }
   catch (const std::exception& e)
   {
