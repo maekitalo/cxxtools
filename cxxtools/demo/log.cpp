@@ -1,4 +1,6 @@
 #include <cxxtools/log.h>
+#include <iostream>
+#include <stdexcept>
 
 log_define("log-demo");
 

@@ -146,29 +146,33 @@ namespace cxxtools
   extern log_level_type log_level;
 }
 
-#define log_(level, expr)   do { if (cxxtools::log_level >= level) { std::cout << expr; } } while (false)
-#define log_fatal(expr)     log_(LOG_LEVEL_FATAL expr)
-#define log_error(expr)     log_(LOG_LEVEL_ERROR, expr)
-#define log_warn(expr)      log_(LOG_LEVEL_WARN, expr)
-#define log_info(expr)      log_(LOG_LEVEL_INFO, expr)
-#define log_debug(expr)     log_(LOG_LEVEL_DEBUG, expr)
-#define log_trace(event)    log_(LOG_LEVEL_TRACE, expr)
+#define log_(level, expr)   \
+  do { \
+    if (cxxtools::log_level >= cxxtools::LOG_LEVEL_ ## level) \
+    { \
+      std::cout << #level << " - " << expr << std::endl; \
+    } \
+  } while (false)
+
+#define log_fatal(expr)     log_(FATAL, expr)
+#define log_error(expr)     log_(ERROR, expr)
+#define log_warn(expr)      log_(WARN, expr)
+#define log_info(expr)      log_(INFO, expr)
+#define log_debug(expr)     log_(DEBUG, expr)
+#define log_trace(event)    log_(TRACE, expr)
 
 #define log_define(category)
 #define log_define_static(category)
 #define log_define_class(classname, category)
 
-#define log_init_fatal()   log_init(FATAL_LOG_LEVEL)
-#define log_init_error()   log_init(ERROR_LOG_LEVEL)
-#define log_init_warn()    log_init(WARN_LOG_LEVEL)
-#define log_init_info()    log_init(INFO_LOG_LEVEL)
-#define log_init_debug()   log_init(DEBUG_LOG_LEVEL)
-#define log_init_trace()   log_init(TRACE_LOG_LEVEL)
+#define log_init_fatal()   log_init(cxxtools::LOG_LEVEL_FATAL)
+#define log_init_error()   log_init(cxxtools::LOG_LEVEL_ERROR)
+#define log_init_warn()    log_init(cxxtools::LOG_LEVEL_WARN)
+#define log_init_info()    log_init(cxxtools::LOG_LEVEL_INFO)
+#define log_init_debug()   log_init(cxxtools::LOG_LEVEL_DEBUG)
+#define log_init_trace()   log_init(cxxtools::LOG_LEVEL_TRACE)
 
-inline void log_init(cxxtools::log_level_type level = cxxtools::LOG_LEVEL_ERROR)
-{
-  cxxtools::log_level = level;
-}
+void log_init(cxxtools::log_level_type level = cxxtools::LOG_LEVEL_ERROR);
 
 inline void log_init(const std::string& propertyfilename)
 { }

@@ -97,4 +97,9 @@ namespace cxxtools
   log_level_type log_level = LOG_LEVEL_INFO;
 }
 
+void log_init(cxxtools::log_level_type level)
+{
+  cxxtools::log_level = level;
+}
+
 #endif
