@@ -1,5 +1,5 @@
 /* cxxtools/log.h
-   Copyright (C) 2003 Tommi Mae¤kitalo
+   Copyright (C) 2003, 2004 Tommi Maekitalo
 
 This file is part of cxxtools.
 
@@ -73,7 +73,7 @@ namespace cxxtools
   }
 
 #define log_define_static(category) \
-  static log_define(category)
+  static inline log_define(category)
 
 #define log_define_class(classname, category) \
   log4cxx::LoggerPtr classname::getLogger()   \
@@ -131,6 +131,7 @@ void log_init(const std::string& propertyfilename);
 #ifdef CXXTOOLS_USE_LOGSTDOUT
 
 #include <string>
+#include <cxxtools/thread.h>
 
 namespace cxxtools
 {
@@ -143,14 +144,50 @@ namespace cxxtools
     LOG_LEVEL_TRACE = 500
   } log_level_type;
 
-  extern log_level_type log_level;
+  class logger
+  {
+      std::string category;
+      log_level_type level;
+      static log_level_type std_level;
+
+    protected:
+      logger(const std::string& c, log_level_type l)
+        : category(c), level(l)
+        { }
+      virtual ~logger()  { }
+
+    public:
+      static logger* getLogger(const std::string& category);
+      static void setRootLevel(log_level_type l)
+        { std_level = l; }
+      static log_level_type getStdLevel()
+        { return std_level; }
+      static logger* setLevel(const std::string& category, log_level_type l);
+
+      bool isEnabled(log_level_type l)
+        { return level >= l; }
+      const std::string& getCategory() const
+        { return category; }
+      log_level_type getLogLevel() const
+        { return level; }
+      void setLogLevel(log_level_type l)
+        { level = l; }
+      virtual std::ostream& getAppender() const = 0;
+      std::ostream& logentry(const char* level) const;
+
+      static RWLock rwmutex;
+      static Mutex mutex;
+  };
 }
 
 #define log_(level, expr)   \
   do { \
-    if (cxxtools::log_level >= cxxtools::LOG_LEVEL_ ## level) \
+    cxxtools::logger* logger = getLogger(); \
+    if (logger->isEnabled(::cxxtools::LOG_LEVEL_ ## level)) \
     { \
-      std::cout << #level << " - " << expr << std::endl; \
+      cxxtools::MutexLock lock(cxxtools::logger::mutex); \
+      logger->logentry(#level) \
+        << expr << std::endl; \
     } \
   } while (false)
 
@@ -161,9 +198,26 @@ namespace cxxtools
 #define log_debug(expr)     log_(DEBUG, expr)
 #define log_trace(event)    log_(TRACE, expr)
 
-#define log_define(category)
-#define log_define_static(category)
-#define log_define_class(classname, category)
+#define log_define(category) \
+  ::cxxtools::logger* getLogger()   \
+  {  \
+    static cxxtools::logger* logger = 0; \
+    if (logger == 0) \
+      logger = ::cxxtools::logger::getLogger(category); \
+    return logger; \
+  }
+
+#define log_define_static(category) \
+  static inline log_define(category)
+#define log_define_class(classname, category) \
+  ::cxxtools::logger* classname::getLogger()   \
+  {  \
+    static cxxtools::logger* logger = 0; \
+    if (logger == 0) \
+      logger = ::cxxtools::logger::getLogger(category); \
+    return logger; \
+  }
+
 
 #define log_init_fatal()   log_init(cxxtools::LOG_LEVEL_FATAL)
 #define log_init_error()   log_init(cxxtools::LOG_LEVEL_ERROR)
@@ -172,10 +226,14 @@ namespace cxxtools
 #define log_init_debug()   log_init(cxxtools::LOG_LEVEL_DEBUG)
 #define log_init_trace()   log_init(cxxtools::LOG_LEVEL_TRACE)
 
-void log_init(cxxtools::log_level_type level = cxxtools::LOG_LEVEL_ERROR);
+inline void log_init(cxxtools::log_level_type level)
+{
+  cxxtools::logger::setRootLevel(level);
+}
 
-inline void log_init(const std::string& propertyfilename)
-{ }
+void log_init();
+
+void log_init(const std::string& propertyfilename);
 
 #endif
 

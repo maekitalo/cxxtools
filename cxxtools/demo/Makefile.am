@@ -1,5 +1,5 @@
 noinst_PROGRAMS = getini hdstream md5sum multifstream arg cgi dir \
-  dlloader pool dynbuffer log
+  dlloader pool dynbuffer log logbench
 
 getini_SOURCES = getini.cpp
 hdstream_SOURCES = hdstream.cpp
@@ -12,9 +12,11 @@ dlloader_SOURCES = dlloader.cpp
 pool_SOURCES = pool.cpp
 dynbuffer_SOURCES = dynbuffer.cpp
 log_SOURCES = log.cpp
+logbench_SOURCES = logbench.cpp
 
 EXTRA_DIST = run_log
 
 INCLUDES = -I../include
 LDADD = $(top_builddir)/src/libcxxtools.la
-log_LDADD = $(top_builddir)/src/libcxxtools-log.la
+log_LDADD = $(top_builddir)/src/libcxxtools.la $(top_builddir)/src/libcxxtools-log.la
+logbench_LDADD = $(top_builddir)/src/libcxxtools.la $(top_builddir)/src/libcxxtools-log.la

@@ -1,5 +1,5 @@
 /* log.cpp
-   Copyright (C) 2003 Tommi Maekitalo
+   Copyright (C) 2003,2004 Tommi Maekitalo
 
 This file is part of cxxtools.
 
@@ -63,11 +63,17 @@ void log_init(const std::string& configFileName)
 
 void log_init()
 {
-  char* LOG4CPLUS = ::getenv("LOG4CPLUS");
-  if (LOG4CPLUS)
-    log_init(LOG4CPLUS);
+  char* LOGPROPERTIES = ::getenv("LOGPROPERTIES");
+  if (LOGPROPERTIES)
+    log_init(LOGPROPERTIES);
   else
-    log_init(log4cplus::ERROR_LOG_LEVEL);
+  {
+    char* LOG4CPLUS = ::getenv("LOG4CPLUS");
+    if (LOG4CPLUS)
+      log_init(LOG4CPLUS);
+    else
+      log_init(log4cplus::ERROR_LOG_LEVEL);
+  }
 }
 
 void log_init(log4cplus::LogLevel level)
@@ -91,15 +97,268 @@ void log_init(const std::string& propertyfilename)
 #ifdef CXXTOOLS_USE_LOGSTDOUT
 
 #include <cxxtools/log.h>
+#include <cxxtools/thread.h>
+#include <list>
+#include <algorithm>
+#include <iostream>
+#include <fstream>
+#include <time.h>
+#include <sys/time.h>
+#include <pthread.h>
 
 namespace cxxtools
 {
-  log_level_type log_level = LOG_LEVEL_INFO;
+  class logger_impl : public logger
+  {
+      static std::ofstream outfile;
+
+    public:
+      logger_impl(const std::string& c, log_level_type l)
+        : logger(c, l)
+        { }
+      std::ostream& getAppender() const;
+      static void setFile(const std::string& fname);
+  };
+
+  std::ostream& logger_impl::getAppender() const
+  {
+    return outfile.is_open() ? outfile : std::cout;
+  }
+
+  std::ofstream logger_impl::outfile;
+
+  void logger_impl::setFile(const std::string& fname)
+  {
+    outfile.open(fname.c_str());
+  }
+
+  typedef std::list<logger*> loggers_type;
+  static loggers_type loggers;
+  RWLock logger::rwmutex;
+  Mutex logger::mutex;
+
+  log_level_type logger::std_level = LOG_LEVEL_ERROR;
+
+  logger* logger::getLogger(const std::string& category)
+  {
+    // search existing logger
+    RdLock rdLock(rwmutex);
+
+    loggers_type::iterator lower_bound_it = loggers.begin();
+    while (lower_bound_it != loggers.end()
+        && (*lower_bound_it)->getCategory() < category)
+      ++lower_bound_it;
+
+    if (lower_bound_it != loggers.end()
+     && (*lower_bound_it)->getCategory() == category)
+        return *lower_bound_it;
+
+    // logger not in list - change to write-lock
+    rdLock.Unlock();
+    WrLock wrLock(rwmutex);
+
+    // we have to do it again after gaining write-lock
+    lower_bound_it = loggers.begin();
+    while (lower_bound_it != loggers.end()
+        && (*lower_bound_it)->getCategory() < category)
+      ++lower_bound_it;
+
+    if (lower_bound_it != loggers.end()
+     && (*lower_bound_it)->getCategory() == category)
+        return *lower_bound_it;
+
+    // logger still not in list, but we have a position to insert
+
+    // search best-fit logger
+    std::string::size_type best_len = 0;
+    log_level_type best_level = std_level;
+
+    for (loggers_type::iterator it = loggers.begin();
+         it != loggers.end(); ++it)
+    {
+      if ((*it)->getCategory().size() > best_len
+        && (*it)->getCategory().size() < category.size()
+        && category.at((*it)->getCategory().size()) == '.'
+        && category.compare(0, (*it)->getCategory().size(), (*it)->getCategory()) == 0)
+      {
+        best_len = (*it)->getCategory().size();
+        // update log-level
+        best_level = (*it)->getLogLevel();
+      }
+    }
+
+    // insert the new logger in list and return pointer to the new list-element
+    return *(loggers.insert(lower_bound_it, new logger_impl(category, best_level)));
+  }
+
+  logger* logger::setLevel(const std::string& category, log_level_type l)
+  {
+    WrLock lock(rwmutex);
+
+    // search for existing logger
+    loggers_type::iterator it = loggers.begin();
+    while (it != loggers.end()
+        && (*it)->getCategory() < category)
+      ++it;
+
+    if (it == loggers.end() || (*it)->getCategory() != category)
+    {
+      // logger not found - create new
+      it = loggers.insert(it, new logger_impl(category, l));
+    }
+    else
+      (*it)->setLogLevel(l); // logger found - set level
+
+    // return pointer to object in list
+    return *it;
+  }
+
+  std::ostream& logger::logentry(const char* level) const
+  {
+    struct timeval t;
+    struct tm tt;
+    gettimeofday(&t, 0);
+    localtime_r(&t.tv_sec, &tt);
+
+    std::ostream& out = getAppender();
+    out << 1900 + tt.tm_year << '-'
+        << ((tt.tm_mon + 1) / 10) << ((tt.tm_mon + 1) % 10) << '-'
+        << (tt.tm_mday / 10) << (tt.tm_mday % 10) << ' '
+        << (tt.tm_hour / 10) << (tt.tm_hour % 10) << ':'
+        << (tt.tm_min / 10) << (tt.tm_min % 10) << ':'
+        << (tt.tm_sec / 10)
+        << (tt.tm_sec % 10 + t.tv_usec / 1e6)
+        << " [" << pthread_self() << "] "
+        << level << ' '
+        << category << " - ";
+
+    return out;
+  }
+
 }
 
-void log_init(cxxtools::log_level_type level)
+void log_init(const std::string& propertyfilename)
 {
-  cxxtools::log_level = level;
+  log_init(cxxtools::LOG_LEVEL_ERROR);
+
+  std::ifstream in(propertyfilename.c_str());
+
+  enum state_type {
+    state_0,
+    state_token,
+    state_category,
+    state_level,
+    state_rootlevel,
+    state_filename,
+    state_skip
+  };
+  
+  state_type state = state_0;
+
+  char ch;
+  std::string token;
+  std::string category;
+  std::string filename;
+  cxxtools::log_level_type level;
+  while (in.get(ch))
+  {
+    switch (state)
+    {
+      case state_0:
+        if (std::isalnum(ch))
+        {
+          token = ch;
+          state = state_token;
+        }
+        else if (!std::isspace(ch))
+          state = state_skip;
+        break;
+
+      case state_token:
+        if (ch == '.')
+        {
+          if (token == "logger")
+            state = state_category;
+          else
+          {
+            token.clear();
+            state = state_token;
+          }
+        }
+        else if (ch == '=' && token == "rootLogger")
+          state = state_rootlevel;
+        else if (ch == '=' && token == "File")
+          state = state_filename;
+        else if (std::isalnum(ch))
+          token += ch;
+        else
+        {
+          token.clear();
+          state = state_skip;
+        }
+        break;
+
+      case state_category:
+        if (std::isalnum(ch) || ch == '.')
+          category += ch;
+        else if (ch == '=')
+          state = state_level;
+        else
+        {
+          category.clear();
+          token.clear();
+          state = (ch == '\n' ? state_0 : state_skip);
+        }
+        break;
+
+      case state_level:
+      case state_rootlevel:
+        switch (ch)
+        {
+          case 'F': level = cxxtools::LOG_LEVEL_FATAL; break;
+          case 'E': level = cxxtools::LOG_LEVEL_ERROR; break;
+          case 'W': level = cxxtools::LOG_LEVEL_WARN; break;
+          case 'I': level = cxxtools::LOG_LEVEL_INFO; break;
+          case 'D': level = cxxtools::LOG_LEVEL_DEBUG; break;
+          case 'T': level = cxxtools::LOG_LEVEL_TRACE; break;
+          default: level = cxxtools::logger::getStdLevel(); break;
+        }
+        if (state == state_rootlevel)
+          cxxtools::logger::setRootLevel(level);
+        else
+          cxxtools::logger::setLevel(category, level);
+        category.clear();
+        token.clear();
+        state = state_skip;
+        break;
+
+      case state_filename:
+        if (ch == '\n')
+        {
+          cxxtools::logger_impl::setFile(filename);
+          token.clear();
+          filename.clear();
+          state = state_0;
+        }
+        else
+          filename += ch;
+        break;
+
+      case state_skip:
+        if (ch == '\n')
+          state = state_0;
+        break;
+    }
+  }
+}
+
+void log_init()
+{
+  char* LOGPROPERTIES = ::getenv("LOGPROPERTIES");
+  if (LOGPROPERTIES)
+    log_init(LOGPROPERTIES);
+  else
+    log_init(cxxtools::LOG_LEVEL_ERROR);
 }
 
 #endif

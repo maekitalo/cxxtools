@@ -3,9 +3,10 @@ cxxtools (1.2.1) unstable; urgency=low
   * removed obsolete timeclass.cpp
   * switched dl-classes to libtool for better portability
   * skip iconvstream if libiconv is not installed
-  * new library: logging-wrapper for log4cplus or log4cxx
+  * new library: logging-wrapper for log4cplus (log4cxx-support will follow)
+  * simple lightweight logging-library as a alternative for log4cplus
 
- -- Tommi Maekitalo <tommi@epgmbh.de>  Fri,  3 Dec 2004 14:04:01 +0100
+ -- Tommi Maekitalo <tommi@tntnet.org>  Fri,  3 Dec 2004 14:04:01 +0100
 
 cxxtools (1.2.0) unstable; urgency=low
 

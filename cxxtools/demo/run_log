@@ -4,4 +4,4 @@ echo log standard
 ./log
 
 echo log with prpoerty-file log.properties
-LOG4CPLUS=log.properties ./log
+LOGPROPERTIES=log.properties ./log
