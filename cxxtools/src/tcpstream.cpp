@@ -36,8 +36,6 @@ Boston, MA  02111-1307  USA
 
 #define log_warn(expr)
 #define log_debug(expr)
-//#define log_warn(expr)   do { std::cerr << "WARN: " << expr << std::endl; } while(false)
-//#define log_debug(expr)  do { std::cerr << "DEBUG: " << expr << std::endl; } while(false)
 
 namespace cxxtools
 {
@@ -279,6 +277,7 @@ namespace tcp
         else
         {
           int errnum = errno;
+          log_warn("errno=" << errnum);
           throw Exception(strerror(errnum));
         }
       }
@@ -343,9 +342,17 @@ namespace tcp
   {
     if (pptr() != pbase())
     {
-      int n = m_stream.Write(pbase(), pptr() - pbase());
-      if (n <= 0)
+      try
+      {
+        int n = m_stream.Write(pbase(), pptr() - pbase());
+        if (n <= 0)
+          return traits_type::eof();
+      }
+      catch (const Exception& e)
+      {
+        log_warn(e.what());
         return traits_type::eof();
+      }
     }
 
     setp(m_buffer, m_buffer + m_bufsize);
@@ -360,23 +367,39 @@ namespace tcp
 
   streambuf::int_type streambuf::underflow()
   {
-    Stream::size_type n = m_stream.Read(m_buffer, m_bufsize);
-    if (n <= 0)
-      return traits_type::eof();
+    try
+    {
+      Stream::size_type n = m_stream.Read(m_buffer, m_bufsize);
+      if (n <= 0)
+        return traits_type::eof();
 
-    setg(m_buffer, m_buffer, m_buffer + n);
-    return (int_type)(unsigned char)m_buffer[0];
+      setg(m_buffer, m_buffer, m_buffer + n);
+      return (int_type)(unsigned char)m_buffer[0];
+    }
+    catch (const Exception& e)
+    {
+      log_warn(e.what());
+      return traits_type::eof();
+    }
   }
 
   int streambuf::sync()
   {
     if (pptr() != pbase())
     {
-      int n = m_stream.Write(pbase(), pptr() - pbase());
-      if (n <= 0)
+      try
+      {
+        int n = m_stream.Write(pbase(), pptr() - pbase());
+        if (n <= 0)
+          return -1;
+        else
+          setp(m_buffer, m_buffer + m_bufsize);
+      }
+      catch (const Exception& e)
+      {
+        log_warn(e.what());
         return -1;
-      else
-        setp(m_buffer, m_buffer + m_bufsize);
+      }
     }
     return 0;
   }
