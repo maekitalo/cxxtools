@@ -82,24 +82,28 @@ fi
 
 case "$ac_loggertype" in
     log4cxx)
+        AC_MSG_NOTICE([loggertype is log4cxx])
         CXXTOOLS_LOG_LDFLAGS=-llog4cxx
         CXXTOOLS_LOGGING=log4cxx
-        AC_MSG_NOTICE([loggertype is log4cxx])
         ;;
+
     log4cplus)
-        CXXTOOLS_LOG_LDFLAGS=-llog4cplus
         AC_MSG_NOTICE([loggertype is log4cplus])
+        CXXTOOLS_LOG_LDFLAGS=-llog4cplus
         CXXTOOLS_LOGGING=log4cplus
         ;;
+
     simple)
-        CXXTOOLS_LOG_LDFLAGS=-lcxxtools-log
         AC_MSG_NOTICE([loggertype is simple])
+        CXXTOOLS_LOG_LDFLAGS=-lcxxtools-log
         CXXTOOLS_LOGGING=simple
         ;;
-    disable)
+
+    disabled)
         AC_MSG_NOTICE([logging is disabled])
         CXXTOOLS_LOGGING=disabled
         ;;
+
     *)
         AC_MSG_ERROR([unknown loggertype $ac_loggertype])
         ;;
