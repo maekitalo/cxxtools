@@ -306,7 +306,7 @@ namespace tcp
       n = ::write(getFd(), buffer, s);
       log_debug("::write returns => " << n);
 
-      if (n <= 0)
+      if (n < 0)
       {
         // au weia - das ging schief
         int errnum = errno;
