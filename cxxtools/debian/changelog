@@ -1,8 +1,10 @@
 cxxtools (1.3.0) unstable; urgency=low
 
   * modified timeout-handling in tcpstream
+  * simple http-client added
+  * cxxtools::Condition is not derived from cxxtools::Thread any more
 
- -- Tommi Maekitalo <tommi@epgmbh.de>  Tue, 25 Jan 2005 15:22:12 +0100
+ -- Tommi Maekitalo <tommi@epgmbh.de>  Sat, 29 Jan 2005 21:56:02 +0100
 
 cxxtools (1.2.3) unstable; urgency=low
 
