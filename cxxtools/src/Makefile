@@ -2,6 +2,8 @@ VERSION=1.0.0
 CXXFLAGS = -Wall -O2 -I../include -fPIC $(LOCAL_CXXFLAGS)
 CFLAGS = -Wall -O2 -I../include -fPIC
 LDFLAGS = -ldl -lpthread $(LOCAL_CXXFLAGS)
+DESTDIR = $(ROOTDIR)/usr/local
+LIBDIR = $(DESTDIR)/lib
 
 all : libcxxtools.so
 
@@ -38,8 +40,8 @@ libcxxtools.so: libcxxtools.so.$(VERSION)
 	ln -sf $< $@
 
 install: libcxxtools.so.$(VERSION)
-	cp $^ $(DESTDIR)/usr/lib
-	ln -sf libcxxtools.so.$(VERSION) $(DESTDIR)/usr/lib/libcxxtools.so
+	cp $^ $(LIBDIR)
+	ln -sf libcxxtools.so.$(VERSION) $(LIBDIR)/libcxxtools.so
 
 clean:
 	rm -f $(OBJS) $(DEPS) libcxxtools.so libcxxtools.so.$(VERSION)
