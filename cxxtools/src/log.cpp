@@ -19,99 +19,12 @@ Foundation, Inc., 59 Temple Place, Suite 330,
 Boston, MA  02111-1307  USA
 */
 
-#include <cxxtools/log.h>
+#include "config.h"
 
-#ifdef CXXTOOLS_USE_LOG4CXX
-
-#include <log4cxx/basicconfigurator.h>
-#include <log4cxx/helpers/stringhelper.h>
-#include <log4cxx/helpers/exception.h>
-#include <log4cxx/xml/domconfigurator.h>
-#include <log4cxx/propertyconfigurator.h>
-#include <log4cxx/logmanager.h>
-
-void log_init()
-{
-  char* LOGPROPERTIES = ::getenv("LOGPROPERTIES");
-  if (LOGPROPERTIES)
-    log_init(LOGPROPERTIES);
-  else
-  {
-    try
-    {
-      log_init("log4j.properties");
-    }
-    catch (const log4cxx::helpers::IOException&)
-    {
-      log4cxx::BasicConfigurator::configure();
-    }
-  }
-}
-
-void log_init(log4cxx::LevelPtr level)
-{
-  log4cxx::BasicConfigurator::configure();
-  log4cxx::LoggerPtr rootLogger = log4cxx::Logger::getRootLogger();
-  rootLogger->setLevel(level);
-}
-
-void log_init(const std::string& configFileName)
-{
-#ifdef LOG4CXX_HAVE_XML
-  if (log4cxx::helpers::StringHelper::endsWith(configFileName, ".xml"))
-  {
-    ::log4cxx::xml::DOMConfigurator::configure(configFileName);
-  }
-  else
-#endif
-  {
-    ::log4cxx::PropertyConfigurator::configure(configFileName);
-  }
-}
-
-#endif
-
-#ifdef CXXTOOLS_USE_LOG4CPLUS
-
-#include <log4cplus/configurator.h>
-#include <log4cplus/consoleappender.h>
-
-void log_init()
-{
-  char* LOGPROPERTIES = ::getenv("LOGPROPERTIES");
-  if (LOGPROPERTIES)
-    log_init(LOGPROPERTIES);
-  else
-  {
-    char* LOG4CPLUS = ::getenv("LOG4CPLUS");
-    if (LOG4CPLUS)
-      log_init(LOG4CPLUS);
-    else
-      log_init(log4cplus::ERROR_LOG_LEVEL);
-  }
-}
-
-void log_init(log4cplus::LogLevel level)
-{
-  log4cplus::SharedAppenderPtr appender(new log4cplus::ConsoleAppender(true, true));
-  appender->setName("Main");
-
-  log4cplus::Logger root = log4cplus::Logger::getRoot();
-  root.addAppender(appender);
-  root.setLogLevel(level);
-}
-
-void log_init(const std::string& propertyfilename)
-{
-  log4cplus::PropertyConfigurator logconfig(propertyfilename);
-  logconfig.configure();
-}
-
-#endif
-
-#ifdef CXXTOOLS_USE_LOGBUILTIN
+#ifdef CXXTOOLS_USE_LOGBUILTIN 
 
 #include <cxxtools/log.h>
+#include <cxxtools/loginit.h>
 #include <cxxtools/thread.h>
 #include <list>
 #include <algorithm>
@@ -152,7 +65,7 @@ namespace cxxtools
   RWLock logger::rwmutex;
   Mutex logger::mutex;
 
-  log_level_type logger::std_level = LOG_LEVEL_ERROR;
+  logger::log_level_type logger::std_level = LOG_LEVEL_ERROR;
 
   logger* logger::getLogger(const std::string& category)
   {
@@ -251,32 +164,11 @@ namespace cxxtools
     return out;
   }
 
-  log_tracer::log_tracer(logger* l_, const std::string& msg_)
-    : l(l_),
-      msg(msg_)
-  {
-    if (l->isEnabled(LOG_LEVEL_TRACE))
-    {
-      cxxtools::MutexLock lock(cxxtools::logger::mutex);
-      l->logentry("ENTER")
-        << msg << std::endl;
-    }
-  }
-
-  log_tracer::~log_tracer()
-  {
-    if (l->isEnabled(LOG_LEVEL_TRACE))
-    {
-      cxxtools::MutexLock lock(cxxtools::logger::mutex);
-      l->logentry("EXIT")
-        << msg << std::endl;
-    }
-  }
 }
 
 void log_init(const std::string& propertyfilename)
 {
-  log_init(cxxtools::LOG_LEVEL_ERROR);
+  log_init(cxxtools::logger::LOG_LEVEL_ERROR);
 
   std::ifstream in(propertyfilename.c_str());
 
@@ -296,7 +188,7 @@ void log_init(const std::string& propertyfilename)
   std::string token;
   std::string category;
   std::string filename;
-  cxxtools::log_level_type level;
+  cxxtools::logger::log_level_type level;
   while (in.get(ch))
   {
     switch (state)
@@ -352,12 +244,12 @@ void log_init(const std::string& propertyfilename)
       case state_rootlevel:
         switch (ch)
         {
-          case 'F': level = cxxtools::LOG_LEVEL_FATAL; break;
-          case 'E': level = cxxtools::LOG_LEVEL_ERROR; break;
-          case 'W': level = cxxtools::LOG_LEVEL_WARN; break;
-          case 'I': level = cxxtools::LOG_LEVEL_INFO; break;
-          case 'D': level = cxxtools::LOG_LEVEL_DEBUG; break;
-          case 'T': level = cxxtools::LOG_LEVEL_TRACE; break;
+          case 'F': level = cxxtools::logger::LOG_LEVEL_FATAL; break;
+          case 'E': level = cxxtools::logger::LOG_LEVEL_ERROR; break;
+          case 'W': level = cxxtools::logger::LOG_LEVEL_WARN; break;
+          case 'I': level = cxxtools::logger::LOG_LEVEL_INFO; break;
+          case 'D': level = cxxtools::logger::LOG_LEVEL_DEBUG; break;
+          case 'T': level = cxxtools::logger::LOG_LEVEL_TRACE; break;
           default: level = cxxtools::logger::getStdLevel(); break;
         }
         if (state == state_rootlevel)
@@ -395,7 +287,7 @@ void log_init()
   if (LOGPROPERTIES)
     log_init(LOGPROPERTIES);
   else
-    log_init(cxxtools::LOG_LEVEL_ERROR);
+    log_init(cxxtools::logger::LOG_LEVEL_ERROR);
 }
 
 #endif

@@ -10,6 +10,7 @@ nobase_include_HEADERS = \
         cxxtools/iniclass.h \
         cxxtools/log.h \
         cxxtools/logfwd.h \
+        cxxtools/loginit.h \
         cxxtools/md5.h \
         cxxtools/md5stream.h \
         cxxtools/multifstream.h \

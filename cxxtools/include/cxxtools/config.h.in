@@ -7,6 +7,9 @@
 /* use logging to stdout */
 #undef CXXTOOLS_USE_LOGBUILTIN
 
+/* disable logging */
+#undef CXXTOOLS_DISABLE_LOG
+
 /* Define to 1 if you have the <dirent.h> header file, and it defines `DIR'.
    */
 

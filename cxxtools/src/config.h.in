@@ -1,5 +1,8 @@
 /* src/config.h.in.  Generated from configure.in by autoheader.  */
 
+/* disable logging */
+#undef CXXTOOLS_DISABLE_LOG
+
 /* use log4cplus for logging */
 #undef CXXTOOLS_USE_LOG4CPLUS
 

@@ -1,4 +1,5 @@
 #include <cxxtools/log.h>
+#include <cxxtools/loginit.h>
 #include <iostream>
 #include <stdexcept>
 
