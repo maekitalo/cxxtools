@@ -2,6 +2,13 @@ CXXFLAGS=-fPIC -I../include -I../include/cxxtools -g -Wall -pedantic
 CFLAGS=-fPIC -I../include -I../include/cxxtools -O2 -Wall
 LDFLAGS=-ldl -lpthread
 CC=g++
+ifeq ($(EP_BUILD_COMP_VER), GCC_3_0)
+  CC=g++-3.0
+endif
+
+ifeq ($(EP_BUILD_COMP_VER), GCC_2_95)
+  CC=g++-2.95
+endif
 
 SRCS = dlloader.cpp dynbuffer.cpp hdstream.cpp \
        iniclass.cpp md5stream.cpp pollclass.cpp \
@@ -27,6 +34,11 @@ libcxxtools.a: $(OBJECTS)
 
 libcxxtools.so.$(VERSION): $(OBJECTS)
 	$(CC) -shared -Wl,-soname,libcxxtools.so.$(VERSION) $(LDFLAGS) -o libcxxtools.so.$(VERSION) $^
+
+%.o: %.cpp
+	@echo "--- C++ Compiling $<..."
+	$(CreateOutputDirectory)
+	$(CC) $(CXXFLAGS) -c $< -o $@
 
 
 include depend

@@ -11,6 +11,7 @@
 #include <map>
 #include <algorithm>
 #include <iostream>
+#include <iterator>
 
 class query_params
 {
