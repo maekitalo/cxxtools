@@ -66,6 +66,7 @@ void base64stream_streambuf::end()
   putchar('\n');
 
   setp(obuffer, obuffer + 3);
+  indecode = false;
 }
 
 std::streambuf::int_type base64stream_streambuf::overflow(std::streambuf::int_type ch)
@@ -89,6 +90,8 @@ std::streambuf::int_type base64stream_streambuf::overflow(std::streambuf::int_ty
     pbump(1);
   }
 
+  indecode = true;
+
   return 0;
 }
 
@@ -105,7 +108,7 @@ std::streambuf::int_type base64stream_streambuf::underflow()
   int c1 = getval();
   if (c1 == -1)
     return traits_type::eof();
-  A =  (char)(c1 << 2);
+  A = (char)(c1 << 2);
 
   int c2 = getval();
   if (c2 == -1)
@@ -117,7 +120,7 @@ std::streambuf::int_type base64stream_streambuf::underflow()
   if (c3 == -1)
   {
     setg(decodebuf, decodebuf, decodebuf + 1);
-    return traits_type::eof();
+    return traits_type::to_int_type(A);
   }
   B |= (char)(c3 >> 2);
   C = (char)(c3 << 6);
@@ -126,7 +129,7 @@ std::streambuf::int_type base64stream_streambuf::underflow()
   if (c4 == -1)
   {
     setg(decodebuf, decodebuf, decodebuf + 2);
-    return traits_type::eof();
+    return traits_type::to_int_type(A);
   }
   C |= (char)c4;
 

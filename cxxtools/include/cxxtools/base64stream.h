@@ -41,12 +41,16 @@ class base64stream_streambuf : public std::streambuf
     char obuffer[3];
     char decodebuf[3];
     unsigned count;
+    bool indecode;
 
   public:
     base64stream_streambuf(std::streambuf* sinksource_)
       : sinksource(sinksource_),
-        count(0)
+        count(0),
+        indecode(false)
       { }
+    ~base64stream_streambuf()
+      { if (indecode) end(); }
 
     void end();
 
