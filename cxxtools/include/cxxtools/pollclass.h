@@ -49,7 +49,7 @@ class Poller
         m_fdsptr_size(0)
       { }
 
-    ~Poller()
+    virtual ~Poller()
     {
       delete[] m_fdsptr;
     }
