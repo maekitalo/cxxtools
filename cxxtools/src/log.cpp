@@ -236,6 +236,27 @@ namespace cxxtools
     return out;
   }
 
+  log_tracer::log_tracer(logger* l_, const std::string& msg_)
+    : l(l_),
+      msg(msg_)
+  {
+    if (l->isEnabled(LOG_LEVEL_TRACE))
+    {
+      cxxtools::MutexLock lock(cxxtools::logger::mutex);
+      l->logentry("ENTER")
+        << msg << std::endl;
+    }
+  }
+
+  log_tracer::~log_tracer()
+  {
+    if (l->isEnabled(LOG_LEVEL_TRACE))
+    {
+      cxxtools::MutexLock lock(cxxtools::logger::mutex);
+      l->logentry("EXIT")
+        << msg << std::endl;
+    }
+  }
 }
 
 void log_init(const std::string& propertyfilename)

@@ -133,6 +133,52 @@ void log_init(const std::string& propertyfilename);
 #include <string>
 #include <cxxtools/thread.h>
 
+#define log_(level, expr)   \
+  do { \
+    cxxtools::logger* logger = getLogger(); \
+    if (logger->isEnabled(::cxxtools::LOG_LEVEL_ ## level)) \
+    { \
+      cxxtools::MutexLock lock(cxxtools::logger::mutex); \
+      logger->logentry(#level) \
+        << expr << std::endl; \
+    } \
+  } while (false)
+
+#define log_fatal(expr)     log_(FATAL, expr)
+#define log_error(expr)     log_(ERROR, expr)
+#define log_warn(expr)      log_(WARN, expr)
+#define log_info(expr)      log_(INFO, expr)
+#define log_debug(expr)     log_(DEBUG, expr)
+#define log_trace(event)    \
+  cxxtools::log_tracer log_tracer_ ## __LINE__(getLogger(), event)
+
+#define log_define(category) \
+  ::cxxtools::logger* getLogger()   \
+  {  \
+    static cxxtools::logger* logger = 0; \
+    if (logger == 0) \
+      logger = ::cxxtools::logger::getLogger(category); \
+    return logger; \
+  }
+
+#define log_define_static(category) \
+  static inline log_define(category)
+#define log_define_class(classname, category) \
+  ::cxxtools::logger* classname::getLogger()   \
+  {  \
+    static cxxtools::logger* logger = 0; \
+    if (logger == 0) \
+      logger = ::cxxtools::logger::getLogger(category); \
+    return logger; \
+  }
+
+#define log_init_fatal()   log_init(cxxtools::LOG_LEVEL_FATAL)
+#define log_init_error()   log_init(cxxtools::LOG_LEVEL_ERROR)
+#define log_init_warn()    log_init(cxxtools::LOG_LEVEL_WARN)
+#define log_init_info()    log_init(cxxtools::LOG_LEVEL_INFO)
+#define log_init_debug()   log_init(cxxtools::LOG_LEVEL_DEBUG)
+#define log_init_trace()   log_init(cxxtools::LOG_LEVEL_TRACE)
+
 namespace cxxtools
 {
   typedef enum {
@@ -178,53 +224,16 @@ namespace cxxtools
       static RWLock rwmutex;
       static Mutex mutex;
   };
+
+  class log_tracer
+  {
+      logger* l;
+      const std::string msg;
+    public:
+      log_tracer(logger* l_, const std::string& msg_);
+      ~log_tracer();
+  };
 }
-
-#define log_(level, expr)   \
-  do { \
-    cxxtools::logger* logger = getLogger(); \
-    if (logger->isEnabled(::cxxtools::LOG_LEVEL_ ## level)) \
-    { \
-      cxxtools::MutexLock lock(cxxtools::logger::mutex); \
-      logger->logentry(#level) \
-        << expr << std::endl; \
-    } \
-  } while (false)
-
-#define log_fatal(expr)     log_(FATAL, expr)
-#define log_error(expr)     log_(ERROR, expr)
-#define log_warn(expr)      log_(WARN, expr)
-#define log_info(expr)      log_(INFO, expr)
-#define log_debug(expr)     log_(DEBUG, expr)
-#define log_trace(event)    log_(TRACE, expr)
-
-#define log_define(category) \
-  ::cxxtools::logger* getLogger()   \
-  {  \
-    static cxxtools::logger* logger = 0; \
-    if (logger == 0) \
-      logger = ::cxxtools::logger::getLogger(category); \
-    return logger; \
-  }
-
-#define log_define_static(category) \
-  static inline log_define(category)
-#define log_define_class(classname, category) \
-  ::cxxtools::logger* classname::getLogger()   \
-  {  \
-    static cxxtools::logger* logger = 0; \
-    if (logger == 0) \
-      logger = ::cxxtools::logger::getLogger(category); \
-    return logger; \
-  }
-
-
-#define log_init_fatal()   log_init(cxxtools::LOG_LEVEL_FATAL)
-#define log_init_error()   log_init(cxxtools::LOG_LEVEL_ERROR)
-#define log_init_warn()    log_init(cxxtools::LOG_LEVEL_WARN)
-#define log_init_info()    log_init(cxxtools::LOG_LEVEL_INFO)
-#define log_init_debug()   log_init(cxxtools::LOG_LEVEL_DEBUG)
-#define log_init_trace()   log_init(cxxtools::LOG_LEVEL_TRACE)
 
 inline void log_init(cxxtools::log_level_type level)
 {
