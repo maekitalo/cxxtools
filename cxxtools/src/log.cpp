@@ -90,11 +90,11 @@ void log_init(const std::string& propertyfilename)
 
 #ifdef CXXTOOLS_USE_LOGSTDOUT
 
-#include <cxxtools/loginit.h>
+#include <cxxtools/log.h>
 
 namespace cxxtools
 {
-  log_level_type log_level = INFO_LOG_LEVEL;
+  log_level_type log_level = LOG_LEVEL_INFO;
 }
 
 #endif

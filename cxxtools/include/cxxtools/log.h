@@ -134,16 +134,16 @@ void log_init(const std::string& propertyfilename);
 
 namespace cxxtools
 {
-  enum log_level_type {
+  typedef enum {
     LOG_LEVEL_FATAL = 0,
     LOG_LEVEL_ERROR = 100,
     LOG_LEVEL_WARN  = 200,
     LOG_LEVEL_INFO  = 300,
     LOG_LEVEL_DEBUG = 400,
     LOG_LEVEL_TRACE = 500
-  }
+  } log_level_type;
 
-  extern log_level_type log_level = LOG_LEVEL_INFO;
+  extern log_level_type log_level;
 }
 
 #define log_(level, expr)   do { if (cxxtools::log_level >= level) { std::cout << expr; } } while (false)
@@ -165,7 +165,7 @@ namespace cxxtools
 #define log_init_debug()   log_init(DEBUG_LOG_LEVEL)
 #define log_init_trace()   log_init(TRACE_LOG_LEVEL)
 
-inline void log_init(log_level_type level = ERROR_LOG_LEVEL)
+inline void log_init(cxxtools::log_level_type level = cxxtools::LOG_LEVEL_ERROR)
 {
   cxxtools::log_level = level;
 }
