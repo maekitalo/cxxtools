@@ -8,9 +8,9 @@ SRCS = dlloader.cpp dynbuffer.cpp hdstream.cpp \
        query_params.cpp tcpstream.cpp tee.cpp \
        thread.cpp timeclass.cpp
 
-OBJECTS=$(SRCS:.cpp=.o)
+OBJECTS=$(SRCS:.cpp=.o) md5.o
 
-.PHONY: all clean libcxxtools.a libcxxtools.so Makefile
+.PHONY: all clean Makefile
 
 all: libcxxtools.so
 
@@ -18,7 +18,7 @@ clean:
 	rm -rf *.o lib* depend
 
 depend:
-	( for f in *.cpp; do $(CC) $(CXXFLAGS) -MM $$f; done ) >depend
+	( for f in $(SRCS) md5.c; do $(CC) $(CXXFLAGS) -MM $$f; done ) >depend
 
 libcxxtools.a: $(OBJECTS)
 	rm -f $@
