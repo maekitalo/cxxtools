@@ -120,7 +120,7 @@ class pool
         T& operator*()                     { return *ptr; }
         const T& operator*() const         { return *ptr; }
         operator T* ()                     { return ptr; }
-        operator const T* ()               { return ptr; }
+        operator const T* () const         { return ptr; }
         operator T& ()                     { return *ptr; }
         operator const T& () const         { return *ptr; }
         bool operator== (const T* p) const { return ptr == p; }
