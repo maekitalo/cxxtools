@@ -11,7 +11,7 @@ int cgidemo()
   cgi q;  // this parses all input-parameters
 
   // print standard-header
-  std::cout << q.header();
+  std::cout << cgi::header();
 
   xmltag html("html");  // start html-block
   xmltag body("body");  // start body-block
@@ -38,11 +38,22 @@ int cgidemo()
 int tagstest()
 {
   xmltag("html");  // prints <html></html>
+  std::cout << '\n';
+
   xmltag("test param=1");  // prints <test param=1></test>
+  std::cout << '\n';
+
   xmltag("<noparam>");     // prints <noparam></noparam>
+  std::cout << '\n';
+
   xmltag("<param p=1>");   // prints <param p=1></param>
-  xmltag("<param>", "p=1>");   // prints <param p=1></param>
+  std::cout << '\n';
+
+  xmltag("<param>", "p=1");   // prints <param p=1></param>
+  std::cout << '\n';
+
   xmltag("<br>").clear();  // prints <br>
+  std::cout << '\n';
 
   std::cout << std::endl;
   return 0;

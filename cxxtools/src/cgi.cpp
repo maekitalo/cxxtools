@@ -34,17 +34,18 @@ cgi::cgi()
   parse_url(std::cin);
 }
 
+std::ostream* xmltag::default_out = &std::cout;
+
 xmltag::xmltag(const std::string& tag_, std::ostream& out_)
   : tag(tag_),
     out(out_)
 {
   if (!tag.empty())
   {
-    if (tag.at(0) != '<')
-      out << '<';
-    out << tag;
-    if (tag.at(0) != '<')
-      out << '>';
+    if (tag.at(0) == '<' && tag.at(tag.size() - 1) == '>')
+      tag = tag.substr(1, tag.size() - 2);
+
+    out << '<' << tag << '>';
   }
 }
 
@@ -55,13 +56,15 @@ xmltag::xmltag(const std::string& tag_, const std::string& parameter,
 {
   if (!tag.empty())
   {
-    if (tag.at(0) != '<')
-      out << '<';
-    out << tag;
+    if (tag.at(0) == '<' && tag.at(tag.size() - 1) == '>')
+      tag = tag.substr(1, tag.size() - 2);
+
+    out << '<' << tag;
+
     if (!parameter.empty())
       out << ' ' << parameter;
-    if (tag.at(0) != '<')
-      out << '>';
+
+    out << '>';
   }
 }
 
@@ -69,29 +72,15 @@ void xmltag::close()
 {
   if (!tag.empty())
   {
-    if (tag.at(0) == '<')
-    {
-      out << tag.at(0) << '/';
+    out << "</";
 
-      std::string::size_type p = tag.find(' ');
-      if (p != std::string::npos)
-      {
-        out.write(tag.data() + 1, p - 1);
-        out << '>';
-      }
-      else
-        out.write(tag.data() + 1, tag.size() - 1);
-    }
+    std::string::size_type p = tag.find(' ');
+    if (p != std::string::npos)
+      out.write(tag.data(), p);
     else
-    {
-      out << "</";
-      std::string::size_type p = tag.find(' ');
-      if (p != std::string::npos)
-        out.write(tag.data(), p);
-      else
-        out << tag;
-      out << '>';
-    }
+      out << tag;
+
+    out << '>';
 
     tag.clear();
   }

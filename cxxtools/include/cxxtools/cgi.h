@@ -59,8 +59,8 @@ class cgi : public query_params
     /// constructor reads parameters from server
     cgi();
 
-    std::string header()  { return "Content-Type: text/html\r\n\r\n"; }
-    std::string header(const std::string& type)
+    static std::string header()  { return "Content-Type: text/html\r\n\r\n"; }
+    static std::string header(const std::string& type)
       { return "Content-Type: " + type + "\r\n\r\n"; }
 };
 
@@ -84,15 +84,21 @@ class xmltag
 {
     std::string tag;
     std::ostream& out;
+    static std::ostream* default_out;
 
   public:
-    /// prints start-tag and rember tag
-    xmltag(const std::string& tag, std::ostream& out = std::cout);
-    /// prints start-tag with parameters and rember tag
+    /// prints start-tag and remember tag
+    xmltag(const std::string& tag, std::ostream& out = *default_out);
+    /// prints start-tag with parameters and remember tag
     xmltag(const std::string& tag, const std::string& parameter,
-      std::ostream& out = std::cout);
-    /// closes tag if not uused by eveeryone
+      std::ostream& out = *default_out);
+    /// closes tag
     ~xmltag()   { close(); }
+
+    static void setDefaultOutstream(std::ostream& out)
+      { default_out = &out; }
+    static std::ostream& getDefaultOutstream()
+      { return *default_out; }
 
     const std::string& get() const   { return tag; }
     void close();
