@@ -88,6 +88,16 @@ namespace tcp
    */
   class Socket
   {
+    protected:
+      class saveflags
+      {
+          int fd;
+          int flags;
+        public:
+          saveflags(int _fd);
+          ~saveflags();
+      };
+
     public:
       /// Konstruktor erzeugt eine Instanz und erzeugt einen Socket
       /// auf Betriebssystemebene. Bei Fehlern wird eine Exception
@@ -184,6 +194,8 @@ namespace tcp
         struct sockaddr_in sockaddr_in;
       } peeraddr;
 
+      int timeout;
+
     public:
       typedef size_t size_type;
 
@@ -220,11 +232,14 @@ namespace tcp
       /// Liest vom Socket maximal 'bufsize' Zeichen in 'buffer'.
       /// Liefert die Anzahl der gelesenen Zeichen zurück.
       /// Bei Fehler wird eine tcp::Exception geworfen.
-      /// timeout in Millisekunden
-      size_type Read(char* buffer, size_type bufsize, int timeout = -1) const;
+      size_type Read(char* buffer, size_type bufsize) const;
       /// Schreibt bis zu 'bufsize' Zeichen aus 'buffer' auf den Socket.
       /// Liefert die Anzahl der geschriebenen Zeichen zurück.
       size_type Write(const char* buffer, size_type bufsize) const;
+
+      /// timeout in milliseconds
+      void setTimeout(int t);
+      int getTimeout() const  { return timeout; }
 
       /// gibt die aktuelle Peer-Adresse zurück
       const struct sockaddr& getPeeraddr() const
@@ -264,8 +279,8 @@ namespace tcp
       ~streambuf()
       { delete[] m_buffer; }
 
-      void setTimeout(int t)   { m_timeout = t; }
-      int getTimeout() const   { return m_timeout; }
+      void setTimeout(int t)   { m_stream.setTimeout(t); }
+      int getTimeout() const   { return m_stream.getTimeout(); }
 
       /// überladen aus std::streambuf
       int_type overflow(int_type c);
@@ -278,7 +293,6 @@ namespace tcp
       Stream&    m_stream;
       unsigned   m_bufsize;
       char_type* m_buffer;
-      int        m_timeout;
   };
 
   //////////////////////////////////////////////////////////////////////

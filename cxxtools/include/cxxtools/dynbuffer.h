@@ -1,5 +1,5 @@
 /* cxxtools/dynbuffer.h
-   Copyright (C) 2003 Tommi Mäkitalo
+   Copyright (C) 2003-2005 Tommi Maekitalo
 
 This file is part of cxxtools.
 
@@ -55,8 +55,11 @@ template <typename T = char>
 class dynbuffer
 {
   public:
+    typedef T& reference;
+    typedef const T& const_reference;
     typedef T* iterator;
     typedef const T* const_iterator;
+    typedef unsigned size_type;
 
   private:
     // noncopyable:
@@ -67,49 +70,43 @@ class dynbuffer
     /// initializes empty buffer
     dynbuffer()
       : m_data(0),
-        m_size(0),
-        m_pos(0)
+        m_size(0)
       { }
 
     /// allocates array of 'size' elements
     explicit dynbuffer(unsigned size)
       : m_data(0),
-        m_size(0),
-        m_pos(0)
+        m_size(0)
       { reserve(size); }
 
     ~dynbuffer()
     { delete[] m_data; }
 
     /// returns pointer to the buffer
-    T*       data() const     { return m_data; }
+    T* data() const            { return m_data; }
     /// returns size of buffer
-    unsigned size() const     { return m_pos; }
-    /// returns capacity of buffer.
-    unsigned capacity() const { return m_size; }
-    /// ensures, that buffer is at least 'size' elements
-    void     reserve(unsigned size)
-    { if (m_size < size) reserve_grow(size - m_pos); }
+    size_type size() const     { return m_size; }
+    /// ensures, that buffer has at least 'size' elements
+    void reserve(size_type size, bool keep_data = true)
+    {
+      if (size > 0 && m_size < size)
+      {
+        T* data = new T[size];
+        if (m_data && keep_data)
+          std::copy(m_data, m_data + size, data);
+        delete[] m_data;
+        m_data = data;
+        m_size = size;
+      }
+    }
 
-    /// append one element to the buffer.
-    /// Allocates new memory if capacity is too small.
-    void     append(T ch)
-    { if (m_pos < m_size) m_data[m_pos++] = ch; else append_grow(ch); }
-    /// appends mutliple copies of one element to the buffer.
-    /// Allocates new memory if capacity is too small.
-    void     append(unsigned n, T ch);
-    /// appends mutliple elements to the buffer.
-    /// Allocates new memory if capacity is too small.
-    void     append(const T* data, unsigned size);
-    /// replaces content
-    void     assign(const T* data, unsigned size);
-    /// replaces content with multiple copies of the element.
-    void     assign(unsigned n, T ch);
-    /// reduces the size of the buffer to 0
-    /// doew not free any memory.
-    void     clear()        { m_pos = 0; }
-    /// returns true, if buffer has the size 0
-    bool     empty() const  { return m_pos == 0; }
+    /// delete buffer
+    void clear()
+    {
+      delete[] m_data;
+      m_data = 0;
+      m_size = 0;
+    }
 
     /// returns a iterator to first element
     iterator begin()               { return m_data; }
@@ -120,75 +117,20 @@ class dynbuffer
     /// returns a iterator after last element
     const_iterator end() const     { return m_data + m_size; }
 
+    reference operator[] (size_type n)              { return m_data[n]; }
+    const_reference operator[] (size_type n) const  { return m_data[n]; }
+
     void spap(dynbuffer<T>& d)
     {
       std::swap(m_data, d.m_data);
       std::swap(m_size, d.m_size);
-      std::swap(m_pos, d.m_pos);
+      std::swap(m_size, d.m_size);
     }
 
   private:
-    void append_grow(T ch);
-    void reserve_grow(unsigned size);
-
     T*    m_data;
     unsigned m_size;
-    unsigned m_pos;
-    static const unsigned m_initial_size = 512;
 };
-
-template <typename T>
-void dynbuffer<T>::reserve_grow(unsigned size)
-{
-  unsigned nsize = m_size > 0 ? m_size : m_initial_size;
-  while (nsize < m_pos + size)
-    nsize <<= 1;
-  T* data = new T[nsize];
-  std::copy(m_data, m_data + m_pos, data);
-  delete[] m_data;
-  m_data = data;
-  m_size = nsize;
-}
-
-template <typename T>
-void dynbuffer<T>::append_grow(T ch)
-{
-  reserve_grow(1);
-  m_data[m_pos++] = ch;
-}
-
-template <typename T>
-void dynbuffer<T>::append(unsigned n, T ch)
-{
-  reserve(m_pos + n);
-  std::fill(m_data + m_pos, m_data + m_pos + n, ch);
-  m_pos += n;
-}
-
-template <typename T>
-void dynbuffer<T>::assign(unsigned n, T ch)
-{
-  reserve(n);
-  std::fill(m_data, m_data + n, ch);
-  m_pos = n;
-}
-
-template <typename T>
-void dynbuffer<T>::append(const T* data, unsigned size)
-{
-  reserve(m_pos + size);
-
-  std::copy(data, data + size, m_data + m_pos);
-  m_pos += size;
-}
-
-template <typename T>
-void dynbuffer<T>::assign(const T* data, unsigned size)
-{
-  reserve(size);
-  std::copy(data, data + size, m_data);
-  m_pos = size;
-}
 
 typedef dynbuffer<char> DynBuffer;
 

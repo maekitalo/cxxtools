@@ -33,9 +33,11 @@ class ThreadException : public std::runtime_error
 {
     int m_errno;
 
+    static std::string formatMsg(const char* method, int e);
+
   public:
-    ThreadException(const std::string& w, int e)
-      : std::runtime_error(w),
+    ThreadException(const char* method, int e)
+      : std::runtime_error(formatMsg(method, e)),
         m_errno(e)
       { }
 

@@ -1,5 +1,5 @@
 /* tcpstream.cpp
-   Copyright (C) 2003 Tommi Mäkitalo
+   Copyright (C) 2003 Tommi Maekitalo
 
 This file is part of cxxtools.
 
@@ -31,37 +31,20 @@ Boston, MA  02111-1307  USA
 #include <errno.h>
 #include <netdb.h>
 
+#undef log_define
+#undef log_warn
+#undef log_debug
+
+#define log_define(expr)
+#define log_warn(expr)
+#define log_debug(expr)
+
 namespace cxxtools
 {
 
 namespace tcp
 {
   using namespace std;
-
-  namespace {
-    class safeflags
-    {
-        int fd;
-        int flags;
-      public:
-        safeflags(int _fd)
-          : fd(_fd)
-        {
-          flags = fcntl(fd, F_GETFL);
-          if (flags < 0)
-          {
-            int errnum = errno;
-            throw Exception(strerror(errnum));
-          }
-        }
-
-        ~safeflags()
-        {
-          if (flags >= 0)
-            fcntl(fd, F_SETFL, flags);
-        }
-    };
-  }
 
   Exception::Exception(int Errno, const string& msg)
     : runtime_error(msg + ": " + strerror(Errno)),
@@ -76,6 +59,23 @@ namespace tcp
   ////////////////////////////////////////////////////////////////////////
   // implementation of Socket
   //
+  Socket::saveflags::saveflags(int _fd)
+    : fd(_fd)
+  {
+    flags = fcntl(fd, F_GETFL);
+    if (flags < 0)
+    {
+      int errnum = errno;
+      throw Exception(strerror(errnum));
+    }
+  }
+
+  Socket::saveflags::~saveflags()
+  {
+    if (flags >= 0)
+      fcntl(fd, F_SETFL, flags);
+  }
+
   Socket::Socket(int domain, int type, int protocol) throw (Exception)
   {
     if ((m_sockFd = ::socket(domain, type, protocol)) < 0)
@@ -171,33 +171,40 @@ namespace tcp
   // implementation of Stream
   //
   Stream::Stream()
-    : Socket(AF_INET, SOCK_STREAM, 0)
+    : timeout(-1)
     { }
 
   Stream::Stream(const Server& server)
+    : timeout(-1)
   {
     Accept(server);
   }
 
   Stream::Stream(const string& ipaddr, unsigned short int port)
-    : Socket(AF_INET, SOCK_STREAM, 0)
+    : Socket(AF_INET, SOCK_STREAM, 0),
+      timeout(-1)
   {
     Connect(ipaddr, port);
   }
 
   Stream::Stream(const char* ipaddr, unsigned short int port)
-    : Socket(AF_INET, SOCK_STREAM, 0)
+    : Socket(AF_INET, SOCK_STREAM, 0),
+      timeout(-1)
   {
     Connect(ipaddr, port);
   }
 
   void Stream::Accept(const Server& server)
   {
+    close();
+
     socklen_t peeraddr_len;
     peeraddr_len = sizeof(peeraddr);
     setFd(accept(server.getFd(), &peeraddr.sockaddr, &peeraddr_len));
     if (bad())
       throw Exception("error in accept");
+
+    setTimeout(timeout);
   }
 
   void Stream::Connect(const char* ipaddr, unsigned short int port)
@@ -218,14 +225,20 @@ namespace tcp
     if (::connect(getFd(), &peeraddr.sockaddr,
         sizeof(peeraddr)) < 0)
       throw Exception("error in connect");
+
+    setTimeout(timeout);
   }
 
-  Stream::size_type Stream::Read(char* buffer,
-    Stream::size_type bufsize, int timeout) const
+  log_define("cxxtools.tcp");
+
+  Stream::size_type Stream::Read(char* buffer, Stream::size_type bufsize) const
   {
     if (timeout < 0)
     {
+      // blocking read
+      log_debug("blocking read");
       size_type n = ::read(getFd(), buffer, bufsize);
+      log_debug("blocking read ready, return " << n);
       if (n < 0)
       {
         // das ging schief
@@ -237,29 +250,33 @@ namespace tcp
     }
     else
     {
+      // non-blocking read
+
       ssize_t n;
 
-      {
-        safeflags flags(getFd());
-        int f = fcntl(getFd(), F_SETFL, O_NONBLOCK);
-        if (f < 0)
-        {
-          int errnum = errno;
-          throw Exception(strerror(errnum));
-        }
-
-        n = ::read(getFd(), buffer, bufsize);
-      }
+      // try reading without timeout
+      log_debug("non blocking read fd=" << getFd());
+      n = ::read(getFd(), buffer, bufsize);
+      log_debug("non blocking read, return " << n);
 
       if (n < 0)
       {
+        // no data available
+
         if (errno == EAGAIN)
         {
-          // keine Daten da - dann verwenden wir poll
+          if (timeout == 0)
+          {
+            log_warn("timeout");
+            throw Timeout();
+          }
+
           struct pollfd fds;
           fds.fd = getFd();
           fds.events = POLLIN;
+          log_debug("poll timeout " << timeout);
           int p = poll(&fds, 1, timeout);
+          log_debug("poll returns " << p);
           if (p < 0)
           {
             int errnum = errno;
@@ -268,7 +285,9 @@ namespace tcp
           else if (p == 0)
             throw Timeout();
 
+          log_debug("read");
           n = ::read(getFd(), buffer, bufsize);
+          log_debug("read returns " << n);
         }
         else
         {
@@ -292,12 +311,25 @@ namespace tcp
     return n;
   }
 
+  void Stream::setTimeout(int t)
+  {
+    timeout = t;
+
+    if (getFd() >= 0)
+    {
+      long a = timeout >= 0 ? O_NONBLOCK : 0;
+      log_debug("fcntl(" << getFd() << ", F_SETFL, " << a);
+      fcntl(getFd(), F_SETFL, a);
+    }
+  }
+
   streambuf::streambuf(Stream& stream, unsigned bufsize, int timeout)
     : m_stream(stream),
       m_bufsize(bufsize),
-      m_buffer(new char_type[bufsize]),
-      m_timeout(timeout)
-  { }
+      m_buffer(new char_type[bufsize])
+  {
+    setTimeout(timeout);
+  }
 
   streambuf::int_type streambuf::overflow(streambuf::int_type c)
   {
@@ -320,7 +352,7 @@ namespace tcp
 
   streambuf::int_type streambuf::underflow()
   {
-    Stream::size_type n = m_stream.Read(m_buffer, m_bufsize, m_timeout);
+    Stream::size_type n = m_stream.Read(m_buffer, m_bufsize);
     if (n <= 0)
       return traits_type::eof();
 
