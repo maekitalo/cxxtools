@@ -7,9 +7,6 @@
 #include "cxxtools/thread.h"
 #include <errno.h>
 
-extern "C"
-void* start_routine(void* arg);
-
 Thread::Thread()
 {
   pthread_attr_init(&pthread_attr);
@@ -22,7 +19,7 @@ Thread::~Thread()
 
 void Thread::Create()
 {
-  int ret = pthread_create(&pthread, &pthread_attr, start_routine, (void*)this);
+  int ret = pthread_create(&pthread, &pthread_attr, Thread::start, (void*)this);
   if (ret != 0)
     throw ThreadException("error in pthread_create", ret);
 }
@@ -34,7 +31,7 @@ void Thread::Join()
     throw ThreadException("error in pthread_join", ret);
 }
 
-void* start_routine(void* arg)
+void* Thread::start(void* arg)
 {
   ((Thread*)arg)->Run();
   return 0;

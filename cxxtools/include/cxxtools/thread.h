@@ -29,6 +29,7 @@ class Thread
 {
     pthread_t      pthread;
     pthread_attr_t pthread_attr;
+    static void* start(void* arg);
 
   public:
     Thread();
@@ -37,6 +38,7 @@ class Thread
     void Create();
     void Join();
 
+  protected:
     virtual void Run() = 0;
 
   private:
@@ -52,6 +54,7 @@ class FunctionThread : public Thread
       : function(f)
       { }
 
+  protected:
     virtual void Run()
     {
       function();
@@ -70,6 +73,7 @@ class MethodThread : public Thread
         method(m)
       { }
 
+  protected:
     virtual void Run()
     {
       (object.*method)();
