@@ -9,9 +9,7 @@
 export DH_COMPAT=3
 
 export VERSION:=$(shell dpkg-parsechangelog | sed -n 's/^Version: //p' | awk -F'-' '{print $$1}')
-export INSTALL_ROOT_DIR=$(HOME)/tmp/hotspot++
-export INSTALL_BUILD_DIR=$(HOME)/tmp/hotspot++/build
-export EP_BUILD_COMP_VER=GCC_3_0
+export CXX=g++-3.0
 
 ifneq (,$(findstring debug,$(DEB_BUILD_OPTIONS)))
 	CFLAGS += -g
@@ -52,7 +50,7 @@ clean:
 	rm -f build-stamp configure-stamp
 
 	# Add here commands to clean up after the build process.
-	-$(MAKE) clean
+	#-$(MAKE) clean
 
 	dh_clean
 
@@ -63,7 +61,8 @@ install: build
 	dh_installdirs
 
 	# Add here commands to install the package into debian/tmp
-	$(MAKE) install DESTDIR=$(CURDIR)/debian/tmp
+	export DESTDIR=$(CURDIR)/debian/tmp
+	$(MAKE) install DESTDIR=$(CURDIR)/debian/tmp/usr
 
 
 # Build architecture-independent files here.

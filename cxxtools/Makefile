@@ -1,14 +1,7 @@
-ifndef DESTDIR
-	export DESTDIR=/
-endif
+DESTDIR = $(ROOTDIR)/usr/local
+LIBDIR = $(DESTDIR)/lib
+INCDIR = $(DESTDIR)/include
 
-ifndef LIBDIR
-	LIBDIR=$(DESTDIR)/usr/lib
-endif
-
-ifndef INCLUDEDIR
-	INCLUDEDIR=$(DESTDIR)/usr/include
-endif
 export LIBDIR
 export INCLUDEDIR
 
@@ -22,16 +15,16 @@ lib:
 clean:
 	$(MAKE) -C src clean
 
-$(DESTDIR)/usr/lib:
-	mkdir -p $(DESTDIR)/usr/lib
+$(LIBDIR):
+	mkdir -p $(LIBDIR)
 
-$(DESTDIR)/usr/include:
-	mkdir -p $(DESTDIR)/usr/include
+$(INCDIR):
+	mkdir -p $(INCDIR)
 
 test:
 	$(MAKE) -C test
 
-install: $(DESTDIR)/usr/lib $(DESTDIR)/usr/include
+install: $(LIBDIR) $(INCDIR)
 	$(MAKE) -C src install
 	$(MAKE) -C include install
 
