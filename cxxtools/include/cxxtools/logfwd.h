@@ -61,8 +61,16 @@ namespace log4cplus
 // logging to stdout
 //
 
-#define log_declare()
-#define log_declare_class()
+namespace cxxtools
+{
+  class logger;
+}
+
+#define log_declare() \
+  extern ::cxxtools::logger* getLogger()
+
+#define log_declare_class() \
+  static ::cxxtools::logger* getLogger()
 
 #endif
 
