@@ -13,7 +13,8 @@ libcxxtools_la_SOURCES = \
 	tcpstream.cpp \
 	tee.cpp \
 	thread.cpp \
-	timeclass.cpp
+	timeclass.cpp \
+	multifstream.cpp
 
 libcxxtools_la_LDFLAGS = -ldl -lpthread -version-info @sonumber@
 
