@@ -74,18 +74,23 @@ std::streambuf::int_type md5streambuf::sync()
   return 0;
 }
 
-void md5streambuf::getDigest(unsigned char digest[16])
+void md5streambuf::getDigest(unsigned char digest_[16])
 {
-  if (pptr() != pbase())
+  if (pptr())
   {
-    // konsumiere Zeichen aus dem Puffer
-    MD5Update(&context, (const unsigned char*)pbase(), pptr() - pbase());
+    if (pptr() != pbase())
+    {
+      // konsumiere Zeichen aus dem Puffer
+      MD5Update(&context, (const unsigned char*)pbase(), pptr() - pbase());
+    }
+
+    // deinitialisiere Ausgabepuffer
+    setp(0, 0);
+
+    MD5Final(digest, &context);
   }
 
-  // deinitialisiere Ausgabepuffer
-  setp(0, 0);
-
-  MD5Final(digest, &context);
+  std::memcpy(digest_, digest, 16);
 }
 
 ////////////////////////////////////////////////////////////////////////
