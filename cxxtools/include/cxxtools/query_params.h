@@ -233,15 +233,15 @@ class query_params
     }
 
     // remove unnamed parameter
-    void eraseUnnamed(const string& value)
+    void eraseUnnamed(const string& name)
     {
       unnamed_params_type::iterator i = std::find(unnamed_params.begin(),
-        unnamed_params.end(), value);
+        unnamed_params.end(), name);
       if (i != unnamed_params.end())
         unnamed_params.erase(i);
 
       if (parent)
-        parent->erase(value);
+        parent->erase(name);
     }
 
     // add unnamed parameter to this class
@@ -327,11 +327,11 @@ class query_params
     }
 
     // remove named parameter
-    void erase(const string& value)
+    void erase(const string& name)
     {
-      named_params.erase(value);
+      named_params.erase(name);
       if (parent)
-        parent->erase(value);
+        parent->erase(name);
     }
 
     // add named parameter to this class
