@@ -78,7 +78,7 @@ log4cplus_template()
   start_template
   cat <<EOF
 # define the root-category
-log4cplus.rootLogger=WARN, file
+log4cplus.rootLogger=WARN, console
 
 # define logger-categories
 log4cplus.logger.APP=INFO
