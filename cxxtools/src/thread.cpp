@@ -1,5 +1,5 @@
 /* thread.cpp
-   Copyright (C) 2003 Tommi Mäkitalo
+   Copyright (C) 2003-2005 Tommi Maekitalo
 
 This file is part of cxxtools.
 
@@ -181,6 +181,11 @@ Condition::Condition()
     throw ThreadException("pthread_cond_init", ret);
 }
 
+Condition::~Condition()
+{
+  pthread_cond_destroy(&cond);
+}
+
 void Condition::Signal()
 {
   int ret = pthread_cond_signal(&cond);
@@ -195,9 +200,9 @@ void Condition::Broadcast()
     throw ThreadException("pthread_cond_broadcast", ret);
 }
 
-void Condition::Wait(ConditionLock& lock)
+void Condition::Wait(MutexLock& lock)
 {
-  int ret = pthread_cond_wait(&cond, &m_mutex);
+  int ret = pthread_cond_wait(&cond, &lock.getMutex().m_mutex);
   if (ret != 0)
     throw ThreadException("pthread_cond_wait", ret);
 }

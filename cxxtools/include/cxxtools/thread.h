@@ -1,5 +1,5 @@
 /* cxxtools/thread.h
-   Copyright (C) 2003 Tommi Mäkitalo
+   Copyright (C) 2003-2005 Tommi Maekitalo
 
 This file is part of cxxtools.
 
@@ -100,14 +100,18 @@ class MethodThread : public Thread
     }
 };
 
+class Condition;
+
 class Mutex
 {
-  protected:
-    pthread_mutex_t m_mutex;
+    friend class Condition;
 
     // make copy and assignment private without implementation
     Mutex(const Mutex&);
     const Mutex& operator= (const Mutex&);
+
+  protected:
+    pthread_mutex_t m_mutex;
 
   public:
     Mutex();
@@ -186,7 +190,6 @@ class LockBase
 typedef LockBase<Mutex> MutexLock;
 typedef LockBase<RWLock, &RWLock::RdLock> RdLock;
 typedef LockBase<RWLock, &RWLock::WrLock> WrLock;
-typedef LockBase<Mutex> ConditionLock;
 
 class Semaphore
 {
@@ -202,7 +205,7 @@ class Semaphore
     int getValue();
 };
 
-class Condition : public Mutex
+class Condition
 {
     pthread_cond_t cond;
 
@@ -212,10 +215,11 @@ class Condition : public Mutex
 
   public:
     Condition();
+    ~Condition();
 
     void Signal();
     void Broadcast();
-    void Wait(ConditionLock& lock);
+    void Wait(MutexLock& lock);
 };
 
 }
