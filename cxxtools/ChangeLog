@@ -2,6 +2,8 @@ Version 1.2.3
   - missing errno.h in iconvstream.cpp added
   - support in cxxtools::arg for multiple alternative switches
     in a single arg-variable (set-method)
+  - use gethostbyname to determine address to listen, so you can
+    specify a hostname as a listener-parameter
 
 Version 1.2.2
 

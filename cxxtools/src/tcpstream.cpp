@@ -29,6 +29,7 @@ Boston, MA  02111-1307  USA
 #include <fcntl.h>
 #include <sys/poll.h>
 #include <errno.h>
+#include <netdb.h>
 
 namespace cxxtools
 {
@@ -142,14 +143,16 @@ namespace tcp
   void Server::Listen(const char* ipaddr, unsigned short int port,
       int backlog) throw (Exception)
   {
-    memset(&servaddr.sockaddr_in, 0, sizeof(servaddr.sockaddr_in));
-
-    if (::inet_pton(AF_INET, ipaddr, &servaddr.sockaddr_in.sin_addr) <= 0)
+    struct hostent* host = ::gethostbyname(ipaddr);
+    if (host == 0)
       throw Exception(std::string("invalid ipaddress ") + ipaddr);
+
+    memset(&servaddr.sockaddr_in, 0, sizeof(servaddr.sockaddr_in));
 
     servaddr.sockaddr_in.sin_family = AF_INET;
     servaddr.sockaddr_in.sin_port = htons(port);
 
+    memmove(&(servaddr.sockaddr_in.sin_addr.s_addr), host->h_addr, host->h_length);
     int reuseAddr = 1;
     if (::setsockopt(getFd(), SOL_SOCKET, SO_REUSEADDR,
         &reuseAddr, sizeof(reuseAddr)) < 0)
@@ -199,12 +202,15 @@ namespace tcp
 
   void Stream::Connect(const char* ipaddr, unsigned short int port)
   {
+    struct hostent* host = ::gethostbyname(ipaddr);
+    if (host == 0)
+      throw Exception(std::string("invalid ipaddress ") + ipaddr);
+
     memset(&peeraddr, 0, sizeof(peeraddr));
     peeraddr.sockaddr_in.sin_family = AF_INET;
     peeraddr.sockaddr_in.sin_port = htons(port);
 
-    if (inet_pton(AF_INET, ipaddr, &peeraddr.sockaddr_in.sin_addr) <= 0)
-      throw Exception(std::string("invalid ipaddress ") + ipaddr);
+    memmove(&(peeraddr.sockaddr_in.sin_addr.s_addr), host->h_addr, host->h_length);
 
     if (::connect(getFd(), &peeraddr.sockaddr,
         sizeof(peeraddr)) < 0)
