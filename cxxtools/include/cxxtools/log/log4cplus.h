@@ -31,11 +31,19 @@ Boston, MA  02111-1307  USA
 #define log_debug_enabled()  getLogger().isEnabledFor(::log4cplus::DEBUG_LOG_LEVEL)
 #define log_trace_enabled()  getLogger().isEnabledFor(::log4cplus::TRACE_LOG_LEVEL)
 
-#define log_fatal(expr)  do { LOG4CPLUS_FATAL(getLogger(), expr) } while(false)
-#define log_error(expr)  do { LOG4CPLUS_ERROR(getLogger(), expr) } while(false)
-#define log_warn(expr)   do { LOG4CPLUS_WARN(getLogger(), expr) } while(false)
-#define log_info(expr)   do { LOG4CPLUS_INFO(getLogger(), expr) } while(false)
-#define log_debug(expr)  do { LOG4CPLUS_DEBUG(getLogger(), expr) } while(false)
+#define log_xxxx(level, expr)  \
+    do { \
+      if (getLogger().getRoot().getAllAppenders().size() > 0) \
+      { \
+        LOG4CPLUS_ ## level (getLogger(), expr) \
+      } \
+    } while(false)
+
+#define log_fatal(expr)  log_xxxx(FATAL, expr)
+#define log_error(expr)  log_xxxx(ERROR, expr)
+#define log_warn(expr)   log_xxxx(WARN, expr)
+#define log_info(expr)   log_xxxx(INFO, expr)
+#define log_debug(expr)  log_xxxx(DEBUG, expr)
 #define log_trace(expr) \
   ::cxxtools::log4cplus_tracer tracer ## __LINE__ (getLogger());  \
   if (log_trace_enabled()) \
