@@ -18,7 +18,8 @@ SRCS = \
 	tcpstream.cpp \
 	tee.cpp \
 	thread.cpp \
-	timeclass.cpp
+	timeclass.cpp \
+	multifstream.cpp
 
 SRCS_OLD = iniclass.cpp
 
