@@ -1,5 +1,5 @@
-AC_INIT(cxxtools, 1.1.3a1, [Tommi Mäkitalo <t.maekitalo@epgmbh.de>])
-AM_INIT_AUTOMAKE(cxxtools, 1.1.3a1)
+AC_INIT(cxxtools, 1.1.3, [Tommi Mäkitalo <t.maekitalo@epgmbh.de>])
+AM_INIT_AUTOMAKE(cxxtools, 1.1.3)
 
 abi_current=1
 abi_revision=1
