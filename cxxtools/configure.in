@@ -82,33 +82,45 @@ fi
 
 case "$ac_loggertype" in
     log4cxx)
-        logger_ldflags=-llog4cxx
+        CXXTOOLS_LOG_LDFLAGS=-llog4cxx
+        CXXTOOLS_LOGGING=log4cxx
         AC_MSG_NOTICE([loggertype is log4cxx])
         ;;
     log4cplus)
-        logger_ldflags=-llog4cplus
+        CXXTOOLS_LOG_LDFLAGS=-llog4cplus
         AC_MSG_NOTICE([loggertype is log4cplus])
+        CXXTOOLS_LOGGING=log4cplus
         ;;
     simple)
-        logger_ldflags=-lcxxtools-log
+        CXXTOOLS_LOG_LDFLAGS=-lcxxtools-log
         AC_MSG_NOTICE([loggertype is simple])
+        CXXTOOLS_LOGGING=simple
         ;;
     disable)
         AC_MSG_NOTICE([logging is disabled])
+        CXXTOOLS_LOGGING=disabled
         ;;
     *)
         AC_MSG_ERROR([unknown loggertype $ac_loggertype])
         ;;
 esac
 
-AC_SUBST(logger_ldflags)
+CXXTOOLS_CXXFLAGS='-I${includedir}'
+CXXTOOLS_LDFLAGS='-L${libdir} -lcxxtools'
+
+AC_SUBST(CXXTOOLS_CXXFLAGS)
+AC_SUBST(CXXTOOLS_LDFLAGS)
+AC_SUBST(CXXTOOLS_LOG_LDFLAGS)
+AC_SUBST(CXXTOOLS_LOGGING)
 
 AC_CONFIG_FILES([
   Makefile
   src/Makefile
   include/Makefile
   demo/Makefile
-  data/Makefile
+  cxxtools-config
   ])
 
 AC_OUTPUT
+
+chmod +x cxxtools-config

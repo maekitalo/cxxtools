@@ -1,0 +1,69 @@
+#! /bin/sh
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+includedir=@includedir@
+libdir=@libdir@
+
+usage()
+{
+    cat <<EOF
+Usage: $0 [OPTION]
+
+Known values for OPTION are:
+
+  --libs        print library linking information
+  --log-libs    print linking information for cxxtools metalogging
+  --cxxflags    print pre-processor and compiler flags
+  --logging     configured logging type
+  --help        display this help and exit
+  --version     output version information
+EOF
+
+    exit $1
+}
+
+if test $# -eq 0; then
+    usage 1
+fi
+
+cflags=false
+libs=false
+
+while test $# -gt 0; do
+    case "$1" in
+
+    --version)
+        echo @VERSION@
+        exit 0
+        ;;
+
+    --help)
+        usage 0
+        ;;
+
+    --cxxflags)
+        echo @CXXTOOLS_CXXFLAGS@
+        ;;
+
+    --log-libs)
+        echo @CXXTOOLS_LDFLAGS@ @CXXTOOLS_LOG_LDFLAGS@
+        ;;
+
+    --libs)
+        echo @CXXTOOLS_LDFLAGS@ 
+        ;;
+
+    --logging)
+        echo @CXXTOOLS_LOGGING@ 
+        ;;
+
+    *)
+        usage
+        exit 1
+        ;;
+    esac
+    shift
+done
+
+exit 0

@@ -31,11 +31,17 @@ Boston, MA  02111-1307  USA
 #include <errno.h>
 #include <netdb.h>
 
-#undef log_warn
-#undef log_debug
+#ifdef DEBUG
+
+#include "cxxtools/log.h"
+log_define("cxxtools.tcp");
+
+#else
 
 #define log_warn(expr)
 #define log_debug(expr)
+
+#endif
 
 namespace cxxtools
 {
@@ -375,6 +381,10 @@ namespace tcp
 
       setg(m_buffer, m_buffer, m_buffer + n);
       return (int_type)(unsigned char)m_buffer[0];
+    }
+    catch (const Timeout& e)
+    {
+      throw;
     }
     catch (const Exception& e)
     {

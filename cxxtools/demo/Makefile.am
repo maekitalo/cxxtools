@@ -25,5 +25,5 @@ EXTRA_DIST = log.properties \
 INCLUDES = -I$(top_builddir)/include
 LDADD = $(top_builddir)/src/libcxxtools.la
 AM_LDFLAGS = -L$(top_builddir)/src
-log_LDADD = @logger_ldflags@
-logbench_LDADD = @logger_ldflags@
+log_LDFLAGS = @CXXTOOLS_LOG_LDFLAGS@
+logbench_LDFLAGS = @CXXTOOLS_LOG_LDFLAGS@

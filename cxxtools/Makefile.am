@@ -1,4 +1,6 @@
-SUBDIRS = libltdl src include demo data
+SUBDIRS = libltdl src include demo
+
+bin_SCRIPTS = cxxtools-config
 
 EXTRA_DIST = \
   debian/README.Debian \

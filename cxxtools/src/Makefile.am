@@ -1,4 +1,4 @@
-INCLUDES = -I../include @INCLTDL@
+INCLUDES = -I$(top_builddir)/include @INCLTDL@
 
 lib_LTLIBRARIES = libcxxtools.la \
 	libcxxtools-log.la
