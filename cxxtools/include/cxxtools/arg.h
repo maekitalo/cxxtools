@@ -1,5 +1,5 @@
 /* cxxtools/arg.h
-   Copyright (C) 2003 Tommi MÃ¤kitalo
+   Copyright (C) 2003,2004 Tommi Maekitalo
 
 This file is part of cxxtools.
 
@@ -72,16 +72,19 @@ class arg
     arg(int& argc, char* argv[], char ch, const T& def = T())
     {
       for (int i = 1; i < argc - 1; ++i)
-        if (argv[i][0] == '-' && argv[i][1] == ch && argv[i][2] == '\0'
-          && !( std::istringstream(argv[i + 1]) >> m_value).fail()
-          )
+        if (argv[i][0] == '-' && argv[i][1] == ch && argv[i][2] == '\0')
         {
-          m_isset = true;
-          for ( ; i < argc - 2; ++i)
-            argv[i] = argv[i + 2];
-          argc -= 2;
-          argv[argc] = 0;
-          return;
+          std::istringstream s(argv[i + 1]);
+          s >> m_value;
+          if (!s.fail())
+          {
+            m_isset = true;
+            for ( ; i < argc - 2; ++i)
+              argv[i] = argv[i + 2];
+            argc -= 2;
+            argv[argc] = 0;
+            return;
+          }
         }
       
       m_isset = false;
@@ -102,16 +105,19 @@ class arg
     arg(int& argc, char* argv[], const char* str, const T& def = T())
     {
       for (int i = 1; i < argc - 1; ++i)
-        if (strcmp(argv[i], str) == 0
-          && !( std::istringstream(argv[i + 1]) >> m_value).fail()
-          )
+        if (strcmp(argv[i], str) == 0)
         {
-          m_isset = true;
-          for ( ; i < argc - 2; ++i)
-            argv[i] = argv[i + 2];
-          argc -= 2;
-          argv[argc] = 0;
-          return;
+          std::istringstream s(argv[i + 1]);
+          s >> m_value;
+          if (!s.fail())
+          {
+            m_isset = true;
+            for ( ; i < argc - 2; ++i)
+              argv[i] = argv[i + 2];
+            argc -= 2;
+            argv[argc] = 0;
+            return;
+          }
         }
 
       m_isset = false;
@@ -123,15 +129,20 @@ class arg
      */
     arg(int& argc, char* argv[])
     {
-      if (argc > 1
-          && !( std::istringstream(argv[1]) >> m_value).fail()
-          )
+      if (argc > 1)
       {
-        m_isset = true;
-        for (int i = 1; i < argc - 1; ++i)
-          argv[i] = argv[i + 1];
-        argc -= 1;
-        argv[argc] = 0;
+        std::istringstream s(argv[1]);
+        s >> m_value;
+        if (!s.fail())
+        {
+          m_isset = true;
+          for (int i = 1; i < argc - 1; ++i)
+            argv[i] = argv[i + 1];
+          argc -= 1;
+          argv[argc] = 0;
+        }
+        else
+          m_isset = false;
       }
       else
         m_isset = false;
@@ -146,7 +157,7 @@ class arg
      returns the value.
 
      Instead of calling getValue() the argument can be converted
-     implicitely.
+     implicitly.
 
      example:
 
@@ -164,8 +175,8 @@ class arg
     operator T() const   { return m_value; }
 
     /**
-     * returns true, if the option is set and the default-value was not
-     * used
+     * Liefert true zurück, wenn die Option gefunden wurde, also nicht
+     * der Default-Wert zum Einsatz kam.
      */
     bool isSet() const   { return m_isset; }
 
@@ -232,7 +243,7 @@ class arg<bool>
         std::cout << "no -d option given" << std::endl;
      \endcode
 
-     This is useful, if programs defaults to some enabled feature,
+     This is useful, if a program defaults to some enabled feature,
      which can be disabled.
      */
     arg(int& argc, char* argv[], char ch)
@@ -240,10 +251,10 @@ class arg<bool>
       for (int i = 1; i < argc; ++i)
         if (argv[i][0] == '-' && argv[i][1] != '-')
         {
-          // fängt mit einem '-' an, aber nicht mit '--'
+          // starts with a '-', but not with "--"
           if (argv[i][1] == ch && argv[i][2] == '\0')
           {
-            // das ist eine allein stehende Option
+            // single option found
             m_value = true;
             m_isset = true;
             for ( ; i < argc - 1; ++i)
@@ -254,7 +265,7 @@ class arg<bool>
           }
           else if (argv[i][1] == ch && argv[i][2] == '-' && argv[i][3] == '\0')
           {
-            // Option wurde explizit mit -x- ausgeschaltet
+            // Option was explicitly disabled with -x-
             m_value = false;
             m_isset = true;
             for ( ; i < argc - 1; ++i)
@@ -265,12 +276,11 @@ class arg<bool>
           }
           else
           {
-            // allein steht das nicht, aber mal sehen, ob der Optionsbuchstabe
-            // in der Gruppe vorkommt
+            // look, if we find the option in a optiongroup
             for (char* p = argv[i] + 1; *p != '\0'; ++p)
               if (*p == ch)
               {
-                // na da haben wir ihn; weg damit und fertig
+                // her it is - extract it
                 m_value = true;
                 m_isset = true;
                 do
@@ -282,6 +292,7 @@ class arg<bool>
               }
           }
         }
+
       m_value = false;
       m_isset = false;
     }
@@ -434,6 +445,97 @@ class arg<const char*>
 
   private:
     const char* m_value;
+    bool        m_isset;
+};
+
+////////////////////////////////////////////////////////////////////////
+/**
+ Special handling for "std::string".
+
+ input-operator for std::string reads just the first word. This is
+ not, what we normally expect, so this is speialized here.
+ */
+template <>
+class arg<std::string>
+{
+  public:
+    /**
+     Constructor for the short form.
+     */
+    arg(int& argc, char* argv[], char ch, const std::string& def = std::string())
+    {
+      for (int i = 1; i < argc - 1; ++i)
+        if (argv[i][0] == '-' && argv[i][1] == ch && argv[i][2] == '\0')
+        {
+          m_value = argv[i + 1];
+          m_isset = true;
+          for ( ; i < argc - 2; ++i)
+            argv[i] = argv[i + 2];
+          argc -= 2;
+          argv[argc] = 0;
+          return;
+        }
+
+      m_isset = false;
+      m_value = def;
+    }
+
+    /**
+     Constructor for the long form.
+     */
+    arg(int& argc, char* argv[], const char* str, const std::string& def = std::string())
+    {
+      for (int i = 1; i < argc - 1; ++i)
+        if (strcmp(argv[i], str) == 0)
+        {
+          m_value = argv[i + 1];
+          m_isset = true;
+          for ( ; i < argc - 2; ++i)
+            argv[i] = argv[i + 2];
+          argc -= 2;
+          argv[argc] = 0;
+          return;
+        }
+
+      m_isset = false;
+      m_value = def;
+    }
+
+    /**
+     Extracts the next parameter.
+     */
+    arg(int& argc, char* argv[])
+    {
+      if (argc > 1)
+      {
+        m_value = argv[1];
+        m_isset = true;
+        for (int i = 1; i < argc - 1; ++i)
+          argv[i] = argv[i + 1];
+        argc -= 1;
+        argv[argc] = 0;
+      }
+      else
+        m_isset = false;
+    }
+
+    /**
+     returns the extracted value.
+     */
+    const std::string& getValue() const   { return m_value; }
+
+    /**
+     argument is convertible to "const std::string&"
+     */
+    operator const std::string&() const   { return m_value; }
+
+    /**
+     returns true, when the option is not set and the default is used.
+     */
+    bool isSet() const             { return m_isset; }
+
+  private:
+    std::string m_value;
     bool        m_isset;
 };
 
