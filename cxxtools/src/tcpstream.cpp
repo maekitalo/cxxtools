@@ -220,22 +220,30 @@ namespace tcp
         n = ::read(getFd(), buffer, bufsize);
       }
 
-      if (n == -1 && errno == EAGAIN)
+      if (n < 0)
       {
-        // keine Daten da - dann verwenden wir poll
-        struct pollfd fds;
-        fds.fd = getFd();
-        fds.events = POLLIN;
-        int p = poll(&fds, 1, timeout);
-        if (p < 0)
+        if (errno == EAGAIN)
+        {
+          // keine Daten da - dann verwenden wir poll
+          struct pollfd fds;
+          fds.fd = getFd();
+          fds.events = POLLIN;
+          int p = poll(&fds, 1, timeout);
+          if (p < 0)
+          {
+            int errnum = errno;
+            throw Exception(strerror(errnum));
+          }
+          else if (p == 0)
+            throw Timeout();
+
+          n = ::read(getFd(), buffer, bufsize);
+        }
+        else
         {
           int errnum = errno;
           throw Exception(strerror(errnum));
         }
-        else if (p == 0)
-          throw Timeout();
-
-        n = ::read(getFd(), buffer, bufsize);
       }
 
       return n;
