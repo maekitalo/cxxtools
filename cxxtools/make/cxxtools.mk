@@ -5,12 +5,20 @@ CXXTOOLS_MK__=1
 # CXXTOOLS additional settings
 #
 
+ifndef INSTALL_ROOT_DIR
+  INSTALL_ROOT_DIR=/usr/local
+endif
+export INSTALL_ROOT_DIR
+
+
 ifeq ($(CXXTOOLS), )
   CXXTOOLS=CXXTOOLS_1_0_1
 endif
 
 ifeq ($(CXXTOOLS), CXXTOOLS_1_0_1)
-  CXXTOOLS_INSTALL_DIR=/usr/local/cxxtools
+  ifndef CXXTOOLS_INSTALL_DIR
+    CXXTOOLS_INSTALL_DIR=$(INSTALL_ROOT_DIR)/cxxtools
+  endif
   CXXTOOLS_LIB_DIR=$(CXXTOOLS_INSTALL_DIR)/lib
   CCFLAGS +=-I$(CXXTOOLS_INSTALL_DIR)/include
   LDFLAGS +=-L$(CXXTOOLS_LIB_DIR) -lcxxtools

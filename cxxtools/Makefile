@@ -1,8 +1,20 @@
-INSTALL_DIR=/usr/local/cxxtools
-PROD_LIB_DIR=$(INSTALL_DIR)/lib
-SDK_PUBLIC_INC_DIR=$(INSTALL_DIR)/include
+ifndef INSTALL_ROOT_DIR
+  INSTALL_ROOT_DIR=/usr/local
+endif
+export INSTALL_ROOT_DIR
+
+ifndef INSTALL_DIRECTORY
+  INSTALL_DIRECTORY=$(INSTALL_ROOT_DIR)/cxxtools
+endif
+export INSTALL_DIRECTORY
+
+PROD_LIB_DIR=$(INSTALL_DIRECTORY)/lib
+PROD_MAKE_DIR=$(INSTALL_DIRECTORY)/make
+PROD_INC_DIR=$(INSTALL_DIRECTORY)/include
 
 export VERSION=1.0.1
+
+.PHONY: all depend clean install src Makefile
 
 all:
 	make -C src all
@@ -21,15 +33,15 @@ install: all
 	@rm -f $(PROD_LIB_DIR)/libcxxtools.so*
 	cp -p src/libcxxtools.so.$(VERSION) $(PROD_LIB_DIR)
 	ln -s $(PROD_LIB_DIR)/libcxxtools.so.$(VERSION) $(PROD_LIB_DIR)/libcxxtools.so
-	@if [ ! -d $(SDK_PUBLIC_INC_DIR)/cxxtools ]; \
+	@if [ ! -d $(PROD_INC_DIR)/cxxtools ]; \
 	then                                         \
-	  mkdir -p $(SDK_PUBLIC_INC_DIR)/cxxtools;  \
+	  mkdir -p $(PROD_INC_DIR)/cxxtools;  \
 	fi
-	@rm -rf $(PROD_PUBLIC_INC_DIR)/cxxtools/*
-	cp -p include/cxxtools/*.h $(SDK_PUBLIC_INC_DIR)/cxxtools/
-	@if [ ! -d $(INSTALL_DIR)/make ];  \
+	@rm -rf $(PRODC_INC_DIR)/cxxtools/*
+	cp -p include/cxxtools/*.h $(PROD_INC_DIR)/cxxtools/
+	@if [ ! -d $(PROD_MAKE_DIR) ];  \
 	then                          \
-	  mkdir -p $(INSTALL_DIR)/make;   \
+	  mkdir -p $(PROD_MAKE_DIR);   \
 	fi
-	cp -p make/cxxtools.mk $(INSTALL_DIR)/make/
+	cp -p make/cxxtools.mk $(PROD_MAKE_DIR)/
 
