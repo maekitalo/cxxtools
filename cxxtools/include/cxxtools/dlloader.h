@@ -49,7 +49,7 @@ namespace dl
       mutable const library* next;
 
     public:
-      library(const char* name, int flag = RTLD_NOW)
+      library(const char* name, int flag = RTLD_NOW | RTLD_GLOBAL)
         : handle(0), prev(this), next(this)
         { open(name, flag); }
       library()
