@@ -37,7 +37,9 @@ iconvstreambuf* iconvstreambuf::close() throw()
 
 iconvstreambuf::int_type iconvstreambuf::overflow(int_type c)
 {
-  if (pptr() == pbase())
+  if (sink == 0)
+    return traits_type::eof();
+  else if (pptr() == pbase())
   {
     // 1. Aufruf: initialisiere Puffer
     setp(buffer, buffer + (sizeof(buffer) - 1));
@@ -101,7 +103,14 @@ iconvstream::int_type iconvstreambuf::underflow()
 
 int iconvstreambuf::sync()
 {
-  return overflow(traits_type::eof());
+  if (sink)
+  {
+    int_type ret = overflow(traits_type::eof());
+    sink->flush();
+    return ret == traits_type::eof() || sink->fail() ? -1 : 0;
+  }
+  else
+    return -1;
 }
 
 void iconvstream::open(std::ostream& sink_,
