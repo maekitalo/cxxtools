@@ -419,6 +419,15 @@ class query_params
       }
     }
 
+    /// removes all data
+    void clear()
+    {
+      unnamed_params.clear();
+      named_params.clear();
+      if (parent && use_parent_values)
+        parent->clear();
+    }
+
     /// returns true, when no parameters exist (named and unnamed)
     bool empty() const
     {
