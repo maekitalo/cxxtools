@@ -18,4 +18,4 @@ Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: cxxtools is my toolbox with reusable c++-components
  cxxtools is my toolbox with reusable c++-components
- his package contains the library files.
+ This package contains the library files.
