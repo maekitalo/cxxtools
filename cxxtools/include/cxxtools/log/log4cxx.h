@@ -25,6 +25,10 @@ Boston, MA  02111-1307  USA
 #include <log4cxx/logger.h>
 #include <sstream>
 
+#ifndef LOG4CXX_LOCATION
+# define LOG4CXX_LOCATION __FILE__, __LINE__
+#endif
+
 #define log_fatal_enabled()  getLogger()->isEnabledFor(::log4cxx::Level::FATAL)
 #define log_error_enabled()  getLogger()->isEnabledFor(::log4cxx::Level::ERROR)
 #define log_warn_enabled()   getLogger()->isEnabledFor(::log4cxx::Level::WARN)
