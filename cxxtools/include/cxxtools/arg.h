@@ -128,64 +128,26 @@ class arg
     }
 
     /**
-     * Es werden Minus-Zeichen angenommen:
-     *  eine, fuer ein_character_optionen und zwei fuer lange optionen.
-     *  So können alternative Optionen ausgewertet werden.
-     *
-     * Beispiel:
-     * \code
-     *   arg<int> option_nummer(argc, argv, "n|nummer", 0);
-     *   cout << "nummer =" << option_nummer << endl;
-     * \endcode
+     * Liest den nächsten Parameter und entfernt ihn aus der Liste
      */
-    arg(int& argc, char* argv[], const char* str, char delimiter = '|', const T& def = T())
+    arg(int& argc, char* argv[])
     {
-      for (int i = 1; i < argc - 1; ++i)
-      {
-        // mindestens ein '-'
-        if (argv[i][0] != '-') continue;
-        
-        const char* ca = &argv[i][1];
-        int cLen = strlen(ca);
-        if (ca[0] == '-') // nach lange optionen suchen
-        {
-          ca++;
-          cLen--;
-          if (1 == cLen) continue;
-        }
-        else if (1 != cLen) continue;
-        
-        if (0 == cLen) continue;
-        
-        const char* p = strstr(str, ca);
-        for (;p != NULL; p = strstr(str, ca))
-        {
-          // Graenzen pruefen
-          if ((p == str || delimiter == str[p - str - 1]) &&
-              ('\0' == str[p - str + cLen] || delimiter == str[p - str + cLen]))
-            break;
-          str = p + cLen;
-        }
-        
-        if (p != NULL
+      if (argc > 1
 #ifdef NO_STRINGSTREAM
-          && !( std::istrstream(argv[i + 1]) >> m_value).fail()
+          && !( std::istrstream(argv[1]) >> m_value).fail()
 #else
-          && !( std::istringstream(argv[i + 1]) >> m_value).fail()
+          && !( std::istringstream(argv[1]) >> m_value).fail()
 #endif
           )
-        {
-          m_isset = true;
-          for ( ; i < argc - 2; ++i)
-            argv[i] = argv[i + 2];
-          argc -= 2;
-          argv[argc] = 0;
-          return;
-        }
+      {
+        m_isset = true;
+        for (int i = 1; i < argc - 1; ++i)
+          argv[i] = argv[i + 1];
+        argc -= 1;
+        argv[argc] = 0;
       }
-
-      m_isset = false;
-      m_value = def;
+      else
+        m_isset = false;
     }
 
     /**
@@ -397,6 +359,24 @@ class arg<const char*>
 
       m_isset = false;
       m_value = def;
+    }
+
+    /**
+     * Liest den nächsten Parameter und entfernt ihn aus der Liste
+     */
+    arg(int& argc, char* argv[])
+    {
+      if (argc > 1)
+      {
+        m_value = argv[1];
+        m_isset = true;
+        for (int i = 1; i < argc - 1; ++i)
+          argv[i] = argv[i + 1];
+        argc -= 1;
+        argv[argc] = 0;
+      }
+      else
+        m_isset = false;
     }
 
     /**
