@@ -1,4 +1,4 @@
-SUBDIRS = libltdl src include demo
+SUBDIRS = libltdl src include demo data
 
 EXTRA_DIST = \
   debian/README.Debian \

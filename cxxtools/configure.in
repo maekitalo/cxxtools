@@ -68,7 +68,7 @@ if test "$ac_loggertype" = "log4cplus" -o "$ac_loggertype" = "probe"; then
 fi
 
 if test "$ac_loggertype" = "builtin" -o "$ac_loggertype" = "probe"; then
-  AC_DEFINE([CXXTOOLS_LOG_BUILTIN], [], [use builtin logging])
+  AC_DEFINE([CXXTOOLS_LOG_LOGBUILTIN], [], [use builtin logging])
   ac_loggertype=builtin
 elif test "$ac_loggertype" = "disable"; then
   AC_DEFINE([CXXTOOLS_LOG_DISABLE], [], [disable logging])
@@ -84,6 +84,7 @@ case "$ac_loggertype" in
         AC_MSG_NOTICE([loggertype is log4cplus])
         ;;
     builtin)
+        logger_ldflags=-lcxxtools-log
         AC_MSG_NOTICE([loggertype is builtin])
         ;;
     disable)
@@ -101,6 +102,7 @@ AC_CONFIG_FILES([
   src/Makefile
   include/Makefile
   demo/Makefile
+  data/Makefile
   ])
 
 AC_OUTPUT

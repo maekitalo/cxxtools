@@ -1,6 +1,8 @@
 cxxtools (1.2.2) unstable; urgency=low
 
   * bug fixed: cxxtools::arg does not find user-specific inputstreamoperators
+  * support for log4cxx
+  * logging-library selectable at build-time
 
  -- Tommi Maekitalo <tommi@epgmbh.de>  Tue, 14 Dec 2004 11:25:53 +0100
 

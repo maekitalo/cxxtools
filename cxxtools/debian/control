@@ -33,7 +33,7 @@ Description: cxxtools is my toolbox with reusable c++-components
 Package: libcxxtools-log-dev
 Section: devel
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends: libcxxtools-log (= ${Source-Version})
 Description: cxxtools is my toolbox with reusable c++-components
  cxxtools is my toolbox with reusable c++-components
  This package contains the development files to libcxxtools-log
