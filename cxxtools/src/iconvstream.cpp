@@ -22,6 +22,7 @@ Boston, MA  02111-1307  USA
 #include "cxxtools/iconvstream.h"
 #include <string.h>
 #include <config.h>
+#include <errno.h>
 
 namespace cxxtools
 {
