@@ -13,6 +13,8 @@ pool_SOURCES = pool.cpp
 dynbuffer_SOURCES = dynbuffer.cpp
 log_SOURCES = log.cpp
 
+EXTRA_DIST = run_log
+
 INCLUDES = -I../include
 LDADD = $(top_builddir)/src/libcxxtools.la
 log_LDADD = $(top_builddir)/src/libcxxtools-log.la
