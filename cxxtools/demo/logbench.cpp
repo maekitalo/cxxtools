@@ -8,17 +8,22 @@
 
 log_define("log");
 
+static const unsigned long loops = 1000;
+
 namespace bench
 {
   log_define("bench");
   void log(unsigned long count, bool enabled)
   {
-    if (enabled)
-      for (unsigned long i = 0; i < count; ++i)
-        log_fatal("fatal message");
-    else
-      for (unsigned long i = 0; i < count; ++i)
-        log_debug("info message");
+    for (unsigned long l = 0; l < loops; ++l)
+    {
+      if (enabled)
+        for (unsigned long i = 0; i < count; ++i)
+          log_fatal("fatal message");
+      else
+        for (unsigned long i = 0; i < count; ++i)
+          log_debug("info message");
+    }
   }
 }
 
@@ -28,14 +33,14 @@ int main(int argc, char* argv[])
   {
     cxxtools::arg<bool> enable(argc, argv, 'e');
     cxxtools::arg<double> total(argc, argv, 'T', 5.0);
-    unsigned long count = 128;
+    unsigned long count = 1;
     double T;
 
     log_init_fatal();
 
-    while (true)
+    while (count > 0)
     {
-      std::cout << "count=" << count << '\t' << std::flush;
+      std::cout << "count=" << count << "000" << '\t' << std::flush;
       struct timeval tv0;
       struct timeval tv1;
       gettimeofday(&tv0, 0);
@@ -47,7 +52,7 @@ int main(int argc, char* argv[])
       T = t1 - t0;
 
       std::cout.precision(6);
-      std::cout << " T=" << T << '\t' << std::setprecision(12) << (count / T)
+      std::cout << " T=" << T << '\t' << std::setprecision(12) << (count / T * loops)
         << " msg/s" << std::endl;
 
       if (T >= total)
