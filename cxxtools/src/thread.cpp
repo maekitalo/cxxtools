@@ -200,17 +200,9 @@ void Condition::Broadcast()
     throw ThreadException("error in pthread_cond_broadcast", ret);
 }
 
-void Condition::Wait(Mutex& mutex)
+void Condition::Wait(ConditionLock& lock)
 {
-  MutexLock lock(mutex);
-  int ret = pthread_cond_wait(&cond, &mutex.m_mutex);
-  if (ret != 0)
-    throw ThreadException("error in pthread_cond_wait", ret);
-}
-
-void Condition::Wait(MutexLock& lock)
-{
-  int ret = pthread_cond_wait(&cond, &lock.getMutex().m_mutex);
+  int ret = pthread_cond_wait(&cond, &m_mutex);
   if (ret != 0)
     throw ThreadException("error in pthread_cond_wait", ret);
 }

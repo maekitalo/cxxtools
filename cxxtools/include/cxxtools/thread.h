@@ -78,8 +78,7 @@ class MethodThread : public Thread
 
 class Mutex
 {
-    friend class Condition;
-
+  protected:
     pthread_mutex_t m_mutex;
 
     // make copy and assignment private without implementation
@@ -163,6 +162,7 @@ class LockBase
 typedef LockBase<Mutex> MutexLock;
 typedef LockBase<RWLock, &RWLock::RdLock> RdLock;
 typedef LockBase<RWLock, &RWLock::WrLock> WrLock;
+typedef LockBase<Mutex> ConditionLock;
 
 class Semaphore
 {
@@ -178,7 +178,7 @@ class Semaphore
     int getValue();
 };
 
-class Condition
+class Condition : public Mutex
 {
     pthread_cond_t cond;
 
@@ -191,8 +191,8 @@ class Condition
 
     void Signal();
     void Broadcast();
-    void Wait(Mutex& mutex);
-    void Wait(MutexLock& lock);
+    void Wait(ConditionLock& lock);
 };
+
 #endif // THREAD_H
 
