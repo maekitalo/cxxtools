@@ -1,10 +1,10 @@
 Summary: some useful C++-classes
 Name: cxxtools
-Version: 1.0.0
-Release: 2
+Version: 1.1.0
+Release: 7
 License: GPL
 Group: Development/Languages/C and C++
-Source: cxxtools-1.0.0.tgz
+Source: cxxtools-1.1.0.tgz
 BuildRoot: %{_tmppath}/%{name}-%{version}-build
 
 %description
@@ -45,7 +45,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
-%doc README
 /usr/%{_lib}/lib*.so*
 
 %files devel
