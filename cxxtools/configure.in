@@ -1,5 +1,5 @@
-AC_INIT(cxxtools, 1.1.0, [Tommi Mäkitalo <t.maekitalo@epgmbh.de>])
-AM_INIT_AUTOMAKE(cxxtools, 1.1.0)
+AC_INIT(cxxtools, 1.1.1, [Tommi Mäkitalo <t.maekitalo@epgmbh.de>])
+AM_INIT_AUTOMAKE(cxxtools, 1.1.1)
 
 abi_current=1
 abi_revision=1
@@ -9,7 +9,7 @@ AC_SUBST(sonumber)
 
 unset CDPATH
 
-AC_CONFIG_HEADERS([include/cxxtools/config.h])
+AC_CONFIG_HEADERS([src/config.h])
 AC_CONFIG_SRCDIR([src/hdstream.cpp])
 
 AC_PROG_CC(gcc-3.0 gcc cc CC)
@@ -20,6 +20,6 @@ AC_LANG_PUSH(C++)
 AC_HAVE_HEADERS(sstream)
 AC_LANG_POP(C++)
 
-AC_CONFIG_FILES([Makefile src/Makefile include/Makefile include/cxxtools/Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile include/Makefile])
 
 AC_OUTPUT
