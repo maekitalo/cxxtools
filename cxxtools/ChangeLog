@@ -1,0 +1,3 @@
+Version 1.2 (November 25, 2004)
+  - all classes moved to namespace cxxtools
+  - documentation-updates (most classes documented with doxygen-style comments
