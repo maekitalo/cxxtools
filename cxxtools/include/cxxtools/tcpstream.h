@@ -88,16 +88,6 @@ namespace tcp
    */
   class Socket
   {
-    protected:
-      class saveflags
-      {
-          int fd;
-          int flags;
-        public:
-          saveflags(int _fd);
-          ~saveflags();
-      };
-
     public:
       /// Konstruktor erzeugt eine Instanz und erzeugt einen Socket
       /// auf Betriebssystemebene. Bei Fehlern wird eine Exception
@@ -107,7 +97,8 @@ namespace tcp
       /// Konstruktor initialisiert die Klasse mit einem bestehenden
       /// Socket.
       explicit Socket(int fd = -1)
-        : m_sockFd(fd)
+        : m_sockFd(fd),
+          m_timeout(-1)
         { }
 
       /// Im Destruktor wird der Socket geschlossen, wenn er offen ist.
@@ -134,6 +125,10 @@ namespace tcp
       /// wrapper um ::getsocketname
       struct sockaddr getSockAddr() const throw (Exception);
 
+      /// timeout in milliseconds
+      void setTimeout(int t);
+      int getTimeout() const  { return m_timeout; }
+
     protected:
       void setFd(int sockFd)
       {
@@ -142,7 +137,8 @@ namespace tcp
       }
 
     private:
-      int      m_sockFd;
+      int m_sockFd;
+      int m_timeout;
 
       Socket(const Socket&);               // no implementation
       Socket& operator= (const Socket&);   // no implementation
@@ -194,8 +190,6 @@ namespace tcp
         struct sockaddr_in sockaddr_in;
       } peeraddr;
 
-      int timeout;
-
     public:
       typedef size_t size_type;
 
@@ -236,10 +230,6 @@ namespace tcp
       /// Schreibt bis zu 'bufsize' Zeichen aus 'buffer' auf den Socket.
       /// Liefert die Anzahl der geschriebenen Zeichen zurück.
       size_type Write(const char* buffer, size_type bufsize) const;
-
-      /// timeout in milliseconds
-      void setTimeout(int t);
-      int getTimeout() const  { return timeout; }
 
       /// gibt die aktuelle Peer-Adresse zurück
       const struct sockaddr& getPeeraddr() const

@@ -1,5 +1,5 @@
 /* tcpstream.cpp
-   Copyright (C) 2003 Tommi Maekitalo
+   Copyright (C) 2003-2005 Tommi Maekitalo
 
 This file is part of cxxtools.
 
@@ -59,24 +59,8 @@ namespace tcp
   ////////////////////////////////////////////////////////////////////////
   // implementation of Socket
   //
-  Socket::saveflags::saveflags(int _fd)
-    : fd(_fd)
-  {
-    flags = fcntl(fd, F_GETFL);
-    if (flags < 0)
-    {
-      int errnum = errno;
-      throw Exception(strerror(errnum));
-    }
-  }
-
-  Socket::saveflags::~saveflags()
-  {
-    if (flags >= 0)
-      fcntl(fd, F_SETFL, flags);
-  }
-
   Socket::Socket(int domain, int type, int protocol) throw (Exception)
+    : m_timeout(-1)
   {
     if ((m_sockFd = ::socket(domain, type, protocol)) < 0)
       throw Exception("cannot create socket");
@@ -117,6 +101,18 @@ namespace tcp
       throw Exception("error in getsockname");
 
     return ret;
+  }
+
+  void Socket::setTimeout(int t)
+  {
+    m_timeout = t;
+
+    if (getFd() >= 0)
+    {
+      long a = m_timeout >= 0 ? O_NONBLOCK : 0;
+      log_debug("fcntl(" << getFd() << ", F_SETFL, " << a);
+      fcntl(getFd(), F_SETFL, a);
+    }
   }
 
   ////////////////////////////////////////////////////////////////////////
@@ -171,25 +167,21 @@ namespace tcp
   // implementation of Stream
   //
   Stream::Stream()
-    : timeout(-1)
     { }
 
   Stream::Stream(const Server& server)
-    : timeout(-1)
   {
     Accept(server);
   }
 
   Stream::Stream(const string& ipaddr, unsigned short int port)
-    : Socket(AF_INET, SOCK_STREAM, 0),
-      timeout(-1)
+    : Socket(AF_INET, SOCK_STREAM, 0)
   {
     Connect(ipaddr, port);
   }
 
   Stream::Stream(const char* ipaddr, unsigned short int port)
-    : Socket(AF_INET, SOCK_STREAM, 0),
-      timeout(-1)
+    : Socket(AF_INET, SOCK_STREAM, 0)
   {
     Connect(ipaddr, port);
   }
@@ -204,7 +196,7 @@ namespace tcp
     if (bad())
       throw Exception("error in accept");
 
-    setTimeout(timeout);
+    setTimeout(getTimeout());
   }
 
   void Stream::Connect(const char* ipaddr, unsigned short int port)
@@ -226,33 +218,30 @@ namespace tcp
         sizeof(peeraddr)) < 0)
       throw Exception("error in connect");
 
-    setTimeout(timeout);
+    setTimeout(getTimeout());
   }
 
   log_define("cxxtools.tcp");
 
   Stream::size_type Stream::Read(char* buffer, Stream::size_type bufsize) const
   {
-    if (timeout < 0)
+    ssize_t n;
+
+    if (getTimeout() < 0)
     {
       // blocking read
       log_debug("blocking read");
-      size_type n = ::read(getFd(), buffer, bufsize);
+      n = ::read(getFd(), buffer, bufsize);
       log_debug("blocking read ready, return " << n);
       if (n < 0)
       {
-        // das ging schief
         int errnum = errno;
         throw Exception(strerror(errnum));
       }
-
-      return n;
     }
     else
     {
       // non-blocking read
-
-      ssize_t n;
 
       // try reading without timeout
       log_debug("non blocking read fd=" << getFd());
@@ -265,7 +254,7 @@ namespace tcp
 
         if (errno == EAGAIN)
         {
-          if (timeout == 0)
+          if (getTimeout() == 0)
           {
             log_warn("timeout");
             throw Timeout();
@@ -274,8 +263,8 @@ namespace tcp
           struct pollfd fds;
           fds.fd = getFd();
           fds.events = POLLIN;
-          log_debug("poll timeout " << timeout);
-          int p = poll(&fds, 1, timeout);
+          log_debug("poll timeout " << getTimeout());
+          int p = poll(&fds, 1, getTimeout());
           log_debug("poll returns " << p);
           if (p < 0)
           {
@@ -296,8 +285,9 @@ namespace tcp
         }
       }
 
-      return n;
     }
+
+    return n;
   }
 
   Stream::size_type Stream::Write(const char* buffer,
@@ -309,18 +299,6 @@ namespace tcp
       throw Exception("tcp::Stream: error in write");
 
     return n;
-  }
-
-  void Stream::setTimeout(int t)
-  {
-    timeout = t;
-
-    if (getFd() >= 0)
-    {
-      long a = timeout >= 0 ? O_NONBLOCK : 0;
-      log_debug("fcntl(" << getFd() << ", F_SETFL, " << a);
-      fcntl(getFd(), F_SETFL, a);
-    }
   }
 
   streambuf::streambuf(Stream& stream, unsigned bufsize, int timeout)
