@@ -12,20 +12,11 @@ PROD_LIB_DIR=$(INSTALL_DIRECTORY)/lib
 PROD_MAKE_DIR=$(INSTALL_DIRECTORY)/make
 PROD_INC_DIR=$(INSTALL_DIRECTORY)/include
 
-export VERSION=1.0.1
+export VERSION=1.0.0
 
 .PHONY: all depend clean install src Makefile
 
-all:
-	make -C src all
-
-depend:
-	make -C src depend
-
-clean:
-	make -C src clean
-
-install: all
+myinstall: all
 	@if [ ! -d $(PROD_LIB_DIR) ];  \
 	then                          \
 	  mkdir -p $(PROD_LIB_DIR);   \
@@ -44,4 +35,23 @@ install: all
 	  mkdir -p $(PROD_MAKE_DIR);   \
 	fi
 	cp -p make/cxxtools.mk $(PROD_MAKE_DIR)/
+
+all:
+	make -C src all
+
+depend:
+	make -C src depend
+
+clean:
+	make -C src clean
+
+#for packaging
+install:
+	@if [ ! -d $(prefix)/lib ];  \
+	then                          \
+	  mkdir -p $(prefix)/lib;   \
+	fi
+	@rm -f $(prefix)/lib/libcxxtools.so
+	cp -p src/libcxxtools.so.$(VERSION) $(prefix)/lib/libcxxtools.so.$(VERSION)
+	ln -s libcxxtools.so.$(VERSION) $(prefix)/lib/libcxxtools.so
 
