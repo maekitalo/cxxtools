@@ -1,16 +1,65 @@
 This directory contains some demonstrations for cxxtools.
 
+The examples are as minimal as possible to demonstrate simple usage-patterns.
+
 arg
 ===
+Demonstration of template cxxtools::arg
 
 getini
 ======
+Read value from ini-file.
+
+Try "./getini test.ini sec1 value"
 
 hdstream
 ========
+Just a little hexdumper. To print a hexdump of a file use "./hexdump filename"
 
 md5sum
 ======
+Calculate md5sum of files. Try "./md5sum file1 file2"
 
 multifstream
 ============
+Concatenate multipe files to stdout. Try "./multiifstream file1 file2".
+
+cgi
+===
+Cgi-program. Copy binary to a webserver into the directory cgi-bin and try it.
+
+With "cgi -t" it just prints a html-file to stdout.
+
+log
+===
+Demonstration of cxxtools-meta-logging-library.
+
+It uses a configurationfile to determine the amount of logging. The name
+of this file depends on the library, you configure cxxtools for.
+
+dir
+===
+Print contents of a directory. Try "./dir .".
+
+pool
+====
+Demonstration of template pool. Example connectionpool. Useful for
+multithreaded applications.
+
+dlloader
+========
+Load shared library and call a function. Useful to create plugins in your
+applications.
+
+netcat/netecho
+==============
+Demonstration of a simple network-server and -client.
+
+Netcat listens to a port (default 1234) and prints all input to stdout.
+
+Netecho connects to netcat and copies stdin to netcat.
+
+To try out enter "./netcat" in one terminal and then "./netcat <netcat.cpp"
+in another. Netcat prints the sourcecode of netcat.cpp. If netcat runs
+on another machine, you need to tell netcat the ip-address of the netcat-server
+with "./netcat -i host".

@@ -41,7 +41,7 @@ int tagstest()
   xmltag("test param=1");  // prints <test param=1></test>
   xmltag("<noparam>");     // prints <noparam></noparam>
   xmltag("<param p=1>");   // prints <param p=1></param>
-  xmltag("<param", "p=1>");   // prints <param p=1></param>
+  xmltag("<param>", "p=1>");   // prints <param p=1></param>
   xmltag("<br>").clear();  // prints <br>
 
   std::cout << std::endl;

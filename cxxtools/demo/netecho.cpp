@@ -1,0 +1,24 @@
+#include <exception>
+#include <iostream>
+#include <cxxtools/tcpstream.h>
+#include <cxxtools/arg.h>
+
+int main(int argc, char* argv[])
+{
+  try
+  {
+    cxxtools::arg<const char*> ip(argc, argv, 'i', "127.0.0.1");
+    cxxtools::arg<unsigned short> port(argc, argv, 'p', 1234);
+
+    // connect to server
+    cxxtools::tcp::iostream peer(ip, port);
+
+    // copy stdin to server
+    peer << std::cin.rdbuf() << std::flush;
+  }
+  catch (const std::exception& e)
+  {
+    std::cerr << e.what() << std::endl;
+  }
+}
+

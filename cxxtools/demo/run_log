@@ -3,5 +3,5 @@
 echo log standard
 ./log
 
-echo log with prpoerty-file log.properties
+echo log with property-file log.properties
 LOGPROPERTIES=log.properties ./log
