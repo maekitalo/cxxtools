@@ -343,7 +343,7 @@ class arg<const char*>
      * Text. Die Option muﬂ nicht mit einem Minus-Zeichen anfangen.
      * Es folgt ein Parameterwert.
      */
-    arg(int& argc, char* argv[], const char* str, const char* def)
+    arg(int& argc, char* argv[], const char* str, const char* def = 0)
     {
       for (int i = 1; i < argc - 1; ++i)
         if (strcmp(argv[i], str) == 0)
