@@ -164,8 +164,8 @@ class arg
     operator T() const   { return m_value; }
 
     /**
-     * Liefert true zurück, wenn die Option gefunden wurde, also nicht
-     * der Default-Wert zum Einsatz kam.
+     * returns true, if the option is set and the default-value was not
+     * used
      */
     bool isSet() const   { return m_isset; }
 
