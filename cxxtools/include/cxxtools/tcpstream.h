@@ -169,7 +169,9 @@ namespace tcp
       /// Intantiiert ein Stream mit einem exisitierenden Filedeskriptor.
       /// Die Klasse übernimmt den Besitz des Deskriptors und schliesst diesen
       /// im Destruktor, wenn er >= 0 ist.
-      explicit Stream(int fd);
+      explicit Stream(int fd)
+        : Socket(fd)
+        { }
 
       /// akzeptiert eine Verbindung von einem Server. Kommt keine
       /// Verbindung zustande, wird eine Exception ausgelöst.
