@@ -1,0 +1,63 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1">
+<title>tcp::Stream class Reference</title>
+<link href="doxygen.css" rel="stylesheet" type="text/css">
+</head><body bgcolor="#ffffff">
+<!-- Erzeugt von Doxygen 1.2.9.1 -->
+<center>
+<a class="qindex" href="index.html">Hauptseite</a> &nbsp; <a class="qindex" href="hierarchy.html">Klassenhierarchie</a> &nbsp; <a class="qindex" href="annotated.html">Übersicht</a> &nbsp; <a class="qindex" href="files.html">Auflistung der Dateien</a> &nbsp; <a class="qindex" href="functions.html">Elementübersicht</a> &nbsp; </center>
+<hr><h1>tcp::Stream  Klassenreferenz</h1><a class="el" href="classtcp_1_1Stream.html">Stream</a> repräsentiert ein Client-<a class="el" href="classtcp_1_1Socket.html">Socket</a>. 
+<a href="#_details">Mehr...</a>
+<p>
+<code>#include &lt;<a class="el" href="tcpstream_8h-source.html">tcpstream.h</a>&gt;</code>
+<p>
+<p>Klassendiagramm für tcp::Stream::
+<p><center><img src="classtcp_1_1Stream.gif" usemap="#tcp::Stream_map" border="0"></center>
+<map name="tcp::Stream_map">
+<area href="classtcp_1_1Socket.html" alt="tcp::Socket" shape="rect" coords="0,0,82,24">
+<area href="classtcp_1_1iostream.html" alt="tcp::iostream" shape="rect" coords="0,112,82,136">
+</map>
+<a href="classtcp_1_1Stream-members.html">Aufstellung aller Elemente</a><table border=0 cellpadding=0 cellspacing=0>
+<tr><td colspan=2><br><h2>Öffentliche Typen</h2></td></tr>
+<tr><td nowrap align=right valign=top><a name="s0" doxytag="tcp::Stream::size_type"></a>
+typedef size_t&nbsp;</td><td valign=bottom><b>size_type</b></td></tr>
+<tr><td colspan=2><br><h2>Öffentliche Datenelemente</h2></td></tr>
+<tr><td nowrap align=right valign=top><a name="a0" doxytag="tcp::Stream::Stream"></a>
+&nbsp;</td><td valign=bottom><a class="el" href="classtcp_1_1Stream.html#a0">Stream</a> ()</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>initialisert einen leeren <a class="el" href="classtcp_1_1Socket.html">Socket</a>.</em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top><a name="a1" doxytag="tcp::Stream::Stream"></a>
+&nbsp;</td><td valign=bottom><a class="el" href="classtcp_1_1Stream.html#a1">Stream</a> (const <a class="el" href="classtcp_1_1Server.html">Server</a> &amp;server)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>nimmt eine Verbindung von einem Serversocket an.</em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top><a name="a2" doxytag="tcp::Stream::Stream"></a>
+&nbsp;</td><td valign=bottom><a class="el" href="classtcp_1_1Stream.html#a2">Stream</a> (const std::string &amp;ipaddr, int port)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Initialisert einen <a class="el" href="classtcp_1_1Socket.html">Socket</a> und nimmt Verbindung mit der angegebenen Adresse auf. Kommt keine Verbindung zustande, wird eine <a class="el" href="classtcp_1_1Exception.html">Exception</a> ausgelöst.</em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top><a name="a3" doxytag="tcp::Stream::Stream"></a>
+&nbsp;</td><td valign=bottom><a class="el" href="classtcp_1_1Stream.html#a3">Stream</a> (const char *ipaddr, int port)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Initialisert einen <a class="el" href="classtcp_1_1Socket.html">Socket</a> und nimmt Verbindung mit der angegebenen Adresse auf. Kommt keine Verbindung zustande, wird eine <a class="el" href="classtcp_1_1Exception.html">Exception</a> ausgelöst.</em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top><a name="a4" doxytag="tcp::Stream::Connect"></a>
+void&nbsp;</td><td valign=bottom><a class="el" href="classtcp_1_1Stream.html#a4">Connect</a> (const char *ipaddr, int port)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>nimmt eine Verbindung mit der angegebenen Adresse auf. Kommt keine Verbindung zustande, wird eine <a class="el" href="classtcp_1_1Exception.html">Exception</a> ausgelöst.</em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top><a name="a5" doxytag="tcp::Stream::Connect"></a>
+void&nbsp;</td><td valign=bottom><a class="el" href="classtcp_1_1Stream.html#a5">Connect</a> (const std::string &amp;ipaddr, int port)</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>nimmt eine Verbindung mit der angegebenen Adresse auf. Kommt keine Verbindung zustande, wird eine <a class="el" href="classtcp_1_1Exception.html">Exception</a> ausgelöst.</em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top><a name="a6" doxytag="tcp::Stream::Read"></a>
+size_type&nbsp;</td><td valign=bottom><a class="el" href="classtcp_1_1Stream.html#a6">Read</a> (char *buffer, size_type bufsize) const</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Liest vom <a class="el" href="classtcp_1_1Socket.html">Socket</a> maximal 'bufsize' Zeichen in 'buffer'. Liefert die Anzahl der gelesenen Zeichen zurück. Bei Fehler wrid eine <a class="el" href="classtcp_1_1Exception.html">tcp::Exception</a> geworfen.</em></font><br><br></td></tr>
+<tr><td nowrap align=right valign=top><a name="a7" doxytag="tcp::Stream::Write"></a>
+size_type&nbsp;</td><td valign=bottom><a class="el" href="classtcp_1_1Stream.html#a7">Write</a> (const char *buffer, size_type bufsize) const</td></tr>
+<tr><td>&nbsp;</td><td><font size=-1><em>Schreibt bis zu 'bufsize' Zeichen aus 'buffer' auf den <a class="el" href="classtcp_1_1Socket.html">Socket</a>. Liefert die Anzahl der geschriebenen Zeichen zurück.</em></font><br><br></td></tr>
+</table>
+<hr><a name="_details"></a><h2>Ausführliche Beschreibung</h2>
+<a class="el" href="classtcp_1_1Stream.html">Stream</a> repräsentiert ein Client-<a class="el" href="classtcp_1_1Socket.html">Socket</a>.
+<p>
+<a class="el" href="classtcp_1_1Stream.html">Stream</a> ist ein ungepufferter Client-<a class="el" href="classtcp_1_1Socket.html">Socket</a> zum lesen und schreiben von Daten über den <a class="el" href="classtcp_1_1Socket.html">Socket</a>. 
+<p>
+<hr>Die Dokumentation für diese Klasse wurde erzeugt aufgrund der Datei:<ul>
+<li><a class="el" href="tcpstream_8h-source.html">tcpstream.h</a></ul>
+<hr><address><small>Erzeugt am Thu May 30 22:54:13 2002 für C++Utilities von
+<a href="http://www.doxygen.org/index.html">
+<img src="doxygen.gif" alt="doxygen" align="middle" border=0 
+width=110 height=53></a>1.2.9.1 geschrieben von <a href="mailto:dimitri@stack.nl">Dimitri van Heesch</a>,
+ &copy;&nbsp;1997-2001</small></address>
+</body>
+</html>

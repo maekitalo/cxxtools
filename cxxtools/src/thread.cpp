@@ -1,0 +1,180 @@
+////////////////////////////////////////////////////////////////////////
+// thread.cpp
+//
+// Tommi Mäkitalo
+//
+
+#include "thread.h"
+#include <iostream>
+#include <stdio.h>
+#include <errno.h>
+
+using namespace std;
+
+extern "C"
+void* start_routine(void* arg);
+
+Thread::Thread()
+{
+  pthread_attr_init(&pthread_attr);
+}
+
+Thread::~Thread()
+{
+  pthread_attr_destroy(&pthread_attr);
+}
+
+void Thread::Create()
+{
+  int ret;
+
+  ret = pthread_create(&pthread, &pthread_attr, start_routine, (void*)this);
+
+  if (ret != 0)
+  {
+    cerr << "error " << ret << " in pthread_create" << endl;
+    switch(ret)
+    {
+      case ENOMEM: cerr << "ENOMEM" << endl; break;
+      case EINVAL: cerr << "EINVAL" << endl; break;
+      case EPERM:  cerr << "EPERM"  << endl; break;
+      default:     cerr << "unknown error " << ret << endl;
+    }
+  }
+}
+
+void Thread::Join()
+{
+  int ret;
+
+  ret = pthread_join(pthread, 0);
+
+  if (ret != 0)
+  {
+    cerr << "error " << ret << " in pthread_join" << endl;
+    switch(ret)
+    {
+      case EINVAL:  cerr << "EINVAL"        << endl; break;
+      case ESRCH:   cerr << "ESRCH"         << endl; break;
+      case EDEADLK: cerr << "EDEADLK"       << endl; break;
+      default:      cerr << "unknown error " << ret << endl;
+    }
+  }
+}
+
+void* start_routine(void* arg)
+{
+  ((Thread*)arg)->Run();
+  return 0;
+}
+
+Mutex::Mutex()
+{
+  int ret = pthread_mutex_init(&m_mutex, 0);
+  if (ret != 0)
+    throw ThreadException("error in pthread_mutex_init", ret);
+}
+
+Mutex::~Mutex()
+{
+  pthread_mutex_destroy(&m_mutex);
+}
+
+void Mutex::Lock()
+{
+  int ret = pthread_mutex_lock(&m_mutex);
+  if (ret != 0)
+    throw ThreadException("error in pthread_mutex_lock", ret);
+}
+
+bool Mutex::tryLock()
+{
+  int ret = pthread_mutex_trylock(&m_mutex);
+  if (ret == 0)
+    return true;
+  else
+    return false;
+}
+
+void Mutex::Unlock()
+{
+  int ret = pthread_mutex_unlock(&m_mutex);
+  if (ret != 0)
+    throw ThreadException("error in pthread_mutex_unlock", ret);
+}
+
+RWLock::RWLock()
+{
+  int ret = pthread_rwlock_init(&m_rwlock, 0);
+  if (ret != 0)
+    throw ThreadException("error in pthread_rwlock_init", ret);
+}
+
+RWLock::~RWLock()
+{
+  pthread_rwlock_destroy(&m_rwlock);
+}
+
+void RWLock::RdLock()
+{
+  int ret = pthread_rwlock_rdlock(&m_rwlock);
+  if (ret != 0)
+    throw ThreadException("error in pthread_rwlock_rdlock", ret);
+}
+
+void RWLock::WrLock()
+{
+  int ret = pthread_rwlock_wrlock(&m_rwlock);
+  if (ret != 0)
+    throw ThreadException("error in pthread_rwlock_wrlock", ret);
+}
+
+void RWLock::Unlock()
+{
+  int ret = pthread_rwlock_unlock(&m_rwlock);
+  if (ret != 0)
+    throw ThreadException("error in pthread_rwlock_unlock", ret);
+}
+
+Semaphore::Semaphore(unsigned value)
+{
+  int ret = sem_init(&sem, 0, value);
+  if (ret != 0)
+    throw ThreadException("error in sem_init", ret);
+}
+
+Semaphore::~Semaphore()
+{
+  sem_destroy(&sem);
+}
+
+void Semaphore::Wait()
+{
+  int ret = sem_wait(&sem);
+  if (ret != 0)
+    throw ThreadException("error in sem_wait", ret);
+}
+
+bool Semaphore::TryWait()
+{
+  int ret = sem_trywait(&sem);
+  if (ret != EAGAIN && ret != 0)
+    throw ThreadException("error in sem_trywait", ret);
+  return ret == 0;
+}
+
+void Semaphore::Post()
+{
+  int ret = sem_post(&sem);
+  if (ret != 0)
+    throw ThreadException("error in sem_post", ret);
+}
+
+int Semaphore::getValue()
+{
+  int sval;
+  int ret = sem_getvalue(&sem, &sval);
+  if (ret != 0)
+    throw ThreadException("error in sem_getvalue", ret);
+  return sval;
+}

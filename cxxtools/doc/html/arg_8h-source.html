@@ -1,0 +1,199 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1">
+<title>arg.h Source File</title>
+<link href="doxygen.css" rel="stylesheet" type="text/css">
+</head><body bgcolor="#ffffff">
+<!-- Erzeugt von Doxygen 1.2.9.1 -->
+<center>
+<a class="qindex" href="index.html">Hauptseite</a> &nbsp; <a class="qindex" href="hierarchy.html">Klassenhierarchie</a> &nbsp; <a class="qindex" href="annotated.html">Übersicht</a> &nbsp; <a class="qindex" href="files.html">Auflistung der Dateien</a> &nbsp; <a class="qindex" href="functions.html">Elementübersicht</a> &nbsp; </center>
+<hr><h1>arg.h</h1><div class="fragment"><pre>00001 
+00002 <font class="comment">// arg.h</font>
+00003 <font class="comment">//</font>
+00004 <font class="comment">// Author: Tommi Maekitalo, Dr. Eckhardt + Partner GmbH</font>
+00005 <font class="comment">// Datum:  26.3.2002</font>
+00006 <font class="comment">//</font>
+00007 
+00008 <font class="preprocessor">#ifndef ARG_H</font>
+00009 <font class="preprocessor"></font><font class="preprocessor">#define ARG_H</font>
+00010 <font class="preprocessor"></font>
+00011 <font class="preprocessor">#if __GNUC__ &lt;= 2</font>
+00012 <font class="preprocessor"></font><font class="comment">// gcc 2.95 hat kein sstream</font>
+00013 <font class="preprocessor">#  include &lt;strstream&gt;</font>
+00014 <font class="preprocessor">#else</font>
+00015 <font class="preprocessor"></font><font class="preprocessor">#  include &lt;sstream&gt;</font>
+00016 <font class="preprocessor">#endif</font>
+00017 <font class="preprocessor"></font>
+00018 <font class="preprocessor">#include &lt;string&gt;</font>
+00019 
+00021 
+00046 template &lt;class T&gt;
+<a name="l00047"></a><a class="code" href="classarg.html">00047</a> <font class="keyword">class </font><a class="code" href="classarg.html">arg</a>
+00048 {
+00049   <font class="keyword">public</font>:
+<a name="l00069"></a><a class="code" href="classarg.html#a0">00069</a>     <a class="code" href="classarg.html#a0">arg</a>(<font class="keywordtype">int</font>&amp; argc, <font class="keywordtype">char</font>* argv[], <font class="keywordtype">char</font> ch, <font class="keyword">const</font> T&amp; def = T())
+00070     {
+00071       <font class="keywordflow">for</font> (<font class="keywordtype">int</font> i = 1; i &lt; argc - 1; ++i)
+00072         <font class="keywordflow">if</font> (argv[i][0] == <font class="charliteral">'-'</font> &amp;&amp; argv[i][1] == ch &amp;&amp; argv[i][2] == <font class="charliteral">'\0'</font>
+00073 <font class="preprocessor">#if __GNUC__ &lt;= 2</font>
+00074 <font class="preprocessor"></font>          &amp;&amp; !( std::istrstream(argv[i + 1]) &gt;&gt; m_value).fail()
+00075 <font class="preprocessor">#else</font>
+00076 <font class="preprocessor"></font>          &amp;&amp; !( std::istringstream(argv[i + 1]) &gt;&gt; m_value).fail()
+00077 <font class="preprocessor">#endif</font>
+00078 <font class="preprocessor"></font>          )
+00079         {
+00080           m_isset = <font class="keyword">true</font>;
+00081           <font class="keywordflow">for</font> ( ; i &lt; argc - 2; ++i)
+00082             argv[i] = argv[i + 2];
+00083           argc -= 2;
+00084           <font class="keywordflow">return</font>;
+00085         }
+00086 
+00087       m_isset = <font class="keyword">false</font>;
+00088       m_value = def;
+00089     }
+00090 
+<a name="l00102"></a><a class="code" href="classarg.html#a1">00102</a>     <a class="code" href="classarg.html#a0">arg</a>(<font class="keywordtype">int</font>&amp; argc, <font class="keywordtype">char</font>* argv[], <font class="keyword">const</font> <font class="keywordtype">char</font>* str, <font class="keyword">const</font> T&amp; def = T())
+00103     {
+00104       <font class="keywordflow">for</font> (<font class="keywordtype">int</font> i = 1; i &lt; argc - 1; ++i)
+00105         <font class="keywordflow">if</font> (strcmp(argv[i], str) == 0
+00106 <font class="preprocessor">#if __GNUC__ &lt;= 2</font>
+00107 <font class="preprocessor"></font>          &amp;&amp; !( std::istrstream(argv[i + 1]) &gt;&gt; m_value).fail()
+00108 <font class="preprocessor">#else</font>
+00109 <font class="preprocessor"></font>          &amp;&amp; !( std::istringstream(argv[i + 1]) &gt;&gt; m_value).fail()
+00110 <font class="preprocessor">#endif</font>
+00111 <font class="preprocessor"></font>          )
+00112         {
+00113           m_isset = <font class="keyword">true</font>;
+00114           <font class="keywordflow">for</font> ( ; i &lt; argc - 2; ++i)
+00115             argv[i] = argv[i + 2];
+00116           argc -= 2;
+00117           <font class="keywordflow">return</font>;
+00118         }
+00119 
+00120       m_isset = <font class="keyword">false</font>;
+00121       m_value = def;
+00122     }
+00123 
+<a name="l00127"></a><a class="code" href="classarg.html#a2">00127</a>     <a class="code" href="classarg.html#a2">operator T</a>()<font class="keyword"> const   </font>{ <font class="keywordflow">return</font> m_value; }
+00128 
+<a name="l00133"></a><a class="code" href="classarg.html#a3">00133</a>     <font class="keywordtype">bool</font> <a class="code" href="classarg.html#a3">isSet</a>()<font class="keyword"> const   </font>{ <font class="keywordflow">return</font> m_isset; }
+00134 
+00135   <font class="keyword">private</font>:
+00136     T    m_value;
+00137     <font class="keywordtype">bool</font> m_isset;
+00138 };
+00139 
+00141 
+<a name="l00166"></a><a class="code" href="classarg_3_01bool_01_4.html">00166</a> <font class="keyword">class </font><a class="code" href="classarg.html">arg</a>&lt;bool&gt;
+00167 {
+00168   <font class="keyword">public</font>:
+<a name="l00177"></a><a class="code" href="classarg_3_01bool_01_4.html#a0">00177</a>     arg(<font class="keywordtype">int</font>&amp; argc, <font class="keywordtype">char</font>* argv[], <font class="keywordtype">char</font> ch)<font class="keyword"></font>
+00178 <font class="keyword">    </font>{
+00179       <font class="keywordflow">for</font> (<font class="keywordtype">int</font> i = 1; i &lt; argc; ++i)
+00180         <font class="keywordflow">if</font> (argv[i][0] == <font class="charliteral">'-'</font> &amp;&amp; argv[i][1] != <font class="charliteral">'-'</font>)
+00181         {
+00182           <font class="comment">// fängt mit einem '-' an, aber nicht mit '--'</font>
+00183           <font class="keywordflow">if</font> (argv[i][1] == ch &amp;&amp; argv[i][2] == <font class="charliteral">'\0'</font>)
+00184           {
+00185             <font class="comment">// das ist eine allein stehende Option</font>
+00186             m_value = <font class="keyword">true</font>;
+00187             <font class="keywordflow">for</font> ( ; i &lt; argc - 1; ++i)
+00188               argv[i] = argv[i + 1];
+00189             argc -= 1;
+00190             <font class="keywordflow">return</font>;
+00191           }
+00192           <font class="keywordflow">else</font>
+00193           {
+00194             <font class="comment">// allein steht das nicht, aber mal sehen, ob der Optionsbuchstabe</font>
+00195             <font class="comment">// in der Gruppe vorkommt</font>
+00196             <font class="keywordflow">for</font> (<font class="keywordtype">char</font>* p = argv[i] + 1; *p != <font class="charliteral">'\0'</font>; ++p)
+00197               <font class="keywordflow">if</font> (*p == ch)
+00198               {
+00199                 <font class="comment">// na da haben wir ihn; weg damit und fertig</font>
+00200                 m_value = <font class="keyword">true</font>;
+00201                 <font class="keywordflow">do</font>
+00202                 {
+00203                   *p = *(p + 1);
+00204                 } <font class="keywordflow">while</font> (*p++ != <font class="charliteral">'\0'</font>);
+00205 
+00206                 <font class="keywordflow">return</font>;
+00207               }
+00208           }
+00209         }
+00210       m_value = <font class="keyword">false</font>;
+00211     }
+00212 
+<a name="l00217"></a><a class="code" href="classarg_3_01bool_01_4.html#a1">00217</a>     arg(<font class="keywordtype">int</font>&amp; argc, <font class="keywordtype">char</font>* argv[], <font class="keyword">const</font> <font class="keywordtype">char</font>* str)<font class="keyword"></font>
+00218 <font class="keyword">    </font>{
+00219       <font class="keywordflow">for</font> (<font class="keywordtype">int</font> i = 1; i &lt; argc; ++i)
+00220         <font class="keywordflow">if</font> (strcmp(argv[i], str) == 0)
+00221         {
+00222           m_value = <font class="keyword">true</font>;
+00223           <font class="keywordflow">for</font> ( ; i &lt; argc - 1; ++i)
+00224             argv[i] = argv[i + 1];
+00225           argc -= 1;
+00226           <font class="keywordflow">return</font>;
+00227         }
+00228       m_value = <font class="keyword">false</font>;
+00229     }
+00230 
+<a name="l00234"></a><a class="code" href="classarg_3_01bool_01_4.html#a2">00234</a>     operator bool()<font class="keyword"> const  </font>{ <font class="keywordflow">return</font> m_value; }
+00235 
+00236   <font class="keyword">private</font>:
+00237     <font class="keywordtype">bool</font> m_value;
+00238 };
+00239 
+00241 
+<a name="l00247"></a><a class="code" href="classarg_3_01const_01char_01_5_4.html">00247</a> <font class="keyword">class </font><a class="code" href="classarg.html">arg</a>&lt;const char*&gt;
+00248 {
+00249   <font class="keyword">public</font>:
+<a name="l00255"></a><a class="code" href="classarg_3_01const_01char_01_5_4.html#a0">00255</a>     arg(<font class="keywordtype">int</font>&amp; argc, <font class="keywordtype">char</font>* argv[], <font class="keywordtype">char</font> ch, <font class="keyword">const</font> <font class="keywordtype">char</font>* def)<font class="keyword"></font>
+00256 <font class="keyword">    </font>{
+00257       <font class="keywordflow">for</font> (<font class="keywordtype">int</font> i = 1; i &lt; argc - 1; ++i)
+00258         <font class="keywordflow">if</font> (argv[i][0] == <font class="charliteral">'-'</font> &amp;&amp; argv[i][1] == ch &amp;&amp; argv[i][2] == <font class="charliteral">'\0'</font>)
+00259         {
+00260           m_value = argv[i + 1];
+00261           m_isset = <font class="keyword">true</font>;
+00262           <font class="keywordflow">for</font> ( ; i &lt; argc - 2; ++i)
+00263             argv[i] = argv[i + 2];
+00264           argc -= 2;
+00265           <font class="keywordflow">return</font>;
+00266         }
+00267 
+00268       m_isset = <font class="keyword">false</font>;
+00269       m_value = def;
+00270     }
+00271 
+<a name="l00277"></a><a class="code" href="classarg_3_01const_01char_01_5_4.html#a1">00277</a>     arg(<font class="keywordtype">int</font>&amp; argc, <font class="keywordtype">char</font>* argv[], <font class="keyword">const</font> <font class="keywordtype">char</font>* str, <font class="keyword">const</font> <font class="keywordtype">char</font>* def)<font class="keyword"></font>
+00278 <font class="keyword">    </font>{
+00279       <font class="keywordflow">for</font> (<font class="keywordtype">int</font> i = 1; i &lt; argc - 1; ++i)
+00280         <font class="keywordflow">if</font> (strcmp(argv[i], str) == 0)
+00281         {
+00282           m_value = argv[i + 1];
+00283           m_isset = <font class="keyword">true</font>;
+00284           <font class="keywordflow">for</font> ( ; i &lt; argc - 2; ++i)
+00285             argv[i] = argv[i + 2];
+00286           argc -= 2;
+00287           <font class="keywordflow">return</font>;
+00288         }
+00289 
+00290       m_isset = <font class="keyword">false</font>;
+00291       m_value = def;
+00292     }
+00293 
+<a name="l00297"></a><a class="code" href="classarg_3_01const_01char_01_5_4.html#a2">00297</a>     operator const char*()<font class="keyword"> const   </font>{ <font class="keywordflow">return</font> m_value; }
+<a name="l00302"></a><a class="code" href="classarg_3_01const_01char_01_5_4.html#a3">00302</a>     <font class="keywordtype">bool</font> isSet()<font class="keyword"> const             </font>{ <font class="keywordflow">return</font> m_isset; }
+00303 
+00304   <font class="keyword">private</font>:
+00305     <font class="keyword">const</font> <font class="keywordtype">char</font>* m_value;
+00306     <font class="keywordtype">bool</font>        m_isset;
+00307 };
+00308 
+00309 <font class="preprocessor">#endif // ARG_H</font>
+</font></pre></div><hr><address><small>Erzeugt am Thu May 30 22:54:12 2002 für C++Utilities von
+<a href="http://www.doxygen.org/index.html">
+<img src="doxygen.gif" alt="doxygen" align="middle" border=0 
+width=110 height=53></a>1.2.9.1 geschrieben von <a href="mailto:dimitri@stack.nl">Dimitri van Heesch</a>,
+ &copy;&nbsp;1997-2001</small></address>
+</body>
+</html>

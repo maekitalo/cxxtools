@@ -1,0 +1,89 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1">
+<title>timeclass.h Source File</title>
+<link href="doxygen.css" rel="stylesheet" type="text/css">
+</head><body bgcolor="#ffffff">
+<!-- Erzeugt von Doxygen 1.2.9.1 -->
+<center>
+<a class="qindex" href="index.html">Hauptseite</a> &nbsp; <a class="qindex" href="hierarchy.html">Klassenhierarchie</a> &nbsp; <a class="qindex" href="annotated.html">Übersicht</a> &nbsp; <a class="qindex" href="files.html">Auflistung der Dateien</a> &nbsp; <a class="qindex" href="functions.html">Elementübersicht</a> &nbsp; </center>
+<hr><h1>timeclass.h</h1><div class="fragment"><pre>00001 
+00002 <font class="comment">// timeclass.h</font>
+00003 <font class="comment">//</font>
+00004 <font class="comment">// Author: Tommi Mäkitalo, Dr. Eckhardt + Partner GmbH</font>
+00005 <font class="comment">// Date:   7.3.2002</font>
+00006 <font class="comment">//</font>
+00007 
+00008 <font class="preprocessor">#ifndef TIMECLASS_H</font>
+00009 <font class="preprocessor"></font><font class="preprocessor">#define TIMECLASS_H</font>
+00010 <font class="preprocessor"></font>
+00011 <font class="preprocessor">#include &lt;sys/time.h&gt;</font>
+00012 <font class="preprocessor">#include &lt;iostream&gt;</font>
+00013 <font class="preprocessor">#include &lt;string&gt;</font>
+00014 
+00016 <font class="comment">// TimeClass</font>
+00017 <font class="comment">//</font>
+00018 <font class="keyword">class </font>TimeClass
+00019 {
+00020     <font class="keyword">friend</font> std::ostream&amp; operator&lt;&lt; (std::ostream&amp; out, <font class="keyword">const</font> TimeClass&amp; t);
+00021     <font class="keyword">friend</font> std::istream&amp; operator&gt;&gt; (std::istream&amp; in, TimeClass&amp; t);
+00022 
+00023   <font class="keyword">public</font>:
+00024     TimeClass()<font class="keyword"></font>
+00025 <font class="keyword">    </font>{ }
+00026     TimeClass(<font class="keywordtype">double</font> t);
+00027     TimeClass(<font class="keywordtype">long</font> sec, <font class="keywordtype">long</font> usec)<font class="keyword"></font>
+00028 <font class="keyword">    </font>{
+00029       tv.tv_sec = sec;
+00030       tv.tv_usec = usec;
+00031     }
+00032     TimeClass(std::string s);
+00033 
+00034     operator double()<font class="keyword"> const</font>
+00035 <font class="keyword">    </font>{ <font class="keywordflow">return</font> (<font class="keywordtype">double</font>)tv.tv_sec + (<font class="keywordtype">double</font>)tv.tv_usec / 1e6; }
+00036 
+00037     TimeClass&amp; setNow();
+00038     <font class="keyword">static</font> TimeClass Now()<font class="keyword"></font>
+00039 <font class="keyword">    </font>{ TimeClass t; t.setNow(); <font class="keywordflow">return</font> t; }
+00040 
+00041     <font class="keywordtype">bool</font> operator&lt;  (<font class="keyword">const</font> TimeClass&amp; t)<font class="keyword"> const</font>
+00042 <font class="keyword">    </font>{ <font class="keywordflow">return</font> tv.tv_sec &lt; t.tv.tv_sec
+00043           || tv.tv_sec == t.tv.tv_sec &amp;&amp; tv.tv_usec &lt; t.tv.tv_usec; }
+00044     <font class="keywordtype">bool</font> operator&lt;= (<font class="keyword">const</font> TimeClass&amp; t)<font class="keyword"> const</font>
+00045 <font class="keyword">    </font>{ <font class="keywordflow">return</font> tv.tv_sec &lt; t.tv.tv_sec
+00046           || tv.tv_sec == t.tv.tv_sec &amp;&amp; tv.tv_usec &lt;= t.tv.tv_usec; }
+00047     <font class="keywordtype">bool</font> operator== (<font class="keyword">const</font> TimeClass&amp; t)<font class="keyword"> const</font>
+00048 <font class="keyword">    </font>{ <font class="keywordflow">return</font> tv.tv_sec == t.tv.tv_sec &amp;&amp; tv.tv_usec == t.tv.tv_usec; }
+00049 
+00050     TimeClass  operator-  (<font class="keyword">const</font> TimeClass&amp; t) <font class="keyword">const</font>;
+00051     TimeClass&amp; operator-= (<font class="keyword">const</font> TimeClass&amp; t);
+00052     TimeClass  operator+  (<font class="keyword">const</font> TimeClass&amp; t) <font class="keyword">const</font>;
+00053     TimeClass&amp; operator+= (<font class="keyword">const</font> TimeClass&amp; t);
+00054 
+00055     timeval*    getTimevalPtr()<font class="keyword"> </font>{ <font class="keywordflow">return</font> &amp;tv; }
+00056     <font class="keywordtype">int</font>         getMs()<font class="keyword"> const   </font>{ <font class="keywordflow">return</font> tv.tv_sec * 1000 + tv.tv_usec / 1000; }
+00057     std::string Hms() <font class="keyword">const</font>;
+00058     <font class="keywordtype">void</font>        Hms(<font class="keywordtype">char</font>* buffer) <font class="keyword">const</font>;  <font class="comment">// Format: hh:mm:ss</font>
+00059     std::string Hmsh() <font class="keyword">const</font>;
+00060     <font class="keywordtype">void</font>        Hmsh(<font class="keywordtype">char</font>* buffer) <font class="keyword">const</font>;  <font class="comment">// Format: hh:mm:ss,hh</font>
+00061 
+00062     std::string hms() <font class="keyword">const</font>;
+00063     <font class="keywordtype">void</font>        hms(<font class="keywordtype">char</font>* buffer) <font class="keyword">const</font>;  <font class="comment">// Format: hhmmss</font>
+00064     std::string hmsh() <font class="keyword">const</font>;
+00065     <font class="keywordtype">void</font>        hmsh(<font class="keywordtype">char</font>* buffer) <font class="keyword">const</font>;  <font class="comment">// Format: hhmmsshh</font>
+00066 
+00067   <font class="keyword">private</font>:
+00068     <font class="keyword">struct </font>timeval tv;
+00069 };
+00070 
+00071 std::ostream&amp; operator&lt;&lt; (std::ostream&amp; out, <font class="keyword">const</font> TimeClass&amp; t);
+00072 std::istream&amp; operator&gt;&gt; (std::istream&amp; in, TimeClass&amp; t);
+00073 
+00074 <font class="preprocessor">#endif</font>
+00075 <font class="preprocessor"></font>
+</pre></div><hr><address><small>Erzeugt am Thu May 30 22:54:12 2002 für C++Utilities von
+<a href="http://www.doxygen.org/index.html">
+<img src="doxygen.gif" alt="doxygen" align="middle" border=0 
+width=110 height=53></a>1.2.9.1 geschrieben von <a href="mailto:dimitri@stack.nl">Dimitri van Heesch</a>,
+ &copy;&nbsp;1997-2001</small></address>
+</body>
+</html>
