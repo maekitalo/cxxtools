@@ -1,3 +1,9 @@
+cxxtools (1.1.1-1) unstable; urgency=low
+
+  * new class base64stream
+
+ -- Tommi Maekitalo <tommi@epgmbh.de>  Wed,  3 Nov 2004 20:33:31 +0100
+
 cxxtools (1.1.0-2) unstable; urgency=low
 
   * make use of libtool/autoconf/automake
