@@ -1,19 +1,21 @@
 Source: cxxtools
 Priority: optional
-Maintainer: hotspot <hotspot@epgmbh.de>
-Build-Depends: debhelper (>> 3.0.0)
-Standards-Version: 3.5.2
+Maintainer: Tommi Maekitalo <t.maekitalo@epgmbh.de>
+Build-Depends: debhelper (>= 4.0.0)
+Standards-Version: 3.6.0
 
 Package: cxxtools-dev
 Section: devel
 Architecture: any
 Depends: cxxtools (= ${Source-Version})
-Description: <insert up to 60 chars description>
- <insert long description, indented with spaces>
+Description: cxxtools is my toolbox with reusable c++-components
+ cxxtools is my toolbox with reusable c++-components
+ This package contains the development files.
 
 Package: cxxtools
 Section: libs
 Architecture: any
-Depends: ${shlibs:Depends}
-Description: <insert up to 60 chars description>
- <insert long description, indented with spaces>
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: cxxtools is my toolbox with reusable c++-components
+ cxxtools is my toolbox with reusable c++-components
+ his package contains the library files.

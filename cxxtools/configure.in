@@ -20,6 +20,6 @@ AC_LANG_PUSH(C++)
 AC_HAVE_HEADERS(sstream)
 AC_LANG_POP(C++)
 
-AC_CONFIG_FILES([Makefile src/Makefile])
+AC_CONFIG_FILES([Makefile src/Makefile include/Makefile include/cxxtools/Makefile])
 
 AC_OUTPUT

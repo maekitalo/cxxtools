@@ -1,3 +1,9 @@
+cxxtools (1.1.0-2) unstable; urgency=low
+
+  * make use of libtool/autoconf/automake
+
+ -- Tommi Maekitalo <tommi@epgmbh.de>  Mon,  4 Oct 2004 16:35:02 +0200
+
 cxxtools (1.1) unstable; urgency=low
 
   *  unused variable in tcpstream.h removed
