@@ -12,8 +12,8 @@ unset CDPATH
 AC_CONFIG_HEADERS([include/cxxtools/config.h])
 AC_CONFIG_SRCDIR([src/hdstream.cpp])
 
-AC_PROG_CC
-AC_PROG_CXX
+AC_PROG_CC(gcc-3.0 gcc cc CC)
+AC_PROG_CXX(g++-3.0 g++ c++ CC)
 AC_PROG_LIBTOOL
 
 AC_LANG_PUSH(C++)
