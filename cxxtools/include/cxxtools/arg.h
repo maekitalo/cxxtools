@@ -105,8 +105,7 @@ class arg
     }
 
     arg(int& argc, char* argv[])
-      : m_value(def),
-        m_isset(false)
+      : m_isset(false)
     {
       m_isset = set(argc, argv);
     }
