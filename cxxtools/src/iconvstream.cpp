@@ -21,6 +21,7 @@ Boston, MA  02111-1307  USA
 
 #include "cxxtools/iconvstream.h"
 #include <string.h>
+#include <config.h>
 
 namespace cxxtools
 {
@@ -83,7 +84,7 @@ iconvstreambuf::int_type iconvstreambuf::overflow(int_type c)
     }
     size_t outbytesleft = sizeof(outbuf);
 
-    char* inbufptr = buffer;
+    ICONV_CONST char* inbufptr = buffer;
     char* outbufptr = outbuf;
 
     // Konvertiere so viele Zeichen wie möglich

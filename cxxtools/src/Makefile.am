@@ -1,22 +1,27 @@
+INCLUDES = -I../include @INCLTDL@
+
 lib_LTLIBRARIES = libcxxtools.la
 
 libcxxtools_la_SOURCES = \
+	base64stream.cpp \
 	cgi.cpp \
 	dlloader.cpp \
 	hdstream.cpp \
-	iconvstream.cpp \
 	iniclass.cpp \
 	md5.c \
 	md5stream.cpp \
+	multifstream.cpp \
 	pollclass.cpp \
 	query_params.cpp \
 	tcpstream.cpp \
 	tee.cpp \
-	thread.cpp \
-	timeclass.cpp \
-	multifstream.cpp \
-	base64stream.cpp
+	thread.cpp
 
-libcxxtools_la_LDFLAGS = -ldl -lpthread -version-info @sonumber@
+if MAKE_ICONV
+libcxxtools_la_SOURCES += iconvstream.cpp
+endif
 
-INCLUDES=-I../include
+libcxxtools_la_LIBADD = $(MAKE_ICONV) @LIBLTDL@ @LIBICONV@
+libcxxtools_la_DEPENDENCIES = $(MAKE_ICONV)
+
+libcxxtools_la_LDFLAGS = -lpthread -version-info @sonumber@

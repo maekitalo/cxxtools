@@ -22,7 +22,6 @@ Boston, MA  02111-1307  USA
 #ifndef CXXTOOLS_DLLOADER_H
 #define CXXTOOLS_DLLOADER_H
 
-#include <dlfcn.h>
 #include <stdexcept>
 
 namespace cxxtools
@@ -88,9 +87,9 @@ namespace dl
 
     public:
       /// loads a shared library.
-      library(const char* name, int flag = RTLD_NOW | RTLD_GLOBAL)
+      library(const char* name)
         : handle(0), prev(this), next(this)
-        { open(name, flag); }
+        { open(name); }
       /// default constructor.
       library()
         : handle(0), prev(this), next(this)
@@ -107,7 +106,7 @@ namespace dl
       /// If the class references already another library the
       /// reference is decremented and unloaded, if the class was the
       /// last reference.
-      void open(const char* name, int flag = RTLD_NOW);
+      void open(const char* name);
       /// unloads the library if some is referenced.
       /// Does nothing, if no library was referenced.
       void close();

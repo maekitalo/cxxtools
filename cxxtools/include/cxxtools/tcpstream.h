@@ -26,6 +26,7 @@ Boston, MA  02111-1307  USA
 #include <string>
 #include <stdexcept>
 #include <netinet/in.h>
+#include <sys/socket.h>
 
 namespace cxxtools
 {

@@ -20,6 +20,7 @@ Boston, MA  02111-1307  USA
 */
 
 #include "cxxtools/dlloader.h"
+#include <ltdl.h>
 
 namespace cxxtools
 {
@@ -27,7 +28,7 @@ namespace cxxtools
 namespace dl
 {
   error::error()
-    : std::runtime_error(dlerror())
+    : std::runtime_error(lt_dlerror())
   { }
 
   dlopen_error::dlopen_error(const std::string& l)
@@ -66,13 +67,18 @@ namespace dl
     return *this;
   }
 
-  void library::open(const char* name, int flag)
+  void library::open(const char* name)
   {
     close();
 
-    handle = dlopen(name, flag);
+    lt_dlinit();
+
+    handle = lt_dlopenext(name);
     if (!handle)
+    {
+      lt_dlexit();
       throw dlopen_error(name);
+    }
   }
 
   void library::close()
@@ -81,7 +87,8 @@ namespace dl
     {
       if (prev == this)
       {
-        dlclose(handle);
+        lt_dlclose(static_cast<lt_dlhandle>(handle));
+        lt_dlexit();
       }
       else
       {
@@ -95,9 +102,7 @@ namespace dl
 
   symbol library::sym(const char* name) const
   {
-    // Warum nimmt dlsym ein "char*" statt "const char*"?
-    // Ich gehe einfach mal davon aus, daﬂ er nichts reinschreibt.
-    void* sym = dlsym(handle, const_cast<char*>(name));
+    void* sym = lt_dlsym(static_cast<lt_dlhandle>(handle), const_cast<char*>(name));
     if (sym == 0)
       throw symbol_not_found(name);
 

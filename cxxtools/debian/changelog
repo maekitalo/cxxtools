@@ -1,3 +1,11 @@
+cxxtools (1.2.1) unstable; urgency=low
+
+  * removed obsolete timeclass.cpp
+  * switched dl-classes to libtool for better portability
+  * skip iconvstream if libiconv is not installed
+
+ -- Tommi Maekitalo <tommi@tntnet.org>  Tue, 30 Nov 2004 20:45:53 +0100
+
 cxxtools (1.2.0) unstable; urgency=low
 
   * all classes moved to namespace cxxtools

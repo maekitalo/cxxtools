@@ -1,4 +1,4 @@
-bin_PROGRAMS = getini hdstream md5sum multifstream arg cgi dir \
+noinst_PROGRAMS = getini hdstream md5sum multifstream arg cgi dir \
   dlloader pool dynbuffer
 
 getini_SOURCES = getini.cpp

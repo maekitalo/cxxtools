@@ -76,6 +76,10 @@ class md5streambuf : public std::streambuf
  */
 class md5stream : public std::ostream
 {
+  public:
+    typedef std::ostreambuf_iterator<char> iterator;
+
+  private:
     md5streambuf streambuf;
     char hexdigest[33];
 
@@ -90,6 +94,10 @@ class md5stream : public std::ostream
     { streambuf.getDigest(digest); }
     /// ends md5-calculation and digest as 32 bytes hex
     const char* getHexDigest();
+
+    /// returns output-iterator to md5stream
+    iterator begin()
+      { return iterator(&streambuf); }
 };
 
 }

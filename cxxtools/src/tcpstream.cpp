@@ -28,6 +28,7 @@ Boston, MA  02111-1307  USA
 #include <arpa/inet.h>
 #include <fcntl.h>
 #include <sys/poll.h>
+#include <errno.h>
 
 namespace cxxtools
 {

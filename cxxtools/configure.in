@@ -1,5 +1,5 @@
-AC_INIT(cxxtools, 1.2.0, [Tommi Mäkitalo <t.maekitalo@epgmbh.de>])
-AM_INIT_AUTOMAKE(cxxtools, 1.2.0)
+AC_INIT(cxxtools, 1.2.1, [Tommi Maekitalo <tommi@tntnet.org>])
+AM_INIT_AUTOMAKE(cxxtools, 1.2.1)
 
 abi_current=2
 abi_revision=1
@@ -10,11 +10,23 @@ AC_SUBST(sonumber)
 unset CDPATH
 
 AC_CONFIG_HEADERS([src/config.h])
-AC_CONFIG_SRCDIR([src/hdstream.cpp])
+AC_CONFIG_HEADERS([include/cxxtools/config.h])
+AC_CONFIG_SRCDIR([src/base64stream.cpp])
+AC_CONFIG_SUBDIRS(libltdl)
+
+AC_HEADER_DIRENT
+
+AM_ICONV
+AM_CONDITIONAL(MAKE_ICONV, test "$am_cv_func_iconv" = yes)
 
 AC_PROG_CC(gcc-3.0 gcc cc CC)
 AC_PROG_CXX(g++-3.0 g++ c++ CC)
+
+AC_LIBTOOL_DLOPEN
+AC_LIBLTDL_CONVENIENCE
 AC_PROG_LIBTOOL
+AC_SUBST(INCLTDL)
+AC_SUBST(LIBLTDL)
 
 AC_LANG_PUSH(C++)
 AC_HAVE_HEADERS(sstream)
