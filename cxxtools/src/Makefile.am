@@ -8,6 +8,7 @@ libcxxtools_la_SOURCES = \
 	cgi.cpp \
 	dlloader.cpp \
 	hdstream.cpp \
+	httprequest.cpp \
 	iniclass.cpp \
 	md5.c \
 	md5stream.cpp \

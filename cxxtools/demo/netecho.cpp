@@ -9,12 +9,17 @@ int main(int argc, char* argv[])
   {
     cxxtools::arg<const char*> ip(argc, argv, 'i', "127.0.0.1");
     cxxtools::arg<unsigned short> port(argc, argv, 'p', 1234);
+    cxxtools::arg<bool> read_reply(argc, argv, 'r');
 
     // connect to server
     cxxtools::tcp::iostream peer(ip, port);
 
     // copy stdin to server
     peer << std::cin.rdbuf() << std::flush;
+
+    if (read_reply)
+      // copy answer to stdout
+      std::cout << peer.rdbuf() << std::flush;
   }
   catch (const std::exception& e)
   {

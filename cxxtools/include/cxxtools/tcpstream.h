@@ -291,7 +291,6 @@ namespace tcp
       /// Erzeugt einen nicht verbundenen Stream-Socket.
       explicit iostream(unsigned bufsize = 256, int timeout = -1)
         : std::iostream(&m_buffer),
-          Stream(-1),
           m_buffer(*this, bufsize, timeout)
         { }
 
