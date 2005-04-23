@@ -84,6 +84,7 @@ class multi_ifstream : public std::istream
 
     /// stl-compatible inserter
     class pattern_inserter
+      : public std::iterator<std::output_iterator_tag, const std::string>
     {
         multi_ifstream& m;
       public:
