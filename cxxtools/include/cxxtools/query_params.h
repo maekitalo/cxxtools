@@ -216,7 +216,7 @@ class query_params
         use_parent_values(_use_parent_values)
     { }
     /// initializes class with parent
-    query_params(query_params& _parent, bool _use_parent_values = true)
+    query_params(query_params& _parent, bool _use_parent_values)
       : parent(&_parent),
         use_parent_values(_use_parent_values)
     { }
