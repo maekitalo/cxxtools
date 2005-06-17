@@ -220,6 +220,12 @@ class query_params
       : parent(&_parent),
         use_parent_values(_use_parent_values)
     { }
+    query_params(const query_params& src)
+      : unnamed_params(src.unnamed_params),
+        named_params(src.named_params),
+        parent(src.parent),
+        use_parent_values(use_parent_values)
+    { }
 
     /// returns the parent-object
     query_params* getParent() const
