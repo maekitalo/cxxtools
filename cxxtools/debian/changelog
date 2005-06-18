@@ -1,3 +1,9 @@
+cxxtools (1.3.1) unstable; urgency=low
+
+  * fixed copy-constructor for query_params
+
+ -- Tommi Maekitalo <tommi@epgmbh.de>  Sat, 18 Jun 2005 13:11:08 +0200
+
 cxxtools (1.3.0) unstable; urgency=low
 
   * modified timeout-handling in tcpstream
