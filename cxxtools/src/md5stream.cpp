@@ -20,6 +20,7 @@ Boston, MA  02111-1307  USA
 */
 
 #include "cxxtools/md5stream.h"
+#include <cstring>
 
 namespace cxxtools
 {
@@ -63,7 +64,7 @@ std::streambuf::int_type md5streambuf::underflow()
   return traits_type::eof();
 }
 
-std::streambuf::int_type md5streambuf::sync()
+int md5streambuf::sync()
 {
   if (pptr() != pbase())
   {

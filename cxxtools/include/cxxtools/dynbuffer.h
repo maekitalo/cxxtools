@@ -120,7 +120,7 @@ class dynbuffer
     reference operator[] (size_type n)              { return m_data[n]; }
     const_reference operator[] (size_type n) const  { return m_data[n]; }
 
-    void spap(dynbuffer<T>& d)
+    void swap(dynbuffer<T>& d)
     {
       std::swap(m_data, d.m_data);
       std::swap(m_size, d.m_size);

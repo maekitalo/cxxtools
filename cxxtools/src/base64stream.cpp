@@ -144,7 +144,7 @@ std::streambuf::int_type base64stream_streambuf::underflow()
   return traits_type::to_int_type(A);
 }
 
-std::streambuf::int_type base64stream_streambuf::sync()
+int base64stream_streambuf::sync()
 {
   return 0;
 }

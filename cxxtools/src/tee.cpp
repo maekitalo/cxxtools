@@ -43,7 +43,7 @@ std::streambuf::int_type teestreambuf::underflow()
   return traits_type::eof();
 }
 
-std::streambuf::int_type teestreambuf::sync()
+int teestreambuf::sync()
 {
   if(streambuf1 && streambuf1->pubsync() == traits_type::eof())
     return traits_type::eof();
@@ -60,7 +60,7 @@ void tee::assign(std::ostream& s1, std::ostream& s2)
   teestreambuf* buf = dynamic_cast<teestreambuf*>(rdbuf());
   if(buf)
     buf->tie(s1.rdbuf(), s2.rdbuf());
-};
+}
 
 void tee::assign_single(std::ostream& s)
 {

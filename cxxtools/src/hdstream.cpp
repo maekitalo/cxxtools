@@ -25,7 +25,7 @@ Boston, MA  02111-1307  USA
 namespace cxxtools
 {
 
-int hdstreambuf::overflow(int ch)
+std::streambuf::int_type hdstreambuf::overflow(int ch)
 {
   using namespace std;
 
@@ -56,7 +56,7 @@ int hdstreambuf::overflow(int ch)
   return 0;
 }
 
-int hdstreambuf::underflow()
+std::streambuf::int_type hdstreambuf::underflow()
 {
   return EOF;
 }
