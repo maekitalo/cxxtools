@@ -92,9 +92,10 @@ void md5streambuf::getDigest(unsigned char digest_[16])
     setp(0, 0);
 
     MD5Final(digest, &context);
+    std::memcpy(digest_, digest, 16);
   }
-
-  std::memcpy(digest_, digest, 16);
+  else
+    std::memset(digest_, 0, 16);
 }
 
 ////////////////////////////////////////////////////////////////////////

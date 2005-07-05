@@ -32,14 +32,30 @@ int main(int argc, char* argv[])
 {
   try
   {
-    std::cout << "load libm.so" << std::endl;
-    cxxtools::dl::library lib("libm");
+    if (argc == 1)
+    {
+      std::cout << "load libm.so" << std::endl;
+      cxxtools::dl::library lib("libm");
 
-    std::cout << "sym cos" << std::endl;
-    function_type cosine = (function_type)(lib["cos"]);
+      std::cout << "sym cos" << std::endl;
+      function_type cosine = (function_type)(lib["cos"]);
 
-    std::cout << "call cos" << std::endl;
-    std::cout << "cos(2.0) = " << cosine(2.0) << std::endl;
+      std::cout << "call cos" << std::endl;
+      std::cout << "cos(2.0) = " << cosine(2.0) << std::endl;
+    }
+    else
+    {
+      std::cout << "load " << argv[1] << std::endl;
+      cxxtools::dl::library lib(argv[1]);
+      std::cout << " => " << lib.getHandle() << std::endl;
+
+      for (int a = 2; argv[a]; ++a)
+      {
+        std::cout << "sym " << argv[a] << std::endl;
+        cxxtools::dl::symbol sym = lib.sym(argv[a]);
+        std::cout << " => " << static_cast<void*>(sym) << std::endl;
+      }
+    }
   }
   catch (const std::exception& e)
   {

@@ -44,11 +44,11 @@ class md5streambuf : public std::streambuf
 
     std::streambuf::int_type overflow(std::streambuf::int_type ch);
     std::streambuf::int_type underflow();
-    std::streambuf::int_type sync();
+    int sync();
 };
 
 /**
- This is a easy an safe interface to MD5-calculation.
+ This is a easy and safe interface to MD5-calculation.
 
  To get a MD5-sum of data, instantiate a md5stream, copy your data
  into it and read the digest.

@@ -52,7 +52,7 @@ class base64stream_streambuf : public std::streambuf
   private:
     std::streambuf::int_type overflow(std::streambuf::int_type ch);
     std::streambuf::int_type underflow();
-    std::streambuf::int_type sync();
+    int sync();
 
     void putchar(char ch);
     int getval();

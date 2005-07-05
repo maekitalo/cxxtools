@@ -91,7 +91,7 @@ class multi_ifstream : public std::istream
         pattern_inserter(multi_ifstream& m_)
           : m(m_) { }
         pattern_inserter& operator= (const std::string& p)
-          { m.add_pattern(p); }
+          { m.add_pattern(p); return *this; }
         pattern_inserter& operator* ()
           { return *this; }
         pattern_inserter& operator++ ()

@@ -28,6 +28,7 @@ Boston, MA  02111-1307  USA
 
 #include <stdexcept>
 #include <sstream>
+#include <errno.h>
 
 namespace sudo
 {

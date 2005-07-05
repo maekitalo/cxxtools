@@ -20,7 +20,38 @@ Boston, MA  02111-1307  USA
 */
 
 #include "cxxtools/dlloader.h"
+#include "config.h"
+
+#ifdef NO_LIBTOOL
+
+#include <dlfcn.h>
+
+#define DLERROR()             dlerror()
+#define DLINIT()
+#define DLOPEN(name)          cxx_dlopen(name)
+#define DLCLOSE(handle)       dlclose(handle)
+#define DLEXIT()
+#define DLSYM(handle, name)   dlsym(handle, const_cast<char*>(name))
+
+static void* cxx_dlopen(const char* name)
+{
+  std::string n = name;
+  n.append(".so");
+  return dlopen(n.c_str(), RTLD_NOW|RTLD_GLOBAL);
+}
+
+#else
+
 #include <ltdl.h>
+
+#define DLERROR()             lt_dlerror()
+#define DLINIT()              lt_dlinit()
+#define DLOPEN(name)          lt_dlopenext(name)
+#define DLCLOSE(handle)       lt_dlclose(static_cast<lt_dlhandle>(handle))
+#define DLEXIT()              lt_dlexit()
+#define DLSYM(handle, name)   lt_dlsym(static_cast<lt_dlhandle>(handle), const_cast<char*>(name))
+
+#endif
 
 namespace cxxtools
 {
@@ -28,7 +59,7 @@ namespace cxxtools
 namespace dl
 {
   error::error()
-    : std::runtime_error(lt_dlerror())
+    : std::runtime_error(DLERROR())
   { }
 
   dlopen_error::dlopen_error(const std::string& l)
@@ -74,12 +105,12 @@ namespace dl
   {
     close();
 
-    lt_dlinit();
+    DLINIT();
 
-    handle = lt_dlopenext(name);
+    handle = DLOPEN(name);
     if (!handle)
     {
-      lt_dlexit();
+      DLEXIT();
       throw dlopen_error(name);
     }
   }
@@ -90,8 +121,8 @@ namespace dl
     {
       if (prev == this)
       {
-        lt_dlclose(static_cast<lt_dlhandle>(handle));
-        lt_dlexit();
+        DLCLOSE(handle);
+        DLEXIT();
       }
       else
       {
@@ -105,7 +136,7 @@ namespace dl
 
   symbol library::sym(const char* name) const
   {
-    void* sym = lt_dlsym(static_cast<lt_dlhandle>(handle), const_cast<char*>(name));
+    void* sym = DLSYM(handle, name);
     if (sym == 0)
       throw symbol_not_found(name);
 

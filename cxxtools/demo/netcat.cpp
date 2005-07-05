@@ -31,15 +31,36 @@ int main(int argc, char* argv[])
     cxxtools::arg<const char*> ip(argc, argv, 'i', "0.0.0.0");
     cxxtools::arg<unsigned short> port(argc, argv, 'p', 1234);
     cxxtools::arg<unsigned> bufsize(argc, argv, 'b', 8192);
+    cxxtools::arg<bool> listen(argc, argv, 'l');
+    cxxtools::arg<bool> read_reply(argc, argv, 'r');
 
-    // listen to a port
-    cxxtools::tcp::Server server(ip, port);
+    if (listen)
+    {
+      // I'm a server
 
-    // accept a connetion
-    cxxtools::tcp::iostream worker(server, bufsize);
+      // listen to a port
+      cxxtools::tcp::Server server(ip, port);
 
-    // copy to stdout
-    std::cout << worker.rdbuf();
+      // accept a connetion
+      cxxtools::tcp::iostream worker(server, bufsize);
+
+      // copy to stdout
+      std::cout << worker.rdbuf();
+    }
+    else
+    {
+      // I'm a client
+
+      // connect to server
+      cxxtools::tcp::iostream peer(ip, port, bufsize);
+
+      // copy stdin to server
+      peer << std::cin.rdbuf() << std::flush;
+
+      if (read_reply)
+        // copy answer to stdout
+        std::cout << peer.rdbuf() << std::flush;
+    }
   }
   catch (const std::exception& e)
   {

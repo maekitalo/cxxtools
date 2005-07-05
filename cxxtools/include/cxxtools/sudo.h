@@ -24,6 +24,7 @@ Boston, MA  02111-1307  USA
 
 #include <sys/types.h>
 #include <utility>
+#include <stdlib.h>
 
 namespace cxxtools
 {
@@ -78,6 +79,8 @@ namespace sudo
     // parent
     return ret.second;
   }
+
+}
 
 }
 
