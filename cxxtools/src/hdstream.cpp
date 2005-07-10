@@ -25,34 +25,36 @@ Boston, MA  02111-1307  USA
 namespace cxxtools
 {
 
-std::streambuf::int_type hdstreambuf::overflow(int ch)
+std::streambuf::int_type hdstreambuf::overflow(std::streambuf::int_type ch)
 {
-  using namespace std;
+  static char hexdigit[] = "0123456789abcdef";
 
-  ostream out(Dest);
-  out.fill('0');
+  std::ostream out(Dest);
   size_t count = pptr() - pbase();
   if(count > 0)
   {
-    out << setw(7) << hex << offset << '|';
+    out << std::setw(7) << std::hex << offset << '|';
     offset += count;
     size_t i;
     for(i = 0; i < count; ++i)
-      out << setw(2) << hex
-        << (unsigned int)(unsigned char)pbase()[i] << (i == 7 ? ':' : ' ');
+    {
+      unsigned char ch = static_cast<unsigned char>(pbase()[i]);
+      out << hexdigit[ch >> 4] << hexdigit[ch & 0xf]
+          << (i == 7 ? ':' : ' ');
+    }
     for( ; i < BUFFERSIZE; ++i)
       out << "   ";
     out << '|';
     for(i = 0; i < count; ++i)
-      out << (char)(isprint(pbase()[i]) ? pbase()[i] : '.');
+      out << (char)(std::isprint(pbase()[i]) ? pbase()[i] : '.');
     for( ; i < BUFFERSIZE; ++i)
       out << ' ';
-    out << endl;
+    out << std::endl;
   }
 
   setp(pbase(), epptr());
   if (ch != -1)
-    sputc(ch);
+    return sputc(ch);
   return 0;
 }
 

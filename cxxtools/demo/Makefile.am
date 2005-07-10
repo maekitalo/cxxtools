@@ -1,8 +1,8 @@
-noinst_PROGRAMS = getini hdstream md5sum multifstream arg arg-set cgi dir \
+noinst_PROGRAMS = getini hd md5sum multifstream arg arg-set cgi dir \
   dlloader pool dynbuffer log logbench netcat netecho httprequest netio
 
 getini_SOURCES = getini.cpp
-hdstream_SOURCES = hdstream.cpp
+hd_SOURCES = hd.cpp
 md5sum_SOURCES = md5sum.cpp
 multifstream_SOURCES = multifstream.cpp
 arg_SOURCES = arg.cpp

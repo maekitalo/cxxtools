@@ -40,7 +40,7 @@ class hdstreambuf : public std::streambuf
   private:
     static const unsigned BUFFERSIZE = 16;
     
-    std::streambuf::int_type overflow(int ch);
+    std::streambuf::int_type overflow(std::streambuf::int_type ch);
     std::streambuf::int_type underflow();
     int sync();
 
