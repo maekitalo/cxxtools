@@ -63,3 +63,17 @@ To try out enter "./netcat" in one terminal and then "./netcat <netcat.cpp"
 in another. Netcat prints the sourcecode of netcat.cpp. If netcat runs
 on another machine, you need to tell netcat the ip-address of the netcat-server
 with "./netcat -i host".
+
+netio
+=====
+Network-performance tool.
+
+Netio has 2 modes: server and client. To enable server-mode start with option
+-s. It waits for a incoming connection on port 1234 (adjustable with -p).
+
+In client-mode you need to give netio the ip-address (or hostname) of the
+server with -i. The clients sends random data with different package-sizes to
+the server and computes the network-througput. It starts with 256 bytes and
+doubles until 64k. Each package-size is sent for 1 second (adjustable with -t).
+With -B you can specify a single fixed block-size.
+
