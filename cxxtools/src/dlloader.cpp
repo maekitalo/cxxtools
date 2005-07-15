@@ -22,7 +22,20 @@ Boston, MA  02111-1307  USA
 #include "cxxtools/dlloader.h"
 #include "config.h"
 
-#ifdef NO_LIBTOOL
+#ifdef USE_LIBTOOL
+
+#include <ltdl.h>
+
+#define DLERROR()             lt_dlerror()
+#define DLINIT()              lt_dlinit()
+#define DLOPEN(name)          lt_dlopenext(name)
+#define DLCLOSE(handle)       lt_dlclose(static_cast<lt_dlhandle>(handle))
+#define DLEXIT()              lt_dlexit()
+#define DLSYM(handle, name)   lt_dlsym(static_cast<lt_dlhandle>(handle), const_cast<char*>(name))
+
+#else
+
+// no LIBTOOL
 
 #include <dlfcn.h>
 
@@ -39,17 +52,6 @@ static void* cxx_dlopen(const char* name)
   n.append(".so");
   return dlopen(n.c_str(), RTLD_NOW|RTLD_GLOBAL);
 }
-
-#else
-
-#include <ltdl.h>
-
-#define DLERROR()             lt_dlerror()
-#define DLINIT()              lt_dlinit()
-#define DLOPEN(name)          lt_dlopenext(name)
-#define DLCLOSE(handle)       lt_dlclose(static_cast<lt_dlhandle>(handle))
-#define DLEXIT()              lt_dlexit()
-#define DLSYM(handle, name)   lt_dlsym(static_cast<lt_dlhandle>(handle), const_cast<char*>(name))
 
 #endif
 
