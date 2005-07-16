@@ -33,22 +33,22 @@ const unsigned BUFSIZE = 65536;
 //
 int server(int argc, char* argv[])
 {
-  cxxtools::arg<unsigned short> port(argc, argv, 'p', 1234);
-  cxxtools::arg<const char*> ip(argc, argv, 'i', "0.0.0.0");
-  cxxtools::arg<bool> verbose(argc, argv, 'v');
+  cxxtools::Arg<unsigned short> port(argc, argv, 'p', 1234);
+  cxxtools::Arg<const char*> ip(argc, argv, 'i', "0.0.0.0");
+  cxxtools::Arg<bool> verbose(argc, argv, 'v');
 
-  cxxtools::tcp::Server server(ip, port);
+  cxxtools::net::Server server(ip, port);
 
   while (1)
   {
-    cxxtools::tcp::Stream worker(server);
+    cxxtools::net::Stream worker(server);
 
     std::cout << "connection accepted" << std::endl;
 
     char buffer[BUFSIZE];
-    cxxtools::tcp::Stream::size_type count = 0;
-    cxxtools::tcp::Stream::size_type n = 0;
-    while ( (n = worker.Read(buffer, BUFSIZE)) > 0)
+    cxxtools::net::Stream::size_type count = 0;
+    cxxtools::net::Stream::size_type n = 0;
+    while ( (n = worker.read(buffer, BUFSIZE)) > 0)
     {
       count += n;
       if (verbose)
@@ -67,7 +67,7 @@ int server(int argc, char* argv[])
 ////////////////////////////////////////////////////////////////////////
 // Client
 //
-void run_test(cxxtools::tcp::Stream& conn, unsigned bs, const char* buffer, unsigned secs)
+void run_test(cxxtools::net::Stream& conn, unsigned bs, const char* buffer, unsigned secs)
 {
   std::cout << "bs " << bs << std::flush;
 
@@ -75,15 +75,10 @@ void run_test(cxxtools::tcp::Stream& conn, unsigned bs, const char* buffer, unsi
   gettimeofday(&start, 0);
   timeval end = start;
   end.tv_sec += secs;
-  while (end.tv_usec > 1000000)
-  {
-    end.tv_usec -= 1000000;
-    ++end.tv_sec;
-  }
 
   timeval current;
 
-  cxxtools::tcp::Stream::size_type count = 0;
+  cxxtools::net::Stream::size_type count = 0;
   while (1)
   {
     gettimeofday(&current, 0);
@@ -92,7 +87,7 @@ void run_test(cxxtools::tcp::Stream& conn, unsigned bs, const char* buffer, unsi
         && current.tv_usec >= end.tv_usec)
       break;
 
-    count += conn.Write(buffer, bs);
+    count += conn.write(buffer, bs);
   }
 
   double dstart = start.tv_sec + start.tv_usec / 1e6;
@@ -105,15 +100,15 @@ void run_test(cxxtools::tcp::Stream& conn, unsigned bs, const char* buffer, unsi
 
 int client(int argc, char* argv[])
 {
-  cxxtools::arg<unsigned short> port(argc, argv, 'p', 1234);
-  cxxtools::arg<const char*> ip(argc, argv, 'i', "127.0.0.1");
-  cxxtools::arg<unsigned> secs(argc, argv, 't', 1);
-  cxxtools::arg<unsigned> bufsize(argc, argv, 't', BUFSIZE);
-  cxxtools::arg<unsigned> B(argc, argv, 'B', 0);
+  cxxtools::Arg<unsigned short> port(argc, argv, 'p', 1234);
+  cxxtools::Arg<const char*> ip(argc, argv, 'i', "127.0.0.1");
+  cxxtools::Arg<unsigned> secs(argc, argv, 't', 1);
+  cxxtools::Arg<unsigned> bufsize(argc, argv, 't', BUFSIZE);
+  cxxtools::Arg<unsigned> B(argc, argv, 'B', 0);
 
-  cxxtools::tcp::Stream conn(ip, port);
+  cxxtools::net::Stream conn(ip, port);
 
-  cxxtools::dynbuffer<char> buffer(bufsize);
+  cxxtools::Dynbuffer<char> buffer(bufsize);
   std::generate(buffer.begin(), buffer.end(), rand);
 
   std::cout << "test" << std::endl;
@@ -136,7 +131,7 @@ int main(int argc, char* argv[])
 {
   try
   {
-    cxxtools::arg<bool> isServer(argc, argv, 's');
+    cxxtools::Arg<bool> isServer(argc, argv, 's');
 
     if (isServer)
       return server(argc, argv);

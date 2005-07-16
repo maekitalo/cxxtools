@@ -1,5 +1,5 @@
 /* dlloader.cpp
-   Copyright (C) 2003 Tommi Mäkitalo
+   Copyright (C) 2003 Tommi Maekitalo
 
 This file is part of cxxtools.
 
@@ -60,21 +60,21 @@ namespace cxxtools
 
 namespace dl
 {
-  error::error()
+  Error::Error()
     : std::runtime_error(DLERROR())
   { }
 
-  dlopen_error::dlopen_error(const std::string& l)
-    : error(),
+  DlopenError::DlopenError(const std::string& l)
+    : Error(),
       libname(l)
   { }
 
-  symbol_not_found::symbol_not_found(const std::string& s)
-    : error(),
+  SymbolNotFound::SymbolNotFound(const std::string& s)
+    : Error(),
       symbol(s)
   { }
 
-  library::library(const library& src)
+  Library::Library(const Library& src)
     : handle(src.handle),
       prev(&src),
       next(src.next)
@@ -83,7 +83,7 @@ namespace dl
     next->prev = this;
   }
 
-  library& library::operator=(const library& src)
+  Library& Library::operator=(const Library& src)
   {
     if (handle == src.handle)
       return *this;
@@ -94,16 +94,16 @@ namespace dl
 
     if (handle)
     {
-      prev = const_cast<library*>(&src);
+      prev = const_cast<Library*>(&src);
       next = src.next;
-      const_cast<library&>(src).next = this;
+      const_cast<Library&>(src).next = this;
       next->prev = this;
     }
 
     return *this;
   }
 
-  void library::open(const char* name)
+  void Library::open(const char* name)
   {
     close();
 
@@ -113,11 +113,11 @@ namespace dl
     if (!handle)
     {
       DLEXIT();
-      throw dlopen_error(name);
+      throw DlopenError(name);
     }
   }
 
-  void library::close()
+  void Library::close()
   {
     if (handle)
     {
@@ -136,13 +136,13 @@ namespace dl
     }
   }
 
-  symbol library::sym(const char* name) const
+  Symbol Library::sym(const char* name) const
   {
     void* sym = DLSYM(handle, name);
     if (sym == 0)
-      throw symbol_not_found(name);
+      throw SymbolNotFound(name);
 
-    return symbol(*this, sym);
+    return Symbol(*this, sym);
   }
 
 } // namespace dl

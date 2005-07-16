@@ -1,5 +1,5 @@
 /* cxxtools/md5stream.h
-   Copyright (C) 2003 Tommi Mäkitalo
+   Copyright (C) 2003 Tommi Maekitalo
 
 This file is part of cxxtools.
 
@@ -28,10 +28,10 @@ Boston, MA  02111-1307  USA
 namespace cxxtools
 {
 
-class md5streambuf : public std::streambuf
+class Md5streambuf : public std::streambuf
 {
   public:
-    md5streambuf()
+    Md5streambuf()
     { }
 
     void getDigest(unsigned char digest[16]);
@@ -61,7 +61,7 @@ class md5streambuf : public std::streambuf
  \code
   int main(int argc, char* argv[])
   {
-    md5stream s;
+    Md5stream s;
     for (int i = 1; i < argc; ++i)
     {
       std::ifstream in(argv[i]);
@@ -74,18 +74,18 @@ class md5streambuf : public std::streambuf
   }
  \endcode
  */
-class md5stream : public std::ostream
+class Md5stream : public std::ostream
 {
   public:
     typedef std::ostreambuf_iterator<char> iterator;
 
   private:
-    md5streambuf streambuf;
+    Md5streambuf streambuf;
     char hexdigest[33];
 
   public:
     /// initializes md5-calculation
-    md5stream()
+    Md5stream()
       : std::ostream(&streambuf)
     { }
 
@@ -95,7 +95,7 @@ class md5stream : public std::ostream
     /// ends md5-calculation and digest as 32 bytes hex
     const char* getHexDigest();
 
-    /// returns output-iterator to md5stream
+    /// returns output-iterator to Md5stream
     iterator begin()
       { return iterator(&streambuf); }
 };

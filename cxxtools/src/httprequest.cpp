@@ -23,7 +23,7 @@ Boston, MA  02111-1307  USA
 
 namespace cxxtools
 {
-  void httprequest::execute()
+  void HttpRequest::execute()
   {
     if (reading)
     {
@@ -34,7 +34,7 @@ namespace cxxtools
       connection.clear();
     }
 
-    connection.Connect(host, port);
+    connection.connect(host, port);
     switch (method)
     {
       case GET:
@@ -67,11 +67,11 @@ namespace cxxtools
     reading = true;
   }
 
-  class httpreply::parser
+  class HttpReply::Parser
   {
-      httpreply& reply;
+      HttpReply& reply;
 
-      typedef bool (parser::*state_type)(char ch);
+      typedef bool (Parser::*state_type)(char ch);
 
       bool state_httpversion0(char ch);
       bool state_httpversion(char ch);
@@ -90,56 +90,56 @@ namespace cxxtools
       std::string value;
 
     public:
-      parser(httpreply& reply_)
+      Parser(HttpReply& reply_)
         : reply(reply_),
-          state(&parser::state_httpversion0)
+          state(&Parser::state_httpversion0)
         { }
 
       bool parse(char ch)
       { return (this->*state)(ch); }
   };
 
-  bool httpreply::parser::state_httpversion0(char ch)
+  bool HttpReply::Parser::state_httpversion0(char ch)
   {
     if (!std::isspace(ch))
-      state = &parser::state_httpversion;
+      state = &Parser::state_httpversion;
     return false;
   }
 
-  bool httpreply::parser::state_httpversion(char ch)
+  bool HttpReply::Parser::state_httpversion(char ch)
   {
     if (std::isspace(ch))
-      state = &parser::state_code0;
+      state = &Parser::state_code0;
     return false;
   }
 
-  bool httpreply::parser::state_code0(char ch)
+  bool HttpReply::Parser::state_code0(char ch)
   {
     if (std::isdigit(ch))
     {
       reply.returncode = (ch - '0');
-      state = &parser::state_code;
+      state = &Parser::state_code;
     }
     return false;
   }
 
-  bool httpreply::parser::state_code(char ch)
+  bool HttpReply::Parser::state_code(char ch)
   {
     if (std::isdigit(ch))
       reply.returncode = reply.returncode * 10 + (ch - '0');
     else
-      state = &parser::state_request;
+      state = &Parser::state_request;
     return false;
   }
 
-  bool httpreply::parser::state_request(char ch)
+  bool HttpReply::Parser::state_request(char ch)
   {
     if (ch == '\n')
-      state = &parser::state_name0;
+      state = &Parser::state_name0;
     return false;
   }
 
-  bool httpreply::parser::state_name0(char ch)
+  bool HttpReply::Parser::state_name0(char ch)
   {
     if (ch == '\n')
       return true;
@@ -147,49 +147,49 @@ namespace cxxtools
     if (!std::isspace(ch))
     {
       name = ch;
-      state = &parser::state_name;
+      state = &Parser::state_name;
     }
 
     return false;
   }
 
-  bool httpreply::parser::state_name(char ch)
+  bool HttpReply::Parser::state_name(char ch)
   {
     if (ch == ':')
-      state = &parser::state_value0;
+      state = &Parser::state_value0;
     else
       name += ch;
     return false;
   }
 
-  bool httpreply::parser::state_value0(char ch)
+  bool HttpReply::Parser::state_value0(char ch)
   {
     if (ch == '\n')
     {
       reply.header.insert(header_type::value_type(name, value));
-      state = &parser::state_name0;
+      state = &Parser::state_name0;
     }
 
     if (!std::isspace(ch))
     {
       value = ch;
-      state = &parser::state_value;
+      state = &Parser::state_value;
     }
 
     return false;
   }
 
-  bool httpreply::parser::state_value(char ch)
+  bool HttpReply::Parser::state_value(char ch)
   {
     if (ch == '\n')
     {
       reply.header.insert(header_type::value_type(name, value));
-      state = &parser::state_name0;
+      state = &Parser::state_name0;
     }
     else if (ch == '\r')
     {
       reply.header.insert(header_type::value_type(name, value));
-      state = &parser::state_valuee;
+      state = &Parser::state_valuee;
     }
     else
       value += ch;
@@ -197,17 +197,17 @@ namespace cxxtools
     return false;
   }
 
-  bool httpreply::parser::state_valuee(char ch)
+  bool HttpReply::Parser::state_valuee(char ch)
   {
     if (ch == '\n')
-      state = &parser::state_name0;
+      state = &Parser::state_name0;
     return false;
   }
 
-  void httpreply::parse_header()
+  void HttpReply::parse_header()
   {
     std::streambuf* buf = rdbuf();
-    parser p(*this);
+    Parser p(*this);
 
     while (buf->sgetc() != std::ios::traits_type::eof())
     {

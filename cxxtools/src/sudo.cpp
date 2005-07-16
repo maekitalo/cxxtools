@@ -1,5 +1,5 @@
 /* sudo.cpp
-   Copyright (C) 2003 Tommi Mäkitalo
+   Copyright (C) 2003 Tommi Maekitalo
 
 This file is part of cxxtools.
 

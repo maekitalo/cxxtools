@@ -28,7 +28,7 @@ Boston, MA  02111-1307  USA
 
 namespace cxxtools
 {
-  class httprequest
+  class HttpRequest
   {
     public:
       enum request_type {
@@ -42,19 +42,19 @@ namespace cxxtools
       unsigned short port;
       bool reading;
 
-      query_params params;
+      QueryParams params;
 
-      tcp::iostream connection;
+      net::iostream connection;
 
     public:
-      httprequest(const std::string& host_, const std::string& url_, request_type method_ = GET)
+      HttpRequest(const std::string& host_, const std::string& url_, request_type method_ = GET)
         : method(method_),
           host(host_),
           url(url_),
           reading(false)
       { }
 
-      httprequest(const std::string& host_, unsigned short port_, const std::string& url_,
+      HttpRequest(const std::string& host_, unsigned short port_, const std::string& url_,
           request_type method_ = GET)
         : method(method_),
           host(host_),
@@ -63,7 +63,7 @@ namespace cxxtools
           reading(false)
       { }
 
-      query_params& getQueryParams()                            { return params; }
+      QueryParams& getQueryParams()                             { return params; }
       void set(const std::string name, const std::string value) { params.add(name, value); }
       void set(const std::string value)                         { params.add(value); }
 
@@ -72,10 +72,10 @@ namespace cxxtools
       std::streambuf* rdbuf()  { return connection.rdbuf(); }
   };
 
-  class httpreply : public std::istream
+  class HttpReply : public std::istream
   {
-      class parser;
-      friend class parser;
+      class Parser;
+      friend class Parser;
 
       void parse_header();
 
@@ -84,7 +84,7 @@ namespace cxxtools
       unsigned returncode;
 
     public:
-      httpreply(httprequest& request)
+      HttpReply(HttpRequest& request)
         : std::istream(request.rdbuf()),
           returncode(0)
       {
@@ -92,7 +92,7 @@ namespace cxxtools
         parse_header();
       }
 
-      httpreply(std::istream& request)
+      HttpReply(std::istream& request)
         : std::istream(request.rdbuf())
       {
         parse_header();

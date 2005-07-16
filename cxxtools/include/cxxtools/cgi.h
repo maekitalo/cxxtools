@@ -1,5 +1,5 @@
 /* cxxtools/cgi.h
-   Copyright (C) 2004 Tommi Mäkitalo
+   Copyright (C) 2004 Tommi Maekitalo
 
 This file is part of cxxtools.
 
@@ -38,7 +38,7 @@ namespace cxxtools
  \code
    int main()
    {
-     cgi q;  // this parses all input-parameters
+     cxxtools::Cgi q;  // this parses all input-parameters
      std::cout << q.header
                << "<html>\n"
                << "<body>\n"
@@ -53,56 +53,15 @@ namespace cxxtools
    }
  \endcode
  */
-class cgi : public query_params
+class Cgi : public QueryParams
 {
   public:
     /// constructor reads parameters from server
-    cgi();
+    Cgi();
 
     static std::string header()  { return "Content-Type: text/html\r\n\r\n"; }
     static std::string header(const std::string& type)
       { return "Content-Type: " + type + "\r\n\r\n"; }
-};
-
-/**
- This class outputs xml-tags and end-tags.
-
- When the class is put on the stack it prints the start-tag to the
- outputstream and when leaving scope prints end-tag. The end-tag
- is the start tag with '/' inserted at the second position.
-
- Tags are specified by text including or not including '<' and '>'.
- These brackets are recognized and printed also when not passed.
- Parameters in the tag can be passed as a separate parameter
- or delimited by space. After the first space everything is parameter
- and not repeated in the closing tag.
-
- Tags are closed in the destructor, if not already closed explicitely
- by calling the close()-method.
- */
-class xmltag
-{
-    std::string tag;
-    std::ostream& out;
-    static std::ostream* default_out;
-
-  public:
-    /// prints start-tag and remember tag
-    xmltag(const std::string& tag, std::ostream& out = *default_out);
-    /// prints start-tag with parameters and remember tag
-    xmltag(const std::string& tag, const std::string& parameter,
-      std::ostream& out = *default_out);
-    /// closes tag
-    ~xmltag()   { close(); }
-
-    static void setDefaultOutstream(std::ostream& out)
-      { default_out = &out; }
-    static std::ostream& getDefaultOutstream()
-      { return *default_out; }
-
-    const std::string& get() const   { return tag; }
-    void close();
-    void clear()                     { tag.clear(); }
 };
 
 }

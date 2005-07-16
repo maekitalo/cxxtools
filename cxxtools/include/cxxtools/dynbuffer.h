@@ -32,7 +32,7 @@ namespace cxxtools
 
  Sometimes programs need a buffer for temporaryly storing data. The
  size of the buffer might be unknown at compile-time, so the program
- can't use a array. This is where dynbuffer help.
+ can't use a array. This is where Dynbuffer help.
 
  Allocation of storage is done on request and the destructor releases
  the memory.
@@ -42,7 +42,7 @@ namespace cxxtools
    some_func()
    {
      unsigned size = get_bytes_to_read();
-     dynbuffer<char> buffer(size);
+     Dynbuffer<char> buffer(size);
      read(buffer.data(), size);
 
      do_something_with_data(buffer.data())
@@ -52,7 +52,7 @@ namespace cxxtools
  \endcode
  */
 template <typename T = char>
-class dynbuffer
+class Dynbuffer
 {
   public:
     typedef T& reference;
@@ -63,23 +63,23 @@ class dynbuffer
 
   private:
     // noncopyable:
-    dynbuffer(const dynbuffer&);
-    dynbuffer& operator= (const dynbuffer&);
+    Dynbuffer(const Dynbuffer&);
+    Dynbuffer& operator= (const Dynbuffer&);
 
   public:
     /// initializes empty buffer
-    dynbuffer()
+    Dynbuffer()
       : m_data(0),
         m_size(0)
       { }
 
     /// allocates array of 'size' elements
-    explicit dynbuffer(unsigned size)
+    explicit Dynbuffer(unsigned size)
       : m_data(0),
         m_size(0)
       { reserve(size); }
 
-    ~dynbuffer()
+    ~Dynbuffer()
     { delete[] m_data; }
 
     /// returns pointer to the buffer
@@ -120,7 +120,7 @@ class dynbuffer
     reference operator[] (size_type n)              { return m_data[n]; }
     const_reference operator[] (size_type n) const  { return m_data[n]; }
 
-    void swap(dynbuffer<T>& d)
+    void swap(Dynbuffer<T>& d)
     {
       std::swap(m_data, d.m_data);
       std::swap(m_size, d.m_size);
@@ -132,7 +132,7 @@ class dynbuffer
     unsigned m_size;
 };
 
-typedef dynbuffer<char> DynBuffer;
+typedef Dynbuffer<char> DynBuffer;
 
 }
 

@@ -66,7 +66,7 @@ int main(int argc, char* argv[])
   {
     {
       // define a connectionpool with default creator
-      cxxtools::pool<dummy_dbconnection> connectionpool;
+      cxxtools::Pool<dummy_dbconnection> connectionpool;
 
       do_something(connectionpool.get());
       do_something(connectionpool.get());
@@ -79,7 +79,7 @@ int main(int argc, char* argv[])
 
     {
       // define a connectionpool with custom creator
-      cxxtools::pool<dummy_dbconnection, connector> mydb_connectionpool(connector("mydb"));
+      cxxtools::Pool<dummy_dbconnection, connector> mydb_connectionpool(connector("mydb"));
       do_something(mydb_connectionpool.get());
       do_something(mydb_connectionpool.get());
       do_something(mydb_connectionpool.get());

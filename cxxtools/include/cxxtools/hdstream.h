@@ -1,5 +1,5 @@
 /* cxxtools/hdstream.h
-   Copyright (C) 2003 Tommi Mäkitalo
+   Copyright (C) 2003 Tommi Maekitalo
 
 This file is part of cxxtools.
 
@@ -27,10 +27,10 @@ Boston, MA  02111-1307  USA
 namespace cxxtools
 {
 
-class hdstreambuf : public std::streambuf
+class Hdstreambuf : public std::streambuf
 {
   public:
-    hdstreambuf(std::streambuf* dest)
+    Hdstreambuf(std::streambuf* dest)
       : Dest(dest),
         offset(0)
     {
@@ -54,19 +54,19 @@ class hdstreambuf : public std::streambuf
 
  Data written to a hdostream are passed as a hexdump to the given sink.
  */
-class hdostream : public std::ostream
+class Hdostream : public std::ostream
 {
     typedef std::ostream base_class;
 
   public:
-    hdostream()
-      : base_class(new hdstreambuf(std::cout.rdbuf()))
+    Hdostream()
+      : base_class(new Hdstreambuf(std::cout.rdbuf()))
     { }
-    hdostream(std::ostream& out)
-      : base_class(new hdstreambuf(out.rdbuf()))
+    Hdostream(std::ostream& out)
+      : base_class(new Hdstreambuf(out.rdbuf()))
     { }
 
-    ~hdostream()
+    ~Hdostream()
     { delete rdbuf(); }
 };
 

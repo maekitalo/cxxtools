@@ -26,7 +26,7 @@ Boston, MA  02111-1307  USA
 
 int main(int argc, char* argv[])
 {
-  cxxtools::md5stream s;
+  cxxtools::Md5stream s;
   for (int i = 1; i < argc; ++i)
   {
     std::ifstream in(argv[i]);

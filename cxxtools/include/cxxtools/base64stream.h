@@ -1,5 +1,5 @@
 /* cxxtools/base64stream.h
-   Copyright (C) 2004 Tommi Mäkital
+   Copyright (C) 2004 Tommi Maekitalo
 
 This file is part of cxxtools.
 
@@ -27,7 +27,7 @@ Boston, MA  02111-1307  USA
 namespace cxxtools
 {
 
-class base64stream_streambuf : public std::streambuf
+class Base64stream_streambuf : public std::streambuf
 {
     std::streambuf* sinksource;
     char obuffer[3];
@@ -37,13 +37,13 @@ class base64stream_streambuf : public std::streambuf
     bool eofflag;
 
   public:
-    base64stream_streambuf(std::streambuf* sinksource_)
+    Base64stream_streambuf(std::streambuf* sinksource_)
       : sinksource(sinksource_),
         count(0),
         indecode(false),
         eofflag(false)
       { }
-    ~base64stream_streambuf()
+    ~Base64stream_streambuf()
       { if (indecode) end(); }
 
     void end();
@@ -59,28 +59,28 @@ class base64stream_streambuf : public std::streambuf
 };
 
 /**
- base64ostream is a base64-encoder.
+ Base64ostream is a base64-encoder.
  
- To base64-encode, instantiate a base64ostream with an outputstream.
- Write the data to encode into the stream. base64ostream writes the
+ To base64-encode, instantiate a Base64ostream with an outputstream.
+ Write the data to encode into the stream. Base64ostream writes the
  base64-encoded data to the outputstream.  When ready call end() to
  pad and flush. The stream is also padded and flushed in the
  destructor, when there are characters left.
  */
 
-class base64ostream : public std::ostream
+class Base64ostream : public std::ostream
 {
-    base64stream_streambuf streambuf;
+    Base64stream_streambuf streambuf;
 
   public:
     /// instantiate encode with a output-stream, which received encoded
     /// Data.
-    base64ostream(std::ostream& out)
+    Base64ostream(std::ostream& out)
       : std::ostream(&streambuf),
         streambuf(out.rdbuf())
       { }
     /// instantiate encode with a output-std::streambuf.
-    base64ostream(std::streambuf* sb)
+    Base64ostream(std::streambuf* sb)
       : std::ostream(&streambuf),
         streambuf(sb)
       { }
@@ -90,23 +90,23 @@ class base64ostream : public std::ostream
 };
 
 /**
- base64istream is a base54-decoder.
+ Base64istream is a base54-decoder.
  
  To base64-decode, instantiate a base64istream with an inputstream.
  The class reads base64-encoded data from the inputstream and you get
  encoded output.
  */
 
-class base64istream : public std::istream
+class Base64istream : public std::istream
 {
-    base64stream_streambuf streambuf;
+    Base64stream_streambuf streambuf;
 
   public:
-    base64istream(std::istream& in)
+    Base64istream(std::istream& in)
       : std::istream(&streambuf),
         streambuf(in.rdbuf())
       { }
-    base64istream(std::streambuf* sb)
+    Base64istream(std::streambuf* sb)
       : std::istream(&streambuf),
         streambuf(sb)
       { }

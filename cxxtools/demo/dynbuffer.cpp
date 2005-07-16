@@ -27,7 +27,7 @@ int main(int argc, char* argv[])
 {
   try
   {
-    cxxtools::dynbuffer<> buffer(512);
+    cxxtools::Dynbuffer<> buffer(512);
     char* data = buffer.data();
     // data points to a 512 bytes buffer, which is freed, when the
     // current scope is left either normally or through a exception.

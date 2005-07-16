@@ -28,17 +28,17 @@ int main(int argc, char* argv[])
 {
   try
   {
-    cxxtools::arg<unsigned short> port(argc, argv, 'p', 80);
-    cxxtools::arg<bool> raw(argc, argv, 'r');
+    cxxtools::Arg<unsigned short> port(argc, argv, 'p', 80);
+    cxxtools::Arg<bool> raw(argc, argv, 'r');
 
-    cxxtools::arg<std::string> host("127.0.0.1");
+    cxxtools::Arg<std::string> host("127.0.0.1");
     host.set(argc, argv);
 
-    cxxtools::arg<std::string> url("/");
+    cxxtools::Arg<std::string> url("/");
     url.set(argc, argv);
 
     // set parameters
-    cxxtools::httprequest request(host, port, url);
+    cxxtools::HttpRequest request(host, port, url);
 
     // execute request
     if (raw)
@@ -50,7 +50,7 @@ int main(int argc, char* argv[])
     else
     {
       // let httpreply parse the http-headers and read only body
-      cxxtools::httpreply reply(request);
+      cxxtools::HttpReply reply(request);
       std::cout << "return-code " << reply.getReturnCode() << '\n'
                 << reply.rdbuf() << std::flush;
     }

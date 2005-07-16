@@ -1,5 +1,5 @@
 /* tee.cpp
-   Copyright (C) 2003 Tommi Mäkitalo
+   Copyright (C) 2003 Tommi Maekitalo
 
 This file is part of cxxtools.
 
@@ -24,7 +24,7 @@ Boston, MA  02111-1307  USA
 namespace cxxtools
 {
 
-std::streambuf::int_type teestreambuf::overflow(std::streambuf::int_type ch)
+std::streambuf::int_type Teestreambuf::overflow(std::streambuf::int_type ch)
 {
   if(ch != traits_type::eof())
   {
@@ -38,12 +38,12 @@ std::streambuf::int_type teestreambuf::overflow(std::streambuf::int_type ch)
   return 0;
 }
 
-std::streambuf::int_type teestreambuf::underflow()
+std::streambuf::int_type Teestreambuf::underflow()
 {
   return traits_type::eof();
 }
 
-int teestreambuf::sync()
+int Teestreambuf::sync()
 {
   if(streambuf1 && streambuf1->pubsync() == traits_type::eof())
     return traits_type::eof();
@@ -55,16 +55,16 @@ int teestreambuf::sync()
 }
 
 /////////////////////////////////////////////////////////////////////////////
-void tee::assign(std::ostream& s1, std::ostream& s2)
+void Tee::assign(std::ostream& s1, std::ostream& s2)
 {
-  teestreambuf* buf = dynamic_cast<teestreambuf*>(rdbuf());
+  Teestreambuf* buf = dynamic_cast<Teestreambuf*>(rdbuf());
   if(buf)
     buf->tie(s1.rdbuf(), s2.rdbuf());
 }
 
-void tee::assign_single(std::ostream& s)
+void Tee::assign_single(std::ostream& s)
 {
-  teestreambuf* buf = dynamic_cast<teestreambuf*>(rdbuf());
+  Teestreambuf* buf = dynamic_cast<Teestreambuf*>(rdbuf());
   if(buf)
     buf->tie(s.rdbuf());
 }

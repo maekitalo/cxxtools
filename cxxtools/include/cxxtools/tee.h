@@ -1,5 +1,5 @@
 /* cxxtools/tee.h
-   Copyright (C) 2003 Tommi Mäkitalo
+   Copyright (C) 2003 Tommi Maekitalo
 
 This file is part of cxxtools.
 
@@ -27,10 +27,10 @@ Boston, MA  02111-1307  USA
 namespace cxxtools
 {
 
-class teestreambuf : public std::streambuf
+class Teestreambuf : public std::streambuf
 {
   public:
-    teestreambuf(std::streambuf* buf1 = 0, std::streambuf* buf2 = 0)
+    Teestreambuf(std::streambuf* buf1 = 0, std::streambuf* buf2 = 0)
       : streambuf1(buf1),
         streambuf2(buf2)
     { setp(0, 0); }
@@ -52,21 +52,21 @@ class teestreambuf : public std::streambuf
 
 /////////////////////////////////////////////////////////////////////////////
 
-class tee : public std::ostream
+class Tee : public std::ostream
 {
     typedef std::ostream base_class;
 
   public:
-    tee()
-      : base_class(new teestreambuf(std::cout.rdbuf()))
+    Tee()
+      : base_class(new Teestreambuf(std::cout.rdbuf()))
     { }
-    tee(std::ostream& s1, std::ostream& s2)
-      : base_class(new teestreambuf(s1.rdbuf(), s2.rdbuf()))
+    Tee(std::ostream& s1, std::ostream& s2)
+      : base_class(new Teestreambuf(s1.rdbuf(), s2.rdbuf()))
     { }
-    tee(std::ostream& s)
-      : base_class(new teestreambuf(s.rdbuf(), std::cout.rdbuf()))
+    Tee(std::ostream& s)
+      : base_class(new Teestreambuf(s.rdbuf(), std::cout.rdbuf()))
     { }
-    ~tee()
+    ~Tee()
     {
       delete rdbuf();
     }

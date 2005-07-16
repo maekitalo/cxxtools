@@ -1,5 +1,5 @@
 /* query_params.cpp
-   Copyright (C) 2003,2004 Tommi Mäkitalo
+   Copyright (C) 2003,2004 Tommi Maekitalo
 
 This file is part of cxxtools.
 
@@ -31,8 +31,8 @@ template <class iterator_type>
 void _parse_url(
   iterator_type begin,
   iterator_type end,
-  query_params::unnamed_params_type& unnamed_params,
-  query_params::named_params_type& named_params)
+  QueryParams::unnamed_params_type& unnamed_params,
+  QueryParams::named_params_type& named_params)
 {
   enum state_type {
     state_key,
@@ -157,12 +157,12 @@ void _parse_url(
   }
 }
 
-void query_params::parse_url(const std::string& url)
+void QueryParams::parse_url(const std::string& url)
 {
   _parse_url(url.begin(), url.end(), unnamed_params, named_params);
 }
 
-void query_params::parse_url(const char* url)
+void QueryParams::parse_url(const char* url)
 {
   const char* end = url;
   while (*end)
@@ -170,7 +170,7 @@ void query_params::parse_url(const char* url)
   _parse_url(url, end, unnamed_params, named_params);
 }
 
-void query_params::parse_url(std::istream& url_stream)
+void QueryParams::parse_url(std::istream& url_stream)
 {
   _parse_url(
     std::istream_iterator<char>(url_stream),
@@ -202,7 +202,7 @@ static void appendUrl(std::string& url, const std::string& str)
     appendUrl(url, *i);
 }
 
-std::string query_params::getUrl() const
+std::string QueryParams::getUrl() const
 {
   std::string ret;
 
@@ -239,7 +239,7 @@ std::string query_params::getUrl() const
   return ret;
 }
 
-std::string query_params::dump() const
+std::string QueryParams::dump() const
 {
   std::string ret;
 

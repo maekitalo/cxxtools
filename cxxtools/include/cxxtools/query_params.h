@@ -34,25 +34,25 @@ namespace cxxtools
 {
 
 /**
- query_params represents parameters from a HTML-Form.
+ QueryParams represents parameters from a HTML-Form.
 
  There are 2 types of Query-Parameters from a HTML-Form: named
  and unnamed. And names are not unique. This results in a
  combination of a multiset and a set. this class uses a vector
  instead of a set, because order does matter in unnamed parameters.
 
- query_params can reference a parent-object. Parent-objects might
- return values or just store them. This is for passing query_params as
+ QueryParams can reference a parent-object. Parent-objects might
+ return values or just store them. This is for passing QueryParams as
  parameter to functions. You can pass the object itself or a new
  object, which has additional parameters, without changing the original
  object. For the called function it looks like the object contains
  all parameter. The function can still modify the parent-object by
- using the method query_params::ret.
+ using the method QueryParams::ret.
 
  The class has a parser to extract parameters from a string or from a
  input-stream.
  */
-class query_params
+class QueryParams
 {
   public:
     typedef std::string string;
@@ -63,12 +63,12 @@ class query_params
     typedef names_type::size_type size_type;
 
     /**
-     Iterator for named and unnamed parameters in query_params.
+     Iterator for named and unnamed parameters in QueryParams.
      */
     class const_iterator
       : public std::iterator<std::random_access_iterator_tag, const std::string>
     {
-        const query_params* params;
+        const QueryParams* params;
         std::string name;
         size_type pos;
 
@@ -96,13 +96,13 @@ class query_params
           { }
 
         /// initialize iterator for unnamed params
-        const_iterator(const query_params& p)
+        const_iterator(const QueryParams& p)
           : params(&p),
             pos(0)
           { }
 
         /// initialize iterator for named params
-        const_iterator(const query_params& p, const std::string& n)
+        const_iterator(const QueryParams& p, const std::string& n)
           : params(&p),
             name(n),
             pos(0)
@@ -201,26 +201,26 @@ class query_params
     unnamed_params_type unnamed_params;
     named_params_type named_params;
 
-    query_params* parent;
+    QueryParams* parent;
     bool use_parent_values;
 
   public:
     /// default constructor
-    query_params()
+    QueryParams()
       : parent(0),
         use_parent_values(true)
     { }
     /// initializes class with parent
-    query_params(query_params* _parent, bool _use_parent_values = true)
+    QueryParams(QueryParams* _parent, bool _use_parent_values = true)
       : parent(_parent),
         use_parent_values(_use_parent_values)
     { }
     /// initializes class with parent
-    query_params(query_params& _parent, bool _use_parent_values)
+    QueryParams(QueryParams& _parent, bool _use_parent_values)
       : parent(&_parent),
         use_parent_values(_use_parent_values)
     { }
-    query_params(const query_params& src)
+    QueryParams(const QueryParams& src)
       : unnamed_params(src.unnamed_params),
         named_params(src.named_params),
         parent(src.parent),
@@ -228,18 +228,18 @@ class query_params
     { }
 
     /// returns the parent-object
-    query_params* getParent() const
+    QueryParams* getParent() const
     { return parent; }
 
     /// changes parent-object
-    void setParent(query_params* p, bool _use_parent_values = true)
+    void setParent(QueryParams* p, bool _use_parent_values = true)
     {
       parent = p;
       use_parent_values = _use_parent_values;
     }
 
     /// changes parent-object
-    void setParent(query_params& p, bool _use_parent_values = true)
+    void setParent(QueryParams& p, bool _use_parent_values = true)
     {
       parent = &p;
       use_parent_values = _use_parent_values;
@@ -292,7 +292,7 @@ class query_params
 
     /// add unnamed parameter to parent or this class if no parent
     /// exists.
-    query_params& ret(const string& value)
+    QueryParams& ret(const string& value)
     {
       if (parent)
         parent->ret(value);
@@ -314,7 +314,7 @@ class query_params
     }
 
     /// add unnamed parameter to this class.
-    query_params& add(const string& value)
+    QueryParams& add(const string& value)
     {
       unnamed_params.push_back(value);
       return *this;
@@ -388,7 +388,7 @@ class query_params
     }
 
     /// replace named parameter in parent or this class if no parent exists
-    query_params& ret(const string& name, const string& value)
+    QueryParams& ret(const string& name, const string& value)
     {
       named_params.erase(name);
       if (parent)
@@ -399,7 +399,7 @@ class query_params
     }
 
     /// add named parameter to parent or this class if no parent exists
-    query_params& addret(const string& name, const string& value)
+    QueryParams& addret(const string& name, const string& value)
     {
       if (parent)
         parent->addret(name, value);
@@ -417,7 +417,7 @@ class query_params
     }
 
     /// add named parameter to this class
-    query_params& add(const string& name, const string& value)
+    QueryParams& add(const string& name, const string& value)
     {
       named_params[name].push_back(value);
       return *this;
@@ -473,8 +473,8 @@ class query_params
     string dump() const;
 };
 
-/// output query_params in url-syntax
-inline std::ostream& operator<< (std::ostream& out, const query_params& p)
+/// output QueryParams in url-syntax
+inline std::ostream& operator<< (std::ostream& out, const QueryParams& p)
 { return out << p.getUrl(); }
 
 }

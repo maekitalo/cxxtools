@@ -1,5 +1,5 @@
 /* cxxtools/pool.h
-   Copyright (C) 2003 Tommi Mäkitalo
+   Copyright (C) 2003 Tommi Maekitalo
 
 This file is part of cxxtools.
 
@@ -32,7 +32,7 @@ namespace cxxtools
  This class is a factory for objects wich are default constructable.
  */
 template <class T>
-class default_creator
+class DefaultCreator
 {
   public:
     T* operator() ()
@@ -40,10 +40,10 @@ class default_creator
 };
 
 /**
- A pool is a container for reusable objects.
+ A Pool is a container for reusable objects.
 
  It maintains a list of objects, which are not in use. If a program
- needs a object, he can request one with the get-method. The pool
+ needs a object, he can request one with the get-method. The Pool
  returns a object, which is convertable to the needed object. As long
  as the program holds this special object, the object is in use.
 
@@ -53,21 +53,21 @@ class default_creator
  blocks, when the limit is reached and waits for someone to release a
  object.
  */
-template <typename T, typename CreatorType = default_creator<T> >
-class pool
+template <typename T, typename CreatorType = DefaultCreator<T> >
+class Pool
 {
   public:
     /**
-     The poolobject holds a reference to the object.
+     The PoolObject holds a reference to the object.
      The held object is released for reuse, when the last reference
      is destroyed.
      */
-    class poolobject
+    class PoolObject
     {
       public:
-        typedef pool<T, CreatorType> pool_type;
-        typedef poolobject* ptr_type;
-        typedef const poolobject* const_ptr_type;
+        typedef Pool<T, CreatorType> pool_type;
+        typedef PoolObject* ptr_type;
+        typedef const PoolObject* const_ptr_type;
 
       private:
         T* ptr;
@@ -88,7 +88,7 @@ class pool
                 {
                   mypool->freePool.push(ptr);
                   if (mypool->maxcount > 0)
-                    mypool->sem.Post();
+                    mypool->sem.post();
                 }
                 else
                   delete ptr;
@@ -103,7 +103,7 @@ class pool
           }
         }
 
-        void link(const poolobject& s)
+        void link(const PoolObject& s)
         {
           mypool = s.mypool;
           ptr = s.ptr;
@@ -118,21 +118,21 @@ class pool
         }
 
       public:
-        poolobject()
+        PoolObject()
           : ptr(0),
             mypool(0),
             prev(this),
             next(this)
         { }
 
-        poolobject(T* o, pool_type& p)
+        PoolObject(T* o, pool_type& p)
           : ptr(o),
             mypool(&p),
             prev(this),
             next(this)
         { }
 
-        poolobject(const poolobject& s)
+        PoolObject(const PoolObject& s)
           : ptr(s.ptr),
             mypool(s.mypool),
             prev(this),
@@ -142,12 +142,12 @@ class pool
             link(s);
         }
 
-        ~poolobject()
+        ~PoolObject()
         {
           unlink();
         }
 
-        poolobject& operator= (const poolobject& s)
+        PoolObject& operator= (const PoolObject& s)
         {
           if (ptr != s.ptr)
           {
@@ -177,9 +177,9 @@ class pool
         bool operator== (const T* p) const { return ptr == p; }
     };
 
-    friend class poolobject;
+    friend class PoolObject;
 
-    typedef poolobject objectptr_type;
+    typedef PoolObject objectptr_type;
 
   private:
     typedef std::stack<T*> objectcontainer_type;
@@ -190,23 +190,23 @@ class pool
     CreatorType creator;
 
   public:
-    /// Create a pool with a maximum count.
+    /// Create a Pool with a maximum count.
     /// If count is 0, no limit is used
-    explicit pool(unsigned _maxcount = 0, CreatorType _creator = CreatorType())
+    explicit Pool(unsigned _maxcount = 0, CreatorType _creator = CreatorType())
       : maxcount(_maxcount),
         sem(_maxcount),
         creator(_creator)
     { }
 
-    /// create a pool without limit and a special creator
-    explicit pool(CreatorType _creator)
+    /// create a Pool without limit and a special creator
+    explicit Pool(CreatorType _creator)
       : maxcount(0),
         sem(0),
         creator(_creator)
     { }
 
-    /// destructing the pool destroys all free objects too
-    ~pool()
+    /// destructing the Pool destroys all free objects too
+    ~Pool()
     {
       while (!freePool.empty())
       {
@@ -218,13 +218,13 @@ class pool
     /**
      Returns a wrapper-class, which helds the object in use.
 
-     This method does the actual work of the pool. It creates new
+     This method does the actual work of the Pool. It creates new
      objects, when needed and the upper limit is not reached.
      */
     objectptr_type get()
     {
       if (maxcount > 0)
-        sem.Wait();
+        sem.wait();
 
       T* obj;
 

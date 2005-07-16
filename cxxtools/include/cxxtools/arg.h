@@ -33,7 +33,7 @@ namespace cxxtools
 
  Programs usually need some parameters. Usually they start with a '-'
  followed by a single character and optionally a value.
- arg<T> extracts these and other parametes.
+ Arg<T> extracts these and other parametes.
 
  This default class processes paramters with a value, which defines
  a input-extractor-operator operator>> (istream&, T&).
@@ -45,14 +45,14 @@ namespace cxxtools
  \code
    int main(int argc, char* argv[])
    {
-     cxxtools::arg<int> option_n(argc, argv, 'n', 0);
+     cxxtools::Arg<int> option_n(argc, argv, 'n', 0);
      std::cout << "value for -n: " << option_n << endl;
    }
  \endcode
 
  */
-template <class T>
-class arg
+template <typename T>
+class Arg
 {
   public:
     /**
@@ -60,7 +60,7 @@ class arg
 
      \param def    initial value
      */
-    arg(const T& def = T())
+    Arg(const T& def = T())
       : m_value(def),
         m_isset(false)
       { }
@@ -75,11 +75,11 @@ class arg
 
      example:
      \code
-      arg<unsigned> offset(argc, argv, 'o', 0);
+      Arg<unsigned> offset(argc, argv, 'o', 0);
       unsigned value = offset.getValue();
      \endcode
      */
-    arg(int& argc, char* argv[], char ch, const T& def = T())
+    Arg(int& argc, char* argv[], char ch, const T& def = T())
       : m_value(def),
         m_isset(false)
     {
@@ -93,18 +93,18 @@ class arg
 
      example:
      \code
-       arg<int> option_number(argc, argv, "--number", 0);
+       Arg<int> option_number(argc, argv, "--number", 0);
        std::cout << "number =" << option_nummer.getValue() << std::endl;
      \endcode
      */
-    arg(int& argc, char* argv[], const char* str, const T& def = T())
+    Arg(int& argc, char* argv[], const char* str, const T& def = T())
       : m_value(def),
         m_isset(false)
     {
       m_isset = set(argc, argv, str);
     }
 
-    arg(int& argc, char* argv[])
+    Arg(int& argc, char* argv[])
       : m_isset(false)
     {
       m_isset = set(argc, argv);
@@ -119,7 +119,7 @@ class arg
 
      example:
      \code
-      arg<unsigned> offset;
+      Arg<unsigned> offset;
       offset.set(argc, argv, 'o');
       unsigned value = offset.getValue();
      \endcode
@@ -156,7 +156,7 @@ class arg
 
      example:
      \code
-       arg<int> option_number;
+       Arg<int> option_number;
        number.set(argc, argv, "--number");
        std::cout << "number =" << option_nummer.getValue() << std::endl;
      \endcode
@@ -235,7 +235,7 @@ class arg
 
      int main(int argc, char* argv[])
      {
-       cxxtools::arg<int> value(argc, argv, 'v', 0);
+       cxxtools::Arg<int> value(argc, argv, 'v', 0);
        print(value);   // pass argument as a int to the function
      }
      \endcode
@@ -262,13 +262,13 @@ class arg
 
  example:
  \code
-   arg<bool> debug(argc, argv, 'd');
+   Arg<bool> debug(argc, argv, 'd');
    if (debug)
      std::cout << "debug-mode is set" << std::endl;
  \endcode
  */
 template <>
-class arg<bool>
+class Arg<bool>
 {
   public:
     /**
@@ -276,7 +276,7 @@ class arg<bool>
 
      \param def    initial value
      */
-    arg(bool def = false)
+    Arg(bool def = false)
       : m_value(def),
         m_isset(false)
         { }
@@ -291,18 +291,18 @@ class arg<bool>
 
      example:
      \code
-      arg<unsigned> offset(argc, argv, 'o', 0);
+      Arg<unsigned> offset(argc, argv, 'o', 0);
       unsigned value = offset.getValue();
      \endcode
      */
-    arg(int& argc, char* argv[], char ch, bool def = false)
+    Arg(int& argc, char* argv[], char ch, bool def = false)
       : m_value(def),
         m_isset(false)
     {
       m_isset = set(argc, argv, ch);
     }
 
-    arg(int& argc, char* argv[], const char* str, bool def = false)
+    Arg(int& argc, char* argv[], const char* str, bool def = false)
       : m_value(def),
         m_isset(false)
     {
@@ -318,8 +318,8 @@ class arg<bool>
 
      example:
      \code
-      arg<bool> debug(argc, argv, 'd');
-      arg<bool> ignore(argc, argv, 'i');
+      Arg<bool> debug(argc, argv, 'd');
+      Arg<bool> ignore(argc, argv, 'i');
      \endcode
 
      Arguments debug and ignore are both set when the program is called
@@ -337,7 +337,7 @@ class arg<bool>
 
      In the program use:
      \code
-      arg<bool> debug(argc, argv, 'd');
+      Arg<bool> debug(argc, argv, 'd');
       if (debug.isSet())
       {
         if (debug)
@@ -417,7 +417,7 @@ class arg<bool>
 
      with
      \code
-       arg<bool> debug(argc, argv, "--debug");
+       Arg<bool> debug(argc, argv, "--debug");
      \endcode
 
      */
@@ -475,29 +475,29 @@ class arg<bool>
  and easier to process. Also parameters can contain spaces.
  */
 template <>
-class arg<const char*>
+class Arg<const char*>
 {
   public:
-    arg(const char* def = 0)
+    Arg(const char* def = 0)
       : m_value(def),
         m_isset(false)
     { }
 
-    arg(int& argc, char* argv[], char ch, const char* def = 0)
+    Arg(int& argc, char* argv[], char ch, const char* def = 0)
       : m_value(def),
         m_isset(false)
     {
       m_isset = set(argc, argv, ch);
     }
 
-    arg(int& argc, char* argv[], const char* str, const char* def = 0)
+    Arg(int& argc, char* argv[], const char* str, const char* def = 0)
       : m_value(def),
         m_isset(false)
     {
       m_isset = set(argc, argv, str);
     }
 
-    arg(int& argc, char* argv[])
+    Arg(int& argc, char* argv[])
       : m_value(0),
         m_isset(false)
     { 
@@ -603,10 +603,10 @@ class arg<const char*>
  not, what we normally expect, so this is speialized here.
  */
 template <>
-class arg<std::string>
+class Arg<std::string>
 {
   public:
-    arg(const std::string& def = std::string())
+    Arg(const std::string& def = std::string())
       : m_value(def),
         m_isset(false)
     { }
@@ -614,7 +614,7 @@ class arg<std::string>
     /**
      Constructor for the short form.
      */
-    arg(int& argc, char* argv[], char ch, const std::string& def = std::string())
+    Arg(int& argc, char* argv[], char ch, const std::string& def = std::string())
       : m_value(def),
         m_isset(false)
     {
@@ -624,7 +624,7 @@ class arg<std::string>
     /**
      Constructor for the long form.
      */
-    arg(int& argc, char* argv[], const char* str, const std::string& def = std::string())
+    Arg(int& argc, char* argv[], const char* str, const std::string& def = std::string())
       : m_value(def),
         m_isset(false)
     {
@@ -634,7 +634,7 @@ class arg<std::string>
     /**
      Extracts the next parameter.
      */
-    arg(int& argc, char* argv[])
+    Arg(int& argc, char* argv[])
       : m_value(std::string()),
         m_isset(false)
     {

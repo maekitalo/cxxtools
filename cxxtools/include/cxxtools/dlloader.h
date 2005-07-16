@@ -1,5 +1,5 @@
 /* cxxtools/dlloader.h
-   Copyright (C) 2003 Tommi Mäkitalo
+   Copyright (C) 2003 Tommi Maekitalo
 
 This file is part of cxxtools.
 
@@ -29,27 +29,27 @@ namespace cxxtools
 
 namespace dl
 {
-  class library;
-  class symbol;
+  class Library;
+  class Symbol;
 
   /**
    base-class for errors.
    */
-  class error : public std::runtime_error
+  class Error : public std::runtime_error
   {
     public:
-      error();
+      Error();
   };
 
   /**
-   this exception is thrown, when a library can't be dlopen'd.
+   this exception is thrown, when a Library can't be dlopen'd.
    */
-  class dlopen_error : public error
+  class DlopenError : public Error
   {
       std::string libname;
     public:
-      dlopen_error(const std::string& l);
-      ~dlopen_error() throw()
+      DlopenError(const std::string& l);
+      ~DlopenError() throw()
       { }
 
       /// returns the libname, which was tried.
@@ -59,13 +59,13 @@ namespace dl
   /**
    this exception is thrown, when a symbol is not found it a library.
    */
-  class symbol_not_found : public error
+  class SymbolNotFound : public Error
   {
       std::string symbol;
 
     public:
-      symbol_not_found(const std::string& s);
-      ~symbol_not_found() throw()
+      SymbolNotFound(const std::string& s);
+      ~SymbolNotFound() throw()
       { }
 
       /// returns the symbol, which was not found.
@@ -73,34 +73,34 @@ namespace dl
   };
 
   /**
-   library represents a shared-library.
+   Library represents a shared-library.
 
    To load a shared-library, just instantiate this class with a
    shared-library-name. The class is copyable. The library is unloaded
    (with dlclose) when the last reference is deleted.
    */
-  class library
+  class Library
   {
       void* handle;
-      mutable const library* prev;
-      mutable const library* next;
+      mutable const Library* prev;
+      mutable const Library* next;
 
     public:
       /// loads a shared library.
-      library(const char* name)
+      Library(const char* name)
         : handle(0), prev(this), next(this)
         { open(name); }
       /// default constructor.
-      library()
+      Library()
         : handle(0), prev(this), next(this)
         { }
       /// Copy-constrcutor - increments reference to the library.
-      library(const library& src);
+      Library(const Library& src);
       /// unloads the library if some is referenced.
-      ~library()
+      ~Library()
       { close(); }
 
-      library& operator=(const library& src);
+      Library& operator=(const Library& src);
 
       /// loads a shared library.
       /// If the class references already another library the
@@ -112,7 +112,7 @@ namespace dl
       void close();
 
       /// extracts a symbol from the library.
-      symbol sym(const char* name) const;
+      Symbol sym(const char* name) const;
 
       /// extracts a symbol from the library.
       void* operator[] (const char* name) const;
@@ -124,27 +124,27 @@ namespace dl
       void* getHandle() const   { return handle; }
   };
 
-  class symbol
+  class Symbol
   {
-      library lib;
+      Library lib;
       void* sym;
 
     public:
-      symbol()
+      Symbol()
         : sym(0)
         { }
-      symbol(const library& _lib, void* _sym)
+      Symbol(const Library& _lib, void* _sym)
         : lib(_lib), sym(_sym)
         { }
 
       void* getSym() const  { return sym; }
-      const library& getLib() const  { return lib; }
+      const Library& getLib() const  { return lib; }
 
       operator void* () const  { return sym; }
   };
 
   /// extracts a symbol from the library.
-  inline void* library::operator[] (const char* name) const
+  inline void* Library::operator[] (const char* name) const
     { return sym(name); }
 
 } // namespace dl

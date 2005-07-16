@@ -55,11 +55,11 @@ class Thread
     Thread();
     virtual ~Thread();
 
-    void Create();
-    void Join();
+    void create();
+    void join();
 
   protected:
-    virtual void Run() = 0;
+    virtual void run() = 0;
 
   private:
 };
@@ -75,7 +75,7 @@ class FunctionThread : public Thread
       { }
 
   protected:
-    virtual void Run()
+    virtual void run()
     {
       function();
     }
@@ -94,7 +94,7 @@ class MethodThread : public Thread
       { }
 
   protected:
-    virtual void Run()
+    virtual void run()
     {
       (object.*method)();
     }
@@ -117,9 +117,9 @@ class Mutex
     Mutex();
     ~Mutex();
 
-    void Lock();
+    void lock();
     bool tryLock();
-    void Unlock();
+    void unlock();
 };
 
 class RWLock
@@ -134,14 +134,14 @@ class RWLock
     RWLock();
     ~RWLock();
 
-    void RdLock();
-    void WrLock();
-    void Unlock();
+    void rdLock();
+    void wrLock();
+    void unlock();
 };
 
 template <class mutex_type,
-          void (mutex_type::*lock_method)() = &mutex_type::Lock,
-          void (mutex_type::*unlock_method)() = &mutex_type::Unlock>
+          void (mutex_type::*lock_method)() = &mutex_type::lock,
+          void (mutex_type::*unlock_method)() = &mutex_type::unlock>
 class LockBase
 {
     mutex_type& mutex;
@@ -152,20 +152,20 @@ class LockBase
     const LockBase& operator= (const LockBase&);
 
   public:
-    LockBase(mutex_type& m, bool lock = true)
+    LockBase(mutex_type& m, bool doLock = true)
       : mutex(m), locked(false)
     {
-      if (lock)
-        Lock();
+      if (doLock)
+        lock();
     }
 
     ~LockBase()
     {
       if (locked)
-        Unlock();
+        unlock();
     }
 
-    void Lock()
+    void lock()
     {
       if (!locked)
       {
@@ -174,7 +174,7 @@ class LockBase
       }
     }
 
-    void Unlock()
+    void unlock()
     {
       if (locked)
       {
@@ -188,8 +188,8 @@ class LockBase
 };
 
 typedef LockBase<Mutex> MutexLock;
-typedef LockBase<RWLock, &RWLock::RdLock> RdLock;
-typedef LockBase<RWLock, &RWLock::WrLock> WrLock;
+typedef LockBase<RWLock, &RWLock::rdLock> RdLock;
+typedef LockBase<RWLock, &RWLock::wrLock> WrLock;
 
 class Semaphore
 {
@@ -199,9 +199,9 @@ class Semaphore
     Semaphore(unsigned value);
     ~Semaphore();
 
-    void Wait();
-    bool TryWait();
-    void Post();
+    void wait();
+    bool tryWait();
+    void post();
     int getValue();
 };
 
@@ -217,9 +217,9 @@ class Condition
     Condition();
     ~Condition();
 
-    void Signal();
-    void Broadcast();
-    void Wait(MutexLock& lock);
+    void signal();
+    void broadcast();
+    void wait(MutexLock& lock);
 };
 
 }

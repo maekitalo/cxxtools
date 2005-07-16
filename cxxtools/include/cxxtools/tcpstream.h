@@ -27,123 +27,13 @@ Boston, MA  02111-1307  USA
 #include <stdexcept>
 #include <netinet/in.h>
 #include <sys/socket.h>
+#include <cxxtools/net.h>
 
 namespace cxxtools
 {
 
-namespace tcp
+namespace net
 {
-  //////////////////////////////////////////////////////////////////////
-  /**
-   * tcp::Exception wird bei Fehlern ausgelöst.
-   */
-  class Exception : public std::runtime_error
-  {
-    public:
-      /// Konstruktor erzeugt eine Instanz mit einer Fehlernummer
-      /// und einer Fehlermeldung.
-      Exception(int Errno, const std::string& msg);
-      /// Konstruktor erzeugt eine Instanz mit einer Fehlermeldung.
-      /// Die Nummer wird aus errno übernommen.
-      explicit Exception(const std::string& msg);
-
-      /// Liefert die Fehlernummer zurück.
-      int getErrno() const
-      { return m_Errno; }
-
-    private:
-      int m_Errno;
-  };
-
-  //////////////////////////////////////////////////////////////////////
-  /**
-   * tcp::Timeout wird bei Zeitüberschreitung ausgelöst.
-   */
-  class Timeout : public Exception
-  {
-    public:
-      /// Konstruktor erzeugt eine Instanz mit einer Fehlermeldung.
-      Timeout()
-        : Exception(0, "Timeout")
-      { }
-  };
-
-  //////////////////////////////////////////////////////////////////////
-  /**
-   * Die Klasse wird geworfen, wenn keine Zeichen gelesen werden konnten.
-   */
-  class eof : public std::exception
-  {
-    public:
-      /// erzeugt eine Instanz
-      eof()  { }
-      /// Liefert einfache Meldung zurück
-      const char* what() const throw()
-      { return "EOF"; }
-  };
-
-  //////////////////////////////////////////////////////////////////////
-  /**
-   * Basisklasse für Sockets
-   */
-  class Socket
-  {
-    public:
-      /// Konstruktor erzeugt eine Instanz und erzeugt einen Socket
-      /// auf Betriebssystemebene. Bei Fehlern wird eine Exception
-      /// ausgelöst.
-      Socket(int domain, int type, int protocol) throw (Exception);
-
-      /// Konstruktor initialisiert die Klasse mit einem bestehenden
-      /// Socket.
-      explicit Socket(int fd = -1)
-        : m_sockFd(fd),
-          m_timeout(-1)
-        { }
-
-      /// Im Destruktor wird der Socket geschlossen, wenn er offen ist.
-      /// Bei einem Fehler wird eine Fehlermeldung auf stderr geschrieben.
-      virtual ~Socket();
-
-      /// Liefert true zurück, wenn der Socket geöffnet ist
-      bool good() const     { return m_sockFd >= 0; }
-      /// Liefert true zurück, wenn der Socket nicht geöffnet ist
-      bool bad() const      { return m_sockFd <  0; }
-      /// Liefert true zurück, wenn der Socket geöffnet ist
-      operator bool() const { return m_sockFd >= 0; }
-
-      /// Erzeugt einen Socket auf Betriebssystemebene. Ist bereits einer
-      /// geöffnet, wird dieser vorher geschlossen. Bei Fehlern wird eine
-      /// Exception ausgelöst.
-      void create(int domain, int type, int protocol) throw (Exception);
-      /// Schießt den Socket, wenn er geöffnet ist.
-      void close();
-
-      /// Liefert den Sockethandle zurück
-      int getFd() const     { return m_sockFd; }
-
-      /// wrapper um ::getsocketname
-      struct sockaddr getSockAddr() const throw (Exception);
-
-      /// timeout in milliseconds
-      void setTimeout(int t);
-      int getTimeout() const  { return m_timeout; }
-
-    protected:
-      void setFd(int sockFd)
-      {
-        close();
-        m_sockFd = sockFd;
-      }
-
-    private:
-      int m_sockFd;
-      int m_timeout;
-
-      Socket(const Socket&);               // no implementation
-      Socket& operator= (const Socket&);   // no implementation
-  };
-
   //////////////////////////////////////////////////////////////////////
   /**
    * Serversocket
@@ -164,9 +54,9 @@ namespace tcp
       /// erzeugt einen Serversocket und hört auf die angegebene Adresse
       Server(const char* ipaddr, unsigned short int port, int backlog = 5) throw (Exception);
 
-      void Listen(const char* ipaddr, unsigned short int port, int backlog = 5) throw (Exception);
-      void Listen(const std::string& ipaddr, unsigned short int port, int backlog = 5) throw (Exception)
-        { Listen(ipaddr.c_str(), port, backlog); }
+      void listen(const char* ipaddr, unsigned short int port, int backlog = 5) throw (Exception);
+      void listen(const std::string& ipaddr, unsigned short int port, int backlog = 5) throw (Exception)
+        { listen(ipaddr.c_str(), port, backlog); }
 
       const struct sockaddr& getAddr() const
         { return servaddr.sockaddr; }
@@ -214,22 +104,22 @@ namespace tcp
 
       /// akzeptiert eine Verbindung von einem Server. Kommt keine
       /// Verbindung zustande, wird eine Exception ausgelöst.
-      void Accept(const Server& server);
+      void accept(const Server& server);
       /// nimmt eine Verbindung mit der angegebenen Adresse auf. Kommt keine
       /// Verbindung zustande, wird eine Exception ausgelöst.
-      void Connect(const char* ipaddr, unsigned short int port);
+      void connect(const char* ipaddr, unsigned short int port);
       /// nimmt eine Verbindung mit der angegebenen Adresse auf. Kommt keine
       /// Verbindung zustande, wird eine Exception ausgelöst.
-      void Connect(const std::string& ipaddr, unsigned short int port)
-      { Connect(ipaddr.c_str(), port); }
+      void connect(const std::string& ipaddr, unsigned short int port)
+      { connect(ipaddr.c_str(), port); }
 
       /// Liest vom Socket maximal 'bufsize' Zeichen in 'buffer'.
       /// Liefert die Anzahl der gelesenen Zeichen zurück.
-      /// Bei Fehler wird eine tcp::Exception geworfen.
-      size_type Read(char* buffer, size_type bufsize) const;
+      /// Bei Fehler wird eine net::Exception geworfen.
+      size_type read(char* buffer, size_type bufsize) const;
       /// Schreibt bis zu 'bufsize' Zeichen aus 'buffer' auf den Socket.
       /// Liefert die Anzahl der geschriebenen Zeichen zurück.
-      size_type Write(const char* buffer, size_type bufsize) const;
+      size_type write(const char* buffer, size_type bufsize) const;
 
       /// gibt die aktuelle Peer-Adresse zurück
       const struct sockaddr& getPeeraddr() const
@@ -242,24 +132,11 @@ namespace tcp
   /**
    * streambuf ist ein std::streambuf für Socket-Verbindungen.
    *
-   * Die Klasse wird von tcp::iostream verwendet, um die Pufferung
+   * Die Klasse wird von net::iostream verwendet, um die Pufferung
    * zu realisieren.
    */
   class streambuf : public std::streambuf
   {
-#if __GNUC__ <= 2
-    typedef int int_type;
-    typedef char char_type;
-
-    class traits_type
-    {
-      public:
-        static int eof()
-        { return EOF; }
-    };
-
-#endif
-
     public:
       /// Konstuktor reserviert Speicher für den E/A-Puffer
       explicit streambuf(Stream& stream, unsigned bufsize = 256,
@@ -326,7 +203,7 @@ namespace tcp
       streambuf m_buffer;
   };
 
-} // namespace tcp
+} // namespace net
 
 } // namespace cxxtools
 

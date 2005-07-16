@@ -28,13 +28,13 @@ int main(int argc, char* argv[])
 {
   try
   {
-    cxxtools::arg<const char*> ip(argc, argv, 'i', "127.0.0.1");
-    cxxtools::arg<unsigned short> port(argc, argv, 'p', 1234);
-    cxxtools::arg<bool> read_reply(argc, argv, 'r');
-    cxxtools::arg<unsigned> bufsize(argc, argv, 'b', 8192);
+    cxxtools::Arg<const char*> ip(argc, argv, 'i', "127.0.0.1");
+    cxxtools::Arg<unsigned short> port(argc, argv, 'p', 1234);
+    cxxtools::Arg<bool> read_reply(argc, argv, 'r');
+    cxxtools::Arg<unsigned> bufsize(argc, argv, 'b', 8192);
 
     // connect to server
-    cxxtools::tcp::iostream peer(ip, port, bufsize);
+    cxxtools::net::iostream peer(ip, port, bufsize);
 
     // copy stdin to server
     peer << std::cin.rdbuf() << std::flush;

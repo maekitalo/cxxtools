@@ -52,8 +52,8 @@ int main(int argc, char* argv[])
 {
   try
   {
-    cxxtools::arg<bool> enable(argc, argv, 'e');
-    cxxtools::arg<double> total(argc, argv, 'T', 5.0);
+    cxxtools::Arg<bool> enable(argc, argv, 'e');
+    cxxtools::Arg<double> total(argc, argv, 'T', 5.0);
     unsigned long count = 1;
     double T;
 

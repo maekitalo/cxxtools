@@ -20,21 +20,14 @@ Boston, MA  02111-1307  USA
 */
 
 #include "cxxtools/tcpstream.h"
-#include <stdexcept>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <unistd.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <fcntl.h>
 #include <sys/poll.h>
-#include <errno.h>
 #include <netdb.h>
+#include <errno.h>
 
 #ifdef DEBUG
 
 #include "cxxtools/log.h"
-log_define("cxxtools.tcp");
+log_define("cxxtools.net");
 
 #else
 
@@ -46,79 +39,8 @@ log_define("cxxtools.tcp");
 namespace cxxtools
 {
 
-namespace tcp
+namespace net
 {
-  using namespace std;
-
-  Exception::Exception(int Errno, const string& msg)
-    : runtime_error(msg + ": " + strerror(Errno)),
-      m_Errno(Errno)
-    { }
-
-  Exception::Exception(const string& msg)
-    : runtime_error(msg + ": " + strerror(errno)),
-      m_Errno(errno)
-    { }
-
-  ////////////////////////////////////////////////////////////////////////
-  // implementation of Socket
-  //
-  Socket::Socket(int domain, int type, int protocol) throw (Exception)
-    : m_timeout(-1)
-  {
-    if ((m_sockFd = ::socket(domain, type, protocol)) < 0)
-      throw Exception("cannot create socket");
-  }
-
-  Socket::~Socket()
-  {
-    if (m_sockFd >= 0)
-    {
-      if (::close(m_sockFd) < 0)
-        fprintf(stderr, "error in close(%d)\n", (int)m_sockFd);
-    }
-  }
-
-  void Socket::create(int domain, int type, int protocol) throw (Exception)
-  {
-    close();
-
-    if ((m_sockFd = ::socket(domain, type, protocol)) < 0)
-      throw Exception("cannot create socket");
-  }
-
-  void Socket::close()
-  {
-    if (m_sockFd >= 0)
-    {
-      ::close(m_sockFd);
-      m_sockFd = -1;
-    }
-  }
-
-  struct sockaddr Socket::getSockAddr() const throw (Exception)
-  {
-    struct sockaddr ret;
-
-    socklen_t slen = sizeof(ret);
-    if (::getsockname(getFd(), &ret, &slen) < 0)
-      throw Exception("error in getsockname");
-
-    return ret;
-  }
-
-  void Socket::setTimeout(int t)
-  {
-    m_timeout = t;
-
-    if (getFd() >= 0)
-    {
-      long a = m_timeout >= 0 ? O_NONBLOCK : 0;
-      log_debug("fcntl(" << getFd() << ", F_SETFL, " << a << ')');
-      fcntl(getFd(), F_SETFL, a);
-    }
-  }
-
   ////////////////////////////////////////////////////////////////////////
   // implementation of Server
   //
@@ -130,17 +52,17 @@ namespace tcp
                  throw (Exception)
     : Socket(AF_INET, SOCK_STREAM, 0)
   {
-    Listen(ipaddr, port, backlog);
+    listen(ipaddr, port, backlog);
   }
 
   Server::Server(const char* ipaddr, unsigned short int port,
       int backlog) throw (Exception)
     : Socket(AF_INET, SOCK_STREAM, 0)
   {
-    Listen(ipaddr, port, backlog);
+    listen(ipaddr, port, backlog);
   }
 
-  void Server::Listen(const char* ipaddr, unsigned short int port,
+  void Server::listen(const char* ipaddr, unsigned short int port,
       int backlog) throw (Exception)
   {
     struct hostent* host = ::gethostbyname(ipaddr);
@@ -175,35 +97,35 @@ namespace tcp
 
   Stream::Stream(const Server& server)
   {
-    Accept(server);
+    accept(server);
   }
 
-  Stream::Stream(const string& ipaddr, unsigned short int port)
+  Stream::Stream(const std::string& ipaddr, unsigned short int port)
     : Socket(AF_INET, SOCK_STREAM, 0)
   {
-    Connect(ipaddr, port);
+    connect(ipaddr, port);
   }
 
   Stream::Stream(const char* ipaddr, unsigned short int port)
     : Socket(AF_INET, SOCK_STREAM, 0)
   {
-    Connect(ipaddr, port);
+    connect(ipaddr, port);
   }
 
-  void Stream::Accept(const Server& server)
+  void Stream::accept(const Server& server)
   {
     close();
 
     socklen_t peeraddr_len;
     peeraddr_len = sizeof(peeraddr);
-    setFd(accept(server.getFd(), &peeraddr.sockaddr, &peeraddr_len));
+    setFd(::accept(server.getFd(), &peeraddr.sockaddr, &peeraddr_len));
     if (bad())
       throw Exception("error in accept");
 
     setTimeout(getTimeout());
   }
 
-  void Stream::Connect(const char* ipaddr, unsigned short int port)
+  void Stream::connect(const char* ipaddr, unsigned short int port)
   {
     if (getFd() < 0)
       create(AF_INET, SOCK_STREAM, 0);
@@ -225,7 +147,7 @@ namespace tcp
     setTimeout(getTimeout());
   }
 
-  Stream::size_type Stream::Read(char* buffer, Stream::size_type bufsize) const
+  Stream::size_type Stream::read(char* buffer, Stream::size_type bufsize) const
   {
     ssize_t n;
 
@@ -293,10 +215,10 @@ namespace tcp
     return n;
   }
 
-  Stream::size_type Stream::Write(const char* buffer,
+  Stream::size_type Stream::write(const char* buffer,
                                   Stream::size_type bufsize) const
   {
-    log_debug("Stream::Write " << bufsize << " bytes");
+    log_debug("Stream::write " << bufsize << " bytes");
 
     ssize_t n = 0;
     size_type s = bufsize;
@@ -350,7 +272,7 @@ namespace tcp
     {
       try
       {
-        int n = m_stream.Write(pbase(), pptr() - pbase());
+        int n = m_stream.write(pbase(), pptr() - pbase());
         if (n <= 0)
           return traits_type::eof();
       }
@@ -375,7 +297,7 @@ namespace tcp
   {
     try
     {
-      Stream::size_type n = m_stream.Read(m_buffer, m_bufsize);
+      Stream::size_type n = m_stream.read(m_buffer, m_bufsize);
       if (n <= 0)
         return traits_type::eof();
 
@@ -399,7 +321,7 @@ namespace tcp
     {
       try
       {
-        int n = m_stream.Write(pbase(), pptr() - pbase());
+        int n = m_stream.write(pbase(), pptr() - pbase());
         if (n <= 0)
           return -1;
         else
@@ -414,6 +336,6 @@ namespace tcp
     return 0;
   }
 
-} // namespace tcp
+} // namespace net
 
 } // namespace cxxtools

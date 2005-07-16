@@ -1,5 +1,5 @@
 /* hdstream.cpp
-   Copyright (C) 2003 Tommi Mäkitalo
+   Copyright (C) 2003 Tommi Maekitalo
 
 This file is part of cxxtools.
 
@@ -25,7 +25,7 @@ Boston, MA  02111-1307  USA
 namespace cxxtools
 {
 
-std::streambuf::int_type hdstreambuf::overflow(std::streambuf::int_type ch)
+std::streambuf::int_type Hdstreambuf::overflow(std::streambuf::int_type ch)
 {
   static char hexdigit[] = "0123456789abcdef";
 
@@ -58,12 +58,12 @@ std::streambuf::int_type hdstreambuf::overflow(std::streambuf::int_type ch)
   return 0;
 }
 
-std::streambuf::int_type hdstreambuf::underflow()
+std::streambuf::int_type Hdstreambuf::underflow()
 {
   return EOF;
 }
 
-int hdstreambuf::sync()
+int Hdstreambuf::sync()
 {
   return overflow(EOF);
 }

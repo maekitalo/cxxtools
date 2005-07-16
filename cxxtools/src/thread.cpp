@@ -43,14 +43,14 @@ Thread::~Thread()
   pthread_attr_destroy(&pthread_attr);
 }
 
-void Thread::Create()
+void Thread::create()
 {
   int ret = pthread_create(&pthread, &pthread_attr, Thread::start, (void*)this);
   if (ret != 0)
     throw ThreadException("pthread_create", ret);
 }
 
-void Thread::Join()
+void Thread::join()
 {
   int ret = pthread_join(pthread, 0);
   if (ret != 0)
@@ -59,7 +59,7 @@ void Thread::Join()
 
 void* Thread::start(void* arg)
 {
-  ((Thread*)arg)->Run();
+  ((Thread*)arg)->run();
   return 0;
 }
 
@@ -75,7 +75,7 @@ Mutex::~Mutex()
   pthread_mutex_destroy(&m_mutex);
 }
 
-void Mutex::Lock()
+void Mutex::lock()
 {
   int ret = pthread_mutex_lock(&m_mutex);
   if (ret != 0)
@@ -91,7 +91,7 @@ bool Mutex::tryLock()
     return false;
 }
 
-void Mutex::Unlock()
+void Mutex::unlock()
 {
   int ret = pthread_mutex_unlock(&m_mutex);
   if (ret != 0)
@@ -110,21 +110,21 @@ RWLock::~RWLock()
   pthread_rwlock_destroy(&m_rwlock);
 }
 
-void RWLock::RdLock()
+void RWLock::rdLock()
 {
   int ret = pthread_rwlock_rdlock(&m_rwlock);
   if (ret != 0)
     throw ThreadException("pthread_rwlock_rdlock", ret);
 }
 
-void RWLock::WrLock()
+void RWLock::wrLock()
 {
   int ret = pthread_rwlock_wrlock(&m_rwlock);
   if (ret != 0)
     throw ThreadException("pthread_rwlock_wrlock", ret);
 }
 
-void RWLock::Unlock()
+void RWLock::unlock()
 {
   int ret = pthread_rwlock_unlock(&m_rwlock);
   if (ret != 0)
@@ -143,14 +143,14 @@ Semaphore::~Semaphore()
   sem_destroy(&sem);
 }
 
-void Semaphore::Wait()
+void Semaphore::wait()
 {
   int ret = sem_wait(&sem);
   if (ret != 0)
     throw ThreadException("sem_wait", ret);
 }
 
-bool Semaphore::TryWait()
+bool Semaphore::tryWait()
 {
   int ret = sem_trywait(&sem);
   if (ret != EAGAIN && ret != 0)
@@ -158,7 +158,7 @@ bool Semaphore::TryWait()
   return ret == 0;
 }
 
-void Semaphore::Post()
+void Semaphore::post()
 {
   int ret = sem_post(&sem);
   if (ret != 0)
@@ -186,21 +186,21 @@ Condition::~Condition()
   pthread_cond_destroy(&cond);
 }
 
-void Condition::Signal()
+void Condition::signal()
 {
   int ret = pthread_cond_signal(&cond);
   if (ret != 0)
     throw ThreadException("pthread_cond_signal", ret);
 }
 
-void Condition::Broadcast()
+void Condition::broadcast()
 {
   int ret = pthread_cond_broadcast(&cond);
   if (ret != 0)
     throw ThreadException("pthread_cond_broadcast", ret);
 }
 
-void Condition::Wait(MutexLock& lock)
+void Condition::wait(MutexLock& lock)
 {
   int ret = pthread_cond_wait(&cond, &lock.getMutex().m_mutex);
   if (ret != 0)

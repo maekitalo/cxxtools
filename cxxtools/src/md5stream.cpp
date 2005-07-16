@@ -1,5 +1,5 @@
 /* md5stream.cpp
-   Copyright (C) 2003 Tommi Mäkitalo
+   Copyright (C) 2003 Tommi Maekitalo
 
 This file is part of cxxtools.
 
@@ -26,9 +26,9 @@ namespace cxxtools
 {
 
 ////////////////////////////////////////////////////////////////////////
-// md5streambuf
+// Md5streambuf
 //
-std::streambuf::int_type md5streambuf::overflow(
+std::streambuf::int_type Md5streambuf::overflow(
   std::streambuf::int_type ch)
 {
   if (pptr() == 0)
@@ -58,13 +58,13 @@ std::streambuf::int_type md5streambuf::overflow(
   return 0;
 }
 
-std::streambuf::int_type md5streambuf::underflow()
+std::streambuf::int_type Md5streambuf::underflow()
 {
   // nur Ausgabestrom
   return traits_type::eof();
 }
 
-int md5streambuf::sync()
+int Md5streambuf::sync()
 {
   if (pptr() != pbase())
   {
@@ -78,7 +78,7 @@ int md5streambuf::sync()
   return 0;
 }
 
-void md5streambuf::getDigest(unsigned char digest_[16])
+void Md5streambuf::getDigest(unsigned char digest_[16])
 {
   if (pptr())
   {
@@ -99,9 +99,9 @@ void md5streambuf::getDigest(unsigned char digest_[16])
 }
 
 ////////////////////////////////////////////////////////////////////////
-// md5stream
+// Md5stream
 //
-const char* md5stream::getHexDigest()
+const char* Md5stream::getHexDigest()
 {
   static const char hex[] = "0123456789abcdef";
   unsigned char md5[16];

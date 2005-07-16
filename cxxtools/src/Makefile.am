@@ -13,11 +13,13 @@ libcxxtools_la_SOURCES = \
 	md5.c \
 	md5stream.cpp \
 	multifstream.cpp \
+	net.cpp \
 	pollclass.cpp \
 	query_params.cpp \
 	tcpstream.cpp \
 	tee.cpp \
-	thread.cpp
+	thread.cpp \
+	xmltag.cpp
 
 if MAKE_ICONV
 libcxxtools_la_SOURCES += iconvstream.cpp

@@ -77,7 +77,7 @@ namespace cxxtools
         return *lower_bound_it;
 
     // logger not in list - change to write-lock
-    rdLock.Unlock();
+    rdLock.unlock();
     WrLock wrLock(rwmutex);
 
     // we have to do it again after gaining write-lock

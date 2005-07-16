@@ -14,6 +14,7 @@ nobase_include_HEADERS = \
         cxxtools/md5.h \
         cxxtools/md5stream.h \
         cxxtools/multifstream.h \
+        cxxtools/net.h \
         cxxtools/pollclass.h \
         cxxtools/pool.h \
         cxxtools/query_params.h \
@@ -21,6 +22,7 @@ nobase_include_HEADERS = \
         cxxtools/tcpstream.h \
         cxxtools/tee.h \
         cxxtools/thread.h \
+        cxxtools/xmltag.h \
         cxxtools/log/cxxtools.h \
         cxxtools/log/cxxtools_init.h \
         cxxtools/log/disable.h \

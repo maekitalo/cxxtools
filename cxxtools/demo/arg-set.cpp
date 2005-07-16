@@ -23,7 +23,7 @@ Boston, MA  02111-1307  USA
 #include <cxxtools/arg.h>
 #include <iostream>
 
-using cxxtools::arg;
+using cxxtools::Arg;
 
 void print_int(const char* txt, int i)
 {
@@ -44,27 +44,27 @@ int main(int argc, char* argv[])
 {
   try
   {
-    arg<int> int_param(5); // default-value 5
+    Arg<int> int_param(5); // default-value 5
     int_param.set(argc, argv, 'i');
     int_param.set(argc, argv, "--int");
 
     print_int("option -i|--int", int_param);
 
-    arg<const char*> charp_param("hi"); // default-value
+    Arg<const char*> charp_param("hi"); // default-value
     charp_param.set(argc, argv, 'p');
     charp_param.set(argc, argv, "--charp");
 
     print_charp("option -p|--charp", charp_param);
 
-    arg<std::string> string_param("hi"); // default-value
+    Arg<std::string> string_param("hi"); // default-value
     string_param.set(argc, argv, 's');
     string_param.set(argc, argv, "--string");
 
-    arg<std::string> string_arg;
+    Arg<std::string> string_arg;
     string_arg.setNoOpt(argc, argv);
 
     print_string("option -s|--string", string_param);
-    print_string("string-arg", string_arg);
+    print_string("string-Arg", string_arg);
 
     std::cout << "unprocessed arguments:\n";
     for (int i = 1; i < argc; ++i)

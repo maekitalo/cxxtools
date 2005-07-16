@@ -27,7 +27,7 @@ Boston, MA  02111-1307  USA
 void hexdump(const char* file)
 {
   std::ifstream in(file);
-  cxxtools::hdostream hd;
+  cxxtools::Hdostream hd;
   hd << in.rdbuf() << std::flush;
 }
 

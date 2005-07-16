@@ -42,33 +42,33 @@ int main(int argc, char* argv[])
 {
   try
   {
-    using cxxtools::arg;
+    using cxxtools::Arg;
 
-    arg<int> int_param(argc, argv, 'i');
-    arg<int> long_int_param(argc, argv, "--int");
-    arg<int> int_param_def(argc, argv, 'I', 5);
+    Arg<int> int_param(argc, argv, 'i');
+    Arg<int> long_int_param(argc, argv, "--int");
+    Arg<int> int_param_def(argc, argv, 'I', 5);
 
     print_int("option -i", int_param);
     print_int("option --int", long_int_param);
     print_int("option -I", int_param_def);
 
-    arg<const char*> charp_param(argc, argv, 'p');
-    arg<const char*> long_charp_param(argc, argv, "--charp");
-    arg<const char*> charp_param_def(argc, argv, 'P', "hi");
+    Arg<const char*> charp_param(argc, argv, 'p');
+    Arg<const char*> long_charp_param(argc, argv, "--charp");
+    Arg<const char*> charp_param_def(argc, argv, 'P', "hi");
 
     print_charp("option -p", charp_param);
     print_charp("option --charp", long_charp_param);
     print_charp("option -P", charp_param_def);
 
-    arg<std::string> string_param(argc, argv, 's');
-    arg<std::string> long_string_param(argc, argv, "--string");
-    arg<std::string> string_param_def(argc, argv, 'S', "hi");
-    arg<std::string> string_arg(argc, argv);
+    Arg<std::string> string_param(argc, argv, 's');
+    Arg<std::string> long_string_param(argc, argv, "--string");
+    Arg<std::string> string_param_def(argc, argv, 'S', "hi");
+    Arg<std::string> string_arg(argc, argv);
 
     print_string("option -s", string_param);
     print_string("option --string", long_string_param);
     print_string("option -S", string_param_def);
-    print_string("string-arg", string_arg);
+    print_string("string-Arg", string_arg);
 
     std::cout << "unprocessed arguments:\n";
     for (int i = 1; i < argc; ++i)

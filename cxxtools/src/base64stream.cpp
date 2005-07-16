@@ -1,5 +1,5 @@
 /* base64stream.cpp
-   Copyright (C) 2004 Tommi Mäkitalo
+   Copyright (C) 2004 Tommi Maekitalo
 
 This file is part of cxxtools.
 
@@ -29,7 +29,7 @@ static char cv[65] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz012345
 typedef std::map<char, unsigned> vc_type;
 static vc_type vc;
 
-void base64stream_streambuf::end()
+void Base64stream_streambuf::end()
 {
   char A = obuffer[0];
   char B = obuffer[1];
@@ -72,7 +72,7 @@ void base64stream_streambuf::end()
   indecode = false;
 }
 
-std::streambuf::int_type base64stream_streambuf::overflow(std::streambuf::int_type ch)
+std::streambuf::int_type Base64stream_streambuf::overflow(std::streambuf::int_type ch)
 {
   if (pptr() != pbase())
   {
@@ -98,7 +98,7 @@ std::streambuf::int_type base64stream_streambuf::overflow(std::streambuf::int_ty
   return 0;
 }
 
-std::streambuf::int_type base64stream_streambuf::underflow()
+std::streambuf::int_type Base64stream_streambuf::underflow()
 {
   if (eofflag)
     return traits_type::eof();
@@ -144,12 +144,12 @@ std::streambuf::int_type base64stream_streambuf::underflow()
   return traits_type::to_int_type(A);
 }
 
-int base64stream_streambuf::sync()
+int Base64stream_streambuf::sync()
 {
   return 0;
 }
 
-void base64stream_streambuf::putchar(char ch)
+void Base64stream_streambuf::putchar(char ch)
 {
   sinksource->sputc(ch);
   if (ch == '\n')
@@ -161,7 +161,7 @@ void base64stream_streambuf::putchar(char ch)
   }
 }
 
-int base64stream_streambuf::getval()
+int Base64stream_streambuf::getval()
 {
   if (vc.empty())
   {
