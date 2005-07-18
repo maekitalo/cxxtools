@@ -25,17 +25,17 @@ Boston, MA  02111-1307  USA
 #include <fstream>
 #include <cxxtools/log/cxxtools.h>
 
-#define log_init_fatal()   log_init(cxxtools::logger::LOG_LEVEL_FATAL)
-#define log_init_error()   log_init(cxxtools::logger::LOG_LEVEL_ERROR)
-#define log_init_warn()    log_init(cxxtools::logger::LOG_LEVEL_WARN)
-#define log_init_info()    log_init(cxxtools::logger::LOG_LEVEL_INFO)
-#define log_init_debug()   log_init(cxxtools::logger::LOG_LEVEL_DEBUG)
-#define log_init_trace()   log_init(cxxtools::logger::LOG_LEVEL_TRACE)
+#define log_init_fatal()   log_init(cxxtools::Logger::LOG_LEVEL_FATAL)
+#define log_init_error()   log_init(cxxtools::Logger::LOG_LEVEL_ERROR)
+#define log_init_warn()    log_init(cxxtools::Logger::LOG_LEVEL_WARN)
+#define log_init_info()    log_init(cxxtools::Logger::LOG_LEVEL_INFO)
+#define log_init_debug()   log_init(cxxtools::Logger::LOG_LEVEL_DEBUG)
+#define log_init_trace()   log_init(cxxtools::Logger::LOG_LEVEL_TRACE)
 #define log_init           log_init_cxxtools
 
-inline void log_init_cxxtools(cxxtools::logger::log_level_type level)
+inline void log_init_cxxtools(cxxtools::Logger::log_level_type level)
 {
-  cxxtools::logger::setRootLevel(level);
+  cxxtools::Logger::setRootLevel(level);
 }
 
 void log_init_cxxtools(const std::string& propertyfilename);

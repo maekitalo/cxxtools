@@ -1,5 +1,6 @@
 noinst_PROGRAMS = getini hd md5sum multifstream arg arg-set cgi dir \
-  dlloader pool dynbuffer log logbench netcat netecho httprequest netio
+  dlloader pool dynbuffer log logbench netcat netecho httprequest netio \
+  netmsg logsh
 
 getini_SOURCES = getini.cpp
 hd_SOURCES = hd.cpp
@@ -18,6 +19,8 @@ netcat_SOURCES = netcat.cpp
 netecho_SOURCES = netecho.cpp
 httprequest_SOURCES = httprequest.cpp
 netio_SOURCES = netio.cpp
+netmsg_SOURCES = netmsg.cpp
+logsh_SOURCES = logsh.cpp
 
 EXTRA_DIST = log.properties \
     log4j.properties \
@@ -28,3 +31,4 @@ LDADD = $(top_builddir)/src/libcxxtools.la
 AM_LDFLAGS = -L$(top_builddir)/src
 log_LDFLAGS = @CXXTOOLS_LOG_LDFLAGS@
 logbench_LDFLAGS = @CXXTOOLS_LOG_LDFLAGS@
+logsh_LDFLAGS = @CXXTOOLS_LOG_LDFLAGS@

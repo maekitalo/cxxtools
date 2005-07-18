@@ -21,6 +21,8 @@ Boston, MA  02111-1307  USA
 
 #include <cxxtools/log/cxxtools_init.h>
 #include <cxxtools/thread.h>
+#include <cxxtools/udp.h>
+#include <cxxtools/udpstream.h>
 #include <list>
 #include <algorithm>
 #include <fstream>
@@ -31,40 +33,62 @@ Boston, MA  02111-1307  USA
 
 namespace cxxtools
 {
-  class logger_impl : public logger
+  class LoggerImpl : public Logger
   {
       static std::ofstream outfile;
+      static net::UdpSender loghost;
+      static net::udpostream udpmessage;
 
     public:
-      logger_impl(const std::string& c, log_level_type l)
-        : logger(c, l)
+      LoggerImpl(const std::string& c, log_level_type l)
+        : Logger(c, l)
         { }
-      std::ostream& getAppender() const;
+      std::ostream& getAppender();
+      void endMessage();
       static void setFile(const std::string& fname);
+      static void setLoghost(const std::string& host, unsigned short int port);
   };
 
-  std::ostream& logger_impl::getAppender() const
+  std::ostream& LoggerImpl::getAppender()
   {
-    return outfile.is_open() ? outfile : std::cout;
+    return outfile.is_open() ? outfile
+         : loghost.isConnected() ? udpmessage : std::cout;
   }
 
-  std::ofstream logger_impl::outfile;
+  void LoggerImpl::endMessage()
+  {
+    if (outfile.is_open())
+      outfile.flush();
+    else if (loghost.isConnected())
+      udpmessage.send();
+    else
+      std::cout.flush();
+  }
 
-  void logger_impl::setFile(const std::string& fname)
+  std::ofstream LoggerImpl::outfile;
+  net::UdpSender LoggerImpl::loghost;
+  net::udpostream LoggerImpl::udpmessage(LoggerImpl::loghost);
+
+  void LoggerImpl::setFile(const std::string& fname)
   {
     outfile.open(fname.c_str(), std::ios::out | std::ios::app);
   }
 
-  typedef std::list<logger*> loggers_type;
-  static loggers_type loggers;
-  RWLock logger::rwmutex;
-  Mutex logger::mutex;
-
-  logger::log_level_type logger::std_level = LOG_LEVEL_ERROR;
-
-  logger* logger::getLogger(const std::string& category)
+  void LoggerImpl::setLoghost(const std::string& host, unsigned short int port)
   {
-    // search existing logger
+    loghost.connect(host.c_str(), port);
+  }
+
+  typedef std::list<Logger*> loggers_type;
+  static loggers_type loggers;
+  RWLock Logger::rwmutex;
+  Mutex Logger::mutex;
+
+  Logger::log_level_type Logger::std_level = LOG_LEVEL_ERROR;
+
+  Logger* Logger::getLogger(const std::string& category)
+  {
+    // search existing Logger
     RdLock rdLock(rwmutex);
 
     loggers_type::iterator lower_bound_it = loggers.begin();
@@ -76,7 +100,7 @@ namespace cxxtools
      && (*lower_bound_it)->getCategory() == category)
         return *lower_bound_it;
 
-    // logger not in list - change to write-lock
+    // Logger not in list - change to write-lock
     rdLock.unlock();
     WrLock wrLock(rwmutex);
 
@@ -90,9 +114,9 @@ namespace cxxtools
      && (*lower_bound_it)->getCategory() == category)
         return *lower_bound_it;
 
-    // logger still not in list, but we have a position to insert
+    // Logger still not in list, but we have a position to insert
 
-    // search best-fit logger
+    // search best-fit Logger
     std::string::size_type best_len = 0;
     log_level_type best_level = std_level;
 
@@ -110,15 +134,15 @@ namespace cxxtools
       }
     }
 
-    // insert the new logger in list and return pointer to the new list-element
-    return *(loggers.insert(lower_bound_it, new logger_impl(category, best_level)));
+    // insert the new Logger in list and return pointer to the new list-element
+    return *(loggers.insert(lower_bound_it, new LoggerImpl(category, best_level)));
   }
 
-  logger* logger::setLevel(const std::string& category, log_level_type l)
+  Logger* Logger::setLevel(const std::string& category, log_level_type l)
   {
     WrLock lock(rwmutex);
 
-    // search for existing logger
+    // search for existing Logger
     loggers_type::iterator it = loggers.begin();
     while (it != loggers.end()
         && (*it)->getCategory() < category)
@@ -126,17 +150,17 @@ namespace cxxtools
 
     if (it == loggers.end() || (*it)->getCategory() != category)
     {
-      // logger not found - create new
-      it = loggers.insert(it, new logger_impl(category, l));
+      // Logger not found - create new
+      it = loggers.insert(it, new LoggerImpl(category, l));
     }
     else
-      (*it)->setLogLevel(l); // logger found - set level
+      (*it)->setLogLevel(l); // Logger found - set level
 
     // return pointer to object in list
     return *it;
   }
 
-  std::ostream& logger::logentry(const char* level) const
+  std::ostream& Logger::logentry(const char* level)
   {
     struct timeval t;
     struct tm tt;
@@ -155,17 +179,18 @@ namespace cxxtools
         << " [" << pthread_self() << "] "
         << level << ' '
         << category << " - ";
+    endMessage();
 
     return out;
   }
 
-  log_tracer::~log_tracer()
+  LogTracer::~LogTracer()
   {
     if (msg)
     {
-      if (l->isEnabled(logger::LOG_LEVEL_TRACE))
+      if (l->isEnabled(Logger::LOG_LEVEL_TRACE))
       {
-        cxxtools::MutexLock lock(cxxtools::logger::mutex);
+        cxxtools::MutexLock lock(cxxtools::Logger::mutex);
         l->logentry("TRACE")
           << "EXIT " << msg->str() << std::endl;
       }
@@ -173,18 +198,18 @@ namespace cxxtools
     }
   }
 
-  std::ostream& log_tracer::logentry()
+  std::ostream& LogTracer::logentry()
   {
     if (!msg)
       msg = new std::ostringstream();
     return *msg;
   }
 
-  void log_tracer::enter()
+  void LogTracer::enter()
   {
-    if (msg && l->isEnabled(logger::LOG_LEVEL_TRACE))
+    if (msg && l->isEnabled(Logger::LOG_LEVEL_TRACE))
     {
-      cxxtools::MutexLock lock(cxxtools::logger::mutex);
+      cxxtools::MutexLock lock(cxxtools::Logger::mutex);
       l->logentry("TRACE")
         << "ENTER " << msg->str() << std::endl;
     }
@@ -193,7 +218,7 @@ namespace cxxtools
 
 void log_init(const std::string& propertyfilename)
 {
-  log_init(cxxtools::logger::LOG_LEVEL_ERROR);
+  log_init(cxxtools::Logger::LOG_LEVEL_ERROR);
 
   std::ifstream in(propertyfilename.c_str());
 
@@ -206,6 +231,9 @@ void log_init(const std::string& propertyfilename)
     state_rootlevel,
     state_filename0,
     state_filename,
+    state_host0,
+    state_host,
+    state_port,
     state_skip
   };
   
@@ -215,7 +243,10 @@ void log_init(const std::string& propertyfilename)
   std::string token;
   std::string category;
   std::string filename;
-  cxxtools::logger::log_level_type level;
+  std::string host;
+  unsigned short int port;
+
+  cxxtools::Logger::log_level_type level;
   while (in.get(ch))
   {
     switch (state)
@@ -245,6 +276,8 @@ void log_init(const std::string& propertyfilename)
           state = state_rootlevel;
         else if (ch == '=' && token == "FILE")
           state = state_filename0;
+        else if (ch == '=' && token == "HOST")
+          state = state_host0;
         else if (ch == '\n')
           state = state_0;
         else if (std::isspace(ch))
@@ -289,18 +322,18 @@ void log_init(const std::string& propertyfilename)
 
         switch (ch)
         {
-          case 'F': level = cxxtools::logger::LOG_LEVEL_FATAL; break;
-          case 'E': level = cxxtools::logger::LOG_LEVEL_ERROR; break;
-          case 'W': level = cxxtools::logger::LOG_LEVEL_WARN; break;
-          case 'I': level = cxxtools::logger::LOG_LEVEL_INFO; break;
-          case 'D': level = cxxtools::logger::LOG_LEVEL_DEBUG; break;
-          case 'T': level = cxxtools::logger::LOG_LEVEL_TRACE; break;
-          default:  level = cxxtools::logger::getStdLevel(); break;
+          case 'F': level = cxxtools::Logger::LOG_LEVEL_FATAL; break;
+          case 'E': level = cxxtools::Logger::LOG_LEVEL_ERROR; break;
+          case 'W': level = cxxtools::Logger::LOG_LEVEL_WARN; break;
+          case 'I': level = cxxtools::Logger::LOG_LEVEL_INFO; break;
+          case 'D': level = cxxtools::Logger::LOG_LEVEL_DEBUG; break;
+          case 'T': level = cxxtools::Logger::LOG_LEVEL_TRACE; break;
+          default:  level = cxxtools::Logger::getStdLevel(); break;
         }
         if (state == state_rootlevel)
-          cxxtools::logger::setRootLevel(level);
+          cxxtools::Logger::setRootLevel(level);
         else
-          cxxtools::logger::setLevel(category, level);
+          cxxtools::Logger::setLevel(category, level);
         category.clear();
         token.clear();
         state = state_skip;
@@ -313,13 +346,39 @@ void log_init(const std::string& propertyfilename)
       case state_filename:
         if (ch == '\n')
         {
-          cxxtools::logger_impl::setFile(filename);
+          cxxtools::LoggerImpl::setFile(filename);
           token.clear();
           filename.clear();
           state = state_0;
         }
         else
           filename += ch;
+        break;
+
+      case state_host0:
+        if (ch != '\n' && std::isspace(ch))
+          break;
+
+      case state_host:
+        if (ch == ':')
+        {
+          port = 0;
+          state = state_port;
+        }
+        else if (std::isspace(ch))
+          state = state_skip;
+        else
+          host += ch;
+        break;
+
+      case state_port:
+        if (std::isdigit(ch))
+          port = port * 10 + ch - '0';
+        else if (port > 0)
+        {
+          cxxtools::LoggerImpl::setLoghost(host, port);
+          state = (ch == '\n' ? state_0 : state_skip);
+        }
         break;
 
       case state_skip:
@@ -341,7 +400,7 @@ void log_init()
     if (stat("log.properties", &s) == 0)
       log_init("log.properties");
     else
-      log_init(cxxtools::logger::LOG_LEVEL_ERROR);
+      log_init(cxxtools::Logger::LOG_LEVEL_ERROR);
   }
 }
 

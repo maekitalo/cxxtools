@@ -27,14 +27,12 @@ Boston, MA  02111-1307  USA
 #include <sys/time.h>
 #include <iomanip>
 
-log_define("log");
-
-static const unsigned long loops = 1000;
+log_define("log")
 
 namespace bench
 {
-  log_define("bench");
-  void log(unsigned long count, bool enabled)
+  log_define("bench")
+  void log(unsigned long count, unsigned long loops, bool enabled)
   {
     for (unsigned long l = 0; l < loops; ++l)
     {
@@ -54,6 +52,8 @@ int main(int argc, char* argv[])
   {
     cxxtools::Arg<bool> enable(argc, argv, 'e');
     cxxtools::Arg<double> total(argc, argv, 'T', 5.0);
+    cxxtools::Arg<long> loops(argc, argv, 'l', 1000);
+
     unsigned long count = 1;
     double T;
 
@@ -61,11 +61,11 @@ int main(int argc, char* argv[])
 
     while (count > 0)
     {
-      std::cout << "count=" << count << "000" << '\t' << std::flush;
+      std::cout << "count=" << (count * loops) << '\t' << std::flush;
       struct timeval tv0;
       struct timeval tv1;
       gettimeofday(&tv0, 0);
-      bench::log(count, enable);
+      bench::log(count, loops, enable);
       gettimeofday(&tv1, 0);
 
       double t0 = tv0.tv_sec + tv0.tv_usec / 1e6;

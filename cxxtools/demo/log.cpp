@@ -24,11 +24,11 @@ Boston, MA  02111-1307  USA
 #include <iostream>
 #include <stdexcept>
 
-log_define("global");  // global definition
+log_define("global")  // global definition
 
 namespace ns
 {
-  log_define("namespace");  // namespace scope definition
+  log_define("namespace")  // namespace scope definition
   void main()
   {
     // this is logged at category "namespace"
@@ -45,7 +45,7 @@ namespace ns
 
 class cl
 {
-    log_define("class");  // class-scope definition
+    log_define("class")  // class-scope definition
 
   public:
     cl()

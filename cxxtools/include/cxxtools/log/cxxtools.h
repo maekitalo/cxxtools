@@ -27,14 +27,14 @@ Boston, MA  02111-1307  USA
 #include <iostream>
 
 #define log_xxxx_enabled(level)   \
-  getLogger()->isEnabled(::cxxtools::logger::LOG_LEVEL_ ## level)
+  getLogger()->isEnabled(::cxxtools::Logger::LOG_LEVEL_ ## level)
 
 #define log_xxxx(level, expr)   \
   do { \
-    cxxtools::logger* logger = getLogger(); \
-    if (getLogger()->isEnabled(::cxxtools::logger::LOG_LEVEL_ ## level)) \
+    cxxtools::Logger* logger = getLogger(); \
+    if (getLogger()->isEnabled(::cxxtools::Logger::LOG_LEVEL_ ## level)) \
     { \
-      cxxtools::MutexLock lock(cxxtools::logger::mutex); \
+      cxxtools::MutexLock lock(cxxtools::Logger::mutex); \
       logger->logentry(#level) \
         << expr << std::endl; \
     } \
@@ -53,7 +53,7 @@ Boston, MA  02111-1307  USA
 #define log_info(expr)      log_xxxx(INFO, expr)
 #define log_debug(expr)     log_xxxx(DEBUG, expr)
 #define log_trace(expr)     \
-  ::cxxtools::log_tracer tracer ## __LINE__ (getLogger());  \
+  ::cxxtools::LogTracer tracer ## __LINE__ (getLogger());  \
   if (log_trace_enabled()) \
   { \
     tracer ## __LINE__ .logentry() << expr;  \
@@ -61,15 +61,15 @@ Boston, MA  02111-1307  USA
   }
 
 #define log_define(category) \
-  static inline ::cxxtools::logger* getLogger()   \
+  static inline ::cxxtools::Logger* getLogger()   \
   {  \
-    static cxxtools::logger* logger = ::cxxtools::logger::getLogger(category); \
+    static cxxtools::Logger* logger = ::cxxtools::Logger::getLogger(category); \
     return logger; \
   }
 
 namespace cxxtools
 {
-  class logger
+  class Logger
   {
     public:
       typedef enum {
@@ -87,18 +87,18 @@ namespace cxxtools
       static log_level_type std_level;
 
     protected:
-      logger(const std::string& c, log_level_type l)
+      Logger(const std::string& c, log_level_type l)
         : category(c), level(l)
         { }
-      virtual ~logger()  { }
+      virtual ~Logger()  { }
 
     public:
-      static logger* getLogger(const std::string& category);
+      static Logger* getLogger(const std::string& category);
       static void setRootLevel(log_level_type l)
         { std_level = l; }
       static log_level_type getStdLevel()
         { return std_level; }
-      static logger* setLevel(const std::string& category, log_level_type l);
+      static Logger* setLevel(const std::string& category, log_level_type l);
 
       bool isEnabled(log_level_type l)
         { return level >= l; }
@@ -108,23 +108,24 @@ namespace cxxtools
         { return level; }
       void setLogLevel(log_level_type l)
         { level = l; }
-      virtual std::ostream& getAppender() const = 0;
-      std::ostream& logentry(const char* level) const;
+      virtual std::ostream& getAppender() = 0;
+      virtual void endMessage() const  { }
+      std::ostream& logentry(const char* level);
 
       static RWLock rwmutex;
       static Mutex mutex;
   };
 
-  class log_tracer
+  class LogTracer
   {
-      logger* l;
+      Logger* l;
       std::ostringstream* msg;
 
     public:
-      log_tracer(logger* l_)
+      LogTracer(Logger* l_)
         : l(l_), msg(0)
       { }
-      ~log_tracer();
+      ~LogTracer();
 
       std::ostream& logentry();
       void enter();
