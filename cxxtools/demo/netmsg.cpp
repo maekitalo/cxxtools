@@ -32,7 +32,7 @@ Boston, MA  02111-1307  USA
 void usage(const char* progname)
 {
   std::cerr << "usage: " << progname << " [-h host] [-p port] {message}\n"
-               "       " << progname << " -r [-h host] [-l length] [-c]" << std::endl;
+               "       " << progname << " -l [-h host] [-p port] [-s size] [-c] [-n]" << std::endl;
 }
 
 int main(int argc, char* argv[])
