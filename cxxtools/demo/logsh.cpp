@@ -22,6 +22,7 @@ Boston, MA  02111-1307  USA
 #include <cxxtools/log.h>
 #include <cxxtools/loginit.h>
 #include <cxxtools/arg.h>
+#include <iostream>
 
 const char* category = "logsh";
 log_define(category)
