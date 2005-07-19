@@ -11,6 +11,7 @@ usr/include/cxxtools/iniclass.h
 usr/include/cxxtools/md5.h
 usr/include/cxxtools/md5stream.h
 usr/include/cxxtools/multifstream.h
+usr/include/cxxtools/net.h
 usr/include/cxxtools/pollclass.h
 usr/include/cxxtools/pool.h
 usr/include/cxxtools/query_params.h
@@ -18,5 +19,7 @@ usr/include/cxxtools/sudo.h
 usr/include/cxxtools/tcpstream.h
 usr/include/cxxtools/tee.h
 usr/include/cxxtools/thread.h
+usr/include/cxxtools/udp.h
+usr/include/cxxtools/udpstream.h
 usr/lib/libcxxtools.so
 usr/bin/cxxtools-config
