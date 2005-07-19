@@ -35,8 +35,12 @@ Boston, MA  02111-1307  USA
     if (getLogger()->isEnabled(::cxxtools::Logger::LOG_LEVEL_ ## level)) \
     { \
       cxxtools::MutexLock lock(cxxtools::Logger::mutex); \
-      logger->logentry(#level) \
-        << expr << std::endl; \
+      try { \
+        logger->logentry(#level) \
+          << expr << std::endl; \
+      } \
+      catch (const std::exception& e) \
+      { } \
     } \
   } while (false)
 
