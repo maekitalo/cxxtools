@@ -20,6 +20,7 @@ libcxxtools_la_SOURCES = \
 	tee.cpp \
 	thread.cpp \
 	udp.cpp \
+	udpstream.cpp \
 	xmltag.cpp
 
 if MAKE_ICONV

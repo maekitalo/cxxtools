@@ -51,7 +51,7 @@ std::streambuf::int_type Md5streambuf::overflow(
   {
     // das Zeichen, welches den overflow ausgelöst hat, stecken
     // wir in den Puffer.
-    *pptr() = (char_type)ch;
+    *pptr() = traits_type::to_char_type(ch);
     pbump(1);
   }
 

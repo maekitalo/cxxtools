@@ -108,8 +108,7 @@ namespace cxxtools
         { return level; }
       void setLogLevel(log_level_type l)
         { level = l; }
-      virtual std::ostream& getAppender() = 0;
-      virtual void endMessage() const  { }
+      virtual std::ostream& getAppender() const = 0;
       std::ostream& logentry(const char* level);
 
       static RWLock rwmutex;

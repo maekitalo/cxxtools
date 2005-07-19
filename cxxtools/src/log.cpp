@@ -37,37 +37,26 @@ namespace cxxtools
   {
       static std::ofstream outfile;
       static net::UdpSender loghost;
-      static net::udpostream udpmessage;
+      static net::UdpOStream udpmessage;
 
     public:
       LoggerImpl(const std::string& c, log_level_type l)
         : Logger(c, l)
         { }
-      std::ostream& getAppender();
-      void endMessage();
+      std::ostream& getAppender() const;
       static void setFile(const std::string& fname);
       static void setLoghost(const std::string& host, unsigned short int port);
   };
 
-  std::ostream& LoggerImpl::getAppender()
+  std::ostream& LoggerImpl::getAppender() const
   {
     return outfile.is_open() ? outfile
          : loghost.isConnected() ? udpmessage : std::cout;
   }
 
-  void LoggerImpl::endMessage()
-  {
-    if (outfile.is_open())
-      outfile.flush();
-    else if (loghost.isConnected())
-      udpmessage.send();
-    else
-      std::cout.flush();
-  }
-
   std::ofstream LoggerImpl::outfile;
   net::UdpSender LoggerImpl::loghost;
-  net::udpostream LoggerImpl::udpmessage(LoggerImpl::loghost);
+  net::UdpOStream LoggerImpl::udpmessage(LoggerImpl::loghost);
 
   void LoggerImpl::setFile(const std::string& fname)
   {
@@ -179,7 +168,6 @@ namespace cxxtools
         << " [" << pthread_self() << "] "
         << level << ' '
         << category << " - ";
-    endMessage();
 
     return out;
   }

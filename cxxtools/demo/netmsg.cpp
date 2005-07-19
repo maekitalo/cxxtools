@@ -80,12 +80,11 @@ int main(int argc, char* argv[])
     {
       cxxtools::Arg<const char*> host(argc, argv, 'h', "127.0.0.1");
 
-      if (argc == 1)
+      if (argc <= 1)
       {
         usage(argv[0]);
         return -1;
       }
-
 
       cxxtools::net::UdpSender sender(host, port);
       for (int a = 1; a < argc; ++a)

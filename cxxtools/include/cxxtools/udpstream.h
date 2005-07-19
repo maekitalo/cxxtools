@@ -29,27 +29,33 @@ namespace cxxtools
 {
   namespace net
   {
-    class udpostream : public std::ostringstream
+    class UdpStreambuf : public std::streambuf
     {
+        std::string message;
         UdpSender& sender;
         int flags;
 
       public:
-        explicit udpostream(UdpSender& sender_, int flags_ = 0)
+        explicit UdpStreambuf(UdpSender& sender_, int flags_ = 0)
           : sender(sender_),
             flags(flags_)
           { }
-        ~udpostream()
-          { send(); }
 
-        void send()
-        {
-          if (!str().empty())
-          {
-            sender.send(str());
-            str(std::string());
-          }
-        }
+      protected:
+        std::streambuf::int_type overflow(std::streambuf::int_type ch);
+        std::streambuf::int_type underflow();
+        int sync();
+    };
+
+    class UdpOStream : public std::ostream
+    {
+        UdpStreambuf streambuf;
+
+      public:
+        explicit UdpOStream(UdpSender& sender, int flags = 0)
+          : std::ostream(&streambuf),
+            streambuf(sender, flags)
+          { }
     };
 
   } // namespace net

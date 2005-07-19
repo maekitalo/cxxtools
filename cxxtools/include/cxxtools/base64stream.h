@@ -49,11 +49,12 @@ class Base64stream_streambuf : public std::streambuf
     void end();
     void reset()  { eofflag = false; }
 
-  private:
+  protected:
     std::streambuf::int_type overflow(std::streambuf::int_type ch);
     std::streambuf::int_type underflow();
     int sync();
 
+  private:
     void putchar(char ch);
     int getval();
 };
