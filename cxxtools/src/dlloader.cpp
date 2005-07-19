@@ -48,9 +48,7 @@ Boston, MA  02111-1307  USA
 
 static void* cxx_dlopen(const char* name)
 {
-  std::string n = name;
-  n.append(".so");
-  return dlopen(n.c_str(), RTLD_NOW|RTLD_GLOBAL);
+  return dlopen((std::string(name) + ".so").c_str(), RTLD_NOW|RTLD_GLOBAL);
 }
 
 #endif
