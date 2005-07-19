@@ -29,6 +29,7 @@ namespace net
   std::streambuf::int_type UdpStreambuf::overflow(std::streambuf::int_type ch)
   {
     message += traits_type::to_char_type(ch);
+    return 0;
   }
 
   std::streambuf::int_type UdpStreambuf::underflow()
@@ -43,6 +44,8 @@ namespace net
       sender.send(message, flags);
       message.clear();
     }
+
+    return 0;
   }
 
 } // namespace net
