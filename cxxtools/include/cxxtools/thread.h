@@ -51,17 +51,19 @@ class Thread
     pthread_attr_t pthread_attr;
     static void* start(void* arg);
 
+    Thread(const Thread&);
+    Thread& operator=(const Thread&);
+
   public:
     Thread();
     virtual ~Thread();
 
     void create();
     void join();
+    void detach();
 
   protected:
     virtual void run() = 0;
-
-  private:
 };
 
 template <typename function_type>
@@ -80,6 +82,14 @@ class FunctionThread : public Thread
       function();
     }
 };
+
+template <typename function_type>
+Thread* createThread(function_type& function)
+{
+  Thread* thread = new FunctionThread<function_type>(function);
+  thread->create();
+  return thread;
+}
 
 template <typename object_type>
 class MethodThread : public Thread

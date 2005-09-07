@@ -34,12 +34,16 @@ std::string ThreadException::formatMsg(const char* method, int e)
 }
 
 Thread::Thread()
+  : pthread(0)
 {
   pthread_attr_init(&pthread_attr);
 }
 
 Thread::~Thread()
 {
+  if (pthread)
+    pthread_join(pthread, 0);
+
   pthread_attr_destroy(&pthread_attr);
 }
 
@@ -52,14 +56,37 @@ void Thread::create()
 
 void Thread::join()
 {
-  int ret = pthread_join(pthread, 0);
-  if (ret != 0)
-    throw ThreadException("pthread_join", ret);
+  if (pthread)
+  {
+    int ret = pthread_join(pthread, 0);
+    if (ret != 0)
+      throw ThreadException("pthread_join", ret);
+    pthread = 0;
+  }
+}
+
+void Thread::detach()
+{
+  if (pthread)
+  {
+    int ret = pthread_detach(pthread);
+    if (ret != 0)
+      throw ThreadException("pthread_detach", ret);
+    pthread = 0;
+  }
+  else
+  {
+    int ret = pthread_attr_setdetachstate(&pthread_attr, 1);
+    if (ret != 0)
+      throw ThreadException("pthread_attr_setdetachstate", ret);
+  }
 }
 
 void* Thread::start(void* arg)
 {
-  ((Thread*)arg)->run();
+  Thread* t = static_cast<Thread*>(arg);
+  t->run();
+  t->pthread = 0;
   return 0;
 }
 
