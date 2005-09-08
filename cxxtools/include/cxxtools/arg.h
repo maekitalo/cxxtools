@@ -94,7 +94,7 @@ class Arg
      example:
      \code
        Arg<int> option_number(argc, argv, "--number", 0);
-       std::cout << "number =" << option_nummer.getValue() << std::endl;
+       std::cout << "number =" << option_number.getValue() << std::endl;
      \endcode
      */
     Arg(int& argc, char* argv[], const char* str, const T& def = T())
@@ -158,7 +158,7 @@ class Arg
      \code
        Arg<int> option_number;
        number.set(argc, argv, "--number");
-       std::cout << "number =" << option_nummer.getValue() << std::endl;
+       std::cout << "number =" << option_number.getValue() << std::endl;
      \endcode
      */
     bool set(int& argc, char* argv[], const char* str)
