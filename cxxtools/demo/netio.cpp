@@ -117,7 +117,7 @@ int client(int argc, char* argv[])
     run_test(conn, B, buffer.data(), secs);
   else
   {
-    for (unsigned bs=256; bs <= BUFSIZE; bs <<= 1)
+    for (unsigned bs=256; bs <= bufsize.getValue(); bs <<= 1)
       run_test(conn, bs, buffer.data(), secs);
   }
 
