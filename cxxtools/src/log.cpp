@@ -30,37 +30,90 @@ Boston, MA  02111-1307  USA
 #include <time.h>
 #include <sys/time.h>
 #include <sys/stat.h>
+#include <unistd.h>
+#include <stdio.h>
 
 namespace cxxtools
 {
   class LoggerImpl : public Logger
   {
+      static std::string fname;
       static std::ofstream outfile;
       static net::UdpSender loghost;
       static net::UdpOStream udpmessage;
+      static unsigned maxfilesize;
+      static unsigned maxbackupindex;
+
+      static std::string mkfilename(unsigned idx);
 
     public:
       LoggerImpl(const std::string& c, log_level_type l)
         : Logger(c, l)
         { }
       std::ostream& getAppender() const;
+      static void doRotate();
       static void setFile(const std::string& fname);
+      static void setMaxFileSize(unsigned size)   { maxfilesize = size; }
+      static void setMaxBackupIndex(unsigned idx) { maxbackupindex = idx; }
       static void setLoghost(const std::string& host, unsigned short int port);
   };
 
   std::ostream& LoggerImpl::getAppender() const
   {
-    return outfile.is_open() ? outfile
-         : loghost.isConnected() ? udpmessage : std::cout;
+    if (outfile.is_open())
+    {
+      if (maxfilesize > 0 && outfile.tellp() > maxfilesize)
+        doRotate();
+      outfile.clear();
+      return outfile;
+    }
+    else if (loghost.isConnected())
+      return udpmessage;
+    else
+      return std::cout;
   }
 
+  std::string LoggerImpl::mkfilename(unsigned idx)
+  {
+    std::ostringstream f;
+    f << fname << '.' << idx;
+    return f.str();
+  }
+
+  void LoggerImpl::doRotate()
+  {
+    outfile.clear();
+    outfile.close();
+
+    // ignore unlink- and rename-errors. In case of failure the
+    // original file is reopened
+
+    std::string newfilename = mkfilename(maxbackupindex);
+    ::unlink(newfilename.c_str());
+    for (unsigned idx = maxbackupindex; idx > 0; --idx)
+    {
+      std::string oldfilename = mkfilename(idx - 1);
+      ::rename(oldfilename.c_str(), newfilename.c_str());
+      newfilename = oldfilename;
+    }
+
+    ::rename(fname.c_str(), newfilename.c_str());
+
+    outfile.open(fname.c_str(), std::ios::out | std::ios::app);
+  }
+
+  std::string LoggerImpl::fname;
   std::ofstream LoggerImpl::outfile;
   net::UdpSender LoggerImpl::loghost;
   net::UdpOStream LoggerImpl::udpmessage(LoggerImpl::loghost);
+  unsigned LoggerImpl::maxfilesize = 0;
+  unsigned LoggerImpl::maxbackupindex = 0;
 
-  void LoggerImpl::setFile(const std::string& fname)
+  void LoggerImpl::setFile(const std::string& fname_)
   {
-    outfile.open(fname.c_str(), std::ios::out | std::ios::app);
+    fname = fname_;
+    outfile.clear();
+    outfile.open(fname_.c_str(), std::ios::out | std::ios::app);
   }
 
   void LoggerImpl::setLoghost(const std::string& host, unsigned short int port)
@@ -222,6 +275,10 @@ void log_init(const std::string& propertyfilename)
     state_host0,
     state_host,
     state_port,
+    state_fsize0,
+    state_fsize,
+    state_maxbackupindex0,
+    state_maxbackupindex,
     state_skip
   };
   
@@ -233,6 +290,8 @@ void log_init(const std::string& propertyfilename)
   std::string filename;
   std::string host;
   unsigned short int port;
+  unsigned fsize;
+  unsigned maxbackupindex;
 
   cxxtools::Logger::log_level_type level;
   while (in.get(ch))
@@ -266,6 +325,10 @@ void log_init(const std::string& propertyfilename)
           state = state_filename0;
         else if (ch == '=' && token == "HOST")
           state = state_host0;
+        else if (ch == '=' && token == "MAXFILESIZE")
+          state = state_fsize0;
+        else if (ch == '=' && token == "MAXBACKUPINDEX")
+          state = state_maxbackupindex0;
         else if (ch == '\n')
           state = state_0;
         else if (std::isspace(ch))
@@ -284,6 +347,12 @@ void log_init(const std::string& propertyfilename)
           state = state_rootlevel;
         else if (ch == '=' && token == "FILE")
           state = state_filename0;
+        else if (ch == '=' && token == "HOST")
+          state = state_host0;
+        else if (ch == '=' && token == "MAXFILESIZE")
+          state = state_fsize0;
+        else if (ch == '=' && token == "MAXBACKUPINDEX")
+          state = state_maxbackupindex0;
         else if (ch == '\n')
           state = state_0;
         else if (!std::isspace(ch))
@@ -331,6 +400,8 @@ void log_init(const std::string& propertyfilename)
         if (ch != '\n' && std::isspace(ch))
           break;
 
+        state = state_filename;
+
       case state_filename:
         if (ch == '\n')
         {
@@ -344,8 +415,15 @@ void log_init(const std::string& propertyfilename)
         break;
 
       case state_host0:
-        if (ch != '\n' && std::isspace(ch))
+        if (ch == '\n')
+        {
+          state = state_0;
           break;
+        }
+        else if (std::isspace(ch))
+          break;
+
+        state = state_host;
 
       case state_host:
         if (ch == ':')
@@ -366,6 +444,65 @@ void log_init(const std::string& propertyfilename)
         {
           cxxtools::LoggerImpl::setLoghost(host, port);
           state = (ch == '\n' ? state_0 : state_skip);
+        }
+        break;
+
+      case state_fsize0:
+        if (ch == '\n')
+        {
+          state = state_0;
+          break;
+        }
+        else if (std::isspace(ch))
+          break;
+
+        state = state_fsize;
+        fsize = 0;
+
+      case state_fsize:
+        if (std::isdigit(ch))
+          fsize = fsize * 10 + ch - '0';
+        else if (ch == '\n')
+        {
+          cxxtools::LoggerImpl::setMaxFileSize(fsize);
+          state = state_0;
+        }
+        else
+        {
+          if (ch == 'k' || ch == 'K')
+            fsize *= 1024;
+          else if (ch == 'M')
+            fsize *= 1024 * 1024;
+
+          cxxtools::LoggerImpl::setMaxFileSize(fsize);
+          state = state_skip;
+        }
+        break;
+
+      case state_maxbackupindex0:
+        if (ch == '\n')
+        {
+          state = state_0;
+          break;
+        }
+        else if (std::isspace(ch))
+          break;
+
+        state = state_maxbackupindex;
+        maxbackupindex = 0;
+
+      case state_maxbackupindex:
+        if (std::isdigit(ch))
+          maxbackupindex = maxbackupindex * 10 + ch - '0';
+        else if (ch == '\n')
+        {
+          cxxtools::LoggerImpl::setMaxBackupIndex(maxbackupindex);
+          state = state_0;
+        }
+        else
+        {
+          cxxtools::LoggerImpl::setMaxBackupIndex(maxbackupindex);
+          state = state_skip;
         }
         break;
 
