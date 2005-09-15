@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
   {
     for (int a = 1; a < argc; ++a)
     {
-      cxxtools::dir d(argv[a]);
+      cxxtools::Dir d(argv[a]);
       std::copy(d.begin(),
                 d.end(),
                 std::ostream_iterator<std::string>(std::cout, "\n"));

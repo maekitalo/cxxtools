@@ -48,21 +48,21 @@ namespace cxxtools
   /**
    STL-compatible container for directories.
    */
-  class dir
+  class Dir
   {
     public:
       class const_iterator
         : public std::iterator<std::forward_iterator_tag, std::string>
       {
           std::string name;
-          const dir* _dir;
+          const Dir* _dir;
 
         public:
           const_iterator()
             : _dir(0)
             { }
 
-          explicit const_iterator(const dir& d)
+          explicit const_iterator(const Dir& d)
             : _dir(&d)
             {
               if (d)
@@ -98,9 +98,9 @@ namespace cxxtools
       DIR* d;
 
     public:
-      dir(const char* name)
+      Dir(const char* name)
         { d = opendir(name); }
-      ~dir()
+      ~Dir()
         {
           if (d)
             closedir(d);

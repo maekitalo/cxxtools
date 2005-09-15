@@ -21,7 +21,7 @@ Boston, MA  02111-1307  USA
 ************************************************************************
 
    usage: sender:   netmsg [-h host] [-p port] {message}
-          receiver: netmsg -r [-l length] [-c]
+          receiver: netmsg -l [-s length] [-p port] [-c]
 
 */
 
@@ -89,8 +89,10 @@ int main(int argc, char* argv[])
       cxxtools::net::UdpSender sender(host, port);
       for (int a = 1; a < argc; ++a)
       {
-        std::cout << "send message \"" << argv[a] << "\" to " << host << ':' << port << std::endl;
-        sender.send(argv[a]);
+        std::string msg = argv[a];
+        std::cout << "send message \"" << msg << "\" to " << host << ':' << port << std::endl;
+        cxxtools::net::UdpSender::size_type n = sender.send(argv[a]);
+        std::cout << n << " bytes sent " << msg.size() << " bytes queued" << std::endl;
       }
     }
   }
