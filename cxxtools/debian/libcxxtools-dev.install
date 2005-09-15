@@ -21,5 +21,6 @@ usr/include/cxxtools/tee.h
 usr/include/cxxtools/thread.h
 usr/include/cxxtools/udp.h
 usr/include/cxxtools/udpstream.h
+usr/include/cxxtools/xmltag.h
 usr/lib/libcxxtools.so
 usr/bin/cxxtools-config
