@@ -66,7 +66,7 @@ namespace net
   {
     ssize_t ret = ::send(getFd(), message, length, flags);
     if (ret < 0)
-      throw Exception("error in sendto");
+      throw Exception("error in send");
     return static_cast<size_type>(ret);
   }
 
@@ -75,22 +75,39 @@ namespace net
     return send(message.data(), message.size(), flags);
   }
 
+  UdpSender::size_type UdpSender::recv(void* buffer, size_type length, int flags) const
+  {
+    ssize_t ret = ::recv(getFd(), buffer, length, flags);
+    if (ret < 0)
+      throw Exception("error in recv");
+    return static_cast<size_type>(ret);
+  }
+
+  std::string UdpSender::recv(size_type length, int flags) const
+  {
+    cxxtools::Dynbuffer<char> buffer(length);
+    size_type len = recv(buffer.data(), length, flags);
+    return std::string(buffer.data(), len);
+  }
+
   //////////////////////////////////////////////////////////////////////
   // UdpReceiver
   //
+  UdpReceiver::UdpReceiver()
+    : Socket(AF_INET, SOCK_DGRAM, 0)
+  {
+    memset(&peeraddr, 0, sizeof(peeraddr));
+  }
+
   UdpReceiver::UdpReceiver(const char* ipaddr, unsigned short int port)
     : Socket(AF_INET, SOCK_DGRAM, 0)
   {
+    memset(&peeraddr, 0, sizeof(peeraddr));
     bind(ipaddr, port);
   }
 
   void UdpReceiver::bind(const char* ipaddr, unsigned short int port)
   {
-    union {
-      struct sockaddr sockaddr;
-      struct sockaddr_in sockaddr_in;
-    } peeraddr;
-
     struct hostent* host = ::gethostbyname(ipaddr);
     if (host == 0)
       throw Exception(std::string("invalid ipaddress ") + ipaddr);
@@ -100,26 +117,38 @@ namespace net
     peeraddr.sockaddr_in.sin_port = htons(port);
 
     memmove(&(peeraddr.sockaddr_in.sin_addr.s_addr), host->h_addr, host->h_length);
-    socklen_t peeraddr_len;
-    peeraddr_len = sizeof(peeraddr);
-    int ret = ::bind(getFd(), &peeraddr.sockaddr, peeraddr_len);
+    peeraddrLen = sizeof(peeraddr);
+    int ret = ::bind(getFd(), &peeraddr.sockaddr, peeraddrLen);
     if (ret < 0)
       throw Exception("error in bind");
   }
 
-  UdpReceiver::size_type UdpReceiver::recv(void* buffer, size_type length, int flags) const
+  UdpReceiver::size_type UdpReceiver::recv(void* buffer, size_type length, int flags)
   {
-    ssize_t ret = ::recv(getFd(), buffer, length, flags);
+    ssize_t ret = ::recvfrom(getFd(), buffer, length, flags, &peeraddr.sockaddr, &peeraddrLen);
     if (ret < 0)
-      throw Exception("error in recv");
+      throw Exception("error in recvfrom");
     return static_cast<size_type>(ret);
   }
 
-  std::string UdpReceiver::recv(size_type length, int flags) const
+  std::string UdpReceiver::recv(size_type length, int flags)
   {
     cxxtools::Dynbuffer<char> buffer(length);
     size_type len = recv(buffer.data(), length, flags);
     return std::string(buffer.data(), len);
+  }
+
+  UdpReceiver::size_type UdpReceiver::send(const void* message, size_type length, int flags) const
+  {
+    ssize_t ret = ::sendto(getFd(), message, length, flags, &peeraddr.sockaddr, peeraddrLen);
+    if (ret < 0)
+      throw Exception("error in sendto");
+    return static_cast<size_type>(ret);
+  }
+
+  UdpReceiver::size_type UdpReceiver::send(const std::string& message, int flags) const
+  {
+    return send(message.data(), message.size(), flags);
   }
 
 } // namespace net

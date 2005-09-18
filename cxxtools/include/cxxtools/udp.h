@@ -19,8 +19,8 @@ Foundation, Inc., 59 Temple Place, Suite 330,
 Boston, MA  02111-1307  USA
 */
 
-#ifndef CXXTOOLS_UDP_H
-#define CXXTOOLS_UDP_H
+#ifndef CXXTOOLS_NET_UDP_H
+#define CXXTOOLS_NET_UDP_H
 
 #include <cxxtools/net.h>
 
@@ -48,27 +48,35 @@ namespace net
 
       size_type send(const void* message, size_type length, int flags = 0) const;
       size_type send(const std::string& message, int flags = 0) const;
+      size_type recv(void* buffer, size_type length, int flags = 0) const;
+      std::string recv(size_type length, int flags = 0) const;
   };
 
   class UdpReceiver : public Socket
   {
+      union {
+        struct sockaddr sockaddr;
+        struct sockaddr_in sockaddr_in;
+      } peeraddr;
+
+      socklen_t peeraddrLen;
+
     public:
       typedef size_t size_type;
 
-      UdpReceiver()
-        : Socket(AF_INET, SOCK_DGRAM, 0)
-        { }
-
+      UdpReceiver();
       UdpReceiver(const char* ipaddr, unsigned short int port);
 
       void bind(const char* ipaddr, unsigned short int port);
 
-      size_type recv(void* buffer, size_type length, int flags = 0) const;
-      std::string recv(size_type length, int flags = 0) const;
+      size_type recv(void* buffer, size_type length, int flags = 0);
+      std::string recv(size_type length, int flags = 0);
+      size_type send(const void* message, size_type length, int flags = 0) const;
+      size_type send(const std::string& message, int flags = 0) const;
   };
 
 } // namespace net
 
 } // namespace cxxtools
 
-#endif // CXXTOOLS_UDP_H
+#endif // CXXTOOLS_NET_UDP_H

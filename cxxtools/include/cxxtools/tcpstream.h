@@ -19,8 +19,8 @@ Foundation, Inc., 59 Temple Place, Suite 330,
 Boston, MA  02111-1307  USA
 */
 
-#ifndef CXXTOOLS_TCPSTREAM_H
-#define CXXTOOLS_TCPSTREAM_H
+#ifndef CXXTOOLS_NET_TCPSTREAM_H
+#define CXXTOOLS_NET_TCPSTREAM_H
 
 #include <iostream>
 #include <string>
@@ -207,4 +207,4 @@ namespace net
 
 } // namespace cxxtools
 
-#endif // CXXTOOLS_TCPSTREAM_H
+#endif // CXXTOOLS_NET_TCPSTREAM_H
