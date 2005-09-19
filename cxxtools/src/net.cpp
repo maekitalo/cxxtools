@@ -23,6 +23,7 @@ Boston, MA  02111-1307  USA
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <sys/poll.h>
 
 #ifdef DEBUG
 
@@ -41,13 +42,21 @@ namespace cxxtools
 
 namespace net
 {
-  Exception::Exception(int Errno, const std::string& msg)
-    : std::runtime_error(msg + ": " + strerror(Errno)),
-      m_Errno(Errno)
+  static std::string mkerrmsg(const std::string& msg, int _errno)
+  {
+    if (_errno != 0)
+      return msg + ": " + strerror(_errno);
+    else
+      return msg;
+  }
+
+  Exception::Exception(int _errno, const std::string& msg)
+    : std::runtime_error(mkerrmsg(msg, _errno)),
+      m_Errno(_errno)
     { }
 
   Exception::Exception(const std::string& msg)
-    : std::runtime_error(msg + ": " + strerror(errno)),
+    : std::runtime_error(mkerrmsg(msg, errno)),
       m_Errno(errno)
     { }
 
@@ -108,6 +117,27 @@ namespace net
       log_debug("fcntl(" << getFd() << ", F_SETFL, " << a << ')');
       fcntl(getFd(), F_SETFL, a);
     }
+  }
+
+  void Socket::doPoll(short events) const
+  {
+    struct pollfd fds;
+    fds.fd = getFd();
+    fds.events = events;
+
+    log_debug("poll timeout " << getTimeout());
+
+    int p = ::poll(&fds, 1, getTimeout());
+
+    log_debug("poll returns " << p);
+
+    if (p < 0)
+    {
+      int errnum = errno;
+      throw Exception("poll");
+    }
+    else if (p == 0)
+      throw Timeout();
   }
 
 } // namespace net

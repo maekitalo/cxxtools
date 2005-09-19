@@ -59,6 +59,7 @@ int main(int argc, char* argv[])
     cxxtools::Arg<unsigned short> port(argc, argv, 'p', 1234);
     cxxtools::Arg<bool> echo(argc, argv, 'e');
     cxxtools::Arg<bool> nonewline(argc, argv, 'n');
+    cxxtools::Arg<int> timeout(argc, argv, 't', 0);
 
     if (receive)
     {
@@ -73,6 +74,9 @@ int main(int argc, char* argv[])
       }
 
       cxxtools::net::UdpReceiver receiver(host, port);
+      if (timeout.isSet())
+        receiver.setTimeout(timeout);
+
       cxxtools::Dynbuffer<char> buffer(size);
 
       std::cout << "waiting for messages on port " << port << std::endl;
@@ -102,6 +106,9 @@ int main(int argc, char* argv[])
       }
 
       cxxtools::net::UdpSender sender(host, port);
+      if (timeout.isSet())
+        sender.setTimeout(timeout);
+
       for (int a = 1; a < argc; ++a)
       {
         std::string msg = argv[a];

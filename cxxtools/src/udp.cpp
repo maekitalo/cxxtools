@@ -22,6 +22,7 @@ Boston, MA  02111-1307  USA
 #include "cxxtools/udp.h"
 #include "cxxtools/dynbuffer.h"
 #include <netdb.h>
+#include <sys/poll.h>
 
 namespace cxxtools
 {
@@ -58,7 +59,7 @@ namespace net
     peeraddr_len = sizeof(peeraddr);
     int ret = ::connect(getFd(), &peeraddr.sockaddr, peeraddr_len);
     if (ret < 0)
-      throw Exception("error in connect");
+      throw Exception("connect");
     connected = true;
   }
 
@@ -66,20 +67,34 @@ namespace net
   {
     ssize_t ret = ::send(getFd(), message, length, flags);
     if (ret < 0)
-      throw Exception("error in send");
+      throw Exception("send");
     return static_cast<size_type>(ret);
   }
 
-  UdpSender::size_type UdpSender::send(const std::string& message, int flags) const
+  UdpSender::size_type UdpSender::send(const std::string& message,
+    int flags) const
   {
     return send(message.data(), message.size(), flags);
   }
 
-  UdpSender::size_type UdpSender::recv(void* buffer, size_type length, int flags) const
+  UdpSender::size_type UdpSender::recv(void* buffer, size_type length,
+    int flags) const
   {
     ssize_t ret = ::recv(getFd(), buffer, length, flags);
+
+    if (ret < 0 && errno == EAGAIN)
+    {
+      if (getTimeout() == 0)
+        throw Timeout();
+
+      doPoll(POLLIN);
+
+      ret = ::recv(getFd(), buffer, length, flags);
+    }
+
     if (ret < 0)
-      throw Exception("error in recv");
+      throw Exception("recv");
+
     return static_cast<size_type>(ret);
   }
 
@@ -120,14 +135,28 @@ namespace net
     peeraddrLen = sizeof(peeraddr);
     int ret = ::bind(getFd(), &peeraddr.sockaddr, peeraddrLen);
     if (ret < 0)
-      throw Exception("error in bind");
+      throw Exception("bind");
   }
 
   UdpReceiver::size_type UdpReceiver::recv(void* buffer, size_type length, int flags)
   {
-    ssize_t ret = ::recvfrom(getFd(), buffer, length, flags, &peeraddr.sockaddr, &peeraddrLen);
+    ssize_t ret = ::recvfrom(getFd(), buffer, length, flags, &peeraddr.sockaddr,
+      &peeraddrLen);
+
+    if (ret < 0 && errno == EAGAIN)
+    {
+      if (getTimeout() == 0)
+        throw Timeout();
+
+      doPoll(POLLIN);
+
+      ret = ::recvfrom(getFd(), buffer, length, flags, &peeraddr.sockaddr,
+        &peeraddrLen);
+    }
+
     if (ret < 0)
-      throw Exception("error in recvfrom");
+      throw Exception("recvfrom");
+
     return static_cast<size_type>(ret);
   }
 
@@ -142,7 +171,7 @@ namespace net
   {
     ssize_t ret = ::sendto(getFd(), message, length, flags, &peeraddr.sockaddr, peeraddrLen);
     if (ret < 0)
-      throw Exception("error in sendto");
+      throw Exception("sendto");
     return static_cast<size_type>(ret);
   }
 

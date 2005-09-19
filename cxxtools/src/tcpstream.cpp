@@ -49,8 +49,8 @@ namespace net
     : Socket(AF_INET, SOCK_STREAM, 0)
   { }
 
-  Server::Server(const std::string& ipaddr, unsigned short int port, int backlog)
-                 throw (Exception)
+  Server::Server(const std::string& ipaddr, unsigned short int port,
+      int backlog) throw (Exception)
     : Socket(AF_INET, SOCK_STREAM, 0)
   {
     listen(ipaddr, port, backlog);
@@ -79,15 +79,15 @@ namespace net
     int reuseAddr = 1;
     if (::setsockopt(getFd(), SOL_SOCKET, SO_REUSEADDR,
         &reuseAddr, sizeof(reuseAddr)) < 0)
-      throw Exception("error in setsockopt");
+      throw Exception("setsockopt");
 
     if (::bind(getFd(),
                (struct sockaddr *)&servaddr.sockaddr_in,
                sizeof(servaddr.sockaddr_in)) < 0)
-      throw Exception("error in bind");
+      throw Exception("bind");
 
     if (::listen(getFd(), backlog) < 0)
-      throw Exception("error in listen");
+      throw Exception("listen");
   }
 
   ////////////////////////////////////////////////////////////////////////
@@ -121,7 +121,7 @@ namespace net
     peeraddr_len = sizeof(peeraddr);
     setFd(::accept(server.getFd(), &peeraddr.sockaddr, &peeraddr_len));
     if (bad())
-      throw Exception("error in accept");
+      throw Exception("accept");
 
     setTimeout(getTimeout());
   }
@@ -143,7 +143,7 @@ namespace net
 
     if (::connect(getFd(), &peeraddr.sockaddr,
         sizeof(peeraddr)) < 0)
-      throw Exception("error in connect");
+      throw Exception("connect");
 
     setTimeout(getTimeout());
   }
@@ -159,10 +159,7 @@ namespace net
       n = ::read(getFd(), buffer, bufsize);
       log_debug("blocking read ready, return " << n);
       if (n < 0)
-      {
-        int errnum = errno;
-        throw Exception(strerror(errnum));
-      }
+        throw Exception("read");
     }
     else
     {
@@ -185,29 +182,17 @@ namespace net
             throw Timeout();
           }
 
-          struct pollfd fds;
-          fds.fd = getFd();
-          fds.events = POLLIN;
-          log_debug("poll timeout " << getTimeout());
-          int p = poll(&fds, 1, getTimeout());
-          log_debug("poll returns " << p);
-          if (p < 0)
-          {
-            int errnum = errno;
-            throw Exception(strerror(errnum));
-          }
-          else if (p == 0)
-            throw Timeout();
+          doPoll(POLLIN);
 
           log_debug("read");
           n = ::read(getFd(), buffer, bufsize);
           log_debug("read returns " << n);
+          if (n < 0)
+            throw Exception("read");
         }
         else
         {
-          int errnum = errno;
-          log_warn("errno=" << errnum);
-          throw Exception(strerror(errnum));
+          throw Exception("read");
         }
       }
 
@@ -230,11 +215,7 @@ namespace net
       log_debug("::write returns => " << n);
 
       if (n < 0)
-      {
-        // au weia - das ging schief
-        int errnum = errno;
-        throw Exception(strerror(errnum));
-      }
+        throw Exception("write");
 
       buffer += n;
       s -= n;
@@ -242,18 +223,7 @@ namespace net
       if (s <= 0)
         break;
 
-      struct pollfd fds;
-      fds.fd = getFd();
-      fds.events = POLLOUT;
-      int p = poll(&fds, 1, getTimeout());
-
-      if (p < 0)
-      {
-        int errnum = errno;
-        throw Exception(strerror(errnum));
-      }
-      else if (p == 0)
-        throw Timeout();
+      doPoll(POLLOUT);
     }
 
     return bufsize;
