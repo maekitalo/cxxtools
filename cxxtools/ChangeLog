@@ -1,37 +1,79 @@
-Version 1.4.0
+2005-07-19 tommi@tntnet.org
+
   - new namingconventions: classfiles start with capitals, methods with lower
     case
   - support for udp-messages (cxxtools::UdpSender, cxxtools::UdpReceiver)
   - logging through udp
 
-Version 1.3.1
+2005-07-15 tommi@tntnet.org
+
+  - fixed some method-names to conform common naming convetions
+
+2005-06-18 tommi@tntnet.org
+
+  - version 1.3.1 released
   - fixed copy-constructor for query_params
 
-Version 1.3.0
+2005-01-29 tommi@tntnet.org
+
+  - version 1.3.0 released
   - modified timeout-handling in tcpstream
   - simple http-client added
   - cxxtools::Condition is not derived from cxxtools::Thread any more
 
-Version 1.2.3
+2005-01-05 tommi@tntnet.org
+
+  - version 1.2.3 released
   - missing errno.h in iconvstream.cpp added
   - support in cxxtools::arg for multiple alternative switches
     in a single arg-variable (set-method)
   - use gethostbyname to determine address to listen, so you can
     specify a hostname as a listener-parameter
 
-Version 1.2.2
+2004-12-14 tommi@tntnet.org
 
+  - version 1.2.2 released
   - bug fixed: cxxtools::arg does not find user-specific inputstreamoperators
   - support for log4cxx
   - logging-library selectable at build-time
 
-Version 1.2.1
+2004-12-03 tommi@tntnet.org
+
+  - version 1.2.1 released
   - removed obsolete timeclass.cpp
   - switched dl-classes to libtool for better portability
   - skip iconvstream if libiconv is not installed
   - new library: logging-wrapper for log4cplus (log4cxx-support will follow)
   - simple lightweight logging-library as a alternative for log4cplus
 
-Version 1.2 (November 25, 2004)
+2004-11-25 tommi@tntnet.org
+
+  - version 1.2 released
   - all classes moved to namespace cxxtools
   - documentation-updates (most classes documented with doxygen-style comments
+
+2004-11-11 tommi@tntnet.org
+
+  - version 1.1.3 released
+  - error in eof-handling in base64 fixed
+
+ -- Tommi Maekitalo <tommi@epgmbh.de>  Thu, 11 Nov 2004 12:33:47 +0100
+
+2004-11-03 tommi@tntnet.org
+
+  - version 1.1.2 released
+  - new class base64stream
+
+2004-10-04 tommi@tntnet.org
+
+  - use libtool/autoconf/automake
+
+2004-09-16 tommi@tntnet.org
+
+  - version 1.1 released
+  - unused variable in tcpstream.h removed
+    this breaks binary-compatibility
+
+2004-03-23 tommi@tntnet.org
+
+  - Initial Release 1.0.
