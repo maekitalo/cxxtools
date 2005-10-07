@@ -47,6 +47,14 @@ namespace cxxtools
       net::iostream connection;
 
     public:
+      explicit HttpRequest()
+        : method(GET),
+          port(80),
+          reading(false)
+        { }
+
+      explicit HttpRequest(const std::string& url, request_type method_ = GET);
+
       HttpRequest(const std::string& host_, const std::string& url_, request_type method_ = GET)
         : method(method_),
           host(host_),
@@ -63,7 +71,21 @@ namespace cxxtools
           reading(false)
       { }
 
+      request_type getMethod() const      { return method; }
+      void setMethod(request_type t)      { method = t; }
+
+      const std::string& getHost() const  { return host; }
+      void setHost(const std::string& h)  { host = h; }
+
+      const std::string& getUrl() const   { return url; }
+      void setUrl(const std::string& u)   { url = u; }
+
+      unsigned short getPort() const      { return port; }
+      void setPort(unsigned short p)      { port = p; }
+
       QueryParams& getQueryParams()                             { return params; }
+      const QueryParams& getQueryParams() const                 { return params; }
+
       void set(const std::string name, const std::string value) { params.add(name, value); }
       void set(const std::string value)                         { params.add(value); }
 

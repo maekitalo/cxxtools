@@ -23,6 +23,39 @@ Boston, MA  02111-1307  USA
 
 namespace cxxtools
 {
+  HttpRequest::HttpRequest(const std::string& url_, request_type method_)
+    : port(80),
+      reading(false)
+  {
+    std::string::size_type pos = 0;
+    if (url_.compare(0, 7, "http://") == 0)
+      pos = 7;
+
+    std::string::size_type e = url_.find(':', pos);
+    if (e != std::string::npos)
+    {
+      host = url_.substr(pos, e - pos);
+      port = 0;
+      for (++e; e < url_.size() && url_.at(e) != '/'; ++e)
+      {
+        if (!std::isdigit(url_.at(e)))
+          throw std::runtime_error("invalid url \"" + url_ + '"');
+        port = port * 10 + (url_.at(e) - '0');
+      }
+      if (e >= url_.size())
+        throw std::runtime_error("invalid url \"" + url_ + '"');
+    }
+    else
+    {
+      e = url_.find('/', pos);
+      if (e == std::string::npos)
+        throw std::runtime_error("invalid url \"" + url_ + '"');
+      host = url_.substr(pos, e - pos);
+    }
+
+    url = url_.substr(e);
+  }
+
   void HttpRequest::execute()
   {
     if (reading)
@@ -46,7 +79,7 @@ namespace cxxtools
         if (!params.empty())
           connection << '?' << params.getUrl();
 
-        connection << " HTTP/1.0\r\n\r\n" << std::flush;
+        connection << " HTTP/1.0\r\nHost: " << host << "\r\n\r\n" << std::flush;
         break;
 
       case POST:
@@ -58,6 +91,7 @@ namespace cxxtools
             connection << '/';
 
           connection << url << " HTTP/1.0\r\n"
+                        "Host: " << host << "\r\n"
                         "Content-Length: " << p.size() << "\r\n"
                         "\r\n"
                      << p << std::flush;

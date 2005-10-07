@@ -28,17 +28,21 @@ int main(int argc, char* argv[])
 {
   try
   {
-    cxxtools::Arg<unsigned short> port(argc, argv, 'p', 80);
     cxxtools::Arg<bool> raw(argc, argv, 'r');
+    cxxtools::Arg<bool> debug(argc, argv, 'd');
 
-    cxxtools::Arg<std::string> host("127.0.0.1");
-    host.set(argc, argv);
-
-    cxxtools::Arg<std::string> url("/");
+    cxxtools::Arg<std::string> url("http://127.0.0.1/");
     url.set(argc, argv);
 
     // set parameters
-    cxxtools::HttpRequest request(host, port, url);
+    cxxtools::HttpRequest request(url);
+
+    if (debug)
+    {
+      std::cout << "host: " << request.getHost() << "\n"
+                   "port: " << request.getPort() << "\n"
+                   "path: " << request.getUrl() << std::endl;
+    }
 
     // execute request
     if (raw)
