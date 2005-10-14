@@ -1,3 +1,6 @@
+2005-09-18 tommi@tntnet.org
+  - udp-reply
+
 2005-07-19 tommi@tntnet.org
 
   - new namingconventions: classfiles start with capitals, methods with lower
