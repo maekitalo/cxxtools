@@ -23,6 +23,7 @@ Boston, MA  02111-1307  USA
 #include "cxxtools/dynbuffer.h"
 #include <netdb.h>
 #include <sys/poll.h>
+#include <errno.h>
 
 namespace cxxtools
 {
