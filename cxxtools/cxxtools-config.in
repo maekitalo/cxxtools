@@ -61,7 +61,7 @@ log4cxx_template()
 
   cat <<EOF
 # define the root-category
-log4j.rootLogger=WARN, $rootlogger
+log4j.rootLogger=INFO, $rootlogger
 
 # define logger-categories
 log4j.logger.++APP++=INFO
@@ -95,7 +95,7 @@ log4cplus_template()
 
   cat <<EOF
 # define the root-category
-log4cplus.rootLogger=WARN, $rootlogger
+log4cplus.rootLogger=INFO, $rootlogger
 
 # define logger-categories
 log4cplus.logger.++APP++=INFO
@@ -120,7 +120,7 @@ simple_template()
   start_template
 
   cat <<EOF
-rootLogger=WARN
+rootLogger=INFO
 
 # define logger-categories
 logger.++APP++=INFO
@@ -130,12 +130,16 @@ EOF
   if [ -z "$LOGFILE_SET" ]
   then
     cat <<EOF
-# uncomment if you want to log to a file instead of console
+# uncomment if you want to log to a file
 #file=$LOGFILE
+#maxfilesize=500kB
+#maxbackupindex=5
 EOF
   else
     cat <<EOF
 file=$LOGFILE
+maxfilesize=500kB
+maxbackupindex=5
 EOF
   fi
 
