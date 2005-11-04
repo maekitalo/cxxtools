@@ -24,7 +24,8 @@ Boston, MA  02111-1307  USA
 namespace cxxtools
 {
   HttpRequest::HttpRequest(const std::string& url_, request_type method_)
-    : port(80),
+    : method(method_),
+      port(80),
       reading(false)
   {
     std::string::size_type pos = 0;
