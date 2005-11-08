@@ -1,4 +1,13 @@
+2005-11-08 tommi@tntnet.org
+
+  - cxxtools::Thread split into cxxtools::AttachedThread and cxxtools::DetachedThread
+
+2005-11-04 tommi@tntnet.org
+
+  - bugfix in cxxtools::HttpRequest
+
 2005-09-18 tommi@tntnet.org
+
   - udp-reply
 
 2005-07-19 tommi@tntnet.org

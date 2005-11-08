@@ -34,61 +34,73 @@ std::string ThreadException::formatMsg(const char* method, int e)
 }
 
 Thread::Thread()
-  : pthread(0)
+  : pthreadId(0)
 {
   pthread_attr_init(&pthread_attr);
 }
 
 Thread::~Thread()
 {
-  if (pthread)
-    pthread_join(pthread, 0);
-
   pthread_attr_destroy(&pthread_attr);
 }
 
-void Thread::create()
+void Thread::create(void * (*start_routine)(void*))
 {
-  int ret = pthread_create(&pthread, &pthread_attr, Thread::start, (void*)this);
+  int ret = pthread_create(&pthreadId, &pthread_attr, start_routine, (void*)this);
   if (ret != 0)
     throw ThreadException("pthread_create", ret);
 }
 
-void Thread::join()
+//
+// AttachedThread
+//
+
+AttachedThread::~AttachedThread()
 {
-  if (pthread)
-  {
-    int ret = pthread_join(pthread, 0);
-    if (ret != 0)
-      throw ThreadException("pthread_join", ret);
-    pthread = 0;
-  }
+  if (!joined && pthreadId)
+    pthread_join(pthreadId, 0);
 }
 
-void Thread::detach()
+void* AttachedThread::start(void* arg)
 {
-  if (pthread)
-  {
-    int ret = pthread_detach(pthread);
-    if (ret != 0)
-      throw ThreadException("pthread_detach", ret);
-    pthread = 0;
-  }
-  else
-  {
-    int ret = pthread_attr_setdetachstate(&pthread_attr, 1);
-    if (ret != 0)
-      throw ThreadException("pthread_attr_setdetachstate", ret);
-  }
-}
-
-void* Thread::start(void* arg)
-{
-  Thread* t = static_cast<Thread*>(arg);
+  AttachedThread* t = static_cast<AttachedThread*>(arg);
   t->run();
-  t->pthread = 0;
   return 0;
 }
+
+void AttachedThread::join()
+{
+  if (!joined && pthreadId != 0)
+  {
+    int ret = pthread_join(pthreadId, 0);
+    if (ret != 0)
+      throw ThreadException("pthread_join", ret);
+    joined = true;
+  }
+}
+
+//
+// DetachedThread
+//
+
+DetachedThread::DetachedThread()
+{
+  int ret = pthread_attr_setdetachstate(&pthread_attr, 1);
+  if (ret != 0)
+    throw ThreadException("pthread_attr_setdetachstate", ret);
+}
+
+void* DetachedThread::start(void* arg)
+{
+  DetachedThread* t = static_cast<DetachedThread*>(arg);
+  t->run();
+  delete t;
+  return 0;
+}
+
+//
+// Mutex
+//
 
 Mutex::Mutex()
 {

@@ -47,27 +47,55 @@ class ThreadException : public std::runtime_error
 
 class Thread
 {
-    pthread_t      pthread;
-    pthread_attr_t pthread_attr;
-    static void* start(void* arg);
-
     Thread(const Thread&);
     Thread& operator=(const Thread&);
+
+  protected:
+    pthread_t      pthreadId;
+    pthread_attr_t pthread_attr;
 
   public:
     Thread();
     virtual ~Thread();
 
-    void create();
-    void join();
-    void detach();
+    virtual void create() = 0;
 
   protected:
+    void create(void * (*start_routine)(void*));
     virtual void run() = 0;
 };
 
-template <typename function_type>
-class FunctionThread : public Thread
+class AttachedThread : public Thread
+{
+    static void* start(void* arg);
+    bool joined;
+
+  public:
+    AttachedThread()
+      : joined(false)
+      { }
+    virtual ~AttachedThread();
+
+    void create()  { Thread::create(start); }
+    void join();
+};
+
+class DetachedThread : public Thread
+{
+    static void* start(void* arg);
+
+  protected:
+    // Detached threads delete themself at end.
+    // Users must create them on the heap.
+    ~DetachedThread()  { }
+
+  public:
+    DetachedThread();
+    void create()  { Thread::create(start); }
+};
+
+template <typename function_type, typename thread_type>
+class FunctionThread : public thread_type
 {
     function_type& function;
 
@@ -83,16 +111,16 @@ class FunctionThread : public Thread
     }
 };
 
-template <typename function_type>
+template <typename function_type, typename thread_type>
 Thread* createThread(function_type& function)
 {
-  Thread* thread = new FunctionThread<function_type>(function);
+  Thread* thread = new FunctionThread<function_type, thread_type>(function);
   thread->create();
   return thread;
 }
 
-template <typename object_type>
-class MethodThread : public Thread
+template <typename object_type, typename thread_type>
+class MethodThread : public thread_type
 {
     object_type& object;
     void (object_type::*method)();

@@ -1,6 +1,6 @@
 noinst_PROGRAMS = getini hd md5sum multifstream arg arg-set cgi dir \
   dlloader pool dynbuffer log logbench netcat netecho httprequest netio \
-  netmsg logsh
+  netmsg logsh thread
 
 getini_SOURCES = getini.cpp
 hd_SOURCES = hd.cpp
@@ -21,6 +21,7 @@ httprequest_SOURCES = httprequest.cpp
 netio_SOURCES = netio.cpp
 netmsg_SOURCES = netmsg.cpp
 logsh_SOURCES = logsh.cpp
+thread_SOURCES = thread.cpp
 
 EXTRA_DIST = log.properties \
     log4j.properties \
