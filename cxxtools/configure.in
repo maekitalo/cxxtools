@@ -41,9 +41,9 @@ AC_ARG_WITH(
    [logging],
    AS_HELP_STRING([--with-logging],
                   [specify logging-library. Accepted arguments:
-                   log4cxx, log4cplus, simple, disable]),
+                   log4cxx, log4cplus, cxxtools, disable or probe. Default is cxxtools]),
    [ ac_loggertype=$withval ],
-   [ ac_loggertype=probe ])
+   [ ac_loggertype=cxxtools ])
 
 if test "$ac_loggertype" = "log4cxx" -o "$ac_loggertype" = "probe"; then
    AC_CHECK_HEADER(
@@ -73,9 +73,9 @@ if test "$ac_loggertype" = "log4cplus" -o "$ac_loggertype" = "probe"; then
    )
 fi
 
-if test "$ac_loggertype" = "simple" -o "$ac_loggertype" = "probe"; then
-  AC_DEFINE([CXXTOOLS_LOG_LOGBUILTIN], [], [use simple logging])
-  ac_loggertype=simple
+if test "$ac_loggertype" = "cxxtools" -o "$ac_loggertype" = "probe"; then
+  AC_DEFINE([CXXTOOLS_LOG_LOGBUILTIN], [], [use cxxtools logging])
+  ac_loggertype=cxxtools
 elif test "$ac_loggertype" = "disable"; then
   AC_DEFINE([CXXTOOLS_LOG_DISABLE], [], [disable logging])
 fi
@@ -93,10 +93,10 @@ case "$ac_loggertype" in
         CXXTOOLS_LOGGING=log4cplus
         ;;
 
-    simple)
-        AC_MSG_NOTICE([loggertype is simple])
+    cxxtools)
+        AC_MSG_NOTICE([loggertype is cxxtools])
         CXXTOOLS_LOG_LDFLAGS=-lcxxtools-log
-        CXXTOOLS_LOGGING=simple
+        CXXTOOLS_LOGGING=cxxtools
         ;;
 
     disabled)
