@@ -22,6 +22,7 @@ Boston, MA  02111-1307  USA
 #include <exception>
 #include <iostream>
 #include <cxxtools/httprequest.h>
+#include <cxxtools/httpreply.h>
 #include <cxxtools/arg.h>
 
 int main(int argc, char* argv[])

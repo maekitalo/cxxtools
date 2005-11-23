@@ -6,6 +6,7 @@ nobase_include_HEADERS = \
         cxxtools/dlloader.h \
         cxxtools/dynbuffer.h \
         cxxtools/hdstream.h \
+        cxxtools/httpreply.h \
         cxxtools/httprequest.h \
         cxxtools/iconvstream.h \
         cxxtools/iniclass.h \
