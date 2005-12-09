@@ -75,7 +75,7 @@ log4j.appender.console.layout.DateFormat=ISO8601
 log4j.appender.file=org.apache.log4j.RollingFileAppender
 log4j.appender.file.File=$LOGFILE
 log4j.appender.file.MaxFileSize=1MB
-log4j.appender.file.MaxBackupIndex=2
+log4j.appender.file.MaxBackupIndex=10
 log4j.appender.file.layout=TTCCLayout
 log4j.appender.file.layout.ContextPrinting=enabled
 log4j.appender.file.layout.DateFormat=ISO8601
@@ -109,13 +109,13 @@ log4cplus.appender.console.ImmediateFlush=true
 log4cplus.appender.file=log4cplus::RollingFileAppender
 log4cplus.appender.file.File=$LOGFILE
 log4cplus.appender.file.layout=log4cplus::TTCCLayout
-log4cplus.appender.file.MaxFileSize=500KB
-log4cplus.appender.file.MaxBackupIndex=5
+log4cplus.appender.file.MaxFileSize=1MB
+log4cplus.appender.file.MaxBackupIndex=10
 log4cplus.appender.file.ImmediateFlush=true
 EOF
 }
 
-simple_template()
+cxxtools_template()
 {
   start_template
 
@@ -132,14 +132,14 @@ EOF
     cat <<EOF
 # uncomment if you want to log to a file
 #file=$LOGFILE
-#maxfilesize=500kB
-#maxbackupindex=5
+#maxfilesize=1MB
+#maxbackupindex=10
 EOF
   else
     cat <<EOF
 file=$LOGFILE
-maxfilesize=500kB
-maxbackupindex=5
+maxfilesize=1MB
+maxbackupindex=10
 EOF
   fi
 
