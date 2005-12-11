@@ -95,7 +95,7 @@ case "$ac_loggertype" in
 
     cxxtools)
         AC_MSG_NOTICE([loggertype is cxxtools])
-        CXXTOOLS_LOG_LDFLAGS=-lcxxtools-log
+        CXXTOOLS_LOG_LDFLAGS=
         CXXTOOLS_LOGGING=cxxtools
         ;;
 

@@ -13,7 +13,6 @@ Usage: $0 [OPTION]
 Known values for OPTION are:
 
   --libs            print library linking information
-  --log-libs        print linking information for cxxtools metalogging
   --cxxflags        print pre-processor and compiler flags
   --logging         configured logging type
   --properties app  print logging-properties-template for application "app"
@@ -151,7 +150,7 @@ disabled_template()
 }
 
 if test $# -eq 0; then
-    usage
+    usage 1
 fi
 
 LOGFILE=++APP++.log
@@ -165,15 +164,11 @@ while test $# -gt 0; do
         ;;
 
     --help)
-        usage
+        usage 0
         ;;
 
     --cxxflags)
         echo @CXXTOOLS_CXXFLAGS@
-        ;;
-
-    --log-libs)
-        echo @CXXTOOLS_LDFLAGS@ @CXXTOOLS_LOG_LDFLAGS@
         ;;
 
     --libs)
@@ -190,7 +185,7 @@ while test $# -gt 0; do
           @CXXTOOLS_LOGGING@_template | sed "s/++APP++/$2/"
           shift
         else
-          usage
+          usage 1
         fi
         ;;
 
@@ -201,13 +196,12 @@ while test $# -gt 0; do
           LOGFILE_SET=1
           shift
         else
-          usage
+          usage 1
         fi
         ;;
 
     *)
-        usage
-        exit 1
+        usage 1
         ;;
     esac
     shift
