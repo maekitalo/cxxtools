@@ -252,6 +252,10 @@ namespace net
         if (n <= 0)
           return traits_type::eof();
       }
+      catch (const Timeout& e)
+      {
+        throw;
+      }
       catch (const Exception& e)
       {
         log_warn(e.what());
@@ -302,6 +306,10 @@ namespace net
           return -1;
         else
           setp(m_buffer, m_buffer + m_bufsize);
+      }
+      catch (const Timeout& e)
+      {
+        throw;
       }
       catch (const Exception& e)
       {
