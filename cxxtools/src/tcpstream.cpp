@@ -215,7 +215,12 @@ namespace net
       log_debug("::write returns => " << n);
 
       if (n < 0)
-        throw Exception("write");
+      {
+        if (errno == EAGAIN)
+          n = 0;
+        else
+          throw Exception("write");
+      }
 
       buffer += n;
       s -= n;
