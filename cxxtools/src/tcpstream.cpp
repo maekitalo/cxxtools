@@ -24,18 +24,9 @@ Boston, MA  02111-1307  USA
 #include <unistd.h>
 #include <netdb.h>
 #include <errno.h>
-
-#ifdef DEBUG
-
 #include "cxxtools/log.h"
+
 log_define("cxxtools.net");
-
-#else
-
-#define log_warn(expr)
-#define log_debug(expr)
-
-#endif
 
 namespace cxxtools
 {
@@ -155,9 +146,13 @@ namespace net
     if (getTimeout() < 0)
     {
       // blocking read
-      log_debug("blocking read");
-      n = ::read(getFd(), buffer, bufsize);
-      log_debug("blocking read ready, return " << n);
+      do
+      {
+        log_debug("blocking read");
+        n = ::read(getFd(), buffer, bufsize);
+        log_debug("blocking read ready, return " << n);
+      } while (n <= 0 && errno == EINTR);
+
       if (n < 0)
         throw Exception("read");
     }
@@ -166,11 +161,14 @@ namespace net
       // non-blocking read
 
       // try reading without timeout
-      log_debug("non blocking read fd=" << getFd());
-      n = ::read(getFd(), buffer, bufsize);
-      log_debug("non blocking read returns " << n);
+      do
+      {
+        log_debug("non blocking read fd=" << getFd());
+        n = ::read(getFd(), buffer, bufsize);
+        log_debug("non blocking read returns " << n);
+      } while (n <= 0 && errno == EINTR);
 
-      if (n < 0)
+      if (n <= 0)
       {
         // no data available
 
@@ -184,10 +182,14 @@ namespace net
 
           doPoll(POLLIN);
 
-          log_debug("read");
-          n = ::read(getFd(), buffer, bufsize);
-          log_debug("read returns " << n);
-          if (n < 0)
+          do
+          {
+            log_debug("read");
+            n = ::read(getFd(), buffer, bufsize);
+            log_debug("read returns " << n);
+          } while (n <= 0 && errno == EINTR);
+
+          if (n <= 0)
             throw Exception("read");
         }
         else
@@ -211,15 +213,21 @@ namespace net
 
     while (true)
     {
-      n = ::write(getFd(), buffer, s);
-      log_debug("::write returns => " << n);
+      do
+      {
+        n = ::write(getFd(), buffer, s);
+        log_debug("::write returns " << n << " errno=" << errno);
+      } while (n <= 0 && errno == EINTR);
 
-      if (n < 0)
+      if (n <= 0)
       {
         if (errno == EAGAIN)
           n = 0;
         else
+        {
+          log_error("error in write; errno=" << errno);
           throw Exception("write");
+        }
       }
 
       buffer += n;
@@ -227,6 +235,12 @@ namespace net
 
       if (s <= 0)
         break;
+
+      if (getTimeout() == 0)
+      {
+        log_warn("timeout");
+        throw Timeout();
+      }
 
       doPoll(POLLOUT);
     }
@@ -244,23 +258,13 @@ namespace net
 
   streambuf::int_type streambuf::overflow(streambuf::int_type c)
   {
+    log_debug("streambuf::overflow");
+
     if (pptr() != pbase())
     {
-      try
-      {
-        int n = m_stream.write(pbase(), pptr() - pbase());
-        if (n <= 0)
-          return traits_type::eof();
-      }
-      catch (const Timeout& e)
-      {
-        throw;
-      }
-      catch (const Exception& e)
-      {
-        log_warn(e.what());
+      int n = m_stream.write(pbase(), pptr() - pbase());
+      if (n <= 0)
         return traits_type::eof();
-      }
     }
 
     setp(m_buffer, m_buffer + m_bufsize);
@@ -275,47 +279,27 @@ namespace net
 
   streambuf::int_type streambuf::underflow()
   {
-    try
-    {
-      Stream::size_type n = m_stream.read(m_buffer, m_bufsize);
-      if (n <= 0)
-        return traits_type::eof();
+    log_debug("streambuf::underflow");
 
-      setg(m_buffer, m_buffer, m_buffer + n);
-      return (int_type)(unsigned char)m_buffer[0];
-    }
-    catch (const Timeout& e)
-    {
-      throw;
-    }
-    catch (const Exception& e)
-    {
-      log_warn(e.what());
+    Stream::size_type n = m_stream.read(m_buffer, m_bufsize);
+    if (n <= 0)
       return traits_type::eof();
-    }
+
+    setg(m_buffer, m_buffer, m_buffer + n);
+    return (int_type)(unsigned char)m_buffer[0];
   }
 
   int streambuf::sync()
   {
+    log_debug("streambuf::sync");
+
     if (pptr() != pbase())
     {
-      try
-      {
-        int n = m_stream.write(pbase(), pptr() - pbase());
-        if (n <= 0)
-          return -1;
-        else
-          setp(m_buffer, m_buffer + m_bufsize);
-      }
-      catch (const Timeout& e)
-      {
-        throw;
-      }
-      catch (const Exception& e)
-      {
-        log_warn(e.what());
+      int n = m_stream.write(pbase(), pptr() - pbase());
+      if (n <= 0)
         return -1;
-      }
+      else
+        setp(m_buffer, m_buffer + m_bufsize);
     }
     return 0;
   }

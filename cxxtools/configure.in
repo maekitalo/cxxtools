@@ -1,5 +1,5 @@
-AC_INIT(cxxtools, 1.4.0pre3, [Tommi Maekitalo <tommi@tntnet.org>])
-AM_INIT_AUTOMAKE(cxxtools, 1.4.0pre3)
+AC_INIT(cxxtools, 1.4.0pre4, [Tommi Maekitalo <tommi@tntnet.org>])
+AM_INIT_AUTOMAKE(cxxtools, 1.4.0pre4)
 
 abi_current=3
 abi_revision=1

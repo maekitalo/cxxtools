@@ -24,18 +24,9 @@ Boston, MA  02111-1307  USA
 #include <fcntl.h>
 #include <errno.h>
 #include <sys/poll.h>
-
-#ifdef DEBUG
-
 #include "cxxtools/log.h"
+
 log_define("cxxtools.net");
-
-#else
-
-#define log_warn(expr)
-#define log_debug(expr)
-
-#endif
 
 namespace cxxtools
 {
@@ -58,7 +49,7 @@ namespace net
   Exception::Exception(const std::string& msg)
     : std::runtime_error(mkerrmsg(msg, errno)),
       m_Errno(errno)
-    { }
+  { }
 
   ////////////////////////////////////////////////////////////////////////
   // implementation of Socket
@@ -119,7 +110,7 @@ namespace net
     }
   }
 
-  void Socket::doPoll(short events) const
+  short Socket::doPoll(short events) const
   {
     struct pollfd fds;
     fds.fd = getFd();
@@ -127,17 +118,29 @@ namespace net
 
     log_debug("poll timeout " << getTimeout());
 
-    int p = ::poll(&fds, 1, getTimeout());
+    int p;
 
-    log_debug("poll returns " << p);
+    p = ::poll(&fds, 1, getTimeout());
+
+    log_debug("poll returns " << p << " revents " << fds.revents);
 
     if (p < 0)
     {
-      int errnum = errno;
+      log_error("error in poll; errno=" << errno);
       throw Exception("poll");
     }
     else if (p == 0)
+    {
+      log_warn("timeout");
       throw Timeout();
+    }
+    else if (fds.revents & (POLLERR | POLLHUP | POLLNVAL))
+    {
+      log_error("poll returns with error; revents=" << fds.revents);
+      throw Exception("poll");
+    }
+
+    return fds.revents;
   }
 
 } // namespace net

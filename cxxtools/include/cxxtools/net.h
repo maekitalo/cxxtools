@@ -124,7 +124,7 @@ namespace net
 
       /// execute poll(2) - throws Timeout-exception, when no data available
       /// after timeout
-      void doPoll(short events) const;
+      short doPoll(short events) const;
 
     private:
       int m_sockFd;
