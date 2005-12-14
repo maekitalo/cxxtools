@@ -1,3 +1,8 @@
+2005-12-12 tommi@tntnet.org
+
+  - improved error-checking in network-classes
+  - logging integrated into base-lib (no libcxxtools-log.so any more)
+
 2005-11-08 tommi@tntnet.org
 
   - cxxtools::Thread split into cxxtools::AttachedThread and cxxtools::DetachedThread
