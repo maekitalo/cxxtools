@@ -39,6 +39,7 @@ namespace dl
   {
     public:
       Error();
+      Error(const std::string& msg);
   };
 
   /**

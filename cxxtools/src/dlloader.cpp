@@ -58,17 +58,30 @@ namespace cxxtools
 
 namespace dl
 {
+  namespace
+  {
+    std::string errorString()
+    {
+      const char* msg = DLERROR();
+      return msg ? std::string(msg) : "unknown error in dlloader";
+    }
+  }
+
   Error::Error()
-    : std::runtime_error(DLERROR())
+    : std::runtime_error(errorString())
+  { }
+
+  Error::Error(const std::string& msg)
+    : std::runtime_error(msg + ": " + errorString())
   { }
 
   DlopenError::DlopenError(const std::string& l)
-    : Error(),
+    : Error("library \"" + l + '"'),
       libname(l)
   { }
 
   SymbolNotFound::SymbolNotFound(const std::string& s)
-    : Error(),
+    : Error("symbol \"" + s + '"'),
       symbol(s)
   { }
 
