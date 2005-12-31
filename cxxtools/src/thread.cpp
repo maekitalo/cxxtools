@@ -44,13 +44,6 @@ Thread::~Thread()
   pthread_attr_destroy(&pthread_attr);
 }
 
-void Thread::create(void * (*start_routine)(void*))
-{
-  int ret = pthread_create(&pthreadId, &pthread_attr, start_routine, (void*)this);
-  if (ret != 0)
-    throw ThreadException("pthread_create", ret);
-}
-
 //
 // AttachedThread
 //
@@ -64,8 +57,21 @@ AttachedThread::~AttachedThread()
 void* AttachedThread::start(void* arg)
 {
   AttachedThread* t = static_cast<AttachedThread*>(arg);
-  t->run();
+  try
+  {
+    t->run();
+  }
+  catch (...)
+  {
+  }
   return 0;
+}
+
+void AttachedThread::create()
+{
+  int ret = pthread_create(&pthreadId, &pthread_attr, start, (void*)this);
+  if (ret != 0)
+    throw ThreadException("pthread_create", ret);
 }
 
 void AttachedThread::join()
@@ -85,7 +91,7 @@ void AttachedThread::join()
 
 DetachedThread::DetachedThread()
 {
-  int ret = pthread_attr_setdetachstate(&pthread_attr, 1);
+  int ret = pthread_attr_setdetachstate(&pthread_attr, PTHREAD_CREATE_DETACHED);
   if (ret != 0)
     throw ThreadException("pthread_attr_setdetachstate", ret);
 }
@@ -93,9 +99,22 @@ DetachedThread::DetachedThread()
 void* DetachedThread::start(void* arg)
 {
   DetachedThread* t = static_cast<DetachedThread*>(arg);
-  t->run();
+  try
+  {
+    t->run();
+  }
+  catch (...)
+  {
+  }
   delete t;
   return 0;
+}
+
+void DetachedThread::create()
+{
+  int ret = pthread_create(&pthreadId, &pthread_attr, start, (void*)this);
+  if (ret != 0)
+    throw ThreadException("pthread_create", ret);
 }
 
 //

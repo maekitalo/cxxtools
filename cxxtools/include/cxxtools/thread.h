@@ -61,7 +61,6 @@ class Thread
     virtual void create() = 0;
 
   protected:
-    void create(void * (*start_routine)(void*));
     virtual void run() = 0;
 };
 
@@ -76,7 +75,7 @@ class AttachedThread : public Thread
       { }
     virtual ~AttachedThread();
 
-    void create()  { Thread::create(start); }
+    void create();
     void join();
 };
 
@@ -91,7 +90,7 @@ class DetachedThread : public Thread
 
   public:
     DetachedThread();
-    void create()  { Thread::create(start); }
+    void create();
 };
 
 template <typename function_type, typename thread_type>
