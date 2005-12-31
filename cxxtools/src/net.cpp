@@ -131,7 +131,7 @@ namespace net
     }
     else if (p == 0)
     {
-      log_warn("timeout");
+      log_debug("poll timeout (" << getTimeout() << ')');
       throw Timeout();
     }
     else if (fds.revents & (POLLERR | POLLHUP | POLLNVAL))

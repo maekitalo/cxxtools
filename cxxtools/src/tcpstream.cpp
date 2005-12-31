@@ -176,7 +176,7 @@ namespace net
         {
           if (getTimeout() == 0)
           {
-            log_warn("timeout");
+            log_debug("read timeout (" << getTimeout() << "ms)");
             throw Timeout();
           }
 
@@ -238,7 +238,7 @@ namespace net
 
       if (getTimeout() == 0)
       {
-        log_warn("timeout");
+        log_debug("write timeout (" << getTimeout() << "ms)");
         throw Timeout();
       }
 
