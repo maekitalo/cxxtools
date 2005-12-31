@@ -124,7 +124,6 @@ class Dynbuffer
     {
       std::swap(m_data, d.m_data);
       std::swap(m_size, d.m_size);
-      std::swap(m_size, d.m_size);
     }
 
   private:
