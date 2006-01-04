@@ -9,7 +9,7 @@ cxxtools::Condition running;
 #define PRINTLN(expr) \
   do { \
     cxxtools::MutexLock lock(coutMutex); \
-    std::cout << expr << std::endl; \
+    std::cout << time(0) << ' ' << expr << std::endl; \
   } while (false)
 
 class T : public cxxtools::AttachedThread
@@ -64,6 +64,13 @@ void D::run()
   PRINTLN("D is ready");
 }
 
+void someFunction()
+{
+  PRINTLN("someFunction()");
+  sleep(1);
+  PRINTLN("someFunction() ends");
+}
+
 int main()
 {
   try
@@ -83,6 +90,15 @@ int main()
     t.create();
     running.wait(lock);
     PRINTLN("T is running");
+
+    // run a function as a Detached thread
+    cxxtools::createThread(someFunction);
+
+    // run a function as a Attached thread
+    typedef void (*functionType)();
+    functionType fn = someFunction;
+    cxxtools::FunctionThread<functionType> th(fn);
+    th.create();
 
     // The detached thread is killed, if it does not come to an end before main.
     // The attached thread blocks the main-program from stopping, until it is ready.

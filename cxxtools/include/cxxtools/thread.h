@@ -93,7 +93,7 @@ class DetachedThread : public Thread
     void create();
 };
 
-template <typename function_type, typename thread_type>
+template <typename function_type, typename thread_type = AttachedThread>
 class FunctionThread : public thread_type
 {
     function_type& function;
@@ -110,12 +110,22 @@ class FunctionThread : public thread_type
     }
 };
 
-template <typename function_type, typename thread_type>
-Thread* createThread(function_type& function)
+template <typename function_type>
+void createThread(function_type& function)
 {
-  Thread* thread = new FunctionThread<function_type, thread_type>(function);
-  thread->create();
-  return thread;
+  typedef FunctionThread<function_type, DetachedThread> ThreadType;
+  ThreadType* thread = new ThreadType(function);
+  try
+  {
+    thread->create();
+  }
+  catch (const ThreadException& e)
+  {
+    delete thread;
+    throw;
+  }
+  // The thread deletes itself, so it is not returned here.
+  // The caller can't be shure, when the object is deleted.
 }
 
 template <typename object_type, typename thread_type>
