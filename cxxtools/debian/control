@@ -8,7 +8,7 @@ Package: libcxxtools
 Section: libs
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Replaces: cxxtools
+Replaces: cxxtools, cxxtools-log
 Description: cxxtools is my toolbox with reusable c++-components
  cxxtools is my toolbox with reusable c++-components
  This package contains the library files.
@@ -17,23 +17,7 @@ Package: libcxxtools-dev
 Section: devel
 Architecture: any
 Depends: libcxxtools (= ${Source-Version})
-Replaces: cxxtools-dev
+Replaces: cxxtools-dev, cxxtools-log-dev
 Description: cxxtools is my toolbox with reusable c++-components
  cxxtools is my toolbox with reusable c++-components
  This package contains the development files.
-
-Package: libcxxtools-log
-Section: libs
-Architecture: any
-Depends: libcxxtools (= ${Source-Version}), ${shlibs:Depends}, ${misc:Depends}
-Description: cxxtools is my toolbox with reusable c++-components
- cxxtools is my toolbox with reusable c++-components
- This package contains a wrapper to log4cplus or log4cxx
-
-Package: libcxxtools-log-dev
-Section: devel
-Architecture: any
-Depends: libcxxtools-log (= ${Source-Version}), libcxxtools-dev (= ${Source-Version})
-Description: cxxtools is my toolbox with reusable c++-components
- cxxtools is my toolbox with reusable c++-components
- This package contains the development files to libcxxtools-log
