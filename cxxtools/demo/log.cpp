@@ -45,12 +45,12 @@ namespace ns
 
 class cl
 {
-    log_define("class")  // class-scope definition
+    log_define("class.cl")  // class-scope definition
 
   public:
     cl()
     {
-      log_debug("constructor here");  // this is logged at category "class"
+      log_debug("constructor here");  // this is logged at category "class.cl"
     }
     ~cl()
     {

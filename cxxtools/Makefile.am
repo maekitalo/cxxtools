@@ -10,6 +10,4 @@ EXTRA_DIST = \
   debian/copyright \
   debian/libcxxtools-dev.install \
   debian/libcxxtools.install \
-  debian/libcxxtools-log.install \
-  debian/libcxxtools-log-dev.install \
   debian/rules

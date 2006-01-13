@@ -299,7 +299,7 @@ void log_init(const std::string& propertyfilename)
     switch (state)
     {
       case state_0:
-        if (std::isalnum(ch))
+        if (std::isalnum(ch) || ch == '_')
         {
           token = std::toupper(ch);
           state = state_token;
@@ -333,7 +333,7 @@ void log_init(const std::string& propertyfilename)
           state = state_0;
         else if (std::isspace(ch))
           state = state_tokensp;
-        else if (std::isalnum(ch))
+        else if (std::isalnum(ch) || ch == '_')
           token += std::toupper(ch);
         else
         {
@@ -360,7 +360,7 @@ void log_init(const std::string& propertyfilename)
         break;
 
       case state_category:
-        if (std::isalnum(ch) || ch == '.')
+        if (std::isalnum(ch) || ch == '_' || ch == '.')
           category += ch;
         else if (ch == '=')
           state = state_level;

@@ -23,6 +23,7 @@ Boston, MA  02111-1307  USA
 #include <cxxtools/tcpstream.h>
 #include <cxxtools/arg.h>
 #include <cxxtools/dynbuffer.h>
+#include <cxxtools/loginit.h>
 #include <sys/time.h>
 #include <stdlib.h>
 
@@ -131,6 +132,7 @@ int main(int argc, char* argv[])
 {
   try
   {
+    log_init();
     cxxtools::Arg<bool> isServer(argc, argv, 's');
 
     if (isServer)
