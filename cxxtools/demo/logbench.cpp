@@ -57,7 +57,7 @@ int main(int argc, char* argv[])
     unsigned long count = 1;
     double T;
 
-    log_init_fatal();
+    log_init();
 
     while (count > 0)
     {

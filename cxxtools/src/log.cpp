@@ -202,6 +202,18 @@ namespace cxxtools
     return *it;
   }
 
+  namespace
+  {
+    static char digits[] = "0123456789";
+
+    inline char hiDigit(int i)
+    { return digits[i / 10]; }
+
+    inline char loDigit(int i)
+    { return digits[i % 10]; }
+  }
+
+
   std::ostream& Logger::logentry(const char* level)
   {
     struct timeval t;
@@ -212,12 +224,14 @@ namespace cxxtools
 
     std::ostream& out = getAppender();
     out << 1900 + tt.tm_year << '-'
-        << ((tt.tm_mon + 1) / 10) << ((tt.tm_mon + 1) % 10) << '-'
-        << (tt.tm_mday / 10) << (tt.tm_mday % 10) << ' '
-        << (tt.tm_hour / 10) << (tt.tm_hour % 10) << ':'
-        << (tt.tm_min / 10) << (tt.tm_min % 10) << ':'
-        << (tt.tm_sec / 10)
-        << (tt.tm_sec % 10 + t.tv_usec / 1e6)
+        << hiDigit(tt.tm_mon + 1) << loDigit(tt.tm_mon + 1) << '-'
+        << hiDigit(tt.tm_mday) << loDigit(tt.tm_mday) << ' '
+        << hiDigit(tt.tm_hour) << loDigit(tt.tm_hour) << ':'
+        << hiDigit(tt.tm_min) << loDigit(tt.tm_min) << ':'
+        << hiDigit(tt.tm_sec) << loDigit(tt.tm_sec) << '.'
+        << loDigit(t.tv_usec / 100000)    << loDigit(t.tv_usec / 10000 % 10)
+        << loDigit(t.tv_usec / 1000 % 10) << loDigit(t.tv_usec / 100 % 10)
+        << loDigit(t.tv_usec / 10 % 10)
         << " [" << pthread_self() << "] "
         << level << ' '
         << category << " - ";
