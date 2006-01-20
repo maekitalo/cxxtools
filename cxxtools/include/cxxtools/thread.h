@@ -93,7 +93,7 @@ class DetachedThread : public Thread
     void create();
 };
 
-template <typename function_type, typename thread_type = AttachedThread>
+template <typename function_type = void (*)(), typename thread_type = AttachedThread>
 class FunctionThread : public thread_type
 {
     function_type& function;
@@ -107,6 +107,25 @@ class FunctionThread : public thread_type
     virtual void run()
     {
       function();
+    }
+};
+
+template <typename object_type, typename thread_type>
+class MethodThread : public thread_type
+{
+    object_type& object;
+    void (object_type::*method)();
+
+  public:
+    MethodThread(object_type& a, void (object_type::*m)())
+      : object(a),
+        method(m)
+      { }
+
+  protected:
+    virtual void run()
+    {
+      (object.*method)();
     }
 };
 
@@ -128,24 +147,23 @@ void createThread(function_type& function)
   // The caller can't be shure, when the object is deleted.
 }
 
-template <typename object_type, typename thread_type>
-class MethodThread : public thread_type
+template <typename object_type>
+void createThread(object_type& object, void (object_type::*method)())
 {
-    object_type& object;
-    void (object_type::*method)();
-
-  public:
-    MethodThread(object_type& a, void (object_type::*m)())
-      : object(a),
-        method(m)
-      { }
-
-  protected:
-    virtual void run()
-    {
-      (object.*method)();
-    }
-};
+  typedef MethodThread<object_type, DetachedThread> ThreadType;
+  ThreadType* thread = new ThreadType(object, method);
+  try
+  {
+    thread->create();
+  }
+  catch (const ThreadException& e)
+  {
+    delete thread;
+    throw;
+  }
+  // The thread deletes itself, so it is not returned here.
+  // The caller can't be shure, when the object is deleted.
+}
 
 class Condition;
 

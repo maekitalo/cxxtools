@@ -12,23 +12,23 @@ cxxtools::Condition running;
     std::cout << time(0) << ' ' << expr << std::endl; \
   } while (false)
 
-class T : public cxxtools::AttachedThread
+class A : public cxxtools::AttachedThread
 {
   public:
-    ~T();
+    ~A();
 
   protected:
     void run();
 };
 
-T::~T()
+A::~A()
 {
-  PRINTLN("T::~T() called");
+  PRINTLN("A::~A() called");
 }
 
-void T::run()
+void A::run()
 {
-  PRINTLN("T is starting");
+  PRINTLN("A is starting");
 
   cxxtools::MutexLock lock(conditionMutex);
   running.broadcast();
@@ -36,7 +36,7 @@ void T::run()
 
   sleep(3);
 
-  PRINTLN("T is ready");
+  PRINTLN("A is ready");
 }
 
 class D : public cxxtools::DetachedThread
@@ -71,6 +71,34 @@ void someFunction()
   PRINTLN("someFunction() ends");
 }
 
+class AClass
+{
+    std::string id;
+    cxxtools::Mutex readyMutex;
+
+  public:
+    AClass(const std::string& id_)
+      : id(id_)
+      {
+        readyMutex.lock();
+      }
+    ~AClass()
+      { PRINTLN("AClass::~AClass of object \"" << id << '"'); }
+
+    void waitReady()
+    {
+      readyMutex.lock();
+    }
+
+    void aFunction()
+    {
+      PRINTLN("aFunction() of object \"" << id << '"');
+      sleep(1);
+      PRINTLN("aFunction() of object \"" << id << "\" ends");
+      readyMutex.unlock();
+    }
+};
+
 int main()
 {
   try
@@ -86,10 +114,10 @@ int main()
 
     // Non-detached threads are created on the stack.
     // They are joined, when block ends.
-    T t;
+    A t;
     t.create();
     running.wait(lock);
-    PRINTLN("T is running");
+    PRINTLN("A is running");
 
     // run a function as a Detached thread
     cxxtools::createThread(someFunction);
@@ -97,8 +125,14 @@ int main()
     // run a function as a Attached thread
     typedef void (*functionType)();
     functionType fn = someFunction;
-    cxxtools::FunctionThread<functionType> th(fn);
+    cxxtools::FunctionThread<> th(fn);
     th.create();
+
+    // run a method of a object as a thread
+    AClass aInstance("a instance");
+    cxxtools::createThread(aInstance, &AClass::aFunction);
+    sleep(2);
+    aInstance.waitReady();
 
     // The detached thread is killed, if it does not come to an end before main.
     // The attached thread blocks the main-program from stopping, until it is ready.
