@@ -186,8 +186,12 @@ class Pool
     unsigned maxcount;
     Semaphore sem;
     objectcontainer_type freePool;
-    Mutex mutex;
+    mutable Mutex mutex;
     CreatorType creator;
+
+    // make non-copyable
+    Pool(const Pool&); // no implementation
+    Pool& operator= (const Pool&); // no implementation
 
   public:
     /// Create a Pool with a maximum count.
@@ -258,6 +262,12 @@ class Pool
         delete freePool.top();
         freePool.pop();
       }
+    }
+
+    unsigned getCurrentSize() const
+    {
+      MutexLock lock(mutex);
+      return freePool.size();
     }
 };
 
