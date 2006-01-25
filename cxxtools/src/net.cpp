@@ -24,6 +24,7 @@ Boston, MA  02111-1307  USA
 #include <fcntl.h>
 #include <errno.h>
 #include <sys/poll.h>
+#include <sstream>
 #include "cxxtools/log.h"
 
 log_define("cxxtools.net");
@@ -36,7 +37,11 @@ namespace net
   static std::string mkerrmsg(const std::string& msg, int _errno)
   {
     if (_errno != 0)
-      return msg + ": " + strerror(_errno);
+    {
+      std::ostringstream m;
+      m << msg << ": errno " << _errno << " - " << strerror(_errno);
+      return m.str();
+    }
     else
       return msg;
   }

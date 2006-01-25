@@ -70,15 +70,15 @@ namespace net
     int reuseAddr = 1;
     if (::setsockopt(getFd(), SOL_SOCKET, SO_REUSEADDR,
         &reuseAddr, sizeof(reuseAddr)) < 0)
-      throw Exception("setsockopt");
+      throw Exception(errno, "setsockopt");
 
     if (::bind(getFd(),
                (struct sockaddr *)&servaddr.sockaddr_in,
                sizeof(servaddr.sockaddr_in)) < 0)
-      throw Exception("bind");
+      throw Exception(errno, "bind");
 
     if (::listen(getFd(), backlog) < 0)
-      throw Exception("listen");
+      throw Exception(errno, "listen");
   }
 
   ////////////////////////////////////////////////////////////////////////
@@ -112,7 +112,7 @@ namespace net
     peeraddr_len = sizeof(peeraddr);
     setFd(::accept(server.getFd(), &peeraddr.sockaddr, &peeraddr_len));
     if (bad())
-      throw Exception("accept");
+      throw Exception(errno, "accept");
 
     setTimeout(getTimeout());
   }
@@ -134,7 +134,7 @@ namespace net
 
     if (::connect(getFd(), &peeraddr.sockaddr,
         sizeof(peeraddr)) < 0)
-      throw Exception("connect");
+      throw Exception(errno, "connect");
 
     setTimeout(getTimeout());
   }
@@ -154,7 +154,7 @@ namespace net
       } while (n <= 0 && errno == EINTR);
 
       if (n < 0)
-        throw Exception("read");
+        throw Exception(errno, "read");
     }
     else
     {
@@ -189,13 +189,11 @@ namespace net
             log_debug("read returns " << n);
           } while (n <= 0 && errno == EINTR);
 
-          if (n <= 0)
-            throw Exception("read");
+          if (n < 0)
+            throw Exception(errno, "read");
         }
-        else
-        {
-          throw Exception("read");
-        }
+        else if (errno != ECONNRESET)
+          throw Exception(errno, "read");
       }
 
     }
@@ -226,7 +224,7 @@ namespace net
         else
         {
           log_error("error in write; errno=" << errno);
-          throw Exception("write");
+          throw Exception(errno, "write");
         }
       }
 
