@@ -192,7 +192,7 @@ namespace net
           if (n < 0)
             throw Exception(errno, "read");
         }
-        else if (errno != ECONNRESET && errno != ENOENT)
+        else if (errno != 0 && errno != ECONNRESET)
           throw Exception(errno, "read");
       }
 
