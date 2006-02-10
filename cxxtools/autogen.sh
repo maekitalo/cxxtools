@@ -3,8 +3,7 @@
 
 libtoolize --force --automake --ltdl
 
-rm -f config.cache
-rm -f config.log
+rm -f config.cache config.log
 aclocal -I m4
 autoheader
 autoconf

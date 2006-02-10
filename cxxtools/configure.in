@@ -1,4 +1,4 @@
-AC_INIT(cxxtools, 1.4.0pre6, [Tommi Maekitalo <tommi@tntnet.org>])
+AC_INIT(cxxtools, 1.4.0, [Tommi Maekitalo <tommi@tntnet.org>])
 AM_INIT_AUTOMAKE
 
 abi_current=3
@@ -19,8 +19,8 @@ AC_HEADER_DIRENT
 AM_ICONV
 AM_CONDITIONAL(MAKE_ICONV, test "$am_cv_func_iconv" = yes)
 
-AC_PROG_CC(gcc-3.0 gcc cc CC)
-AC_PROG_CXX(g++-3.0 g++ c++ CC)
+AC_PROG_CC(gcc cc CC)
+AC_PROG_CXX(g++ c++ CC)
 
 AC_CHECK_LIB(nsl, setsockopt)
 AC_CHECK_LIB(socket, accept)
