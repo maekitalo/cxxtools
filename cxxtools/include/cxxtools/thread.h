@@ -29,6 +29,11 @@ Boston, MA  02111-1307  USA
 namespace cxxtools
 {
 
+/**
+ Exception-class for problems with threads.
+
+ This Exception is thrown in case of problems with threads.
+ */
 class ThreadException : public std::runtime_error
 {
     int m_errno;
@@ -41,10 +46,18 @@ class ThreadException : public std::runtime_error
         m_errno(e)
       { }
 
+    /**
+     * returns the native error-code
+     */
     int getErrno() const
     { return m_errno; }
 };
 
+/**
+ Baseclass for threads.
+
+ This is the base-class for Threads.
+ */
 class Thread
 {
     Thread(const Thread&);
@@ -64,6 +77,39 @@ class Thread
     virtual void run() = 0;
 };
 
+/**
+ Baseclass for attached threads.
+
+ Attached threads, are threads, which are managed by the creator. A attached
+ thread is created on the stack. On destruction, when the scope is leaved,
+ the creator waits, until the thread is terminated.
+ 
+ example:
+ \code
+ class MyThread : public cxxtools::AttachedThread
+ {
+   protected:
+     void run();
+ };
+
+ void MyThread::run()
+ {
+   // implement, whatever need to be done in parallel
+ }
+
+ void someFunc()
+ {
+   {
+     MyThread thread;
+     thread.create();
+     // here the thread runs and the program can do something in parallel
+   }
+
+   // here the thread is ready
+ }
+ \endcode
+
+ */
 class AttachedThread : public Thread
 {
     static void* start(void* arg);
@@ -73,12 +119,59 @@ class AttachedThread : public Thread
     AttachedThread()
       : joined(false)
       { }
+
+    /**
+     The destructor joins the thread, if not already done.
+     */
     virtual ~AttachedThread();
 
+    /**
+      Create the thread.
+
+      After calling this method, the thread runs.
+     */
     void create();
+
+    /**
+     Wait explicitely for the thread to come to an end.
+
+     This is done automatically in the destructor if not already called.
+     Therefore this method is rarely needed.
+     */
     void join();
 };
 
+/**
+ A detached thread manages itself.
+
+ A detached thread runs just for its own. The user does not need (actually
+ can't) wait for the thread to stop. The object is created on the heap.
+
+ example:
+
+ \code
+ class MyThread : public cxxtools::DetachedThread
+ {
+   protected:
+     void run();
+ };
+
+ void MyThread::run()
+ {
+   // implement, whatever need to be done in parallel
+ }
+
+ void someFunc()
+ {
+   MyThread *thread = new MyThread();
+   thread->create();
+   // here the thread runs and the program can do something in parallel.
+   // it continues to run even after this function. The object is
+   // automatically destroyed, when the thread is ready.
+ }
+
+ \endcode
+ */
 class DetachedThread : public Thread
 {
     static void* start(void* arg);
