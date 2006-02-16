@@ -105,13 +105,18 @@ namespace net
 
   void Socket::setTimeout(int t)
   {
-    m_timeout = t;
-
-    if (getFd() >= 0)
+    if (m_timeout != t)
     {
-      long a = m_timeout >= 0 ? O_NONBLOCK : 0;
-      log_debug("fcntl(" << getFd() << ", F_SETFL, " << a << ')');
-      fcntl(getFd(), F_SETFL, a);
+      log_debug("set timeout " << t);
+
+      if (getFd() >= 0 && (t >= 0 && m_timeout < 0 || t < 0 && m_timeout >= 0))
+      {
+        long a = t >= 0 ? O_NONBLOCK : 0;
+        log_debug("fcntl(" << getFd() << ", F_SETFL, " << a << ')');
+        fcntl(getFd(), F_SETFL, a);
+      }
+
+      m_timeout = t;
     }
   }
 
