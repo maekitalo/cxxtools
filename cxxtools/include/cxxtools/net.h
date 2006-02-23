@@ -116,11 +116,7 @@ namespace net
       int getTimeout() const  { return m_timeout; }
 
     protected:
-      void setFd(int sockFd)
-      {
-        close();
-        m_sockFd = sockFd;
-      }
+      void setFd(int sockFd);
 
       /// execute poll(2) - throws Timeout-exception, when no data available
       /// after timeout

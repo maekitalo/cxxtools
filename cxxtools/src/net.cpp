@@ -79,8 +79,10 @@ namespace net
   {
     close();
 
-    if ((m_sockFd = ::socket(domain, type, protocol)) < 0)
+    int fd = ::socket(domain, type, protocol);
+    if (fd < 0)
       throw Exception("cannot create socket");
+    setFd(fd);
   }
 
   void Socket::close()
@@ -107,7 +109,7 @@ namespace net
   {
     if (m_timeout != t)
     {
-      log_debug("set timeout " << t);
+      log_debug("set timeout " << t << ", fd=" << getFd() << ", previous=" << m_timeout);
 
       if (getFd() >= 0 && (t >= 0 && m_timeout < 0 || t < 0 && m_timeout >= 0))
       {
@@ -118,6 +120,17 @@ namespace net
 
       m_timeout = t;
     }
+  }
+
+  void Socket::setFd(int sockFd)
+  {
+    close();
+
+    m_sockFd = sockFd;
+
+    long a = m_timeout >= 0 ? O_NONBLOCK : 0;
+    log_debug("fcntl(" << getFd() << ", F_SETFL, " << a << ')');
+    fcntl(getFd(), F_SETFL, a);
   }
 
   short Socket::doPoll(short events) const
