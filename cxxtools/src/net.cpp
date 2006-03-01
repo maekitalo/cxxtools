@@ -70,8 +70,9 @@ namespace net
   {
     if (m_sockFd >= 0)
     {
+      log_debug("close " << m_sockFd);
       if (::close(m_sockFd) < 0)
-        fprintf(stderr, "error in close(%d)\n", (int)m_sockFd);
+        log_error("error in close(" << m_sockFd << ')');
     }
   }
 

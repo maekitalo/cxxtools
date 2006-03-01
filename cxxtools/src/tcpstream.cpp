@@ -110,6 +110,7 @@ namespace net
 
     socklen_t peeraddr_len;
     peeraddr_len = sizeof(peeraddr);
+    log_debug("accept");
     setFd(::accept(server.getFd(), &peeraddr.sockaddr, &peeraddr_len));
     if (bad())
       throw Exception(errno, "accept");
@@ -119,6 +120,8 @@ namespace net
 
   void Stream::connect(const char* ipaddr, unsigned short int port)
   {
+    log_debug("connect to " << ipaddr << ':' << port);
+
     if (getFd() < 0)
       create(AF_INET, SOCK_STREAM, 0);
 
@@ -132,6 +135,7 @@ namespace net
 
     memmove(&(peeraddr.sockaddr_in.sin_addr.s_addr), host->h_addr, host->h_length);
 
+    log_debug("do connect");
     if (::connect(getFd(), &peeraddr.sockaddr,
         sizeof(peeraddr)) < 0)
       throw Exception(errno, "connect");
