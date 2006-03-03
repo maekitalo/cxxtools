@@ -46,13 +46,40 @@ namespace cxxtools
 
       static std::string mkfilename(unsigned idx);
 
+      class FlusherThread : public DetachedThread
+      {
+          std::ostream& out;
+          static bool noFlush;
+          static struct timespec flushDelay;
+
+        protected:
+          void run();
+
+        public:
+          FlusherThread(std::ostream& out_)
+            : out(out_)
+            { }
+
+          static void setNoFlush(bool sw = true)
+            { noFlush = sw; }
+          static void setFlushDelay(unsigned ms)
+          {
+            flushDelay.tv_sec = ms / 1000;
+            flushDelay.tv_nsec = ms % 1000;
+          }
+      };
+
+      static FlusherThread* flusherThread;
+
     public:
       LoggerImpl(const std::string& c, log_level_type l)
         : Logger(c, l)
         { }
       std::ostream& getAppender() const;
+      void logEnd(std::ostream& appender);
       static void doRotate();
       static void setFile(const std::string& fname);
+      static void setFlushDelay(unsigned ms);
       static void setMaxFileSize(unsigned size)   { maxfilesize = size; }
       static void setMaxBackupIndex(unsigned idx) { maxbackupindex = idx; }
       static void setLoghost(const std::string& host, unsigned short int port);
@@ -73,6 +100,13 @@ namespace cxxtools
       return std::cout;
   }
 
+  void LoggerImpl::logEnd(std::ostream& appender)
+  {
+    appender.clear();
+    if (flusherThread == 0)
+      appender.flush();
+  }
+
   std::string LoggerImpl::mkfilename(unsigned idx)
   {
     std::ostringstream f;
@@ -82,6 +116,8 @@ namespace cxxtools
 
   void LoggerImpl::doRotate()
   {
+    FlusherThread::setNoFlush();
+
     outfile.clear();
     outfile.close();
 
@@ -100,6 +136,8 @@ namespace cxxtools
     ::rename(fname.c_str(), newfilename.c_str());
 
     outfile.open(fname.c_str(), std::ios::out | std::ios::app);
+
+    FlusherThread::setNoFlush(false);
   }
 
   std::string LoggerImpl::fname;
@@ -108,12 +146,28 @@ namespace cxxtools
   net::UdpOStream LoggerImpl::udpmessage(LoggerImpl::loghost);
   unsigned LoggerImpl::maxfilesize = 0;
   unsigned LoggerImpl::maxbackupindex = 0;
+  LoggerImpl::FlusherThread* LoggerImpl::flusherThread = 0;
+
+  bool LoggerImpl::FlusherThread::noFlush = false;
+  struct timespec LoggerImpl::FlusherThread::flushDelay;
 
   void LoggerImpl::setFile(const std::string& fname_)
   {
     fname = fname_;
     outfile.clear();
     outfile.open(fname_.c_str(), std::ios::out | std::ios::app);
+  }
+
+  void LoggerImpl::setFlushDelay(unsigned ms)
+  {
+    FlusherThread::setFlushDelay(ms);
+    if (ms > 0 && flusherThread == 0 && outfile.is_open())
+    {
+      flusherThread = new FlusherThread(outfile);
+      flusherThread->create();
+    }
+    else if (ms == 0)
+      flusherThread = 0;
   }
 
   void LoggerImpl::setLoghost(const std::string& host, unsigned short int port)
@@ -269,6 +323,20 @@ namespace cxxtools
         << "ENTER " << msg->str() << std::endl;
     }
   }
+
+  void LoggerImpl::FlusherThread::run()
+  {
+    while (flushDelay.tv_sec > 0 || flushDelay.tv_nsec > 0)
+    {
+      nanosleep(&flushDelay, 0);
+      if (!noFlush)
+      {
+        cxxtools::MutexLock lock(Logger::mutex);
+        out.flush();
+      }
+    }
+  }
+
 }
 
 void log_init(const std::string& propertyfilename)
@@ -293,6 +361,8 @@ void log_init(const std::string& propertyfilename)
     state_fsize,
     state_maxbackupindex0,
     state_maxbackupindex,
+    state_flushdelay0,
+    state_flushdelay,
     state_skip
   };
   
@@ -306,6 +376,7 @@ void log_init(const std::string& propertyfilename)
   unsigned short int port;
   unsigned fsize;
   unsigned maxbackupindex;
+  unsigned flushdelay = 0;
 
   cxxtools::Logger::log_level_type level;
   while (in.get(ch))
@@ -343,6 +414,8 @@ void log_init(const std::string& propertyfilename)
           state = state_fsize0;
         else if (ch == '=' && token == "MAXBACKUPINDEX")
           state = state_maxbackupindex0;
+        else if (ch == '=' && token == "FLUSHDELAY")
+          state = state_flushdelay0;
         else if (ch == '\n')
           state = state_0;
         else if (std::isspace(ch))
@@ -367,6 +440,8 @@ void log_init(const std::string& propertyfilename)
           state = state_fsize0;
         else if (ch == '=' && token == "MAXBACKUPINDEX")
           state = state_maxbackupindex0;
+        else if (ch == '=' && token == "FLUSHDELAY")
+          state = state_flushdelay0;
         else if (ch == '\n')
           state = state_0;
         else if (!std::isspace(ch))
@@ -508,16 +583,33 @@ void log_init(const std::string& propertyfilename)
       case state_maxbackupindex:
         if (std::isdigit(ch))
           maxbackupindex = maxbackupindex * 10 + ch - '0';
-        else if (ch == '\n')
-        {
-          cxxtools::LoggerImpl::setMaxBackupIndex(maxbackupindex);
-          state = state_0;
-        }
         else
         {
           cxxtools::LoggerImpl::setMaxBackupIndex(maxbackupindex);
-          state = state_skip;
+          state = (ch == '\n' ? state_0 : state_skip);
         }
+        break;
+
+      case state_flushdelay0:
+        if (ch == '\n')
+        {
+          state = state_0;
+          break;
+        }
+        else if (std::isdigit(ch))
+        {
+          flushdelay = ch - '0';
+          state = state_flushdelay;
+        }
+        else if (!std::isspace(ch))
+          state = state_skip;
+        break;
+
+      case state_flushdelay:
+        if (std::isdigit(ch))
+          flushdelay = flushdelay * 10 + ch - '0';
+        else
+          state = (ch == '\n' ? state_0 : state_skip);
         break;
 
       case state_skip:
@@ -526,6 +618,8 @@ void log_init(const std::string& propertyfilename)
         break;
     }
   }
+
+  cxxtools::LoggerImpl::setFlushDelay(flushdelay);
 }
 
 void log_init()

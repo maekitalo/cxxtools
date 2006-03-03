@@ -31,13 +31,13 @@ Boston, MA  02111-1307  USA
 
 #define log_xxxx(level, expr)   \
   do { \
-    cxxtools::Logger* cxxtools_logger = getLogger(); \
+    cxxtools::Logger* _cxxtools_logger = getLogger(); \
     if (getLogger()->isEnabled(::cxxtools::Logger::LOG_LEVEL_ ## level)) \
     { \
-      cxxtools::MutexLock cxxtools_lock(cxxtools::Logger::mutex); \
-      std::ostream& cxxtools_out = cxxtools_logger->logentry(#level); \
-      cxxtools_out << expr << std::endl; \
-      cxxtools_out.clear(); \
+      cxxtools::MutexLock _cxxtools_lock(cxxtools::Logger::mutex); \
+      std::ostream& _cxxtools_out = _cxxtools_logger->logentry(#level); \
+      _cxxtools_out << expr << '\n'; \
+      _cxxtools_logger->logEnd(_cxxtools_out); \
     } \
   } while (false)
 
@@ -111,6 +111,7 @@ namespace cxxtools
         { level = l; }
       virtual std::ostream& getAppender() const = 0;
       std::ostream& logentry(const char* level);
+      virtual void logEnd(std::ostream& appender) = 0;
 
       static RWLock rwmutex;
       static Mutex mutex;

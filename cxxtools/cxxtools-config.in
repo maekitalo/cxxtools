@@ -133,12 +133,14 @@ EOF
 #file=$LOGFILE
 #maxfilesize=1MB
 #maxbackupindex=10
+#flushdelay=100  # delay write in milliseconds
 EOF
   else
     cat <<EOF
 file=$LOGFILE
 maxfilesize=1MB
 maxbackupindex=10
+flushdelay=100  # delay write in milliseconds
 EOF
   fi
 
