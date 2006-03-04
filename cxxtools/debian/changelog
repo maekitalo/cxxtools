@@ -4,6 +4,7 @@ cxxtools (1.4.0) unstable; urgency=low
     case
   * support for udp-messages
   * logging through udp
+  * background-flusher for logging
 
  -- Tommi Maekitalo <tommi@epgmbh.de>  Tue, 19 Jul 2005 21:29:45 +0200
 
