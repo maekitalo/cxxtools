@@ -6,6 +6,7 @@ abi_revision=1
 abi_age=0
 sonumber=${abi_current}:${abi_revision}:${abi_age}
 AC_SUBST(sonumber)
+ACLOCAL_AMFLAGS = -I m4
 
 unset CDPATH
 
