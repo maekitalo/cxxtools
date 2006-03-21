@@ -32,7 +32,7 @@ Boston, MA  02111-1307  USA
 #define log_xxxx(level, expr)   \
   do { \
     cxxtools::Logger* _cxxtools_logger = getLogger(); \
-    if (getLogger()->isEnabled(::cxxtools::Logger::LOG_LEVEL_ ## level)) \
+    if (_cxxtools_logger->isEnabled(::cxxtools::Logger::LOG_LEVEL_ ## level)) \
     { \
       cxxtools::MutexLock _cxxtools_lock(cxxtools::Logger::mutex); \
       std::ostream& _cxxtools_out = _cxxtools_logger->logentry(#level); \
