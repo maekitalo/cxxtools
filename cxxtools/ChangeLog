@@ -1,3 +1,7 @@
+2006-04-04 tommi@tntnet.org
+
+  - flushdelay works now with rolling-files
+
 2006-03-02 tommi@tntnet.org
 
   - new logging-parameter flushdelay, which speeds up logging

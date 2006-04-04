@@ -21,6 +21,7 @@ nobase_include_HEADERS = \
         cxxtools/pool.h \
         cxxtools/query_params.h \
         cxxtools/sudo.h \
+        cxxtools/streamcounter.h \
         cxxtools/tcpstream.h \
         cxxtools/tee.h \
         cxxtools/thread.h \

@@ -23,6 +23,8 @@ Boston, MA  02111-1307  USA
 #include <cxxtools/thread.h>
 #include <cxxtools/udp.h>
 #include <cxxtools/udpstream.h>
+#include <cxxtools/tee.h>
+#include <cxxtools/streamcounter.h>
 #include <list>
 #include <algorithm>
 #include <fstream>
@@ -39,6 +41,8 @@ namespace cxxtools
   {
       static std::string fname;
       static std::ofstream outfile;
+      static cxxtools::Streamcounter counter;
+      static cxxtools::Tee tee;
       static net::UdpSender loghost;
       static net::UdpOStream udpmessage;
       static unsigned maxfilesize;
@@ -49,7 +53,6 @@ namespace cxxtools
       class FlusherThread : public DetachedThread
       {
           std::ostream& out;
-          static bool noFlush;
           static struct timespec flushDelay;
 
         protected:
@@ -60,8 +63,6 @@ namespace cxxtools
             : out(out_)
             { }
 
-          static void setNoFlush(bool sw = true)
-            { noFlush = sw; }
           static void setFlushDelay(unsigned ms)
           {
             flushDelay.tv_sec = ms / 1000;
@@ -89,10 +90,17 @@ namespace cxxtools
   {
     if (outfile.is_open())
     {
-      if (maxfilesize > 0 && outfile.tellp() > maxfilesize)
-        doRotate();
-      outfile.clear();
-      return outfile;
+      if (maxfilesize > 0)
+      {
+        if (counter.getCount() > maxfilesize)
+        {
+          doRotate();
+          counter.resetCount();
+        }
+        return tee;
+      }
+      else
+        return outfile;
     }
     else if (loghost.isConnected())
       return udpmessage;
@@ -116,8 +124,6 @@ namespace cxxtools
 
   void LoggerImpl::doRotate()
   {
-    FlusherThread::setNoFlush();
-
     outfile.clear();
     outfile.close();
 
@@ -136,19 +142,19 @@ namespace cxxtools
     ::rename(fname.c_str(), newfilename.c_str());
 
     outfile.open(fname.c_str(), std::ios::out | std::ios::app);
-
-    FlusherThread::setNoFlush(false);
+    counter.resetCount(outfile.tellp());
   }
 
   std::string LoggerImpl::fname;
   std::ofstream LoggerImpl::outfile;
+  cxxtools::Streamcounter LoggerImpl::counter;
+  cxxtools::Tee LoggerImpl::tee(LoggerImpl::outfile, LoggerImpl::counter);
   net::UdpSender LoggerImpl::loghost;
   net::UdpOStream LoggerImpl::udpmessage(LoggerImpl::loghost);
   unsigned LoggerImpl::maxfilesize = 0;
   unsigned LoggerImpl::maxbackupindex = 0;
   LoggerImpl::FlusherThread* LoggerImpl::flusherThread = 0;
 
-  bool LoggerImpl::FlusherThread::noFlush = false;
   struct timespec LoggerImpl::FlusherThread::flushDelay;
 
   void LoggerImpl::setFile(const std::string& fname_)
@@ -156,6 +162,7 @@ namespace cxxtools
     fname = fname_;
     outfile.clear();
     outfile.open(fname_.c_str(), std::ios::out | std::ios::app);
+    counter.resetCount(outfile.tellp());
   }
 
   void LoggerImpl::setFlushDelay(unsigned ms)
@@ -329,11 +336,8 @@ namespace cxxtools
     while (flushDelay.tv_sec > 0 || flushDelay.tv_nsec > 0)
     {
       nanosleep(&flushDelay, 0);
-      if (!noFlush)
-      {
-        cxxtools::MutexLock lock(Logger::mutex);
-        out.flush();
-      }
+      cxxtools::MutexLock lock(Logger::mutex);
+      out.flush();
     }
   }
 
