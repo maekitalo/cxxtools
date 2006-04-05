@@ -275,7 +275,6 @@ namespace cxxtools
     { return digits[i % 10]; }
   }
 
-
   std::ostream& Logger::logentry(const char* level)
   {
     struct timeval t;
@@ -300,6 +299,42 @@ namespace cxxtools
 
     return out;
   }
+
+  class LogMessage::LogMessageImpl
+  {
+      std::ostringstream msg;
+      Logger* logger;
+      const char* level;
+
+    public:
+      LogMessageImpl(Logger* logger_, const char* level_)
+        : logger(logger_),
+          level(level_)
+          { }
+      std::ostream& out()     { return msg; }
+      std::string str()       { return msg.str(); }
+      Logger* getLogger()     { return logger; }
+      const char* getLevel()  { return level; }
+  };
+
+  LogMessage::LogMessage(Logger* logger, const char* level)
+    : impl(new LogMessageImpl(logger, level))
+    { }
+
+  LogMessage::~LogMessage()
+  {
+    Logger* logger = impl->getLogger();
+
+    MutexLock lock(Logger::mutex);
+
+    std::ostream& out(logger->logentry(impl->getLevel()));
+    out << impl->str() << '\n';
+    logger->logEnd(out);
+    delete impl;
+  }
+
+  std::ostream& LogMessage::out()
+  { return impl->out(); }
 
   LogTracer::~LogTracer()
   {

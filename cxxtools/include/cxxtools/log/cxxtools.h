@@ -33,12 +33,7 @@ Boston, MA  02111-1307  USA
   do { \
     cxxtools::Logger* _cxxtools_logger = getLogger(); \
     if (_cxxtools_logger->isEnabled(::cxxtools::Logger::LOG_LEVEL_ ## level)) \
-    { \
-      cxxtools::MutexLock _cxxtools_lock(cxxtools::Logger::mutex); \
-      std::ostream& _cxxtools_out = _cxxtools_logger->logentry(#level); \
-      _cxxtools_out << expr << '\n'; \
-      _cxxtools_logger->logEnd(_cxxtools_out); \
-    } \
+      cxxtools::LogMessage(_cxxtools_logger, #level).out() << expr; \
   } while (false)
 
 #define log_fatal_enabled()     log_xxxx_enabled(FATAL)
@@ -115,6 +110,18 @@ namespace cxxtools
 
       static RWLock rwmutex;
       static Mutex mutex;
+  };
+
+  class LogMessage
+  {
+      class LogMessageImpl;
+      LogMessageImpl* impl;
+
+    public:
+      LogMessage(Logger* logger, const char* level);
+      ~LogMessage();
+
+      std::ostream& out();
   };
 
   class LogTracer
