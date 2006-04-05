@@ -91,11 +91,11 @@ class Base64ostream : public std::ostream
 };
 
 /**
- Base64istream is a base54-decoder.
+ Base64istream is a base64-decoder.
  
  To base64-decode, instantiate a base64istream with an inputstream.
  The class reads base64-encoded data from the inputstream and you get
- encoded output.
+ decoded output.
  */
 
 class Base64istream : public std::istream
