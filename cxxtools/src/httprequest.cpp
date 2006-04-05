@@ -20,6 +20,7 @@ Boston, MA  02111-1307  USA
 */
 
 #include <cxxtools/httprequest.h>
+#include <locale>
 
 namespace cxxtools
 {
@@ -39,7 +40,7 @@ namespace cxxtools
       port = 0;
       for (++e; e < url_.size() && url_.at(e) != '/'; ++e)
       {
-        if (!std::isdigit(url_.at(e)))
+        if (!std::isdigit(url_.at(e), std::locale()))
           throw std::runtime_error("invalid url \"" + url_ + '"');
         port = port * 10 + (url_.at(e) - '0');
       }

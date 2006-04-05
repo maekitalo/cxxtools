@@ -22,6 +22,8 @@ Boston, MA  02111-1307  USA
 #include <cxxtools/httpreply.h>
 #include <cxxtools/httprequest.h>
 
+#include <locale>
+
 namespace cxxtools
 {
   HttpReply::HttpReply(HttpRequest& request)
@@ -66,21 +68,21 @@ namespace cxxtools
 
   bool HttpReply::Parser::state_httpversion0(char ch)
   {
-    if (!std::isspace(ch))
+    if (!std::isspace(ch, std::locale()))
       state = &Parser::state_httpversion;
     return false;
   }
 
   bool HttpReply::Parser::state_httpversion(char ch)
   {
-    if (std::isspace(ch))
+    if (std::isspace(ch, std::locale()))
       state = &Parser::state_code0;
     return false;
   }
 
   bool HttpReply::Parser::state_code0(char ch)
   {
-    if (std::isdigit(ch))
+    if (std::isdigit(ch, std::locale()))
     {
       reply.returncode = (ch - '0');
       state = &Parser::state_code;
@@ -90,7 +92,7 @@ namespace cxxtools
 
   bool HttpReply::Parser::state_code(char ch)
   {
-    if (std::isdigit(ch))
+    if (std::isdigit(ch, std::locale()))
       reply.returncode = reply.returncode * 10 + (ch - '0');
     else
       state = &Parser::state_request;
@@ -109,7 +111,7 @@ namespace cxxtools
     if (ch == '\n')
       return true;
 
-    if (!std::isspace(ch))
+    if (!std::isspace(ch, std::locale()))
     {
       name = ch;
       state = &Parser::state_name;
@@ -135,7 +137,7 @@ namespace cxxtools
       state = &Parser::state_name0;
     }
 
-    if (!std::isspace(ch))
+    if (!std::isspace(ch, std::locale()))
     {
       value = ch;
       state = &Parser::state_value;
