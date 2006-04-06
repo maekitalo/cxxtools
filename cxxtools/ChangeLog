@@ -1,3 +1,7 @@
+2006-04-06 tommi@tntnet.org
+
+  - faster formatting of logmessages
+
 2006-04-04 tommi@tntnet.org
 
   - flushdelay works now with rolling-files

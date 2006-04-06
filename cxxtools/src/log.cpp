@@ -111,7 +111,6 @@ namespace cxxtools
 
   void LoggerImpl::logEnd(std::ostream& appender)
   {
-    appender.clear();
     if (flusherThread == 0)
       appender.flush();
   }
@@ -278,21 +277,48 @@ namespace cxxtools
   std::ostream& Logger::logentry(const char* level)
   {
     struct timeval t;
-    struct tm tt;
     gettimeofday(&t, 0);
+
+    // format date only once per second:
+    static char date[20];
+    static time_t psec = 0;
     time_t sec = static_cast<time_t>(t.tv_sec);
-    localtime_r(&sec, &tt);
+    if (sec != psec)
+    {
+      struct tm tt;
+      localtime_r(&sec, &tt);
+      psec = sec;
+      date[0] = digits[(1900 + tt.tm_year) / 1000];
+      date[1] = loDigit((1900 + tt.tm_year) / 100);
+      date[2] = loDigit((1900 + tt.tm_year) / 10);
+      date[3] = loDigit(1900 + tt.tm_year);
+      date[4] = '-';
+      date[5] = hiDigit(tt.tm_mon + 1);
+      date[6] = loDigit(tt.tm_mon + 1);
+      date[7] = '-';
+      date[8] = hiDigit(tt.tm_mday);
+      date[9] = loDigit(tt.tm_mday);
+      date[10] = ' ';
+      date[11] = hiDigit(tt.tm_hour);
+      date[12] = loDigit(tt.tm_hour);
+      date[13] = ':';
+      date[14] = hiDigit(tt.tm_min);
+      date[15] = loDigit(tt.tm_min);
+      date[16] = ':';
+      date[17] = hiDigit(tt.tm_sec);
+      date[18] = loDigit(tt.tm_sec);
+      date[19] = '.';
+      date[20] = '\0';
+    }
 
     std::ostream& out = getAppender();
-    out << 1900 + tt.tm_year << '-'
-        << hiDigit(tt.tm_mon + 1) << loDigit(tt.tm_mon + 1) << '-'
-        << hiDigit(tt.tm_mday) << loDigit(tt.tm_mday) << ' '
-        << hiDigit(tt.tm_hour) << loDigit(tt.tm_hour) << ':'
-        << hiDigit(tt.tm_min) << loDigit(tt.tm_min) << ':'
-        << hiDigit(tt.tm_sec) << loDigit(tt.tm_sec) << '.'
-        << loDigit(t.tv_usec / 100000)    << loDigit(t.tv_usec / 10000 % 10)
-        << loDigit(t.tv_usec / 1000 % 10) << loDigit(t.tv_usec / 100 % 10)
-        << loDigit(t.tv_usec / 10 % 10)
+
+    out.clear();
+
+    out << date
+        << loDigit(t.tv_usec / 100000) << loDigit(t.tv_usec / 10000)
+        << loDigit(t.tv_usec / 1000) << loDigit(t.tv_usec / 100)
+        << loDigit(t.tv_usec / 10)
         << " [" << pthread_self() << "] "
         << level << ' '
         << category << " - ";
@@ -323,13 +349,15 @@ namespace cxxtools
 
   LogMessage::~LogMessage()
   {
-    Logger* logger = impl->getLogger();
-
     MutexLock lock(Logger::mutex);
+
+    Logger* logger = impl->getLogger();
 
     std::ostream& out(logger->logentry(impl->getLevel()));
     out << impl->str() << '\n';
+
     logger->logEnd(out);
+
     delete impl;
   }
 
