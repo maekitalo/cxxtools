@@ -18,7 +18,6 @@ libcxxtools_la_SOURCES = \
 	net.cpp \
 	pollclass.cpp \
 	query_params.cpp \
-	streamcounter.cpp \
 	tcpstream.cpp \
 	tee.cpp \
 	thread.cpp \

@@ -26,12 +26,16 @@ Boston, MA  02111-1307  USA
 
 namespace cxxtools
 {
-  class StreamcounterBuf : public std::streambuf
+  template <typename CharType, typename Traits>
+  class BasicStreamcounterBuf : public std::basic_streambuf<CharType, Traits>
   {
+      typedef Traits traits_type;
+      typedef typename Traits::int_type int_type;
+
       unsigned count;
 
     public:
-      StreamcounterBuf()
+      BasicStreamcounterBuf()
         : count(0)
         { }
 
@@ -39,22 +43,31 @@ namespace cxxtools
       void resetCount(unsigned count_)  { count = count_; }
 
     private:
-      std::streambuf::int_type overflow(std::streambuf::int_type ch);
-      std::streambuf::int_type underflow();
-      int sync();
+      int_type overflow(int_type ch)
+      { ++count; return 0; }
+
+      int_type underflow()
+      { return traits_type::eof(); }
+
+      int sync()
+      { return 0; }
   };
 
-  class Streamcounter : public std::ostream
+  template <typename CharType, typename Traits>
+  class BasicStreamcounter : public std::basic_ostream<CharType, Traits>
   {
-      StreamcounterBuf streambuf;
+      BasicStreamcounterBuf<CharType, Traits> streambuf;
+
     public:
-      Streamcounter()
-        : std::ostream(&streambuf)
+      BasicStreamcounter()
+        : std::basic_ostream<CharType, Traits>(&streambuf)
         { }
 
       unsigned getCount() const           { return streambuf.getCount(); }
       void resetCount(unsigned count = 0) { streambuf.resetCount(count); }
   };
+
+  typedef BasicStreamcounter<char, std::char_traits<char> > Streamcounter;
 }
 
 #endif // CXXTOOLS_STREAMCOUNTER_H
