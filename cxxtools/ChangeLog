@@ -1,3 +1,7 @@
+2006-04-16 tommi@tntnet.org
+
+  - fixes for AIX-compatibility
+
 2006-04-06 tommi@tntnet.org
 
   - faster formatting of logmessages
@@ -5,6 +9,7 @@
 2006-04-04 tommi@tntnet.org
 
   - flushdelay works now with rolling-files
+  - ANSI-C++-fixes
 
 2006-03-02 tommi@tntnet.org
 

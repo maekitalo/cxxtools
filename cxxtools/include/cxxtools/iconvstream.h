@@ -72,12 +72,9 @@ class iconvstreambuf : public std::streambuf
   \code
     int main(int argc, char* argv[])
     {
-      if (argc >= 2)
-      {
-        cxxtools::iconvstream out(std::cout, "LATIN1", "WINDOWS-1251");
-        // copy input to output:
-        out << std::cin.rdbuf();
-      }
+      cxxtools::iconvstream out(std::cout, "LATIN1", "WINDOWS-1251");
+      // copy input to output:
+      out << std::cin.rdbuf();
     }
   \endcode
  */

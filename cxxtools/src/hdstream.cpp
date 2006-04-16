@@ -21,9 +21,11 @@ Boston, MA  02111-1307  USA
 
 #include "cxxtools/hdstream.h"
 #include <iomanip>
+#include <locale>
 
 namespace cxxtools
 {
+const unsigned Hdstreambuf::BUFFERSIZE;
 
 std::streambuf::int_type Hdstreambuf::overflow(std::streambuf::int_type ch)
 {
@@ -46,7 +48,7 @@ std::streambuf::int_type Hdstreambuf::overflow(std::streambuf::int_type ch)
       out << "   ";
     out << '|';
     for(i = 0; i < count; ++i)
-      out << (char)(std::isprint(pbase()[i]) ? pbase()[i] : '.');
+      out << (char)(std::isprint(pbase()[i], std::locale()) ? pbase()[i] : '.');
     for( ; i < BUFFERSIZE; ++i)
       out << ' ';
     out << std::endl;

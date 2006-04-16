@@ -23,6 +23,7 @@ Boston, MA  02111-1307  USA
 #define CXXTOOLS_DLLOADER_H
 
 #include <stdexcept>
+#include <string>
 
 namespace cxxtools
 {
