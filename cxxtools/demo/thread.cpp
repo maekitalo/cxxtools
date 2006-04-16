@@ -1,5 +1,6 @@
 #include <cxxtools/thread.h>
 #include <iostream>
+#include <string>
 #include <unistd.h>
 
 cxxtools::Mutex coutMutex;

@@ -29,7 +29,7 @@ log_define("global")  // global definition
 namespace ns
 {
   log_define("namespace")  // namespace scope definition
-  void main()
+  void main1()
   {
     // this is logged at category "namespace"
 
@@ -71,7 +71,7 @@ int main(int argc, char* argv[])
     log_info("info message " << 4);
     log_debug("debug message " << 5);
 
-    ns::main();
+    ns::main1();
 
     cl c;
   }

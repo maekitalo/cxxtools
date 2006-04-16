@@ -22,6 +22,7 @@ Boston, MA  02111-1307  USA
 #include "cxxtools/thread.h"
 #include <errno.h>
 #include <sstream>
+#include <string>
 
 namespace cxxtools
 {
