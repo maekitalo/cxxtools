@@ -1,3 +1,16 @@
+cxxtools (1.4.1-2) unstable; urgency=low
+
+  * bugfix: log-messages before log_init created a logger, which was
+    not reinitialized by log_init
+
+ -- Tommi Maekitalo <tommi@tntnet.org>  Wed, 19 Apr 2006 10:37:36 +0200
+
+cxxtools (1.4.1-1) unstable; urgency=low
+
+  * debian-version-numbering fixed
+
+ -- Tommi Maekitalo <tommi@tntnet.org>  Tue, 18 Apr 2006 14:53:59 +0200
+
 cxxtools (1.4.1) unstable; urgency=low
 
   * new logging-parameter flushdelay, which speeds up logging

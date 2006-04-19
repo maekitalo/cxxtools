@@ -33,13 +33,8 @@ Boston, MA  02111-1307  USA
 #define log_init_trace()   log_init(cxxtools::Logger::LOG_LEVEL_TRACE)
 #define log_init           log_init_cxxtools
 
-inline void log_init_cxxtools(cxxtools::Logger::log_level_type level)
-{
-  cxxtools::Logger::setRootLevel(level);
-}
-
+void log_init_cxxtools(cxxtools::Logger::log_level_type level);
 void log_init_cxxtools(const std::string& propertyfilename);
-
 void log_init_cxxtools();
 
 #endif // CXXTOOLS_LOG_CXXTOOLS_INIT_H
