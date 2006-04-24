@@ -1,5 +1,5 @@
 noinst_PROGRAMS = getini hd md5sum multifstream arg arg-set cgi dir \
-  dlloader pool dynbuffer log logbench netcat netecho httprequest netio \
+  dlloader pool dynbuffer log logbench netcat httprequest netio \
   netmsg logsh thread
 
 getini_SOURCES = getini.cpp
@@ -16,7 +16,6 @@ dynbuffer_SOURCES = dynbuffer.cpp
 log_SOURCES = log.cpp
 logbench_SOURCES = logbench.cpp
 netcat_SOURCES = netcat.cpp
-netecho_SOURCES = netecho.cpp
 httprequest_SOURCES = httprequest.cpp
 netio_SOURCES = netio.cpp
 netmsg_SOURCES = netmsg.cpp

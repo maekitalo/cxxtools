@@ -23,11 +23,14 @@ Boston, MA  02111-1307  USA
 #include <iostream>
 #include <cxxtools/tcpstream.h>
 #include <cxxtools/arg.h>
+#include <cxxtools/loginit.h>
 
 int main(int argc, char* argv[])
 {
   try
   {
+    log_init();
+
     cxxtools::Arg<const char*> ip(argc, argv, 'i', "0.0.0.0");
     cxxtools::Arg<unsigned short> port(argc, argv, 'p', 1234);
     cxxtools::Arg<unsigned> bufsize(argc, argv, 'b', 8192);
@@ -39,7 +42,7 @@ int main(int argc, char* argv[])
       // I'm a server
 
       // listen to a port
-      cxxtools::net::Server server(ip, port);
+      cxxtools::net::Server server(ip.getValue(), port);
 
       // accept a connetion
       cxxtools::net::iostream worker(server, bufsize);

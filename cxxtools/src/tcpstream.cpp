@@ -37,48 +37,45 @@ namespace net
   // implementation of Server
   //
   Server::Server()
-    : Socket(AF_INET, SOCK_STREAM, 0)
+    : Socket(AF_INET6, SOCK_STREAM, 0)
   { }
 
   Server::Server(const std::string& ipaddr, unsigned short int port,
       int backlog) throw (Exception)
-    : Socket(AF_INET, SOCK_STREAM, 0)
+    : Socket(AF_INET6, SOCK_STREAM, 0)
   {
     listen(ipaddr, port, backlog);
   }
 
-  Server::Server(const char* ipaddr, unsigned short int port,
-      int backlog) throw (Exception)
-    : Socket(AF_INET, SOCK_STREAM, 0)
-  {
-    listen(ipaddr, port, backlog);
-  }
-
-  void Server::listen(const char* ipaddr, unsigned short int port,
+  void Server::listen(const std::string& ipaddr, unsigned short int port,
       int backlog) throw (Exception)
   {
-    struct hostent* host = ::gethostbyname(ipaddr);
-    if (host == 0)
-      throw Exception(std::string("invalid ipaddress ") + ipaddr);
+    log_debug("listen on " << ipaddr << " port " << port);
 
-    memset(&servaddr.sockaddr_in, 0, sizeof(servaddr.sockaddr_in));
+    Addrinfo ai(ipaddr, port);
 
-    servaddr.sockaddr_in.sin_family = AF_INET;
-    servaddr.sockaddr_in.sin_port = htons(port);
-
-    memmove(&(servaddr.sockaddr_in.sin_addr.s_addr), host->h_addr, host->h_length);
     int reuseAddr = 1;
     if (::setsockopt(getFd(), SOL_SOCKET, SO_REUSEADDR,
         &reuseAddr, sizeof(reuseAddr)) < 0)
       throw Exception(errno, "setsockopt");
 
-    if (::bind(getFd(),
-               (struct sockaddr *)&servaddr.sockaddr_in,
-               sizeof(servaddr.sockaddr_in)) < 0)
-      throw Exception(errno, "bind");
+    // getaddrinfo() may return more than one addrinfo structure, so work
+    // them all out, until we find a pretty useable one
+    for (Addrinfo::const_iterator it = ai.begin(); it != ai.end(); ++it)
+    {
+      if (::bind(getFd(), it->ai_addr, it->ai_addrlen) == 0)
+      {
+        // save our information
+        memmove(&servaddr, it->ai_addr, it->ai_addrlen);
 
-    if (::listen(getFd(), backlog) < 0)
-      throw Exception(errno, "listen");
+        if (::listen(getFd(), backlog) < 0)
+          throw Exception(errno, "listen");
+
+        return;
+      }
+    }
+
+    throw Exception(errno, "bind");
   }
 
   ////////////////////////////////////////////////////////////////////////
@@ -93,13 +90,7 @@ namespace net
   }
 
   Stream::Stream(const std::string& ipaddr, unsigned short int port)
-    : Socket(AF_INET, SOCK_STREAM, 0)
-  {
-    connect(ipaddr, port);
-  }
-
-  Stream::Stream(const char* ipaddr, unsigned short int port)
-    : Socket(AF_INET, SOCK_STREAM, 0)
+    : Socket(AF_INET6, SOCK_STREAM, 0)
   {
     connect(ipaddr, port);
   }
@@ -111,36 +102,36 @@ namespace net
     socklen_t peeraddr_len;
     peeraddr_len = sizeof(peeraddr);
     log_debug("accept");
-    setFd(::accept(server.getFd(), &peeraddr.sockaddr, &peeraddr_len));
+    setFd(::accept(server.getFd(), reinterpret_cast <struct sockaddr *> (&peeraddr), &peeraddr_len));
     if (bad())
       throw Exception(errno, "accept");
 
     setTimeout(getTimeout());
   }
 
-  void Stream::connect(const char* ipaddr, unsigned short int port)
+  void Stream::connect(const std::string& ipaddr, unsigned short int port)
   {
-    log_debug("connect to " << ipaddr << ':' << port);
+    log_debug("connect to " << ipaddr << " port " << port);
 
     if (getFd() < 0)
-      create(AF_INET, SOCK_STREAM, 0);
+      create(AF_INET6, SOCK_STREAM, 0);
 
-    struct hostent* host = ::gethostbyname(ipaddr);
-    if (host == 0)
-      throw Exception(std::string("invalid ipaddress ") + ipaddr);
-
-    memset(&peeraddr, 0, sizeof(peeraddr));
-    peeraddr.sockaddr_in.sin_family = AF_INET;
-    peeraddr.sockaddr_in.sin_port = htons(port);
-
-    memmove(&(peeraddr.sockaddr_in.sin_addr.s_addr), host->h_addr, host->h_length);
+    Addrinfo ai(ipaddr, port);
 
     log_debug("do connect");
-    if (::connect(getFd(), &peeraddr.sockaddr,
-        sizeof(peeraddr)) < 0)
-      throw Exception(errno, "connect");
+    for (Addrinfo::const_iterator it = ai.begin(); it != ai.end(); ++it)
+    {
+      if (::connect(getFd(), it->ai_addr, it->ai_addrlen) == 0)
+      {
+        // save our information
+        memmove(&peeraddr, it->ai_addr, it->ai_addrlen);
 
-    setTimeout(getTimeout());
+        setTimeout(getTimeout());
+        return;
+      }
+    }
+
+    throw Exception(errno, "connect");
   }
 
   Stream::size_type Stream::read(char* buffer, Stream::size_type bufsize) const

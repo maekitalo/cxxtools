@@ -22,11 +22,13 @@ Boston, MA  02111-1307  USA
 #ifndef CXXTOOLS_NET_H
 #define CXXTOOLS_NET_H
 
-#include <iostream>
 #include <string>
 #include <stdexcept>
+#include <iterator>
 #include <netinet/in.h>
 #include <sys/socket.h>
+#include <sys/types.h>
+#include <netdb.h>
 
 namespace cxxtools
 {
@@ -74,6 +76,7 @@ namespace net
    */
   class Socket
   {
+
     public:
       /// Konstruktor erzeugt eine Instanz und erzeugt einen Socket
       /// auf Betriebssystemebene. Bei Fehlern wird eine Exception
@@ -109,7 +112,7 @@ namespace net
       int getFd() const     { return m_sockFd; }
 
       /// wrapper um ::getsocketname
-      struct sockaddr getSockAddr() const throw (Exception);
+      struct sockaddr_storage getSockAddr() const throw (Exception);
 
       /// timeout in milliseconds
       void setTimeout(int t);
@@ -128,6 +131,50 @@ namespace net
 
       Socket(const Socket&);               // no implementation
       Socket& operator= (const Socket&);   // no implementation
+  };
+
+  class Addrinfo
+  {
+      struct addrinfo* ai;
+      void init(const std::string& ipaddr, unsigned short port,
+                const addrinfo& hints);
+
+    public:
+      Addrinfo(const std::string& ipaddr, unsigned short port);
+      Addrinfo(const std::string& ipaddr, unsigned short port,
+               const addrinfo& hints)
+        : ai(0)
+        { init(ipaddr, port, hints); }
+      ~Addrinfo();
+
+      class const_iterator : public std::iterator<std::forward_iterator_tag, addrinfo>
+      {
+          struct addrinfo* current;
+
+        public:
+          explicit const_iterator(struct addrinfo* ai = 0)
+            : current(ai)
+            { }
+          bool operator== (const const_iterator& it) const
+            { return current == it.current; }
+          bool operator!= (const const_iterator& it) const
+            { return current != it.current; }
+          const_iterator& operator++ ()
+            { current = current->ai_next; return *this; }
+          const_iterator operator++ (int)
+            {
+              const_iterator ret(current);
+              current = current->ai_next;
+              return ret;
+            }
+          reference operator* () const
+            { return *current; }
+          pointer operator-> () const
+            { return current; }
+      };
+
+      const_iterator begin() const  { return const_iterator(ai); }
+      const_iterator end() const    { return const_iterator(); }
   };
 
 } // namespace net

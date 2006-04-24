@@ -40,10 +40,7 @@ namespace net
    */
   class Server : public Socket
   {
-      union {
-        struct sockaddr sockaddr;
-        struct sockaddr_in sockaddr_in;
-      } servaddr;
+      struct sockaddr_storage servaddr;
 
     public:
       Server();
@@ -51,17 +48,11 @@ namespace net
       /// erzeugt einen Serversocket und hört auf die angegebene Adresse
       Server(const std::string& ipaddr, unsigned short int port, int backlog = 5)
              throw (Exception);
-      /// erzeugt einen Serversocket und hört auf die angegebene Adresse
-      Server(const char* ipaddr, unsigned short int port, int backlog = 5) throw (Exception);
 
-      void listen(const char* ipaddr, unsigned short int port, int backlog = 5) throw (Exception);
-      void listen(const std::string& ipaddr, unsigned short int port, int backlog = 5) throw (Exception)
-        { listen(ipaddr.c_str(), port, backlog); }
+      void listen(const std::string& ipaddr, unsigned short int port, int backlog = 5) throw (Exception);
 
-      const struct sockaddr& getAddr() const
-        { return servaddr.sockaddr; }
-      const struct sockaddr_in& getAddr_in() const
-        { return servaddr.sockaddr_in; }
+      const struct sockaddr_storage& getAddr() const
+        { return servaddr; }
 
     private:
   };
@@ -75,10 +66,7 @@ namespace net
    */
   class Stream : public Socket
   {
-      union {
-        struct sockaddr sockaddr;
-        struct sockaddr_in sockaddr_in;
-      } peeraddr;
+      struct sockaddr_storage peeraddr;
 
     public:
       typedef size_t size_type;
@@ -94,10 +82,6 @@ namespace net
       /// Initialisert einen Socket und nimmt Verbindung mit der angegebenen
       /// Adresse auf. Kommt keine Verbindung zustande, wird eine Exception
       /// ausgelöst
-      Stream(const char* ipaddr, unsigned short int port);
-      /// Intantiiert ein Stream mit einem exisitierenden Filedeskriptor.
-      /// Die Klasse übernimmt den Besitz des Deskriptors und schliesst diesen
-      /// im Destruktor, wenn er >= 0 ist.
       explicit Stream(int fd)
         : Socket(fd)
         { }
@@ -107,11 +91,7 @@ namespace net
       void accept(const Server& server);
       /// nimmt eine Verbindung mit der angegebenen Adresse auf. Kommt keine
       /// Verbindung zustande, wird eine Exception ausgelöst.
-      void connect(const char* ipaddr, unsigned short int port);
-      /// nimmt eine Verbindung mit der angegebenen Adresse auf. Kommt keine
-      /// Verbindung zustande, wird eine Exception ausgelöst.
-      void connect(const std::string& ipaddr, unsigned short int port)
-      { connect(ipaddr.c_str(), port); }
+      void connect(const std::string& ipaddr, unsigned short int port);
 
       /// Liest vom Socket maximal 'bufsize' Zeichen in 'buffer'.
       /// Liefert die Anzahl der gelesenen Zeichen zurück.
@@ -122,10 +102,8 @@ namespace net
       size_type write(const char* buffer, size_type bufsize) const;
 
       /// gibt die aktuelle Peer-Adresse zurück
-      const struct sockaddr& getPeeraddr() const
-        { return peeraddr.sockaddr; }
-      const struct sockaddr_in& getPeeraddr_in() const
-        { return peeraddr.sockaddr_in; }
+      const struct sockaddr_storage& getPeeraddr() const
+        { return peeraddr; }
   };
 
   //////////////////////////////////////////////////////////////////////

@@ -34,7 +34,7 @@ namespace net
   // UdpSender
   //
   UdpSender::UdpSender(const char* ipaddr, unsigned short int port)
-    : Socket(AF_INET, SOCK_DGRAM, 0),
+    : Socket(AF_INET6, SOCK_DGRAM, 0),
       connected(false)
   {
     connect(ipaddr, port);
@@ -42,26 +42,18 @@ namespace net
 
   void UdpSender::connect(const char* ipaddr, unsigned short int port)
   {
-    union {
-      struct sockaddr sockaddr;
-      struct sockaddr_in sockaddr_in;
-    } peeraddr;
+    Addrinfo ai(ipaddr, port);
 
-    struct hostent* host = ::gethostbyname(ipaddr);
-    if (host == 0)
-      throw Exception(std::string("invalid ipaddress ") + ipaddr);
+    for (Addrinfo::const_iterator it = ai.begin(); it != ai.end(); ++it)
+    {
+      if (::connect(getFd(), it->ai_addr, it->ai_addrlen) == 0)
+      {
+        connected = true;
+        return;
+      }
+    }
 
-    memset(&peeraddr, 0, sizeof(peeraddr));
-    peeraddr.sockaddr_in.sin_family = AF_INET;
-    peeraddr.sockaddr_in.sin_port = htons(port);
-
-    memmove(&(peeraddr.sockaddr_in.sin_addr.s_addr), host->h_addr, host->h_length);
-    socklen_t peeraddr_len;
-    peeraddr_len = sizeof(peeraddr);
-    int ret = ::connect(getFd(), &peeraddr.sockaddr, peeraddr_len);
-    if (ret < 0)
-      throw Exception("connect");
-    connected = true;
+    throw Exception(errno, "connect");
   }
 
   UdpSender::size_type UdpSender::send(const void* message, size_type length, int flags) const
@@ -110,13 +102,13 @@ namespace net
   // UdpReceiver
   //
   UdpReceiver::UdpReceiver()
-    : Socket(AF_INET, SOCK_DGRAM, 0)
+    : Socket(AF_INET6, SOCK_DGRAM, 0)
   {
     memset(&peeraddr, 0, sizeof(peeraddr));
   }
 
   UdpReceiver::UdpReceiver(const char* ipaddr, unsigned short int port)
-    : Socket(AF_INET, SOCK_DGRAM, 0)
+    : Socket(AF_INET6, SOCK_DGRAM, 0)
   {
     memset(&peeraddr, 0, sizeof(peeraddr));
     bind(ipaddr, port);
@@ -124,25 +116,28 @@ namespace net
 
   void UdpReceiver::bind(const char* ipaddr, unsigned short int port)
   {
-    struct hostent* host = ::gethostbyname(ipaddr);
-    if (host == 0)
-      throw Exception(std::string("invalid ipaddress ") + ipaddr);
+    Addrinfo ai(ipaddr, port);
 
-    memset(&peeraddr, 0, sizeof(peeraddr));
-    peeraddr.sockaddr_in.sin_family = AF_INET;
-    peeraddr.sockaddr_in.sin_port = htons(port);
+    int reuseAddr = 1;
+    if (::setsockopt(getFd(), SOL_SOCKET, SO_REUSEADDR,
+        &reuseAddr, sizeof(reuseAddr)) < 0)
+      throw Exception(errno, "setsockopt");
 
-    memmove(&(peeraddr.sockaddr_in.sin_addr.s_addr), host->h_addr, host->h_length);
-    peeraddrLen = sizeof(peeraddr);
-    int ret = ::bind(getFd(), &peeraddr.sockaddr, peeraddrLen);
-    if (ret < 0)
-      throw Exception("bind");
+    for (Addrinfo::const_iterator it = ai.begin(); it != ai.end(); ++it)
+    {
+      if (::bind(getFd(), it->ai_addr, it->ai_addrlen) == 0)
+      {
+        memmove(&peeraddr, it->ai_addr, it->ai_addrlen);
+        return;
+      }
+    }
+
+    throw Exception(errno, "bind");
   }
 
   UdpReceiver::size_type UdpReceiver::recv(void* buffer, size_type length, int flags)
   {
-    ssize_t ret = ::recvfrom(getFd(), buffer, length, flags, &peeraddr.sockaddr,
-      &peeraddrLen);
+    ssize_t ret = ::recvfrom(getFd(), buffer, length, flags, reinterpret_cast <struct sockaddr *> (&peeraddr), &peeraddrLen);
 
     if (ret < 0 && errno == EAGAIN)
     {
@@ -151,8 +146,7 @@ namespace net
 
       doPoll(POLLIN);
 
-      ret = ::recvfrom(getFd(), buffer, length, flags, &peeraddr.sockaddr,
-        &peeraddrLen);
+      ret = ::recvfrom(getFd(), buffer, length, flags, reinterpret_cast <struct sockaddr *> (&peeraddr), &peeraddrLen);
     }
 
     if (ret < 0)
@@ -170,7 +164,7 @@ namespace net
 
   UdpReceiver::size_type UdpReceiver::send(const void* message, size_type length, int flags) const
   {
-    ssize_t ret = ::sendto(getFd(), message, length, flags, &peeraddr.sockaddr, peeraddrLen);
+    ssize_t ret = ::sendto(getFd(), message, length, flags, reinterpret_cast <const struct sockaddr *> (&peeraddr), peeraddrLen);
     if (ret < 0)
       throw Exception("sendto");
     return static_cast<size_type>(ret);

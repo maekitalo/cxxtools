@@ -94,12 +94,12 @@ namespace net
     }
   }
 
-  struct sockaddr Socket::getSockAddr() const throw (Exception)
+  struct sockaddr_storage Socket::getSockAddr() const throw (Exception)
   {
-    struct sockaddr ret;
+    struct sockaddr_storage ret;
 
     socklen_t slen = sizeof(ret);
-    if (::getsockname(getFd(), &ret, &slen) < 0)
+    if (::getsockname(getFd(), reinterpret_cast <struct sockaddr *> (&ret), &slen) < 0)
       throw Exception("error in getsockname");
 
     return ret;
@@ -164,6 +164,47 @@ namespace net
     }
 
     return fds.revents;
+  }
+
+  Addrinfo::Addrinfo(const std::string& ipaddr, unsigned short port)
+    : ai(0)
+  {
+    struct addrinfo hints;
+
+    // give some useful default values to use for getaddrinfo()
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_family = AF_INET6;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_flags = AI_NUMERICSERV;
+
+    init(ipaddr, port, hints);
+  }
+
+  Addrinfo::~Addrinfo()
+  {
+    if (ai)
+      freeaddrinfo(ai);
+  }
+
+  void Addrinfo::init(const std::string& ipaddr, unsigned short port,
+    const addrinfo& hints)
+  {
+    std::string ipv6;
+
+    // assume IPv4-address, when no ':' found
+    if (ipaddr.find(':') == std::string::npos)
+      ipv6 = "::ffff:" + ipaddr;
+    else
+      ipv6 = ipaddr;
+
+    std::ostringstream p;
+    p << port;
+
+    if (0 != ::getaddrinfo(ipv6.c_str(), p.str().c_str(), &hints, &ai))
+      throw Exception("invalid ipaddress " + ipaddr);
+
+    if (ai == 0)
+      throw Exception("unknown error in getaddrinfo");
   }
 
 } // namespace net

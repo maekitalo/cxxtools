@@ -38,7 +38,7 @@ int server(int argc, char* argv[])
   cxxtools::Arg<const char*> ip(argc, argv, 'i', "0.0.0.0");
   cxxtools::Arg<bool> verbose(argc, argv, 'v');
 
-  cxxtools::net::Server server(ip, port);
+  cxxtools::net::Server server(ip.getValue(), port);
 
   while (1)
   {
@@ -107,7 +107,7 @@ int client(int argc, char* argv[])
   cxxtools::Arg<unsigned> bufsize(argc, argv, 't', BUFSIZE);
   cxxtools::Arg<unsigned> B(argc, argv, 'B', 0);
 
-  cxxtools::net::Stream conn(ip, port);
+  cxxtools::net::Stream conn(ip.getValue(), port);
 
   cxxtools::Dynbuffer<char> buffer(bufsize);
   std::generate(buffer.begin(), buffer.end(), rand);

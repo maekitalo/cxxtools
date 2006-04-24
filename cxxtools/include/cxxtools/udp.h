@@ -37,7 +37,7 @@ namespace net
       typedef size_t size_type;
 
       UdpSender()
-        : Socket(AF_INET, SOCK_DGRAM, 0),
+        : Socket(AF_INET6, SOCK_DGRAM, 0),
           connected(false)
         { }
 
@@ -54,11 +54,7 @@ namespace net
 
   class UdpReceiver : public Socket
   {
-      union {
-        struct sockaddr sockaddr;
-        struct sockaddr_in sockaddr_in;
-      } peeraddr;
-
+      struct sockaddr_storage peeraddr;
       socklen_t peeraddrLen;
 
     public:
