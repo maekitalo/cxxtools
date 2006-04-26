@@ -193,7 +193,12 @@ namespace net
 
     // assume IPv4-address, when no ':' found
     if (ipaddr.find(':') == std::string::npos)
-      ipv6 = "::ffff:" + ipaddr;
+    {
+      if (ipaddr == "0.0.0.0")
+        ipv6 = "::0";
+      else
+        ipv6 = "::ffff:" + ipaddr;
+    }
     else
       ipv6 = ipaddr;
 

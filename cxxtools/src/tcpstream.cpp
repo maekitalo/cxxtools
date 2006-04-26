@@ -26,7 +26,7 @@ Boston, MA  02111-1307  USA
 #include <errno.h>
 #include "cxxtools/log.h"
 
-log_define("cxxtools.net");
+log_define("cxxtools.net")
 
 namespace cxxtools
 {
