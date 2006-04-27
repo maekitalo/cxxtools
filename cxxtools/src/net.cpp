@@ -173,9 +173,7 @@ namespace net
 
     // give some useful default values to use for getaddrinfo()
     memset(&hints, 0, sizeof(hints));
-    hints.ai_family = AF_INET6;
     hints.ai_socktype = SOCK_STREAM;
-    hints.ai_flags = AI_NUMERICSERV;
 
     init(ipaddr, port, hints);
   }
@@ -189,23 +187,10 @@ namespace net
   void Addrinfo::init(const std::string& ipaddr, unsigned short port,
     const addrinfo& hints)
   {
-    std::string ipv6;
-
-    // assume IPv4-address, when no ':' found
-    if (ipaddr.find(':') == std::string::npos)
-    {
-      if (ipaddr == "0.0.0.0")
-        ipv6 = "::0";
-      else
-        ipv6 = "::ffff:" + ipaddr;
-    }
-    else
-      ipv6 = ipaddr;
-
     std::ostringstream p;
     p << port;
 
-    if (0 != ::getaddrinfo(ipv6.c_str(), p.str().c_str(), &hints, &ai))
+    if (0 != ::getaddrinfo(ipaddr.c_str(), p.str().c_str(), &hints, &ai))
       throw Exception("invalid ipaddress " + ipaddr);
 
     if (ai == 0)

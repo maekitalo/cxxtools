@@ -43,7 +43,7 @@ namespace net
       struct sockaddr_storage servaddr;
 
     public:
-      Server();
+      Server()  {}
 
       /// erzeugt einen Serversocket und hört auf die angegebene Adresse
       Server(const std::string& ipaddr, unsigned short int port, int backlog = 5)

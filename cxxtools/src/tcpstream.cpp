@@ -36,13 +36,8 @@ namespace net
   ////////////////////////////////////////////////////////////////////////
   // implementation of Server
   //
-  Server::Server()
-    : Socket(AF_INET6, SOCK_STREAM, 0)
-  { }
-
   Server::Server(const std::string& ipaddr, unsigned short int port,
       int backlog) throw (Exception)
-    : Socket(AF_INET6, SOCK_STREAM, 0)
   {
     listen(ipaddr, port, backlog);
   }
@@ -55,19 +50,25 @@ namespace net
     Addrinfo ai(ipaddr, port);
 
     int reuseAddr = 1;
-    if (::setsockopt(getFd(), SOL_SOCKET, SO_REUSEADDR,
-        &reuseAddr, sizeof(reuseAddr)) < 0)
-      throw Exception(errno, "setsockopt");
 
     // getaddrinfo() may return more than one addrinfo structure, so work
     // them all out, until we find a pretty useable one
     for (Addrinfo::const_iterator it = ai.begin(); it != ai.end(); ++it)
     {
+      Socket::create(it->ai_family, SOCK_STREAM, 0);
+
+      log_debug("setsockopt SO_REUSEADDR");
+      if (::setsockopt(getFd(), SOL_SOCKET, SO_REUSEADDR,
+          &reuseAddr, sizeof(reuseAddr)) < 0)
+        throw Exception(errno, "setsockopt");
+
+      log_debug("bind");
       if (::bind(getFd(), it->ai_addr, it->ai_addrlen) == 0)
       {
         // save our information
         memmove(&servaddr, it->ai_addr, it->ai_addrlen);
 
+        log_debug("listen");
         if (::listen(getFd(), backlog) < 0)
           throw Exception(errno, "listen");
 

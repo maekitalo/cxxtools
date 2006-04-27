@@ -22,13 +22,17 @@ netmsg_SOURCES = netmsg.cpp
 logsh_SOURCES = logsh.cpp
 thread_SOURCES = thread.cpp
 
-EXTRA_DIST = log.properties \
-    log4j.properties \
-    log4cplus.properties
-
 INCLUDES = -I$(top_builddir)/include
 LDADD = $(top_builddir)/src/libcxxtools.la
 AM_LDFLAGS = -L$(top_builddir)/src
 log_LDFLAGS = @CXXTOOLS_LOG_LDFLAGS@
 logbench_LDFLAGS = @CXXTOOLS_LOG_LDFLAGS@
 logsh_LDFLAGS = @CXXTOOLS_LOG_LDFLAGS@
+
+log.properties:
+	$(top_builddir)/cxxtools-config --properties tntnet >$@
+
+data_DATA = log.properties
+CLEANFILES = log.properties
+
+
