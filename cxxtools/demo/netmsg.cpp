@@ -28,6 +28,7 @@ Boston, MA  02111-1307  USA
 #include <cxxtools/udp.h>
 #include <cxxtools/dynbuffer.h>
 #include <cxxtools/arg.h>
+#include <cxxtools/loginit.h>
 #include <iostream>
 
 void usage(const char* progname)
@@ -61,6 +62,8 @@ int main(int argc, char* argv[])
     cxxtools::Arg<bool> echo(argc, argv, 'e');
     cxxtools::Arg<bool> nonewline(argc, argv, 'n');
     cxxtools::Arg<int> timeout(argc, argv, 't', 0);
+
+    log_init();
 
     if (receive)
     {

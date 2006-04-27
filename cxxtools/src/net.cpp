@@ -79,6 +79,7 @@ namespace net
   {
     close();
 
+    log_debug("create socket");
     int fd = ::socket(domain, type, protocol);
     if (fd < 0)
       throw Exception("cannot create socket");
@@ -89,6 +90,7 @@ namespace net
   {
     if (m_sockFd >= 0)
     {
+      log_debug("close socket");
       ::close(m_sockFd);
       m_sockFd = -1;
     }

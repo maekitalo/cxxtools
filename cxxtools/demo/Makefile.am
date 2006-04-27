@@ -30,7 +30,7 @@ logbench_LDFLAGS = @CXXTOOLS_LOG_LDFLAGS@
 logsh_LDFLAGS = @CXXTOOLS_LOG_LDFLAGS@
 
 log.properties:
-	$(top_builddir)/cxxtools-config --properties tntnet >$@
+	$(top_builddir)/cxxtools-config --properties cxxtools >$@
 
 data_DATA = log.properties
 CLEANFILES = log.properties

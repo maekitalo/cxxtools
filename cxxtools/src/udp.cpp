@@ -21,9 +21,12 @@ Boston, MA  02111-1307  USA
 
 #include "cxxtools/udp.h"
 #include "cxxtools/dynbuffer.h"
+#include "cxxtools/log.h"
 #include <netdb.h>
 #include <sys/poll.h>
 #include <errno.h>
+
+log_define("cxxtools.net.udp")
 
 namespace cxxtools
 {
@@ -34,8 +37,7 @@ namespace net
   // UdpSender
   //
   UdpSender::UdpSender(const char* ipaddr, unsigned short int port)
-    : Socket(AF_INET6, SOCK_DGRAM, 0),
-      connected(false)
+    : connected(false)
   {
     connect(ipaddr, port);
   }
@@ -46,6 +48,8 @@ namespace net
 
     for (Addrinfo::const_iterator it = ai.begin(); it != ai.end(); ++it)
     {
+      Socket::create(it->ai_family, SOCK_DGRAM, 0);
+
       if (::connect(getFd(), it->ai_addr, it->ai_addrlen) == 0)
       {
         connected = true;
@@ -102,13 +106,11 @@ namespace net
   // UdpReceiver
   //
   UdpReceiver::UdpReceiver()
-    : Socket(AF_INET6, SOCK_DGRAM, 0)
   {
     memset(&peeraddr, 0, sizeof(peeraddr));
   }
 
   UdpReceiver::UdpReceiver(const char* ipaddr, unsigned short int port)
-    : Socket(AF_INET6, SOCK_DGRAM, 0)
   {
     memset(&peeraddr, 0, sizeof(peeraddr));
     bind(ipaddr, port);
@@ -119,12 +121,16 @@ namespace net
     Addrinfo ai(ipaddr, port);
 
     int reuseAddr = 1;
-    if (::setsockopt(getFd(), SOL_SOCKET, SO_REUSEADDR,
-        &reuseAddr, sizeof(reuseAddr)) < 0)
-      throw Exception(errno, "setsockopt");
-
     for (Addrinfo::const_iterator it = ai.begin(); it != ai.end(); ++it)
     {
+      Socket::create(it->ai_family, SOCK_DGRAM, 0);
+
+      log_debug("setsockopt");
+      if (::setsockopt(getFd(), SOL_SOCKET, SO_REUSEADDR,
+          &reuseAddr, sizeof(reuseAddr)) < 0)
+        throw Exception(errno, "setsockopt");
+
+      log_debug("bind");
       if (::bind(getFd(), it->ai_addr, it->ai_addrlen) == 0)
       {
         memmove(&peeraddr, it->ai_addr, it->ai_addrlen);
@@ -137,6 +143,8 @@ namespace net
 
   UdpReceiver::size_type UdpReceiver::recv(void* buffer, size_type length, int flags)
   {
+    log_debug("recvfrom");
+
     ssize_t ret = ::recvfrom(getFd(), buffer, length, flags, reinterpret_cast <struct sockaddr *> (&peeraddr), &peeraddrLen);
 
     if (ret < 0 && errno == EAGAIN)
