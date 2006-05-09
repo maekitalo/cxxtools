@@ -1,3 +1,7 @@
+2006-04-27 tommi@tntnet.org
+
+  - support for IPv6
+
 2006-04-16 tommi@tntnet.org
 
   - fixes for AIX-compatibility
