@@ -80,6 +80,8 @@ int Md5streambuf::sync()
 
 void Md5streambuf::getDigest(unsigned char digest_[16])
 {
+  using namespace std;
+
   if (pptr())
   {
     if (pptr() != pbase())
@@ -92,10 +94,10 @@ void Md5streambuf::getDigest(unsigned char digest_[16])
     setp(0, 0);
 
     MD5Final(digest, &context);
-    std::memcpy(digest_, digest, 16);
+    memcpy(digest_, digest, 16);
   }
   else
-    std::memset(digest_, 0, 16);
+    memset(digest_, 0, 16);
 }
 
 ////////////////////////////////////////////////////////////////////////
