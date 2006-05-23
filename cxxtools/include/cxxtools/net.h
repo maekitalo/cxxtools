@@ -111,7 +111,7 @@ namespace net
       /// Liefert den Sockethandle zurück
       int getFd() const     { return m_sockFd; }
 
-      /// wrapper um ::getsocketname
+      /// wrapper um ::getsockname
       struct sockaddr_storage getSockAddr() const throw (Exception);
 
       /// timeout in milliseconds
