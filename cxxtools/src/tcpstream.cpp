@@ -114,14 +114,13 @@ namespace net
   {
     log_debug("connect to " << ipaddr << " port " << port);
 
-    if (getFd() < 0)
-      create(AF_INET6, SOCK_STREAM, 0);
-
     Addrinfo ai(ipaddr, port);
 
     log_debug("do connect");
     for (Addrinfo::const_iterator it = ai.begin(); it != ai.end(); ++it)
     {
+      Socket::create(it->ai_family, SOCK_STREAM, 0);
+
       if (::connect(getFd(), it->ai_addr, it->ai_addrlen) == 0)
       {
         // save our information
