@@ -1,3 +1,9 @@
+2006-05-24 tommi@tntnet.org
+
+  - fix tcp-client: create socket when known, which to create
+    this fixes also problems in running any applications on systems without
+    IPv6
+
 2006-04-27 tommi@tntnet.org
 
   - support for IPv6

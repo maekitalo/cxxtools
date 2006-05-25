@@ -91,7 +91,6 @@ namespace net
   }
 
   Stream::Stream(const std::string& ipaddr, unsigned short int port)
-    : Socket(AF_INET6, SOCK_STREAM, 0)
   {
     connect(ipaddr, port);
   }

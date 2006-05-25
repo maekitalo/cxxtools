@@ -37,8 +37,7 @@ namespace net
       typedef size_t size_type;
 
       UdpSender()
-        : Socket(AF_INET6, SOCK_DGRAM, 0),
-          connected(false)
+        : connected(false)
         { }
 
       UdpSender(const char* ipaddr, unsigned short int port);
