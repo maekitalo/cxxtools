@@ -4,7 +4,7 @@ The examples are as minimal as possible to demonstrate simple usage-patterns.
 
 arg
 ===
-Demonstration of template cxxtools::arg
+Demonstration of template cxxtools::Arg
 
 getini
 ======

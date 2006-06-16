@@ -32,7 +32,7 @@ logsh_LDFLAGS = @CXXTOOLS_LOG_LDFLAGS@
 log.properties:
 	$(top_builddir)/cxxtools-config --properties cxxtools >$@
 
-data_DATA = log.properties
+noinst_DATA = log.properties
 CLEANFILES = log.properties
 
 
