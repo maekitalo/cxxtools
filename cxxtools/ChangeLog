@@ -1,3 +1,7 @@
+2006-06-21 tommi@tntnet.org
+
+  - license changed to LGPL
+
 2006-05-24 tommi@tntnet.org
 
   - fix tcp-client: create socket when known, which to create
