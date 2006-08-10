@@ -26,7 +26,7 @@ libcxxtools_la_SOURCES = \
 	xmltag.cpp
 
 if MAKE_ICONV
-libcxxtools_la_SOURCES += iconv.cpp iconvstream.cpp
+libcxxtools_la_SOURCES += iconvstream.cpp
 endif
 
 libcxxtools_la_LIBADD = $(MAKE_ICONV) @LIBLTDL@ @LIBICONV@

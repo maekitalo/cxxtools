@@ -9,7 +9,7 @@ nobase_include_HEADERS = \
         cxxtools/hirestime.h \
         cxxtools/httpreply.h \
         cxxtools/httprequest.h \
-        cxxtools/iconv.h \
+        cxxtools/iconverter.h \
         cxxtools/iconvstream.h \
         cxxtools/iniclass.h \
         cxxtools/log.h \
@@ -40,4 +40,3 @@ nobase_include_HEADERS = \
 
 nobase_nodist_include_HEADERS = \
         cxxtools/config.h
-

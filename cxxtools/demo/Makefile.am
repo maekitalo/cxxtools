@@ -21,6 +21,10 @@ netio_SOURCES = netio.cpp
 netmsg_SOURCES = netmsg.cpp
 logsh_SOURCES = logsh.cpp
 thread_SOURCES = thread.cpp
+if MAKE_ICONV
+  noinst_PROGRAMS += iconv
+  iconv_SOURCES = iconv.cpp
+endif
 
 INCLUDES = -I$(top_builddir)/include
 LDADD = $(top_builddir)/src/libcxxtools.la
