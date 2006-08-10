@@ -44,10 +44,11 @@ iconvstreambuf* iconvstreambuf::close() throw()
 {
   if (cd != (iconv_t)-1)
   {
+    sync();
     int r = iconv_close(cd);
     if (r == 0)
     {
-      cd = 0;
+      cd = (iconv_t)-1;
       return this;
     }
     else
@@ -113,7 +114,7 @@ iconvstreambuf::int_type iconvstreambuf::overflow(int_type c)
     if (inbytesleft > 0)
       memmove(buffer, inbufptr, inbytesleft);
 
-    setp(buffer + inbytesleft, buffer + sizeof(buffer) - 1);
+    setp(buffer + inbytesleft, buffer + sizeof(buffer) - 1 - inbytesleft);
     return 0;
   }
 }
