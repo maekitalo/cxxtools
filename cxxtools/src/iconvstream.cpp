@@ -23,6 +23,7 @@
 #include <string.h>
 #include "config.h"
 #include <errno.h>
+#include <stdexcept>
 
 namespace cxxtools
 {
@@ -34,7 +35,17 @@ iconvstreambuf* iconvstreambuf::open(std::ostream& sink_,
   cd = iconv_open(tocode, fromcode);
 
   if (cd == (iconv_t)-1)
+  {
+    if (errno == EINVAL)
+    {
+      std::string msg = "conversion not supported; from=\"";
+      msg += fromcode;
+      msg += "\" to \"";
+      msg += tocode;
+      throw std::runtime_error(msg);
+    }
     return 0;
+  }
 
   setp(buffer, buffer + (sizeof(buffer) - 1));
   return this;
