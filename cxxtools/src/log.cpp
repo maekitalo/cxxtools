@@ -480,12 +480,12 @@ void log_init_cxxtools(const std::string& propertyfilename)
     switch (state)
     {
       case state_0:
-        if (std::isalnum(ch, std::locale()) || ch == '_')
+        if (std::isalnum(ch) || ch == '_')
         {
-          token = std::toupper(ch, std::locale());
+          token = std::toupper(ch);
           state = state_token;
         }
-        else if (!std::isspace(ch, std::locale()))
+        else if (!std::isspace(ch))
           state = state_skip;
         break;
 
@@ -514,10 +514,10 @@ void log_init_cxxtools(const std::string& propertyfilename)
           state = state_flushdelay0;
         else if (ch == '\n')
           state = state_0;
-        else if (std::isspace(ch, std::locale()))
+        else if (std::isspace(ch))
           state = state_tokensp;
-        else if (std::isalnum(ch, std::locale()) || ch == '_')
-          token += std::toupper(ch, std::locale());
+        else if (std::isalnum(ch) || ch == '_')
+          token += std::toupper(ch);
         else
         {
           token.clear();
@@ -540,12 +540,12 @@ void log_init_cxxtools(const std::string& propertyfilename)
           state = state_flushdelay0;
         else if (ch == '\n')
           state = state_0;
-        else if (!std::isspace(ch, std::locale()))
+        else if (!std::isspace(ch))
           state = state_skip;
         break;
 
       case state_category:
-        if (std::isalnum(ch, std::locale()) || ch == '_' || ch == '.')
+        if (std::isalnum(ch) || ch == '_' || ch == '.')
           category += ch;
         else if (ch == '=')
           state = state_level;
@@ -559,7 +559,7 @@ void log_init_cxxtools(const std::string& propertyfilename)
 
       case state_level:
       case state_rootlevel:
-        if (ch != '\n' && std::isspace(ch, std::locale()))
+        if (ch != '\n' && std::isspace(ch))
           break;
 
         switch (ch)
@@ -582,7 +582,7 @@ void log_init_cxxtools(const std::string& propertyfilename)
         break;
 
       case state_filename0:
-        if (ch != '\n' && std::isspace(ch, std::locale()))
+        if (ch != '\n' && std::isspace(ch))
           break;
 
         state = state_filename;
@@ -605,7 +605,7 @@ void log_init_cxxtools(const std::string& propertyfilename)
           state = state_0;
           break;
         }
-        else if (std::isspace(ch, std::locale()))
+        else if (std::isspace(ch))
           break;
 
         state = state_host;
@@ -616,14 +616,14 @@ void log_init_cxxtools(const std::string& propertyfilename)
           port = 0;
           state = state_port;
         }
-        else if (std::isspace(ch, std::locale()))
+        else if (std::isspace(ch))
           state = state_skip;
         else
           host += ch;
         break;
 
       case state_port:
-        if (std::isdigit(ch, std::locale()))
+        if (std::isdigit(ch))
           port = port * 10 + ch - '0';
         else if (port > 0)
         {
@@ -638,14 +638,14 @@ void log_init_cxxtools(const std::string& propertyfilename)
           state = state_0;
           break;
         }
-        else if (std::isspace(ch, std::locale()))
+        else if (std::isspace(ch))
           break;
 
         state = state_fsize;
         fsize = 0;
 
       case state_fsize:
-        if (std::isdigit(ch, std::locale()))
+        if (std::isdigit(ch))
           fsize = fsize * 10 + ch - '0';
         else if (ch == '\n')
         {
@@ -670,14 +670,14 @@ void log_init_cxxtools(const std::string& propertyfilename)
           state = state_0;
           break;
         }
-        else if (std::isspace(ch, std::locale()))
+        else if (std::isspace(ch))
           break;
 
         state = state_maxbackupindex;
         maxbackupindex = 0;
 
       case state_maxbackupindex:
-        if (std::isdigit(ch, std::locale()))
+        if (std::isdigit(ch))
           maxbackupindex = maxbackupindex * 10 + ch - '0';
         else
         {
@@ -692,17 +692,17 @@ void log_init_cxxtools(const std::string& propertyfilename)
           state = state_0;
           break;
         }
-        else if (std::isdigit(ch, std::locale()))
+        else if (std::isdigit(ch))
         {
           flushdelay = ch - '0';
           state = state_flushdelay;
         }
-        else if (!std::isspace(ch, std::locale()))
+        else if (!std::isspace(ch))
           state = state_skip;
         break;
 
       case state_flushdelay:
-        if (std::isdigit(ch, std::locale()))
+        if (std::isdigit(ch))
           flushdelay = flushdelay * 10 + ch - '0';
         else
           state = (ch == '\n' ? state_0 : state_skip);

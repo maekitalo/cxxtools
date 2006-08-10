@@ -22,7 +22,7 @@
 #include <cxxtools/httpreply.h>
 #include <cxxtools/httprequest.h>
 
-#include <locale>
+#include <cctype>
 
 namespace cxxtools
 {
@@ -68,21 +68,21 @@ namespace cxxtools
 
   bool HttpReply::Parser::state_httpversion0(char ch)
   {
-    if (!std::isspace(ch, std::locale()))
+    if (!std::isspace(ch))
       state = &Parser::state_httpversion;
     return false;
   }
 
   bool HttpReply::Parser::state_httpversion(char ch)
   {
-    if (std::isspace(ch, std::locale()))
+    if (std::isspace(ch))
       state = &Parser::state_code0;
     return false;
   }
 
   bool HttpReply::Parser::state_code0(char ch)
   {
-    if (std::isdigit(ch, std::locale()))
+    if (std::isdigit(ch))
     {
       reply.returncode = (ch - '0');
       state = &Parser::state_code;
@@ -92,7 +92,7 @@ namespace cxxtools
 
   bool HttpReply::Parser::state_code(char ch)
   {
-    if (std::isdigit(ch, std::locale()))
+    if (std::isdigit(ch))
       reply.returncode = reply.returncode * 10 + (ch - '0');
     else
       state = &Parser::state_request;
@@ -111,7 +111,7 @@ namespace cxxtools
     if (ch == '\n')
       return true;
 
-    if (!std::isspace(ch, std::locale()))
+    if (!std::isspace(ch))
     {
       name = ch;
       state = &Parser::state_name;
@@ -137,7 +137,7 @@ namespace cxxtools
       state = &Parser::state_name0;
     }
 
-    if (!std::isspace(ch, std::locale()))
+    if (!std::isspace(ch))
     {
       value = ch;
       state = &Parser::state_value;

@@ -21,7 +21,7 @@
 
 #include "cxxtools/hdstream.h"
 #include <iomanip>
-#include <locale>
+#include <cctype>
 
 namespace cxxtools
 {
@@ -48,7 +48,7 @@ std::streambuf::int_type Hdstreambuf::overflow(std::streambuf::int_type ch)
       out << "   ";
     out << '|';
     for(i = 0; i < count; ++i)
-      out << (char)(std::isprint(pbase()[i], std::locale()) ? pbase()[i] : '.');
+      out << (char)(std::isprint(pbase()[i]) ? pbase()[i] : '.');
     for( ; i < BUFFERSIZE; ++i)
       out << ' ';
     out << std::endl;
