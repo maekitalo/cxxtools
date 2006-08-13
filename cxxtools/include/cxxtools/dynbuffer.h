@@ -93,7 +93,7 @@ class Dynbuffer
       {
         T* data = new T[size];
         if (m_data && keep_data)
-          std::copy(m_data, m_data + size, data);
+          std::copy(m_data, m_data + m_size, data);
         delete[] m_data;
         m_data = data;
         m_size = size;
