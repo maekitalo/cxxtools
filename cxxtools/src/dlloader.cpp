@@ -20,6 +20,7 @@
  */
 
 #include "cxxtools/dlloader.h"
+#include "cxxtools/log.h"
 #include "config.h"
 
 #ifdef USE_LIBTOOL
@@ -52,6 +53,8 @@ static void* cxx_dlopen(const char* name)
 }
 
 #endif
+
+log_define("cxxtools.dlloader");
 
 namespace cxxtools
 {
@@ -118,14 +121,19 @@ namespace dl
   {
     close();
 
+    log_debug("dlinit");
     DLINIT();
 
+    log_debug("dlopen(\"" << name << "\")");
     handle = DLOPEN(name);
     if (!handle)
     {
+      log_debug("dlopen(\"" << name << "\") failed");
       DLEXIT();
       throw DlopenError(name);
     }
+
+    log_debug("dlopen => " << handle);
   }
 
   void Library::close()
@@ -134,6 +142,7 @@ namespace dl
     {
       if (prev == this)
       {
+        log_debug("dlclose " << handle);
         DLCLOSE(handle);
         DLEXIT();
       }
@@ -149,10 +158,15 @@ namespace dl
 
   Symbol Library::sym(const char* name) const
   {
+    log_debug("dlsym(" << handle << ", \"" << name << "\")");
     void* sym = DLSYM(handle, name);
     if (sym == 0)
+    {
+      log_debug("dlsym: symbol \"" << name << "\" not found");
       throw SymbolNotFound(name);
+    }
 
+    log_debug("dlsym => " << sym);
     return Symbol(*this, sym);
   }
 
