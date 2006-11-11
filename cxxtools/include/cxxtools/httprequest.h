@@ -90,8 +90,8 @@ namespace cxxtools
       QueryParams& getQueryParams()       { return params; }
       const QueryParams& getQueryParams() const                 { return params; }
 
-      void set(const std::string name, const std::string value) { params.add(name, value); }
-      void set(const std::string value)                         { params.add(value); }
+      void set(const std::string& name, const std::string& value) { params.add(name, value); }
+      void set(const std::string& value)                         { params.add(value); }
 
       void execute();
 
