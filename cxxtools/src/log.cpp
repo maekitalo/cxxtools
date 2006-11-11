@@ -35,6 +35,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <cctype>
 
 namespace cxxtools
 {
@@ -301,7 +302,7 @@ namespace cxxtools
     gettimeofday(&t, 0);
 
     // format date only once per second:
-    static char date[20];
+    static char date[21];
     static time_t psec = 0;
     time_t sec = static_cast<time_t>(t.tv_sec);
     if (sec != psec)
