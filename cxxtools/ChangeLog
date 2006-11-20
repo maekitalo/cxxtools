@@ -1,6 +1,14 @@
+2006-11-20 tommi@tntnet.org
+
+  - fix tcpstream to correctly report end-of-file in all circumstances
+
+2006-09-11 tommi@tntnet.org
+
+  - fixed buffer-overflow in logger when formatting dates
+
 2006-08-10 tommi@tntnet.org
 
-  - new helper-class IConverter for easyer usage of iconv(3) and iconvstream
+  - new helper-class IConverter for easier usage of iconv(3) and iconvstream
 
 2006-07-27 tommi@tntnet.org
 

@@ -192,7 +192,7 @@ namespace net
 
     }
 
-    return n;
+    return n < 0 ? 0 : n;
   }
 
   Stream::size_type Stream::write(const char* buffer,
