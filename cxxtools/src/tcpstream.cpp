@@ -262,7 +262,7 @@ namespace net
     setp(m_buffer, m_buffer + m_bufsize);
     if (c != traits_type::eof())
     {
-      *pptr() = (char_type)c;
+      *pptr() = traits_type::to_char_type(c);
       pbump(1);
     }
 
@@ -278,7 +278,7 @@ namespace net
       return traits_type::eof();
 
     setg(m_buffer, m_buffer, m_buffer + n);
-    return (int_type)(unsigned char)m_buffer[0];
+    return traits_type::to_int_type(m_buffer[0]);
   }
 
   int streambuf::sync()
