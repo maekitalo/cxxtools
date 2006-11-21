@@ -183,48 +183,74 @@ namespace cxxtools
     loghost.connect(host.c_str(), port);
   }
 
-  typedef std::list<Logger*> loggers_type;
-  static loggers_type baseLoggers;
-  static loggers_type cacheLoggers;
   RWLock Logger::rwmutex;
   Mutex Logger::mutex;
-
   Logger::log_level_type Logger::std_level = LOG_LEVEL_ERROR;
 
-  static Logger::log_level_type getBaseLogLevel(const std::string& category)
+  namespace
   {
-    // search best-fit Logger
-    std::string::size_type best_len = 0;
-    Logger::log_level_type best_level = Logger::getStdLevel();
+    typedef std::list<Logger*> loggers_type;
 
-    for (loggers_type::iterator it = baseLoggers.begin();
-         it != baseLoggers.end(); ++it)
+    loggers_type& getBaseLoggers()
     {
-      if ((*it)->getCategory() == category)
+      static loggers_type* baseLoggers = 0;
+      if (baseLoggers == 0)
       {
-        best_level = (*it)->getLogLevel();
-        break;
+        MutexLock lock(Logger::mutex);
+        if (baseLoggers == 0)
+          baseLoggers = new loggers_type();
       }
-      else if ((*it)->getCategory().size() > best_len
-        && (*it)->getCategory().size() < category.size()
-        && category.at((*it)->getCategory().size()) == '.'
-        && category.compare(0, (*it)->getCategory().size(), (*it)->getCategory()) == 0)
-      {
-        best_len = (*it)->getCategory().size();
-        // update log-level
-        best_level = (*it)->getLogLevel();
-      }
+      return *baseLoggers;
     }
 
-    return best_level;
-  }
+    loggers_type& getCacheLoggers()
+    {
+      static loggers_type* cacheLoggers = 0;
+      if (cacheLoggers == 0)
+      {
+        MutexLock lock(Logger::mutex);
+        if (cacheLoggers == 0)
+          cacheLoggers = new loggers_type();
+      }
+      return *cacheLoggers;
+    }
 
-  static void reinitializeLoggers()
-  {
-    // reinitialize already instantiated loggers
-    for (loggers_type::iterator it = cacheLoggers.begin();
-         it != cacheLoggers.end(); ++it)
-      (*it)->setLogLevel(getBaseLogLevel((*it)->getCategory()));
+    Logger::log_level_type getBaseLogLevel(const std::string& category)
+    {
+      // search best-fit Logger
+      std::string::size_type best_len = 0;
+      Logger::log_level_type best_level = Logger::getStdLevel();
+
+      loggers_type& baseLoggers = getBaseLoggers();
+      for (loggers_type::iterator it = baseLoggers.begin();
+           it != baseLoggers.end(); ++it)
+      {
+        if ((*it)->getCategory() == category)
+        {
+          best_level = (*it)->getLogLevel();
+          break;
+        }
+        else if ((*it)->getCategory().size() > best_len
+          && (*it)->getCategory().size() < category.size()
+          && category.at((*it)->getCategory().size()) == '.'
+          && category.compare(0, (*it)->getCategory().size(), (*it)->getCategory()) == 0)
+        {
+          best_len = (*it)->getCategory().size();
+          // update log-level
+          best_level = (*it)->getLogLevel();
+        }
+      }
+
+      return best_level;
+    }
+
+    void reinitializeLoggers()
+    {
+      // reinitialize already instantiated loggers
+      for (loggers_type::iterator it = getCacheLoggers().begin();
+           it != getCacheLoggers().end(); ++it)
+        (*it)->setLogLevel(getBaseLogLevel((*it)->getCategory()));
+    }
   }
 
   Logger* Logger::getLogger(const std::string& category)
@@ -232,12 +258,12 @@ namespace cxxtools
     // search existing Logger
     RdLock rdLock(rwmutex);
 
-    loggers_type::iterator lower_bound_it = cacheLoggers.begin();
-    while (lower_bound_it != cacheLoggers.end()
+    loggers_type::iterator lower_bound_it = getCacheLoggers().begin();
+    while (lower_bound_it != getCacheLoggers().end()
         && (*lower_bound_it)->getCategory() < category)
       ++lower_bound_it;
 
-    if (lower_bound_it != cacheLoggers.end()
+    if (lower_bound_it != getCacheLoggers().end()
      && (*lower_bound_it)->getCategory() == category)
         return *lower_bound_it;
 
@@ -246,12 +272,12 @@ namespace cxxtools
     WrLock wrLock(rwmutex);
 
     // we have to do it again after gaining write-lock
-    lower_bound_it = cacheLoggers.begin();
-    while (lower_bound_it != cacheLoggers.end()
+    lower_bound_it = getCacheLoggers().begin();
+    while (lower_bound_it != getCacheLoggers().end()
         && (*lower_bound_it)->getCategory() < category)
       ++lower_bound_it;
 
-    if (lower_bound_it != cacheLoggers.end()
+    if (lower_bound_it != getCacheLoggers().end()
      && (*lower_bound_it)->getCategory() == category)
         return *lower_bound_it;
 
@@ -260,7 +286,7 @@ namespace cxxtools
     log_level_type base_level = getBaseLogLevel(category);
 
     // insert the new Logger in list and return pointer to the new list-element
-    return *(cacheLoggers.insert(lower_bound_it, new LoggerImpl(category, base_level)));
+    return *(getCacheLoggers().insert(lower_bound_it, new LoggerImpl(category, base_level)));
   }
 
   Logger* Logger::setLevel(const std::string& category, log_level_type l)
@@ -268,6 +294,7 @@ namespace cxxtools
     WrLock lock(rwmutex);
 
     // search for existing Logger
+    loggers_type& baseLoggers = getBaseLoggers();
     loggers_type::iterator it = baseLoggers.begin();
     while (it != baseLoggers.end()
         && (*it)->getCategory() < category)
@@ -438,7 +465,7 @@ void log_init_cxxtools(cxxtools::Logger::log_level_type level)
 void log_init_cxxtools(const std::string& propertyfilename)
 {
   cxxtools::Logger::setRootLevel(cxxtools::Logger::LOG_LEVEL_ERROR);
-  cxxtools::baseLoggers.clear();
+  cxxtools::getBaseLoggers().clear();
 
   std::ifstream in(propertyfilename.c_str());
 
