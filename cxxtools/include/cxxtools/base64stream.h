@@ -24,6 +24,8 @@
 
 #include <iostream>
 
+#undef putchar
+
 namespace cxxtools
 {
 
