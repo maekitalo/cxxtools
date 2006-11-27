@@ -39,34 +39,34 @@ void Base64stream_streambuf::end()
     case 1:
       B = 0;
       C = 0;
-      putchar(cv[(A >> 2) & 0x3F]);
-      putchar(cv[((A << 4) | ((B >> 4) & 0xF)) & 0x3F]);
-      putchar('=');
-      putchar('=');
+      putChar(cv[(A >> 2) & 0x3F]);
+      putChar(cv[((A << 4) | ((B >> 4) & 0xF)) & 0x3F]);
+      putChar('=');
+      putChar('=');
       break;
 
     case 2:
       C = 0;
-      putchar(cv[(A >> 2) & 0x3F]);
-      putchar(cv[((A << 4) | ((B >> 4) & 0xF)) & 0x3F]);
-      putchar(cv[((B << 2) | ((C >> 6) & 0x3)) & 0x3F]);
-      putchar('=');
+      putChar(cv[(A >> 2) & 0x3F]);
+      putChar(cv[((A << 4) | ((B >> 4) & 0xF)) & 0x3F]);
+      putChar(cv[((B << 2) | ((C >> 6) & 0x3)) & 0x3F]);
+      putChar('=');
       break;
 
     case 3:
-      putchar(cv[(A >> 2) & 0x3F]);
-      putchar(cv[((A << 4) | ((B >> 4) & 0xF)) & 0x3F]);
-      putchar(cv[((B << 2) | ((C >> 6) & 0x3)) & 0x3F]);
-      putchar(cv[( C                         ) & 0x3F]);
+      putChar(cv[(A >> 2) & 0x3F]);
+      putChar(cv[((A << 4) | ((B >> 4) & 0xF)) & 0x3F]);
+      putChar(cv[((B << 2) | ((C >> 6) & 0x3)) & 0x3F]);
+      putChar(cv[( C                         ) & 0x3F]);
       break;
   }
 
-  putchar('\n');
-  putchar('=');
-  putchar('=');
-  putchar('=');
-  putchar('=');
-  putchar('\n');
+  putChar('\n');
+  putChar('=');
+  putChar('=');
+  putChar('=');
+  putChar('=');
+  putChar('\n');
 
   setp(obuffer, obuffer + 3);
   indecode = false;
@@ -79,10 +79,10 @@ std::streambuf::int_type Base64stream_streambuf::overflow(std::streambuf::int_ty
     char A = obuffer[0];
     char B = obuffer[1];
     char C = obuffer[2];
-    putchar(cv[(A >> 2) & 0x3F]);
-    putchar(cv[((A << 4) | ((B >> 4) & 0xF)) & 0x3F]);
-    putchar(cv[((B << 2) | ((C >> 6) & 0x3)) & 0x3F]);
-    putchar(cv[( C                         ) & 0x3F]);
+    putChar(cv[(A >> 2) & 0x3F]);
+    putChar(cv[((A << 4) | ((B >> 4) & 0xF)) & 0x3F]);
+    putChar(cv[((B << 2) | ((C >> 6) & 0x3)) & 0x3F]);
+    putChar(cv[( C                         ) & 0x3F]);
   }
 
   setp(obuffer, obuffer + 3);
@@ -149,7 +149,7 @@ int Base64stream_streambuf::sync()
   return 0;
 }
 
-void Base64stream_streambuf::putchar(char ch)
+void Base64stream_streambuf::putChar(char ch)
 {
   sinksource->sputc(ch);
   if (ch == '\n')

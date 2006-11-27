@@ -24,8 +24,6 @@
 
 #include <iostream>
 
-#undef putchar
-
 namespace cxxtools
 {
 
@@ -57,7 +55,7 @@ class Base64stream_streambuf : public std::streambuf
     int sync();
 
   private:
-    void putchar(char ch);
+    void putChar(char ch);
     int getval();
 };
 
