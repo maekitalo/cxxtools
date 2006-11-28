@@ -79,6 +79,8 @@ int main(int argc, char* argv[])
         log_error(argv[a]);
       else if (warn)
         log_warn(argv[a]);
+      else if (info)
+        log_info(argv[a]);
       else if (debug)
         log_debug(argv[a]);
     }
