@@ -22,8 +22,8 @@
 #ifndef CXXTOOLS_LOG_CXXTOOLS_INIT_H
 #define CXXTOOLS_LOG_CXXTOOLS_INIT_H
 
-#include <fstream>
 #include <cxxtools/log/cxxtools.h>
+#include <iostream>
 
 #define log_init_fatal()   log_init(cxxtools::Logger::LOG_LEVEL_FATAL)
 #define log_init_error()   log_init(cxxtools::Logger::LOG_LEVEL_ERROR)
@@ -34,6 +34,7 @@
 #define log_init           log_init_cxxtools
 
 void log_init_cxxtools(cxxtools::Logger::log_level_type level);
+void log_init_cxxtools(std::istream& properties);
 void log_init_cxxtools(const std::string& propertyfilename);
 void log_init_cxxtools();
 

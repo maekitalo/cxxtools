@@ -468,7 +468,11 @@ void log_init_cxxtools(const std::string& propertyfilename)
   cxxtools::getBaseLoggers().clear();
 
   std::ifstream in(propertyfilename.c_str());
+  log_init_cxxtools(in);
+}
 
+void log_init_cxxtools(std::istream& in)
+{
   enum state_type {
     state_0,
     state_token,
