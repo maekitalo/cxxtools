@@ -130,10 +130,11 @@ namespace net
           &reuseAddr, sizeof(reuseAddr)) < 0)
         throw Exception(errno, "setsockopt");
 
-      log_debug("bind");
+      log_debug("bind ip " << ipaddr << " port " << port);
       if (::bind(getFd(), it->ai_addr, it->ai_addrlen) == 0)
       {
         memmove(&peeraddr, it->ai_addr, it->ai_addrlen);
+        peeraddrLen = it->ai_addrlen;
         return;
       }
     }
