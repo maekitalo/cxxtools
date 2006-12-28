@@ -96,7 +96,7 @@ class QueryParams
           { }
 
         /// initialize iterator for unnamed params
-        const_iterator(const QueryParams& p)
+        explicit const_iterator(const QueryParams& p)
           : params(&p),
             pos(0)
           { }
