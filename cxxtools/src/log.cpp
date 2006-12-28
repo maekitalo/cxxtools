@@ -368,7 +368,7 @@ namespace cxxtools
         << loDigit(t.tv_usec / 100000) << loDigit(t.tv_usec / 10000)
         << loDigit(t.tv_usec / 1000) << loDigit(t.tv_usec / 100)
         << loDigit(t.tv_usec / 10)
-        << " [" << pthread_self() << "] "
+        << " [" << getpid() << '.' << pthread_self() << "] "
         << level << ' '
         << category << " - ";
 
