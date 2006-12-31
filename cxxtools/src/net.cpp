@@ -159,7 +159,7 @@ namespace net
       log_debug("poll timeout (" << getTimeout() << ')');
       throw Timeout();
     }
-    else if (fds.revents & (POLLERR | POLLHUP | POLLNVAL))
+    else if (fds.revents & (POLLERR | POLLNVAL))
     {
       log_error("poll returns with error; revents=" << fds.revents);
       throw Exception("poll");

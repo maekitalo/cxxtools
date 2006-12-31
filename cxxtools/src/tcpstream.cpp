@@ -105,8 +105,6 @@ namespace net
     setFd(::accept(server.getFd(), reinterpret_cast <struct sockaddr *> (&peeraddr), &peeraddr_len));
     if (bad())
       throw Exception(errno, "accept");
-
-    setTimeout(getTimeout());
   }
 
   void Stream::connect(const std::string& ipaddr, unsigned short int port)
@@ -124,8 +122,6 @@ namespace net
       {
         // save our information
         memmove(&peeraddr, it->ai_addr, it->ai_addrlen);
-
-        setTimeout(getTimeout());
         return;
       }
     }
@@ -147,7 +143,7 @@ namespace net
         log_debug("blocking read ready, return " << n);
       } while (n <= 0 && errno == EINTR);
 
-      if (n < 0)
+      if (n < 0 && errno != ECONNRESET)
         throw Exception(errno, "read");
     }
     else
@@ -174,7 +170,11 @@ namespace net
             throw Timeout();
           }
 
-          doPoll(POLLIN);
+          if (doPoll(POLLIN) & POLLHUP)
+          {
+            log_debug("eof in read");
+            return 0;
+          }
 
           do
           {
@@ -234,7 +234,11 @@ namespace net
         throw Timeout();
       }
 
-      doPoll(POLLOUT);
+      if (doPoll(POLLOUT) & POLLHUP);
+      {
+        log_debug("eof in write");
+        return bufsize - s;
+      }
     }
 
     return bufsize;

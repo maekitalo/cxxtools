@@ -44,7 +44,11 @@ namespace net
 
   void UdpSender::connect(const char* ipaddr, unsigned short int port)
   {
-    Addrinfo ai(ipaddr, port);
+    struct addrinfo hints;
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_socktype = SOCK_DGRAM;
+
+    Addrinfo ai(ipaddr, port, hints);
 
     for (Addrinfo::const_iterator it = ai.begin(); it != ai.end(); ++it)
     {
