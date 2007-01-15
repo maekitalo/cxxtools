@@ -266,4 +266,24 @@ void Condition::wait(MutexLock& lock)
     throw ThreadException("pthread_cond_wait", ret);
 }
 
+bool Condition::timedwait(MutexLock& lock, const struct timespec& time)
+{
+  int ret = pthread_cond_timedwait(&cond, &lock.getMutex().m_mutex, &time);
+  if (ret == ETIMEDOUT)
+    return false;
+
+  if (ret != 0)
+    throw ThreadException("pthread_cond_timedwait", ret);
+
+  return true;
+}
+
+bool Condition::timedwait(MutexLock& lock, unsigned ms)
+{
+  struct timespec ts;
+  ts.tv_sec = ms / 1000;
+  ts.tv_nsec = ms * 1000 % 1000;
+  return timedwait(lock, ts);
+}
+
 }

@@ -25,6 +25,7 @@
 #include <pthread.h>
 #include <semaphore.h>
 #include <stdexcept>
+#include <time.h>
 
 namespace cxxtools
 {
@@ -378,6 +379,8 @@ class Condition
     void signal();
     void broadcast();
     void wait(MutexLock& lock);
+    bool timedwait(MutexLock& lock, unsigned ms);
+    bool timedwait(MutexLock& lock, const struct timespec& time);
 };
 
 }
