@@ -22,16 +22,33 @@
 #include <iostream>
 #include <fstream>
 #include "cxxtools/hdstream.h"
+#include "cxxtools/arg.h"
 #include <algorithm>
 
-void hexdump(const char* file)
+class Hexdumper
 {
-  std::ifstream in(file);
-  cxxtools::Hdostream hd;
-  hd << in.rdbuf() << std::flush;
-}
+    unsigned offset;
+
+  public:
+    explicit Hexdumper(unsigned offset_)
+      : offset(offset_)
+        { }
+    void operator() (const char* file)
+    {
+      std::ifstream in(file);
+      cxxtools::Hdostream hd;
+      if (offset)
+      {
+        in.seekg(offset);
+        hd.setOffset(offset);
+      }
+      hd << in.rdbuf() << std::flush;
+    }
+};
 
 int main(int argc, char* argv[])
 {
-  std::for_each(argv + 1, argv + argc, hexdump);
+  cxxtools::Arg<unsigned> offset(argc, argv, 'o', 0);
+
+  std::for_each(argv + 1, argv + argc, Hexdumper(offset));
 }

@@ -35,7 +35,7 @@ std::streambuf::int_type Hdstreambuf::overflow(std::streambuf::int_type ch)
   size_t count = pptr() - pbase();
   if(count > 0)
   {
-    out << std::setw(7) << std::hex << offset << '|';
+    out << std::setw(7) << std::setfill('0') << std::hex << offset << '|';
     offset += count;
     size_t i;
     for(i = 0; i < count; ++i)

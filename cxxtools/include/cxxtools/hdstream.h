@@ -29,15 +29,6 @@ namespace cxxtools
 
 class Hdstreambuf : public std::streambuf
 {
-  public:
-    Hdstreambuf(std::streambuf* dest)
-      : Dest(dest),
-        offset(0)
-    {
-      setp(Buffer, Buffer + BUFFERSIZE);
-    }
-
-  private:
     static const unsigned BUFFERSIZE = 16;
     
     std::streambuf::int_type overflow(std::streambuf::int_type ch);
@@ -47,6 +38,17 @@ class Hdstreambuf : public std::streambuf
     char Buffer[BUFFERSIZE];
     std::streambuf* Dest;
     unsigned offset;
+
+  public:
+    Hdstreambuf(std::streambuf* dest)
+      : Dest(dest),
+        offset(0)
+    {
+      setp(Buffer, Buffer + BUFFERSIZE);
+    }
+
+    unsigned getOffset() const         { return offset; }
+    void setOffset(unsigned offset_)   { offset = offset_; }
 };
 
 /**
@@ -57,17 +59,20 @@ class Hdstreambuf : public std::streambuf
 class Hdostream : public std::ostream
 {
     typedef std::ostream base_class;
+    Hdstreambuf streambuf;
 
   public:
     Hdostream()
-      : base_class(new Hdstreambuf(std::cout.rdbuf()))
+      : base_class(&streambuf),
+        streambuf(std::cout.rdbuf())
     { }
     Hdostream(std::ostream& out)
-      : base_class(new Hdstreambuf(out.rdbuf()))
+      : base_class(&streambuf),
+        streambuf(out.rdbuf())
     { }
 
-    ~Hdostream()
-    { delete rdbuf(); }
+    unsigned getOffset() const         { return streambuf.getOffset(); }
+    void setOffset(unsigned offset_)   { streambuf.setOffset(offset_); }
 };
 
 }
