@@ -35,8 +35,6 @@ AC_PROG_LIBTOOL
 AC_SUBST(INCLTDL)
 AC_SUBST(LIBLTDL)
 
-AC_HAVE_HEADERS(sstream)
-
 AC_ARG_WITH(
    [logging],
    AS_HELP_STRING([--with-logging],
