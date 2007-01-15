@@ -78,7 +78,7 @@ namespace cxxtools
       LoggerImpl(const std::string& c, log_level_type l)
         : Logger(c, l)
         { }
-      std::ostream& getAppender() const;
+      static std::ostream& getAppender();
       void logEnd(std::ostream& appender);
       static void doRotate();
       static void setFile(const std::string& fname);
@@ -88,7 +88,7 @@ namespace cxxtools
       static void setLoghost(const std::string& host, unsigned short int port);
   };
 
-  std::ostream& LoggerImpl::getAppender() const
+  std::ostream& LoggerImpl::getAppender()
   {
     if (outfile.is_open())
     {
@@ -360,7 +360,7 @@ namespace cxxtools
       date[20] = '\0';
     }
 
-    std::ostream& out = getAppender();
+    std::ostream& out = LoggerImpl::getAppender();
 
     out.clear();
 
@@ -386,27 +386,30 @@ namespace cxxtools
         : logger(logger_),
           level(level_)
           { }
+
       std::ostream& out()     { return msg; }
-      std::string str()       { return msg.str(); }
-      Logger* getLogger()     { return logger; }
-      const char* getLevel()  { return level; }
+      void flush()
+      {
+        MutexLock lock(Logger::mutex);
+
+        std::ostream& out(logger->logentry(level));
+        out << msg.str() << '\n';
+
+        logger->logEnd(out);
+      }
   };
 
   LogMessage::LogMessage(Logger* logger, const char* level)
     : impl(new LogMessageImpl(logger, level))
     { }
 
+  void LogMessage::flush()
+  {
+    impl->flush();
+  }
+
   LogMessage::~LogMessage()
   {
-    MutexLock lock(Logger::mutex);
-
-    Logger* logger = impl->getLogger();
-
-    std::ostream& out(logger->logentry(impl->getLevel()));
-    out << impl->str() << '\n';
-
-    logger->logEnd(out);
-
     delete impl;
   }
 

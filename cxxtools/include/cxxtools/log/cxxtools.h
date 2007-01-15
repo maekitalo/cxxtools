@@ -31,9 +31,13 @@
 
 #define log_xxxx(level, expr)   \
   do { \
-    cxxtools::Logger* _cxxtools_logger = getLogger(); \
+    ::cxxtools::Logger* _cxxtools_logger = getLogger(); \
     if (_cxxtools_logger->isEnabled(::cxxtools::Logger::LOG_LEVEL_ ## level)) \
-      cxxtools::LogMessage(_cxxtools_logger, #level).out() << expr; \
+    { \
+      ::cxxtools::LogMessage _cxxtools_logMessage(_cxxtools_logger, #level); \
+      _cxxtools_logMessage.out() << expr; \
+      _cxxtools_logMessage.flush(); \
+    } \
   } while (false)
 
 #define log_fatal_enabled()     log_xxxx_enabled(FATAL)
@@ -104,7 +108,6 @@ namespace cxxtools
         { return level; }
       void setLogLevel(log_level_type l)
         { level = l; }
-      virtual std::ostream& getAppender() const = 0;
       std::ostream& logentry(const char* level);
       virtual void logEnd(std::ostream& appender) = 0;
 
@@ -122,6 +125,7 @@ namespace cxxtools
       ~LogMessage();
 
       std::ostream& out();
+      void flush();
   };
 
   class LogTracer
