@@ -5,6 +5,8 @@ nobase_include_HEADERS = \
         cxxtools/dir.h \
         cxxtools/dlloader.h \
         cxxtools/dynbuffer.h \
+        cxxtools/fdstream.h \
+        cxxtools/fork.h \
         cxxtools/hdstream.h \
         cxxtools/hirestime.h \
         cxxtools/httpreply.h \
@@ -18,11 +20,14 @@ nobase_include_HEADERS = \
         cxxtools/md5stream.h \
         cxxtools/multifstream.h \
         cxxtools/net.h \
+        cxxtools/pipe.h \
+        cxxtools/pipestream.h \
         cxxtools/pollclass.h \
         cxxtools/pool.h \
         cxxtools/query_params.h \
         cxxtools/sudo.h \
         cxxtools/streamcounter.h \
+        cxxtools/syserror.h \
         cxxtools/tcpstream.h \
         cxxtools/tee.h \
         cxxtools/thread.h \

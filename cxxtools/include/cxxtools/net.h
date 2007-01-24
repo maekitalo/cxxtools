@@ -29,6 +29,7 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netdb.h>
+#include <cxxtools/syserror.h>
 
 namespace cxxtools
 {
@@ -39,22 +40,19 @@ namespace net
   /**
    * net::Exception wird bei Fehlern ausgelöst.
    */
-  class Exception : public std::runtime_error
+  class Exception : public SysError
   {
     public:
       /// Konstruktor erzeugt eine Instanz mit einer Fehlernummer
       /// und einer Fehlermeldung.
-      Exception(int Errno, const std::string& msg);
+      Exception(int _errno, const char* msg)
+        : SysError(_errno, msg)
+        { }
       /// Konstruktor erzeugt eine Instanz mit einer Fehlermeldung.
       /// Die Nummer wird aus errno übernommen.
-      explicit Exception(const std::string& msg);
-
-      /// Liefert die Fehlernummer zurück.
-      int getErrno() const
-      { return m_Errno; }
-
-    private:
-      int m_Errno;
+      explicit Exception(const char* msg)
+        : SysError(msg)
+        { }
   };
 
   //////////////////////////////////////////////////////////////////////

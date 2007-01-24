@@ -6,6 +6,7 @@ libcxxtools_la_SOURCES = \
 	base64stream.cpp \
 	cgi.cpp \
 	dlloader.cpp \
+	fdstream.cpp \
 	hdstream.cpp \
 	hirestime.cpp \
 	httpreply.cpp \
@@ -17,7 +18,10 @@ libcxxtools_la_SOURCES = \
 	multifstream.cpp \
 	net.cpp \
 	pollclass.cpp \
+	pipe.cpp \
+	pipestream.cpp \
 	query_params.cpp \
+	syserror.cpp \
 	tcpstream.cpp \
 	tee.cpp \
 	thread.cpp \

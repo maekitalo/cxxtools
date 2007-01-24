@@ -1,25 +1,26 @@
 noinst_PROGRAMS = getini hd md5sum multifstream arg arg-set cgi dir \
   dlloader pool dynbuffer log logbench netcat httprequest netio \
-  netmsg logsh thread
+  netmsg logsh thread pipestream
 
-getini_SOURCES = getini.cpp
-hd_SOURCES = hd.cpp
-md5sum_SOURCES = md5sum.cpp
-multifstream_SOURCES = multifstream.cpp
 arg_SOURCES = arg.cpp
 arg_set_SOURCES = arg-set.cpp
 cgi_SOURCES = cgi.cpp
 dir_SOURCES = dir.cpp
 dlloader_SOURCES = dlloader.cpp
-pool_SOURCES = pool.cpp
 dynbuffer_SOURCES = dynbuffer.cpp
+getini_SOURCES = getini.cpp
+hd_SOURCES = hd.cpp
+httprequest_SOURCES = httprequest.cpp
 log_SOURCES = log.cpp
 logbench_SOURCES = logbench.cpp
+logsh_SOURCES = logsh.cpp
+md5sum_SOURCES = md5sum.cpp
+multifstream_SOURCES = multifstream.cpp
 netcat_SOURCES = netcat.cpp
-httprequest_SOURCES = httprequest.cpp
 netio_SOURCES = netio.cpp
 netmsg_SOURCES = netmsg.cpp
-logsh_SOURCES = logsh.cpp
+pipestream_SOURCES = pipestream.cpp
+pool_SOURCES = pool.cpp
 thread_SOURCES = thread.cpp
 if MAKE_ICONV
   noinst_PROGRAMS += iconv
@@ -38,5 +39,4 @@ log.properties:
 
 noinst_DATA = log.properties
 CLEANFILES = log.properties
-
-
+EXTRA_DIST = README

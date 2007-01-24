@@ -34,28 +34,6 @@ namespace cxxtools
 
 namespace net
 {
-  static std::string mkerrmsg(const std::string& msg, int _errno)
-  {
-    if (_errno != 0)
-    {
-      std::ostringstream m;
-      m << msg << ": errno " << _errno << " - " << strerror(_errno);
-      return m.str();
-    }
-    else
-      return msg;
-  }
-
-  Exception::Exception(int _errno, const std::string& msg)
-    : std::runtime_error(mkerrmsg(msg, _errno)),
-      m_Errno(_errno)
-    { }
-
-  Exception::Exception(const std::string& msg)
-    : std::runtime_error(mkerrmsg(msg, errno)),
-      m_Errno(errno)
-  { }
-
   ////////////////////////////////////////////////////////////////////////
   // implementation of Socket
   //
@@ -63,7 +41,7 @@ namespace net
     : m_timeout(-1)
   {
     if ((m_sockFd = ::socket(domain, type, protocol)) < 0)
-      throw Exception("cannot create socket");
+      throw Exception("socket");
   }
 
   Socket::~Socket()
@@ -82,7 +60,7 @@ namespace net
     log_debug("create socket");
     int fd = ::socket(domain, type, protocol);
     if (fd < 0)
-      throw Exception("cannot create socket");
+      throw Exception("socket");
     setFd(fd);
   }
 
@@ -102,7 +80,7 @@ namespace net
 
     socklen_t slen = sizeof(ret);
     if (::getsockname(getFd(), reinterpret_cast <struct sockaddr *> (&ret), &slen) < 0)
-      throw Exception("error in getsockname");
+      throw Exception("getsockname");
 
     return ret;
   }
@@ -188,10 +166,10 @@ namespace net
     p << port;
 
     if (0 != ::getaddrinfo(ipaddr.c_str(), p.str().c_str(), &hints, &ai))
-      throw Exception("invalid ipaddress " + ipaddr);
+      throw Exception(0, ("invalid ipaddress " + ipaddr).c_str());
 
     if (ai == 0)
-      throw Exception("unknown error in getaddrinfo");
+      throw Exception("getaddrinfo");
   }
 
 } // namespace net

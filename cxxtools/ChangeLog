@@ -1,3 +1,13 @@
+2007-01-24 tommi@tntnet.org
+
+  - wrappers for fork(2) and pipe(2) and a std::iostream on top of pipe(2)
+  - cxxtools::Fdstream: std::iostream for filedescriptors
+
+2007-01-21 tommi@tntnet.org
+  - support for udp-broadcast
+  - don't throw exception in tcpstream, when connection is closed
+    report eof instead
+
 2007-01-15 tommi@tntnet.org
 
   - make offset in hexdumper settable

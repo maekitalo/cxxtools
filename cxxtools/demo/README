@@ -41,6 +41,11 @@ dir
 ===
 Print contents of a directory. Try "./dir .".
 
+pipestream
+==========
+This demo shows, how to create a child-process, use a pipe to signal
+from child to parent and another pipe to send a datastream.
+
 pool
 ====
 Demonstration of template pool. Example connectionpool. Useful for
