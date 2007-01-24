@@ -36,7 +36,8 @@ void usage(const char* progname)
                "  -s size        size of receive-buffer in bytes (default 1024)\n"
                "  -c             continuous-mode - don't stop after receiving message\n"
                "  -e             echo message back or receive echo-reply\n"
-               "  -n             don't output newline"
+               "  -n             don't output newline\n"
+               "  -b             enable broadcast"
             << std::endl;
 }
 
@@ -96,6 +97,7 @@ int main(int argc, char* argv[])
     else
     {
       cxxtools::Arg<const char*> host(argc, argv, 'h', "127.0.0.1");
+      cxxtools::Arg<bool> broadcast(argc, argv, 'b');
 
       if (argc <= 1)
       {
@@ -103,7 +105,7 @@ int main(int argc, char* argv[])
         return -1;
       }
 
-      cxxtools::net::UdpSender sender(host, port);
+      cxxtools::net::UdpSender sender(host, port, broadcast);
       if (timeout.isSet())
         sender.setTimeout(timeout);
 

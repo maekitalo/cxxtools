@@ -49,13 +49,23 @@ namespace cxxtools
 
     class UdpOStream : public std::ostream
     {
+        UdpSender* sender;
         UdpStreambuf streambuf;
 
       public:
         explicit UdpOStream(UdpSender& sender, int flags = 0)
           : std::ostream(&streambuf),
+            sender(0),
             streambuf(sender, flags)
           { }
+        UdpOStream(const char* ipaddr, unsigned short int port, bool bcast = false,
+            int flags = 0)
+          : std::ostream(&streambuf),
+            sender(new UdpSender(ipaddr, port, bcast)),
+            streambuf(*sender, flags)
+          { }
+        ~UdpOStream()
+          { delete sender; }
     };
 
   } // namespace net

@@ -40,9 +40,9 @@ namespace net
         : connected(false)
         { }
 
-      UdpSender(const char* ipaddr, unsigned short int port);
+      UdpSender(const char* ipaddr, unsigned short int port, bool bcast = false);
 
-      void connect(const char* ipaddr, unsigned short int port);
+      void connect(const char* ipaddr, unsigned short int port, bool bcast = false);
       bool isConnected() const   { return connected; }
 
       size_type send(const void* message, size_type length, int flags = 0) const;

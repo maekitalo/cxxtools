@@ -36,13 +36,13 @@ namespace net
   //////////////////////////////////////////////////////////////////////
   // UdpSender
   //
-  UdpSender::UdpSender(const char* ipaddr, unsigned short int port)
+  UdpSender::UdpSender(const char* ipaddr, unsigned short int port, bool bcast)
     : connected(false)
   {
-    connect(ipaddr, port);
+    connect(ipaddr, port, bcast);
   }
 
-  void UdpSender::connect(const char* ipaddr, unsigned short int port)
+  void UdpSender::connect(const char* ipaddr, unsigned short int port, bool bcast)
   {
     struct addrinfo hints;
     memset(&hints, 0, sizeof(hints));
@@ -54,6 +54,13 @@ namespace net
     {
       Socket::create(it->ai_family, SOCK_DGRAM, 0);
 
+      if (bcast)
+      {
+        const int on = 1;
+        if (::setsockopt(getFd(), SOL_SOCKET, SO_BROADCAST, &on, sizeof(on)) < 0)
+          throw Exception("setsockopt");
+      }
+
       if (::connect(getFd(), it->ai_addr, it->ai_addrlen) == 0)
       {
         connected = true;
@@ -61,7 +68,7 @@ namespace net
       }
     }
 
-    throw Exception(errno, "connect");
+    throw Exception("connect");
   }
 
   UdpSender::size_type UdpSender::send(const void* message, size_type length, int flags) const
