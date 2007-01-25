@@ -12,7 +12,7 @@
 
   - make offset in hexdumper settable
   - logging-improvement (don't try to output current logstatement when
-    exception occurs during createion of log-message)
+    exception occurs during creation of log-message)
   - Condition::timedwait
 
 2006-12-31 tommi@tntnet.org
