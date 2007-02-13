@@ -45,7 +45,7 @@ namespace net
   void Server::listen(const std::string& ipaddr, unsigned short int port,
       int backlog) throw (Exception)
   {
-    log_debug("listen on " << ipaddr << " port " << port);
+    log_debug("listen on " << ipaddr << " port " << port << " backlog " << backlog);
 
     Addrinfo ai(ipaddr, port);
 
