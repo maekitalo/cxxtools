@@ -134,6 +134,7 @@ EOF
 #maxfilesize=1MB
 #maxbackupindex=10
 #flushdelay=100  # delay write in milliseconds
+#host=localhost:1234  # send log-messages with udp
 EOF
   else
     cat <<EOF
@@ -141,6 +142,7 @@ file=$LOGFILE
 maxfilesize=1MB
 maxbackupindex=10
 flushdelay=100  # delay write in milliseconds
+#host=localhost:1234  # send log-messages with udp
 EOF
   fi
 
