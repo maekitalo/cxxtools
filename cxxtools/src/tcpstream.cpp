@@ -26,7 +26,7 @@
 #include <errno.h>
 #include "cxxtools/log.h"
 
-log_define("cxxtools.net")
+log_define("cxxtools.net.tcp")
 
 namespace cxxtools
 {
@@ -234,7 +234,7 @@ namespace net
         throw Timeout();
       }
 
-      if (doPoll(POLLOUT) & POLLHUP);
+      if (doPoll(POLLOUT) & POLLHUP)
       {
         log_debug("eof in write");
         return bufsize - s;
