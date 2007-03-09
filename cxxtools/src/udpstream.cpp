@@ -41,8 +41,14 @@ namespace net
   {
     if (!message.empty())
     {
-      sender.send(message, flags);
-      message.clear();
+      try
+      {
+        sender.send(message, flags);
+      }
+      catch (...)
+      {
+        message.clear();
+      }
     }
 
     return 0;
