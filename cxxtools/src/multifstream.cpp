@@ -33,10 +33,12 @@ multifstreambuf::multifstreambuf()
 multifstreambuf::multifstreambuf(const char* pattern, int flags)
   : current(0)
 {
-  glob(pattern, flags, 0, &mglob);
+  int ret = glob(pattern, flags, 0, &mglob);
 
-  if (mglob.gl_pathv && mglob.gl_pathv[current])
+  if (ret == 0 && mglob.gl_pathv && mglob.gl_pathv[current])
     file.open(mglob.gl_pathv[current], std::ios::in);
+  else
+    mglob.gl_pathv = 0;
 }
 
 multifstreambuf::~multifstreambuf()
