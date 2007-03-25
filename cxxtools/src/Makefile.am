@@ -35,4 +35,4 @@ endif
 
 libcxxtools_la_LIBADD = $(MAKE_ICONV) @LIBLTDL@ @LIBICONV@
 libcxxtools_la_DEPENDENCIES = $(MAKE_ICONV)
-libcxxtools_la_LDFLAGS = -lpthread -version-info @sonumber@
+libcxxtools_la_LDFLAGS = -lpthread -pthread -version-info @sonumber@

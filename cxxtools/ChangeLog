@@ -1,3 +1,10 @@
+2007-03-25 tommi@tntnet.org
+  - replace semaphore with condition in cxxtools::Pool and make max-size
+    of pool settable
+
+2007-03-23 tommi@tntnet.org
+  - add error-checking for glob in cxxtools::multifstreambuf
+
 2007-02-20 tommi@tntnet.org
 
   - fix stupid bug in tcp-class. Stream reported eof when only part of

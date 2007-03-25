@@ -84,14 +84,14 @@ class Pool
               MutexLock lock(mypool->mutex);
               if (next == this)
               {
-                if (reuse)
-                {
+                if (reuse && mypool->currentCount <= mypool->maxCount)
                   mypool->freePool.push(ptr);
-                  if (mypool->maxcount > 0)
-                    mypool->sem.post();
-                }
                 else
+                {
                   delete ptr;
+                  --mypool->currentCount;
+                }
+                mypool->objectAvailable.signal();
               }
               else
               {
@@ -183,10 +183,11 @@ class Pool
 
   private:
     typedef std::stack<T*> objectcontainer_type;
-    unsigned maxcount;
-    Semaphore sem;
+    unsigned currentCount;
+    unsigned maxCount;
     objectcontainer_type freePool;
     mutable Mutex mutex;
+    mutable Condition objectAvailable;
     CreatorType creator;
 
     // make non-copyable
@@ -196,16 +197,16 @@ class Pool
   public:
     /// Create a Pool with a maximum count.
     /// If count is 0, no limit is used
-    explicit Pool(unsigned _maxcount = 0, CreatorType _creator = CreatorType())
-      : maxcount(_maxcount),
-        sem(_maxcount),
+    explicit Pool(unsigned _maxCount = 0, CreatorType _creator = CreatorType())
+      : currentCount(0),
+        maxCount(_maxCount),
         creator(_creator)
     { }
 
     /// create a Pool without limit and a special creator
     explicit Pool(CreatorType _creator)
-      : maxcount(0),
-        sem(0),
+      : currentCount(0),
+        maxCount(0),
         creator(_creator)
     { }
 
@@ -227,21 +228,23 @@ class Pool
      */
     objectptr_type get()
     {
-      if (maxcount > 0)
-        sem.wait();
+      MutexLock lock(mutex);
+
+      if (maxCount > 0)
+        while (freePool.empty() && currentCount >= maxCount)
+          objectAvailable.wait(lock);
 
       T* obj;
 
+      if (freePool.empty())
       {
-        MutexLock lock(mutex);
-
-        if (freePool.empty())
-          obj = creator();
-        else
-        {
-          obj = freePool.top();
-          freePool.pop();
-        }
+        obj = creator();
+        ++currentCount;
+      }
+      else
+      {
+        obj = freePool.top();
+        freePool.pop();
       }
 
       objectptr_type po(obj, *this);
@@ -260,14 +263,32 @@ class Pool
       while (freePool.size() > keep)
       {
         delete freePool.top();
+        --currentCount;
         freePool.pop();
       }
+      objectAvailable.signal();
     }
 
     unsigned getCurrentSize() const
     {
       MutexLock lock(mutex);
-      return freePool.size();
+      return currentCount;
+    }
+
+    unsigned getMaximumSize() const
+    { return maxCount; }
+
+    void setMaximumSize(unsigned s)
+    {
+      MutexLock lock(mutex);
+      maxCount = s;
+      while (!freePool.empty() && currentCount > maxCount)
+      {
+        delete freePool.top();
+        --currentCount;
+        freePool.pop();
+      }
+
     }
 };
 
