@@ -24,6 +24,7 @@
 #include <cxxtools/pool.h>
 #include <cxxtools/log.h>
 #include <cxxtools/loginit.h>
+#include <unistd.h>
 
 log_define("pooldemo");
 

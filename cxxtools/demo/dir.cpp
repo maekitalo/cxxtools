@@ -22,6 +22,7 @@
 #include <exception>
 #include <iostream>
 #include <cxxtools/dir.h>
+#include <algorithm>
 
 int main(int argc, char* argv[])
 {

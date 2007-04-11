@@ -82,6 +82,12 @@ namespace cxxtools
                 name = e->d_name;
               return *this;
             }
+          const_iterator operator++ (int)
+            {
+              const_iterator current = *this;
+              this->operator++();
+              return current;
+            }
           bool operator== (const const_iterator& it) const
             { return _dir == it._dir; }
           bool operator!= (const const_iterator& it) const
