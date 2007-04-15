@@ -302,7 +302,7 @@ class RWLock
 
 template <class mutex_type,
           void (mutex_type::*lock_method)() = &mutex_type::lock,
-          void (mutex_type::*unlock_method)() = &mutex_type::unlockNoThrow>
+          bool (mutex_type::*unlock_method)() = &mutex_type::unlockNoThrow>
 class LockBase
 {
     mutex_type& mutex;
