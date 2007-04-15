@@ -97,9 +97,9 @@ case "$ac_loggertype" in
         CXXTOOLS_LOGGING=cxxtools
         ;;
 
-    disabled)
+    disable)
         AC_MSG_NOTICE([logging is disabled])
-        CXXTOOLS_LOGGING=disabled
+        CXXTOOLS_LOGGING=disable
         ;;
 
     *)

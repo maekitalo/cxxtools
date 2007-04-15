@@ -86,8 +86,10 @@ class Md5stream : public std::ostream
   public:
     /// initializes md5-calculation
     Md5stream()
-      : std::ostream(&streambuf)
-    { }
+      : std::ostream(0)
+    {
+      rdbuf(&streambuf);
+    }
 
     /// ends md5-calculation and returns 16 bytes digest
     void getDigest(unsigned char digest[16])

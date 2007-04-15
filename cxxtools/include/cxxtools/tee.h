@@ -55,20 +55,26 @@ class Teestreambuf : public std::streambuf
 class Tee : public std::ostream
 {
     typedef std::ostream base_class;
+    Teestreambuf streambuf;
 
   public:
     Tee()
-      : base_class(new Teestreambuf(std::cout.rdbuf()))
-    { }
-    Tee(std::ostream& s1, std::ostream& s2)
-      : base_class(new Teestreambuf(s1.rdbuf(), s2.rdbuf()))
-    { }
-    Tee(std::ostream& s)
-      : base_class(new Teestreambuf(s.rdbuf(), std::cout.rdbuf()))
-    { }
-    ~Tee()
+      : std::ostream(0),
+        streambuf(std::cout.rdbuf())
     {
-      delete rdbuf();
+      rdbuf(&streambuf);
+    }
+    Tee(std::ostream& s1, std::ostream& s2)
+      : std::ostream(0),
+        streambuf(s1.rdbuf(), s2.rdbuf())
+    {
+      rdbuf(&streambuf);
+    }
+    Tee(std::ostream& s)
+      : std::ostream(0),
+        streambuf(s.rdbuf(), std::cout.rdbuf())
+    {
+      rdbuf(&streambuf);
     }
 
     void assign(std::ostream& s1, std::ostream& s2);

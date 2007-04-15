@@ -1,3 +1,8 @@
+2007-04-11 tommi@tntnet.org
+  - don't pass uninitialized std::streabuf to base-class in classes
+    derived from std::[io]stream. This should be ok, but at least
+	Sun Studio 11 fails here.
+
 2007-03-25 tommi@tntnet.org
   - replace semaphore with condition in cxxtools::Pool and make max-size
     of pool settable

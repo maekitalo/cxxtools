@@ -148,7 +148,7 @@ EOF
 
 }
 
-disabled_template()
+disable_template()
 {
   :
 }

@@ -149,30 +149,38 @@ namespace net
     public:
       /// Erzeugt einen nicht verbundenen Stream-Socket.
       explicit iostream(unsigned bufsize = 256, int timeout = -1)
-        : std::iostream(&m_buffer),
+        : std::iostream(0),
           m_buffer(*this, bufsize, timeout)
-        { }
+      {
+        rdbuf(&m_buffer);
+      }
 
       /// Nimmt eine eingehende Verbindung vom angegebenen Server an.
       explicit iostream(const Server& server, unsigned bufsize = 256, int timeout = -1)
-        : std::iostream(&m_buffer),
+        : std::iostream(0),
           Stream(server),
           m_buffer(*this, bufsize, timeout)
-        { }
+      {
+        rdbuf(&m_buffer);
+      }
 
       /// Baut eine Verbindung zum angegebenen Server auf.
       iostream(const char* ipaddr, unsigned short int port, unsigned bufsize = 256)
-        : std::iostream(&m_buffer),
+        : std::iostream(0),
           Stream(ipaddr, port),
           m_buffer(*this, bufsize)
-        { }
+      {
+        rdbuf(&m_buffer);
+      }
 
       /// Baut eine Verbindung zum angegebenen Server auf.
       iostream(std::string ipaddr, unsigned short int port, unsigned bufsize = 256)
-        : std::iostream(&m_buffer),
+        : std::iostream(0),
           Stream(ipaddr, port),
           m_buffer(*this, bufsize)
-        { }
+      {
+        rdbuf(&m_buffer);
+      }
 
       void setTimeout(int timeout)  { m_buffer.setTimeout(timeout); }
       int getTimeout() const        { return m_buffer.getTimeout(); }

@@ -59,8 +59,10 @@ namespace cxxtools
 
     public:
       BasicStreamcounter()
-        : std::basic_ostream<CharType, Traits>(&streambuf)
-        { }
+        : std::basic_ostream<CharType, Traits>(0)
+      {
+        rdbuf(&streambuf);
+      }
 
       unsigned getCount() const           { return streambuf.getCount(); }
       void resetCount(unsigned count = 0) { streambuf.resetCount(count); }
