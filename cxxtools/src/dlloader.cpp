@@ -22,6 +22,7 @@
 #include "cxxtools/dlloader.h"
 #include "cxxtools/log.h"
 #include "config.h"
+#include <cxxtools/thread.h>
 
 #ifdef USE_LIBTOOL
 
@@ -54,7 +55,9 @@ static void* cxx_dlopen(const char* name)
 
 #endif
 
-log_define("cxxtools.dlloader");
+log_define("cxxtools.dlloader")
+
+static cxxtools::Mutex mutex;
 
 namespace cxxtools
 {
@@ -104,6 +107,7 @@ namespace dl
 
     close();
 
+    cxxtools::MutexLock lock(mutex);
     handle = src.handle;
 
     if (handle)
@@ -121,6 +125,7 @@ namespace dl
   {
     close();
 
+    cxxtools::MutexLock lock(mutex);
     log_debug("dlinit");
     DLINIT();
 
@@ -138,6 +143,7 @@ namespace dl
 
   void Library::close()
   {
+    cxxtools::MutexLock lock(mutex);
     if (handle)
     {
       if (prev == this)
