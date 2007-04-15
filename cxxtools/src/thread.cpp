@@ -20,9 +20,12 @@
  */
 
 #include "cxxtools/thread.h"
+#include "cxxtools/log.h"
 #include <errno.h>
 #include <sstream>
 #include <string>
+
+log_define("cxxtools.thread");
 
 namespace cxxtools
 {
@@ -124,6 +127,8 @@ void DetachedThread::create()
 
 Mutex::Mutex()
 {
+  pthread_mutex_t r = PTHREAD_MUTEX_INITIALIZER;
+  ::memcpy(&m_mutex, &r, sizeof(pthread_mutex_t));
   int ret = pthread_mutex_init(&m_mutex, 0);
   if (ret != 0)
     throw ThreadException("pthread_mutex_init", ret);
@@ -157,8 +162,18 @@ void Mutex::unlock()
     throw ThreadException("pthread_mutex_unlock", ret);
 }
 
+bool Mutex::unlockNoThrow()
+{
+  int ret = pthread_mutex_unlock(&m_mutex);
+  if (ret != 0)
+    log_fatal("cannot unlock mutex");
+  return ret == 0;
+}
+
 RWLock::RWLock()
 {
+  pthread_rwlock_t r = PTHREAD_RWLOCK_INITIALIZER;
+  ::memcpy(&m_rwlock, &r, sizeof(pthread_rwlock_t));
   int ret = pthread_rwlock_init(&m_rwlock, 0);
   if (ret != 0)
     throw ThreadException("pthread_rwlock_init", ret);
@@ -188,6 +203,14 @@ void RWLock::unlock()
   int ret = pthread_rwlock_unlock(&m_rwlock);
   if (ret != 0)
     throw ThreadException("pthread_rwlock_unlock", ret);
+}
+
+bool RWLock::unlockNoThrow()
+{
+  int ret = pthread_rwlock_unlock(&m_rwlock);
+  if (ret != 0)
+    log_fatal("cannot unlock rwmutex");
+  return ret == 0;
 }
 
 Semaphore::Semaphore(unsigned value)

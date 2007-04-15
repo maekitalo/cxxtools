@@ -279,6 +279,7 @@ class Mutex
     void lock();
     bool tryLock();
     void unlock();
+    bool unlockNoThrow();
 };
 
 class RWLock
@@ -296,11 +297,12 @@ class RWLock
     void rdLock();
     void wrLock();
     void unlock();
+    bool unlockNoThrow();
 };
 
 template <class mutex_type,
           void (mutex_type::*lock_method)() = &mutex_type::lock,
-          void (mutex_type::*unlock_method)() = &mutex_type::unlock>
+          void (mutex_type::*unlock_method)() = &mutex_type::unlockNoThrow>
 class LockBase
 {
     mutex_type& mutex;
