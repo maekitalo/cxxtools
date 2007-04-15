@@ -101,10 +101,12 @@ namespace net
 
     socklen_t peeraddr_len;
     peeraddr_len = sizeof(peeraddr);
-    log_debug("accept");
-    setFd(::accept(server.getFd(), reinterpret_cast <struct sockaddr *> (&peeraddr), &peeraddr_len));
-    if (bad())
-      throw Exception(errno, "accept");
+    log_debug("accept " << server.getFd());
+    int fd = ::accept(server.getFd(), reinterpret_cast <struct sockaddr *> (&peeraddr), &peeraddr_len);
+    if (fd < 0)
+      throw Exception("accept");
+    setFd(fd);
+    log_debug("accepted " << server.getFd() << " => " << getFd());
   }
 
   void Stream::connect(const std::string& ipaddr, unsigned short int port)
