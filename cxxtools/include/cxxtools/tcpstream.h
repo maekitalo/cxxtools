@@ -149,10 +149,10 @@ namespace net
     public:
       /// Erzeugt einen nicht verbundenen Stream-Socket.
       explicit iostream(unsigned bufsize = 256, int timeout = -1)
-        : std::iostream(0),
+        : std::iostream(),
           m_buffer(*this, bufsize, timeout)
       {
-        rdbuf(&m_buffer);
+        init(&m_buffer);
       }
 
       /// Nimmt eine eingehende Verbindung vom angegebenen Server an.

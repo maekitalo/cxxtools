@@ -59,22 +59,22 @@ class Tee : public std::ostream
 
   public:
     Tee()
-      : std::ostream(0),
+      : std::ostream(),
         streambuf(std::cout.rdbuf())
     {
-      rdbuf(&streambuf);
+      init(&streambuf);
     }
     Tee(std::ostream& s1, std::ostream& s2)
-      : std::ostream(0),
+      : std::ostream(),
         streambuf(s1.rdbuf(), s2.rdbuf())
     {
-      rdbuf(&streambuf);
+      init(&streambuf);
     }
     Tee(std::ostream& s)
-      : std::ostream(0),
+      : std::ostream(),
         streambuf(s.rdbuf(), std::cout.rdbuf())
     {
-      rdbuf(&streambuf);
+      init(&streambuf);
     }
 
     void assign(std::ostream& s1, std::ostream& s2);

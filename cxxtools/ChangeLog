@@ -1,3 +1,7 @@
+2007-04-17 tommi@tntnet.org
+  - another change in initialization in std::ios-derived classes after reading
+    the c++-standard (now std::ios::init is used for initialization)
+
 2007-04-11 tommi@tntnet.org
   - don't pass uninitialized std::streabuf to base-class in classes
     derived from std::[io]stream. This should be ok, but at least

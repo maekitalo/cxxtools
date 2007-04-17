@@ -69,15 +69,15 @@ class multi_ifstream : public std::istream
 
   public:
     multi_ifstream()
-      : std::istream(0)
+      : std::istream()
     {
-      rdbuf(&buffer);
+      init(&buffer);
     }
     multi_ifstream(const char* pattern, int flags = 0)
-      : std::istream(0),
+      : std::istream(),
         buffer(pattern, flags)
     {
-      rdbuf(&buffer);
+      init(&buffer);
     }
 
     const char* current_filename() const

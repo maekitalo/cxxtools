@@ -56,10 +56,10 @@ namespace cxxtools
 
     public:
       explicit Pipestream(unsigned bufsize = 8192)
-        : std::iostream(0),
+        : std::iostream(),
           streambuf(bufsize)
       {
-        rdbuf(&streambuf);
+        init(&streambuf);
       }
 
       void closeReadFd()        { streambuf.closeReadFd(); }

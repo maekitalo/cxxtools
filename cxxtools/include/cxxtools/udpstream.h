@@ -54,19 +54,19 @@ namespace cxxtools
 
       public:
         explicit UdpOStream(UdpSender& sender, int flags = 0)
-          : std::ostream(0),
+          : std::ostream(),
             sender(0),
             streambuf(sender, flags)
         {
-          rdbuf(&streambuf);
+          init(&streambuf);
         }
         UdpOStream(const char* ipaddr, unsigned short int port, bool bcast = false,
             int flags = 0)
-          : std::ostream(0),
+          : std::ostream(),
             sender(new UdpSender(ipaddr, port, bcast)),
             streambuf(*sender, flags)
         {
-          rdbuf(&streambuf);
+          init(&streambuf);
         }
         ~UdpOStream()
           { delete sender; }

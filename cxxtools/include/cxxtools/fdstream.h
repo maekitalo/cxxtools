@@ -53,10 +53,10 @@ namespace cxxtools
 
     public:
       explicit Fdiostream(int fd, unsigned bufsize = 8192, bool close = false)
-        : std::iostream(0),
+        : std::iostream(),
           streambuf(fd, bufsize, close)
           {
-            rdbuf(&streambuf);
+            init(&streambuf);
           }
 
       void setClose(bool sw = true)  { streambuf.setClose(sw); }

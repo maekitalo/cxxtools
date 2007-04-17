@@ -63,16 +63,16 @@ class Hdostream : public std::ostream
 
   public:
     Hdostream()
-      : base_class(0),
+      : base_class(),
         streambuf(std::cout.rdbuf())
     {
-      rdbuf(&streambuf);
+      init(&streambuf);
     }
     Hdostream(std::ostream& out)
-      : base_class(0),
+      : base_class(),
         streambuf(out.rdbuf())
     {
-      rdbuf(&streambuf);
+      init(&streambuf);
     }
 
     unsigned getOffset() const         { return streambuf.getOffset(); }
