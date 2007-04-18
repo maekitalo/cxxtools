@@ -247,6 +247,8 @@ class Pool
         freePool.pop();
       }
 
+      lock.unlock();
+
       objectptr_type po(obj, *this);
       return po;
     }
