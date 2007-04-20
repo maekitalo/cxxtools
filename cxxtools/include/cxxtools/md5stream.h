@@ -86,7 +86,7 @@ class Md5stream : public std::ostream
   public:
     /// initializes md5-calculation
     Md5stream()
-      : std::ostream()
+      : std::ostream(0)
     {
       init(&streambuf);
     }

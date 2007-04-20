@@ -63,13 +63,13 @@ class Hdostream : public std::ostream
 
   public:
     Hdostream()
-      : base_class(),
+      : base_class(0),
         streambuf(std::cout.rdbuf())
     {
       init(&streambuf);
     }
     Hdostream(std::ostream& out)
-      : base_class(),
+      : base_class(0),
         streambuf(out.rdbuf())
     {
       init(&streambuf);

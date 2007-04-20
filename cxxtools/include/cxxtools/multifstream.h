@@ -69,12 +69,12 @@ class multi_ifstream : public std::istream
 
   public:
     multi_ifstream()
-      : std::istream()
+      : std::istream(0)
     {
       init(&buffer);
     }
     multi_ifstream(const char* pattern, int flags = 0)
-      : std::istream(),
+      : std::istream(0),
         buffer(pattern, flags)
     {
       init(&buffer);

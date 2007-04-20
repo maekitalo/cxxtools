@@ -59,7 +59,7 @@ namespace cxxtools
 
     public:
       BasicStreamcounter()
-        : std::basic_ostream<CharType, Traits>()
+        : std::basic_ostream<CharType, Traits>(0)
       {
         init(&streambuf);
       }

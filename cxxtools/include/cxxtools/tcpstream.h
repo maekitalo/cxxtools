@@ -149,7 +149,7 @@ namespace net
     public:
       /// Erzeugt einen nicht verbundenen Stream-Socket.
       explicit iostream(unsigned bufsize = 256, int timeout = -1)
-        : std::iostream(),
+        : std::iostream(0),
           m_buffer(*this, bufsize, timeout)
       {
         init(&m_buffer);

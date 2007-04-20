@@ -59,19 +59,19 @@ class Tee : public std::ostream
 
   public:
     Tee()
-      : std::ostream(),
+      : std::ostream(0),
         streambuf(std::cout.rdbuf())
     {
       init(&streambuf);
     }
     Tee(std::ostream& s1, std::ostream& s2)
-      : std::ostream(),
+      : std::ostream(0),
         streambuf(s1.rdbuf(), s2.rdbuf())
     {
       init(&streambuf);
     }
     Tee(std::ostream& s)
-      : std::ostream(),
+      : std::ostream(0),
         streambuf(s.rdbuf(), std::cout.rdbuf())
     {
       init(&streambuf);

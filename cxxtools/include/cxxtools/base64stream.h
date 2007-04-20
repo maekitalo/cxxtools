@@ -77,14 +77,14 @@ class Base64ostream : public std::ostream
     /// instantiate encode with a output-stream, which received encoded
     /// Data.
     Base64ostream(std::ostream& out)
-      : std::ostream(),
+      : std::ostream(0),
         streambuf(out.rdbuf())
       {
         init(&streambuf);
       }
     /// instantiate encode with a output-std::streambuf.
     Base64ostream(std::streambuf* sb)
-      : std::ostream(),
+      : std::ostream(0),
         streambuf(sb)
       {
         init(&streambuf);
@@ -108,11 +108,11 @@ class Base64istream : public std::istream
 
   public:
     Base64istream(std::istream& in)
-      : std::istream(),
+      : std::istream(0),
         streambuf(in.rdbuf())
       { init(&streambuf); }
     Base64istream(std::streambuf* sb)
-      : std::istream(),
+      : std::istream(0),
         streambuf(sb)
       { init(&streambuf); }
 

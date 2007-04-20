@@ -56,7 +56,7 @@ namespace cxxtools
 
     public:
       explicit Pipestream(unsigned bufsize = 8192)
-        : std::iostream(),
+        : std::iostream(0),
           streambuf(bufsize)
       {
         init(&streambuf);
