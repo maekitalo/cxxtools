@@ -60,7 +60,7 @@ namespace net
       log_debug("setsockopt SO_REUSEADDR");
       if (::setsockopt(getFd(), SOL_SOCKET, SO_REUSEADDR,
           &reuseAddr, sizeof(reuseAddr)) < 0)
-        throw Exception(errno, "setsockopt");
+        throw Exception("setsockopt");
 
       log_debug("bind");
       if (::bind(getFd(), it->ai_addr, it->ai_addrlen) == 0)
@@ -70,13 +70,13 @@ namespace net
 
         log_debug("listen");
         if (::listen(getFd(), backlog) < 0)
-          throw Exception(errno, "listen");
+          throw Exception("listen");
 
         return;
       }
     }
 
-    throw Exception(errno, "bind");
+    throw Exception("bind");
   }
 
   ////////////////////////////////////////////////////////////////////////
@@ -128,7 +128,7 @@ namespace net
       }
     }
 
-    throw Exception(errno, "connect");
+    throw Exception("connect");
   }
 
   Stream::size_type Stream::read(char* buffer, Stream::size_type bufsize) const
@@ -143,7 +143,7 @@ namespace net
         log_debug("blocking read");
         n = ::read(getFd(), buffer, bufsize);
         log_debug("blocking read ready, return " << n);
-      } while (n <= 0 && errno == EINTR);
+      } while (n < 0 && errno == EINTR);
 
       if (n < 0 && errno != ECONNRESET)
         throw Exception(errno, "read");
@@ -158,9 +158,9 @@ namespace net
         log_debug("non blocking read fd=" << getFd());
         n = ::read(getFd(), buffer, bufsize);
         log_debug("non blocking read returns " << n);
-      } while (n <= 0 && errno == EINTR);
+      } while (n < 0 && errno == EINTR);
 
-      if (n <= 0)
+      if (n < 0)
       {
         // no data available
 
@@ -183,13 +183,13 @@ namespace net
             log_debug("read");
             n = ::read(getFd(), buffer, bufsize);
             log_debug("read returns " << n);
-          } while (n <= 0 && errno == EINTR);
+          } while (n < 0 && errno == EINTR);
 
           if (n < 0)
-            throw Exception(errno, "read");
+            throw Exception("read");
         }
         else if (errno != 0 && errno != ECONNRESET)
-          throw Exception(errno, "read");
+          throw Exception("read");
       }
 
     }
@@ -211,16 +211,16 @@ namespace net
       {
         n = ::write(getFd(), buffer, s);
         log_debug("::write returns " << n << " errno=" << errno);
-      } while (n <= 0 && errno == EINTR);
+      } while (n < 0 && errno == EINTR);
 
-      if (n <= 0)
+      if (n < 0)
       {
         if (errno == EAGAIN)
           n = 0;
         else
         {
-          log_error("error in write; errno=" << errno);
-          throw Exception(errno, "write");
+          log_error("error in write; errno=" << errno << " (" << strerror(errno) << ')');
+          throw Exception("write");
         }
       }
 
