@@ -55,7 +55,14 @@ namespace net
     // them all out, until we find a pretty useable one
     for (Addrinfo::const_iterator it = ai.begin(); it != ai.end(); ++it)
     {
-      Socket::create(it->ai_family, SOCK_STREAM, 0);
+      try
+      {
+        Socket::create(it->ai_family, SOCK_STREAM, 0);
+      }
+      catch (const Exception&)
+      {
+        continue;
+      }
 
       log_debug("setsockopt SO_REUSEADDR");
       if (::setsockopt(getFd(), SOL_SOCKET, SO_REUSEADDR,
@@ -118,7 +125,14 @@ namespace net
     log_debug("do connect");
     for (Addrinfo::const_iterator it = ai.begin(); it != ai.end(); ++it)
     {
-      Socket::create(it->ai_family, SOCK_STREAM, 0);
+      try
+      {
+        Socket::create(it->ai_family, SOCK_STREAM, 0);
+      }
+      catch (const Exception&)
+      {
+        continue;
+      }
 
       if (::connect(getFd(), it->ai_addr, it->ai_addrlen) == 0)
       {

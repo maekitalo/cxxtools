@@ -52,7 +52,14 @@ namespace net
 
     for (Addrinfo::const_iterator it = ai.begin(); it != ai.end(); ++it)
     {
-      Socket::create(it->ai_family, SOCK_DGRAM, 0);
+      try
+      {
+        Socket::create(it->ai_family, SOCK_DGRAM, 0);
+      }
+      catch (const Exception&)
+      {
+        continue;
+      }
 
       if (bcast)
       {
@@ -134,7 +141,14 @@ namespace net
     int reuseAddr = 1;
     for (Addrinfo::const_iterator it = ai.begin(); it != ai.end(); ++it)
     {
-      Socket::create(it->ai_family, SOCK_DGRAM, 0);
+      try
+      {
+        Socket::create(it->ai_family, SOCK_DGRAM, 0);
+      }
+      catch (const Exception&)
+      {
+        continue;
+      }
 
       log_debug("setsockopt");
       if (::setsockopt(getFd(), SOL_SOCKET, SO_REUSEADDR,
