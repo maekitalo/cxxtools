@@ -180,7 +180,7 @@ namespace cxxtools
 
   void LoggerImpl::setLoghost(const std::string& host, unsigned short int port)
   {
-    loghost.connect(host.c_str(), port);
+    loghost.connect(host.c_str(), port, true);
   }
 
   RWLock Logger::rwmutex;
