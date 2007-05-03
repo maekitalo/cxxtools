@@ -47,8 +47,8 @@ namespace net
       }
       catch (...)
       {
-        message.clear();
       }
+      message.clear();
     }
 
     return 0;
