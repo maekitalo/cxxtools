@@ -115,7 +115,7 @@ namespace net
       throw Exception("fcntl");
   }
 
-  short Socket::doPoll(short events) const
+  short Socket::poll(short events) const
   {
     struct pollfd fds;
     fds.fd = getFd();

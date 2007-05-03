@@ -186,7 +186,7 @@ namespace net
             throw Timeout();
           }
 
-          if (doPoll(POLLIN) & POLLHUP)
+          if (poll(POLLIN) & POLLHUP)
           {
             log_debug("eof in read");
             return 0;
@@ -250,7 +250,7 @@ namespace net
         throw Timeout();
       }
 
-      if (doPoll(POLLOUT) & POLLHUP)
+      if (poll(POLLOUT) & POLLHUP)
       {
         log_debug("eof in write");
         return bufsize - s;

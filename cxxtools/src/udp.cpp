@@ -102,7 +102,7 @@ namespace net
       if (getTimeout() == 0)
         throw Timeout();
 
-      doPoll(POLLIN);
+      poll(POLLIN);
 
       ret = ::recv(getFd(), buffer, length, flags);
     }
@@ -178,7 +178,7 @@ namespace net
       if (getTimeout() == 0)
         throw Timeout();
 
-      doPoll(POLLIN);
+      poll(POLLIN);
 
       ret = ::recvfrom(getFd(), buffer, length, flags, reinterpret_cast <struct sockaddr *> (&peeraddr), &peeraddrLen);
     }
