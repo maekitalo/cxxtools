@@ -127,8 +127,6 @@ void DetachedThread::create()
 
 Mutex::Mutex()
 {
-  pthread_mutex_t r = PTHREAD_MUTEX_INITIALIZER;
-  ::memcpy(&m_mutex, &r, sizeof(pthread_mutex_t));
   int ret = pthread_mutex_init(&m_mutex, 0);
   if (ret != 0)
     throw ThreadException("pthread_mutex_init", ret);
@@ -172,8 +170,6 @@ bool Mutex::unlockNoThrow()
 
 RWLock::RWLock()
 {
-  pthread_rwlock_t r = PTHREAD_RWLOCK_INITIALIZER;
-  ::memcpy(&m_rwlock, &r, sizeof(pthread_rwlock_t));
   int ret = pthread_rwlock_init(&m_rwlock, 0);
   if (ret != 0)
     throw ThreadException("pthread_rwlock_init", ret);

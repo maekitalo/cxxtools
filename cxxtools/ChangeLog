@@ -1,5 +1,18 @@
+2007-05-04 tommi@tntnet.org
+  - replace std::string with char* as a buffer in udpstream-class
+  - remove RWLOCK_MUTEX_INITIALIZER because this is unknown on Mac OS X and
+    the rwlock_t-structure is anyway initalized with pthread_rwlock_init
+
 2007-05-03 tommi@tntnet.org
   - bugfix: clear buffer of udpstream after sending message
+  - make cxxtools::socket::doPoll-method public and rename to poll
+
+2007-04-26 tommi@tntnet.org
+  - try next addrinfo, when socket-creation fails. Previously cxxtools fails
+    to create a socket, if first addrinfo-entry does not work.
+
+2007-04-20 tommi@tntnet.org
+  - fix stream-classes to conform ANSI
 
 2007-04-18 tommi@tntnet.org
   - remove double-lock in pool-class, which resulted in a deadlock on solaris
