@@ -23,7 +23,7 @@
 #define CXXTOOLS_UDPSTREAM_H
 
 #include <cxxtools/udp.h>
-#include <sstream>
+#include <iostream>
 
 namespace cxxtools
 {
@@ -31,15 +31,22 @@ namespace cxxtools
   {
     class UdpStreambuf : public std::streambuf
     {
-        std::string message;
+        char* message;
+        unsigned msgsize;
         UdpSender& sender;
         int flags;
 
+        void sendBuffer();
+
       public:
-        explicit UdpStreambuf(UdpSender& sender_, int flags_ = 0)
+        explicit UdpStreambuf(UdpSender& sender_, int flags_ = 0, unsigned msgsize_ = 1024)
           : sender(sender_),
-            flags(flags_)
+            flags(flags_),
+            message(new char[msgsize_]),
+            msgsize(msgsize_)
           { }
+        ~UdpStreambuf()
+          { delete[] message; }
 
       protected:
         std::streambuf::int_type overflow(std::streambuf::int_type ch);
@@ -53,10 +60,10 @@ namespace cxxtools
         UdpStreambuf streambuf;
 
       public:
-        explicit UdpOStream(UdpSender& sender, int flags = 0)
+        explicit UdpOStream(UdpSender& sender_, int flags = 0)
           : std::ostream(0),
             sender(0),
-            streambuf(sender, flags)
+            streambuf(sender_, flags)
         {
           init(&streambuf);
         }

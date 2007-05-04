@@ -26,9 +26,27 @@ namespace cxxtools
 
 namespace net
 {
+  void UdpStreambuf::sendBuffer()
+  {
+    try
+    {
+      sender.send(pbase(), pptr() - pbase(), flags);
+    }
+    catch (...)
+    {
+    }
+  }
+
   std::streambuf::int_type UdpStreambuf::overflow(std::streambuf::int_type ch)
   {
-    message += traits_type::to_char_type(ch);
+    if (pptr() != pbase())
+      sendBuffer();
+    setp(message, message + msgsize);
+    if (ch != traits_type::eof())
+    {
+      *pptr() = traits_type::to_char_type(ch);
+      pbump(1);
+    }
     return 0;
   }
 
@@ -39,18 +57,9 @@ namespace net
 
   int UdpStreambuf::sync()
   {
-    if (!message.empty())
-    {
-      try
-      {
-        sender.send(message, flags);
-      }
-      catch (...)
-      {
-      }
-      message.clear();
-    }
-
+    if (pptr() != pbase())
+      sendBuffer();
+    setp(message, message + msgsize);
     return 0;
   }
 
