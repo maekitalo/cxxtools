@@ -29,10 +29,11 @@ endif
 
 INCLUDES = -I$(top_builddir)/include
 LDADD = $(top_builddir)/src/libcxxtools.la
-AM_LDFLAGS = -L$(top_builddir)/src
-log_LDFLAGS = @CXXTOOLS_LOG_LDFLAGS@
-logbench_LDFLAGS = @CXXTOOLS_LOG_LDFLAGS@
-logsh_LDFLAGS = @CXXTOOLS_LOG_LDFLAGS@
+AM_CXXFLAGS = $(PTHREAD_CFLAGS)
+AM_LDFLAGS = -L$(top_builddir)/src $(PTHREAD_LIBS)
+log_LDFLAGS = @CXXTOOLS_LOG_LDFLAGS@ $(PTHREAD_LIBS)
+logbench_LDFLAGS = @CXXTOOLS_LOG_LDFLAGS@ $(PTHREAD_LIBS)
+logsh_LDFLAGS = @CXXTOOLS_LOG_LDFLAGS@ $(PTHREAD_LIBS)
 
 log.properties:
 	$(top_builddir)/cxxtools-config --properties cxxtools >$@

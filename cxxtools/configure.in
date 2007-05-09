@@ -1,7 +1,7 @@
 AC_INIT(cxxtools, 1.4.3.5, [Tommi Maekitalo <tommi@tntnet.org>])
 AM_INIT_AUTOMAKE
 
-abi_current=3
+abi_current=4
 abi_revision=1
 abi_age=0
 sonumber=${abi_current}:${abi_revision}:${abi_age}
@@ -28,6 +28,7 @@ AC_SEARCH_LIBS(fdatasync, [rt posix4])
 AC_SUBST(NETWORK_LIBS)
 
 AC_LANG(C++)
+ACX_PTHREAD
 
 AC_LIBTOOL_DLOPEN
 AC_LIBLTDL_CONVENIENCE
@@ -117,8 +118,8 @@ AC_SUBST(CXXTOOLS_LOGGING)
 
 AC_ARG_WITH(
     [libtool],
-    AS_HELP_STRING([--without-libtool],
-                   [use libtool for dynamic loading of shared libraries]),
+    AS_HELP_STRING([--with-libtool],
+                   [use libtool for dynamic loading of shared libraries (default: yes)]),
     ac_use_libtool=$withval,
     ac_use_libtool=yes,
     )

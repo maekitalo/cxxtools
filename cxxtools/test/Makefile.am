@@ -7,3 +7,5 @@ inifile_SOURCES = inifile.cpp
 getini_SOURCES = getini.cpp
 
 LDADD = $(top_builddir)/src/libcxxtools.la
+AM_CXXFLAGS = $(PTHREAD_CFLAGS)
+AM_LDFLAGS = $(PTHREAD_LIBS)
