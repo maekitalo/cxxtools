@@ -40,7 +40,7 @@ namespace cxxtools
       explicit Fdstreambuf(int fd, unsigned bufsize = 8192, bool doClose = false);
       ~Fdstreambuf();
 
-      void setClose(bool sw = true)  { doClose = true; }
+      void setClose(bool sw = true)  { doClose = sw; }
       bool isClose() const           { return doClose; }
       void close();
 
