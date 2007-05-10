@@ -26,6 +26,7 @@
 #include <semaphore.h>
 #include <stdexcept>
 #include <time.h>
+#include <cxxtools/syserror.h>
 
 namespace cxxtools
 {
@@ -35,23 +36,12 @@ namespace cxxtools
 
  This Exception is thrown in case of problems with threads.
  */
-class ThreadException : public std::runtime_error
+class ThreadException : public SysError
 {
-    int m_errno;
-
-    static std::string formatMsg(const char* method, int e);
-
   public:
-    ThreadException(const char* method, int e)
-      : std::runtime_error(formatMsg(method, e)),
-        m_errno(e)
+    ThreadException(int errno, const char* method)
+      : SysError(errno, method)
       { }
-
-    /**
-     * returns the native error-code
-     */
-    int getErrno() const
-    { return m_errno; }
 };
 
 /**

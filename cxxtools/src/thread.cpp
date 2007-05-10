@@ -30,13 +30,6 @@ log_define("cxxtools.thread");
 namespace cxxtools
 {
 
-std::string ThreadException::formatMsg(const char* method, int e)
-{
-  std::ostringstream msg;
-  msg << "error " << e << " in " << method;
-  return msg.str();
-}
-
 Thread::Thread()
   : pthreadId(0)
 {
@@ -75,7 +68,7 @@ void AttachedThread::create()
 {
   int ret = pthread_create(&pthreadId, &pthread_attr, start, (void*)this);
   if (ret != 0)
-    throw ThreadException("pthread_create", ret);
+    throw ThreadException(ret, "pthread_create");
 }
 
 void AttachedThread::join()
@@ -84,7 +77,7 @@ void AttachedThread::join()
   {
     int ret = pthread_join(pthreadId, 0);
     if (ret != 0)
-      throw ThreadException("pthread_join", ret);
+      throw ThreadException(ret, "pthread_join");
     joined = true;
   }
 }
@@ -97,7 +90,7 @@ DetachedThread::DetachedThread()
 {
   int ret = pthread_attr_setdetachstate(&pthread_attr, PTHREAD_CREATE_DETACHED);
   if (ret != 0)
-    throw ThreadException("pthread_attr_setdetachstate", ret);
+    throw ThreadException(ret, "pthread_attr_setdetachstate");
 }
 
 void* DetachedThread::start(void* arg)
@@ -118,7 +111,7 @@ void DetachedThread::create()
 {
   int ret = pthread_create(&pthreadId, &pthread_attr, start, (void*)this);
   if (ret != 0)
-    throw ThreadException("pthread_create", ret);
+    throw ThreadException(ret, "pthread_create");
 }
 
 //
@@ -129,7 +122,7 @@ Mutex::Mutex()
 {
   int ret = pthread_mutex_init(&m_mutex, 0);
   if (ret != 0)
-    throw ThreadException("pthread_mutex_init", ret);
+    throw ThreadException(ret, "pthread_mutex_init");
 }
 
 Mutex::~Mutex()
@@ -141,7 +134,7 @@ void Mutex::lock()
 {
   int ret = pthread_mutex_lock(&m_mutex);
   if (ret != 0)
-    throw ThreadException("pthread_mutex_lock", ret);
+    throw ThreadException(ret, "pthread_mutex_lock");
 }
 
 bool Mutex::tryLock()
@@ -157,7 +150,7 @@ void Mutex::unlock()
 {
   int ret = pthread_mutex_unlock(&m_mutex);
   if (ret != 0)
-    throw ThreadException("pthread_mutex_unlock", ret);
+    throw ThreadException(ret, "pthread_mutex_unlock");
 }
 
 bool Mutex::unlockNoThrow()
@@ -172,7 +165,7 @@ RWLock::RWLock()
 {
   int ret = pthread_rwlock_init(&m_rwlock, 0);
   if (ret != 0)
-    throw ThreadException("pthread_rwlock_init", ret);
+    throw ThreadException(ret, "pthread_rwlock_init");
 }
 
 RWLock::~RWLock()
@@ -184,21 +177,21 @@ void RWLock::rdLock()
 {
   int ret = pthread_rwlock_rdlock(&m_rwlock);
   if (ret != 0)
-    throw ThreadException("pthread_rwlock_rdlock", ret);
+    throw ThreadException(ret, "pthread_rwlock_rdlock");
 }
 
 void RWLock::wrLock()
 {
   int ret = pthread_rwlock_wrlock(&m_rwlock);
   if (ret != 0)
-    throw ThreadException("pthread_rwlock_wrlock", ret);
+    throw ThreadException(ret, "pthread_rwlock_wrlock");
 }
 
 void RWLock::unlock()
 {
   int ret = pthread_rwlock_unlock(&m_rwlock);
   if (ret != 0)
-    throw ThreadException("pthread_rwlock_unlock", ret);
+    throw ThreadException(ret, "pthread_rwlock_unlock");
 }
 
 bool RWLock::unlockNoThrow()
@@ -213,7 +206,7 @@ Semaphore::Semaphore(unsigned value)
 {
   int ret = sem_init(&sem, 0, value);
   if (ret != 0)
-    throw ThreadException("sem_init", ret);
+    throw ThreadException(ret, "sem_init");
 }
 
 Semaphore::~Semaphore()
@@ -225,14 +218,14 @@ void Semaphore::wait()
 {
   int ret = sem_wait(&sem);
   if (ret != 0)
-    throw ThreadException("sem_wait", ret);
+    throw ThreadException(ret, "sem_wait");
 }
 
 bool Semaphore::tryWait()
 {
   int ret = sem_trywait(&sem);
   if (ret != EAGAIN && ret != 0)
-    throw ThreadException("sem_trywait", ret);
+    throw ThreadException(ret, "sem_trywait");
   return ret == 0;
 }
 
@@ -240,7 +233,7 @@ void Semaphore::post()
 {
   int ret = sem_post(&sem);
   if (ret != 0)
-    throw ThreadException("sem_post", ret);
+    throw ThreadException(ret, "sem_post");
 }
 
 int Semaphore::getValue()
@@ -248,7 +241,7 @@ int Semaphore::getValue()
   int sval;
   int ret = sem_getvalue(&sem, &sval);
   if (ret != 0)
-    throw ThreadException("sem_getvalue", ret);
+    throw ThreadException(ret, "sem_getvalue");
   return sval;
 }
 
@@ -256,7 +249,7 @@ Condition::Condition()
 {
   int ret = pthread_cond_init(&cond, 0);
   if (ret != 0)
-    throw ThreadException("pthread_cond_init", ret);
+    throw ThreadException(ret, "pthread_cond_init");
 }
 
 Condition::~Condition()
@@ -268,21 +261,21 @@ void Condition::signal()
 {
   int ret = pthread_cond_signal(&cond);
   if (ret != 0)
-    throw ThreadException("pthread_cond_signal", ret);
+    throw ThreadException(ret, "pthread_cond_signal");
 }
 
 void Condition::broadcast()
 {
   int ret = pthread_cond_broadcast(&cond);
   if (ret != 0)
-    throw ThreadException("pthread_cond_broadcast", ret);
+    throw ThreadException(ret, "pthread_cond_broadcast");
 }
 
 void Condition::wait(MutexLock& lock)
 {
   int ret = pthread_cond_wait(&cond, &lock.getMutex().m_mutex);
   if (ret != 0)
-    throw ThreadException("pthread_cond_wait", ret);
+    throw ThreadException(ret, "pthread_cond_wait");
 }
 
 bool Condition::timedwait(MutexLock& lock, const struct timespec& time)
@@ -292,7 +285,7 @@ bool Condition::timedwait(MutexLock& lock, const struct timespec& time)
     return false;
 
   if (ret != 0)
-    throw ThreadException("pthread_cond_timedwait", ret);
+    throw ThreadException(ret, "pthread_cond_timedwait");
 
   return true;
 }
