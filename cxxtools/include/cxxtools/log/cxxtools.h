@@ -27,12 +27,12 @@
 #include <iostream>
 
 #define log_xxxx_enabled(level)   \
-  getLogger()->isEnabled(::cxxtools::Logger::LOG_LEVEL_ ## level)
+  (getLogger() != 0 && getLogger()->isEnabled(::cxxtools::Logger::LOG_LEVEL_ ## level))
 
 #define log_xxxx(level, expr)   \
   do { \
     ::cxxtools::Logger* _cxxtools_logger = getLogger(); \
-    if (_cxxtools_logger->isEnabled(::cxxtools::Logger::LOG_LEVEL_ ## level)) \
+    if (_cxxtools_logger != 0 && _cxxtools_logger->isEnabled(::cxxtools::Logger::LOG_LEVEL_ ## level)) \
     { \
       ::cxxtools::LogMessage _cxxtools_logMessage(_cxxtools_logger, #level); \
       _cxxtools_logMessage.out() << expr; \
@@ -63,7 +63,9 @@
 #define log_define(category) \
   static inline ::cxxtools::Logger* getLogger()   \
   {  \
-    static cxxtools::Logger* logger = ::cxxtools::Logger::getLogger(category); \
+    static cxxtools::Logger* logger = 0; \
+    if (logger == 0) \
+      logger = ::cxxtools::Logger::getLogger(category); \
     return logger; \
   }
 
