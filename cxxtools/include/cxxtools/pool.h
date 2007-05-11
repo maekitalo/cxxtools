@@ -84,7 +84,7 @@ class Pool
               MutexLock lock(mypool->mutex);
               if (next == this)
               {
-                if (reuse && mypool->currentCount <= mypool->maxCount)
+                if (reuse && (mypool->maxCount == 0 || mypool->currentCount <= mypool->maxCount))
                   mypool->freePool.push(ptr);
                 else
                 {
