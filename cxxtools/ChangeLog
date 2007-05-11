@@ -1,3 +1,7 @@
+2007-05-11 tommi@tntnet.org
+  - make cxxtools::Pool working again
+  - build-improvements (port to solaris/SunStudio)
+
 2007-05-04 tommi@tntnet.org
   - replace std::string with char* as a buffer in udpstream-class
   - remove RWLOCK_MUTEX_INITIALIZER because this is unknown on Mac OS X and
