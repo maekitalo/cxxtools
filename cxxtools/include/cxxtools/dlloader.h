@@ -99,8 +99,7 @@ namespace dl
       /// Copy-constrcutor - increments reference to the library.
       Library(const Library& src);
       /// unloads the library if some is referenced.
-      ~Library()
-      { close(); }
+      ~Library();
 
       Library& operator=(const Library& src);
 

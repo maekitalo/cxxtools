@@ -100,6 +100,16 @@ namespace dl
     next->prev = this;
   }
 
+  Library::~Library()
+  {
+    try
+    {
+      close();
+    }
+    catch (...)
+    { }
+  }
+
   Library& Library::operator=(const Library& src)
   {
     if (handle == src.handle)
