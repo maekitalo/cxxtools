@@ -73,6 +73,7 @@ namespace cxxtools
       };
 
       static FlusherThread* flusherThread;
+      static bool flusherThreadStarted;
 
     public:
       LoggerImpl(const std::string& c, log_level_type l)
@@ -90,8 +91,14 @@ namespace cxxtools
 
   std::ostream& LoggerImpl::getAppender()
   {
-    if (outfile.is_open())
+    if (!fname.empty())
     {
+      if (!outfile.is_open())
+      {
+        outfile.clear();
+        outfile.open(fname.c_str(), std::ios::out | std::ios::app);
+      }
+
       if (maxfilesize > 0)
       {
         if (counter.getCount() > maxfilesize)
@@ -114,6 +121,12 @@ namespace cxxtools
   {
     if (flusherThread == 0)
       appender.flush();
+
+    if (!flusherThreadStarted && !fname.empty())
+    {
+      flusherThread->create();
+      flusherThreadStarted = true;
+    }
   }
 
   std::string LoggerImpl::mkfilename(unsigned idx)
@@ -155,25 +168,24 @@ namespace cxxtools
   unsigned LoggerImpl::maxfilesize = 0;
   unsigned LoggerImpl::maxbackupindex = 0;
   LoggerImpl::FlusherThread* LoggerImpl::flusherThread = 0;
+  bool LoggerImpl::flusherThreadStarted = false;
 
   struct timespec LoggerImpl::FlusherThread::flushDelay;
 
   void LoggerImpl::setFile(const std::string& fname_)
   {
     fname = fname_;
-    outfile.clear();
-    outfile.open(fname_.c_str(), std::ios::out | std::ios::app);
-    counter.resetCount(outfile.tellp());
+
+    struct stat s;
+    int ret = stat(fname_.c_str(), &s);
+    counter.resetCount(ret == 0 ? s.st_size : 0);
   }
 
   void LoggerImpl::setFlushDelay(unsigned ms)
   {
     FlusherThread::setFlushDelay(ms);
-    if (ms > 0 && flusherThread == 0 && outfile.is_open())
-    {
+    if (ms > 0 && flusherThread == 0 && !fname.empty())
       flusherThread = new FlusherThread(outfile);
-      flusherThread->create();
-    }
     else if (ms == 0)
       flusherThread = 0;
   }
@@ -256,6 +268,9 @@ namespace cxxtools
 
   Logger* Logger::getLogger(const std::string& category)
   {
+    if (!enabled)
+      return 0;
+
     // search existing Logger
     RdLock rdLock(rwmutex);
 
