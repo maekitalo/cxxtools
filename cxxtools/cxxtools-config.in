@@ -135,6 +135,7 @@ EOF
 #maxbackupindex=10
 #flushdelay=100  # delay write in milliseconds
 #host=localhost:1234  # send log-messages with udp
+#disabled=1  # disable logging
 EOF
   else
     cat <<EOF
@@ -143,6 +144,7 @@ maxfilesize=1MB
 maxbackupindex=10
 flushdelay=100  # delay write in milliseconds
 #host=localhost:1234  # send log-messages with udp
+#disabled=1  # disable logging
 EOF
   fi
 

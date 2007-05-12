@@ -1,3 +1,7 @@
+2007-05-12 tommi@tntnet.org
+  - logging can be disabled completely now in the logging-properties by
+    setting disabled to 1 (or 'y' or 'Y' or 't' or 'T')
+
 2007-05-11 tommi@tntnet.org
   - make cxxtools::Pool working again
   - build-improvements (port to solaris/SunStudio)

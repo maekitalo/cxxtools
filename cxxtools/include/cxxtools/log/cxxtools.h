@@ -87,6 +87,7 @@ namespace cxxtools
       std::string category;
       log_level_type level;
       static log_level_type std_level;
+      static bool enabled;
 
     protected:
       Logger(const std::string& c, log_level_type l)
@@ -101,9 +102,12 @@ namespace cxxtools
       static log_level_type getStdLevel()
         { return std_level; }
       static Logger* setLevel(const std::string& category, log_level_type l);
+      static void setEnabled(bool sw = true)   { enabled = sw; }
+      static bool isEnabled()
+        { return enabled; }
 
-      bool isEnabled(log_level_type l)
-        { return level >= l; }
+      bool isEnabled(log_level_type l) const
+        { return level >= l && enabled; }
       const std::string& getCategory() const
         { return category; }
       log_level_type getLogLevel() const

@@ -186,6 +186,7 @@ namespace cxxtools
   RWLock Logger::rwmutex;
   Mutex Logger::mutex;
   Logger::log_level_type Logger::std_level = LOG_LEVEL_ERROR;
+  bool Logger::enabled = false;
 
   namespace
   {
@@ -461,13 +462,17 @@ namespace cxxtools
 
 void log_init_cxxtools(cxxtools::Logger::log_level_type level)
 {
+  cxxtools::Logger::setEnabled(false);
+
   cxxtools::Logger::setRootLevel(level);
+
+  cxxtools::Logger::setEnabled(true);
   cxxtools::reinitializeLoggers();
 }
 
 void log_init_cxxtools(const std::string& propertyfilename)
 {
-  cxxtools::Logger::setRootLevel(cxxtools::Logger::LOG_LEVEL_ERROR);
+  cxxtools::Logger::setEnabled(false);
   cxxtools::getBaseLoggers().clear();
 
   std::ifstream in(propertyfilename.c_str());
@@ -476,6 +481,8 @@ void log_init_cxxtools(const std::string& propertyfilename)
 
 void log_init_cxxtools(std::istream& in)
 {
+  cxxtools::Logger::setEnabled(true);
+
   enum state_type {
     state_0,
     state_token,
@@ -494,6 +501,7 @@ void log_init_cxxtools(std::istream& in)
     state_maxbackupindex,
     state_flushdelay0,
     state_flushdelay,
+    state_disable,
     state_skip
   };
   
@@ -547,6 +555,8 @@ void log_init_cxxtools(std::istream& in)
           state = state_maxbackupindex0;
         else if (ch == '=' && token == "FLUSHDELAY")
           state = state_flushdelay0;
+        else if (ch == '=' && token == "DISABLED")
+          state = state_disable;
         else if (ch == '\n')
           state = state_0;
         else if (std::isspace(ch))
@@ -573,6 +583,8 @@ void log_init_cxxtools(std::istream& in)
           state = state_maxbackupindex0;
         else if (ch == '=' && token == "FLUSHDELAY")
           state = state_flushdelay0;
+        else if (ch == '=' && token == "DISABLE")
+          state = state_disable;
         else if (ch == '\n')
           state = state_0;
         else if (!std::isspace(ch))
@@ -740,6 +752,16 @@ void log_init_cxxtools(std::istream& in)
         if (std::isdigit(ch))
           flushdelay = flushdelay * 10 + ch - '0';
         else
+          state = (ch == '\n' ? state_0 : state_skip);
+        break;
+
+      case state_disable:
+        if (ch == '1' || ch == 't' || ch == 'T' || ch == 'y' || ch == 'Y')
+        {
+          cxxtools::Logger::setEnabled(false);
+          state = state_skip;
+        }
+        else if (ch != ' ' && ch != '\t')
           state = (ch == '\n' ? state_0 : state_skip);
         break;
 
