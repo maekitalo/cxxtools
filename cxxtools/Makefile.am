@@ -3,3 +3,7 @@ ACLOCAL_AMFLAGS = -I m4
 SUBDIRS = libltdl src include demo
 
 bin_SCRIPTS = cxxtools-config
+
+EXTRA_dist = \
+	m4/acx_pthread.m4 \
+	m4/iconv.m4
