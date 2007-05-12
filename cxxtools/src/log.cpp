@@ -121,8 +121,7 @@ namespace cxxtools
   {
     if (flusherThread == 0)
       appender.flush();
-
-    if (!flusherThreadStarted && !fname.empty())
+    else if (!flusherThreadStarted && !fname.empty())
     {
       flusherThread->create();
       flusherThreadStarted = true;
