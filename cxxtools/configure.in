@@ -1,4 +1,4 @@
-AC_INIT(cxxtools, 1.4.3.6, [Tommi Maekitalo <tommi@tntnet.org>])
+AC_INIT(cxxtools, 1.4.4, [Tommi Maekitalo <tommi@tntnet.org>])
 AM_INIT_AUTOMAKE
 
 abi_current=4
