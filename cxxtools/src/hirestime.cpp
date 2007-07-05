@@ -46,7 +46,7 @@ namespace cxxtools
     else
     {
       tv.tv_sec  = tv.tv_sec - ht.tv.tv_sec;
-      tv.tv_usec = tv.tv_usec + ht.tv.tv_usec;
+      tv.tv_usec = tv.tv_usec - ht.tv.tv_usec;
     }
     return *this;
   }
