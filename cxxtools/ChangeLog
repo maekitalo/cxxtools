@@ -1,3 +1,9 @@
+2007-07-06 tommi@tntnet.org
+  - add policy based smart pointer implementation
+  - add NonCopyable-class, which can be used as a base-class for objects,
+    which must not be copied
+  - fix bug in subtraction-method of cxxtools::HiresTime
+
 2007-05-12 tommi@tntnet.org
   - logging can be disabled completely now in the logging-properties by
     setting disabled to 1 (or 'y' or 'Y' or 't' or 'T')
