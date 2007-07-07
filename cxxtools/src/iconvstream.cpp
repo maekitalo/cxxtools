@@ -87,7 +87,7 @@ iconvstreambuf::int_type iconvstreambuf::overflow(int_type c)
   else
   {
     // Ausgabepuffer voll - konvertiere Zeichen
-    char outbuf[32];
+    char outbuf[sizeof(buffer)*2];
 
     size_t inbytesleft = pptr() - buffer;
     if (c != traits_type::eof())
@@ -97,7 +97,7 @@ iconvstreambuf::int_type iconvstreambuf::overflow(int_type c)
     }
     size_t outbytesleft = sizeof(outbuf);
 
-    ICONV_CONST char* inbufptr = buffer;
+    char* inbufptr = buffer;
     char* outbufptr = outbuf;
 
     // Konvertiere so viele Zeichen wie möglich

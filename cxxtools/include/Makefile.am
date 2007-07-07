@@ -13,7 +13,8 @@ nobase_include_HEADERS = \
         cxxtools/httprequest.h \
         cxxtools/iconverter.h \
         cxxtools/iconvstream.h \
-        cxxtools/iniclass.h \
+        cxxtools/inifile.h \
+        cxxtools/iniparser.h \
         cxxtools/log.h \
         cxxtools/loginit.h \
         cxxtools/md5.h \

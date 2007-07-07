@@ -1,3 +1,8 @@
+2007-07-07 tommi@tntnet.org
+  - rewritten ini-file-parser
+  - make iconv unconditional and make iconv-buffer bigger for better
+    performance
+
 2007-07-06 tommi@tntnet.org
   - add policy based smart pointer implementation
   - add NonCopyable-class, which can be used as a base-class for objects,

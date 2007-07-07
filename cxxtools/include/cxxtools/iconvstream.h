@@ -36,7 +36,7 @@ class iconvstreambuf : public std::streambuf
 {
     std::ostream* sink;
     iconv_t cd;
-    char buffer[16];
+    char buffer[256];
 
   public:
     iconvstreambuf()

@@ -1,4 +1,4 @@
-AC_INIT(cxxtools, 1.4.4, [Tommi Maekitalo <tommi@tntnet.org>])
+AC_INIT(cxxtools, 1.4.4.1, [Tommi Maekitalo <tommi@tntnet.org>])
 AM_INIT_AUTOMAKE
 
 abi_current=4
@@ -16,9 +16,6 @@ AC_CONFIG_SRCDIR([src/base64stream.cpp])
 AC_CONFIG_SUBDIRS(libltdl)
 
 AC_HEADER_DIRENT
-
-AM_ICONV
-AM_CONDITIONAL(MAKE_ICONV, test "$am_cv_func_iconv" = yes)
 
 AC_PROG_CC
 AC_PROG_CXX

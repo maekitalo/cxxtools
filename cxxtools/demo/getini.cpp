@@ -22,10 +22,67 @@
 
 #include <exception>
 #include <iostream>
-#include "cxxtools/iniclass.h"
+#include <fstream>
+#include <cxxtools/iniparser.h>
+#include <cxxtools/loginit.h>
+
+log_define("cxxtools.getini")
+
+class GetIni : public cxxtools::IniParser::Event
+{
+    std::string section;
+    std::string key;
+    std::string value;
+    bool inSection;
+    bool inKey;
+
+  public:
+    GetIni(const std::string& section_, const std::string& key_,
+        const std::string& defvalue_) 
+      : section(section_),
+        key(key_),
+        value(defvalue_),
+        inSection(false),
+        inKey(false)
+        { }
+
+    bool onSection(const std::string& section);
+    bool onKey(const std::string& key);
+    bool onValue(const std::string& value);
+
+    const std::string& getValue() const  { return value; }
+};
+
+bool GetIni::onSection(const std::string& section_)
+{
+  inSection = (section == section_);
+  log_debug("onSection(" << section_ << ") => " << inSection);
+  return false;
+}
+
+bool GetIni::onKey(const std::string& key_)
+{
+  inKey = (inSection && key == key_);
+  log_debug("onKey(" << key_ << ") => " << inKey);
+  return false;
+}
+
+bool GetIni::onValue(const std::string& value_)
+{
+  log_debug("onValue(" << value_ << ") => " << inKey);
+  if (inKey)
+  {
+    log_debug("value found");
+    value = value_;
+    return true;
+  }
+  return false;
+}
 
 int main(int argc, char* argv[])
 {
+  log_init();
+
   try
   {
     if (argc < 4)
@@ -40,8 +97,10 @@ int main(int argc, char* argv[])
     const char* key = argv[3];
     const char* defvalue = argv[4] ? argv[4] : "";
 
-    cxxtools::ini_file iniFile(fname);
-    std::cout << iniFile.get_value(section, key, defvalue) << std::endl;
+    std::ifstream in(fname);
+    GetIni ini(section, key, defvalue);
+    cxxtools::IniParser(ini).parse(in);
+    std::cout << ini.getValue() << std::endl;
   }
   catch (const std::exception& e)
   {

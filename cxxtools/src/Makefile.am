@@ -11,7 +11,9 @@ libcxxtools_la_SOURCES = \
 	hirestime.cpp \
 	httpreply.cpp \
 	httprequest.cpp \
-	iniclass.cpp \
+	iconvstream.cpp \
+	inifile.cpp \
+	iniparser.cpp \
 	log.cpp \
 	md5.c \
 	md5stream.cpp \
@@ -29,11 +31,6 @@ libcxxtools_la_SOURCES = \
 	udpstream.cpp \
 	xmltag.cpp
 
-if MAKE_ICONV
-libcxxtools_la_SOURCES += iconvstream.cpp
-endif
-
-libcxxtools_la_LIBADD = $(MAKE_ICONV) @LIBLTDL@ @LIBICONV@
-libcxxtools_la_DEPENDENCIES = $(MAKE_ICONV)
+libcxxtools_la_LIBADD = @LIBLTDL@
 libcxxtools_la_CXXFLAGS = $(PTHREAD_CFLAGS)
 libcxxtools_la_LDFLAGS = -version-info @sonumber@ $(PTHREAD_LIBS)

@@ -1,4 +1,4 @@
-noinst_PROGRAMS = getini hd md5sum multifstream arg arg-set cgi dir \
+noinst_PROGRAMS = getini hd iconv md5sum multifstream arg arg-set cgi dir \
   dlloader pool dynbuffer log logbench netcat httprequest netio \
   netmsg logsh thread pipestream
 
@@ -22,10 +22,7 @@ netmsg_SOURCES = netmsg.cpp
 pipestream_SOURCES = pipestream.cpp
 pool_SOURCES = pool.cpp
 thread_SOURCES = thread.cpp
-if MAKE_ICONV
-  noinst_PROGRAMS += iconv
-  iconv_SOURCES = iconv.cpp
-endif
+iconv_SOURCES = iconv.cpp
 
 INCLUDES = -I$(top_builddir)/include
 LDADD = $(top_builddir)/src/libcxxtools.la
