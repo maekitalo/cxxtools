@@ -26,6 +26,7 @@ nobase_include_HEADERS = \
         cxxtools/pipestream.h \
         cxxtools/pollclass.h \
         cxxtools/pool.h \
+        cxxtools/properties.h \
         cxxtools/query_params.h \
         cxxtools/refcounted.h \
         cxxtools/smartptr.h \

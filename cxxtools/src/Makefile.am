@@ -19,9 +19,10 @@ libcxxtools_la_SOURCES = \
 	md5stream.cpp \
 	multifstream.cpp \
 	net.cpp \
-	pollclass.cpp \
 	pipe.cpp \
 	pipestream.cpp \
+	pollclass.cpp \
+	properties.cpp \
 	query_params.cpp \
 	syserror.cpp \
 	tcpstream.cpp \

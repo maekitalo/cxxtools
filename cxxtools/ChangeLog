@@ -2,6 +2,7 @@
   - rewritten ini-file-parser
   - make iconv unconditional and make iconv-buffer bigger for better
     performance
+  - properties-file-parser
 
 2007-07-06 tommi@tntnet.org
   - add policy based smart pointer implementation
