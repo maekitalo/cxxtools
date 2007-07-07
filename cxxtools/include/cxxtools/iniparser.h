@@ -57,7 +57,8 @@ namespace cxxtools
 
     public:
       IniParser(Event& event_)
-        : event(event_)
+        : event(event_),
+          state(state_0)
         { }
 
       bool parse(char ch);
