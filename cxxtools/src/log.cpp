@@ -625,12 +625,18 @@ void log_init_cxxtools(std::istream& in)
 
         switch (ch)
         {
-          case 'F': level = cxxtools::Logger::LOG_LEVEL_FATAL; break;
-          case 'E': level = cxxtools::Logger::LOG_LEVEL_ERROR; break;
-          case 'W': level = cxxtools::Logger::LOG_LEVEL_WARN; break;
-          case 'I': level = cxxtools::Logger::LOG_LEVEL_INFO; break;
-          case 'D': level = cxxtools::Logger::LOG_LEVEL_DEBUG; break;
-          case 'T': level = cxxtools::Logger::LOG_LEVEL_TRACE; break;
+          case 'F':
+          case 'f': level = cxxtools::Logger::LOG_LEVEL_FATAL; break;
+          case 'E':
+          case 'e': level = cxxtools::Logger::LOG_LEVEL_ERROR; break;
+          case 'W':
+          case 'w': level = cxxtools::Logger::LOG_LEVEL_WARN; break;
+          case 'I':
+          case 'i': level = cxxtools::Logger::LOG_LEVEL_INFO; break;
+          case 'D':
+          case 'd': level = cxxtools::Logger::LOG_LEVEL_DEBUG; break;
+          case 'T':
+          case 't': level = cxxtools::Logger::LOG_LEVEL_TRACE; break;
           default:  level = cxxtools::Logger::getStdLevel(); break;
         }
         if (state == state_rootlevel)
