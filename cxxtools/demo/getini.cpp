@@ -23,61 +23,12 @@
 #include <exception>
 #include <iostream>
 #include <fstream>
-#include <cxxtools/iniparser.h>
+#include <iterator>
+#include <cxxtools/inifile.h>
 #include <cxxtools/loginit.h>
+#include <cxxtools/arg.h>
 
 log_define("cxxtools.getini")
-
-class GetIni : public cxxtools::IniParser::Event
-{
-    std::string section;
-    std::string key;
-    std::string value;
-    bool inSection;
-    bool inKey;
-
-  public:
-    GetIni(const std::string& section_, const std::string& key_,
-        const std::string& defvalue_) 
-      : section(section_),
-        key(key_),
-        value(defvalue_),
-        inSection(false),
-        inKey(false)
-        { }
-
-    bool onSection(const std::string& section);
-    bool onKey(const std::string& key);
-    bool onValue(const std::string& value);
-
-    const std::string& getValue() const  { return value; }
-};
-
-bool GetIni::onSection(const std::string& section_)
-{
-  inSection = (section == section_);
-  log_debug("onSection(" << section_ << ") => " << inSection);
-  return false;
-}
-
-bool GetIni::onKey(const std::string& key_)
-{
-  inKey = (inSection && key == key_);
-  log_debug("onKey(" << key_ << ") => " << inKey);
-  return false;
-}
-
-bool GetIni::onValue(const std::string& value_)
-{
-  log_debug("onValue(" << value_ << ") => " << inKey);
-  if (inKey)
-  {
-    log_debug("value found");
-    value = value_;
-    return true;
-  }
-  return false;
-}
 
 int main(int argc, char* argv[])
 {
@@ -85,22 +36,48 @@ int main(int argc, char* argv[])
 
   try
   {
-    if (argc < 4)
+    cxxtools::Arg<bool> quiet(argc, argv, 'q');
+
+    if (argc <= 1)
     {
       std::cerr << "usage: " << argv[0]
-        << " inifile section key [default]" << std::endl;
+        << " inifile [-q] [section [key [default]]]" << std::endl;
       return -1;
     }
 
     const char* fname = argv[1];
+    std::ifstream in(fname);
+    if (!in)
+      throw std::runtime_error(std::string("error reading input file \"") + fname + '"');
+
+    cxxtools::IniFile ini(in);
+
+    if (argc <= 2)
+    {
+      // list sections
+      if (!quiet)
+        std::cout << "sections in " << fname << ": ";
+      ini.getSections(std::ostream_iterator<std::string>(std::cout, "\t"));
+      std::cout << std::endl;
+      return 0;
+    }
+
     const char* section = argv[2];
+    if (argc <= 3)
+    {
+      // list keys
+      if (!quiet)
+        std::cout << "keys in " << fname << " [" << section << "]: ";
+      ini.getKeys(section, std::ostream_iterator<std::string>(std::cout, "\t"));
+      std::cout << std::endl;
+      return 0;
+    }
+
     const char* key = argv[3];
     const char* defvalue = argv[4] ? argv[4] : "";
-
-    std::ifstream in(fname);
-    GetIni ini(section, key, defvalue);
-    cxxtools::IniParser(ini).parse(in);
-    std::cout << ini.getValue() << std::endl;
+    if (!quiet)
+      std::cout << "value of " << fname << " [" << section << "]." << key << ": ";
+    std::cout << ini.getValue(section, key, defvalue) << std::endl;
   }
   catch (const std::exception& e)
   {

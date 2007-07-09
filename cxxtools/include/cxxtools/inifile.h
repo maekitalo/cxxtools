@@ -76,7 +76,7 @@ namespace cxxtools
       /// Get the value and convert it with istream-operator.
       /// The return-type is identified by the default-value-type.
       template <typename T>
-       T getValue(const std::string& section,
+       T getValueT(const std::string& section,
                   const std::string& token,
                   const T& def) const
       {
@@ -114,7 +114,7 @@ namespace cxxtools
 
       /// setting a new value with a type (need output-operator for ostream).
       template <typename T>
-      void setValue(const std::string& section, const std::string& key,
+      void setValueT(const std::string& section, const std::string& key,
         const T& value)
       {
         std::ostringstream v;
