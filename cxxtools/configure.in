@@ -22,7 +22,6 @@ AC_PROG_CXX
 
 AC_CHECK_LIB(nsl, setsockopt)
 AC_CHECK_LIB(socket, accept)
-AC_SEARCH_LIBS(fdatasync, [rt posix4])
 AC_SUBST(NETWORK_LIBS)
 
 AC_LANG(C++)
