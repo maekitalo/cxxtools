@@ -1,11 +1,12 @@
-Summary: some useful C++-classes
-Name: cxxtools
-Version: 1.4.1pre1
-Release: 2
-License: GPL
-Group: Development/Languages/C and C++
-Source: cxxtools-1.4.1pre1.tar.gz
-BuildRoot: %{_tmppath}/%{name}-%{version}-build
+Name:		cxxtools
+Summary:	some useful C++-classes
+Version:	1.4.4
+Release:	1
+License:	GPL
+Group:		Development/Languages/C and C++
+Url:            http://www.tntnet.org
+Source:		http://www.tntnet.org/download/cxxtools-%{version}.tar.gz
+BuildRoot:	%{_tmppath}/%{name}-%{version}-build
 
 %description
 some useful C++-casses:
@@ -18,7 +19,7 @@ tee - doubles a ostream-output
 hdstream - ostream-hexdumper
 iconvstream - ostream-interface to iconv(3) (codeset conversion)
 md5stream - ostream for md5-calculation
-dynbuffer - thread-safe dynamic buffer
+dynbuffer - dynamic buffer
 
 Authors:
 --------
@@ -43,25 +44,28 @@ Authors:
 
 %build
 CFLAGS="$RPM_OPT_FLAGS" \
-./configure --prefix=%{_prefix} --libdir=%{_libdir}
+./configure --prefix=%{_prefix} --libdir=%{_libdir} --sysconfdir=/etc  --disable-final
 make
 
+
 %install
-make DESTDIR=$RPM_BUILD_ROOT install
+make MANDIR=%{buildroot}%{_mandir} \
+     BINDIR=%{buildroot}%{_sbindir} \
+     DESTDIR=$RPM_BUILD_ROOT \
+     install
+rm %{buildroot}%{_libdir}/libcxxtools.la
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
-/usr/%{_lib}/lib*.so.*
-/usr/%{_lib}/libcxxtools.la
+%{_libdir}/lib*.so*
 
 %files devel
-/usr/%{_lib}/lib*.so
-/usr/%{_lib}/lib*.a
-/usr/include/cxxtools/*.h
-/usr/include/cxxtools/log/*.h
-/usr/bin/cxxtools-config
+%{_libdir}/lib*.a
+%{_includedir}/cxxtools/*.h
+%{_includedir}/cxxtools/log/*.h
+%{_bindir}/cxxtools-config
 
 %changelog
