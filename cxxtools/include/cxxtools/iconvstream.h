@@ -89,6 +89,11 @@ class iconvstream : public std::ostream
       streambuf.open(sink, tocode, fromcode);
       init(&streambuf);
     }
+    iconvstream()
+      : std::ostream(0)
+    {
+      init(&streambuf);
+    }
 
     void open(std::ostream& sink_,
       const char* tocode, const char* fromcode);

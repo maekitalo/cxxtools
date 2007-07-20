@@ -20,10 +20,13 @@
  */
 
 #include "cxxtools/iconvstream.h"
+#include "cxxtools/log.h"
 #include <string.h>
 #include "config.h"
 #include <errno.h>
 #include <stdexcept>
+
+log_define("cxxtools.iconvstream")
 
 namespace cxxtools
 {
@@ -31,6 +34,7 @@ namespace cxxtools
 iconvstreambuf* iconvstreambuf::open(std::ostream& sink_,
   const char* tocode, const char* fromcode)
 {
+  log_debug("iconv_open(\"" << tocode << "\", \"" << fromcode << "\")");
   sink = &sink_;
   cd = iconv_open(tocode, fromcode);
 
@@ -42,10 +46,13 @@ iconvstreambuf* iconvstreambuf::open(std::ostream& sink_,
       msg += fromcode;
       msg += "\" to \"";
       msg += tocode;
+      log_warn(msg);
       throw std::runtime_error(msg);
     }
     return 0;
   }
+
+  log_debug("iconv-handle=" << cd);
 
   setp(buffer, buffer + (sizeof(buffer) - 1));
   return this;
@@ -56,6 +63,7 @@ iconvstreambuf* iconvstreambuf::close() throw()
   if (cd != (iconv_t)-1)
   {
     sync();
+    log_debug("iconv_close(" << cd << ')');
     int r = iconv_close(cd);
     if (r == 0)
     {
@@ -71,14 +79,23 @@ iconvstreambuf* iconvstreambuf::close() throw()
 
 iconvstreambuf::int_type iconvstreambuf::overflow(int_type c)
 {
+  log_debug("overflow(" << c << ')');
+
   if (sink == 0)
-    return traits_type::eof();
-  else if (pptr() == pbase())
   {
-    // 1. Aufruf: initialisiere Puffer
-    setp(buffer, buffer + (sizeof(buffer) - 1));
+    log_error("no sink");
+    return traits_type::eof();
+  }
+  else if (pptr() == 0 || pptr() == buffer)
+  {
+    log_debug("empty put-area");
     if (c != traits_type::eof())
     {
+      if (pptr() == 0)
+      {
+        log_debug("initialize buffer");
+        setp(buffer, buffer + (sizeof(buffer) - 1));
+      }
       *pptr() = (char_type)c;
       pbump(1);
     }
@@ -86,8 +103,7 @@ iconvstreambuf::int_type iconvstreambuf::overflow(int_type c)
   }
   else
   {
-    // Ausgabepuffer voll - konvertiere Zeichen
-    char outbuf[sizeof(buffer)*2];
+    char outbuf[sizeof(buffer)*2];;
 
     size_t inbytesleft = pptr() - buffer;
     if (c != traits_type::eof())
@@ -100,51 +116,74 @@ iconvstreambuf::int_type iconvstreambuf::overflow(int_type c)
     char* inbufptr = buffer;
     char* outbufptr = outbuf;
 
-    // Konvertiere so viele Zeichen wie möglich
-    iconv(cd,
+    // convert as many charachters as possible
+    log_debug("iconv(" << cd << ") " << inbytesleft << " bytes");
+    size_t s = iconv(cd,
           &inbufptr, &inbytesleft,
           &outbufptr, &outbytesleft);
 
-    if (errno != 0 && errno != EINVAL && errno != E2BIG)
+    if (s < 0 && errno != 0 && errno != EINVAL && errno != E2BIG)
     {
-      // Konvertierung fehlgeschlagen
+      log_warn("convert failed");
       return traits_type::eof();
     }
-    errno = 0;
 
-    // Konvertierung erfolgreich
-
-    // Schreibe outbuf in sink
+    log_debug("pass " << outbufptr - outbuf << " bytes to sink");
     sink->write(outbuf, outbufptr - outbuf);
 
     if (sink->fail())
+    {
+      log_warn("sink failed");
       return traits_type::eof();
+    }
 
-    // verschiebe übrig gebliebene Zeichen an den Anfang des Puffers
-    // und setze Puffer neu.
+    log_debug("reinitialize put area");
+    setp(buffer, buffer + (sizeof(buffer) - 1));
+
+    // move left bytes to the start of buffer and reinitialize buffer
     if (inbytesleft > 0)
-      memmove(buffer, inbufptr, inbytesleft);
+    {
+      log_debug("move " << inbytesleft << " bytes to the start");
+      sputn(inbufptr, inbytesleft);
+    }
 
-    setp(buffer + inbytesleft, buffer + sizeof(buffer) - 1 - inbytesleft);
     return 0;
   }
 }
 
 iconvstream::int_type iconvstreambuf::underflow()
 {
+  log_warn("underflow not supported in iconvstreambuf");
   return traits_type::eof();
 }
 
 int iconvstreambuf::sync()
 {
-  if (sink)
+  log_debug("sync");
+
+  if (pptr() == 0 || pptr() == buffer)
+    return 0;
+  else if (sink)
   {
-    int_type ret = overflow(traits_type::eof());
+    size_t ob, ob2;
+    int_type ret;
+    do
+    {
+      ob = pptr() - buffer;
+      ret = overflow(traits_type::eof());
+      ob2 = pptr() - buffer;
+    } while (ob2 > 0 && ob2 < ob);
+
+    log_debug("flush sink");
     sink->flush();
+
     return ret == traits_type::eof() || sink->fail() ? -1 : 0;
   }
   else
-    return -1;
+  {
+    log_warn("no sink");
+    return 0;
+  }
 }
 
 void iconvstream::open(std::ostream& sink_,

@@ -1,6 +1,8 @@
 AC_INIT(cxxtools, 1.4.5, [Tommi Maekitalo <tommi@tntnet.org>])
 AM_INIT_AUTOMAKE
 
+AC_PREREQ([2.5.9])
+
 abi_current=4
 abi_revision=1
 abi_age=0

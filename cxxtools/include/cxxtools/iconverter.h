@@ -40,60 +40,75 @@ namespace cxxtools
      cxxtools::IConverter conv("ISO8859-1", "UTF8");
      std::string utf8string = getUtf8String();
      std::string iso8895_1 = conv.convert(utf8string);
+     // or functor-style:
+     std::string iso8895_1 = conv(utf8string);
     \endcode
    */
   class IConverter
   {
-	  std::string tocode;
-	  std::string fromcode;
+      std::string tocode;
+      std::string fromcode;
 
-	public:
-	  IConverter()  { }
-	  IConverter(const std::string& tocode_, const std::string& fromcode_)
-		: tocode(tocode_),
-		  fromcode(fromcode_)
-		  { }
+    public:
+      IConverter()  { }
+      IConverter(const std::string& tocode_, const std::string& fromcode_)
+        : tocode(tocode_),
+          fromcode(fromcode_)
+          { }
 
-	  void setToCode(const std::string& tocode_)      { tocode = tocode_; }
-	  void setFromCode(const std::string& fromcode_)  { fromcode = fromcode_; }
-	  const std::string& getToCode() const            { return tocode; }
-	  const std::string& getFromCode() const          { return fromcode; }
+      void setToCode(const std::string& tocode_)      { tocode = tocode_; }
+      void setFromCode(const std::string& fromcode_)  { fromcode = fromcode_; }
+      const std::string& getToCode() const            { return tocode; }
+      const std::string& getFromCode() const          { return fromcode; }
 
-	  template <typename objT>
-	  std::string convert(objT s) const
-	  {
-		std::ostringstream o;
+      template <typename objT>
+      std::string convert(objT s) const
+      {
+        std::ostringstream o;
 
-		iconvstream conv(o, tocode.c_str(), fromcode.c_str());
-		conv << s << std::flush;
+        iconvstream conv;
+        conv.exceptions(std::ios::failbit | std::ios::badbit);
+        conv.open(o, tocode.c_str(), fromcode.c_str());
+        conv << s << std::flush;
 
-		return o.str();
-	  }
+        return o.str();
+      }
 
-	  std::string convert(const char* data, unsigned size) const
-	  {
-		std::ostringstream o;
+      std::string convert(const char* data, unsigned size) const
+      {
+        std::ostringstream o;
 
-		iconvstream conv(o, tocode.c_str(), fromcode.c_str());
-		conv.write(data, size);
-		conv.flush();
+        iconvstream conv;
+        conv.exceptions(std::ios::failbit | std::ios::badbit);
+        conv.open(o, tocode.c_str(), fromcode.c_str());
+        conv.write(data, size);
+        conv.flush();
 
-		return o.str();
-	  }
+        return o.str();
+      }
 
-	  template <typename iteratorT>
-	  std::string convert(iteratorT begin, iteratorT end) const
-	  {
-		std::ostringstream o;
+      template <typename iteratorT>
+      std::string convertRange(iteratorT begin, iteratorT end) const
+      {
+        std::ostringstream o;
 
-		iconvstream conv(o, tocode.c_str(), fromcode.c_str());
-		for (iteratorT it = begin; it != end; ++it)
-		  conv << *it;
+        iconvstream conv;
+        conv.exceptions(std::ios::failbit | std::ios::badbit);
+        conv.open(o, tocode.c_str(), fromcode.c_str());
+        for (iteratorT it = begin; it != end; ++it)
+          conv << *it;
 
-		conv.flush();
+        conv.flush();
 
-		return o.str();
-	  }
+        return o.str();
+      }
+
+      template <typename objT>
+      std::string operator() (objT s) const
+        { return convert(s); }
+
+      std::string operator() (const char* data, unsigned size) const
+        { return convert(data, size); }
   };
 
 }
