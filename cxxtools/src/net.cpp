@@ -25,6 +25,8 @@
 #include <errno.h>
 #include <sys/poll.h>
 #include <sstream>
+#include <stdio.h>
+#include <string.h>
 #include "cxxtools/log.h"
 
 log_define("cxxtools.net");

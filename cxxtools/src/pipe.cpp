@@ -19,6 +19,7 @@
 
 #include "cxxtools/pipe.h"
 #include "cxxtools/syserror.h"
+#include <string>
 
 namespace cxxtools
 {

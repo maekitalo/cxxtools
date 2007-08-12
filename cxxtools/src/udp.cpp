@@ -25,6 +25,7 @@
 #include <netdb.h>
 #include <sys/poll.h>
 #include <errno.h>
+#include <string.h>
 
 log_define("cxxtools.net.udp")
 

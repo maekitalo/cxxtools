@@ -24,6 +24,7 @@
 #include <unistd.h>
 #include <netdb.h>
 #include <errno.h>
+#include <string.h>
 #include "cxxtools/log.h"
 
 log_define("cxxtools.net.tcp")

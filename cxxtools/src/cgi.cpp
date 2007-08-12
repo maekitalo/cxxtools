@@ -20,6 +20,7 @@
  */
 
 #include "cxxtools/cgi.h"
+#include <stdlib.h>
 
 namespace cxxtools
 {

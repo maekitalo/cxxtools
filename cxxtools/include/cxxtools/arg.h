@@ -23,6 +23,7 @@
 #define CXXTOOLS_ARG_H
 
 #include <sstream>
+#include <string.h>
 
 namespace cxxtools
 {

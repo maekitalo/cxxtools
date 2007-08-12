@@ -21,6 +21,7 @@
 
 #include "cxxtools/syserror.h"
 #include <errno.h>
+#include <string.h>
 #include <sstream>
 
 namespace cxxtools
