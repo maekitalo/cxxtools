@@ -113,7 +113,7 @@ iconvstreambuf::int_type iconvstreambuf::overflow(int_type c)
     }
     size_t outbytesleft = sizeof(outbuf);
 
-    const char* inbufptr = buffer;
+    ICONV_CONST char* inbufptr = buffer;
     char* outbufptr = outbuf;
 
     // convert as many charachters as possible

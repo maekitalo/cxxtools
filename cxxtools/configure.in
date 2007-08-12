@@ -128,6 +128,21 @@ AC_DEFINE([USE_LIBTOOL], [], [use libtool for dynamic loading of shared librarie
 fi
 
 AC_CHECK_HEADER([iconv.h], , AC_MSG_ERROR([iconv not found]))
+AC_COMPILE_IFELSE(
+  [#include <iconv.h>
+   void f(iconv_t cd)
+   {
+     const char* inbufptr = 0;
+     size_t inbytesleft = 0;
+     char* outbufptr = 0;
+     size_t outbytesleft = 0;
+     iconv(cd, &inbufptr, &inbytesleft, &outbufptr, &outbytesleft);
+   }
+  ],
+  iconv_const=const
+)
+
+AC_DEFINE_UNQUOTED(ICONV_CONST, $iconv_const, [Define as const if the declaration of iconv() needs const.])
 
 AC_CONFIG_FILES([
   Makefile
