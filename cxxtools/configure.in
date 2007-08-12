@@ -127,6 +127,8 @@ if test "$ac_use_libtool" = "yes"; then
 AC_DEFINE([USE_LIBTOOL], [], [use libtool for dynamic loading of shared libraries])
 fi
 
+AC_CHECK_HEADER([iconv.h], , AC_MSG_ERROR([iconv not found]))
+
 AC_CONFIG_FILES([
   Makefile
   src/Makefile
