@@ -144,6 +144,19 @@ AC_COMPILE_IFELSE(
 
 AC_DEFINE_UNQUOTED(ICONV_CONST, $iconv_const, [Define as const if the declaration of iconv() needs const.])
 
+case "${host_cpu}-${host_os}" in
+*-aix*)
+    SHARED_LIB_FLAG=-qmkshrobj
+    ;;
+*-darwin*)
+    SHARED_LIB_FLAG=-dynamiclib
+    ;;
+*)  
+    SHARED_LIB_FLAG=-shared
+    ;;
+esac
+AC_SUBST(SHARED_LIB_FLAG)
+
 AC_CONFIG_FILES([
   Makefile
   src/Makefile

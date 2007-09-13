@@ -34,4 +34,4 @@ libcxxtools_la_SOURCES = \
 
 libcxxtools_la_LIBADD = @LIBLTDL@
 libcxxtools_la_CXXFLAGS = $(PTHREAD_CFLAGS)
-libcxxtools_la_LDFLAGS = -version-info @sonumber@ $(PTHREAD_LIBS)
+libcxxtools_la_LDFLAGS = -version-info @sonumber@ $(PTHREAD_LIBS) @SHARED_LIB_FLAG@
