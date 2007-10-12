@@ -120,12 +120,14 @@ AC_ARG_WITH(
     AS_HELP_STRING([--with-libtool],
                    [use libtool for dynamic loading of shared libraries (default: yes)]),
     ac_use_libtool=$withval,
-    ac_use_libtool=yes,
+    ac_use_libtool=no,
     )
 
 if test "$ac_use_libtool" = "yes"; then
 AC_DEFINE([USE_LIBTOOL], [], [use libtool for dynamic loading of shared libraries])
 fi
+
+AM_CONDITIONAL(MAKE_LIBTOOL, test "$ac_use_libtool" = "yes")
 
 AC_CHECK_HEADER([iconv.h], , AC_MSG_ERROR([iconv not found]))
 AC_COMPILE_IFELSE(

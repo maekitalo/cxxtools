@@ -1,4 +1,4 @@
-INCLUDES = -I$(top_builddir)/include @INCLTDL@
+INCLUDES= -I$(top_builddir)/include
 
 lib_LTLIBRARIES = libcxxtools.la
 
@@ -32,6 +32,13 @@ libcxxtools_la_SOURCES = \
 	udpstream.cpp \
 	xmltag.cpp
 
-libcxxtools_la_LIBADD = @LIBLTDL@
+libcxxtools_la_LIBADD =
 libcxxtools_la_CXXFLAGS = $(PTHREAD_CFLAGS)
 libcxxtools_la_LDFLAGS = -version-info @sonumber@ $(PTHREAD_LIBS) @SHARED_LIB_FLAG@
+
+if MAKE_LIBTOOL
+  INCLUDES+= @INCLTDL@
+  libcxxtools_la_LIBADD+= @LIBLTDL@
+else
+  libcxxtools_la_LDFLAGS+= -ldl
+endif

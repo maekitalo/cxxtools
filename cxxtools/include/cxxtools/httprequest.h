@@ -28,6 +28,33 @@
 
 namespace cxxtools
 {
+  /**
+   Simple http-client class.
+
+   This class implements a simple http-client.
+   It supports http GET- and POST-methods. It lacks keep-alive.
+   User can either read the reply from the client directy or let
+   cxxtools::HttpReply parse the reply.
+
+   example:
+   \code
+    cxxtools::HttpRequest request("http://www.tntnet.org/");
+    cxxtools::HttpReply reply(request); // this does the actual request
+    // print the reply:
+    std::cout << "the server returned the http-code " << reply.getReturnCode() << '\n'
+              << "The body is: " << reply.rdbuf() << std::endl;
+    // note that printing a std::streambuf returned by reply.rebuf() copies the source
+    // to the ostream.
+   \endcode
+
+   If you want to have the body, sent by the server in a std::string, you may
+   use std::ostringstream:
+   \code
+   std::ostringstream os;
+   os << reply.rdbuf(); // this copies the body to the ostringstream
+   std::string body = os.str();  // get the body from the stream
+   \endcode
+   */
   class HttpRequest
   {
     public:
@@ -48,7 +75,7 @@ namespace cxxtools
       net::iostream connection;
 
     public:
-      explicit HttpRequest()
+      HttpRequest()
         : method(GET),
           port(80),
           reading(false)

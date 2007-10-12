@@ -21,6 +21,8 @@
 
 #include <exception>
 #include <iostream>
+#include <list>
+#include <iterator>
 #include <cxxtools/httprequest.h>
 #include <cxxtools/httpreply.h>
 #include <cxxtools/arg.h>
@@ -30,6 +32,9 @@ int main(int argc, char* argv[])
   try
   {
     cxxtools::Arg<bool> raw(argc, argv, 'r');
+    cxxtools::Arg<bool> headers(argc, argv, 'h');
+    cxxtools::Arg<bool> returncode(argc, argv, 'c');
+    cxxtools::Arg<bool> body(argc, argv, 'b');
     cxxtools::Arg<bool> debug(argc, argv, 'd');
 
     cxxtools::Arg<std::string> url("http://127.0.0.1/");
@@ -56,8 +61,25 @@ int main(int argc, char* argv[])
     {
       // let httpreply parse the http-headers and read only body
       cxxtools::HttpReply reply(request);
-      std::cout << "return-code " << reply.getReturnCode() << '\n'
-                << reply.rdbuf() << std::flush;
+
+      if (headers)
+      {
+        typedef std::list<std::string> headerlistType;
+        headerlistType headerlist;
+        reply.getHeaders(std::back_inserter(headerlist));
+        for (headerlistType::iterator it = headerlist.begin();
+             it != headerlist.end(); ++it)
+          std::cout << *it << ":\t" << reply.getHeader(*it) << '\n';
+        std::cout << std::endl;
+      }
+
+      if (returncode)
+        std::cout << "return-code " << reply.getReturnCode() << '\n';
+
+      if (!headers || body)
+        std::cout << reply.rdbuf();
+
+      std::cout.flush();
     }
   }
   catch (const std::exception& e)

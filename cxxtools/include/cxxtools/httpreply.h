@@ -29,6 +29,15 @@ namespace cxxtools
 {
   class HttpRequest;
 
+  /**
+   Reads a http-reply from a input stream and parses it.
+
+   cxxtools::HttpReply helps parsing a http reply sent from a http-server.
+   It is itself a istream, which returns the body from the http-reply.
+
+   See cxxtools::HttpRequest for a simple use case.
+
+   */
   class HttpReply : public std::istream
   {
       class Parser;
@@ -43,16 +52,25 @@ namespace cxxtools
     public:
       HttpReply(HttpRequest& request);
 
-      HttpReply(std::istream& request)
+      explicit HttpReply(std::istream& request)
         : std::istream(request.rdbuf())
       {
         parse_header();
       }
 
-      const std::string& getHeader(const std::string& name, const std::string& def) const
+      /// returns a http-reply header.
+      const std::string& getHeader(const std::string& name, const std::string& def = std::string()) const
       {
         header_type::const_iterator it = header.find(name);
         return it == header.end() ? def : it->second;
+      }
+
+      /// returns all http-reply-headers to the output-iterator
+      template <typename outputIterator>
+      void getHeaders(outputIterator oit) const
+      {
+        for (header_type::const_iterator it = header.begin(); it != header.end(); ++it)
+          (*oit++) = it->first;
       }
 
       unsigned getReturnCode()  { return returncode; }

@@ -109,7 +109,7 @@ namespace cxxtools
           key = ch;
           state = state_key;
         }
-        else if (!isSpace(ch))
+        else if (!isSpace(ch) && ch != '\n' && ch != '\r')
           throw std::runtime_error("format error in properties");
         break;
 

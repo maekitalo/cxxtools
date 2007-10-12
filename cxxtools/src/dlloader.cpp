@@ -50,7 +50,18 @@
 
 static void* cxx_dlopen(const char* name)
 {
-  return dlopen((std::string(name) + ".so").c_str(), RTLD_NOW|RTLD_GLOBAL);
+  void* ret = dlopen((std::string(name) + ".so").c_str(), RTLD_NOW|RTLD_GLOBAL);
+  if (ret == 0)
+  {
+    ret = dlopen((std::string(name) + ".a").c_str(), RTLD_NOW|RTLD_GLOBAL);
+    if (ret == 0)
+    {
+      ret = dlopen((std::string(name) + ".dll").c_str(), RTLD_NOW|RTLD_GLOBAL);
+      if (ret == 0)
+        ret = dlopen(name, RTLD_NOW|RTLD_GLOBAL);
+    }
+  }
+  return ret;
 }
 
 #endif
