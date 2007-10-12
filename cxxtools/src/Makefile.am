@@ -4,6 +4,8 @@ lib_LTLIBRARIES = libcxxtools.la
 
 libcxxtools_la_SOURCES = \
 	base64stream.cpp \
+	connectable.cpp \
+	connection.cpp \
 	cgi.cpp \
 	dlloader.cpp \
 	fdstream.cpp \
