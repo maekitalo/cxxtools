@@ -1,7 +1,11 @@
 nobase_include_HEADERS = \
         cxxtools/arg.h \
         cxxtools/base64stream.h \
+        cxxtools/callable.h \
         cxxtools/cgi.h \
+        cxxtools/connectable.h \
+        cxxtools/connection.h \
+        cxxtools/constmethod.h \
         cxxtools/dir.h \
         cxxtools/dlloader.h \
         cxxtools/dynbuffer.h \
@@ -15,10 +19,12 @@ nobase_include_HEADERS = \
         cxxtools/iconvstream.h \
         cxxtools/inifile.h \
         cxxtools/iniparser.h \
+        cxxtools/invokable.h \
         cxxtools/log.h \
         cxxtools/loginit.h \
         cxxtools/md5.h \
         cxxtools/md5stream.h \
+        cxxtools/method.h \
         cxxtools/multifstream.h \
         cxxtools/net.h \
         cxxtools/noncopyable.h \
@@ -29,6 +35,8 @@ nobase_include_HEADERS = \
         cxxtools/properties.h \
         cxxtools/query_params.h \
         cxxtools/refcounted.h \
+        cxxtools/signals.h \
+        cxxtools/slot.h \
         cxxtools/smartptr.h \
         cxxtools/sudo.h \
         cxxtools/streamcounter.h \
@@ -38,6 +46,7 @@ nobase_include_HEADERS = \
         cxxtools/thread.h \
         cxxtools/udp.h \
         cxxtools/udpstream.h \
+        cxxtools/void.h \
         cxxtools/xmltag.h \
         cxxtools/log/cxxtools.h \
         cxxtools/log/cxxtools_init.h \
