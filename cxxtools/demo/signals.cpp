@@ -1,4 +1,4 @@
-#include <cxxtools/signal.h>
+#include <cxxtools/signals.h>
 #include <iostream>
 
 int function()

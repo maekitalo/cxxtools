@@ -3,7 +3,6 @@
 
 #include <cxxtools/slot.h>
 #include <cxxtools/refcounted.h>
-#include <cstddef>
 
 namespace cxxtools {
 
@@ -29,13 +28,13 @@ namespace cxxtools {
             ~ConnectionData()
             { delete _slot; }
 
-            size_t ref()
+            unsigned ref()
             { return ++_refs; }
 
-            size_t unref()
+            unsigned unref()
             { return --_refs; }
 
-            size_t refs() const
+            unsigned refs() const
             { return _refs; }
 
             bool valid() const
@@ -57,7 +56,7 @@ namespace cxxtools {
             { return *_slot; }
 
         private:
-            size_t _refs;
+            unsigned _refs;
             bool _valid;
             Slot* _slot;
             Connectable* _sender;

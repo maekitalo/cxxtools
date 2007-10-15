@@ -16,9 +16,7 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  **************************************************************************/
-
 #include "cxxtools/connectable.h"
-#include "cxxtools/callable.h"
 #include <memory>
 
 namespace cxxtools {

@@ -18,9 +18,6 @@
  **************************************************************************/
 #include "cxxtools/connectable.h"
 #include "cxxtools/connection.h"
-#include "cxxtools/callable.h"
-
-#include <iostream>
 
 namespace cxxtools {
 
@@ -99,18 +96,3 @@ bool Connectable::isDown() const
 }
 
 } // namespace cxxtools
-
-
-
-
-
-/*const Connection* Connectable::connection(const Slot& slot) const
-{
-    for(std::list<Connection>::const_iterator it = _connections.begin(); it != _connections.end(); ++it) {
-        if( it->slot() == slot ) {
-            return &(*it);
-        }
-    }
-
-    return 0;
-}*/

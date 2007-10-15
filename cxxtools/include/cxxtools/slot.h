@@ -37,7 +37,6 @@ namespace cxxtools {
 
 } //cxxtools
 
-
 #endif
 
 

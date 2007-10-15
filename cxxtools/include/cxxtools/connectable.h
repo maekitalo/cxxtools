@@ -138,5 +138,4 @@ namespace cxxtools {
 
 } // namespace cxxtools
 
-
 #endif
