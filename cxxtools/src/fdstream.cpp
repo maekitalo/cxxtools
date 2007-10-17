@@ -92,7 +92,8 @@ namespace cxxtools
 
   std::streambuf::int_type Fdstreambuf::underflow()
   {
-    sync();
+    if (sync() != 0)
+      return traits_type::eof();
 
     if (ibuffer == 0)
     {
@@ -132,6 +133,7 @@ namespace cxxtools
         p += ret;
       }
     }
+    return 0;
   }
 
 };
