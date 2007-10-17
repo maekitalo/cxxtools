@@ -22,12 +22,13 @@
 namespace cxxtools {
 
 Connectable::Connectable()
-: _shutDown( false )
 {}
 
 
 Connectable::Connectable(const Connectable& c)
-{ this->operator=(c); }
+{ 
+    this->operator=(c); 
+}
 
 
 Connectable::~Connectable()
@@ -38,7 +39,8 @@ Connectable::~Connectable()
 
 void Connectable::clear()
 {
-    while( !_connections.empty() ) {
+    while( !_connections.empty() ) 
+    {
         Connection connection = _connections.front();
         connection.close();
     }
@@ -47,9 +49,6 @@ void Connectable::clear()
 
 Connectable& Connectable::operator=(const Connectable& other)
 {
-    if( _shutDown )
-        return (*this);
-
     this->clear();
 
     std::list<Connection>::const_iterator it = other.connections().begin();
@@ -66,33 +65,14 @@ Connectable& Connectable::operator=(const Connectable& other)
 
 bool Connectable::opened(const Connection& c)
 {
-    if( _shutDown )
-        return false;
-
     _connections.push_back(c);
-
     return true;
 }
 
 
 void Connectable::closed(const Connection& c)
 {
-    if( _shutDown )
-        return;
-
     _connections.remove(c);
-}
-
-
-void Connectable::shutDown()
-{
-    _shutDown = true;
-}
-
-
-bool Connectable::isDown() const 
-{
-    return _shutDown;
 }
 
 } // namespace cxxtools
