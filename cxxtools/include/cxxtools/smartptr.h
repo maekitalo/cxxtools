@@ -29,14 +29,14 @@ namespace cxxtools
       mutable const RefLinked* next;
 
     protected:
-      void unlink(objectType* object)
+      bool unlink(objectType* object)
       {
+        bool ret = false;
         if (object)
         {
           if (next == this)
           {
-            delete object;
-            object = 0;
+            ret = true;
           }
           else
           {
@@ -45,6 +45,7 @@ namespace cxxtools
           }
           next = prev = this;
         }
+        return ret;
       }
 
       void link(const RefLinked& ptr, objectType* object)
@@ -60,10 +61,11 @@ namespace cxxtools
   class InternalRefCounted
   {
     protected:
-      void unlink(objectType* object)
+      bool unlink(objectType* object)
       {
         if (object)
           object->release();
+        return false;
       }
 
       void link(const InternalRefCounted& ptr, objectType* object)
@@ -83,17 +85,18 @@ namespace cxxtools
       ExternalRefCounted()
         : refs(0)  { }
 
-      void unlink(objectType* object)
+      bool unlink(objectType* object)
       {
         if (object)
         {
           if (--*refs <= 0)
           {
-            delete object;
             delete refs;
             refs = 0;
+            return true;
           }
         }
+        return false;
       }
 
       void link(const ExternalRefCounted& ptr, objectType* object)
@@ -107,6 +110,14 @@ namespace cxxtools
         }
       }
 
+  };
+
+  template <typename objectType>
+  class DefaultDestroyPolicy
+  {
+    protected:
+      void destroy(objectType* ptr)
+      { delete ptr; }
   };
 
   /**
@@ -130,11 +141,14 @@ namespace cxxtools
    *
    */
   template <typename objectType,
-            template <class> class ownershipPolicy = InternalRefCounted>
-  class SmartPtr : public ownershipPolicy<objectType>
+            template <class> class ownershipPolicy = InternalRefCounted,
+            template <class> class destroyPolicy = DefaultDestroyPolicy>
+  class SmartPtr : public ownershipPolicy<objectType>,
+                   public destroyPolicy<objectType>
   {
       objectType* object;
       typedef ownershipPolicy<objectType> ownershipPolicyType;
+      typedef destroyPolicy<objectType> destroyPolicyType;
 
     public:
       SmartPtr()
@@ -147,14 +161,18 @@ namespace cxxtools
         : object(ptr.object)
         { ownershipPolicyType::link(ptr, ptr.object); }
       ~SmartPtr()
-        { ownershipPolicyType::unlink(object); }
+        { if (ownershipPolicyType::unlink(object))
+            destroy(object); }
 
       SmartPtr& operator= (const SmartPtr& ptr)
       {
         if (object != ptr.object)
         {
-          ownershipPolicyType::unlink(object);
+          if (ownershipPolicyType::unlink(object))
+            destroy(object);
+
           object = ptr.object;
+
           ownershipPolicyType::link(ptr, object);
         }
         return *this;
