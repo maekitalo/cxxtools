@@ -1,3 +1,7 @@
+2007-10-17 tommi@tntnet.org
+  - remove libltdl code completely
+  - implement destroy-policy for cxxtools::SmartPtr
+
 2007-09-16 tommi@tntnet.org
   - don't use libltdl by default since it brings more problems than it solves.
     On linux we need RTLD_GLOBAL in dlopen to make exceptions and rtti

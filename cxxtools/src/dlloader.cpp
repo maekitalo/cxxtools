@@ -24,47 +24,26 @@
 #include "config.h"
 #include <cxxtools/thread.h>
 
-#ifdef USE_LIBTOOL
-
-#include <ltdl.h>
-
-#define DLERROR()             lt_dlerror()
-#define DLINIT()              lt_dlinit()
-#define DLOPEN(name)          lt_dlopenext(name)
-#define DLCLOSE(handle)       lt_dlclose(static_cast<lt_dlhandle>(handle))
-#define DLEXIT()              lt_dlexit()
-#define DLSYM(handle, name)   lt_dlsym(static_cast<lt_dlhandle>(handle), const_cast<char*>(name))
-
-#else
-
-// no LIBTOOL
-
 #include <dlfcn.h>
 
-#define DLERROR()             dlerror()
-#define DLINIT()
-#define DLOPEN(name)          cxx_dlopen(name)
-#define DLCLOSE(handle)       dlclose(handle)
-#define DLEXIT()
-#define DLSYM(handle, name)   dlsym(handle, const_cast<char*>(name))
-
-static void* cxx_dlopen(const char* name)
+namespace
 {
-  void* ret = dlopen((std::string(name) + ".so").c_str(), RTLD_NOW|RTLD_GLOBAL);
-  if (ret == 0)
+  static void* cxx_dlopen(const char* name)
   {
-    ret = dlopen((std::string(name) + ".a").c_str(), RTLD_NOW|RTLD_GLOBAL);
+    void* ret = dlopen((std::string(name) + ".so").c_str(), RTLD_NOW|RTLD_GLOBAL);
     if (ret == 0)
     {
-      ret = dlopen((std::string(name) + ".dll").c_str(), RTLD_NOW|RTLD_GLOBAL);
+      ret = dlopen((std::string(name) + ".a").c_str(), RTLD_NOW|RTLD_GLOBAL);
       if (ret == 0)
-        ret = dlopen(name, RTLD_NOW|RTLD_GLOBAL);
+      {
+        ret = dlopen((std::string(name) + ".dll").c_str(), RTLD_NOW|RTLD_GLOBAL);
+        if (ret == 0)
+          ret = dlopen(name, RTLD_NOW|RTLD_GLOBAL);
+      }
     }
+    return ret;
   }
-  return ret;
 }
-
-#endif
 
 log_define("cxxtools.dlloader")
 
@@ -79,7 +58,7 @@ namespace dl
   {
     std::string errorString()
     {
-      const char* msg = DLERROR();
+      const char* msg = dlerror();
       return msg ? std::string(msg) : "unknown error in dlloader";
     }
   }
@@ -147,15 +126,11 @@ namespace dl
     close();
 
     cxxtools::MutexLock lock(mutex);
-    log_debug("dlinit");
-    DLINIT();
-
     log_debug("dlopen(\"" << name << "\")");
-    handle = DLOPEN(name);
+    handle = cxx_dlopen(name);
     if (!handle)
     {
       log_debug("dlopen(\"" << name << "\") failed");
-      DLEXIT();
       throw DlopenError(name);
     }
 
@@ -170,8 +145,7 @@ namespace dl
       if (prev == this)
       {
         log_debug("dlclose " << handle);
-        DLCLOSE(handle);
-        DLEXIT();
+        dlclose(handle);
       }
       else
       {
@@ -186,7 +160,7 @@ namespace dl
   Symbol Library::sym(const char* name) const
   {
     log_debug("dlsym(" << handle << ", \"" << name << "\")");
-    void* sym = DLSYM(handle, name);
+    void* sym = dlsym(handle, const_cast<char*>(name));
     if (sym == 0)
     {
       log_debug("dlsym: symbol \"" << name << "\" not found");

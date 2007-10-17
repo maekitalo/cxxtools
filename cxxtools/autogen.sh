@@ -1,7 +1,7 @@
 #! /bin/sh
 # Regenerate the files autoconf / automake
 
-libtoolize --force --automake --ltdl
+libtoolize --force --automake
 
 rm -f config.cache config.log
 aclocal -I m4

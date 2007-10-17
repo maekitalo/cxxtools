@@ -1,4 +1,4 @@
-AC_INIT(cxxtools, 1.4.5, [Tommi Maekitalo <tommi@tntnet.org>])
+AC_INIT(cxxtools, 1.4.5.20071017-1, [Tommi Maekitalo <tommi@tntnet.org>])
 AM_INIT_AUTOMAKE
 
 AC_PREREQ([2.5.9])
@@ -29,11 +29,7 @@ AC_SUBST(NETWORK_LIBS)
 AC_LANG(C++)
 ACX_PTHREAD
 
-AC_LIBTOOL_DLOPEN
-AC_LIBLTDL_CONVENIENCE
 AC_PROG_LIBTOOL
-AC_SUBST(INCLTDL)
-AC_SUBST(LIBLTDL)
 
 AC_ARG_WITH(
    [logging],
@@ -114,20 +110,6 @@ AC_SUBST(CXXTOOLS_CXXFLAGS)
 AC_SUBST(CXXTOOLS_LDFLAGS)
 AC_SUBST(CXXTOOLS_LOG_LDFLAGS)
 AC_SUBST(CXXTOOLS_LOGGING)
-
-AC_ARG_WITH(
-    [libtool],
-    AS_HELP_STRING([--with-libtool],
-                   [use libtool for dynamic loading of shared libraries (default: yes)]),
-    ac_use_libtool=$withval,
-    ac_use_libtool=no,
-    )
-
-if test "$ac_use_libtool" = "yes"; then
-AC_DEFINE([USE_LIBTOOL], [], [use libtool for dynamic loading of shared libraries])
-fi
-
-AM_CONDITIONAL(MAKE_LIBTOOL, test "$ac_use_libtool" = "yes")
 
 AC_CHECK_HEADER([iconv.h], , AC_MSG_ERROR([iconv not found]))
 AC_COMPILE_IFELSE(

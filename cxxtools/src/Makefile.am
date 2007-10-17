@@ -34,13 +34,7 @@ libcxxtools_la_SOURCES = \
 	udpstream.cpp \
 	xmltag.cpp
 
-libcxxtools_la_LIBADD =
+libcxxtools_la_LIBADD = $(DLLIBADD)
 libcxxtools_la_CXXFLAGS = $(PTHREAD_CFLAGS)
-libcxxtools_la_LDFLAGS = -version-info @sonumber@ $(PTHREAD_LIBS) @SHARED_LIB_FLAG@
+libcxxtools_la_LDFLAGS = -version-info @sonumber@ $(PTHREAD_LIBS) @SHARED_LIB_FLAG@ -ldl
 
-if MAKE_LIBTOOL
-  INCLUDES+= @INCLTDL@
-  libcxxtools_la_LIBADD+= @LIBLTDL@
-else
-  libcxxtools_la_LDFLAGS+= -ldl
-endif

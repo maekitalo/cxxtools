@@ -1,9 +1,6 @@
 ACLOCAL_AMFLAGS = -I m4
 
 SUBDIRS = src include demo
-if MAKE_LIBTOOL
-  SUBDIRS+=libltdl
-endif
 
 bin_SCRIPTS = cxxtools-config
 
