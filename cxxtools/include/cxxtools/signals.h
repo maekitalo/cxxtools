@@ -100,7 +100,16 @@ namespace cxxtools {
 
             SignalBase& operator=(const SignalBase& other)
             {
-                Connectable::operator=(other);
+                this->clear();
+
+                std::list<Connection>::const_iterator it = other.connections().begin();
+                std::list<Connection>::const_iterator end = other.connections().end();
+
+                for( ; it != end; ++it) {
+                    const Slot& slot = it->slot();
+                    Connection connection( *this, slot.clone()  );
+                }
+
                 return *this;
             }
 

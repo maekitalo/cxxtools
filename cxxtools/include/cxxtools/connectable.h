@@ -84,10 +84,7 @@ namespace cxxtools {
 
                 Connectables can be copy constructed if the derived class
                 provides a public copy constructor. Copying a %Connectable
-                will close all current connections and copy all the
-                Connections of the other %Connectable.
-
-                @param c %Connectable to copy
+                will not change its connections.
             */
             Connectable& operator=(const Connectable& rhs);
 
@@ -106,7 +103,6 @@ namespace cxxtools {
             */
             mutable std::list<Connection> _connections;
 
-        private:
             //! @internal
             void clear();
     };
