@@ -11,6 +11,7 @@ nobase_include_HEADERS = \
         cxxtools/dynbuffer.h \
         cxxtools/fdstream.h \
         cxxtools/fork.h \
+        cxxtools/function.h \
         cxxtools/hdstream.h \
         cxxtools/hirestime.h \
         cxxtools/httpreply.h \
