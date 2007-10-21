@@ -36,6 +36,7 @@ namespace cxxtools
       MapType data;
 
     public:
+      IniFile()  { }
       explicit IniFile(const std::string& filename);
       explicit IniFile(std::istream& in);
 
