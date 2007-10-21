@@ -87,16 +87,14 @@ namespace cxxtools
 
       bool unlink(objectType* object)
       {
-        if (object)
+        if (object && --*refs <= 0)
         {
-          if (--*refs <= 0)
-          {
-            delete refs;
-            refs = 0;
-            return true;
-          }
+          delete refs;
+          refs = 0;
+          return true;
         }
-        return false;
+        else
+          return false;
       }
 
       void link(const ExternalRefCounted& ptr, objectType* object)
