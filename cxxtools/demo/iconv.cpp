@@ -43,32 +43,32 @@ int main(int argc, char* argv[])
 {
   try
   {
-	cxxtools::Arg<const char*> from(argc, argv, 'f', "UTF8");
-	cxxtools::Arg<const char*> to(argc, argv, 't', "LATIN1");
-	cxxtools::Arg<const char*> infile(argc, argv, 'i');  // inputfile
+    cxxtools::Arg<const char*> from(argc, argv, 'f', "UTF8");
+    cxxtools::Arg<const char*> to(argc, argv, 't', "LATIN1");
+    cxxtools::Arg<const char*> infile(argc, argv, 'i');  // inputfile
 
-	if (infile.isSet())
-	{
-	  // read from file
-	  std::ifstream in(infile);
-	  cxxtools::iconvstream ic(std::cout, to, from);
-	  ic << in.rdbuf();
-	}
+    if (infile.isSet())
+    {
+      // read from file
+      std::ifstream in(infile);
+      cxxtools::iconvstream ic(std::cout, to, from);
+      ic << in.rdbuf();
+    }
 
-	if (argc > 1)
-	{
-	  // convert arguments to cout
-	  cxxtools::IConverter ic(to.getValue(), from.getValue());
-	  for (int a = 1; a < argc; ++a)
-		std::cout << ic.convert(argv[a]);
-	}
+    if (argc > 1)
+    {
+      // convert arguments to cout
+      cxxtools::IConverter ic(to.getValue(), from.getValue());
+      for (int a = 1; a < argc; ++a)
+        std::cout << ic.convert(argv[a]);
+    }
 
-	if (!infile.isSet() && argc <= 1)
-	{
-	  // filter cin to cout
-	  cxxtools::iconvstream ic(std::cout, to, from);
-	  ic << std::cin.rdbuf();
-	}
+    if (!infile.isSet() && argc <= 1)
+    {
+      // filter cin to cout
+      cxxtools::iconvstream ic(std::cout, to, from);
+      ic << std::cin.rdbuf();
+    }
   }
   catch (const std::exception& e)
   {
