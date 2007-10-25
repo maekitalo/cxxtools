@@ -129,6 +129,7 @@ namespace cxxtools
         p += ret;
       }
     }
+    return 0;
   }
 
 }

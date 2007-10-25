@@ -40,10 +40,10 @@ namespace cxxtools
 
       public:
         explicit UdpStreambuf(UdpSender& sender_, int flags_ = 0, unsigned msgsize_ = 1024)
-          : sender(sender_),
-            flags(flags_),
-            message(new char[msgsize_]),
-            msgsize(msgsize_)
+          : message(new char[msgsize_]),
+            msgsize(msgsize_),
+            sender(sender_),
+            flags(flags_)
           { }
         ~UdpStreambuf()
           { delete[] message; }

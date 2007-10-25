@@ -29,7 +29,7 @@
 #include <string.h>
 #include "cxxtools/log.h"
 
-log_define("cxxtools.net");
+log_define("cxxtools.net")
 
 namespace cxxtools
 {

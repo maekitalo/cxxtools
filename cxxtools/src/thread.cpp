@@ -25,7 +25,7 @@
 #include <sstream>
 #include <string>
 
-log_define("cxxtools.thread");
+log_define("cxxtools.thread")
 
 namespace cxxtools
 {

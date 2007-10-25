@@ -26,7 +26,7 @@
 #include <cxxtools/loginit.h>
 #include <unistd.h>
 
-log_define("pooldemo");
+log_define("pooldemo")
 
 // define a dummy dbconnection-object
 class Connection
