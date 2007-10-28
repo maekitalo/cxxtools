@@ -86,8 +86,8 @@ class iconvstream : public std::ostream
     iconvstream(std::ostream& sink, const char* tocode, const char* fromcode)
       : std::ostream(0)
     {
-      streambuf.open(sink, tocode, fromcode);
       init(&streambuf);
+      open(sink, tocode, fromcode);
     }
     iconvstream()
       : std::ostream(0)

@@ -21,6 +21,7 @@
 
 #include <cxxtools/arg.h>
 #include <cxxtools/iconverter.h>
+#include <cxxtools/loginit.h>
 #include <iostream>
 #include <fstream>
 
@@ -43,6 +44,8 @@ int main(int argc, char* argv[])
 {
   try
   {
+    log_init();
+
     cxxtools::Arg<const char*> from(argc, argv, 'f', "UTF8");
     cxxtools::Arg<const char*> to(argc, argv, 't', "LATIN1");
     cxxtools::Arg<const char*> infile(argc, argv, 'i');  // inputfile
