@@ -31,8 +31,8 @@ namespace cxxtools {
         Any can contain any other type that is default- and copy constructible
         and less-than and equality comparable. When a value is assigned to an
         Any a copy is made, just like when a type is inserted in a standard
-        C++ container. The contained type can be accessed via Pt::any_cast<>.
-         It is only possible to get the contained value if the type matches
+        C++ container. The contained type can be accessed via cxxtools::any_cast<>.
+        It is only possible to get the contained value if the type matches
 
         @code
             Any a = 5;
@@ -318,7 +318,7 @@ namespace cxxtools {
         This function is used to get the contained value from an Any. It is
         not possible to get a float out of an Any if the contained value is
         an int, but the typeid's must match. It is, however, possible to
-        get a const reference ton the contained type.
+        get a const reference to the contained type.
 
         @param any Any to read to
         @return contained value
@@ -328,7 +328,6 @@ namespace cxxtools {
     inline T any_cast(const Any& any)
     {
         // NOTE:
-        // This implementation is a workaround:
         // - the first if(...) may not work properly on Linux when loading libs,
         //   so there is also a comparison of string names (second if(...))
         // - but: the name() method necessary for string comparison does not
@@ -344,7 +343,7 @@ namespace cxxtools {
         }
 
 #ifndef _WIN32_WCE
-        else if( 0 == strcmp( any.type().name(), typeid(ValueT).name() ) )
+        else if( 0 == strcmp(any.type().name(), typeid(ValueT).name() ) )
         {
             const Any::BasicValue<ValueT>* value;
             value = static_cast< const Any::BasicValue<ValueT>* >(any._value);
