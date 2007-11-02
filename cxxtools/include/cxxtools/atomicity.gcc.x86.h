@@ -23,7 +23,7 @@
 #include <csignal>
 
 
-namespace CXXTOOLS {
+namespace cxxtools {
 
 typedef std::sig_atomic_t atomic_t;
 
@@ -110,6 +110,6 @@ inline void* atomicCompareExchange(volatile void*& dest, void* exch, void* comp)
 }
 
 
-} // namespace CXXTOOLS
+} // namespace cxxtools
 
 #endif

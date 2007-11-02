@@ -27,7 +27,7 @@ namespace cxxtools {
 typedef std::sig_atomic_t atomic_t;
 
 
-inline  atomicIncrement(volatile atomic_t& val)
+inline atomic_t atomicIncrement(volatile atomic_t& val)
 {
        atomic_t tmp, result = 0;
 

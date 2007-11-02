@@ -1,4 +1,13 @@
 nobase_include_HEADERS = \
+        cxxtools/any.h \
+        cxxtools/atomicity.generic.h \
+        cxxtools/atomicity.gcc.arm.h \
+        cxxtools/atomicity.gcc.mips.h \
+        cxxtools/atomicity.gcc.ppc.h \
+        cxxtools/atomicity.gcc.x86.h \
+        cxxtools/atomicity.h \
+        cxxtools/atomicity.windows.h \
+        cxxtools/arg.h \
         cxxtools/arg.h \
         cxxtools/base64stream.h \
         cxxtools/callable.h \
@@ -45,6 +54,7 @@ nobase_include_HEADERS = \
         cxxtools/tcpstream.h \
         cxxtools/tee.h \
         cxxtools/thread.h \
+        cxxtools/typeinfo.h \
         cxxtools/udp.h \
         cxxtools/udpstream.h \
         cxxtools/void.h \

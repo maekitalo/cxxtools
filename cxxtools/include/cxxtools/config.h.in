@@ -12,5 +12,20 @@
 
 /* Define to 1 if you have the <dirent.h> header file, and it defines `DIR'.
    */
-
 #undef HAVE_DIRENT_H
+
+/* defined if assembler type is gcc arm */
+#undef CXXTOOLS_ASMTYPE_GCCARM
+
+/* defined if assembler type is gcc mips */
+#undef CXXTOOLS_ASMTYPE_GCCMIPS
+
+/* defined if assembler type is gcc pcc */
+#undef CXXTOOLS_ASMTYPE_GCCPCC
+
+/* defined if assembler type is gcc x86 */
+#undef CXXTOOLS_ASMTYPE_GCCX86
+
+/* defined if assembler type is windows */
+#undef CXXTOOLS_ASMTYPE_WINDOWS
+

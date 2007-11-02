@@ -19,47 +19,33 @@
  ***************************************************************************/
 #ifndef CXXTOOLS_ATOMICITY_H
 
-// use Win32 Interlocked-functions
-#if defined(_MSC_VER)
+#include <cxxtools/config.h>
 
-    #define CXXTOOLS_ATOMICITY_H "atomicity.windows.h"
+#if defined(CXXTOOLS_ASMTYPE_GCCARM)
 
-// use AT&T-style inline asm
-#elif defined(__GNUC__) || defined(__xlC__)
+    #include <cxxtools/atomicity.gcc.arm.h>
 
-    #if defined( _i386_     ) || defined( __i386__ ) || \
-        defined( __x86_64__ ) || defined( _M_IX86  )
+#elif defined(CXXTOOLS_ASMTYPE_GCCMIPS)
 
-        #define CXXTOOLS_ATOMICITY_H "atomicity.gcc.x86.h"
+    #include <cxxtools/atomicity.gcc.mips.h>
 
-    #elif defined( __arm__ )
+#elif defined(CXXTOOLS_ASMTYPE_GCCPCC)
 
-        #define CXXTOOLS_ATOMICITY_H "atomicity.gcc.arm.h"
+    #include <cxxtools/atomicity.gcc.pcc.h>
 
-    #elif defined( _M_PPC  ) || defined( PPC         ) || \
-          defined( ppc     ) || defined( __powerpc__ ) || \
-          defined( __ppc__ )
+#elif defined(CXXTOOLS_ASMTYPE_GCCX86)
 
-        #define CXXTOOLS_ATOMICITY_H "atomicity.gcc.ppc.h"
+    #include <cxxtools/atomicity.gcc.x86.h>
 
-    #elif defined( __mips__ )
+#elif defined(CXXTOOLS_ASMTYPE_WINDOWS)
 
-        #define CXXTOOLS_ATOMICITY_H "atomicity.gcc.mips.h"
+    #include <cxxtools/atomicity.windows.h>
 
-    #else
-
-        #define CXXTOOLS_ATOMICITY_H "atomicity.generic.h"
-
-    #endif
-
-// fallback to normal integer operations
 #else
 
-    #define CXXTOOLS_ATOMICITY_H "atomicity.generic.h"
+    #include <cxxtools/atomicity.generic.h>
 
 #endif
-
-#include CXXTOOLS_ATOMICITY_H
 
 namespace cxxtools {
 
