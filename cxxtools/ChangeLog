@@ -1,6 +1,16 @@
+2007-11-03 tommi@tntnet.org
+  - functions for handling endianess (cxxtools/byteorder.h)
+  - atomic increment and decrement wrappers (Marc)
+
+2007-11-01 tommi@tntnet.org
+  - cxxtools::Any and compile-time typeinfo (Marc)
+
 2007-10-17 tommi@tntnet.org
   - remove libltdl code completely
   - implement destroy-policy for cxxtools::SmartPtr
+
+2007-10-12 tommi@tntnet.org
+  - signal-slot (Marc)
 
 2007-09-16 tommi@tntnet.org
   - don't use libltdl by default since it brings more problems than it solves.

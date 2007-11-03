@@ -8,7 +8,7 @@ nobase_include_HEADERS = \
         cxxtools/atomicity.h \
         cxxtools/atomicity.windows.h \
         cxxtools/arg.h \
-        cxxtools/arg.h \
+        cxxtools/byteorder.h \
         cxxtools/base64stream.h \
         cxxtools/callable.h \
         cxxtools/cgi.h \
