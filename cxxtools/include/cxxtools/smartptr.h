@@ -118,6 +118,14 @@ namespace cxxtools
       { delete ptr; }
   };
 
+  template <typename objectType>
+  class ArrayDestroyPolicy
+  {
+    protected:
+      void destroy(objectType* ptr)
+      { delete[] ptr; }
+  };
+
   /**
    * Policy-based smart-pointer-class.
    *
@@ -133,7 +141,7 @@ namespace cxxtools
    *
    *   RefLinked: all pointers to a object are linked
    *
-   * The default policy it InternalRefCounted. Another class
+   * The default policy is InternalRefCounted. Another class
    * cxxtools::RefCounted implements proper methods for the pointer, which
    * makes it straight-forward to use.
    *
