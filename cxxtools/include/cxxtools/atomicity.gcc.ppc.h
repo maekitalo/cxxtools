@@ -85,24 +85,23 @@ inline atomic_t atomicExchangeAdd(volatile atomic_t& val, atomic_t add)
 
 inline atomic_t atomicCompareExchange(volatile atomic_t& val, atomic_t exch, atomic_t comp)
 {
-    /* ALTERNATIVE
-    volatile register atomic_t ret = 0;
-
-    asm volatile (
-        "sync                    \n\t"
-        "1:    lwarx   %0,  0, %1\n\t"
-        "      subf.   %0, %2, %0\n\t"
-        "      bne     2f        \n\t"
-        "      stwcx.  %3,  0, %1\n\t"
-        "      bne-    1b        \n\t"
-        "2:    isync                 "
-        : "=&r"(ret)
-        :   "b"(&val), "r"(oldval), "r"(newval)
-        : "cr0", "memory"
-    );
-
-    return ret == 0;
-    */
+/* ALTERNATIVE:
+    atomicCompareExchange( long *dest, long xchg, long compare)
+    long ret = 0;
+    long scratch;
+    __asm__ __volatile__(
+        "0:    lwarx %0,0,%2\n"
+        "      xor. %1,%4,%0\n"
+        "      bne 1f\n"
+        "      stwcx. %3,0,%2\n"
+        "      bne- 0b\n"
+        "      isync\n"
+        "1:    "
+        : "=&r"(ret), "=&r"(scratch)
+        : "r"(dest), "r"(xchg), "r"(compare)
+        : "cr0","memory","r0");
+    return ret;
+*/
 
     atomic_t tmp = 0;
     asm volatile ("\n1:\n\t"
@@ -121,6 +120,23 @@ inline atomic_t atomicCompareExchange(volatile atomic_t& val, atomic_t exch, ato
 
 inline void* atomicCompareExchange(volatile void*& ptr, void* exch, void* comp)
 {
+/* ALTERNATIVE:
+    atomicCompareExchange( void **dest, void* xchg, void* compare)
+    long ret = 0;
+    long scratch;
+    __asm__ __volatile__(
+        "0:    lwarx %0,0,%2\n"
+        "      xor. %1,%4,%0\n"
+        "      bne 1f\n"
+        "      stwcx. %3,0,%2\n"
+        "      bne- 0b\n"
+        "      isync\n"
+        "1:    "
+        : "=&r"(ret), "=&r"(scratch)
+        : "r"(dest), "r"(xchg), "r"(compare)
+        : "cr0","memory");
+    return (void*)ret;
+*/
     void* tmp = 0;
     asm volatile ("\n1:\n\t"
                   "lwarx %0, 0, %1\n\t"
@@ -151,16 +167,6 @@ inline atomic_t atomicExchange(volatile atomic_t& val, atomic_t exch)
     );
 
     return ret;
-
-/* ALTERNATIVE missing isync might be wrong
-    volatile atomic_t tmp = 0;
-    asm volatile ("\n1:\n\t"
-                  "lwarx %0, 0, %2\n\t"
-                  "stwcx. %3, 0, %2\n\t"
-                  "bne 1b"
-                  : "=r" (tmp) : "0" (tmp), "b" (&val), "r" (exch): "cc", "memory");
-    return tmp;
-*/
 }
 
 

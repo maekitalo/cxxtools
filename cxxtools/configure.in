@@ -170,12 +170,19 @@ AC_COMPILE_IFELSE(
         AC_DEFINE([CXXTOOLS_ASMTYPE_GCCX86], [], [defined if assembler type is gcc x86]),
 
         AC_COMPILE_IFELSE(
-          [#include "include/cxxtools/atomicity.windows.h"
+          [#include "include/cxxtools/atomicity.gcc.sparc.h"
            int main() { cxxtools::atomic_t a = 0; cxxtools::atomicIncrement(a); }
           ],
-          AC_DEFINE([CXXTOOLS_ASMTYPE_WINDOWS], [], [defined if assembler type is windows]),
+          AC_DEFINE([CXXTOOLS_ASMTYPE_GCCSPARC], [], [defined if assembler type is gcc sparc]),
 
-          AC_MSG_NOTICE(unknown asm type - will use generic atomic operations)
+          AC_COMPILE_IFELSE(
+            [#include "include/cxxtools/atomicity.windows.h"
+             int main() { cxxtools::atomic_t a = 0; cxxtools::atomicIncrement(a); }
+            ],
+            AC_DEFINE([CXXTOOLS_ASMTYPE_WINDOWS], [], [defined if assembler type is windows]),
+
+            AC_MSG_NOTICE(unknown asm type - will use generic atomic operations)
+          )
         )
       )
     )
