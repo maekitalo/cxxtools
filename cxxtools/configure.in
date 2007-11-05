@@ -175,7 +175,7 @@ AC_COMPILE_IFELSE(
           ],
           AC_DEFINE([CXXTOOLS_ASMTYPE_WINDOWS], [], [defined if assembler type is windows]),
 
-          AC_MSG_WARN(unknown asm type - will use generic atomic operations)
+          AC_MSG_NOTICE(unknown asm type - will use generic atomic operations)
         )
       )
     )
