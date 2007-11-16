@@ -90,7 +90,8 @@ namespace cxxtools
         if (object && --*refs <= 0)
         {
           delete refs;
-          refs = 0;
+          // no need to set refs to 0 since the pointer is either
+          // destroyed or another object is linked in
           return true;
         }
         else
@@ -101,11 +102,16 @@ namespace cxxtools
       {
         if (object)
         {
-          refs = ptr.refs;
-          if (!refs)
-            refs = new unsigned(0);
-          ++*refs;
+          if (ptr.refs == 0)
+            refs = new unsigned(1);
+          else
+          {
+            refs = ptr.refs;
+            ++*refs;
+          }
         }
+        else
+          refs = 0;
       }
 
     public:
