@@ -83,7 +83,7 @@ atomic_t atomicCompareExchange(volatile atomic_t& val, atomic_t exch, atomic_t c
     If \a ptr is equal to \a comp, \a ptr is replaced by \a exch. The initial
     value of \a ptr is returned.
 */
-void* atomicCompareExchange(volatile void*& ptr, void* exch, void* comp);
+void* atomicCompareExchange(void* volatile& ptr, void* exch, void* comp);
 
 /** @brief Performs an atomic exchange operation
 
@@ -95,7 +95,7 @@ atomic_t atomicExchange(volatile atomic_t& val, atomic_t exch);
 
     Sets \a dest to \a exch and returns the initial value of \a dest.
 */
-void* atomicExchange(volatile void*& dest, void* exch);
+void* atomicExchange(void* volatile& dest, void* exch);
 
 }
 

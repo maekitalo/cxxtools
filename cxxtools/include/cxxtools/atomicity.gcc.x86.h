@@ -76,7 +76,7 @@ inline atomic_t atomicExchange(volatile atomic_t& val, atomic_t new_val)
 }
 
 
-inline void* atomicExchange(volatile void*& val, void* new_val)
+inline void* atomicExchange(void* volatile& val, void* new_val)
 {
         void* ret;
 
@@ -99,7 +99,7 @@ inline atomic_t atomicCompareExchange(volatile atomic_t& dest, atomic_t exch, at
 }
 
 
-inline void* atomicCompareExchange(volatile void*& dest, void* exch, void* comp)
+inline void* atomicCompareExchange(void* volatile& dest, void* exch, void* comp)
 {
         void* old;
 

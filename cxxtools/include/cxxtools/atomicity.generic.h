@@ -49,7 +49,7 @@ inline atomic_t atomicCompareExchange(volatile atomic_t& dest, atomic_t exch, at
     return tmp;
 }
 
-inline volatile void* atomicCompareExchange(volatile void*& dest, void* exch, void* comp)
+inline void* atomicCompareExchange(void* volatile& dest, void* exch, void* comp)
 {
     volatile void* tmp = dest;
 
@@ -69,7 +69,7 @@ inline atomic_t atomicExchange(volatile atomic_t& dest, atomic_t exch)
 
 
 template <typename T>
-volatile T* atomicExchange(volatile T*& dest, T* exch)
+T* atomicExchange(T* volatile& dest, T* exch)
 {
     volatile T* tmp = dest;
     dest = exch;

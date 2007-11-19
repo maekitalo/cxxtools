@@ -109,7 +109,7 @@ inline atomic_t atomicCompareExchange(volatile atomic_t& val, atomic_t exch, ato
 }
 
 
-inline void* atomicCompareExchange(volatile void*& ptr, void* exch, void* comp)
+inline void* atomicCompareExchange(void* volatile& ptr, void* exch, void* comp)
 {
     register volatile void** dest asm("g1") = &ptr;
     register void* _comp asm("o4") = comp;
@@ -153,7 +153,7 @@ inline atomic_t atomicExchange(volatile atomic_t& val, atomic_t exch)
 }
 
 
-inline void* atomicExchange(volatile void*& ptr, void* exch)
+inline void* atomicExchange(void* volatile& ptr, void* exch)
 {
        register volatile void** dest asm("g1") = &ptr;
        register void* tmp asm("o4");
