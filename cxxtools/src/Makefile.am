@@ -4,6 +4,7 @@ lib_LTLIBRARIES = libcxxtools.la
 
 libcxxtools_la_SOURCES = \
 	any.cpp \
+	atomicity.cpp \
 	base64stream.cpp \
 	connectable.cpp \
 	connection.cpp \

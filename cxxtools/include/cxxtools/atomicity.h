@@ -47,7 +47,8 @@
 
 #else
 
-    #include <cxxtools/atomicity.generic.h>
+    #define CXXTOOLS_ATOMICITY_WITH_PTHREAD
+    #include <cxxtools/atomicity.pthread.h>
 
 #endif
 
