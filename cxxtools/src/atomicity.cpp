@@ -18,8 +18,6 @@
  ***************************************************************************/
 #include "cxxtools/atomicity.h"
 
-#if defined (CXXTOOLS_ATOMICITY_WITH_PTHREAD)
-
 #include <cassert>
 #include <pthread.h>
 
@@ -175,10 +173,3 @@ atomic_t atomicExchangeAdd(volatile atomic_t& dest, atomic_t add)
 }
 
 } // namespace cxxtools
-
-#else
-
-#endif
-
-
-

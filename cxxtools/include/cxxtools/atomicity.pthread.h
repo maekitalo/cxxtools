@@ -26,6 +26,20 @@ namespace cxxtools {
 
 typedef std::sig_atomic_t atomic_t;
 
+atomic_t atomicIncrement(volatile atomic_t& val);
+
+atomic_t atomicDecrement(volatile atomic_t& dest);
+
+atomic_t atomicCompareExchange(volatile atomic_t& dest, atomic_t exch, atomic_t comp);
+
+void* atomicCompareExchange(void* volatile& dest, void* exch, void* comp);
+
+atomic_t atomicExchange(volatile atomic_t& dest, atomic_t exch);
+
+void* atomicExchange(void* volatile& dest, void* exch);
+
+atomic_t atomicExchangeAdd(volatile atomic_t& dest, atomic_t add);
+
 } // namespace cxxtools
 
 #endif

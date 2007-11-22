@@ -4,7 +4,6 @@ lib_LTLIBRARIES = libcxxtools.la
 
 libcxxtools_la_SOURCES = \
 	any.cpp \
-	atomicity.cpp \
 	base64stream.cpp \
 	connectable.cpp \
 	connection.cpp \
@@ -35,6 +34,11 @@ libcxxtools_la_SOURCES = \
 	udp.cpp \
 	udpstream.cpp \
 	xmltag.cpp
+
+if MAKE_ATOMICITY_PTHREAD
+libcxxtools_la_SOURCES += \
+	atomicity.cpp
+endif
 
 libcxxtools_la_LIBADD = $(DLLIBADD)
 libcxxtools_la_CXXFLAGS = $(PTHREAD_CFLAGS)
