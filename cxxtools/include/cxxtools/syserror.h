@@ -22,6 +22,7 @@
 #ifndef CXXTOOLS_SYSERROR_H
 #define CXXTOOLS_SYSERROR_H
 
+#include <cxxtools/api.h>
 #include <stdexcept>
 
 namespace cxxtools

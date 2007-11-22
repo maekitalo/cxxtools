@@ -1,0 +1,27 @@
+#
+# To be run from VC build shell with envvar PLATFORMSDK set to
+# platform SDK installation directory.
+# nmake /f Makefile.win32 [clean|all]
+#
+CC = cl /nologo
+LINK = link /nologo
+AR = lib /nologo
+
+LINKFLAGS = /DEBUG
+CPPFLAGS = /MDd /Zi /RTC1 /Od /EHsc /GR /FD /I../include /I$(VCINSTALLDIR)\include /I$(PLATFORMSDK)/include
+
+OBJS = any.obj atomicity.obj base64stream.obj connectable.obj connection.obj iniparser.obj properties.obj syserror.obj xmltag.obj
+
+cxxtools.lib : $(OBJS)
+    $(AR) /out:cxxtools.lib $(OBJS)
+
+..\demo\signals.obj : ..\demo\signals.cpp
+    $(CC) /c $(CPPFLAGS) /Fo..\demo\signals.obj /Tp ..\demo\signals.cpp
+
+..\demo\signals.exe : cxxtools.lib ..\demo\signals.obj
+    $(LINK) $(LINKFLAGS) /out:..\demo\signals.exe ..\demo\signals.obj cxxtools.lib
+
+all : ..\demo\signals.exe cxxtools.lib
+
+clean : 
+    del $(OBJS) cxxtools.lib ..\demo\signals.exe ..\demo\signals.obj

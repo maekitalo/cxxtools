@@ -19,7 +19,11 @@
  ***************************************************************************/
 #ifndef CXXTOOLS_ATOMICITY_H
 
-#include <cxxtools/config.h>
+#if defined(_WIN32) || defined(WIN32)
+    #define CXXTOOLS_ASMTYPE_WINDOWS
+#else
+    #include <cxxtools/config.h>
+#endif
 
 #if defined(CXXTOOLS_ASMTYPE_GCCARM)
 

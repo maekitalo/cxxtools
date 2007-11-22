@@ -22,6 +22,10 @@
 #ifndef CXXTOOLS_LOG_H
 #define CXXTOOLS_LOG_H
 
+#if defined(_WIN32) || defined(WIN32)
+    #define CXXTOOLS_LOG_DISABLE
+#endif
+
 #if  !defined(CXXTOOLS_LOG_LOG4CXX) \
   && !defined(CXXTOOLS_LOG_LOG4CPLUS) \
   && !defined(CXXTOOLS_LOG_LOGBUILTIN) \

@@ -30,43 +30,43 @@ typedef long atomic_t;
 
 inline atomic_t atomicIncrement(volatile atomic_t& value)
 {
-    return ::InterlockedIncrement( const_cast<long*>(&value) );
+    return InterlockedIncrement( const_cast<long*>(&value) );
 }
 
 
 inline atomic_t atomicDecrement(volatile atomic_t& value)
 {
-    return ::InterlockedDecrement( const_cast<long*>(&value) );
+    return InterlockedDecrement( const_cast<long*>(&value) );
 }
 
 
 inline atomic_t atomicExchangeAdd(volatile atomic_t& value, atomic_t n)
 {
-    return ::InterlockedExchangeAdd(const_cast<long*>(&value), n);
+    return InterlockedExchangeAdd(const_cast<long*>(&value), n);
 }
 
 
 inline atomic_t atomicExchange(volatile atomic_t& val, atomic_t new_val)
 {
-    return ::InterlockedExchange(const_cast<long*>(&val), new_val);
+    return InterlockedExchange(const_cast<long*>(&val), new_val);
 }
 
 
 inline void* atomicExchange(void* volatile& ptr, void* new_val)
 {
-    return ::InterlockedExchangePointer( (void**)&ptr, new_val );
+    return InterlockedExchangePointer( (void**)&ptr, new_val );
 }
 
 
 inline atomic_t atomicCompareExchange(volatile atomic_t& value, atomic_t ex, atomic_t cmp)
 {
-    return ::InterlockedCompareExchange(const_cast<long*>(&value), ex, cmp);
+    return InterlockedCompareExchange(const_cast<long*>(&value), ex, cmp);
 }
 
 
 inline void* atomicCompareExchange(void* volatile& ptr, void* ex, void* cmp)
 {
-    return ::InterlockedCompareExchangePointer((volatile PVOID *)&ptr, ex, cmp);
+    return InterlockedCompareExchangePointer((volatile PVOID *)&ptr, ex, cmp);
 }
 
 } // namespace cxxtools
