@@ -181,7 +181,7 @@ void QueryParams::parse_url(std::istream& url_stream)
 static void appendUrl(std::string& url, char ch)
 {
   static char hex[] = "0123456789ABCDEF";
-  if (ch > 32 && ch < 127 && ch != '%' && ch != '+' && ch != '=')
+  if (ch > 32 && ch < 127 && ch != '%' && ch != '+' && ch != '=' && ch != '&')
     url += ch;
   else if (ch == ' ')
     url += '+';
