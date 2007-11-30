@@ -26,6 +26,7 @@
 #include <cxxtools/httprequest.h>
 #include <cxxtools/httpreply.h>
 #include <cxxtools/arg.h>
+#include <cxxtools/base64stream.h>
 
 int main(int argc, char* argv[])
 {
@@ -36,12 +37,18 @@ int main(int argc, char* argv[])
     cxxtools::Arg<bool> returncode(argc, argv, 'c');
     cxxtools::Arg<bool> body(argc, argv, 'b');
     cxxtools::Arg<bool> debug(argc, argv, 'd');
+    cxxtools::Arg<std::string> user(argc, argv, 'u');
 
     cxxtools::Arg<std::string> url("http://127.0.0.1/");
     url.set(argc, argv);
 
     // set parameters
     cxxtools::HttpRequest request(url);
+
+    std::string::size_type p = user.getValue().find('/');
+    if (p != std::string::npos)
+      request.setAuth(user.getValue().substr(0, p),
+                      user.getValue().substr(p + 1));
 
     if (debug)
     {

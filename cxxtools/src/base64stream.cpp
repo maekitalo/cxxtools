@@ -61,13 +61,6 @@ void Base64stream_streambuf::end()
       break;
   }
 
-  putChar('\n');
-  putChar('=');
-  putChar('=');
-  putChar('=');
-  putChar('=');
-  putChar('\n');
-
   setp(obuffer, obuffer + 3);
   indecode = false;
 }

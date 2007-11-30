@@ -20,6 +20,8 @@
  */
 
 #include <cxxtools/httprequest.h>
+#include <cxxtools/base64stream.h>
+#include <sstream>
 #include <cctype>
 
 namespace cxxtools
@@ -58,6 +60,16 @@ namespace cxxtools
     url = url_.substr(e);
   }
 
+  void HttpRequest::setAuth(const std::string& username, const std::string& password)
+  {
+    std::ostringstream value;
+    value << "Basic ";
+    Base64ostream encoder(value);
+    encoder << username << ':' << password;
+    encoder.end();
+    addHeader("Authorization:", value.str());
+  }
+
   void HttpRequest::execute()
   {
     if (reading)
@@ -81,7 +93,12 @@ namespace cxxtools
         if (!params.empty())
           connection << '?' << params.getUrl();
 
-        connection << " HTTP/1.0\r\nHost: " << host << "\r\n\r\n" << std::flush;
+        connection << " HTTP/1.1\r\n"
+                      "Host: " << host << "\r\n"
+                      "Connection: close\r\n";
+        for (Headers::const_iterator it = headers.begin(); it != headers.end(); ++it)
+          connection << it->first << ' ' << it->second << "\r\n";
+        connection << "\r\n" << std::flush;
         break;
 
       case POST:
@@ -92,10 +109,13 @@ namespace cxxtools
           if (url.size() == 0 || url.at(0) != '/')
             connection << '/';
 
-          connection << url << " HTTP/1.0\r\n"
+          connection << url << " HTTP/1.1\r\n"
                         "Host: " << host << "\r\n"
                         "Content-Length: " << b.size() << "\r\n"
-                        "\r\n"
+                        "Connection: close\r\n";
+          for (Headers::const_iterator it = headers.begin(); it != headers.end(); ++it)
+            connection << it->first << ' ' << it->second << "\r\n";
+          connection << "\r\n"
                      << b << std::flush;
         }
         break;

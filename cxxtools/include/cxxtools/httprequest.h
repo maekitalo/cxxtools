@@ -74,6 +74,9 @@ namespace cxxtools
 
       net::iostream connection;
 
+      typedef std::map<std::string, std::string> Headers;
+      Headers headers;
+
     public:
       HttpRequest()
         : method(GET),
@@ -119,6 +122,10 @@ namespace cxxtools
 
       void set(const std::string& name, const std::string& value) { params.add(name, value); }
       void set(const std::string& value)                         { params.add(value); }
+
+      void addHeader(const std::string& key, const std::string& value)
+        { headers[key] = value; }
+      void setAuth(const std::string& username, const std::string& password);
 
       void execute();
 
