@@ -1,0 +1,39 @@
+CC=i586-mingw32msvc-gcc
+CXX=i586-mingw32msvc-g++
+CFLAGS=-I../include
+CXXFLAGS=-I../include
+LINK=$(CXX)
+LDFLAGS=-shared -Wl,--enable-runtime-pseudo-reloc
+
+SOURCES_CPP= \
+	any.cpp \
+	base64stream.cpp \
+	cgi.cpp \
+	connectable.cpp \
+	connection.cpp \
+	fdstream.cpp \
+	hdstream.cpp \
+	inifile.cpp \
+	iniparser.cpp \
+	md5stream.cpp \
+	properties.cpp \
+	query_params.cpp \
+	syserror.cpp \
+	tee.cpp \
+	xmltag.cpp
+
+SOURCES_C= \
+	md5.c
+
+OBJS= $(SOURCES_CPP:.cpp=.obj) $(SOURCES_C:.c=.obj)
+
+%.obj : %.c
+	$(CC) -c -o $@ $(CFLAGS) $<
+
+%.obj : %.cpp
+	$(CXX) -c -o $@ $(CXXFLAGS) $<
+
+all: cxxtools.dll
+
+cxxtools.dll: $(OBJS)
+	$(LINK) -o $@ $(LDFLAGS) $^
