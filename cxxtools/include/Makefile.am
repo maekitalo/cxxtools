@@ -1,5 +1,6 @@
 nobase_include_HEADERS = \
         cxxtools/any.h \
+        cxxtools/api.h \
         cxxtools/atomicity.generic.h \
         cxxtools/atomicity.pthread.h \
         cxxtools/atomicity.gcc.arm.h \
