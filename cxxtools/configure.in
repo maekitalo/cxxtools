@@ -24,6 +24,8 @@ AC_PROG_CXX
 
 AC_CHECK_LIB(nsl, setsockopt)
 AC_CHECK_LIB(socket, accept)
+AC_SEARCH_LIBS(dlopen, dl, , AC_MSG_ERROR([dlopen not found]))
+AC_SEARCH_LIBS(iconv_open, iconv, , AC_MSG_ERROR([iconv_open not found]))
 AC_SUBST(NETWORK_LIBS)
 
 AC_LANG(C++)
