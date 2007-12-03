@@ -103,7 +103,7 @@ namespace cxxtools
 
       case POST:
         {
-          std::string b = (body.empty() ? params.getUrl() : b);
+          std::string b = (body.empty() ? params.getUrl() : body);
 
           connection << "POST ";
           if (url.size() == 0 || url.at(0) != '/')
