@@ -25,8 +25,12 @@ AC_PROG_CXX
 AC_CHECK_LIB(nsl, setsockopt)
 AC_CHECK_LIB(socket, accept)
 AC_SEARCH_LIBS(dlopen, dl, , AC_MSG_ERROR([dlopen not found]))
-AC_SEARCH_LIBS(iconv_open, iconv, , AC_MSG_ERROR([iconv_open not found]))
 AC_SUBST(NETWORK_LIBS)
+AM_ICONV
+
+if test "$am_cv_func_iconv" ==  no; then
+  AC_MSG_ERROR(iconv not found);
+fi
 
 AC_LANG(C++)
 ACX_PTHREAD
@@ -112,23 +116,6 @@ AC_SUBST(CXXTOOLS_CXXFLAGS)
 AC_SUBST(CXXTOOLS_LDFLAGS)
 AC_SUBST(CXXTOOLS_LOG_LDFLAGS)
 AC_SUBST(CXXTOOLS_LOGGING)
-
-AC_CHECK_HEADER([iconv.h], , AC_MSG_ERROR([iconv not found]))
-AC_COMPILE_IFELSE(
-  [#include <iconv.h>
-   void f(iconv_t cd)
-   {
-     const char* inbufptr = 0;
-     size_t inbytesleft = 0;
-     char* outbufptr = 0;
-     size_t outbytesleft = 0;
-     iconv(cd, &inbufptr, &inbytesleft, &outbufptr, &outbytesleft);
-   }
-  ],
-  iconv_const=const
-)
-
-AC_DEFINE_UNQUOTED(ICONV_CONST, $iconv_const, [Define as const if the declaration of iconv() needs const.])
 
 case "${host_cpu}-${host_os}" in
 *-aix*)
