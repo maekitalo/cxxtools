@@ -49,8 +49,7 @@ File::~File()
 
 File& File::operator=(const File& file)
 {
-    delete _impl;
-    _impl = new FileImpl(*file._impl);
+    *_impl = *(file._impl);
     return *this;
 }
 
