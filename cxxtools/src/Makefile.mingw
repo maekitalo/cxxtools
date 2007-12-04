@@ -1,7 +1,7 @@
 CC=i586-mingw32msvc-gcc
 CXX=i586-mingw32msvc-g++
 CFLAGS=-I../include
-CXXFLAGS=-I../include
+CXXFLAGS=-I../include -DCXXTOOLS_API_EXPORT
 LINK=$(CXX)
 LDFLAGS=-shared -Wl,--enable-runtime-pseudo-reloc
 
@@ -12,6 +12,8 @@ SOURCES_CPP= \
 	connectable.cpp \
 	connection.cpp \
 	fdstream.cpp \
+	file.cpp \
+	directory.cpp \
 	hdstream.cpp \
 	inifile.cpp \
 	iniparser.cpp \
