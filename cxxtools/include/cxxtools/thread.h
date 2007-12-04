@@ -338,6 +338,20 @@ class LockBase
       { return mutex; }
 };
 
+template <typename mutex_type = Mutex,
+          bool (mutex_type::*unlock_method)() = &mutex_type::unlockNoThrow>
+class UnlockMonitor
+{
+    mutex_type& mutex;
+
+  public:
+    explicit UnlockMonitor(mutex_type& mutex_)
+      : mutex(mutex_)
+      { }
+    ~UnlockMonitor()
+      { (mutex.*unlock_method)(); }
+};
+
 typedef LockBase<Mutex> MutexLock;
 typedef LockBase<RWLock, &RWLock::rdLock> RdLock;
 typedef LockBase<RWLock, &RWLock::wrLock> WrLock;

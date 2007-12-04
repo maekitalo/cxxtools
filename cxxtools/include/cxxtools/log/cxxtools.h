@@ -114,6 +114,9 @@ namespace cxxtools
         { return level; }
       void setLogLevel(log_level_type l)
         { level = l; }
+      /// prints the start of a longentry into the outstream
+      static std::ostream& logentry(std::ostream& out, const char* level, const std::string& category);
+      /// prints the start of a longentry and returns the appender
       std::ostream& logentry(const char* level);
       virtual void logEnd(std::ostream& appender) = 0;
 
