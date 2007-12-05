@@ -26,6 +26,7 @@
 #include <cxxtools/tee.h>
 #include <cxxtools/streamcounter.h>
 #include <list>
+#include <vector>
 #include <algorithm>
 #include <fstream>
 #include <sstream>
@@ -402,7 +403,7 @@ namespace cxxtools
       const char* level;
 
       static Mutex queueMutex;
-      typedef std::list<std::string> MessageQueueType;
+      typedef std::vector<std::string> MessageQueueType;
       static MessageQueueType messageQueue;
       void flushQueue();
 
