@@ -58,6 +58,8 @@ class CXXTOOLS_API DirectoryIterator {
 class CXXTOOLS_API Directory : public FileSystemNode 
 {
     public:
+        typedef DirectoryIterator Iterator;
+
         Directory(const std::string& path = "");
 
         ~Directory();
@@ -73,14 +75,14 @@ class CXXTOOLS_API Directory : public FileSystemNode
             return FileSystemNode::Directory;
         }
 
-        DirectoryIterator begin() const
+        Iterator begin() const
         {
-            return DirectoryIterator( _path.c_str() );
+            return Iterator( _path.c_str() );
         }
 
-        DirectoryIterator end() const
+        Iterator end() const
         {
-            return DirectoryIterator();
+            return Iterator();
         }
 
     private:
