@@ -88,16 +88,6 @@ DirectoryIterator& DirectoryIterator::operator=(const DirectoryIterator& it)
 }
 
 
-bool DirectoryIterator::operator==(const DirectoryIterator& it) const
-{
-    return _impl == it._impl;
-}
-
-
-bool DirectoryIterator::operator!=(const DirectoryIterator& it) const
-{
-    return _impl != it._impl;
-}
 
 
 FileSystemNode& DirectoryIterator::operator*() const
