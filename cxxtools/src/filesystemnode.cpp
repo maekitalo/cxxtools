@@ -1,7 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2006-2007 Marc Boris Duerner                            *
- *   Copyright (C) 2006-2007 Tobias Mueller                                *
- *   Copyright (C) 2006-2007 PTV AG                                        *
+ *   Copyright (C) 2006 Marc Boris Dürner                                  *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU Library General Public License as       *
@@ -18,38 +16,20 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
+// TODO: autotools
+#if defined(_WIN32) || defined(WIN32)
+    #include "filesystemnodeimpl.win32.h"
+#else
+    #include "filesystemnodeimpl.posix.h"
+#endif
 
-#ifndef cxxtools_FileSystemNode_h
-#define cxxtools_FileSystemNode_h
-
-#include <string>
-#include <cxxtools/api.h>
+#include "cxxtools/filesystemnode.h"
 
 namespace cxxtools {
 
-class CXXTOOLS_API FileSystemNode
+FileSystemNode* FileSystemNode::create(const char* path)
 {
-    public:
-        enum Type
-        {
-            File = 0,
-            Directory
-        };
+    return FileSystemNodeImpl::create(path);
+}
 
-        virtual ~FileSystemNode()
-        {}
-
-        virtual const std::string& path() const = 0;
-
-        virtual std::string name() const = 0;
-
-        virtual std::size_t size() const = 0;
-
-        virtual Type type() const = 0;
-
-        static FileSystemNode* create(const char* path);
-};
-
-} // namespace cxxtools
-
-#endif
+}

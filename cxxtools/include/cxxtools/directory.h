@@ -28,6 +28,33 @@
 
 namespace cxxtools {
 
+class CXXTOOLS_API DirectoryIterator {
+    public:
+        DirectoryIterator()
+        : _impl(0)
+        { }
+
+        DirectoryIterator(const char* path);
+
+        DirectoryIterator(const DirectoryIterator& it);
+
+        ~DirectoryIterator();
+
+        DirectoryIterator& operator++();
+
+        DirectoryIterator& operator=(const DirectoryIterator& it);
+
+        bool operator==(const DirectoryIterator& it) const;
+
+        bool operator!=(const DirectoryIterator& it) const;
+
+        FileSystemNode& operator*() const;
+
+    private:
+        class DirectoryIteratorImpl* _impl;
+};
+
+
 class CXXTOOLS_API Directory : public FileSystemNode 
 {
     public:
@@ -44,6 +71,16 @@ class CXXTOOLS_API Directory : public FileSystemNode
         virtual Type type() const
         {
             return FileSystemNode::Directory;
+        }
+
+        DirectoryIterator begin() const
+        {
+            return DirectoryIterator( _path.c_str() );
+        }
+
+        DirectoryIterator end() const
+        {
+            return DirectoryIterator();
         }
 
     private:

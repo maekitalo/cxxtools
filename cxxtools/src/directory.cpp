@@ -18,9 +18,101 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
+// TODO: autotools
+#if defined(_WIN32) || defined(WIN32)
+    #include "directoryimpl.win32.h"
+#else
+    #include "directoryimpl.posix.h"
+#endif
+
 #include "cxxtools/directory.h"
 
 namespace cxxtools {
+
+DirectoryIterator::DirectoryIterator(const char* path)
+{
+    _impl = new DirectoryIteratorImpl(path);
+}
+
+
+DirectoryIterator::DirectoryIterator(const DirectoryIterator& it)
+: _impl(0)
+{
+    _impl = it._impl;
+
+    if(_impl)
+        _impl->ref();
+}
+
+
+DirectoryIterator::~DirectoryIterator()
+{
+    if( _impl && 0 == _impl->deref() ) {
+        delete _impl;
+    }
+}
+
+
+DirectoryIterator& DirectoryIterator::operator++()
+{
+    if( _impl && _impl->advance() )
+    {
+        return *this;
+    }
+
+    if( _impl && 0 == _impl->deref() ) {
+        delete _impl;
+    }
+
+    _impl = 0;
+    return *this;
+}
+
+
+DirectoryIterator& DirectoryIterator::operator=(const DirectoryIterator& it)
+{
+    if (*this == it )
+        return *this;
+
+    if( _impl && 0 == _impl->deref() )
+    {
+        delete _impl;
+    }
+
+    _impl = it._impl;
+
+    if(_impl)
+        _impl->ref();
+
+    return *this;
+}
+
+
+bool DirectoryIterator::operator==(const DirectoryIterator& it) const
+{
+    return _impl == it._impl;
+}
+
+
+bool DirectoryIterator::operator!=(const DirectoryIterator& it) const
+{
+    return _impl != it._impl;
+}
+
+
+FileSystemNode& DirectoryIterator::operator*() const
+{
+    return _impl->node();
+}
+
+
+
+
+Directory::Directory(const std::string& path)
+: _path(path)
+{
+}
+
 
 Directory::~Directory()
 {
