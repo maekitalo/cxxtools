@@ -33,8 +33,12 @@ class FileSystemNodeImpl
             DWORD attr = GetFileAttributes( tpath.c_str() );
 
             if(attr == 0xffffffff)
-                throw std::runtime_error("Could not get file attributes.");
+            {
+                if( 0 != strstr(path, ".sys") )
+                    return new File(path);
 
+                throw std::runtime_error("Could not get file attributes.");
+            }
 
             if(attr & FILE_ATTRIBUTE_DIRECTORY) {
                 return new Directory(path);
