@@ -18,6 +18,7 @@ nobase_include_HEADERS = \
         cxxtools/connectable.h \
         cxxtools/connection.h \
         cxxtools/constmethod.h \
+        cxxtools/delegate.h \
         cxxtools/dir.h \
         cxxtools/dlloader.h \
         cxxtools/dynbuffer.h \
@@ -51,6 +52,7 @@ nobase_include_HEADERS = \
         cxxtools/signals.h \
         cxxtools/slot.h \
         cxxtools/smartptr.h \
+        cxxtools/sourceinfo.h \
         cxxtools/sudo.h \
         cxxtools/streamcounter.h \
         cxxtools/syserror.h \
