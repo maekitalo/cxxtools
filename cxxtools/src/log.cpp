@@ -43,7 +43,10 @@
 #include <cctype>
 #include <pwd.h>
 #include <grp.h>
+#include <config.h>
+#ifdef HAVE_SCHED_YIELD
 #include <sched.h>
+#endif
 
 log_define("cxxtools.log")
 
@@ -547,7 +550,9 @@ namespace cxxtools
       Logger::logentry(logmessage, level, logger->getCategory());
       logmessage << msg.str();
 
+#ifdef HAVE_SCHED_YIELD
       sched_yield();
+#endif
 
       MutexLock lock(queueMutex);
       messageQueue.push_back(logmessage.str());
@@ -565,6 +570,14 @@ namespace cxxtools
     std::ostream& out = LoggerImpl::getAppender();
     if (!messageQueue.empty())
     {
+      /*
+      static unsigned count = 0;
+      count += messageQueue.size();
+      if (messageQueue.size() == 1)
+        std::cerr << '.';
+      else
+        std::cerr << '[' << messageQueue.size() << '/' << count << ']';
+      */
       for (MessageQueueType::const_iterator it = messageQueue.begin();
            it != messageQueue.end(); ++it)
         out << *it << '\n';
@@ -576,6 +589,17 @@ namespace cxxtools
   LogMessage::LogMessage(Logger* logger, const char* level)
     : impl(new LogMessageImpl(logger, level))
     { }
+
+  LogMessage::LogMessage(Logger* logger, Logger::log_level_type level)
+    : impl(new LogMessageImpl(logger,
+                              level >= Logger::LOG_LEVEL_TRACE ? "TRACE"
+                            : level >= Logger::LOG_LEVEL_DEBUG ? "DEBUG"
+                            : level >= Logger::LOG_LEVEL_INFO ? "INFO"
+                            : level >= Logger::LOG_LEVEL_WARN ? "WARN"
+                            : level >= Logger::LOG_LEVEL_ERROR ? "ERROR"
+                            : "FATAL"))
+    { }
+
 
   void LogMessage::flush()
   {

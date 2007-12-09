@@ -131,6 +131,7 @@ namespace cxxtools
 
     public:
       LogMessage(Logger* logger, const char* level);
+      LogMessage(Logger* logger, Logger::log_level_type level);
       ~LogMessage();
 
       std::ostream& out();
