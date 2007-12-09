@@ -29,6 +29,29 @@
 
 namespace cxxtools
 {
+  /** A simple wrapper for the system function fork(2).
+   *
+   *  The advantage of using this class instead of fork directly is, easyness,
+   *  robustness and readability due to less code. The constructor executes
+   *  fork(2) and does error checking. The destructor waits for the child
+   *  process, which prevents the creation of zombie processes. The user may
+   *  decide to deactivate it or waiting explicitely to receive the return
+   *  status, but this has to be done explicitely, which helps robustness.
+   *
+   *  Example:
+   *  /code
+   *    {
+   *      cxxtools::Fork process;
+   *      if (process.child())
+   *      {
+   *        // we are in the child process here.
+   *
+   *        exit(0);  // normally the child either exits or execs an other
+   *                  // process
+   *      }
+   *    }
+   *  /endcode
+   */
   class Fork
   {
       Fork(const Fork&);
