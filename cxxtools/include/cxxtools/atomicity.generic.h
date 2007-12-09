@@ -71,7 +71,7 @@ inline atomic_t atomicExchange(volatile atomic_t& dest, atomic_t exch)
 
 inline void* atomicExchange(void* volatile& dest, void* exch)
 {
-    volatile T* tmp = dest;
+    volatile void* tmp = dest;
     dest = exch;
     return tmp;
 }
