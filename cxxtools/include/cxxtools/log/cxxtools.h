@@ -65,7 +65,7 @@
   {  \
     static cxxtools::Logger* logger = 0; \
     if (logger == 0) \
-      logger = ::cxxtools::Logger::getLogger(category); \
+      logger = ::cxxtools::Logger::getCategoryLogger(category); \
     return logger; \
   }
 
@@ -96,7 +96,7 @@ namespace cxxtools
       virtual ~Logger()  { }
 
     public:
-      static Logger* getLogger(const std::string& category);
+      static Logger* getCategoryLogger(const std::string& category);
       static void setRootLevel(log_level_type l)
         { std_level = l; }
       static log_level_type getStdLevel()

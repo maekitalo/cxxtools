@@ -136,6 +136,9 @@ EOF
 #flushdelay=100  # delay write in milliseconds
 #host=localhost:1234  # send log-messages with udp
 #disabled=1  # disable logging
+#logprocess=1  # log through separate process
+#logprocesuser=someuser  # change to user in log process
+#logprocesgroup=somegroup  # change to group in log process
 EOF
   else
     cat <<EOF
@@ -145,6 +148,9 @@ maxbackupindex=10
 flushdelay=100  # delay write in milliseconds
 #host=localhost:1234  # send log-messages with udp
 #disabled=1  # disable logging
+#logprocess=1  # log in separate process
+#logprocesuser=someuser  # change to user in log process
+#logprocesgroup=somegroup  # change to group in log process
 EOF
   fi
 

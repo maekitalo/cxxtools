@@ -25,6 +25,7 @@
 #include <cxxtools/udpstream.h>
 #include <cxxtools/tee.h>
 #include <cxxtools/streamcounter.h>
+#include <cxxtools/pipestream.h>
 #include <list>
 #include <vector>
 #include <algorithm>
@@ -34,13 +35,48 @@
 #include <time.h>
 #include <sys/time.h>
 #include <sys/stat.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <cctype>
+#include <pwd.h>
+#include <grp.h>
+#include <sched.h>
+
+log_define("cxxtools.log")
 
 namespace cxxtools
 {
+  namespace
+  {
+    void setUserAndGroup(struct passwd* pw, struct group* gr)
+    {
+      int gret, pret;
+      if (gr)
+        gret = ::setgid(gr->gr_gid);
+      if (pw)
+        pret = ::setuid(pw->pw_uid);
+
+      if (gr)
+      {
+        if (gret == 0)
+          log_debug("logging group changed to " << gr->gr_name << '(' << gr->gr_gid << ')');
+        else
+          log_warn("error changing logging group to " << gr->gr_name << '(' << gr->gr_gid << ')');
+      }
+
+      if (pw)
+      {
+        if (pret == 0)
+          log_debug("logging user changed to " << pw->pw_name << '(' << pw->pw_uid << ')');
+        else
+          log_warn("error changing logging user to " << pw->pw_name << '(' << pw->pw_uid << ')');
+      }
+    }
+  }
+
   class LoggerImpl : public Logger
   {
       static std::string fname;
@@ -51,6 +87,7 @@ namespace cxxtools
       static net::UdpOStream udpmessage;
       static unsigned maxfilesize;
       static unsigned maxbackupindex;
+      static Pipestream* pipe;
 
       static std::string mkfilename(unsigned idx);
 
@@ -89,11 +126,14 @@ namespace cxxtools
       static void setMaxFileSize(unsigned size)   { maxfilesize = size; }
       static void setMaxBackupIndex(unsigned idx) { maxbackupindex = idx; }
       static void setLoghost(const std::string& host, unsigned short int port);
+      static void runLoggerProcess(const std::string& user, const std::string& group);
   };
 
   std::ostream& LoggerImpl::getAppender()
   {
-    if (!fname.empty())
+    if (pipe)
+      return *pipe;
+    else if (!fname.empty())
     {
       if (!outfile.is_open())
       {
@@ -170,6 +210,7 @@ namespace cxxtools
   unsigned LoggerImpl::maxbackupindex = 0;
   LoggerImpl::FlusherThread* LoggerImpl::flusherThread = 0;
   bool LoggerImpl::flusherThreadStarted = false;
+  Pipestream* LoggerImpl::pipe = 0;
 
   struct timespec LoggerImpl::FlusherThread::flushDelay;
 
@@ -194,6 +235,73 @@ namespace cxxtools
   void LoggerImpl::setLoghost(const std::string& host, unsigned short int port)
   {
     loghost.connect(host.c_str(), port, true);
+  }
+  
+  void LoggerImpl::runLoggerProcess(const std::string& user, const std::string& group)
+  {
+    struct passwd * pw = 0;
+    if (!user.empty())
+    {
+      pw = getpwnam(user.c_str());
+      if (pw == 0)
+        throw std::runtime_error("unknown user \"" + user + "\" in logging configuration");
+    }
+
+    struct group * gr = 0;
+    if (!group.empty())
+    {
+      gr = getgrnam(group.c_str());
+      if (gr == 0)
+        throw std::runtime_error("unknown group \"" + group + "\" in logging configuration");
+    }
+
+    pipe = new Pipestream();
+    pid_t pid = ::fork();
+    if (pid < 0)
+      throw SysError("fork");
+    if (pid == 0)
+    {
+      // 1st child
+      pipe->closeWriteFd();
+      pid = ::fork();
+      if (pid < 0)
+        exit(-1);
+      if (pid)
+        exit(0);  // exit middle process
+
+      // 2nd child
+
+      std::streambuf* in = pipe->rdbuf();
+      // set global pipe pointer to 0, so that getAppender do not return
+      // that pipe, but skips to the next appender
+      pipe = 0;
+
+      setUserAndGroup(pw, gr);
+
+      counter.resetCount(outfile.tellp());
+
+
+      log_debug("logger process initialized");
+      char ich;
+      std::ostream& out = getAppender();
+      while ((ich = in->snextc()) != std::ios::traits_type::eof())
+      {
+        char ch = std::ios::traits_type::to_char_type(ich);
+        out.rdbuf()->sputc(ch);
+        if (ch == '\n')
+          getAppender();
+      }
+      exit(0);
+    }
+    else
+    {
+      // parent
+      pipe->closeReadFd();
+      int status;
+      ::waitpid(pid, &status, 0);
+      if (WEXITSTATUS(status) != 0)
+        throw std::runtime_error("error creating logging process");
+    }
   }
 
   RWLock Logger::rwmutex;
@@ -267,7 +375,7 @@ namespace cxxtools
     }
   }
 
-  Logger* Logger::getLogger(const std::string& category)
+  Logger* Logger::getCategoryLogger(const std::string& category)
   {
     if (!enabled)
       return 0;
@@ -439,6 +547,8 @@ namespace cxxtools
       Logger::logentry(logmessage, level, logger->getCategory());
       logmessage << msg.str();
 
+      sched_yield();
+
       MutexLock lock(queueMutex);
       messageQueue.push_back(logmessage.str());
 
@@ -453,10 +563,13 @@ namespace cxxtools
   void LogMessage::LogMessageImpl::flushQueue()
   {
     std::ostream& out = LoggerImpl::getAppender();
-    for (MessageQueueType::const_iterator it = messageQueue.begin();
-         it != messageQueue.end(); ++it)
-      out << *it << '\n';
-    messageQueue.clear();
+    if (!messageQueue.empty())
+    {
+      for (MessageQueueType::const_iterator it = messageQueue.begin();
+           it != messageQueue.end(); ++it)
+        out << *it << '\n';
+      messageQueue.clear();
+    }
     logger->logEnd(out);
   }
 
@@ -562,6 +675,11 @@ void log_init_cxxtools(std::istream& in)
     state_flushdelay0,
     state_flushdelay,
     state_disable,
+    state_logprocess,
+    state_logprocessuser0,
+    state_logprocessuser,
+    state_logprocessgroup0,
+    state_logprocessgroup,
     state_skip
   };
   
@@ -576,6 +694,9 @@ void log_init_cxxtools(std::istream& in)
   unsigned fsize;
   unsigned maxbackupindex;
   unsigned flushdelay = 0;
+  bool logprocess = false;
+  std::string logprocessuser;
+  std::string logprocessgroup;
 
   cxxtools::Logger::log_level_type level;
   while (in.get(ch))
@@ -615,8 +736,14 @@ void log_init_cxxtools(std::istream& in)
           state = state_maxbackupindex0;
         else if (ch == '=' && token == "FLUSHDELAY")
           state = state_flushdelay0;
-        else if (ch == '=' && token == "DISABLED")
+        else if (ch == '=' && (token == "DISABLE" || token == "DISABLED"))
           state = state_disable;
+        else if (ch == '=' && token == "LOGPROCESS")
+          state = state_logprocess;
+        else if (ch == '=' && token == "LOGPROCESSUSER")
+          state = state_logprocessuser0;
+        else if (ch == '=' && token == "LOGPROCESSGROUP")
+          state = state_logprocessgroup0;
         else if (ch == '\n')
           state = state_0;
         else if (std::isspace(ch))
@@ -643,8 +770,14 @@ void log_init_cxxtools(std::istream& in)
           state = state_maxbackupindex0;
         else if (ch == '=' && token == "FLUSHDELAY")
           state = state_flushdelay0;
-        else if (ch == '=' && token == "DISABLE")
+        else if (ch == '=' && (token == "DISABLE" || token == "DISABLED"))
           state = state_disable;
+        else if (ch == '=' && token == "LOGPROCESS")
+          state = state_logprocess;
+        else if (ch == '=' && token == "LOGPROCESSUSER")
+          state = state_logprocessuser0;
+        else if (ch == '=' && token == "LOGPROCESSGROUP")
+          state = state_logprocessgroup0;
         else if (ch == '\n')
           state = state_0;
         else if (!std::isspace(ch))
@@ -831,12 +964,63 @@ void log_init_cxxtools(std::istream& in)
           state = (ch == '\n' ? state_0 : state_skip);
         break;
 
+      case state_logprocess:
+        if (ch == '1' || ch == 't' || ch == 'T' || ch == 'y' || ch == 'Y')
+        {
+          logprocess = true;
+          state = state_skip;
+        }
+        else if (ch != ' ' && ch != '\t')
+          state = (ch == '\n' ? state_0 : state_skip);
+        break;
+
+      case state_logprocessuser0:
+        if (ch == '\n')
+          state = state_0;
+        else if (!std::isspace(ch))
+        {
+          logprocessuser = ch;
+          state = state_logprocessuser;
+        }
+        break;
+
+      case state_logprocessuser:
+        if (ch == '\n')
+          state = state_0;
+        else if (std::isspace(ch))
+          state = state_skip;
+        else
+          logprocessuser += ch;
+        break;
+
+      case state_logprocessgroup0:
+        if (ch == '\n')
+          state = state_0;
+        else if (!std::isspace(ch))
+        {
+          logprocessgroup = ch;
+          state = state_logprocessgroup;
+        }
+        break;
+
+      case state_logprocessgroup:
+        if (ch == '\n')
+          state = state_0;
+        else if (std::isspace(ch))
+          state = state_skip;
+        else
+          logprocessgroup += ch;
+        break;
+
       case state_skip:
         if (ch == '\n')
           state = state_0;
         break;
     }
   }
+
+  if (logprocess)
+    cxxtools::LoggerImpl::runLoggerProcess(logprocessuser, logprocessgroup);
 
   cxxtools::LoggerImpl::setFlushDelay(flushdelay);
   cxxtools::reinitializeLoggers();
