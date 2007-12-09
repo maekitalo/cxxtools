@@ -116,7 +116,7 @@ namespace cxxtools
 
     public:
       unsigned getRefs() const
-        { refs ? *refs : 0; }
+        { return refs ? *refs : 0; }
   };
 
   template <typename objectType>
