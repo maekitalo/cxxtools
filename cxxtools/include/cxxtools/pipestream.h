@@ -43,8 +43,8 @@ namespace cxxtools
       explicit Pipestreambuf(unsigned bufsize = 8192);
       ~Pipestreambuf();
 
-      void closeReadFd()      { pipe.closeReadFd(); }
-      void closeWriteFd()     { pipe.closeWriteFd(); }
+      void closeReadFd()      { sync(); pipe.closeReadFd(); }
+      void closeWriteFd()     { sync(); pipe.closeWriteFd(); }
 
       int getReadFd() const   { return pipe.getReadFd(); }
       int getWriteFd() const  { return pipe.getWriteFd(); }
