@@ -38,11 +38,26 @@ namespace cxxtools
   {
     log_debug("Pipestreambuf::~Pipestreambuf()");
 
+    try
+    {
+      closeReadFd();
+    }
+    catch (const std::exception& e)
+    {
+      log_debug("ignore exception in closing read pipe: " << e.what());
+    }
+
+    try
+    {
+      closeWriteFd();
+    }
+    catch (const std::exception& e)
+    {
+      log_debug("ignore exception in closing write pipe: " << e.what());
+    }
+
     delete [] ibuffer;
     delete [] obuffer;
-
-    closeReadFd();
-    closeWriteFd();
   }
 
   std::streambuf::int_type Pipestreambuf::overflow(std::streambuf::int_type ch)
