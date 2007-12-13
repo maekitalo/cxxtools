@@ -69,6 +69,7 @@ void AttachedThread::create()
   int ret = pthread_create(&pthreadId, &pthread_attr, start, (void*)this);
   if (ret != 0)
     throw ThreadException(ret, "pthread_create");
+  joined = false;
 }
 
 void AttachedThread::join()
