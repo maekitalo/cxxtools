@@ -342,14 +342,24 @@ template <typename mutex_type = Mutex,
           bool (mutex_type::*unlock_method)() = &mutex_type::unlockNoThrow>
 class UnlockMonitor
 {
-    mutex_type& mutex;
+    mutex_type* mutex;
 
   public:
     explicit UnlockMonitor(mutex_type& mutex_)
-      : mutex(mutex_)
+      : mutex(&mutex_)
       { }
+
     ~UnlockMonitor()
-      { (mutex.*unlock_method)(); }
+    {
+      if (mutex)
+        (mutex->*unlock_method)();
+    }
+
+    void unlock()
+    {
+      (mutex->*unlock_method)();
+      mutex = 0;
+    }
 };
 
 typedef LockBase<Mutex> MutexLock;
