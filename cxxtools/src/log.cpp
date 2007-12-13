@@ -542,7 +542,7 @@ namespace cxxtools
 
       MutexLock lock(queueMutex);
       flushQueue();
-      Logger::mutex.unlock();
+      unlocker.unlock();
     }
     else
     {
