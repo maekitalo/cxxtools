@@ -33,7 +33,7 @@ namespace cxxtools
         : refs(0)
         { }
 
-      RefCounted(unsigned refs_)
+      explicit RefCounted(unsigned refs_)
         : refs(refs_)
         { }
 
