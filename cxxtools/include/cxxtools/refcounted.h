@@ -32,6 +32,11 @@ namespace cxxtools
       RefCounted()
         : refs(0)
         { }
+
+      RefCounted(unsigned refs_)
+        : refs(refs_)
+        { }
+
       virtual ~RefCounted()  { }
 
       virtual void addRef()  { ++refs; }
