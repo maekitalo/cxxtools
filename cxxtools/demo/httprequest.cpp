@@ -22,11 +22,9 @@
 #include <exception>
 #include <iostream>
 #include <list>
-#include <iterator>
 #include <cxxtools/httprequest.h>
 #include <cxxtools/httpreply.h>
 #include <cxxtools/arg.h>
-#include <cxxtools/base64stream.h>
 
 int main(int argc, char* argv[])
 {
