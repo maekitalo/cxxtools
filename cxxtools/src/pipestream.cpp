@@ -143,6 +143,7 @@ namespace cxxtools
         log_debug(ret << " bytes written to fd " << getWriteFd());
         p += ret;
       }
+      setp(obuffer, obuffer + bufsize);
     }
     return 0;
   }
