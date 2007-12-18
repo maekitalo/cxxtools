@@ -33,6 +33,7 @@ libcxxtools_la_SOURCES = \
 	thread.cpp \
 	udp.cpp \
 	udpstream.cpp \
+	uuencode.cpp \
 	xmltag.cpp
 
 if MAKE_ATOMICITY_PTHREAD
