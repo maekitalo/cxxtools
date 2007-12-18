@@ -29,32 +29,24 @@ namespace cxxtools
   class Uuencode_streambuf : public std::streambuf
   {
       std::streambuf* sinksource;
-      char obuffer[3];
-      char decodebuf[3];
-      unsigned count;
-      bool indecode;
-      bool eofflag;
+      unsigned length;
+      char* obuffer;
 
     public:
-      Uuencode_streambuf(std::streambuf* sinksource_)
+      Uuencode_streambuf(std::streambuf* sinksource_, unsigned length_ = 45)
         : sinksource(sinksource_),
-          count(0),
-          indecode(false),
-          eofflag(false)
+          length(length_),
+          obuffer(new char[length])
           { }
       ~Uuencode_streambuf()
-          { }
+          { delete[] obuffer; }
 
       void end();
-      void reset()   { eofflag = false; }
+
     protected:
       std::streambuf::int_type overflow(std::streambuf::int_type ch);
       std::streambuf::int_type underflow();
       int sync();
-
-    private:
-      void putChar(char ch);
-      int getval();
   };
 
   /**
@@ -78,24 +70,9 @@ namespace cxxtools
       {
         init(&streambuf);
       }
-  };
 
-  /**
-   * uudecoder.
-   */
-  class UudecodeIstream : public std::istream
-  {
-      Uuencode_streambuf streambuf;
-
-    public:
-      UudecodeIstream(std::istream& in)
-        : std::istream(0),
-          streambuf(in.rdbuf())
-        { init(&streambuf); }
-      UudecodeIstream(std::streambuf* sb)
-        : std::istream(0),
-          streambuf(sb)
-        { init(&streambuf); }
+      void end()
+      { streambuf.end(); }
   };
 
 }

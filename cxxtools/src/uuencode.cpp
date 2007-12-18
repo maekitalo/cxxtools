@@ -31,54 +31,46 @@ static vc_type vc;
 
 void Uuencode_streambuf::end()
 {
-  char A = obuffer[0];
-  char B = obuffer[1];
-  char C = obuffer[2];
-  switch(pptr() - pbase())
+  if (pbase() != pptr())
   {
-    case 1:
-      B = 0;
-      C = 0;
-      putChar(cv[(A >> 2) & 0x3F]);
-      putChar(cv[((A << 4) | ((B >> 4) & 0xF)) & 0x3F]);
-      putChar('=');
-      putChar('=');
-      break;
-
-    case 2:
-      C = 0;
-      putChar(cv[(A >> 2) & 0x3F]);
-      putChar(cv[((A << 4) | ((B >> 4) & 0xF)) & 0x3F]);
-      putChar(cv[((B << 2) | ((C >> 6) & 0x3)) & 0x3F]);
-      putChar('=');
-      break;
-
-    case 3:
-      putChar(cv[(A >> 2) & 0x3F]);
-      putChar(cv[((A << 4) | ((B >> 4) & 0xF)) & 0x3F]);
-      putChar(cv[((B << 2) | ((C >> 6) & 0x3)) & 0x3F]);
-      putChar(cv[( C                         ) & 0x3F]);
-      break;
+    sinksource->sputc(cv[pptr() - pbase()]);
+    for (const char* p = pbase(); p < pptr(); p += 3)
+    {
+      char A = p[0];
+      char B = p[1];
+      char C = p[2];
+      sinksource->sputc(cv[(A >> 2) & 0x3F]);
+      sinksource->sputc(cv[((A << 4) | ((B >> 4) & 0xF)) & 0x3F]);
+      sinksource->sputc(cv[((B << 2) | ((C >> 6) & 0x3)) & 0x3F]);
+      sinksource->sputc(cv[( C                         ) & 0x3F]);
+    }
+    sinksource->sputc('\n');
   }
+  sinksource->sputc('`');
 
-  setp(obuffer, obuffer + 3);
-  indecode = false;
+  setp(obuffer, obuffer + length);
 }
 
 std::streambuf::int_type Uuencode_streambuf::overflow(std::streambuf::int_type ch)
 {
-  if (pptr() != pbase())
+  if (pbase() != epptr())
   {
-    char A = obuffer[0];
-    char B = obuffer[1];
-    char C = obuffer[2];
-    putChar(cv[(A >> 2) & 0x3F]);
-    putChar(cv[((A << 4) | ((B >> 4) & 0xF)) & 0x3F]);
-    putChar(cv[((B << 2) | ((C >> 6) & 0x3)) & 0x3F]);
-    putChar(cv[( C                         ) & 0x3F]);
+    sinksource->sputc(cv[pptr() - pbase()]);
+    for (const char* p = pbase(); p < pptr(); p += 3)
+    {
+      char A = p[0];
+      char B = p[1];
+      char C = p[2];
+      sinksource->sputc(cv[(A >> 2) & 0x3F]);
+      sinksource->sputc(cv[((A << 4) | ((B >> 4) & 0xF)) & 0x3F]);
+      sinksource->sputc(cv[((B << 2) | ((C >> 6) & 0x3)) & 0x3F]);
+      sinksource->sputc(cv[( C                         ) & 0x3F]);
+    }
+
+    sinksource->sputc('\n');
   }
 
-  setp(obuffer, obuffer + 3);
+  setp(obuffer, obuffer + length);
 
   if (ch != traits_type::eof())
   {
@@ -86,110 +78,17 @@ std::streambuf::int_type Uuencode_streambuf::overflow(std::streambuf::int_type c
     pbump(1);
   }
 
-  indecode = true;
-
   return 0;
 }
 
 std::streambuf::int_type Uuencode_streambuf::underflow()
 {
-  if (eofflag)
-    return traits_type::eof();
-
-  // input:
-  // |....,....|....,....|....,....|
-  //  <   A   > <   B   > <   C   >
-  //  < c1  ><  c2 > <  c3 ><  c4 >
-  char& A = decodebuf[0];
-  char& B = decodebuf[1];
-  char& C = decodebuf[2];
-
-  int c1 = getval();
-  if (c1 == -1)
-    return traits_type::eof();
-  A = (char)(c1 << 2);
-
-  int c2 = getval();
-  if (c2 == -1)
-    return traits_type::eof();
-  A |= (char)(c2 >> 4);
-  B = (char)(c2 << 4);
-
-  int c3 = getval();
-  if (c3 == -1)
-  {
-    setg(decodebuf, decodebuf, decodebuf + 1);
-    return traits_type::to_int_type(A);
-  }
-  B |= (char)(c3 >> 2);
-  C = (char)(c3 << 6);
-
-  int c4 = getval();
-  if (c4 == -1)
-  {
-    setg(decodebuf, decodebuf, decodebuf + 2);
-    return traits_type::to_int_type(A);
-  }
-  C |= (char)c4;
-
-  setg(decodebuf, decodebuf, decodebuf + 3);
-
-  return traits_type::to_int_type(A);
+  return traits_type::eof();
 }
 
 int Uuencode_streambuf::sync()
 {
   return 0;
-}
-
-void Uuencode_streambuf::putChar(char ch)
-{
-  sinksource->sputc(ch);
-  if (ch == '\n')
-    count = 0;
-  else if (++count >= 60)
-  {
-    sinksource->sputc('\n');
-    count = 0;
-  }
-}
-
-int Uuencode_streambuf::getval()
-{
-  if (vc.empty())
-  {
-    for (unsigned u = 0; u < 64; ++u)
-      vc[cv[u]] = u;
-  }
-
-  unsigned count = 0;
-  while (true)
-  {
-    int ret = sinksource->sbumpc();
-    if (ret == traits_type::eof())
-    {
-      eofflag = true;
-      return -1;
-    }
-
-    char ch = traits_type::to_char_type(ret);
-    if (ch == '=')
-    {
-      if (++count >= 4)
-      {
-        eofflag = true;
-        return -1;
-      }
-    }
-    else
-    {
-      vc_type::const_iterator it = vc.find(ch);
-      if (it != vc.end())
-        return it->second;
-      else
-        count = 0;
-    }
-  }
 }
 
 }
