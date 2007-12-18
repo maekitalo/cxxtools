@@ -20,14 +20,11 @@
  */
 
 #include "cxxtools/uuencode.h"
-#include <map>
 
 namespace cxxtools
 {
 
 static char cv[65] = "`!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_";
-typedef std::map<char, unsigned> vc_type;
-static vc_type vc;
 
 void Uuencode_streambuf::end()
 {
