@@ -44,6 +44,7 @@ void Uuencode_streambuf::end()
     sinksource->sputc('\n');
   }
   sinksource->sputc('`');
+  sinksource->sputc('\n');
 
   setp(obuffer, obuffer + length);
 }
