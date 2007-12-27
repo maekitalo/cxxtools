@@ -1,4 +1,0 @@
-usr/include/cxxtools/*.h
-usr/include/cxxtools/log/*.h
-usr/lib/libcxxtools.so
-usr/bin/cxxtools-config
