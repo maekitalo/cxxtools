@@ -39,6 +39,7 @@ nobase_include_HEADERS = \
         cxxtools/md5.h \
         cxxtools/md5stream.h \
         cxxtools/method.h \
+        cxxtools/mime.h \
         cxxtools/multifstream.h \
         cxxtools/net.h \
         cxxtools/noncopyable.h \
@@ -48,6 +49,7 @@ nobase_include_HEADERS = \
         cxxtools/pool.h \
         cxxtools/properties.h \
         cxxtools/query_params.h \
+        cxxtools/quotedprintablestream.h \
         cxxtools/refcounted.h \
         cxxtools/signals.h \
         cxxtools/slot.h \
@@ -64,6 +66,7 @@ nobase_include_HEADERS = \
         cxxtools/udpstream.h \
         cxxtools/uuencode.h \
         cxxtools/void.h \
+        cxxtools/uuencode.h \
         cxxtools/xmltag.h \
         cxxtools/log/cxxtools.h \
         cxxtools/log/cxxtools_init.h \

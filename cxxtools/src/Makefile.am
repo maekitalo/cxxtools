@@ -20,6 +20,7 @@ libcxxtools_la_SOURCES = \
 	log.cpp \
 	md5.c \
 	md5stream.cpp \
+	mime.cpp \
 	multifstream.cpp \
 	net.cpp \
 	pipe.cpp \
@@ -27,6 +28,7 @@ libcxxtools_la_SOURCES = \
 	pollclass.cpp \
 	properties.cpp \
 	query_params.cpp \
+	quotedprintablestream.cpp \
 	syserror.cpp \
 	tcpstream.cpp \
 	tee.cpp \

@@ -26,6 +26,18 @@ namespace cxxtools
 
 static char cv[65] = "`!\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_";
 
+void Uuencode_streambuf::begin(const std::string& filename, unsigned mode)
+{
+  sinksource->sputn("begin ", 6);
+  sinksource->sputc(((mode >> 6) & 0x7) + '0');
+  sinksource->sputc(((mode >> 3) & 0x7) + '0');
+  sinksource->sputc((mode & 0x7) + '0');
+  sinksource->sputc(' ');
+  sinksource->sputn(filename.data(), filename.size());
+  sinksource->sputc('\n');
+  inStream = true;
+}
+
 void Uuencode_streambuf::end()
 {
   if (pbase() != pptr())
@@ -34,19 +46,24 @@ void Uuencode_streambuf::end()
     for (const char* p = pbase(); p < pptr(); p += 3)
     {
       char A = p[0];
-      char B = p[1];
-      char C = p[2];
+      char B = p < pptr() - 1 ? p[1] : 0;
+      char C = p < pptr() - 2 ? p[2] : 0;
       sinksource->sputc(cv[(A >> 2) & 0x3F]);
       sinksource->sputc(cv[((A << 4) | ((B >> 4) & 0xF)) & 0x3F]);
       sinksource->sputc(cv[((B << 2) | ((C >> 6) & 0x3)) & 0x3F]);
       sinksource->sputc(cv[( C                         ) & 0x3F]);
     }
-    sinksource->sputc('\n');
-  }
-  sinksource->sputc('`');
-  sinksource->sputc('\n');
 
-  setp(obuffer, obuffer + length);
+    sinksource->sputn("\n`\n", 3);
+
+    setp(obuffer, obuffer + length);
+  }
+
+  if (inStream)
+  {
+    sinksource->sputn("end\n", 4);
+    inStream = false;
+  }
 }
 
 std::streambuf::int_type Uuencode_streambuf::overflow(std::streambuf::int_type ch)

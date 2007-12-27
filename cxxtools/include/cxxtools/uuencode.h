@@ -31,16 +31,19 @@ namespace cxxtools
       std::streambuf* sinksource;
       unsigned length;
       char* obuffer;
+      bool inStream;
 
     public:
       Uuencode_streambuf(std::streambuf* sinksource_, unsigned length_ = 45)
         : sinksource(sinksource_),
           length(length_),
-          obuffer(new char[length])
+          obuffer(new char[length]),
+          inStream(false)
           { }
       ~Uuencode_streambuf()
-          { delete[] obuffer; }
+          { end(); delete[] obuffer; }
 
+      void begin(const std::string& filename, unsigned mode = 0644);
       void end();
 
     protected:
@@ -71,8 +74,15 @@ namespace cxxtools
         init(&streambuf);
       }
 
+      ~UuencodeOstream()
+      {
+        end();
+      }
+
+      void begin(const std::string& filename, unsigned mode = 0644)
+        { streambuf.begin(filename, mode); }
       void end()
-      { streambuf.end(); }
+        { streambuf.end(); }
   };
 
 }
