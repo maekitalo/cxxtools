@@ -23,6 +23,7 @@
 #define CXXTOOLS_THREAD_H
 
 #include <pthread.h>
+#include <signal.h>
 #include <semaphore.h>
 #include <stdexcept>
 #include <time.h>
@@ -63,6 +64,7 @@ class Thread
     virtual ~Thread();
 
     virtual void create() = 0;
+    void kill(int signo = SIGTERM);
 
   protected:
     virtual void run() = 0;

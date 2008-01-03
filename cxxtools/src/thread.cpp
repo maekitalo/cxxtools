@@ -41,6 +41,11 @@ Thread::~Thread()
   pthread_attr_destroy(&pthread_attr);
 }
 
+void Thread::kill(int signo)
+{
+  pthread_kill(pthreadId, signo);
+}
+
 //
 // AttachedThread
 //
