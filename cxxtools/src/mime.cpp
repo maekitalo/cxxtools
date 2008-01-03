@@ -47,6 +47,9 @@ namespace cxxtools
   Mimepart& Mime::addPart(const std::string& data, const std::string& contentType,
     ContentTransferEncoding contentTransferEncoding)
   {
+    log_debug("add part " << data.size() << " bytes, contentType \""
+        << contentType << "\" content transfer encoding " << contentTransferEncoding);
+
     parts.push_back(Mimepart(contentType, contentTransferEncoding));
     parts.back().setData(data);
     return parts.back();
@@ -55,9 +58,15 @@ namespace cxxtools
   Mimepart& Mime::addPart(std::istream& in, const std::string& contentType,
     ContentTransferEncoding contentTransferEncoding)
   {
+    log_debug("add part from stream, contentType \""
+        << contentType << "\" content transfer encoding " << contentTransferEncoding);
+
     parts.push_back(Mimepart(contentType, contentTransferEncoding));
     std::ostringstream body;
     body << in.rdbuf();
+
+    log_debug("part has " << body.str().size() << " bytes");
+
     parts.back().setData(body.str());
     return parts.back();
   }
@@ -90,19 +99,28 @@ namespace cxxtools
     // encode data
     if (mimePart.contentTransferEncoding == Mimepart::quotedPrintable)
     {
-      out << "Content-Transfer-Encoding: quoted-printable\r\n\r\n";
+      out << "Content-Transfer-Encoding: quoted-printable\n\n";
       QuotedPrintable_ostream enc(out);
       enc << mimePart.getBody();
-      out << "\r\n";
+      out << '\n';
     }
-    else if (mimePart.contentTransferEncoding == Mimepart::quotedPrintable)
+    else if (mimePart.contentTransferEncoding == Mimepart::base64)
     {
-      out << "Content-Transfer-Encoding: base64\r\n\r\n";
+      out << "Content-Transfer-Encoding: base64\n\n";
       Base64ostream enc(out);
       enc << mimePart.getBody();
+      enc.end();
+      out << "\n\n";
     }
     else
-      log_error("unknown Content-Transfer-Encoding " << mimePart.contentTransferEncoding);
+    {
+      std::ostringstream msg;
+      msg << "unknown Content-Transfer-Encoding " << mimePart.contentTransferEncoding;
+      log_error(msg.str());
+      throw std::runtime_error(msg.str());
+    }
+
+    return out;
   }
 
   std::ostream& operator<< (std::ostream& out, const Mime& mime)
@@ -135,19 +153,21 @@ namespace cxxtools
     }
 
     // print headers
-    out << "MIME-Version: 1.0\r\n"
-           "Content-Type: multipart/mixed; boundary=\"" << boundary << "\"\r\n";
+    out << "MIME-Version: 1.0\n"
+           "Content-Type: multipart/mixed; boundary=\"" << boundary << "\"\n";
     for (Mime::HeadersType::const_iterator it = mime.headers.begin();
          it != mime.headers.end(); ++it)
-      out << it->first << ": " << it->second << "\r\n";
-    out << "\r\n";
+      out << it->first << ": " << it->second << '\n';
+    out << '\n';
 
     // print parts
     for (SpartsType::const_iterator it = sparts.begin(); it != sparts.end(); ++it)
-      out << "--" << boundary << "\r\n"
+      out << "--" << boundary << '\n'
           << *it;
 
-    out << "--" << boundary << "--\r\n";
+    out << "--" << boundary << "--\n";
+
+    return out;
   }
 
 }

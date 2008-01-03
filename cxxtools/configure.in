@@ -26,10 +26,10 @@ AC_CHECK_LIB(nsl, setsockopt)
 AC_CHECK_LIB(socket, accept)
 AC_SEARCH_LIBS(dlopen, dl, , AC_MSG_ERROR([dlopen not found]))
 AC_SUBST(NETWORK_LIBS)
-AM_ICONV
 AC_CHECK_FUNC(sched_yield, AC_DEFINE([HAVE_SCHED_YIELD], [], [defined if sched_yield function is available]))
 
-if test "$am_cv_func_iconv" ==  no; then
+AM_ICONV
+if test "$am_cv_func_iconv" !=  yes; then
   AC_MSG_ERROR(iconv not found);
 fi
 

@@ -31,7 +31,6 @@ std::streambuf::int_type QuotedPrintable_streambuf::overflow(std::streambuf::int
     sinksource->sputc(ch);
     if (++col > 76)
     {
-      sinksource->sputc('\r');
       sinksource->sputc('\n');
       col = 0;
     }
@@ -42,7 +41,6 @@ std::streambuf::int_type QuotedPrintable_streambuf::overflow(std::streambuf::int
     if (++col > 70)
     {
       sinksource->sputc('=');
-      sinksource->sputc('\r');
       sinksource->sputc('\n');
       col = 0;
     }
@@ -57,7 +55,6 @@ std::streambuf::int_type QuotedPrintable_streambuf::overflow(std::streambuf::int
     if (col > 73)
     {
       sinksource->sputc('=');
-      sinksource->sputc('\r');
       sinksource->sputc('\n');
       col = 0;
     }
@@ -70,7 +67,6 @@ std::streambuf::int_type QuotedPrintable_streambuf::overflow(std::streambuf::int
     if (++col > 73)
     {
       sinksource->sputc('=');
-      sinksource->sputc('\r');
       sinksource->sputc('\n');
       col = 0;
     }

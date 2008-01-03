@@ -21,11 +21,14 @@
 #include <fstream>
 #include <stdexcept>
 #include <cxxtools/mime.h>
+#include <cxxtools/loginit.h>
 
 int main(int argc, char* argv[])
 {
   try
   {
+    log_init();
+
     cxxtools::Mime mime;
 
     for (int a = 1; a < argc; ++a)

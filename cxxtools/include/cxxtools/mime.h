@@ -125,4 +125,4 @@ namespace cxxtools
 
   std::ostream& operator<< (std::ostream& out, const Mimepart& mimePart);
   std::ostream& operator<< (std::ostream& out, const Mime& mime);
-};
+}
