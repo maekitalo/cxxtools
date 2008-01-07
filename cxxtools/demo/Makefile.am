@@ -36,7 +36,7 @@ logbench_LDFLAGS = @CXXTOOLS_LOG_LDFLAGS@ $(PTHREAD_LIBS)
 logsh_LDFLAGS = @CXXTOOLS_LOG_LDFLAGS@ $(PTHREAD_LIBS)
 
 log.properties:
-	$(top_builddir)/cxxtools-config --properties cxxtools >$@
+	/bin/sh $(top_builddir)/cxxtools-config --properties cxxtools >$@
 
 noinst_DATA = log.properties
 CLEANFILES = log.properties
