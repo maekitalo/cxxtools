@@ -20,6 +20,8 @@
 #ifndef CXXTOOLS_SMARTPTR_H
 #define CXXTOOLS_SMARTPTR_H
 
+#include <cxxtools/atomicity.h>
+
 namespace cxxtools
 {
   template <typename objectType>
@@ -79,7 +81,7 @@ namespace cxxtools
   template <typename objectType>
   class ExternalRefCounted
   {
-      unsigned* refs;
+      atomic_t* refs;
 
     protected:
       ExternalRefCounted()
@@ -87,7 +89,7 @@ namespace cxxtools
 
       bool unlink(objectType* object)
       {
-        if (object && --*refs <= 0)
+        if (object && atomicDecrement(*refs) <= 0)
         {
           delete refs;
           // no need to set refs to 0 since the pointer is either
@@ -103,11 +105,11 @@ namespace cxxtools
         if (object)
         {
           if (ptr.refs == 0)
-            refs = new unsigned(1);
+            refs = new atomic_t(1);
           else
           {
             refs = ptr.refs;
-            ++*refs;
+            atomicIncrement(*refs);
           }
         }
         else
@@ -115,7 +117,7 @@ namespace cxxtools
       }
 
     public:
-      unsigned getRefs() const
+      atomic_t getRefs() const
         { return refs ? *refs : 0; }
   };
 

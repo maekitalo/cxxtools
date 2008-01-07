@@ -21,12 +21,13 @@
 #define CXXTOOLS_REFCOUNTED_H
 
 #include <cxxtools/noncopyable.h>
+#include <cxxtools/atomicity.h>
 
 namespace cxxtools
 {
   class RefCounted : private NonCopyable
   {
-      unsigned refs;
+      atomic_t refs;
 
     public:
       RefCounted()
@@ -39,9 +40,9 @@ namespace cxxtools
 
       virtual ~RefCounted()  { }
 
-      virtual void addRef()  { ++refs; }
-      virtual void release() { if (--refs == 0) delete this; }
-      unsigned getRefs() const   { return refs; }
+      virtual atomic_t addRef()  { return atomicIncrement(refs); }
+      virtual void release() { if (atomicDecrement(refs) == 0) delete this; }
+      atomic_t getRefs() const   { return refs; }
   };
 }
 
