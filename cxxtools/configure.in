@@ -3,8 +3,8 @@ AM_INIT_AUTOMAKE
 
 AC_PREREQ([2.5.9])
 
-abi_current=4
-abi_revision=1
+abi_current=5
+abi_revision=0
 abi_age=0
 sonumber=${abi_current}:${abi_revision}:${abi_age}
 AC_SUBST(sonumber)
