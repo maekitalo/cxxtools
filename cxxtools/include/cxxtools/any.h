@@ -19,7 +19,7 @@
 #ifndef cxxtools_Any_h
 #define cxxtools_Any_h
 
-#include <cxxtools/typeinfo.h>
+#include <cxxtools/typetraits.h>
 #include <typeinfo>
 #include <cstring>
 
@@ -333,7 +333,7 @@ namespace cxxtools {
         // - but: the name() method necessary for string comparison does not
         //   exist on WinCE, so the second if(...) is not compiled for WinCE
 
-        typedef typename TypeInfo<T>::Value ValueT;
+        typedef typename TypeTraits<T>::Value ValueT;
 
         if( any.type() == typeid(ValueT) )
         {
