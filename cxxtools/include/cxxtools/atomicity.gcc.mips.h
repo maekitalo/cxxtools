@@ -26,92 +26,119 @@ namespace cxxtools {
 
 typedef std::sig_atomic_t atomic_t;
 
-
-inline atomic_t atomicIncrement(volatile atomic_t& val)
+inline  atomicIncrement(volatile atomic_t& val)
 {
-       atomic_t tmp, result = 0;
+    atomic_t tmp, result = 0;
 
-       asm volatile ("    .set    mips32\n"
-                             "1:  ll      %0, %2\n"
-                             "    addu    %1, %0, 1\n"
-                              "    sc      %1, %2\n"
-                             "    beqz    %1, 1b\n"
-                             "    .set    mips0\n"
-                             : "=&r" (result), "=&r" (tmp), "=m" (val)
-                             : "m" (*val));
-       return result + 1;
+    asm volatile ("    .set    mips32\n"
+                            "1:  ll      %0, %2\n"
+                            "    addu    %1, %0, 1\n"
+                            "    sc      %1, %2\n"
+                            "    beqz    %1, 1b\n"
+                            "    .set    mips0\n"
+                            : "=&r" (result), "=&r" (tmp), "=m" (val)
+                            : "m" (*val));
+    return result + 1;
 }
 
 
 inline atomic_t atomicDecrement(volatile atomic_t& val)
 {
-       atomic_t tmp, result = 0;
+    atomic_t tmp, result = 0;
 
-       asm volatile ("    .set    mips32\n"
-                             "1:  ll      %0, %2\n"
-                             "    subu    %1, %0, 1\n"
-                              "    sc      %1, %2\n"
-                             "    beqz    %1, 1b\n"
-                             "    .set    mips0\n"
-                             : "=&r" (result), "=&r" (tmp), "=m" (val)
-                             : "m" (*val));
-       return result - 1;
+    asm volatile ("    .set    mips32\n"
+                            "1:  ll      %0, %2\n"
+                            "    subu    %1, %0, 1\n"
+                            "    sc      %1, %2\n"
+                            "    beqz    %1, 1b\n"
+                            "    .set    mips0\n"
+                            : "=&r" (result), "=&r" (tmp), "=m" (val)
+                            : "m" (*val));
+    return result - 1;
 }
-
-#define atomicCompareExchangePointer(dest,exch,comp) \
-        atomicCompareExchange( (volatile atomic_t&)(dest), (atomic_t)(exch), atomic_t)(comp) )
 
 
 inline atomic_t atomicCompareExchange(volatile atomic_t& dest, atomic_t exch, atomic_t comp)
 {
-       atomic_t old, tmp;
+    atomic_t old, tmp;
 
-       asm volatile ("    .set    mips32\n"
-                             "1:  ll      %0, %2\n"
-                             "    bne     %0, %5, 2f\n"
-                             "    move    %1, %4\n"
-                              "    sc      %1, %2\n"
-                             "    beqz    %1, 1b\n"
-                             "2:  .set    mips0\n"
-                             : "=&r" (old), "=&r" (tmp), "=m" (dest)
-                             : "m" (*dest), "r" (exch), "r" (comp));
-       return(old);
+    asm volatile ("    .set    mips32\n"
+                            "1:  ll      %0, %2\n"
+                            "    bne     %0, %5, 2f\n"
+                            "    move    %1, %4\n"
+                            "    sc      %1, %2\n"
+                            "    beqz    %1, 1b\n"
+                            "2:  .set    mips0\n"
+                            : "=&r" (old), "=&r" (tmp), "=m" (dest)
+                            : "m" (*dest), "r" (exch), "r" (comp));
+    return(old);
+}
+
+
+inline void* atomicCompareExchange(void* volatile& dest, void* exch, void* comp)
+{
+    atomic_t* old;
+    atomic_t* tmp;
+
+    asm volatile ("    .set    mips32\n"
+                            "1:  ll      %0, %2\n"
+                            "    bne     %0, %5, 2f\n"
+                            "    move    %1, %4\n"
+                            "    sc      %1, %2\n"
+                            "    beqz    %1, 1b\n"
+                            "2:  .set    mips0\n"
+                            : "=&r" (old), "=&r" (tmp), "=m" (dest)
+                            : "m" (*dest), "r" (exch), "r" (comp));
+    return(old);
 }
 
 
 inline atomic_t atomicExchange(volatile atomic_t& dest, atomic_t exch)
 {
-       atomic_t result, tmp;
+    atomic_t result, tmp;
 
-       asm volatile ("    .set    mips32\n"
-                             "1:  ll      %0, %2\n"
-                             "    move    %1, %4\n"
-                              "    sc      %1, %2\n"
-                             "    beqz    %1, 1b\n"
-                             "    .set    mips0\n"
-                             : "=&r" (result), "=&r" (tmp), "=m" (dest)
-                             : "m" (*dest), "r" (exch));
-       return(result);
+    asm volatile ("    .set    mips32\n"
+                            "1:  ll      %0, %2\n"
+                            "    move    %1, %4\n"
+                            "    sc      %1, %2\n"
+                            "    beqz    %1, 1b\n"
+                            "    .set    mips0\n"
+                            : "=&r" (result), "=&r" (tmp), "=m" (dest)
+                            : "m" (*dest), "r" (exch));
+    return(result);
 }
 
 
-#define atomicExchangePointer(dest,exch) \
-        atomicExchange( (volatile atomic_t&)(dest), (atomic_t)(exch) )
+inline void* atomicExchange(void* volatile& val, void* new_val)
+{
+    atomic_t* result:
+    atomic_t* tmp;
+
+    asm volatile ("    .set    mips32\n"
+                    "1:  ll      %0, %2\n"
+                    "    move    %1, %4\n"
+                    "    sc      %1, %2\n"
+                    "    beqz    %1, 1b\n"
+                    "    .set    mips0\n"
+                    : "=&r" (result), "=&r" (tmp), "=m" (dest)
+                    : "m" (*dest), "r" (exch));
+    return(result);
+}
 
 
 inline atomic_t atomicExchangeAdd(volatile atomic_t& dest, atomic_t add)
 {
-        atomic_t result, tmp;
+    atomic_t result, tmp;
 
-       asm volatile ("    .set    mips32\n"
-                             "1:  ll      %0, %2\n"
-                             "    addu    %1, %0, %4\n"
-                              "    sc      %1, %2\n"
-                             "    beqz    %1, 1b\n"
-                             "    .set    mips0\n"
-                             : "=&r" (result), "=&r" (tmp), "=m" (dest)
-                             : "m" (*dest), "r" (add));
-        return result;
+    asm volatile ("    .set    mips32\n"
+                            "1:  ll      %0, %2\n"
+                            "    addu    %1, %0, %4\n"
+                            "    sc      %1, %2\n"
+                            "    beqz    %1, 1b\n"
+                            "    .set    mips0\n"
+                            : "=&r" (result), "=&r" (tmp), "=m" (dest)
+                            : "m" (*dest), "r" (add));
+    return result;
 }
 
 } // namespace cxxtools
