@@ -61,7 +61,7 @@ nobase_include_HEADERS = \
         cxxtools/tcpstream.h \
         cxxtools/tee.h \
         cxxtools/thread.h \
-        cxxtools/typeinfo.h \
+        cxxtools/typetraits.h \
         cxxtools/udp.h \
         cxxtools/udpstream.h \
         cxxtools/uuencode.h \
