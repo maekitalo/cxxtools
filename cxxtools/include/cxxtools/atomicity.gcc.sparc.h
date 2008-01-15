@@ -51,8 +51,8 @@ inline atomic_t atomicIncrement(volatile atomic_t& val)
 inline atomic_t atomicDecrement(volatile atomic_t& val)
 {
     register volatile atomic_t* dest asm("g1") = &val;
-    register gint32 tmp asm("o4");
-    register gint32 ret asm("o5");
+    register atomic_t tmp asm("o4");
+    register atomic_t ret asm("o5");
 
     asm volatile(
             "1:     ld      [%%g1], %%o4\n\t"
@@ -111,12 +111,12 @@ inline atomic_t atomicCompareExchange(volatile atomic_t& val, atomic_t exch, ato
 
 inline void* atomicCompareExchange(void* volatile& ptr, void* exch, void* comp)
 {
-    register volatile void** dest asm("g1") = &ptr;
+    register void* volatile* dest asm("g1") = &ptr;
     register void* _comp asm("o4") = comp;
     register void* _exch asm("o5") = exch;
 
     asm volatile(
-#ifdef SPARCV9
+#if defined(__sparcv9)
         /* casx [%%g1], %%o4, %%o5 */
         ".word 0xdbf0500c"
 #else
@@ -155,18 +155,18 @@ inline atomic_t atomicExchange(volatile atomic_t& val, atomic_t exch)
 
 inline void* atomicExchange(void* volatile& ptr, void* exch)
 {
-       register volatile void** dest asm("g1") = &ptr;
+       register void* volatile* dest asm("g1") = &ptr;
        register void* tmp asm("o4");
        register void* ret asm("o5");
 
        asm volatile(
-#ifdef SPARCV9
+#if defined(__sparcv9)
                "1:     ldx     [%%g1], %%o4\n\t"
 #else
                "1:     ld      [%%g1], %%o4\n\t"
 #endif
                "       mov     %3, %%o5\n\t"
-#ifdef SPARCV9
+#if defined(__sparcv9)
                /*      casx    [%%g1], %%o4, %%o5 */
                "       .word   0xdbf0500c\n\t"
 #else
