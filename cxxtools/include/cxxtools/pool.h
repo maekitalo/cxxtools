@@ -292,6 +292,9 @@ class Pool
       }
 
     }
+
+    CreatorType& getCreator()               { return creator; }
+    const CreatorType& getCreator() const   { return creator; }
 };
 
 }
