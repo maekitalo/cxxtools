@@ -16,35 +16,36 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#ifndef CXXTOOLS_ATOMICINT_GCC_X86_H
-#define CXXTOOLS_ATOMICINT_GCC_X86_H
+#ifndef CXXTOOLS_ATOMICINT_GCC_X86_64_H
+#define CXXTOOLS_ATOMICINT_GCC_X86_64_H
 
-#include <csignal>
-
+#include <unistd.h>
 
 namespace cxxtools {
 
-typedef std::sig_atomic_t atomic_t;
+typedef ssize_t atomic_t;
 
 
 inline atomic_t atomicIncrement(volatile atomic_t& val)
 {
+        static const atomic_t d = 1;
         atomic_t tmp;
 
         asm volatile ("lock; xaddq %0, %1"
                       : "=r" (tmp), "=m" (val)
-                      : "0" (1), "m" (val));
+                      : "0" (d), "m" (val));
 
         return tmp+1;
 }
 
 inline atomic_t atomicDecrement(volatile atomic_t& val)
 {
+        static const atomic_t d = -1;
         volatile register atomic_t tmp;
 
         asm volatile ("lock; xaddq %0, %1"
                       : "=r" (tmp), "=m" (val)
-                      : "0" (-1), "m" (val));
+                      : "0" (d), "m" (val));
 
         return tmp-1;
 }
@@ -107,7 +108,6 @@ inline void* atomicCompareExchange(void* volatile& dest, void* exch, void* comp)
                       : "r" (exch), "m" (dest), "a" (comp));
         return old;
 }
-
 
 } // namespace cxxtools
 
