@@ -26,6 +26,9 @@
 /* defined if assembler type is gcc x86 */
 #undef CXXTOOLS_ASMTYPE_GCCX86
 
+/* defined if assembler type is gcc x86-64 */
+#undef CXXTOOLS_ASMTYPE_GCCX86_64
+
 /* defined if assembler type is pthread */
 #undef CXXTOOLS_ASMTYPE_PTHREAD
 

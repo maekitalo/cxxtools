@@ -139,47 +139,62 @@ AC_COMPILE_IFELSE(
   [#include "include/cxxtools/atomicity.gcc.arm.h"
    int main() { cxxtools::atomic_t a = 0; cxxtools::atomicIncrement(a); }
   ],
-  AC_DEFINE([CXXTOOLS_ASMTYPE_GCCARM], [], [defined if assembler type is gcc arm]),
+  AC_DEFINE([CXXTOOLS_ASMTYPE_GCCARM], [], [defined if assembler type is gcc arm])
+  AC_MSG_RESULT(gcc arm),
 
   AC_COMPILE_IFELSE(
     [#include "include/cxxtools/atomicity.gcc.mips.h"
      int main() { cxxtools::atomic_t a = 0; cxxtools::atomicIncrement(a); }
     ],
-    AC_DEFINE([CXXTOOLS_ASMTYPE_GCCMIPS], [], [defined if assembler type is gcc mips]),
+    AC_DEFINE([CXXTOOLS_ASMTYPE_GCCMIPS], [], [defined if assembler type is gcc mips])
+    AC_MSG_RESULT(gcc mips),
 
     AC_COMPILE_IFELSE(
       [#include "include/cxxtools/atomicity.gcc.ppc.h"
        int main() { cxxtools::atomic_t a = 0; cxxtools::atomicIncrement(a); }
       ],
-      AC_DEFINE([CXXTOOLS_ASMTYPE_GCCPCC], [], [defined if assembler type is gcc pcc]),
+      AC_DEFINE([CXXTOOLS_ASMTYPE_GCCPCC], [], [defined if assembler type is gcc pcc])
+      AC_MSG_RESULT(gcc pcc),
 
       AC_COMPILE_IFELSE(
-        [#include "include/cxxtools/atomicity.gcc.x86.h"
+        [#include "include/cxxtools/atomicity.gcc.x86_64.h"
          int main() { cxxtools::atomic_t a = 0; cxxtools::atomicIncrement(a); }
         ],
-        AC_DEFINE([CXXTOOLS_ASMTYPE_GCCX86], [], [defined if assembler type is gcc x86]),
+        AC_DEFINE([CXXTOOLS_ASMTYPE_GCCX86_64], [], [defined if assembler type is gcc x86-64])
+        AC_MSG_RESULT(gcc x64-64),
 
         AC_COMPILE_IFELSE(
-          [#include "include/cxxtools/atomicity.gcc.sparc.h"
+          [#include "include/cxxtools/atomicity.gcc.x86.h"
            int main() { cxxtools::atomic_t a = 0; cxxtools::atomicIncrement(a); }
           ],
-          AC_DEFINE([CXXTOOLS_ASMTYPE_GCCSPARC], [], [defined if assembler type is gcc sparc]),
+          AC_DEFINE([CXXTOOLS_ASMTYPE_GCCX86], [], [defined if assembler type is gcc x86])
+          AC_MSG_RESULT(gcc x64),
 
           AC_COMPILE_IFELSE(
-            [#include "include/cxxtools/atomicity.windows.h"
+            [#include "include/cxxtools/atomicity.gcc.sparc.h"
              int main() { cxxtools::atomic_t a = 0; cxxtools::atomicIncrement(a); }
             ],
-            AC_DEFINE([CXXTOOLS_ASMTYPE_WINDOWS], [], [defined if assembler type is windows]),
+            AC_DEFINE([CXXTOOLS_ASMTYPE_GCCSPARC], [], [defined if assembler type is gcc sparc])
+            AC_MSG_RESULT(gcc sparc),
 
             AC_COMPILE_IFELSE(
-              [#include "include/cxxtools/atomicity.pthread.h"
-               #include <pthread.h>
+              [#include "include/cxxtools/atomicity.windows.h"
                int main() { cxxtools::atomic_t a = 0; cxxtools::atomicIncrement(a); }
               ],
-              AC_DEFINE([CXXTOOLS_ASMTYPE_PTHREAD], [], [defined if assembler type is pthread])
-              atomicity_pthread=yes,
+              AC_DEFINE([CXXTOOLS_ASMTYPE_WINDOWS], [], [defined if assembler type is windows])
+              AC_MSG_RESULT(windows),
 
-              AC_MSG_NOTICE(unknown asm type - will use generic atomic operations)
+              AC_COMPILE_IFELSE(
+                [#include "include/cxxtools/atomicity.pthread.h"
+                 #include <pthread.h>
+                 int main() { cxxtools::atomic_t a = 0; cxxtools::atomicIncrement(a); }
+                ],
+                AC_DEFINE([CXXTOOLS_ASMTYPE_PTHREAD], [], [defined if assembler type is pthread])
+                AC_MSG_RESULT(pthread)
+                atomicity_pthread=yes
+
+                AC_MSG_NOTICE(unknown asm type - will use generic atomic operations)
+              )
             )
           )
         )

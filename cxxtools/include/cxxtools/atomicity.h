@@ -41,6 +41,10 @@
 
     #include <cxxtools/atomicity.gcc.sparc.h>
 
+#elif defined(CXXTOOLS_ASMTYPE_GCCX86_64)
+
+    #include <cxxtools/atomicity.gcc.x86_64.h>
+
 #elif defined(CXXTOOLS_ASMTYPE_GCCX86)
 
     #include <cxxtools/atomicity.gcc.x86.h>
