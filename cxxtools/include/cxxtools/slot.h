@@ -1,6 +1,7 @@
-#ifndef cxxtools_slot_h
-#define cxxtools_slot_h
+#ifndef cxxtools_Slot_h
+#define cxxtools_Slot_h
 
+#include <cxxtools/api.h>
 #include <cxxtools/void.h>
 
 namespace cxxtools {
@@ -20,22 +21,9 @@ namespace cxxtools {
             virtual void closed(const Connection& c) = 0;
     };
 
+#include <cxxtools/slot.tpp>
 
-    template < typename R,
-               typename A1 = cxxtools::Void,
-               typename A2 = cxxtools::Void,
-               typename A3 = cxxtools::Void,
-               typename A4 = cxxtools::Void,
-               typename A5 = cxxtools::Void,
-               typename A6 = cxxtools::Void,
-               typename A7 = cxxtools::Void,
-               typename A8 = cxxtools::Void >
-    class BasicSlot : public Slot {
-        public:
-            virtual Slot* clone() const = 0;
-    };
-
-} //cxxtools
+}
 
 #endif
 

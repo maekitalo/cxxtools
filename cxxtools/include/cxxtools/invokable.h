@@ -17,101 +17,16 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 
-#ifndef cxxtools_invokable_h
-#define cxxtools_invokable_h
+#ifndef cxxtools_Invokable_h
+#define cxxtools_Invokable_h
 
+#include <cxxtools/api.h>
 #include <cxxtools/void.h>
-
 
 namespace cxxtools {
 
-template < typename A1 = Void,
-           typename A2 = Void,
-           typename A3 = Void,
-           typename A4 = Void,
-           typename A5 = Void,
-           typename A6 = Void,
-           typename A7 = Void,
-           typename A8 = Void >
-class Invokable {
-    public:
-        virtual ~Invokable()
-        {}
+#include <cxxtools/invokable.tpp>
 
-        virtual void invoke(A1, A2, A3, A4, A5, A6, A7, A8) const = 0;
-};
-
-
-template < typename A1,
-           typename A2,
-           typename A3,
-           typename A4,
-           typename A5 >
-class Invokable<A1, A2, A3, A4, A5, Void, Void, Void> {
-    public:
-        virtual ~Invokable()
-        {}
-
-        virtual void invoke(A1, A2, A3, A4, A5) const = 0;
-};
-
-
-template < typename A1,
-           typename A2,
-           typename A3,
-           typename A4 >
-class Invokable<A1, A2, A3, A4, Void, Void, Void, Void> {
-    public:
-        virtual ~Invokable()
-        {}
-
-        virtual void invoke(A1, A2, A3, A4) const = 0;
-};
-
-
-template < typename A1,
-           typename A2,
-           typename A3 >
-class Invokable<A1, A2, A3, Void, Void, Void, Void, Void> {
-    public:
-        virtual ~Invokable()
-        {}
-
-        virtual void invoke(A1, A2, A3) const = 0;
-};
-
-
-template < typename A1,
-           typename A2 >
-class Invokable<A1, A2, Void, Void, Void, Void, Void, Void> {
-    public:
-        virtual ~Invokable()
-        {}
-
-        virtual void invoke(A1, A2) const = 0;
-};
-
-
-template <typename A1>
-class Invokable<A1, Void, Void, Void, Void, Void, Void, Void> {
-    public:
-        virtual ~Invokable()
-        {}
-
-        virtual void invoke(A1) const = 0;
-};
-
-
-template <>
-class Invokable<Void, Void, Void, Void, Void, Void, Void, Void> {
-    public:
-        virtual ~Invokable()
-        {}
-
-        virtual void invoke() const = 0;
-};
-
-} // namespace cxxtools
-
+} // namespace Pt
 
 #endif
