@@ -46,14 +46,12 @@
 #define CXXTOOLS_SOURCEINFO_TOSTRING(x) CXXTOOLS_SOURCEINFO_STRINGIFY(x)
 
 /** @brief Builds a message including source information
-    @ingroup Pt
 */
 #define CXXTOOLS_SOURCEINFO_MSG(msg) __FILE__ ":" CXXTOOLS_SOURCEINFO_TOSTRING(__LINE__) ": " #msg
 
-/** @brief Construct a Pt::SourceInfo object
-    @ingroup Pt
+/** @brief Construct a SourceInfo object
 */
-#define CXXTOOLS_SOURCEINFO Pt::SourceInfo(__FILE__, __LINE__, CXXTOOLS_PRETTY_FUNCTION, \
+#define CXXTOOLS_SOURCEINFO cxxtools::SourceInfo(__FILE__, __LINE__, CXXTOOLS_PRETTY_FUNCTION, \
                                      __FILE__ ":" CXXTOOLS_SOURCEINFO_TOSTRING(__LINE__) )
 
 namespace cxxtools {
