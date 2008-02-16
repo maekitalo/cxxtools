@@ -1,0 +1,15 @@
+source  ~/.vim/vimrc.html
+map!    %%a  <%args>o</%args>O
+map!    %%d  <%doc>o</%doc>O
+map!    %%p  <%pre>o</%pre>O#include <
+map!    %%o  <%once>o</%once>O
+map!    %%c  <%cpp>o</%cpp>O
+map!    %%C  <%cleanup>o</%cleanup>O
+map!    %%i  <%init>o</%init>O
+map!    %%I  <%include><
+map!    %%s  <%shared>o</%shared>O
+map!    %%D  <%def >o</%def>k$i
+map!    %$$  <$$>hi
+map!    %%S   <&&>hi
+map <F6> :!make
+map <F7> :!make run
