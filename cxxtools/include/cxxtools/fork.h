@@ -39,7 +39,7 @@ namespace cxxtools
    *  status, but this has to be done explicitely, which helps robustness.
    *
    *  Example:
-   *  /code
+   *  \code
    *    {
    *      cxxtools::Fork process;
    *      if (process.child())
@@ -50,7 +50,7 @@ namespace cxxtools
    *                  // process
    *      }
    *    }
-   *  /endcode
+   *  \endcode
    */
   class Fork
   {
