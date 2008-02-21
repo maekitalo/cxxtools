@@ -1,6 +1,7 @@
 noinst_PROGRAMS = arg arg-set cgi dir dlloader dynbuffer getini hd \
 	httprequest iconv log logbench logsh md5sum mime multifstream netcat netio \
-	netmsg pipestream pool signals thread uuencode
+	netmsg pipestream pool signals thread uuencode cxxlog
+bin_PROGRAMS = cxxlog
 
 arg_SOURCES = arg.cpp
 arg_set_SOURCES = arg-set.cpp
@@ -26,6 +27,7 @@ pool_SOURCES = pool.cpp
 signals_SOURCES = signals.cpp
 thread_SOURCES = thread.cpp
 uuencode_SOURCES = uuencode.cpp
+cxxlog_SOURCES = cxxlog.cpp
 
 INCLUDES = -I$(top_builddir)/include
 LDADD = $(top_builddir)/src/libcxxtools.la
