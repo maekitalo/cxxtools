@@ -35,7 +35,7 @@
 
 #elif defined(CXXTOOLS_ASMTYPE_GCCPCC)
 
-    #include <cxxtools/atomicity.gcc.pcc.h>
+    #include <cxxtools/atomicity.gcc.ppc.h>
 
 #elif defined(CXXTOOLS_ASMTYPE_GCCSPARC)
 
