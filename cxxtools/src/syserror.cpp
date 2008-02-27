@@ -33,7 +33,7 @@ namespace cxxtools
       if (err != 0)
       {
         std::ostringstream msg;
-        msg << fn << ": " << strerror(err);
+        msg << fn << ": errno " << err << ": " << strerror(err);
         return msg.str();
       }
       else
