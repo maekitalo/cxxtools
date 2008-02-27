@@ -141,6 +141,19 @@ namespace net
         memmove(&peeraddr, it->ai_addr, it->ai_addrlen);
         return;
       }
+
+      if (errno == EINPROGRESS && getTimeout() > 0)
+      {
+        poll(POLLOUT);
+
+        if (::connect(getFd(), it->ai_addr, it->ai_addrlen) == 0)
+        {
+          // save our information
+          memmove(&peeraddr, it->ai_addr, it->ai_addrlen);
+          return;
+        }
+      }
+
     }
 
     throw Exception("connect");
