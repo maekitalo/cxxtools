@@ -15,17 +15,21 @@ nobase_include_HEADERS = \
         cxxtools/byteorder.h \
         cxxtools/base64stream.h \
         cxxtools/callable.h \
+        cxxtools/callable.tpp \
         cxxtools/cgi.h \
         cxxtools/connectable.h \
         cxxtools/connection.h \
         cxxtools/constmethod.h \
+        cxxtools/constmethod.tpp \
         cxxtools/delegate.h \
+        cxxtools/delegate.tpp \
         cxxtools/dir.h \
         cxxtools/dlloader.h \
         cxxtools/dynbuffer.h \
         cxxtools/fdstream.h \
         cxxtools/fork.h \
         cxxtools/function.h \
+        cxxtools/function.tpp \
         cxxtools/hdstream.h \
         cxxtools/hirestime.h \
         cxxtools/httpreply.h \
@@ -35,11 +39,13 @@ nobase_include_HEADERS = \
         cxxtools/inifile.h \
         cxxtools/iniparser.h \
         cxxtools/invokable.h \
+        cxxtools/invokable.tpp \
         cxxtools/log.h \
         cxxtools/loginit.h \
         cxxtools/md5.h \
         cxxtools/md5stream.h \
         cxxtools/method.h \
+        cxxtools/method.tpp \
         cxxtools/mime.h \
         cxxtools/multifstream.h \
         cxxtools/net.h \
@@ -53,7 +59,9 @@ nobase_include_HEADERS = \
         cxxtools/quotedprintablestream.h \
         cxxtools/refcounted.h \
         cxxtools/signals.h \
+        cxxtools/signals.tpp \
         cxxtools/slot.h \
+        cxxtools/slot.tpp \
         cxxtools/smartptr.h \
         cxxtools/sourceinfo.h \
         cxxtools/sudo.h \
