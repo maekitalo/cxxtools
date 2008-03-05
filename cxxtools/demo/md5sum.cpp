@@ -21,7 +21,6 @@
 
 #include <fstream>
 #include <iostream>
-#include <algorithm>
 #include <cxxtools/md5stream.h>
 
 int main(int argc, char* argv[])
