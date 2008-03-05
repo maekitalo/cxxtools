@@ -258,7 +258,7 @@ namespace net
       if (s <= 0)
         break;
 
-      if (getTimeout() == 0)
+      if (getTimeout() <= 0)
       {
         log_debug("write timeout (" << getTimeout() << "ms)");
         throw Timeout();
