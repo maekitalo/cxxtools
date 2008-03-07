@@ -73,7 +73,7 @@ namespace cxxtools
           (*oit++) = it->first;
       }
 
-      unsigned getReturnCode()  { return returncode; }
+      unsigned getReturnCode() const  { return returncode; }
   };
 }
 
