@@ -43,10 +43,6 @@
 #include <cctype>
 #include <pwd.h>
 #include <grp.h>
-#include <config.h>
-#ifdef HAVE_SCHED_YIELD
-#include <sched.h>
-#endif
 
 log_define("cxxtools.log")
 
@@ -142,6 +138,7 @@ namespace cxxtools
       {
         outfile.clear();
         outfile.open(fname.c_str(), std::ios::out | std::ios::app);
+        counter.resetCount(outfile.tellp());
       }
 
       if (maxfilesize > 0)
@@ -281,9 +278,6 @@ namespace cxxtools
 
       setUserAndGroup(pw, gr);
 
-      counter.resetCount(outfile.tellp());
-
-
       log_debug("logger process initialized");
       char ich;
       std::ostream& out = getAppender();
@@ -292,7 +286,7 @@ namespace cxxtools
         char ch = std::ios::traits_type::to_char_type(ich);
         out.rdbuf()->sputc(ch);
         if (ch == '\n')
-          getAppender();
+          getAppender().flush();
       }
       exit(0);
     }
@@ -513,11 +507,6 @@ namespace cxxtools
       Logger* logger;
       const char* level;
 
-      static Mutex queueMutex;
-      typedef std::vector<std::string> MessageQueueType;
-      static MessageQueueType messageQueue;
-      void flushQueue();
-
     public:
       LogMessageImpl(Logger* logger_, const char* level_)
         : logger(logger_),
@@ -525,66 +514,17 @@ namespace cxxtools
           { }
 
       std::ostream& out()     { return msg; }
-      void flush();
-  };
-
-  Mutex LogMessage::LogMessageImpl::queueMutex;
-  LogMessage::LogMessageImpl::MessageQueueType LogMessage::LogMessageImpl::messageQueue;
-
-  void LogMessage::LogMessageImpl::flush()
-  {
-    if (Logger::mutex.tryLock())
-    {
-      UnlockMonitor<> unlocker(Logger::mutex);
-
-      std::ostream& out(logger->logentry(level));
-      out << msg.str() << '\n';
-
-      MutexLock lock(queueMutex);
-      flushQueue();
-      unlocker.unlock();
-    }
-    else
-    {
-      std::ostringstream logmessage;
-      Logger::logentry(logmessage, level, logger->getCategory());
-      logmessage << msg.str();
-
-#ifdef HAVE_SCHED_YIELD
-      sched_yield();
-#endif
-
-      MutexLock lock(queueMutex);
-      messageQueue.push_back(logmessage.str());
-
-      if (Logger::mutex.tryLock())
+      void flush()
       {
-        UnlockMonitor<> unlocker(Logger::mutex);
-        flushQueue();
-      }
-    }
-  }
+        MutexLock lock(Logger::mutex);
 
-  void LogMessage::LogMessageImpl::flushQueue()
-  {
-    std::ostream& out = LoggerImpl::getAppender();
-    if (!messageQueue.empty())
-    {
-      /*
-      static unsigned count = 0;
-      count += messageQueue.size();
-      if (messageQueue.size() == 1)
-        std::cerr << '.';
-      else
-        std::cerr << '[' << messageQueue.size() << '/' << count << ']';
-      */
-      for (MessageQueueType::const_iterator it = messageQueue.begin();
-           it != messageQueue.end(); ++it)
-        out << *it << '\n';
-      messageQueue.clear();
-    }
-    logger->logEnd(out);
-  }
+        std::ostream& out(logger->logentry(level));
+        out << msg.str() << '\n';
+
+        logger->logEnd(out);
+      }
+
+  };
 
   LogMessage::LogMessage(Logger* logger, const char* level)
     : impl(new LogMessageImpl(logger, level))
