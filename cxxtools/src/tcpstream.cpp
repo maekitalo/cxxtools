@@ -226,12 +226,12 @@ namespace net
   }
 
   Stream::size_type Stream::write(const char* buffer,
-                                  Stream::size_type bufsize) const
+                                  Stream::size_type bufsize, bool flush) const
   {
     log_debug("Stream::write " << bufsize << " bytes");
 
     ssize_t n = 0;
-    size_type s = bufsize;
+    size_type s = bufsize;  // number of bytes left
 
     while (true)
     {
@@ -255,6 +255,12 @@ namespace net
       buffer += n;
       s -= n;
 
+      if (s > 0 && n > 0 && !flush)
+      {
+        log_debug("partial write; " << n << " bytes written from " << bufsize << "; return " << (bufsize - s));
+        return bufsize - s;
+      }
+
       if (s <= 0)
         break;
 
@@ -271,6 +277,7 @@ namespace net
       }
     }
 
+    log_debug("full write - return " << bufsize);
     return bufsize;
   }
 
@@ -286,14 +293,25 @@ namespace net
   {
     log_debug("streambuf::overflow");
 
-    if (pptr() != pbase())
+    if (pptr())
     {
-      int n = m_stream.write(pbase(), pptr() - pbase());
+      Stream::size_type N = pptr() - m_buffer; // bytes to write
+      Stream::size_type n = m_stream.write(m_buffer, N, false);
       if (n <= 0)
         return traits_type::eof();
-    }
 
-    setp(m_buffer, m_buffer + m_bufsize);
+      if (n < N)
+      {
+        // there are bytes left - move them to the start of our buffer
+        std::memmove(m_buffer, m_buffer + n, N - n);
+        setp(m_buffer + N - n, m_buffer + m_bufsize);
+      }
+      else
+        setp(m_buffer, m_buffer + m_bufsize);
+    }
+    else
+      setp(m_buffer, m_buffer + m_bufsize);
+
     if (c != traits_type::eof())
     {
       *pptr() = traits_type::to_char_type(c);

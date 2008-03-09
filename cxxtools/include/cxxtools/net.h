@@ -30,6 +30,7 @@
 #include <sys/types.h>
 #include <netdb.h>
 #include <cxxtools/syserror.h>
+#include <cxxtools/noncopyable.h>
 
 namespace cxxtools
 {
@@ -38,31 +39,30 @@ namespace net
 {
   //////////////////////////////////////////////////////////////////////
   /**
-   * net::Exception wird bei Fehlern ausgelöst.
+   * net::Exception is thrown on error
    */
   class Exception : public SysError
   {
     public:
-      /// Konstruktor erzeugt eine Instanz mit einer Fehlernummer
-      /// und einer Fehlermeldung.
-      Exception(int _errno, const char* msg)
-        : SysError(_errno, msg)
+      /// The class is initialized with a message containing the error number,
+      /// the error message from strerror(3) and the passed function name.
+      Exception(int _errno, const char* fn)
+        : SysError(_errno, fn)
         { }
-      /// Konstruktor erzeugt eine Instanz mit einer Fehlermeldung.
-      /// Die Nummer wird aus errno übernommen.
-      explicit Exception(const char* msg)
-        : SysError(msg)
+      /// Initializes the excpetion with a message containing the error number
+      /// from errno, the error message from strerror(3) and the passed function name.
+      explicit Exception(const char* fn)
+        : SysError(fn)
         { }
   };
 
   //////////////////////////////////////////////////////////////////////
   /**
-   * net::Timeout wird bei Zeitüberschreitung ausgelöst.
+   * net::Timeout is thrown on timeout.
    */
   class Timeout : public Exception
   {
     public:
-      /// Konstruktor erzeugt eine Instanz mit einer Fehlermeldung.
       Timeout()
         : Exception(0, "Timeout")
       { }
@@ -70,50 +70,49 @@ namespace net
 
   //////////////////////////////////////////////////////////////////////
   /**
-   * Basisklasse für Sockets
+   * Wrapper for BSD sockets.
    */
-  class Socket
+  class Socket : private NonCopyable
   {
 
     public:
-      /// Konstruktor erzeugt eine Instanz und erzeugt einen Socket
-      /// auf Betriebssystemebene. Bei Fehlern wird eine Exception
-      /// ausgelöst.
+      /// A socket is created. On error a net::Exception is thrown.
       Socket(int domain, int type, int protocol) throw (Exception);
 
-      /// Konstruktor initialisiert die Klasse mit einem bestehenden
-      /// Socket.
+      /// A socket is initialized with a existing socket descriptor.
+      /// Ownership is transfered to this class.
       explicit Socket(int fd = -1)
         : m_sockFd(fd),
           m_timeout(-1)
         { }
 
-      /// Im Destruktor wird der Socket geschlossen, wenn er offen ist.
-      /// Bei einem Fehler wird eine Fehlermeldung auf stderr geschrieben.
+      /// The socket is released.
+      /// Errors are printed on stderr.
       virtual ~Socket();
 
-      /// Liefert true zurück, wenn der Socket geöffnet ist
+      /// Returns true, if a socket is held.
       bool good() const     { return m_sockFd >= 0; }
       /// Liefert true zurück, wenn der Socket nicht geöffnet ist
+      /// Returns true, if no socket is held.
       bool bad() const      { return m_sockFd <  0; }
-      /// Liefert true zurück, wenn der Socket geöffnet ist
+      /// Returns true, if a socket is held.
       operator bool() const { return m_sockFd >= 0; }
 
-      /// Erzeugt einen Socket auf Betriebssystemebene. Ist bereits einer
-      /// geöffnet, wird dieser vorher geschlossen. Bei Fehlern wird eine
-      /// Exception ausgelöst.
+      /// Creates a new socket. If a socket is already associated with this
+      /// class, it is closed.
       void create(int domain, int type, int protocol) throw (Exception);
-      /// Schießt den Socket, wenn er geöffnet ist.
+      /// Closes the socket, if a socket is held.
       void close();
 
-      /// Liefert den Sockethandle zurück
+      /// Returns the socket handle.
       int getFd() const     { return m_sockFd; }
 
-      /// wrapper um ::getsockname
+      /// wrapper around getsockname(2)
       struct sockaddr_storage getSockAddr() const throw (Exception);
 
-      /// timeout in milliseconds
+      /// Set timeout in milliseconds.
       void setTimeout(int t);
+      /// Returns timeout in milliseconds.
       int getTimeout() const  { return m_timeout; }
 
       /// execute poll(2) - throws Timeout-exception, when no data available
@@ -126,12 +125,9 @@ namespace net
     private:
       int m_sockFd;
       int m_timeout;
-
-      Socket(const Socket&);               // no implementation
-      Socket& operator= (const Socket&);   // no implementation
   };
 
-  class Addrinfo
+  class Addrinfo : private cxxtools::NonCopyable
   {
       struct addrinfo* ai;
       void init(const std::string& ipaddr, unsigned short port,

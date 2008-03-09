@@ -59,10 +59,9 @@ namespace net
 
   //////////////////////////////////////////////////////////////////////
   /**
-   * Stream repräsentiert ein Client-Socket.
+   * Stream client socket.
    *
-   * Stream ist ein ungepufferter Client-Socket zum lesen und schreiben
-   * von Daten über den Socket.
+   * Stream is a unbuffered client stream socket.
    */
   class Stream : public Socket
   {
@@ -71,67 +70,66 @@ namespace net
     public:
       typedef size_t size_type;
 
-      /// initialisert einen leeren Socket
+      /// initialize an empty stream socket
       Stream();
-      /// nimmt eine Verbindung von einem Serversocket an.
+      /// initialize and accepts a connection from a server.
       explicit Stream(const Server& server);
-      /// Initialisert einen Socket und nimmt Verbindung mit der angegebenen
-      /// Adresse auf. Kommt keine Verbindung zustande, wird eine Exception
-      /// ausgelöst
+
+      /// Creates a connected socket to the specified ip adress.
       Stream(const std::string& ipaddr, unsigned short int port);
-      /// Initialisert einen Socket und nimmt Verbindung mit der angegebenen
-      /// Adresse auf. Kommt keine Verbindung zustande, wird eine Exception
-      /// ausgelöst
+
+      /// Creates a socket from an existing file descriptor. The class takes
+      /// the ownership of this descriptor. That means, that the descriptor is
+      /// closed, when the stream is destroyed.
       explicit Stream(int fd)
         : Socket(fd)
         { }
 
-      /// akzeptiert eine Verbindung von einem Server. Kommt keine
-      /// Verbindung zustande, wird eine Exception ausgelöst.
+      /// On error a exception of type cxxtools::net::Exception is thrown.
       void accept(const Server& server);
-      /// nimmt eine Verbindung mit der angegebenen Adresse auf. Kommt keine
-      /// Verbindung zustande, wird eine Exception ausgelöst.
+      /// Connects to the passed ip address.
       void connect(const std::string& ipaddr, unsigned short int port);
 
-      /// Liest vom Socket maximal 'bufsize' Zeichen in 'buffer'.
-      /// Liefert die Anzahl der gelesenen Zeichen zurück.
-      /// Bei Fehler wird eine net::Exception geworfen.
+      /// reads up to bufsize bytes from the socket.
       size_type read(char* buffer, size_type bufsize) const;
-      /// Schreibt bis zu 'bufsize' Zeichen aus 'buffer' auf den Socket.
-      /// Liefert die Anzahl der geschriebenen Zeichen zurück.
-      size_type write(const char* buffer, size_type bufsize) const;
+      /// Writes up to bufsize bytes to the socket.
+      /// If flush is not set, the write may return after less than bufsize
+      /// bytes are sent.
+      size_type write(const char* buffer, size_type bufsize, bool flush = true) const;
 
-      /// gibt die aktuelle Peer-Adresse zurück
+      /// returns the current peer address.
       const struct sockaddr_storage& getPeeraddr() const
         { return peeraddr; }
   };
 
   //////////////////////////////////////////////////////////////////////
   /**
-   * streambuf ist ein std::streambuf für Socket-Verbindungen.
+   * cxxtools::net::streambuf is a std::streambuf with a underlying socket.
    *
-   * Die Klasse wird von net::iostream verwendet, um die Pufferung
-   * zu realisieren.
    */
   class streambuf : public std::streambuf
   {
     public:
-      /// Konstuktor reserviert Speicher für den E/A-Puffer
+      /// initializes  the streambuf and allocates a buffer.
       explicit streambuf(Stream& stream, unsigned bufsize = 256,
         int timeout = -1);
 
-      /// Destruktor gibt Speicher frei
+      /// all resources are freed
       ~streambuf()
       { delete[] m_buffer; }
 
+      /// sets the timeout to t in milliseconds.
+      /// If the time is < 0, the socket uses blocking operations.
       void setTimeout(int t)   { m_stream.setTimeout(t); }
+
+      /// return the current timeout value.
       int getTimeout() const   { return m_stream.getTimeout(); }
 
-      /// überladen aus std::streambuf
+      /// overridden from std::streambuf
       int_type overflow(int_type c);
-      /// überladen aus std::streambuf
+      /// overridden from std::streambuf
       int_type underflow();
-      /// überladen aus std::streambuf
+      /// overridden from std::streambuf
       int sync();
 
     private:
@@ -142,12 +140,12 @@ namespace net
 
   //////////////////////////////////////////////////////////////////////
   /**
-   * Stream-Socket erweitert um Pufferung über std::iostream-Bibliothek
+   * std::iostream around a stream socket.
    */
   class iostream : public std::iostream, public Stream
   {
     public:
-      /// Erzeugt einen nicht verbundenen Stream-Socket.
+      /// Initializes a iostream with the given buffer sizce
       explicit iostream(unsigned bufsize = 256, int timeout = -1)
         : std::iostream(0),
           m_buffer(*this, bufsize, timeout)
@@ -155,7 +153,7 @@ namespace net
         init(&m_buffer);
       }
 
-      /// Nimmt eine eingehende Verbindung vom angegebenen Server an.
+      /// Accepts a connection from a server socket.
       explicit iostream(const Server& server, unsigned bufsize = 256, int timeout = -1)
         : std::iostream(0),
           Stream(server),
@@ -164,7 +162,7 @@ namespace net
         rdbuf(&m_buffer);
       }
 
-      /// Baut eine Verbindung zum angegebenen Server auf.
+      /// Connects to a server.
       iostream(const char* ipaddr, unsigned short int port, unsigned bufsize = 256)
         : std::iostream(0),
           Stream(ipaddr, port),
@@ -173,8 +171,8 @@ namespace net
         rdbuf(&m_buffer);
       }
 
-      /// Baut eine Verbindung zum angegebenen Server auf.
-      iostream(std::string ipaddr, unsigned short int port, unsigned bufsize = 256)
+      /// Connects to a server.
+      iostream(const std::string& ipaddr, unsigned short int port, unsigned bufsize = 256)
         : std::iostream(0),
           Stream(ipaddr, port),
           m_buffer(*this, bufsize)
@@ -182,7 +180,17 @@ namespace net
         rdbuf(&m_buffer);
       }
 
+      /// override to resolve ambiguity between istream::read and Stream::read
+      std::istream& read(char* s, std::streamsize n)
+        { return read(s, n); }
+
+      /// override to resolve ambiguity between ostream::write and Stream::write
+      std::ostream& write(const char* s, std::streamsize n)
+        { return std::iostream::write(s, n); }
+
+      /// Set timeout to the given value in milliseconds.
       void setTimeout(int timeout)  { m_buffer.setTimeout(timeout); }
+      /// Returns the current value for timeout in milliseconds.
       int getTimeout() const        { return m_buffer.getTimeout(); }
 
     private:

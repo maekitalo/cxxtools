@@ -1,3 +1,16 @@
+2008-03-09 tommi@tntnet.org
+  - remove the queing of log messages since it was not reliable
+  - translate api-documentation of network classes to english
+  - add a flush parameter to cxxtools::net::Stream::write to allow partial
+    writes and use this in cxxtools::net::iostream::overflow, so that overflow
+    always tries to write the full buffer.
+
+2008-02-21 tommi@tntnet.org
+  - new command line utility cxxlog to use the logger in shell scripts
+
+2008-12-27 tommi@tntnet.org
+  - add classes for creation of mime mails
+
 2007-11-13 tommi@tntnet.org
   - optimization of logging
 
