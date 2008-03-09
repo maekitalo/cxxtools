@@ -90,29 +90,6 @@ namespace cxxtools
 
       static std::string mkfilename(unsigned idx);
 
-      class FlusherThread : public DetachedThread
-      {
-          std::ostream& out;
-          static struct timespec flushDelay;
-
-        protected:
-          void run();
-
-        public:
-          FlusherThread(std::ostream& out_)
-            : out(out_)
-            { }
-
-          static void setFlushDelay(unsigned ms)
-          {
-            flushDelay.tv_sec = ms / 1000;
-            flushDelay.tv_nsec = ms % 1000;
-          }
-      };
-
-      static FlusherThread* flusherThread;
-      static bool flusherThreadStarted;
-
     public:
       LoggerImpl(const std::string& c, log_level_type l)
         : Logger(c, l)
@@ -161,13 +138,7 @@ namespace cxxtools
 
   void LoggerImpl::logEnd(std::ostream& appender)
   {
-    if (flusherThread == 0)
-      appender.flush();
-    else if (!flusherThreadStarted && !fname.empty())
-    {
-      flusherThread->create();
-      flusherThreadStarted = true;
-    }
+    appender.flush();
   }
 
   std::string LoggerImpl::mkfilename(unsigned idx)
@@ -208,11 +179,7 @@ namespace cxxtools
   net::UdpOStream LoggerImpl::udpmessage(LoggerImpl::loghost);
   unsigned LoggerImpl::maxfilesize = 0;
   unsigned LoggerImpl::maxbackupindex = 0;
-  LoggerImpl::FlusherThread* LoggerImpl::flusherThread = 0;
-  bool LoggerImpl::flusherThreadStarted = false;
   Pipestream* LoggerImpl::pipe = 0;
-
-  struct timespec LoggerImpl::FlusherThread::flushDelay;
 
   void LoggerImpl::setFile(const std::string& fname_)
   {
@@ -221,15 +188,6 @@ namespace cxxtools
     struct stat s;
     int ret = stat(fname_.c_str(), &s);
     counter.resetCount(ret == 0 ? s.st_size : 0);
-  }
-
-  void LoggerImpl::setFlushDelay(unsigned ms)
-  {
-    FlusherThread::setFlushDelay(ms);
-    if (ms > 0 && flusherThread == 0 && !fname.empty())
-      flusherThread = new FlusherThread(outfile);
-    else if (ms == 0)
-      flusherThread = 0;
   }
 
   void LoggerImpl::setLoghost(const std::string& host, unsigned short int port)
@@ -585,16 +543,6 @@ namespace cxxtools
     }
   }
 
-  void LoggerImpl::FlusherThread::run()
-  {
-    while (flushDelay.tv_sec > 0 || flushDelay.tv_nsec > 0)
-    {
-      nanosleep(&flushDelay, 0);
-      cxxtools::MutexLock lock(Logger::mutex);
-      out.flush();
-    }
-  }
-
 }
 
 void log_init_cxxtools(cxxtools::Logger::log_level_type level)
@@ -636,8 +584,6 @@ void log_init_cxxtools(std::istream& in)
     state_fsize,
     state_maxbackupindex0,
     state_maxbackupindex,
-    state_flushdelay0,
-    state_flushdelay,
     state_disable,
     state_logprocess,
     state_logprocessuser0,
@@ -657,7 +603,6 @@ void log_init_cxxtools(std::istream& in)
   unsigned short int port;
   unsigned fsize;
   unsigned maxbackupindex;
-  unsigned flushdelay = 0;
   bool logprocess = false;
   std::string logprocessuser;
   std::string logprocessgroup;
@@ -698,8 +643,6 @@ void log_init_cxxtools(std::istream& in)
           state = state_fsize0;
         else if (ch == '=' && token == "MAXBACKUPINDEX")
           state = state_maxbackupindex0;
-        else if (ch == '=' && token == "FLUSHDELAY")
-          state = state_flushdelay0;
         else if (ch == '=' && (token == "DISABLE" || token == "DISABLED"))
           state = state_disable;
         else if (ch == '=' && token == "LOGPROCESS")
@@ -732,8 +675,6 @@ void log_init_cxxtools(std::istream& in)
           state = state_fsize0;
         else if (ch == '=' && token == "MAXBACKUPINDEX")
           state = state_maxbackupindex0;
-        else if (ch == '=' && token == "FLUSHDELAY")
-          state = state_flushdelay0;
         else if (ch == '=' && (token == "DISABLE" || token == "DISABLED"))
           state = state_disable;
         else if (ch == '=' && token == "LOGPROCESS")
@@ -896,28 +837,6 @@ void log_init_cxxtools(std::istream& in)
         }
         break;
 
-      case state_flushdelay0:
-        if (ch == '\n')
-        {
-          state = state_0;
-          break;
-        }
-        else if (std::isdigit(ch))
-        {
-          flushdelay = ch - '0';
-          state = state_flushdelay;
-        }
-        else if (!std::isspace(ch))
-          state = state_skip;
-        break;
-
-      case state_flushdelay:
-        if (std::isdigit(ch))
-          flushdelay = flushdelay * 10 + ch - '0';
-        else
-          state = (ch == '\n' ? state_0 : state_skip);
-        break;
-
       case state_disable:
         if (ch == '1' || ch == 't' || ch == 'T' || ch == 'y' || ch == 'Y')
         {
@@ -986,7 +905,6 @@ void log_init_cxxtools(std::istream& in)
   if (logprocess)
     cxxtools::LoggerImpl::runLoggerProcess(logprocessuser, logprocessgroup);
 
-  cxxtools::LoggerImpl::setFlushDelay(flushdelay);
   cxxtools::reinitializeLoggers();
 }
 
