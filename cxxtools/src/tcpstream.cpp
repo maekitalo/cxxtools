@@ -340,11 +340,14 @@ namespace net
     if (pptr())
     {
       Stream::size_type N = pptr() - m_buffer; // bytes to write
-      Stream::size_type n = m_stream.write(m_buffer, N);
-      if (n <= 0)
-        return -1;
-      else
-        setp(m_buffer, m_buffer + m_bufsize);
+      if (N > 0)
+      {
+        Stream::size_type n = m_stream.write(m_buffer, N);
+        if (n <= 0)
+          return -1;
+        else
+          setp(m_buffer, m_buffer + m_bufsize);
+      }
     }
     return 0;
   }
