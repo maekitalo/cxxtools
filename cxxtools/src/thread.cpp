@@ -146,10 +146,12 @@ void Mutex::lock()
 bool Mutex::tryLock()
 {
   int ret = pthread_mutex_trylock(&m_mutex);
-  if (ret == 0)
+  if (ret == EBUSY)
+    return false;
+  else if (ret == 0)
     return true;
   else
-    return false;
+    throw ThreadException(ret, "pthread_mutex_trylock");
 }
 
 void Mutex::unlock()
