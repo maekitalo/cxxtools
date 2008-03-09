@@ -337,9 +337,10 @@ namespace net
   {
     log_debug("streambuf::sync");
 
-    if (pptr() != pbase())
+    if (pptr())
     {
-      int n = m_stream.write(pbase(), pptr() - pbase());
+      Stream::size_type N = pptr() - m_buffer; // bytes to write
+      Stream::size_type n = m_stream.write(m_buffer, N);
       if (n <= 0)
         return -1;
       else
