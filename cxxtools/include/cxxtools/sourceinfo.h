@@ -39,7 +39,7 @@
     #endif
 // otherwise use standard macro
 #else
-    #define CXXTOOLS_PRETTY_FUNCTION __FUNCTION__
+    #define CXXTOOLS_PRETTY_FUNCTION "unknown symbol"
 #endif
 
 #define CXXTOOLS_SOURCEINFO_STRINGIFY(x) #x

@@ -7,7 +7,7 @@
     template <class A1 = Void, class A2 = Void, class A3 = Void, class A4 = Void, class A5 = Void, class A6 = Void, class A7 = Void, class A8 = Void, class A9 = Void, class A10 = Void>
     class Signal : public SignalBase {
         public:
-            typedef Invokable<A1,A2,A3,A4,A5,A6,A7,A8,A9,A10> Invokable;
+            typedef Invokable<A1,A2,A3,A4,A5,A6,A7,A8,A9,A10> _Invokable;
 
         public:
             /** Does nothing. */
@@ -61,7 +61,7 @@
                     //   calling any slots immediately
                     // - A new Connection might get added to this Signal in
                     //   the slot
-                    const Invokable* invokable = static_cast<const Invokable*>( it->slot().callable() );
+                    const _Invokable* invokable = static_cast<const _Invokable*>( it->slot().callable() );
                     invokable->invoke(a1,a2,a3,a4,a5,a6,a7,a8,a9,a10);
 
                     // if this signal gets deleted by the slot, the Sentry
@@ -170,7 +170,7 @@
     template <class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, class A9>
     class Signal<A1,A2,A3,A4,A5,A6,A7,A8,A9,Void> : public SignalBase {
         public:
-            typedef Invokable<A1,A2,A3,A4,A5,A6,A7,A8,A9,Void> Invokable;
+            typedef Invokable<A1,A2,A3,A4,A5,A6,A7,A8,A9,Void> _Invokable;
 
         public:
             /** Does nothing. */
@@ -224,7 +224,7 @@
                     //   calling any slots immediately
                     // - A new Connection might get added to this Signal in
                     //   the slot
-                    const Invokable* invokable = static_cast<const Invokable*>( it->slot().callable() );
+                    const _Invokable* invokable = static_cast<const _Invokable*>( it->slot().callable() );
                     invokable->invoke(a1,a2,a3,a4,a5,a6,a7,a8,a9);
 
                     // if this signal gets deleted by the slot, the Sentry
@@ -275,7 +275,7 @@
     template <class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8>
     class Signal<A1,A2,A3,A4,A5,A6,A7,A8,Void,Void> : public SignalBase {
         public:
-            typedef Invokable<A1,A2,A3,A4,A5,A6,A7,A8,Void,Void> Invokable;
+            typedef Invokable<A1,A2,A3,A4,A5,A6,A7,A8,Void,Void> _Invokable;
 
         public:
             /** Does nothing. */
@@ -329,7 +329,7 @@
                     //   calling any slots immediately
                     // - A new Connection might get added to this Signal in
                     //   the slot
-                    const Invokable* invokable = static_cast<const Invokable*>( it->slot().callable() );
+                    const _Invokable* invokable = static_cast<const _Invokable*>( it->slot().callable() );
                     invokable->invoke(a1,a2,a3,a4,a5,a6,a7,a8);
 
                     // if this signal gets deleted by the slot, the Sentry
@@ -380,7 +380,7 @@
     template <class A1, class A2, class A3, class A4, class A5, class A6, class A7>
     class Signal<A1,A2,A3,A4,A5,A6,A7,Void,Void,Void> : public SignalBase {
         public:
-            typedef Invokable<A1,A2,A3,A4,A5,A6,A7,Void,Void,Void> Invokable;
+            typedef Invokable<A1,A2,A3,A4,A5,A6,A7,Void,Void,Void> _Invokable;
 
         public:
             /** Does nothing. */
@@ -434,7 +434,7 @@
                     //   calling any slots immediately
                     // - A new Connection might get added to this Signal in
                     //   the slot
-                    const Invokable* invokable = static_cast<const Invokable*>( it->slot().callable() );
+                    const _Invokable* invokable = static_cast<const _Invokable*>( it->slot().callable() );
                     invokable->invoke(a1,a2,a3,a4,a5,a6,a7);
 
                     // if this signal gets deleted by the slot, the Sentry
@@ -485,7 +485,7 @@
     template <class A1, class A2, class A3, class A4, class A5, class A6>
     class Signal<A1,A2,A3,A4,A5,A6,Void,Void,Void,Void> : public SignalBase {
         public:
-            typedef Invokable<A1,A2,A3,A4,A5,A6,Void,Void,Void,Void> Invokable;
+            typedef Invokable<A1,A2,A3,A4,A5,A6,Void,Void,Void,Void> _Invokable;
 
         public:
             /** Does nothing. */
@@ -539,7 +539,7 @@
                     //   calling any slots immediately
                     // - A new Connection might get added to this Signal in
                     //   the slot
-                    const Invokable* invokable = static_cast<const Invokable*>( it->slot().callable() );
+                    const _Invokable* invokable = static_cast<const _Invokable*>( it->slot().callable() );
                     invokable->invoke(a1,a2,a3,a4,a5,a6);
 
                     // if this signal gets deleted by the slot, the Sentry
@@ -590,7 +590,7 @@
     template <class A1, class A2, class A3, class A4, class A5>
     class Signal<A1,A2,A3,A4,A5,Void,Void,Void,Void,Void> : public SignalBase {
         public:
-            typedef Invokable<A1,A2,A3,A4,A5,Void,Void,Void,Void,Void> Invokable;
+            typedef Invokable<A1,A2,A3,A4,A5,Void,Void,Void,Void,Void> _Invokable;
 
         public:
             /** Does nothing. */
@@ -644,7 +644,7 @@
                     //   calling any slots immediately
                     // - A new Connection might get added to this Signal in
                     //   the slot
-                    const Invokable* invokable = static_cast<const Invokable*>( it->slot().callable() );
+                    const _Invokable* invokable = static_cast<const _Invokable*>( it->slot().callable() );
                     invokable->invoke(a1,a2,a3,a4,a5);
 
                     // if this signal gets deleted by the slot, the Sentry
@@ -695,7 +695,7 @@
     template <class A1, class A2, class A3, class A4>
     class Signal<A1,A2,A3,A4,Void,Void,Void,Void,Void,Void> : public SignalBase {
         public:
-            typedef Invokable<A1,A2,A3,A4,Void,Void,Void,Void,Void,Void> Invokable;
+            typedef Invokable<A1,A2,A3,A4,Void,Void,Void,Void,Void,Void> _Invokable;
 
         public:
             /** Does nothing. */
@@ -749,7 +749,7 @@
                     //   calling any slots immediately
                     // - A new Connection might get added to this Signal in
                     //   the slot
-                    const Invokable* invokable = static_cast<const Invokable*>( it->slot().callable() );
+                    const _Invokable* invokable = static_cast<const _Invokable*>( it->slot().callable() );
                     invokable->invoke(a1,a2,a3,a4);
 
                     // if this signal gets deleted by the slot, the Sentry
@@ -800,7 +800,7 @@
     template <class A1, class A2, class A3>
     class Signal<A1,A2,A3,Void,Void,Void,Void,Void,Void,Void> : public SignalBase {
         public:
-            typedef Invokable<A1,A2,A3,Void,Void,Void,Void,Void,Void,Void> Invokable;
+            typedef Invokable<A1,A2,A3,Void,Void,Void,Void,Void,Void,Void> _Invokable;
 
         public:
             /** Does nothing. */
@@ -854,7 +854,7 @@
                     //   calling any slots immediately
                     // - A new Connection might get added to this Signal in
                     //   the slot
-                    const Invokable* invokable = static_cast<const Invokable*>( it->slot().callable() );
+                    const _Invokable* invokable = static_cast<const _Invokable*>( it->slot().callable() );
                     invokable->invoke(a1,a2,a3);
 
                     // if this signal gets deleted by the slot, the Sentry
@@ -905,7 +905,7 @@
     template <class A1, class A2>
     class Signal<A1,A2,Void,Void,Void,Void,Void,Void,Void,Void> : public SignalBase {
         public:
-            typedef Invokable<A1,A2,Void,Void,Void,Void,Void,Void,Void,Void> Invokable;
+            typedef Invokable<A1,A2,Void,Void,Void,Void,Void,Void,Void,Void> _Invokable;
 
         public:
             /** Does nothing. */
@@ -959,7 +959,7 @@
                     //   calling any slots immediately
                     // - A new Connection might get added to this Signal in
                     //   the slot
-                    const Invokable* invokable = static_cast<const Invokable*>( it->slot().callable() );
+                    const _Invokable* invokable = static_cast<const _Invokable*>( it->slot().callable() );
                     invokable->invoke(a1,a2);
 
                     // if this signal gets deleted by the slot, the Sentry
@@ -1010,7 +1010,7 @@
     template <class A1>
     class Signal<A1,Void,Void,Void,Void,Void,Void,Void,Void,Void> : public SignalBase {
         public:
-            typedef Invokable<A1,Void,Void,Void,Void,Void,Void,Void,Void,Void> Invokable;
+            typedef Invokable<A1,Void,Void,Void,Void,Void,Void,Void,Void,Void> _Invokable;
 
         public:
             /** Does nothing. */
@@ -1064,7 +1064,7 @@
                     //   calling any slots immediately
                     // - A new Connection might get added to this Signal in
                     //   the slot
-                    const Invokable* invokable = static_cast<const Invokable*>( it->slot().callable() );
+                    const _Invokable* invokable = static_cast<const _Invokable*>( it->slot().callable() );
                     invokable->invoke(a1);
 
                     // if this signal gets deleted by the slot, the Sentry
@@ -1115,7 +1115,7 @@
     template <>
     class Signal<Void,Void,Void,Void,Void,Void,Void,Void,Void,Void> : public SignalBase {
         public:
-            typedef Invokable<Void,Void,Void,Void,Void,Void,Void,Void,Void,Void> Invokable;
+            typedef Invokable<Void,Void,Void,Void,Void,Void,Void,Void,Void,Void> _Invokable;
 
         public:
             /** Does nothing. */
@@ -1169,7 +1169,7 @@
                     //   calling any slots immediately
                     // - A new Connection might get added to this Signal in
                     //   the slot
-                    const Invokable* invokable = static_cast<const Invokable*>( it->slot().callable() );
+                    const _Invokable* invokable = static_cast<const _Invokable*>( it->slot().callable() );
                     invokable->invoke();
 
                     // if this signal gets deleted by the slot, the Sentry
