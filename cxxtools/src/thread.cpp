@@ -21,6 +21,7 @@
 
 #include "cxxtools/thread.h"
 #include "cxxtools/log.h"
+#include <sys/time.h>
 #include <errno.h>
 #include <sstream>
 #include <string>
@@ -288,7 +289,19 @@ void Condition::wait(MutexLock& lock)
 
 bool Condition::timedwait(MutexLock& lock, const struct timespec& time)
 {
-  int ret = pthread_cond_timedwait(&cond, &lock.getMutex().m_mutex, &time);
+  // in the timespec structure is expected a relative interval,
+  // but pthread_cond_timedwait expects an absolute time.
+  struct timeval tp;
+  int ret = gettimeofday(&tp, NULL);
+  if( ret != 0)
+      throw ThreadException(ret, "pthread_cond_timedwait");
+
+  // "shift" the timespec structure to the absolute time
+  struct timespec absTime = time;
+  absTime.tv_sec += tp.tv_sec;
+  absTime.tv_nsec += tp.tv_usec*1000;
+    
+  ret = pthread_cond_timedwait(&cond, &lock.getMutex().m_mutex, &absTime);
   if (ret == ETIMEDOUT)
     return false;
 
@@ -302,7 +315,7 @@ bool Condition::timedwait(MutexLock& lock, unsigned ms)
 {
   struct timespec ts;
   ts.tv_sec = ms / 1000;
-  ts.tv_nsec = ms * 1000 % 1000;
+  ts.tv_nsec = ms % 1000 * 1000 * 1000;
   return timedwait(lock, ts);
 }
 
