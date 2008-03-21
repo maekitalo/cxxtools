@@ -10,7 +10,7 @@
 
 =head1 AUTHOR
 
-Tommi ME<auml>kitalo, Dr. Eckhardt + Partner GmbH
+Tommi ME<auml>kitalo, Tntnet.org
 
 =cut
 
