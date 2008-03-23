@@ -1,7 +1,6 @@
 noinst_PROGRAMS = arg arg-set cgi dir dlloader dynbuffer getini hd \
 	httprequest iconv log logbench logsh md5sum mime multifstream netcat netio \
 	netmsg pipestream pool signals thread uuencode cxxlog
-bin_PROGRAMS = cxxlog
 
 arg_SOURCES = arg.cpp
 arg_set_SOURCES = arg-set.cpp
