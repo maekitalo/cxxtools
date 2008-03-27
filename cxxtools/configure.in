@@ -1,4 +1,4 @@
-AC_INIT(cxxtools, 1.4.6, [Tommi Maekitalo <tommi@tntnet.org>])
+AC_INIT(cxxtools, 1.4.7, [Tommi Maekitalo <tommi@tntnet.org>])
 AM_INIT_AUTOMAKE
 
 AC_PREREQ([2.5.9])
