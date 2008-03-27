@@ -111,7 +111,7 @@ namespace net
   {
     public:
       /// initializes  the streambuf and allocates a buffer.
-      explicit streambuf(Stream& stream, unsigned bufsize = 256,
+      explicit streambuf(Stream& stream, unsigned bufsize = 8192,
         int timeout = -1);
 
       /// all resources are freed
@@ -146,7 +146,7 @@ namespace net
   {
     public:
       /// Initializes a iostream with the given buffer sizce
-      explicit iostream(unsigned bufsize = 256, int timeout = -1)
+      explicit iostream(unsigned bufsize = 8192, int timeout = -1)
         : std::iostream(0),
           m_buffer(*this, bufsize, timeout)
       {
@@ -154,7 +154,7 @@ namespace net
       }
 
       /// Accepts a connection from a server socket.
-      explicit iostream(const Server& server, unsigned bufsize = 256, int timeout = -1)
+      explicit iostream(const Server& server, unsigned bufsize = 8192, int timeout = -1)
         : std::iostream(0),
           Stream(server),
           m_buffer(*this, bufsize, timeout)
@@ -163,7 +163,7 @@ namespace net
       }
 
       /// Connects to a server.
-      iostream(const char* ipaddr, unsigned short int port, unsigned bufsize = 256)
+      iostream(const char* ipaddr, unsigned short int port, unsigned bufsize = 8192)
         : std::iostream(0),
           Stream(ipaddr, port),
           m_buffer(*this, bufsize)
@@ -172,7 +172,7 @@ namespace net
       }
 
       /// Connects to a server.
-      iostream(const std::string& ipaddr, unsigned short int port, unsigned bufsize = 256)
+      iostream(const std::string& ipaddr, unsigned short int port, unsigned bufsize = 8192)
         : std::iostream(0),
           Stream(ipaddr, port),
           m_buffer(*this, bufsize)
