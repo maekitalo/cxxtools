@@ -34,6 +34,14 @@ namespace cxxtools
     parse_header();
   }
 
+  void HttpReply::get(HttpRequest& request)
+  {
+    rdbuf(request.rdbuf());
+    if (!request.reading || request.getStream().peek() == std::ios::traits_type::eof())
+      request.execute();
+    parse_header();
+  }
+
   class HttpReply::Parser
   {
       HttpReply& reply;
@@ -182,5 +190,7 @@ namespace cxxtools
       if (p.parse(ch))
         return;
     }
+
+    throw std::runtime_error("invalid http reply");
   }
 }

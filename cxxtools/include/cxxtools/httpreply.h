@@ -50,22 +50,38 @@ namespace cxxtools
       unsigned returncode;
 
     public:
+      /// Instantiates an empty http reply object.
+      /// To associate a request with this object, you may use std::ios::rdbuf.
+      HttpReply()
+        : std::istream(0),
+          returncode(0)
+        { }
+
+      /// Executes the request and starts reading the reply from the server.
       HttpReply(HttpRequest& request);
 
+      /// Reads a http-reply from a input stream.
       explicit HttpReply(std::istream& request)
         : std::istream(request.rdbuf())
       {
         parse_header();
       }
 
-      /// returns a http-reply header.
+      /// Reads a reply from a request object.
+      /// The the request is executed, if not done already.
+      void get(HttpRequest& request);
+
+      /// Returns a http-reply header.
+      /// If the header is not set, the passed default value is returned
       const std::string& getHeader(const std::string& name, const std::string& def = std::string()) const
       {
         header_type::const_iterator it = header.find(name);
         return it == header.end() ? def : it->second;
       }
 
-      /// returns all http-reply-headers to the output-iterator
+      /// Returns all http-reply-headers to the output-iterator.
+      /// Only the key of the headers are returned, so the dereferenced output
+      /// iterator need to have an assignment for a std::string.
       template <typename outputIterator>
       void getHeaders(outputIterator oit) const
       {
@@ -73,6 +89,7 @@ namespace cxxtools
           (*oit++) = it->first;
       }
 
+      /// Returns the http-return code, received from the server.
       unsigned getReturnCode() const  { return returncode; }
   };
 }

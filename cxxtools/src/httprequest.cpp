@@ -21,8 +21,11 @@
 
 #include <cxxtools/httprequest.h>
 #include <cxxtools/base64stream.h>
+#include <cxxtools/log.h>
 #include <sstream>
 #include <cctype>
+
+log_define("cxxtools.httprequest")
 
 namespace cxxtools
 {
@@ -57,7 +60,16 @@ namespace cxxtools
       host = url_.substr(pos, e - pos);
     }
 
-    url = url_.substr(e);
+    std::string::size_type q = url_.find('?', e);
+    if (q != std::string::npos)
+    {
+      url = url_.substr(e, q - e);
+      params.parse_url(url_.substr(q + 1));
+    }
+    else
+      url = url_.substr(e);
+
+    log_debug("host=" << host << " port=" << port << " url=" << url << " qparams=" << params.getUrl());
   }
 
   void HttpRequest::setAuth(const std::string& username, const std::string& password)
