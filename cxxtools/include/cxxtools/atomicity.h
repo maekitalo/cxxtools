@@ -20,7 +20,13 @@
 #ifndef CXXTOOLS_ATOMICITY_H
 
 #if defined(_WIN32) || defined(WIN32)
+
     #define CXXTOOLS_ASMTYPE_WINDOWS
+
+#elif defined(__sun) || defined(sun)
+
+    #define CXXTOOLS_ASMTYPE_SUN
+
 #else
     #include <cxxtools/config.h>
 #endif
@@ -52,6 +58,10 @@
 #elif defined(CXXTOOLS_ASMTYPE_WINDOWS)
 
     #include <cxxtools/atomicity.windows.h>
+
+#elif defined(CXXTOOLS_ASMTYPE_SUN)
+
+    #include <cxxtools/atomicity.sun.h>
 
 #else
 
