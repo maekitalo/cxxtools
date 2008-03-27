@@ -127,9 +127,10 @@ namespace cxxtools
         { headers[key] = value; }
       void setAuth(const std::string& username, const std::string& password);
 
-      void execute();
+      net::iostream& execute();
 
       std::streambuf* rdbuf()  { return connection.rdbuf(); }
+      net::iostream& getStream()   { return connection; }
   };
 }
 

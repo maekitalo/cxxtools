@@ -70,12 +70,12 @@ namespace cxxtools
     addHeader("Authorization:", value.str());
   }
 
-  void HttpRequest::execute()
+  net::iostream& HttpRequest::execute()
   {
     if (reading)
     {
       if (connection.peek() != std::ios::traits_type::eof())
-        return;
+        return connection;
 
       connection.close();
       connection.clear();
@@ -121,6 +121,8 @@ namespace cxxtools
         break;
     }
     reading = true;
+
+    return connection;
   }
 
 }
