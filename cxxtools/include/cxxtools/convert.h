@@ -20,13 +20,11 @@
 #ifndef CXXTOOLS_CONVERT_H
 #define CXXTOOLS_CONVERT_H
 
-#include <cxxtools/Api.h>
-#include <cxxtools/SourceInfo.h>
+#include <cxxtools/api.h>
+#include <cxxtools/sourceinfo.h>
 #include <sstream>
 #include <string>
 #include <stdexcept>
-#include <iomanip>
-#include <limits>
 
 #define CXXTOOLS_CONVERSIONERROR(to, from) \
     "conversion to " #to " from " #from " failed", CXXTOOLS_SOURCEINFO
