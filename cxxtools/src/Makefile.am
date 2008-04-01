@@ -7,6 +7,7 @@ libcxxtools_la_SOURCES = \
 	base64stream.cpp \
 	connectable.cpp \
 	connection.cpp \
+	convert.cpp \
 	cgi.cpp \
 	dlloader.cpp \
 	fdstream.cpp \
