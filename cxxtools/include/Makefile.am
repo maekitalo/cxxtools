@@ -44,6 +44,7 @@ nobase_include_HEADERS = \
         cxxtools/invokable.tpp \
         cxxtools/log.h \
         cxxtools/loginit.h \
+        cxxtools/main.h \
         cxxtools/md5.h \
         cxxtools/md5stream.h \
         cxxtools/method.h \
