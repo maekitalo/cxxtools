@@ -9,6 +9,8 @@ libcxxtools_la_SOURCES = \
 	connection.cpp \
 	convert.cpp \
 	cgi.cpp \
+	date.cpp \
+	datetime.cpp \
 	dlloader.cpp \
 	fdstream.cpp \
 	hdstream.cpp \
@@ -32,6 +34,8 @@ libcxxtools_la_SOURCES = \
 	quotedprintablestream.cpp \
 	syserror.cpp \
 	tcpstream.cpp \
+	time.cpp \
+	timespan.cpp \
 	tee.cpp \
 	thread.cpp \
 	udp.cpp \
