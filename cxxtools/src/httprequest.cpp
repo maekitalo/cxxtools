@@ -39,7 +39,8 @@ namespace cxxtools
       pos = 7;
 
     std::string::size_type e = url_.find(':', pos);
-    if (e != std::string::npos)
+    std::string::size_type e2 = url_.find('/', pos);
+    if (e != std::string::npos && (e2 == std::string::npos || e2 > e))
     {
       host = url_.substr(pos, e - pos);
       port = 0;
