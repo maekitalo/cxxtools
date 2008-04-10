@@ -40,8 +40,8 @@ namespace cxxtools
 class ThreadException : public SysError
 {
   public:
-    ThreadException(int errno, const char* method)
-      : SysError(errno, method)
+    ThreadException(int err, const char* method)
+      : SysError(err, method)
       { }
 };
 
