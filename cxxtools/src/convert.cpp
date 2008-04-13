@@ -18,23 +18,28 @@
  ***************************************************************************/
 #include "cxxtools/convert.h"
 
-namespace cxxtools {
-
-ConversionError::ConversionError(const char* msg, const SourceInfo& si)
-: std::runtime_error(msg)
-, _si(si)
+namespace cxxtools
 {
+
+
+namespace
+{
+  std::string mkmessage(const std::type_info& to, const std::type_info& from)
+  {
+    std::ostringstream msg;
+    msg << "conversion to " << to.name() << " from " << from.name() << " failed";
+    return msg.str();
+  }
 }
 
 
-ConversionError::~ConversionError() throw()
+ConversionError::ConversionError(const std::type_info& to, const std::type_info& from,
+    const SourceInfo& si)
+    : std::runtime_error(mkmessage(to, from)),
+      _si(si),
+      _to(to),
+      _from(from)
 {
-}
-
-
-const SourceInfo& ConversionError::where() const
-{
-    return _si;
 }
 
 }
