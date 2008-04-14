@@ -76,6 +76,8 @@ void convert(T& to, const S& from)
 template<typename T>
 struct Convert
 {
+    typedef T result_type;
+
     template <typename S>
     T operator()(const S& from) const
     {
@@ -130,6 +132,8 @@ class ConvertLocale
         std::locale _loc;
 
     public:
+        typedef T result_type;
+
         explicit ConvertLocale(const std::locale& loc = std::locale(""))
             : _loc(loc)
             { }
