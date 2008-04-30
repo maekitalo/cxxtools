@@ -33,17 +33,22 @@ namespace cxxtools {
 class CXXTOOLS_API ConversionError : public std::runtime_error
 {
     public:
-        ConversionError(const std::type_info& to, const std::type_info& from,
-            const SourceInfo& si);
+        ConversionError(const std::string& to, const std::string& from,
+            const SourceInfo& si)
+            : std::runtime_error("conversion to " + to + " from " + from + " failed")
+            , _si(si)
+            , _to(to)
+            , _from(from)
+            { }
 
         const cxxtools::SourceInfo& where() const  { return _si; }
-        const std::type_info& to()    { return _to; }
-        const std::type_info& from()  { return _from; }
+        const std::string& to()    { return _to; }
+        const std::string& from()  { return _from; }
 
     private:
         cxxtools::SourceInfo _si;
-        const std::type_info& _to;
-        const std::type_info& _from;
+        const std::string& _to;
+        const std::string& _from;
 };
 
 
@@ -69,7 +74,7 @@ void convert(T& to, const S& from)
 {
     std::stringstream ss;
     if( !(ss << from && ss >> to) )
-        throw ConversionError(typeid(to), typeid(from), CXXTOOLS_SOURCEINFO);
+        throw ConversionError("streameable", "streameable", CXXTOOLS_SOURCEINFO);
 }
 
 
@@ -122,7 +127,7 @@ void convert(T& to, const S& from, const std::locale& loc)
     std::stringstream ss;
     ss.imbue(loc);
     if( !(ss << from && ss >> to) )
-        throw ConversionError(typeid(from), typeid(to), CXXTOOLS_SOURCEINFO);
+        throw ConversionError("streameable", "streameable", CXXTOOLS_SOURCEINFO);
 }
 
 
