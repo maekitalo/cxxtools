@@ -38,6 +38,12 @@ class ConstMethod : public Callable<R, A1,A2,A3,A4,A5,A6,A7,A8,A9,A10>
         ConstMethod<R, ClassT,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10>* clone() const
         { return new ConstMethod(*this); }
 
+        bool operator==(const ConstMethod& other) const
+        {
+            return (_object == other._object) &&
+                   (_method == other._method);
+        }
+
     private:
         ClassT* _object;
         MemFuncT _method;
@@ -79,6 +85,15 @@ class ConstMethodSlot : public BasicSlot<R, A1,A2,A3,A4,A5,A6,A7,A8,A9,A10>
         {
             Connectable& connectable = _method.object();
             connectable.closed(c);
+        }
+
+        virtual bool equals(const Slot& slot) const
+        {
+            const ConstMethodSlot* ms = dynamic_cast<const ConstMethodSlot*>(&slot);
+            if(!ms)
+                return false;
+
+            return _method == ms->_method;
         }
 
     private:
@@ -128,6 +143,12 @@ class ConstMethod<R,ClassT, A1,A2,A3,A4,A5,A6,A7,A8,A9,Void> : public Callable<R
         /** Creates a copy of this object and returns it.  Caller owns the returned object. */ 
         ConstMethod<R, ClassT,A1,A2,A3,A4,A5,A6,A7,A8,A9>* clone() const
         { return new ConstMethod(*this); }
+
+        bool operator==(const ConstMethod& other) const
+        {
+            return (_object == other._object) &&
+                   (_method == other._method);
+        }
 
     private:
         ClassT* _object;
@@ -184,6 +205,12 @@ class ConstMethod<R,ClassT, A1,A2,A3,A4,A5,A6,A7,A8,Void,Void> : public Callable
         ConstMethod<R, ClassT,A1,A2,A3,A4,A5,A6,A7,A8>* clone() const
         { return new ConstMethod(*this); }
 
+        bool operator==(const ConstMethod& other) const
+        {
+            return (_object == other._object) &&
+                   (_method == other._method);
+        }
+
     private:
         ClassT* _object;
         MemFuncT _method;
@@ -238,6 +265,12 @@ class ConstMethod<R,ClassT, A1,A2,A3,A4,A5,A6,A7,Void,Void,Void> : public Callab
         /** Creates a copy of this object and returns it.  Caller owns the returned object. */ 
         ConstMethod<R, ClassT,A1,A2,A3,A4,A5,A6,A7>* clone() const
         { return new ConstMethod(*this); }
+
+        bool operator==(const ConstMethod& other) const
+        {
+            return (_object == other._object) &&
+                   (_method == other._method);
+        }
 
     private:
         ClassT* _object;
@@ -294,6 +327,12 @@ class ConstMethod<R,ClassT, A1,A2,A3,A4,A5,A6,Void,Void,Void,Void> : public Call
         ConstMethod<R, ClassT,A1,A2,A3,A4,A5,A6>* clone() const
         { return new ConstMethod(*this); }
 
+        bool operator==(const ConstMethod& other) const
+        {
+            return (_object == other._object) &&
+                   (_method == other._method);
+        }
+
     private:
         ClassT* _object;
         MemFuncT _method;
@@ -348,6 +387,12 @@ class ConstMethod<R,ClassT, A1,A2,A3,A4,A5,Void,Void,Void,Void,Void> : public Ca
         /** Creates a copy of this object and returns it.  Caller owns the returned object. */ 
         ConstMethod<R, ClassT,A1,A2,A3,A4,A5>* clone() const
         { return new ConstMethod(*this); }
+
+        bool operator==(const ConstMethod& other) const
+        {
+            return (_object == other._object) &&
+                   (_method == other._method);
+        }
 
     private:
         ClassT* _object;
@@ -404,6 +449,12 @@ class ConstMethod<R,ClassT, A1,A2,A3,A4,Void,Void,Void,Void,Void,Void> : public 
         ConstMethod<R, ClassT,A1,A2,A3,A4>* clone() const
         { return new ConstMethod(*this); }
 
+        bool operator==(const ConstMethod& other) const
+        {
+            return (_object == other._object) &&
+                   (_method == other._method);
+        }
+
     private:
         ClassT* _object;
         MemFuncT _method;
@@ -458,6 +509,12 @@ class ConstMethod<R,ClassT, A1,A2,A3,Void,Void,Void,Void,Void,Void,Void> : publi
         /** Creates a copy of this object and returns it.  Caller owns the returned object. */ 
         ConstMethod<R, ClassT,A1,A2,A3>* clone() const
         { return new ConstMethod(*this); }
+
+        bool operator==(const ConstMethod& other) const
+        {
+            return (_object == other._object) &&
+                   (_method == other._method);
+        }
 
     private:
         ClassT* _object;
@@ -514,6 +571,12 @@ class ConstMethod<R,ClassT, A1,A2,Void,Void,Void,Void,Void,Void,Void,Void> : pub
         ConstMethod<R, ClassT,A1,A2>* clone() const
         { return new ConstMethod(*this); }
 
+        bool operator==(const ConstMethod& other) const
+        {
+            return (_object == other._object) &&
+                   (_method == other._method);
+        }
+
     private:
         ClassT* _object;
         MemFuncT _method;
@@ -569,6 +632,12 @@ class ConstMethod<R,ClassT, A1,Void,Void,Void,Void,Void,Void,Void,Void,Void> : p
         ConstMethod<R, ClassT,A1>* clone() const
         { return new ConstMethod(*this); }
 
+        bool operator==(const ConstMethod& other) const
+        {
+            return (_object == other._object) &&
+                   (_method == other._method);
+        }
+
     private:
         ClassT* _object;
         MemFuncT _method;
@@ -623,6 +692,12 @@ class ConstMethod<R,ClassT, Void,Void,Void,Void,Void,Void,Void,Void,Void,Void> :
         /** Creates a copy of this object and returns it.  Caller owns the returned object. */ 
         ConstMethod<R, ClassT>* clone() const
         { return new ConstMethod(*this); }
+
+        bool operator==(const ConstMethod& other) const
+        {
+            return (_object == other._object) &&
+                   (_method == other._method);
+        }
 
     private:
         ClassT* _object;

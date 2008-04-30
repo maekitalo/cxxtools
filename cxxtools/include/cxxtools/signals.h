@@ -138,6 +138,21 @@ namespace cxxtools {
                 }
             }
 
+            void disconnectSlot(const Slot& slot)
+            {
+                std::list<Connection>::iterator it = Connectable::connections().begin();
+                std::list<Connection>::iterator end = Connectable::connections().end();
+
+                for(; it != end; ++it)
+                {
+                    if( it->slot().equals(slot) )
+                    {
+                        it->close();
+                        return;
+                    }
+                }
+            }
+
         private:
             mutable Sentry* _sentry;
             mutable bool _sending;
@@ -145,7 +160,7 @@ namespace cxxtools {
     };
 
 
-#include <cxxtools/signals.tpp>
+#include <cxxtools/signal.tpp>
 
 } // !namespace cxxtools
 
