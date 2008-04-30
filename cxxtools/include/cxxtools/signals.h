@@ -160,7 +160,7 @@ namespace cxxtools {
     };
 
 
-#include <cxxtools/signal.tpp>
+#include <cxxtools/signals.tpp>
 
 } // !namespace cxxtools
 
