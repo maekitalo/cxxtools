@@ -35,6 +35,8 @@
 /* defined if assembler type is pthread */
 #undef CXXTOOLS_ASMTYPE_PTHREAD
 
+/* defined if assembler type is sun */
+#undef CXXTOOLS_ASMTYPE_SUN
+
 /* defined if assembler type is windows */
 #undef CXXTOOLS_ASMTYPE_WINDOWS
-
