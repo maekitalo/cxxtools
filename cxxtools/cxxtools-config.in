@@ -47,7 +47,7 @@ start_template()
 EOF
 }
 
-log4cxx_template()
+CXXTOOLS_LOGGING_LOG4CXX_template()
 {
   start_template
 
@@ -81,7 +81,7 @@ log4j.appender.file.layout.DateFormat=ISO8601
 EOF
 }
 
-log4cplus_template()
+CXXTOOLS_LOGGING_LOG4CPLUS_template()
 {
   start_template
 
@@ -114,7 +114,7 @@ log4cplus.appender.file.ImmediateFlush=true
 EOF
 }
 
-cxxtools_template()
+CXXTOOLS_LOGGING_CXXTOOLS_template()
 {
   start_template
 
@@ -155,7 +155,7 @@ EOF
 
 }
 
-disable_template()
+CXXTOOLS_LOGGING_DISABLE_template()
 {
   :
 }

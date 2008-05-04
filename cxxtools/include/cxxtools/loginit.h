@@ -22,32 +22,20 @@
 #ifndef CXXTOOLS_LOGINIT_H
 #define CXXTOOLS_LOGINIT_H
 
-#if  !defined(CXXTOOLS_LOG_LOG4CXX) \
-  && !defined(CXXTOOLS_LOG_LOG4CPLUS) \
-  && !defined(CXXTOOLS_LOG_LOGBUILTIN) \
-  && !defined(CXXTOOLS_LOG_DISABLE)
-#  include <cxxtools/config.h>
+#include <cxxtools/config.h>
+
+#if defined(CXXTOOLS_LOGGING_CXXTOOLS)
+#  include <cxxtools/log/cxxtools_init.h>
+
+#elif defined(CXXTOOLS_LOGGING_LOG4CXX)
+#  include <cxxtools/log/log4cxx_init.h>
+
+#elif defined(CXXTOOLS_LOGGING_LOG4CPLUS)
+#  include <cxxtools/log/log4cplus_init.h>
+
+#else
+#  include <cxxtools/log/disable_init.h>
+
 #endif
-
-
-#ifdef CXXTOOLS_LOG_LOG4CXX
-# include <cxxtools/log/log4cxx_init.h>
-#endif
-
-
-#ifdef CXXTOOLS_LOG_LOG4CPLUS
-# include <cxxtools/log/log4cplus_init.h>
-#endif
-
-
-#ifdef CXXTOOLS_LOG_LOGBUILTIN
-# include <cxxtools/log/cxxtools_init.h>
-#endif
-
-
-#ifdef CXXTOOLS_LOG_DISABLE
-# include <cxxtools/log/disable_init.h>
-#endif
-
 
 #endif //  CXXTOOLS_LOGINIT_H

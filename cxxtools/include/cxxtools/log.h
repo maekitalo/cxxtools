@@ -22,36 +22,20 @@
 #ifndef CXXTOOLS_LOG_H
 #define CXXTOOLS_LOG_H
 
-#if defined(_WIN32) || defined(WIN32)
-    #define CXXTOOLS_LOG_DISABLE
+#include <cxxtools/config.h>
+
+#if defined(CXXTOOLS_LOGGING_CXXTOOLS)
+#  include <cxxtools/log/cxxtools.h>
+
+#elif defined(CXXTOOLS_LOGGING_LOG4CXX)
+#  include <cxxtools/log/log4cxx.h>
+
+#elif defined(CXXTOOLS_LOGGING_LOG4CPLUS)
+#  include <cxxtools/log/log4cplus.h>
+
+#else
+#  include <cxxtools/log/disable.h>
+
 #endif
-
-#if  !defined(CXXTOOLS_LOG_LOG4CXX) \
-  && !defined(CXXTOOLS_LOG_LOG4CPLUS) \
-  && !defined(CXXTOOLS_LOG_LOGBUILTIN) \
-  && !defined(CXXTOOLS_LOG_DISABLE)
-#  include <cxxtools/config.h>
-#endif
-
-
-#ifdef CXXTOOLS_LOG_LOG4CXX
-# include <cxxtools/log/log4cxx.h>
-#endif
-
-
-#ifdef CXXTOOLS_LOG_LOG4CPLUS
-# include <cxxtools/log/log4cplus.h>
-#endif
-
-
-#ifdef CXXTOOLS_LOG_LOGBUILTIN
-# include <cxxtools/log/cxxtools.h>
-#endif
-
-
-#ifdef CXXTOOLS_LOG_DISABLE
-# include <cxxtools/log/disable.h>
-#endif
-
 
 #endif // LOG_H

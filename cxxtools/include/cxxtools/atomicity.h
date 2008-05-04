@@ -19,56 +19,37 @@
  ***************************************************************************/
 #ifndef CXXTOOLS_ATOMICITY_H
 
-#if defined(_WIN32) || defined(WIN32)
+#include <cxxtools/config.h>
 
-    #define CXXTOOLS_ASMTYPE_WINDOWS
-
-#elif defined(__sun) || defined(sun)
-
-    #define CXXTOOLS_ASMTYPE_SUN
-
-#else
-    #include <cxxtools/config.h>
-#endif
-
-#if defined(CXXTOOLS_ASMTYPE_GCCARM)
-
-    #include <cxxtools/atomicity.gcc.arm.h>
-
-#elif defined(CXXTOOLS_ASMTYPE_GCCMIPS)
-
-    #include <cxxtools/atomicity.gcc.mips.h>
-
-#elif defined(CXXTOOLS_ASMTYPE_GCCPCC)
-
-    #include <cxxtools/atomicity.gcc.ppc.h>
-
-#elif defined(CXXTOOLS_ASMTYPE_GCCSPARC)
-
-    #include <cxxtools/atomicity.gcc.sparc.h>
-
-#elif defined(CXXTOOLS_ASMTYPE_GCCX86_64)
-
-    #include <cxxtools/atomicity.gcc.x86_64.h>
-
-#elif defined(CXXTOOLS_ASMTYPE_GCCX86)
-
-    #include <cxxtools/atomicity.gcc.x86.h>
-
-#elif defined(CXXTOOLS_ASMTYPE_WINDOWS)
-
-    #include <cxxtools/atomicity.windows.h>
-
-#elif defined(CXXTOOLS_ASMTYPE_SUN)
-
+#if defined(CXXTOOLS_ATOMICITY_SUN)
     #include <cxxtools/atomicity.sun.h>
 
-#else
+#elif defined(CXXTOOLS_ATOMICITY_WINDOWS)
+    #include <cxxtools/atomicity.windows.h>
 
-    #define CXXTOOLS_ATOMICITY_WITH_PTHREAD
+#elif defined(CXXTOOLS_ATOMICITY_GCC_ARM)
+    #include <cxxtools/atomicity.gcc.arm.h>
+
+#elif defined(CXXTOOLS_ATOMICITY_GCC_MIPS)
+    #include <cxxtools/atomicity.gcc.mips.h>
+
+#elif defined(CXXTOOLS_ATOMICITY_GCC_MIPS)
+    #include <cxxtools/atomicity.gcc.ppc.h>
+
+#elif defined(CXXTOOLS_ATOMICITY_GCC_SPARC)
+    #include <cxxtools/atomicity.gcc.sparc.h>
+
+#elif defined(CXXTOOLS_ATOMICITY_GCC_X86_64)
+    #include <cxxtools/atomicity.gcc.x86_64.h>
+
+#elif defined(CXXTOOLS_ATOMICITY_GCC_X86)
+    #include <cxxtools/atomicity.gcc.x86.h>
+
+#else
     #include <cxxtools/atomicity.pthread.h>
 
 #endif
+
 
 namespace cxxtools {
 

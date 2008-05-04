@@ -10,6 +10,7 @@ libcxxtools_la_SOURCES = \
 	cgi.cpp \
 	date.cpp \
 	datetime.cpp \
+	dir.cpp \
 	dlloader.cpp \
 	fdstream.cpp \
 	hdstream.cpp \

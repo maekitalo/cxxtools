@@ -1,3 +1,18 @@
+2008-05-02 tommi@tntnet.org
+  - change the way of announcing configure results to headers
+
+2008-05-01 tommi@tntnet.org
+  - use pipl-idiom in cxxtools::Dir to remove needed includes in public header
+  - allow ':' in httprequests and other small improvements and add
+    documentation to http client classes
+  - add wrapper for regex(3)
+
+2008-03-31 marc
+  - added conversion functions
+
+2008-03-27 tommi@tntnet.org
+  - increase default tcp buffer size from 256 to 8192 bytes
+
 2008-03-09 tommi@tntnet.org
   - remove the queing of log messages since it was not reliable
   - translate api-documentation of network classes to english
