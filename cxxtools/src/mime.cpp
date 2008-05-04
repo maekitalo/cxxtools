@@ -25,6 +25,7 @@
 #include <vector>
 #include <sstream>
 #include <fstream>
+#include <stdexcept>
 
 log_define("cxxtools.mime")
 
