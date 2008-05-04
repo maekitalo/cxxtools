@@ -31,6 +31,7 @@ libcxxtools_la_SOURCES = \
 	properties.cpp \
 	query_params.cpp \
 	quotedprintablestream.cpp \
+	regex.cpp \
 	syserror.cpp \
 	tcpstream.cpp \
 	time.cpp \
