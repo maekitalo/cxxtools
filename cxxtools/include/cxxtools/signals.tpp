@@ -118,6 +118,15 @@
                 connectable.closed(c);
             }
 
+            virtual bool equals(const Slot& slot) const
+            {
+                const SignalSlot* ss = dynamic_cast<const SignalSlot*>(&slot);
+                if(!ss)
+                    return false;
+
+                return _method == ss->_method;
+            }
+
         private:
             mutable ConstMethod<void, Signal<A1,A2,A3,A4,A5,A6,A7,A8,A9,A10>,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10 > _method;
     };
