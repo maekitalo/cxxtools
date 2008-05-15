@@ -303,7 +303,7 @@ namespace net
       if (n < N)
       {
         // there are bytes left - move them to the start of our buffer
-        std::memmove(m_buffer, m_buffer + n, N - n);
+        memmove(m_buffer, m_buffer + n, N - n);
         setp(m_buffer + N - n, m_buffer + m_bufsize);
       }
       else
