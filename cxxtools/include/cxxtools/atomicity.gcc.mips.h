@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2006 by Marc Boris Duerner                              *
+ *   Copyright (C) 2006-2008 by Marc Boris Duerner                         *
  *   Copyright (C) 2006 by Aloysius Indrayanto                             *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -26,18 +26,18 @@ namespace cxxtools {
 
 typedef std::sig_atomic_t atomic_t;
 
-inline  atomicIncrement(volatile atomic_t& val)
+inline atomic_t atomicIncrement(volatile atomic_t& val)
 {
     atomic_t tmp, result = 0;
 
     asm volatile ("    .set    mips32\n"
-                            "1:  ll      %0, %2\n"
-                            "    addu    %1, %0, 1\n"
-                            "    sc      %1, %2\n"
-                            "    beqz    %1, 1b\n"
-                            "    .set    mips0\n"
-                            : "=&r" (result), "=&r" (tmp), "=m" (val)
-                            : "m" (*val));
+                  "1:  ll      %0, %2\n"
+                  "    addu    %1, %0, 1\n"
+                  "    sc      %1, %2\n"
+                  "    beqz    %1, 1b\n"
+                  "    .set    mips0\n"
+                  : "=&r" (result), "=&r" (tmp), "=m" (val)
+                  : "m" (val));
     return result + 1;
 }
 
@@ -53,7 +53,7 @@ inline atomic_t atomicDecrement(volatile atomic_t& val)
                             "    beqz    %1, 1b\n"
                             "    .set    mips0\n"
                             : "=&r" (result), "=&r" (tmp), "=m" (val)
-                            : "m" (*val));
+                            : "m" (val));
     return result - 1;
 }
 
@@ -70,7 +70,7 @@ inline atomic_t atomicCompareExchange(volatile atomic_t& dest, atomic_t exch, at
                             "    beqz    %1, 1b\n"
                             "2:  .set    mips0\n"
                             : "=&r" (old), "=&r" (tmp), "=m" (dest)
-                            : "m" (*dest), "r" (exch), "r" (comp));
+                            : "m" (dest), "r" (exch), "r" (comp));
     return(old);
 }
 
@@ -88,7 +88,7 @@ inline void* atomicCompareExchange(void* volatile& dest, void* exch, void* comp)
                             "    beqz    %1, 1b\n"
                             "2:  .set    mips0\n"
                             : "=&r" (old), "=&r" (tmp), "=m" (dest)
-                            : "m" (*dest), "r" (exch), "r" (comp));
+                            : "m" (dest), "r" (exch), "r" (comp));
     return(old);
 }
 
@@ -104,15 +104,14 @@ inline atomic_t atomicExchange(volatile atomic_t& dest, atomic_t exch)
                             "    beqz    %1, 1b\n"
                             "    .set    mips0\n"
                             : "=&r" (result), "=&r" (tmp), "=m" (dest)
-                            : "m" (*dest), "r" (exch));
+                            : "m" (dest), "r" (exch));
     return(result);
 }
 
 
 inline void* atomicExchange(void* volatile& val, void* new_val)
 {
-    atomic_t* result:
-    atomic_t* tmp;
+    atomic_t* result, tmp;
 
     asm volatile ("    .set    mips32\n"
                     "1:  ll      %0, %2\n"
@@ -120,8 +119,8 @@ inline void* atomicExchange(void* volatile& val, void* new_val)
                     "    sc      %1, %2\n"
                     "    beqz    %1, 1b\n"
                     "    .set    mips0\n"
-                    : "=&r" (result), "=&r" (tmp), "=m" (dest)
-                    : "m" (*dest), "r" (exch));
+                    : "=&r" (result), "=&r" (tmp), "=m" (val)
+                    : "m" (val), "r" (exch));
     return(result);
 }
 
@@ -137,7 +136,7 @@ inline atomic_t atomicExchangeAdd(volatile atomic_t& dest, atomic_t add)
                             "    beqz    %1, 1b\n"
                             "    .set    mips0\n"
                             : "=&r" (result), "=&r" (tmp), "=m" (dest)
-                            : "m" (*dest), "r" (add));
+                            : "m" (dest), "r" (add));
     return result;
 }
 
