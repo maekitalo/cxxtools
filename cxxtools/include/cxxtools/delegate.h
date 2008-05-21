@@ -24,7 +24,7 @@
 #include <cxxtools/void.h>
 #include <cxxtools/function.h>
 #include <cxxtools/method.h>
-#include <cxxtools/constMethod.h>
+#include <cxxtools/constmethod.h>
 #include <cxxtools/connectable.h>
 #include <cxxtools/sourceinfo.h>
 #include <stdexcept>
@@ -90,7 +90,7 @@ namespace cxxtools {
     };
 
 
-#include <cxxtools/Delegate.tpp>
+#include <cxxtools/delegate.tpp>
 
 } // !namespace cxxtools
 
