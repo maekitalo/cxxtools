@@ -25,6 +25,12 @@
 #include <sys/time.h>
 #include <iosfwd>
 
+#include <cxxtools/config.h>
+
+#if defined(CXXTOOLS_SUSECONDS_TIME_T)
+typedef time_t suseconds_t;
+#endif
+
 namespace cxxtools
 {
   class HiresTime

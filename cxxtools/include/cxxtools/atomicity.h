@@ -45,6 +45,9 @@
 #elif defined(CXXTOOLS_ATOMICITY_GCC_X86)
     #include <cxxtools/atomicity.gcc.x86.h>
 
+#elif defined(CXXTOOLS_ATOMICITY_GCC_PPC)
+    #include <cxxtools/atomicity.gcc.ppc.h>
+
 #else
     #include <cxxtools/atomicity.pthread.h>
 
