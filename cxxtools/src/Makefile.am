@@ -34,6 +34,7 @@ libcxxtools_la_SOURCES = \
 	quotedprintablestream.cpp \
 	regex.cpp \
 	syserror.cpp \
+	systemerror.cpp \
 	tcpstream.cpp \
 	time.cpp \
 	timespan.cpp \
