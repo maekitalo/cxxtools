@@ -23,11 +23,11 @@
 #define CXXTOOLS_SYSERROR_H
 
 #include <cxxtools/api.h>
-#include <stdexcept>
+#include <cxxtools/systemerror.h>
 
 namespace cxxtools
 {
-  class SysError : public std::runtime_error
+  class SysError : public SystemError
   {
       int m_errno;
 

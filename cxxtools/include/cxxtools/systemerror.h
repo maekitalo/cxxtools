@@ -41,6 +41,8 @@ namespace cxxtools {
     class CXXTOOLS_API SystemError : public std::runtime_error
     {
         public:
+            SystemError(const std::string & what);
+
             SystemError(const std::string & what, const SourceInfo& si);
 
             ~SystemError() throw();

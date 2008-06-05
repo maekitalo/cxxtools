@@ -31,6 +31,10 @@
 
 namespace cxxtools {
 
+SystemError::SystemError(const std::string & what)
+: std::runtime_error(what)
+{ }
+
 SystemError::SystemError(const std::string & what, const SourceInfo& si)
 : std::runtime_error(what + si)
 { }

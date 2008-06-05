@@ -48,12 +48,12 @@ namespace cxxtools
   }
 
   SysError::SysError(const char* fn)
-    : std::runtime_error(getErrnoString(fn)),
+    : SystemError(getErrnoString(fn)),
       m_errno(errno)
     { }
 
   SysError::SysError(int err, const char* fn)
-    : std::runtime_error(getErrnoString(err, fn)),
+    : SystemError(getErrnoString(err, fn)),
       m_errno(err)
     { }
 
