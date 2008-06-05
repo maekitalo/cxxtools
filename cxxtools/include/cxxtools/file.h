@@ -1,12 +1,20 @@
 /***************************************************************************
- *   Copyright (C) 2006-2007 Marc Boris Duerner                            *
- *   Copyright (C) 2006-2007 Tobias Mueller                                *
- *   Copyright (C) 2006-2007 PTV AG                                        *
+ *   Copyright (C) 2006-2008 Marc Boris Duerner                            *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU Library General Public License as       *
  *   published by the Free Software Foundation; either version 2 of the    *
  *   License, or (at your option) any later version.                       *
+ *                                                                         *
+ *   As a special exception, you may use this file as part of a free       *
+ *   software library without restriction. Specifically, if other files    *
+ *   instantiate templates or use macros or inline functions from this     *
+ *   file, or you compile this file and link it with other files to        *
+ *   produce an executable, this file does not by itself cause the         *
+ *   resulting executable to be covered by the GNU General Public          *
+ *   License. This exception does not however invalidate any other         *
+ *   reasons why the executable file might be covered by the GNU Library   *
+ *   General Public License.                                               *
  *                                                                         *
  *   This program is distributed in the hope that it will be useful,       *
  *   but WITHOUT ANY WARRANTY; without even the implied warranty of        *
@@ -18,39 +26,136 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#ifndef cxxtools_File_h
-#define cxxtools_File_h
+#ifndef CXXTOOLS_FILE_H
+#define CXXTOOLS_FILE_H
 
+#include <cxxtools/types.h>
+#include <cxxtools/sourceinfo.h>
 #include <cxxtools/api.h>
-#include <cxxtools/filesystemnode.h>
+#include <cxxtools/fileinfo.h>
+#include <cxxtools/systemerror.h>
+#include <string>
 
 namespace cxxtools {
 
-class CXXTOOLS_API File : public FileSystemNode
+class CXXTOOLS_API FileNotFound : public SystemError
 {
-    private:
-        class FileImpl* _impl;
-
     public:
-        File(const std::string& path = "");
+        FileNotFound(const std::string& path, const SourceInfo& si);
 
+        ~FileNotFound() throw();
+};
+
+/** @brief Provides common operations on files.
+ */
+class CXXTOOLS_API File
+{
+    public:
+        /** @brief Constructs a %File object from the path \a path
+
+            If no file exists at \a path, an exception of type FileNotFound
+            is thrown.
+        */
+        explicit File(const std::string& path);
+
+        /** @brief Constructs a %File object from a FileInfo object
+
+            An exception of type %FileNotFound is thrown if the %FileInfo
+            does not represent a file.
+        */
+        explicit File(const FileInfo& fi);
+
+        //! @brief Copy constructor
         File(const File& file);
 
+        //! @brief Destrctor
         ~File();
 
+        //! @brief Assignment operator
         File& operator=(const File& file);
 
-        virtual const std::string& path() const;
+        /** @brief Returns the full path of file in the file-system
 
-        virtual std::size_t size() const;
+            This method may return a relative path, or a fully qualified one
+            depending on how this object was constructed.
+        */
+        const std::string& path() const
+        { return _path; }
 
-        virtual std::string name() const;
+        //! @brief Returns the size of the file in bytes
+        std::size_t size() const;
 
-        virtual Type type() const
-        {
-            return FileSystemNode::File; 
-        }
+        /** @brief Returns the parent directory path
+
+            This method might return an empty string if the node was created
+            without a complete path. If the directory is located in the root
+            directory of a unix file system, a slash ("/") is returned. A
+            returned directory path always ends with a trailing path separator
+            character. (A backslash in Windows and a slash in Unix, for example.)
+        */
+        std::string dirName() const;
+
+        //! @brief Returns the file name including an exension
+        std::string name() const;
+
+        //! @brief Returns the file name without the exension
+        std::string baseName() const;
+
+        //! @brief Returns the file name extension or an empty string if not present
+        std::string extension() const;
+
+        //! @brief Resizes the file to a new size of \a n bytes
+        void resize(std::size_t n);
+
+        //! @brief Copies the file to the location given by \a to
+        void copy(const std::string& to) const;
+
+        /** @brief Removes the file.
+
+            This object will be invalid after calling this method.
+        */
+        void remove();
+
+        /** @brief Moves the file to the location given by \a to
+
+            The %File object will stay valid after this method was called and
+            point to the moved file.
+        */
+        void move(const std::string& to);
+
+    public:
+        //! @brief Creates a new file at the path given by \a path
+        static File create(const std::string& path);
+
+        //! @brief Returns true if a file exists at \a path, or false otherwise
+        static bool exists(const std::string& path);
+
+    protected:
+        //! @brief Default Constructor
+        File();
+
+    private:
+        //! @internal
+        std::string _path;
+
+        //! @internal
+        class FileImpl* _impl;
 };
+
+inline bool operator<(const File& a, const File& b)
+{
+    return a.path() < b.path();
+}
+
+inline bool operator==(const File& a, const File& b)
+{
+    return a.path() == b.path();
+}
+
+inline bool operator!=(const File& a, const File& b)
+{
+    return !(a == b);
+}
 
 } // namespace cxxtools
 

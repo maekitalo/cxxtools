@@ -26,9 +26,9 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#include "FileInfoImpl.h"
-#include "FileImpl.h"
-#include "DirectoryImpl.h"
+#include "fileinfoimpl.h"
+#include "fileimpl.h"
+#include "directoryimpl.h"
 #include "cxxtools/fileinfo.h"
 
 namespace cxxtools {

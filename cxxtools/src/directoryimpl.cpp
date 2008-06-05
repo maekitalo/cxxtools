@@ -26,10 +26,8 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#include "DirectoryImpl.h"
-#include "Pt/System/SystemError.h"
-#include "Pt/System/Process.h"
-#include "Pt/System/File.h"
+#include "directoryimpl.h"
+#include "cxxtools/systemerror.h"
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <dirent.h>
@@ -37,9 +35,7 @@
 #include <errno.h>
 #include <stdio.h>
 
-namespace Pt {
-
-namespace System {
+namespace cxxtools {
 
 DirectoryIteratorImpl::DirectoryIteratorImpl()
 : _refs(1),
@@ -59,9 +55,16 @@ DirectoryIteratorImpl::DirectoryIteratorImpl(const char* path)
 {
     _handle = ::opendir( path );
 
+    // EACCES Permission denied.
+    // EMFILE Too many file descriptors in use by process.
+    // ENFILE Too many files are currently open in the system.
+    // ENOENT Directory does not exist, or name is an empty string.
+    // ENOMEM Insufficient memory to complete the operation.
+    // ENOTDIR name is not a directory.
+
     if( !_handle )
     {
-        throw std::runtime_error(PT_SOURCEINFO + "Could not open " + path);
+        throw SystemError("Could not open directory", CXXTOOLS_SOURCEINFO);
     }
 
     // append a trailing slash if not empty, so we can add the
@@ -139,7 +142,7 @@ void DirectoryImpl::create(const std::string& path)
 {
     if( -1 == ::mkdir(path.c_str(), 0777) )
     {
-        throw std::runtime_error(PT_SOURCEINFO + "Could not create " + path);
+        throw SystemError("Could not create directory '" + path + "'" , CXXTOOLS_SOURCEINFO);
     }
 }
 
@@ -155,7 +158,7 @@ bool DirectoryImpl::exists(const std::string& path)
             return false;
         }
 
-        throw std::runtime_error(PT_SOURCEINFO + "Could not stat " + path);
+        throw SystemError("Could not stat file '" + path + "'", CXXTOOLS_SOURCEINFO);
     }
 
     return true;
@@ -166,7 +169,7 @@ void DirectoryImpl::remove(const std::string& path)
 {
     if( -1 == ::rmdir(path.c_str()) )
     {
-        throw SystemError("Could not remove directory '" + path + "'", PT_SOURCEINFO);
+        throw SystemError("Could not remove directory '" + path + "'", CXXTOOLS_SOURCEINFO);
     }
 }
 
@@ -175,7 +178,7 @@ void DirectoryImpl::move(const std::string& oldName, const std::string& newName)
 {
     if (0 != ::rename(oldName.c_str(), newName.c_str()))
     {
-        throw SystemError("Could not move directory '" + oldName + "' to '" + newName + "'", PT_SOURCEINFO);
+        throw SystemError("Could not move directory '" + oldName + "' to '" + newName + "'", CXXTOOLS_SOURCEINFO);
     }
 }
 
@@ -184,7 +187,7 @@ void DirectoryImpl::chdir(const std::string& path)
 {
     if( -1 == ::chdir(path.c_str()) )
     {
-        throw SystemError("Could not change working directory to '" + path + "'", PT_SOURCEINFO);
+        throw SystemError("Could not change working directory to '" + path + "'", CXXTOOLS_SOURCEINFO);
     }
 }
 
@@ -194,7 +197,7 @@ std::string DirectoryImpl::cwd()
     char cwd[PATH_MAX];
 
     if( !getcwd(cwd, PATH_MAX) )
-        throw SystemError("Could not get current working directroy", PT_SOURCEINFO);
+        throw SystemError("Could not get current working directroy", CXXTOOLS_SOURCEINFO);
 
     return std::string(cwd);
 }
@@ -220,17 +223,20 @@ std::string DirectoryImpl::rootdir()
 
 std::string DirectoryImpl::tmpdir()
 {
-    std::string tmpDir = Process::getEnvVar("TEMP");
-    if (tmpDir.length() == 0)
+    const char* tmpdir = getenv("TEMP");
+
+    if(tmpdir)
     {
-        tmpDir = Process::getEnvVar("TMP");
-    }
-    if (tmpDir.length() == 0)
-    {
-        tmpDir = ( File::exists("/tmp") ? "/tmp" : curdir() );
+        return tmpdir;
     }
 
-    return tmpDir;
+    tmpdir = getenv("TMP");
+    if(tmpdir)
+    {
+        return tmpdir;
+    }
+
+    return DirectoryImpl::exists("/tmp") ? "/tmp" : curdir();
 }
 
 
@@ -239,6 +245,4 @@ std::string DirectoryImpl::sep()
     return "/";
 }
 
-} // namespace System
-
-} // namespace Pt
+} // namespace cxxtools

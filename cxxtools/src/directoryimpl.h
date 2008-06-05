@@ -30,11 +30,9 @@
 #include <string>
 #include <dirent.h>
 
-namespace Pt {
+namespace cxxtools {
 
-namespace System {
-
-class PT_API DirectoryIteratorImpl
+class DirectoryIteratorImpl
 {
     public:
         DirectoryIteratorImpl();
@@ -63,7 +61,7 @@ class PT_API DirectoryIteratorImpl
 };
 
 
-class PT_API DirectoryImpl
+class DirectoryImpl
 {
     public:
         static void create(const std::string& path);
@@ -89,8 +87,4 @@ class PT_API DirectoryImpl
         static std::string sep();
 };
 
-} // namespace System
-
-} // namespace Pt
-
-
+} // namespace cxxtools

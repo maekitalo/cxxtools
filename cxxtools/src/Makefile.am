@@ -11,8 +11,13 @@ libcxxtools_la_SOURCES = \
 	date.cpp \
 	datetime.cpp \
 	dir.cpp \
+	directory.cpp \
+	directoryimpl.cpp \
 	dlloader.cpp \
 	fdstream.cpp \
+	file.cpp \
+	fileimpl.cpp \
+	fileinfo.cpp \
 	hdstream.cpp \
 	hirestime.cpp \
 	httpreply.cpp \
