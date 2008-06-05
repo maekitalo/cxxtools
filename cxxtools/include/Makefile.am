@@ -28,9 +28,12 @@ nobase_include_HEADERS = \
         cxxtools/delegate.h \
         cxxtools/delegate.tpp \
         cxxtools/dir.h \
+        cxxtools/directory.h \
         cxxtools/dlloader.h \
         cxxtools/dynbuffer.h \
         cxxtools/fdstream.h \
+        cxxtools/file.h \
+        cxxtools/fileinfo.h \
         cxxtools/fork.h \
         cxxtools/function.h \
         cxxtools/function.tpp \
