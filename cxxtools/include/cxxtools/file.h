@@ -29,7 +29,6 @@
 #ifndef CXXTOOLS_FILE_H
 #define CXXTOOLS_FILE_H
 
-#include <cxxtools/types.h>
 #include <cxxtools/sourceinfo.h>
 #include <cxxtools/api.h>
 #include <cxxtools/fileinfo.h>

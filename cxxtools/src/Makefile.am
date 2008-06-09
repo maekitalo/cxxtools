@@ -8,8 +8,6 @@ libcxxtools_la_SOURCES = \
 	connectable.cpp \
 	connection.cpp \
 	cgi.cpp \
-	date.cpp \
-	datetime.cpp \
 	dir.cpp \
 	directory.cpp \
 	directoryimpl.cpp \
@@ -41,8 +39,6 @@ libcxxtools_la_SOURCES = \
 	syserror.cpp \
 	systemerror.cpp \
 	tcpstream.cpp \
-	time.cpp \
-	timespan.cpp \
 	tee.cpp \
 	thread.cpp \
 	udp.cpp \

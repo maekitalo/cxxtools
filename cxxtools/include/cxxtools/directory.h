@@ -29,7 +29,6 @@
 #ifndef PT_SYSTEM_DIRECTORY_H
 #define PT_SYSTEM_DIRECTORY_H
 
-#include <cxxtools/types.h>
 #include <cxxtools/sourceinfo.h>
 #include <cxxtools/api.h>
 #include <cxxtools/fileinfo.h>

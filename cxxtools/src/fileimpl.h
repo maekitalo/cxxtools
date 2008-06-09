@@ -27,7 +27,6 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 #include "cxxtools/api.h"
-#include "cxxtools/types.h"
 #include <string>
 
 namespace cxxtools {
