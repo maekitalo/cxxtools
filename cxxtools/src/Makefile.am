@@ -3,7 +3,6 @@ INCLUDES= -I$(top_builddir)/include
 lib_LTLIBRARIES = libcxxtools.la
 
 libcxxtools_la_SOURCES = \
-	#any.cpp \
 	base64stream.cpp \
 	connectable.cpp \
 	connection.cpp \

@@ -20,7 +20,6 @@ nobase_include_HEADERS = \
         cxxtools/connection.h \
         cxxtools/constmethod.h \
         cxxtools/constmethod.tpp \
-        cxxtools/convert.h \
         cxxtools/delegate.h \
         cxxtools/delegate.tpp \
         cxxtools/dir.h \
@@ -99,7 +98,6 @@ nobase_include_HEADERS = \
         cxxtools/unit/registertest.h \
         cxxtools/unit/test.h \
         cxxtools/unit/testcontext.h \
-        cxxtools/unit/testmain.h \
         cxxtools/unit/testprotocol.h
 
 nobase_nodist_include_HEADERS = \
