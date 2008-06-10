@@ -106,9 +106,6 @@ class CXXTOOLS_API File
         //! @brief Resizes the file to a new size of \a n bytes
         void resize(std::size_t n);
 
-        //! @brief Copies the file to the location given by \a to
-        void copy(const std::string& to) const;
-
         /** @brief Removes the file.
 
             This object will be invalid after calling this method.

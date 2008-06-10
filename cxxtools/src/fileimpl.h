@@ -44,8 +44,6 @@ class FileImpl
 
         static void remove(const std::string& path);
 
-        static void copy(const std::string& path, const std::string& to);
-
         static void move(const std::string& path, const std::string& to);
 
         static void create(const std::string& path);

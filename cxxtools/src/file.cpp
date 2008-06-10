@@ -104,12 +104,6 @@ void File::remove()
 }
 
 
-void File::copy(const std::string& to) const
-{
-    return _impl->copy( path().c_str(), to.c_str() );
-}
-
-
 void File::move(const std::string& to)
 {
     FileImpl::move(path().c_str(), to.c_str());
