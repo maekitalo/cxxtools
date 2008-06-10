@@ -30,14 +30,13 @@
 #define CXXTOOLS_FILE_H
 
 #include <cxxtools/sourceinfo.h>
-#include <cxxtools/api.h>
 #include <cxxtools/fileinfo.h>
 #include <cxxtools/systemerror.h>
 #include <string>
 
 namespace cxxtools {
 
-class CXXTOOLS_API FileNotFound : public SystemError
+class FileNotFound : public SystemError
 {
     public:
         FileNotFound(const std::string& path, const SourceInfo& si);
@@ -47,7 +46,7 @@ class CXXTOOLS_API FileNotFound : public SystemError
 
 /** @brief Provides common operations on files.
  */
-class CXXTOOLS_API File
+class File
 {
     public:
         /** @brief Constructs a %File object from the path \a path

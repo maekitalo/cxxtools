@@ -19,7 +19,6 @@
 #ifndef CXXTOOLS_ASSERTION_H
 #define CXXTOOLS_ASSERTION_H
 
-#include <cxxtools/unit/api.h>
 #include "cxxtools/sourceinfo.h"
 #include <stdexcept>
 #include <iostream>
@@ -47,7 +46,7 @@ namespace unit {
             }
         @endcode
     */
-    class CXXTOOLS_UNIT_API Assertion : public std::logic_error
+    class Assertion : public std::logic_error
     {
         public:
             /** @brief Construct from a message and source info.

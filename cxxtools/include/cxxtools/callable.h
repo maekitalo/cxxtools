@@ -19,7 +19,6 @@
 #ifndef cxxtools_Callable_h
 #define cxxtools_Callable_h
 
-#include <cxxtools/api.h>
 #include <cxxtools/invokable.h>
 
 namespace cxxtools {

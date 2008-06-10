@@ -19,7 +19,6 @@
 #ifndef CXXTOOLS_UNIT_TEST_H
 #define CXXTOOLS_UNIT_TEST_H
 
-#include <cxxtools/unit/api.h>
 #include <cxxtools/unit/reporter.h>
 #include <cxxtools/unit/assertion.h>
 #include <cxxtools/connectable.h>
@@ -40,8 +39,8 @@ namespace unit {
         is overriden by the derived classes and signals to inform about
         events that occur while the test is run.
     */
-    class CXXTOOLS_UNIT_API Test : public Connectable,
-                             protected NonCopyable
+    class Test : public Connectable,
+                 protected NonCopyable
     {
         public:
             /** @brief Destructor

@@ -19,7 +19,6 @@
 #ifndef CXXTOOLS_UNIT_TESTCONTEXT_H
 #define CXXTOOLS_UNIT_TESTCONTEXT_H
 
-#include <cxxtools/unit/api.h>
 #include <string>
 #include <cstddef>
 
@@ -30,7 +29,7 @@ namespace unit {
     class Test;
     class TestFixture;
 
-    class CXXTOOLS_UNIT_API TestContext
+    class TestContext
     {
         public:
             virtual ~TestContext();

@@ -19,7 +19,6 @@
 #ifndef CXXTOOLS_UNIT_TESTSUITE_H
 #define CXXTOOLS_UNIT_TESTSUITE_H
 
-#include <cxxtools/unit/api.h>
 #include <cxxtools/unit/test.h>
 #include <cxxtools/unit/testfixture.h>
 #include <cxxtools/unit/testmethod.h>
@@ -63,11 +62,11 @@ namespace unit {
         one and reflection can be used to call any method multiple times with
         the required data.
     */
-    class CXXTOOLS_UNIT_API TestSuite : public Test
-                                , public TestFixture
+    class TestSuite : public Test
+                    , public TestFixture
     {
         private:
-            class CXXTOOLS_UNIT_API Context : public TestContext
+            class Context : public TestContext
             {
                 public:
                     Context(TestFixture& fixture, TestMethod& test, const SerializationInfo* args, unsigned argCount)

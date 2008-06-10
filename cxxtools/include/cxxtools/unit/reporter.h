@@ -19,7 +19,6 @@
 #ifndef CXXTOOLS_UNIT_REPORTER_H
 #define CXXTOOLS_UNIT_REPORTER_H
 
-#include <cxxtools/unit/api.h>
 #include <cxxtools/unit/assertion.h>
 #include <cxxtools/unit/testcontext.h>
 #include <cxxtools/signals.h>
@@ -38,7 +37,7 @@ namespace unit {
     on perticular events during the test. Reporters can be made to print
     information to the console or write XML logs.
 */
-class CXXTOOLS_UNIT_API Reporter : protected NonCopyable
+class Reporter : protected NonCopyable
 {
     public:
         /** @brief Destructor
@@ -119,7 +118,7 @@ class CXXTOOLS_UNIT_API Reporter : protected NonCopyable
 };
 
 
-class CXXTOOLS_UNIT_API BriefReporter : public Reporter
+class BriefReporter : public Reporter
 {
     public:
         explicit BriefReporter(std::ostream* out = &std::cout);

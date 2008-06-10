@@ -21,7 +21,6 @@
 
 #include <cxxtools/main.h>
 #include <cxxtools/arg.h>
-#include <cxxtools/unit/api.h>
 #include <cxxtools/unit/reporter.h>
 #include <cxxtools/unit/application.h>
 #include <fstream>

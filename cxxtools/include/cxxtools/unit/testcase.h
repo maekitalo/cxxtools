@@ -19,7 +19,6 @@
 #ifndef CXXTOOLS_UNIT_TESTCASE_H
 #define CXXTOOLS_UNIT_TESTCASE_H
 
-#include <cxxtools/unit/api.h>
 #include <cxxtools/unit/test.h>
 #include <cxxtools/unit/testfixture.h>
 #include <string>
@@ -65,11 +64,11 @@ namespace unit {
         Once the test is written it can be registered to an application by
         using the RegisterTest class template.
     */
-    class CXXTOOLS_UNIT_API TestCase : public Test
-                                     , public TestFixture
+    class TestCase : public Test
+                   , public TestFixture
     {
         private:
-            class CXXTOOLS_UNIT_API Context : public TestContext
+            class Context : public TestContext
             {
                 public:
                     Context(TestFixture& fixture, TestCase& test)

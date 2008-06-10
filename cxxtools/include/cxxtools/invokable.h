@@ -20,7 +20,6 @@
 #ifndef cxxtools_Invokable_h
 #define cxxtools_Invokable_h
 
-#include <cxxtools/api.h>
 #include <cxxtools/void.h>
 
 namespace cxxtools {

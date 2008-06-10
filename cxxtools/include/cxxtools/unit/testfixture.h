@@ -19,8 +19,6 @@
 #ifndef CXXTOOLS_UNIT_TESTFIXTURE_H
 #define CXXTOOLS_UNIT_TESTFIXTURE_H
 
-#include <cxxtools/unit/api.h>
-
 namespace cxxtools {
 
 namespace unit {

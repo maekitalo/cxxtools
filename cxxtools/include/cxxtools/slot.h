@@ -29,7 +29,6 @@
 #ifndef cxxtools_Slot_h
 #define cxxtools_Slot_h
 
-#include <cxxtools/api.h>
 #include <cxxtools/void.h>
 
 namespace cxxtools {

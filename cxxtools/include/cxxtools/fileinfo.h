@@ -29,14 +29,13 @@
 #ifndef CXXTOOLS_FILEINFO_H
 #define CXXTOOLS_FILEINFO_H
 
-#include <cxxtools/api.h>
 #include <string>
 
 namespace cxxtools {
 
 /** @brief Provides information about a node in the file-system.
 */
-class CXXTOOLS_API FileInfo
+class FileInfo
 {
     public:
         //! @brief File-node type

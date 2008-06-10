@@ -30,7 +30,6 @@
 #define PT_SYSTEM_DIRECTORY_H
 
 #include <cxxtools/sourceinfo.h>
-#include <cxxtools/api.h>
 #include <cxxtools/fileinfo.h>
 #include <cxxtools/systemerror.h>
 #include <string>
@@ -39,7 +38,7 @@ namespace cxxtools {
 
 /** @brief A directory could not be found at a given path
 */
-class CXXTOOLS_API DirectoryNotFound : public SystemError
+class DirectoryNotFound : public SystemError
 {
     public:
         /** @brief Construct from path and source info
@@ -69,7 +68,7 @@ class CXXTOOLS_API DirectoryNotFound : public SystemError
     }
     \endcode
 */
-class CXXTOOLS_API DirectoryIterator
+class DirectoryIterator
 {
     public:
         //! @brief Default constructor
@@ -125,7 +124,7 @@ class CXXTOOLS_API DirectoryIterator
     }
     \endcode
 */
-class CXXTOOLS_API Directory
+class Directory
 {
     public:
         typedef DirectoryIterator Iterator;

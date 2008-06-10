@@ -30,7 +30,6 @@
 #ifndef CXXTOOLS_SYSTEM_ERROR_H
 #define CXXTOOLS_SYSTEM_ERROR_H
 
-#include <cxxtools/api.h>
 #include <cxxtools/sourceinfo.h>
 #include <stdexcept>
 
@@ -38,7 +37,7 @@ namespace cxxtools {
 
     /** @brief Exception class indication a system error.
      */
-    class CXXTOOLS_API SystemError : public std::runtime_error
+    class SystemError : public std::runtime_error
     {
         public:
             SystemError(const std::string & what);

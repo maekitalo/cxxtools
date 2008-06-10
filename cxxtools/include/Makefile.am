@@ -1,5 +1,4 @@
 nobase_include_HEADERS = \
-        cxxtools/api.h \
         cxxtools/atomicity.generic.h \
         cxxtools/atomicity.pthread.h \
         cxxtools/atomicity.gcc.arm.h \
@@ -91,7 +90,6 @@ nobase_include_HEADERS = \
         cxxtools/log/log4cplus_init.h \
         cxxtools/log/log4cxx.h \
         cxxtools/log/log4cxx_init.h \
-        cxxtools/unit/api.h \
         cxxtools/unit/assertion.h \
         cxxtools/unit/reporter.h \
         cxxtools/unit/testcase.h \

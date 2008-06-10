@@ -19,7 +19,6 @@
 #ifndef CXXTOOLS_UNIT_TESTPROTOCOL_H
 #define CXXTOOLS_UNIT_TESTPROTOCOL_H
 
-#include <cxxtools/unit/api.h>
 #include <cxxtools/unit/test.h>
 #include <cxxtools/unit/assertion.h>
 
@@ -37,7 +36,7 @@ namespace unit {
         test of the test suite without passing it any data. Implementors
         need to override the method TestProtocol::run.
     */
-    class CXXTOOLS_UNIT_API TestProtocol
+    class TestProtocol
     {
         public:
             /** @brief Destructor

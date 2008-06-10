@@ -19,7 +19,6 @@
 #ifndef CXXTOOLS_UNIT_APPLICATION_H
 #define CXXTOOLS_UNIT_APPLICATION_H
 
-#include <cxxtools/unit/api.h>
 #include <cxxtools/unit/reporter.h>
 #include <cxxtools/unit/test.h>
 #include <sstream>
@@ -50,7 +49,7 @@ namespace unit {
         The TestMain.h include already defines a main loop with an application
         for the common use case.
     */
-    class CXXTOOLS_UNIT_API Application : public Test
+    class Application : public Test
     {
         public:
             /** @brief Default Constructor

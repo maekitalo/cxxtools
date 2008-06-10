@@ -19,7 +19,6 @@
 #ifndef CXXTOOLS_UNIT_TESTMETHOD_H
 #define CXXTOOLS_UNIT_TESTMETHOD_H
 
-#include <cxxtools/unit/api.h>
 #include <cxxtools/unit/test.h>
 #include <stdexcept>
 #include <cstddef>

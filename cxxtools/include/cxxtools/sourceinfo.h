@@ -20,7 +20,6 @@
 #ifndef cxxtools_SourceInfo_h
 #define cxxtools_SourceInfo_h
 
-#include <cxxtools/api.h>
 #include <string>
 
 // GNU C++ compiler
