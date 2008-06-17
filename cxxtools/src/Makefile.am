@@ -45,6 +45,11 @@ libcxxtools_la_SOURCES = \
 	uuencode.cpp \
 	xmltag.cpp
 
+noinst_HEADERS = \
+	directoryimpl.h \
+	fileimpl.h \
+	fileinfoimpl.h
+
 if MAKE_ATOMICITY_PTHREAD
 libcxxtools_la_SOURCES += \
 	atomicity.cpp
