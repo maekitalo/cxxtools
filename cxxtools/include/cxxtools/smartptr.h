@@ -81,10 +81,53 @@ namespace cxxtools
   template <typename objectType>
   class ExternalRefCounted
   {
-      atomic_t* refs;
+      unsigned* refs;
 
     protected:
       ExternalRefCounted()
+        : refs(0)  { }
+
+      bool unlink(objectType* object)
+      {
+        if (object && --*refs <= 0)
+        {
+          delete refs;
+          // no need to set refs to 0 since the pointer is either
+          // destroyed or another object is linked in
+          return true;
+        }
+        else
+          return false;
+      }
+
+      void link(const ExternalRefCounted& ptr, objectType* object)
+      {
+        if (object)
+        {
+          if (ptr.refs == 0)
+            refs = new unsigned(1);
+          else
+          {
+            refs = ptr.refs;
+            ++*refs;
+          }
+        }
+        else
+          refs = 0;
+      }
+
+    public:
+      unsigned getRefs() const
+        { return refs ? *refs : 0; }
+  };
+
+  template <typename objectType>
+  class ExternalAtomicRefCounted
+  {
+      atomic_t* refs;
+
+    protected:
+      ExternalAtomicRefCounted()
         : refs(0)  { }
 
       bool unlink(objectType* object)
@@ -100,7 +143,7 @@ namespace cxxtools
           return false;
       }
 
-      void link(const ExternalRefCounted& ptr, objectType* object)
+      void link(const ExternalAtomicRefCounted& ptr, objectType* object)
       {
         if (object)
         {
@@ -142,9 +185,11 @@ namespace cxxtools
    *
    * This class works like a pointer, but the destructor deletes the held
    * object if this is the last reference. The policy specifies, how the class
-   * counts the references. There are 3 policies:
+   * counts the references. There are 4 policies:
    *
    *   ExternalRefCounted: allocates a reference-count
+   *
+   *   ExternalAtomicRefCounted: like ExternalRefCounted, but thread safe
    *
    *   InternalRefCounted: the pointed object needs to have a reference-counter
    *     with methods addRef() and release(). The release-method deletes the
