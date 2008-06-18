@@ -28,6 +28,7 @@
 #include <stdexcept>
 #include <time.h>
 #include <cxxtools/syserror.h>
+#include <cxxtools/noncopyable.h>
 
 namespace cxxtools
 {
@@ -253,13 +254,9 @@ void createThread(object_type& object, void (object_type::*method)())
 
 class Condition;
 
-class Mutex
+class Mutex : private NonCopyable
 {
     friend class Condition;
-
-    // make copy and assignment private without implementation
-    Mutex(const Mutex&);
-    const Mutex& operator= (const Mutex&);
 
   protected:
     pthread_mutex_t m_mutex;
@@ -274,13 +271,9 @@ class Mutex
     bool unlockNoThrow();
 };
 
-class RWLock
+class RWLock : private NonCopyable
 {
     pthread_rwlock_t m_rwlock;
-
-    // make copy and assignment private without implementation
-    RWLock(const RWLock&);
-    const RWLock& operator= (const RWLock&);
 
   public:
     RWLock();
@@ -292,57 +285,9 @@ class RWLock
     bool unlockNoThrow();
 };
 
-template <class mutex_type,
-          void (mutex_type::*lock_method)() = &mutex_type::lock,
-          bool (mutex_type::*unlock_method)() = &mutex_type::unlockNoThrow>
-class LockBase
-{
-    mutex_type& mutex;
-    bool locked;
-
-    // make copy and assignment private without implementation
-    LockBase(const LockBase&);
-    const LockBase& operator= (const LockBase&);
-
-  public:
-    LockBase(mutex_type& m, bool doLock = true)
-      : mutex(m), locked(false)
-    {
-      if (doLock)
-        lock();
-    }
-
-    ~LockBase()
-    {
-      if (locked)
-        unlock();
-    }
-
-    void lock()
-    {
-      if (!locked)
-      {
-        (mutex.*lock_method)();
-        locked = true;
-      }
-    }
-
-    void unlock()
-    {
-      if (locked)
-      {
-        (mutex.*unlock_method)();
-        locked = false;
-      }
-    }
-
-    mutex_type& getMutex()
-      { return mutex; }
-};
-
 template <typename mutex_type = Mutex,
           bool (mutex_type::*unlock_method)() = &mutex_type::unlockNoThrow>
-class UnlockMonitor
+class UnlockMonitor : private NonCopyable
 {
     mutex_type* mutex;
 
@@ -364,9 +309,128 @@ class UnlockMonitor
     }
 };
 
-typedef LockBase<Mutex> MutexLock;
-typedef LockBase<RWLock, &RWLock::rdLock> RdLock;
-typedef LockBase<RWLock, &RWLock::wrLock> WrLock;
+class MutexLock : private NonCopyable
+{
+    Mutex& mutex;
+    bool locked;
+
+  public:
+    explicit MutexLock(Mutex& m, bool doLock = true, bool locked_ = false)
+      : mutex(m), locked(locked_)
+    {
+      if (doLock)
+        lock();
+    }
+
+    ~MutexLock()
+    {
+      if (locked)
+        mutex.unlockNoThrow();
+    }
+
+    void lock()
+    {
+      if (!locked)
+      {
+        mutex.lock();
+        locked = true;
+      }
+    }
+
+    void unlock()
+    {
+      if (locked)
+      {
+        mutex.unlock();
+        locked = false;
+      }
+    }
+
+    Mutex& getMutex()
+      { return mutex; }
+};
+
+class RdLock : private NonCopyable
+{
+    RWLock& mutex;
+    bool locked;
+
+  public:
+    explicit RdLock(RWLock& m, bool doLock = true, bool locked_ = false)
+      : mutex(m), locked(locked_)
+    {
+      if (doLock)
+        lock();
+    }
+
+    ~RdLock()
+    {
+      if (locked)
+        mutex.unlockNoThrow();
+    }
+
+    void lock()
+    {
+      if (!locked)
+      {
+        mutex.rdLock();
+        locked = true;
+      }
+    }
+
+    void unlock()
+    {
+      if (locked)
+      {
+        mutex.unlock();
+        locked = false;
+      }
+    }
+
+    RWLock& getMutex()
+      { return mutex; }
+};
+
+class WrLock : private NonCopyable
+{
+    RWLock& mutex;
+    bool locked;
+
+  public:
+    explicit WrLock(RWLock& m, bool doLock = true, bool locked_ = false)
+      : mutex(m), locked(locked_)
+    {
+      if (doLock)
+        lock();
+    }
+
+    ~WrLock()
+    {
+      if (locked)
+        mutex.unlockNoThrow();
+    }
+
+    void lock()
+    {
+      if (!locked)
+      {
+        mutex.wrLock();
+        locked = true;
+      }
+    }
+
+    void unlock()
+    {
+      if (locked)
+      {
+        mutex.unlock();
+        locked = false;
+      }
+    }
+
+    RWLock& getMutex()
+      { return mutex; }
+};
 
 class Semaphore
 {
