@@ -19,11 +19,11 @@
  *
  */
 
+#define CXXTOOLS_NOLOCKTYPEDEF
 #include "cxxtools/thread.h"
 #include "cxxtools/log.h"
 #include <sys/time.h>
 #include <errno.h>
-#include <sstream>
 #include <string>
 
 log_define("cxxtools.thread")
