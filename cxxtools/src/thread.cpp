@@ -287,6 +287,13 @@ void Condition::wait(MutexLock& lock)
     throw ThreadException(ret, "pthread_cond_wait");
 }
 
+void Condition::wait(LockBase<Mutex>& lock)
+{
+  int ret = pthread_cond_wait(&cond, &lock.getMutex().m_mutex);
+  if (ret != 0)
+    throw ThreadException(ret, "pthread_cond_wait");
+}
+
 bool Condition::timedwait(MutexLock& lock, const struct timespec& time)
 {
   // in the timespec structure is expected a relative interval,

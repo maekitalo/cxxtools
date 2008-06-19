@@ -285,6 +285,54 @@ class RWLock : private NonCopyable
     bool unlockNoThrow();
 };
 
+template <class mutex_type,
+          void (mutex_type::*lock_method)() = &mutex_type::lock,
+          bool (mutex_type::*unlock_method)() = &mutex_type::unlockNoThrow>
+class LockBase
+{
+    mutex_type& mutex;
+    bool locked;
+
+    // make copy and assignment private without implementation
+    LockBase(const LockBase&);
+    const LockBase& operator= (const LockBase&);
+
+  public:
+    LockBase(mutex_type& m, bool doLock = true)
+      : mutex(m), locked(false)
+    {
+      if (doLock)
+        lock();
+    }
+
+    ~LockBase()
+    {
+      if (locked)
+        unlock();
+    }
+
+    void lock()
+    {
+      if (!locked)
+      {
+        (mutex.*lock_method)();
+        locked = true;
+      }
+    }
+
+    void unlock()
+    {
+      if (locked)
+      {
+        (mutex.*unlock_method)();
+        locked = false;
+      }
+    }
+
+    mutex_type& getMutex()
+      { return mutex; }
+};
+
 template <typename mutex_type = Mutex,
           bool (mutex_type::*unlock_method)() = &mutex_type::unlockNoThrow>
 class UnlockMonitor : private NonCopyable
@@ -461,6 +509,7 @@ class Condition
     void signal();
     void broadcast();
     void wait(MutexLock& lock);
+    void wait(LockBase<Mutex>& lock); // keep for binary compatibility to 1.4.8
     bool timedwait(MutexLock& lock, unsigned ms);
     bool timedwait(MutexLock& lock, const struct timespec& time);
 };
