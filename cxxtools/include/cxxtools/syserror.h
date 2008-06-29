@@ -26,6 +26,11 @@
 
 namespace cxxtools
 {
+  /**
+   * Errors, which set errno.
+   * The message returned by what() contains the error number and the
+   * underlying system error message returned by strerror(3).
+   */
   class SysError : public SystemError
   {
       int m_errno;

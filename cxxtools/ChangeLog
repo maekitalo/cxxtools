@@ -1,3 +1,6 @@
+2008-06-18 tommi@tntnet.org
+  - split referencecounting into a thread safe and a non thread safe variant
+
 2008-05-02 tommi@tntnet.org
   - change the way of announcing configure results to headers
 
