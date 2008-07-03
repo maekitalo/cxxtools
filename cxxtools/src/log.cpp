@@ -483,7 +483,7 @@ namespace cxxtools
 
           logger->logEnd(out);
         }
-        catch (const std:exception&)
+        catch (const std::exception&)
         {
         }
       }
@@ -530,7 +530,7 @@ namespace cxxtools
           l->logentry("TRACE")
             << "EXIT " << msg->str() << std::endl;
         }
-        catch (const std:exception&)
+        catch (const std::exception&)
         {
         }
       }
@@ -555,7 +555,7 @@ namespace cxxtools
         l->logentry("TRACE")
           << "ENTER " << msg->str() << std::endl;
       }
-      catch (const std:exception&)
+      catch (const std::exception&)
       {
       }
     }
