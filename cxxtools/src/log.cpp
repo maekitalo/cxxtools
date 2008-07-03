@@ -474,12 +474,18 @@ namespace cxxtools
       std::ostream& out()     { return msg; }
       void flush()
       {
-        MutexLock lock(Logger::mutex);
+        try
+        {
+          MutexLock lock(Logger::mutex);
 
-        std::ostream& out(logger->logentry(level));
-        out << msg.str() << '\n';
+          std::ostream& out(logger->logentry(level));
+          out << msg.str() << '\n';
 
-        logger->logEnd(out);
+          logger->logEnd(out);
+        }
+        catch (const std:exception&)
+        {
+        }
       }
 
   };
@@ -518,9 +524,15 @@ namespace cxxtools
     {
       if (l->isEnabled(Logger::LOG_LEVEL_TRACE))
       {
-        cxxtools::MutexLock lock(cxxtools::Logger::mutex);
-        l->logentry("TRACE")
-          << "EXIT " << msg->str() << std::endl;
+        try
+        {
+          cxxtools::MutexLock lock(cxxtools::Logger::mutex);
+          l->logentry("TRACE")
+            << "EXIT " << msg->str() << std::endl;
+        }
+        catch (const std:exception&)
+        {
+        }
       }
       delete msg;
     }
@@ -537,9 +549,15 @@ namespace cxxtools
   {
     if (msg && l->isEnabled(Logger::LOG_LEVEL_TRACE))
     {
-      cxxtools::MutexLock lock(cxxtools::Logger::mutex);
-      l->logentry("TRACE")
-        << "ENTER " << msg->str() << std::endl;
+      try
+      {
+        cxxtools::MutexLock lock(cxxtools::Logger::mutex);
+        l->logentry("TRACE")
+          << "ENTER " << msg->str() << std::endl;
+      }
+      catch (const std:exception&)
+      {
+      }
     }
   }
 
