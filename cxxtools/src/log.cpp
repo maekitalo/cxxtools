@@ -20,7 +20,7 @@
  */
 
 #include <cxxtools/log/cxxtools_init.h>
-#include <cxxtools/thread.h>
+#include <cxxtools/mutex.h>
 #include <cxxtools/udp.h>
 #include <cxxtools/udpstream.h>
 #include <cxxtools/tee.h>
@@ -33,6 +33,7 @@
 #include <sstream>
 #include <locale>
 #include <time.h>
+#include <pthread.h>
 #include <sys/time.h>
 #include <sys/stat.h>
 #include <sys/types.h>

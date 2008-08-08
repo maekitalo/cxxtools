@@ -23,7 +23,7 @@
 #define CXXTOOLS_LOG_CXXTOOLS_H
 
 #include <string>
-#include <cxxtools/thread.h>
+#include <cxxtools/mutex.h>
 #include <iostream>
 
 #define log_xxxx_enabled(level)   \

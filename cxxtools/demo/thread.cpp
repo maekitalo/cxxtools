@@ -21,6 +21,7 @@
  */
 
 #include <cxxtools/thread.h>
+#include <cxxtools/mutex.h>
 #include <iostream>
 #include <string>
 #include <unistd.h>

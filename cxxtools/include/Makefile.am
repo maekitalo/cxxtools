@@ -48,6 +48,7 @@ nobase_include_HEADERS = \
         cxxtools/method.tpp \
         cxxtools/mime.h \
         cxxtools/multifstream.h \
+        cxxtools/mutex.h \
         cxxtools/net.h \
         cxxtools/noncopyable.h \
         cxxtools/pipe.h \

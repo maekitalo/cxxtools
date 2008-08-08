@@ -27,6 +27,7 @@ libcxxtools_la_SOURCES = \
 	md5stream.cpp \
 	mime.cpp \
 	multifstream.cpp \
+	mutex.cpp \
 	net.cpp \
 	pipe.cpp \
 	pipestream.cpp \

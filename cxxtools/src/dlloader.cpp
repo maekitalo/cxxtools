@@ -22,7 +22,7 @@
 #include "cxxtools/dlloader.h"
 #include "cxxtools/log.h"
 #include "config.h"
-#include <cxxtools/thread.h>
+#include <cxxtools/mutex.h>
 
 #include <dlfcn.h>
 

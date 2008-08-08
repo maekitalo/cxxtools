@@ -22,7 +22,7 @@
 #ifndef CXXTOOLS_POOL_H
 #define CXXTOOLS_POOL_H
 
-#include <cxxtools/thread.h>
+#include <cxxtools/mutex.h>
 #include <stack>
 
 namespace cxxtools
