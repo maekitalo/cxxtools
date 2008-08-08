@@ -34,7 +34,8 @@ inline atomic_t atomicIncrement(volatile atomic_t& val)
                   "lwarx %0, 0, %2\n\t"
                   "addi %1, %0, 1\n\t"
                   "stwcx. %1, 0, %2\n\t"
-                  "bne- 1b"
+                  "bne- 1b\n"
+                  "isync\n"
                   : "=&b" (result), "=&b" (tmp): "r" (&val): "cc", "memory");
     return result + 1;
 }
@@ -47,7 +48,8 @@ inline atomic_t atomicDecrement(volatile atomic_t& val)
                   "lwarx %0, 0, %2\n\t"
                   "addi %1, %0, -1\n\t"
                   "stwcx. %1, 0, %2\n\t"
-                  "bne- 1b"
+                  "bne- 1b\n"
+                  "isync\n"
                   : "=&b" (result), "=&b" (tmp): "r" (&val): "cc", "memory");
 
     return result - 1;
@@ -76,7 +78,8 @@ inline atomic_t atomicExchangeAdd(volatile atomic_t& val, atomic_t add)
                   "lwarx %0, 0, %2\n\t"
                   "add %1, %0, %3\n\t"
                   "stwcx. %1, 0, %2\n\t"
-                  "bne 1b"
+                  "bne 1b\n"
+                  "isync\n"
                   : "=&r" (result), "=&r" (tmp)
                   : "r" (&val), "r" (add) : "cc", "memory");
     return result;
@@ -110,7 +113,8 @@ inline atomic_t atomicCompareExchange(volatile atomic_t& val, atomic_t exch, ato
                   "bne- 2f\n\t"
                   "stwcx. %3, 0, %1\n\t"
                   "bne- 1b\n"
-                  "2:"
+                  "2:\n"
+                  "isync\n"
                   : "=&r" (tmp)
                   : "b" (&val), "r" (comp), "r" (exch): "cc", "memory");
 
@@ -145,6 +149,7 @@ inline void* atomicCompareExchange(void* volatile& ptr, void* exch, void* comp)
                   "stwcx. %3, 0, %1\n\t"
                   "bne- 1b\n"
                   "2:"
+                  "isync\n"
                   : "=&r" (tmp)
                   : "b" (&ptr), "r" (comp), "r" (exch): "cc", "memory");
 
@@ -156,7 +161,7 @@ inline atomic_t atomicExchange(volatile atomic_t& val, atomic_t exch)
 {
     volatile atomic_t ret = 0;
 
-/* ALTERNATIVE:
+/*
     asm volatile (
         "0:    lwarx  %0, 0, %1\n\t"
         "      stwcx. %2, 0, %1\n\t"
@@ -172,7 +177,8 @@ inline atomic_t atomicExchange(volatile atomic_t& val, atomic_t exch)
         "\n1:\n\t"
         "lwarx  %0, 0, %2\n\t"
         "stwcx. %3, 0, %2\n\t"
-        "bne    1b"
+        "bne    1b\n"
+        "isync\n"
         : "=r" (ret) : "0" (ret), "b" (&val), "r" (exch): "cc", "memory");
 
     return ret;
@@ -187,7 +193,7 @@ inline void* atomicExchange(void* volatile& dest, void* exch)
         "0:    lwarx  %0, 0, %1\n\t"
         "      stwcx. %2, 0, %1\n\t"
         "      bne-   0b       \n\t"
-        "      isync               "
+        "      isync"
         : "=&r"(ret)
         :   "r"(&dest),  "r"(exch)
         : "cr0","memory", "r0"
