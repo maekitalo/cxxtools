@@ -182,7 +182,7 @@ namespace net
 
       /// override to resolve ambiguity between istream::read and Stream::read
       std::istream& read(char* s, std::streamsize n)
-        { return read(s, n); }
+        { return std::iostream::read(s, n); }
 
       /// override to resolve ambiguity between ostream::write and Stream::write
       std::ostream& write(const char* s, std::streamsize n)
