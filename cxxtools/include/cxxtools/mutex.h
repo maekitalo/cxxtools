@@ -230,18 +230,13 @@ class Condition
 *  usable in cases where resources need to be locked for a very short time, but in
 *  these cases a higher performance can be achieved.
 */
-class SpinMutex : public NonCopyable
+class SpinMutex : private NonCopyable
 {
     public:
         //! Default Constructor.
         SpinMutex()
         : _count(0)
         {}
-
-        //! Destructor.
-        ~SpinMutex()
-        {}
-
 
         //! @brief Lock.
         /// Locks the Spinlock. If the Spinlock is currently locked
@@ -288,13 +283,8 @@ class SpinLock : private NonCopyable
 
         ~SpinLock()
         {
-            try
-            {
-                if(_locked)
-                    this->unlock();
-            }
-            catch(...)
-            {}
+            if(_locked)
+                this->unlock();
         }
 
         void lock()
