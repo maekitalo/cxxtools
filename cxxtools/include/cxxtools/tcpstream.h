@@ -45,7 +45,7 @@ namespace net
     public:
       Server()  {}
 
-      /// erzeugt einen Serversocket und hört auf die angegebene Adresse
+      /// creates a server socket and listens on the address
       Server(const std::string& ipaddr, unsigned short int port, int backlog = 5)
              throw (Exception);
 
