@@ -278,9 +278,9 @@ class SpinMutex : private NonCopyable
 class SpinLock : private NonCopyable
 {
     public:
-        SpinLock(SpinMutex& m, bool doLock = true)
+        SpinLock(SpinMutex& m, bool doLock = true, bool locked = false)
         : _mutex(m)
-        , _locked(false)
+        , _locked(locked)
         {
             if(doLock)
                 this->lock();
