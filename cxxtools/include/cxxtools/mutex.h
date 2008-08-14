@@ -253,6 +253,11 @@ class SpinMutex : private NonCopyable
             }
         }
 
+        bool tryLock()
+        {
+           return ! atomicCompareExchange(_count, 1, 0);
+        }
+
         //! @brief Unlock.
         /// Unlocks the Spinlock.
         void unlock()
