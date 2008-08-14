@@ -28,6 +28,7 @@
 #include <time.h>
 #include <cxxtools/syserror.h>
 #include <cxxtools/noncopyable.h>
+#include <cxxtools/mutex.h>  // include for compatibility
 
 namespace cxxtools
 {
