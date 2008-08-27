@@ -21,6 +21,7 @@
 
 #include "cxxtools/tcpstream.h"
 #include <sys/poll.h>
+#include <sys/socket.h>
 #include <unistd.h>
 #include <netdb.h>
 #include <errno.h>
@@ -146,12 +147,20 @@ namespace net
       {
         poll(POLLOUT);
 
-        if (::connect(getFd(), it->ai_addr, it->ai_addrlen) == 0)
+        int sockerr;
+        socklen_t optlen = sizeof(sockerr);
+        if (::getsockopt(getFd(), SOL_SOCKET, SO_ERROR, &sockerr, &optlen) != 0)
         {
-          // save our information
-          memmove(&peeraddr, it->ai_addr, it->ai_addrlen);
-          return;
+          ::close(getFd());
+          throw Exception("getsockopt");
         }
+
+        if (sockerr != 0)
+          throw Exception(sockerr, "connect");
+
+        // save our information
+        memmove(&peeraddr, it->ai_addr, it->ai_addrlen);
+        return;
       }
 
     }
