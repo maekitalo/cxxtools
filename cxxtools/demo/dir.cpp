@@ -23,6 +23,7 @@
 #include <iostream>
 #include <cxxtools/dir.h>
 #include <algorithm>
+#include <iterator>
 
 int main(int argc, char* argv[])
 {

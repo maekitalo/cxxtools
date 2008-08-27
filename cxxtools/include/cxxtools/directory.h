@@ -69,12 +69,13 @@ class DirectoryNotFound : public SystemError
     \endcode
 */
 class DirectoryIterator
+    : public std::iterator<std::forward_iterator_tag, std::string>
 {
     public:
         //! @brief Default constructor
         DirectoryIterator();
 
-        //! @brief Constructs an iterator pointing at the file given by �a path
+        //! @brief Constructs an iterator pointing at the file given by a path
         DirectoryIterator(const std::string& path);
 
         //! @brief Copy constructor
@@ -127,8 +128,7 @@ class DirectoryIterator
 class Directory
 {
     public:
-        typedef DirectoryIterator Iterator;
-        typedef DirectoryIterator iterator;
+        typedef DirectoryIterator const_iterator;
 
     public:
         /** @brief Constructs a %Directory object from the path \a path
@@ -192,10 +192,10 @@ class Directory
         void move(const std::string& to);
 
         //! @brief Returns an iterator to the first entry in the directory.
-        Iterator begin() const;
+        const_iterator begin() const;
 
         //! @brief Returns an iterator to the end of the directory entries.
-        Iterator end() const;
+        const_iterator end() const;
 
     public:
         //! @brief Creates a new directory at the path given by \a path

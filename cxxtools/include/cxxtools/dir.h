@@ -22,96 +22,14 @@
 #ifndef CXXTOOLS_DIR_H
 #define CXXTOOLS_DIR_H
 
-#include <string>
-#include <iterator>
-#include <cxxtools/smartptr.h>
-#include <cxxtools/refcounted.h>
+#include <cxxtools/directory.h>
 
 namespace cxxtools
 {
-
   /**
-   STL-compatible container for directories.
+   * for compatibility with old implementation
    */
-  class Dir
-  {
-      friend class const_iterator;
-
-    public:
-      class IDir : public RefCounted
-      {
-        protected:
-          std::string fname;
-
-        public:
-          virtual ~IDir()  { }
-          const std::string& current() const  { return fname; }
-          virtual bool next() = 0;
-      };
-
-      typedef SmartPtr<IDir> IDirPtr;
-
-      class const_iterator
-        : public std::iterator<std::forward_iterator_tag, std::string>
-      {
-          IDirPtr impl;
-          std::string current;
-
-        public:
-          const_iterator()
-            { }
-
-          explicit const_iterator(const std::string& dirname);
-
-          const_iterator& operator++ ()
-            {
-              if (impl->next())
-                current = impl->current();
-              else
-              {
-                current.clear();
-                impl = 0;
-              }
-
-              return *this;
-            }
-          const_iterator operator++ (int)
-            {
-              const_iterator previous = *this;
-              this->operator++();
-              return previous;
-            }
-          bool operator== (const const_iterator& it) const
-            { return impl == it.impl; }
-          bool operator!= (const const_iterator& it) const
-            { return impl != it.impl; }
-          const std::string* operator-> () const
-            { return &impl->current(); }
-          value_type operator* () const
-            { return impl->current(); }
-      };
-
-      typedef const_iterator iterator;
-
-    private:
-      std::string dirname;
-
-    public:
-      explicit Dir(const char* dirname_)
-        : dirname(dirname_)
-        { }
-
-      const_iterator begin() const
-        { return const_iterator(dirname); }
-      const_iterator end() const
-        { return const_iterator(); }
-
-      iterator begin()
-        { return iterator(dirname); }
-      iterator end()
-        { return iterator(); }
-  };
-
+  typedef Directory Dir;
 }
 
 #endif // DIR_H
