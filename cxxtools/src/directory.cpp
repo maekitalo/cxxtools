@@ -169,13 +169,13 @@ std::size_t Directory::size() const
 }
 
 
-Directory::Iterator Directory::begin() const
+Directory::const_iterator Directory::begin() const
 {
     return DirectoryIterator( path().c_str() );
 }
 
 
-Directory::Iterator Directory::end() const
+Directory::const_iterator Directory::end() const
 {
     return DirectoryIterator();
 }
