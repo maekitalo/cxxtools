@@ -7,7 +7,6 @@ libcxxtools_la_SOURCES = \
 	connectable.cpp \
 	connection.cpp \
 	cgi.cpp \
-	dir.cpp \
 	directory.cpp \
 	directoryimpl.cpp \
 	dlloader.cpp \
