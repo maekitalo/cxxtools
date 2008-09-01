@@ -26,6 +26,20 @@ namespace cxxtools {
 typedef ssize_t atomic_t;
 
 
+inline atomic_t atomicGet(volatile atomic_t& val)
+{
+    asm volatile ("mfence" : : : "memory");
+    return val;
+}
+
+
+inline void atomicSet(volatile atomic_t& val, atomic_t n)
+{
+    val = n;
+    asm volatile ("mfence" : : : "memory");
+}
+
+
 inline atomic_t atomicIncrement(volatile atomic_t& val)
 {
         static const atomic_t d = 1;

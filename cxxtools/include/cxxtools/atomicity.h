@@ -53,6 +53,18 @@
 
 namespace cxxtools {
 
+/** @brief Atomically get a value
+
+    Returns the value after employing a memory fence.
+*/
+atomic_t atomicGet(volatile atomic_t& val);
+
+/** @brief Atomically set a value
+
+    Sets the value and employs a memory fence.
+*/
+void atomicSet(volatile atomic_t& val, atomic_t n);
+
 /** @brief Increases a value by one as an atomic operation
 
     Returns the resulting incremented value.

@@ -25,6 +25,37 @@ namespace cxxtools {
 
 static pthread_mutex_t mtx = PTHREAD_MUTEX_INITIALIZER;
 
+atomic_t atomicGet(volatile atomic_t& val)
+{
+    atomic_t ret = 0;
+
+    pthread_cleanup_push ((void(*)(void *))pthread_mutex_unlock, (void *)&mtx);
+    int thr_ret = pthread_mutex_lock(&mtx);
+    assert(thr_ret == 0);
+
+    ret = val;
+
+    thr_ret = pthread_mutex_unlock(&mtx);
+    assert(thr_ret == 0);
+    pthread_cleanup_pop (0);
+
+    return ret;
+}
+
+
+void atomicSet(volatile atomic_t& val, atomic_t n)
+{
+    pthread_cleanup_push ((void(*)(void *))pthread_mutex_unlock, (void *)&mtx);
+    int thr_ret = pthread_mutex_lock(&mtx);
+    assert(thr_ret == 0);
+
+    val = n;
+
+    thr_ret = pthread_mutex_unlock(&mtx);
+    assert(thr_ret == 0);
+    pthread_cleanup_pop (0);
+}
+
 
 atomic_t atomicIncrement(volatile atomic_t& dest)
 {

@@ -26,6 +26,10 @@ namespace cxxtools {
 
 typedef std::sig_atomic_t atomic_t;
 
+atomic_t atomicGet(volatile atomic_t& val);
+
+void atomicSet(volatile atomic_t& val, atomic_t n);
+
 atomic_t atomicIncrement(volatile atomic_t& val);
 
 atomic_t atomicDecrement(volatile atomic_t& dest);

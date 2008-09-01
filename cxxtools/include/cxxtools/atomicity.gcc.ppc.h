@@ -27,6 +27,20 @@ namespace cxxtools {
 typedef std::sig_atomic_t atomic_t;
 
 
+inline atomic_t atomicGet(volatile atomic_t& val)
+{
+    asm volatile ("sync" : : : "memory");
+    return val;
+}
+
+
+inline void atomicSet(volatile atomic_t& val, atomic_t n)
+{
+    val = n;
+    asm volatile ("sync" : : : "memory");
+}
+
+
 inline atomic_t atomicIncrement(volatile atomic_t& val)
 {
     atomic_t result = 0, tmp;
