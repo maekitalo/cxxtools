@@ -303,7 +303,7 @@ namespace net
   streambuf::streambuf(Stream& stream, unsigned bufsize, int timeout)
     : m_stream(stream),
       m_bufsize(bufsize),
-      m_buffer(new char_type[bufsize])
+      m_buffer(new char_type[bufsize * 2])
   {
     setTimeout(timeout);
   }
@@ -344,12 +344,12 @@ namespace net
   {
     log_debug("streambuf::underflow");
 
-    Stream::size_type n = m_stream.read(m_buffer, m_bufsize);
+    Stream::size_type n = m_stream.read(m_buffer + m_bufsize, m_bufsize);
     if (n <= 0)
       return traits_type::eof();
 
-    setg(m_buffer, m_buffer, m_buffer + n);
-    return traits_type::to_int_type(m_buffer[0]);
+    setg(m_buffer + m_bufsize, m_buffer + m_bufsize, m_buffer + m_bufsize + n);
+    return traits_type::to_int_type(m_buffer[m_bufsize]);
   }
 
   int streambuf::sync()
