@@ -40,7 +40,7 @@ namespace
 {
   static void* cxx_dlopen(const char* name)
   {
-    void* ret = dlopen((std::string(name) + ".so").c_str(), RTLD_NOW|RTLD_GLOBAL);
+    void* ret = dlopen((std::string(name) + ".so").c_str(), RTLD_NOW|RTLD_LOCAL);
     if (ret == 0)
     {
       ret = dlopen((std::string(name) + ".a").c_str(), RTLD_NOW|RTLD_GLOBAL);

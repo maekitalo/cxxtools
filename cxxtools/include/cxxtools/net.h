@@ -56,14 +56,11 @@ namespace net
     public:
       /// The class is initialized with a message containing the error number,
       /// the error message from strerror(3) and the passed function name.
-      Exception(int _errno, const char* fn)
-        : SysError(_errno, fn)
-        { }
+      Exception(int _errno, const char* fn);
+
       /// Initializes the excpetion with a message containing the error number
       /// from errno, the error message from strerror(3) and the passed function name.
-      explicit Exception(const char* fn)
-        : SysError(fn)
-        { }
+      explicit Exception(const char* fn);
   };
 
   //////////////////////////////////////////////////////////////////////
@@ -73,9 +70,7 @@ namespace net
   class Timeout : public Exception
   {
     public:
-      Timeout()
-        : Exception(0, "Timeout")
-      { }
+      Timeout();
   };
 
   //////////////////////////////////////////////////////////////////////

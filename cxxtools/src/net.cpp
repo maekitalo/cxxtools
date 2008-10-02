@@ -46,6 +46,21 @@ namespace cxxtools
 
 namespace net
 {
+  //////////////////////////////////////////////////////////////////////
+  // Exception class
+  //
+  Exception::Exception(int _errno, const char* fn)
+    : SysError(_errno, fn)
+    { }
+
+  Exception::Exception(const char* fn)
+    : SysError(fn)
+    { }
+
+  Timeout::Timeout()
+    : Exception(0, "Timeout")
+    { }
+
   ////////////////////////////////////////////////////////////////////////
   // implementation of Socket
   //
