@@ -39,6 +39,7 @@
 #include <cxxtools/syserror.h>
 #include <cxxtools/noncopyable.h>
 #include <cxxtools/mutex.h>  // include for compatibility
+#include <cxxtools/callable.h>
 
 namespace cxxtools
 {
@@ -63,6 +64,7 @@ class ThreadException : public SysError
  */
 class Thread
 {
+    Callable<void>* cb;
     Thread(const Thread&);
     Thread& operator=(const Thread&);
 
@@ -71,14 +73,15 @@ class Thread
     pthread_attr_t pthread_attr;
 
   public:
-    Thread();
+    Thread(const Callable<void>& cb);
     virtual ~Thread();
 
     virtual void create() = 0;
     void kill(int signo = SIGTERM);
 
   protected:
-    virtual void run() = 0;
+    Thread();
+    virtual void run();
 };
 
 /**
@@ -119,9 +122,14 @@ class AttachedThread : public Thread
     static void* start(void* arg);
     bool joined;
 
-  public:
+  protected:
     AttachedThread()
       : joined(false)
+      { }
+
+  public:
+    AttachedThread(const Callable<void>& cb)
+      : Thread(cb), joined(false)
       { }
 
     /**
@@ -185,8 +193,10 @@ class DetachedThread : public Thread
     // Users must create them on the heap.
     ~DetachedThread()  { }
 
-  public:
     DetachedThread();
+
+public:
+    DetachedThread(const Callable<void>& cb);
     void create();
 };
 

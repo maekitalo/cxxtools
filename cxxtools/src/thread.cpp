@@ -40,8 +40,14 @@ log_define("cxxtools.thread")
 namespace cxxtools
 {
 
+Thread::Thread(const Callable<void>& cb_)
+  : pthreadId(0), cb(0)
+{
+    cb = cb_.clone();
+}
+
 Thread::Thread()
-  : pthreadId(0)
+  : pthreadId(0), cb(0)
 {
   pthread_attr_init(&pthread_attr);
 }
@@ -49,11 +55,18 @@ Thread::Thread()
 Thread::~Thread()
 {
   pthread_attr_destroy(&pthread_attr);
+  delete cb;
 }
 
 void Thread::kill(int signo)
 {
   pthread_kill(pthreadId, signo);
+}
+
+void Thread::run()
+{
+  if(cb)
+    cb->call();
 }
 
 //
@@ -106,6 +119,14 @@ void AttachedThread::join()
 //
 
 DetachedThread::DetachedThread()
+{
+  int ret = pthread_attr_setdetachstate(&pthread_attr, PTHREAD_CREATE_DETACHED);
+  if (ret != 0)
+    throw ThreadException(ret, "pthread_attr_setdetachstate");
+}
+
+DetachedThread::DetachedThread(const Callable<void>& cb)
+: Thread(cb)
 {
   int ret = pthread_attr_setdetachstate(&pthread_attr, PTHREAD_CREATE_DETACHED);
   if (ret != 0)
