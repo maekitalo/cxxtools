@@ -61,7 +61,7 @@ void ThreadImpl::detach()
     if( _id )
     {
         int ret = pthread_detach(_id);
-        throwIf(ret, _id, "Could not detach thread. ");
+        throwIf(ret, _id, "Could not detach thread");
     }
 }
 
@@ -90,7 +90,7 @@ void ThreadImpl::start()
     int ret = pthread_create(&_id, &attrs, thread_entry, this);
     pthread_attr_destroy(&attrs);
 
-    throwIf(ret, _id, "Could not create thread. ");
+    throwIf(ret, _id, "Could not create thread");
 }
 
 
@@ -99,7 +99,7 @@ void ThreadImpl::join()
     void* threadRet = 0;
     int ret = pthread_join(_id, &threadRet);
 
-    throwIf(ret, _id, "Could not join thread. ");
+    throwIf(ret, _id, "Could not join thread");
 }
 
 
@@ -107,7 +107,7 @@ void ThreadImpl::terminate()
 {
     int ret = pthread_kill(_id, SIGKILL);
 
-    throwIf(ret, _id, "Could not terminate thread. ");
+    throwIf(ret, _id, "Could not terminate thread");
 }
 
 }
