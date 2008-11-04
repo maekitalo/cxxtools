@@ -40,6 +40,7 @@ libcxxtools_la_SOURCES = \
 	tcpstream.cpp \
 	tee.cpp \
 	thread.cpp \
+	threadimpl.cpp \
 	udp.cpp \
 	udpstream.cpp \
 	uuencode.cpp \

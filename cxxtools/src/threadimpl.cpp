@@ -1,6 +1,5 @@
 /***************************************************************************
  *   Copyright (C) 2006-2008 Marc Boris Duerner                            *
- *   Copyright (C) 2006-2008 Tommi Maekitalo                               *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU Library General Public License as       *
@@ -28,107 +27,87 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 #include "threadimpl.h"
-#include "cxxtools/sourceinfo.h"
-#include "cxxtools/thread.h"
-#include <stdexcept>
+#include "cxxtools/syserror.h"
+#include <errno.h>
+
+extern "C"
+{
+    static void* thread_entry(void* arg)
+    {
+        cxxtools::ThreadImpl* impl = (cxxtools::ThreadImpl*)arg;
+        if( impl->cb() )
+            impl->cb()->call();
+
+        return 0;
+    }
+}
+
+namespace
+{
+    void throwIf(int& ret, pthread_t& id, const char* msg)
+    {
+        if(ret != 0)
+        {
+            id = 0;
+            throw cxxtools::SysError(ret, msg);
+        }
+    }
+}
 
 namespace cxxtools {
 
-Thread::Thread()
-: _state(Thread::Ready)
-, _impl(0)
+void ThreadImpl::detach()
 {
-    _impl = new ThreadImpl();
-}
-
-
-Thread::Thread(const Callable<void>& cb)
-: _state(Thread::Ready)
-, _impl(0)
-{
-    _impl = new ThreadImpl();
-	_impl->init(cb);
-}
-
-
-Thread::~Thread()
-{
-    delete _impl;
-}
-
-
-void Thread::init(const Callable<void>& cb)
-{
-	_impl->init(cb);
-}
-
-
-void Thread::start()
-{
-    if( this->state() == Ready )
+    if( _id )
     {
-        _impl->start();
-        _state = Thread::Running;
+        int ret = pthread_detach(_id);
+        throwIf(ret, _id, "Could not detach thread. ");
     }
 }
 
 
-void Thread::exit()
+void ThreadImpl::init(const Callable<void>& cb)
 {
-    ThreadImpl::exit();
-}
-
-
-void Thread::yield()
-{
-    ThreadImpl::yield();
-}
-
-
-void Thread::sleep(unsigned int ms)
-{
-    ThreadImpl::sleep(ms);
-}
-
-
-void Thread::detach()
-{
-    _impl->detach();
-}
-
-
-void Thread::join()
-{
-    if( this->state() == Running )
+    if(_cb)
     {
-        _impl->join();
-        _state = Thread::Finished;
+        delete _cb;
+        _cb = cb.clone();
     }
 }
 
 
-bool Thread::joinNoThrow()
+void ThreadImpl::start()
 {
-    bool ret = true;
-    try
-    {
-        _impl->join();
-    }
-    catch(...)
-    {
-        ret = false;
-    }
+    size_t stacksize = 0;
 
-    _state = Thread::Finished;
-    return ret;
+    pthread_attr_t attrs;
+    pthread_attr_init(&attrs);
+    pthread_attr_setinheritsched(&attrs, PTHREAD_INHERIT_SCHED);
+
+    if(stacksize > 0)
+        pthread_attr_setstacksize(&attrs ,stacksize);
+
+    int ret = pthread_create(&_id, &attrs, thread_entry, this);
+    pthread_attr_destroy(&attrs);
+
+    throwIf(ret, _id, "Could not create thread. ");
 }
 
 
-void Thread::terminate()
+void ThreadImpl::join()
 {
-    _impl->terminate();
-    _state = Thread::Finished;
+    void* threadRet = 0;
+    int ret = pthread_join(_id, &threadRet);
+
+    throwIf(ret, _id, "Could not join thread. ");
 }
 
-} // !namespace cxxtools
 
+void ThreadImpl::terminate()
+{
+    int ret = pthread_kill(_id, SIGKILL);
+
+    throwIf(ret, _id, "Could not terminate thread. ");
+}
+
+}

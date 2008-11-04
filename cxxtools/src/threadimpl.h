@@ -1,6 +1,5 @@
 /***************************************************************************
  *   Copyright (C) 2006-2008 Marc Boris Duerner                            *
- *   Copyright (C) 2006-2008 Tommi Maekitalo                               *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU Library General Public License as       *
@@ -27,108 +26,55 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#include "threadimpl.h"
-#include "cxxtools/sourceinfo.h"
 #include "cxxtools/thread.h"
-#include <stdexcept>
+#include <pthread.h>
+#include <sched.h>
+#include <unistd.h>
 
 namespace cxxtools {
 
-Thread::Thread()
-: _state(Thread::Ready)
-, _impl(0)
+class ThreadImpl
 {
-    _impl = new ThreadImpl();
+    public:
+        ThreadImpl()
+        : _cb(0)
+        , _id(0)
+        { }
+
+        ~ThreadImpl()
+        { delete _cb; }
+
+        void init(const Callable<void>& cb);
+
+        void detach();
+
+        void start();
+
+        void join();
+
+        void terminate();
+
+        static void exit()
+        {
+            ::pthread_exit( NULL );
+        }
+
+        static void yield()
+        {
+            ::sched_yield();
+        }
+
+        static void sleep(unsigned int ms)
+        {
+            usleep(ms * 1000);
+        }
+
+        const Callable<void>* cb()
+        { return _cb; }
+
+    private:
+        const Callable<void>* _cb;
+        pthread_t _id;
+};
+
 }
-
-
-Thread::Thread(const Callable<void>& cb)
-: _state(Thread::Ready)
-, _impl(0)
-{
-    _impl = new ThreadImpl();
-	_impl->init(cb);
-}
-
-
-Thread::~Thread()
-{
-    delete _impl;
-}
-
-
-void Thread::init(const Callable<void>& cb)
-{
-	_impl->init(cb);
-}
-
-
-void Thread::start()
-{
-    if( this->state() == Ready )
-    {
-        _impl->start();
-        _state = Thread::Running;
-    }
-}
-
-
-void Thread::exit()
-{
-    ThreadImpl::exit();
-}
-
-
-void Thread::yield()
-{
-    ThreadImpl::yield();
-}
-
-
-void Thread::sleep(unsigned int ms)
-{
-    ThreadImpl::sleep(ms);
-}
-
-
-void Thread::detach()
-{
-    _impl->detach();
-}
-
-
-void Thread::join()
-{
-    if( this->state() == Running )
-    {
-        _impl->join();
-        _state = Thread::Finished;
-    }
-}
-
-
-bool Thread::joinNoThrow()
-{
-    bool ret = true;
-    try
-    {
-        _impl->join();
-    }
-    catch(...)
-    {
-        ret = false;
-    }
-
-    _state = Thread::Finished;
-    return ret;
-}
-
-
-void Thread::terminate()
-{
-    _impl->terminate();
-    _state = Thread::Finished;
-}
-
-} // !namespace cxxtools
-

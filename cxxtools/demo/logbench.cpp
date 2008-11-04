@@ -46,8 +46,9 @@ namespace bench
 {
   log_define("bench")
 
-  class Logtester : public cxxtools::AttachedThread
+  class Logtester
   {
+      cxxtools::AttachedThread thread;
       unsigned long count;
       unsigned long loops;
       unsigned long enabled;
@@ -56,10 +57,17 @@ namespace bench
       Logtester(unsigned long count_,
                 unsigned long loops_,
                 unsigned long enabled_)
-        : count(count_),
+        : thread( cxxtools::callable(*this, &Logtester::run) ),
+          count(count_),
           loops(loops_),
           enabled(enabled_)
           { }
+
+      void create()
+      { thread.start(); }
+
+      void join()
+      { thread.join(); }
 
       void setCount(unsigned long count_)   { count = count_; }
       void setLoops(unsigned long loops_)   { loops = loops_; }

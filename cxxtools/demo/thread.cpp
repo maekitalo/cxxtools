@@ -30,6 +30,7 @@
  *
  */
 
+#include <cxxtools/function.h>
 #include <cxxtools/thread.h>
 #include <cxxtools/mutex.h>
 #include <iostream>
@@ -45,33 +46,6 @@ cxxtools::Condition running;
     cxxtools::MutexLock lock(coutMutex); \
     std::cout << time(0) << ' ' << expr << std::endl; \
   } while (false)
-
-class A : public cxxtools::AttachedThread
-{
-  public:
-    ~A();
-
-  protected:
-    void run();
-};
-
-A::~A()
-{
-  PRINTLN("A::~A() called");
-}
-
-void A::run()
-{
-  PRINTLN("A is starting");
-
-  cxxtools::MutexLock lock(conditionMutex);
-  running.broadcast();
-  lock.unlock();
-
-  sleep(3);
-
-  PRINTLN("A is ready");
-}
 
 class D : public cxxtools::DetachedThread
 {
@@ -124,7 +98,7 @@ class AClass
       readyMutex.lock();
     }
 
-    void aFunction()
+    void run()
     {
       PRINTLN("aFunction() of object \"" << id << '"');
       sleep(1);
@@ -139,32 +113,24 @@ int main()
   {
     cxxtools::MutexLock lock(conditionMutex);
 
-    // Detached threads are created on the heap.
+    // detached threads are created on the heap.
     // They delete themselves.
     cxxtools::Thread* d = new D;
     d->create();
     running.wait(lock);
     PRINTLN("D is running");
 
-    // Non-detached threads are created on the stack.
-    // They are joined, when block ends.
-    A t;
-    t.create();
-    running.wait(lock);
-    PRINTLN("A is running");
+    // run a function as a detached thread
+    cxxtools::Thread* dt = new cxxtools::DetachedThread(someFunction);
+    dt->start();
 
-    // run a function as a Detached thread
-    cxxtools::createThread(someFunction);
-
-    // run a function as a Attached thread
-    typedef void (*functionType)();
-    functionType fn = someFunction;
-    cxxtools::FunctionThread<> th(fn);
-    th.create();
+    // run a function as a attached thread
+    cxxtools::AttachedThread th( cxxtools::callable(someFunction) );
+    th.start();
 
     // run a method of a object as a thread
     AClass aInstance("a instance");
-    cxxtools::createThread(aInstance, &AClass::aFunction);
+    cxxtools::AttachedThread aclassThread( cxxtools::callable(aInstance, &AClass::run) );
     sleep(2);
     aInstance.waitReady();
 

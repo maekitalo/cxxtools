@@ -83,18 +83,26 @@ typedef cxxtools::Pool<Connection, Connector> ConnectionPoolType;
 
 // define a thread, which fetches a connection from a pool
 // and does something
-class MyThread : public cxxtools::AttachedThread
+class MyThread
 {
+    cxxtools::AttachedThread thread;
     ConnectionPoolType& pool;
     unsigned threadNum;
     unsigned sec;
 
   public:
     explicit MyThread (ConnectionPoolType& pool_, unsigned threadNum_, unsigned sec_ = 1)
-      : pool(pool_),
+      : thread( cxxtools::callable(*this, &MyThread::run) ),
+        pool(pool_),
         threadNum(threadNum_),
         sec(sec_)
       { }
+
+      void create()
+      { thread.start(); }
+
+      void join()
+      { thread.join(); }
 
     void run()
     {
