@@ -68,11 +68,8 @@ void ThreadImpl::detach()
 
 void ThreadImpl::init(const Callable<void>& cb)
 {
-    if(_cb)
-    {
-        delete _cb;
-        _cb = cb.clone();
-    }
+    delete _cb;
+    _cb = cb.clone();
 }
 
 
@@ -82,7 +79,7 @@ void ThreadImpl::start()
 
     pthread_attr_t attrs;
     pthread_attr_init(&attrs);
-    pthread_attr_setinheritsched(&attrs, PTHREAD_INHERIT_SCHED);
+    //pthread_attr_setinheritsched(&attrs, PTHREAD_INHERIT_SCHED);
 
     if(stacksize > 0)
         pthread_attr_setstacksize(&attrs ,stacksize);
