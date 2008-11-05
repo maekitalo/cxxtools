@@ -84,7 +84,7 @@ namespace cxxtools {
                 The Thread is not started on construction, but when start()
                 is called.
             */
-            Thread(const Callable<void>& cb);
+            explicit Thread(const Callable<void>& cb);
 
             /** @brief Initialize with a thread entry
 
@@ -204,7 +204,7 @@ namespace cxxtools {
                 The Thread is not started on construction, but when start()
                 is called.
             */
-            AttachedThread(const Callable<void>& cb)
+            explicit AttachedThread(const Callable<void>& cb)
             : Thread(cb)
             {}
 
