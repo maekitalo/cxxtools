@@ -44,7 +44,7 @@ extern "C"
 
 namespace
 {
-    void throwIf(int& ret, pthread_t& id, const char* msg)
+    void throwIf(int ret, pthread_t& id, const char* msg)
     {
         if(ret != 0)
         {
