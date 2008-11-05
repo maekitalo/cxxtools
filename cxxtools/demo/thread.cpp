@@ -95,7 +95,7 @@ class AClass
 
     void waitReady()
     {
-      readyMutex.lock();
+      cxxtools::MutexLock lock(readyMutex);
     }
 
     void run()
@@ -131,6 +131,7 @@ int main()
     // run a method of a object as a thread
     AClass aInstance("a instance");
     cxxtools::AttachedThread aclassThread( cxxtools::callable(aInstance, &AClass::run) );
+    aclassThread.start();
     sleep(2);
     aInstance.waitReady();
 
