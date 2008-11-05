@@ -87,40 +87,40 @@ bool Mutex::unlockNoThrow()
   return ret == 0;
 }
 
-RWLock::RWLock()
+RWMutex::RWMutex()
 {
   int ret = pthread_rwlock_init(&m_rwlock, 0);
   if (ret != 0)
     throw MutexException(ret, "pthread_rwlock_init");
 }
 
-RWLock::~RWLock()
+RWMutex::~RWMutex()
 {
   pthread_rwlock_destroy(&m_rwlock);
 }
 
-void RWLock::rdLock()
+void RWMutex::rdLock()
 {
   int ret = pthread_rwlock_rdlock(&m_rwlock);
   if (ret != 0)
     throw MutexException(ret, "pthread_rwlock_rdlock");
 }
 
-void RWLock::wrLock()
+void RWMutex::wrLock()
 {
   int ret = pthread_rwlock_wrlock(&m_rwlock);
   if (ret != 0)
     throw MutexException(ret, "pthread_rwlock_wrlock");
 }
 
-void RWLock::unlock()
+void RWMutex::unlock()
 {
   int ret = pthread_rwlock_unlock(&m_rwlock);
   if (ret != 0)
     throw MutexException(ret, "pthread_rwlock_unlock");
 }
 
-bool RWLock::unlockNoThrow()
+bool RWMutex::unlockNoThrow()
 {
   int ret = pthread_rwlock_unlock(&m_rwlock);
   if (ret != 0)

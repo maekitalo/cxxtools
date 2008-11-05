@@ -71,19 +71,21 @@ class Mutex : private NonCopyable
     bool unlockNoThrow();
 };
 
-class RWLock : private NonCopyable
+class RWMutex : private NonCopyable
 {
     pthread_rwlock_t m_rwlock;
 
   public:
-    RWLock();
-    ~RWLock();
+    RWMutex();
+    ~RWMutex();
 
     void rdLock();
     void wrLock();
     void unlock();
     bool unlockNoThrow();
 };
+
+typedef RWMutex RWLock;  // for compatibility
 
 class MutexLock : private NonCopyable
 {
@@ -128,11 +130,11 @@ class MutexLock : private NonCopyable
 
 class RdLock : private NonCopyable
 {
-    RWLock& mutex;
+    RWMutex& mutex;
     bool locked;
 
   public:
-    explicit RdLock(RWLock& m, bool doLock = true, bool locked_ = false)
+    explicit RdLock(RWMutex& m, bool doLock = true, bool locked_ = false)
       : mutex(m), locked(locked_)
     {
       if (doLock)
@@ -163,17 +165,17 @@ class RdLock : private NonCopyable
       }
     }
 
-    RWLock& getMutex()
+    RWMutex& getMutex()
       { return mutex; }
 };
 
 class WrLock : private NonCopyable
 {
-    RWLock& mutex;
+    RWMutex& mutex;
     bool locked;
 
   public:
-    explicit WrLock(RWLock& m, bool doLock = true, bool locked_ = false)
+    explicit WrLock(RWMutex& m, bool doLock = true, bool locked_ = false)
       : mutex(m), locked(locked_)
     {
       if (doLock)
@@ -204,7 +206,7 @@ class WrLock : private NonCopyable
       }
     }
 
-    RWLock& getMutex()
+    RWMutex& getMutex()
       { return mutex; }
 };
 
