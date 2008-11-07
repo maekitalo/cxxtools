@@ -54,6 +54,7 @@
 #include <cctype>
 #include <pwd.h>
 #include <grp.h>
+#include "syserrorinternal.h"
 
 log_define("cxxtools.log")
 
@@ -226,8 +227,8 @@ namespace cxxtools
 
     pipe = new Pipestream();
     pid_t pid = ::fork();
-    if (pid < 0)
-      throw SysError("fork");
+    throwSysErrorIf(pid < 0, "fork");
+
     if (pid == 0)
     {
       // 1st child

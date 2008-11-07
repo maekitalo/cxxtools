@@ -29,6 +29,7 @@
 
 #include "cxxtools/pipe.h"
 #include "cxxtools/syserror.h"
+#include "syserrorinternal.h"
 #include <string>
 
 namespace cxxtools
@@ -43,8 +44,7 @@ namespace cxxtools
 
   void Pipe::create()
   {
-    if (::pipe(fd) != 0)
-      throw SysError("pipe");
+    throwSysErrorIf(::pipe(fd) != 0, "pipe");
   }
 
   void Pipe::closeReadFd()
@@ -68,16 +68,14 @@ namespace cxxtools
   ssize_t Pipe::write(const void* buf, size_t count)
   {
     ssize_t c = ::write(fd[1], buf, count);
-    if (c < 0)
-      throw SysError("write pipe");
+    throwSysErrorIf(c < 0, "write pipe");
     return c;
   }
 
   ssize_t Pipe::read(void* buf, size_t count)
   {
     ssize_t c = ::read(fd[0], buf, count);
-    if (c < 0)
-      throw SysError("read pipe");
+    throwSysErrorIf(c < 0,  "read pipe");
     return c;
   }
 

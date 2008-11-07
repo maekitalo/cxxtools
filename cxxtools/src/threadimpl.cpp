@@ -28,6 +28,7 @@
  ***************************************************************************/
 #include "threadimpl.h"
 #include "cxxtools/syserror.h"
+#include "syserrorinternal.h"
 #include <errno.h>
 #include <signal.h>
 
@@ -43,18 +44,6 @@ extern "C"
     }
 }
 
-namespace
-{
-    void throwIf(int ret, pthread_t& id, const char* msg)
-    {
-        if(ret != 0)
-        {
-            id = 0;
-            throw cxxtools::SysError(ret, msg);
-        }
-    }
-}
-
 namespace cxxtools {
 
 void ThreadImpl::detach()
@@ -62,7 +51,7 @@ void ThreadImpl::detach()
     if( _id )
     {
         int ret = pthread_detach(_id);
-        throwIf(ret, _id, "Could not detach thread");
+        throwSysErrorIf(ret, "pthread_detach");
     }
 }
 
@@ -88,7 +77,7 @@ void ThreadImpl::start()
     int ret = pthread_create(&_id, &attrs, thread_entry, this);
     pthread_attr_destroy(&attrs);
 
-    throwIf(ret, _id, "Could not create thread");
+    throwSysErrorIf(ret, "pthread_attr_destroy");
 }
 
 
@@ -97,7 +86,7 @@ void ThreadImpl::join()
     void* threadRet = 0;
     int ret = pthread_join(_id, &threadRet);
 
-    throwIf(ret, _id, "Could not join thread");
+    throwSysErrorIf(ret, "pthread_join");
 }
 
 
@@ -105,7 +94,7 @@ void ThreadImpl::terminate()
 {
     int ret = pthread_kill(_id, SIGKILL);
 
-    throwIf(ret, _id, "Could not terminate thread");
+    throwSysErrorIf(ret, "pthread_kill");
 }
 
 }

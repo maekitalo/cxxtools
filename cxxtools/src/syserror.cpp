@@ -30,6 +30,7 @@
  */
 
 #include "cxxtools/syserror.h"
+#include "syserrorinternal.h"
 #include <errno.h>
 #include <string.h>
 #include <sstream>
@@ -66,5 +67,17 @@ namespace cxxtools
     : SystemError(getErrnoString(err, fn)),
       m_errno(err)
     { }
+
+  void throwSysErrorIf(bool flag, const char* fn)
+  {
+    if (flag)
+      throw SysError(fn);
+  }
+
+  void throwSysErrorIf(bool flag, int err, const char* fn)
+  {
+    if (flag)
+      throw SysError(err, fn);
+  }
 
 }
