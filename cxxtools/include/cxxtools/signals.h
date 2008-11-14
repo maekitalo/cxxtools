@@ -50,48 +50,11 @@ namespace cxxtools {
         public:
             struct Sentry
             {
-                Sentry(const SignalBase* signal)
-                : _signal(signal)
-                {
-                    _signal->_sentry = this;
-                    _signal->_sending = true;
-                    _signal->_dirty = false;
-                }
+                Sentry(const SignalBase* signal);
 
-                ~Sentry()
-                {
-                    if( _signal )
-                        this->detach();
-                }
+                ~Sentry();
 
-                void detach()
-                {
-                    _signal->_sending = false;
-
-                    if( _signal->_dirty == false )
-                    {
-                        _signal->_sentry = 0;
-                        _signal = 0;
-                        return;
-                    }
-
-                    std::list<Connection>::iterator it = _signal->_connections.begin();
-                    while( it != _signal->_connections.end() )
-                    {
-                        if( it->valid() )
-                        {
-                            ++it;
-                        }
-                        else
-                        {
-                            it = _signal->_connections.erase(it);
-                        }
-                    }
-
-                    _signal->_dirty = false;
-                    _signal->_sentry = 0;
-                    _signal = 0;
-                }
+                void detach();
 
                 bool operator!() const
                 { return _signal == 0; }
@@ -99,74 +62,17 @@ namespace cxxtools {
                 const SignalBase* _signal;
             };
 
-            SignalBase()
-            : _sentry(0)
-            , _sending(false)
-            { }
+            SignalBase();
 
-            ~SignalBase()
-            {
-                if(_sentry)
-                {
-                    _sentry->detach();
-                }
-            }
+            ~SignalBase();
 
-            SignalBase& operator=(const SignalBase& other)
-            {
-                this->clear();
+            SignalBase& operator=(const SignalBase& other);
 
-                std::list<Connection>::const_iterator it = other.connections().begin();
-                std::list<Connection>::const_iterator end = other.connections().end();
+            virtual void onConnectionOpen(const Connection& c);
 
-                for( ; it != end; ++it)
-                {
-                    const Connectable& signal = it->sender();
-                    if( &signal == &other)
-                    {
-                        const Slot& slot = it->slot();
-                        Connection connection( *this, slot.clone()  );
-                    }
-                }
+            virtual void onConnectionClose(const Connection& c);
 
-                return *this;
-            }
-
-            virtual void onConnectionOpen(const Connection& c)
-            {
-                Connectable::onConnectionOpen(c);
-            }
-
-            virtual void onConnectionClose(const Connection& c)
-            {
-                // if the signal is currently calling its slots, do not
-                // remove the connection now, but only set the cleanup flag
-                // Any invalid connection objects will be removed after
-                // the signal has finished calling its slots by the Sentry.
-                if( _sending )
-                {
-                    _dirty = true;
-                }
-                else
-                {
-                    Connectable::onConnectionClose(c);
-                }
-            }
-
-            void disconnectSlot(const Slot& slot)
-            {
-                std::list<Connection>::iterator it = Connectable::connections().begin();
-                std::list<Connection>::iterator end = Connectable::connections().end();
-
-                for(; it != end; ++it)
-                {
-                    if( it->slot().equals(slot) )
-                    {
-                        it->close();
-                        return;
-                    }
-                }
-            }
+            void disconnectSlot(const Slot& slot);
 
         private:
             mutable Sentry* _sentry;

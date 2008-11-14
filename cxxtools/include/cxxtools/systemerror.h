@@ -45,16 +45,24 @@
 
 namespace cxxtools {
 
-    /** @brief Exception class indication a system error.
+    /** @brief Exception class indicating a system error.
      */
     class SystemError : public std::runtime_error
     {
         public:
-            SystemError(const std::string & what);
+            SystemError(int err, const char* fn);
 
-            SystemError(const std::string & what, const SourceInfo& si);
+            SystemError(const char* fn);
+
+            SystemError(const std::string& what, const SourceInfo& si);
 
             ~SystemError() throw();
+
+            int getErrno() const
+            { return m_errno; }
+
+        private:
+            int m_errno;
     };
 
 

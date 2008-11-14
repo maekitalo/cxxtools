@@ -39,7 +39,7 @@ namespace cxxtools
 {
   namespace
   {
-    std::string getErrnoString(int err, const char* fn)
+    /*std::string getErrnoString(int err, const char* fn)
     {
       if (err != 0)
       {
@@ -49,15 +49,16 @@ namespace cxxtools
       }
       else
         return fn;
-    }
+    }*/
 
-    std::string getErrnoString(const char* fn)
+    /*std::string getErrnoString(const char* fn)
     {
       return getErrnoString(errno, fn);
-    }
+    }*/
 
   }
 
+  /*
   SysError::SysError(const char* fn)
     : SystemError(getErrnoString(fn)),
       m_errno(errno)
@@ -67,17 +68,6 @@ namespace cxxtools
     : SystemError(getErrnoString(err, fn)),
       m_errno(err)
     { }
-
-  void throwSysErrorIf(bool flag, const char* fn)
-  {
-    if (flag)
-      throw SysError(fn);
-  }
-
-  void throwSysErrorIf(bool flag, int err, const char* fn)
-  {
-    if (flag)
-      throw SysError(err, fn);
-  }
+  */
 
 }

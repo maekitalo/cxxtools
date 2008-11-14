@@ -36,12 +36,13 @@
 
 namespace cxxtools
 {
+
   /**
    * Errors, which set errno.
    * The message returned by what() contains the error number and the
    * underlying system error message returned by strerror(3).
    */
-  class SysError : public SystemError
+  /*class SysError : public SystemError
   {
       int m_errno;
 
@@ -50,7 +51,10 @@ namespace cxxtools
       SysError(int err, const char* fn);
 
       int getErrno() const   { return m_errno; }
-  };
+  };*/
+
+
+  typedef SystemError SysError;
 }
 
 #endif // CXXTOOLS_SYSERROR_H

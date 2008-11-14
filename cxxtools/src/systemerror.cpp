@@ -27,21 +27,62 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
+#include "syserrorinternal.h"
 #include "cxxtools/systemerror.h"
+#include <errno.h>
+#include <string.h>
+#include <sstream>
+
+namespace
+{
+    std::string getErrnoString(int err, const char* fn)
+    {
+        if (err != 0)
+        {
+            std::ostringstream msg;
+            msg << fn << ": errno " << err << ": " << strerror(err);
+            return msg.str();
+        }
+        else
+            return fn;
+    }
+}
 
 namespace cxxtools {
 
-SystemError::SystemError(const std::string & what)
-: std::runtime_error(what)
+void throwSysErrorIf(bool flag, const char* fn)
+{
+    if(flag)
+        throw SystemError(fn);
+}
+
+
+void throwSysErrorIf(bool flag, int err, const char* fn)
+{
+    if(flag)
+        throw SystemError(err, fn);
+}
+
+
+SystemError::SystemError(int err, const char* fn)
+: std::runtime_error( getErrnoString(err, fn) )
+, m_errno(err)
 { }
 
-SystemError::SystemError(const std::string & what, const SourceInfo& si)
+
+SystemError::SystemError(const char* fn)
+: std::runtime_error( getErrnoString(errno, fn) )
+, m_errno(errno)
+{}
+
+
+SystemError::SystemError(const std::string& what, const SourceInfo& si)
 : std::runtime_error(what + si)
+, m_errno(0)
 { }
 
 
 SystemError::~SystemError() throw()
 { }
-
 
 } // namespace cxxtools
