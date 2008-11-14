@@ -11,11 +11,11 @@ class Function : public Callable<R, A1,A2,A3,A4,A5,A6,A7,A8,A9,A10>
         typedef R (*FuncT)(A1,A2,A3,A4,A5,A6,A7,A8,A9,A10);
 
         /** Wraps func. */
-        Function(FuncT func) throw()
+        Function(FuncT func)
         : _funcPtr(func) { }
 
         /** Deeply copies f. */
-        Function(const Function& f) throw()
+        Function(const Function& f)
         { this->operator=(f); }
 
         /** Call the wrapped function, passing it the arguments as-is and returning
@@ -27,9 +27,22 @@ class Function : public Callable<R, A1,A2,A3,A4,A5,A6,A7,A8,A9,A10>
         Function<R,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10>* clone() const
         { return new Function(*this); }
 
-        bool operator==(const Function& other) const
+
+#if 0
+        /** Deeply copies function and returns this object. */
+        Function& operator=(const Function& function)
         {
-            return (_funcPtr == other._funcPtr);
+            if( this != &function ) {
+                _funcPtr = function._funcPtr;
+            }
+            return (*this);
+        }
+#endif
+
+        /** Returns true if rhs and this object point to the same function. */
+        bool operator==(const Function& rhs) const
+        {
+            return (_funcPtr == rhs._funcPtr);
         }
 
     private:
@@ -54,19 +67,15 @@ class FunctionSlot : public BasicSlot<R, A1,A2,A3,A4,A5,A6,A7,A8,A9,A10>
         Slot* clone() const
         { return new FunctionSlot(*this); }
 
-        virtual bool opened(const Connection& c)
-        { return true; }
-
-        virtual void closed(const Connection& c)
+        virtual void onConnect(const Connection& c)
         { }
 
+        virtual void onDisconnect(const Connection& c)
+        { }
         virtual bool equals(const Slot& slot) const
         {
             const FunctionSlot* fs = dynamic_cast<const FunctionSlot*>(&slot);
-            if(!fs)
-                return false;
-
-            return _func == fs->_func;
+            return fs ? (_func == fs->_func) : false;
         }
 
     private:
@@ -76,12 +85,12 @@ class FunctionSlot : public BasicSlot<R, A1,A2,A3,A4,A5,A6,A7,A8,A9,A10>
 
 /** Creates and returns a Function wrapper for the given free/static function. */
 template <typename R,class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, class A9, class A10>
-Function<R,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10> callable(R (*func)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10)) throw()
+Function<R,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10> callable(R (*func)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10))
 { return Function<R,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10>(func); }
 
 /** Creates and returns a FunctionSlot object for the given free/static function. */
 template <typename R,class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, class A9, class A10>
-FunctionSlot<R,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10> slot( R (*func)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10) ) throw()
+FunctionSlot<R,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10> slot( R (*func)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10) )
 { return FunctionSlot<R,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10>( callable(func) ); }
 
 // END_Function 10
@@ -94,11 +103,11 @@ class Function<R, A1,A2,A3,A4,A5,A6,A7,A8,A9,Void> : public Callable<R, A1,A2,A3
         typedef R (*FuncT)(A1,A2,A3,A4,A5,A6,A7,A8,A9);
 
         /** Wraps func. */
-        Function(FuncT func) throw()
+        Function(FuncT func)
         : _funcPtr(func) { }
 
         /** Deeply copies f. */
-        Function(const Function& f) throw()
+        Function(const Function& f)
         { this->operator=(f); }
 
         /** Call the wrapped function, passing it the arguments as-is and returning
@@ -110,9 +119,22 @@ class Function<R, A1,A2,A3,A4,A5,A6,A7,A8,A9,Void> : public Callable<R, A1,A2,A3
         Function<R,A1,A2,A3,A4,A5,A6,A7,A8,A9>* clone() const
         { return new Function(*this); }
 
-        bool operator==(const Function& other) const
+
+#if 0
+        /** Deeply copies function and returns this object. */
+        Function& operator=(const Function& function)
         {
-            return (_funcPtr == other._funcPtr);
+            if( this != &function ) {
+                _funcPtr = function._funcPtr;
+            }
+            return (*this);
+        }
+#endif
+
+        /** Returns true if rhs and this object point to the same function. */
+        bool operator==(const Function& rhs) const
+        {
+            return (_funcPtr == rhs._funcPtr);
         }
 
     private:
@@ -121,12 +143,12 @@ class Function<R, A1,A2,A3,A4,A5,A6,A7,A8,A9,Void> : public Callable<R, A1,A2,A3
 
 /** Creates and returns a Function wrapper for the given free/static function. */
 template <typename R,class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, class A9>
-Function<R,A1,A2,A3,A4,A5,A6,A7,A8,A9> callable(R (*func)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9)) throw()
+Function<R,A1,A2,A3,A4,A5,A6,A7,A8,A9> callable(R (*func)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9))
 { return Function<R,A1,A2,A3,A4,A5,A6,A7,A8,A9>(func); }
 
 /** Creates and returns a FunctionSlot object for the given free/static function. */
 template <typename R,class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, class A9>
-FunctionSlot<R,A1,A2,A3,A4,A5,A6,A7,A8,A9> slot( R (*func)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9) ) throw()
+FunctionSlot<R,A1,A2,A3,A4,A5,A6,A7,A8,A9> slot( R (*func)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9) )
 { return FunctionSlot<R,A1,A2,A3,A4,A5,A6,A7,A8,A9>( callable(func) ); }
 
 // END_Function 9
@@ -139,11 +161,11 @@ class Function<R, A1,A2,A3,A4,A5,A6,A7,A8,Void,Void> : public Callable<R, A1,A2,
         typedef R (*FuncT)(A1,A2,A3,A4,A5,A6,A7,A8);
 
         /** Wraps func. */
-        Function(FuncT func) throw()
+        Function(FuncT func)
         : _funcPtr(func) { }
 
         /** Deeply copies f. */
-        Function(const Function& f) throw()
+        Function(const Function& f)
         { this->operator=(f); }
 
         /** Call the wrapped function, passing it the arguments as-is and returning
@@ -155,9 +177,22 @@ class Function<R, A1,A2,A3,A4,A5,A6,A7,A8,Void,Void> : public Callable<R, A1,A2,
         Function<R,A1,A2,A3,A4,A5,A6,A7,A8>* clone() const
         { return new Function(*this); }
 
-        bool operator==(const Function& other) const
+
+#if 0
+        /** Deeply copies function and returns this object. */
+        Function& operator=(const Function& function)
         {
-            return (_funcPtr == other._funcPtr);
+            if( this != &function ) {
+                _funcPtr = function._funcPtr;
+            }
+            return (*this);
+        }
+#endif
+
+        /** Returns true if rhs and this object point to the same function. */
+        bool operator==(const Function& rhs) const
+        {
+            return (_funcPtr == rhs._funcPtr);
         }
 
     private:
@@ -166,12 +201,12 @@ class Function<R, A1,A2,A3,A4,A5,A6,A7,A8,Void,Void> : public Callable<R, A1,A2,
 
 /** Creates and returns a Function wrapper for the given free/static function. */
 template <typename R,class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8>
-Function<R,A1,A2,A3,A4,A5,A6,A7,A8> callable(R (*func)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8)) throw()
+Function<R,A1,A2,A3,A4,A5,A6,A7,A8> callable(R (*func)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8))
 { return Function<R,A1,A2,A3,A4,A5,A6,A7,A8>(func); }
 
 /** Creates and returns a FunctionSlot object for the given free/static function. */
 template <typename R,class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8>
-FunctionSlot<R,A1,A2,A3,A4,A5,A6,A7,A8> slot( R (*func)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8) ) throw()
+FunctionSlot<R,A1,A2,A3,A4,A5,A6,A7,A8> slot( R (*func)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8) )
 { return FunctionSlot<R,A1,A2,A3,A4,A5,A6,A7,A8>( callable(func) ); }
 
 // END_Function 8
@@ -184,11 +219,11 @@ class Function<R, A1,A2,A3,A4,A5,A6,A7,Void,Void,Void> : public Callable<R, A1,A
         typedef R (*FuncT)(A1,A2,A3,A4,A5,A6,A7);
 
         /** Wraps func. */
-        Function(FuncT func) throw()
+        Function(FuncT func)
         : _funcPtr(func) { }
 
         /** Deeply copies f. */
-        Function(const Function& f) throw()
+        Function(const Function& f)
         { this->operator=(f); }
 
         /** Call the wrapped function, passing it the arguments as-is and returning
@@ -200,9 +235,22 @@ class Function<R, A1,A2,A3,A4,A5,A6,A7,Void,Void,Void> : public Callable<R, A1,A
         Function<R,A1,A2,A3,A4,A5,A6,A7>* clone() const
         { return new Function(*this); }
 
-        bool operator==(const Function& other) const
+
+#if 0
+        /** Deeply copies function and returns this object. */
+        Function& operator=(const Function& function)
         {
-            return (_funcPtr == other._funcPtr);
+            if( this != &function ) {
+                _funcPtr = function._funcPtr;
+            }
+            return (*this);
+        }
+#endif
+
+        /** Returns true if rhs and this object point to the same function. */
+        bool operator==(const Function& rhs) const
+        {
+            return (_funcPtr == rhs._funcPtr);
         }
 
     private:
@@ -211,12 +259,12 @@ class Function<R, A1,A2,A3,A4,A5,A6,A7,Void,Void,Void> : public Callable<R, A1,A
 
 /** Creates and returns a Function wrapper for the given free/static function. */
 template <typename R,class A1, class A2, class A3, class A4, class A5, class A6, class A7>
-Function<R,A1,A2,A3,A4,A5,A6,A7> callable(R (*func)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7)) throw()
+Function<R,A1,A2,A3,A4,A5,A6,A7> callable(R (*func)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7))
 { return Function<R,A1,A2,A3,A4,A5,A6,A7>(func); }
 
 /** Creates and returns a FunctionSlot object for the given free/static function. */
 template <typename R,class A1, class A2, class A3, class A4, class A5, class A6, class A7>
-FunctionSlot<R,A1,A2,A3,A4,A5,A6,A7> slot( R (*func)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7) ) throw()
+FunctionSlot<R,A1,A2,A3,A4,A5,A6,A7> slot( R (*func)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7) )
 { return FunctionSlot<R,A1,A2,A3,A4,A5,A6,A7>( callable(func) ); }
 
 // END_Function 7
@@ -229,11 +277,11 @@ class Function<R, A1,A2,A3,A4,A5,A6,Void,Void,Void,Void> : public Callable<R, A1
         typedef R (*FuncT)(A1,A2,A3,A4,A5,A6);
 
         /** Wraps func. */
-        Function(FuncT func) throw()
+        Function(FuncT func)
         : _funcPtr(func) { }
 
         /** Deeply copies f. */
-        Function(const Function& f) throw()
+        Function(const Function& f)
         { this->operator=(f); }
 
         /** Call the wrapped function, passing it the arguments as-is and returning
@@ -245,9 +293,22 @@ class Function<R, A1,A2,A3,A4,A5,A6,Void,Void,Void,Void> : public Callable<R, A1
         Function<R,A1,A2,A3,A4,A5,A6>* clone() const
         { return new Function(*this); }
 
-        bool operator==(const Function& other) const
+
+#if 0
+        /** Deeply copies function and returns this object. */
+        Function& operator=(const Function& function)
         {
-            return (_funcPtr == other._funcPtr);
+            if( this != &function ) {
+                _funcPtr = function._funcPtr;
+            }
+            return (*this);
+        }
+#endif
+
+        /** Returns true if rhs and this object point to the same function. */
+        bool operator==(const Function& rhs) const
+        {
+            return (_funcPtr == rhs._funcPtr);
         }
 
     private:
@@ -256,12 +317,12 @@ class Function<R, A1,A2,A3,A4,A5,A6,Void,Void,Void,Void> : public Callable<R, A1
 
 /** Creates and returns a Function wrapper for the given free/static function. */
 template <typename R,class A1, class A2, class A3, class A4, class A5, class A6>
-Function<R,A1,A2,A3,A4,A5,A6> callable(R (*func)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6)) throw()
+Function<R,A1,A2,A3,A4,A5,A6> callable(R (*func)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6))
 { return Function<R,A1,A2,A3,A4,A5,A6>(func); }
 
 /** Creates and returns a FunctionSlot object for the given free/static function. */
 template <typename R,class A1, class A2, class A3, class A4, class A5, class A6>
-FunctionSlot<R,A1,A2,A3,A4,A5,A6> slot( R (*func)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6) ) throw()
+FunctionSlot<R,A1,A2,A3,A4,A5,A6> slot( R (*func)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6) )
 { return FunctionSlot<R,A1,A2,A3,A4,A5,A6>( callable(func) ); }
 
 // END_Function 6
@@ -274,11 +335,11 @@ class Function<R, A1,A2,A3,A4,A5,Void,Void,Void,Void,Void> : public Callable<R, 
         typedef R (*FuncT)(A1,A2,A3,A4,A5);
 
         /** Wraps func. */
-        Function(FuncT func) throw()
+        Function(FuncT func)
         : _funcPtr(func) { }
 
         /** Deeply copies f. */
-        Function(const Function& f) throw()
+        Function(const Function& f)
         { this->operator=(f); }
 
         /** Call the wrapped function, passing it the arguments as-is and returning
@@ -290,9 +351,22 @@ class Function<R, A1,A2,A3,A4,A5,Void,Void,Void,Void,Void> : public Callable<R, 
         Function<R,A1,A2,A3,A4,A5>* clone() const
         { return new Function(*this); }
 
-        bool operator==(const Function& other) const
+
+#if 0
+        /** Deeply copies function and returns this object. */
+        Function& operator=(const Function& function)
         {
-            return (_funcPtr == other._funcPtr);
+            if( this != &function ) {
+                _funcPtr = function._funcPtr;
+            }
+            return (*this);
+        }
+#endif
+
+        /** Returns true if rhs and this object point to the same function. */
+        bool operator==(const Function& rhs) const
+        {
+            return (_funcPtr == rhs._funcPtr);
         }
 
     private:
@@ -301,12 +375,12 @@ class Function<R, A1,A2,A3,A4,A5,Void,Void,Void,Void,Void> : public Callable<R, 
 
 /** Creates and returns a Function wrapper for the given free/static function. */
 template <typename R,class A1, class A2, class A3, class A4, class A5>
-Function<R,A1,A2,A3,A4,A5> callable(R (*func)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5)) throw()
+Function<R,A1,A2,A3,A4,A5> callable(R (*func)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5))
 { return Function<R,A1,A2,A3,A4,A5>(func); }
 
 /** Creates and returns a FunctionSlot object for the given free/static function. */
 template <typename R,class A1, class A2, class A3, class A4, class A5>
-FunctionSlot<R,A1,A2,A3,A4,A5> slot( R (*func)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) ) throw()
+FunctionSlot<R,A1,A2,A3,A4,A5> slot( R (*func)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) )
 { return FunctionSlot<R,A1,A2,A3,A4,A5>( callable(func) ); }
 
 // END_Function 5
@@ -319,11 +393,11 @@ class Function<R, A1,A2,A3,A4,Void,Void,Void,Void,Void,Void> : public Callable<R
         typedef R (*FuncT)(A1,A2,A3,A4);
 
         /** Wraps func. */
-        Function(FuncT func) throw()
+        Function(FuncT func)
         : _funcPtr(func) { }
 
         /** Deeply copies f. */
-        Function(const Function& f) throw()
+        Function(const Function& f)
         { this->operator=(f); }
 
         /** Call the wrapped function, passing it the arguments as-is and returning
@@ -335,9 +409,22 @@ class Function<R, A1,A2,A3,A4,Void,Void,Void,Void,Void,Void> : public Callable<R
         Function<R,A1,A2,A3,A4>* clone() const
         { return new Function(*this); }
 
-        bool operator==(const Function& other) const
+
+#if 0
+        /** Deeply copies function and returns this object. */
+        Function& operator=(const Function& function)
         {
-            return (_funcPtr == other._funcPtr);
+            if( this != &function ) {
+                _funcPtr = function._funcPtr;
+            }
+            return (*this);
+        }
+#endif
+
+        /** Returns true if rhs and this object point to the same function. */
+        bool operator==(const Function& rhs) const
+        {
+            return (_funcPtr == rhs._funcPtr);
         }
 
     private:
@@ -346,12 +433,12 @@ class Function<R, A1,A2,A3,A4,Void,Void,Void,Void,Void,Void> : public Callable<R
 
 /** Creates and returns a Function wrapper for the given free/static function. */
 template <typename R,class A1, class A2, class A3, class A4>
-Function<R,A1,A2,A3,A4> callable(R (*func)(A1 a1, A2 a2, A3 a3, A4 a4)) throw()
+Function<R,A1,A2,A3,A4> callable(R (*func)(A1 a1, A2 a2, A3 a3, A4 a4))
 { return Function<R,A1,A2,A3,A4>(func); }
 
 /** Creates and returns a FunctionSlot object for the given free/static function. */
 template <typename R,class A1, class A2, class A3, class A4>
-FunctionSlot<R,A1,A2,A3,A4> slot( R (*func)(A1 a1, A2 a2, A3 a3, A4 a4) ) throw()
+FunctionSlot<R,A1,A2,A3,A4> slot( R (*func)(A1 a1, A2 a2, A3 a3, A4 a4) )
 { return FunctionSlot<R,A1,A2,A3,A4>( callable(func) ); }
 
 // END_Function 4
@@ -364,11 +451,11 @@ class Function<R, A1,A2,A3,Void,Void,Void,Void,Void,Void,Void> : public Callable
         typedef R (*FuncT)(A1,A2,A3);
 
         /** Wraps func. */
-        Function(FuncT func) throw()
+        Function(FuncT func)
         : _funcPtr(func) { }
 
         /** Deeply copies f. */
-        Function(const Function& f) throw()
+        Function(const Function& f)
         { this->operator=(f); }
 
         /** Call the wrapped function, passing it the arguments as-is and returning
@@ -380,9 +467,22 @@ class Function<R, A1,A2,A3,Void,Void,Void,Void,Void,Void,Void> : public Callable
         Function<R,A1,A2,A3>* clone() const
         { return new Function(*this); }
 
-        bool operator==(const Function& other) const
+
+#if 0
+        /** Deeply copies function and returns this object. */
+        Function& operator=(const Function& function)
         {
-            return (_funcPtr == other._funcPtr);
+            if( this != &function ) {
+                _funcPtr = function._funcPtr;
+            }
+            return (*this);
+        }
+#endif
+
+        /** Returns true if rhs and this object point to the same function. */
+        bool operator==(const Function& rhs) const
+        {
+            return (_funcPtr == rhs._funcPtr);
         }
 
     private:
@@ -391,12 +491,12 @@ class Function<R, A1,A2,A3,Void,Void,Void,Void,Void,Void,Void> : public Callable
 
 /** Creates and returns a Function wrapper for the given free/static function. */
 template <typename R,class A1, class A2, class A3>
-Function<R,A1,A2,A3> callable(R (*func)(A1 a1, A2 a2, A3 a3)) throw()
+Function<R,A1,A2,A3> callable(R (*func)(A1 a1, A2 a2, A3 a3))
 { return Function<R,A1,A2,A3>(func); }
 
 /** Creates and returns a FunctionSlot object for the given free/static function. */
 template <typename R,class A1, class A2, class A3>
-FunctionSlot<R,A1,A2,A3> slot( R (*func)(A1 a1, A2 a2, A3 a3) ) throw()
+FunctionSlot<R,A1,A2,A3> slot( R (*func)(A1 a1, A2 a2, A3 a3) )
 { return FunctionSlot<R,A1,A2,A3>( callable(func) ); }
 
 // END_Function 3
@@ -409,11 +509,11 @@ class Function<R, A1,A2,Void,Void,Void,Void,Void,Void,Void,Void> : public Callab
         typedef R (*FuncT)(A1,A2);
 
         /** Wraps func. */
-        Function(FuncT func) throw()
+        Function(FuncT func)
         : _funcPtr(func) { }
 
         /** Deeply copies f. */
-        Function(const Function& f) throw()
+        Function(const Function& f)
         { this->operator=(f); }
 
         /** Call the wrapped function, passing it the arguments as-is and returning
@@ -425,9 +525,22 @@ class Function<R, A1,A2,Void,Void,Void,Void,Void,Void,Void,Void> : public Callab
         Function<R,A1,A2>* clone() const
         { return new Function(*this); }
 
-        bool operator==(const Function& other) const
+
+#if 0
+        /** Deeply copies function and returns this object. */
+        Function& operator=(const Function& function)
         {
-            return (_funcPtr == other._funcPtr);
+            if( this != &function ) {
+                _funcPtr = function._funcPtr;
+            }
+            return (*this);
+        }
+#endif
+
+        /** Returns true if rhs and this object point to the same function. */
+        bool operator==(const Function& rhs) const
+        {
+            return (_funcPtr == rhs._funcPtr);
         }
 
     private:
@@ -436,12 +549,12 @@ class Function<R, A1,A2,Void,Void,Void,Void,Void,Void,Void,Void> : public Callab
 
 /** Creates and returns a Function wrapper for the given free/static function. */
 template <typename R,class A1, class A2>
-Function<R,A1,A2> callable(R (*func)(A1 a1, A2 a2)) throw()
+Function<R,A1,A2> callable(R (*func)(A1 a1, A2 a2))
 { return Function<R,A1,A2>(func); }
 
 /** Creates and returns a FunctionSlot object for the given free/static function. */
 template <typename R,class A1, class A2>
-FunctionSlot<R,A1,A2> slot( R (*func)(A1 a1, A2 a2) ) throw()
+FunctionSlot<R,A1,A2> slot( R (*func)(A1 a1, A2 a2) )
 { return FunctionSlot<R,A1,A2>( callable(func) ); }
 
 // END_Function 2
@@ -454,11 +567,11 @@ class Function<R, A1,Void,Void,Void,Void,Void,Void,Void,Void,Void> : public Call
         typedef R (*FuncT)(A1);
 
         /** Wraps func. */
-        Function(FuncT func) throw()
+        Function(FuncT func)
         : _funcPtr(func) { }
 
         /** Deeply copies f. */
-        Function(const Function& f) throw()
+        Function(const Function& f)
         { this->operator=(f); }
 
         /** Call the wrapped function, passing it the arguments as-is and returning
@@ -470,9 +583,22 @@ class Function<R, A1,Void,Void,Void,Void,Void,Void,Void,Void,Void> : public Call
         Function<R,A1>* clone() const
         { return new Function(*this); }
 
-        bool operator==(const Function& other) const
+
+#if 0
+        /** Deeply copies function and returns this object. */
+        Function& operator=(const Function& function)
         {
-            return (_funcPtr == other._funcPtr);
+            if( this != &function ) {
+                _funcPtr = function._funcPtr;
+            }
+            return (*this);
+        }
+#endif
+
+        /** Returns true if rhs and this object point to the same function. */
+        bool operator==(const Function& rhs) const
+        {
+            return (_funcPtr == rhs._funcPtr);
         }
 
     private:
@@ -481,12 +607,12 @@ class Function<R, A1,Void,Void,Void,Void,Void,Void,Void,Void,Void> : public Call
 
 /** Creates and returns a Function wrapper for the given free/static function. */
 template <typename R,class A1>
-Function<R,A1> callable(R (*func)(A1 a1)) throw()
+Function<R,A1> callable(R (*func)(A1 a1))
 { return Function<R,A1>(func); }
 
 /** Creates and returns a FunctionSlot object for the given free/static function. */
 template <typename R,class A1>
-FunctionSlot<R,A1> slot( R (*func)(A1 a1) ) throw()
+FunctionSlot<R,A1> slot( R (*func)(A1 a1) )
 { return FunctionSlot<R,A1>( callable(func) ); }
 
 // END_Function 1
@@ -499,11 +625,11 @@ class Function<R, Void,Void,Void,Void,Void,Void,Void,Void,Void,Void> : public Ca
         typedef R (*FuncT)();
 
         /** Wraps func. */
-        Function(FuncT func) throw()
+        Function(FuncT func)
         : _funcPtr(func) { }
 
         /** Deeply copies f. */
-        Function(const Function& f) throw()
+        Function(const Function& f)
         { this->operator=(f); }
 
         /** Call the wrapped function, passing it the arguments as-is and returning
@@ -515,9 +641,22 @@ class Function<R, Void,Void,Void,Void,Void,Void,Void,Void,Void,Void> : public Ca
         Function<R>* clone() const
         { return new Function(*this); }
 
-        bool operator==(const Function& other) const
+
+#if 0
+        /** Deeply copies function and returns this object. */
+        Function& operator=(const Function& function)
         {
-            return (_funcPtr == other._funcPtr);
+            if( this != &function ) {
+                _funcPtr = function._funcPtr;
+            }
+            return (*this);
+        }
+#endif
+
+        /** Returns true if rhs and this object point to the same function. */
+        bool operator==(const Function& rhs) const
+        {
+            return (_funcPtr == rhs._funcPtr);
         }
 
     private:
@@ -526,12 +665,12 @@ class Function<R, Void,Void,Void,Void,Void,Void,Void,Void,Void,Void> : public Ca
 
 /** Creates and returns a Function wrapper for the given free/static function. */
 template <typename R>
-Function<R> callable(R (*func)()) throw()
+Function<R> callable(R (*func)())
 { return Function<R>(func); }
 
 /** Creates and returns a FunctionSlot object for the given free/static function. */
 template <typename R>
-FunctionSlot<R> slot( R (*func)() ) throw()
+FunctionSlot<R> slot( R (*func)() )
 { return FunctionSlot<R>( callable(func) ); }
 
 // END_Function 0

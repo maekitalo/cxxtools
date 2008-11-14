@@ -11,12 +11,12 @@ class ConstMethod : public Callable<R, A1,A2,A3,A4,A5,A6,A7,A8,A9,A10>
         typedef R (ClassT::*MemFuncT)(A1,A2,A3,A4,A5,A6,A7,A8,A9,A10) const;
 
         /** Wraps the given member function of the given object. */
-        ConstMethod(ClassT& object, MemFuncT ptr) throw()
+        ConstMethod(ClassT& object, MemFuncT ptr)
         : _object(&object), _method(ptr)
         { }
 
         /** Deeply copies rhs. */
-        ConstMethod(const ConstMethod& rhs) throw()
+        ConstMethod(const ConstMethod& rhs)
         : Callable<R, A1,A2,A3,A4,A5,A6,A7,A8,A9,A10>()
         { this->operator=(rhs); }
 
@@ -38,10 +38,11 @@ class ConstMethod : public Callable<R, A1,A2,A3,A4,A5,A6,A7,A8,A9,A10>
         ConstMethod<R, ClassT,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10>* clone() const
         { return new ConstMethod(*this); }
 
-        bool operator==(const ConstMethod& other) const
+        /** Returns true if rhs and this object point to the same object and method. */
+        bool operator==(const ConstMethod& rhs) const
         {
-            return (_object == other._object) &&
-                   (_method == other._method);
+            return (_object == rhs._object) &&
+                   (_method == rhs._method);
         }
 
     private:
@@ -50,8 +51,8 @@ class ConstMethod : public Callable<R, A1,A2,A3,A4,A5,A6,A7,A8,A9,A10>
 };
 
 /** Creates and  returns a ConstMethod object from the given object and method pair. */
-template <class R, class ClassT,class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, class A9, class A10>
-ConstMethod<R,ClassT,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10> callable( ClassT & obj, R (ClassT::*ptr)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10) const ) throw()
+template <class R, class BaseT, class ClassT,class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, class A9, class A10>
+ConstMethod<R,ClassT,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10> callable( ClassT & obj, R (BaseT::*ptr)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10) const )
 { return ConstMethod<R,ClassT,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10>(obj,ptr); }
 
 /**
@@ -75,25 +76,19 @@ class ConstMethodSlot : public BasicSlot<R, A1,A2,A3,A4,A5,A6,A7,A8,A9,A10>
         virtual const void* callable() const
         { return &_method; }
 
-        virtual bool opened(const Connection& c)
+        virtual void onConnect(const Connection& c)
         {
-            Connectable& connectable = _method.object();
-            return connectable.opened(c);
+            _method.object().onConnectionOpen(c);
         }
 
-        virtual void closed(const Connection& c) 
+        virtual void onDisconnect(const Connection& c)
         {
-            Connectable& connectable = _method.object();
-            connectable.closed(c);
+            _method.object().onConnectionClose(c);
         }
-
         virtual bool equals(const Slot& slot) const
         {
             const ConstMethodSlot* ms = dynamic_cast<const ConstMethodSlot*>(&slot);
-            if(!ms)
-                return false;
-
-            return _method == ms->_method;
+            return ms ? (_method == ms->_method) : false;
         }
 
     private:
@@ -103,7 +98,7 @@ class ConstMethodSlot : public BasicSlot<R, A1,A2,A3,A4,A5,A6,A7,A8,A9,A10>
   Creates and returns a ConstMethodSlot for the given object/method pair.
 */
 template <class R, class BaseT, class ClassT,class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, class A9, class A10>
-ConstMethodSlot<R,BaseT,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10> slot( ClassT & obj, R (BaseT::*memFunc)(A1,A2,A3,A4,A5,A6,A7,A8,A9,A10) const ) throw()
+ConstMethodSlot<R,ClassT,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10> slot( ClassT & obj, R (BaseT::*memFunc)(A1,A2,A3,A4,A5,A6,A7,A8,A9,A10) const )
 {
     return ConstMethodSlot<R,ClassT,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10>( callable( obj, memFunc ) );
 }
@@ -117,12 +112,12 @@ class ConstMethod<R,ClassT, A1,A2,A3,A4,A5,A6,A7,A8,A9,Void> : public Callable<R
         typedef R (ClassT::*MemFuncT)(A1,A2,A3,A4,A5,A6,A7,A8,A9) const;
 
         /** Wraps the given member function of the given object. */
-        ConstMethod(ClassT& object, MemFuncT ptr) throw()
+        ConstMethod(ClassT& object, MemFuncT ptr)
         : _object(&object), _method(ptr)
         { }
 
         /** Deeply copies rhs. */
-        ConstMethod(const ConstMethod& rhs) throw()
+        ConstMethod(const ConstMethod& rhs)
         : Callable<R, A1,A2,A3,A4,A5,A6,A7,A8,A9,Void>()
         { this->operator=(rhs); }
 
@@ -144,10 +139,11 @@ class ConstMethod<R,ClassT, A1,A2,A3,A4,A5,A6,A7,A8,A9,Void> : public Callable<R
         ConstMethod<R, ClassT,A1,A2,A3,A4,A5,A6,A7,A8,A9>* clone() const
         { return new ConstMethod(*this); }
 
-        bool operator==(const ConstMethod& other) const
+        /** Returns true if rhs and this object point to the same object and method. */
+        bool operator==(const ConstMethod& rhs) const
         {
-            return (_object == other._object) &&
-                   (_method == other._method);
+            return (_object == rhs._object) &&
+                   (_method == rhs._method);
         }
 
     private:
@@ -156,15 +152,15 @@ class ConstMethod<R,ClassT, A1,A2,A3,A4,A5,A6,A7,A8,A9,Void> : public Callable<R
 };
 
 /** Creates and  returns a ConstMethod object from the given object and method pair. */
-template <class R, class ClassT,class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, class A9>
-ConstMethod<R,ClassT,A1,A2,A3,A4,A5,A6,A7,A8,A9> callable( ClassT & obj, R (ClassT::*ptr)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9) const ) throw()
+template <class R, class BaseT, class ClassT,class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, class A9>
+ConstMethod<R,ClassT,A1,A2,A3,A4,A5,A6,A7,A8,A9> callable( ClassT & obj, R (BaseT::*ptr)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9) const )
 { return ConstMethod<R,ClassT,A1,A2,A3,A4,A5,A6,A7,A8,A9>(obj,ptr); }
 
 /**
   Creates and returns a ConstMethodSlot for the given object/method pair.
 */
 template <class R, class BaseT, class ClassT,class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, class A9>
-ConstMethodSlot<R,BaseT,A1,A2,A3,A4,A5,A6,A7,A8,A9> slot( ClassT & obj, R (BaseT::*memFunc)(A1,A2,A3,A4,A5,A6,A7,A8,A9) const ) throw()
+ConstMethodSlot<R,ClassT,A1,A2,A3,A4,A5,A6,A7,A8,A9> slot( ClassT & obj, R (BaseT::*memFunc)(A1,A2,A3,A4,A5,A6,A7,A8,A9) const )
 {
     return ConstMethodSlot<R,ClassT,A1,A2,A3,A4,A5,A6,A7,A8,A9>( callable( obj, memFunc ) );
 }
@@ -178,12 +174,12 @@ class ConstMethod<R,ClassT, A1,A2,A3,A4,A5,A6,A7,A8,Void,Void> : public Callable
         typedef R (ClassT::*MemFuncT)(A1,A2,A3,A4,A5,A6,A7,A8) const;
 
         /** Wraps the given member function of the given object. */
-        ConstMethod(ClassT& object, MemFuncT ptr) throw()
+        ConstMethod(ClassT& object, MemFuncT ptr)
         : _object(&object), _method(ptr)
         { }
 
         /** Deeply copies rhs. */
-        ConstMethod(const ConstMethod& rhs) throw()
+        ConstMethod(const ConstMethod& rhs)
         : Callable<R, A1,A2,A3,A4,A5,A6,A7,A8,Void,Void>()
         { this->operator=(rhs); }
 
@@ -205,10 +201,11 @@ class ConstMethod<R,ClassT, A1,A2,A3,A4,A5,A6,A7,A8,Void,Void> : public Callable
         ConstMethod<R, ClassT,A1,A2,A3,A4,A5,A6,A7,A8>* clone() const
         { return new ConstMethod(*this); }
 
-        bool operator==(const ConstMethod& other) const
+        /** Returns true if rhs and this object point to the same object and method. */
+        bool operator==(const ConstMethod& rhs) const
         {
-            return (_object == other._object) &&
-                   (_method == other._method);
+            return (_object == rhs._object) &&
+                   (_method == rhs._method);
         }
 
     private:
@@ -217,15 +214,15 @@ class ConstMethod<R,ClassT, A1,A2,A3,A4,A5,A6,A7,A8,Void,Void> : public Callable
 };
 
 /** Creates and  returns a ConstMethod object from the given object and method pair. */
-template <class R, class ClassT,class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8>
-ConstMethod<R,ClassT,A1,A2,A3,A4,A5,A6,A7,A8> callable( ClassT & obj, R (ClassT::*ptr)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8) const ) throw()
+template <class R, class BaseT, class ClassT,class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8>
+ConstMethod<R,ClassT,A1,A2,A3,A4,A5,A6,A7,A8> callable( ClassT & obj, R (BaseT::*ptr)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8) const )
 { return ConstMethod<R,ClassT,A1,A2,A3,A4,A5,A6,A7,A8>(obj,ptr); }
 
 /**
   Creates and returns a ConstMethodSlot for the given object/method pair.
 */
 template <class R, class BaseT, class ClassT,class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8>
-ConstMethodSlot<R,BaseT,A1,A2,A3,A4,A5,A6,A7,A8> slot( ClassT & obj, R (BaseT::*memFunc)(A1,A2,A3,A4,A5,A6,A7,A8) const ) throw()
+ConstMethodSlot<R,ClassT,A1,A2,A3,A4,A5,A6,A7,A8> slot( ClassT & obj, R (BaseT::*memFunc)(A1,A2,A3,A4,A5,A6,A7,A8) const )
 {
     return ConstMethodSlot<R,ClassT,A1,A2,A3,A4,A5,A6,A7,A8>( callable( obj, memFunc ) );
 }
@@ -239,12 +236,12 @@ class ConstMethod<R,ClassT, A1,A2,A3,A4,A5,A6,A7,Void,Void,Void> : public Callab
         typedef R (ClassT::*MemFuncT)(A1,A2,A3,A4,A5,A6,A7) const;
 
         /** Wraps the given member function of the given object. */
-        ConstMethod(ClassT& object, MemFuncT ptr) throw()
+        ConstMethod(ClassT& object, MemFuncT ptr)
         : _object(&object), _method(ptr)
         { }
 
         /** Deeply copies rhs. */
-        ConstMethod(const ConstMethod& rhs) throw()
+        ConstMethod(const ConstMethod& rhs)
         : Callable<R, A1,A2,A3,A4,A5,A6,A7,Void,Void,Void>()
         { this->operator=(rhs); }
 
@@ -266,10 +263,11 @@ class ConstMethod<R,ClassT, A1,A2,A3,A4,A5,A6,A7,Void,Void,Void> : public Callab
         ConstMethod<R, ClassT,A1,A2,A3,A4,A5,A6,A7>* clone() const
         { return new ConstMethod(*this); }
 
-        bool operator==(const ConstMethod& other) const
+        /** Returns true if rhs and this object point to the same object and method. */
+        bool operator==(const ConstMethod& rhs) const
         {
-            return (_object == other._object) &&
-                   (_method == other._method);
+            return (_object == rhs._object) &&
+                   (_method == rhs._method);
         }
 
     private:
@@ -278,15 +276,15 @@ class ConstMethod<R,ClassT, A1,A2,A3,A4,A5,A6,A7,Void,Void,Void> : public Callab
 };
 
 /** Creates and  returns a ConstMethod object from the given object and method pair. */
-template <class R, class ClassT,class A1, class A2, class A3, class A4, class A5, class A6, class A7>
-ConstMethod<R,ClassT,A1,A2,A3,A4,A5,A6,A7> callable( ClassT & obj, R (ClassT::*ptr)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7) const ) throw()
+template <class R, class BaseT, class ClassT,class A1, class A2, class A3, class A4, class A5, class A6, class A7>
+ConstMethod<R,ClassT,A1,A2,A3,A4,A5,A6,A7> callable( ClassT & obj, R (BaseT::*ptr)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7) const )
 { return ConstMethod<R,ClassT,A1,A2,A3,A4,A5,A6,A7>(obj,ptr); }
 
 /**
   Creates and returns a ConstMethodSlot for the given object/method pair.
 */
 template <class R, class BaseT, class ClassT,class A1, class A2, class A3, class A4, class A5, class A6, class A7>
-ConstMethodSlot<R,BaseT,A1,A2,A3,A4,A5,A6,A7> slot( ClassT & obj, R (BaseT::*memFunc)(A1,A2,A3,A4,A5,A6,A7) const ) throw()
+ConstMethodSlot<R,ClassT,A1,A2,A3,A4,A5,A6,A7> slot( ClassT & obj, R (BaseT::*memFunc)(A1,A2,A3,A4,A5,A6,A7) const )
 {
     return ConstMethodSlot<R,ClassT,A1,A2,A3,A4,A5,A6,A7>( callable( obj, memFunc ) );
 }
@@ -300,12 +298,12 @@ class ConstMethod<R,ClassT, A1,A2,A3,A4,A5,A6,Void,Void,Void,Void> : public Call
         typedef R (ClassT::*MemFuncT)(A1,A2,A3,A4,A5,A6) const;
 
         /** Wraps the given member function of the given object. */
-        ConstMethod(ClassT& object, MemFuncT ptr) throw()
+        ConstMethod(ClassT& object, MemFuncT ptr)
         : _object(&object), _method(ptr)
         { }
 
         /** Deeply copies rhs. */
-        ConstMethod(const ConstMethod& rhs) throw()
+        ConstMethod(const ConstMethod& rhs)
         : Callable<R, A1,A2,A3,A4,A5,A6,Void,Void,Void,Void>()
         { this->operator=(rhs); }
 
@@ -327,10 +325,11 @@ class ConstMethod<R,ClassT, A1,A2,A3,A4,A5,A6,Void,Void,Void,Void> : public Call
         ConstMethod<R, ClassT,A1,A2,A3,A4,A5,A6>* clone() const
         { return new ConstMethod(*this); }
 
-        bool operator==(const ConstMethod& other) const
+        /** Returns true if rhs and this object point to the same object and method. */
+        bool operator==(const ConstMethod& rhs) const
         {
-            return (_object == other._object) &&
-                   (_method == other._method);
+            return (_object == rhs._object) &&
+                   (_method == rhs._method);
         }
 
     private:
@@ -339,15 +338,15 @@ class ConstMethod<R,ClassT, A1,A2,A3,A4,A5,A6,Void,Void,Void,Void> : public Call
 };
 
 /** Creates and  returns a ConstMethod object from the given object and method pair. */
-template <class R, class ClassT,class A1, class A2, class A3, class A4, class A5, class A6>
-ConstMethod<R,ClassT,A1,A2,A3,A4,A5,A6> callable( ClassT & obj, R (ClassT::*ptr)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6) const ) throw()
+template <class R, class BaseT, class ClassT,class A1, class A2, class A3, class A4, class A5, class A6>
+ConstMethod<R,ClassT,A1,A2,A3,A4,A5,A6> callable( ClassT & obj, R (BaseT::*ptr)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6) const )
 { return ConstMethod<R,ClassT,A1,A2,A3,A4,A5,A6>(obj,ptr); }
 
 /**
   Creates and returns a ConstMethodSlot for the given object/method pair.
 */
 template <class R, class BaseT, class ClassT,class A1, class A2, class A3, class A4, class A5, class A6>
-ConstMethodSlot<R,BaseT,A1,A2,A3,A4,A5,A6> slot( ClassT & obj, R (BaseT::*memFunc)(A1,A2,A3,A4,A5,A6) const ) throw()
+ConstMethodSlot<R,ClassT,A1,A2,A3,A4,A5,A6> slot( ClassT & obj, R (BaseT::*memFunc)(A1,A2,A3,A4,A5,A6) const )
 {
     return ConstMethodSlot<R,ClassT,A1,A2,A3,A4,A5,A6>( callable( obj, memFunc ) );
 }
@@ -361,12 +360,12 @@ class ConstMethod<R,ClassT, A1,A2,A3,A4,A5,Void,Void,Void,Void,Void> : public Ca
         typedef R (ClassT::*MemFuncT)(A1,A2,A3,A4,A5) const;
 
         /** Wraps the given member function of the given object. */
-        ConstMethod(ClassT& object, MemFuncT ptr) throw()
+        ConstMethod(ClassT& object, MemFuncT ptr)
         : _object(&object), _method(ptr)
         { }
 
         /** Deeply copies rhs. */
-        ConstMethod(const ConstMethod& rhs) throw()
+        ConstMethod(const ConstMethod& rhs)
         : Callable<R, A1,A2,A3,A4,A5,Void,Void,Void,Void,Void>()
         { this->operator=(rhs); }
 
@@ -388,10 +387,11 @@ class ConstMethod<R,ClassT, A1,A2,A3,A4,A5,Void,Void,Void,Void,Void> : public Ca
         ConstMethod<R, ClassT,A1,A2,A3,A4,A5>* clone() const
         { return new ConstMethod(*this); }
 
-        bool operator==(const ConstMethod& other) const
+        /** Returns true if rhs and this object point to the same object and method. */
+        bool operator==(const ConstMethod& rhs) const
         {
-            return (_object == other._object) &&
-                   (_method == other._method);
+            return (_object == rhs._object) &&
+                   (_method == rhs._method);
         }
 
     private:
@@ -400,15 +400,15 @@ class ConstMethod<R,ClassT, A1,A2,A3,A4,A5,Void,Void,Void,Void,Void> : public Ca
 };
 
 /** Creates and  returns a ConstMethod object from the given object and method pair. */
-template <class R, class ClassT,class A1, class A2, class A3, class A4, class A5>
-ConstMethod<R,ClassT,A1,A2,A3,A4,A5> callable( ClassT & obj, R (ClassT::*ptr)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) const ) throw()
+template <class R, class BaseT, class ClassT,class A1, class A2, class A3, class A4, class A5>
+ConstMethod<R,ClassT,A1,A2,A3,A4,A5> callable( ClassT & obj, R (BaseT::*ptr)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) const )
 { return ConstMethod<R,ClassT,A1,A2,A3,A4,A5>(obj,ptr); }
 
 /**
   Creates and returns a ConstMethodSlot for the given object/method pair.
 */
 template <class R, class BaseT, class ClassT,class A1, class A2, class A3, class A4, class A5>
-ConstMethodSlot<R,BaseT,A1,A2,A3,A4,A5> slot( ClassT & obj, R (BaseT::*memFunc)(A1,A2,A3,A4,A5) const ) throw()
+ConstMethodSlot<R,ClassT,A1,A2,A3,A4,A5> slot( ClassT & obj, R (BaseT::*memFunc)(A1,A2,A3,A4,A5) const )
 {
     return ConstMethodSlot<R,ClassT,A1,A2,A3,A4,A5>( callable( obj, memFunc ) );
 }
@@ -422,12 +422,12 @@ class ConstMethod<R,ClassT, A1,A2,A3,A4,Void,Void,Void,Void,Void,Void> : public 
         typedef R (ClassT::*MemFuncT)(A1,A2,A3,A4) const;
 
         /** Wraps the given member function of the given object. */
-        ConstMethod(ClassT& object, MemFuncT ptr) throw()
+        ConstMethod(ClassT& object, MemFuncT ptr)
         : _object(&object), _method(ptr)
         { }
 
         /** Deeply copies rhs. */
-        ConstMethod(const ConstMethod& rhs) throw()
+        ConstMethod(const ConstMethod& rhs)
         : Callable<R, A1,A2,A3,A4,Void,Void,Void,Void,Void,Void>()
         { this->operator=(rhs); }
 
@@ -449,10 +449,11 @@ class ConstMethod<R,ClassT, A1,A2,A3,A4,Void,Void,Void,Void,Void,Void> : public 
         ConstMethod<R, ClassT,A1,A2,A3,A4>* clone() const
         { return new ConstMethod(*this); }
 
-        bool operator==(const ConstMethod& other) const
+        /** Returns true if rhs and this object point to the same object and method. */
+        bool operator==(const ConstMethod& rhs) const
         {
-            return (_object == other._object) &&
-                   (_method == other._method);
+            return (_object == rhs._object) &&
+                   (_method == rhs._method);
         }
 
     private:
@@ -461,15 +462,15 @@ class ConstMethod<R,ClassT, A1,A2,A3,A4,Void,Void,Void,Void,Void,Void> : public 
 };
 
 /** Creates and  returns a ConstMethod object from the given object and method pair. */
-template <class R, class ClassT,class A1, class A2, class A3, class A4>
-ConstMethod<R,ClassT,A1,A2,A3,A4> callable( ClassT & obj, R (ClassT::*ptr)(A1 a1, A2 a2, A3 a3, A4 a4) const ) throw()
+template <class R, class BaseT, class ClassT,class A1, class A2, class A3, class A4>
+ConstMethod<R,ClassT,A1,A2,A3,A4> callable( ClassT & obj, R (BaseT::*ptr)(A1 a1, A2 a2, A3 a3, A4 a4) const )
 { return ConstMethod<R,ClassT,A1,A2,A3,A4>(obj,ptr); }
 
 /**
   Creates and returns a ConstMethodSlot for the given object/method pair.
 */
 template <class R, class BaseT, class ClassT,class A1, class A2, class A3, class A4>
-ConstMethodSlot<R,BaseT,A1,A2,A3,A4> slot( ClassT & obj, R (BaseT::*memFunc)(A1,A2,A3,A4) const ) throw()
+ConstMethodSlot<R,ClassT,A1,A2,A3,A4> slot( ClassT & obj, R (BaseT::*memFunc)(A1,A2,A3,A4) const )
 {
     return ConstMethodSlot<R,ClassT,A1,A2,A3,A4>( callable( obj, memFunc ) );
 }
@@ -483,12 +484,12 @@ class ConstMethod<R,ClassT, A1,A2,A3,Void,Void,Void,Void,Void,Void,Void> : publi
         typedef R (ClassT::*MemFuncT)(A1,A2,A3) const;
 
         /** Wraps the given member function of the given object. */
-        ConstMethod(ClassT& object, MemFuncT ptr) throw()
+        ConstMethod(ClassT& object, MemFuncT ptr)
         : _object(&object), _method(ptr)
         { }
 
         /** Deeply copies rhs. */
-        ConstMethod(const ConstMethod& rhs) throw()
+        ConstMethod(const ConstMethod& rhs)
         : Callable<R, A1,A2,A3,Void,Void,Void,Void,Void,Void,Void>()
         { this->operator=(rhs); }
 
@@ -510,10 +511,11 @@ class ConstMethod<R,ClassT, A1,A2,A3,Void,Void,Void,Void,Void,Void,Void> : publi
         ConstMethod<R, ClassT,A1,A2,A3>* clone() const
         { return new ConstMethod(*this); }
 
-        bool operator==(const ConstMethod& other) const
+        /** Returns true if rhs and this object point to the same object and method. */
+        bool operator==(const ConstMethod& rhs) const
         {
-            return (_object == other._object) &&
-                   (_method == other._method);
+            return (_object == rhs._object) &&
+                   (_method == rhs._method);
         }
 
     private:
@@ -522,15 +524,15 @@ class ConstMethod<R,ClassT, A1,A2,A3,Void,Void,Void,Void,Void,Void,Void> : publi
 };
 
 /** Creates and  returns a ConstMethod object from the given object and method pair. */
-template <class R, class ClassT,class A1, class A2, class A3>
-ConstMethod<R,ClassT,A1,A2,A3> callable( ClassT & obj, R (ClassT::*ptr)(A1 a1, A2 a2, A3 a3) const ) throw()
+template <class R, class BaseT, class ClassT,class A1, class A2, class A3>
+ConstMethod<R,ClassT,A1,A2,A3> callable( ClassT & obj, R (BaseT::*ptr)(A1 a1, A2 a2, A3 a3) const )
 { return ConstMethod<R,ClassT,A1,A2,A3>(obj,ptr); }
 
 /**
   Creates and returns a ConstMethodSlot for the given object/method pair.
 */
 template <class R, class BaseT, class ClassT,class A1, class A2, class A3>
-ConstMethodSlot<R,BaseT,A1,A2,A3> slot( ClassT & obj, R (BaseT::*memFunc)(A1,A2,A3) const ) throw()
+ConstMethodSlot<R,ClassT,A1,A2,A3> slot( ClassT & obj, R (BaseT::*memFunc)(A1,A2,A3) const )
 {
     return ConstMethodSlot<R,ClassT,A1,A2,A3>( callable( obj, memFunc ) );
 }
@@ -544,12 +546,12 @@ class ConstMethod<R,ClassT, A1,A2,Void,Void,Void,Void,Void,Void,Void,Void> : pub
         typedef R (ClassT::*MemFuncT)(A1,A2) const;
 
         /** Wraps the given member function of the given object. */
-        ConstMethod(ClassT& object, MemFuncT ptr) throw()
+        ConstMethod(ClassT& object, MemFuncT ptr)
         : _object(&object), _method(ptr)
         { }
 
         /** Deeply copies rhs. */
-        ConstMethod(const ConstMethod& rhs) throw()
+        ConstMethod(const ConstMethod& rhs)
         : Callable<R, A1,A2,Void,Void,Void,Void,Void,Void,Void,Void>()
         { this->operator=(rhs); }
 
@@ -571,10 +573,11 @@ class ConstMethod<R,ClassT, A1,A2,Void,Void,Void,Void,Void,Void,Void,Void> : pub
         ConstMethod<R, ClassT,A1,A2>* clone() const
         { return new ConstMethod(*this); }
 
-        bool operator==(const ConstMethod& other) const
+        /** Returns true if rhs and this object point to the same object and method. */
+        bool operator==(const ConstMethod& rhs) const
         {
-            return (_object == other._object) &&
-                   (_method == other._method);
+            return (_object == rhs._object) &&
+                   (_method == rhs._method);
         }
 
     private:
@@ -583,15 +586,15 @@ class ConstMethod<R,ClassT, A1,A2,Void,Void,Void,Void,Void,Void,Void,Void> : pub
 };
 
 /** Creates and  returns a ConstMethod object from the given object and method pair. */
-template <class R, class ClassT,class A1, class A2>
-ConstMethod<R,ClassT,A1,A2> callable( ClassT & obj, R (ClassT::*ptr)(A1 a1, A2 a2) const ) throw()
+template <class R, class BaseT, class ClassT,class A1, class A2>
+ConstMethod<R,ClassT,A1,A2> callable( ClassT & obj, R (BaseT::*ptr)(A1 a1, A2 a2) const )
 { return ConstMethod<R,ClassT,A1,A2>(obj,ptr); }
 
 /**
   Creates and returns a ConstMethodSlot for the given object/method pair.
 */
 template <class R, class BaseT, class ClassT,class A1, class A2>
-ConstMethodSlot<R,BaseT,A1,A2> slot( ClassT & obj, R (BaseT::*memFunc)(A1,A2) const ) throw()
+ConstMethodSlot<R,ClassT,A1,A2> slot( ClassT & obj, R (BaseT::*memFunc)(A1,A2) const )
 {
     return ConstMethodSlot<R,ClassT,A1,A2>( callable( obj, memFunc ) );
 }
@@ -605,12 +608,12 @@ class ConstMethod<R,ClassT, A1,Void,Void,Void,Void,Void,Void,Void,Void,Void> : p
         typedef R (ClassT::*MemFuncT)(A1) const;
 
         /** Wraps the given member function of the given object. */
-        ConstMethod(ClassT& object, MemFuncT ptr) throw()
+        ConstMethod(ClassT& object, MemFuncT ptr)
         : _object(&object), _method(ptr)
         { }
 
         /** Deeply copies rhs. */
-        ConstMethod(const ConstMethod& rhs) throw()
+        ConstMethod(const ConstMethod& rhs)
         : Callable<R, A1,Void,Void,Void,Void,Void,Void,Void,Void,Void>()
         { this->operator=(rhs); }
 
@@ -632,10 +635,11 @@ class ConstMethod<R,ClassT, A1,Void,Void,Void,Void,Void,Void,Void,Void,Void> : p
         ConstMethod<R, ClassT,A1>* clone() const
         { return new ConstMethod(*this); }
 
-        bool operator==(const ConstMethod& other) const
+        /** Returns true if rhs and this object point to the same object and method. */
+        bool operator==(const ConstMethod& rhs) const
         {
-            return (_object == other._object) &&
-                   (_method == other._method);
+            return (_object == rhs._object) &&
+                   (_method == rhs._method);
         }
 
     private:
@@ -644,15 +648,15 @@ class ConstMethod<R,ClassT, A1,Void,Void,Void,Void,Void,Void,Void,Void,Void> : p
 };
 
 /** Creates and  returns a ConstMethod object from the given object and method pair. */
-template <class R, class ClassT,class A1>
-ConstMethod<R,ClassT,A1> callable( ClassT & obj, R (ClassT::*ptr)(A1 a1) const ) throw()
+template <class R, class BaseT, class ClassT,class A1>
+ConstMethod<R,ClassT,A1> callable( ClassT & obj, R (BaseT::*ptr)(A1 a1) const )
 { return ConstMethod<R,ClassT,A1>(obj,ptr); }
 
 /**
   Creates and returns a ConstMethodSlot for the given object/method pair.
 */
 template <class R, class BaseT, class ClassT,class A1>
-ConstMethodSlot<R,BaseT,A1> slot( ClassT & obj, R (BaseT::*memFunc)(A1) const ) throw()
+ConstMethodSlot<R,ClassT,A1> slot( ClassT & obj, R (BaseT::*memFunc)(A1) const )
 {
     return ConstMethodSlot<R,ClassT,A1>( callable( obj, memFunc ) );
 }
@@ -666,12 +670,12 @@ class ConstMethod<R,ClassT, Void,Void,Void,Void,Void,Void,Void,Void,Void,Void> :
         typedef R (ClassT::*MemFuncT)() const;
 
         /** Wraps the given member function of the given object. */
-        ConstMethod(ClassT& object, MemFuncT ptr) throw()
+        ConstMethod(ClassT& object, MemFuncT ptr)
         : _object(&object), _method(ptr)
         { }
 
         /** Deeply copies rhs. */
-        ConstMethod(const ConstMethod& rhs) throw()
+        ConstMethod(const ConstMethod& rhs)
         : Callable<R, Void,Void,Void,Void,Void,Void,Void,Void,Void,Void>()
         { this->operator=(rhs); }
 
@@ -693,10 +697,11 @@ class ConstMethod<R,ClassT, Void,Void,Void,Void,Void,Void,Void,Void,Void,Void> :
         ConstMethod<R, ClassT>* clone() const
         { return new ConstMethod(*this); }
 
-        bool operator==(const ConstMethod& other) const
+        /** Returns true if rhs and this object point to the same object and method. */
+        bool operator==(const ConstMethod& rhs) const
         {
-            return (_object == other._object) &&
-                   (_method == other._method);
+            return (_object == rhs._object) &&
+                   (_method == rhs._method);
         }
 
     private:
@@ -705,15 +710,15 @@ class ConstMethod<R,ClassT, Void,Void,Void,Void,Void,Void,Void,Void,Void,Void> :
 };
 
 /** Creates and  returns a ConstMethod object from the given object and method pair. */
-template <class R, class ClassT>
-ConstMethod<R,ClassT> callable( ClassT & obj, R (ClassT::*ptr)() const ) throw()
+template <class R, class BaseT, class ClassT>
+ConstMethod<R,ClassT> callable( ClassT & obj, R (BaseT::*ptr)() const )
 { return ConstMethod<R,ClassT>(obj,ptr); }
 
 /**
   Creates and returns a ConstMethodSlot for the given object/method pair.
 */
 template <class R, class BaseT, class ClassT>
-ConstMethodSlot<R,BaseT> slot( ClassT & obj, R (BaseT::*memFunc)() const ) throw()
+ConstMethodSlot<R,ClassT> slot( ClassT & obj, R (BaseT::*memFunc)() const )
 {
     return ConstMethodSlot<R,ClassT>( callable( obj, memFunc ) );
 }

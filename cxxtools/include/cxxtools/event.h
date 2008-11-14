@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Dr. Marc Boris Drner                           *
+ *   Copyright (C) 2006-2008 by Marc Boris Duerner                         *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU Library General Public License as       *
@@ -26,17 +26,38 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#ifndef cxxtools_Method_h
-#define cxxtools_Method_h
 
-#include <cxxtools/callable.h>
-#include <cxxtools/connectable.h>
-#include <cxxtools/slot.h>
+#ifndef cxxtools_EVENT_H
+#define cxxtools_EVENT_H
+
+#include <typeinfo>
 
 namespace cxxtools {
 
-#include <cxxtools/method.tpp>
+	class Allocator;
 
-} // !namespace cxxtools
+    /** \brief Base class for all event types.
+
+        Specific Event objects, subclass from Event and implement the clone()
+        and typeInfo() methods. The first is used to deep copy event objects
+        for example in an EventLoop and the latter one is used to dispatch
+        events by type.
+     */
+    class Event
+    {
+        public:
+            /** \brief Destructor.
+             */
+            virtual ~Event()
+            {}
+
+            virtual Event& clone(Allocator& allocator) const = 0;
+
+            virtual void destroy(Allocator& allocator) = 0;
+
+            virtual const std::type_info& typeInfo() const = 0;
+    };
+
+} // namespace cxxtools
 
 #endif

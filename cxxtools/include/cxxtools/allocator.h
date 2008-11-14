@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2005 by Dr. Marc Boris Drner                           *
+ *   Copyright (C) 2006-2008 by Marc Boris Duerner                         *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU Library General Public License as       *
@@ -26,17 +26,34 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#ifndef cxxtools_Method_h
-#define cxxtools_Method_h
 
-#include <cxxtools/callable.h>
-#include <cxxtools/connectable.h>
-#include <cxxtools/slot.h>
+#ifndef CXXTOOLS_ALLOCATOR_H
+#define CXXTOOLS_ALLOCATOR_H
+
+#include <cstddef>
 
 namespace cxxtools {
 
-#include <cxxtools/method.tpp>
+    class Allocator
+    {
+        public:
+            Allocator()
+            {}
 
-} // !namespace cxxtools
+            virtual ~Allocator()
+            {}
+
+            virtual void* allocate(std::size_t size)
+            {
+                return operator new(size);
+            }
+
+            virtual void deallocate(void* p, std::size_t size)
+            {
+                operator delete(p);
+            }
+    };
+
+}
 
 #endif
