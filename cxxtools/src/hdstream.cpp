@@ -72,12 +72,12 @@ std::streambuf::int_type Hdstreambuf::overflow(std::streambuf::int_type ch)
 
 std::streambuf::int_type Hdstreambuf::underflow()
 {
-  return EOF;
+  return traits_type::eof();
 }
 
 int Hdstreambuf::sync()
 {
-  return overflow(EOF);
+  return overflow(traits_type::eof());
 }
 
 }
