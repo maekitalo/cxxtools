@@ -210,37 +210,6 @@ class WrLock : private NonCopyable
       { return mutex; }
 };
 
-class Condition
-{
-    pthread_cond_t cond;
-
-    // no implementation
-    Condition(const Condition&);
-    const Condition& operator= (const Condition&);
-
-  public:
-    Condition();
-
-    ~Condition();
-
-    void signal();
-
-    void broadcast();
-
-    void wait(Mutex& mtx);
-
-    void wait(MutexLock& lock)
-    { wait( lock.getMutex() ); }
-
-    bool wait(MutexLock& lock, unsigned ms);
-
-    //! @internal Only for compatibility
-    bool timedwait(MutexLock& lock, unsigned ms)
-    { return wait(lock, ms); }
-
-    //! @internal Only for compatibility
-    bool timedwait(MutexLock& lock, const struct timespec& time);
-};
 
 //! @brief Spinmutex class.
 /**
@@ -341,5 +310,7 @@ class SpinLock : private NonCopyable
 };
 
 }
+
+#include <cxxtools/condition.h>
 
 #endif // CXXTOOLS_MUTEX_H

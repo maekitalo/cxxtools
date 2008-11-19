@@ -14,6 +14,7 @@ nobase_include_HEADERS = \
         cxxtools/callable.h \
         cxxtools/callable.tpp \
         cxxtools/cgi.h \
+        cxxtools/condition.h \
         cxxtools/connectable.h \
         cxxtools/connection.h \
         cxxtools/constmethod.h \

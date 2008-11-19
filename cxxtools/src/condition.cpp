@@ -33,99 +33,74 @@
 #include <errno.h>
 #include <string>
 
-log_define("cxxtools.mutex")
+log_define("cxxtools.condition")
 
 namespace cxxtools
 {
 
-//
-// Mutex
-//
-
-Mutex::Mutex()
+Condition::Condition()
 {
-  int ret = pthread_mutex_init(&m_mutex, 0);
+  int ret = pthread_cond_init(&cond, 0);
   if (ret != 0)
-    throw MutexException(ret, "pthread_mutex_init");
+    throw MutexException(ret, "pthread_cond_init");
 }
 
-Mutex::~Mutex()
+Condition::~Condition()
 {
-  pthread_mutex_destroy(&m_mutex);
+  pthread_cond_destroy(&cond);
 }
 
-void Mutex::lock()
+void Condition::signal()
 {
-  int ret = pthread_mutex_lock(&m_mutex);
+  int ret = pthread_cond_signal(&cond);
   if (ret != 0)
-    throw MutexException(ret, "pthread_mutex_lock");
+    throw MutexException(ret, "pthread_cond_signal");
 }
 
-bool Mutex::tryLock()
+void Condition::broadcast()
 {
-  int ret = pthread_mutex_trylock(&m_mutex);
-  if (ret == EBUSY)
+  int ret = pthread_cond_broadcast(&cond);
+  if (ret != 0)
+    throw MutexException(ret, "pthread_cond_broadcast");
+}
+
+void Condition::wait(Mutex& mtx)
+{
+  int ret = pthread_cond_wait(&cond, &mtx.m_mutex);
+  if (ret != 0)
+    throw MutexException(ret, "pthread_cond_wait");
+}
+
+bool Condition::timedwait(MutexLock& lock, const struct timespec& time)
+{
+  // in the timespec structure is expected a relative interval,
+  // but pthread_cond_timedwait expects an absolute time.
+  struct timeval tp;
+  int ret = gettimeofday(&tp, NULL);
+  if( ret != 0)
+      throw MutexException(ret, "pthread_cond_timedwait");
+
+  // "shift" the timespec structure to the absolute time
+  struct timespec absTime = time;
+  absTime.tv_sec += tp.tv_sec;
+  absTime.tv_nsec += tp.tv_usec*1000;
+    
+  ret = pthread_cond_timedwait(&cond, &lock.getMutex().m_mutex, &absTime);
+  if (ret == ETIMEDOUT)
     return false;
-  else if (ret == 0)
-    return true;
-  else
-    throw MutexException(ret, "pthread_mutex_trylock");
-}
 
-void Mutex::unlock()
-{
-  int ret = pthread_mutex_unlock(&m_mutex);
   if (ret != 0)
-    throw MutexException(ret, "pthread_mutex_unlock");
+    throw MutexException(ret, "pthread_cond_timedwait");
+
+  return true;
 }
 
-bool Mutex::unlockNoThrow()
+bool Condition::wait(MutexLock& lock, unsigned ms)
 {
-  int ret = pthread_mutex_unlock(&m_mutex);
-  if (ret != 0)
-    log_fatal("cannot unlock mutex");
-  return ret == 0;
-}
-
-RWMutex::RWMutex()
-{
-  int ret = pthread_rwlock_init(&m_rwlock, 0);
-  if (ret != 0)
-    throw MutexException(ret, "pthread_rwlock_init");
-}
-
-RWMutex::~RWMutex()
-{
-  pthread_rwlock_destroy(&m_rwlock);
-}
-
-void RWMutex::rdLock()
-{
-  int ret = pthread_rwlock_rdlock(&m_rwlock);
-  if (ret != 0)
-    throw MutexException(ret, "pthread_rwlock_rdlock");
-}
-
-void RWMutex::wrLock()
-{
-  int ret = pthread_rwlock_wrlock(&m_rwlock);
-  if (ret != 0)
-    throw MutexException(ret, "pthread_rwlock_wrlock");
-}
-
-void RWMutex::unlock()
-{
-  int ret = pthread_rwlock_unlock(&m_rwlock);
-  if (ret != 0)
-    throw MutexException(ret, "pthread_rwlock_unlock");
-}
-
-bool RWMutex::unlockNoThrow()
-{
-  int ret = pthread_rwlock_unlock(&m_rwlock);
-  if (ret != 0)
-    log_fatal("cannot unlock rwmutex");
-  return ret == 0;
+  struct timespec ts;
+  ts.tv_sec = ms / 1000;
+  ts.tv_nsec = ms % 1000 * 1000 * 1000;
+  return timedwait(lock, ts);
 }
 
 }

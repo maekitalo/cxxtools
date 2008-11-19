@@ -4,6 +4,7 @@ lib_LTLIBRARIES = libcxxtools.la
 
 libcxxtools_la_SOURCES = \
 	base64stream.cpp \
+	condition.cpp \
 	connectable.cpp \
 	connection.cpp \
 	cgi.cpp \
