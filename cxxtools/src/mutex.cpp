@@ -154,9 +154,9 @@ void Condition::broadcast()
     throw MutexException(ret, "pthread_cond_broadcast");
 }
 
-void Condition::wait(MutexLock& lock)
+void Condition::wait(Mutex& mtx)
 {
-  int ret = pthread_cond_wait(&cond, &lock.getMutex().m_mutex);
+  int ret = pthread_cond_wait(&cond, &mtx.m_mutex);
   if (ret != 0)
     throw MutexException(ret, "pthread_cond_wait");
 }
@@ -185,7 +185,7 @@ bool Condition::timedwait(MutexLock& lock, const struct timespec& time)
   return true;
 }
 
-bool Condition::timedwait(MutexLock& lock, unsigned ms)
+bool Condition::wait(MutexLock& lock, unsigned ms)
 {
   struct timespec ts;
   ts.tv_sec = ms / 1000;

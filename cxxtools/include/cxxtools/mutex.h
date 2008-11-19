@@ -220,12 +220,25 @@ class Condition
 
   public:
     Condition();
+
     ~Condition();
 
     void signal();
+
     void broadcast();
-    void wait(MutexLock& lock);
-    bool timedwait(MutexLock& lock, unsigned ms);
+
+    void wait(Mutex& mtx);
+
+    void wait(MutexLock& lock)
+    { wait( lock.getMutex() ); }
+
+    bool wait(MutexLock& lock, unsigned ms);
+
+    //! @internal Only for compatibility
+    bool timedwait(MutexLock& lock, unsigned ms)
+    { return wait(lock, ms); }
+
+    //! @internal Only for compatibility
     bool timedwait(MutexLock& lock, const struct timespec& time);
 };
 
