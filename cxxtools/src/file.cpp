@@ -33,7 +33,8 @@
 namespace cxxtools {
 
 FileNotFound::FileNotFound(const std::string& path, const SourceInfo& si)
-: SystemError("File not found: " + path, si)
+: AccessFailed("File not found", si)
+, _path(path)
 {
 }
 

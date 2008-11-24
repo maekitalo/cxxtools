@@ -32,7 +32,8 @@
 namespace cxxtools {
 
 DirectoryNotFound::DirectoryNotFound(const std::string& path, const SourceInfo& si)
-: SystemError("Directory not found: " + path, si)
+: AccessFailed("Directory not found", si)
+, _path(path)
 {
 }
 

@@ -41,14 +41,14 @@
 
 #include <cxxtools/sourceinfo.h>
 #include <cxxtools/fileinfo.h>
-#include <cxxtools/systemerror.h>
+#include <cxxtools/ioerror.h>
 #include <string>
 
 namespace cxxtools {
 
 /** @brief A directory could not be found at a given path
 */
-class DirectoryNotFound : public SystemError
+class DirectoryNotFound : public AccessFailed
 {
     public:
         /** @brief Construct from path and source info
@@ -61,6 +61,12 @@ class DirectoryNotFound : public SystemError
 
         //! @brief Destructor
         ~DirectoryNotFound() throw();
+
+        const std::string& path() const
+        { return _path; }
+
+    private:
+        std::string _path;
 };
 
 /** @brief Iterates over entries of a directory.

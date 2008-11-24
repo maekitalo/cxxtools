@@ -41,17 +41,23 @@
 
 #include <cxxtools/sourceinfo.h>
 #include <cxxtools/fileinfo.h>
-#include <cxxtools/systemerror.h>
+#include <cxxtools/ioerror.h>
 #include <string>
 
 namespace cxxtools {
 
-class FileNotFound : public SystemError
+class FileNotFound : public AccessFailed
 {
     public:
         FileNotFound(const std::string& path, const SourceInfo& si);
 
         ~FileNotFound() throw();
+
+        const std::string& path() const
+        { return _path; }
+
+    private:
+        std::string _path;
 };
 
 /** @brief Provides common operations on files.

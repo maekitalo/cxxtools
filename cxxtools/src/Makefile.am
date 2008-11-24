@@ -22,6 +22,7 @@ libcxxtools_la_SOURCES = \
 	iconvstream.cpp \
 	inifile.cpp \
 	iniparser.cpp \
+	ioerror.cpp \
 	log.cpp \
 	md5.c \
 	md5stream.cpp \
