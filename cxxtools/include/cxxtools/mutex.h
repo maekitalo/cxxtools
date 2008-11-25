@@ -71,21 +71,23 @@ class Mutex : private NonCopyable
     bool unlockNoThrow();
 };
 
-class RWMutex : private NonCopyable
+class ReadWriteMutex : private NonCopyable
 {
     pthread_rwlock_t m_rwlock;
 
   public:
-    RWMutex();
-    ~RWMutex();
+    ReadWriteMutex();
+    ~ReadWriteMutex();
 
-    void rdLock();
-    void wrLock();
+    void readLock();
+    bool tryReadLock();
+    void writeLock();
+    bool tryWriteLock();
     void unlock();
     bool unlockNoThrow();
 };
 
-typedef RWMutex RWLock;  // for compatibility
+typedef ReadWriteMutex RWLock;  // for compatibility
 
 class MutexLock : private NonCopyable
 {
@@ -130,11 +132,11 @@ class MutexLock : private NonCopyable
 
 class RdLock : private NonCopyable
 {
-    RWMutex& mutex;
+    ReadWriteMutex& mutex;
     bool locked;
 
   public:
-    explicit RdLock(RWMutex& m, bool doLock = true, bool locked_ = false)
+    explicit RdLock(ReadWriteMutex& m, bool doLock = true, bool locked_ = false)
       : mutex(m), locked(locked_)
     {
       if (doLock)
@@ -151,7 +153,7 @@ class RdLock : private NonCopyable
     {
       if (!locked)
       {
-        mutex.rdLock();
+        mutex.readLock();
         locked = true;
       }
     }
@@ -165,17 +167,17 @@ class RdLock : private NonCopyable
       }
     }
 
-    RWMutex& getMutex()
+    ReadWriteMutex& getMutex()
       { return mutex; }
 };
 
 class WrLock : private NonCopyable
 {
-    RWMutex& mutex;
+    ReadWriteMutex& mutex;
     bool locked;
 
   public:
-    explicit WrLock(RWMutex& m, bool doLock = true, bool locked_ = false)
+    explicit WrLock(ReadWriteMutex& m, bool doLock = true, bool locked_ = false)
       : mutex(m), locked(locked_)
     {
       if (doLock)
@@ -192,7 +194,7 @@ class WrLock : private NonCopyable
     {
       if (!locked)
       {
-        mutex.wrLock();
+        mutex.writeLock();
         locked = true;
       }
     }
@@ -206,7 +208,7 @@ class WrLock : private NonCopyable
       }
     }
 
-    RWMutex& getMutex()
+    ReadWriteMutex& getMutex()
       { return mutex; }
 };
 

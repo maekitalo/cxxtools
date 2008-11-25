@@ -87,40 +87,60 @@ bool Mutex::unlockNoThrow()
   return ret == 0;
 }
 
-RWMutex::RWMutex()
+ReadWriteMutex::ReadWriteMutex()
 {
   int ret = pthread_rwlock_init(&m_rwlock, 0);
   if (ret != 0)
     throw MutexException(ret, "pthread_rwlock_init");
 }
 
-RWMutex::~RWMutex()
+ReadWriteMutex::~ReadWriteMutex()
 {
   pthread_rwlock_destroy(&m_rwlock);
 }
 
-void RWMutex::rdLock()
+void ReadWriteMutex::readLock()
 {
   int ret = pthread_rwlock_rdlock(&m_rwlock);
   if (ret != 0)
     throw MutexException(ret, "pthread_rwlock_rdlock");
 }
 
-void RWMutex::wrLock()
+bool ReadWriteMutex::tryReadLock()
+{
+    int rc = pthread_rwlock_tryrdlock(&m_rwlock);
+
+    if( rc != 0 && rc != EBUSY)
+      throw MutexException(rc, "pthread_rwlock_tryrdlock");
+
+    return rc != EBUSY;
+}
+
+void ReadWriteMutex::writeLock()
 {
   int ret = pthread_rwlock_wrlock(&m_rwlock);
   if (ret != 0)
     throw MutexException(ret, "pthread_rwlock_wrlock");
 }
 
-void RWMutex::unlock()
+bool ReadWriteMutex::tryWriteLock()
+{
+    int rc = pthread_rwlock_trywrlock(&m_rwlock);
+
+    if( rc != 0 && rc != EBUSY)
+      throw MutexException(rc, "pthread_rwlock_trywrlock");
+
+    return rc != EBUSY;
+}
+
+void ReadWriteMutex::unlock()
 {
   int ret = pthread_rwlock_unlock(&m_rwlock);
   if (ret != 0)
     throw MutexException(ret, "pthread_rwlock_unlock");
 }
 
-bool RWMutex::unlockNoThrow()
+bool ReadWriteMutex::unlockNoThrow()
 {
   int ret = pthread_rwlock_unlock(&m_rwlock);
   if (ret != 0)
