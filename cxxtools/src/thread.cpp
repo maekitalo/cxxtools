@@ -29,7 +29,6 @@
  ***************************************************************************/
 #include "threadimpl.h"
 #include "cxxtools/thread.h"
-#include "cxxtools/net.h"
 
 namespace cxxtools {
 
