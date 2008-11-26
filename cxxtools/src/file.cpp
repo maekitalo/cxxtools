@@ -32,18 +32,6 @@
 
 namespace cxxtools {
 
-FileNotFound::FileNotFound(const std::string& path, const SourceInfo& si)
-: AccessFailed("File not found", si)
-, _path(path)
-{
-}
-
-
-FileNotFound::~FileNotFound() throw()
-{
-}
-
-
 File::File()
 : _impl(0)
 {

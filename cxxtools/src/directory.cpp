@@ -31,19 +31,6 @@
 
 namespace cxxtools {
 
-DirectoryNotFound::DirectoryNotFound(const std::string& path, const SourceInfo& si)
-: AccessFailed("Directory not found", si)
-, _path(path)
-{
-}
-
-
-DirectoryNotFound::~DirectoryNotFound() throw()
-{
-}
-
-
-
 DirectoryIterator::DirectoryIterator()
 : _impl(0)
 { }

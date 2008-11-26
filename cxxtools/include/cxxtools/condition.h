@@ -55,7 +55,7 @@ class Condition : private NonCopyable
     void wait(Mutex& mtx);
 
     void wait(MutexLock& lock)
-    { wait( lock.getMutex() ); }
+    { wait( lock.mutex() ); }
 
     bool wait(MutexLock& lock, unsigned ms);
 

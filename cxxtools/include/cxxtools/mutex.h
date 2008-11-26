@@ -33,6 +33,7 @@
 #include <sched.h>
 #include <cxxtools/atomicity.h>
 #include <cxxtools/noncopyable.h>
+#include <cxxtools/thread.h>
 #include <cxxtools/syserror.h>
 #include <pthread.h>
 
@@ -91,12 +92,12 @@ typedef ReadWriteMutex RWLock;  // for compatibility
 
 class MutexLock : private NonCopyable
 {
-    Mutex& mutex;
+    Mutex& mtx;
     bool locked;
 
   public:
     explicit MutexLock(Mutex& m, bool doLock = true, bool locked_ = false)
-      : mutex(m), locked(locked_)
+      : mtx(m), locked(locked_)
     {
       if (doLock)
         lock();
@@ -105,14 +106,14 @@ class MutexLock : private NonCopyable
     ~MutexLock()
     {
       if (locked)
-        mutex.unlockNoThrow();
+        mtx.unlockNoThrow();
     }
 
     void lock()
     {
       if (!locked)
       {
-        mutex.lock();
+        mtx.lock();
         locked = true;
       }
     }
@@ -121,39 +122,42 @@ class MutexLock : private NonCopyable
     {
       if (locked)
       {
-        mutex.unlock();
+        mtx.unlock();
         locked = false;
       }
     }
 
-    Mutex& getMutex()
-      { return mutex; }
+    Mutex& mutex()
+      { return mtx; }
+
+    const Mutex& mutex() const
+    { return mtx; }
 };
 
-class RdLock : private NonCopyable
+class ReadLock : private NonCopyable
 {
-    ReadWriteMutex& mutex;
+    ReadWriteMutex& mtx;
     bool locked;
 
   public:
-    explicit RdLock(ReadWriteMutex& m, bool doLock = true, bool locked_ = false)
-      : mutex(m), locked(locked_)
+    explicit ReadLock(ReadWriteMutex& m, bool doLock = true, bool locked_ = false)
+      : mtx(m), locked(locked_)
     {
       if (doLock)
         lock();
     }
 
-    ~RdLock()
+    ~ReadLock()
     {
       if (locked)
-        mutex.unlockNoThrow();
+        mtx.unlockNoThrow();
     }
 
     void lock()
     {
       if (!locked)
       {
-        mutex.readLock();
+        mtx.readLock();
         locked = true;
       }
     }
@@ -162,39 +166,39 @@ class RdLock : private NonCopyable
     {
       if (locked)
       {
-        mutex.unlock();
+        mtx.unlock();
         locked = false;
       }
     }
 
-    ReadWriteMutex& getMutex()
-      { return mutex; }
+    ReadWriteMutex& mutex()
+      { return mtx; }
 };
 
-class WrLock : private NonCopyable
+class WriteLock : private NonCopyable
 {
-    ReadWriteMutex& mutex;
+    ReadWriteMutex& mtx;
     bool locked;
 
   public:
-    explicit WrLock(ReadWriteMutex& m, bool doLock = true, bool locked_ = false)
-      : mutex(m), locked(locked_)
+    explicit WriteLock(ReadWriteMutex& m, bool doLock = true, bool locked_ = false)
+      : mtx(m), locked(locked_)
     {
       if (doLock)
         lock();
     }
 
-    ~WrLock()
+    ~WriteLock()
     {
       if (locked)
-        mutex.unlockNoThrow();
+        mtx.unlockNoThrow();
     }
 
     void lock()
     {
       if (!locked)
       {
-        mutex.writeLock();
+        mtx.writeLock();
         locked = true;
       }
     }
@@ -203,13 +207,13 @@ class WrLock : private NonCopyable
     {
       if (locked)
       {
-        mutex.unlock();
+        mtx.unlock();
         locked = false;
       }
     }
 
-    ReadWriteMutex& getMutex()
-      { return mutex; }
+    ReadWriteMutex& mutex()
+      { return mtx; }
 };
 
 
@@ -245,7 +249,7 @@ class SpinMutex : private NonCopyable
             // busy loop until unlock
             while( atomicCompareExchange(_count, 1, 0) )
             {
-                sched_yield();
+                Thread::yield();
             }
         }
 

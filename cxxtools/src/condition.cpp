@@ -85,7 +85,7 @@ bool Condition::timedwait(MutexLock& lock, const struct timespec& time)
   absTime.tv_sec += tp.tv_sec;
   absTime.tv_nsec += tp.tv_usec*1000;
     
-  ret = pthread_cond_timedwait(&cond, &lock.getMutex().m_mutex, &absTime);
+  ret = pthread_cond_timedwait(&cond, &lock.mutex().m_mutex, &absTime);
   if (ret == ETIMEDOUT)
     return false;
 

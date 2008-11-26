@@ -58,6 +58,51 @@ namespace cxxtools {
             {}
     };
 
+    class PermissionDenied : public AccessFailed
+    {
+        public:
+            PermissionDenied(const std::string& resource, const SourceInfo& si);
+
+            ~PermissionDenied() throw()
+            {}
+    };
+
+    class DeviceNotFound : public AccessFailed
+    {
+        public:
+            DeviceNotFound(const std::string& device, const SourceInfo& si);
+
+            ~DeviceNotFound() throw()
+            {}
+    };
+
+    class FileNotFound : public AccessFailed
+    {
+        public:
+            FileNotFound(const std::string& path, const SourceInfo& si);
+
+            ~FileNotFound() throw()
+            {}
+    };
+
+    /** @brief A directory could not be found at a given path
+    */
+    class DirectoryNotFound : public AccessFailed
+    {
+        public:
+            /** @brief Construct from path and source info
+
+                Constructs the exception from the path where the directory
+                could not be found and the location in the source code where
+                he exception was thrown.
+            */
+            DirectoryNotFound(const std::string& path, const SourceInfo& si);
+
+            //! @brief Destructor
+            ~DirectoryNotFound() throw()
+            {}
+    };
+
     class IOPending : public IOError
     {
         public:
@@ -69,6 +114,6 @@ namespace cxxtools {
             {}
     };
 
-} // namespace Pt
+} // namespace cxxtools
 
 #endif

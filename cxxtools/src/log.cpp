@@ -348,7 +348,7 @@ namespace cxxtools
       return 0;
 
     // search existing Logger
-    RdLock rdLock(rwmutex);
+    ReadLock rdLock(rwmutex);
 
     loggers_type::iterator lower_bound_it = getCacheLoggers().begin();
     while (lower_bound_it != getCacheLoggers().end()
@@ -361,7 +361,7 @@ namespace cxxtools
 
     // Logger not in list - change to write-lock
     rdLock.unlock();
-    WrLock wrLock(rwmutex);
+    WriteLock wrLock(rwmutex);
 
     // we have to do it again after gaining write-lock
     lower_bound_it = getCacheLoggers().begin();
@@ -383,7 +383,7 @@ namespace cxxtools
 
   Logger* Logger::setLevel(const std::string& category, log_level_type l)
   {
-    WrLock lock(rwmutex);
+    WriteLock lock(rwmutex);
 
     // search for existing Logger
     loggers_type& baseLoggers = getBaseLoggers();
