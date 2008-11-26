@@ -34,45 +34,47 @@
 
 // GNU C++ compiler
 #ifdef __GNUC__
-    #define CXXTOOLS_PRETTY_FUNCTION __PRETTY_FUNCTION__
+    #define CXXTOOLS_FUNCTION __PRETTY_FUNCTION__
 // Borland C++
 #elif defined(__BORLANDC__)
-    #define CXXTOOLS_PRETTY_FUNCTION __FUNC__
+    #define CXXTOOLS_FUNCTION __FUNC__
 // Microsoft C++ compiler
 #elif defined(_MSC_VER)
     // .NET 2003 support's demangled function names
     #if _MSC_VER >= 1300
-        #define CXXTOOLS_PRETTY_FUNCTION __FUNCDNAME__
+        #define CXXTOOLS_FUNCTION __FUNCDNAME__
     #else
-        #define CXXTOOLS_PRETTY_FUNCTION __FUNCTION__
+        #define CXXTOOLS_FUNCTION __FUNCTION__
     #endif
 // otherwise use standard macro
 #else
-    #define CXXTOOLS_PRETTY_FUNCTION "unknown symbol"
+    #define CXXTOOLS_FUNCTION "unknown symbol"
 #endif
 
-#define CXXTOOLS_SOURCEINFO_STRINGIFY(x) #x
-#define CXXTOOLS_SOURCEINFO_TOSTRING(x) CXXTOOLS_SOURCEINFO_STRINGIFY(x)
+#define CXXTOOLS_STRINGIFY(x) #x
+#define CXXTOOLS_TOSTRING(x) CXXTOOLS_STRINGIFY(x)
+
+#define CXXTOOLS_SOURCEINFO_STR __FILE__ ":" CXXTOOLS_TOSTRING(__LINE__)
 
 /** @brief Builds a message including source information
 */
-#define CXXTOOLS_SOURCEINFO_MSG(msg) __FILE__ ":" CXXTOOLS_SOURCEINFO_TOSTRING(__LINE__) ": " #msg
+#define CXXTOOLS_ERROR_MSG(msg) __FILE__ ":" CXXTOOLS_TOSTRING(__LINE__) ": " #msg
 
 /** @brief Construct a SourceInfo object
 */
-#define CXXTOOLS_SOURCEINFO cxxtools::SourceInfo(__FILE__, __LINE__, CXXTOOLS_PRETTY_FUNCTION, \
-                                     __FILE__ ":" CXXTOOLS_SOURCEINFO_TOSTRING(__LINE__) )
+#define CXXTOOLS_SOURCEINFO cxxtools::SourceInfo(__FILE__, CXXTOOLS_TOSTRING(__LINE__), CXXTOOLS_FUNCTION)
 
 namespace cxxtools {
 
 /** @brief Source code info class
+    @ingroup Pt
 
     This class is used to store information about a location in the source 
-    code. The CXXTOOLS_SOURCEINFO macro can be used to construct a SourceInfo
+    code. The CXXTOOLS_SOURCEINFO macro can be used to construct a Pt::SourceInfo
     object conveniently.
 
     @code
-        SourceInfo si(CXXTOOLS_SOURCEINFO);
+        Pt::SourceInfo si(PT_SOURCEINFO);
 
         // print file, line and function
         std::cout << si.file() << std::endl;
@@ -85,64 +87,56 @@ namespace cxxtools {
 */
 class SourceInfo {
     public:
-        /** @brief Copy constructor
-        */
-        inline SourceInfo(const SourceInfo& si) throw()
-        : _file(si._file), _line(si._line), _func(si._func), _msg(si._msg)
-        { }
-
         /** @brief Constructor
 
-            Do not use the constructor directly, but the CXXTOOLS_SOURCEINFO
+            Do not use the constructor directly, but the PT_SOURCEINFO
             macro to take advantage of compiler specific macros to
             indicate the source file name, position and function name.
         */
-        inline SourceInfo(const char* file, unsigned int line, const char* func, const char* msg) throw()
-        : _file(file), _line(line), _func(func), _msg(msg)
+        inline SourceInfo(const char* file, const char* line, const char* func)
+        : _file(file), _line(line), _func(func)
         { }
 
         /**  @brief Returns the filename
         */
-        inline const char* file() const throw()
+        inline const char* file() const
         { return _file; }
 
         /** @brief Returns the line number
         */
-        inline unsigned int line() const throw()
+        inline const char* line() const
         { return _line; }
-
-        /** @brief Returns a string describing the location
-        */
-        inline const char* where() const
-        { return _msg; }
 
         /** @brief Returns the function signature
         */
-        inline const char* func() const throw()
+        inline const char* func() const
         { return _func; }
 
-        /** @brief Assignment operator
-        */
-        SourceInfo& operator=(const SourceInfo& si) throw()
-        {
-            _file = si._file;
-            _line = si._line;
-            _func = si._func;
-            _msg = si._msg;
-            return *this;
-        }
-
     private:
-        const char*  _file;
-        unsigned int _line;
-        const char*  _func;
-        const char* _msg;
+        const char* _file;
+        const char* _line;
+        const char* _func;
 };
 
 
 inline std::string operator+(const std::string& what, const SourceInfo& info)
 {
-    return std::string( info.where() ) + ": " + what;
+    return std::string( info.file() ) + ':' + info.line() + ": " += what;
+}
+
+inline std::string operator+(const char* what, const SourceInfo& info)
+{
+    return std::string( info.file() ) + ':' + info.line() + ": " += what;
+}
+
+inline std::string operator+( const SourceInfo& info, const std::string& what)
+{
+    return std::string( info.file() ) + ':' + info.line() + ": " += what;
+}
+
+inline std::string operator+(const SourceInfo& info, const char* what)
+{
+    return std::string( info.file() ) + ':' + info.line() + ": " += what;
 }
 
 } // namespace cxxtools

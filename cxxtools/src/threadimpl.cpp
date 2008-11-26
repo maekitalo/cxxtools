@@ -27,8 +27,7 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 #include "threadimpl.h"
-#include "cxxtools/syserror.h"
-#include "syserrorinternal.h"
+#include "cxxtools/systemerror.h"
 #include <errno.h>
 #include <signal.h>
 
@@ -51,7 +50,8 @@ void ThreadImpl::detach()
     if( _id )
     {
         int ret = pthread_detach(_id);
-        throwSysErrorIf(ret, "pthread_detach");
+        if(ret != 0)
+            throw SystemError( CXXTOOLS_ERROR_MSG("pthread_detach") );
     }
 }
 
@@ -77,7 +77,8 @@ void ThreadImpl::start()
     int ret = pthread_create(&_id, &attrs, thread_entry, this);
     pthread_attr_destroy(&attrs);
 
-    throwSysErrorIf(ret, "pthread_attr_destroy");
+    if(ret != 0)
+        throw SystemError( CXXTOOLS_ERROR_MSG("pthread_create") );
 }
 
 
@@ -86,15 +87,16 @@ void ThreadImpl::join()
     void* threadRet = 0;
     int ret = pthread_join(_id, &threadRet);
 
-    throwSysErrorIf(ret, "pthread_join");
+    if(ret != 0)
+        throw SystemError( CXXTOOLS_ERROR_MSG("pthread_join") );
 }
 
 
 void ThreadImpl::terminate()
 {
     int ret = pthread_kill(_id, SIGKILL);
-
-    throwSysErrorIf(ret, "pthread_kill");
+    if(ret != 0)
+        throw SystemError( CXXTOOLS_ERROR_MSG("pthread_kill") );
 }
 
 }

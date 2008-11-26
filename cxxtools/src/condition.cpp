@@ -28,6 +28,7 @@
  */
 
 #include "cxxtools/mutex.h"
+#include "cxxtools/systemerror.h"
 #include "cxxtools/log.h"
 #include <sys/time.h>
 #include <errno.h>
@@ -42,7 +43,7 @@ Condition::Condition()
 {
   int ret = pthread_cond_init(&cond, 0);
   if (ret != 0)
-    throw MutexException(ret, "pthread_cond_init");
+    throw SystemError( CXXTOOLS_ERROR_MSG("pthread_cond_init failed") );
 }
 
 Condition::~Condition()
@@ -54,21 +55,21 @@ void Condition::signal()
 {
   int ret = pthread_cond_signal(&cond);
   if (ret != 0)
-    throw MutexException(ret, "pthread_cond_signal");
+    throw SystemError( CXXTOOLS_ERROR_MSG("pthread_cond_signal failed") );
 }
 
 void Condition::broadcast()
 {
   int ret = pthread_cond_broadcast(&cond);
   if (ret != 0)
-    throw MutexException(ret, "pthread_cond_broadcast");
+    throw SystemError( CXXTOOLS_ERROR_MSG("pthread_cond_broadcast failed") );
 }
 
 void Condition::wait(Mutex& mtx)
 {
   int ret = pthread_cond_wait(&cond, &mtx.m_mutex);
   if (ret != 0)
-    throw MutexException(ret, "pthread_cond_wait");
+    throw SystemError( CXXTOOLS_ERROR_MSG("pthread_cond_wait failed") );
 }
 
 bool Condition::timedwait(MutexLock& lock, const struct timespec& time)
@@ -78,19 +79,19 @@ bool Condition::timedwait(MutexLock& lock, const struct timespec& time)
   struct timeval tp;
   int ret = gettimeofday(&tp, NULL);
   if( ret != 0)
-      throw MutexException(ret, "pthread_cond_timedwait");
+      throw SystemError( CXXTOOLS_ERROR_MSG("pthread_cond_timedwait failed") );
 
   // "shift" the timespec structure to the absolute time
   struct timespec absTime = time;
   absTime.tv_sec += tp.tv_sec;
   absTime.tv_nsec += tp.tv_usec*1000;
-    
+
   ret = pthread_cond_timedwait(&cond, &lock.mutex().m_mutex, &absTime);
   if (ret == ETIMEDOUT)
     return false;
 
   if (ret != 0)
-    throw MutexException(ret, "pthread_cond_timedwait");
+    throw SystemError( CXXTOOLS_ERROR_MSG("pthread_cond_timedwait failed") );
 
   return true;
 }

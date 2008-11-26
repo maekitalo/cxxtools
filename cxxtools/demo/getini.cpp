@@ -34,6 +34,7 @@
 #include <iostream>
 #include <fstream>
 #include <iterator>
+#include <stdexcept>
 #include <cxxtools/inifile.h>
 #include <cxxtools/loginit.h>
 #include <cxxtools/arg.h>

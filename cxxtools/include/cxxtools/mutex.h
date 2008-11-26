@@ -30,28 +30,13 @@
 #ifndef CXXTOOLS_MUTEX_H
 #define CXXTOOLS_MUTEX_H
 
-#include <sched.h>
 #include <cxxtools/atomicity.h>
 #include <cxxtools/noncopyable.h>
 #include <cxxtools/thread.h>
-#include <cxxtools/syserror.h>
 #include <pthread.h>
 
 namespace cxxtools
 {
-
-/**
- Exception-class for problems with mutexes.
-
- This Exception is thrown in case of problems with mutexes.
- */
-class MutexException : public SysError
-{
-  public:
-    MutexException(int err, const char* method)
-      : SysError(err, method)
-      { }
-};
 
 class Condition;
 

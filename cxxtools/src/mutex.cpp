@@ -28,6 +28,7 @@
  */
 
 #include "cxxtools/mutex.h"
+#include "cxxtools/systemerror.h"
 #include "cxxtools/log.h"
 #include <sys/time.h>
 #include <errno.h>
@@ -35,18 +36,13 @@
 
 log_define("cxxtools.mutex")
 
-namespace cxxtools
-{
-
-//
-// Mutex
-//
+namespace cxxtools {
 
 Mutex::Mutex()
 {
   int ret = pthread_mutex_init(&m_mutex, 0);
   if (ret != 0)
-    throw MutexException(ret, "pthread_mutex_init");
+    throw SystemError( CXXTOOLS_ERROR_MSG("pthread_mutex_init failed") );
 }
 
 Mutex::~Mutex()
@@ -58,7 +54,7 @@ void Mutex::lock()
 {
   int ret = pthread_mutex_lock(&m_mutex);
   if (ret != 0)
-    throw MutexException(ret, "pthread_mutex_lock");
+    throw SystemError( CXXTOOLS_ERROR_MSG("pthread_mutex_lock failed") );
 }
 
 bool Mutex::tryLock()
@@ -69,14 +65,14 @@ bool Mutex::tryLock()
   else if (ret == 0)
     return true;
   else
-    throw MutexException(ret, "pthread_mutex_trylock");
+    throw SystemError( CXXTOOLS_ERROR_MSG("pthread_mutex_trylock failed") );
 }
 
 void Mutex::unlock()
 {
   int ret = pthread_mutex_unlock(&m_mutex);
   if (ret != 0)
-    throw MutexException(ret, "pthread_mutex_unlock");
+    throw SystemError( CXXTOOLS_ERROR_MSG("pthread_mutex_unlock failed") );
 }
 
 bool Mutex::unlockNoThrow()
@@ -91,7 +87,7 @@ ReadWriteMutex::ReadWriteMutex()
 {
   int ret = pthread_rwlock_init(&m_rwlock, 0);
   if (ret != 0)
-    throw MutexException(ret, "pthread_rwlock_init");
+    throw SystemError( CXXTOOLS_ERROR_MSG("pthread_rwlock_init failed") );
 }
 
 ReadWriteMutex::~ReadWriteMutex()
@@ -103,7 +99,7 @@ void ReadWriteMutex::readLock()
 {
   int ret = pthread_rwlock_rdlock(&m_rwlock);
   if (ret != 0)
-    throw MutexException(ret, "pthread_rwlock_rdlock");
+    throw SystemError( CXXTOOLS_ERROR_MSG("pthread_rwlock_rdlock failed") );
 }
 
 bool ReadWriteMutex::tryReadLock()
@@ -111,7 +107,7 @@ bool ReadWriteMutex::tryReadLock()
     int rc = pthread_rwlock_tryrdlock(&m_rwlock);
 
     if( rc != 0 && rc != EBUSY)
-      throw MutexException(rc, "pthread_rwlock_tryrdlock");
+      throw SystemError( CXXTOOLS_ERROR_MSG("pthread_rwlock_tryrdlock failed") );
 
     return rc != EBUSY;
 }
@@ -120,7 +116,7 @@ void ReadWriteMutex::writeLock()
 {
   int ret = pthread_rwlock_wrlock(&m_rwlock);
   if (ret != 0)
-    throw MutexException(ret, "pthread_rwlock_wrlock");
+    throw SystemError( CXXTOOLS_ERROR_MSG("pthread_rwlock_wrlock failed") );
 }
 
 bool ReadWriteMutex::tryWriteLock()
@@ -128,7 +124,7 @@ bool ReadWriteMutex::tryWriteLock()
     int rc = pthread_rwlock_trywrlock(&m_rwlock);
 
     if( rc != 0 && rc != EBUSY)
-      throw MutexException(rc, "pthread_rwlock_trywrlock");
+      throw SystemError( CXXTOOLS_ERROR_MSG("pthread_rwlock_trywrlock failed") );
 
     return rc != EBUSY;
 }
@@ -137,7 +133,7 @@ void ReadWriteMutex::unlock()
 {
   int ret = pthread_rwlock_unlock(&m_rwlock);
   if (ret != 0)
-    throw MutexException(ret, "pthread_rwlock_unlock");
+    throw SystemError( CXXTOOLS_ERROR_MSG("pthread_rwlock_unlock failed") );
 }
 
 bool ReadWriteMutex::unlockNoThrow()
