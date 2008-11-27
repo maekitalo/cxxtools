@@ -37,6 +37,8 @@ libcxxtools_la_SOURCES = \
 	query_params.cpp \
 	quotedprintablestream.cpp \
 	regex.cpp \
+	sharedlib.cpp \
+	sharedlibimpl.cpp \
 	signal.cpp \
 	syserror.cpp \
 	systemerror.cpp \

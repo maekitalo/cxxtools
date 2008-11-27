@@ -62,6 +62,7 @@ nobase_include_HEADERS = \
         cxxtools/quotedprintablestream.h \
         cxxtools/refcounted.h \
         cxxtools/regex.h \
+        cxxtools/sharedlib.h \
         cxxtools/signals.h \
         cxxtools/signals.tpp \
         cxxtools/slot.h \

@@ -19,43 +19,11 @@
 #ifndef CXXTOOLS_SYSTEM_SHAREDLIB_H
 #define CXXTOOLS_SYSTEM_SHAREDLIB_H
 
-#include <cxxtools/systemerror.h>
 #include <string>
 
 namespace cxxtools {
 
 class Symbol;
-
-/** @brief Thrown, when a shared library could not be loaded
-*/
-class OpenLibraryFailed : public SystemError
-{
-    public:
-        //! @brief Contructs from a message string and source info
-        OpenLibraryFailed(const std::string& msg, const cxxtools::SourceInfo& si);
-
-        //! @brief Destructor
-        ~OpenLibraryFailed() throw()
-		{}
-};
-
-/** @brief Thrown, when a symbol is not found in a library
-*/
-class SymbolNotFound : public SystemError
-{
-    std::string _symbol;
-
-    public:
-        SymbolNotFound(const std::string& sym, const cxxtools::SourceInfo& si);
-
-        //! @brief Destructor
-        ~SymbolNotFound() throw()
-        {}
-
-        //! @brief Returns the symbol, which was not found
-        const std::string& symbol() const
-        { return _symbol; }
-};
 
 /** @brief Shared library loader
 

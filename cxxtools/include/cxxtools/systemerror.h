@@ -45,26 +45,56 @@
 
 namespace cxxtools {
 
-    /** @brief Exception class indicating a system error.
-     */
-    class SystemError : public std::runtime_error
-    {
-        public:
-            SystemError(int err, const char* fn);
+/** @brief Exception class indicating a system error.
+ */
+class SystemError : public std::runtime_error
+{
+    public:
+        SystemError(int err, const char* fn);
 
-            SystemError(const char* fn);
+        SystemError(const char* fn);
 
-            SystemError(const std::string& what, const SourceInfo& si);
+        SystemError(const std::string& what, const SourceInfo& si);
 
-            ~SystemError() throw();
+        ~SystemError() throw();
 
-            int getErrno() const
-            { return m_errno; }
+        int getErrno() const
+        { return m_errno; }
 
-        private:
-            int m_errno;
-    };
+    private:
+        int m_errno;
+};
 
+/** @brief Thrown, when a shared library could not be loaded
+*/
+class OpenLibraryFailed : public SystemError
+{
+    public:
+        //! @brief Contructs from a message string and source info
+        OpenLibraryFailed(const std::string& msg, const cxxtools::SourceInfo& si);
+
+        //! @brief Destructor
+        ~OpenLibraryFailed() throw()
+		{}
+};
+
+/** @brief Thrown, when a symbol is not found in a library
+*/
+class SymbolNotFound : public SystemError
+{
+    std::string _symbol;
+
+    public:
+        SymbolNotFound(const std::string& sym, const cxxtools::SourceInfo& si);
+
+        //! @brief Destructor
+        ~SymbolNotFound() throw()
+        {}
+
+        //! @brief Returns the symbol, which was not found
+        const std::string& symbol() const
+        { return _symbol; }
+};
 
 } // namespace cxxtools
 

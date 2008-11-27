@@ -17,7 +17,6 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 #include "sharedlibimpl.h"
-#include "cxxtools/sharedlib.h" // only for exceptions
 
 namespace cxxtools {
 
@@ -35,7 +34,7 @@ void SharedLibImpl::open(const std::string& path)
     _handle = ::dlopen(path.c_str(), flags);
     if( !_handle )
     {
-        throw OpenLibraryFailed( dlerror(), PT_SOURCEINFO );
+        throw OpenLibraryFailed( dlerror(), CXXTOOLS_SOURCEINFO );
     }
 }
 

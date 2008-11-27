@@ -26,17 +26,6 @@
 
 namespace cxxtools {
 
-OpenLibraryFailed::OpenLibraryFailed(const std::string& msg, const cxxtools::SourceInfo& si)
-: SystemError(msg, si)
-{ }
-
-
-SymbolNotFound::SymbolNotFound(const std::string& sym, const cxxtools::SourceInfo& si)
-: SystemError("symbol not found: " + sym, si)
-, _symbol(sym)
-{ }
-
-
 SharedLib::SharedLib()
 : _impl(0)
 {
