@@ -10,7 +10,6 @@ libcxxtools_la_SOURCES = \
 	cgi.cpp \
 	directory.cpp \
 	directoryimpl.cpp \
-	dlloader.cpp \
 	fdstream.cpp \
 	file.cpp \
 	fileimpl.cpp \
@@ -23,6 +22,8 @@ libcxxtools_la_SOURCES = \
 	inifile.cpp \
 	iniparser.cpp \
 	ioerror.cpp \
+	library.cpp \
+	libraryimpl.cpp \
 	log.cpp \
 	md5.c \
 	md5stream.cpp \
@@ -37,8 +38,6 @@ libcxxtools_la_SOURCES = \
 	query_params.cpp \
 	quotedprintablestream.cpp \
 	regex.cpp \
-	sharedlib.cpp \
-	sharedlibimpl.cpp \
 	signal.cpp \
 	syserror.cpp \
 	systemerror.cpp \

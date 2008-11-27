@@ -42,6 +42,7 @@ nobase_include_HEADERS = \
         cxxtools/invokable.h \
         cxxtools/invokable.tpp \
         cxxtools/ioerror.h \
+        cxxtools/library.h \
         cxxtools/log.h \
         cxxtools/loginit.h \
         cxxtools/md5.h \
@@ -62,7 +63,6 @@ nobase_include_HEADERS = \
         cxxtools/quotedprintablestream.h \
         cxxtools/refcounted.h \
         cxxtools/regex.h \
-        cxxtools/sharedlib.h \
         cxxtools/signals.h \
         cxxtools/signals.tpp \
         cxxtools/slot.h \

@@ -16,11 +16,11 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#include "sharedlibimpl.h"
+#include "libraryimpl.h"
 
 namespace cxxtools {
 
-void SharedLibImpl::open(const std::string& path)
+void LibraryImpl::open(const std::string& path)
 {
     if(_handle)
         return;
@@ -39,7 +39,14 @@ void SharedLibImpl::open(const std::string& path)
 }
 
 
-void* SharedLibImpl::resolve(const char* symbol)
+void LibraryImpl::close()
+{
+    if(_handle)
+        ::dlclose(_handle);
+}
+
+
+void* LibraryImpl::resolve(const char* symbol) const
 {
     if(_handle)
     {

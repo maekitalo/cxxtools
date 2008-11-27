@@ -16,8 +16,8 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#ifndef CXXTOOLS_SHAREDLIBIMPL_H
-#define CXXTOOLS_SHAREDLIBIMPL_H
+#ifndef CXXTOOLS_LIBRARYIMPL_H
+#define CXXTOOLS_LIBRARYIMPL_H
 
 #include "cxxtools/systemerror.h"
 #include <string>
@@ -25,22 +25,22 @@
 
 namespace cxxtools {
 
-class SharedLibImpl
+class LibraryImpl
 {
     public:
-        SharedLibImpl()
+        LibraryImpl()
         : _refs(1)
         , _handle(0)
         { }
 
-        SharedLibImpl(const std::string& path)
+        LibraryImpl(const std::string& path)
         : _refs(1)
         , _handle(0)
         {
             this->open(path);
         }
 
-        ~SharedLibImpl()
+        ~LibraryImpl()
         {
             if(_handle)
                 ::dlclose(_handle);
@@ -63,7 +63,9 @@ class SharedLibImpl
 
         void open(const std::string& path);
 
-        void* resolve(const char* symbol);
+        void close();
+
+        void* resolve(const char* symbol) const;
 
         bool failed()
         { return _handle == 0; }

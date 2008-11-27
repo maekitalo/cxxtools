@@ -16,8 +16,8 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#include "sharedlibimpl.h"
-#include "cxxtools/sharedlib.h"
+#include "libraryimpl.h"
+#include "cxxtools/library.h"
 #include "cxxtools/fileinfo.h"
 #include "cxxtools/file.h"
 #include "cxxtools/directory.h"
@@ -26,22 +26,22 @@
 
 namespace cxxtools {
 
-SharedLib::SharedLib()
+Library::Library()
 : _impl(0)
 {
-    _impl = new SharedLibImpl();
+    _impl = new LibraryImpl();
 }
 
 
-SharedLib::SharedLib(const std::string& path)
+Library::Library(const std::string& path)
 : _impl(0)
 {
     _path = find(path);
-    _impl = new SharedLibImpl(_path);
+    _impl = new LibraryImpl(_path);
 }
 
 
-SharedLib::SharedLib(const SharedLib& other)
+Library::Library(const Library& other)
 {
     _path = other._path;
     _impl = other._impl;
@@ -49,7 +49,7 @@ SharedLib::SharedLib(const SharedLib& other)
 }
 
 
-SharedLib& SharedLib::operator=(const SharedLib& other)
+Library& Library::operator=(const Library& other)
 {
     if(_impl == other._impl)
         return *this;
@@ -67,28 +67,28 @@ SharedLib& SharedLib::operator=(const SharedLib& other)
 }
 
 
-SharedLib::~SharedLib()
+Library::~Library()
 {
     if ( ! _impl->unref() )
         delete _impl;
 }
 
 
-void SharedLib::detach()
+void Library::detach()
 {
     if ( _impl->refs() == 1 )
         return;
 
     _path.clear();
 
-    SharedLibImpl* x = _impl;
-    _impl = new SharedLibImpl();
+    LibraryImpl* x = _impl;
+    _impl = new LibraryImpl();
 
     if( ! x->unref() )
         delete x;
 }
 
-SharedLib& SharedLib::open(const std::string& path)
+Library& Library::open(const std::string& path)
 {
     this->detach();
 
@@ -98,13 +98,21 @@ SharedLib& SharedLib::open(const std::string& path)
 }
 
 
-void* SharedLib::resolve(const char* symbol)
+void Library::close()
+{
+    this->detach();
+
+    _impl->close();
+}
+
+
+void* Library::resolve(const char* symbol) const
 {
   return _impl->resolve(symbol);
 }
 
 
-Symbol SharedLib::getSymbol(const char* symbol)
+Symbol Library::getSymbol(const char* symbol) const
 {
     void* sym = this->resolve(symbol);
     if (sym == 0)
@@ -115,25 +123,25 @@ Symbol SharedLib::getSymbol(const char* symbol)
     return Symbol(*this, sym);
 }
 
-SharedLib::operator const void*() const
+Library::operator const void*() const
 {
     return _impl->failed() ? 0 : this;
 }
 
 
-bool SharedLib::operator!() const
+bool Library::operator!() const
 {
     return _impl->failed() ? true : false;
 }
 
 
-const std::string& SharedLib::path() const
+const std::string& Library::path() const
 {
     return _path;
 }
 
 
-std::string SharedLib::find(const std::string& path_)
+std::string Library::find(const std::string& path_)
 {
     std::string path = path_;
 
@@ -168,15 +176,15 @@ std::string SharedLib::find(const std::string& path_)
 }
 
 
-std::string SharedLib::suffix()
+std::string Library::suffix()
 {
-    return SharedLibImpl::suffix();
+    return LibraryImpl::suffix();
 }
 
 
-std::string SharedLib::prefix()
+std::string Library::prefix()
 {
-    return SharedLibImpl::prefix();
+    return LibraryImpl::prefix();
 }
 
 } // namespace cxxtools

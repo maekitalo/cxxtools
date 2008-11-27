@@ -57,12 +57,11 @@ int main(int argc, char* argv[])
     {
       std::cout << "load " << argv[1] << std::endl;
       cxxtools::dl::Library lib(argv[1]);
-      std::cout << " => " << lib.getHandle() << std::endl;
 
       for (int a = 2; argv[a]; ++a)
       {
         std::cout << "sym " << argv[a] << std::endl;
-        cxxtools::dl::Symbol sym = lib.sym(argv[a]);
+        cxxtools::dl::Symbol sym = lib.getSymbol(argv[a]);
         std::cout << " => " << static_cast<void*>(sym) << std::endl;
       }
     }
