@@ -69,4 +69,4 @@ class Condition : private NonCopyable
 
 }
 
-#endif // CXXTOOLS_MUTEX_H
+#endif // CXXTOOLS_CONDITION_H
