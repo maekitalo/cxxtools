@@ -91,18 +91,18 @@ namespace cxxtools
   template <typename objectType>
   class ExternalRefCounted
   {
-      unsigned* refs;
+      unsigned* rc;
 
     protected:
       ExternalRefCounted()
-        : refs(0)  { }
+        : rc(0)  { }
 
       bool unlink(objectType* object)
       {
-        if (object && --*refs <= 0)
+        if (object && --*rc <= 0)
         {
-          delete refs;
-          // no need to set refs to 0 since the pointer is either
+          delete rc;
+          // no need to set rc to 0 since the pointer is either
           // destroyed or another object is linked in
           return true;
         }
@@ -114,38 +114,38 @@ namespace cxxtools
       {
         if (object)
         {
-          if (ptr.refs == 0)
-            refs = new unsigned(1);
+          if (ptr.rc == 0)
+            rc = new unsigned(1);
           else
           {
-            refs = ptr.refs;
-            ++*refs;
+            rc = ptr.rc;
+            ++*rc;
           }
         }
         else
-          refs = 0;
+          rc = 0;
       }
 
     public:
-      unsigned getRefs() const
-        { return refs ? *refs : 0; }
+      unsigned refs() const
+        { return rc ? *rc : 0; }
   };
 
   template <typename objectType>
   class ExternalAtomicRefCounted
   {
-      atomic_t* refs;
+      volatile atomic_t* rc;
 
     protected:
       ExternalAtomicRefCounted()
-        : refs(0)  { }
+        : rc(0)  { }
 
       bool unlink(objectType* object)
       {
-        if (object && atomicDecrement(*refs) <= 0)
+        if (object && atomicDecrement(*rc) <= 0)
         {
-          delete refs;
-          // no need to set refs to 0 since the pointer is either
+          delete rc;
+          // no need to set rc to 0 since the pointer is either
           // destroyed or another object is linked in
           return true;
         }
@@ -157,21 +157,21 @@ namespace cxxtools
       {
         if (object)
         {
-          if (ptr.refs == 0)
-            refs = new atomic_t(1);
+          if (ptr.rc == 0)
+            rc = new atomic_t(1);
           else
           {
-            refs = ptr.refs;
-            atomicIncrement(*refs);
+            rc = ptr.rc;
+            atomicIncrement(*rc);
           }
         }
         else
-          refs = 0;
+          rc = 0;
       }
 
     public:
-      atomic_t getRefs() const
-        { return refs ? *refs : 0; }
+      atomic_t refs() const
+        { return rc ? *rc : 0; }
   };
 
   template <typename objectType>

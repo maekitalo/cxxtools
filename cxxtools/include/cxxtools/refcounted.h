@@ -37,42 +37,42 @@ namespace cxxtools
 {
   class RefCounted : private NonCopyable
   {
-      unsigned refs;
+      unsigned rc;
 
     public:
       RefCounted()
-        : refs(0)
+        : rc(0)
         { }
 
       explicit RefCounted(unsigned refs_)
-        : refs(refs_)
+        : rc(refs_)
         { }
 
       virtual ~RefCounted()  { }
 
-      virtual unsigned addRef()  { return ++refs; }
-      virtual void release()     { if (--refs == 0) delete this; }
-      unsigned getRefs() const   { return refs; }
+      virtual unsigned addRef()  { return ++rc; }
+      virtual void release()     { if (--rc == 0) delete this; }
+      unsigned refs() const   { return rc; }
   };
 
   class AtomicRefCounted : private NonCopyable
   {
-      atomic_t refs;
+      mutable volatile atomic_t rc;
 
     public:
       AtomicRefCounted()
-        : refs(0)
+        : rc(0)
         { }
 
       explicit AtomicRefCounted(unsigned refs_)
-        : refs(refs_)
+        : rc(refs_)
         { }
 
       virtual ~AtomicRefCounted()  { }
 
-      virtual atomic_t addRef()  { return atomicIncrement(refs); }
-      virtual void release()     { if (atomicDecrement(refs) == 0) delete this; }
-      atomic_t getRefs() const   { return refs; }
+      virtual atomic_t addRef()  { return atomicIncrement(rc); }
+      virtual void release()     { if (atomicDecrement(rc) == 0) delete this; }
+      atomic_t refs() const   { return rc; }
   };
 
 }
