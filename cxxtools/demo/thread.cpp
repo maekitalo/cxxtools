@@ -33,6 +33,7 @@
 #include <cxxtools/function.h>
 #include <cxxtools/thread.h>
 #include <cxxtools/mutex.h>
+#include <cxxtools/condition.h>
 #include <iostream>
 #include <string>
 #include <unistd.h>

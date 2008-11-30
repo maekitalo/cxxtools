@@ -32,7 +32,7 @@
 #ifndef CXXTOOLS_POOL_H
 #define CXXTOOLS_POOL_H
 
-#include <cxxtools/mutex.h>
+#include <cxxtools/condition.h>
 #include <stack>
 
 namespace cxxtools
