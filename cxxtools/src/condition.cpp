@@ -27,7 +27,7 @@
  *
  */
 
-#include "cxxtools/mutex.h"
+#include "cxxtools/condition.h"
 #include "cxxtools/systemerror.h"
 #include "cxxtools/log.h"
 #include <sys/time.h>
