@@ -130,7 +130,7 @@ namespace cxxtools
       std::ostream& logentry(const char* level);
       virtual void logEnd(std::ostream& appender) = 0;
 
-      static RWLock rwmutex;
+      static ReadWriteMutex rwmutex;
       static Mutex mutex;
   };
 

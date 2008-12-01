@@ -271,7 +271,7 @@ namespace cxxtools
     }
   }
 
-  RWLock Logger::rwmutex;
+  ReadWriteMutex Logger::rwmutex;
   Mutex Logger::mutex;
   Logger::log_level_type Logger::std_level = LOG_LEVEL_ERROR;
   bool Logger::enabled = false;

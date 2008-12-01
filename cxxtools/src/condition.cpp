@@ -26,7 +26,7 @@
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
  *
  */
-
+#include "muteximpl.h"
 #include "cxxtools/condition.h"
 #include "cxxtools/systemerror.h"
 #include "cxxtools/log.h"
@@ -67,7 +67,7 @@ void Condition::broadcast()
 
 void Condition::wait(Mutex& mtx)
 {
-  int ret = pthread_cond_wait(&cond, &mtx.m_mutex);
+  int ret = pthread_cond_wait(&cond, mtx.impl().handle());
   if (ret != 0)
     throw SystemError( CXXTOOLS_ERROR_MSG("pthread_cond_wait failed") );
 }
@@ -86,7 +86,7 @@ bool Condition::timedwait(MutexLock& lock, const struct timespec& time)
   absTime.tv_sec += tp.tv_sec;
   absTime.tv_nsec += tp.tv_usec*1000;
 
-  ret = pthread_cond_timedwait(&cond, &lock.mutex().m_mutex, &absTime);
+  ret = pthread_cond_timedwait(&cond, lock.mutex().impl().handle(), &absTime);
   if (ret == ETIMEDOUT)
     return false;
 
