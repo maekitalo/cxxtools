@@ -31,6 +31,7 @@ libcxxtools_la_SOURCES = \
 	mime.cpp \
 	multifstream.cpp \
 	mutex.cpp \
+	muteximpl.cpp \
 	net.cpp \
 	pipe.cpp \
 	pipestream.cpp \
