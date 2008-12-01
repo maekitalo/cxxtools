@@ -150,9 +150,7 @@ namespace net
 
     log_debug("poll timeout " << getTimeout());
 
-    int p;
-
-    p = ::poll(&fds, 1, getTimeout());
+    int p = ::poll(&fds, 1, getTimeout());
 
     log_debug("poll returns " << p << " revents " << fds.revents);
 
