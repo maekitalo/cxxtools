@@ -184,7 +184,7 @@ AC_COMPILE_IFELSE(
                int main() { cxxtools::atomic_t a = 0; cxxtools::atomicIncrement(a); }
               ],
               CXXTOOLS_ATOMICITY=CXXTOOLS_ATOMICITY_GCC_X86
-              AC_MSG_RESULT(gcc x64),
+              AC_MSG_RESULT(gcc x86),
 
               AC_COMPILE_IFELSE(
                 [#include "include/cxxtools/atomicity.gcc.sparc.h"
