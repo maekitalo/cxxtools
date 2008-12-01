@@ -17,9 +17,10 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#include "cxxtools/sourceinfo.h"
+#ifndef CXXTOOLS_MUTEXIMPL_H
+#define CXXTOOLS_MUTEXIMPL_H
+
 #include <pthread.h>
-#include <errno.h>
 
 namespace cxxtools {
 
@@ -71,3 +72,5 @@ class ReadWriteMutexImpl
 };
 
 } // !namespace cxxtools
+
+#endif // CXXTOOLS_MUTEXIMPL_H

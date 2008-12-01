@@ -19,7 +19,6 @@
  ***************************************************************************/
 #include "muteximpl.h"
 #include "cxxtools/systemerror.h"
-#include <sys/time.h>
 #include <errno.h>
 
 namespace cxxtools {
