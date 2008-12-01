@@ -132,7 +132,7 @@ EOF
 # uncomment if you want to log to a file
 #file=$LOGFILE
 #maxfilesize=1MB
-#maxbackupindex=10
+#maxbackupindex=2
 #host=localhost:1234  # send log-messages with udp
 #disabled=1  # disable logging
 #logprocess=1  # log through separate process
@@ -143,7 +143,7 @@ EOF
     cat <<EOF
 file=$LOGFILE
 maxfilesize=1MB
-maxbackupindex=10
+maxbackupindex=2
 flushdelay=100  # delay write in milliseconds
 #host=localhost:1234  # send log-messages with udp
 #disabled=1  # disable logging
