@@ -8,6 +8,7 @@ libcxxtools_la_SOURCES = \
 	connectable.cpp \
 	connection.cpp \
 	cgi.cpp \
+	convert.cpp \
 	directory.cpp \
 	directoryimpl.cpp \
 	fdstream.cpp \

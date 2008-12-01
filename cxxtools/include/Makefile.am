@@ -19,6 +19,7 @@ nobase_include_HEADERS = \
         cxxtools/connection.h \
         cxxtools/constmethod.h \
         cxxtools/constmethod.tpp \
+        cxxtools/convert.h \
         cxxtools/delegate.h \
         cxxtools/delegate.tpp \
         cxxtools/dir.h \
