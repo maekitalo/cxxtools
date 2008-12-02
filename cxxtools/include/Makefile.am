@@ -70,6 +70,7 @@ nobase_include_HEADERS = \
         cxxtools/regex.h \
         cxxtools/signals.h \
         cxxtools/signals.tpp \
+        cxxtools/singleton.h \
         cxxtools/slot.h \
         cxxtools/slot.tpp \
         cxxtools/smartptr.h \
@@ -83,6 +84,7 @@ nobase_include_HEADERS = \
         cxxtools/thread.h \
         cxxtools/time.h \
         cxxtools/timespan.h \
+        cxxtools/typetraits.h \
         cxxtools/types.h \
         cxxtools/udp.h \
         cxxtools/udpstream.h \
