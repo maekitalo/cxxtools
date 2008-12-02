@@ -4,6 +4,8 @@ lib_LTLIBRARIES = libcxxtools.la
 
 libcxxtools_la_SOURCES = \
 	base64stream.cpp \
+	clock.cpp \
+	clockimpl.cpp \
 	condition.cpp \
 	conditionimpl.cpp \
 	connectable.cpp \
