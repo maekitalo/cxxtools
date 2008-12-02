@@ -58,8 +58,8 @@ class SystemError : public std::runtime_error
 
         ~SystemError() throw();
 
-        int getErrno() const
-        { return m_errno; }
+        //int getErrno() const
+        //{ return m_errno; }
 
     private:
         int m_errno;

@@ -46,7 +46,6 @@ libcxxtools_la_SOURCES = \
 	quotedprintablestream.cpp \
 	regex.cpp \
 	signal.cpp \
-	syserror.cpp \
 	systemerror.cpp \
 	tcpstream.cpp \
 	tee.cpp \

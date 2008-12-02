@@ -29,10 +29,10 @@
 
 #include <cxxtools/fdstream.h>
 #include <cxxtools/syserror.h>
+#include <cxxtools/log.h>
 #include <algorithm>
 #include <unistd.h>
-#include <cxxtools/log.h>
-#include "syserrorinternal.h"
+#include <errno.h>
 
 log_define("cxxtools.fdstream")
 
@@ -70,7 +70,8 @@ namespace cxxtools
       log_debug("write " << (pptr() - pbase()) << " bytes to fd " << fd);
       ssize_t ret = ::write(fd, pbase(), pptr() - pbase());
 
-      throwSysErrorIf(ret < 0, "write");
+      if(ret < 0)
+        throw SystemError(errno, "write");
 
       if (ret == 0)
         return traits_type::eof();
@@ -115,7 +116,10 @@ namespace cxxtools
 
     log_debug("read from fd " << fd);
     int ret = ::read(fd, ibuffer, bufsize);
-    throwSysErrorIf(ret < 0, "read");
+
+    if(ret < 0)
+      throw SystemError(errno, "read");
+
     if (ret == 0)
       return traits_type::eof();
 
@@ -135,7 +139,10 @@ namespace cxxtools
       {
         log_debug("write " << (pptr() - p) << " bytes to fd " << fd);
         ssize_t ret = ::write(fd, p, pptr() - p);
-        throwSysErrorIf(ret < 0, "write");
+
+        if(ret < 0)
+          throw SystemError(errno, "write");
+
         if (ret == 0)
           return traits_type::eof();
 
