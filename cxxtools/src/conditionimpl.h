@@ -1,6 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2005-2006 by Dr Marc Boris Duerner                      *
- *   Copyright (C) 2005-2006 by Sebastian Pieck                            *
+ *   Copyright (C) 2005 by Marc Boris Duerner                              *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU Library General Public License as       *
@@ -17,45 +16,29 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#include "conditionimpl.h"
-#include "cxxtools/condition.h"
+#include "cxxtools/api.h"
+#include "cxxtools/mutex.h"
+#include <pthread.h>
 
 namespace cxxtools {
 
-Condition::Condition()
-{
-    _impl = new ConditionImpl();
+    class ConditionImpl
+    {
+        public:
+            ConditionImpl();
+
+            ~ConditionImpl();
+
+            void wait(Mutex& mtx);
+
+            bool wait(Mutex& mtx, unsigned int ms);
+
+            void signal();
+
+            void broadcast();
+
+        private:
+            pthread_cond_t _cond;
+    };
+
 }
-
-
-Condition::~Condition()
-{
-    _impl->broadcast();
-    delete _impl;
-}
-
-
-void Condition::wait(Mutex& mtx)
-{
-   _impl->wait(mtx);
-}
-
-
-bool Condition::wait(Mutex& mtx, unsigned int ms)
-{
-    return _impl->wait(mtx, ms);
-}
-
-
-void Condition::signal()
-{
-    _impl->signal();
-}
-
-
-void Condition::broadcast()
-{
-    _impl->broadcast();
-}
-
-} // !namespace cxxtools
