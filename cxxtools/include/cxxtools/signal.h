@@ -81,7 +81,7 @@ namespace cxxtools {
     };
 
 
-#include <cxxtools/signals.tpp>
+#include <cxxtools/signal.tpp>
 
 struct CompareEventTypeInfo
 {
