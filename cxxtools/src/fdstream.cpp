@@ -28,7 +28,7 @@
  */
 
 #include <cxxtools/fdstream.h>
-#include <cxxtools/syserror.h>
+#include <cxxtools/systemerror.h>
 #include <cxxtools/log.h>
 #include <algorithm>
 #include <unistd.h>
