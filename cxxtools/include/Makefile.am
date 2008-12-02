@@ -21,6 +21,8 @@ nobase_include_HEADERS = \
         cxxtools/constmethod.h \
         cxxtools/constmethod.tpp \
         cxxtools/convert.h \
+        cxxtools/date.h\
+        cxxtools/datetime.h \
         cxxtools/delegate.h \
         cxxtools/delegate.tpp \
         cxxtools/dir.h \
@@ -78,6 +80,7 @@ nobase_include_HEADERS = \
         cxxtools/tcpstream.h \
         cxxtools/tee.h \
         cxxtools/thread.h \
+        cxxtools/time.h \
         cxxtools/timespan.h \
         cxxtools/types.h \
         cxxtools/udp.h \

@@ -10,6 +10,8 @@ libcxxtools_la_SOURCES = \
 	connection.cpp \
 	cgi.cpp \
 	convert.cpp \
+	date.cpp \
+	datetime.cpp \
 	directory.cpp \
 	directoryimpl.cpp \
 	fdstream.cpp \
@@ -48,6 +50,7 @@ libcxxtools_la_SOURCES = \
 	tee.cpp \
 	thread.cpp \
 	threadimpl.cpp \
+	time.cpp \
 	udp.cpp \
 	udpstream.cpp \
 	uuencode.cpp \
