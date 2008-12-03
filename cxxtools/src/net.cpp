@@ -29,7 +29,9 @@
  *
  */
 
-#include "cxxtools/net.h"
+#include <cxxtools/net.h>
+#include <cxxtools/log.h>
+#include <cxxtools/systemerror.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
@@ -37,7 +39,6 @@
 #include <sstream>
 #include <stdio.h>
 #include <string.h>
-#include "cxxtools/log.h"
 
 log_define("cxxtools.net")
 
@@ -49,26 +50,22 @@ namespace net
   //////////////////////////////////////////////////////////////////////
   // Exception class
   //
-  Exception::Exception(int _errno, const char* fn)
-    : SysError(_errno, fn)
-    { }
-
-  Exception::Exception(const char* fn)
-    : SysError(fn)
-    { }
-
   Timeout::Timeout()
-    : Exception(0, "Timeout")
+    : IOError("Timeout")
+    { }
+
+  AddressInUse::AddressInUse()
+    : IOError("address in use")
     { }
 
   ////////////////////////////////////////////////////////////////////////
   // implementation of Socket
   //
-  Socket::Socket(int domain, int type, int protocol) throw (Exception)
+  Socket::Socket(int domain, int type, int protocol)
     : m_timeout(-1)
   {
     if ((m_sockFd = ::socket(domain, type, protocol)) < 0)
-      throw Exception("socket");
+      throw SystemError("socket");
   }
 
   Socket::~Socket()
@@ -80,14 +77,14 @@ namespace net
     }
   }
 
-  void Socket::create(int domain, int type, int protocol) throw (Exception)
+  void Socket::create(int domain, int type, int protocol)
   {
     close();
 
     log_debug("create socket");
     int fd = ::socket(domain, type, protocol);
     if (fd < 0)
-      throw Exception("socket");
+      throw SystemError("socket");
     setFd(fd);
   }
 
@@ -101,13 +98,13 @@ namespace net
     }
   }
 
-  struct sockaddr_storage Socket::getSockAddr() const throw (Exception)
+  struct sockaddr_storage Socket::getSockAddr() const
   {
     struct sockaddr_storage ret;
 
     socklen_t slen = sizeof(ret);
     if (::getsockname(getFd(), reinterpret_cast <struct sockaddr *> (&ret), &slen) < 0)
-      throw Exception("getsockname");
+      throw SystemError("getsockname");
 
     return ret;
   }
@@ -139,7 +136,7 @@ namespace net
     log_debug("fcntl(" << getFd() << ", F_SETFL, " << a << ')');
     int ret = ::fcntl(getFd(), F_SETFL, a);
     if (ret < 0)
-      throw Exception("fcntl");
+      throw SystemError("fcntl");
   }
 
   short Socket::poll(short events) const
@@ -157,7 +154,7 @@ namespace net
     if (p < 0)
     {
       log_error("error in poll; errno=" << errno);
-      throw Exception("poll");
+      throw SystemError("poll");
     }
     else if (p == 0)
     {
@@ -193,10 +190,10 @@ namespace net
     p << port;
 
     if (0 != ::getaddrinfo(ipaddr.c_str(), p.str().c_str(), &hints, &ai))
-      throw Exception(0, ("invalid ipaddress " + ipaddr).c_str());
+      throw SystemError(0, ("invalid ipaddress " + ipaddr).c_str());
 
     if (ai == 0)
-      throw Exception("getaddrinfo");
+      throw SystemError("getaddrinfo");
   }
 
 } // namespace net

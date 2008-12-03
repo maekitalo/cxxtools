@@ -56,10 +56,9 @@ namespace net
       Server()  {}
 
       /// creates a server socket and listens on the address
-      Server(const std::string& ipaddr, unsigned short int port, int backlog = 5)
-             throw (Exception);
+      Server(const std::string& ipaddr, unsigned short int port, int backlog = 5);
 
-      void listen(const std::string& ipaddr, unsigned short int port, int backlog = 5) throw (Exception);
+      void listen(const std::string& ipaddr, unsigned short int port, int backlog = 5);
 
       const struct sockaddr_storage& getAddr() const
         { return servaddr; }

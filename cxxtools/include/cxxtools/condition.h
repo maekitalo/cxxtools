@@ -77,8 +77,8 @@ namespace cxxtools {
             */
             bool wait( Mutex& mtx, unsigned int ms);
 
-            void wait( MutexLock& m, unsigned int ms)
-            { this->wait( m.mutex(), ms ); }
+            bool wait( MutexLock& m, unsigned int ms)
+            { return this->wait( m.mutex(), ms ); }
 
             //! @brief Unblock a single blocked thread.
             void signal();

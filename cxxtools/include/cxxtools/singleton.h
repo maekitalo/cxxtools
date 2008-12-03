@@ -20,7 +20,7 @@
 #ifndef cxxtools_Singleton_h
 #define cxxtools_Singleton_h
 
-#include <cxxtools/NonCopyable.h>
+#include <cxxtools/noncopyable.h>
 
 #include <memory>
 #include <cstdlib>
@@ -49,7 +49,7 @@ namespace cxxtools {
         @endcode
      */
     template <typename T, typename A = std::allocator<T> >
-    class Singleton : public NonCopyable
+    class Singleton : private NonCopyable
     {
         public:
             typedef A Allocator;

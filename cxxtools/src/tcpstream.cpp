@@ -29,14 +29,15 @@
  *
  */
 
-#include "cxxtools/tcpstream.h"
+#include <cxxtools/tcpstream.h>
+#include <cxxtools/systemerror.h>
+#include <cxxtools/log.h>
 #include <sys/poll.h>
 #include <sys/socket.h>
 #include <unistd.h>
 #include <netdb.h>
 #include <errno.h>
 #include <string.h>
-#include "cxxtools/log.h"
 
 log_define("cxxtools.net.tcp")
 
@@ -49,13 +50,13 @@ namespace net
   // implementation of Server
   //
   Server::Server(const std::string& ipaddr, unsigned short int port,
-      int backlog) throw (Exception)
+      int backlog)
   {
     listen(ipaddr, port, backlog);
   }
 
   void Server::listen(const std::string& ipaddr, unsigned short int port,
-      int backlog) throw (Exception)
+      int backlog)
   {
     log_debug("listen on " << ipaddr << " port " << port << " backlog " << backlog);
 
@@ -71,7 +72,7 @@ namespace net
       {
         Socket::create(it->ai_family, SOCK_STREAM, 0);
       }
-      catch (const Exception&)
+      catch (const SystemError&)
       {
         continue;
       }
@@ -79,7 +80,7 @@ namespace net
       log_debug("setsockopt SO_REUSEADDR");
       if (::setsockopt(getFd(), SOL_SOCKET, SO_REUSEADDR,
           &reuseAddr, sizeof(reuseAddr)) < 0)
-        throw Exception("setsockopt");
+        throw SystemError("setsockopt");
 
       log_debug("bind");
       if (::bind(getFd(), it->ai_addr, it->ai_addrlen) == 0)
@@ -89,13 +90,18 @@ namespace net
 
         log_debug("listen");
         if (::listen(getFd(), backlog) < 0)
-          throw Exception("listen");
+        {
+          if (errno == EADDRINUSE)
+            throw AddressInUse();
+          else
+            throw SystemError("listen");
+        }
 
         return;
       }
     }
 
-    throw Exception("bind");
+    throw SystemError("bind");
   }
 
   ////////////////////////////////////////////////////////////////////////
@@ -123,7 +129,7 @@ namespace net
     log_debug("accept " << server.getFd());
     int fd = ::accept(server.getFd(), reinterpret_cast <struct sockaddr *> (&peeraddr), &peeraddr_len);
     if (fd < 0)
-      throw Exception("accept");
+      throw SystemError("accept");
     setFd(fd);
     log_debug("accepted " << server.getFd() << " => " << getFd());
   }
@@ -141,7 +147,7 @@ namespace net
       {
         Socket::create(it->ai_family, SOCK_STREAM, 0);
       }
-      catch (const Exception&)
+      catch (const SystemError&)
       {
         continue;
       }
@@ -162,11 +168,11 @@ namespace net
         if (::getsockopt(getFd(), SOL_SOCKET, SO_ERROR, &sockerr, &optlen) != 0)
         {
           ::close(getFd());
-          throw Exception("getsockopt");
+          throw SystemError("getsockopt");
         }
 
         if (sockerr != 0)
-          throw Exception(sockerr, "connect");
+          throw SystemError(sockerr, "connect");
 
         // save our information
         memmove(&peeraddr, it->ai_addr, it->ai_addrlen);
@@ -175,7 +181,7 @@ namespace net
 
     }
 
-    throw Exception("connect");
+    throw SystemError("connect");
   }
 
   Stream::size_type Stream::read(char* buffer, Stream::size_type bufsize) const
@@ -193,7 +199,7 @@ namespace net
       } while (n < 0 && errno == EINTR);
 
       if (n < 0 && errno != ECONNRESET)
-        throw Exception(errno, "read");
+        throw SystemError(errno, "read");
     }
     else
     {
@@ -233,10 +239,10 @@ namespace net
           } while (n < 0 && errno == EINTR);
 
           if (n < 0)
-            throw Exception("read");
+            throw SystemError("read");
         }
         else if (errno != 0 && errno != ECONNRESET)
-          throw Exception("read");
+          throw SystemError("read");
       }
 
     }
@@ -267,7 +273,7 @@ namespace net
         else
         {
           log_error("error in write; errno=" << errno << " (" << strerror(errno) << ')');
-          throw Exception("write");
+          throw SystemError("write");
         }
       }
 

@@ -254,7 +254,7 @@ class RecursiveLock : private NonCopyable
     A %ReadWriteMutex allows multiple concurrent readers or one exclusive writer to
     access a resource.
 */
-class CXXTOOLS_API ReadWriteMutex : public NonCopyable
+class CXXTOOLS_API ReadWriteMutex : private NonCopyable
 {
     public:
         //! @brief Creates the Reader/Writer lock.
@@ -399,7 +399,7 @@ class WriteLock : private NonCopyable
    usable in cases where resources need to be locked for a very short time, but in
    these cases a higher performance can be achieved.
 */
-class SpinMutex : public NonCopyable
+class SpinMutex : private NonCopyable
 {
     public:
         //! @brief Default Constructor.

@@ -52,7 +52,7 @@ class SystemError : public std::runtime_error
     public:
         SystemError(int err, const char* fn);
 
-        SystemError(const char* fn);
+        explicit SystemError(const char* fn);
 
         SystemError(const std::string& what, const SourceInfo& si);
 

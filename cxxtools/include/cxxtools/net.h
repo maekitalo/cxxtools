@@ -39,7 +39,7 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netdb.h>
-#include <cxxtools/syserror.h>
+#include <cxxtools/ioerror.h>
 #include <cxxtools/noncopyable.h>
 
 namespace cxxtools
@@ -49,28 +49,18 @@ namespace net
 {
   //////////////////////////////////////////////////////////////////////
   /**
-   * net::Exception is thrown on error
-   */
-  class Exception : public SysError
-  {
-    public:
-      /// The class is initialized with a message containing the error number,
-      /// the error message from strerror(3) and the passed function name.
-      Exception(int _errno, const char* fn);
-
-      /// Initializes the excpetion with a message containing the error number
-      /// from errno, the error message from strerror(3) and the passed function name.
-      explicit Exception(const char* fn);
-  };
-
-  //////////////////////////////////////////////////////////////////////
-  /**
    * net::Timeout is thrown on timeout.
    */
-  class Timeout : public Exception
+  class Timeout : public IOError
   {
     public:
       Timeout();
+  };
+
+  class AddressInUse : public IOError
+  {
+    public:
+      AddressInUse();
   };
 
   //////////////////////////////////////////////////////////////////////
@@ -82,7 +72,7 @@ namespace net
 
     public:
       /// A socket is created. On error a net::Exception is thrown.
-      Socket(int domain, int type, int protocol) throw (Exception);
+      Socket(int domain, int type, int protocol);
 
       /// A socket is initialized with a existing socket descriptor.
       /// Ownership is transfered to this class.
@@ -105,7 +95,7 @@ namespace net
 
       /// Creates a new socket. If a socket is already associated with this
       /// class, it is closed.
-      void create(int domain, int type, int protocol) throw (Exception);
+      void create(int domain, int type, int protocol);
       /// Closes the socket, if a socket is held.
       void close();
 
@@ -113,7 +103,7 @@ namespace net
       int getFd() const     { return m_sockFd; }
 
       /// wrapper around getsockname(2)
-      struct sockaddr_storage getSockAddr() const throw (Exception);
+      struct sockaddr_storage getSockAddr() const;
 
       /// Set timeout in milliseconds.
       void setTimeout(int t);

@@ -29,9 +29,10 @@
  *
  */
 
-#include "cxxtools/udp.h"
-#include "cxxtools/dynbuffer.h"
-#include "cxxtools/log.h"
+#include <cxxtools/udp.h>
+#include <cxxtools/dynbuffer.h>
+#include <cxxtools/log.h>
+#include <cxxtools/systemerror.h>
 #include <netdb.h>
 #include <sys/poll.h>
 #include <errno.h>
@@ -67,7 +68,7 @@ namespace net
       {
         Socket::create(it->ai_family, SOCK_DGRAM, 0);
       }
-      catch (const Exception&)
+      catch (const SystemError&)
       {
         continue;
       }
@@ -76,7 +77,7 @@ namespace net
       {
         const int on = 1;
         if (::setsockopt(getFd(), SOL_SOCKET, SO_BROADCAST, &on, sizeof(on)) < 0)
-          throw Exception("setsockopt");
+          throw SystemError("setsockopt");
       }
 
       if (::connect(getFd(), it->ai_addr, it->ai_addrlen) == 0)
@@ -86,14 +87,14 @@ namespace net
       }
     }
 
-    throw Exception("connect");
+    throw SystemError("connect");
   }
 
   UdpSender::size_type UdpSender::send(const void* message, size_type length, int flags) const
   {
     ssize_t ret = ::send(getFd(), message, length, flags);
     if (ret < 0)
-      throw Exception("send");
+      throw SystemError("send");
     return static_cast<size_type>(ret);
   }
 
@@ -119,7 +120,7 @@ namespace net
     }
 
     if (ret < 0)
-      throw Exception("recv");
+      throw SystemError("recv");
 
     return static_cast<size_type>(ret);
   }
@@ -156,7 +157,7 @@ namespace net
       {
         Socket::create(it->ai_family, SOCK_DGRAM, 0);
       }
-      catch (const Exception&)
+      catch (const SystemError&)
       {
         continue;
       }
@@ -164,7 +165,7 @@ namespace net
       log_debug("setsockopt");
       if (::setsockopt(getFd(), SOL_SOCKET, SO_REUSEADDR,
           &reuseAddr, sizeof(reuseAddr)) < 0)
-        throw Exception(errno, "setsockopt");
+        throw SystemError(errno, "setsockopt");
 
       log_debug("bind ip " << ipaddr << " port " << port);
       if (::bind(getFd(), it->ai_addr, it->ai_addrlen) == 0)
@@ -175,7 +176,7 @@ namespace net
       }
     }
 
-    throw Exception(errno, "bind");
+    throw SystemError(errno, "bind");
   }
 
   UdpReceiver::size_type UdpReceiver::recv(void* buffer, size_type length, int flags)
@@ -195,7 +196,7 @@ namespace net
     }
 
     if (ret < 0)
-      throw Exception("recvfrom");
+      throw SystemError("recvfrom");
 
     return static_cast<size_type>(ret);
   }
@@ -211,7 +212,7 @@ namespace net
   {
     ssize_t ret = ::sendto(getFd(), message, length, flags, reinterpret_cast <const struct sockaddr *> (&peeraddr), peeraddrLen);
     if (ret < 0)
-      throw Exception("sendto");
+      throw SystemError("sendto");
     return static_cast<size_type>(ret);
   }
 
