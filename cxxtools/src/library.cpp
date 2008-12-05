@@ -21,8 +21,11 @@
 #include "cxxtools/fileinfo.h"
 #include "cxxtools/file.h"
 #include "cxxtools/directory.h"
+#include "cxxtools/log.h"
 #include <string>
 #include <memory>
+
+log_define("cxxtools.library")
 
 namespace cxxtools {
 
@@ -131,7 +134,7 @@ Library::operator const void*() const
 
 bool Library::operator!() const
 {
-    return _impl->failed() ? true : false;
+    return _impl->failed();
 }
 
 
@@ -145,32 +148,38 @@ std::string Library::find(const std::string& path_)
 {
     std::string path = path_;
 
+    log_debug("search for library \"" << path << '"');
     if( FileInfo::exists( path ) )
         return path;
 
-    std::string::size_type idx = path.find( Directory::sep() );
-
-    if( ++idx == path.length() )
-    {
-	    throw FileNotFound(path , CXXTOOLS_SOURCEINFO);
-    }
-
-    path += suffix();
-    if( FileInfo::exists( path ) )
-	{
-        return path;
-	}
+    std::string::size_type idx = path.rfind( Directory::sep() );
 
     if(idx == std::string::npos)
     {
         idx = 0;
     }
-    path.insert( idx, prefix() );
-
-    if( ! FileInfo::exists( path ) )
+    else if( ++idx == path.length() )
     {
-        throw FileNotFound(path , CXXTOOLS_SOURCEINFO);
+        log_debug("library not found");
+        throw FileNotFound(path_, CXXTOOLS_SOURCEINFO);
     }
+
+    path += suffix();
+
+    log_debug("search for library \"" << path << '"');
+    if( !FileInfo::exists( path ) )
+    {
+        path.insert( idx, prefix() );
+
+        log_debug("search for library \"" << path << '"');
+        if( ! FileInfo::exists( path ) )
+        {
+            log_debug("library not found");
+            throw FileNotFound(path_, CXXTOOLS_SOURCEINFO);
+        }
+    }
+
+    log_debug("library found");
 
     return path;
 }
