@@ -274,7 +274,7 @@ namespace cxxtools
   }
 
   ReadWriteMutex Logger::rwmutex;
-  SpinMutex Logger::mutex;
+  Mutex Logger::mutex;
   Logger::log_level_type Logger::std_level = LOG_LEVEL_ERROR;
   bool Logger::enabled = false;
 
@@ -287,7 +287,7 @@ namespace cxxtools
       static loggers_type* baseLoggers = 0;
       if (baseLoggers == 0)
       {
-        SpinLock lock(Logger::mutex);
+        MutexLock lock(Logger::mutex);
         if (baseLoggers == 0)
           baseLoggers = new loggers_type();
       }
@@ -299,7 +299,7 @@ namespace cxxtools
       static loggers_type* cacheLoggers = 0;
       if (cacheLoggers == 0)
       {
-        SpinLock lock(Logger::mutex);
+        MutexLock lock(Logger::mutex);
         if (cacheLoggers == 0)
           cacheLoggers = new loggers_type();
       }
@@ -490,7 +490,7 @@ namespace cxxtools
       {
         try
         {
-          SpinLock lock(Logger::mutex);
+          MutexLock lock(Logger::mutex);
 
           std::ostream& out(logger->logentry(level));
           out << msg.str() << '\n';
@@ -540,7 +540,7 @@ namespace cxxtools
       {
         try
         {
-          cxxtools::SpinLock lock(cxxtools::Logger::mutex);
+          cxxtools::MutexLock lock(cxxtools::Logger::mutex);
           l->logentry("TRACE")
             << "EXIT " << msg->str() << std::endl;
         }
@@ -565,7 +565,7 @@ namespace cxxtools
     {
       try
       {
-        cxxtools::SpinLock lock(cxxtools::Logger::mutex);
+        cxxtools::MutexLock lock(cxxtools::Logger::mutex);
         l->logentry("TRACE")
           << "ENTER " << msg->str() << std::endl;
       }

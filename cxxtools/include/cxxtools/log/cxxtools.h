@@ -131,7 +131,7 @@ namespace cxxtools
       virtual void logEnd(std::ostream& appender) = 0;
 
       static ReadWriteMutex rwmutex;
-      static SpinMutex mutex;
+      static Mutex mutex;
   };
 
   class LogMessage
