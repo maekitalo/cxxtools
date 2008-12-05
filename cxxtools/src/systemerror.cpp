@@ -28,9 +28,12 @@
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
 #include "cxxtools/systemerror.h"
+#include "cxxtools/log.h"
 #include <errno.h>
 #include <string.h>
 #include <sstream>
+
+log_define("cxxtools.systemerror")
 
 namespace
 {
@@ -66,19 +69,25 @@ void throwSysErrorIf(bool flag, int err, const char* fn)
 SystemError::SystemError(int err, const char* fn)
 : std::runtime_error( getErrnoString(err, fn) )
 , m_errno(err)
-{ }
+{
+  log_debug("system error; " << what());
+}
 
 
 SystemError::SystemError(const char* fn)
 : std::runtime_error( getErrnoString(errno, fn) )
 , m_errno(errno)
-{}
+{
+  log_debug("system error; " << what());
+}
 
 
 SystemError::SystemError(const std::string& what, const SourceInfo& si)
 : std::runtime_error(what + si)
 , m_errno(0)
-{ }
+{
+  log_debug("system error; " << std::exception::what());
+}
 
 
 SystemError::~SystemError() throw()
@@ -86,11 +95,15 @@ SystemError::~SystemError() throw()
 
 OpenLibraryFailed::OpenLibraryFailed(const std::string& msg, const cxxtools::SourceInfo& si)
 : SystemError(msg, si)
-{ }
+{
+  log_debug("open library failed; " << what());
+}
 
 SymbolNotFound::SymbolNotFound(const std::string& sym, const cxxtools::SourceInfo& si)
 : SystemError("symbol not found: " + sym, si)
 , _symbol(sym)
-{ }
+{
+  log_debug("symbol " << sym << " not found; " << what());
+}
 
 } // namespace cxxtools
