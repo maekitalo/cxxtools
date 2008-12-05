@@ -58,9 +58,14 @@ libcxxtools_la_SOURCES = \
 	xmltag.cpp
 
 noinst_HEADERS = \
+	clockimpl.h \
+	conditionimpl.h \
 	directoryimpl.h \
 	fileimpl.h \
-	fileinfoimpl.h
+	fileinfoimpl.h \
+	libraryimpl.h \
+	muteximpl.h \
+	threadimpl.h
 
 if MAKE_ATOMICITY_PTHREAD
 libcxxtools_la_SOURCES += \

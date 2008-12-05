@@ -31,6 +31,7 @@ nobase_include_HEADERS = \
         cxxtools/directory.h \
         cxxtools/dlloader.h \
         cxxtools/dynbuffer.h \
+        cxxtools/event.h \
         cxxtools/fdstream.h \
         cxxtools/file.h \
         cxxtools/fileinfo.h \
