@@ -21,7 +21,6 @@ libcxxtools_la_SOURCES = \
 	fileimpl.cpp \
 	fileinfo.cpp \
 	hdstream.cpp \
-	hirestime.cpp \
 	httpreply.cpp \
 	httprequest.cpp \
 	iconvstream.cpp \
@@ -52,6 +51,7 @@ libcxxtools_la_SOURCES = \
 	thread.cpp \
 	threadimpl.cpp \
 	time.cpp \
+	timespan.cpp \
 	udp.cpp \
 	udpstream.cpp \
 	uuencode.cpp \

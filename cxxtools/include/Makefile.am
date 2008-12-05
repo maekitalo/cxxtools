@@ -39,7 +39,6 @@ nobase_include_HEADERS = \
         cxxtools/function.h \
         cxxtools/function.tpp \
         cxxtools/hdstream.h \
-        cxxtools/hirestime.h \
         cxxtools/httpreply.h \
         cxxtools/httprequest.h \
         cxxtools/iconverter.h \
