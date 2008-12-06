@@ -41,6 +41,11 @@ namespace cxxtools
       mutable const RefLinked* next;
 
     protected:
+      RefLinked()
+        : prev(0),
+          next(0)
+          { }
+
       bool unlink(objectType* object)
       {
         bool ret = false;
@@ -62,10 +67,13 @@ namespace cxxtools
 
       void link(const RefLinked& ptr, objectType* object)
       {
-        prev = &ptr;
-        next = ptr.next;
-        prev->next = this;
-        next->prev = this;
+        if (object)
+        {
+          prev = &ptr;
+          next = ptr.next;
+          prev->next = this;
+          next->prev = this;
+        }
       }
   };
 
