@@ -270,6 +270,8 @@ namespace net
       {
         if (errno == EAGAIN)
           n = 0;
+        else if (errno == EPIPE || errno == ECONNRESET)
+          return 0;
         else
         {
           log_error("error in write; errno=" << errno << " (" << strerror(errno) << ')');
