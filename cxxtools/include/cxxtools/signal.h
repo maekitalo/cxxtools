@@ -209,6 +209,31 @@ class Signal<const cxxtools::Event&> : public Connectable
         mutable bool _dirty;
 };
 
+template <typename R>
+Connection connect(Signal<const cxxtools::Event&>& signal, R(*func)(const cxxtools::Event&))
+{
+    return signal.connect( slot(func) );
+}
+
+template <typename R, class BaseT, class ClassT>
+Connection connect( Signal<const cxxtools::Event&>& signal,
+                    BaseT& object, R(ClassT::*memFunc)(const cxxtools::Event&) )
+{
+    return signal.connect( slot(object, memFunc) );
+}
+
+template <typename R, class BaseT, class ClassT>
+Connection connect( Signal<const cxxtools::Event&>& signal,
+                    BaseT& object, R(ClassT::*memFunc)(const cxxtools::Event&) const )
+{
+    return signal.connect( slot(object, memFunc) );
+}
+
+inline Connection connect(Signal<const cxxtools::Event&>& sender, Signal<const cxxtools::Event&>& receiver)
+{
+    return sender.connect( slot(receiver) );
+}
+
 } // !namespace cxxtools
 
 #endif
