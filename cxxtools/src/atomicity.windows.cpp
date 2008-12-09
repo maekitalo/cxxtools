@@ -17,9 +17,8 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#ifndef CXXTOOLS_ATOMICITY_WINDOWS_H
-#define CXXTOOLS_ATOMICITY_WINDOWS_H
 
+#include <cxxtools/atomicity.windows.h>
 #define _WINSOCKAPI_   /* Prevent inclusion of winsock.h in windows.h */
 #include <windows.h>
 
@@ -27,6 +26,66 @@ namespace cxxtools {
 
 typedef LONG atomic_t;
 
-} // namespace cxxtools
 
+atomic_t atomicGet(volatile atomic_t& val)
+{
+#if ! defined(_WIN32_WCE) && (_MSC_VER >= 1400) && ! defined(__GNUC__)
+    MemoryBarrier();
 #endif
+
+    return val;
+}
+
+
+void atomicSet(volatile atomic_t& val, atomic_t n)
+{
+    val = n;
+
+#if ! defined(_WIN32_WCE) && (_MSC_VER >= 1400) && ! defined(__GNUC__)
+    MemoryBarrier();
+#endif
+}
+
+
+atomic_t atomicIncrement(volatile atomic_t& value)
+{
+    return InterlockedIncrement( const_cast<atomic_t*>(&value) );
+}
+
+
+atomic_t atomicDecrement(volatile atomic_t& value)
+{
+    return InterlockedDecrement( const_cast<atomic_t*>(&value) );
+}
+
+
+atomic_t atomicExchangeAdd(volatile atomic_t& value, atomic_t n)
+{
+    return InterlockedExchangeAdd(const_cast<atomic_t*>(&value), n);
+}
+
+
+atomic_t atomicExchange(volatile atomic_t& value, atomic_t new_val)
+{
+    return InterlockedExchange(const_cast<atomic_t*>(&value), new_val);
+}
+
+
+void* atomicExchange(void* volatile& ptr, void* new_val)
+{
+    return InterlockedExchangePointer( const_cast<void**>(&ptr), new_val );
+}
+
+
+atomic_t atomicCompareExchange(volatile atomic_t& value, atomic_t ex, atomic_t cmp)
+{
+    return InterlockedCompareExchange(const_cast<atomic_t*>(&value), ex, cmp);
+}
+
+
+void* atomicCompareExchange(void* volatile& ptr, void* ex, void* cmp)
+{
+    return InterlockedCompareExchangePointer(&ptr, ex, cmp);
+}
+
+} // namespace cxxtools

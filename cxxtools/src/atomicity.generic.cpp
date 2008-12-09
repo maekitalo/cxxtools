@@ -1,5 +1,5 @@
 /***************************************************************************
- *   Copyright (C) 2006 by Marc Boris Dürner                               *
+ *   Copyright (C) 2006-2007 by Marc Boris Duerner                         *
  *   Copyright (C) 2006 by Aloysius Indrayanto                             *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
@@ -27,15 +27,80 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-#ifndef CXXTOOLS_ATOMICINT_GCC_ARM_H
-#define CXXTOOLS_ATOMICINT_GCC_ARM_H
 
+#include <cxxtools/atomicity.generic.h>
 #include <csignal>
 
 namespace cxxtools {
 
-typedef std::sig_atomic_t atomic_t;
+
+atomic_t atomicGet(volatile atomic_t& val)
+{
+    return val;
+}
+
+
+void atomicSet(volatile atomic_t& val, atomic_t n)
+{
+    val = n;
+}
+
+
+atomic_t atomicIncrement(volatile atomic_t& dest)
+{
+    return dest++;
+}
+
+
+atomic_t atomicDecrement(volatile atomic_t& dest)
+{
+    return dest--;
+}
+
+
+atomic_t atomicCompareExchange(volatile atomic_t& dest, atomic_t exch, atomic_t comp)
+{
+    atomic_t tmp = dest;
+
+    if(dest== comp)
+        dest = exch;
+
+    return tmp;
+}
+
+
+void* atomicCompareExchange(void* volatile& dest, void* exch, void* comp)
+{
+    volatile void* tmp = dest;
+
+    if(dest== comp)
+        dest = exch;
+
+    return tmp;
+}
+
+
+atomic_t atomicExchange(volatile atomic_t& dest, atomic_t exch)
+{
+    atomic_t tmp = dest;
+    dest = exch;
+    return tmp;
+}
+
+
+void* atomicExchange(void* volatile& dest, void* exch)
+{
+    volatile void* tmp = dest;
+    dest = exch;
+    return tmp;
+}
+
+
+atomic_t atomicExchangeAdd(volatile atomic_t& dest, atomic_t add)
+{
+    atomic_t tmp = dest;
+    dest += add;
+    return tmp;
+}
 
 } // namespace cxxtools
-
-#endif

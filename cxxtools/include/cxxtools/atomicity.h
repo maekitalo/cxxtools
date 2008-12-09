@@ -34,6 +34,9 @@
 #if defined(CXXTOOLS_ATOMICITY_SUN)
     #include <cxxtools/atomicity.sun.h>
 
+#elif defined(CXXTOOLS_ATOMICITY_WINDOWS)
+    #include <cxxtools/atomicity.windows.h>
+
 #elif defined(CXXTOOLS_ATOMICITY_GCC_ARM)
     #include <cxxtools/atomicity.gcc.arm.h>
 
