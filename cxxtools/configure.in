@@ -136,7 +136,8 @@ AC_SUBST(SHARED_LIB_FLAG)
 AC_CHECKING(inline assembler type)
 
 AC_COMPILE_IFELSE(
-  [#include "include/cxxtools/atomicity.sun.h"
+  [#include "include/cxxtools/atomicity.sun.cpp"
+   #include "src/atomicity.sun.cpp"
    int main() { cxxtools::atomic_t a = 0; cxxtools::atomicIncrement(a); }
   ],
   AC_DEFINE([CXXTOOLS_ASMTYPE_SUN], [], [defined if assembler type is sun])
@@ -145,6 +146,7 @@ AC_COMPILE_IFELSE(
 
   AC_COMPILE_IFELSE(
     [#include "include/cxxtools/atomicity.windows.h"
+     #include "src/atomicity.windows.cpp"
      int main() { cxxtools::atomic_t a = 0; cxxtools::atomicIncrement(a); }
     ],
     AC_DEFINE([CXXTOOLS_ASMTYPE_WINDOWS], [], [defined if assembler type is windows])
@@ -153,6 +155,7 @@ AC_COMPILE_IFELSE(
 
     AC_COMPILE_IFELSE(
       [#include "include/cxxtools/atomicity.gcc.arm.h"
+       #include "src/atomicity.gcc.arm.cpp"
        int main() { cxxtools::atomic_t a = 0; cxxtools::atomicIncrement(a); }
       ],
       CXXTOOLS_ATOMICITY=CXXTOOLS_ATOMICITY_GCC_ARM
@@ -160,6 +163,7 @@ AC_COMPILE_IFELSE(
 
       AC_COMPILE_IFELSE(
         [#include "include/cxxtools/atomicity.gcc.mips.h"
+         #include "src/atomicity.gcc.mips.cpp"
          int main() { cxxtools::atomic_t a = 0; cxxtools::atomicIncrement(a); }
         ],
         CXXTOOLS_ATOMICITY=CXXTOOLS_ATOMICITY_GCC_MIPS
@@ -167,6 +171,7 @@ AC_COMPILE_IFELSE(
 
         AC_COMPILE_IFELSE(
           [#include "include/cxxtools/atomicity.gcc.ppc.h"
+           #include "src/atomicity.gcc.ppc.cpp"
            int main() { cxxtools::atomic_t a = 0; cxxtools::atomicIncrement(a); }
           ],
           CXXTOOLS_ATOMICITY=CXXTOOLS_ATOMICITY_GCC_PPC
@@ -174,6 +179,7 @@ AC_COMPILE_IFELSE(
 
           AC_COMPILE_IFELSE(
             [#include "include/cxxtools/atomicity.gcc.x86_64.h"
+             #include "src/atomicity.gcc.x86_64.cpp"
              int main() { cxxtools::atomic_t a = 0; cxxtools::atomicIncrement(a); }
             ],
             CXXTOOLS_ATOMICITY=CXXTOOLS_ATOMICITY_GCC_X86_64
@@ -181,6 +187,7 @@ AC_COMPILE_IFELSE(
 
             AC_COMPILE_IFELSE(
               [#include "include/cxxtools/atomicity.gcc.x86.h"
+               #include "src/atomicity.gcc.x86.cpp"
                int main() { cxxtools::atomic_t a = 0; cxxtools::atomicIncrement(a); }
               ],
               CXXTOOLS_ATOMICITY=CXXTOOLS_ATOMICITY_GCC_X86
@@ -188,6 +195,7 @@ AC_COMPILE_IFELSE(
 
               AC_COMPILE_IFELSE(
                 [#include "include/cxxtools/atomicity.gcc.sparc.h"
+                 #include "src/atomicity.gcc.sparc.cpp"
                  int main() { cxxtools::atomic_t a = 0; cxxtools::atomicIncrement(a); }
                 ],
                 CXXTOOLS_ATOMICITY=CXXTOOLS_ATOMICITY_GCC_SPARC
@@ -195,7 +203,7 @@ AC_COMPILE_IFELSE(
 
                 AC_COMPILE_IFELSE(
                   [#include "include/cxxtools/atomicity.pthread.h"
-                   #include <pthread.h>
+                   #include "src/atomicity.pthread.cpp"
                    int main() { cxxtools::atomic_t a = 0; cxxtools::atomicIncrement(a); }
                   ],
                   CXXTOOLS_ATOMICITY=CXXTOOLS_ATOMICITY_PTHREAD

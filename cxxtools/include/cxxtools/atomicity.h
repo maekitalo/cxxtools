@@ -58,8 +58,11 @@
 #elif defined(CXXTOOLS_ATOMICITY_GCC_PPC)
     #include <cxxtools/atomicity.gcc.ppc.h>
 
-#else
+#elif defined(CXXTOOLS_ATOMICITY_PTHREAD)
     #include <cxxtools/atomicity.pthread.h>
+
+#else
+    #include <cxxtools/atomicity.generic.h>
 
 #endif
 
