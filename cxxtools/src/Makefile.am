@@ -104,7 +104,7 @@ endif
 
 if MAKE_ATOMICITY_GCC_SPARC
 libcxxtools_la_SOURCES += \
-	atomicity.sparc.cpp
+	atomicity.gcc.sparc.cpp
 endif
 
 if MAKE_ATOMICITY_PTHREAD
