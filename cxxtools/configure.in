@@ -136,8 +136,8 @@ AC_SUBST(SHARED_LIB_FLAG)
 AC_CHECKING(inline assembler type)
 
 AC_COMPILE_IFELSE(
-  [#include "include/cxxtools/atomicity.sun.cpp"
-   #include "src/atomicity.sun.cpp"
+  [#include "include/cxxtools/atomicity.gcc.sun.h"
+   #include "src/atomicity.gcc.sun.cpp"
    int main() { cxxtools::atomic_t a = 0; cxxtools::atomicIncrement(a); }
   ],
   AC_DEFINE([CXXTOOLS_ASMTYPE_SUN], [], [defined if assembler type is sun])
