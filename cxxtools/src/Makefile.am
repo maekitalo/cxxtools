@@ -16,6 +16,8 @@ libcxxtools_la_SOURCES = \
 	datetime.cpp \
 	directory.cpp \
 	directoryimpl.cpp \
+	eventsink.cpp \
+	eventsource.cpp \
 	fdstream.cpp \
 	file.cpp \
 	fileimpl.cpp \
