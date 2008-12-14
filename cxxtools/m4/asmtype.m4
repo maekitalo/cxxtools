@@ -122,13 +122,19 @@ AC_DEFUN([AC_CXXTOOLS_ATOMICTYPE],
         } ])
   AC_CHECKATOMICTYPE([att_x86_64], [CXXTOOLS_ATOMICITY_GCC_X86_64],
       [ #include <unistd.h>
-        ssize_t atomicGet(volatile ssize_t& val)
+        typedef ssize_t atomic_t;
+        void atomicIncrement(volatile atomic_t& val)
         {
-            asm volatile ("mfence" : : : "memory");
-            return val;
+                static const atomic_t d = 1;
+                atomic_t tmp;
+
+                asm volatile ("lock; xaddq %0, %1"
+                              : "=r" (tmp), "=m" (val)
+                              : "0" (d), "m" (val));
         } ])
   AC_CHECKATOMICTYPE([att_x86], [CXXTOOLS_ATOMICITY_GCC_X86],
-      [ #include <signal.h>
+      [ #include <csignal>
+        typedef std::sig_atomic_t atomic_t;
         void atomicIncrement(volatile atomic_t& val)
         {
                 atomic_t tmp;
