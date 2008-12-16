@@ -116,7 +116,9 @@ namespace net
       {
         long a = t >= 0 ? O_NONBLOCK : 0;
         log_debug("fcntl(" << getFd() << ", F_SETFL, " << a << ')');
-        fcntl(getFd(), F_SETFL, a);
+        int ret = fcntl(getFd(), F_SETFL, a);
+        if (ret < 0)
+          throw SystemError("fcntl");
       }
 
       m_timeout = t;
