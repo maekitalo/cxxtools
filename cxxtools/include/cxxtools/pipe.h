@@ -75,13 +75,13 @@ namespace cxxtools
       void redirectStderr(bool close = true)
         { redirect(fd[1], 2, close); }
 
-      ssize_t write(const void* buf, size_t count);
+      size_t write(const void* buf, size_t count);
       void write(char ch)
       {
         write(&ch, 1);
       }
 
-      ssize_t read(void* buf, size_t count);
+      size_t read(void* buf, size_t count);
       char read();
   };
 }
