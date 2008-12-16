@@ -345,6 +345,26 @@ namespace net
     return 0;
   }
 
+  bool streambuf::canRead()
+  {
+    if (in_avail() > 0)
+      return true;
+
+    int timeout = getTimeout();
+    setTimeout(0);
+    try
+    {
+      streambuf::int_type n = underflow();
+      setTimeout(timeout);
+      return n != traits_type::eof();
+    }
+    catch (...)
+    {
+      setTimeout(timeout);
+      throw;
+    }
+  }
+
   streambuf::int_type streambuf::underflow()
   {
     log_debug("streambuf::underflow");

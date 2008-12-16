@@ -138,6 +138,8 @@ namespace net
       /// overridden from std::streambuf
       int sync();
 
+      bool canRead();
+
     private:
       Stream&    m_stream;
       unsigned   m_bufsize;
@@ -198,6 +200,10 @@ namespace net
       void setTimeout(int timeout)  { m_buffer.setTimeout(timeout); }
       /// Returns the current value for timeout in milliseconds.
       int getTimeout() const        { return m_buffer.getTimeout(); }
+
+      /// Returns true, if we can read without blocking.
+      /// This may fill the get buffer.
+      bool canRead()                { return m_buffer.canRead(); }
 
     private:
       streambuf m_buffer;
