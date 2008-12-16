@@ -65,6 +65,19 @@ namespace cxxtools
     }
   }
 
+  void Pipe::redirect(int& oldFd, int newFd, bool close)
+  {
+    int ret = ::dup2(oldFd, newFd);
+    if(ret < 0)
+      throw SystemError(errno, "dup2");
+
+    if (close)
+    {
+      ::close(oldFd);
+      oldFd = newFd;
+    }
+  }
+
   ssize_t Pipe::write(const void* buf, size_t count)
   {
     ssize_t c = ::write(fd[1], buf, count);

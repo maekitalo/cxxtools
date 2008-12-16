@@ -30,15 +30,15 @@
 #define CXXTOOLS_PIPE_H
 
 #include <unistd.h>
+#include <cxxtools/noncopyable.h>
 
 namespace cxxtools
 {
-  class Pipe
+  class Pipe : private NonCopyable
   {
       int fd[2];
 
-      Pipe(const Pipe&);
-      Pipe& operator= (const Pipe&);
+      void redirect(int& oldFd, int newFd, bool close);
 
     public:
       Pipe(bool doCreate = true)
@@ -59,6 +59,21 @@ namespace cxxtools
 
       void releaseReadFd()    { fd[0] = -1; }
       void releaseWriteFd()   { fd[1] = -1; }
+
+      /// Redirect write-end to stdout.
+      /// When the close argument is set, closes the original filedescriptor
+      void redirectStdout(bool close = true)
+        { redirect(fd[1], 1, close); }
+
+      /// Redirect read-end to stdin.
+      /// When the close argument is set, closes the original filedescriptor
+      void redirectStdin(bool close = true)
+        { redirect(fd[0], 0, close); }
+
+      /// Redirect write-end to stdout.
+      /// When the close argument is set, closes the original filedescriptor
+      void redirectStderr(bool close = true)
+        { redirect(fd[1], 2, close); }
 
       ssize_t write(const void* buf, size_t count);
       void write(char ch)

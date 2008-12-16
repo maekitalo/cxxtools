@@ -55,6 +55,10 @@ namespace cxxtools
 
       int getReadFd() const   { return pipe.getReadFd(); }
       int getWriteFd() const  { return pipe.getWriteFd(); }
+
+      void redirectStdout(bool close = true)   { pipe.redirectStdout(close); }
+      void redirectStdin(bool close = true)    { pipe.redirectStdin(close); }
+      void redirectStderr(bool close = true)   { pipe.redirectStderr(close); }
   };
 
   class Pipestream : public std::iostream
@@ -79,6 +83,10 @@ namespace cxxtools
 
       int getReadFd() const   { return streambuf.getReadFd(); }
       int getWriteFd() const  { return streambuf.getWriteFd(); }
+
+      void redirectStdout(bool close = true)   { streambuf.redirectStdout(close); }
+      void redirectStdin(bool close = true)    { streambuf.redirectStdin(close); }
+      void redirectStderr(bool close = true)   { streambuf.redirectStderr(close); }
   };
 }
 
