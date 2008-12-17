@@ -38,9 +38,9 @@ MutexImpl::MutexImpl()
     pthread_mutexattr_init(&attr);
     pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK  );
 
-    int ret = pthread_mutex_init(&_handle, &attr);
-    if (ret != 0)
-        throw SystemError( CXXTOOLS_ERROR_MSG("pthread_mutex_init failed") );
+    int rc = pthread_mutex_init(&_handle, &attr);
+    if (rc != 0)
+        throw SystemError( rc, CXXTOOLS_ERROR_MSG("pthread_mutex_init failed") );
 }
 
 
@@ -50,9 +50,9 @@ MutexImpl::MutexImpl(int recursive)
     pthread_mutexattr_init(&attr);
     pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE );
 
-    int ret = pthread_mutex_init(&_handle, &attr);
-    if (ret != 0)
-        throw SystemError( CXXTOOLS_ERROR_MSG("pthread_mutex_init failed") );
+    int rc = pthread_mutex_init(&_handle, &attr);
+    if (rc != 0)
+        throw SystemError( rc, CXXTOOLS_ERROR_MSG("pthread_mutex_init failed") );
 }
 
 
@@ -64,8 +64,9 @@ MutexImpl::~MutexImpl()
 
 void MutexImpl::lock()
 {
-   if( pthread_mutex_lock(&_handle) != 0 )
-       throw SystemError( CXXTOOLS_ERROR_MSG("pthread_mutex_lock failed") );
+   int rc = pthread_mutex_lock(&_handle);
+   if( rc != 0 )
+       throw SystemError( rc, CXXTOOLS_ERROR_MSG("pthread_mutex_lock failed") );
 }
 
 
@@ -74,7 +75,7 @@ bool MutexImpl::tryLock()
     int rc = pthread_mutex_trylock(&_handle);
 
     if( rc != 0 && rc != EBUSY )
-        throw SystemError( CXXTOOLS_ERROR_MSG("pthread_mutex_trylock failed") );
+        throw SystemError( rc, CXXTOOLS_ERROR_MSG("pthread_mutex_trylock failed") );
 
     return rc != EBUSY;
 }
@@ -82,15 +83,17 @@ bool MutexImpl::tryLock()
 
 void MutexImpl::unlock()
 {
-   if( pthread_mutex_unlock(&_handle) != 0 )
-       throw SystemError( CXXTOOLS_ERROR_MSG("pthread_mutex_unlock failed") );
+   int rc = pthread_mutex_unlock(&_handle);
+   if( rc != 0 )
+       throw SystemError( rc, CXXTOOLS_ERROR_MSG("pthread_mutex_unlock failed") );
 }
 
 
 ReadWriteMutexImpl::ReadWriteMutexImpl()
 {
-    if( pthread_rwlock_init(&_rwl, NULL) )
-        throw SystemError( CXXTOOLS_ERROR_MSG("pthread_rwlock_init failed") );
+    int rc = pthread_rwlock_init(&_rwl, NULL);
+    if( rc != 0 )
+        throw SystemError( rc, CXXTOOLS_ERROR_MSG("pthread_rwlock_init failed") );
 }
 
 
@@ -102,8 +105,9 @@ ReadWriteMutexImpl::~ReadWriteMutexImpl()
 
 void ReadWriteMutexImpl::readLock()
 {
-    if( pthread_rwlock_rdlock(&_rwl) != 0 )
-        throw SystemError( CXXTOOLS_ERROR_MSG("pthread_rwlock_rdlock failed") );
+    int rc = pthread_rwlock_rdlock(&_rwl);
+    if( rc != 0 )
+        throw SystemError( rc, CXXTOOLS_ERROR_MSG("pthread_rwlock_rdlock failed") );
 }
 
 
@@ -112,7 +116,7 @@ bool ReadWriteMutexImpl::tryReadLock()
     int rc = pthread_rwlock_tryrdlock(&_rwl);
 
     if( rc != 0 && rc != EBUSY )
-        throw SystemError( CXXTOOLS_ERROR_MSG("pthread_rwlock_tryrdlock failed") );
+        throw SystemError( rc, CXXTOOLS_ERROR_MSG("pthread_rwlock_tryrdlock failed") );
 
     return rc != EBUSY;
 }
@@ -120,8 +124,9 @@ bool ReadWriteMutexImpl::tryReadLock()
 
 void ReadWriteMutexImpl::writeLock()
 {
-    if( pthread_rwlock_wrlock(&_rwl) != 0)
-        throw SystemError( CXXTOOLS_ERROR_MSG("pthread_rwlock_wrlock failed") );
+    int rc = pthread_rwlock_wrlock(&_rwl);
+    if( rc != 0)
+        throw SystemError( rc, CXXTOOLS_ERROR_MSG("pthread_rwlock_wrlock failed") );
 }
 
 
@@ -130,7 +135,7 @@ bool ReadWriteMutexImpl::tryWriteLock()
     int rc = pthread_rwlock_trywrlock(&_rwl);
 
     if( rc != 0 && rc != EBUSY)
-        throw SystemError( CXXTOOLS_ERROR_MSG("pthread_rwlock_trywrlock failed") );
+        throw SystemError( rc, CXXTOOLS_ERROR_MSG("pthread_rwlock_trywrlock failed") );
 
     return rc != EBUSY;
 }
@@ -138,8 +143,9 @@ bool ReadWriteMutexImpl::tryWriteLock()
 
 void ReadWriteMutexImpl::unlock()
 {
-    if( pthread_rwlock_unlock(&_rwl) != 0 )
-        throw SystemError( CXXTOOLS_ERROR_MSG("pthread_rwlock_unlock failed") );
+    int rc = pthread_rwlock_unlock(&_rwl);
+    if( rc != 0 )
+        throw SystemError( rc, CXXTOOLS_ERROR_MSG("pthread_rwlock_unlock failed") );
 }
 
 } // !namespace cxxtools

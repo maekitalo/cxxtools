@@ -44,29 +44,29 @@ cxxtools::Condition running;
     std::cout << time(0) << ' ' << expr << std::endl; \
   } while (false)
 
-class D : public cxxtools::DetachedThread
+class myDetachedThread : public cxxtools::DetachedThread
 {
-    ~D();
+    ~myDetachedThread();
 
   protected:
     void run();
 };
 
-D::~D()
+myDetachedThread::~myDetachedThread()
 {
-  PRINTLN("D::~D() called");
+  PRINTLN("myDetachedThread::~myDetachedThread() called");
 }
 
-void D::run()
+void myDetachedThread::run()
 {
-  PRINTLN("D is starting");
+  PRINTLN("myDetachedThread is starting");
 
   cxxtools::MutexLock lock(conditionMutex);
   running.broadcast();
   lock.unlock();
 
   sleep(2);
-  PRINTLN("D is ready");
+  PRINTLN("myDetachedThread is ready");
 }
 
 void someFunction()
@@ -79,28 +79,19 @@ void someFunction()
 class AClass
 {
     std::string id;
-    cxxtools::Mutex readyMutex;
 
   public:
     AClass(const std::string& id_)
       : id(id_)
-      {
-        readyMutex.lock();
-      }
+      { }
     ~AClass()
       { PRINTLN("AClass::~AClass of object \"" << id << '"'); }
-
-    void waitReady()
-    {
-      cxxtools::MutexLock lock(readyMutex);
-    }
 
     void run()
     {
       PRINTLN("aFunction() of object \"" << id << '"');
       sleep(1);
       PRINTLN("aFunction() of object \"" << id << "\" ends");
-      readyMutex.unlock();
     }
 };
 
@@ -111,15 +102,11 @@ int main()
     cxxtools::MutexLock lock(conditionMutex);
 
     // detached threads are created on the heap.
-    // They delete themselves.
-    cxxtools::Thread* d = new D;
+    // They are deleted automatically when the thread ends.
+    cxxtools::Thread* d = new myDetachedThread;
     d->create();
     running.wait(lock);
-    PRINTLN("D is running");
-
-    // run a function as a detached thread
-    cxxtools::Thread* dt = new cxxtools::DetachedThread(someFunction);
-    dt->start();
+    PRINTLN("myDetachedThread is running");
 
     // run a function as a attached thread
     cxxtools::AttachedThread th( cxxtools::callable(someFunction) );
@@ -127,13 +114,17 @@ int main()
 
     // run a method of a object as a thread
     AClass aInstance("a instance");
+    AClass aInstance2("a instance 2");
     cxxtools::AttachedThread aclassThread( cxxtools::callable(aInstance, &AClass::run) );
+    cxxtools::AttachedThread aclassThread2( cxxtools::callable(aInstance2, &AClass::run) );
     aclassThread.start();
+    aclassThread2.start();
     sleep(2);
-    aInstance.waitReady();
+    aclassThread.join();
+    aclassThread2.join();
 
     // The detached thread is killed, if it does not come to an end before main.
-    // The attached thread blocks the main-program from stopping, until it is ready.
+    // The attached thread blocks the main-program, until it is ready.
     PRINTLN("main stops");
   }
   catch (const std::exception& e)
