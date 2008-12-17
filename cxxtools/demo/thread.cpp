@@ -65,14 +65,16 @@ void myDetachedThread::run()
   running.broadcast();
   lock.unlock();
 
-  sleep(2);
+  ::sleep(1);
+  PRINTLN("myDetachedThread waits");
+  ::sleep(2);
   PRINTLN("myDetachedThread is ready");
 }
 
 void someFunction()
 {
   PRINTLN("someFunction()");
-  sleep(1);
+  ::sleep(1);
   PRINTLN("someFunction() ends");
 }
 
@@ -90,7 +92,7 @@ class AClass
     void run()
     {
       PRINTLN("aFunction() of object \"" << id << '"');
-      sleep(1);
+      ::sleep(1);
       PRINTLN("aFunction() of object \"" << id << "\" ends");
     }
 };
@@ -119,7 +121,7 @@ int main()
     cxxtools::AttachedThread aclassThread2( cxxtools::callable(aInstance2, &AClass::run) );
     aclassThread.start();
     aclassThread2.start();
-    sleep(2);
+    ::sleep(2);
     aclassThread.join();
     aclassThread2.join();
 
