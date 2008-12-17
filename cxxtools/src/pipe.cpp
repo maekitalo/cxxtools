@@ -27,12 +27,39 @@
  */
 
 #include "cxxtools/pipe.h"
+#include "pipeimpl.h"
 #include "cxxtools/syserror.h"
 #include <errno.h>
 #include <string>
 
 namespace cxxtools
 {
+
+namespace ext
+{
+  Pipe::Pipe(OpenMode mode)
+  {
+      _impl = new cxxtools::PipeImpl(mode & IODevice::Async);
+  }
+
+
+  Pipe::~Pipe()
+  {
+    delete _impl;
+  }
+
+
+  IODevice& Pipe::out()
+  {
+    return _impl->out();
+  }
+
+  IODevice& Pipe::in()
+  {
+    return _impl->in();
+  }
+}
+
   Pipe::~Pipe()
   {
     if (fd[0] >= 0)

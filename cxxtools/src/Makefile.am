@@ -3,6 +3,8 @@ INCLUDES= -I$(top_builddir)/include
 lib_LTLIBRARIES = libcxxtools.la
 
 libcxxtools_la_SOURCES = \
+	application.cpp \
+	applicationimpl.cpp \
 	base64stream.cpp \
 	clock.cpp \
 	clockimpl.cpp \
@@ -16,6 +18,7 @@ libcxxtools_la_SOURCES = \
 	datetime.cpp \
 	directory.cpp \
 	directoryimpl.cpp \
+	eventloop.cpp \
 	eventsink.cpp \
 	eventsource.cpp \
 	fdstream.cpp \
@@ -28,6 +31,8 @@ libcxxtools_la_SOURCES = \
 	iconvstream.cpp \
 	inifile.cpp \
 	iniparser.cpp \
+	iodevice.cpp \
+	iodeviceimpl.cpp \
 	ioerror.cpp \
 	library.cpp \
 	libraryimpl.cpp \
@@ -40,12 +45,18 @@ libcxxtools_la_SOURCES = \
 	muteximpl.cpp \
 	net.cpp \
 	pipe.cpp \
+	pipeimpl.cpp \
 	pipestream.cpp \
 	pollclass.cpp \
+	process.cpp \
+	processimpl.cpp \
 	properties.cpp \
 	query_params.cpp \
 	quotedprintablestream.cpp \
 	regex.cpp \
+	selectable.cpp \
+	selector.cpp \
+	selectorimpl.cpp \
 	signal.cpp \
 	systemerror.cpp \
 	tcpstream.cpp \
@@ -53,6 +64,7 @@ libcxxtools_la_SOURCES = \
 	thread.cpp \
 	threadimpl.cpp \
 	time.cpp \
+	timer.cpp \
 	timespan.cpp \
 	udp.cpp \
 	udpstream.cpp \
@@ -60,13 +72,19 @@ libcxxtools_la_SOURCES = \
 	xmltag.cpp
 
 noinst_HEADERS = \
+	applicationimpl.h \
 	clockimpl.h \
 	conditionimpl.h \
 	directoryimpl.h \
 	fileimpl.h \
 	fileinfoimpl.h \
+	iodeviceimpl.h \
 	libraryimpl.h \
 	muteximpl.h \
+	pipeimpl.h \
+	processimpl.h \
+	selectableimpl.h \
+	selectorimpl.h \
 	threadimpl.h
 
 if MAKE_ATOMICITY_SUN
