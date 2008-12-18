@@ -1,5 +1,5 @@
 nobase_include_HEADERS = \
-		cxxtools/application.h \
+        cxxtools/application.h \
         cxxtools/arg.h \
         cxxtools/atomicity.generic.h \
         cxxtools/atomicity.pthread.h \
@@ -71,14 +71,15 @@ nobase_include_HEADERS = \
         cxxtools/pipestream.h \
         cxxtools/pollclass.h \
         cxxtools/pool.h \
-		cxxtools/process.h \
+        cxxtools/process.h \
         cxxtools/properties.h \
         cxxtools/query_params.h \
         cxxtools/quotedprintablestream.h \
         cxxtools/refcounted.h \
         cxxtools/regex.h \
-		cxxtools/selector.h \
-		cxxtools/selectable.h \
+        cxxtools/selector.h \
+        cxxtools/selectable.h \
+        cxxtools/semaphore.h \
         cxxtools/signal.h \
         cxxtools/signal.tpp \
         cxxtools/singleton.h \
@@ -94,7 +95,7 @@ nobase_include_HEADERS = \
         cxxtools/tee.h \
         cxxtools/thread.h \
         cxxtools/time.h \
-		cxxtools/timer.h \
+        cxxtools/timer.h \
         cxxtools/timespan.h \
         cxxtools/typetraits.h \
         cxxtools/types.h \

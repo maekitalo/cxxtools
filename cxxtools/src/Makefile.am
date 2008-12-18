@@ -57,6 +57,8 @@ libcxxtools_la_SOURCES = \
 	selectable.cpp \
 	selector.cpp \
 	selectorimpl.cpp \
+	semaphore.cpp \
+	semaphoreimpl.cpp \
 	signal.cpp \
 	systemerror.cpp \
 	tcpstream.cpp \
@@ -85,6 +87,7 @@ noinst_HEADERS = \
 	processimpl.h \
 	selectableimpl.h \
 	selectorimpl.h \
+	semaphoreimpl.h \
 	threadimpl.h
 
 if MAKE_ATOMICITY_SUN
