@@ -88,6 +88,7 @@ nobase_include_HEADERS = \
         cxxtools/smartptr.h \
         cxxtools/sourceinfo.h \
         cxxtools/sudo.h \
+        cxxtools/streambuffer.h \
         cxxtools/streamcounter.h \
         cxxtools/syserror.h \
         cxxtools/systemerror.h \
