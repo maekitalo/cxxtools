@@ -29,6 +29,7 @@
 #include <cxxtools/log.h>
 #include <cxxtools/loginit.h>
 #include <cxxtools/smartptr.h>
+#include <cxxtools/refcounted.h>
 #include <iostream>
 #include <vector>
 #include <stdexcept>
@@ -43,7 +44,7 @@ namespace bench
 {
   log_define("bench")
 
-  class Logtester
+  class Logtester : public cxxtools::RefCounted
   {
       cxxtools::AttachedThread thread;
       unsigned long count;
@@ -60,7 +61,7 @@ namespace bench
           enabled(enabled_)
           { }
 
-      void create()
+      void start()
       { thread.start(); }
 
       void join()
@@ -101,32 +102,30 @@ int main(int argc, char* argv[])
 
     log_init();
 
-    typedef std::vector<cxxtools::SmartPtr<bench::Logtester, cxxtools::ExternalRefCounted> > Threads;
-    Threads threads;
-    for (unsigned t = 0; t < numthreads; ++t)
-      threads.push_back(new bench::Logtester(count, loops.getValue() / numthreads.getValue(), enable));
-
+    typedef std::vector<cxxtools::SmartPtr<bench::Logtester> > Threads;
     while (count > 0)
     {
       std::cout << "count=" << (count * loops) << '\t' << std::flush;
 
-      for (Threads::iterator it = threads.begin(); it != threads.end(); ++it)
-        (*it)->setCount(count);
-
       struct timeval tv0;
       struct timeval tv1;
-      gettimeofday(&tv0, 0);
 
-      if (threads.size() == 1)
       {
-        (*threads.begin())->run();
-      }
-      else
-      {
-        for (Threads::iterator it = threads.begin(); it != threads.end(); ++it)
-          (*it)->create();
-        for (Threads::iterator it = threads.begin(); it != threads.end(); ++it)
-          (*it)->join();
+        Threads threads;
+        for (unsigned t = 0; t < numthreads; ++t)
+          threads.push_back(new bench::Logtester(count, loops.getValue() / numthreads.getValue(), enable));
+
+        gettimeofday(&tv0, 0);
+
+        if (threads.size() == 1)
+        {
+          (*threads.begin())->run();
+        }
+        else
+        {
+          for (Threads::iterator it = threads.begin(); it != threads.end(); ++it)
+            (*it)->start();
+        }
       }
 
       gettimeofday(&tv1, 0);
