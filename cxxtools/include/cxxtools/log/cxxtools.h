@@ -71,7 +71,7 @@
   static inline ::cxxtools::Logger* getLogger()   \
   {  \
     static cxxtools::Logger* logger = 0; \
-    if (logger == 0) \
+    if (logger == 0 && ::cxxtools::Logger::isEnabled()) \
       logger = ::cxxtools::Logger::getCategoryLogger(category); \
     return logger; \
   }
