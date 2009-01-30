@@ -62,7 +62,7 @@ void Thread::init(const Callable<void>& cb)
 
 void Thread::start()
 {
-    if( this->state() == Ready )
+    if( this->state() == Ready || this->state() == Finished )
     {
         _impl->start();
         _state = Thread::Running;
