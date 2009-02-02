@@ -24,6 +24,7 @@ nobase_include_HEADERS = \
         cxxtools/connection.h \
         cxxtools/constmethod.h \
         cxxtools/constmethod.tpp \
+        cxxtools/conversionerror.h \
         cxxtools/convert.h \
         cxxtools/date.h\
         cxxtools/datetime.h \

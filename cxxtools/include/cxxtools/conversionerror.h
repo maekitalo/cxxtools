@@ -1,6 +1,5 @@
 /*
  * Copyright (C) 2004-2007 by Marc Boris Duerner
- * Copyright (C) 2004-2007 by Stepan Beal
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,62 +25,26 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-#ifndef CXXTOOLS_CONVERT_H
-#define CXXTOOLS_CONVERT_H
+#ifndef CXXTOOLS_CONVERSINERROR_H
+#define CXXTOOLS_CONVERSINERROR_H
 
-#include <cxxtools/conversionerror.h>
-#include <sstream>
-#include <string>
-#include <iomanip>
-#include <limits>
+#include <cxxtools/api.h>
+#include <cxxtools/sourceinfo.h>
+#include <stdexcept>
+
+#define CXXTOOLS_CONVERSIONERROR(to, from) \
+    CXXTOOLS_ERROR_MSG("conversion from " #from " to " #to " failed")
 
 namespace cxxtools {
 
-template <typename T>
-inline void convert(std::string& s, const T& value)
+class ConversionError : public std::runtime_error
 {
-    std::ostringstream os;
-    os << value;
-    s = os.str();
-}
+    public:
+        ConversionError(const char* msg);
 
-
-template <typename T>
-inline void convert(T& t, const std::string& str)
-{
-    std::istringstream is(str);
-    is >> t;
-}
-
-
-template<typename T, typename S>
-void convert(T& to, const S& from)
-{
-    std::stringstream ss;
-    if( !(ss << from && ss >> to) )
-        throw ConversionError( CXXTOOLS_CONVERSIONERROR(streamable, streamable) );
-}
-
-
-template<typename T, typename S>
-struct Convert
-{
-    T operator()(const S& from) const
-    {
-        T value = T();
-        convert(value, from);
-        return value;
-    }
+        ~ConversionError() throw()
+        {}
 };
-
-
-template<typename T, typename S>
-T convert(const S& from)
-{
-    T value = T();
-    convert(value, from);
-    return value;
-}
 
 } // namespace cxxtools
 

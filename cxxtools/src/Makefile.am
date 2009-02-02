@@ -13,7 +13,7 @@ libcxxtools_la_SOURCES = \
 	connectable.cpp \
 	connection.cpp \
 	cgi.cpp \
-	convert.cpp \
+	conversionerror.cpp \
 	date.cpp \
 	datetime.cpp \
 	directory.cpp \
