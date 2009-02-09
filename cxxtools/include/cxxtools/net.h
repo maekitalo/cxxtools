@@ -31,7 +31,6 @@
 
 #include <cxxtools/ioerror.h>
 #include <cxxtools/noncopyable.h>
-#include <cxxtools/addrinfo.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <sys/types.h>

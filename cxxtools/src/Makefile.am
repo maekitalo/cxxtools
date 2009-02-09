@@ -76,6 +76,7 @@ libcxxtools_la_SOURCES = \
 	xmltag.cpp
 
 noinst_HEADERS = \
+	addrinfo.h \
 	applicationimpl.h \
 	clockimpl.h \
 	conditionimpl.h \
