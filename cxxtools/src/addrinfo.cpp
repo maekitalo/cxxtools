@@ -30,6 +30,7 @@
 #include <cxxtools/systemerror.h>
 #include <string>
 #include <sstream>
+#include <string.h>
 
 namespace cxxtools {
 
