@@ -33,7 +33,6 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <sys/poll.h>
-#include <sstream>
 #include <stdio.h>
 #include <string.h>
 
@@ -162,37 +161,6 @@ namespace net
     }
 
     return fds.revents;
-  }
-
-  Addrinfo::Addrinfo(const std::string& ipaddr, unsigned short port)
-    : ai(0)
-  {
-    struct addrinfo hints;
-
-    // give some useful default values to use for getaddrinfo()
-    memset(&hints, 0, sizeof(hints));
-    hints.ai_socktype = SOCK_STREAM;
-
-    init(ipaddr, port, hints);
-  }
-
-  Addrinfo::~Addrinfo()
-  {
-    if (ai)
-      freeaddrinfo(ai);
-  }
-
-  void Addrinfo::init(const std::string& ipaddr, unsigned short port,
-    const addrinfo& hints)
-  {
-    std::ostringstream p;
-    p << port;
-
-    if (0 != ::getaddrinfo(ipaddr.c_str(), p.str().c_str(), &hints, &ai))
-      throw SystemError(0, ("invalid ipaddress " + ipaddr).c_str());
-
-    if (ai == 0)
-      throw SystemError("getaddrinfo");
   }
 
 } // namespace net
