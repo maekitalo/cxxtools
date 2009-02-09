@@ -35,6 +35,7 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <cxxtools/net.h>
+#include <cxxtools/tcpserversocket.h>
 
 namespace cxxtools
 {
@@ -45,7 +46,7 @@ namespace net
   /**
    * Serversocket
    */
-  class Server : public Socket
+/*  class Server : public Socket
   {
       struct sockaddr_storage servaddr;
 
@@ -62,6 +63,9 @@ namespace net
 
     private:
   };
+*/
+
+  typedef TcpServerSocket Server;
 
   //////////////////////////////////////////////////////////////////////
   /**

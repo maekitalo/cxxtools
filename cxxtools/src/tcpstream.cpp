@@ -47,7 +47,7 @@ namespace net
   ////////////////////////////////////////////////////////////////////////
   // implementation of Server
   //
-  Server::Server(const std::string& ipaddr, unsigned short int port,
+/*  Server::Server(const std::string& ipaddr, unsigned short int port,
       int backlog)
   {
     listen(ipaddr, port, backlog);
@@ -101,7 +101,7 @@ namespace net
 
     throw SystemError("bind");
   }
-
+*/
   ////////////////////////////////////////////////////////////////////////
   // implementation of Stream
   //
