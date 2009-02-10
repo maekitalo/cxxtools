@@ -30,6 +30,7 @@
 #define CXXTOOLS_NET_TcpServerSocketImpl_H
 
 #include "selectableimpl.h"
+#include <cxxtools/signal.h>
 #include <string>
 
 namespace cxxtools {
@@ -45,13 +46,10 @@ namespace net {
       int m_fd;
       pollfd* _pfd;
       int m_timeout;
+      Signal<>& _connectionPending;
 
     public:
-      TcpServerSocketImpl()
-      {}
-
-      /// creates a server socket and listens on the address
-      TcpServerSocketImpl(const std::string& ipaddr, unsigned short int port, int backlog = 5);
+      TcpServerSocketImpl(Signal<>& cb);
 
       void create(int domain, int type, int protocol);
 

@@ -40,14 +40,14 @@ namespace net {
 TcpServerSocket::TcpServerSocket()
 : _impl(0)
 {
-    _impl = new TcpServerSocketImpl();
+    _impl = new TcpServerSocketImpl(connectionPending);
 }
 
 
 TcpServerSocket::TcpServerSocket(const std::string& ipaddr, unsigned short int port, int backlog)
 : _impl(0)
 {
-    _impl = new TcpServerSocketImpl();
+    _impl = new TcpServerSocketImpl(connectionPending);
     this->listen(ipaddr, port, backlog);
 }
 

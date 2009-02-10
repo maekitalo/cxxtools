@@ -48,12 +48,13 @@ namespace cxxtools {
 
 namespace net {
 
-TcpServerSocketImpl::TcpServerSocketImpl(const std::string& ipaddr, unsigned short int port, int backlog)
+TcpServerSocketImpl::TcpServerSocketImpl(Signal<>& cb)
 : m_fd(-1)
 , _pfd(0)
 , m_timeout(-1)
+, _connectionPending(cb)
 {
-  listen(ipaddr, port, backlog);
+
 }
 
 
@@ -170,7 +171,7 @@ bool TcpServerSocketImpl::wait(std::size_t msecs)
 
     if( FD_ISSET(this->fd(), &rfds) )
     {
-        // TODO: emit available signal
+        _connectionPending.send();
         ++avail;
     }
 
