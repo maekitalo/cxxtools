@@ -201,10 +201,10 @@ std::size_t TcpServerSocketImpl::pollSize() const
 
 std::size_t TcpServerSocketImpl::initializePoll(pollfd* pfd, std::size_t pollSize)
 {
-    log_debug("initializePoll " << pollSize);
-
     assert(pfd != 0);
     assert(pollSize >= 1);
+
+    log_debug("initializePoll " << pollSize);
 
     pfd->fd = this->fd();
     pfd->revents = 0;
@@ -219,21 +219,16 @@ std::size_t TcpServerSocketImpl::initializePoll(pollfd* pfd, std::size_t pollSiz
 bool TcpServerSocketImpl::checkPollEvent()
 {
     assert(_pfd != 0);
-    return checkPollEvent(_pfd);
-}
 
+    log_debug("checkPollEvent " << _pfd->revents);
 
-bool TcpServerSocketImpl::checkPollEvent(pollfd* pfd)
-{
-    log_debug("checkPollEvent " << pfd->revents);
-
-    if( pfd->revents & (POLLERR | POLLNVAL) )
+    if( _pfd->revents & (POLLERR | POLLNVAL) )
     {
         // TODO: handle error
         return true;
     }
 
-    if( pfd->revents & POLLIN )
+    if( _pfd->revents & POLLIN )
     {
         // TODO: emit available signal
         return true;

@@ -79,9 +79,6 @@ namespace net {
 
       // implementation using poll
       bool checkPollEvent();
-
-      // implementation using poll
-      bool checkPollEvent(pollfd* pfd);
   };
 
 } // namespace net
