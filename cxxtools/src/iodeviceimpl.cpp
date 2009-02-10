@@ -112,8 +112,16 @@ void IODeviceImpl::close()
     }
 }
 
-bool IODeviceImpl::wait(std::size_t msecs)
+
+bool IODeviceImpl::wait(std::size_t umsecs)
 {
+    int msecs = umsecs;
+    if( umsecs > std::numeric_limits<int>::max() )
+    {
+        umsecs == SelectorBase::WaitInfinite ? -1
+                                             : std::numeric_limits<int>::max();
+    }
+
     pollfd pfd;
     this->initializePoll(&pfd, 1);
 

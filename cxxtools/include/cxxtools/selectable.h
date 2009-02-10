@@ -40,7 +40,6 @@ class SelectableImpl;
 class CXXTOOLS_API Selectable : protected NonCopyable
 {
     public:
-        // TODO: use size_t instread of unsigned
         static const std::size_t WaitInfinite = Selector::WaitInfinite;
 
         enum State
