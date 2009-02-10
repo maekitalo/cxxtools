@@ -31,6 +31,7 @@
 
 #include <cxxtools/api.h>
 #include <cxxtools/selectable.h>
+#include <cxxtools/signal.h>
 #include <string>
 
 namespace cxxtools {
@@ -62,6 +63,8 @@ namespace net {
       virtual SelectableImpl& simpl();
 
       TcpServerSocketImpl& impl() const;
+
+      Signal<> connectionPending;
 
     protected:
       // inherit doc
