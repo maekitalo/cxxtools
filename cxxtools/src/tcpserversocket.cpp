@@ -37,50 +37,87 @@ namespace cxxtools {
 
 namespace net {
 
-TcpServerSocket::~TcpServerSocket()
+TcpServerSocket::TcpServerSocket()
+: _impl(0)
 {
-    this->close();
-    delete _impl;
+    _impl = new TcpServerSocketImpl();
 }
 
 
-void TcpServerSocket::close()
+TcpServerSocket::TcpServerSocket(const std::string& ipaddr, unsigned short int port, int backlog)
+: _impl(0)
 {
-    if( _impl )
+    _impl = new TcpServerSocketImpl();
+    this->listen(ipaddr, port, backlog);
+}
+
+
+TcpServerSocket::~TcpServerSocket()
+{
+    try
     {
-        _impl->close();
+        this->close();
     }
+    catch(...)
+    {}
+
+    delete _impl;
 }
 
 
 void TcpServerSocket::listen(const std::string& ipaddr, unsigned short int port, int backlog)
 {
     this->close();
-
-    if( ! _impl )
-    {
-        _impl = new TcpServerSocketImpl();
-    }
-
     _impl->listen(ipaddr, port, backlog);
+    this->setEnabled(true);
 }
 
 
 const struct sockaddr_storage& TcpServerSocket::getAddr() const
 {
-    if( ! _impl )
-        throw "not implemented";
-
     return _impl->getAddr();
 }
 
 
 int TcpServerSocket::getFd() const
 {
-    if( ! _impl )
-        return -1;
-
     return _impl->fd();
+}
+
+
+SelectableImpl& TcpServerSocket::simpl()
+{
+    return *_impl;
+}
+
+
+TcpServerSocketImpl& TcpServerSocket::impl() const
+{
+    return *_impl;
+}
+
+
+void TcpServerSocket::onClose()
+{
+    _impl->close();
+}
+
+
+bool TcpServerSocket::onWait(std::size_t msecs)
+{
+    return _impl->wait(msecs);
+}
+
+
+void TcpServerSocket::onAttach(SelectorBase& sb)
+{
+    _impl->attach(sb);
+}
+
+
+void TcpServerSocket::onDetach(SelectorBase& sb)
+{
+    _impl->detach(sb);
 }
 
 } // namespace net

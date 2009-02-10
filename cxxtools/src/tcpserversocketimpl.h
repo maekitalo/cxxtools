@@ -29,17 +29,21 @@
 #ifndef CXXTOOLS_NET_TcpServerSocketImpl_H
 #define CXXTOOLS_NET_TcpServerSocketImpl_H
 
+#include "selectableimpl.h"
 #include <string>
 
 namespace cxxtools {
 
+class SelectorBase;
+
 namespace net {
 
-  class TcpServerSocketImpl
+  class TcpServerSocketImpl : public SelectableImpl
   {
     private:
       struct sockaddr_storage servaddr;
       int m_fd;
+      pollfd* _pfd;
       int m_timeout;
 
     public:
@@ -60,6 +64,24 @@ namespace net {
 
       int fd() const
       { return m_fd; }
+
+      bool wait(std::size_t msecs);
+
+      void attach(SelectorBase& s);
+
+      void detach(SelectorBase& s);
+
+      // implementation using poll
+      std::size_t pollSize() const;
+
+      // implementation using poll
+      std::size_t initializePoll(pollfd* pfd, std::size_t pollSize);
+
+      // implementation using poll
+      bool checkPollEvent();
+
+      // implementation using poll
+      bool checkPollEvent(pollfd* pfd);
   };
 
 } // namespace net

@@ -29,35 +29,52 @@
 #ifndef CXXTOOLS_NET_TcpServerSocket_H
 #define CXXTOOLS_NET_TcpServerSocket_H
 
+#include <cxxtools/api.h>
+#include <cxxtools/selectable.h>
 #include <string>
 
 namespace cxxtools {
 
 namespace net {
 
-  class TcpServerSocket
+  class CXXTOOLS_API TcpServerSocket : public Selectable
   {
     class TcpServerSocketImpl* _impl;
 
     public:
-      TcpServerSocket()
-      : _impl(0)
-      {}
+      TcpServerSocket();
 
-      /// creates a server socket and listens on the address
-      TcpServerSocket(const std::string& ipaddr, unsigned short int port, int backlog = 5)
-      : _impl(0)
-      { this->listen(ipaddr, port, backlog); }
+      /** @brief Creates a server socket and listens on an address
+      */
+      TcpServerSocket(const std::string& ipaddr, unsigned short int port, int backlog = 5);
 
       ~TcpServerSocket();
 
-      void close();
-
       void listen(const std::string& ipaddr, unsigned short int port, int backlog = 5);
 
+      /// @brief TODO
       const struct sockaddr_storage& getAddr() const;
 
+      /// @brief TODO
       int getFd() const;
+
+      // inherit doc
+      virtual SelectableImpl& simpl();
+
+      TcpServerSocketImpl& impl() const;
+
+    protected:
+      // inherit doc
+      virtual void onClose();
+
+      // inherit doc
+      virtual bool onWait(std::size_t msecs);
+
+      // inherit doc
+      virtual void onAttach(SelectorBase&);
+
+      // inherit doc
+      virtual void onDetach(SelectorBase&);
   };
 
 } // namespace net

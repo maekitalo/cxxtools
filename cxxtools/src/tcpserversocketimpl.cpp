@@ -29,14 +29,18 @@
 #include "addrinfo.h"
 #include "tcpserversocketimpl.h"
 #include <cxxtools/systemerror.h>
+#include <cxxtools/selector.h>
 #include <cxxtools/net.h> // AddrInUse
 #include <cxxtools/log.h>
+#include <cerrno>
+#include <cassert>
+#include <cstring>
+#include <unistd.h>
+#include <fcntl.h>
 #include <sys/types.h>
 #include <sys/socket.h>
-#include <unistd.h>
-
-#include <errno.h>
-#include <string.h>
+#include <sys/poll.h>
+#include <sys/select.h>
 
 log_define("cxxtools.net.tcp")
 
@@ -45,6 +49,9 @@ namespace cxxtools {
 namespace net {
 
 TcpServerSocketImpl::TcpServerSocketImpl(const std::string& ipaddr, unsigned short int port, int backlog)
+: m_fd(-1)
+, _pfd(0)
+, m_timeout(-1)
 {
   listen(ipaddr, port, backlog);
 }
@@ -66,6 +73,7 @@ void TcpServerSocketImpl::close()
     log_debug("close socket");
     ::close(m_fd);
     m_fd = -1;
+     _pfd = 0;
   }
 }
 
@@ -99,7 +107,7 @@ void TcpServerSocketImpl::listen(const std::string& ipaddr, unsigned short int p
     if (::bind(m_fd, it->ai_addr, it->ai_addrlen) == 0)
     {
       // save our information
-      memmove(&servaddr, it->ai_addr, it->ai_addrlen);
+      std::memmove(&servaddr, it->ai_addr, it->ai_addrlen);
 
       log_debug("listen");
       if (::listen(m_fd, backlog) < 0)
@@ -115,6 +123,102 @@ void TcpServerSocketImpl::listen(const std::string& ipaddr, unsigned short int p
   }
 
   throw SystemError("bind");
+}
+
+
+bool TcpServerSocketImpl::wait(std::size_t umsecs)
+{
+    //TODO: implement this method using select, which is always available
+    log_debug("wait " << umsecs);
+
+    int msecs = umsecs;
+    if( umsecs > std::numeric_limits<int>::max() )
+    {
+        umsecs == SelectorBase::WaitInfinite ? -1
+                                             : std::numeric_limits<int>::max();
+    }
+
+    pollfd pfd;
+    pfd.fd = this->fd();
+    pfd.revents = 0;
+    pfd.events = POLLIN;
+
+    while( true )
+    {
+        int ret = ::poll(&pfd, 1, msecs);
+        if( ret != -1 )
+            break;
+
+        if( errno != EINTR )
+            throw IOError( "Could not select on file descriptors", CXXTOOLS_SOURCEINFO );
+    }
+
+    return this->checkPollEvent(&pfd);
+}
+
+
+void TcpServerSocketImpl::attach(SelectorBase& s)
+{
+    log_debug("attach to selector");
+}
+
+
+void TcpServerSocketImpl::detach(SelectorBase& s)
+{
+    log_debug("detach from selector");
+
+    if(_pfd)
+        _pfd = 0;
+}
+
+
+std::size_t TcpServerSocketImpl::pollSize() const
+{
+    return 1;
+}
+
+
+std::size_t TcpServerSocketImpl::initializePoll(pollfd* pfd, std::size_t pollSize)
+{
+    log_debug("initializePoll " << pollSize);
+
+    assert(pfd != 0);
+    assert(pollSize >= 1);
+
+    pfd->fd = this->fd();
+    pfd->revents = 0;
+    pfd->events = POLLIN;
+
+    _pfd = pfd;
+
+    return 1;
+}
+
+
+bool TcpServerSocketImpl::checkPollEvent()
+{
+    assert(_pfd != 0);
+    return checkPollEvent(_pfd);
+}
+
+
+bool TcpServerSocketImpl::checkPollEvent(pollfd* pfd)
+{
+    log_debug("checkPollEvent " << pfd->revents);
+
+    if( pfd->revents & (POLLERR | POLLNVAL) )
+    {
+        // TODO: handle error
+        return true;
+    }
+
+    if( pfd->revents & POLLIN )
+    {
+        // TODO: emit available signal
+        return true;
+    }
+
+    return false;
 }
 
 } // namespace net
