@@ -129,6 +129,7 @@ void TcpServerSocketImpl::listen(const std::string& ipaddr, unsigned short int p
 bool TcpServerSocketImpl::wait(std::size_t umsecs)
 {
     //TODO: implement this method using select, which is always available
+
     log_debug("wait " << umsecs);
 
     int msecs = umsecs;
