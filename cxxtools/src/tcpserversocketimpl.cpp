@@ -126,35 +126,55 @@ void TcpServerSocketImpl::listen(const std::string& ipaddr, unsigned short int p
 }
 
 
-bool TcpServerSocketImpl::wait(std::size_t umsecs)
+bool TcpServerSocketImpl::wait(std::size_t msecs)
 {
-    //TODO: implement this method using select, which is always available
+    log_debug("wait " << msecs);
 
-    log_debug("wait " << umsecs);
+    fd_set rfds;
+    fd_set efds;
+    FD_ZERO(&rfds);
+    FD_ZERO(&efds);
 
-    int msecs = umsecs;
-    if( umsecs > std::numeric_limits<int>::max() )
+    struct timeval* timeout = 0;
+    struct timeval tv;
+    if(msecs != Selector::WaitInfinite)
     {
-        umsecs == SelectorBase::WaitInfinite ? -1
-                                             : std::numeric_limits<int>::max();
+        tv.tv_sec = msecs / 1000;
+        tv.tv_usec = (msecs % 1000) * 1000;
+        timeout = &tv;
     }
 
-    pollfd pfd;
-    pfd.fd = this->fd();
-    pfd.revents = 0;
-    pfd.events = POLLIN;
+    if( this->fd() > 0 )
+    {
+        FD_SET(this->fd(), &rfds);
+        FD_SET(this->fd(), &efds);
+    }
 
     while( true )
     {
-        int ret = ::poll(&pfd, 1, msecs);
+        int ret = ::select(FD_SETSIZE, &rfds, 0, &efds, timeout);
         if( ret != -1 )
             break;
 
         if( errno != EINTR )
-            throw IOError( "Could not select on file descriptors", CXXTOOLS_SOURCEINFO );
+            throw IOError( "select failed" );
     }
 
-    return this->checkPollEvent(&pfd);
+    int avail = 0;
+
+    if ( FD_ISSET(this->fd(), &efds) )
+    {
+        // TODO: handle error
+        ++avail;
+    }
+
+    if( FD_ISSET(this->fd(), &rfds) )
+    {
+        // TODO: emit available signal
+        ++avail;
+    }
+
+    return avail != 0;
 }
 
 
