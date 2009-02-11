@@ -61,7 +61,7 @@ TcpServerSocketImpl::TcpServerSocketImpl(TcpServerSocket& server)
 void TcpServerSocketImpl::create(int domain, int type, int protocol)
 {
   log_debug("create socket");
-  int m_fd = ::socket(domain, type, protocol);
+  m_fd = ::socket(domain, type, protocol);
   if (m_fd < 0)
     throw SystemError("socket");
 }
