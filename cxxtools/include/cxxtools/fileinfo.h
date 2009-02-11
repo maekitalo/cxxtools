@@ -50,9 +50,6 @@ class FileInfo
         FileInfo();
 
         /** @brief Constructs a %FileInfo object from the path \a path
-
-            If no file or directory exists at \a path, an exception of type
-            FileNotFound is thrown.
         */
         explicit FileInfo(const std::string& path);
 
