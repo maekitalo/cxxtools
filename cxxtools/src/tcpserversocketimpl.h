@@ -39,17 +39,18 @@ class SelectorBase;
 
 namespace net {
 
+  class TcpServerSocket;
+
   class TcpServerSocketImpl : public SelectableImpl
   {
     private:
+      TcpServerSocket& _server;
       struct sockaddr_storage servaddr;
       int m_fd;
       pollfd* _pfd;
-      int m_timeout;
-      Signal<>& _connectionPending;
 
     public:
-      TcpServerSocketImpl(Signal<>& cb);
+      TcpServerSocketImpl(TcpServerSocket& server);
 
       void create(int domain, int type, int protocol);
 

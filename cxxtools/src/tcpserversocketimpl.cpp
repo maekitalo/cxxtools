@@ -28,6 +28,7 @@
 
 #include "addrinfo.h"
 #include "tcpserversocketimpl.h"
+#include <cxxtools/tcpserversocket.h>
 #include <cxxtools/systemerror.h>
 #include <cxxtools/selector.h>
 #include <cxxtools/net.h> // AddrInUse
@@ -48,11 +49,10 @@ namespace cxxtools {
 
 namespace net {
 
-TcpServerSocketImpl::TcpServerSocketImpl(Signal<>& cb)
+TcpServerSocketImpl::TcpServerSocketImpl(TcpServerSocket& server)
 : m_fd(-1)
 , _pfd(0)
-, m_timeout(-1)
-, _connectionPending(cb)
+, _server(server)
 {
 
 }
@@ -153,7 +153,7 @@ bool TcpServerSocketImpl::wait(std::size_t msecs)
 
     while( true )
     {
-        int ret = ::select(FD_SETSIZE, &rfds, 0, &efds, timeout);
+        int ret = ::select(this->fd() + 1, &rfds, 0, &efds, timeout);
         if( ret != -1 )
             break;
 
@@ -163,15 +163,15 @@ bool TcpServerSocketImpl::wait(std::size_t msecs)
 
     int avail = 0;
 
-    if ( FD_ISSET(this->fd(), &efds) )
-    {
-        // TODO: handle error
-        ++avail;
-    }
+    // TODO: this can only be OOB data
+    //if ( FD_ISSET(this->fd(), &efds) )
+    //{
+    //    ++avail;
+    //}
 
     if( FD_ISSET(this->fd(), &rfds) )
     {
-        _connectionPending.send();
+        _server.connectionPending.send(_server);
         ++avail;
     }
 
@@ -223,15 +223,15 @@ bool TcpServerSocketImpl::checkPollEvent()
 
     log_debug("checkPollEvent " << _pfd->revents);
 
-    if( _pfd->revents & (POLLERR | POLLNVAL) )
-    {
-        // TODO: handle error
-        return true;
-    }
+    // only for output
+    //if( _pfd->revents & (POLLERR | POLLNVAL) )
+    //{
+    //    return true;
+    //}
 
     if( _pfd->revents & POLLIN )
     {
-        // TODO: emit available signal
+        _server.connectionPending.send(_server);
         return true;
     }
 

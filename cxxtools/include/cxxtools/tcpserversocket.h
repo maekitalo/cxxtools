@@ -64,7 +64,7 @@ namespace net {
 
       TcpServerSocketImpl& impl() const;
 
-      Signal<> connectionPending;
+      Signal<TcpServerSocket&> connectionPending;
 
     protected:
       // inherit doc
