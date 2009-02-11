@@ -94,7 +94,7 @@ nobase_include_HEADERS = \
         cxxtools/streamcounter.h \
         cxxtools/syserror.h \
         cxxtools/systemerror.h \
-        cxxtools/tcpserversocket.h \
+        cxxtools/tcpserver.h \
         cxxtools/tcpstream.h \
         cxxtools/tee.h \
         cxxtools/thread.h \

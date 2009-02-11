@@ -27,8 +27,8 @@
  */
 
 #include "addrinfo.h"
-#include "tcpserversocketimpl.h"
-#include <cxxtools/tcpserversocket.h>
+#include "tcpserverimpl.h"
+#include <cxxtools/tcpserver.h>
 #include <cxxtools/systemerror.h>
 #include <cxxtools/selector.h>
 #include <cxxtools/net.h> // AddrInUse
@@ -49,7 +49,7 @@ namespace cxxtools {
 
 namespace net {
 
-TcpServerSocketImpl::TcpServerSocketImpl(TcpServerSocket& server)
+TcpServerImpl::TcpServerImpl(TcpServer& server)
 : m_fd(-1)
 , _pfd(0)
 , _server(server)
@@ -58,7 +58,7 @@ TcpServerSocketImpl::TcpServerSocketImpl(TcpServerSocket& server)
 }
 
 
-void TcpServerSocketImpl::create(int domain, int type, int protocol)
+void TcpServerImpl::create(int domain, int type, int protocol)
 {
   log_debug("create socket");
   m_fd = ::socket(domain, type, protocol);
@@ -67,7 +67,7 @@ void TcpServerSocketImpl::create(int domain, int type, int protocol)
 }
 
 
-void TcpServerSocketImpl::close()
+void TcpServerImpl::close()
 {
   if (m_fd >= 0)
   {
@@ -79,7 +79,7 @@ void TcpServerSocketImpl::close()
 }
 
 
-void TcpServerSocketImpl::listen(const std::string& ipaddr, unsigned short int port, int backlog)
+void TcpServerImpl::listen(const std::string& ipaddr, unsigned short int port, int backlog)
 {
   log_debug("listen on " << ipaddr << " port " << port << " backlog " << backlog);
 
@@ -127,7 +127,7 @@ void TcpServerSocketImpl::listen(const std::string& ipaddr, unsigned short int p
 }
 
 
-bool TcpServerSocketImpl::wait(std::size_t msecs)
+bool TcpServerImpl::wait(std::size_t msecs)
 {
     log_debug("wait " << msecs);
 
@@ -179,13 +179,13 @@ bool TcpServerSocketImpl::wait(std::size_t msecs)
 }
 
 
-void TcpServerSocketImpl::attach(SelectorBase& s)
+void TcpServerImpl::attach(SelectorBase& s)
 {
     log_debug("attach to selector");
 }
 
 
-void TcpServerSocketImpl::detach(SelectorBase& s)
+void TcpServerImpl::detach(SelectorBase& s)
 {
     log_debug("detach from selector");
 
@@ -194,13 +194,13 @@ void TcpServerSocketImpl::detach(SelectorBase& s)
 }
 
 
-std::size_t TcpServerSocketImpl::pollSize() const
+std::size_t TcpServerImpl::pollSize() const
 {
     return 1;
 }
 
 
-std::size_t TcpServerSocketImpl::initializePoll(pollfd* pfd, std::size_t pollSize)
+std::size_t TcpServerImpl::initializePoll(pollfd* pfd, std::size_t pollSize)
 {
     assert(pfd != 0);
     assert(pollSize >= 1);
@@ -217,7 +217,7 @@ std::size_t TcpServerSocketImpl::initializePoll(pollfd* pfd, std::size_t pollSiz
 }
 
 
-bool TcpServerSocketImpl::checkPollEvent()
+bool TcpServerImpl::checkPollEvent()
 {
     assert(_pfd != 0);
 

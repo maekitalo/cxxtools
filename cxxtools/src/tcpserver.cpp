@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006 by Marc Boris Duerner, Tommi Maekitalo
+ * Copyright (C) 2003 Tommi Maekitalo
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,62 +26,100 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef CXXTOOLS_NET_TcpServerSocket_H
-#define CXXTOOLS_NET_TcpServerSocket_H
+#include "addrinfo.h"
+#include "tcpserverimpl.h"
+#include <cxxtools/tcpserver.h>
+#include <cxxtools/log.h>
 
-#include <cxxtools/api.h>
-#include <cxxtools/selectable.h>
-#include <cxxtools/signal.h>
-#include <string>
+log_define("cxxtools.net.tcp")
 
 namespace cxxtools {
 
 namespace net {
 
-  class CXXTOOLS_API TcpServerSocket : public Selectable
-  {
-    class TcpServerSocketImpl* _impl;
+TcpServer::TcpServer()
+: _impl(0)
+{
+    _impl = new TcpServerImpl(*this);
+}
 
-    public:
-      TcpServerSocket();
 
-      /** @brief Creates a server socket and listens on an address
-      */
-      TcpServerSocket(const std::string& ipaddr, unsigned short int port, int backlog = 5);
+TcpServer::TcpServer(const std::string& ipaddr, unsigned short int port, int backlog)
+: _impl(0)
+{
+    _impl = new TcpServerImpl(*this);
+    this->listen(ipaddr, port, backlog);
+}
 
-      ~TcpServerSocket();
 
-      void listen(const std::string& ipaddr, unsigned short int port, int backlog = 5);
+TcpServer::~TcpServer()
+{
+    try
+    {
+        this->close();
+    }
+    catch(...)
+    {}
 
-      /// @brief TODO
-      const struct sockaddr_storage& getAddr() const;
+    delete _impl;
+}
 
-      /// @brief TODO
-      int getFd() const;
 
-      // inherit doc
-      virtual SelectableImpl& simpl();
+void TcpServer::listen(const std::string& ipaddr, unsigned short int port, int backlog)
+{
+    this->close();
+    _impl->listen(ipaddr, port, backlog);
+    this->setEnabled(true);
+}
 
-      TcpServerSocketImpl& impl() const;
 
-      Signal<TcpServerSocket&> connectionPending;
+const struct sockaddr_storage& TcpServer::getAddr() const
+{
+    return _impl->getAddr();
+}
 
-    protected:
-      // inherit doc
-      virtual void onClose();
 
-      // inherit doc
-      virtual bool onWait(std::size_t msecs);
+int TcpServer::getFd() const
+{
+    return _impl->fd();
+}
 
-      // inherit doc
-      virtual void onAttach(SelectorBase&);
 
-      // inherit doc
-      virtual void onDetach(SelectorBase&);
-  };
+SelectableImpl& TcpServer::simpl()
+{
+    return *_impl;
+}
+
+
+TcpServerImpl& TcpServer::impl() const
+{
+    return *_impl;
+}
+
+
+void TcpServer::onClose()
+{
+    _impl->close();
+}
+
+
+bool TcpServer::onWait(std::size_t msecs)
+{
+    return _impl->wait(msecs);
+}
+
+
+void TcpServer::onAttach(SelectorBase& sb)
+{
+    _impl->attach(sb);
+}
+
+
+void TcpServer::onDetach(SelectorBase& sb)
+{
+    _impl->detach(sb);
+}
 
 } // namespace net
 
 } // namespace cxxtools
-
-#endif // CXXTOOLS_NET_TCPSTREAM_H

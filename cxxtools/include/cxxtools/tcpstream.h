@@ -35,7 +35,7 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <cxxtools/net.h>
-#include <cxxtools/tcpserversocket.h>
+#include <cxxtools/tcpserver.h>
 
 namespace cxxtools
 {
@@ -65,7 +65,7 @@ namespace net
   };
 */
 
-  typedef TcpServerSocket Server;
+  typedef TcpServer Server;
 
   //////////////////////////////////////////////////////////////////////
   /**

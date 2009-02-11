@@ -26,8 +26,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef CXXTOOLS_NET_TcpServerSocketImpl_H
-#define CXXTOOLS_NET_TcpServerSocketImpl_H
+#ifndef CXXTOOLS_NET_TcpServerImpl_H
+#define CXXTOOLS_NET_TcpServerImpl_H
 
 #include "selectableimpl.h"
 #include <cxxtools/signal.h>
@@ -39,18 +39,18 @@ class SelectorBase;
 
 namespace net {
 
-  class TcpServerSocket;
+  class TcpServer;
 
-  class TcpServerSocketImpl : public SelectableImpl
+  class TcpServerImpl : public SelectableImpl
   {
     private:
-      TcpServerSocket& _server;
+      TcpServer& _server;
       struct sockaddr_storage servaddr;
       int m_fd;
       pollfd* _pfd;
 
     public:
-      TcpServerSocketImpl(TcpServerSocket& server);
+      TcpServerImpl(TcpServer& server);
 
       void create(int domain, int type, int protocol);
 
