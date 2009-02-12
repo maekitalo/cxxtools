@@ -109,6 +109,7 @@ Library& Library::open(const std::string& libname)
     {
         log_debug("search for library \"" << libname << '"');
         _impl->open(libname);
+        _path = libname;
     }
     catch(const OpenLibraryFailed&)
     { }
@@ -119,6 +120,7 @@ Library& Library::open(const std::string& libname)
     {
         log_debug("search for library \"" << path << '"');
         _impl->open(path);
+        _path = path;
     }
     catch(const OpenLibraryFailed&)
     { }
@@ -130,13 +132,13 @@ Library& Library::open(const std::string& libname)
     }
     else if( ++idx == path.length() )
     {
-        log_debug("library path invalid");
         throw OpenLibraryFailed(path, CXXTOOLS_SOURCEINFO);
     }
 
     path.insert( idx, prefix() );
     log_debug("search for library \"" << path << '"');
     _impl->open(path);
+    _path = path;
 
     return *this;
 }
