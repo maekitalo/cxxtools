@@ -110,6 +110,7 @@ Library& Library::open(const std::string& libname)
         log_debug("search for library \"" << libname << '"');
         _impl->open(libname);
         _path = libname;
+        return *this;
     }
     catch(const OpenLibraryFailed&)
     { }
@@ -121,6 +122,7 @@ Library& Library::open(const std::string& libname)
         log_debug("search for library \"" << path << '"');
         _impl->open(path);
         _path = path;
+        return *this;
     }
     catch(const OpenLibraryFailed&)
     { }
