@@ -132,9 +132,7 @@ bool TcpServerImpl::wait(std::size_t msecs)
     log_debug("wait " << msecs);
 
     fd_set rfds;
-    fd_set efds;
     FD_ZERO(&rfds);
-    FD_ZERO(&efds);
 
     struct timeval* timeout = 0;
     struct timeval tv;
@@ -148,12 +146,11 @@ bool TcpServerImpl::wait(std::size_t msecs)
     if( this->fd() > 0 )
     {
         FD_SET(this->fd(), &rfds);
-        FD_SET(this->fd(), &efds);
     }
 
     while( true )
     {
-        int ret = ::select(this->fd() + 1, &rfds, 0, &efds, timeout);
+        int ret = ::select(this->fd() + 1, &rfds, 0, 0, timeout);
         if( ret != -1 )
             break;
 
@@ -162,12 +159,6 @@ bool TcpServerImpl::wait(std::size_t msecs)
     }
 
     int avail = 0;
-
-    // TODO: this can only be OOB data
-    //if ( FD_ISSET(this->fd(), &efds) )
-    //{
-    //    ++avail;
-    //}
 
     if( FD_ISSET(this->fd(), &rfds) )
     {
@@ -222,12 +213,6 @@ bool TcpServerImpl::checkPollEvent()
     assert(_pfd != 0);
 
     log_debug("checkPollEvent " << _pfd->revents);
-
-    // only for output
-    //if( _pfd->revents & (POLLERR | POLLNVAL) )
-    //{
-    //    return true;
-    //}
 
     if( _pfd->revents & POLLIN )
     {
