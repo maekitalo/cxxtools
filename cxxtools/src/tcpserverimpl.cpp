@@ -50,7 +50,7 @@ namespace cxxtools {
 namespace net {
 
 TcpServerImpl::TcpServerImpl(TcpServer& server)
-: m_fd(-1)
+: _fd(-1)
 , _pfd(0)
 , _server(server)
 {
@@ -61,19 +61,19 @@ TcpServerImpl::TcpServerImpl(TcpServer& server)
 void TcpServerImpl::create(int domain, int type, int protocol)
 {
   log_debug("create socket");
-  m_fd = ::socket(domain, type, protocol);
-  if (m_fd < 0)
+  _fd = ::socket(domain, type, protocol);
+  if (_fd < 0)
     throw SystemError("socket");
 }
 
 
 void TcpServerImpl::close()
 {
-  if (m_fd >= 0)
+  if (_fd >= 0)
   {
     log_debug("close socket");
-    ::close(m_fd);
-    m_fd = -1;
+    ::close(_fd);
+    _fd = -1;
      _pfd = 0;
   }
 }
@@ -101,20 +101,20 @@ void TcpServerImpl::listen(const std::string& ipaddr, unsigned short int port, i
         }
 
         log_debug("setsockopt SO_REUSEADDR");
-        if (::setsockopt(m_fd, SOL_SOCKET, SO_REUSEADDR, &reuseAddr, sizeof(reuseAddr)) < 0)
+        if (::setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, &reuseAddr, sizeof(reuseAddr)) < 0)
         {
             close();
             throw SystemError("setsockopt");
         }
 
         log_debug("bind");
-        if (::bind(m_fd, it->ai_addr, it->ai_addrlen) == 0)
+        if (::bind(_fd, it->ai_addr, it->ai_addrlen) == 0)
         {
             // save our information
             std::memmove(&servaddr, it->ai_addr, it->ai_addrlen);
 
             log_debug("listen");
-            if( ::listen(m_fd, backlog) < 0 )
+            if( ::listen(_fd, backlog) < 0 )
             {
                 close();
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003 Tommi Maekitalo
+ * Copyright (C) 2006-2009 by Marc Boris Duerner, Tommi Maekitalo
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,38 +26,47 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "addrinfo.h"
-#include "tcpserverimpl.h"
-#include <cxxtools/tcpserver.h>
-#include <cxxtools/log.h>
+#include "tcpsocketimpl.h"
+#include "cxxtools/tcpsocket.h"
+#include <stdexcept>
 #include <memory>
-
-log_define("cxxtools.net.tcp")
 
 namespace cxxtools {
 
 namespace net {
 
-TcpServer::TcpServer()
+TcpSocket::TcpSocket()
 : _impl(0)
 {
-    _impl = new TcpServerImpl(*this);
+    _impl = new TcpSocketImpl();
 }
 
 
-TcpServer::TcpServer(const std::string& ipaddr, unsigned short int port, int backlog)
+TcpSocket::TcpSocket(TcpServer& server)
 : _impl(0)
 {
-    _impl = new TcpServerImpl(*this);
-    std::auto_ptr<TcpServerImpl> impl(_impl);
+    _impl = new TcpSocketImpl();
+    std::auto_ptr<TcpSocketImpl> impl(_impl);
 
-    this->listen(ipaddr, port, backlog);
+    this->accept(server);
 
     impl.release();
 }
 
 
-TcpServer::~TcpServer()
+TcpSocket::TcpSocket(const std::string& ipaddr, unsigned short int port)
+: _impl(0)
+{
+    _impl = new TcpSocketImpl();
+    std::auto_ptr<TcpSocketImpl> impl(_impl);
+
+    this->connect(ipaddr, port);
+
+    impl.release();
+}
+
+
+TcpSocket::~TcpSocket()
 {
     try
     {
@@ -70,59 +79,52 @@ TcpServer::~TcpServer()
 }
 
 
-void TcpServer::listen(const std::string& ipaddr, unsigned short int port, int backlog)
+void TcpSocket::connect(const std::string& ipaddr, unsigned short int port)
 {
     this->close();
-    _impl->listen(ipaddr, port, backlog);
+    _impl->connect(ipaddr, port);
     this->setEnabled(true);
 }
 
 
-const struct sockaddr_storage& TcpServer::getAddr() const
+void TcpSocket::accept(TcpServer& server)
 {
-    return _impl->getAddr();
+    this->close();
+    _impl->accept(server);
+    this->setEnabled(true);
 }
 
 
-int TcpServer::getFd() const
+SelectableImpl& TcpSocket::simpl()
 {
-    return _impl->fd();
+    throw std::runtime_error("not implemented");
+    SelectableImpl* impl = 0;
+    return *impl;
 }
 
 
-SelectableImpl& TcpServer::simpl()
-{
-    return *_impl;
-}
-
-
-TcpServerImpl& TcpServer::impl() const
-{
-    return *_impl;
-}
-
-
-void TcpServer::onClose()
+void TcpSocket::onClose()
 {
     _impl->close();
 }
 
 
-bool TcpServer::onWait(std::size_t msecs)
+bool TcpSocket::onWait(std::size_t msecs)
 {
-    return _impl->wait(msecs);
+    //return _impl->wait(msecs);
+    return false;
 }
 
 
-void TcpServer::onAttach(SelectorBase& sb)
+void TcpSocket::onAttach(SelectorBase& sb)
 {
-    _impl->attach(sb);
+    //_impl->attach(sb);
 }
 
 
-void TcpServer::onDetach(SelectorBase& sb)
+void TcpSocket::onDetach(SelectorBase& sb)
 {
-    _impl->detach(sb);
+    //_impl->detach(sb);
 }
 
 } // namespace net

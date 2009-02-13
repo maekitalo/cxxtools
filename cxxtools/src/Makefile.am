@@ -65,6 +65,8 @@ libcxxtools_la_SOURCES = \
 	systemerror.cpp \
 	tcpserverimpl.cpp \
 	tcpserver.cpp \
+	tcpsocket.cpp \
+	tcpsocketimpl.cpp \
 	tcpstream.cpp \
 	tee.cpp \
 	thread.cpp \
@@ -94,6 +96,7 @@ noinst_HEADERS = \
 	selectorimpl.h \
 	semaphoreimpl.h \
 	tcpserverimpl.h \
+	tcpsocketimpl.h \
 	threadimpl.h
 
 if MAKE_ATOMICITY_SUN

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006 by Marc Boris Duerner, Tommi Maekitalo
+ * Copyright (C) 2006-2009 by Marc Boris Duerner, Tommi Maekitalo
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,62 +26,54 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef CXXTOOLS_NET_TcpServerImpl_H
-#define CXXTOOLS_NET_TcpServerImpl_H
+#ifndef CXXTOOLS_net_TcpSocket_h
+#define CXXTOOLS_net_TcpSocket_h
 
-#include "selectableimpl.h"
-#include <cxxtools/signal.h>
-#include <string>
+#include <cxxtools/api.h>
+#include <cxxtools/selectable.h>
 
 namespace cxxtools {
 
-class SelectorBase;
-
 namespace net {
 
-  class TcpServer;
+class TcpServer;
 
-  class TcpServerImpl : public SelectableImpl
-  {
-    private:
-      TcpServer& _server;
-      struct sockaddr_storage servaddr;
-      int _fd;
-      pollfd* _pfd;
+class CXXTOOLS_API TcpSocket : public Selectable
+{
+    class TcpSocketImpl* _impl;
 
     public:
-      TcpServerImpl(TcpServer& server);
+        TcpSocket();
 
-      void create(int domain, int type, int protocol);
+        TcpSocket(TcpServer& server);
 
-      void close();
+        TcpSocket(const std::string& ipaddr, unsigned short int port);
 
-      void listen(const std::string& ipaddr, unsigned short int port, int backlog = 5);
+        ~TcpSocket();
 
-      const struct sockaddr_storage& getAddr() const
-      { return servaddr; }
+        void accept(TcpServer& server);
 
-      int fd() const
-      { return _fd; }
+        void connect(const std::string& ipaddr, unsigned short int port);
 
-      bool wait(std::size_t msecs);
+        // inherit doc
+        virtual SelectableImpl& simpl();
 
-      void attach(SelectorBase& s);
+    protected:
+        // inherit doc
+        virtual void onClose();
 
-      void detach(SelectorBase& s);
+        // inherit doc
+        virtual bool onWait(std::size_t msecs);
 
-      // implementation using poll
-      std::size_t pollSize() const;
+        // inherit doc
+        virtual void onAttach(SelectorBase&);
 
-      // implementation using poll
-      std::size_t initializePoll(pollfd* pfd, std::size_t pollSize);
-
-      // implementation using poll
-      bool checkPollEvent();
+        // inherit doc
+        virtual void onDetach(SelectorBase&);
   };
 
 } // namespace net
 
 } // namespace cxxtools
 
-#endif // CXXTOOLS_NET_TCPSTREAM_H
+#endif
