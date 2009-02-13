@@ -81,49 +81,55 @@ void TcpServerImpl::close()
 
 void TcpServerImpl::listen(const std::string& ipaddr, unsigned short int port, int backlog)
 {
-  log_debug("listen on " << ipaddr << " port " << port << " backlog " << backlog);
+    log_debug("listen on " << ipaddr << " port " << port << " backlog " << backlog);
 
-  Addrinfo ai(ipaddr, port);
+    AddrInfo ai(ipaddr, port);
 
-  int reuseAddr = 1;
+    int reuseAddr = 1;
 
-  // getaddrinfo() may return more than one addrinfo structure, so work
-  // them all out, until we find a pretty useable one
-  for (Addrinfo::const_iterator it = ai.begin(); it != ai.end(); ++it)
-  {
-    try
+    // getaddrinfo() may return more than one addrinfo structure, so work
+    // them all out, until we find a pretty useable one
+    for (AddrInfo::const_iterator it = ai.begin(); it != ai.end(); ++it)
     {
-      this->create(it->ai_family, SOCK_STREAM, 0);
+        try
+        {
+            this->create(it->ai_family, SOCK_STREAM, 0);
+        }
+        catch (const System::SystemError&)
+        {
+            continue;
+        }
+
+        log_debug("setsockopt SO_REUSEADDR");
+        if (::setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, &reuseAddr, sizeof(reuseAddr)) < 0)
+        {
+            close();
+            throw System::SystemError("setsockopt");
+        }
+
+        log_debug("bind");
+        if (::bind(_fd, it->ai_addr, it->ai_addrlen) == 0)
+        {
+            // save our information
+            std::memmove(&servaddr, it->ai_addr, it->ai_addrlen);
+
+            log_debug("listen");
+            if( ::listen(_fd, backlog) < 0 )
+            {
+                close();
+
+                if (errno == EADDRINUSE)
+                    throw AddressInUse();
+                else
+                    throw System::SystemError("listen");
+            }
+
+            return;
+        }
     }
-    catch (const SystemError&)
-    {
-      continue;
-    }
 
-    log_debug("setsockopt SO_REUSEADDR");
-    if (::setsockopt(m_fd, SOL_SOCKET, SO_REUSEADDR, &reuseAddr, sizeof(reuseAddr)) < 0)
-      throw SystemError("setsockopt");
-
-    log_debug("bind");
-    if (::bind(m_fd, it->ai_addr, it->ai_addrlen) == 0)
-    {
-      // save our information
-      std::memmove(&servaddr, it->ai_addr, it->ai_addrlen);
-
-      log_debug("listen");
-      if (::listen(m_fd, backlog) < 0)
-      {
-        if (errno == EADDRINUSE)
-          throw AddressInUse();
-        else
-          throw SystemError("listen");
-      }
-
-    return;
-    }
-  }
-
-  throw SystemError("bind");
+    close();
+    throw System::SystemError("bind");
 }
 
 
