@@ -32,6 +32,7 @@
 #include "cxxtools/log.h"
 #include "cxxtools/tcpserver.h"
 #include "cxxtools/systemerror.h"
+#include <string.h>
 
 log_define("cxxtools.net.tcp")
 
