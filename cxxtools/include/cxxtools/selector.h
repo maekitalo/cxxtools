@@ -145,10 +145,22 @@ namespace cxxtools {
 
             void onTimerChanged( Timer& timer );
 
+            /** @brief A Selectable is added to this %Selector
+
+                Do not throw exceptions.
+            */
             virtual void onAdd(Selectable&) = 0;
 
+            /** @brief A Selectable is removed from this %Selector
+
+                Do not throw exceptions.
+            */
             virtual void onRemove(Selectable&) = 0;
 
+            /** @brief A Selectable in this %Selector has changed
+
+                Do not throw exceptions.
+            */
             virtual void onChanged(Selectable& s) = 0;
 
             virtual bool onWait(std::size_t msecs) = 0;

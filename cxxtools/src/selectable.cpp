@@ -39,18 +39,20 @@ void Selectable::setSelector(SelectorBase* parent)
 {
     if(_parent)
     {
+        this->onDetach(*_parent);
+
         if( this->enabled() )
             _parent->onRemove(*this);
 
-        this->onDetach(*_parent);
+        _parent = 0;
     }
 
     if(parent)
     {
+        this->onAttach(*parent);
+
         if( this->enabled() )
             parent->onAdd(*this);
-
-        this->onAttach(*parent);
     }
 
     _parent = parent;
