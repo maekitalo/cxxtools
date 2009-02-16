@@ -72,7 +72,8 @@ namespace cxxtools {
 namespace net {
 
 TcpSocketImpl::TcpSocketImpl(TcpSocket& socket)
-: _socket(socket)
+: IODeviceImpl(socket)
+, _socket(socket)
 , _isConnected(false)
 , _fd(-1)
 , _timeout(Selectable::WaitInfinite)

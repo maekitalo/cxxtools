@@ -38,7 +38,7 @@ namespace net {
 
 class TcpServer;
 
-class CXXTOOLS_API TcpSocket : public Selectable
+class CXXTOOLS_API TcpSocket : public IODevice
 {
     class TcpSocketImpl* _impl;
 

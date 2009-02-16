@@ -31,7 +31,7 @@
 
 #include "cxxtools/api.h"
 #include "cxxtools/signal.h"
-#include "selectableimpl.h"
+#include "iodeviceimpl.h"
 #include <string>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -48,7 +48,7 @@ namespace net {
 class TcpServer;
 class TcpSocket;
 
-class TcpSocketImpl : public SelectableImpl
+class TcpSocketImpl : public IODeviceImpl
 {
     private:
         TcpSocket& _socket;
