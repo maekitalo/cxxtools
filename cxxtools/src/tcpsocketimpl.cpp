@@ -211,6 +211,42 @@ void TcpSocketImpl::accept(TcpServer& server)
 }
 
 
+size_t TcpSocketImpl::beginRead(char* buffer, size_t n, bool& eof)
+{
+    return 0;
+}
+
+
+size_t TcpSocketImpl::endRead(bool& eof)
+{
+    return 0;
+}
+
+
+size_t TcpSocketImpl::read(char* buffer, size_t count, bool& eof)
+{
+    return 0;
+}
+
+
+size_t TcpSocketImpl::beginWrite(const char* buffer, size_t n)
+{
+    return 0;
+}
+
+
+size_t TcpSocketImpl::endWrite()
+{
+    return 0;
+}
+
+
+size_t TcpSocketImpl::write(const char* buffer, size_t count)
+{
+    return 0;
+}
+
+
 bool TcpSocketImpl::wait(std::size_t msecs)
 {
     log_debug("wait " << msecs);

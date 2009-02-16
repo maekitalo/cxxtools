@@ -157,39 +157,40 @@ void TcpSocket::onDetach(SelectorBase& sb)
     _impl->detach(sb);
 }
 
+
 size_t TcpSocket::onBeginRead(char* buffer, size_t n, bool& eof)
 {
-    return 0;
+    return _impl->beginRead(buffer, n, eof);
 }
 
 
 size_t TcpSocket::onEndRead(bool& eof)
 {
-    return 0;
+    return _impl->endRead(eof);
 }
 
 
 size_t TcpSocket::onRead(char* buffer, size_t count, bool& eof)
 {
-    return 0;
+    return _impl->read(buffer, count, eof);
 }
 
 
 size_t TcpSocket::onBeginWrite(const char* buffer, size_t n)
 {
-    return 0;
+    return _impl->beginWrite(buffer, n);
 }
 
 
 size_t TcpSocket::onEndWrite()
 {
-    return 0;
+    return _impl->endWrite();
 }
 
 
 size_t TcpSocket::onWrite(const char* buffer, size_t count)
 {
-    return 0;
+    return _impl->write(buffer, count);
 }
 
 
