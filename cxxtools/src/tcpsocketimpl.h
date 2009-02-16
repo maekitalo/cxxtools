@@ -68,6 +68,8 @@ class TcpSocketImpl : public SelectableImpl
 
         void close();
 
+        std::string getSockAddr() const;
+
         void setTimeout(std::size_t msecs)
         { _timeout = msecs; }
 

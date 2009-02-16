@@ -34,12 +34,38 @@
 #include "cxxtools/systemerror.h"
 #include "cxxtools/ioerror.h"
 #include "cxxtools/log.h"
+#include "config.h"
 #include <cerrno>
 #include <cstring>
 #include <cassert>
 #include <fcntl.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 
 log_define("cxxtools.net.tcp")
+
+namespace {
+
+    void formatIp(const sockaddr_storage& addr, std::string& str)
+    {
+#ifndef HAVE_INET_NTOP
+        static cxxtools::Mutex monitor;
+        cxxtools::MutexLock lock(monitor);
+
+        const sockaddr_in* sa = reinterpret_cast<const sockaddr_in*>(&addr);
+        const char* p = inet_ntoa(sa->sin_addr);
+        if (p)
+            str = p;
+        else
+            str.clear();
+#else
+        const sockaddr_in* sa = reinterpret_cast<const sockaddr_in*>(&addr);
+        char strbuf[INET6_ADDRSTRLEN + 1];
+        const char* p = inet_ntop(sa->sin_family, &sa->sin_addr, strbuf, sizeof(strbuf));
+        str = (p == 0 ? "-" : strbuf);
+#endif
+    }
+}
 
 namespace cxxtools {
 
@@ -71,6 +97,12 @@ void TcpSocketImpl::close()
     _isConnected = false;
     _pfd = 0;
   }
+}
+
+
+std::string TcpSocketImpl::getSockAddr() const
+{
+    return "";
 }
 
 

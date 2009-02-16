@@ -79,6 +79,12 @@ TcpSocket::~TcpSocket()
 }
 
 
+std::string TcpSocket::getSockAddr() const
+{
+    return _impl->getSockAddr();
+}
+
+
 void TcpSocket::setTimeout(std::size_t msecs)
 {
     _impl->setTimeout(msecs);

@@ -51,6 +51,8 @@ class CXXTOOLS_API TcpSocket : public Selectable
 
         ~TcpSocket();
 
+        std::string getSockAddr() const;
+
         void setTimeout(std::size_t msecs);
 
         std::size_t timeout() const;
