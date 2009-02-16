@@ -59,22 +59,6 @@ namespace cxxtools {
 
             virtual void close();
 
-            void attach(SelectorBase& s)
-            {}
-
-            void detach(SelectorBase& s)
-            {
-                if(_pfd)
-                    _pfd = 0;
-            }
-
-            virtual bool wait(std::size_t msecs);
-
-            virtual size_t pollSize() const
-            {
-                return 1;
-            }
-
             virtual size_t beginRead(char* buffer, size_t n, bool& eof);
 
             virtual size_t endRead(bool& eof);
@@ -88,6 +72,19 @@ namespace cxxtools {
             virtual size_t write( const char* buffer, size_t count );
 
             virtual void sync() const;
+
+            void attach(SelectorBase& s);
+
+            void detach(SelectorBase& s);
+
+            virtual bool wait(std::size_t msecs);
+
+            virtual bool wait(std::size_t msecs, pollfd& pfd);
+
+            virtual void initWait(pollfd& pfd);
+
+            virtual size_t pollSize() const
+            { return 1; }
 
             virtual size_t initializePoll(pollfd* pfd, size_t pollSize);
 

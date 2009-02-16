@@ -100,8 +100,9 @@ class TcpSocketImpl : public IODeviceImpl
 
         void detach(SelectorBase& sb);
 */
+
         // implementation using poll
-        std::size_t pollSize() const;
+        void initWait(pollfd& pfd);
 
         // implementation using poll
         std::size_t initializePoll(pollfd* pfd, std::size_t pollSize);

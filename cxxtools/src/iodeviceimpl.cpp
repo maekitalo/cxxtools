@@ -52,7 +52,10 @@ IODeviceImpl::IODeviceImpl(IODevice& device)
 
 
 IODeviceImpl::~IODeviceImpl()
-{ }
+{
+    assert(_pfd == 0);
+}
+
 
 void IODeviceImpl::open(const std::string& path, IODevice::OpenMode mode)
 {
@@ -110,32 +113,6 @@ void IODeviceImpl::close()
         _fd = -1;
         _pfd = 0;
     }
-}
-
-
-bool IODeviceImpl::wait(std::size_t umsecs)
-{
-    int msecs = umsecs;
-    if( umsecs > std::numeric_limits<int>::max() )
-    {
-        umsecs == SelectorBase::WaitInfinite ? -1
-                                             : std::numeric_limits<int>::max();
-    }
-
-    pollfd pfd;
-    this->initializePoll(&pfd, 1);
-
-    while( true )
-    {
-        int ret = ::poll(&pfd, 1, msecs);
-        if( ret != -1 )
-            break;
-
-        if( errno != EINTR )
-            throw IOError( "poll failed", CXXTOOLS_SOURCEINFO );
-    }
-
-    return this->checkPollEvent();
 }
 
 
@@ -273,20 +250,71 @@ void IODeviceImpl::sync() const
 }
 
 
-size_t IODeviceImpl::initializePoll(pollfd* pfd, size_t pollSize)
+void IODeviceImpl::attach(SelectorBase& s)
 {
-	assert(pfd != 0);
-	assert(pollSize >= 1);
 
-    pfd->fd = this->fd();
-    pfd->revents = 0;
-    pfd->events = 0;
+}
+
+
+void IODeviceImpl::detach(SelectorBase& s)
+{
+    if(_pfd)
+        _pfd = 0;
+}
+
+
+bool IODeviceImpl::wait(std::size_t msecs)
+{
+    pollfd pfd;
+    this->initWait(pfd);
+    this->wait(msecs);
+    return this->checkPollEvent();
+}
+
+
+bool IODeviceImpl::wait(std::size_t umsecs, pollfd& pfd)
+{
+    int msecs = umsecs;
+    if( umsecs > std::numeric_limits<int>::max() )
+    {
+        umsecs == SelectorBase::WaitInfinite ? -1
+                                             : std::numeric_limits<int>::max();
+    }
+
+    int ret = -1;
+    while( true )
+    {
+        ret = ::poll(&pfd, 1, msecs);
+        if( ret != -1 )
+            break;
+
+        if( errno != EINTR )
+            throw IOError( "poll failed", CXXTOOLS_SOURCEINFO );
+    }
+
+    return ret > 0;
+}
+
+
+void IODeviceImpl::initWait(pollfd& pfd)
+{
+    pfd.fd = this->fd();
+    pfd.revents = 0;
+    pfd.events = 0;
 
     if( _device.rbuf() )
-        pfd->events |= POLLIN;
+        pfd.events |= POLLIN;
     if( _device.wbuf() )
-        pfd->events |= POLLOUT;
+        pfd.events |= POLLOUT;
+}
 
+
+size_t IODeviceImpl::initializePoll(pollfd* pfd, size_t pollSize)
+{
+    assert(pfd != 0);
+    assert(pollSize >= 1);
+
+    this->initWait(*pfd);
     _pfd = pfd;
 
 	return 1;

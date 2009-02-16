@@ -102,23 +102,31 @@ std::string TcpSocketImpl::getSockAddr() const
 
 void TcpSocketImpl::connect(const std::string& ipaddr, unsigned short int port)
 {
-    // TODO: decide whether this should send the "connected" signal
     log_debug("connect to " << ipaddr << " port " << port);
 
     bool isConnected = this->beginConnect(ipaddr, port);
     if( ! isConnected )
     {
-        bool ret = this->wait(_timeout);
-        if(false == ret)
+        try
+        {
+            pollfd pfd;
+            pfd.fd = this->fd();
+            pfd.revents = 0;
+            pfd.events = POLLOUT;;
+
+            bool ret = this->wait(_timeout, pfd);
+            if(false == ret)
+            {
+                throw IOTimeout();
+            }
+
+            this->endConnect();
+        }
+        catch(...)
         {
             close();
-            throw IOTimeout();
+            throw;
         }
-
-        if( ! _isConnected )
-            this->endConnect();
-
-        this->endConnect();
     }
 }
 
@@ -241,77 +249,17 @@ size_t TcpSocketImpl::write(const char* buffer, size_t count)
 {
     return 0;
 }
-
-
-bool TcpSocketImpl::wait(std::size_t msecs)
-{
-    log_debug("wait " << msecs);
-
-    if( this->fd() > FD_SETSIZE )
-    {
-        throw IOError( CXXTOOLS_ERROR_MSG("FD_SETSIZE too small for fd") );
-    }
-
-    struct timeval* timeout = 0;
-    struct timeval tv;
-    if(msecs != Selector::WaitInfinite)
-    {
-        tv.tv_sec = msecs / 1000;
-        tv.tv_usec = (msecs % 1000) * 1000;
-        timeout = &tv;
-    }
-
-    fd_set rfds;
-    fd_set wfds;
-    fd_set efds;
-    FD_ZERO(&rfds);
-    FD_ZERO(&wfds);
-    FD_ZERO(&efds);
-    if( this->fd() > 0 )
-    {
-        FD_SET(this->fd(), &wfds);
-    }
-
-    while( true )
-    {
-        int ret = ::select(this->fd() + 1, 0, &wfds, 0, timeout);
-        if( ret != -1 )
-            break;
-
-        if( errno != EINTR )
-            throw IOError( "select failed" );
-    }
-
-    if( FD_ISSET(this->fd(), &wfds) )
-    {
-        if( ! _isConnected )
-        {
-            _socket.connected.send(_socket);
-            return true;
-        }
-    }
-
-    return false;
-}*/
-
-/*
-void TcpSocketImpl::attach(SelectorBase& sb)
-{
-    log_debug("attach to selector");
-}
-
-
-void TcpSocketImpl::detach(SelectorBase& sb)
-{
-    log_debug("detach from selector " << _fd);
-    if(_pfd)
-        _pfd = 0;
-}
 */
 
-std::size_t TcpSocketImpl::pollSize() const
+void TcpSocketImpl::initWait(pollfd& pfd)
 {
-    return 1;
+    IODeviceImpl::initWait(pfd);
+
+    if( ! _isConnected )
+    {
+        log_debug("not connected, setting POLLOUT ");
+        pfd.events = POLLOUT;
+    }
 }
 
 
@@ -322,8 +270,8 @@ std::size_t TcpSocketImpl::initializePoll(pollfd* pfd, std::size_t pollSize)
 
     log_debug("TcpSocketImpl::initializePoll " << pollSize);
 
-    pfd->fd = this->fd();
-    pfd->revents = 0;
+    std::size_t ret = IODeviceImpl::initializePoll(pfd, pollSize);
+    assert(ret == 1);
 
     if( ! _isConnected )
     {
@@ -331,8 +279,7 @@ std::size_t TcpSocketImpl::initializePoll(pollfd* pfd, std::size_t pollSize)
         pfd->events = POLLOUT;
     }
 
-    _pfd = pfd;
-    return 1;
+    return ret;
 }
 
 
