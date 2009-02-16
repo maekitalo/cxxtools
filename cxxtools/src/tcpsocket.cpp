@@ -157,6 +157,49 @@ void TcpSocket::onDetach(SelectorBase& sb)
     _impl->detach(sb);
 }
 
+size_t TcpSocket::onBeginRead(char* buffer, size_t n, bool& eof)
+{
+    return 0;
+}
+
+
+size_t TcpSocket::onEndRead(bool& eof)
+{
+    return 0;
+}
+
+
+size_t TcpSocket::onRead(char* buffer, size_t count, bool& eof)
+{
+    return 0;
+}
+
+
+size_t TcpSocket::onBeginWrite(const char* buffer, size_t n)
+{
+    return 0;
+}
+
+
+size_t TcpSocket::onEndWrite()
+{
+    return 0;
+}
+
+
+size_t TcpSocket::onWrite(const char* buffer, size_t count)
+{
+    return 0;
+}
+
+
+IODeviceImpl& TcpSocket::ioimpl()
+{
+    throw std::runtime_error("TcpSocket::ioimpl() not implemented");
+    IODeviceImpl* impl = 0;
+    return *impl;
+}
+
 } // namespace net
 
 } // namespace cxxtools
