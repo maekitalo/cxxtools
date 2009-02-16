@@ -75,9 +75,7 @@ TcpSocketImpl::TcpSocketImpl(TcpSocket& socket)
 : IODeviceImpl(socket)
 , _socket(socket)
 , _isConnected(false)
-, _fd(-1)
 , _timeout(Selectable::WaitInfinite)
-, _pfd(0)
 {
 }
 
@@ -90,14 +88,9 @@ TcpSocketImpl::~TcpSocketImpl()
 
 void TcpSocketImpl::close()
 {
-  if (_fd != -1)
-  {
     log_debug("close socket " << _fd);
-    ::close(_fd);
-    _fd = -1;
+    IODeviceImpl::close();
     _isConnected = false;
-    _pfd = 0;
-  }
 }
 
 
@@ -136,13 +129,11 @@ bool TcpSocketImpl::beginConnect(const std::string& ipaddr, unsigned short int p
     log_debug("checking address information");
     for (AddrInfo::const_iterator it = ai.begin(); it != ai.end(); ++it)
     {
-        _fd = ::socket(it->ai_family, SOCK_STREAM, 0);
-        if (_fd < 0)
+        int fd = ::socket(it->ai_family, SOCK_STREAM, 0);
+        if (fd < 0)
             continue;
 
-        int flags = fcntl(_fd, F_GETFL);
-        flags |= O_NONBLOCK ;
-        fcntl(_fd, F_SETFL, O_NONBLOCK);
+        IODeviceImpl::open(fd, true);
 
         std::memmove(&_peeraddr, it->ai_addr, it->ai_addrlen);
 
@@ -208,10 +199,11 @@ void TcpSocketImpl::accept(TcpServer& server)
 
     //TODO ECONNABORTED EINTR EPERM
 
+    _isConnected = true;
     log_debug( "accepted " << server.impl().fd() << " => " << _fd );
 }
 
-
+/*
 size_t TcpSocketImpl::beginRead(char* buffer, size_t n, bool& eof)
 {
     return 0;
@@ -297,9 +289,9 @@ bool TcpSocketImpl::wait(std::size_t msecs)
     }
 
     return false;
-}
+}*/
 
-
+/*
 void TcpSocketImpl::attach(SelectorBase& sb)
 {
     log_debug("attach to selector");
@@ -312,7 +304,7 @@ void TcpSocketImpl::detach(SelectorBase& sb)
     if(_pfd)
         _pfd = 0;
 }
-
+*/
 
 std::size_t TcpSocketImpl::pollSize() const
 {
@@ -325,7 +317,7 @@ std::size_t TcpSocketImpl::initializePoll(pollfd* pfd, std::size_t pollSize)
     assert(pfd != 0);
     assert(pollSize >= 1);
 
-    log_debug("initializePoll " << pollSize);
+    log_debug("TcpSocketImpl::initializePoll " << pollSize);
 
     pfd->fd = this->fd();
     pfd->revents = 0;
@@ -356,7 +348,7 @@ bool TcpSocketImpl::checkPollEvent()
         }
     }
 
-    return false;
+    return IODeviceImpl::checkPollEvent();
 }
 
 } // namespace net

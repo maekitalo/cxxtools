@@ -53,18 +53,13 @@ class TcpSocketImpl : public IODeviceImpl
     private:
         TcpSocket& _socket;
         bool _isConnected;
-        int _fd;
         std::size_t _timeout;
         struct sockaddr_storage _peeraddr;
-        pollfd* _pfd;
 
     public:
         TcpSocketImpl(TcpSocket& socket);
 
         ~TcpSocketImpl();
-
-        int fd() const
-        { return _fd; }
 
         void close();
 
@@ -86,7 +81,7 @@ class TcpSocketImpl : public IODeviceImpl
         void endConnect();
 
         void accept(TcpServer& server);
-
+/*
         size_t beginRead(char* buffer, size_t n, bool& eof);
 
         size_t endRead(bool& eof);
@@ -104,7 +99,7 @@ class TcpSocketImpl : public IODeviceImpl
         void attach(SelectorBase& sb);
 
         void detach(SelectorBase& sb);
-
+*/
         // implementation using poll
         std::size_t pollSize() const;
 

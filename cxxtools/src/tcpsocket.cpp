@@ -110,6 +110,7 @@ bool TcpSocket::beginConnect(const std::string& ipaddr, unsigned short int port)
     this->close();
     bool ret = _impl->beginConnect(ipaddr, port);
     this->setEnabled(true);
+    this->setAsync(true);
     return ret;
 }
 
@@ -125,6 +126,7 @@ void TcpSocket::accept(TcpServer& server)
     this->close();
     _impl->accept(server);
     this->setEnabled(true);
+    this->setAsync(true);
 }
 
 

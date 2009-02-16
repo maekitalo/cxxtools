@@ -132,7 +132,7 @@ bool IODeviceImpl::wait(std::size_t umsecs)
             break;
 
         if( errno != EINTR )
-            throw IOError( "Could not select on file descriptors", CXXTOOLS_SOURCEINFO );
+            throw IOError( "poll failed", CXXTOOLS_SOURCEINFO );
     }
 
     return this->checkPollEvent();
