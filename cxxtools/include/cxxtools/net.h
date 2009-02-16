@@ -44,11 +44,13 @@ namespace net
   /**
    * net::Timeout is thrown on timeout.
    */
-  class Timeout : public IOError
+  /*class Timeout : public IOError
   {
     public:
       Timeout();
-  };
+  };*/
+
+  typedef IOTimeout Timeout;
 
   class AddressInUse : public IOError
   {

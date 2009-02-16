@@ -46,6 +46,15 @@ namespace cxxtools {
             {}
     };
 
+    class IOTimeout : public IOError
+    {
+        public:
+            IOTimeout();
+
+            ~IOTimeout() throw()
+            {}
+    };
+
     class AccessFailed : public IOError
     {
         public:

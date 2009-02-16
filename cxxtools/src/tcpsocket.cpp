@@ -38,14 +38,14 @@ namespace net {
 TcpSocket::TcpSocket()
 : _impl(0)
 {
-    _impl = new TcpSocketImpl();
+    _impl = new TcpSocketImpl(*this);
 }
 
 
 TcpSocket::TcpSocket(TcpServer& server)
 : _impl(0)
 {
-    _impl = new TcpSocketImpl();
+    _impl = new TcpSocketImpl(*this);
     std::auto_ptr<TcpSocketImpl> impl(_impl);
 
     this->accept(server);
@@ -57,7 +57,7 @@ TcpSocket::TcpSocket(TcpServer& server)
 TcpSocket::TcpSocket(const std::string& ipaddr, unsigned short int port)
 : _impl(0)
 {
-    _impl = new TcpSocketImpl();
+    _impl = new TcpSocketImpl(*this);
     std::auto_ptr<TcpSocketImpl> impl(_impl);
 
     this->connect(ipaddr, port);
@@ -79,11 +79,38 @@ TcpSocket::~TcpSocket()
 }
 
 
+void TcpSocket::setTimeout(std::size_t msecs)
+{
+    _impl->setTimeout(msecs);
+}
+
+
+std::size_t TcpSocket::timeout() const
+{
+    return _impl->timeout();
+}
+
+
 void TcpSocket::connect(const std::string& ipaddr, unsigned short int port)
 {
     this->close();
     _impl->connect(ipaddr, port);
     this->setEnabled(true);
+}
+
+
+bool TcpSocket::beginConnect(const std::string& ipaddr, unsigned short int port)
+{
+    this->close();
+    bool ret = _impl->beginConnect(ipaddr, port);
+    this->setEnabled(true);
+    return ret;
+}
+
+
+void TcpSocket::endConnect()
+{
+    _impl->endConnect();
 }
 
 
@@ -97,9 +124,7 @@ void TcpSocket::accept(TcpServer& server)
 
 SelectableImpl& TcpSocket::simpl()
 {
-    throw std::runtime_error("not implemented");
-    SelectableImpl* impl = 0;
-    return *impl;
+    return *_impl;
 }
 
 
@@ -111,20 +136,19 @@ void TcpSocket::onClose()
 
 bool TcpSocket::onWait(std::size_t msecs)
 {
-    //return _impl->wait(msecs);
-    return false;
+    return _impl->wait(msecs);
 }
 
 
 void TcpSocket::onAttach(SelectorBase& sb)
 {
-    //_impl->attach(sb);
+    _impl->attach(sb);
 }
 
 
 void TcpSocket::onDetach(SelectorBase& sb)
 {
-    //_impl->detach(sb);
+    _impl->detach(sb);
 }
 
 } // namespace net

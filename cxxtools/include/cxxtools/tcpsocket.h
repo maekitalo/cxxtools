@@ -51,12 +51,22 @@ class CXXTOOLS_API TcpSocket : public Selectable
 
         ~TcpSocket();
 
+        void setTimeout(std::size_t msecs);
+
+        std::size_t timeout() const;
+
+        std::size_t getTimeout() const
+        { return timeout(); }
+
         void accept(TcpServer& server);
 
         void connect(const std::string& ipaddr, unsigned short int port);
 
-        // inherit doc
-        virtual SelectableImpl& simpl();
+        bool beginConnect(const std::string& ipaddr, unsigned short int port);
+
+        void endConnect();
+
+        Signal<TcpSocket&> connected;
 
     protected:
         // inherit doc
@@ -70,7 +80,11 @@ class CXXTOOLS_API TcpSocket : public Selectable
 
         // inherit doc
         virtual void onDetach(SelectorBase&);
-  };
+
+    public:
+        // inherit doc
+        virtual SelectableImpl& simpl();
+};
 
 } // namespace net
 

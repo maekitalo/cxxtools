@@ -43,6 +43,12 @@ IOError::IOError(const char* msg)
 }
 
 
+IOTimeout::IOTimeout()
+: IOError("Timeout")
+{
+}
+
+
 AccessFailed::AccessFailed(const std::string& resource, const SourceInfo& si)
 : IOError("could not access " + resource, si)
 {

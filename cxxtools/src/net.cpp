@@ -73,9 +73,9 @@ namespace net
   //////////////////////////////////////////////////////////////////////
   // Exception class
   //
-  Timeout::Timeout()
+  /*Timeout::Timeout()
     : IOError("Timeout")
-    { }
+    { }*/
 
   AddressInUse::AddressInUse()
     : IOError("address in use")

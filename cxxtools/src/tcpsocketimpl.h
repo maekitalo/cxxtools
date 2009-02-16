@@ -26,41 +26,79 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef CXXTOOLS_NET_TcpSocketImpl_H
-#define CXXTOOLS_NET_TcpSocketImpl_H
+#ifndef PT_NET_TcpSocketImpl_H
+#define PT_NET_TcpSocketImpl_H
 
 #include "cxxtools/api.h"
+#include "cxxtools/signal.h"
+#include "selectableimpl.h"
 #include <string>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/poll.h>
+#include <sys/time.h>
+#include <unistd.h>
 
 namespace cxxtools {
+
+class SelectorBase;
 
 namespace net {
 
 class TcpServer;
+class TcpSocket;
 
-class TcpSocketImpl
+class TcpSocketImpl : public SelectableImpl
 {
     private:
+        TcpSocket& _socket;
+        bool _isConnected;
         int _fd;
+        std::size_t _timeout;
         struct sockaddr_storage _peeraddr;
+        pollfd* _pfd;
 
     public:
-        TcpSocketImpl();
+        TcpSocketImpl(TcpSocket& socket);
 
         ~TcpSocketImpl();
 
         int fd() const
         { return _fd; }
 
-        void create(int domain, int type, int protocol);
-
         void close();
+
+        void setTimeout(std::size_t msecs)
+        { _timeout = msecs; }
+
+        std::size_t timeout() const
+        { return _timeout; }
+
+        bool isConnected() const
+        { return _isConnected; }
 
         void connect(const std::string& ipaddr, unsigned short int port);
 
+        bool beginConnect(const std::string& ipaddr, unsigned short int port);
+
+        void endConnect();
+
         void accept(TcpServer& server);
+
+        bool wait(std::size_t msecs);
+
+        void attach(SelectorBase& sb);
+
+        void detach(SelectorBase& sb);
+
+        // implementation using poll
+        std::size_t pollSize() const;
+
+        // implementation using poll
+        std::size_t initializePoll(pollfd* pfd, std::size_t pollSize);
+
+        // implementation using poll
+        bool checkPollEvent();
 };
 
 } // namespace net
