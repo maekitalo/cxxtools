@@ -108,8 +108,7 @@ namespace net
       size_type write(const char* buffer, size_type bufsize, bool flush = true) const;
 
       /// returns the current peer address.
-      const struct sockaddr_storage& getPeeraddr() const
-        { return peeraddr; }
+      std::string getPeerAddr() const;
   };
 
   //////////////////////////////////////////////////////////////////////

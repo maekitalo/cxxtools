@@ -36,6 +36,9 @@
 #include <netdb.h>
 #include <errno.h>
 #include <string.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include "config.h"
 
 log_define("cxxtools.net.tcp")
 
@@ -44,6 +47,29 @@ namespace cxxtools
 
 namespace net
 {
+  namespace
+  {
+    void formatIp(const sockaddr_storage& addr, std::string& str)
+    {
+#ifdef HAVE_INET_NTOP
+      const sockaddr_in* sa = reinterpret_cast<const sockaddr_in*>(&addr);
+      char strbuf[INET6_ADDRSTRLEN + 1];
+      const char* p = inet_ntop(sa->sin_family, &sa->sin_addr, strbuf, sizeof(strbuf));
+      str = (p == 0 ? "-" : strbuf);
+#else
+      static cxxtools::Mutex monitor;
+      cxxtools::MutexLock lock(monitor);
+
+      const sockaddr_in* sa = reinterpret_cast<const sockaddr_in*>(&addr);
+      const char* p = inet_ntoa(sa->sin_addr);
+      if (p)
+        str = p;
+      else
+        str.clear();
+#endif
+    }
+  }
+
   ////////////////////////////////////////////////////////////////////////
   // implementation of Server
   //
@@ -304,6 +330,13 @@ namespace net
 
     log_debug("full write - return " << bufsize);
     return bufsize;
+  }
+
+  std::string Stream::getPeerAddr() const
+  {
+    std::string ret;
+    formatIp(peeraddr, ret);
+    return ret;
   }
 
   streambuf::streambuf(Stream& stream, unsigned bufsize, int timeout)

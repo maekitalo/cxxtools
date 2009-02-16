@@ -96,7 +96,7 @@ namespace net
       int getFd() const     { return m_sockFd; }
 
       /// wrapper around getsockname(2)
-      struct sockaddr_storage getSockAddr() const;
+      std::string getSockAddr() const;
 
       /// Set timeout in milliseconds.
       void setTimeout(int t);

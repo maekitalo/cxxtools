@@ -35,6 +35,10 @@
 #include <sys/poll.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include "config.h"
 
 log_define("cxxtools.net")
 
@@ -43,6 +47,29 @@ namespace cxxtools
 
 namespace net
 {
+  namespace
+  {
+    void formatIp(const sockaddr_storage& addr, std::string& str)
+    {
+#ifdef HAVE_INET_NTOP
+      const sockaddr_in* sa = reinterpret_cast<const sockaddr_in*>(&addr);
+      char strbuf[INET6_ADDRSTRLEN + 1];
+      const char* p = inet_ntop(sa->sin_family, &sa->sin_addr, strbuf, sizeof(strbuf));
+      str = (p == 0 ? "-" : strbuf);
+#else
+      static cxxtools::Mutex monitor;
+      cxxtools::MutexLock lock(monitor);
+
+      const sockaddr_in* sa = reinterpret_cast<const sockaddr_in*>(&addr);
+      const char* p = inet_ntoa(sa->sin_addr);
+      if (p)
+        str = p;
+      else
+        str.clear();
+#endif
+    }
+  }
+
   //////////////////////////////////////////////////////////////////////
   // Exception class
   //
@@ -94,13 +121,16 @@ namespace net
     }
   }
 
-  struct sockaddr_storage Socket::getSockAddr() const
+  std::string Socket::getSockAddr() const
   {
-    struct sockaddr_storage ret;
+    struct sockaddr_storage addr;
 
-    socklen_t slen = sizeof(ret);
-    if (::getsockname(getFd(), reinterpret_cast <struct sockaddr *> (&ret), &slen) < 0)
+    socklen_t slen = sizeof(addr);
+    if (::getsockname(getFd(), reinterpret_cast <struct sockaddr *> (&addr), &slen) < 0)
       throw SystemError("getsockname");
+
+    std::string ret;
+    formatIp(addr, ret);
 
     return ret;
   }
