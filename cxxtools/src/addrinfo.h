@@ -40,19 +40,19 @@ namespace cxxtools {
 
 namespace net {
 
-  class Addrinfo : private cxxtools::NonCopyable
+  class AddrInfo : private cxxtools::NonCopyable
   {
       struct addrinfo* ai;
       void init(const std::string& ipaddr, unsigned short port,
                 const addrinfo& hints);
 
     public:
-      Addrinfo(const std::string& ipaddr, unsigned short port);
-      Addrinfo(const std::string& ipaddr, unsigned short port,
+      AddrInfo(const std::string& ipaddr, unsigned short port);
+      AddrInfo(const std::string& ipaddr, unsigned short port,
                const addrinfo& hints)
         : ai(0)
         { init(ipaddr, port, hints); }
-      ~Addrinfo();
+      ~AddrInfo();
 
       class const_iterator : public std::iterator<std::forward_iterator_tag, addrinfo>
       {
@@ -83,6 +83,8 @@ namespace net {
       const_iterator begin() const  { return const_iterator(ai); }
       const_iterator end() const    { return const_iterator(); }
   };
+
+  typedef AddrInfo Addrinfo;
 
 } // namespace net
 

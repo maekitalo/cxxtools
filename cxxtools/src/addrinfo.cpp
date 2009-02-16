@@ -36,7 +36,7 @@ namespace cxxtools {
 
 namespace net {
 
-  Addrinfo::Addrinfo(const std::string& ipaddr, unsigned short port)
+  AddrInfo::AddrInfo(const std::string& ipaddr, unsigned short port)
     : ai(0)
   {
     struct addrinfo hints;
@@ -48,13 +48,13 @@ namespace net {
     init(ipaddr, port, hints);
   }
 
-  Addrinfo::~Addrinfo()
+  AddrInfo::~AddrInfo()
   {
     if (ai)
       freeaddrinfo(ai);
   }
 
-  void Addrinfo::init(const std::string& ipaddr, unsigned short port,
+  void AddrInfo::init(const std::string& ipaddr, unsigned short port,
     const addrinfo& hints)
   {
     std::ostringstream p;
