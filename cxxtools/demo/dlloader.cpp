@@ -29,6 +29,7 @@
 #include <exception>
 #include <iostream>
 #include <cxxtools/dlloader.h>
+#include <cxxtools/loginit.h>
 
 typedef double (*function_type)(double);
 
@@ -39,10 +40,12 @@ int main(int argc, char* argv[])
 {
   try
   {
+    log_init();
+
     if (argc == 1)
     {
       std::cout << "load libm.so" << std::endl;
-      cxxtools::dl::Library lib("libm");
+      cxxtools::dl::Library lib("m");
 
       std::cout << "sym cos" << std::endl;
       function_type cosine = (function_type)(lib["cos"]);

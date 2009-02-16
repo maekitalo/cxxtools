@@ -49,8 +49,9 @@ Library::Library(const std::string& path)
 : _impl(0)
 {
     std::auto_ptr<LibraryImpl> impl( new LibraryImpl() );
-    impl->open(path);
-    _impl = impl.release();
+    _impl = impl.get();
+    open(path);
+    impl.release();
 }
 
 
