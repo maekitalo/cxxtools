@@ -115,6 +115,9 @@ void TcpSocketImpl::connect(const std::string& ipaddr, unsigned short int port)
             throw IOTimeout();
         }
 
+        if( ! _isConnected )
+            this->endConnect();
+
         this->endConnect();
     }
 }
