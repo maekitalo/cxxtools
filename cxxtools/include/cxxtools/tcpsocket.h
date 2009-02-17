@@ -45,7 +45,7 @@ class CXXTOOLS_API TcpSocket : public IODevice
     public:
         TcpSocket();
 
-        TcpSocket(TcpServer& server);
+        TcpSocket(const TcpServer& server);
 
         TcpSocket(const std::string& ipaddr, unsigned short int port);
 
@@ -62,7 +62,7 @@ class CXXTOOLS_API TcpSocket : public IODevice
         std::size_t getTimeout() const
         { return timeout(); }
 
-        void accept(TcpServer& server);
+        void accept(const TcpServer& server);
 
         void connect(const std::string& ipaddr, unsigned short int port);
 
@@ -71,6 +71,12 @@ class CXXTOOLS_API TcpSocket : public IODevice
         void endConnect();
 
         Signal<TcpSocket&> connected;
+
+        bool isConnected() const;
+
+        int getFd() const;
+
+        short poll(short events) const;
 
     protected:
         // inherit doc

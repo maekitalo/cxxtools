@@ -82,7 +82,7 @@ class TcpSocketImpl : public IODeviceImpl
 
         void endConnect();
 
-        void accept(TcpServer& server);
+        void accept(const TcpServer& server);
 
         size_t endRead(bool& eof);
 

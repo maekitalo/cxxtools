@@ -212,7 +212,7 @@ void TcpSocketImpl::endConnect()
 }
 
 
-void TcpSocketImpl::accept(TcpServer& server)
+void TcpSocketImpl::accept(const TcpServer& server)
 {
     socklen_t peeraddr_len = sizeof(_peeraddr);
 

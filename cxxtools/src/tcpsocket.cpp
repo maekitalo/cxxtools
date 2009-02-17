@@ -30,6 +30,11 @@
 #include "cxxtools/tcpsocket.h"
 #include <stdexcept>
 #include <memory>
+#include "cxxtools/log.h"
+#include <errno.h>
+#include <cxxtools/systemerror.h>
+
+log_define("cxxtools.net.tcpsocket")
 
 namespace cxxtools {
 
@@ -42,7 +47,7 @@ TcpSocket::TcpSocket()
 }
 
 
-TcpSocket::TcpSocket(TcpServer& server)
+TcpSocket::TcpSocket(const TcpServer& server)
 : _impl(0)
 {
     _impl = new TcpSocketImpl(*this);
@@ -128,7 +133,19 @@ void TcpSocket::endConnect()
 }
 
 
-void TcpSocket::accept(TcpServer& server)
+bool TcpSocket::isConnected() const
+{
+    return _impl->isConnected();
+}
+
+
+int TcpSocket::getFd() const
+{
+    return _impl->fd();
+}
+
+
+void TcpSocket::accept(const TcpServer& server)
 {
     this->close();
     _impl->accept(server);
@@ -209,6 +226,33 @@ IODeviceImpl& TcpSocket::ioimpl()
     IODeviceImpl* impl = 0;
     return *impl;
 }
+
+short TcpSocket::poll(short events) const
+{
+    struct pollfd fds;
+    fds.fd = _impl->fd();
+    fds.events = events;
+
+    log_debug("poll timeout " << getTimeout());
+
+    int p = ::poll(&fds, 1, getTimeout());
+
+    log_debug("poll returns " << p << " revents " << fds.revents);
+
+    if (p < 0)
+    {
+      log_error("error in poll; errno=" << errno);
+      throw SystemError("poll");
+    }
+    else if (p == 0)
+    {
+      log_debug("poll timeout (" << getTimeout() << ')');
+      throw IOTimeout();
+    }
+
+    return fds.revents;
+}
+
 
 } // namespace net
 
