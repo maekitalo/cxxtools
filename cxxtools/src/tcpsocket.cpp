@@ -102,6 +102,7 @@ void TcpSocket::connect(const std::string& ipaddr, unsigned short int port)
     this->close();
     _impl->connect(ipaddr, port);
     this->setEnabled(true);
+    this->setAsync(true);
 }
 
 
