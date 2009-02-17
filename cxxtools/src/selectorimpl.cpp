@@ -117,9 +117,18 @@ void SelectorImpl::remove(Selectable& dev)
 }
 
 
-void SelectorImpl::changed( Selectable& dev )
+void SelectorImpl::changed( Selectable& s )
 {
     _isDirty = true;
+
+    if( s.avail() )
+    {
+        _avail.insert(&s);
+    }
+    else
+    {
+        _avail.erase(&s);
+    }
 }
 
 
@@ -127,8 +136,9 @@ bool SelectorImpl::wait(unsigned int umsecs)
 {
     _clock.start();
 
-    int msecs= umsecs;
+    umsecs = _avail.size() ? 0 : umsecs;
 
+    int msecs = umsecs;
     if (umsecs != SelectorBase::WaitInfinite &&
         umsecs > std::numeric_limits<int>::max())
     {
@@ -179,6 +189,7 @@ bool SelectorImpl::wait(unsigned int umsecs)
         _isDirty= false;
     }
 
+    int ret = -1;
     while( true )
     {
         if(msecs != SelectorBase::WaitInfinite)
@@ -196,7 +207,7 @@ bool SelectorImpl::wait(unsigned int umsecs)
             }
         }
 
-        int ret = ::poll(&_pollfds[0], _pollfds.size(), msecs);
+        ret = ::poll(&_pollfds[0], _pollfds.size(), msecs);
         if( ret != -1 )
             break;
 
@@ -204,6 +215,9 @@ bool SelectorImpl::wait(unsigned int umsecs)
             throw IOError( "Could not poll on file descriptors", CXXTOOLS_SOURCEINFO );
 
     }
+
+    if( ret == 0 && _avail.empty() )
+        return false;
 
     bool avail = false;
     try

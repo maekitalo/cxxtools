@@ -63,6 +63,7 @@ class SelectorImpl
         std::vector<pollfd> _pollfds;
         std::set<Selectable*>::iterator _current;
         std::set<Selectable*> _devices;
+        std::set<Selectable*> _avail;
         Clock _clock;
 };
 
