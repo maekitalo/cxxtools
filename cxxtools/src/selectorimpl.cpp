@@ -119,8 +119,6 @@ void SelectorImpl::remove(Selectable& dev)
 
 void SelectorImpl::changed( Selectable& s )
 {
-    _isDirty = true;
-
     if( s.avail() )
     {
         _avail.insert(&s);
