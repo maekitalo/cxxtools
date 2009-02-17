@@ -103,31 +103,8 @@ std::string TcpSocketImpl::getSockAddr() const
 void TcpSocketImpl::connect(const std::string& ipaddr, unsigned short int port)
 {
     log_debug("connect to " << ipaddr << " port " << port);
-
-    bool isConnected = this->beginConnect(ipaddr, port);
-    if( ! isConnected )
-    {
-        try
-        {
-            pollfd pfd;
-            pfd.fd = this->fd();
-            pfd.revents = 0;
-            pfd.events = POLLOUT;;
-
-            bool ret = this->wait(_timeout, pfd);
-            if(false == ret)
-            {
-                throw IOTimeout();
-            }
-
-            this->endConnect();
-        }
-        catch(...)
-        {
-            close();
-            throw;
-        }
-    }
+    this->beginConnect(ipaddr, port);
+    this->endConnect();
 }
 
 
@@ -181,21 +158,45 @@ void TcpSocketImpl::endConnect()
         _pfd->events &= ~POLLOUT;
     }
 
-    int sockerr;
-    socklen_t optlen = sizeof(sockerr);
-    if( ::getsockopt(this->fd(), SOL_SOCKET, SO_ERROR, &sockerr, &optlen) != 0 )
+    if( ! _isConnected )
     {
-        this->close();
-        throw SystemError("getsockopt");
+        try
+        {
+            pollfd pfd;
+            pfd.fd = this->fd();
+            pfd.revents = 0;
+            pfd.events = POLLOUT;
+
+            bool ret = this->wait(_timeout, pfd);
+            if(false == ret)
+            {
+                throw IOTimeout();
+            }
+
+            int sockerr;
+            socklen_t optlen = sizeof(sockerr);
+            if( ::getsockopt(this->fd(), SOL_SOCKET, SO_ERROR, &sockerr, &optlen) != 0 )
+            {
+                throw SystemError("getsockopt");
+            }
+
+            if(sockerr != 0)
+            {
+                throw SystemError("connect");
+            }
+
+            _isConnected = true;
+        }
+        catch(...)
+        {
+            close();
+            throw;
+        }
     }
 
-    if(sockerr != 0)
-    {
-        this->close();
-        throw SystemError("connect");
-    }
 
-    _isConnected = true;
+
+
 }
 
 
