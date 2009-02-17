@@ -131,7 +131,7 @@ namespace net
   ////////////////////////////////////////////////////////////////////////
   // implementation of Stream
   //
-  Stream::Stream()
+/*  Stream::Stream()
     { }
 
   Stream::Stream(const Server& server)
@@ -338,6 +338,7 @@ namespace net
     formatIp(peeraddr, ret);
     return ret;
   }
+*/
 
   streambuf::streambuf(Stream& stream, unsigned bufsize, int timeout)
     : m_stream(stream),
@@ -353,8 +354,12 @@ namespace net
 
     if (pptr())
     {
-      Stream::size_type N = pptr() - m_buffer; // bytes to write
-      Stream::size_type n = m_stream.write(m_buffer, N, false);
+      // NOTE: use std::streamsize, not Stream::size_type
+      std::streamsize N = pptr() - m_buffer; // bytes to write
+
+      // NOTE: use std::streamsize, not Stream::size_type
+      // NOTE: default is to write some bytes
+      std::streamsize n = m_stream.write(m_buffer, N/*, false*/);
       if (n <= 0)
         return traits_type::eof();
 
@@ -403,7 +408,8 @@ namespace net
   {
     log_debug("streambuf::underflow");
 
-    Stream::size_type n = m_stream.read(m_buffer + m_bufsize, m_bufsize);
+    // NOTE: use std::streamsize, not Stream::size_type
+    std::streamsize n = m_stream.read(m_buffer + m_bufsize, m_bufsize);
     if (n <= 0)
       return traits_type::eof();
 
@@ -417,10 +423,12 @@ namespace net
 
     if (pptr())
     {
-      Stream::size_type N = pptr() - m_buffer; // bytes to write
+      // NOTE: use std::streamsize, not Stream::size_type
+      std::streamsize N = pptr() - m_buffer; // bytes to write
       if (N > 0)
       {
-        Stream::size_type n = m_stream.write(m_buffer, N);
+        // NOTE: use std::streamsize, not Stream::size_type
+        std::streamsize n = m_stream.write(m_buffer, N);
         if (n <= 0)
           return -1;
         else

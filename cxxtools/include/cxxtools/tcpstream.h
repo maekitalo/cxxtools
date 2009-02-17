@@ -36,6 +36,7 @@
 #include <sys/socket.h>
 #include <cxxtools/net.h>
 #include <cxxtools/tcpserver.h>
+#include <cxxtools/tcpsocket.h>
 
 namespace cxxtools
 {
@@ -73,7 +74,7 @@ namespace net
    *
    * Stream is a unbuffered client stream socket.
    */
-  class Stream : public Socket
+/*  class Stream : public Socket
   {
       struct sockaddr_storage peeraddr;
 
@@ -109,7 +110,9 @@ namespace net
 
       /// returns the current peer address.
       std::string getPeerAddr() const;
-  };
+  };*/
+
+  typedef TcpSocket Stream;
 
   //////////////////////////////////////////////////////////////////////
   /**
@@ -165,7 +168,7 @@ namespace net
       }
 
       /// Accepts a connection from a server socket.
-      explicit iostream(const Server& server, unsigned bufsize = 8192, int timeout = -1)
+      explicit iostream(Server& server, unsigned bufsize = 8192, int timeout = -1)
         : std::iostream(0),
           Stream(server),
           m_buffer(*this, bufsize, timeout)
@@ -198,6 +201,10 @@ namespace net
       /// override to resolve ambiguity between ostream::write and Stream::write
       std::ostream& write(const char* s, std::streamsize n)
         { return std::iostream::write(s, n); }
+
+      /// override to resolve ambiguity between istream::peek and Stream::peek
+      std::ostream::int_type peek()
+        { return std::iostream::peek(); }
 
       /// Set timeout to the given value in milliseconds.
       void setTimeout(int timeout)  { m_buffer.setTimeout(timeout); }

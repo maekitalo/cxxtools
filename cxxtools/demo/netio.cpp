@@ -53,8 +53,9 @@ int server(int argc, char* argv[])
     std::cout << "connection accepted" << std::endl;
 
     char buffer[BUFSIZE];
-    cxxtools::net::Stream::size_type count = 0;
-    cxxtools::net::Stream::size_type n = 0;
+    // NOTE: use std::streamsize, not Stream::size_type
+    std::streamsize count = 0;
+    std::streamsize n = 0;
     while ( (n = worker.read(buffer, BUFSIZE)) > 0)
     {
       count += n;
@@ -85,7 +86,8 @@ void run_test(cxxtools::net::Stream& conn, unsigned bs, const char* buffer, unsi
 
   timeval current;
 
-  cxxtools::net::Stream::size_type count = 0;
+  // NOTE: use std::streamsize, not Stream::size_type
+  std::streamsize count = 0;
   while (1)
   {
     gettimeofday(&current, 0);
