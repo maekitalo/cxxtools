@@ -153,7 +153,7 @@ void TcpSocketImpl::endConnect()
 {
     log_debug("ending connect");
 
-    if(_pfd)
+    if(_pfd && ! _socket.wbuf())
     {
         _pfd->events &= ~POLLOUT;
     }
@@ -193,10 +193,6 @@ void TcpSocketImpl::endConnect()
             throw;
         }
     }
-
-
-
-
 }
 
 
