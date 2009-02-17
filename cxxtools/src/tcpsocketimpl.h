@@ -65,6 +65,8 @@ class TcpSocketImpl : public IODeviceImpl
 
         std::string getSockAddr() const;
 
+        std::string getPeerAddr() const;
+
         void setTimeout(std::size_t msecs)
         { _timeout = msecs; }
 

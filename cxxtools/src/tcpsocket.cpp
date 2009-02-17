@@ -85,6 +85,12 @@ std::string TcpSocket::getSockAddr() const
 }
 
 
+std::string TcpSocket::getPeerAddr() const
+{
+    return _impl->getPeerAddr();
+}
+
+
 void TcpSocket::setTimeout(std::size_t msecs)
 {
     _impl->setTimeout(msecs);

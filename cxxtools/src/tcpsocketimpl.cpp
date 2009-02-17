@@ -108,6 +108,14 @@ std::string TcpSocketImpl::getSockAddr() const
 }
 
 
+std::string TcpSocketImpl::getPeerAddr() const
+{
+    std::string ret;
+    formatIp(_peeraddr, ret);
+    return ret;
+}
+
+
 void TcpSocketImpl::connect(const std::string& ipaddr, unsigned short int port)
 {
     log_debug("connect to " << ipaddr << " port " << port);

@@ -53,6 +53,8 @@ class CXXTOOLS_API TcpSocket : public IODevice
 
         std::string getSockAddr() const;
 
+        std::string getPeerAddr() const;
+
         void setTimeout(std::size_t msecs);
 
         std::size_t timeout() const;
