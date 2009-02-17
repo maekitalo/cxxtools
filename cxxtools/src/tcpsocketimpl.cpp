@@ -219,42 +219,52 @@ void TcpSocketImpl::accept(TcpServer& server)
     log_debug( "accepted " << server.impl().fd() << " => " << _fd );
 }
 
-/*
-size_t TcpSocketImpl::beginRead(char* buffer, size_t n, bool& eof)
-{
-    return 0;
-}
-
 
 size_t TcpSocketImpl::endRead(bool& eof)
 {
-    return 0;
-}
+    size_t n = IODeviceImpl::endRead(eof);
+    if(n > 0)
+    {
+        return n;
+    }
 
+    pollfd pfd;
+    pfd.fd = this->fd();
+    pfd.revents = 0;
+    pfd.events = POLLIN;
 
-size_t TcpSocketImpl::read(char* buffer, size_t count, bool& eof)
-{
-    return 0;
-}
+    bool ret = this->wait(_timeout, pfd);
+    if(false == ret)
+    {
+        throw IOTimeout();
+    }
 
-
-size_t TcpSocketImpl::beginWrite(const char* buffer, size_t n)
-{
-    return 0;
+    return IODeviceImpl::endRead(eof);
 }
 
 
 size_t TcpSocketImpl::endWrite()
 {
-    return 0;
+    size_t n = IODeviceImpl::endWrite();
+    if(n > 0)
+    {
+        return n;
+    }
+
+    pollfd pfd;
+    pfd.fd = this->fd();
+    pfd.revents = 0;
+    pfd.events = POLLOUT;
+
+    bool ret = this->wait(_timeout, pfd);
+    if(false == ret)
+    {
+        throw IOTimeout();
+    }
+
+    return IODeviceImpl::endWrite();
 }
 
-
-size_t TcpSocketImpl::write(const char* buffer, size_t count)
-{
-    return 0;
-}
-*/
 
 void TcpSocketImpl::initWait(pollfd& pfd)
 {

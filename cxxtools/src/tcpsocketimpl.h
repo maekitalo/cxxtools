@@ -81,25 +81,10 @@ class TcpSocketImpl : public IODeviceImpl
         void endConnect();
 
         void accept(TcpServer& server);
-/*
-        size_t beginRead(char* buffer, size_t n, bool& eof);
 
         size_t endRead(bool& eof);
 
-        size_t read(char* buffer, size_t count, bool& eof);
-
-        size_t beginWrite(const char* buffer, size_t n);
-
         size_t endWrite();
-
-        size_t write(const char* buffer, size_t count);
-
-        bool wait(std::size_t msecs);
-
-        void attach(SelectorBase& sb);
-
-        void detach(SelectorBase& sb);
-*/
 
         // implementation using poll
         void initWait(pollfd& pfd);
