@@ -96,7 +96,15 @@ void TcpSocketImpl::close()
 
 std::string TcpSocketImpl::getSockAddr() const
 {
-    return "";
+    struct sockaddr_storage addr;
+
+    socklen_t slen = sizeof(addr);
+    if (::getsockname(fd(), reinterpret_cast<struct sockaddr*>(&addr), &slen) < 0)
+        throw SystemError("getsockname");
+
+    std::string ret;
+    formatIp(addr, ret);
+    return ret;
 }
 
 
