@@ -123,7 +123,10 @@ void Selectable::setEnabled(bool isEnabled)
         if(_state == Disabled)
             this->setState(Idle);
         else
+        {
             this->setState(_state);
+            // if(_parent) _parent->onReinit(*this)
+        }
     }
     else
     {
@@ -145,11 +148,12 @@ void Selectable::setState(State state)
             _parent->onAdd(*this);
     }
 
+    //State prev = _state;
     _state = state;
 
     if(_parent)
     {
-        _parent->onChanged(*this);
+        _parent->onChanged(*this /*, prev */);
     }
 }
 
