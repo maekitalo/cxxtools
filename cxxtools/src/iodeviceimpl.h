@@ -53,6 +53,12 @@ namespace cxxtools {
             int fd() const
             { return _fd; }
 
+            void setTimeout(std::size_t msecs)
+            { _timeout = msecs; }
+
+            std::size_t timeout() const
+            { return _timeout; }
+
             virtual void open(const std::string& path, IODevice::OpenMode mode);
 
             virtual void open(int fd, bool isAsync);
@@ -93,6 +99,7 @@ namespace cxxtools {
         protected:
             IODevice& _device;
             int _fd;
+            std::size_t _timeout;
             pollfd* _pfd;
     };
 

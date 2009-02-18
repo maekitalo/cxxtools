@@ -96,8 +96,15 @@ size_t IODevice::read(char* buffer, size_t n)
     {
         if( ! _rbuf )
         {
-            this->beginRead(buffer, n);
-            return this->onEndRead(_eof);
+            try // TODO pass buffer pointer/length to onEndRead
+            {
+                this->beginRead(buffer, n);
+                return this->onEndRead(_eof);
+            }
+            catch(...)
+            {
+                _rbuf = 0; _rbuflen = 0; _ravail = 0;
+            }
         }
 
         size_t available = this->onEndRead(_eof);
@@ -166,15 +173,22 @@ size_t IODevice::endWrite()
 
 size_t IODevice::write(const char* buffer, size_t n)
 {
-    if ( async() )
+    if( async() )
     {
         if( _wbuf )
         {
             return this->endWrite();
         }
 
-        this->beginWrite(buffer, n);
-        return endWrite();
+        try
+        {
+            this->beginWrite(buffer, n);
+            return endWrite();
+        }
+        catch(...)
+        {
+            _wbuf = 0; _wbuflen = 0; _wavail = 0;
+        }
     }
 
     return this->onWrite(buffer, n);

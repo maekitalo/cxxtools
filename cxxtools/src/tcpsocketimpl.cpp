@@ -75,7 +75,6 @@ TcpSocketImpl::TcpSocketImpl(TcpSocket& socket)
 : IODeviceImpl(socket)
 , _socket(socket)
 , _isConnected(false)
-, _timeout(Selectable::WaitInfinite)
 {
 }
 
@@ -183,7 +182,7 @@ void TcpSocketImpl::endConnect()
             pfd.revents = 0;
             pfd.events = POLLOUT;
 
-            bool ret = this->wait(_timeout, pfd);
+            bool ret = this->wait(this->timeout(), pfd);
             if(false == ret)
             {
                 throw IOTimeout();
@@ -228,7 +227,7 @@ void TcpSocketImpl::accept(const TcpServer& server)
 }
 
 
-size_t TcpSocketImpl::endRead(bool& eof)
+/*size_t TcpSocketImpl::endRead(bool& eof)
 {
     size_t n = IODeviceImpl::endRead(eof);
     if(n > 0)
@@ -248,10 +247,10 @@ size_t TcpSocketImpl::endRead(bool& eof)
     }
 
     return IODeviceImpl::endRead(eof);
-}
+}*/
 
 
-size_t TcpSocketImpl::endWrite()
+/*size_t TcpSocketImpl::endWrite()
 {
     size_t n = IODeviceImpl::endWrite();
     if(n > 0)
@@ -271,7 +270,7 @@ size_t TcpSocketImpl::endWrite()
     }
 
     return IODeviceImpl::endWrite();
-}
+}*/
 
 
 void TcpSocketImpl::initWait(pollfd& pfd)

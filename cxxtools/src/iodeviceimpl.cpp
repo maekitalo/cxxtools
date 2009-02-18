@@ -46,6 +46,7 @@ const short IODeviceImpl::POLLOUT_MASK= POLLOUT;
 IODeviceImpl::IODeviceImpl(IODevice& device)
 : _device(device)
 , _fd(-1)
+, _timeout(Selectable::WaitInfinite)
 , _pfd(0)
 { }
 
@@ -134,49 +135,42 @@ size_t IODeviceImpl::endRead(bool& eof)
          _pfd->events &= ~POLLIN;
      }
 
-    size_t n = this->read( _device.rbuf(), _device.rbuflen(), eof );
-    return n;
+    return this->read( _device.rbuf(), _device.rbuflen(), eof );
 }
 
 
 size_t IODeviceImpl::read( char* buffer, size_t count, bool& eof )
 {
-    eof = false;
     ssize_t ret = 0;
 
     while(true)
     {
         ret = ::read( _fd, (void*)buffer, count);
-        eof = (ret == 0) ;
-
-        if(ret >= 0)
+        if(ret > 0)
             break;
 
-        if(errno == ECONNRESET)
-            return 0;
-
-        if(errno == EINTR) // signal interrupt
-            continue;
-
-        if(errno == EAGAIN) // non-blocking and no data yet
+        if(ret == 0 || errno == ECONNRESET)
         {
-            fd_set fds;
-            FD_ZERO(&fds);
-            FD_SET(this->fd(), &fds);
-            while( true )
-            {
-                int r = ::select(_fd+1, &fds, 0, 0, 0);
-                if( r != -1 )
-                    break;
-
-                if( errno != EINTR )
-                    throw IOError( "select failed", CXXTOOLS_SOURCEINFO );
-            }
-
-            continue;
+            eof = true;
+            return 0;
         }
 
-        throw IOError("Could not read from file handle", CXXTOOLS_SOURCEINFO);
+        if(errno == EINTR)
+            continue;
+
+        if(errno != EAGAIN)
+            throw IOError("read failed", CXXTOOLS_SOURCEINFO);
+
+        pollfd pfd;
+        pfd.fd = this->fd();
+        pfd.revents = 0;
+        pfd.events = POLLIN;
+
+        bool ret = this->wait(_timeout, pfd);
+        if(false == ret)
+        {
+            throw IOTimeout();
+        }
     }
 
     return ret;
@@ -201,8 +195,7 @@ size_t IODeviceImpl::endWrite()
          _pfd->events &= ~POLLOUT;
      }
 
-    size_t n = this->write( _device.wbuf(), _device.wbuflen() );
-    return n;
+    return this->write( _device.wbuf(), _device.wbuflen() );
 }
 
 
@@ -213,32 +206,28 @@ size_t IODeviceImpl::write( const char* buffer, size_t count )
     while(true)
     {
         ret = ::write(_fd, (const void*)buffer, count);
-
-        if(ret >= 0 || errno == ECONNRESET || errno == EPIPE)
+        if(ret > 0)
             break;
 
-        if(errno == EINTR) // signal interrupt
+        if(ret == 0 || errno == ECONNRESET || errno == EPIPE)
+            return 0;
+
+        if(errno == EINTR)
             continue;
 
-        if(errno == EAGAIN) // non-blocking and no data yet
+        if(errno != EAGAIN)
+            throw IOError("Could not read from file handle", CXXTOOLS_SOURCEINFO);
+
+        pollfd pfd;
+        pfd.fd = this->fd();
+        pfd.revents = 0;
+        pfd.events = POLLOUT;
+
+        bool ret = this->wait(_timeout, pfd);
+        if(false == ret)
         {
-            fd_set fds;
-            FD_ZERO(&fds);
-            FD_SET(this->fd(), &fds);
-            while( true )
-            {
-                int r = ::select(_fd+1, 0, &fds, 0, 0);
-                if( r != -1 )
-                    break;
-
-                if( errno != EINTR )
-                    throw IOError( "select failed", CXXTOOLS_SOURCEINFO );
-            }
-
-            continue;
+            throw IOTimeout();
         }
-
-        throw IOError("Could not read from file handle", CXXTOOLS_SOURCEINFO);
     }
 
     return ret;
