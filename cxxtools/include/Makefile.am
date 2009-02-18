@@ -71,7 +71,6 @@ nobase_include_HEADERS = \
         cxxtools/noncopyable.h \
         cxxtools/pipe.h \
         cxxtools/pipestream.h \
-        cxxtools/pollclass.h \
         cxxtools/pool.h \
         cxxtools/process.h \
         cxxtools/properties.h \

@@ -48,7 +48,6 @@ libcxxtools_la_SOURCES = \
 	pipe.cpp \
 	pipeimpl.cpp \
 	pipestream.cpp \
-	pollclass.cpp \
 	process.cpp \
 	processimpl.cpp \
 	properties.cpp \
