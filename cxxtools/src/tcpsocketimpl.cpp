@@ -229,52 +229,6 @@ void TcpSocketImpl::accept(const TcpServer& server)
 }
 
 
-/*size_t TcpSocketImpl::endRead(bool& eof)
-{
-    size_t n = IODeviceImpl::endRead(eof);
-    if(n > 0)
-    {
-        return n;
-    }
-
-    pollfd pfd;
-    pfd.fd = this->fd();
-    pfd.revents = 0;
-    pfd.events = POLLIN;
-
-    bool ret = this->wait(_timeout, pfd);
-    if(false == ret)
-    {
-        throw IOTimeout();
-    }
-
-    return IODeviceImpl::endRead(eof);
-}*/
-
-
-/*size_t TcpSocketImpl::endWrite()
-{
-    size_t n = IODeviceImpl::endWrite();
-    if(n > 0)
-    {
-        return n;
-    }
-
-    pollfd pfd;
-    pfd.fd = this->fd();
-    pfd.revents = 0;
-    pfd.events = POLLOUT;
-
-    bool ret = this->wait(_timeout, pfd);
-    if(false == ret)
-    {
-        throw IOTimeout();
-    }
-
-    return IODeviceImpl::endWrite();
-}*/
-
-
 void TcpSocketImpl::initWait(pollfd& pfd)
 {
     IODeviceImpl::initWait(pfd);

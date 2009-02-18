@@ -77,10 +77,6 @@ class TcpSocketImpl : public IODeviceImpl
 
         void accept(const TcpServer& server);
 
-        //size_t endRead(bool& eof);
-
-        //size_t endWrite();
-
         // implementation using poll
         void initWait(pollfd& pfd);
 
