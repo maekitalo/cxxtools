@@ -125,7 +125,8 @@ void Selectable::setEnabled(bool isEnabled)
         else
         {
             this->setState(_state);
-            // if(_parent) _parent->onReinit(*this)
+            if(_parent)
+                _parent->onReinit(*this);
         }
     }
     else

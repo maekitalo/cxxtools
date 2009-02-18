@@ -242,6 +242,11 @@ void Selector::onChanged(Selectable& s)
 }
 
 
+void Selector::onReinit(Selectable& s)
+{
+}
+
+
 bool Selector::onWait(std::size_t msecs)
 {
     return _impl->wait(msecs);

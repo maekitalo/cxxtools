@@ -149,6 +149,8 @@ namespace cxxtools {
 
             virtual void onRemove( Selectable& s );
 
+            virtual void onReinit(Selectable& s);
+
             virtual void onChanged(Selectable& s);
 
             virtual void onRun();
