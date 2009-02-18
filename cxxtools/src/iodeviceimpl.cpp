@@ -35,7 +35,6 @@
 #include <string.h>
 #include <fcntl.h>
 #include <sys/poll.h>
-#include <sys/select.h>
 
 namespace cxxtools {
 
