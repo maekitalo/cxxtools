@@ -1,6 +1,6 @@
 ACLOCAL_AMFLAGS = -I m4
 
-SUBDIRS = src include demo
+SUBDIRS = src src/unit include demo
 
 bin_SCRIPTS = cxxtools-config
 

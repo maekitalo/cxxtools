@@ -97,6 +97,7 @@ AC_CONFIG_FILES([cxxtools-config], [chmod +x cxxtools-config])
 AC_CONFIG_FILES([
   Makefile
   src/Makefile
+  src/unit/Makefile
   include/Makefile
   demo/Makefile
   ])
