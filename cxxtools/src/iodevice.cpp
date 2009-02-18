@@ -104,6 +104,7 @@ size_t IODevice::read(char* buffer, size_t n)
             catch(...)
             {
                 _rbuf = 0; _rbuflen = 0; _ravail = 0;
+                throw;
             }
         }
 
@@ -188,6 +189,7 @@ size_t IODevice::write(const char* buffer, size_t n)
         catch(...)
         {
             _wbuf = 0; _wbuflen = 0; _wavail = 0;
+            throw;
         }
     }
 
