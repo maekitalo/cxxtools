@@ -149,8 +149,11 @@ size_t IODeviceImpl::read( char* buffer, size_t count, bool& eof )
         ret = ::read( _fd, (void*)buffer, count);
         eof = (ret == 0) ;
 
-        if(ret >= 0 || errno == ECONNRESET)
+        if(ret >= 0)
             break;
+
+        if(errno == ECONNRESET)
+            return 0;
 
         if(errno == EINTR) // signal interrupt
             continue;
