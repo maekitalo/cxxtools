@@ -107,7 +107,8 @@ TestMethod* TestSuite::findTest(const std::string& name)
 void TestSuite::registerTest(TestMethod* test)
 {
     test->setParent(this);
-    _tests.insert( std::make_pair(test->name(), test) );
+    std::pair<const std::string, TestMethod*> p( test->name(), test );
+    _tests.insert( p );
 }
 
 

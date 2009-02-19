@@ -77,6 +77,11 @@ Application::Application()
 
 Application::~Application()
 {
+    std::list<Test*>::iterator it;
+    for(it = Application::tests().begin(); it != Application::tests().end(); ++it)
+    {
+        (*it)->setParent( 0 );
+    }
 }
 
 
