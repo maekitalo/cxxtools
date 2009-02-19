@@ -1,11 +1,9 @@
-bin_PROGRAMS = getini inifile md5sum
+bin_PROGRAMS = net-test 
 
 INCLUDES = -I../include
 
-md5sum_SOURCES = md5sum.cpp
-inifile_SOURCES = inifile.cpp
-getini_SOURCES = getini.cpp
+net_test_SOURCES = net-test.cpp tcpsockettest.cpp
 
-LDADD = $(top_builddir)/src/libcxxtools.la
+LDADD = $(top_builddir)/src/libcxxtools.la $(top_builddir)/src/unit/libcxxtools-unit.la
 AM_CXXFLAGS = $(PTHREAD_CFLAGS)
 AM_LDFLAGS = $(PTHREAD_LIBS)

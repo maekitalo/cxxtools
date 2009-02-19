@@ -96,6 +96,8 @@ namespace cxxtools {
 
             virtual bool checkPollEvent();
 
+            virtual bool checkPollEvent(pollfd& pfd);
+
         protected:
             IODevice& _device;
             int _fd;

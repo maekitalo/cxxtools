@@ -258,8 +258,8 @@ bool IODeviceImpl::wait(std::size_t msecs)
 {
     pollfd pfd;
     this->initWait(pfd);
-    this->wait(msecs);
-    return this->checkPollEvent();
+    this->wait(msecs, pfd);
+    return this->checkPollEvent(pfd);
 }
 
 
@@ -314,21 +314,28 @@ size_t IODeviceImpl::initializePoll(pollfd* pfd, size_t pollSize)
 
 bool IODeviceImpl::checkPollEvent()
 {
+    assert(_pfd != 0);
+    this->checkPollEvent(*_pfd);
+}
+
+
+bool IODeviceImpl::checkPollEvent(pollfd& pfd)
+{
     bool avail = false;
 
-    if (_pfd->revents & POLLERR_MASK)
+    if (pfd.revents & POLLERR_MASK)
     {
         _device.errorOccured(_device);
         avail = true;
     }
 
-    if( _pfd->revents & POLLOUT_MASK )
+    if( pfd.revents & POLLOUT_MASK )
     {
         _device.outputReady(_device);
         avail = true;
     }
 
-    if( _pfd->revents & POLLIN_MASK )
+    if( pfd.revents & POLLIN_MASK )
     {
         _device.inputReady(_device);
         avail = true;

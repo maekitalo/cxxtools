@@ -84,7 +84,7 @@ class TcpSocketImpl : public IODeviceImpl
         std::size_t initializePoll(pollfd* pfd, std::size_t pollSize);
 
         // implementation using poll
-        bool checkPollEvent();
+        bool checkPollEvent(pollfd& pfd);
 };
 
 } // namespace net

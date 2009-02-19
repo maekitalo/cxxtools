@@ -261,13 +261,11 @@ std::size_t TcpSocketImpl::initializePoll(pollfd* pfd, std::size_t pollSize)
 }
 
 
-bool TcpSocketImpl::checkPollEvent()
+bool TcpSocketImpl::checkPollEvent(pollfd& pfd)
 {
-    assert(_pfd != 0);
+    log_debug("checkPollEvent " << pfd.revents);
 
-    log_debug("checkPollEvent " << _pfd->revents);
-
-    if( _pfd->revents & POLLOUT )
+    if( pfd.revents & POLLOUT )
     {
         if( ! _isConnected )
         {
@@ -276,7 +274,7 @@ bool TcpSocketImpl::checkPollEvent()
         }
     }
 
-    return IODeviceImpl::checkPollEvent();
+    return IODeviceImpl::checkPollEvent(pfd);
 }
 
 } // namespace net
