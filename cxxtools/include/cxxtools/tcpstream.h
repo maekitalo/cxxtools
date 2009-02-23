@@ -121,7 +121,7 @@ namespace net
    * cxxtools::net::streambuf is a std::streambuf with a underlying socket.
    *
    */
-  class streambuf : public std::streambuf
+/*  class streambuf : public std::streambuf
   {
     public:
       /// initializes  the streambuf and allocates a buffer.
@@ -152,13 +152,13 @@ namespace net
       Stream&    m_stream;
       unsigned   m_bufsize;
       char_type* m_buffer;
-  };
+  };*/
 
   //////////////////////////////////////////////////////////////////////
   /**
    * std::iostream around a stream socket.
    */
-  class iostream : public std::iostream, public Stream
+/*  class iostream : public std::iostream, public Stream
   {
     public:
       /// Initializes a iostream with the given buffer sizce
@@ -220,7 +220,7 @@ namespace net
     private:
       streambuf m_buffer;
   };
-
+*/
     class TcpStream : public IOStream
     {
         public:
@@ -267,13 +267,19 @@ namespace net
             { return _socket.getTimeout(); }
 
             /// Returns true, if we can read without blocking.
-            /// This may fill the get buffer.
-            //bool canRead()
-            //{ return m_buffer.canRead(); }
+            bool canRead();
+
+            void close()
+            { _socket.close(); }
+
+            void connect(const std::string& ipaddr, unsigned short int port)
+            { _socket.connect(ipaddr, port); }
 
         private:
             TcpSocket _socket;
     };
+
+    typedef TcpStream iostream;
 
 } // namespace net
 

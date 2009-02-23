@@ -32,6 +32,7 @@
 #include <cxxtools/log.h>
 #include <sys/poll.h>
 #include <sys/socket.h>
+#include <sys/ioctl.h>
 #include <unistd.h>
 #include <netdb.h>
 #include <errno.h>
@@ -338,7 +339,7 @@ namespace net
     formatIp(peeraddr, ret);
     return ret;
   }
-*/
+
 
   streambuf::streambuf(Stream& stream, unsigned bufsize, int timeout)
     : m_stream(stream),
@@ -359,7 +360,7 @@ namespace net
 
       // NOTE: use std::streamsize, not Stream::size_type
       // NOTE: default is to write some bytes
-      std::streamsize n = m_stream.write(m_buffer, N/*, false*/);
+      std::streamsize n = m_stream.write(m_buffer, N); //, false);
       if (n <= 0)
         return traits_type::eof();
 
@@ -437,6 +438,21 @@ namespace net
     }
     return 0;
   }
+*/
+
+  bool TcpStream::canRead()
+  {
+      if( buffer().in_avail() > 0 )
+          return true;
+
+      unsigned long pendingBytes = 0;
+      if( -1 != ::ioctl(_socket.getFd(), FIONREAD, &pendingBytes) )
+      {
+           return pendingBytes;
+      }
+
+      return 0;
+   }
 
 } // namespace net
 
