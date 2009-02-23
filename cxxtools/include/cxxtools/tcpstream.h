@@ -37,6 +37,8 @@
 #include <cxxtools/net.h>
 #include <cxxtools/tcpserver.h>
 #include <cxxtools/tcpsocket.h>
+#include <cxxtools/streambuffer.h>
+#include <cxxtools/iostream.h>
 
 namespace cxxtools
 {
@@ -218,6 +220,60 @@ namespace net
     private:
       streambuf m_buffer;
   };
+
+    class TcpStream : public IOStream
+    {
+        public:
+            TcpStream(unsigned bufsize = 8192, std::size_t timeout = Selectable::WaitInfinite)
+            : IOStream(bufsize)
+            {
+                _socket.setTimeout(timeout);
+                this->attachDevice(_socket);
+            }
+
+            TcpStream(const std::string& ipaddr, unsigned short int port,
+                      unsigned bufsize = 8192, std::size_t timeout = Selectable::WaitInfinite)
+            : IOStream(bufsize)
+            , _socket(ipaddr, port)
+            {
+                _socket.setTimeout(timeout);
+                this->attachDevice(_socket);
+            }
+
+            TcpStream(const char* ipaddr, unsigned short int port,
+                      unsigned bufsize = 8192, std::size_t timeout = Selectable::WaitInfinite)
+            : IOStream(bufsize)
+            , _socket(ipaddr, port)
+            {
+                _socket.setTimeout(timeout);
+                this->attachDevice(_socket);
+            }
+
+            TcpStream(TcpServer& server, unsigned bufsize = 8192,
+                      std::size_t timeout = Selectable::WaitInfinite)
+            : IOStream(bufsize)
+            , _socket(server)
+            {
+               _socket.setTimeout(timeout);
+                this->attachDevice(_socket);
+            }
+
+            /// Set timeout to the given value in milliseconds.
+            void setTimeout(std::size_t timeout)
+            { _socket.setTimeout(timeout); }
+
+            /// Returns the current value for timeout in milliseconds.
+            std::size_t getTimeout() const
+            { return _socket.getTimeout(); }
+
+            /// Returns true, if we can read without blocking.
+            /// This may fill the get buffer.
+            //bool canRead()
+            //{ return m_buffer.canRead(); }
+
+        private:
+            TcpSocket _socket;
+    };
 
 } // namespace net
 

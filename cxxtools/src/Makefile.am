@@ -35,6 +35,7 @@ libcxxtools_la_SOURCES = \
 	iodevice.cpp \
 	iodeviceimpl.cpp \
 	ioerror.cpp \
+	iostream.cpp \
 	library.cpp \
 	libraryimpl.cpp \
 	log.cpp \

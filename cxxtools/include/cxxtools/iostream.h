@@ -197,7 +197,7 @@ class BasicIOStream : public std::basic_iostream<CharT>
 };
 
 
-class CXXTOOLS_SYSTEM_API IStream : public BasicIStream<char>
+class CXXTOOLS_API IStream : public BasicIStream<char>
 {
     public:
         IStream(size_t bufferSize = 8192);
@@ -217,7 +217,7 @@ class CXXTOOLS_SYSTEM_API IStream : public BasicIStream<char>
 };
 
 
-class CXXTOOLS_SYSTEM_API OStream : public BasicIStream<char>
+class CXXTOOLS_API OStream : public BasicIStream<char>
 {
     public:
         OStream(size_t bufferSize = 8192);
@@ -237,7 +237,7 @@ class CXXTOOLS_SYSTEM_API OStream : public BasicIStream<char>
 };
 
 
-class CXXTOOLS_SYSTEM_API IOStream : public BasicIOStream<char>
+class CXXTOOLS_API IOStream : public BasicIOStream<char>
 {
     public:
         IOStream(size_t bufferSize = 8192);
