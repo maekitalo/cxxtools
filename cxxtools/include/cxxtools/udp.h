@@ -30,6 +30,9 @@
 #define CXXTOOLS_NET_UDP_H
 
 #include <cxxtools/net.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <sys/types.h>
 
 namespace cxxtools
 {

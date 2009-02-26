@@ -31,25 +31,12 @@
 
 #include <cxxtools/ioerror.h>
 #include <cxxtools/noncopyable.h>
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <sys/types.h>
 
 namespace cxxtools
 {
 
 namespace net
 {
-  //////////////////////////////////////////////////////////////////////
-  /**
-   * net::Timeout is thrown on timeout.
-   */
-  /*class Timeout : public IOError
-  {
-    public:
-      Timeout();
-  };*/
-
   typedef IOTimeout Timeout;
 
   class AddressInUse : public IOError
@@ -82,7 +69,6 @@ namespace net
 
       /// Returns true, if a socket is held.
       bool good() const     { return m_sockFd >= 0; }
-      /// Liefert true zur�ck, wenn der Socket nicht ge�ffnet ist
       /// Returns true, if no socket is held.
       bool bad() const      { return m_sockFd <  0; }
       /// Returns true, if a socket is held.

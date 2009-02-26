@@ -29,7 +29,6 @@
 #ifndef CXXTOOLS_NET_TCPSTREAM_H
 #define CXXTOOLS_NET_TCPSTREAM_H
 
-#include <iostream>
 #include <string>
 #include <cxxtools/tcpserver.h>
 #include <cxxtools/tcpsocket.h>

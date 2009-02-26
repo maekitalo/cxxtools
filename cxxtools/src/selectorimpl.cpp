@@ -37,6 +37,7 @@
 #include <signal.h>
 #include <cassert>
 #include <iostream>
+#include <limits>
 
 namespace cxxtools {
 

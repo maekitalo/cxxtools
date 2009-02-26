@@ -31,6 +31,7 @@
 
 #include <cxxtools/api.h>
 #include <cxxtools/iodevice.h>
+#include <string>
 
 namespace cxxtools {
 

@@ -31,7 +31,6 @@
 #include <cxxtools/noncopyable.h>
 #include <cxxtools/api.h>
 #include <cxxtools/selector.h>
-#include <limits>
 
 namespace cxxtools {
 
