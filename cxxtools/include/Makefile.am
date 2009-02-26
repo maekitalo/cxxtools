@@ -56,6 +56,7 @@ nobase_include_HEADERS = \
         cxxtools/invokable.tpp \
         cxxtools/ioerror.h \
         cxxtools/iodevice.h \
+        cxxtools/iostream.h \
         cxxtools/library.h \
         cxxtools/log.h \
         cxxtools/loginit.h \

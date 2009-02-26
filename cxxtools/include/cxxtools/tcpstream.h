@@ -31,10 +31,6 @@
 
 #include <iostream>
 #include <string>
-#include <stdexcept>
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <cxxtools/net.h>
 #include <cxxtools/tcpserver.h>
 #include <cxxtools/tcpsocket.h>
 #include <cxxtools/streambuffer.h>
@@ -45,186 +41,14 @@ namespace cxxtools
 
 namespace net
 {
-  //////////////////////////////////////////////////////////////////////
-  /**
-   * Serversocket
-   */
-/*  class Server : public Socket
-  {
-      struct sockaddr_storage servaddr;
 
-    public:
-      Server()  {}
+    typedef TcpServer Server; // for compatibility
+    typedef TcpSocket Stream; // for compatibility
 
-      /// creates a server socket and listens on the address
-      Server(const std::string& ipaddr, unsigned short int port, int backlog = 5);
-
-      void listen(const std::string& ipaddr, unsigned short int port, int backlog = 5);
-
-      const struct sockaddr_storage& getAddr() const
-        { return servaddr; }
-
-    private:
-  };
-*/
-
-  typedef TcpServer Server;
-
-  //////////////////////////////////////////////////////////////////////
-  /**
-   * Stream client socket.
-   *
-   * Stream is a unbuffered client stream socket.
-   */
-/*  class Stream : public Socket
-  {
-      struct sockaddr_storage peeraddr;
-
-    public:
-      typedef size_t size_type;
-
-      /// initialize an empty stream socket
-      Stream();
-      /// initialize and accepts a connection from a server.
-      explicit Stream(const Server& server);
-
-      /// Creates a connected socket to the specified ip adress.
-      Stream(const std::string& ipaddr, unsigned short int port);
-
-      /// Creates a socket from an existing file descriptor. The class takes
-      /// the ownership of this descriptor. That means, that the descriptor is
-      /// closed, when the stream is destroyed.
-      explicit Stream(int fd)
-        : Socket(fd)
-        { }
-
-      /// On error a exception of type cxxtools::net::Exception is thrown.
-      void accept(const Server& server);
-      /// Connects to the passed ip address.
-      void connect(const std::string& ipaddr, unsigned short int port);
-
-      /// reads up to bufsize bytes from the socket.
-      size_type read(char* buffer, size_type bufsize) const;
-      /// Writes up to bufsize bytes to the socket.
-      /// If flush is not set, the write may return after less than bufsize
-      /// bytes are sent.
-      size_type write(const char* buffer, size_type bufsize, bool flush = true) const;
-
-      /// returns the current peer address.
-      std::string getPeerAddr() const;
-  };*/
-
-  typedef TcpSocket Stream;
-
-  //////////////////////////////////////////////////////////////////////
-  /**
-   * cxxtools::net::streambuf is a std::streambuf with a underlying socket.
-   *
-   */
-/*  class streambuf : public std::streambuf
-  {
-    public:
-      /// initializes  the streambuf and allocates a buffer.
-      explicit streambuf(Stream& stream, unsigned bufsize = 8192,
-        int timeout = -1);
-
-      /// all resources are freed
-      ~streambuf()
-      { delete[] m_buffer; }
-
-      /// sets the timeout to t in milliseconds.
-      /// If the time is < 0, the socket uses blocking operations.
-      void setTimeout(int t)   { m_stream.setTimeout(t); }
-
-      /// return the current timeout value.
-      int getTimeout() const   { return m_stream.getTimeout(); }
-
-      /// overridden from std::streambuf
-      int_type overflow(int_type c);
-      /// overridden from std::streambuf
-      int_type underflow();
-      /// overridden from std::streambuf
-      int sync();
-
-      bool canRead();
-
-    private:
-      Stream&    m_stream;
-      unsigned   m_bufsize;
-      char_type* m_buffer;
-  };*/
-
-  //////////////////////////////////////////////////////////////////////
-  /**
-   * std::iostream around a stream socket.
-   */
-/*  class iostream : public std::iostream, public Stream
-  {
-    public:
-      /// Initializes a iostream with the given buffer sizce
-      explicit iostream(unsigned bufsize = 8192, int timeout = -1)
-        : std::iostream(0),
-          m_buffer(*this, bufsize, timeout)
-      {
-        init(&m_buffer);
-      }
-
-      /// Accepts a connection from a server socket.
-      explicit iostream(Server& server, unsigned bufsize = 8192, int timeout = -1)
-        : std::iostream(0),
-          Stream(server),
-          m_buffer(*this, bufsize, timeout)
-      {
-        rdbuf(&m_buffer);
-      }
-
-      /// Connects to a server.
-      iostream(const char* ipaddr, unsigned short int port, unsigned bufsize = 8192)
-        : std::iostream(0),
-          Stream(ipaddr, port),
-          m_buffer(*this, bufsize)
-      {
-        rdbuf(&m_buffer);
-      }
-
-      /// Connects to a server.
-      iostream(const std::string& ipaddr, unsigned short int port, unsigned bufsize = 8192)
-        : std::iostream(0),
-          Stream(ipaddr, port),
-          m_buffer(*this, bufsize)
-      {
-        rdbuf(&m_buffer);
-      }
-
-      /// override to resolve ambiguity between istream::read and Stream::read
-      std::istream& read(char* s, std::streamsize n)
-        { return std::iostream::read(s, n); }
-
-      /// override to resolve ambiguity between ostream::write and Stream::write
-      std::ostream& write(const char* s, std::streamsize n)
-        { return std::iostream::write(s, n); }
-
-      /// override to resolve ambiguity between istream::peek and Stream::peek
-      std::ostream::int_type peek()
-        { return std::iostream::peek(); }
-
-      /// Set timeout to the given value in milliseconds.
-      void setTimeout(int timeout)  { m_buffer.setTimeout(timeout); }
-      /// Returns the current value for timeout in milliseconds.
-      int getTimeout() const        { return m_buffer.getTimeout(); }
-
-      /// Returns true, if we can read without blocking.
-      /// This may fill the get buffer.
-      bool canRead()                { return m_buffer.canRead(); }
-
-    private:
-      streambuf m_buffer;
-  };
-*/
     class TcpStream : public IOStream
     {
         public:
-            TcpStream(unsigned bufsize = 8192, std::size_t timeout = Selectable::WaitInfinite)
+            explicit TcpStream(unsigned bufsize = 8192, std::size_t timeout = Selectable::WaitInfinite)
             : IOStream(bufsize)
             {
                 _socket.setTimeout(timeout);
@@ -249,7 +73,7 @@ namespace net
                 this->attachDevice(_socket);
             }
 
-            TcpStream(TcpServer& server, unsigned bufsize = 8192,
+            explicit TcpStream(TcpServer& server, unsigned bufsize = 8192,
                       std::size_t timeout = Selectable::WaitInfinite)
             : IOStream(bufsize)
             , _socket(server)
@@ -274,6 +98,21 @@ namespace net
 
             void connect(const std::string& ipaddr, unsigned short int port)
             { _socket.connect(ipaddr, port); }
+
+            void accept(const TcpServer& server)
+            { _socket.accept(server); }
+
+            std::string getSockAddr() const
+            { return _socket.getSockAddr(); }
+
+            std::string getPeerAddr() const
+            { return _socket.getPeerAddr(); }
+
+            bool isConnected() const
+            { return _socket.isConnected(); }
+
+            int getFd() const
+            { return _socket.getFd(); }
 
         private:
             TcpSocket _socket;

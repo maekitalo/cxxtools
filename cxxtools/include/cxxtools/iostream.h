@@ -200,7 +200,7 @@ class BasicIOStream : public std::basic_iostream<CharT>
 class CXXTOOLS_API IStream : public BasicIStream<char>
 {
     public:
-        IStream(size_t bufferSize = 8192);
+        explicit IStream(size_t bufferSize = 8192);
 
         ~IStream();
 
@@ -220,7 +220,7 @@ class CXXTOOLS_API IStream : public BasicIStream<char>
 class CXXTOOLS_API OStream : public BasicIStream<char>
 {
     public:
-        OStream(size_t bufferSize = 8192);
+        explicit OStream(size_t bufferSize = 8192);
 
         OStream(IODevice& device, size_t bufferSize = 8192);
 
