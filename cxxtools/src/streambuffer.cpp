@@ -33,17 +33,17 @@
 
 namespace cxxtools {
 
-StreamBuffer::StreamBuffer(IODevice& ioDevice, size_t bufferSize)
+StreamBuffer::StreamBuffer(IODevice& ioDevice, size_t bufferSize, bool extend)
 : _ioDevice(&ioDevice),
-  _ibuffer(0),
-  _obuffer(0),
   _bufferSize(bufferSize+4),
+  _ibuffer(0),
+  _obufferSize(bufferSize),
+  _obuffer(0),
+  _oextend(extend),
   _pbmax(4),
-  _syncing(false),
+  _reading(false),
   _flushing(false)
 {
-    //_ibuffer = new char[_bufferSize];
-
     this->setg(0, 0, 0);
     this->setp(0, 0);
 
@@ -51,17 +51,17 @@ StreamBuffer::StreamBuffer(IODevice& ioDevice, size_t bufferSize)
 }
 
 
-StreamBuffer::StreamBuffer(size_t bufferSize)
+StreamBuffer::StreamBuffer(size_t bufferSize, bool extend)
 : _ioDevice(0),
-  _ibuffer(0),
-  _obuffer(0),
   _bufferSize(bufferSize+4),
+  _ibuffer(0),
+  _obufferSize(bufferSize),
+  _obuffer(0),
+  _oextend(extend),
   _pbmax(4),
-  _syncing(false),
+  _reading(false),
   _flushing(false)
 {
-    //_ibuffer = new char[_bufferSize];
-
     this->setg(0, 0, 0);
     this->setp(0, 0);
 }
@@ -102,7 +102,7 @@ IODevice* StreamBuffer::device()
 
 void StreamBuffer::beginRead()
 {
-    if(_syncing || _ioDevice == 0)
+    if(_reading || _ioDevice == 0)
         return;
 
     if( ! _ibuffer )
@@ -129,7 +129,7 @@ void StreamBuffer::beginRead()
 
     size_t used = _pbmax + leftover;
     _ioDevice->beginRead( _ibuffer + used, _bufferSize - used );
-    _syncing = true;
+    _reading = true;
 
     this->setg( _ibuffer + (_pbmax - putback), // start of get area
                 _ibuffer + used, // gptr position
@@ -147,7 +147,7 @@ void StreamBuffer::onRead(IODevice& dev)
 void StreamBuffer::endRead()
 {
     size_t readSize = _ioDevice->endRead();
-    _syncing = false;
+    _reading = false;
 
     this->setg( this->eback(), // start of get area
                 this->gptr(), // gptr position
@@ -160,7 +160,7 @@ StreamBuffer::int_type StreamBuffer::underflow()
     if( ! _ioDevice )
         return traits_type::eof();
 
-    if(_syncing)
+    if(_reading)
         this->endRead();
 
     if( this->gptr() < this->egptr() )
@@ -199,7 +199,7 @@ StreamBuffer::int_type StreamBuffer::underflow()
 
 std::streamsize StreamBuffer::showmanyp()
 {
-    return _bufferSize;
+    return 0;
 }
 
 
@@ -244,7 +244,7 @@ void StreamBuffer::endWrite()
         }
     }
 
-    this->setp(_obuffer + leftover, _obuffer + _bufferSize);
+    this->setp(_obuffer + leftover, _obuffer + _obufferSize);
 }
 
 
@@ -255,25 +255,41 @@ StreamBuffer::int_type StreamBuffer::overflow(int_type ch)
 
     if( ! _obuffer )
     {
-        _obuffer = new char[_bufferSize];
-        this->setp(_obuffer, _obuffer + _bufferSize);
+        _obuffer = new char[_obufferSize];
+        this->setp(_obuffer, _obuffer + _obufferSize);
     }
 
-    if(_flushing)
+    if(_flushing) // beginWrite is unfinished
     {
         this->endWrite();
     }
-    else if( this->pptr() > this->pbase() )
+    else if( this->pptr() == this->epptr() ) // buffer is full
     {
-        size_t avail = this->pptr() - this->pbase();
-        size_t written = _ioDevice->write(_obuffer, avail);
-        size_t leftover = avail - written;
-
-        if(leftover > 0)
+        // if the buffer area is extensible and overflow is not called by
+        // sync/flush we copy the output buffer to a larger one
+        bool isFlush = traits_type::eq_int_type( ch, traits_type::eof() );
+        if( _oextend && ! isFlush )
         {
-            traits_type::move(_obuffer, _obuffer + written, leftover);
+            size_t bufsize = _obufferSize + (_obufferSize/2);
+            char* buf = new char[ bufsize ];
+            traits_type::move(buf, _obuffer, _obufferSize);
+            std::swap(_obuffer, buf);
+            _obufferSize = bufsize;
+            delete [] buf;
         }
-        this->setp(_obuffer + leftover, _obuffer + _bufferSize);
+        else
+        {
+            // normal blocking overflow case
+            size_t avail = this->pptr() - this->pbase();
+            size_t written = _ioDevice->write(_obuffer, avail);
+            size_t leftover = avail - written;
+
+            if(leftover > 0)
+            {
+                traits_type::move(_obuffer, _obuffer + written, leftover);
+            }
+            this->setp(_obuffer + leftover, _obuffer + _obufferSize);
+        }
     }
 
     // if the overflow char is not EOF put it in buffer
@@ -348,7 +364,7 @@ StreamBuffer::seekoff(off_type off, std::ios::seekdir dir, std::ios::openmode)
         this->endWrite();
     }
 
-    if(_syncing)
+    if(_reading)
     {
         this->endRead();
     }
