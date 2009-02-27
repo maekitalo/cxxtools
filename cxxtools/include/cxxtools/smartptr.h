@@ -189,6 +189,14 @@ namespace cxxtools
       { delete ptr; }
   };
 
+  template <typename T>
+  class FreeDestroyPolicy
+  {
+    protected:
+      void destroy(T* ptr)
+      { free(ptr); }
+  };
+
   template <typename objectType>
   class ArrayDestroyPolicy
   {
