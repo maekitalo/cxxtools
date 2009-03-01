@@ -1,6 +1,6 @@
 bin_PROGRAMS = net-test 
 
-INCLUDES = -I../include
+INCLUDES = -I$(top_builddir)/include
 
 net_test_SOURCES = net-test.cpp tcpsockettest.cpp
 

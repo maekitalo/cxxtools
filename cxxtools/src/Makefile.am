@@ -139,6 +139,11 @@ libcxxtools_la_SOURCES += \
 	atomicity.gcc.sparc.cpp
 endif
 
+if MAKE_ATOMICITY_GCC_AVR32
+libcxxtools_la_SOURCES += \
+	atomicity.gcc.avr32.cpp
+endif
+
 if MAKE_ATOMICITY_PTHREAD
 libcxxtools_la_SOURCES += \
 	atomicity.pthread.cpp
@@ -149,7 +154,7 @@ libcxxtools_la_SOURCES += \
 	atomicity.generic.cpp
 endif
 
-libcxxtools_la_LIBADD = $(DLLIBADD) $(LIBICONV)
+libcxxtools_la_LIBADD = $(LIBICONV)
 libcxxtools_la_CXXFLAGS = $(PTHREAD_CFLAGS)
 libcxxtools_la_LDFLAGS = -version-info @sonumber@ $(PTHREAD_LIBS) @SHARED_LIB_FLAG@
 

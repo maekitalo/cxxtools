@@ -142,6 +142,24 @@ AC_DEFUN([AC_CXXTOOLS_ATOMICTYPE],
                               : "=r" (tmp), "=m" (val)
                               : "0" (1), "m" (val));
         } ])
+  AC_CHECKATOMICTYPE([att_avr32], [CXXTOOLS_ATOMICITY_GCC_AVR32],
+      [ 
+        typedef int atomic_t;
+        void atomicIncrement(volatile atomic_t& val)
+        {
+                volatile uint8_t tmp;
+                asm volatile(
+                    "in %0, __SREG__"           "\n\t"
+                    "cli"                       "\n\t"
+                    "ld __tmp_reg__, %a1"       "\n\t"
+                    "inc __tmp_reg__"           "\n\t"
+                    "st %a1, __tmp_reg__"       "\n\t"
+                    "out __SREG__, %0"          "\n\t"
+                    : "=&r" (tmp)
+                    : "e" (&val)
+                    : "memory"
+                );
+        } ])
   if test "$ac_cxxtools_atomicity" = "pthread"
   then
     CXXTOOLS_ATOMICITY=CXXTOOLS_ATOMICITY_PTHREAD
