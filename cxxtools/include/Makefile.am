@@ -118,17 +118,18 @@ nobase_include_HEADERS = \
         cxxtools/log/log4cplus_init.h \
         cxxtools/log/log4cxx.h \
         cxxtools/log/log4cxx_init.h \
-        cxxtools/unit/assertion.h \
-        cxxtools/unit/reporter.h \
-        cxxtools/unit/testcase.h \
-        cxxtools/unit/testfixture.h \
-        cxxtools/unit/testmethod.h \
-        cxxtools/unit/testsuite.h \
         cxxtools/unit/application.h \
+        cxxtools/unit/assertion.h \
         cxxtools/unit/registertest.h \
+        cxxtools/unit/reporter.h \
         cxxtools/unit/test.h \
+        cxxtools/unit/testcase.h \
         cxxtools/unit/testcontext.h \
-        cxxtools/unit/testprotocol.h
+        cxxtools/unit/testfixture.h \
+        cxxtools/unit/testmain.h \
+        cxxtools/unit/testmethod.h \
+        cxxtools/unit/testprotocol.h \
+        cxxtools/unit/testsuite.h
 
 nobase_nodist_include_HEADERS = \
         cxxtools/config.h

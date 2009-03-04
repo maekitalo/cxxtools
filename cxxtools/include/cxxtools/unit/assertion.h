@@ -22,6 +22,7 @@
 #include "cxxtools/sourceinfo.h"
 #include <stdexcept>
 #include <iostream>
+#include <sstream>
 
 namespace cxxtools {
 
@@ -72,6 +73,14 @@ namespace unit {
 
     #define CXXTOOLS_UNIT_ASSERT_MSG(cond, what) \
         if( !(cond) ) throw cxxtools::unit::Assertion((what), CXXTOOLS_SOURCEINFO);
+
+    #define CXXTOOLS_UNIT_ASSERT_EQUALS(value1, value2) \
+        if( ! ((value1) == (value2)) ) \
+        { \
+          std::ostringstream msg; \
+          msg << "not equal: value1 (\"" #value1 "\")=" << value1 << " value2 (\"" #value2 "\")=" << value2; \
+          throw cxxtools::unit::Assertion(msg.str(), CXXTOOLS_SOURCEINFO); \
+        }
 
     #define CXXTOOLS_UNIT_ASSERT_THROW(cond, EX) \
         try { \
