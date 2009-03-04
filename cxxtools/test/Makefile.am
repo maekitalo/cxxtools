@@ -1,4 +1,4 @@
-bin_PROGRAMS = net-test 
+noinst_PROGRAMS = net-test 
 
 INCLUDES = -I$(top_builddir)/include
 
