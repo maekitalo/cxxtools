@@ -31,6 +31,7 @@
 #include <cxxtools/arg.h>
 #include <cxxtools/unit/reporter.h>
 #include <cxxtools/unit/application.h>
+#include <cxxtools/loginit.h>
 #include <fstream>
 
 // TODO: move to application class later
@@ -59,6 +60,8 @@ int main(int argc, char** argv)
         }
         return 0;
     }
+
+    log_init();
 
     cxxtools::unit::BriefReporter consoleReporter;
     app.attachReporter(consoleReporter);
