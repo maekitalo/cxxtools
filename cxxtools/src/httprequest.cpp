@@ -132,6 +132,7 @@ namespace cxxtools
           connection << url << " HTTP/1.1\r\n"
                         "Host: " << host << "\r\n"
                         "Content-Length: " << b.size() << "\r\n"
+                        "Content-Type: application/x-www-form-urlencoded\r\n"
                         "Connection: close\r\n";
           for (Headers::const_iterator it = headers.begin(); it != headers.end(); ++it)
             connection << it->first << ' ' << it->second << "\r\n";
