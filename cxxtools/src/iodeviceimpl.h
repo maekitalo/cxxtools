@@ -103,6 +103,7 @@ namespace cxxtools {
             int _fd;
             std::size_t _timeout;
             pollfd* _pfd;
+            bool* _deleted;
     };
 
 } //namespace cxxtools

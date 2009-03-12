@@ -47,6 +47,7 @@ IODeviceImpl::IODeviceImpl(IODevice& device)
 , _fd(-1)
 , _timeout(Selectable::WaitInfinite)
 , _pfd(0)
+, _deleted(0)
 { }
 
 
@@ -323,11 +324,17 @@ bool IODeviceImpl::checkPollEvent(pollfd& pfd)
 {
     bool avail = false;
 
+    bool deleted = false;
+    _deleted = &deleted;
+
     if (pfd.revents & POLLERR_MASK)
     {
         _device.errorOccured(_device);
         avail = true;
     }
+
+    if(deleted)
+        return avail;
 
     if( pfd.revents & POLLOUT_MASK )
     {
@@ -335,11 +342,17 @@ bool IODeviceImpl::checkPollEvent(pollfd& pfd)
         avail = true;
     }
 
+    if(deleted)
+        return avail;
+
     if( pfd.revents & POLLIN_MASK )
     {
         _device.inputReady(_device);
         avail = true;
     }
+
+    if( ! deleted )
+        _deleted = 0;
 
     return avail;
 }
