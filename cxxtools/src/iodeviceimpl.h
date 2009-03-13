@@ -39,6 +39,34 @@ struct pollfd;
 
 namespace cxxtools {
 
+    struct DestructionSentry
+    {
+        DestructionSentry(DestructionSentry*& sentry)
+        : _deleted(false)
+        , _sentry(sentry)
+        {
+           sentry = this;
+        }
+
+        ~DestructionSentry()
+        {
+            if( ! _deleted )
+                this->detach();
+        }
+
+        bool operator!() const
+        { return _deleted; }
+
+        void detach()
+        {
+            _sentry = 0;
+            _deleted = true;
+        }
+
+        bool _deleted;
+        DestructionSentry*& _sentry;
+    };
+
     class IODeviceImpl : public SelectableImpl
     {
         public:
@@ -103,7 +131,7 @@ namespace cxxtools {
             int _fd;
             std::size_t _timeout;
             pollfd* _pfd;
-            bool* _deleted;
+            DestructionSentry* _sentry;
     };
 
 } //namespace cxxtools

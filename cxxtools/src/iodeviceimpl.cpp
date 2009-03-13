@@ -47,7 +47,7 @@ IODeviceImpl::IODeviceImpl(IODevice& device)
 , _fd(-1)
 , _timeout(Selectable::WaitInfinite)
 , _pfd(0)
-, _deleted(0)
+, _sentry(0)
 { }
 
 
@@ -55,6 +55,9 @@ IODeviceImpl::IODeviceImpl(IODevice& device)
 IODeviceImpl::~IODeviceImpl()
 {
     assert(_pfd == 0);
+
+    if(_sentry)
+        _sentry->detach();
 }
 
 
@@ -324,8 +327,7 @@ bool IODeviceImpl::checkPollEvent(pollfd& pfd)
 {
     bool avail = false;
 
-    bool deleted = false;
-    _deleted = &deleted;
+    DestructionSentry sentry(_sentry);
 
     if (pfd.revents & POLLERR_MASK)
     {
@@ -333,7 +335,7 @@ bool IODeviceImpl::checkPollEvent(pollfd& pfd)
         avail = true;
     }
 
-    if(deleted)
+    if( ! _sentry )
         return avail;
 
     if( pfd.revents & POLLOUT_MASK )
@@ -342,7 +344,7 @@ bool IODeviceImpl::checkPollEvent(pollfd& pfd)
         avail = true;
     }
 
-    if(deleted)
+    if( ! _sentry )
         return avail;
 
     if( pfd.revents & POLLIN_MASK )
@@ -350,9 +352,6 @@ bool IODeviceImpl::checkPollEvent(pollfd& pfd)
         _device.inputReady(_device);
         avail = true;
     }
-
-    if( ! deleted )
-        _deleted = 0;
 
     return avail;
 }
