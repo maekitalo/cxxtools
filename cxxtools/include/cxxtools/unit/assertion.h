@@ -77,9 +77,9 @@ namespace unit {
     #define CXXTOOLS_UNIT_ASSERT_EQUALS(value1, value2) \
         if( ! ((value1) == (value2)) ) \
         { \
-          std::ostringstream msg; \
-          msg << "not equal: value1 (\"" #value1 "\")=" << value1 << " value2 (\"" #value2 "\")=" << value2; \
-          throw cxxtools::unit::Assertion(msg.str(), CXXTOOLS_SOURCEINFO); \
+          std::ostringstream _cxxtools_msg; \
+          _cxxtools_msg << "not equal: value1 (" #value1 ")=<" << value1 << "> value2 (" #value2 ")=<" << value2 << '>'; \
+          throw cxxtools::unit::Assertion(_cxxtools_msg.str(), CXXTOOLS_SOURCEINFO); \
         }
 
     #define CXXTOOLS_UNIT_ASSERT_THROW(cond, EX) \
