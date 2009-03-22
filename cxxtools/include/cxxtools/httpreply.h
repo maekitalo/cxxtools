@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2005 Tommi Maekitalo
+ * Copyright (C) 2009 by Marc Boris Duerner, Tommi Maekitalo
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,80 +26,92 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef CXXTOOLS_HTTPREPLY_H
-#define CXXTOOLS_HTTPREPLY_H
+#ifndef cxxtools_Net_HttpReply_h
+#define cxxtools_Net_HttpReply_h
 
-#include <iostream>
-#include <map>
+#include <cxxtools/api.h>
+#include <cxxtools/httpreplyheader.h>
+#include <string>
+#include <sstream>
 
-namespace cxxtools
+namespace cxxtools {
+
+namespace net {
+
+class HttpRequest;
+
+class HttpReply
 {
-  class HttpRequest;
-
-  /**
-   Reads a http-reply from a input stream and parses it.
-
-   cxxtools::HttpReply helps parsing a http reply sent from a http-server.
-   It is itself a istream, which returns the body from the http-reply.
-
-   See cxxtools::HttpRequest for a simple use case.
-
-   */
-  class HttpReply : public std::istream
-  {
-      class Parser;
-      friend class Parser;
-
-      void parse_header();
-
-      typedef std::map<std::string, std::string> header_type;
-      header_type header;
-      unsigned returncode;
+        HttpReplyHeader _header;
+        std::ostringstream _body;
 
     public:
-      /// Instantiates an empty http reply object.
-      /// To associate a request with this object, you may use std::ios::rdbuf.
-      HttpReply()
-        : std::istream(0),
-          returncode(0)
-        { }
+        HttpReply()
+            { }
 
-      /// Executes the request and starts reading the reply from the server.
-      HttpReply(HttpRequest& request);
+        HttpReplyHeader& header()
+        { return _header; }
 
-      /// Reads a http-reply from a input stream.
-      explicit HttpReply(std::istream& request)
-        : std::istream(request.rdbuf())
-      {
-        parse_header();
-      }
+        const HttpReplyHeader& header() const
+        { return _header; }
 
-      /// Reads a reply from a request object.
-      /// The the request is executed, if not done already.
-      void get(HttpRequest& request);
+        void setHeader(const std::string& key, const std::string& value)
+        {
+            _header.setHeader(key, value);
+        }
 
-      /// Returns a http-reply header.
-      /// If the header is not set, the passed default value is returned
-      const std::string& getHeader(const std::string& name, const std::string& def = std::string()) const
-      {
-        header_type::const_iterator it = header.find(name);
-        return it == header.end() ? def : it->second;
-      }
+        void addHeader(const std::string& key, const std::string& value)
+        {
+            _header.addHeader(key, value);
+        }
 
-      /// Returns all http-reply-headers to the output-iterator.
-      /// Only the key of the headers are returned, so the dereferenced output
-      /// iterator need to have an assignment for a std::string.
-      template <typename outputIterator>
-      void getHeaders(outputIterator oit) const
-      {
-        for (header_type::const_iterator it = header.begin(); it != header.end(); ++it)
-          (*oit++) = it->first;
-      }
+        void removeHeader(const std::string& key)
+        {
+            _header.removeHeader(key);
+        }
 
-      /// Returns the http-return code, received from the server.
-      unsigned getReturnCode() const  { return returncode; }
-  };
-}
+        std::string getHeader(const std::string& key) const
+        {
+            return _header.getHeader(key);
+        }
 
-#endif // CXXTOOLS_HTTPREPLY_H
+        bool hasHeader(const std::string& key) const
+        {
+            return _header.hasHeader(key);
+        }
 
+        void clear()
+        {
+            _header.clear();
+            _body.clear();
+            _body.str(std::string());
+        }
+
+        unsigned httpReturnCode() const
+        { return _header.httpReturnCode(); }
+
+        const std::string& httpReturnText() const
+        { return _header.httpReturnText(); }
+
+        void httpReturn(unsigned c, const std::string& t)
+        { _header.httpReturn(c, t); }
+
+        std::string bodyStr() const
+        { return _body.str(); }
+
+        std::ostream& body()
+        { return _body; }
+
+        std::size_t bodySize() const
+        { return _body.str().size(); }
+
+        void sendBody(std::ostream& out) const
+        { out << _body.str(); }
+
+};
+
+} // namespace net
+
+} // namespace cxxtools
+
+#endif

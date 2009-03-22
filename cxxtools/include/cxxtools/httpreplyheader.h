@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003 Tommi Maekitalo
+ * Copyright (C) 2009 by Marc Boris Duerner, Tommi Maekitalo
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,37 +26,52 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <exception>
-#include <iostream>
-#include <cxxtools/httpclient.h>
-#include <cxxtools/arg.h>
-#include <cxxtools/loginit.h>
+#ifndef cxxtools_Net_HttpReplyHeader_h
+#define cxxtools_Net_HttpReplyHeader_h
 
-int main(int argc, char* argv[])
+#include <cxxtools/api.h>
+#include <cxxtools/httpmessageheader.h>
+
+namespace cxxtools {
+
+namespace net {
+
+class HttpRequestHeader;
+
+class HttpReplyHeader : public HttpMessageHeader
 {
-  try
-  {
-    log_init();
+        unsigned _httpReturnCode;
+        std::string _httpReturnText;
 
-    cxxtools::Arg<bool> headers(argc, argv, 'h');
-    cxxtools::Arg<bool> returncode(argc, argv, 'c');
-    cxxtools::Arg<std::string> user(argc, argv, 'u');   // TODO auth
-    cxxtools::Arg<std::string> server(argc, argv, 's', "127.0.0.1");
-    cxxtools::Arg<unsigned short int> port(argc, argv, 'p', 80);
+    public:
+        HttpReplyHeader()
+            : _httpReturnCode(200),
+              _httpReturnText("OK")
+            { }
 
-    //std::string::size_type p = user.getValue().find('/');
-    //if (p != std::string::npos)
-      //request.setAuth(user.getValue().substr(0, p),
-                      //user.getValue().substr(p + 1));
+        void clear()
+        {
+            HttpMessageHeader::clear();
+            _httpReturnCode = 200;
+            _httpReturnText = "OK";
+        }
 
-    cxxtools::net::HttpClient client(server, port);
+        unsigned httpReturnCode() const
+        { return _httpReturnCode; }
 
-    for (int a = 1; a < argc; ++a)
-        std::cout << client.get(argv[a]);
-  }
-  catch (const std::exception& e)
-  {
-    std::cerr << e.what() << std::endl;
-  }
-}
+        const std::string& httpReturnText() const
+        { return _httpReturnText; }
 
+        void httpReturn(unsigned c, const std::string& t)
+        {
+            _httpReturnCode = c;
+            _httpReturnText = t;
+        }
+
+};
+
+} // namespace net
+
+} // namespace cxxtools
+
+#endif

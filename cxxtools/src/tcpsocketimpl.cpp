@@ -182,11 +182,23 @@ void TcpSocketImpl::endConnect()
             pfd.revents = 0;
             pfd.events = POLLOUT;
 
+            log_debug("wait " << timeout() << " ms");
             bool ret = this->wait(this->timeout(), pfd);
             if(false == ret)
             {
+                log_debug("timeout");
                 throw IOTimeout();
             }
+
+            log_debug("connect");
+            if( ::connect(this->fd(), reinterpret_cast<const sockaddr*>(&_peeraddr), sizeof(_peeraddr)) == 0 )
+            {
+                _isConnected = true;
+                log_debug("connected successfuly");
+                return;
+            }
+
+            log_debug("get error");
 
             int sockerr;
             socklen_t optlen = sizeof(sockerr);
@@ -195,12 +207,7 @@ void TcpSocketImpl::endConnect()
                 throw SystemError("getsockopt");
             }
 
-            if(sockerr != 0)
-            {
-                throw SystemError("connect");
-            }
-
-            _isConnected = true;
+            throw SystemError("connect");
         }
         catch(...)
         {

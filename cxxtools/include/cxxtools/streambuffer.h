@@ -45,9 +45,9 @@ class BasicStreamBuffer : public std::basic_streambuf<CharT>
         std::streamsize out_avail()
         {
             if( this->pptr() )
-                return this->epptr() - this->pptr();
+                return this->pptr() - this->pbase();
 
-             return this->showmanyp();
+             return this->showfull();
         }
 
      protected:
@@ -60,7 +60,7 @@ class BasicStreamBuffer : public std::basic_streambuf<CharT>
             return 1;
         }
 
-        virtual std::streamsize showmanyp()
+        virtual std::streamsize showfull()
         { return 0; }
 };
 
@@ -70,10 +70,10 @@ class CXXTOOLS_API StreamBuffer : public BasicStreamBuffer<char>
 {
     public:
         //! @brief Contructs an IOBuffer for an IODevice
-        StreamBuffer(IODevice& ioDevice, size_t bufferSize = 8192, bool extend = false);
+        explicit StreamBuffer(IODevice& ioDevice, size_t bufferSize = 8192, bool extend = false);
 
         //! @brief Default constructor
-        StreamBuffer(size_t bufferSize = 8192, bool extend = false);
+        explicit StreamBuffer(size_t bufferSize = 8192, bool extend = false);
 
         ~StreamBuffer();
 
@@ -85,6 +85,8 @@ class CXXTOOLS_API StreamBuffer : public BasicStreamBuffer<char>
 
         void beginWrite();
 
+        void discard();
+
         Signal<StreamBuffer&> inputReady;
 
         Signal<StreamBuffer&> outputReady;
@@ -92,7 +94,7 @@ class CXXTOOLS_API StreamBuffer : public BasicStreamBuffer<char>
     protected:
         virtual int sync();
 
-        virtual std::streamsize showmanyp();
+        virtual std::streamsize showfull();
 
         virtual std::streamsize xspeekn(char* buffer, std::streamsize size);
 

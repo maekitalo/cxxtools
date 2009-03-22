@@ -27,8 +27,10 @@ libcxxtools_la_SOURCES = \
 	fileimpl.cpp \
 	fileinfo.cpp \
 	hdstream.cpp \
-	httpreply.cpp \
-	httprequest.cpp \
+	httpclient.cpp \
+	httpmessageheader.cpp \
+	httpparser.cpp \
+	httpserver.cpp \
 	iconvstream.cpp \
 	inifile.cpp \
 	iniparser.cpp \
