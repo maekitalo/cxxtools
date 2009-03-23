@@ -42,8 +42,8 @@
 #elif defined(CXXTOOLS_ATOMICITY_GCC_MIPS)
     #include <cxxtools/atomicity.gcc.mips.h>
 
-#elif defined(CXXTOOLS_ATOMICITY_GCC_MIPS)
-    #include <cxxtools/atomicity.gcc.ppc.h>
+#elif defined(CXXTOOLS_ATOMICITY_GCC_AVR32)
+    #include <cxxtools/atomicity.gcc.avr32.h>
 
 #elif defined(CXXTOOLS_ATOMICITY_GCC_SPARC)
     #include <cxxtools/atomicity.gcc.sparc.h>
@@ -59,6 +59,55 @@
 
 #elif defined(CXXTOOLS_ATOMICITY_PTHREAD)
     #include <cxxtools/atomicity.pthread.h>
+
+#elif defined(_WIN32) || defined(WIN32) || defined(_WIN32_WCE)
+    #define CXXTOOLS_ATOMICITY_WINDOWS
+    #include <cxxtools/atomicity.windows.h>
+
+#elif defined(__sun)
+    #define CXXTOOLS_ATOMICITY_SUN
+    #include <cxxtools/atomicity.sun.h>
+
+#elif defined(__GNUC__) || defined(__xlC__) || \
+      defined(__SUNPRO_CC) || defined(__SUNPRO_C)
+
+    #if defined (i386) || defined(__i386) || defined (__i386__) || \
+        defined(_X86_) || defined(sun386) || defined (_M_IX86)
+        #define CXXTOOLS_ATOMICITY_GCC_X86
+        #include <cxxtools/atomicity.gcc.x86.h>
+
+    #elif defined(__x86_64__) || defined(__amd64__)
+        #define CXXTOOLS_ATOMICITY_GCC_X86_64
+        #include <cxxtools/atomicity.gcc.x86_64.h>
+
+    #elif defined (ARM) || defined(__arm__) || defined(_M_ARM) || defined(_M_ARMT)
+        #define CXXTOOLS_ATOMICITY_GCC_ARM
+        #include <cxxtools/atomicity.gcc.arm.h>
+
+    #elif defined (AVR) || defined(__AVR__)
+        #define CXXTOOLS_ATOMICITY_GCC_AVR32
+        #include <cxxtools/atomicity.avr32.h>
+
+    #elif defined( _M_PPC  ) || defined( PPC         ) || \
+          defined( ppc     ) || defined( __powerpc__ ) || \
+          defined( __ppc__ )
+        #define CXXTOOLS_ATOMICITY_GCC_PPC
+        #include <cxxtools/atomicity.gcc.ppc.h>
+
+    #elif defined(__mips__) || defined(MIPSEB) || defined(_MIPSEB) || \
+          defined(MIPSEL) || defined(_MIPSEL)
+        #define CXXTOOLS_ATOMICITY_GCC_MIPS
+        #include <cxxtools/atomicity.gcc.mips.h>
+
+    #elif defined(__sparc__) || defined(sparc) || defined(__sparc) || \
+          defined(__sparcv8) || defined(__sparcv9)
+        #define CXXTOOLS_ATOMICITY_GCC_SPARC
+        #include <cxxtools/atomicity.gcc.sparc.h>
+
+    #else
+        #include <cxxtools/atomicity.generic.h>
+
+    #endif
 
 #else
     #include <cxxtools/atomicity.generic.h>
