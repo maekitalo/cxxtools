@@ -59,6 +59,10 @@ class CXXTOOLS_API Clock
         */
         Timespan stop();
 
+        /** @brief Returns the current UTC time
+        */
+        static DateTime getSystemTime();
+
         /** @brief Returns the current local time
         */
         static DateTime getLocalTime();

@@ -41,6 +41,8 @@ class ClockImpl
 
         Timespan stop();
 
+        static DateTime getSystemTime();
+
         static DateTime getLocalTime();
 
         static Timespan getSystemTicks();

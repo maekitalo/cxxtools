@@ -54,6 +54,25 @@ Timespan ClockImpl::stop()
 }
 
 
+DateTime ClockImpl::getSystemTime()
+{
+    struct ::tm tim;
+    struct timeval tod;
+
+    gettimeofday(&tod, NULL);
+
+    gmtime_r(&tod.tv_sec, &tim);
+
+    return DateTime( tim.tm_year + 1900,
+                     tim.tm_mon + 1,
+                     tim.tm_mday,
+                     tim.tm_hour,
+                     tim.tm_min,
+                     tim.tm_sec,
+                     tod.tv_usec / 1000 );
+}
+
+
 DateTime ClockImpl::getLocalTime()
 {
     struct timeval timeValue;
