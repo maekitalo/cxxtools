@@ -75,20 +75,19 @@ DateTime ClockImpl::getSystemTime()
 
 DateTime ClockImpl::getLocalTime()
 {
-    struct timeval timeValue;
-    gettimeofday(&timeValue, NULL);
+    struct timeval tod;
+    gettimeofday(&tod, NULL);
 
-    struct tm* currentTimeStruct;
-    time_t time = timeValue.tv_sec;
-    currentTimeStruct = localtime(&time);
+    struct tm tim;
+    localtime_r(&tod.tv_sec, &tim);
 
-    return DateTime( currentTimeStruct->tm_year + 1900,
-                     currentTimeStruct->tm_mon + 1,
-                     currentTimeStruct->tm_mday,
-                     currentTimeStruct->tm_hour,
-                     currentTimeStruct->tm_min,
-                     currentTimeStruct->tm_sec,
-                     timeValue.tv_usec / 1000 );
+    return DateTime( tim.tm_year + 1900,
+                     tim.tm_mon + 1,
+                     tim.tm_mday,
+                     tim.tm_hour,
+                     tim.tm_min,
+                     tim.tm_sec,
+                     tod.tv_usec / 1000 );
 }
 
 
