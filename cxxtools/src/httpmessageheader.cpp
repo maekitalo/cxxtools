@@ -27,7 +27,7 @@
  */
 
 #include <cxxtools/httpmessageheader.h>
-//#include <cxxtools/mutex.h>
+#include <cxxtools/clock.h>
 #include <cctype>
 #include <sstream>
 
@@ -84,47 +84,28 @@ bool HttpMessageHeader::keepAlive() const
 
 std::string HttpMessageHeader::htdateCurrent()
 {
-    return std::string();
+    int year = 0;
+    unsigned month = 0;
+    unsigned day = 0;
+    unsigned hour = 0;
+    unsigned min = 0;
+    unsigned sec = 0;
+    unsigned msec = 0;
+
+    Pt::DateTime dt = Pt::System::Clock::getSystemTime();
+    dt.get(year, month, day,hour, min, sec, msec);
+
+    static const char* wday[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+    static const char* monthn[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                                   "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+    char buffer[80];
+    sprintf(buffer, "%s, %02d %s %d %02d:%02d:%02d GMT",
+                    wday[day], day, monthn[month], year, hour, min, sec);
+
+    return std::string(buffer);
+
     //TODO: use System::Clock
-
-    /*static struct ::tm lastTm;
-    static time_t lastDay = 0;
-    static time_t lastTime = 0;
-    static std::string lastHtdate;
-    static cxxtools::System::Mutex mutex;
-
-    //
-    // we cache the last split tm-struct here, because it is pretty expensive
-    // to calculate the date with gmtime_r.
-    //
-
-    time_t t;
-    time(&t);
-
-    cxxtools::System::MutexLock lock(mutex);
-
-    if (lastTime != t)
-    {
-        time_t day = t / (24*60*60);
-        if (day != lastDay)
-        {
-            // day differs, we calculate new date.
-            gmtime_r(&t, &lastTm);
-            lastDay = day;
-        }
-
-        lastTm.tm_sec = t % 60;
-        t /= 60;
-        lastTm.tm_min = t % 60;
-        t /= 60;
-        lastTm.tm_hour = t % 24;
-        lastHtdate = htdate(&lastTm);
-        lastTime = t;
-    }
-
-    return lastHtdate;*/
 }
-
 
 } // namespace net
 
