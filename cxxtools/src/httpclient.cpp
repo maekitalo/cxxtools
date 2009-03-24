@@ -167,17 +167,23 @@ void HttpClient::beginExecute(const HttpRequest& request)
         {
             _stream.buffer().beginWrite();
         }
-        catch (const IOError&)
+        catch (const System::IOError&)
         {
             // first write failed, so connection is not active any more
 
             _stream.clear();
             _stream.buffer().discard();
-            _socket.beginConnect(_server, _port);
+            bool connected = _socket.beginConnect(_server, _port);
+            if(connected)
+                onConnect(_socket);
         }
     }
     else
-        _socket.beginConnect(_server, _port);
+    {
+        bool connected = _socket.beginConnect(_server, _port);
+        if(connected)
+            onConnect(_socket);
+    }
 }
 
 
@@ -237,11 +243,10 @@ void HttpClient::sendRequest(const HttpRequest& request)
 
 void HttpClient::onConnect(TcpSocket& socket)
 {
+    socket.endConnect();
     sendRequest(*_request);
-
     _stream.buffer().beginWrite();
 }
-
 
 void HttpClient::onOutput(StreamBuffer& sb)
 {
