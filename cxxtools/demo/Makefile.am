@@ -1,5 +1,5 @@
 noinst_PROGRAMS = arg arg-set cgi dir dlloader dynbuffer getini hd \
-	httprequest iconv log logbench logsh md5sum mime multifstream netcat netio \
+	httprequest httpserver iconv log logbench logsh md5sum mime multifstream netcat netio \
 	netmsg pipestream pool signals thread uuencode cxxlog
 
 arg_SOURCES = arg.cpp
@@ -11,6 +11,7 @@ dynbuffer_SOURCES = dynbuffer.cpp
 getini_SOURCES = getini.cpp
 hd_SOURCES = hd.cpp
 httprequest_SOURCES = httprequest.cpp
+httpserver_SOURCES = httpserver.cpp
 iconv_SOURCES = iconv.cpp
 log_SOURCES = log.cpp
 logbench_SOURCES = logbench.cpp
