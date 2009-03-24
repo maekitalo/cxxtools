@@ -167,7 +167,7 @@ void HttpClient::beginExecute(const HttpRequest& request)
         {
             _stream.buffer().beginWrite();
         }
-        catch (const System::IOError&)
+        catch (const IOError&)
         {
             // first write failed, so connection is not active any more
 
