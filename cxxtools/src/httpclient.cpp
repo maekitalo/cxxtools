@@ -173,16 +173,12 @@ void HttpClient::beginExecute(const HttpRequest& request)
 
             _stream.clear();
             _stream.buffer().discard();
-            bool connected = _socket.beginConnect(_server, _port);
-            if(connected)
-                onConnect(_socket);
+            _socket.beginConnect(_server, _port);
         }
     }
     else
     {
-        bool connected = _socket.beginConnect(_server, _port);
-        if(connected)
-            onConnect(_socket);
+        _socket.beginConnect(_server, _port);
     }
 }
 

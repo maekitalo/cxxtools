@@ -123,6 +123,9 @@ bool TcpSocket::beginConnect(const std::string& ipaddr, unsigned short int port)
     bool ret = _impl->beginConnect(ipaddr, port);
     this->setEnabled(true);
     this->setAsync(true);
+
+    if(ret)
+        connected(*this);
     return ret;
 }
 
