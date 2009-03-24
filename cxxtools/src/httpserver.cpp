@@ -28,7 +28,10 @@
 
 #include <cxxtools/httpserver.h>
 #include <cxxtools/selector.h>
+#include <cxxtools/log.h>
 #include <cassert>
+
+log_define("cxxtools.net.httpserver")
 
 namespace cxxtools {
 
@@ -98,6 +101,7 @@ HttpSocket::HttpSocket(SelectorBase& selector, HttpServer& server)
     _stream.buffer().beginRead();
     cxxtools::connect(_stream.buffer().inputReady, *this, &HttpSocket::onInput);
     cxxtools::connect(_stream.buffer().outputReady, *this, &HttpSocket::onOutput);
+    cxxtools::connect(_timer.timeout, *this, &HttpSocket::onTimeout);
 
     selector.add(*this);
 
@@ -220,10 +224,11 @@ void HttpSocket::onOutput(StreamBuffer& sb)
         if (keepAlive)
         {
             std::string connection = _reply.getHeader("Connection");
-            if (connection != "keep-alive"
-                || (connection.empty()
-                    && _reply.header().httpVersionMajor() == 1
-                    && _reply.header().httpVersionMinor() >= 1))
+
+            if (connection == "close"
+              || (connection.empty()
+                    && (_reply.header().httpVersionMajor() < 1
+                     || _reply.header().httpVersionMinor() < 1)))
             {
                 keepAlive = false;
             }
@@ -231,12 +236,16 @@ void HttpSocket::onOutput(StreamBuffer& sb)
 
         if (keepAlive)
         {
+            log_debug("do keep alive");
             _timer.start(_server.keepAliveTimeout());
             _request.clear();
             _reply.clear();
+            _parser.reset(false);
+            _stream.buffer().beginRead();
         }
         else
         {
+            log_debug("don't do keep alive");
             close();
             delete this;
         }
@@ -245,8 +254,9 @@ void HttpSocket::onOutput(StreamBuffer& sb)
 
 void HttpSocket::onTimeout()
 {
-     close();
-     delete this;
+    log_debug("timeout");
+    close();
+    delete this;
 }
 
 void HttpSocket::sendReply()

@@ -21,6 +21,7 @@
 #include <cxxtools/httpserver.h>
 #include <cxxtools/mutex.h>
 #include <cxxtools/eventloop.h>
+#include <cxxtools/loginit.h>
 
 class HelloResponder : public cxxtools::net::HttpResponder
 {
@@ -82,6 +83,8 @@ int main(int argc, char* argv[])
 {
   try
   {
+    log_init();
+
     cxxtools::EventLoop loop;
     cxxtools::net::HttpServer server(loop, "0.0.0.0", 8001);
     HelloService service;
