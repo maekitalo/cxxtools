@@ -23,6 +23,8 @@
 #include <cxxtools/eventloop.h>
 #include <cxxtools/loginit.h>
 
+// HelloResponder
+//
 class HelloResponder : public cxxtools::net::HttpResponder
 {
   public:
@@ -36,12 +38,32 @@ class HelloResponder : public cxxtools::net::HttpResponder
 void HelloResponder::reply(std::ostream& out, cxxtools::net::HttpRequest& request, cxxtools::net::HttpReply& reply)
 {
   reply.addHeader("Content-Type", "text/html");
-  out << "<html><body><h1>Hello World!</h1></body></html>";
+  out << "<html>\n"
+         " <head>\n"
+         "  <title>Hello World-application for tntnet</title>\n"
+         " </head>\n"
+         "\n"
+         " <body bgcolor=\"#FFFFFF\">\n"
+         "  <img src=\"tntnet.jpg\" align=\"right\">\n"
+         "\n"
+         "  <h1>Hello World</h1>\n"
+         "\n"
+         "  <form>\n"
+         "   What's your name?\n"
+         "   <input type=\"text\" name=\"name\" value=\"\"> <br>\n"
+         "   <input type=\"submit\">\n"
+         "  </form>\n"
+         "\n"
+         " </body>\n"
+         "</html>\n\n\n";
+
 }
 
+// HelloService
+//
 class HelloService : public cxxtools::net::HttpService
 {
-    static cxxtools::Mutex mutex;
+    cxxtools::Mutex mutex;
     typedef std::vector<cxxtools::net::HttpResponder*> Responders;
     Responders responders;
 
@@ -50,8 +72,6 @@ class HelloService : public cxxtools::net::HttpService
     virtual cxxtools::net::HttpResponder* createResponder(const cxxtools::net::HttpRequest&);
     virtual void releaseResponder(cxxtools::net::HttpResponder*);
 };
-
-cxxtools::Mutex HelloService::mutex;
 
 HelloService::~HelloService()
 {
@@ -79,6 +99,8 @@ void HelloService::releaseResponder(cxxtools::net::HttpResponder* resp)
   responders.push_back(resp);
 }
 
+// main
+//
 int main(int argc, char* argv[])
 {
   try

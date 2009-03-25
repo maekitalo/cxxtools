@@ -111,6 +111,16 @@ HttpSocket::HttpSocket(SelectorBase& selector, HttpServer& server)
 
 void HttpSocket::onInput(StreamBuffer& sb)
 {
+    log_trace("onInput");
+
+    if (sb.in_avail() == 0 || sb.device()->eof())
+    {
+        log_debug("end of stream");
+        close();
+        delete this;
+        return;
+    }
+
     _timer.start(_server.readTimeout());
     if ( _responder == 0 )
     {
@@ -211,6 +221,8 @@ void HttpSocket::onInput(StreamBuffer& sb)
 
 void HttpSocket::onOutput(StreamBuffer& sb)
 {
+    log_trace("onOutput");
+
     sb.beginWrite();
 
     if ( sb.out_avail() )
