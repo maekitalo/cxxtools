@@ -101,7 +101,7 @@ std::string HttpMessageHeader::htdateCurrent()
                                    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
     char buffer[80];
     sprintf(buffer, "%s, %02d %s %d %02d:%02d:%02d GMT",
-                    wday[dayOfWeek], day, monthn[month], year, hour, min, sec);
+                    wday[dayOfWeek], day, monthn[month-1], year, hour, min, sec);
 
     return std::string(buffer);
 }
