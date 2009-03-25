@@ -167,7 +167,8 @@ void HttpClient::beginExecute(const HttpRequest& request)
         {
             _stream.buffer().beginWrite();
         }
-        catch (const IOError&)
+
+        catch (const cxxtools::IOError&)
         {
             // first write failed, so connection is not active any more
 

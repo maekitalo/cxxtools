@@ -118,7 +118,9 @@ void EventSource::connect(EventSink& sink)
     sink.onConnect(*this);
 
     const std::type_info* ti = 0;
-    _sinks.insert( std::make_pair(ti, &sink) );
+    SinkMap::value_type elem(ti, &sink);
+    _sinks.insert( elem );
+    //_sinks.insert( std::make_pair(ti, &sink) );
 }
 
 
@@ -168,8 +170,12 @@ void EventSource::subscribe(EventSink& sink, const std::type_info& ti)
     RecursiveLock lock( _mutex );
 
     sink.onConnect(*this);
-    _sinks.insert( std::make_pair(&ti, &sink) );
+
+    SinkMap::value_type elem(&ti, &sink);
+    _sinks.insert( elem );
+    //_sinks.insert( std::make_pair(&ti, &sink) );
 }
+
 
 
 void EventSource::unsubscribe(EventSink& sink, const std::type_info& ti)

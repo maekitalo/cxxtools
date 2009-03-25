@@ -70,7 +70,9 @@ void SelectorBase::onAddTimer(Timer& timer)
 {
     if( timer.active() )
     {
-        _timers.insert( std::make_pair(timer.finished(), &timer) );
+        TimerMap::value_type elem(timer.finished(), &timer);
+        _timers.insert(elem);
+        //_timers.insert( std::make_pair(timer.finished(), &timer) );
     }
 }
 
@@ -93,7 +95,9 @@ void SelectorBase::onTimerChanged(Timer& timer)
 {
     if( timer.active() )
     {
-        _timers.insert( std::make_pair(timer.finished(), &timer) );
+        TimerMap::value_type elem(timer.finished(), &timer);
+        _timers.insert(elem);
+        //_timers.insert( std::make_pair(timer.finished(), &timer) );
     }
     else
     {
@@ -129,7 +133,9 @@ bool SelectorBase::updateTimer(std::size_t& lowestTimeout)
         {
             timer = _timers.begin()->second;
             _timers.erase( _timers.begin() );
-            _timers.insert( std::make_pair(timer->finished(), timer) );
+            TimerMap::value_type elem(timer->finished(), timer);
+            _timers.insert(elem);
+            //_timers.insert( std::make_pair(timer->finished(), timer) );
         }
     }
 

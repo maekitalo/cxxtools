@@ -82,7 +82,7 @@ namespace unit {
                 protected:
                     virtual void exec()
                     {
-                        _test.run(_args, _argCount);
+                        _test.exec(_args, _argCount);
                     }
 
                 private:

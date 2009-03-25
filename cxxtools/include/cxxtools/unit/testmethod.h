@@ -42,7 +42,7 @@ namespace unit {
             virtual void run()
             {}
 
-            virtual void run(const SerializationInfo* si, unsigned argCount) = 0;
+            virtual void exec(const SerializationInfo* si, unsigned argCount) = 0;
     };
 
 
@@ -68,7 +68,7 @@ namespace unit {
             , TestMethod(name)
             {}
 
-            void run(const SerializationInfo* args, unsigned argCount)
+            void exec(const SerializationInfo* args, unsigned argCount)
             {
                 throw std::logic_error("SerializationInfo not implemented");
             }
@@ -100,7 +100,7 @@ namespace unit {
             , TestMethod(name)
             {}
 
-            void run(const SerializationInfo* si, unsigned argCount)
+            void exec(const SerializationInfo* si, unsigned argCount)
             {
                 cxxtools::Method<void, C>::call();
             }
