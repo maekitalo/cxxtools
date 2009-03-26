@@ -221,6 +221,11 @@ namespace cxxtools {
 
             //! @brief Returns $true$ if the a and b are the same character; $false$ otherwise.
             //! @return $true$ if the a and b are the same character; $false$ otherwise.
+            friend bool operator!=(const Char& a, wchar_t b)
+            { return a.value() != b; }
+
+            //! @brief Returns $true$ if the a and b are the same character; $false$ otherwise.
+            //! @return $true$ if the a and b are the same character; $false$ otherwise.
             friend bool operator!=(const Char& a, int b)
             { return a.value() != (unsigned int)b; }
 
