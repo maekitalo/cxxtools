@@ -38,17 +38,17 @@
 #include <cxxtools/iostream.h>
 #include <cxxtools/timer.h>
 #include <cxxtools/connectable.h>
+#include <cxxtools/condition.h>
+#include <cxxtools/mutex.h>
+#include <cxxtools/thread.h>
+#include <cxxtools/atomicity.h>
 #include <string>
 #include <cstddef>
 #include <map>
+#include <set>
+#include <list>
 
 namespace cxxtools {
-
-namespace System {
-
-    class SelectorBase;
-
-}
 
 namespace net {
 
@@ -106,10 +106,12 @@ class CXXTOOLS_API HttpNotFoundService : public HttpService
         HttpNotFoundResponder _responder;
 };
 
+class HttpSocket;
+
 class CXXTOOLS_API HttpServer : public TcpServer, public Connectable
 {
     public:
-        HttpServer(SelectorBase& selector, const std::string& ip, unsigned short int port);
+        HttpServer(const std::string& ip, unsigned short int port);
 
         void addService(const std::string& url, HttpService& service);
         void removeService(HttpService& service);
@@ -128,15 +130,48 @@ class CXXTOOLS_API HttpServer : public TcpServer, public Connectable
         void writeTimeout(std::size_t ms)     { _writeTimeout = ms; }
         void keepAliveTimeout(std::size_t ms) { _keepAliveTimeout = ms; }
 
+        void terminate();
+
+        void run();
+
     private:
         typedef std::multimap<std::string, HttpService*> ServicesType;
         ServicesType _service;
-        SelectorBase& _selector;
+        Selector _selector;
         HttpNotFoundService _defaultService;
 
         std::size_t _readTimeout;
         std::size_t _writeTimeout;
         std::size_t _keepAliveTimeout;
+
+        void serverThread();
+
+        Mutex _threadMutex;
+        Mutex _selectorMutex;
+        Condition _threadRunning;
+        AttachedThread* _startingThread;
+        unsigned _minThreads;
+        unsigned _maxThreads;
+        atomic_t _waitingThreads;
+        bool _terminating;
+        Condition _terminated;
+        Condition _threadTerminated;
+
+        typedef std::set<AttachedThread*> Threads;
+        Threads _threads;
+        Threads _terminatedThreads;
+
+        typedef std::list<HttpSocket*> HttpServerSockets;
+        HttpServerSockets _readySockets;
+        Mutex _idleSocketsMutex;
+        HttpServerSockets _idleSockets;
+
+        bool hasReplyToDo() const  { return !_readySockets.empty(); }
+        friend class HttpSocket;
+        void addReadySockets(HttpSocket* s)
+            { _readySockets.push_back(s); }
+
+        void createThread();
 };
 
 
@@ -161,10 +196,16 @@ class CXXTOOLS_API HttpSocket : public TcpSocket, public Connectable
         HttpSocket(SelectorBase& s, HttpServer& server);
 
         void onInput(StreamBuffer& stream);
-        void onOutput(StreamBuffer& stream);
+        bool onOutput(StreamBuffer& stream);
         void onTimeout();
 
+        bool doReply();
         void sendReply();
+        bool isReady() const
+        { return _parser.end() && _contentLength == 0; }
+
+        void addSelector(SelectorBase& s);
+        void removeSelector();
 
     private:
         HttpServer& _server;
@@ -178,6 +219,7 @@ class CXXTOOLS_API HttpSocket : public TcpSocket, public Connectable
         int _contentLength;
         HttpResponder* _responder;
         IOStream _stream;
+
 };
 
 } // namespace net

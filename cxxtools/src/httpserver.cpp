@@ -103,9 +103,21 @@ HttpSocket::HttpSocket(SelectorBase& selector, HttpServer& server)
     cxxtools::connect(_stream.buffer().outputReady, *this, &HttpSocket::onOutput);
     cxxtools::connect(_timer.timeout, *this, &HttpSocket::onTimeout);
 
-    selector.add(*this);
 
     _timer.start(_server.readTimeout());
+
+    addSelector(selector);
+}
+
+void HttpSocket::removeSelector()
+{
+    TcpSocket::setSelector(0);
+    _timer.setSelector(0);
+}
+
+void HttpSocket::addSelector(SelectorBase& selector)
+{
+    selector.add(*this);
     selector.add(_timer);
 }
 
@@ -162,13 +174,7 @@ void HttpSocket::onInput(StreamBuffer& sb)
             _contentLength = _request.header().contentLength();
             if (_contentLength == 0)
             {
-                _responder->reply(_reply.body(), _request, _reply);
-                _responder->release();
-                _responder = 0;
-
-                sendReply();
-
-                onOutput(sb);
+                _server.addReadySockets(this);
                 return;
             }
 
@@ -204,13 +210,7 @@ void HttpSocket::onInput(StreamBuffer& sb)
 
         if (_contentLength <= 0)
         {
-            _responder->reply(_reply.body(), _request, _reply);
-            _responder->release();
-            _responder = 0;
-
-            sendReply();
-
-            onOutput(sb);
+            _server.addReadySockets(this);
         }
         else
         {
@@ -219,7 +219,18 @@ void HttpSocket::onInput(StreamBuffer& sb)
     }
 }
 
-void HttpSocket::onOutput(StreamBuffer& sb)
+bool HttpSocket::doReply()
+{
+    _responder->reply(_reply.body(), _request, _reply);
+    _responder->release();
+    _responder = 0;
+
+    sendReply();
+
+    return onOutput(_stream.buffer());
+}
+
+bool HttpSocket::onOutput(StreamBuffer& sb)
 {
     log_trace("onOutput");
 
@@ -260,8 +271,11 @@ void HttpSocket::onOutput(StreamBuffer& sb)
             log_debug("don't do keep alive");
             close();
             delete this;
+            return false;
         }
     }
+
+    return true;
 }
 
 void HttpSocket::onTimeout()
@@ -318,15 +332,64 @@ void HttpSocket::sendReply()
 
 }
 
-HttpServer::HttpServer(SelectorBase& selector, const std::string& ip, unsigned short int port)
+HttpServer::HttpServer(const std::string& ip, unsigned short int port)
 : TcpServer(ip, port),
-  _selector(selector),
   _readTimeout(5000),
   _writeTimeout(5000),
-  _keepAliveTimeout(30000)
+  _keepAliveTimeout(30000),
+  _minThreads(4),
+  _maxThreads(10),
+  _waitingThreads(0),
+  _terminating(false)
 {
     _selector.add(*this);
     cxxtools::connect(connectionPending, *this, &HttpServer::onConnect);
+}
+
+void HttpServer::createThread()
+{
+    MutexLock lock(_threadMutex);
+
+    if (_threads.size() < _maxThreads)
+    {
+        _startingThread = new AttachedThread(callable(*this, &HttpServer::serverThread));
+
+        _threads.insert(_startingThread);
+
+        _startingThread->create();
+
+        _threadRunning.wait(lock);
+
+        _startingThread = 0;
+    }
+}
+
+void HttpServer::terminate()
+{
+    MutexLock lock(_threadMutex);
+    _terminating = true;
+    _selector.wake();
+    _terminated.wait(lock);
+}
+
+void HttpServer::run()
+{
+    for (unsigned n = 0; n < _waitingThreads; ++n)
+        createThread();
+
+    do
+    {
+        MutexLock lock(_threadMutex);
+        _threadTerminated.wait(lock);
+        for (Threads::iterator it = _terminatedThreads.begin(); it != _terminatedThreads.end(); ++it)
+        {
+            (*it)->join();
+            delete *it;
+        }
+
+        _terminatedThreads.clear();
+
+    } while (!_terminating && _threads.size() > 0);
 }
 
 void HttpServer::addService(const std::string& url, HttpService& service)
@@ -366,6 +429,93 @@ HttpResponder* HttpServer::getResponder(const HttpRequest& request)
 void HttpServer::onConnect(TcpServer& server)
 {
     new HttpSocket(_selector, *this);
+}
+
+void HttpServer::serverThread()
+{
+    class Dec
+    {
+            atomic_t& _counter;
+
+        public:
+            explicit Dec(atomic_t& counter)
+                : _counter(counter)
+                { }
+            ~Dec()
+                { atomicDecrement(_counter); }
+    };
+
+    class ThreadTerminator
+    {
+            AttachedThread* _thread;
+            Threads& _threads;
+            Threads& _terminatedThreads;
+            Condition& _threadTerminated;
+
+        public:
+            ThreadTerminator(AttachedThread* thread, Threads& threads, Threads& terminatedThreads, Condition& threadTerminated)
+                : _thread(thread),
+                  _threads(threads),
+                  _terminatedThreads(terminatedThreads),
+                  _threadTerminated(threadTerminated)
+                { }
+            ~ThreadTerminator()
+            {
+                _threads.erase(_thread);
+                _terminatedThreads.insert(_thread);
+                _threadTerminated.signal();
+            }
+    };
+
+    ThreadTerminator terminator(_startingThread, _threads, _terminatedThreads, _threadTerminated);
+
+    MutexLock selectorLock(_selectorMutex, false);
+
+    _threadRunning.signal();
+
+    do
+    {
+        {
+            atomicIncrement(_waitingThreads);
+            Dec m(_waitingThreads);
+            selectorLock.lock();
+        }
+
+        if (_terminating)
+            break;
+
+        if (atomicGet(_waitingThreads) == 0)
+            createThread();
+
+        while (!hasReplyToDo())
+        {
+            _selector.wait();
+
+            if (_terminating)
+                return;
+
+            MutexLock lock(_idleSocketsMutex);
+            while (!_idleSockets.empty())
+            {
+                _idleSockets.front()->addSelector(_selector);
+                _idleSockets.pop_front();
+            }
+        }
+
+        HttpSocket* s = _readySockets.front();
+        _readySockets.pop_front();
+        s->removeSelector();
+
+        selectorLock.unlock();
+
+        if (s->doReply())
+        {
+            _idleSockets.push_back(s);
+            _selector.wake();
+        }
+
+    } while (atomicGet(_waitingThreads) >= _minThreads);
+
 }
 
 } // namespace net

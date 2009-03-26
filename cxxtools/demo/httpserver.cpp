@@ -107,11 +107,10 @@ int main(int argc, char* argv[])
   {
     log_init();
 
-    cxxtools::EventLoop loop;
-    cxxtools::net::HttpServer server(loop, "0.0.0.0", 8001);
+    cxxtools::net::HttpServer server("0.0.0.0", 8001);
     HelloService service;
     server.addService("/hello", service);
-    loop.run();
+    server.run();
   }
   catch (const std::exception& e)
   {
