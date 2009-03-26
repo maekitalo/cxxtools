@@ -100,6 +100,8 @@ nobase_include_HEADERS = \
         cxxtools/sudo.h \
         cxxtools/streambuffer.h \
         cxxtools/streamcounter.h \
+        cxxtools/stringdata.h \
+        cxxtools/string.h \
         cxxtools/syserror.h \
         cxxtools/systemerror.h \
         cxxtools/tcpserver.h \
