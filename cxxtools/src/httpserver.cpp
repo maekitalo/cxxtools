@@ -342,24 +342,32 @@ HttpServer::HttpServer(const std::string& ip, unsigned short int port)
   _waitingThreads(0),
   _terminating(false)
 {
+    log_trace("initialize HttpServer class");
+
     _selector.add(*this);
     cxxtools::connect(connectionPending, *this, &HttpServer::onConnect);
 }
 
 void HttpServer::createThread()
 {
+    log_trace("HttpServer::createThread");
+
     MutexLock lock(_threadMutex);
 
     if (_threads.size() < _maxThreads)
     {
+        log_debug("create thread object");
         _startingThread = new AttachedThread(callable(*this, &HttpServer::serverThread));
 
         _threads.insert(_startingThread);
 
+        log_debug("run thread");
         _startingThread->create();
 
+        log_debug("wait for thread running");
         _threadRunning.wait(lock);
 
+        log_debug("thread is running");
         _startingThread = 0;
     }
 }
@@ -374,13 +382,21 @@ void HttpServer::terminate()
 
 void HttpServer::run()
 {
-    for (unsigned n = 0; n < _waitingThreads; ++n)
+    log_trace("run server");
+
+    log_debug("start " << _minThreads << " threads");
+    for (unsigned n = 0; n < _minThreads; ++n)
+    {
+        log_debug("start thread " << n);
         createThread();
+    }
 
     do
     {
         MutexLock lock(_threadMutex);
+        log_debug("wait for finished threads");
         _threadTerminated.wait(lock);
+        log_debug(_terminatedThreads.size() << " threads finished");
         for (Threads::iterator it = _terminatedThreads.begin(); it != _terminatedThreads.end(); ++it)
         {
             (*it)->join();
@@ -390,10 +406,14 @@ void HttpServer::run()
         _terminatedThreads.clear();
 
     } while (!_terminating && _threads.size() > 0);
+
+    MutexLock lock(_threadMutex);
+    _terminated.signal();
 }
 
 void HttpServer::addService(const std::string& url, HttpService& service)
 {
+    log_debug("add service for url <" << url << '>');
     _service.insert(ServicesType::value_type(url, &service));
 }
 
@@ -415,24 +435,32 @@ void HttpServer::removeService(HttpService& service)
 
 HttpResponder* HttpServer::getResponder(const HttpRequest& request)
 {
+    log_debug("get responder for url <" << request.url() << '>');
+
     for (ServicesType::const_iterator it = _service.lower_bound(request.url());
         it != _service.end() && it->first == request.url(); ++it)
     {
         HttpResponder* resp = it->second->createResponder(request);
         if (resp)
+        {
+            log_debug("responder created");
             return resp;
+        }
     }
 
+    log_debug("use default responder");
     return _defaultService.createResponder(request);
 }
 
 void HttpServer::onConnect(TcpServer& server)
 {
+    log_trace("onConnect");
     new HttpSocket(_selector, *this);
 }
 
 void HttpServer::serverThread()
 {
+    log_trace("serverThread");
     class Dec
     {
             atomic_t& _counter;
@@ -471,15 +499,22 @@ void HttpServer::serverThread()
 
     MutexLock selectorLock(_selectorMutex, false);
 
-    _threadRunning.signal();
+    log_debug("signal threadRunning");
+    {
+        MutexLock lock(_threadMutex);
+        _threadRunning.signal();
+    }
 
     do
     {
         {
             atomicIncrement(_waitingThreads);
             Dec m(_waitingThreads);
+            log_debug("wait for selector lock; now " << _waitingThreads << " threads waiting");
             selectorLock.lock();
         }
+
+        log_debug("selectorLock obtained; " << _waitingThreads << " threads left");
 
         if (_terminating)
             break;
@@ -489,33 +524,43 @@ void HttpServer::serverThread()
 
         while (!hasReplyToDo())
         {
+            log_debug("wait selector");
             _selector.wait();
 
             if (_terminating)
                 return;
 
+            log_debug("check for idle sockets to add to selector");
             MutexLock lock(_idleSocketsMutex);
             while (!_idleSockets.empty())
             {
+                log_debug("idle socket " << _idleSockets.front() << " found");
                 _idleSockets.front()->addSelector(_selector);
                 _idleSockets.pop_front();
             }
         }
 
         HttpSocket* s = _readySockets.front();
+        log_debug("socket " << s << " ready");
         _readySockets.pop_front();
         s->removeSelector();
 
+        log_debug("release selector lock");
         selectorLock.unlock();
 
+        log_debug("execute reply");
         if (s->doReply())
         {
+            log_debug("add socket to idle sockets and wake up selector");
             _idleSockets.push_back(s);
             _selector.wake();
         }
+        else
+            log_debug("socket destroyed");
 
-    } while (atomicGet(_waitingThreads) >= _minThreads);
+    } while (atomicGet(_waitingThreads) < _minThreads);
 
+    log_debug("end thread");
 }
 
 } // namespace net
