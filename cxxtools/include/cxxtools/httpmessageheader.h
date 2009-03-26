@@ -39,7 +39,7 @@ namespace net {
 
 class CXXTOOLS_API HttpMessageHeader
 {
-        class StringLessIgnoreCase
+        class CXXTOOLS_API StringLessIgnoreCase
         {
             public:
                 bool operator()(const std::string& s1, const std::string& s2) const;

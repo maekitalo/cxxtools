@@ -52,7 +52,7 @@ class CXXTOOLS_API HttpClient : public cxxtools::Connectable
 {
         friend class ParseEvent;
 
-        class ParseEvent : public HttpHeaderParser::HttpMessageHeaderEvent
+        class CXXTOOLS_API ParseEvent : public HttpHeaderParser::HttpMessageHeaderEvent
         {
                 HttpReplyHeader& _replyHeader;
 
