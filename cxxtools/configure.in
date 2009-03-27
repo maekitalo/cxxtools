@@ -92,6 +92,13 @@ AC_CHECK_TYPE(
 
 AC_SUBST(CXXTOOLS_SUSECONDS)
 
+AC_COMPILE_IFELSE(
+[
+    #include <locale>
+    void foo() { std::numpunct<char>* np; }
+],
+AC_DEFINE([CXXTOOLS_WITH_STD_LOCALE], 1, [Defined if c++ locale library is usable]))
+
 AC_CONFIG_FILES([cxxtools-config], [chmod +x cxxtools-config])
 
 AC_CONFIG_FILES([
