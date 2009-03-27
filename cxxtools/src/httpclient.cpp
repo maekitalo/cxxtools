@@ -198,6 +198,7 @@ void HttpClient::sendRequest(const HttpRequest& request)
     const std::string server = "Server";
     const std::string connection = "Connection";
     const std::string date = "Date";
+    const std::string host = "Host";
 
     _stream << request.method() << ' '
             << request.url() << " HTTP/"
@@ -228,6 +229,14 @@ void HttpClient::sendRequest(const HttpRequest& request)
     if (!request.header().hasHeader(date))
     {
         _stream << "Date: " << HttpMessageHeader::htdateCurrent() << "\r\n";
+    }
+
+    if (!request.header().hasHeader(host))
+    {
+        _stream << "Host: " << _server;
+        if (_port != 80)
+            _stream << ':' << _port;
+        _stream << "\r\n";
     }
 
     _stream << "\r\n";
