@@ -31,7 +31,7 @@
 #include <cxxtools/ioerror.h>
 #include <cxxtools/log.h>
 
-log_define("cxxtools.net.httpclient")
+log_define("cxxtools.net.http.client")
 
 namespace cxxtools {
 

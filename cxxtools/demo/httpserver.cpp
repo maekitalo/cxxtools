@@ -19,6 +19,7 @@
 
 #include <vector>
 #include <cxxtools/httpserver.h>
+#include <cxxtools/httpreply.h>
 #include <cxxtools/mutex.h>
 #include <cxxtools/eventloop.h>
 #include <cxxtools/loginit.h>

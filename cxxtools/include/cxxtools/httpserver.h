@@ -30,19 +30,14 @@
 #define cxxtools_Net_HttpServer_h
 
 #include <cxxtools/api.h>
+#include <cxxtools/httpresponder.h>
 #include <cxxtools/tcpserver.h>
 #include <cxxtools/tcpsocket.h>
-#include <cxxtools/httpparser.h>
-#include <cxxtools/httprequest.h>
-#include <cxxtools/httpreply.h>
-#include <cxxtools/iostream.h>
-#include <cxxtools/timer.h>
 #include <cxxtools/connectable.h>
 #include <cxxtools/condition.h>
 #include <cxxtools/mutex.h>
 #include <cxxtools/thread.h>
 #include <cxxtools/atomicity.h>
-#include <string>
 #include <cstddef>
 #include <map>
 #include <set>
@@ -53,60 +48,9 @@ namespace cxxtools {
 namespace net {
 
 class HttpResponder;
-
-class HttpService
-{
-    public:
-        virtual ~HttpService() { }
-        virtual HttpResponder* createResponder(const HttpRequest&) = 0;
-        virtual void releaseResponder(HttpResponder*) = 0;
-};
-
-class CXXTOOLS_API HttpResponder
-{
-    public:
-        explicit HttpResponder(HttpService& service)
-            : _service(service)
-        { }
-
-        virtual ~HttpResponder() { }
-
-        virtual void beginRequest(std::istream& in, HttpRequest& request);
-        virtual std::size_t readBody(std::istream&);
-        virtual void reply(std::ostream&, HttpRequest& request, HttpReply& reply) = 0;
-        virtual void replyError(std::ostream&, HttpRequest& request, HttpReply& reply, const std::exception& ex);
-
-        void release()     { _service.releaseResponder(this); }
-
-    private:
-        HttpService& _service;
-};
-
-class CXXTOOLS_API HttpNotFoundResponder : public HttpResponder
-{
-    public:
-        explicit HttpNotFoundResponder(HttpService& service)
-            : HttpResponder(service)
-            { }
-
-        void reply(std::ostream&, HttpRequest& request, HttpReply& reply);
-};
-
-class CXXTOOLS_API HttpNotFoundService : public HttpService
-{
-    public:
-        HttpNotFoundService()
-            : _responder(*this)
-            { }
-
-        HttpResponder* createResponder(const HttpRequest&);
-        void releaseResponder(HttpResponder*);
-
-    private:
-        HttpNotFoundResponder _responder;
-};
-
+class HttpRequest;
 class HttpSocket;
+class HttpService;
 
 class CXXTOOLS_API HttpServer : public TcpServer, public Connectable
 {
@@ -174,53 +118,6 @@ class CXXTOOLS_API HttpServer : public TcpServer, public Connectable
         void createThread();
 };
 
-
-class CXXTOOLS_API HttpSocket : public TcpSocket, public Connectable
-{
-        class ParseEvent : public HttpHeaderParser::HttpMessageHeaderEvent
-        {
-                HttpRequest& _request;
-
-            public:
-                explicit ParseEvent(HttpRequest& request)
-                    : HttpHeaderParser::HttpMessageHeaderEvent(request.header()),
-                      _request(request)
-                    { }
-
-                virtual void onMethod(const std::string& method);
-                virtual void onUrl(const std::string& url);
-                virtual void onUrlParam(const std::string& q);
-        };
-
-    public:
-        HttpSocket(SelectorBase& s, HttpServer& server);
-
-        void onInput(StreamBuffer& stream);
-        bool onOutput(StreamBuffer& stream);
-        void onTimeout();
-
-        bool doReply();
-        void sendReply();
-        bool isReady() const
-        { return _parser.end() && _contentLength == 0; }
-
-        void addSelector(SelectorBase& s);
-        void removeSelector();
-
-    private:
-        HttpServer& _server;
-
-        ParseEvent _parseEvent;
-        HttpHeaderParser _parser;
-        HttpRequest _request;
-        HttpReply _reply;
-
-        Timer _timer;
-        int _contentLength;
-        HttpResponder* _responder;
-        IOStream _stream;
-
-};
 
 } // namespace net
 

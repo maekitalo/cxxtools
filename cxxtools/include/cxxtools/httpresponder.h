@@ -1,0 +1,93 @@
+/*
+ * Copyright (C) 2009 by Marc Boris Duerner, Tommi Maekitalo
+ * 
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ * 
+ * As a special exception, you may use this file as part of a free
+ * software library without restriction. Specifically, if other files
+ * instantiate templates or use macros or inline functions from this
+ * file, or you compile this file and link it with other files to
+ * produce an executable, this file does not by itself cause the
+ * resulting executable to be covered by the GNU General Public
+ * License. This exception does not however invalidate any other
+ * reasons why the executable file might be covered by the GNU Library
+ * General Public License.
+ * 
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ */
+
+#ifndef cxxtools_Net_HttpResponder_h
+#define cxxtools_Net_HttpResponder_h
+
+#include <cxxtools/api.h>
+#include <cxxtools/httpservice.h>
+#include <iosfwd>
+#include <exception>
+
+namespace cxxtools {
+
+namespace net {
+
+class HttpResponder;
+class HttpRequest;
+class HttpReply;
+
+class CXXTOOLS_API HttpResponder
+{
+    public:
+        explicit HttpResponder(HttpService& service)
+            : _service(service)
+        { }
+
+        virtual ~HttpResponder() { }
+
+        virtual void beginRequest(std::istream& in, HttpRequest& request);
+        virtual std::size_t readBody(std::istream&);
+        virtual void reply(std::ostream&, HttpRequest& request, HttpReply& reply) = 0;
+        virtual void replyError(std::ostream&, HttpRequest& request, HttpReply& reply, const std::exception& ex);
+
+        void release()     { _service.releaseResponder(this); }
+
+    private:
+        HttpService& _service;
+};
+
+class CXXTOOLS_API HttpNotFoundResponder : public HttpResponder
+{
+    public:
+        explicit HttpNotFoundResponder(HttpService& service)
+            : HttpResponder(service)
+            { }
+
+        void reply(std::ostream&, HttpRequest& request, HttpReply& reply);
+};
+
+class CXXTOOLS_API HttpNotFoundService : public HttpService
+{
+    public:
+        HttpNotFoundService()
+            : _responder(*this)
+            { }
+
+        HttpResponder* createResponder(const HttpRequest&);
+        void releaseResponder(HttpResponder*);
+
+    private:
+        HttpNotFoundResponder _responder;
+};
+
+} // namespace net
+
+} // namespace cxxtools
+
+#endif

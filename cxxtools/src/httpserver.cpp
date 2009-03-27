@@ -27,310 +27,15 @@
  */
 
 #include <cxxtools/httpserver.h>
-#include <cxxtools/selector.h>
+#include <cxxtools/httpsocket.h>
 #include <cxxtools/log.h>
-#include <cassert>
 
-log_define("cxxtools.net.httpserver")
+log_define("cxxtools.net.http.server")
 
 namespace cxxtools {
 
 namespace net {
 
-void HttpResponder::beginRequest(std::istream& in, HttpRequest& request)
-{
-}
-
-std::size_t HttpResponder::readBody(std::istream& in)
-{
-    std::streambuf* sb = in.rdbuf();
-
-    std::size_t ret = 0;
-    while (sb->in_avail() > 0)
-    {
-        sb->sbumpc();
-        ++ret;
-    }
-
-    return ret;
-}
-
-void HttpResponder::replyError(std::ostream& out, HttpRequest& request, HttpReply& reply, const std::exception& ex)
-{
-    reply.httpReturn(500, "internal server error");
-    reply.setHeader("Content-Type", "text/plain");
-    out << ex.what();
-}
-
-void HttpNotFoundResponder::reply(std::ostream& out, HttpRequest& request, HttpReply& reply)
-{
-    reply.httpReturn(404, "Not found");
-}
-
-HttpResponder* HttpNotFoundService::createResponder(const HttpRequest&)
-{
-    return &_responder;
-}
-
-void HttpNotFoundService::releaseResponder(HttpResponder*)
-{ }
-
-void HttpSocket::ParseEvent::onMethod(const std::string& method)
-{
-    _request.method(method);
-}
-
-void HttpSocket::ParseEvent::onUrl(const std::string& url)
-{
-    _request.url(url);
-}
-
-void HttpSocket::ParseEvent::onUrlParam(const std::string& q)
-{
-    _request.qparams(q);
-}
-
-HttpSocket::HttpSocket(SelectorBase& selector, HttpServer& server)
-    : TcpSocket(server),
-      _server(server),
-      _parseEvent(_request),
-      _parser(_parseEvent, false),
-      _responder(0)
-{
-    _stream.attachDevice(*this);
-    _stream.buffer().beginRead();
-    cxxtools::connect(_stream.buffer().inputReady, *this, &HttpSocket::onInput);
-    cxxtools::connect(_stream.buffer().outputReady, *this, &HttpSocket::onOutput);
-    cxxtools::connect(_timer.timeout, *this, &HttpSocket::onTimeout);
-
-
-    _timer.start(_server.readTimeout());
-
-    addSelector(selector);
-}
-
-void HttpSocket::removeSelector()
-{
-    TcpSocket::setSelector(0);
-    _timer.setSelector(0);
-}
-
-void HttpSocket::addSelector(SelectorBase& selector)
-{
-    selector.add(*this);
-    selector.add(_timer);
-}
-
-void HttpSocket::onInput(StreamBuffer& sb)
-{
-    log_trace("onInput");
-
-    if (sb.in_avail() == 0 || sb.device()->eof())
-    {
-        log_debug("end of stream");
-        close();
-        delete this;
-        return;
-    }
-
-    _timer.start(_server.readTimeout());
-    if ( _responder == 0 )
-    {
-        _parser.advance(sb);
-
-        if (_parser.fail())
-        {
-            _responder = _server.getDefaultResponder(_request);
-            _responder->replyError(_reply.body(), _request, _reply,
-                std::runtime_error("invalid http header"));
-            _responder->release();
-            _responder = 0;
-
-            sendReply();
-
-            onOutput(sb);
-            return;
-        }
-
-        if (_parser.end())
-        {
-            _responder = _server.getResponder(_request);
-            try
-            {
-                _responder->beginRequest(_stream, _request);
-            }
-            catch (const std::exception& e)
-            {
-                _reply.setHeader("Connection", "close");
-                _responder->replyError(_reply.body(), _request, _reply, e);
-                _responder->release();
-                _responder = 0;
-                sendReply();
-
-                onOutput(sb);
-                return;
-            }
-
-            _contentLength = _request.header().contentLength();
-            if (_contentLength == 0)
-            {
-                _server.addReadySockets(this);
-                return;
-            }
-
-        }
-        else
-        {
-            sb.beginRead();
-        }
-    }
-
-    if (_responder)
-    {
-        if (sb.in_avail() > 0)
-        {
-            try
-            {
-                std::size_t s = _responder->readBody(_stream);
-                assert(s > 0);
-                _contentLength -= s;
-            }
-            catch (const std::exception& e)
-            {
-                _reply.setHeader("Connection", "close");
-                _responder->replyError(_reply.body(), _request, _reply, e);
-                _responder->release();
-                _responder = 0;
-                sendReply();
-
-                onOutput(sb);
-                return;
-            }
-        }
-
-        if (_contentLength <= 0)
-        {
-            _server.addReadySockets(this);
-        }
-        else
-        {
-            sb.beginRead();
-        }
-    }
-}
-
-bool HttpSocket::doReply()
-{
-    _responder->reply(_reply.body(), _request, _reply);
-    _responder->release();
-    _responder = 0;
-
-    sendReply();
-
-    return onOutput(_stream.buffer());
-}
-
-bool HttpSocket::onOutput(StreamBuffer& sb)
-{
-    log_trace("onOutput");
-
-    sb.beginWrite();
-
-    if ( sb.out_avail() )
-    {
-        _timer.start(_server.writeTimeout());
-    }
-    else
-    {
-        bool keepAlive = _request.header().keepAlive();
-
-        if (keepAlive)
-        {
-            std::string connection = _reply.getHeader("Connection");
-
-            if (connection == "close"
-              || (connection.empty()
-                    && (_reply.header().httpVersionMajor() < 1
-                     || _reply.header().httpVersionMinor() < 1)))
-            {
-                keepAlive = false;
-            }
-        }
-
-        if (keepAlive)
-        {
-            log_debug("do keep alive");
-            _timer.start(_server.keepAliveTimeout());
-            _request.clear();
-            _reply.clear();
-            _parser.reset(false);
-            _stream.buffer().beginRead();
-        }
-        else
-        {
-            log_debug("don't do keep alive");
-            close();
-            delete this;
-            return false;
-        }
-    }
-
-    return true;
-}
-
-void HttpSocket::onTimeout()
-{
-    log_debug("timeout");
-    close();
-    delete this;
-}
-
-void HttpSocket::sendReply()
-{
-    const std::string contentLength = "Content-Length";
-    const std::string server = "Server";
-    const std::string connection = "Connection";
-    const std::string date = "Date";
-
-    _stream << "HTTP/"
-        << _reply.header().httpVersionMajor() << '.'
-        << _reply.header().httpVersionMinor() << ' '
-        << _reply.header().httpReturnCode() << ' '
-        << _reply.header().httpReturnText() << "\r\n";
-
-    for (HttpReplyHeader::const_iterator it = _reply.header().begin();
-        it != _reply.header().end(); ++it)
-    {
-        _stream << it->first << ": " << it->second << "\r\n";
-    }
-
-    if (!_reply.header().hasHeader(contentLength))
-    {
-        _stream << "Content-Length: " << _reply.bodySize() << "\r\n";
-    }
-
-    if (!_reply.header().hasHeader(server))
-    {
-        _stream << "Server: cxxtools-Net-HttpServer\r\n";
-    }
-
-    if (!_reply.header().hasHeader(connection))
-    {
-        _stream << "Connection: "
-                << (_request.header().keepAlive() ? "keep-alive" : "close")
-                << "\r\n";
-    }
-
-    if (!_reply.header().hasHeader(date))
-    {
-        _stream << "Date: " << HttpMessageHeader::htdateCurrent() << "\r\n";
-    }
-
-    _stream << "\r\n";
-
-    _reply.sendBody(_stream);
-
-}
 
 HttpServer::HttpServer(const std::string& ip, unsigned short int port)
 : TcpServer(ip, port),
@@ -351,6 +56,8 @@ HttpServer::HttpServer(const std::string& ip, unsigned short int port)
 void HttpServer::createThread()
 {
     log_trace("HttpServer::createThread");
+
+    log_info("create http worker thread");
 
     MutexLock lock(_threadMutex);
 
@@ -394,15 +101,18 @@ void HttpServer::run()
     do
     {
         MutexLock lock(_threadMutex);
-        log_debug("wait for finished threads");
+        log_info("wait for finished threads");
         _threadTerminated.wait(lock);
         log_debug(_terminatedThreads.size() << " threads finished");
         for (Threads::iterator it = _terminatedThreads.begin(); it != _terminatedThreads.end(); ++it)
         {
+            log_info("join thread");
             (*it)->join();
+            log_info("delete thread");
             delete *it;
         }
 
+        log_info("delete " << _terminatedThreads.size() << " thread objects");
         _terminatedThreads.clear();
 
     } while (!_terminating && _threads.size() > 0);
@@ -548,19 +258,27 @@ void HttpServer::serverThread()
         log_debug("release selector lock");
         selectorLock.unlock();
 
-        log_debug("execute reply");
-        if (s->doReply())
+        try
         {
-            log_debug("add socket to idle sockets and wake up selector");
-            _idleSockets.push_back(s);
-            _selector.wake();
+          log_info("execute reply for url " << s->request().url());
+          if (s->doReply())
+          {
+              log_debug("add socket to idle sockets and wake up selector");
+              _idleSockets.push_back(s);
+              _selector.wake();
+          }
+          else
+              log_debug("socket destroyed");
         }
-        else
-            log_debug("socket destroyed");
+        catch (const std::exception& e)
+        {
+          delete s;
+          log_error(e.what());
+        }
 
     } while (atomicGet(_waitingThreads) < _minThreads);
 
-    log_debug("end thread");
+    log_info("end thread");
 }
 
 } // namespace net

@@ -31,6 +31,8 @@ libcxxtools_la_SOURCES = \
 	httpmessageheader.cpp \
 	httpparser.cpp \
 	httpserver.cpp \
+	httpsocket.cpp \
+	httpresponder.cpp \
 	iconvstream.cpp \
 	inifile.cpp \
 	iniparser.cpp \

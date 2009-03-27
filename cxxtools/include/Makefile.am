@@ -56,6 +56,9 @@ nobase_include_HEADERS = \
 		cxxtools/httprequest.h \
 		cxxtools/httprequestheader.h \
 		cxxtools/httpserver.h \
+		cxxtools/httpsocket.h \
+		cxxtools/httpservice.h \
+		cxxtools/httpresponder.h \
         cxxtools/iconverter.h \
         cxxtools/iconvstream.h \
         cxxtools/inifile.h \
