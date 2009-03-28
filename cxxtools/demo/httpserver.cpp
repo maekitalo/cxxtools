@@ -62,43 +62,7 @@ void HelloResponder::reply(std::ostream& out, cxxtools::net::HttpRequest& reques
 
 // HelloService
 //
-class HelloService : public cxxtools::net::HttpService
-{
-    cxxtools::Mutex mutex;
-    typedef std::vector<cxxtools::net::HttpResponder*> Responders;
-    Responders responders;
-
-  public:
-    ~HelloService();
-    virtual cxxtools::net::HttpResponder* createResponder(const cxxtools::net::HttpRequest&);
-    virtual void releaseResponder(cxxtools::net::HttpResponder*);
-};
-
-HelloService::~HelloService()
-{
-  for (Responders::iterator it = responders.begin(); it != responders.end(); ++it)
-    delete *it;
-}
-
-cxxtools::net::HttpResponder* HelloService::createResponder(const cxxtools::net::HttpRequest&)
-{
-  cxxtools::MutexLock lock(mutex);
-  if (responders.empty())
-  {
-    return new HelloResponder(*this);
-  }
-  else
-  {
-    cxxtools::net::HttpResponder* ret = responders.back();
-    responders.pop_back();
-    return ret;
-  }
-}
-
-void HelloService::releaseResponder(cxxtools::net::HttpResponder* resp)
-{
-  responders.push_back(resp);
-}
+typedef cxxtools::net::HttpCachedService<HelloResponder> HelloService;
 
 // main
 //

@@ -29,7 +29,8 @@
 #ifndef cxxtools_Net_HttpService_h
 #define cxxtools_Net_HttpService_h
 
-#include <cxxtools/api.h>
+#include <cxxtools/mutex.h>
+#include <vector>
 
 namespace cxxtools {
 
@@ -44,6 +45,43 @@ class HttpService
         virtual ~HttpService() { }
         virtual HttpResponder* createResponder(const HttpRequest&) = 0;
         virtual void releaseResponder(HttpResponder*) = 0;
+};
+
+template <typename ResponderType>
+class HttpCachedService : public HttpService
+{
+        Mutex mutex;
+        typedef std::vector<HttpResponder*> Responders;
+        Responders responders;
+
+    public:
+        ~HttpCachedService()
+        {
+            for (typename Responders::iterator it = responders.begin(); it != responders.end(); ++it)
+                delete *it;
+        }
+
+        HttpResponder* createResponder(const HttpRequest& request)
+        {
+            MutexLock lock(mutex);
+            if (responders.empty())
+            {
+                return new ResponderType(*this);
+            }
+            else
+            {
+                HttpResponder* ret = responders.back();
+                responders.pop_back();
+                return ret;
+            }
+        }
+
+        void releaseResponder(HttpResponder* resp)
+        {
+            MutexLock lock(mutex);
+            responders.push_back(resp);
+        }
+
 };
 
 } // namespace net
