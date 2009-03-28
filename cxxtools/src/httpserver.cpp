@@ -57,8 +57,7 @@ void HttpServer::createThread()
 {
     log_trace("HttpServer::createThread");
 
-    log_info("create http worker thread");
-
+    MutexLock clock(_createThreadMutex);
     MutexLock lock(_threadMutex);
 
     if (_threads.size() < _maxThreads)
@@ -66,15 +65,13 @@ void HttpServer::createThread()
         log_debug("create thread object");
         _startingThread = new AttachedThread(callable(*this, &HttpServer::serverThread));
 
-        _threads.insert(_startingThread);
-
-        log_debug("run thread");
+        log_debug("run thread " << _startingThread);
         _startingThread->create();
 
         log_debug("wait for thread running");
         _threadRunning.wait(lock);
 
-        log_debug("thread is running");
+        log_debug("thread " << _startingThread << " is running");
         _startingThread = 0;
     }
 }
@@ -106,9 +103,9 @@ void HttpServer::run()
         log_debug(_terminatedThreads.size() << " threads finished");
         for (Threads::iterator it = _terminatedThreads.begin(); it != _terminatedThreads.end(); ++it)
         {
-            log_info("join thread");
+            log_info("join thread " << (*it));
             (*it)->join();
-            log_info("delete thread");
+            log_debug("delete thread " << (*it));
             delete *it;
         }
 
@@ -203,17 +200,22 @@ void HttpServer::serverThread()
                 _terminatedThreads.insert(_thread);
                 _threadTerminated.signal();
             }
+
+            const AttachedThread* thread() const  { return _thread; }
     };
+
+    MutexLock threadLock(_threadMutex);
 
     ThreadTerminator terminator(_startingThread, _threads, _terminatedThreads, _threadTerminated);
 
-    MutexLock selectorLock(_selectorMutex, false);
+    _threads.insert(_startingThread);
 
-    log_debug("signal threadRunning");
-    {
-        MutexLock lock(_threadMutex);
-        _threadRunning.signal();
-    }
+    log_info("signal threadRunning (" << _startingThread << ')');
+    _threadRunning.signal();
+
+    threadLock.unlock();
+
+    MutexLock selectorLock(_selectorMutex, false);
 
     do
     {
@@ -244,7 +246,7 @@ void HttpServer::serverThread()
             MutexLock lock(_idleSocketsMutex);
             while (!_idleSockets.empty())
             {
-                log_debug("idle socket " << _idleSockets.front() << " found");
+                log_debug("add idle socket " << _idleSockets.front() << " to selector");
                 _idleSockets.front()->addSelector(_selector);
                 _idleSockets.pop_front();
             }
@@ -264,6 +266,7 @@ void HttpServer::serverThread()
           if (s->doReply())
           {
               log_debug("add socket to idle sockets and wake up selector");
+              MutexLock lock(_idleSocketsMutex);
               _idleSockets.push_back(s);
               _selector.wake();
           }
@@ -278,7 +281,9 @@ void HttpServer::serverThread()
 
     } while (atomicGet(_waitingThreads) < _minThreads);
 
-    log_info("end thread");
+    log_info("end thread " << terminator.thread());
+
+    threadLock.lock();
 }
 
 } // namespace net

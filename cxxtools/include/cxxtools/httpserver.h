@@ -91,6 +91,7 @@ class CXXTOOLS_API HttpServer : public TcpServer, public Connectable
         void serverThread();
 
         Mutex _threadMutex;
+        Mutex _createThreadMutex;
         Mutex _selectorMutex;
         Condition _threadRunning;
         AttachedThread* _startingThread;
