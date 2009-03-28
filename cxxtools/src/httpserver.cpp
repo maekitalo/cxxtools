@@ -262,21 +262,21 @@ void HttpServer::serverThread()
 
         try
         {
-          log_info("execute reply for url " << s->request().url());
-          if (s->doReply())
-          {
-              log_debug("add socket to idle sockets and wake up selector");
-              MutexLock lock(_idleSocketsMutex);
-              _idleSockets.push_back(s);
-              _selector.wake();
-          }
-          else
-              log_debug("socket destroyed");
+            log_info("execute reply for url " << s->request().url());
+            if (s->doReply())
+            {
+                log_debug("add socket to idle sockets and wake up selector");
+                MutexLock lock(_idleSocketsMutex);
+                _idleSockets.push_back(s);
+                _selector.wake();
+            }
+            else
+                log_debug("socket destroyed");
         }
         catch (const std::exception& e)
         {
-          delete s;
-          log_error(e.what());
+            delete s;
+            log_error(e.what());
         }
 
     } while (atomicGet(_waitingThreads) < _minThreads);

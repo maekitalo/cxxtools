@@ -48,7 +48,6 @@ nobase_include_HEADERS = \
         cxxtools/function.tpp \
         cxxtools/hdstream.h \
 		cxxtools/httpclient.h \
-		cxxtools/httpmessage.h \
 		cxxtools/httpmessageheader.h \
 		cxxtools/httpparser.h \
 		cxxtools/httpreply.h \
