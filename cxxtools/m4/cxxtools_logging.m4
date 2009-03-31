@@ -37,7 +37,7 @@ AC_DEFUN([AC_CXXTOOLS_WITH_LOGGING],
   fi
 
   if test "$ac_loggertype" = "cxxtools" -o "$ac_loggertype" = "probe"; then
-    AC_DEFINE([CXXTOOLS_LOG_LOGBUILTIN], [], [use cxxtools logging])
+    AC_DEFINE([CXXTOOLS_LOG_LOGCXXTOOLS], [], [use cxxtools logging])
     ac_loggertype=cxxtools
   elif test "$ac_loggertype" = "disable" -o "$ac_loggertype" = "no"; then
     AC_DEFINE([CXXTOOLS_LOG_DISABLE], [], [disable logging])

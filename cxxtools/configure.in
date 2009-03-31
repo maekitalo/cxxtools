@@ -12,7 +12,7 @@ AC_SUBST(sonumber)
 unset CDPATH
 
 AC_CONFIG_MACRO_DIR([m4])
-AC_CONFIG_HEADERS([src/config.h])
+AC_CONFIG_HEADERS([src/config.h ])
 AC_CONFIG_FILES([include/cxxtools/config.h])
 AC_CONFIG_SRCDIR([src/base64stream.cpp])
 
@@ -97,7 +97,10 @@ AC_COMPILE_IFELSE(
     #include <locale>
     void foo() { std::numpunct<char>* np; }
 ],
-AC_DEFINE([CXXTOOLS_WITH_STD_LOCALE], 1, [Defined if c++ locale library is usable]))
+[CXXTOOLS_STD_LOCALE=CXXTOOLS_WITH_STD_LOCALE],
+[CXXTOOLS_STD_LOCALE=CXXTOOLS_WITHOUT_STD_LOCALE])
+
+AC_SUBST(CXXTOOLS_STD_LOCALE)
 
 AC_CONFIG_FILES([cxxtools-config], [chmod +x cxxtools-config])
 
