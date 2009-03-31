@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2008 by Marc Boris Duerner
+ * Copyright (C) 2006-2008 Marc Boris Duerner
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -25,45 +25,40 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-#ifndef cxxtools_Api_h
-#define cxxtools_Api_h
+#include "cxxtools/textcodec.h"
 
-#include <cxxtools/config.h>
+#ifdef CXXTOOLS_WITH_STD_LOCALE
 
-#define CXXTOOLS_WITH_STD_LOCALE 1
+namespace std {
 
-#if defined(WIN32) || defined(_WIN32)
-    // suppress min/max macros from win32 headers
-    #ifndef NOMINMAX
-    #define NOMINMAX
-    #endif
+//
+// codecvt facet for Char/char
+//
+std::locale::id codecvt<cxxtools::Char, char, cxxtools::MBState>::id;
 
-    // Use of features specific Windows versions
-    #ifndef WINVER
-    #define WINVER 0x0501
-    #endif
 
-    #ifndef _WIN32_WINNT
-    #define _WIN32_WINNT 0x0501
-    #endif
+codecvt<cxxtools::Char, char, cxxtools::MBState>::codecvt(size_t ref)
+: locale::facet(ref)
+{}
 
-    #ifndef _WIN32_WINDOWS
-    #define _WIN32_WINDOWS 0x0410
-    #endif
-#endif
 
-#if defined(WIN32) || defined(_WIN32)
-    #define CXXTOOLS_EXPORT __declspec(dllexport)
-    #define CXXTOOLS_IMPORT __declspec(dllimport)
-#else
-    #define CXXTOOLS_EXPORT
-    #define CXXTOOLS_IMPORT
-#endif
+codecvt<cxxtools::Char, char, cxxtools::MBState>::~codecvt()
+{}
 
-#if defined(CXXTOOLS_API_EXPORT)
-    #define CXXTOOLS_API CXXTOOLS_EXPORT
-#else
-    #define CXXTOOLS_API CXXTOOLS_IMPORT
-# endif
+//
+// codecvt facet for char/char
+//
+std::locale::id codecvt<char, char, cxxtools::MBState>::id;
+
+
+codecvt<char, char, cxxtools::MBState>::codecvt(size_t ref)
+: locale::facet(ref)
+{}
+
+
+codecvt<char, char, cxxtools::MBState>::~codecvt()
+{}
+
+} // namespace std
 
 #endif

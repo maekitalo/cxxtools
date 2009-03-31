@@ -40,6 +40,7 @@ nobase_include_HEADERS = \
         cxxtools/eventloop.h \
         cxxtools/eventsink.h \
         cxxtools/eventsource.h \
+        cxxtools/facets.h \
         cxxtools/fdstream.h \
         cxxtools/file.h \
         cxxtools/fileinfo.h \
@@ -110,6 +111,9 @@ nobase_include_HEADERS = \
         cxxtools/tcpsocket.h \
         cxxtools/tcpstream.h \
         cxxtools/tee.h \
+        cxxtools/textbuffer.h \
+        cxxtools/textcodec.h \
+        cxxtools/textstream.h \
         cxxtools/thread.h \
         cxxtools/time.h \
         cxxtools/timer.h \

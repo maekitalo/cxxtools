@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2006-2008 by Marc Boris Duerner
+ * Copyright (C) 2004 Marc Boris Duerner
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -25,45 +25,49 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-#ifndef cxxtools_Api_h
-#define cxxtools_Api_h
+#include "cxxtools/textstream.h"
 
-#include <cxxtools/config.h>
+namespace cxxtools {
 
-#define CXXTOOLS_WITH_STD_LOCALE 1
+TextIStream::TextIStream(std::istream& is, Codec* codec)
+: BasicTextIStream<Char, char>(is, codec)
+{ }
 
-#if defined(WIN32) || defined(_WIN32)
-    // suppress min/max macros from win32 headers
-    #ifndef NOMINMAX
-    #define NOMINMAX
-    #endif
 
-    // Use of features specific Windows versions
-    #ifndef WINVER
-    #define WINVER 0x0501
-    #endif
+TextIStream::TextIStream(Codec* codec)
+: BasicTextIStream<Char, char>(codec)
+{ }
 
-    #ifndef _WIN32_WINNT
-    #define _WIN32_WINNT 0x0501
-    #endif
 
-    #ifndef _WIN32_WINDOWS
-    #define _WIN32_WINDOWS 0x0410
-    #endif
-#endif
+TextIStream::~TextIStream()
+{ }
 
-#if defined(WIN32) || defined(_WIN32)
-    #define CXXTOOLS_EXPORT __declspec(dllexport)
-    #define CXXTOOLS_IMPORT __declspec(dllimport)
-#else
-    #define CXXTOOLS_EXPORT
-    #define CXXTOOLS_IMPORT
-#endif
 
-#if defined(CXXTOOLS_API_EXPORT)
-    #define CXXTOOLS_API CXXTOOLS_EXPORT
-#else
-    #define CXXTOOLS_API CXXTOOLS_IMPORT
-# endif
+TextOStream::TextOStream(std::ostream& os, Codec* codec)
+: BasicTextOStream<Char, char>(os, codec)
+{ }
 
-#endif
+
+TextOStream::TextOStream(Codec* codec)
+: BasicTextOStream<Char, char>(codec)
+{ }
+
+
+TextOStream::~TextOStream()
+{ }
+
+
+TextStream::TextStream(std::iostream& ios, Codec* codec)
+: BasicTextStream<Char, char>(ios, codec)
+{ }
+
+
+TextStream::TextStream(Codec* codec)
+: BasicTextStream<Char, char>(codec)
+{ }
+
+
+TextStream::~TextStream()
+{ }
+
+} // namespace cxxtools

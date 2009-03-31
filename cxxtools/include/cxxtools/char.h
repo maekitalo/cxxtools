@@ -486,4 +486,208 @@ namespace cxxtools {
     }
 } // namespace cxxtools
 
+#ifdef CXXTOOLS_WITH_STD_LOCALE
+
+#include <locale>
+
+namespace std {
+
+#if (defined _MSC_VER || defined __QNX__ || defined __xlC__)
+
+    /** @brief Ctype localization facet
+        @ingroup Unicode
+    */
+    template <>
+    class CXXTOOLS_API ctype< cxxtools::Char > : public ctype_base {
+
+#else
+    /** @brief Ctype localization facet
+        @ingroup Unicode
+    */
+    template <>
+    class CXXTOOLS_API ctype<cxxtools::Char> : public ctype_base, public locale::facet {
+
+#endif
+
+    public:
+        typedef ctype_base::mask mask;
+
+        static locale::id id;
+        virtual locale::id& __get_id (void) const { return id; }
+
+    public:
+        explicit ctype(size_t refs = 0);
+
+        virtual ~ctype();
+
+        bool is(mask m, cxxtools::Char c) const
+        { return this->do_is(m, c); }
+
+        const cxxtools::Char* is(const cxxtools::Char *lo, const cxxtools::Char *hi, mask *vec) const
+        { return this->do_is(lo, hi, vec); }
+
+        const cxxtools::Char* scan_is(mask m, const cxxtools::Char* lo, const cxxtools::Char* hi) const
+        { return this->do_scan_is(m, lo, hi); }
+
+        const cxxtools::Char* scan_not(mask m, const cxxtools::Char* lo, const cxxtools::Char* hi) const
+        { return this->do_scan_not(m, lo, hi); }
+
+        cxxtools::Char toupper(cxxtools::Char c) const
+        { return this->do_toupper(c); }
+
+        const cxxtools::Char* toupper(cxxtools::Char *lo, const cxxtools::Char* hi) const
+        { return this->do_toupper(lo, hi); }
+
+        cxxtools::Char tolower(cxxtools::Char c) const
+        { return this->do_tolower(c); }
+
+        const cxxtools::Char* tolower(cxxtools::Char* lo, const cxxtools::Char* hi) const
+        { return this->do_tolower(lo, hi); }
+
+        cxxtools::Char widen(char c) const
+        { return this->do_widen(c); }
+
+        const char* widen(const char* lo, const char* hi, cxxtools::Char* to) const
+        { return this->do_widen(lo, hi, to); }
+
+        char narrow(cxxtools::Char c, char dfault) const
+        { return this->do_narrow(c, dfault); }
+
+        const cxxtools::Char* narrow(const cxxtools::Char* lo, const cxxtools::Char* hi,
+                            char dfault, char *to) const
+        { return this->do_narrow(lo, hi, dfault, to); }
+
+    protected:
+        virtual bool do_is(mask m, cxxtools::Char c) const;
+
+        virtual const cxxtools::Char* do_is(const cxxtools::Char* lo, const cxxtools::Char* hi,
+                                    mask* vec) const;
+
+        virtual const cxxtools::Char* do_scan_is(mask m, const cxxtools::Char* lo,
+                                            const cxxtools::Char* hi) const;
+
+        virtual const cxxtools::Char* do_scan_not(mask m, const cxxtools::Char* lo,
+                                            const cxxtools::Char* hi) const;
+
+        virtual cxxtools::Char do_toupper(cxxtools::Char) const;
+
+        virtual const cxxtools::Char* do_toupper(cxxtools::Char* lo, const cxxtools::Char* hi) const;
+
+        virtual cxxtools::Char do_tolower(cxxtools::Char) const;
+
+        virtual const cxxtools::Char* do_tolower(cxxtools::Char* lo, const cxxtools::Char* hi) const;
+
+        virtual cxxtools::Char do_widen(char) const;
+
+        virtual const char* do_widen(const char* lo, const char* hi,
+                                    cxxtools::Char* dest) const;
+
+        virtual char do_narrow(cxxtools::Char, char dfault) const;
+
+        virtual const cxxtools::Char* do_narrow(const cxxtools::Char* lo, const cxxtools::Char* hi,
+                                        char dfault, char* dest) const;
+};
+
+} // namespace std
+
+#else
+
+namespace std {
+
+class ctype_base
+{
+    public:
+        enum {
+            alpha  = 1 << 5,
+            cntrl  = 1 << 2,
+            digit  = 1 << 6,
+            lower  = 1 << 4,
+            print  = 1 << 1,
+            punct  = 1 << 7,
+            space  = 1 << 0,
+            upper  = 1 << 3,
+            xdigit = 1 << 8,
+            alnum  = alpha | digit,
+            graph  = alnum | punct
+        };
+
+        typedef unsigned short mask;
+
+        ctype_base(size_t _refs = 0)
+        { }
+};
+
+}
+
+#endif
+
+namespace cxxtools {
+
+CXXTOOLS_API std::ctype_base::mask ctypeMask(const Char& ch);
+
+inline int isalpha(const Char& ch)
+{
+    return ctypeMask(ch) & std::ctype_base::alpha;
+}
+
+inline int isalnum(const Char& ch)
+{
+    return ctypeMask(ch) & std::ctype_base::alnum;
+}
+
+inline int ispunct(const Char& ch)
+{
+    return ctypeMask(ch) & std::ctype_base::punct;
+}
+
+inline int iscntrl(const Char& ch)
+{
+    return ctypeMask(ch) & std::ctype_base::cntrl;
+}
+
+inline int isdigit(const Char& ch)
+{
+    return ctypeMask(ch) & std::ctype_base::digit;
+}
+
+inline int isxdigit(const Char& ch)
+{
+    return ctypeMask(ch) & std::ctype_base::xdigit;
+}
+
+inline int isgraph(const Char& ch)
+{
+    return ctypeMask(ch) & std::ctype_base::graph;
+}
+
+inline int islower(const Char& ch)
+{
+    return ctypeMask(ch) & std::ctype_base::lower;
+}
+
+inline int isupper(const Char& ch)
+{
+    return ctypeMask(ch) & std::ctype_base::upper;
+}
+
+inline int isprint(const Char& ch)
+{
+    return ctypeMask(ch) & std::ctype_base::print;
+}
+
+inline int isspace(const Char& ch)
+{
+    return ctypeMask(ch) & std::ctype_base::space;
+}
+
+CXXTOOLS_API Char tolower(const Char& ch);
+
+CXXTOOLS_API Char toupper(const Char& ch);
+
+} // namespace cxxtools
+
+#ifdef CXXTOOLS_WITH_STD_LOCALE
+#include <cxxtools/facets.h>
+#endif
+
 #endif

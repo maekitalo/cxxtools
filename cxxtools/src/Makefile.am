@@ -7,6 +7,7 @@ libcxxtools_la_SOURCES = \
 	application.cpp \
 	applicationimpl.cpp \
 	base64stream.cpp \
+	char.cpp \
 	clock.cpp \
 	clockimpl.cpp \
 	condition.cpp \
@@ -73,6 +74,8 @@ libcxxtools_la_SOURCES = \
 	tcpsocketimpl.cpp \
 	tcpstream.cpp \
 	tee.cpp \
+	textcodec.cpp \
+	textstream.cpp \
 	thread.cpp \
 	threadimpl.cpp \
 	time.cpp \
@@ -91,6 +94,7 @@ noinst_HEADERS = \
 	directoryimpl.h \
 	fileimpl.h \
 	fileinfoimpl.h \
+	facets.cpp \
 	iodeviceimpl.h \
 	libraryimpl.h \
 	muteximpl.h \
@@ -101,7 +105,8 @@ noinst_HEADERS = \
 	semaphoreimpl.h \
 	tcpserverimpl.h \
 	tcpsocketimpl.h \
-	threadimpl.h
+	threadimpl.h \
+	unicode.h
 
 if MAKE_ATOMICITY_SUN
 libcxxtools_la_SOURCES += \
