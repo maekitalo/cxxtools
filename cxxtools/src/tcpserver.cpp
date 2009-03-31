@@ -32,7 +32,7 @@
 #include <cxxtools/log.h>
 #include <memory>
 
-log_define("cxxtools.net.tcp")
+log_define("cxxtools.net.tcp.tcpserver")
 
 namespace cxxtools {
 

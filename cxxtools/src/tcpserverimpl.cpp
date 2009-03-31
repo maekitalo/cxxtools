@@ -43,7 +43,7 @@
 #include <sys/poll.h>
 #include <sys/select.h>
 
-log_define("cxxtools.net.tcp")
+log_define("cxxtools.net.tcp.tcpserverimpl")
 
 namespace cxxtools {
 

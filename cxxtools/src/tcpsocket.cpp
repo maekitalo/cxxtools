@@ -34,7 +34,7 @@
 #include <errno.h>
 #include <cxxtools/systemerror.h>
 
-log_define("cxxtools.net.tcpsocket")
+log_define("cxxtools.net.tcp.socket")
 
 namespace cxxtools {
 

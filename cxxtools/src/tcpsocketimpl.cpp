@@ -42,7 +42,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-log_define("cxxtools.net.tcp")
+log_define("cxxtools.net.tcp.socketimpl")
 
 namespace {
 
