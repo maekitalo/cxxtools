@@ -315,7 +315,7 @@ size_t IODeviceImpl::initializePoll(pollfd* pfd, size_t pollSize)
 bool IODeviceImpl::checkPollEvent()
 {
     assert(_pfd != 0);
-    this->checkPollEvent(*_pfd);
+    return this->checkPollEvent(*_pfd);
 }
 
 
