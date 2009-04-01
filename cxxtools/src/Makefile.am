@@ -67,6 +67,7 @@ libcxxtools_la_SOURCES = \
 	semaphoreimpl.cpp \
 	signal.cpp \
 	streambuffer.cpp \
+	stringstream.cpp \
 	systemerror.cpp \
 	tcpserverimpl.cpp \
 	tcpserver.cpp \
