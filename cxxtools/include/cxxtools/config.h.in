@@ -2,5 +2,8 @@
 /** defines, which logging library to use */
 #define @CXXTOOLS_LOGGING@
 
+/** defines, how to implement atomic operations */
+#define @CXXTOOLS_ATOMICITY@
+
 /** defines, whether c++ locales are supported */
 #define @CXXTOOLS_STD_LOCALE@
