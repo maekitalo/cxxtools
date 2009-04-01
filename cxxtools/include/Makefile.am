@@ -15,6 +15,7 @@ nobase_include_HEADERS = \
         cxxtools/atomicity.h \
         cxxtools/api.h \
         cxxtools/byteorder.h \
+        cxxtools/base64codec.h \
         cxxtools/base64stream.h \
         cxxtools/callable.h \
         cxxtools/callable.tpp \
@@ -122,6 +123,7 @@ nobase_include_HEADERS = \
         cxxtools/types.h \
         cxxtools/udp.h \
         cxxtools/udpstream.h \
+        cxxtools/utf8codec.h \
         cxxtools/uuencode.h \
         cxxtools/void.h \
         cxxtools/uuencode.h \
