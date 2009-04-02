@@ -43,6 +43,7 @@ nobase_include_HEADERS = \
         cxxtools/eventsource.h \
         cxxtools/facets.h \
         cxxtools/fdstream.h \
+        cxxtools/formatter.h \
         cxxtools/file.h \
         cxxtools/fileinfo.h \
         cxxtools/fork.h \
@@ -96,6 +97,7 @@ nobase_include_HEADERS = \
         cxxtools/semaphore.h \
         cxxtools/serializationerror.h \
         cxxtools/serializationinfo.h \
+        cxxtools/serializer.h \
         cxxtools/signal.h \
         cxxtools/signal.tpp \
         cxxtools/singleton.h \
