@@ -65,6 +65,8 @@ libcxxtools_la_SOURCES = \
 	selectorimpl.cpp \
 	semaphore.cpp \
 	semaphoreimpl.cpp \
+	serializationerror.cpp \
+	serializationinfo.cpp \
 	signal.cpp \
 	streambuffer.cpp \
 	stringstream.cpp \

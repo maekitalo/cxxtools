@@ -94,6 +94,8 @@ nobase_include_HEADERS = \
         cxxtools/selector.h \
         cxxtools/selectable.h \
         cxxtools/semaphore.h \
+        cxxtools/serializationerror.h \
+        cxxtools/serializationinfo.h \
         cxxtools/signal.h \
         cxxtools/signal.tpp \
         cxxtools/singleton.h \

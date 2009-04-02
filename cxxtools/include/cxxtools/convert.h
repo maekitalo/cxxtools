@@ -29,13 +29,40 @@
 #ifndef CXXTOOLS_CONVERT_H
 #define CXXTOOLS_CONVERT_H
 
+#include <cxxtools/api.h>
+#include <cxxtools/string.h>
+#include <cxxtools/stringstream.h>
 #include <cxxtools/conversionerror.h>
 #include <sstream>
 #include <string>
+#include <stdexcept>
 #include <iomanip>
 #include <limits>
+#include <iostream>
 
 namespace cxxtools {
+
+template <typename T>
+inline void convert(cxxtools::String& s, const T& value)
+{
+    cxxtools::StringStream os;
+    os << value;
+    s = os.str();
+}
+
+
+template <typename T>
+inline void convert(T& t, const cxxtools::String& str)
+{
+    cxxtools::StringStream is(str);
+    is >> t;
+    const std::ios::iostate iostate = is.rdstate();
+    if((iostate&std::ios::failbit) || (iostate&std::ios::badbit) || !(iostate&std::ios::eofbit))
+    {
+        throw cxxtools::ConversionError( CXXTOOLS_CONVERSIONERROR(T, cxxtools::String) );
+    }
+}
+
 
 template <typename T>
 inline void convert(std::string& s, const T& value)
@@ -51,15 +78,321 @@ inline void convert(T& t, const std::string& str)
 {
     std::istringstream is(str);
     is >> t;
+    const std::ios::iostate iostate = is.rdstate();
+    if((iostate&std::ios::failbit) || (iostate&std::ios::badbit) || !(iostate&std::ios::eofbit))
+    {
+        throw cxxtools::ConversionError( CXXTOOLS_CONVERSIONERROR(T, std::string) );
+    }
 }
 
+
+inline void convert(cxxtools::String& s, const cxxtools::String& str)
+{
+    s = str;
+}
+
+
+inline void convert(cxxtools::String& s, bool value)
+{
+    s = value ?
+        cxxtools::String::widen("true") :
+        cxxtools::String::widen("false");
+}
+
+inline void convert(bool& n, const cxxtools::String& str)
+{
+    if( ( str.size() == 4 ) &&
+        ( str[0] == cxxtools::Char('t') ) &&
+        ( str[1] == cxxtools::Char('r') ) &&
+        ( str[2] == cxxtools::Char('u') ) &&
+        ( str[3] == cxxtools::Char('e') ) )
+    {
+        n = true;
+    }
+    else if( ( str.size() == 5 ) &&
+        ( str[0] == cxxtools::Char('f') ) &&
+        ( str[1] == cxxtools::Char('a') ) &&
+        ( str[2] == cxxtools::Char('l') ) &&
+        ( str[3] == cxxtools::Char('s') ) &&
+        ( str[4] == cxxtools::Char('e') ) )
+    {
+        n = false;
+    }
+    else if( ( str.size() == 1 ) &&
+        ( str[0] == cxxtools::Char('1') ) )
+    {
+        n = true;
+    }
+    else if( ( str.size() == 1 ) &&
+        ( str[0] == cxxtools::Char('0') ) )
+    {
+        n = false;
+    }
+    else
+    {
+        throw cxxtools::ConversionError( CXXTOOLS_CONVERSIONERROR(bool, cxxtools::String) );
+    }
+}
+
+inline void convert(bool& n, const std::string& str)
+{
+    if( ( str.size() == 4 ) &&
+        ( str[0] == 't' ) &&
+        ( str[1] == 'r' ) &&
+        ( str[2] == 'u' ) &&
+        ( str[3] == 'e' ) )
+    {
+        n = true;
+    }
+    else if( ( str.size() == 5 ) &&
+        ( str[0] == 'f' ) &&
+        ( str[1] == 'a' ) &&
+        ( str[2] == 'l' ) &&
+        ( str[3] == 's' ) &&
+        ( str[4] == 'e' ) )
+    {
+        n = false;
+    }
+    else if( ( str.size() == 1 ) &&
+        ( str[0] == '1' ) )
+    {
+        n = true;
+    }
+    else if( ( str.size() == 1 ) &&
+        ( str[0] == '0' ) )
+    {
+        n = false;
+    }
+    else
+    {
+        throw cxxtools::ConversionError( CXXTOOLS_CONVERSIONERROR(bool, std::string) );
+    }
+}
+
+inline void convert(cxxtools::String& s, char value)
+{
+    s = cxxtools::String( 1, cxxtools::Char(value) );
+}
+
+
+inline void convert(char& n, const cxxtools::String& str)
+{
+    if( str.empty() )
+        throw cxxtools::ConversionError( CXXTOOLS_CONVERSIONERROR(char, cxxtools::String) );
+
+    n = str[0].narrow('*');
+}
+
+
+inline void convert(cxxtools::String& s, unsigned char value)
+{
+    cxxtools::StringStream ss;
+    unsigned int i = static_cast<unsigned int>(value);
+    ss << i;
+    s = ss.str();
+}
+
+
+inline void convert(unsigned char& n, const cxxtools::String& str)
+{
+    if( str.empty() )
+        throw cxxtools::ConversionError( CXXTOOLS_CONVERSIONERROR(unsigned char, cxxtools::String) );
+
+    // interpret as numeric value
+    cxxtools::StringStream ss(str);
+    unsigned int i = 0;
+    ss >> i;
+    const std::ios::iostate iostate = ss.rdstate();
+    if((iostate&std::ios::failbit) || (iostate&std::ios::badbit) || !(iostate&std::ios::eofbit))
+    {
+        throw cxxtools::ConversionError( CXXTOOLS_CONVERSIONERROR(unsigned char, cxxtools::String) );
+    }
+    n = static_cast<unsigned char>(i);
+}
+
+
+inline void convert(cxxtools::String& s, signed char value)
+{
+    cxxtools::StringStream ss;
+    int i = static_cast<signed int>(value);
+    ss << i;
+    s = ss.str();
+}
+
+
+inline void convert(signed char& n, const cxxtools::String& str)
+{
+    if( str.empty() )
+        throw cxxtools::ConversionError( CXXTOOLS_CONVERSIONERROR(signed char, cxxtools::String) );
+        
+    // interpret as numeric value
+    cxxtools::StringStream ss(str);
+    int i = 0;
+    ss >> i;
+    const std::ios::iostate iostate = ss.rdstate();
+    if((iostate&std::ios::failbit) || (iostate&std::ios::badbit) || !(iostate&std::ios::eofbit))
+    {
+        throw cxxtools::ConversionError( CXXTOOLS_CONVERSIONERROR(signed char, cxxtools::String) );
+    }
+    n = static_cast<signed char>(i);
+}
+
+
+inline void convert(cxxtools::String& s, const std::string& value)
+{
+    s = cxxtools::String::widen(value);
+}
+
+
+inline void convert(std::string& s,const cxxtools::String& str)
+{
+    s = str.narrow();
+}
+
+
+inline void convert(cxxtools::String& s, float value)
+{
+    // not a number
+    if(value != value)
+    {
+        s = L"NAN";
+        return;
+    }
+
+    cxxtools::StringStream os;
+    os << value;
+    s = os.str();
+}
+
+
+inline void convert(float& n, const cxxtools::String& str)
+{
+    // not a number
+    if(str == L"NAN")
+    {
+        n = std::numeric_limits<float>::quiet_NaN();
+        return;
+    }
+
+    cxxtools::StringStream is(str);
+    is >> n;
+
+    const std::ios::iostate iostate = is.rdstate();
+    if((iostate&std::ios::failbit) || (iostate&std::ios::badbit) || !(iostate&std::ios::eofbit))
+    {
+        throw cxxtools::ConversionError( CXXTOOLS_CONVERSIONERROR(float, cxxtools::String) );
+    }
+}
+
+
+inline void convert(cxxtools::String& s, double value)
+{
+    // not a number
+    if(value != value)
+    {
+        s = L"NAN";
+        return;
+    }
+
+    cxxtools::StringStream os;
+    os << std::fixed << std::setprecision(15) << value;
+    s = os.str();
+}
+
+
+inline void convert(double& n, const cxxtools::String& str)
+{
+    // not a number
+    if(str == L"NAN")
+    {
+        n = std::numeric_limits<float>::quiet_NaN();
+        return;
+    }
+
+    cxxtools::StringStream is(str);
+    is >> std::fixed >> std::setprecision(15) >> n;
+
+    const std::ios::iostate iostate = is.rdstate();
+    if((iostate&std::ios::failbit) || (iostate&std::ios::badbit) || !(iostate&std::ios::eofbit))
+    {
+        throw cxxtools::ConversionError( CXXTOOLS_CONVERSIONERROR(double, cxxtools::String) );
+    }
+}
+
+inline void convert(std::string& s, float value)
+{
+    // not a number
+    if(value != value)
+    {
+        s = "NAN";
+        return;
+    }
+
+    std::ostringstream os;
+    os << value;
+    s = os.str();
+}
+
+
+inline void convert(float& n, const std::string& str)
+{
+    // not a number
+    if(str == "NAN")
+    {
+        n = std::numeric_limits<float>::quiet_NaN();
+        return;
+    }
+
+    std::istringstream is(str);
+    is >> n;
+
+    const std::ios::iostate iostate = is.rdstate();
+    if((iostate&std::ios::failbit) || (iostate&std::ios::badbit) || !(iostate&std::ios::eofbit))
+    {
+        throw cxxtools::ConversionError( CXXTOOLS_CONVERSIONERROR(float, std::string) );
+    }
+}
+
+
+inline void convert(std::string& s, double value)
+{
+    // not a number
+    if(value != value)
+    {
+        s = "NAN";
+        return;
+    }
+
+    std::ostringstream os;
+    os << std::fixed << std::setprecision(15) << value;
+    s = os.str();
+}
+
+inline void convert(double& n, const std::string& str)
+{
+    // not a number
+    if(str == "NAN")
+    {
+        n = std::numeric_limits<float>::quiet_NaN();
+        return;
+    }
+
+    std::stringstream is(str);
+    is >> std::fixed >> std::setprecision(15) >> n;
+
+    const std::ios::iostate iostate = is.rdstate();
+    if((iostate&std::ios::failbit) || (iostate&std::ios::badbit) || !(iostate&std::ios::eofbit))
+    {
+        throw cxxtools::ConversionError( CXXTOOLS_CONVERSIONERROR(double, std::string) );
+    }
+}
 
 template<typename T, typename S>
 void convert(T& to, const S& from)
 {
-    std::stringstream ss;
+    cxxtools::StringStream ss;
     if( !(ss << from && ss >> to) )
-        throw ConversionError( CXXTOOLS_CONVERSIONERROR(streamable, streamable) );
+        throw cxxtools::ConversionError( CXXTOOLS_CONVERSIONERROR(streamable, streamable) );
 }
 
 
