@@ -33,6 +33,7 @@ nobase_include_HEADERS = \
         cxxtools/datetime.h \
         cxxtools/delegate.h \
         cxxtools/delegate.tpp \
+        cxxtools/deserializer.h \
         cxxtools/dir.h \
         cxxtools/directory.h \
         cxxtools/dlloader.h \

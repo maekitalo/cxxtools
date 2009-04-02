@@ -18,6 +18,7 @@ libcxxtools_la_SOURCES = \
 	conversionerror.cpp \
 	date.cpp \
 	datetime.cpp \
+	deserializer.cpp \
 	directory.cpp \
 	directoryimpl.cpp \
 	eventloop.cpp \
