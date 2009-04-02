@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 Marc Boris Duerner
- * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
@@ -25,54 +23,54 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-#include "cxxtools/textstream.h"
+#ifndef cxxtools_Xml_EndDocument_h
+#define cxxtools_Xml_EndDocument_h
+
+#include <cxxtools/xml/api.h>
+#include <cxxtools/xml/node.h>
+
 
 namespace cxxtools {
 
-TextBuffer::TextBuffer(std::ios* s, Codec* codec)
-: BasicTextBuffer<cxxtools::Char, char>(s, codec)
-{ }
+    namespace xml {
+
+        /**
+         * @brief A Node which represents the end of the XML document.
+         *
+         * The last Node/Element which is read from a document is the EndDocument-node. It is read after
+         * the last tag, Text or comment was read from the XML document. This is similar to an eof character
+         * at the end of a file read.
+         *
+         * @see Node
+         */
+        class CXXTOOLS_XML_API EndDocument : public Node {
+            public:
+                //! Creates an EndDocument object.
+                EndDocument();
+
+                //! Destructs this EndDocument object.
+                ~EndDocument();
+
+                /**
+                 * @brief Clones this EndDocument object by creating a duplicate on the heap and returning it.
+                 * @return A cloned version of this EndDocument object.
+                 */
+                EndDocument* clone() const
+                { return new EndDocument(*this); }
+
+        };
+
+    }
+
+}
+
+#endif
 
 
-TextIStream::TextIStream(std::istream& is, Codec* codec)
-: BasicTextIStream<Char, char>(is, codec)
-{ }
 
 
-TextIStream::TextIStream(Codec* codec)
-: BasicTextIStream<Char, char>(codec)
-{ }
 
 
-TextIStream::~TextIStream()
-{ }
 
 
-TextOStream::TextOStream(std::ostream& os, Codec* codec)
-: BasicTextOStream<Char, char>(os, codec)
-{ }
 
-
-TextOStream::TextOStream(Codec* codec)
-: BasicTextOStream<Char, char>(codec)
-{ }
-
-
-TextOStream::~TextOStream()
-{ }
-
-
-TextStream::TextStream(std::iostream& ios, Codec* codec)
-: BasicTextStream<Char, char>(ios, codec)
-{ }
-
-
-TextStream::TextStream(Codec* codec)
-: BasicTextStream<Char, char>(codec)
-{ }
-
-
-TextStream::~TextStream()
-{ }
-
-} // namespace cxxtools

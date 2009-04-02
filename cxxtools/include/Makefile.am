@@ -153,7 +153,21 @@ nobase_include_HEADERS = \
         cxxtools/unit/testmain.h \
         cxxtools/unit/testmethod.h \
         cxxtools/unit/testprotocol.h \
-        cxxtools/unit/testsuite.h
+        cxxtools/unit/testsuite.h \
+        cxxtools/xml/characters.h \
+        cxxtools/xml/comment.h \
+        cxxtools/xml/doctypedeclaration.h \
+        cxxtools/xml/enddocument.h \
+        cxxtools/xml/endelement.h \
+        cxxtools/xml/entityresolver.h \
+        cxxtools/xml/namespace.h \
+        cxxtools/xml/namespacecontext.h \
+        cxxtools/xml/node.h \
+        cxxtools/xml/processinginstruction.h \
+        cxxtools/xml/startelement.h \
+        cxxtools/xml/xmlerror.h \
+        cxxtools/xml/xmlreader.h \
+        cxxtools/xml/xmlwriter.h
 
 nobase_nodist_include_HEADERS = \
         cxxtools/config.h

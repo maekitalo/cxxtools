@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 Marc Boris Duerner
- * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
@@ -25,54 +23,52 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-#include "cxxtools/textstream.h"
+#include "cxxtools/xml/endelement.h"
 
 namespace cxxtools {
 
-TextBuffer::TextBuffer(std::ios* s, Codec* codec)
-: BasicTextBuffer<cxxtools::Char, char>(s, codec)
-{ }
+namespace xml {
 
 
-TextIStream::TextIStream(std::istream& is, Codec* codec)
-: BasicTextIStream<Char, char>(is, codec)
-{ }
+EndElement::EndElement(const String& name)
+: Node(Node::EndElement),
+  _name(name)
+{
+}
 
 
-TextIStream::TextIStream(Codec* codec)
-: BasicTextIStream<Char, char>(codec)
-{ }
+EndElement::~EndElement()
+{
+}
 
 
-TextIStream::~TextIStream()
-{ }
+String& EndElement::name()
+{
+    return _name;
+}
 
 
-TextOStream::TextOStream(std::ostream& os, Codec* codec)
-: BasicTextOStream<Char, char>(os, codec)
-{ }
+const String& EndElement::name() const
+{
+    return _name;
+}
 
 
-TextOStream::TextOStream(Codec* codec)
-: BasicTextOStream<Char, char>(codec)
-{ }
+void EndElement::setName(const String name)
+{
+    _name = name;
+}
 
 
-TextOStream::~TextOStream()
-{ }
+bool EndElement::operator==(const Node& node) const
+{
+    const EndElement* e = dynamic_cast<const EndElement*>(&node);
+    if(!e) return false;
+
+    return ( e->name() == this->name() );
+}
 
 
-TextStream::TextStream(std::iostream& ios, Codec* codec)
-: BasicTextStream<Char, char>(ios, codec)
-{ }
-
-
-TextStream::TextStream(Codec* codec)
-: BasicTextStream<Char, char>(codec)
-{ }
-
-
-TextStream::~TextStream()
-{ }
+} // namespace xml
 
 } // namespace cxxtools

@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 Marc Boris Duerner
- * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
@@ -25,54 +23,48 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-#include "cxxtools/textstream.h"
+#include "cxxtools/xml/processinginstruction.h"
+#include "cxxtools/string.h"
 
 namespace cxxtools {
 
-TextBuffer::TextBuffer(std::ios* s, Codec* codec)
-: BasicTextBuffer<cxxtools::Char, char>(s, codec)
-{ }
+namespace xml {
+
+ProcessingInstruction::ProcessingInstruction()
+: Node(Node::ProcessingInstruction)
+{
+}
 
 
-TextIStream::TextIStream(std::istream& is, Codec* codec)
-: BasicTextIStream<Char, char>(is, codec)
-{ }
+ProcessingInstruction::~ProcessingInstruction()
+{
+}
 
 
-TextIStream::TextIStream(Codec* codec)
-: BasicTextIStream<Char, char>(codec)
-{ }
+const String& ProcessingInstruction::target() const
+{
+    return _target;
+}
 
 
-TextIStream::~TextIStream()
-{ }
+void ProcessingInstruction::setTarget(const String& target)
+{
+    _target = target;
+}
 
 
-TextOStream::TextOStream(std::ostream& os, Codec* codec)
-: BasicTextOStream<Char, char>(os, codec)
-{ }
+const String& ProcessingInstruction::data() const
+{
+    return _data;
+}
 
 
-TextOStream::TextOStream(Codec* codec)
-: BasicTextOStream<Char, char>(codec)
-{ }
+void ProcessingInstruction::setData(const String& data)
+{
+    _data = data;
+}
 
-
-TextOStream::~TextOStream()
-{ }
-
-
-TextStream::TextStream(std::iostream& ios, Codec* codec)
-: BasicTextStream<Char, char>(ios, codec)
-{ }
-
-
-TextStream::TextStream(Codec* codec)
-: BasicTextStream<Char, char>(codec)
-{ }
-
-
-TextStream::~TextStream()
-{ }
+} // namespace xml
 
 } // namespace cxxtools
+

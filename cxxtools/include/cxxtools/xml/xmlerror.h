@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 Marc Boris Duerner
- * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
@@ -25,54 +23,37 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-#include "cxxtools/textstream.h"
+#ifndef cxxtools_Xml_XmlError_h
+#define cxxtools_Xml_XmlError_h
+
+#include <cxxtools/xml/api.h>
+#include <stdexcept>
 
 namespace cxxtools {
 
-TextBuffer::TextBuffer(std::ios* s, Codec* codec)
-: BasicTextBuffer<cxxtools::Char, char>(s, codec)
-{ }
+namespace xml {
 
+//! Exception that is thrown when a parse error occured.
+class CXXTOOLS_XML_API XmlError : public std::runtime_error
+{
+    public:
+        /**
+            * @brief Creates a new ParseError object using the given reason and source info.
+            *
+            * @param what The reason of the parse error.
+            * @param info Source info containing information about where the exception occured.
+            */
+        XmlError(const char* what, unsigned line);
 
-TextIStream::TextIStream(std::istream& is, Codec* codec)
-: BasicTextIStream<Char, char>(is, codec)
-{ }
+        unsigned line() const
+        { return _line; }
 
+    private:
+        unsigned _line;
+};
 
-TextIStream::TextIStream(Codec* codec)
-: BasicTextIStream<Char, char>(codec)
-{ }
+}
 
+}
 
-TextIStream::~TextIStream()
-{ }
-
-
-TextOStream::TextOStream(std::ostream& os, Codec* codec)
-: BasicTextOStream<Char, char>(os, codec)
-{ }
-
-
-TextOStream::TextOStream(Codec* codec)
-: BasicTextOStream<Char, char>(codec)
-{ }
-
-
-TextOStream::~TextOStream()
-{ }
-
-
-TextStream::TextStream(std::iostream& ios, Codec* codec)
-: BasicTextStream<Char, char>(ios, codec)
-{ }
-
-
-TextStream::TextStream(Codec* codec)
-: BasicTextStream<Char, char>(codec)
-{ }
-
-
-TextStream::~TextStream()
-{ }
-
-} // namespace cxxtools
+#endif

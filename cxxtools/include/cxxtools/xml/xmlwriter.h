@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 Marc Boris Duerner
- * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
@@ -25,54 +23,56 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-#include "cxxtools/textstream.h"
+#ifndef cxxtools_Xml_XmlWriter_h
+#define cxxtools_Xml_XmlWriter_h
+
+#include <cxxtools/xml/api.h>
+#include <cxxtools/string.h>
+#include <cxxtools/textstream.h>
+#include <stack>
 
 namespace cxxtools {
 
-TextBuffer::TextBuffer(std::ios* s, Codec* codec)
-: BasicTextBuffer<cxxtools::Char, char>(s, codec)
-{ }
+namespace xml {
 
+    class Attribute;
 
-TextIStream::TextIStream(std::istream& is, Codec* codec)
-: BasicTextIStream<Char, char>(is, codec)
-{ }
+    class CXXTOOLS_XML_API XmlWriter
+    {
+        public:
+            XmlWriter();
 
+            XmlWriter(std::ostream& os);
 
-TextIStream::TextIStream(Codec* codec)
-: BasicTextIStream<Char, char>(codec)
-{ }
+            ~XmlWriter();
 
+            void begin(std::ostream& os);
 
-TextIStream::~TextIStream()
-{ }
+            void writeStartElement(const cxxtools::String& prefix, const cxxtools::String& localName, const cxxtools::String& ns);
 
+            void writeStartElement(const cxxtools::String& localName);
 
-TextOStream::TextOStream(std::ostream& os, Codec* codec)
-: BasicTextOStream<Char, char>(os, codec)
-{ }
+            void writeStartElement(const cxxtools::String& localName, const Attribute* attr, size_t attrCount);
 
+            void writeEndElement();
 
-TextOStream::TextOStream(Codec* codec)
-: BasicTextOStream<Char, char>(codec)
-{ }
+            void writeElement(const cxxtools::String& localName, const cxxtools::String& content);
 
+            void writeElement(const cxxtools::String& localName, const Attribute* attr, size_t attrCount, const cxxtools::String& content);
 
-TextOStream::~TextOStream()
-{ }
+            void writeCharacters(const cxxtools::String& text);
 
+            void flush();
 
-TextStream::TextStream(std::iostream& ios, Codec* codec)
-: BasicTextStream<Char, char>(ios, codec)
-{ }
+            void endl();
 
+        private:
+            TextOStream _tos;
+            std::stack<cxxtools::String> _elements;
+    };
 
-TextStream::TextStream(Codec* codec)
-: BasicTextStream<Char, char>(codec)
-{ }
+}
 
+}
 
-TextStream::~TextStream()
-{ }
-
-} // namespace cxxtools
+#endif

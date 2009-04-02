@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 Marc Boris Duerner
- * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
@@ -25,54 +23,84 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-#include "cxxtools/textstream.h"
+#include "cxxtools/xml/startelement.h"
 
 namespace cxxtools {
 
-TextBuffer::TextBuffer(std::ios* s, Codec* codec)
-: BasicTextBuffer<cxxtools::Char, char>(s, codec)
-{ }
+namespace xml {
+
+Attribute::Attribute()
+{
+}
 
 
-TextIStream::TextIStream(std::istream& is, Codec* codec)
-: BasicTextIStream<Char, char>(is, codec)
-{ }
+Attribute::Attribute(const String& name, const String& value) 
+: _name(name), _value(value)
+{
+}
 
 
-TextIStream::TextIStream(Codec* codec)
-: BasicTextIStream<Char, char>(codec)
-{ }
+Attribute::~Attribute()
+{
+}
 
 
-TextIStream::~TextIStream()
-{ }
 
 
-TextOStream::TextOStream(std::ostream& os, Codec* codec)
-: BasicTextOStream<Char, char>(os, codec)
-{ }
+
+StartElement::StartElement() 
+: Node(Node::StartElement)
+{
+
+}
 
 
-TextOStream::TextOStream(Codec* codec)
-: BasicTextOStream<Char, char>(codec)
-{ }
+StartElement::StartElement(const String& name)
+: Node(Node::StartElement),
+  _name(name)
+{
+}
 
 
-TextOStream::~TextOStream()
-{ }
+StartElement::~StartElement()
+{
+}
 
 
-TextStream::TextStream(std::iostream& ios, Codec* codec)
-: BasicTextStream<Char, char>(ios, codec)
-{ }
+const String& StartElement::attribute(const String attributeName) const
+{
+    static const String null;
+    
+    for(std::list<Attribute>::const_iterator it = _attributes.begin(); it != _attributes.end(); ++it) {
+        if(it->name() == attributeName) {
+            return it->value();
+        }
+    }
+    
+    return null;
+}
 
 
-TextStream::TextStream(Codec* codec)
-: BasicTextStream<Char, char>(codec)
-{ }
+bool StartElement::hasAttribute(const String attributeName) const
+{
+    for(std::list<Attribute>::const_iterator it = _attributes.begin(); it != _attributes.end(); ++it) {
+        if(it->name() == attributeName) {
+            return true;
+        }
+    }
+    
+    return false;
+}
 
 
-TextStream::~TextStream()
-{ }
+bool StartElement::operator==(const Node& node) const
+{
+    const StartElement* se = dynamic_cast<const StartElement*>(&node);
+    if(!se) return false;
+
+    return ( se->name() == this->name() );
+}
+
+} // namespace xml
 
 } // namespace cxxtools

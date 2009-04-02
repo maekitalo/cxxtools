@@ -1,6 +1,4 @@
 /*
- * Copyright (C) 2004 Marc Boris Duerner
- * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
@@ -25,54 +23,55 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-#include "cxxtools/textstream.h"
+#include "cxxtools/xml/characters.h"
 
 namespace cxxtools {
 
-TextBuffer::TextBuffer(std::ios* s, Codec* codec)
-: BasicTextBuffer<cxxtools::Char, char>(s, codec)
-{ }
+namespace xml {
+
+Characters::Characters(const String& content)
+: Node(Node::Characters), _content(content)
+{
+
+}
 
 
-TextIStream::TextIStream(std::istream& is, Codec* codec)
-: BasicTextIStream<Char, char>(is, codec)
-{ }
+Characters::~Characters() {
+}
 
 
-TextIStream::TextIStream(Codec* codec)
-: BasicTextIStream<Char, char>(codec)
-{ }
+bool Characters::empty() const
+{
+    return _content.empty();
+}
 
 
-TextIStream::~TextIStream()
-{ }
+String& Characters::content()
+{
+    return _content;
+}
 
 
-TextOStream::TextOStream(std::ostream& os, Codec* codec)
-: BasicTextOStream<Char, char>(os, codec)
-{ }
+const String& Characters::content() const
+{
+    return _content;
+}
 
 
-TextOStream::TextOStream(Codec* codec)
-: BasicTextOStream<Char, char>(codec)
-{ }
+void Characters::setContent(const String& content)
+{
+    _content = content;
+}
 
 
-TextOStream::~TextOStream()
-{ }
+bool Characters::operator==(const Node& node) const
+{
+    const Characters* chars = dynamic_cast<const Characters*>(&node);
+    if(!chars) return false;
 
+    return ( chars->content() == this->content() );
+}
 
-TextStream::TextStream(std::iostream& ios, Codec* codec)
-: BasicTextStream<Char, char>(ios, codec)
-{ }
+}
 
-
-TextStream::TextStream(Codec* codec)
-: BasicTextStream<Char, char>(codec)
-{ }
-
-
-TextStream::~TextStream()
-{ }
-
-} // namespace cxxtools
+}

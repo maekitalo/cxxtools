@@ -108,6 +108,7 @@ AC_CONFIG_FILES([
   Makefile
   src/Makefile
   src/unit/Makefile
+  src/xml/Makefile
   include/Makefile
   demo/Makefile
   test/Makefile
