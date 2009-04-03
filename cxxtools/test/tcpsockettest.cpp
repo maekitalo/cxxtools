@@ -43,6 +43,8 @@ class TcpSocketTest : public cxxtools::unit::TestSuite
                                   &TcpSocketTest::NonBlockingWithSelector);
             this->registerMethod( "NonBlockingWithWait", *this,
                                   &TcpSocketTest::NonBlockingWithWait);
+            this->registerMethod( "ConnectFailed", *this,
+                                  &TcpSocketTest::ConnectFailed);
         }
 
         void setUp()
@@ -53,6 +55,23 @@ class TcpSocketTest : public cxxtools::unit::TestSuite
         void tearDown()
         {
             delete _acceptor;
+        }
+
+        void ConnectFailed()
+        {
+            cxxtools::Selector selector;
+
+            cxxtools::net::TcpSocket client;
+            connect(client.connected, *this, &TcpSocketTest::onConnectFailed);
+
+            client.beginConnect("127.0.0.2", 9000);
+            selector.add(client);
+            selector.wait(1000);
+        }
+
+        void onConnectFailed(cxxtools::net::TcpSocket& socket)
+        {
+            CXXTOOLS_UNIT_ASSERT_THROW(socket.endConnect(), cxxtools::IOError);
         }
 
         void NonBlockingWithWait()

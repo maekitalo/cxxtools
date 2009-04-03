@@ -204,10 +204,10 @@ void TcpSocketImpl::endConnect()
             socklen_t optlen = sizeof(sockerr);
             if( ::getsockopt(this->fd(), SOL_SOCKET, SO_ERROR, &sockerr, &optlen) != 0 )
             {
-                throw SystemError("getsockopt");
+                throw IOError("getsockopt");
             }
 
-            throw SystemError("connect");
+            throw IOError("connect"); //TODO dedicated exception type?
         }
         catch(...)
         {
