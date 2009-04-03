@@ -109,6 +109,7 @@ AC_CONFIG_FILES([
   src/Makefile
   src/unit/Makefile
   src/xml/Makefile
+  src/xmlrpc/Makefile
   include/Makefile
   demo/Makefile
   test/Makefile

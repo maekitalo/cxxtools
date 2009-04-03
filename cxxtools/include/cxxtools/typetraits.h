@@ -28,7 +28,7 @@
 #ifndef cxxtools_TypeTraits_h
 #define cxxtools_TypeTraits_h
 
-#include <cxxtools/Api.h>
+#include <cxxtools/api.h>
 #include <cstddef>
 
 namespace cxxtools {
