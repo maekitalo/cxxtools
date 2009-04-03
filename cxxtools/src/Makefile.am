@@ -88,7 +88,7 @@ libcxxtools_la_SOURCES = \
 	timespan.cpp \
 	udp.cpp \
 	udpstream.cpp \
-	utf8codec.h \
+	utf8codec.cpp \
 	uuencode.cpp \
 	xmltag.cpp
 
