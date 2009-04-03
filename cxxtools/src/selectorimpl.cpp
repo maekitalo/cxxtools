@@ -248,7 +248,7 @@ bool SelectorImpl::wait(unsigned int umsecs)
                         break;
                 }
 
-                throw IOError("Cound not read from pipe", CXXTOOLS_SOURCEINFO);
+                throw IOError("Could not read from pipe", CXXTOOLS_SOURCEINFO);
             }
         }
 

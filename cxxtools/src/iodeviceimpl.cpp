@@ -314,7 +314,10 @@ size_t IODeviceImpl::initializePoll(pollfd* pfd, size_t pollSize)
 
 bool IODeviceImpl::checkPollEvent()
 {
-    assert(_pfd != 0);
+    // _pfd can be 0 if the device is just added during wait iteration
+    if (_pfd == 0)
+        return false;
+
     return this->checkPollEvent(*_pfd);
 }
 
