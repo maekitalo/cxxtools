@@ -102,12 +102,15 @@ void HttpServer::run()
         listen(_ip, _port);
     }
 
-    do
+    MutexLock lock(_threadMutex);
+
+    while (!_terminating || !_threads.empty())
     {
-        MutexLock lock(_threadMutex);
         log_info("wait for finished threads");
+
         _threadTerminated.wait(lock);
         log_debug(_terminatedThreads.size() << " threads finished");
+
         for (Threads::iterator it = _terminatedThreads.begin(); it != _terminatedThreads.end(); ++it)
         {
             log_info("join thread " << (*it));
@@ -118,10 +121,16 @@ void HttpServer::run()
 
         log_info("delete " << _terminatedThreads.size() << " thread objects");
         _terminatedThreads.clear();
+    }
 
-    } while (!_terminating && _threads.size() > 0);
+    for (Threads::iterator it = _terminatedThreads.begin(); it != _terminatedThreads.end(); ++it)
+    {
+        log_info("join thread " << (*it));
+        (*it)->join();
+        log_debug("delete thread " << (*it));
+        delete *it;
+    }
 
-    MutexLock lock(_threadMutex);
     _terminated.signal();
 }
 
@@ -193,16 +202,19 @@ void HttpServer::serverThread()
             Threads& _threads;
             Threads& _terminatedThreads;
             Condition& _threadTerminated;
+            Mutex& _threadMutex;
 
         public:
-            ThreadTerminator(AttachedThread* thread, Threads& threads, Threads& terminatedThreads, Condition& threadTerminated)
+            ThreadTerminator(AttachedThread* thread, Threads& threads, Threads& terminatedThreads, Condition& threadTerminated, Mutex& threadMutex)
                 : _thread(thread),
                   _threads(threads),
                   _terminatedThreads(terminatedThreads),
-                  _threadTerminated(threadTerminated)
+                  _threadTerminated(threadTerminated),
+                  _threadMutex(threadMutex)
                 { }
             ~ThreadTerminator()
             {
+                MutexLock threadLock(_threadMutex);
                 _threads.erase(_thread);
                 _terminatedThreads.insert(_thread);
                 _threadTerminated.signal();
@@ -213,11 +225,11 @@ void HttpServer::serverThread()
 
     MutexLock threadLock(_threadMutex);
 
-    ThreadTerminator terminator(_startingThread, _threads, _terminatedThreads, _threadTerminated);
+    ThreadTerminator terminator(_startingThread, _threads, _terminatedThreads, _threadTerminated, _threadMutex);
 
     _threads.insert(_startingThread);
 
-    log_info("signal threadRunning (" << _startingThread << ')');
+    log_info("thread running (" << _startingThread << ')');
     _threadRunning.signal();
 
     threadLock.unlock();
@@ -236,7 +248,10 @@ void HttpServer::serverThread()
         log_debug("selectorLock obtained; " << _waitingThreads << " threads left");
 
         if (_terminating)
+        {
+            log_debug("server terminating");
             break;
+        }
 
         if (atomicGet(_waitingThreads) == 0)
             createThread();
@@ -289,8 +304,6 @@ void HttpServer::serverThread()
     } while (atomicGet(_waitingThreads) < _minThreads);
 
     log_info("end thread " << terminator.thread());
-
-    threadLock.lock();
 }
 
 } // namespace net
