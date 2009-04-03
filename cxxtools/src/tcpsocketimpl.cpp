@@ -272,13 +272,19 @@ bool TcpSocketImpl::checkPollEvent(pollfd& pfd)
 {
     log_debug("checkPollEvent " << pfd.revents);
 
-    if( pfd.revents & POLLOUT )
+    if( ! _isConnected )
     {
-        if( ! _isConnected )
+        if( pfd.revents & POLLOUT )
         {
             _socket.connected.send(_socket);
-            return true;
         }
+        else if ( pfd.revents & POLLERR )
+        {
+            // TODO not really connected but error
+            _socket.connected.send(_socket);
+        }
+
+        return true;
     }
 
     return IODeviceImpl::checkPollEvent(pfd);
