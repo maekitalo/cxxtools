@@ -79,6 +79,9 @@ class CXXTOOLS_API HttpServer : public TcpServer, public Connectable
         void run();
 
     private:
+        std::string _ip;
+        unsigned short int _port;
+
         typedef std::multimap<std::string, HttpService*> ServicesType;
         ServicesType _service;
         Selector _selector;

@@ -38,7 +38,8 @@ namespace net {
 
 
 HttpServer::HttpServer(const std::string& ip, unsigned short int port)
-: TcpServer(ip, port),
+: _ip(ip),
+  _port(port),
   _readTimeout(5000),
   _writeTimeout(5000),
   _keepAliveTimeout(30000),
@@ -88,11 +89,17 @@ void HttpServer::run()
 {
     log_trace("run server");
 
-    log_debug("start " << _minThreads << " threads");
-    for (unsigned n = 0; n < _minThreads; ++n)
     {
-        log_debug("start thread " << n);
-        createThread();
+        MutexLock selectorLock(_selectorMutex);
+
+        log_debug("start " << _minThreads << " threads");
+        for (unsigned n = 0; n < _minThreads; ++n)
+        {
+            log_debug("start thread " << n);
+            createThread();
+        }
+
+        listen(_ip, _port);
     }
 
     do
