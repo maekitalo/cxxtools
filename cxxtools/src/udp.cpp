@@ -27,7 +27,7 @@
  */
 
 #include "addrinfo.h"
-#include <cxxtools/udp.h>
+#include <cxxtools/net/udp.h>
 #include <cxxtools/dynbuffer.h>
 #include <cxxtools/log.h>
 #include <cxxtools/systemerror.h>

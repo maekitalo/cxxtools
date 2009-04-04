@@ -28,7 +28,7 @@
 
 #include <exception>
 #include <iostream>
-#include <cxxtools/tcpstream.h>
+#include <cxxtools/net/tcpstream.h>
 #include <cxxtools/arg.h>
 #include <cxxtools/loginit.h>
 

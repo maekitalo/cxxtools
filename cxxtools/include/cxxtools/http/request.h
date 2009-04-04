@@ -26,59 +26,99 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef cxxtools_Net_HttpRequestHeader_h
-#define cxxtools_Net_HttpRequestHeader_h
+#ifndef cxxtools_Http_Request_h
+#define cxxtools_Http_Request_h
 
-#include <cxxtools/api.h>
-#include <cxxtools/httpmessageheader.h>
+#include <cxxtools/http/api.h>
+#include <cxxtools/http/requestheader.h>
 #include <string>
+#include <sstream>
 
 namespace cxxtools {
 
-namespace net {
+namespace http {
 
-class HttpRequestHeader : public HttpMessageHeader
+class Request
 {
-        std::string _url;
-        std::string _method;
-        std::string _qparams;
+        RequestHeader _header;
+        std::ostringstream _body;
 
     public:
-        explicit HttpRequestHeader(const std::string& url = std::string())
-        : _url(url),
-          _method("GET")
+        explicit Request(const std::string& url = std::string())
+        : _header(url)
         { }
 
-        virtual ~HttpRequestHeader()  {}
+        RequestHeader& header()
+        { return _header; }
+
+        const RequestHeader& header() const
+        { return _header; }
+
+        void setHeader(const std::string& key, const std::string& value)
+        {
+            _header.setHeader(key, value);
+        }
+
+        void addHeader(const std::string& key, const std::string& value)
+        {
+            _header.addHeader(key, value);
+        }
+
+        void removeHeader(const std::string& key)
+        {
+            _header.removeHeader(key);
+        }
+
+        std::string getHeader(const std::string& key) const
+        {
+            return _header.getHeader(key);
+        }
+
+        bool hasHeader(const std::string& key) const
+        {
+            return _header.hasHeader(key);
+        }
 
         void clear()
         {
-            HttpMessageHeader::clear();
-            _method = "GET";
-            _qparams.clear();
+            _header.clear();
+            _body.clear();
+            _body.str(std::string());
         }
 
         const std::string& url() const
-        { return _url; }
+        { return _header.url(); }
 
         void url(const std::string& u)
-        { _url = u; }
+        { _header.url(u); }
 
         const std::string& method() const
-        { return _method; }
+        { return _header.method(); }
 
         void method(const std::string& m)
-        { _method = m; }
+        { _header.method(m); }
 
         const std::string& qparams() const
-        { return _qparams; }
+        { return _header.qparams(); }
 
         void qparams(const std::string& q)
-        { _qparams = q; }
+        { _header.qparams(q); }
+
+        std::string bodyStr() const
+        { return _body.str(); }
+
+        std::ostream& body()
+        { return _body; }
+
+        std::size_t bodySize() const
+        { return _body.str().size(); }
+
+        void sendBody(std::ostream& out) const
+        { out << _body.str(); }
 
 };
 
-} // namespace net
+} // namespace http
 
 } // namespace cxxtools
 

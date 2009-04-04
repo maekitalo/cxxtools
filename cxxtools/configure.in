@@ -45,7 +45,6 @@ CXXTOOLS_LDFLAGS='-L${libdir} -lcxxtools'
 
 AC_SUBST(CXXTOOLS_CXXFLAGS)
 AC_SUBST(CXXTOOLS_LDFLAGS)
-AC_SUBST(CXXTOOLS_LOG_LDFLAGS)
 AC_SUBST(CXXTOOLS_LOGGING)
 
 case "${host_cpu}-${host_os}" in
@@ -108,6 +107,7 @@ AC_CONFIG_FILES([
   Makefile
   src/Makefile
   src/unit/Makefile
+  src/http/Makefile
   src/xml/Makefile
   src/xmlrpc/Makefile
   include/Makefile

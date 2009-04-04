@@ -33,7 +33,7 @@
 #include "cxxtools/xml/startelement.h"
 #include "cxxtools/xml/characters.h"
 #include "cxxtools/xml/endelement.h"
-#include "cxxtools/httpreply.h"
+#include "cxxtools/http/reply.h"
 #include "cxxtools/utf8codec.h"
 
 namespace cxxtools {
@@ -41,7 +41,7 @@ namespace cxxtools {
 namespace xmlrpc {
 
 HttpXmlRpcResponder::HttpXmlRpcResponder(Service& service)
-: net::HttpResponder(service)
+: http::Responder(service)
 , _state(OnBegin)
 , _ts(new Utf8Codec)
 , _reader(_ts)
@@ -59,7 +59,7 @@ HttpXmlRpcResponder::~HttpXmlRpcResponder()
 }
 
 
-void HttpXmlRpcResponder::beginRequest(std::istream& is, net::HttpRequest& request)
+void HttpXmlRpcResponder::beginRequest(std::istream& is, http::Request& request)
 {
     _fault.clear();
     _state = OnBegin;
@@ -112,8 +112,8 @@ std::size_t HttpXmlRpcResponder::readBody(std::istream& is)
 }
 
 
-void HttpXmlRpcResponder::replyError(std::ostream& os, net::HttpRequest& request,
-                                     net::HttpReply& reply, const std::exception& ex)
+void HttpXmlRpcResponder::replyError(std::ostream& os, http::Request& request,
+                                     http::Reply& reply, const std::exception& ex)
 {
     reply.setHeader("Content-Type", "text/xml");
 
@@ -137,7 +137,7 @@ void HttpXmlRpcResponder::replyError(std::ostream& os, net::HttpRequest& request
 }
 
 
-void HttpXmlRpcResponder::reply(std::ostream& os, net::HttpRequest& request, net::HttpReply& reply)
+void HttpXmlRpcResponder::reply(std::ostream& os, http::Request& request, http::Reply& reply)
 {
     if( ! _proc )
         throw std::runtime_error("invalid XML-RPC, no method found");

@@ -26,15 +26,15 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef cxxtools_HttpClient_h
-#define cxxtools_HttpClient_h
+#ifndef cxxtools_Http_Client_h
+#define cxxtools_Http_Client_h
 
-#include <cxxtools/api.h>
-#include <cxxtools/tcpserver.h>
-#include <cxxtools/tcpsocket.h>
-#include <cxxtools/httpparser.h>
-#include <cxxtools/httprequest.h>
-#include <cxxtools/httpreply.h>
+#include <cxxtools/http/api.h>
+#include <cxxtools/net/tcpserver.h>
+#include <cxxtools/net/tcpsocket.h>
+#include <cxxtools/http/parser.h>
+#include <cxxtools/http/request.h>
+#include <cxxtools/http/reply.h>
 #include <cxxtools/iostream.h>
 #include <cxxtools/timer.h>
 #include <cxxtools/connectable.h>
@@ -46,19 +46,19 @@
 
 namespace cxxtools {
 
-namespace net {
+namespace http {
 
-class CXXTOOLS_API HttpClient : public cxxtools::Connectable
+class CXXTOOLS_HTTP_API Client : public cxxtools::Connectable
 {
         friend class ParseEvent;
 
-        class CXXTOOLS_API ParseEvent : public HttpHeaderParser::HttpMessageHeaderEvent
+        class CXXTOOLS_HTTP_API ParseEvent : public HeaderParser::MessageHeaderEvent
         {
-                HttpReplyHeader& _replyHeader;
+                ReplyHeader& _replyHeader;
 
             public:
-                explicit ParseEvent(HttpReplyHeader& replyHeader)
-                    : HttpHeaderParser::HttpMessageHeaderEvent(replyHeader),
+                explicit ParseEvent(ReplyHeader& replyHeader)
+                    : HeaderParser::MessageHeaderEvent(replyHeader),
                       _replyHeader(replyHeader)
                     { }
 
@@ -66,35 +66,35 @@ class CXXTOOLS_API HttpClient : public cxxtools::Connectable
         };
 
         ParseEvent _parseEvent;
-        HttpHeaderParser _parser;
+        HeaderParser _parser;
 
-        const HttpRequest* _request;
-        HttpReplyHeader _replyHeader;
+        const Request* _request;
+        ReplyHeader _replyHeader;
 
         std::string _server;
         unsigned short int _port;
-        TcpSocket _socket;
+        net::TcpSocket _socket;
         IOStream _stream;
         bool _readHeader;
         long _contentLength;
 
-        void sendRequest(const HttpRequest& request);
+        void sendRequest(const Request& request);
         void processBodyAvailable();
 
     protected:
-        void onConnect(TcpSocket& socket);
+        void onConnect(net::TcpSocket& socket);
         void onOutput(StreamBuffer& sb);
         void onInput(StreamBuffer& sb);
 
     public:
-        HttpClient(const std::string& server, unsigned short int port);
+        Client(const std::string& server, unsigned short int port);
 
-        HttpClient(const std::string& server, unsigned short int port, SelectorBase& selector);
+        Client(const std::string& server, unsigned short int port, SelectorBase& selector);
 
-        const HttpReplyHeader& execute(const HttpRequest& request,
+        const ReplyHeader& execute(const Request& request,
             std::size_t timeout = Selectable::WaitInfinite);
 
-        const HttpReplyHeader& header()
+        const ReplyHeader& header()
         { return _replyHeader; }
 
         void readBody(std::string& s);
@@ -108,7 +108,7 @@ class CXXTOOLS_API HttpClient : public cxxtools::Connectable
 
         std::string get(const std::string& url);
 
-        void beginExecute(const HttpRequest& request);
+        void beginExecute(const Request& request);
 
         void setSelector(SelectorBase& selector);
 
@@ -119,14 +119,14 @@ class CXXTOOLS_API HttpClient : public cxxtools::Connectable
             return _stream;
         }
 
-        Signal<HttpClient&> requestSent;
-        Signal<HttpClient&> headerReceived;
-        cxxtools::Delegate<std::size_t, HttpClient&> bodyAvailable;
-        Signal<HttpClient&> replyFinished;
-        Signal<HttpClient&, const std::exception&> errorOccured;
+        Signal<Client&> requestSent;
+        Signal<Client&> headerReceived;
+        cxxtools::Delegate<std::size_t, Client&> bodyAvailable;
+        Signal<Client&> replyFinished;
+        Signal<Client&, const std::exception&> errorOccured;
 };
 
-} // namespace net
+} // namespace http
 
 } // namespace cxxtools
 

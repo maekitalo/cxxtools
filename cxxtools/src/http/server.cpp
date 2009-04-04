@@ -26,18 +26,18 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <cxxtools/httpserver.h>
-#include <cxxtools/httpsocket.h>
+#include <cxxtools/http/server.h>
+#include <cxxtools/http/socket.h>
 #include <cxxtools/log.h>
 
-log_define("cxxtools.net.http.server")
+log_define("cxxtools.http.server")
 
 namespace cxxtools {
 
-namespace net {
+namespace http {
 
 
-HttpServer::HttpServer(const std::string& ip, unsigned short int port)
+Server::Server(const std::string& ip, unsigned short int port)
 : _ip(ip),
   _port(port),
   _readTimeout(5000),
@@ -48,15 +48,15 @@ HttpServer::HttpServer(const std::string& ip, unsigned short int port)
   _waitingThreads(0),
   _terminating(false)
 {
-    log_trace("initialize HttpServer class");
+    log_trace("initialize Server class");
 
     _selector.add(*this);
-    cxxtools::connect(connectionPending, *this, &HttpServer::onConnect);
+    cxxtools::connect(connectionPending, *this, &Server::onConnect);
 }
 
-void HttpServer::createThread()
+void Server::createThread()
 {
-    log_trace("HttpServer::createThread");
+    log_trace("Server::createThread");
 
     MutexLock clock(_createThreadMutex);
     MutexLock lock(_threadMutex);
@@ -64,7 +64,7 @@ void HttpServer::createThread()
     if (_threads.size() < _maxThreads)
     {
         log_debug("create thread object");
-        _startingThread = new AttachedThread(callable(*this, &HttpServer::serverThread));
+        _startingThread = new AttachedThread(callable(*this, &Server::serverThread));
 
         log_debug("run thread " << _startingThread);
         _startingThread->create();
@@ -77,7 +77,7 @@ void HttpServer::createThread()
     }
 }
 
-void HttpServer::terminate()
+void Server::terminate()
 {
     MutexLock lock(_threadMutex);
     _terminating = true;
@@ -85,7 +85,7 @@ void HttpServer::terminate()
     _terminated.wait(lock);
 }
 
-void HttpServer::run()
+void Server::run()
 {
     log_trace("run server");
 
@@ -134,13 +134,13 @@ void HttpServer::run()
     _terminated.signal();
 }
 
-void HttpServer::addService(const std::string& url, HttpService& service)
+void Server::addService(const std::string& url, Service& service)
 {
     log_debug("add service for url <" << url << '>');
     _service.insert(ServicesType::value_type(url, &service));
 }
 
-void HttpServer::removeService(HttpService& service)
+void Server::removeService(Service& service)
 {
     ServicesType::iterator it = _service.begin();
     while (it != _service.end())
@@ -156,14 +156,14 @@ void HttpServer::removeService(HttpService& service)
     }
 }
 
-HttpResponder* HttpServer::getResponder(const HttpRequest& request)
+Responder* Server::getResponder(const Request& request)
 {
     log_debug("get responder for url <" << request.url() << '>');
 
     for (ServicesType::const_iterator it = _service.lower_bound(request.url());
         it != _service.end() && it->first == request.url(); ++it)
     {
-        HttpResponder* resp = it->second->createResponder(request);
+        Responder* resp = it->second->createResponder(request);
         if (resp)
         {
             log_debug("responder created");
@@ -175,13 +175,13 @@ HttpResponder* HttpServer::getResponder(const HttpRequest& request)
     return _defaultService.createResponder(request);
 }
 
-void HttpServer::onConnect(TcpServer& server)
+void Server::onConnect(TcpServer& server)
 {
     log_trace("onConnect");
-    new HttpSocket(_selector, *this);
+    new Socket(_selector, *this);
 }
 
-void HttpServer::serverThread()
+void Server::serverThread()
 {
     log_trace("serverThread");
     class Dec
@@ -274,7 +274,7 @@ void HttpServer::serverThread()
             }
         }
 
-        HttpSocket* s = _readySockets.front();
+        Socket* s = _readySockets.front();
         log_debug("socket " << s << " ready");
         _readySockets.pop_front();
         s->removeSelector();
@@ -306,6 +306,6 @@ void HttpServer::serverThread()
     log_info("end thread " << terminator.thread());
 }
 
-} // namespace net
+} // namespace http
 
 } // namespace cxxtools

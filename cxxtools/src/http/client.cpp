@@ -26,23 +26,23 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <cxxtools/httpclient.h>
-#include <cxxtools/httpparser.h>
+#include <cxxtools/http/client.h>
+#include <cxxtools/http/parser.h>
 #include <cxxtools/ioerror.h>
 #include <cxxtools/log.h>
 
-log_define("cxxtools.net.http.client")
+log_define("cxxtools.http.client")
 
 namespace cxxtools {
 
-namespace net {
+namespace http {
 
-void HttpClient::ParseEvent::onHttpReturn(unsigned ret, const std::string& text)
+void Client::ParseEvent::onHttpReturn(unsigned ret, const std::string& text)
 {
     _replyHeader.httpReturn(ret, text);
 }
 
-HttpClient::HttpClient(const std::string& server, unsigned short int port)
+Client::Client(const std::string& server, unsigned short int port)
 : _parseEvent(_replyHeader)
 , _parser(_parseEvent, true)
 , _request(0)
@@ -52,13 +52,13 @@ HttpClient::HttpClient(const std::string& server, unsigned short int port)
 , _contentLength(0)
 {
     _stream.attachDevice(_socket);
-    connect(_socket.connected, *this, &HttpClient::onConnect);
-    connect(_stream.buffer().outputReady, *this, &HttpClient::onOutput);
-    connect(_stream.buffer().inputReady, *this, &HttpClient::onInput);
+    connect(_socket.connected, *this, &Client::onConnect);
+    connect(_stream.buffer().outputReady, *this, &Client::onOutput);
+    connect(_stream.buffer().inputReady, *this, &Client::onInput);
 }
 
 
-HttpClient::HttpClient(const std::string& server, unsigned short int port,
+Client::Client(const std::string& server, unsigned short int port,
     SelectorBase& selector)
 : _parseEvent(_replyHeader)
 , _parser(_parseEvent, true)
@@ -69,19 +69,19 @@ HttpClient::HttpClient(const std::string& server, unsigned short int port,
 , _contentLength(0)
 {
     _stream.attachDevice(_socket);
-    connect(_socket.connected, *this, &HttpClient::onConnect);
-    connect(_stream.buffer().outputReady, *this, &HttpClient::onOutput);
-    connect(_stream.buffer().inputReady, *this, &HttpClient::onInput);
+    connect(_socket.connected, *this, &Client::onConnect);
+    connect(_stream.buffer().outputReady, *this, &Client::onOutput);
+    connect(_stream.buffer().inputReady, *this, &Client::onInput);
     setSelector(selector);
 }
 
 
-void HttpClient::setSelector(SelectorBase& selector)
+void Client::setSelector(SelectorBase& selector)
 {
     selector.add(_socket);
 }
 
-const HttpReplyHeader& HttpClient::execute(const HttpRequest& request, std::size_t timeout)
+const ReplyHeader& Client::execute(const Request& request, std::size_t timeout)
 {
     bool connected = _socket.isConnected();
     if (!connected)
@@ -127,7 +127,7 @@ const HttpReplyHeader& HttpClient::execute(const HttpRequest& request, std::size
 }
 
 
-void HttpClient::readBody(std::string& s)
+void Client::readBody(std::string& s)
 {
     unsigned n = _replyHeader.contentLength();
 
@@ -148,15 +148,15 @@ void HttpClient::readBody(std::string& s)
 }
 
 
-std::string HttpClient::get(const std::string& url)
+std::string Client::get(const std::string& url)
 {
-    HttpRequest request(url);
+    Request request(url);
     execute(request);
     return readBody();
 }
 
 
-void HttpClient::beginExecute(const HttpRequest& request)
+void Client::beginExecute(const Request& request)
 {
     _request = &request;
     _replyHeader.clear();
@@ -184,13 +184,13 @@ void HttpClient::beginExecute(const HttpRequest& request)
 }
 
 
-void HttpClient::wait(std::size_t msecs)
+void Client::wait(std::size_t msecs)
 {
     _socket.wait(msecs);
 }
 
 
-void HttpClient::sendRequest(const HttpRequest& request)
+void Client::sendRequest(const Request& request)
 {
     log_debug("send request " << request.url());
 
@@ -205,7 +205,7 @@ void HttpClient::sendRequest(const HttpRequest& request)
             << request.header().httpVersionMajor() << '.'
             << request.header().httpVersionMinor() << "\r\n";
 
-    for (HttpRequestHeader::const_iterator it = request.header().begin();
+    for (RequestHeader::const_iterator it = request.header().begin();
         it != request.header().end(); ++it)
     {
         _stream << it->first << ": " << it->second << "\r\n";
@@ -218,7 +218,7 @@ void HttpClient::sendRequest(const HttpRequest& request)
 
     if (!request.header().hasHeader(server))
     {
-        _stream << "Server: cxxtools-Net-HttpServer\r\n";
+        _stream << "Server: cxxtools-Net-Server\r\n";
     }
 
     if (!request.header().hasHeader(connection))
@@ -228,7 +228,7 @@ void HttpClient::sendRequest(const HttpRequest& request)
 
     if (!request.header().hasHeader(date))
     {
-        _stream << "Date: " << HttpMessageHeader::htdateCurrent() << "\r\n";
+        _stream << "Date: " << MessageHeader::htdateCurrent() << "\r\n";
     }
 
     if (!request.header().hasHeader(host))
@@ -247,14 +247,14 @@ void HttpClient::sendRequest(const HttpRequest& request)
 
 }
 
-void HttpClient::onConnect(TcpSocket& socket)
+void Client::onConnect(net::TcpSocket& socket)
 {
     socket.endConnect();
     sendRequest(*_request);
     _stream.buffer().beginWrite();
 }
 
-void HttpClient::onOutput(StreamBuffer& sb)
+void Client::onOutput(StreamBuffer& sb)
 {
     if( sb.out_avail() > 0 )
     {
@@ -268,7 +268,7 @@ void HttpClient::onOutput(StreamBuffer& sb)
 }
 
 
-void HttpClient::onInput(StreamBuffer& sb)
+void Client::onInput(StreamBuffer& sb)
 {
     try
     {
@@ -312,13 +312,13 @@ void HttpClient::onInput(StreamBuffer& sb)
     }
 }
 
-void HttpClient::processBodyAvailable()
+void Client::processBodyAvailable()
 {
     _contentLength -= bodyAvailable(*this); // TODO: may throw exception
     if( _contentLength <= 0 )
         replyFinished(*this);
 }
 
-} // namespace net
+} // namespace http
 
 } // namespace cxxtools

@@ -26,33 +26,33 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef cxxtools_Net_HttpReply_h
-#define cxxtools_Net_HttpReply_h
+#ifndef cxxtools_Http_Reply_h
+#define cxxtools_Http_Reply_h
 
-#include <cxxtools/api.h>
-#include <cxxtools/httpreplyheader.h>
+#include <cxxtools/http/api.h>
+#include <cxxtools/http/replyheader.h>
 #include <string>
 #include <sstream>
 
 namespace cxxtools {
 
-namespace net {
+namespace http {
 
-class HttpRequest;
+class Request;
 
-class HttpReply
+class Reply
 {
-        HttpReplyHeader _header;
+        ReplyHeader _header;
         std::ostringstream _body;
 
     public:
-        HttpReply()
+        Reply()
             { }
 
-        HttpReplyHeader& header()
+        ReplyHeader& header()
         { return _header; }
 
-        const HttpReplyHeader& header() const
+        const ReplyHeader& header() const
         { return _header; }
 
         void setHeader(const std::string& key, const std::string& value)
@@ -110,7 +110,7 @@ class HttpReply
 
 };
 
-} // namespace net
+} // namespace http
 
 } // namespace cxxtools
 

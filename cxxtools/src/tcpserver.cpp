@@ -28,11 +28,11 @@
 
 #include "addrinfo.h"
 #include "tcpserverimpl.h"
-#include <cxxtools/tcpserver.h>
+#include <cxxtools/net/tcpserver.h>
 #include <cxxtools/log.h>
 #include <memory>
 
-log_define("cxxtools.net.tcp.tcpserver")
+log_define("cxxtools.net.tcpserver")
 
 namespace cxxtools {
 

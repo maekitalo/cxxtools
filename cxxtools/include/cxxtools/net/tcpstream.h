@@ -30,8 +30,8 @@
 #define CXXTOOLS_NET_TCPSTREAM_H
 
 #include <string>
-#include <cxxtools/tcpserver.h>
-#include <cxxtools/tcpsocket.h>
+#include <cxxtools/net/tcpserver.h>
+#include <cxxtools/net/tcpsocket.h>
 #include <cxxtools/streambuffer.h>
 #include <cxxtools/iostream.h>
 

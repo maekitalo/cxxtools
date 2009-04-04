@@ -43,7 +43,7 @@ namespace cxxtools {
 */
 namespace xml {
 
-} // namespace Xml
+} // namespace xml
 
 } // namespace cxxtools
 

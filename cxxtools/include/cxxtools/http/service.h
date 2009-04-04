@@ -26,67 +26,65 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef cxxtools_Net_HttpResponder_h
-#define cxxtools_Net_HttpResponder_h
+#ifndef cxxtools_Http_Service_h
+#define cxxtools_Http_Service_h
 
-#include <cxxtools/api.h>
-#include <cxxtools/httpservice.h>
-#include <iosfwd>
-#include <exception>
+#include <cxxtools/mutex.h>
+#include <vector>
 
 namespace cxxtools {
 
-namespace net {
+namespace http {
 
-class HttpResponder;
-class HttpRequest;
-class HttpReply;
+class Responder;
+class Request;
 
-class CXXTOOLS_API HttpResponder
+class Service
 {
     public:
-        explicit HttpResponder(HttpService& service)
-            : _service(service)
-        { }
-
-        virtual ~HttpResponder() { }
-
-        virtual void beginRequest(std::istream& in, HttpRequest& request);
-        virtual std::size_t readBody(std::istream&);
-        virtual void reply(std::ostream&, HttpRequest& request, HttpReply& reply) = 0;
-        virtual void replyError(std::ostream&, HttpRequest& request, HttpReply& reply, const std::exception& ex);
-
-        void release()     { _service.releaseResponder(this); }
-
-    private:
-        HttpService& _service;
+        virtual ~Service() { }
+        virtual Responder* createResponder(const Request&) = 0;
+        virtual void releaseResponder(Responder*) = 0;
 };
 
-class CXXTOOLS_API HttpNotFoundResponder : public HttpResponder
+template <typename ResponderType>
+class CachedService : public Service
 {
-    public:
-        explicit HttpNotFoundResponder(HttpService& service)
-            : HttpResponder(service)
-            { }
+        Mutex mutex;
+        typedef std::vector<Responder*> Responders;
+        Responders responders;
 
-        void reply(std::ostream&, HttpRequest& request, HttpReply& reply);
+    public:
+        ~CachedService()
+        {
+            for (typename Responders::iterator it = responders.begin(); it != responders.end(); ++it)
+                delete *it;
+        }
+
+        Responder* createResponder(const Request& request)
+        {
+            MutexLock lock(mutex);
+            if (responders.empty())
+            {
+                return new ResponderType(*this);
+            }
+            else
+            {
+                Responder* ret = responders.back();
+                responders.pop_back();
+                return ret;
+            }
+        }
+
+        void releaseResponder(Responder* resp)
+        {
+            MutexLock lock(mutex);
+            responders.push_back(resp);
+        }
+
 };
 
-class CXXTOOLS_API HttpNotFoundService : public HttpService
-{
-    public:
-        HttpNotFoundService()
-            : _responder(*this)
-            { }
-
-        HttpResponder* createResponder(const HttpRequest&);
-        void releaseResponder(HttpResponder*);
-
-    private:
-        HttpNotFoundResponder _responder;
-};
-
-} // namespace net
+} // namespace http
 
 } // namespace cxxtools
 

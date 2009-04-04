@@ -35,7 +35,7 @@
 #include <cxxtools/xmlrpc/formatter.h>
 #include <cxxtools/xml/xmlreader.h>
 #include <cxxtools/xml/xmlwriter.h>
-#include <cxxtools/httpserver.h>
+#include <cxxtools/http/server.h>
 #include <cxxtools/serializer.h>
 #include <cxxtools/textstream.h>
 
@@ -46,7 +46,7 @@ namespace xmlrpc {
 class Service;
 class ServiceProcedure;
 
-class CXXTOOLS_XMLRPC_API HttpXmlRpcResponder : public net::HttpResponder
+class CXXTOOLS_XMLRPC_API HttpXmlRpcResponder : public http::Responder
 {
     enum State
     {
@@ -66,14 +66,14 @@ class CXXTOOLS_XMLRPC_API HttpXmlRpcResponder : public net::HttpResponder
 
         ~HttpXmlRpcResponder();
 
-        void beginRequest(std::istream& in, net::HttpRequest& request);
+        void beginRequest(std::istream& in, http::Request& request);
 
         std::size_t readBody(std::istream& is);
 
-        void replyError(std::ostream& os, net::HttpRequest& request,
-                        net::HttpReply& reply, const std::exception& ex);
+        void replyError(std::ostream& os, http::Request& request,
+                        http::Reply& reply, const std::exception& ex);
 
-        void reply(std::ostream& os, net::HttpRequest& request, net::HttpReply& reply);
+        void reply(std::ostream& os, http::Request& request, http::Reply& reply);
 
     protected:
         void advance(const cxxtools::xml::Node& node);

@@ -26,21 +26,21 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <cxxtools/httpresponder.h>
-#include <cxxtools/httpreply.h>
+#include <cxxtools/http/responder.h>
+#include <cxxtools/http/reply.h>
 #include <cxxtools/log.h>
 
-log_define("cxxtools.net.http.responder")
+log_define("cxxtools.http.responder")
 
 namespace cxxtools {
 
-namespace net {
+namespace http {
 
-void HttpResponder::beginRequest(std::istream& in, HttpRequest& request)
+void Responder::beginRequest(std::istream& in, Request& request)
 {
 }
 
-std::size_t HttpResponder::readBody(std::istream& in)
+std::size_t Responder::readBody(std::istream& in)
 {
     std::streambuf* sb = in.rdbuf();
 
@@ -54,27 +54,27 @@ std::size_t HttpResponder::readBody(std::istream& in)
     return ret;
 }
 
-void HttpResponder::replyError(std::ostream& out, HttpRequest& request, HttpReply& reply, const std::exception& ex)
+void Responder::replyError(std::ostream& out, Request& request, Reply& reply, const std::exception& ex)
 {
     reply.httpReturn(500, "internal server error");
     reply.setHeader("Content-Type", "text/plain");
     out << ex.what();
 }
 
-void HttpNotFoundResponder::reply(std::ostream& out, HttpRequest& request, HttpReply& reply)
+void NotFoundResponder::reply(std::ostream& out, Request& request, Reply& reply)
 {
     reply.httpReturn(404, "Not found");
 }
 
-HttpResponder* HttpNotFoundService::createResponder(const HttpRequest&)
+Responder* NotFoundService::createResponder(const Request&)
 {
     return &_responder;
 }
 
-void HttpNotFoundService::releaseResponder(HttpResponder*)
+void NotFoundService::releaseResponder(Responder*)
 { }
 
 
-} // namespace net
+} // namespace http
 
 } // namespace cxxtools

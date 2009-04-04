@@ -30,7 +30,7 @@
 #define cxxtools_xmlrpc_Service_h
 
 #include <cxxtools/xmlrpc/api.h>
-#include <cxxtools/httpserver.h>
+#include <cxxtools/http/server.h>
 #include <cxxtools/deserializer.h>
 #include <cxxtools/serializer.h>
 #include <cxxtools/void.h>
@@ -200,7 +200,7 @@ class BasicServiceProcedure<R, C, cxxtools::Void, cxxtools::Void> : public Servi
 };
 
 
-class CXXTOOLS_XMLRPC_API Service : public net::HttpService
+class CXXTOOLS_XMLRPC_API Service : public http::Service
 {
     public:
         Service();
@@ -231,9 +231,9 @@ class CXXTOOLS_XMLRPC_API Service : public net::HttpService
             this->registerProcedure(name, proc);
         }
 
-        virtual net::HttpResponder* createResponder(const net::HttpRequest&);
+        virtual http::Responder* createResponder(const http::Request&);
 
-        virtual void releaseResponder(net::HttpResponder* resp);
+        virtual void releaseResponder(http::Responder* resp);
 
     protected:
         void registerProcedure(const std::string& name, ServiceProcedure* proc);

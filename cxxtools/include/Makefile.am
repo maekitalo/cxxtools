@@ -51,17 +51,17 @@ nobase_include_HEADERS = \
         cxxtools/function.h \
         cxxtools/function.tpp \
         cxxtools/hdstream.h \
-		cxxtools/httpclient.h \
-		cxxtools/httpmessageheader.h \
-		cxxtools/httpparser.h \
-		cxxtools/httpreply.h \
-		cxxtools/httpreplyheader.h \
-		cxxtools/httprequest.h \
-		cxxtools/httprequestheader.h \
-		cxxtools/httpserver.h \
-		cxxtools/httpsocket.h \
-		cxxtools/httpservice.h \
-		cxxtools/httpresponder.h \
+		cxxtools/http/client.h \
+		cxxtools/http/messageheader.h \
+		cxxtools/http/parser.h \
+		cxxtools/http/reply.h \
+		cxxtools/http/replyheader.h \
+		cxxtools/http/request.h \
+		cxxtools/http/requestheader.h \
+		cxxtools/http/server.h \
+		cxxtools/http/socket.h \
+		cxxtools/http/service.h \
+		cxxtools/http/responder.h \
         cxxtools/iconverter.h \
         cxxtools/iconvstream.h \
         cxxtools/inifile.h \
@@ -82,7 +82,12 @@ nobase_include_HEADERS = \
         cxxtools/mime.h \
         cxxtools/multifstream.h \
         cxxtools/mutex.h \
-        cxxtools/net.h \
+        cxxtools/net/net.h \
+        cxxtools/net/tcpserver.h \
+        cxxtools/net/tcpsocket.h \
+        cxxtools/net/tcpstream.h \
+        cxxtools/net/udp.h \
+        cxxtools/net/udpstream.h \
         cxxtools/noncopyable.h \
         cxxtools/pipe.h \
         cxxtools/pipestream.h \
@@ -114,9 +119,6 @@ nobase_include_HEADERS = \
         cxxtools/stringstream.h \
         cxxtools/syserror.h \
         cxxtools/systemerror.h \
-        cxxtools/tcpserver.h \
-        cxxtools/tcpsocket.h \
-        cxxtools/tcpstream.h \
         cxxtools/tee.h \
         cxxtools/textbuffer.h \
         cxxtools/textcodec.h \
@@ -127,8 +129,6 @@ nobase_include_HEADERS = \
         cxxtools/timespan.h \
         cxxtools/typetraits.h \
         cxxtools/types.h \
-        cxxtools/udp.h \
-        cxxtools/udpstream.h \
         cxxtools/utf8codec.h \
         cxxtools/uuencode.h \
         cxxtools/void.h \

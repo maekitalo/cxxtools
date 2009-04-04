@@ -1,6 +1,6 @@
 ACLOCAL_AMFLAGS = -I m4
 
-SUBDIRS = src src/unit src/xml src/xmlrpc include demo test
+SUBDIRS = src src/unit src/http src/xml src/xmlrpc include demo test
 
 bin_SCRIPTS = cxxtools-config
 

@@ -26,7 +26,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <cxxtools/udp.h>
+#include <cxxtools/net/udp.h>
 #include <cxxtools/dynbuffer.h>
 #include <cxxtools/arg.h>
 #include <cxxtools/loginit.h>

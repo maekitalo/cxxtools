@@ -26,20 +26,20 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef cxxtools_Net_HttpMessageHeader_h
-#define cxxtools_Net_HttpMessageHeader_h
+#ifndef cxxtools_Http_MessageHeader_h
+#define cxxtools_Http_MessageHeader_h
 
-#include <cxxtools/api.h>
+#include <cxxtools/http/api.h>
 #include <string>
 #include <map>
 
 namespace cxxtools {
 
-namespace net {
+namespace http {
 
-class CXXTOOLS_API HttpMessageHeader
+class CXXTOOLS_HTTP_API MessageHeader
 {
-        class CXXTOOLS_API StringLessIgnoreCase
+        class CXXTOOLS_HTTP_API StringLessIgnoreCase
         {
             public:
                 bool operator()(const std::string& s1, const std::string& s2) const;
@@ -53,12 +53,12 @@ class CXXTOOLS_API HttpMessageHeader
     public:
         typedef Headers::const_iterator const_iterator;
 
-        HttpMessageHeader()
+        MessageHeader()
             : _httpVersionMajor(1)
             , _httpVersionMinor(1)
             { }
 
-        virtual ~HttpMessageHeader()  {}
+        virtual ~MessageHeader()  {}
 
         void clear()
         {
@@ -125,7 +125,7 @@ class CXXTOOLS_API HttpMessageHeader
 
 };
 
-} // namespace net
+} // namespace http
 
 } // namespace cxxtools
 

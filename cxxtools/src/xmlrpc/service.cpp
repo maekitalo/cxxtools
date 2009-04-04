@@ -31,7 +31,7 @@
 #include "cxxtools/xml/startelement.h"
 #include "cxxtools/xml/characters.h"
 #include "cxxtools/xml/endelement.h"
-#include "cxxtools/httprequest.h"
+#include "cxxtools/http/request.h"
 #include "cxxtools/utf8codec.h"
 
 namespace cxxtools {
@@ -72,7 +72,7 @@ void Service::registerProcedure(const std::string& name, ServiceProcedure* proc)
 }
 
 
-net::HttpResponder* Service::createResponder(const net::HttpRequest& req)
+http::Responder* Service::createResponder(const http::Request& req)
 {
     if (req.getHeader("Content-Type") == "text/xml")
         return new HttpXmlRpcResponder(*this);
@@ -81,7 +81,7 @@ net::HttpResponder* Service::createResponder(const net::HttpRequest& req)
 }
 
 
-void Service::releaseResponder(net::HttpResponder* resp)
+void Service::releaseResponder(http::Responder* resp)
 {
     delete resp;
 }

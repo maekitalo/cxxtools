@@ -32,7 +32,7 @@
 #include "cxxtools/xmlrpc/client.h"
 #include "cxxtools/xmlrpc/fault.h"
 #include "cxxtools/xmlrpc/remoteprocedure.h"
-#include "cxxtools/httpserver.h"
+#include "cxxtools/http/server.h"
 #include "cxxtools/eventloop.h"
 #include "cxxtools/thread.h"
 
@@ -65,7 +65,7 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
 {
     private:
         cxxtools::EventLoop* _loop;
-        cxxtools::net::HttpServer* _server;
+        cxxtools::http::Server* _server;
 
     public:
         XmlRpcTest()
@@ -93,7 +93,7 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             connect(_loop->timeout, *this, &XmlRpcTest::failTest);
             connect(_loop->timeout, *_loop, &cxxtools::EventLoop::exit);
 
-            _server = new cxxtools::net::HttpServer("127.0.0.1", 8001);
+            _server = new cxxtools::http::Server("127.0.0.1", 8001);
         }
 
         void tearDown()
@@ -108,7 +108,7 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             service.registerMethod("multiply", *this, &XmlRpcTest::throwFault);
             _server->addService("/calc", service);
 
-            cxxtools::AttachedThread serverThread( cxxtools::callable(*_server, &cxxtools::net::HttpServer::run) );
+            cxxtools::AttachedThread serverThread( cxxtools::callable(*_server, &cxxtools::http::Server::run) );
             serverThread.start();
 
             cxxtools::xmlrpc::Client client(*_loop, "127.0.0.1", 8001, "/calc");

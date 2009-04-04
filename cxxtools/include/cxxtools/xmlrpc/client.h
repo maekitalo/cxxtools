@@ -34,7 +34,7 @@
 #include <cxxtools/xmlrpc/scanner.h>
 #include <cxxtools/xml/xmlreader.h>
 #include <cxxtools/xml/xmlwriter.h>
-#include <cxxtools/httpclient.h>
+#include <cxxtools/http/client.h>
 #include <cxxtools/deserializer.h>
 #include <cxxtools/serializer.h>
 #include <cxxtools/connectable.h>
@@ -80,11 +80,11 @@ class CXXTOOLS_XMLRPC_API Client : public cxxtools::Connectable
         void call(IDeserializer& r, IRemoteProcedure& method, ISerializer** argv, unsigned argc);
 
     protected:
-        void onReplyHeader(net::HttpClient& client);
+        void onReplyHeader(http::Client& client);
 
-        std::size_t onReplyBody(net::HttpClient& client);
+        std::size_t onReplyBody(http::Client& client);
 
-        void onReplyFinished(net::HttpClient& client);
+        void onReplyFinished(http::Client& client);
 
         void prepareRequest(const std::string& name, ISerializer** argv, unsigned argc);
 
@@ -93,8 +93,8 @@ class CXXTOOLS_XMLRPC_API Client : public cxxtools::Connectable
     private:
         State _state;
         std::string _url;
-        net::HttpClient _client;
-        net::HttpRequest _request;
+        http::Client _client;
+        http::Request _request;
         TextIStream _ts;
         xml::XmlReader _reader;
         xml::XmlWriter _writer;

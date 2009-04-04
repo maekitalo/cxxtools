@@ -26,34 +26,34 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef cxxtools_Net_HttpSocket_h
-#define cxxtools_Net_HttpSocket_h
+#ifndef cxxtools_Http_Socket_h
+#define cxxtools_Http_Socket_h
 
-#include <cxxtools/api.h>
-#include <cxxtools/tcpsocket.h>
-#include <cxxtools/httpparser.h>
-#include <cxxtools/httprequest.h>
-#include <cxxtools/httpreply.h>
+#include <cxxtools/http/api.h>
+#include <cxxtools/net/tcpsocket.h>
+#include <cxxtools/http/parser.h>
+#include <cxxtools/http/request.h>
+#include <cxxtools/http/reply.h>
 #include <cxxtools/iostream.h>
 #include <cxxtools/timer.h>
 #include <cxxtools/connectable.h>
 
 namespace cxxtools {
 
-namespace net {
+namespace http {
 
-class HttpServer;
-class HttpResponder;
+class Server;
+class Responder;
 
-class CXXTOOLS_API HttpSocket : public TcpSocket, public Connectable
+class CXXTOOLS_HTTP_API Socket : public net::TcpSocket, public Connectable
 {
-        class ParseEvent : public HttpHeaderParser::HttpMessageHeaderEvent
+        class ParseEvent : public HeaderParser::MessageHeaderEvent
         {
-                HttpRequest& _request;
+                Request& _request;
 
             public:
-                explicit ParseEvent(HttpRequest& request)
-                    : HttpHeaderParser::HttpMessageHeaderEvent(request.header()),
+                explicit ParseEvent(Request& request)
+                    : HeaderParser::MessageHeaderEvent(request.header()),
                       _request(request)
                     { }
 
@@ -63,7 +63,7 @@ class CXXTOOLS_API HttpSocket : public TcpSocket, public Connectable
         };
 
     public:
-        HttpSocket(SelectorBase& s, HttpServer& server);
+        Socket(SelectorBase& s, Server& server);
 
         void onInput(StreamBuffer& stream);
         bool onOutput(StreamBuffer& stream);
@@ -77,25 +77,25 @@ class CXXTOOLS_API HttpSocket : public TcpSocket, public Connectable
         void addSelector(SelectorBase& s);
         void removeSelector();
 
-        const HttpRequest& request() const { return _request; }
-        const HttpReply& reply() const     { return _reply; }
+        const Request& request() const { return _request; }
+        const Reply& reply() const     { return _reply; }
 
     private:
-        HttpServer& _server;
+        Server& _server;
 
         ParseEvent _parseEvent;
-        HttpHeaderParser _parser;
-        HttpRequest _request;
-        HttpReply _reply;
+        HeaderParser _parser;
+        Request _request;
+        Reply _reply;
 
         Timer _timer;
         int _contentLength;
-        HttpResponder* _responder;
+        Responder* _responder;
         IOStream _stream;
 
 };
 
-} // namespace net
+} // namespace http
 
 } // namespace cxxtools
 

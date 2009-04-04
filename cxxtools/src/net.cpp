@@ -26,7 +26,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <cxxtools/net.h>
+#include <cxxtools/net/net.h>
 #include <cxxtools/log.h>
 #include <cxxtools/systemerror.h>
 #include <unistd.h>
@@ -40,7 +40,7 @@
 #include <arpa/inet.h>
 #include "config.h"
 
-log_define("cxxtools.net")
+log_define("cxxtools.net.net")
 
 namespace cxxtools
 {

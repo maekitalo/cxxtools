@@ -32,10 +32,8 @@ cxxlog_SOURCES = cxxlog.cpp
 INCLUDES = -I$(top_builddir)/include
 LDADD = $(top_builddir)/src/libcxxtools.la
 AM_CXXFLAGS = $(PTHREAD_CFLAGS)
-AM_LDFLAGS = -L$(top_builddir)/src $(PTHREAD_LIBS)
-log_LDFLAGS = @CXXTOOLS_LOG_LDFLAGS@ $(PTHREAD_LIBS)
-logbench_LDFLAGS = @CXXTOOLS_LOG_LDFLAGS@ $(PTHREAD_LIBS)
-logsh_LDFLAGS = @CXXTOOLS_LOG_LDFLAGS@ $(PTHREAD_LIBS)
+httpserver_LDADD = $(top_builddir)/src/http/libcxxtools-http.la
+httprequest_LDADD = $(top_builddir)/src/http/libcxxtools-http.la
 
 log.properties:
 	/bin/sh $(top_builddir)/cxxtools-config --properties cxxtools >$@

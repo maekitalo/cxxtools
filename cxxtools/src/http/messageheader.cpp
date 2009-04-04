@@ -26,16 +26,16 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <cxxtools/httpmessageheader.h>
+#include <cxxtools/http/messageheader.h>
 #include <cxxtools/clock.h>
 #include <cctype>
 #include <sstream>
 
 namespace cxxtools {
 
-namespace net {
+namespace http {
 
-bool HttpMessageHeader::StringLessIgnoreCase::operator()
+bool MessageHeader::StringLessIgnoreCase::operator()
     (const std::string& s1, const std::string& s2) const
 {
     std::string::const_iterator it1 = s1.begin();
@@ -57,7 +57,7 @@ bool HttpMessageHeader::StringLessIgnoreCase::operator()
     return it1 == s1.end() ? (it2 != s2.end()) : (it2 == s2.end());
 }
 
-std::size_t HttpMessageHeader::contentLength() const
+std::size_t MessageHeader::contentLength() const
 {
     std::string s = getHeader("Content-Length");
     if (s.empty())
@@ -69,7 +69,7 @@ std::size_t HttpMessageHeader::contentLength() const
     return size;
 }
 
-bool HttpMessageHeader::keepAlive() const
+bool MessageHeader::keepAlive() const
 {
     std::string ch = getHeader("Connection");
 
@@ -82,7 +82,7 @@ bool HttpMessageHeader::keepAlive() const
                 && httpVersionMinor() >= 1);
 }
 
-std::string HttpMessageHeader::htdateCurrent()
+std::string MessageHeader::htdateCurrent()
 {
     int year = 0;
     unsigned month = 0;
@@ -106,6 +106,6 @@ std::string HttpMessageHeader::htdateCurrent()
     return std::string(buffer);
 }
 
-} // namespace net
+} // namespace http
 
 } // namespace cxxtools

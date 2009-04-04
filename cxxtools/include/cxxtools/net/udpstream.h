@@ -29,7 +29,7 @@
 #ifndef CXXTOOLS_UDPSTREAM_H
 #define CXXTOOLS_UDPSTREAM_H
 
-#include <cxxtools/udp.h>
+#include <cxxtools/net/udp.h>
 #include <iostream>
 
 namespace cxxtools

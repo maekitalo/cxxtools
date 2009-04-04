@@ -26,33 +26,33 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <cxxtools/httpsocket.h>
-#include <cxxtools/httpserver.h>
+#include <cxxtools/http/socket.h>
+#include <cxxtools/http/server.h>
 #include <cxxtools/log.h>
 #include <cassert>
 
-log_define("cxxtools.net.http.socket")
+log_define("cxxtools.http.socket")
 
 namespace cxxtools {
 
-namespace net {
+namespace http {
 
-void HttpSocket::ParseEvent::onMethod(const std::string& method)
+void Socket::ParseEvent::onMethod(const std::string& method)
 {
     _request.method(method);
 }
 
-void HttpSocket::ParseEvent::onUrl(const std::string& url)
+void Socket::ParseEvent::onUrl(const std::string& url)
 {
     _request.url(url);
 }
 
-void HttpSocket::ParseEvent::onUrlParam(const std::string& q)
+void Socket::ParseEvent::onUrlParam(const std::string& q)
 {
     _request.qparams(q);
 }
 
-HttpSocket::HttpSocket(SelectorBase& selector, HttpServer& server)
+Socket::Socket(SelectorBase& selector, Server& server)
     : TcpSocket(server),
       _server(server),
       _parseEvent(_request),
@@ -63,9 +63,9 @@ HttpSocket::HttpSocket(SelectorBase& selector, HttpServer& server)
 
     _stream.attachDevice(*this);
     _stream.buffer().beginRead();
-    cxxtools::connect(_stream.buffer().inputReady, *this, &HttpSocket::onInput);
-    cxxtools::connect(_stream.buffer().outputReady, *this, &HttpSocket::onOutput);
-    cxxtools::connect(_timer.timeout, *this, &HttpSocket::onTimeout);
+    cxxtools::connect(_stream.buffer().inputReady, *this, &Socket::onInput);
+    cxxtools::connect(_stream.buffer().outputReady, *this, &Socket::onOutput);
+    cxxtools::connect(_timer.timeout, *this, &Socket::onTimeout);
 
 
     _timer.start(_server.readTimeout());
@@ -73,19 +73,19 @@ HttpSocket::HttpSocket(SelectorBase& selector, HttpServer& server)
     addSelector(selector);
 }
 
-void HttpSocket::removeSelector()
+void Socket::removeSelector()
 {
     TcpSocket::setSelector(0);
     _timer.setSelector(0);
 }
 
-void HttpSocket::addSelector(SelectorBase& selector)
+void Socket::addSelector(SelectorBase& selector)
 {
     selector.add(*this);
     selector.add(_timer);
 }
 
-void HttpSocket::onInput(StreamBuffer& sb)
+void Socket::onInput(StreamBuffer& sb)
 {
     log_trace("onInput");
     log_debug(this << " read data from " << getPeerAddr());
@@ -184,7 +184,7 @@ void HttpSocket::onInput(StreamBuffer& sb)
     }
 }
 
-bool HttpSocket::doReply()
+bool Socket::doReply()
 {
     _responder->reply(_reply.body(), _request, _reply);
     _responder->release();
@@ -195,7 +195,7 @@ bool HttpSocket::doReply()
     return onOutput(_stream.buffer());
 }
 
-bool HttpSocket::onOutput(StreamBuffer& sb)
+bool Socket::onOutput(StreamBuffer& sb)
 {
     log_trace("onOutput");
 
@@ -245,14 +245,14 @@ bool HttpSocket::onOutput(StreamBuffer& sb)
     return true;
 }
 
-void HttpSocket::onTimeout()
+void Socket::onTimeout()
 {
     log_debug("timeout");
     close();
     delete this;
 }
 
-void HttpSocket::sendReply()
+void Socket::sendReply()
 {
     const std::string contentLength = "Content-Length";
     const std::string server = "Server";
@@ -265,7 +265,7 @@ void HttpSocket::sendReply()
         << _reply.header().httpReturnCode() << ' '
         << _reply.header().httpReturnText() << "\r\n";
 
-    for (HttpReplyHeader::const_iterator it = _reply.header().begin();
+    for (ReplyHeader::const_iterator it = _reply.header().begin();
         it != _reply.header().end(); ++it)
     {
         _stream << it->first << ": " << it->second << "\r\n";
@@ -278,7 +278,7 @@ void HttpSocket::sendReply()
 
     if (!_reply.header().hasHeader(server))
     {
-        _stream << "Server: cxxtools-Net-HttpServer\r\n";
+        _stream << "Server: cxxtools-Net-Server\r\n";
     }
 
     if (!_reply.header().hasHeader(connection))
@@ -290,7 +290,7 @@ void HttpSocket::sendReply()
 
     if (!_reply.header().hasHeader(date))
     {
-        _stream << "Date: " << HttpMessageHeader::htdateCurrent() << "\r\n";
+        _stream << "Date: " << MessageHeader::htdateCurrent() << "\r\n";
     }
 
     _stream << "\r\n";
@@ -299,6 +299,6 @@ void HttpSocket::sendReply()
 
 }
 
-} // namespace net
+} // namespace http
 
 } // namespace cxxtools

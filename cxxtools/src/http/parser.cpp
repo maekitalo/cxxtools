@@ -26,17 +26,17 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <cxxtools/httpparser.h>
-#include <cxxtools/httpmessageheader.h>
+#include <cxxtools/http/parser.h>
+#include <cxxtools/http/messageheader.h>
 #include <cxxtools/log.h>
 #include <cctype>
 #include <algorithm>
 
-log_define("cxxtools.net.httpparser")
+log_define("cxxtools..http.parser")
 
 namespace cxxtools {
 
-namespace net {
+namespace http {
 
     namespace
     {
@@ -71,54 +71,54 @@ namespace net {
         }
     }
 
-    void HttpHeaderParser::Event::onMethod(const std::string& method)
+    void HeaderParser::Event::onMethod(const std::string& method)
     {
     }
 
-    void HttpHeaderParser::Event::onUrl(const std::string& url)
+    void HeaderParser::Event::onUrl(const std::string& url)
     {
     }
 
-    void HttpHeaderParser::Event::onUrlParam(const std::string& q)
+    void HeaderParser::Event::onUrlParam(const std::string& q)
     {
     }
 
-    void HttpHeaderParser::Event::onHttpVersion(unsigned major, unsigned minor)
+    void HeaderParser::Event::onHttpVersion(unsigned major, unsigned minor)
     {
     }
 
-    void HttpHeaderParser::Event::onKey(const std::string& key)
+    void HeaderParser::Event::onKey(const std::string& key)
     {
     }
 
-    void HttpHeaderParser::Event::onValue(const std::string& value)
+    void HeaderParser::Event::onValue(const std::string& value)
     {
     }
 
-    void HttpHeaderParser::Event::onHttpReturn(unsigned ret, const std::string& text)
+    void HeaderParser::Event::onHttpReturn(unsigned ret, const std::string& text)
     {
     }
 
-    void HttpHeaderParser::Event::onEnd()
+    void HeaderParser::Event::onEnd()
     {
     }
 
-    void HttpHeaderParser::HttpMessageHeaderEvent::onHttpVersion(unsigned major, unsigned minor)
+    void HeaderParser::MessageHeaderEvent::onHttpVersion(unsigned major, unsigned minor)
     {
          _header.httpVersion(major, minor);
     }
 
-    void HttpHeaderParser::HttpMessageHeaderEvent::onKey(const std::string& key)
+    void HeaderParser::MessageHeaderEvent::onKey(const std::string& key)
     {
         _key = key;
     }
 
-    void HttpHeaderParser::HttpMessageHeaderEvent::onValue(const std::string& value)
+    void HeaderParser::MessageHeaderEvent::onValue(const std::string& value)
     {
         _header.addHeader(_key, value);
     }
 
-    std::size_t HttpHeaderParser::advance(std::streambuf& sb)
+    std::size_t HeaderParser::advance(std::streambuf& sb)
     {
         std::size_t ret = 0;
 
@@ -132,29 +132,29 @@ namespace net {
         return ret;
     }
 
-    void HttpHeaderParser::state_cmd0(char ch)
+    void HeaderParser::state_cmd0(char ch)
     {
         if (istokenchar(ch))
         {
             token.reserve(32);
             token = ch;
-            state = &HttpHeaderParser::state_cmd;
+            state = &HeaderParser::state_cmd;
             return;
         }
         else if (ch != ' ' && ch != '\t')
         {
             log_warn("invalid character " << chartoprint(ch) << " in method");
-            state = &HttpHeaderParser::state_error;
+            state = &HeaderParser::state_error;
             return;
         }
         else
         {
-            state = &HttpHeaderParser::state_cmd;
+            state = &HeaderParser::state_cmd;
             return;
         }
     }
 
-    void HttpHeaderParser::state_cmd(char ch)
+    void HeaderParser::state_cmd(char ch)
     {
         if (istokenchar(ch))
         {
@@ -165,18 +165,18 @@ namespace net {
         {
             log_debug("method=" << token);
             ev.onMethod(token);
-            state = &HttpHeaderParser::state_url0;
+            state = &HeaderParser::state_url0;
             return;
         }
         else
         {
             log_warn("invalid character " << chartoprint(ch) << " in method");
-            state = &HttpHeaderParser::state_error;
+            state = &HeaderParser::state_error;
             return;
         }
     }
 
-    void HttpHeaderParser::state_url0(char ch)
+    void HeaderParser::state_url0(char ch)
     {
         if (ch == ' ' || ch == '\t')
         {
@@ -186,18 +186,18 @@ namespace net {
         {
             token.reserve(32);
             token = ch;
-            state = &HttpHeaderParser::state_url;
+            state = &HeaderParser::state_url;
             return;
         }
         else
         {
             log_warn("invalid character " << chartoprint(ch) << " in url");
-            state = &HttpHeaderParser::state_error;
+            state = &HeaderParser::state_error;
             return;
         }
     }
 
-    void HttpHeaderParser::state_url(char ch)
+    void HeaderParser::state_url(char ch)
     {
         if (ch == '?')
         {
@@ -205,7 +205,7 @@ namespace net {
             ev.onUrl(token);
             token.clear();
             token.reserve(32);
-            state = &HttpHeaderParser::state_qparam;
+            state = &HeaderParser::state_qparam;
             return;
         }
         else if (ch == ' ' || ch == '\t')
@@ -214,7 +214,7 @@ namespace net {
             ev.onUrl(token);
             token.clear();
             token.reserve(32);
-            state = &HttpHeaderParser::state_protocol0;
+            state = &HeaderParser::state_protocol0;
             return;
         }
         else if (ch == '+')
@@ -225,7 +225,7 @@ namespace net {
         else if (ch == '%')
         {
             token += ch;
-            state = &HttpHeaderParser::state_urlesc;
+            state = &HeaderParser::state_urlesc;
             return;
         }
         else if (ch > ' ')
@@ -236,12 +236,12 @@ namespace net {
         else
         {
             log_warn("invalid character " << chartoprint(ch) << " in url");
-            state = &HttpHeaderParser::state_error;
+            state = &HeaderParser::state_error;
             return;
         }
     }
 
-    void HttpHeaderParser::state_urlesc(char ch)
+    void HeaderParser::state_urlesc(char ch)
     {
         if (isHexDigit(ch))
         {
@@ -250,7 +250,7 @@ namespace net {
                 unsigned v = (valueOfHexDigit(token[token.size() - 1]) << 4) | valueOfHexDigit(ch);
                 token[token.size() - 2] = static_cast<char>(v);
                 token.resize(token.size() - 1);
-                state = &HttpHeaderParser::state_url;
+                state = &HeaderParser::state_url;
                 return;
             }
             else
@@ -262,12 +262,12 @@ namespace net {
         else
         {
             log_warn("invalid hex digit " << chartoprint(ch) << " in url");
-            state = &HttpHeaderParser::state_error;
+            state = &HeaderParser::state_error;
             return;
         }
     }
 
-    void HttpHeaderParser::state_qparam(char ch)
+    void HeaderParser::state_qparam(char ch)
     {
         if (ch == ' ' || ch == '\t')
         {
@@ -275,7 +275,7 @@ namespace net {
             ev.onUrlParam(token);
             token.clear();
             token.reserve(32);
-            state = &HttpHeaderParser::state_protocol0;
+            state = &HeaderParser::state_protocol0;
             return;
         }
         else
@@ -285,7 +285,7 @@ namespace net {
         }
     }
 
-    void HttpHeaderParser::state_protocol0(char ch)
+    void HeaderParser::state_protocol0(char ch)
     {
         if (ch == ' ' || ch == '\t')
         {
@@ -295,30 +295,30 @@ namespace net {
         {
             token.reserve(32);
             token = ch;
-            state = &HttpHeaderParser::state_protocol;
+            state = &HeaderParser::state_protocol;
             return;
         }
         else
         {
             log_warn("invalid character " << chartoprint(ch) << " in http protocol field");
-            state = &HttpHeaderParser::state_error;
+            state = &HeaderParser::state_error;
             return;
         }
     }
 
-    void HttpHeaderParser::state_protocol(char ch)
+    void HeaderParser::state_protocol(char ch)
     {
         if (ch == ' ' || ch == '\t' || ch == '/')
         {
             if (token != "HTTP")
             {
                 log_warn("invalid protocol " << token << " in http protocol field");
-                state = &HttpHeaderParser::state_error;
+                state = &HeaderParser::state_error;
                 return;
             }
             else
             {
-                state = (ch == '/' ? &HttpHeaderParser::state_version_major : &HttpHeaderParser::state_version0);
+                state = (ch == '/' ? &HeaderParser::state_version_major : &HeaderParser::state_version0);
                 return;
             }
         }
@@ -330,12 +330,12 @@ namespace net {
         else
         {
             log_warn("invalid character " << chartoprint(ch) << " in http protocol field");
-            state = &HttpHeaderParser::state_error;
+            state = &HeaderParser::state_error;
             return;
         }
     }
 
-    void HttpHeaderParser::state_version0(char ch)
+    void HeaderParser::state_version0(char ch)
     {
         if (ch == ' ' || ch == '\t')
         {
@@ -343,18 +343,18 @@ namespace net {
         }
         else if (ch == '/')
         {
-            state = &HttpHeaderParser::state_version_major;
+            state = &HeaderParser::state_version_major;
             return;
         }
         else
         {
             log_warn("invalid character " << chartoprint(ch) << " in http version field");
-            state = &HttpHeaderParser::state_error;
+            state = &HeaderParser::state_error;
             return;
         }
     }
 
-    void HttpHeaderParser::state_version_major(char ch)
+    void HeaderParser::state_version_major(char ch)
     {
         if (ch == ' ' || ch == '\t')
         {
@@ -362,38 +362,38 @@ namespace net {
         }
         else if (ch == '1')
         {
-            state = &HttpHeaderParser::state_version_major_e;
+            state = &HeaderParser::state_version_major_e;
             return;
         }
         else
         {
             log_warn("invalid character " << chartoprint(ch) << " in http version field");
-            state = &HttpHeaderParser::state_error;
+            state = &HeaderParser::state_error;
             return;
         }
     }
 
-    void HttpHeaderParser::state_version_major_e(char ch)
+    void HeaderParser::state_version_major_e(char ch)
     {
         if (ch == ' ' || ch == '\t')
         {
-            state = &HttpHeaderParser::state_version_major_e;
+            state = &HeaderParser::state_version_major_e;
             return;
         }
         else if (ch == '.')
         {
-            state = &HttpHeaderParser::state_version_minor;
+            state = &HeaderParser::state_version_minor;
             return;
         }
         else
         {
             log_warn("invalid character " << chartoprint(ch) << " in http version field");
-            state = &HttpHeaderParser::state_error;
+            state = &HeaderParser::state_error;
             return;
         }
     }
 
-    void HttpHeaderParser::state_version_minor(char ch)
+    void HeaderParser::state_version_minor(char ch)
     {
         if (ch == ' ' || ch == '\t')
         {
@@ -402,22 +402,22 @@ namespace net {
         else if (ch == '0' || ch == '1')
         {
             ev.onHttpVersion(1, ch - '0');
-            state = &HttpHeaderParser::state_end0;
+            state = &HeaderParser::state_end0;
             return;
         }
         else
         {
             log_warn("invalid character " << chartoprint(ch) << " in http version field");
-            state = &HttpHeaderParser::state_error;
+            state = &HeaderParser::state_error;
             return;
         }
     }
 
-    void HttpHeaderParser::state_end0(char ch)
+    void HeaderParser::state_end0(char ch)
     {
         if (ch == '\n')
         {
-            state = &HttpHeaderParser::state_h0;
+            state = &HeaderParser::state_h0;
             return;
         }
         else if (ch == ' ' || ch == '\t' || ch == '\r')
@@ -427,12 +427,12 @@ namespace net {
         else
         {
             log_warn("invalid character " << chartoprint(ch) << " in http request line");
-            state = &HttpHeaderParser::state_error;
+            state = &HeaderParser::state_error;
             return;
         }
     }
 
-    void HttpHeaderParser::state_h0(char ch)
+    void HeaderParser::state_h0(char ch)
     {
         if (ch == ' ' || ch == '\t')
         {
@@ -442,56 +442,56 @@ namespace net {
         {
             token.reserve(32);
             token = ch;
-            state = &HttpHeaderParser::state_hfieldname;
+            state = &HeaderParser::state_hfieldname;
             return;
         }
         else if (ch == '\r')
         {
-            state = &HttpHeaderParser::state_hcr;
+            state = &HeaderParser::state_hcr;
             return;
         }
         else if (ch == '\n')
         {
             ev.onEnd();
-            state = &HttpHeaderParser::state_end;
+            state = &HeaderParser::state_end;
             return;
         }
         else
         {
             log_warn("invalid character " << chartoprint(ch) << " in http header");
-            state = &HttpHeaderParser::state_error;
+            state = &HeaderParser::state_error;
             return;
         }
     }
 
-    void HttpHeaderParser::state_hcr(char ch)
+    void HeaderParser::state_hcr(char ch)
     {
         if (ch == '\n')
         {
             ev.onEnd();
-            state = &HttpHeaderParser::state_end;
+            state = &HeaderParser::state_end;
             return;
         }
         else
         {
             log_warn("invalid character " << chartoprint(ch) << " in http header");
-            state = &HttpHeaderParser::state_error;
+            state = &HeaderParser::state_error;
             return;
         }
     }
 
-    void HttpHeaderParser::state_hfieldname(char ch)
+    void HeaderParser::state_hfieldname(char ch)
     {
         if (ch == ':')
         {
             ev.onKey(token);
-            state = &HttpHeaderParser::state_hfieldbody0;
+            state = &HeaderParser::state_hfieldbody0;
             return;
         }
         else if (ch == ' ' || ch == '\t')
         {
             ev.onKey(token);
-            state = &HttpHeaderParser::state_hfieldnamespace;
+            state = &HeaderParser::state_hfieldnamespace;
             return;
         }
         else if (ch > 32 && ch < 127)
@@ -502,16 +502,16 @@ namespace net {
         else
         {
             log_warn("invalid character " << chartoprint(ch) << " in fieldname");
-            state = &HttpHeaderParser::state_error;
+            state = &HeaderParser::state_error;
             return;
         }
     }
 
-    void HttpHeaderParser::state_hfieldnamespace(char ch)
+    void HeaderParser::state_hfieldnamespace(char ch)
     {
         if (ch == ':')
         {
-            state = &HttpHeaderParser::state_hfieldbody0;
+            state = &HeaderParser::state_hfieldbody0;
             return;
         }
         else if (ch == ' ' || ch == '\t')
@@ -521,21 +521,21 @@ namespace net {
         else
         {
             log_warn("invalid character " << chartoprint(ch) << " in fieldname");
-            state = &HttpHeaderParser::state_error;
+            state = &HeaderParser::state_error;
             return;
         }
     }
 
-    void HttpHeaderParser::state_hfieldbody0(char ch)
+    void HeaderParser::state_hfieldbody0(char ch)
     {
         if (ch == '\r')
         {
-            state = &HttpHeaderParser::state_hfieldbody_cr;
+            state = &HeaderParser::state_hfieldbody_cr;
             return;
         }
         else if (ch == '\n')
         {
-            state = &HttpHeaderParser::state_hfieldbody_crlf;
+            state = &HeaderParser::state_hfieldbody_crlf;
             return;
         }
         else if (std::isspace(ch))
@@ -546,21 +546,21 @@ namespace net {
         {
             token.reserve(32);
             token = ch;
-            state = &HttpHeaderParser::state_hfieldbody;
+            state = &HeaderParser::state_hfieldbody;
             return;
         }
     }
 
-    void HttpHeaderParser::state_hfieldbody(char ch)
+    void HeaderParser::state_hfieldbody(char ch)
     {
         if (ch == '\r')
         {
-            state = &HttpHeaderParser::state_hfieldbody_cr;
+            state = &HeaderParser::state_hfieldbody_cr;
             return;
         }
         else if (ch == '\n')
         {
-            state = &HttpHeaderParser::state_hfieldbody_crlf;
+            state = &HeaderParser::state_hfieldbody_crlf;
             return;
         }
         else
@@ -570,41 +570,41 @@ namespace net {
         }
     }
 
-    void HttpHeaderParser::state_hfieldbody_cr(char ch)
+    void HeaderParser::state_hfieldbody_cr(char ch)
     {
         if (ch == '\n')
         {
-            state = &HttpHeaderParser::state_hfieldbody_crlf;
+            state = &HeaderParser::state_hfieldbody_crlf;
             return;
         }
         else
         {
             log_warn("invalid character " << chartoprint(ch) << " in fieldbody");
-            state = &HttpHeaderParser::state_error;
+            state = &HeaderParser::state_error;
             return;
         }
 
     }
 
-    void HttpHeaderParser::state_hfieldbody_crlf(char ch)
+    void HeaderParser::state_hfieldbody_crlf(char ch)
     {
         if (ch == '\r')
         {
             ev.onValue(token);
-            state = &HttpHeaderParser::state_hend_cr;
+            state = &HeaderParser::state_hend_cr;
             return;
         }
         else if (ch == '\n')
         {
             ev.onValue(token);
             ev.onEnd();
-            state = &HttpHeaderParser::state_end;
+            state = &HeaderParser::state_end;
             return;
         }
         else if (ch == ' ' || ch == '\t')
         {
             token += ch;
-            state = &HttpHeaderParser::state_hfieldbody;
+            state = &HeaderParser::state_hfieldbody;
             return;
         }
         else if (ch > 32 && ch < 127)
@@ -612,34 +612,34 @@ namespace net {
             ev.onValue(token);
             token.reserve(32);
             token = ch;
-            state = &HttpHeaderParser::state_hfieldname;
+            state = &HeaderParser::state_hfieldname;
             return;
         }
         else
         {
             log_warn("invalid character " << chartoprint(ch) << " in fieldbody");
-            state = &HttpHeaderParser::state_error;
+            state = &HeaderParser::state_error;
             return;
         }
     }
 
-    void HttpHeaderParser::state_hend_cr(char ch)
+    void HeaderParser::state_hend_cr(char ch)
     {
         if (ch == '\n')
         {
             ev.onEnd();
-            state = &HttpHeaderParser::state_end;
+            state = &HeaderParser::state_end;
             return;
         }
         else
         {
             log_warn("invalid character " << chartoprint(ch) << " in fieldbody");
-            state = &HttpHeaderParser::state_error;
+            state = &HeaderParser::state_error;
             return;
         }
     }
 
-    void HttpHeaderParser::state_cl_protocol0(char ch)
+    void HeaderParser::state_cl_protocol0(char ch)
     {
         if (ch == ' ' || ch == '\t')
         {
@@ -649,30 +649,30 @@ namespace net {
         {
             token.reserve(32);
             token = ch;
-            state = &HttpHeaderParser::state_cl_protocol;
+            state = &HeaderParser::state_cl_protocol;
             return;
         }
         else
         {
             log_warn("invalid character " << chartoprint(ch) << " in http protocol field");
-            state = &HttpHeaderParser::state_error;
+            state = &HeaderParser::state_error;
             return;
         }
     }
 
-    void HttpHeaderParser::state_cl_protocol(char ch)
+    void HeaderParser::state_cl_protocol(char ch)
     {
         if (ch == ' ' || ch == '\t' || ch == '/')
         {
             if (token != "HTTP")
             {
                 log_warn("invalid protocol " << token << " in http protocol field");
-                state = &HttpHeaderParser::state_error;
+                state = &HeaderParser::state_error;
                 return;
             }
             else
             {
-                state = (ch == '/' ? &HttpHeaderParser::state_cl_version_major : &HttpHeaderParser::state_cl_version0);
+                state = (ch == '/' ? &HeaderParser::state_cl_version_major : &HeaderParser::state_cl_version0);
                 return;
             }
         }
@@ -684,12 +684,12 @@ namespace net {
         else
         {
             log_warn("invalid character " << chartoprint(ch) << " in http protocol field");
-            state = &HttpHeaderParser::state_error;
+            state = &HeaderParser::state_error;
             return;
         }
     }
 
-    void HttpHeaderParser::state_cl_version0(char ch)
+    void HeaderParser::state_cl_version0(char ch)
     {
         if (ch == ' ' || ch == '\t')
         {
@@ -697,18 +697,18 @@ namespace net {
         }
         else if (ch == '/')
         {
-            state = &HttpHeaderParser::state_cl_version_major;
+            state = &HeaderParser::state_cl_version_major;
             return;
         }
         else
         {
             log_warn("invalid character " << chartoprint(ch) << " in http version field");
-            state = &HttpHeaderParser::state_error;
+            state = &HeaderParser::state_error;
             return;
         }
     }
 
-    void HttpHeaderParser::state_cl_version_major(char ch)
+    void HeaderParser::state_cl_version_major(char ch)
     {
         if (ch == ' ' || ch == '\t')
         {
@@ -716,38 +716,38 @@ namespace net {
         }
         else if (ch == '1')
         {
-            state = &HttpHeaderParser::state_cl_version_major_e;
+            state = &HeaderParser::state_cl_version_major_e;
             return;
         }
         else
         {
             log_warn("invalid character " << chartoprint(ch) << " in http version field");
-            state = &HttpHeaderParser::state_error;
+            state = &HeaderParser::state_error;
             return;
         }
     }
 
-    void HttpHeaderParser::state_cl_version_major_e(char ch)
+    void HeaderParser::state_cl_version_major_e(char ch)
     {
         if (ch == ' ' || ch == '\t')
         {
-            state = &HttpHeaderParser::state_cl_version_major_e;
+            state = &HeaderParser::state_cl_version_major_e;
             return;
         }
         else if (ch == '.')
         {
-            state = &HttpHeaderParser::state_cl_version_minor;
+            state = &HeaderParser::state_cl_version_minor;
             return;
         }
         else
         {
             log_warn("invalid character " << chartoprint(ch) << " in http version field");
-            state = &HttpHeaderParser::state_error;
+            state = &HeaderParser::state_error;
             return;
         }
     }
 
-    void HttpHeaderParser::state_cl_version_minor(char ch)
+    void HeaderParser::state_cl_version_minor(char ch)
     {
         if (ch == ' ' || ch == '\t')
         {
@@ -756,18 +756,18 @@ namespace net {
         else if (ch == '0' || ch == '1')
         {
             ev.onHttpVersion(1, ch - '0');
-            state = &HttpHeaderParser::state_cl_httpresult0;
+            state = &HeaderParser::state_cl_httpresult0;
             return;
         }
         else
         {
             log_warn("invalid character " << chartoprint(ch) << " in http result");
-            state = &HttpHeaderParser::state_error;
+            state = &HeaderParser::state_error;
             return;
         }
     }
 
-    void HttpHeaderParser::state_cl_httpresult0(char ch)
+    void HeaderParser::state_cl_httpresult0(char ch)
     {
         if (ch == ' ' || ch == '\t')
         {
@@ -776,18 +776,18 @@ namespace net {
         else if (std::isdigit(ch))
         {
             value = (ch - '0');
-            state = &HttpHeaderParser::state_cl_httpresult;
+            state = &HeaderParser::state_cl_httpresult;
             return;
         }
         else
         {
             log_warn("invalid character " << chartoprint(ch) << " in http result");
-            state = &HttpHeaderParser::state_error;
+            state = &HeaderParser::state_error;
             return;
         }
     }
 
-    void HttpHeaderParser::state_cl_httpresult(char ch)
+    void HeaderParser::state_cl_httpresult(char ch)
     {
         if (std::isdigit(ch))
         {
@@ -798,22 +798,22 @@ namespace net {
         {
             token.clear();
             token.reserve(32);
-            state = &HttpHeaderParser::state_cl_httpresulttext;
+            state = &HeaderParser::state_cl_httpresulttext;
         }
     }
 
-    void HttpHeaderParser::state_cl_httpresulttext(char ch)
+    void HeaderParser::state_cl_httpresulttext(char ch)
     {
         if (ch == '\r')
         {
             ev.onHttpReturn(value, token);
-            state = &HttpHeaderParser::state_cl_httpresult_cr;
+            state = &HeaderParser::state_cl_httpresult_cr;
             return;
         }
         else if (ch == '\n')
         {
             ev.onHttpReturn(value, token);
-            state = &HttpHeaderParser::state_h0;
+            state = &HeaderParser::state_h0;
             return;
         }
         else if (token.empty() && (ch == ' ' || ch == '\t'))
@@ -827,27 +827,27 @@ namespace net {
         }
     }
 
-    void HttpHeaderParser::state_cl_httpresult_cr(char ch)
+    void HeaderParser::state_cl_httpresult_cr(char ch)
     {
         if (ch == '\n')
         {
-            state = &HttpHeaderParser::state_h0;
+            state = &HeaderParser::state_h0;
             return;
         }
         else
         {
             log_warn("invalid character " << chartoprint(ch) << " in requestheader");
-            state = &HttpHeaderParser::state_error;
+            state = &HeaderParser::state_error;
             return;
         }
     }
 
-    void HttpHeaderParser::state_end(char ch)
+    void HeaderParser::state_end(char ch)
     {
         return;
     }
 
-    void HttpHeaderParser::state_error(char ch)
+    void HeaderParser::state_error(char ch)
     {
         return;
     }

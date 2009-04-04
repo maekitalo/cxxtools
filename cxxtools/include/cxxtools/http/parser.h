@@ -26,23 +26,23 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef cxxtools_Net_HttpParser_h
-#define cxxtools_Net_HttpParser_h
+#ifndef cxxtools_Http_Parser_h
+#define cxxtools_Http_Parser_h
 
-#include <cxxtools/api.h>
+#include <cxxtools/http/api.h>
 #include <string>
 #include <iostream>
 
 namespace cxxtools {
 
-namespace net {
+namespace http {
 
-class HttpMessageHeader;
+class MessageHeader;
 
-class CXXTOOLS_API HttpHeaderParser
+class CXXTOOLS_HTTP_API HeaderParser
 {
     public:
-        class CXXTOOLS_API Event
+        class CXXTOOLS_HTTP_API Event
         {
             public:
                 virtual ~Event() {}
@@ -56,13 +56,13 @@ class CXXTOOLS_API HttpHeaderParser
                 virtual void onEnd();
         };
 
-        class CXXTOOLS_API HttpMessageHeaderEvent : public Event
+        class CXXTOOLS_HTTP_API MessageHeaderEvent : public Event
         {
-                HttpMessageHeader& _header;
+                MessageHeader& _header;
                 std::string _key;
 
             public:
-                explicit HttpMessageHeaderEvent(HttpMessageHeader& header)
+                explicit MessageHeaderEvent(MessageHeader& header)
                     : _header(header)
                     { }
 
@@ -72,7 +72,7 @@ class CXXTOOLS_API HttpHeaderParser
         };
 
     private:
-        typedef void (HttpHeaderParser::*state_type)(char);
+        typedef void (HeaderParser::*state_type)(char);
 
         void state_cmd0(char ch);
         void state_cmd(char ch);
@@ -118,8 +118,8 @@ class CXXTOOLS_API HttpHeaderParser
         unsigned value;
 
     public:
-        HttpHeaderParser(Event& ev_, bool client)
-            : state(client ? &HttpHeaderParser::state_cl_protocol0 : &HttpHeaderParser::state_cmd0),
+        HeaderParser(Event& ev_, bool client)
+            : state(client ? &HeaderParser::state_cl_protocol0 : &HeaderParser::state_cmd0),
               ev(ev_)
             { }
 
@@ -133,20 +133,20 @@ class CXXTOOLS_API HttpHeaderParser
         bool parse(char ch)
         {
             (this->*state)(ch);
-            return state == &HttpHeaderParser::state_end || state == &HttpHeaderParser::state_error;
+            return state == &HeaderParser::state_end || state == &HeaderParser::state_error;
         }
 
-        bool end() const    { return state == &HttpHeaderParser::state_end
-                                || state == &HttpHeaderParser::state_error; }
-        bool fail() const   { return state == &HttpHeaderParser::state_error; }
+        bool end() const    { return state == &HeaderParser::state_end
+                                || state == &HeaderParser::state_error; }
+        bool fail() const   { return state == &HeaderParser::state_error; }
 
         void reset(bool client)
         {
-            state = (client ? &HttpHeaderParser::state_cl_protocol0 : &HttpHeaderParser::state_cmd0);
+            state = (client ? &HeaderParser::state_cl_protocol0 : &HeaderParser::state_cmd0);
         }
 };
 
-} // namespace net
+} // namespace http
 
 } // namespace cxxtools
 

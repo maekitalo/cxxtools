@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003 Tommi Maekitalo
+ * Copyright (C) 2003,2009 Tommi Maekitalo
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -28,7 +28,7 @@
 
 #include <exception>
 #include <iostream>
-#include <cxxtools/httpclient.h>
+#include <cxxtools/http/client.h>
 #include <cxxtools/arg.h>
 #include <cxxtools/loginit.h>
 
@@ -49,7 +49,7 @@ int main(int argc, char* argv[])
       //request.setAuth(user.getValue().substr(0, p),
                       //user.getValue().substr(p + 1));
 
-    cxxtools::net::HttpClient client(server, port);
+    cxxtools::http::Client client(server, port);
 
     for (int a = 1; a < argc; ++a)
         std::cout << client.get(argv[a]);

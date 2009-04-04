@@ -28,10 +28,10 @@
 
 #include "addrinfo.h"
 #include "tcpserverimpl.h"
-#include <cxxtools/tcpserver.h>
+#include <cxxtools/net/tcpserver.h>
 #include <cxxtools/systemerror.h>
 #include <cxxtools/selector.h>
-#include <cxxtools/net.h> // AddrInUse
+#include <cxxtools/net/net.h> // AddrInUse
 #include <cxxtools/log.h>
 #include <cerrno>
 #include <cassert>
@@ -43,7 +43,7 @@
 #include <sys/poll.h>
 #include <sys/select.h>
 
-log_define("cxxtools.net.tcp.tcpserverimpl")
+log_define("cxxtools.net.tcpserverimpl")
 
 namespace cxxtools {
 

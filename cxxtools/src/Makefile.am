@@ -29,12 +29,6 @@ libcxxtools_la_SOURCES = \
 	fileimpl.cpp \
 	fileinfo.cpp \
 	hdstream.cpp \
-	httpclient.cpp \
-	httpmessageheader.cpp \
-	httpparser.cpp \
-	httpserver.cpp \
-	httpsocket.cpp \
-	httpresponder.cpp \
 	iconvstream.cpp \
 	inifile.cpp \
 	iniparser.cpp \
@@ -51,7 +45,6 @@ libcxxtools_la_SOURCES = \
 	multifstream.cpp \
 	mutex.cpp \
 	muteximpl.cpp \
-	net.cpp \
 	pipe.cpp \
 	pipeimpl.cpp \
 	pipestream.cpp \
@@ -73,11 +66,6 @@ libcxxtools_la_SOURCES = \
 	streambuffer.cpp \
 	stringstream.cpp \
 	systemerror.cpp \
-	tcpserverimpl.cpp \
-	tcpserver.cpp \
-	tcpsocket.cpp \
-	tcpsocketimpl.cpp \
-	tcpstream.cpp \
 	tee.cpp \
 	textcodec.cpp \
 	textstream.cpp \
@@ -86,11 +74,17 @@ libcxxtools_la_SOURCES = \
 	time.cpp \
 	timer.cpp \
 	timespan.cpp \
-	udp.cpp \
-	udpstream.cpp \
 	utf8codec.cpp \
 	uuencode.cpp \
-	xmltag.cpp
+	xmltag.cpp \
+	net.cpp \
+	tcpserverimpl.cpp \
+	tcpserver.cpp \
+	tcpsocket.cpp \
+	tcpsocketimpl.cpp \
+	tcpstream.cpp \
+	udp.cpp \
+	udpstream.cpp
 
 noinst_HEADERS = \
 	addrinfo.h \
@@ -109,10 +103,11 @@ noinst_HEADERS = \
 	selectableimpl.h \
 	selectorimpl.h \
 	semaphoreimpl.h \
-	tcpserverimpl.h \
-	tcpsocketimpl.h \
 	threadimpl.h \
 	unicode.h
+	tcpserverimpl.h \
+	tcpsocketimpl.h
+
 
 if MAKE_ATOMICITY_SUN
 libcxxtools_la_SOURCES += \

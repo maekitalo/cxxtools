@@ -29,8 +29,8 @@
 #include "cxxtools/unit/assertion.h"
 #include "cxxtools/unit/testsuite.h"
 #include "cxxtools/unit/registertest.h"
-#include "cxxtools/tcpserver.h"
-#include "cxxtools/tcpsocket.h"
+#include "cxxtools/net/tcpserver.h"
+#include "cxxtools/net/tcpsocket.h"
 #include <string>
 
 class TcpSocketTest : public cxxtools::unit::TestSuite

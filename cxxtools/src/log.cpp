@@ -28,8 +28,8 @@
 
 #include <cxxtools/log/cxxtools_init.h>
 #include <cxxtools/mutex.h>
-#include <cxxtools/udp.h>
-#include <cxxtools/udpstream.h>
+#include <cxxtools/net/udp.h>
+#include <cxxtools/net/udpstream.h>
 #include <cxxtools/tee.h>
 #include <cxxtools/streamcounter.h>
 #include <cxxtools/pipestream.h>

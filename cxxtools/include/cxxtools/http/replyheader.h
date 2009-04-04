@@ -26,32 +26,32 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef cxxtools_Net_HttpReplyHeader_h
-#define cxxtools_Net_HttpReplyHeader_h
+#ifndef cxxtools_Http_ReplyHeader_h
+#define cxxtools_Http_ReplyHeader_h
 
-#include <cxxtools/api.h>
-#include <cxxtools/httpmessageheader.h>
+#include <cxxtools/http/api.h>
+#include <cxxtools/http/messageheader.h>
 
 namespace cxxtools {
 
-namespace net {
+namespace http {
 
-class HttpRequestHeader;
+class RequestHeader;
 
-class HttpReplyHeader : public HttpMessageHeader
+class ReplyHeader : public MessageHeader
 {
         unsigned _httpReturnCode;
         std::string _httpReturnText;
 
     public:
-        HttpReplyHeader()
+        ReplyHeader()
             : _httpReturnCode(200),
               _httpReturnText("OK")
             { }
 
         void clear()
         {
-            HttpMessageHeader::clear();
+            MessageHeader::clear();
             _httpReturnCode = 200;
             _httpReturnText = "OK";
         }
@@ -70,7 +70,7 @@ class HttpReplyHeader : public HttpMessageHeader
 
 };
 
-} // namespace net
+} // namespace http
 
 } // namespace cxxtools
 

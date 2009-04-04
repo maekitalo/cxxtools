@@ -27,14 +27,14 @@
  */
 
 #include "tcpsocketimpl.h"
-#include "cxxtools/tcpsocket.h"
+#include "cxxtools/net/tcpsocket.h"
 #include <stdexcept>
 #include <memory>
 #include "cxxtools/log.h"
 #include <errno.h>
 #include <cxxtools/systemerror.h>
 
-log_define("cxxtools.net.tcp.socket")
+log_define("cxxtools.net.tcpsocket")
 
 namespace cxxtools {
 

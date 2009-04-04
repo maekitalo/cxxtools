@@ -29,8 +29,8 @@
 #include "addrinfo.h"
 #include "tcpsocketimpl.h"
 #include "tcpserverimpl.h"
-#include "cxxtools/tcpserver.h"
-#include "cxxtools/tcpsocket.h"
+#include "cxxtools/net/tcpserver.h"
+#include "cxxtools/net/tcpsocket.h"
 #include "cxxtools/systemerror.h"
 #include "cxxtools/ioerror.h"
 #include "cxxtools/log.h"
@@ -42,7 +42,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-log_define("cxxtools.net.tcp.socketimpl")
+log_define("cxxtools.net.tcpsocketimpl")
 
 namespace {
 

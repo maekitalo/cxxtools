@@ -18,25 +18,25 @@
  */
 
 #include <vector>
-#include <cxxtools/httpserver.h>
-#include <cxxtools/httpreply.h>
+#include <cxxtools/http/server.h>
+#include <cxxtools/http/reply.h>
 #include <cxxtools/mutex.h>
 #include <cxxtools/eventloop.h>
 #include <cxxtools/loginit.h>
 
 // HelloResponder
 //
-class HelloResponder : public cxxtools::net::HttpResponder
+class HelloResponder : public cxxtools::http::Responder
 {
   public:
-    explicit HelloResponder(cxxtools::net::HttpService& service)
-      : cxxtools::net::HttpResponder(service)
+    explicit HelloResponder(cxxtools::http::Service& service)
+      : cxxtools::http::Responder(service)
       { }
 
-    virtual void reply(std::ostream&, cxxtools::net::HttpRequest& request, cxxtools::net::HttpReply& reply);
+    virtual void reply(std::ostream&, cxxtools::http::Request& request, cxxtools::http::Reply& reply);
 };
 
-void HelloResponder::reply(std::ostream& out, cxxtools::net::HttpRequest& request, cxxtools::net::HttpReply& reply)
+void HelloResponder::reply(std::ostream& out, cxxtools::http::Request& request, cxxtools::http::Reply& reply)
 {
   reply.addHeader("Content-Type", "text/html");
   out << "<html>\n"
@@ -62,7 +62,7 @@ void HelloResponder::reply(std::ostream& out, cxxtools::net::HttpRequest& reques
 
 // HelloService
 //
-typedef cxxtools::net::HttpCachedService<HelloResponder> HelloService;
+typedef cxxtools::http::CachedService<HelloResponder> HelloService;
 
 // main
 //
@@ -72,7 +72,7 @@ int main(int argc, char* argv[])
   {
     log_init();
 
-    cxxtools::net::HttpServer server("0.0.0.0", 8001);
+    cxxtools::http::Server server("0.0.0.0", 8001);
     HelloService service;
     server.addService("/hello", service);
     server.run();

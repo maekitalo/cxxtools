@@ -26,8 +26,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef CXXTOOLS_NET_H
-#define CXXTOOLS_NET_H
+#ifndef CXXTOOLS_NET_NET_H
+#define CXXTOOLS_NET_NET_H
 
 #include <cxxtools/ioerror.h>
 #include <cxxtools/noncopyable.h>
@@ -107,4 +107,4 @@ namespace net
 
 } // namespace cxxtools
 
-#endif // CXXTOOLS_NET_H
+#endif // CXXTOOLS_NET_NET_H

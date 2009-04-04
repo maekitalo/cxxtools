@@ -26,13 +26,13 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef cxxtools_Net_HttpServer_h
-#define cxxtools_Net_HttpServer_h
+#ifndef cxxtools_Http_Server_h
+#define cxxtools_Http_Server_h
 
-#include <cxxtools/api.h>
-#include <cxxtools/httpresponder.h>
-#include <cxxtools/tcpserver.h>
-#include <cxxtools/tcpsocket.h>
+#include <cxxtools/http/api.h>
+#include <cxxtools/http/responder.h>
+#include <cxxtools/net/tcpserver.h>
+#include <cxxtools/net/tcpsocket.h>
 #include <cxxtools/connectable.h>
 #include <cxxtools/condition.h>
 #include <cxxtools/mutex.h>
@@ -45,23 +45,23 @@
 
 namespace cxxtools {
 
-namespace net {
+namespace http {
 
-class HttpResponder;
-class HttpRequest;
-class HttpSocket;
-class HttpService;
+class Responder;
+class Request;
+class Socket;
+class Service;
 
-class CXXTOOLS_API HttpServer : public TcpServer, public Connectable
+class CXXTOOLS_HTTP_API Server : public net::TcpServer, public Connectable
 {
     public:
-        HttpServer(const std::string& ip, unsigned short int port);
+        Server(const std::string& ip, unsigned short int port);
 
-        void addService(const std::string& url, HttpService& service);
-        void removeService(HttpService& service);
+        void addService(const std::string& url, Service& service);
+        void removeService(Service& service);
 
-        HttpResponder* getResponder(const HttpRequest& request);
-        HttpResponder* getDefaultResponder(const HttpRequest& request)
+        Responder* getResponder(const Request& request);
+        Responder* getDefaultResponder(const Request& request)
             { return _defaultService.createResponder(request); }
 
         void onConnect(TcpServer& server);
@@ -82,10 +82,10 @@ class CXXTOOLS_API HttpServer : public TcpServer, public Connectable
         std::string _ip;
         unsigned short int _port;
 
-        typedef std::multimap<std::string, HttpService*> ServicesType;
+        typedef std::multimap<std::string, Service*> ServicesType;
         ServicesType _service;
         Selector _selector;
-        HttpNotFoundService _defaultService;
+        NotFoundService _defaultService;
 
         std::size_t _readTimeout;
         std::size_t _writeTimeout;
@@ -109,21 +109,21 @@ class CXXTOOLS_API HttpServer : public TcpServer, public Connectable
         Threads _threads;
         Threads _terminatedThreads;
 
-        typedef std::list<HttpSocket*> HttpServerSockets;
-        HttpServerSockets _readySockets;
+        typedef std::list<Socket*> ServerSockets;
+        ServerSockets _readySockets;
         Mutex _idleSocketsMutex;
-        HttpServerSockets _idleSockets;
+        ServerSockets _idleSockets;
 
         bool hasReplyToDo() const  { return !_readySockets.empty(); }
-        friend class HttpSocket;
-        void addReadySockets(HttpSocket* s)
+        friend class Socket;
+        void addReadySockets(Socket* s)
             { _readySockets.push_back(s); }
 
         void createThread();
 };
 
 
-} // namespace net
+} // namespace http
 
 } // namespace cxxtools
 
