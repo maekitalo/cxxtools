@@ -212,13 +212,13 @@ size_t IODeviceImpl::write( const char* buffer, size_t count )
             break;
 
         if(ret == 0 || errno == ECONNRESET || errno == EPIPE)
-            return 0;
+            throw IOError("lost connection to peer");
 
         if(errno == EINTR)
             continue;
 
         if(errno != EAGAIN)
-            throw IOError("Could not read from file handle", CXXTOOLS_SOURCEINFO);
+            throw IOError( CXXTOOLS_ERROR_MSG("Could not write to file handle") );
 
         pollfd pfd;
         pfd.fd = this->fd();
