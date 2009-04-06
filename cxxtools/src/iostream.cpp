@@ -29,15 +29,15 @@
 
 namespace cxxtools {
 
-IStream::IStream(size_t bufferSize)
-: _buffer(bufferSize)
+IStream::IStream(size_t bufferSize, bool extend)
+: _buffer(bufferSize, extend)
 {
     attachBuffer(&_buffer);
 }
 
 
-IStream::IStream(IODevice& device, size_t bufferSize)
-: _buffer(device, bufferSize)
+IStream::IStream(IODevice& device, size_t bufferSize, bool extend)
+: _buffer(device, bufferSize, extend)
 {
     attachBuffer(&_buffer);
 }
@@ -68,15 +68,15 @@ return _buffer.device();
 }
 
 
-OStream::OStream(size_t bufferSize)
-: _buffer(bufferSize)
+OStream::OStream(size_t bufferSize, bool extend)
+: _buffer(bufferSize, extend)
 {
     attachBuffer(&_buffer);
 }
 
 
-OStream::OStream(IODevice& device, size_t bufferSize)
-: _buffer(device, bufferSize)
+OStream::OStream(IODevice& device, size_t bufferSize, bool extend)
+: _buffer(device, bufferSize, extend)
 {
     attachBuffer(&_buffer);
 }
@@ -107,8 +107,8 @@ IODevice* OStream::attachedDevice()
 }
 
 
-IOStream::IOStream(size_t bufferSize)
-: _buffer(bufferSize)
+IOStream::IOStream(size_t bufferSize, bool extend)
+: _buffer(bufferSize, extend)
 {
     attachBuffer(&_buffer);
 }
@@ -119,8 +119,8 @@ IOStream::~IOStream()
 }
 
 
-IOStream::IOStream(IODevice& device, size_t bufferSize)
-: _buffer(device, bufferSize)
+IOStream::IOStream(IODevice& device, size_t bufferSize, bool extend)
+: _buffer(device, bufferSize, extend)
 {
     attachBuffer(&_buffer);
 }

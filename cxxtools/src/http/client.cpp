@@ -48,6 +48,7 @@ Client::Client(const std::string& server, unsigned short int port)
 , _request(0)
 , _server(server)
 , _port(port)
+, _stream(8192, true)
 , _readHeader(true)
 , _contentLength(0)
 {
@@ -65,6 +66,7 @@ Client::Client(const std::string& server, unsigned short int port,
 , _request(0)
 , _server(server)
 , _port(port)
+, _stream(8192, true)
 , _readHeader(true)
 , _contentLength(0)
 {

@@ -268,8 +268,7 @@ StreamBuffer::int_type StreamBuffer::overflow(int_type ch)
         _obuffer = new char[_obufferSize];
         this->setp(_obuffer, _obuffer + _obufferSize);
     }
-
-    if(_flushing) // beginWrite is unfinished
+    else if(_flushing) // beginWrite is unfinished
     {
         this->endWrite();
     }

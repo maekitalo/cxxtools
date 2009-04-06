@@ -200,11 +200,11 @@ class BasicIOStream : public std::basic_iostream<CharT>
 class CXXTOOLS_API IStream : public BasicIStream<char>
 {
     public:
-        explicit IStream(size_t bufferSize = 8192);
+        explicit IStream(size_t bufferSize = 8192, bool extend = false);
 
         ~IStream();
 
-        IStream(IODevice& device, size_t bufferSize = 8192);
+        explicit IStream(IODevice& device, size_t bufferSize = 8192, bool extend = false);
 
         StreamBuffer& buffer();
 
@@ -220,9 +220,9 @@ class CXXTOOLS_API IStream : public BasicIStream<char>
 class CXXTOOLS_API OStream : public BasicIStream<char>
 {
     public:
-        explicit OStream(size_t bufferSize = 8192);
+        explicit OStream(size_t bufferSize = 8192, bool extend = false);
 
-        OStream(IODevice& device, size_t bufferSize = 8192);
+        explicit OStream(IODevice& device, size_t bufferSize = 8192, bool extend = false);
 
         ~OStream();
 
@@ -240,9 +240,9 @@ class CXXTOOLS_API OStream : public BasicIStream<char>
 class CXXTOOLS_API IOStream : public BasicIOStream<char>
 {
     public:
-        IOStream(size_t bufferSize = 8192);
+        explicit IOStream(size_t bufferSize = 8192, bool extend = false);
 
-        IOStream(IODevice& device, size_t bufferSize = 8192);
+        explicit IOStream(IODevice& device, size_t bufferSize = 8192, bool extend = false);
 
         ~IOStream();
 
