@@ -104,7 +104,7 @@ noinst_HEADERS = \
 	selectorimpl.h \
 	semaphoreimpl.h \
 	threadimpl.h \
-	unicode.h
+	unicode.h \
 	tcpserverimpl.h \
 	tcpsocketimpl.h
 

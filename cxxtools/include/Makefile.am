@@ -51,6 +51,7 @@ nobase_include_HEADERS = \
         cxxtools/function.h \
         cxxtools/function.tpp \
         cxxtools/hdstream.h \
+		cxxtools/http/api.h \
 		cxxtools/http/client.h \
 		cxxtools/http/messageheader.h \
 		cxxtools/http/parser.h \
@@ -115,7 +116,9 @@ nobase_include_HEADERS = \
         cxxtools/streambuffer.h \
         cxxtools/streamcounter.h \
         cxxtools/stringdata.h \
+        cxxtools/stringdata.tpp \
         cxxtools/string.h \
+        cxxtools/string.tpp \
         cxxtools/stringstream.h \
         cxxtools/syserror.h \
         cxxtools/systemerror.h \
@@ -154,6 +157,7 @@ nobase_include_HEADERS = \
         cxxtools/unit/testmethod.h \
         cxxtools/unit/testprotocol.h \
         cxxtools/unit/testsuite.h \
+        cxxtools/xml/api.h \
         cxxtools/xml/characters.h \
         cxxtools/xml/comment.h \
         cxxtools/xml/doctypedeclaration.h \
@@ -167,7 +171,15 @@ nobase_include_HEADERS = \
         cxxtools/xml/startelement.h \
         cxxtools/xml/xmlerror.h \
         cxxtools/xml/xmlreader.h \
-        cxxtools/xml/xmlwriter.h
+        cxxtools/xml/xmlwriter.h \
+        cxxtools/xmlrpc/api.h \
+        cxxtools/xmlrpc/client.h \
+        cxxtools/xmlrpc/fault.h \
+        cxxtools/xmlrpc/formatter.h \
+        cxxtools/xmlrpc/remoteprocedure.h \
+        cxxtools/xmlrpc/responder.h \
+        cxxtools/xmlrpc/scanner.h \
+        cxxtools/xmlrpc/service.h
 
 nobase_nodist_include_HEADERS = \
         cxxtools/config.h
