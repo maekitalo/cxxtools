@@ -32,7 +32,7 @@
 #include <cctype>
 #include <algorithm>
 
-log_define("cxxtools..http.parser")
+log_define("cxxtools.http.parser")
 
 namespace cxxtools {
 
