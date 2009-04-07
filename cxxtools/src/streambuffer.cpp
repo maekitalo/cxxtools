@@ -35,7 +35,7 @@ namespace cxxtools {
 
 StreamBuffer::StreamBuffer(IODevice& ioDevice, size_t bufferSize, bool extend)
 : _ioDevice(&ioDevice),
-  _bufferSize(bufferSize+4),
+  _ibufferSize(bufferSize+4),
   _ibuffer(0),
   _obufferSize(bufferSize),
   _obuffer(0),
@@ -53,7 +53,7 @@ StreamBuffer::StreamBuffer(IODevice& ioDevice, size_t bufferSize, bool extend)
 
 StreamBuffer::StreamBuffer(size_t bufferSize, bool extend)
 : _ioDevice(0),
-  _bufferSize(bufferSize+4),
+  _ibufferSize(bufferSize+4),
   _ibuffer(0),
   _obufferSize(bufferSize),
   _obuffer(0),
@@ -107,7 +107,7 @@ void StreamBuffer::beginRead()
 
     if( ! _ibuffer )
     {
-        _ibuffer = new char[_bufferSize];
+        _ibuffer = new char[_ibufferSize];
     }
 
     size_t putback = _pbmax;
@@ -128,7 +128,7 @@ void StreamBuffer::beginRead()
     }
 
     size_t used = _pbmax + leftover;
-    _ioDevice->beginRead( _ibuffer + used, _bufferSize - used );
+    _ioDevice->beginRead( _ibuffer + used, _ibufferSize - used );
     _reading = true;
 
     this->setg( _ibuffer + (_pbmax - putback), // start of get area
@@ -171,7 +171,7 @@ StreamBuffer::int_type StreamBuffer::underflow()
 
     if( ! _ibuffer )
     {
-        _ibuffer = new char[_bufferSize];
+        _ibuffer = new char[_ibufferSize];
     }
 
     size_t putback = _pbmax;
@@ -184,7 +184,7 @@ StreamBuffer::int_type StreamBuffer::underflow()
                       putback );
     }
 
-    size_t readSize = _ioDevice->read( _ibuffer + _pbmax, _bufferSize - _pbmax );
+    size_t readSize = _ioDevice->read( _ibuffer + _pbmax, _ibufferSize - _pbmax );
 
     this->setg( _ibuffer + _pbmax - putback,    // start of get area
                 _ibuffer + _pbmax,              // gptr position
@@ -225,8 +225,11 @@ void StreamBuffer::discard()
     if (_reading || _flushing)
         throw IOPending( CXXTOOLS_ERROR_MSG("discard failed - streambuffer is in use") );
 
-    setg(0, 0, 0);
-    setp(0, 0);
+    if (gptr())
+        this->setg(_ibuffer, _ibuffer + _ibufferSize, _ibuffer + _ibufferSize);
+
+    if (pptr())
+        this->setp(_obuffer, _obuffer + _obufferSize);
 }
 
 
@@ -377,8 +380,7 @@ StreamBuffer::seekoff(off_type off, std::ios::seekdir dir, std::ios::openmode)
     ret = _ioDevice->seek(off, dir);
 
     // eliminate currently buffered sequence
-    this->setg(0, 0, 0);
-    this->setp(0, 0);
+    discard();
 
     return ret;
 }

@@ -100,9 +100,11 @@ void Client::call(IDeserializer& r, IRemoteProcedure& method, ISerializer** argv
     this->prepareRequest(method.name(), argv, argc);
     http::ReplyHeader header = _client.execute(_request);
 
-    std::string body = _client.readBody();
+    std::string body;
+    _client.readBody(body);
     std::istringstream is(body);
     _ts.attach(is);
+    _reader.reset(_ts);
     _scanner.begin(r, _context);
 
     while( _reader.get().type() !=  cxxtools::xml::Node::EndDocument )

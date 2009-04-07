@@ -136,6 +136,9 @@ class CXXTOOLS_HTTP_API HeaderParser
             return state == &HeaderParser::state_end || state == &HeaderParser::state_error;
         }
 
+        bool begin() const  { return state == &HeaderParser::state_cl_protocol0
+                                || state == &HeaderParser::state_cmd0; }
+
         bool end() const    { return state == &HeaderParser::state_end
                                 || state == &HeaderParser::state_error; }
         bool fail() const   { return state == &HeaderParser::state_error; }

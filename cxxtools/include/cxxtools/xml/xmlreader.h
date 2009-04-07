@@ -148,9 +148,9 @@ class CXXTOOLS_XML_API XmlReader
 
         ~XmlReader();
 
-        void reset(std::basic_istream<Char>& is, int flags);
+        void reset(std::basic_istream<Char>& is, int flags = 0);
 
-        void reset(std::istream& is, int flags);
+        void reset(std::istream& is, int flags = 0);
 
         const cxxtools::String& documentVersion() const;
 

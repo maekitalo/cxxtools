@@ -1405,6 +1405,7 @@ struct XmlReaderImpl
     void reset(std::basic_istream<Char>& is, int flags)
     {
         delete _buffer;
+        _buffer = 0;
         _textBuffer = is.rdbuf();
 
         _state = XmlReaderImpl::OnDocumentBegin::instance();
@@ -1414,7 +1415,6 @@ struct XmlReaderImpl
         _standalone = true;
         _depth = 0;
         _line = 1;
-        _state = 0;
         _current = 0;
     }
 
@@ -1431,7 +1431,6 @@ struct XmlReaderImpl
         _standalone = true;
         _depth = 0;
         _line = 1;
-        _state = 0;
         _current = 0;
     }
 

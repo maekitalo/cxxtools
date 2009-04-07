@@ -34,6 +34,9 @@
 #include <string.h>
 #include <fcntl.h>
 #include <sys/poll.h>
+#include <cxxtools/log.h>
+
+log_define("cxxtools.iodevice.impl")
 
 namespace cxxtools {
 
@@ -148,8 +151,14 @@ size_t IODeviceImpl::read( char* buffer, size_t count, bool& eof )
     while(true)
     {
         ret = ::read( _fd, (void*)buffer, count);
+
         if(ret > 0)
+        {
+            log_debug("::read(" << _fd << ", " << count << ") => \"" << std::string(buffer, ret) << "\")");
             break;
+        }
+
+        log_debug("read returned " << ret << " errno=" << errno);
 
         if(ret == 0 || errno == ECONNRESET)
         {
@@ -207,7 +216,10 @@ size_t IODeviceImpl::write( const char* buffer, size_t count )
 
     while(true)
     {
+        log_debug("::write(" << _fd << ", \"" << std::string(buffer, count) << "\")");
+
         ret = ::write(_fd, (const void*)buffer, count);
+        log_debug("write returned " << ret);
         if(ret > 0)
             break;
 

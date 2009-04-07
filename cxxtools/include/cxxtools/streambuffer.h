@@ -123,7 +123,7 @@ class CXXTOOLS_API StreamBuffer : public BasicStreamBuffer<char>
 
     private:
         IODevice* _ioDevice;
-        size_t _bufferSize;
+        size_t _ibufferSize;
         char* _ibuffer;
         std::size_t _obufferSize;
         char* _obuffer;

@@ -83,10 +83,33 @@ void Client::setSelector(SelectorBase& selector)
     selector.add(_socket);
 }
 
-const ReplyHeader& Client::execute(const Request& request, std::size_t timeout)
+void Client::reexecute(const Request& request)
 {
-    bool connected = _socket.isConnected();
-    if (!connected)
+    log_debug("reconnect");
+    _socket.connect(_server, _port);
+
+    _stream.clear();
+    _stream.buffer().discard();
+    sendRequest(request);
+    _stream.flush();
+}
+
+void Client::doparse()
+{
+    char ch;
+    while (!_parser.end() && _stream.get(ch))
+        _parser.parse(ch);
+
+}
+
+const ReplyHeader& Client::execute(const Request& request)
+{
+    // TODO timeout
+
+    _replyHeader.clear();
+
+    bool shouldReconnect = _socket.isConnected();
+    if (!shouldReconnect)
     {
         log_debug("connect");
         _socket.connect(_server, _port);
@@ -95,35 +118,39 @@ const ReplyHeader& Client::execute(const Request& request, std::size_t timeout)
     sendRequest(request);
     _stream.flush();
 
-    if (!_stream && !connected)
+    if (!_stream && shouldReconnect)
     {
-        // sending failed and we were not connected before, so try now
-        log_debug("connect");
-        _socket.connect(_server, _port);
-
-        _stream.clear();
-        _stream.buffer().discard();
-        sendRequest(request);
-        _stream.flush();
+        // sending failed and we were not connected before, so try again
+        reexecute(request);
+        shouldReconnect = false;
     }
 
     if (!_stream)
         throw IOError( CXXTOOLS_ERROR_MSG("error sending HTTP request") );
 
-    _parser.reset(true);
-
     log_debug("read reply");
 
-    char ch;
-    while (!_parser.end() && _stream.get(ch))
+    _parser.reset(true);
+    doparse();
+
+    if (_parser.begin() && shouldReconnect)
     {
-        _parser.parse(ch);
+        // reading failed and we were not connected before, so try again
+        reexecute(request);
+
+        if (!_stream)
+            throw IOError( CXXTOOLS_ERROR_MSG("error sending HTTP request") );
+
+        doparse();
     }
 
     log_debug("reply ready");
 
     if (_parser.fail())
         throw IOError( CXXTOOLS_ERROR_MSG("invalid HTTP reply") );
+
+    if (!_parser.end())
+        throw IOError( CXXTOOLS_ERROR_MSG("incomplete HTTP reply header") );
 
     return _replyHeader;
 }
@@ -144,6 +171,8 @@ void Client::readBody(std::string& s)
 
     if (_stream.fail())
         throw IOError( CXXTOOLS_ERROR_MSG("error reading HTTP reply body") );
+
+    log_debug("body read: \"" << s << '"');
 
     if (!_replyHeader.keepAlive())
         _socket.close();

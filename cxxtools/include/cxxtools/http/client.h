@@ -81,6 +81,9 @@ class CXXTOOLS_HTTP_API Client : public cxxtools::Connectable
         void sendRequest(const Request& request);
         void processBodyAvailable();
 
+        void reexecute(const Request& request);
+        void doparse();
+
     protected:
         void onConnect(net::TcpSocket& socket);
         void onOutput(StreamBuffer& sb);
@@ -91,8 +94,7 @@ class CXXTOOLS_HTTP_API Client : public cxxtools::Connectable
 
         Client(const std::string& server, unsigned short int port, SelectorBase& selector);
 
-        const ReplyHeader& execute(const Request& request,
-            std::size_t timeout = Selectable::WaitInfinite);
+        const ReplyHeader& execute(const Request& request);
 
         const ReplyHeader& header()
         { return _replyHeader; }
