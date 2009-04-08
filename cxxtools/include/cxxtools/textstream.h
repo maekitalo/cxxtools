@@ -289,91 +289,71 @@ class BasicTextStream : public std::basic_iostream<CharT>
 };
 
 
-/** @brief Specialized class derived from BasicTextIStream using cxxtools::Char and $char$
-    * as internal and external type.
-    *
-    * The internal type is cxxtools::Char. The external type is $char$.
-    *
-    * See BasicTextIStream for a more detailed description.
-    */
+/** @brief Text Input Stream for Character conversion
+*/
 class CXXTOOLS_API TextIStream : public BasicTextIStream<Char, char>
 {
     public:
         typedef TextCodec<cxxtools::Char, char> Codec;
 
     public:
-        /** @brief Constructs a new TextIStream object using the given input-stream as external device and
-            * the codec for character conversion.
-            *
-            * See BasicTextIStream::BasicTextIStream() for a more detailed description.
-            *
-            * @param is The input-stream (external device) which is wrapped by this object.
-            * @param codec The codec which is used to convert data from the external device.
-            */
+        /** @brief Constructor
+
+            The stream will read bytes from \a is and use the codec \a codec
+            for character conversion. The codec will be destroyed by the
+            buffer of this stream if the codec was constructed with a
+            refcount of 0.
+        */
         TextIStream(std::istream& is, Codec* codec);
 
         TextIStream(Codec* codec);
 
-        //! @brief Destructs this object freeing the internal buffer.
         ~TextIStream();
 };
 
 
-/** @brief Specialized class derived from BasicTextOStream using cxxtools::Char and $char$
-    * as internal and external type.
-    *
-    * The internal type is cxxtools::Char. The external type is $char$.
-    *
-    * See BasicTextOStream for a more detailed description.
-    */
+/** @brief Text Output Stream for Character conversion
+*/
 class CXXTOOLS_API TextOStream : public BasicTextOStream<Char, char>
 {
     public:
         typedef TextCodec<cxxtools::Char, char> Codec;
 
     public:
-        /** @brief Constructs a new TextOStream object using the given output-stream as external device and
-            * the codec for character conversion.
-            *
-            * See BasicTextOStream::BasicTextOStream() for a more detailed description.
-            *
-            * @param os The output-stream (external device) which is wrapped by this object.
-            * @param codec The codec which is used to convert data to the external device.
-            */
+        /** @brief Constructor
+
+            The stream will write bytes to \a is and use the codec \a codec
+            for character conversion. The codec will be destroyed by the
+            buffer of this stream if the codec was constructed with a
+            refcount of 0.
+        */
         TextOStream(std::ostream& os, Codec* codec);
 
         TextOStream(Codec* codec);
 
-        //! @brief Destructs this object freeing the internal buffer.
         ~TextOStream();
 };
 
-/** @brief Specialized class derived from BasicTextStream using cxxtools::Char and $char$
-    * as internal and external type.
-    *
-    * The internal type is cxxtools::Char. The external type is $char$.
-    *
-    * See BasicTextStream for a more detailed description.
-    */
+
+/** @brief Text Stream for Character conversion
+*/
 class CXXTOOLS_API TextStream : public BasicTextStream<Char, char>
 {
     public:
         typedef TextCodec<cxxtools::Char, char> Codec;
 
     public:
-        /** @brief Constructs a new TextStream object using the given I/O-stream as external device and
-            * the codec for character conversion.
-            *
-            * See BasicTextStream::BasicTextStream() for a more detailed description.
-            *
-            * @param ios The I/O-stream (external device) which is wrapped by this object.
-            * @param codec The codec which is used to convert data from or to the external device.
-            */
+        /** @brief Constructor
+
+            The stream will write or write bytes to \a is and use the codec
+            \a codec for character conversion. The codec will be destroyed
+            by the buffer of this stream if the codec was constructed with a
+            refcount of 0.
+        */
         TextStream(std::iostream& ios, Codec* codec);
 
         TextStream(Codec* codec);
 
-        //! @brief Destructs this object freeing the internal buffer.
         ~TextStream();
 };
 
