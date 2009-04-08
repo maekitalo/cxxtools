@@ -289,30 +289,6 @@ class BasicTextStream : public std::basic_iostream<CharT>
 };
 
 
-/** @brief Converts 8-bit character sequences to unicode.
-	*
-	* The internal type is Pt::Char. The external type is $char$.
-	*
-	* See BasicTextBuffer for a more detailed description.
-	*/
-class CXXTOOLS_API TextBuffer : public BasicTextBuffer<cxxtools::Char, char>
-{
-	public:
-		typedef TextCodec<cxxtools::Char, char> Codec;
-
-	public:
-		/** @brief Constructs a new TextBuffer object using the given stream buffer as external device and
-			* the codec for character conversion.
-			*
-			* See BasicTextBuffer::BasicTextBuffer() for a more detailed description.
-			*
-			* @param buffer The buffer (external device) which is wrapped by this object.
-			* @param codec The codec which is used to convert data from and to the external device.
-			*/
-		TextBuffer(std::ios* buffer, Codec* codec);
-};
-
-
 /** @brief Specialized class derived from BasicTextIStream using cxxtools::Char and $char$
     * as internal and external type.
     *

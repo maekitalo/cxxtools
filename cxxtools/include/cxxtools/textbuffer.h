@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2004 Marc Boris Duerner
+ * Copyright (C) 2004-2009 Marc Boris Duerner
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -388,6 +388,27 @@ class BasicTextBuffer : public std::basic_streambuf<CharT>
                 ++s2;
             }
         }
+};
+
+
+/** @brief Buffers the conversion of 8-bit character sequences to unicode.
+
+    The internal type is cxxtools::Char. The external type is $char$.
+    See BasicTextBuffer for a more detailed description.
+*/
+class CXXTOOLS_API TextBuffer : public BasicTextBuffer<cxxtools::Char, char>
+{
+    public:
+        typedef TextCodec<cxxtools::Char, char> Codec;
+
+    public:
+        /** @brief Constructs a new TextBuffer
+             See BasicTextBuffer::BasicTextBuffer() for a more detailed description.
+
+             @param buffer The buffer (external device) which is wrapped by this object.
+             @param codec The codec which is used to convert data from and to the external device.
+        */
+        TextBuffer(std::ios* buffer, Codec* codec);
 };
 
 } // namespace cxxtools

@@ -67,6 +67,7 @@ libcxxtools_la_SOURCES = \
 	stringstream.cpp \
 	systemerror.cpp \
 	tee.cpp \
+	textbuffer.cpp \
 	textcodec.cpp \
 	textstream.cpp \
 	thread.cpp \
