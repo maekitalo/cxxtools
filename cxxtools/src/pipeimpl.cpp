@@ -58,6 +58,7 @@ void PipeIODevice::open(int fd, bool isAsync)
     _impl.open(fd, isAsync);
     this->setEnabled(true);
     this->setAsync(isAsync);
+    this->setEof(false);
 }
 
 
