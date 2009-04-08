@@ -115,12 +115,16 @@ void Client::call(IDeserializer& r, IRemoteProcedure& method, ISerializer** argv
     }
 
     _ts.detach();
-    _state = OnBegin;
 
     // let xml::ParseError SerializationError, ConversionError propagate
 
     if( _state == OnFaultResponseEnd )
+    {
+        _state = OnBegin;
         throw _fault;
+    }
+
+    _state = OnBegin;
 
     // _method contains a valid return value now
 }
