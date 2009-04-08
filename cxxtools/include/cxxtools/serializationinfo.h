@@ -115,7 +115,7 @@ class CXXTOOLS_API SerializationInfo
         */
         void setReference(void* ref);
 
-        /** @brief Deserialization of weak pointers
+        /** @brief Serialization of weak pointers
         */
         SerializationInfo& addReference(const std::string& name, void* ref);
 
@@ -134,6 +134,10 @@ class CXXTOOLS_API SerializationInfo
         {
             this->getMember(name).getReference( reinterpret_cast<void*&>(type), typeid(T) );
         }
+
+        void* fixupAddr() const;
+
+        const std::type_info& fixupInfo() const;
 
         /** @brief Serialization of flat data-types
         */
@@ -237,10 +241,6 @@ class CXXTOOLS_API SerializationInfo
         ConstIterator end() const;
 
         SerializationInfo& operator =(const SerializationInfo& si);
-
-        void* fixupAddr() const;
-
-        const std::type_info& fixupInfo() const;
 
     protected:
         void getReference(void*& type, const std::type_info& ti) const;
