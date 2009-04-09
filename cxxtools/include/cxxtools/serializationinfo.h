@@ -402,24 +402,6 @@ inline bool SerializationInfo::ConstIterator::operator!=(const ConstIterator& ot
     return _info != other._info;
 }
 
-} // namespace cxxtools
-
-
-template <typename T>
-void operator >>=(const cxxtools::SerializationInfo& si, T& x)
-{
-    x.deserialize(si);
-}
-
-
-template <typename T>
-void operator <<=(cxxtools::SerializationInfo& si, const T& x)
-{
-    x.serialize(si);
-}
-
-
-namespace cxxtools {
 
 inline void operator >>=(const SerializationInfo& si, bool& n)
 {
