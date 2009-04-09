@@ -35,6 +35,7 @@
 #include <cxxtools/http/parser.h>
 #include <cxxtools/http/request.h>
 #include <cxxtools/http/reply.h>
+#include <cxxtools/selectable.h>
 #include <cxxtools/iostream.h>
 #include <cxxtools/timer.h>
 #include <cxxtools/connectable.h>
@@ -94,7 +95,8 @@ class CXXTOOLS_HTTP_API Client : public cxxtools::Connectable
 
         Client(const std::string& server, unsigned short int port, SelectorBase& selector);
 
-        const ReplyHeader& execute(const Request& request);
+        const ReplyHeader& execute(const Request& request,
+            std::size_t timeout = Selectable::WaitInfinite);
 
         const ReplyHeader& header()
         { return _replyHeader; }
@@ -108,7 +110,8 @@ class CXXTOOLS_HTTP_API Client : public cxxtools::Connectable
             return ret;
         }
 
-        std::string get(const std::string& url);
+        std::string get(const std::string& url,
+            std::size_t timeout = Selectable::WaitInfinite);
 
         void beginExecute(const Request& request);
 

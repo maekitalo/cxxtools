@@ -158,7 +158,7 @@ size_t IODeviceImpl::read( char* buffer, size_t count, bool& eof )
             break;
         }
 
-        log_debug("read returned " << ret << " errno=" << errno);
+        log_debug("::read (" << _fd << ", " << count << ") returned " << ret << " errno=" << errno);
 
         if(ret == 0 || errno == ECONNRESET)
         {
@@ -180,6 +180,7 @@ size_t IODeviceImpl::read( char* buffer, size_t count, bool& eof )
         bool ret = this->wait(_timeout, pfd);
         if(false == ret)
         {
+            log_debug("timeout");
             throw IOTimeout();
         }
     }
@@ -336,12 +337,15 @@ bool IODeviceImpl::checkPollEvent()
 
 bool IODeviceImpl::checkPollEvent(pollfd& pfd)
 {
+    log_trace("checkPollEvent");
+
     bool avail = false;
 
     DestructionSentry sentry(_sentry);
 
     if (pfd.revents & POLLERR_MASK)
     {
+        log_debug("send signal errorOccured");
         _device.errorOccured(_device);
         avail = true;
     }
@@ -351,6 +355,7 @@ bool IODeviceImpl::checkPollEvent(pollfd& pfd)
 
     if( pfd.revents & POLLOUT_MASK )
     {
+        log_debug("send signal outputReady");
         _device.outputReady(_device);
         avail = true;
     }
@@ -360,6 +365,7 @@ bool IODeviceImpl::checkPollEvent(pollfd& pfd)
 
     if( pfd.revents & POLLIN_MASK )
     {
+        log_debug("send signal inputReady");
         _device.inputReady(_device);
         avail = true;
     }

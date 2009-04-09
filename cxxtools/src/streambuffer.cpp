@@ -30,6 +30,9 @@
 #include <algorithm>
 #include <stdexcept>
 #include <cstring>
+#include <cxxtools/log.h>
+
+log_define("cxxtools.streambuffer")
 
 namespace cxxtools {
 
@@ -157,6 +160,8 @@ void StreamBuffer::endRead()
 
 StreamBuffer::int_type StreamBuffer::underflow()
 {
+    log_trace("underflow");
+
     if( ! _ioDevice )
         return traits_type::eof();
 
@@ -205,6 +210,8 @@ std::streamsize StreamBuffer::showfull()
 
 void StreamBuffer::beginWrite()
 {
+    log_trace("beginWrite; out_avail=" << out_avail());
+
     if(_flushing || _ioDevice == 0 )
         return;
 
@@ -235,6 +242,8 @@ void StreamBuffer::discard()
 
 void StreamBuffer::onWrite(IODevice& dev)
 {
+    log_trace("onWrite");
+
     this->endWrite();
     outputReady.send(*this);
 }
@@ -242,6 +251,8 @@ void StreamBuffer::onWrite(IODevice& dev)
 
 void StreamBuffer::endWrite()
 {
+    log_trace("endWrite; out_avail=" << out_avail());
+
     _flushing = false;
     size_t leftover = 0;
 
@@ -263,6 +274,8 @@ void StreamBuffer::endWrite()
 
 StreamBuffer::int_type StreamBuffer::overflow(int_type ch)
 {
+    log_trace("overflow(" << ch << ')');
+
     if( ! _ioDevice )
         return traits_type::eof();
 
@@ -319,6 +332,8 @@ StreamBuffer::int_type StreamBuffer::pbackfail(StreamBuffer::int_type)
 
 int StreamBuffer::sync()
 {
+    log_trace("sync");
+
     if( ! _ioDevice )
         return 0;
 

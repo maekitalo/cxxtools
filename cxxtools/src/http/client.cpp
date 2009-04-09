@@ -102,11 +102,11 @@ void Client::doparse()
 
 }
 
-const ReplyHeader& Client::execute(const Request& request)
+const ReplyHeader& Client::execute(const Request& request, std::size_t timeout)
 {
-    // TODO timeout
-
     _replyHeader.clear();
+
+    _socket.setTimeout(timeout);
 
     bool shouldReconnect = _socket.isConnected();
     if (!shouldReconnect)
@@ -131,6 +131,7 @@ const ReplyHeader& Client::execute(const Request& request)
     log_debug("read reply");
 
     _parser.reset(true);
+    _readHeader = true;
     doparse();
 
     if (_parser.begin() && shouldReconnect)
@@ -172,17 +173,24 @@ void Client::readBody(std::string& s)
     if (_stream.fail())
         throw IOError( CXXTOOLS_ERROR_MSG("error reading HTTP reply body") );
 
-    log_debug("body read: \"" << s << '"');
+    //log_debug("body read: \"" << s << '"');
 
     if (!_replyHeader.keepAlive())
+    {
+        log_debug("close socket - no keep alive");
         _socket.close();
+    }
+    else
+    {
+        log_debug("do not close socket - keep alive");
+    }
 }
 
 
-std::string Client::get(const std::string& url)
+std::string Client::get(const std::string& url, std::size_t timeout)
 {
     Request request(url);
-    execute(request);
+    execute(request, timeout);
     return readBody();
 }
 
@@ -201,7 +209,7 @@ void Client::beginExecute(const Request& request)
 
         catch (const cxxtools::IOError&)
         {
-            // first write failed, so connection is not active any more
+            log_debug("first write failed, so connection is not active any more");
 
             _stream.clear();
             _stream.buffer().discard();
@@ -275,7 +283,6 @@ void Client::sendRequest(const Request& request)
     log_debug("send body");
 
     request.sendBody(_stream);
-
 }
 
 void Client::onConnect(net::TcpSocket& socket)
@@ -287,6 +294,8 @@ void Client::onConnect(net::TcpSocket& socket)
 
 void Client::onOutput(StreamBuffer& sb)
 {
+    log_trace("Client::onOutput; out_avail=" << sb.out_avail());
+
     if( sb.out_avail() > 0 )
     {
         sb.beginWrite();
@@ -295,6 +304,8 @@ void Client::onOutput(StreamBuffer& sb)
     {
         sb.beginRead();
         requestSent(*this);
+        _parser.reset(true);
+        _readHeader = true;
     }
 }
 
@@ -303,6 +314,8 @@ void Client::onInput(StreamBuffer& sb)
 {
     try
     {
+        log_trace("Client::onInput; readHeader=" << _readHeader);
+
         if (_readHeader)
         {
             _parser.advance(sb);
@@ -336,6 +349,8 @@ void Client::onInput(StreamBuffer& sb)
     }
     catch (const std::exception& e)
     {
+        log_warn("error of type " << typeid(e).name() << " occured: " << e.what());
+
         _socket.close();
 
         // TODO propagate exception if signal errorOccured is not connected
