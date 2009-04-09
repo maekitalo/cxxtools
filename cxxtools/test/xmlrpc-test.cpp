@@ -77,6 +77,7 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             this->registerMethod("Integer", *this, &XmlRpcTest::Integer);
             this->registerMethod("Double", *this, &XmlRpcTest::Double);
             this->registerMethod("String", *this, &XmlRpcTest::String);
+            this->registerMethod("EmptyValues", *this, &XmlRpcTest::EmptyValues);
             this->registerMethod("Array", *this, &XmlRpcTest::Array);
             this->registerMethod("Struct", *this, &XmlRpcTest::Struct);
         }
@@ -263,6 +264,32 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _loop->exit();
         }
 
+        void EmptyValues()
+        {
+            cxxtools::xmlrpc::Service service;
+            service.registerMethod("multiply", *this, &XmlRpcTest::multiplyEmpty);
+            _server->addService("/calc", service);
+
+            cxxtools::AttachedThread serverThread( cxxtools::callable(*_server, &cxxtools::http::Server::run) );
+            serverThread.start();
+            cxxtools::Thread::sleep(500);
+
+            cxxtools::xmlrpc::Client client(*_loop, "127.0.0.1", 8001, "/calc");
+            cxxtools::xmlrpc::RemoteProcedure<std::string, std::string, std::string> multiply(client, "multiply");
+            connect( multiply.finished, *this, &XmlRpcTest::onEmptyFinished );
+
+            multiply.begin("", "");
+
+            _loop->run();
+            _server->terminate();
+        }
+
+        void onEmptyFinished(const std::string& r)
+        {
+            CXXTOOLS_UNIT_ASSERT_EQUALS(r, "4")
+            _loop->exit();
+        }
+
         void Array()
         {
             cxxtools::xmlrpc::Service service;
@@ -368,6 +395,13 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(a, "2")
             CXXTOOLS_UNIT_ASSERT_EQUALS(b, "3")
             return "6";
+        }
+
+        std::string multiplyEmpty(std::string a, std::string b)
+        {
+            CXXTOOLS_UNIT_ASSERT_EQUALS(a, "")
+            CXXTOOLS_UNIT_ASSERT_EQUALS(b, "")
+            return "4";
         }
 
         std::vector<int> multiplyVector(const std::vector<int>& a, const std::vector<int>& b)
