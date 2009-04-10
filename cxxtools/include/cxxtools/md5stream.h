@@ -38,8 +38,7 @@ namespace cxxtools
 class Md5streambuf : public std::streambuf
 {
   public:
-    Md5streambuf()
-    { }
+    Md5streambuf();
 
     void getDigest(unsigned char digest[16]);
 

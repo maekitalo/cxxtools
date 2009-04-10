@@ -35,6 +35,11 @@ namespace cxxtools
 ////////////////////////////////////////////////////////////////////////
 // Md5streambuf
 //
+Md5streambuf::Md5streambuf()
+{
+  std::memset(digest, 0, 16);
+}
+
 std::streambuf::int_type Md5streambuf::overflow(
   std::streambuf::int_type ch)
 {
@@ -87,8 +92,6 @@ int Md5streambuf::sync()
 
 void Md5streambuf::getDigest(unsigned char digest_[16])
 {
-  using namespace std;
-
   if (pptr())
   {
     if (pptr() != pbase())
@@ -101,10 +104,9 @@ void Md5streambuf::getDigest(unsigned char digest_[16])
     setp(0, 0);
 
     MD5Final(digest, &context);
-    memcpy(digest_, digest, 16);
   }
-  else
-    memset(digest_, 0, 16);
+
+  std::memcpy(digest_, digest, 16);
 }
 
 ////////////////////////////////////////////////////////////////////////
