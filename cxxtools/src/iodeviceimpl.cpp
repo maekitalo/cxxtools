@@ -217,7 +217,7 @@ size_t IODeviceImpl::write( const char* buffer, size_t count )
 
     while(true)
     {
-        log_debug("::write(" << _fd << ", \"" << std::string(buffer, count) << "\")");
+        log_debug("::write(" << _fd << ", buffer, " << count << ')');
 
         ret = ::write(_fd, (const void*)buffer, count);
         log_debug("write returned " << ret);
@@ -238,8 +238,7 @@ size_t IODeviceImpl::write( const char* buffer, size_t count )
         pfd.revents = 0;
         pfd.events = POLLOUT;
 
-        bool ret = this->wait(_timeout, pfd);
-        if(false == ret)
+        if (!this->wait(_timeout, pfd))
         {
             throw IOTimeout();
         }
