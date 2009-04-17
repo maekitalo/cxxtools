@@ -53,7 +53,7 @@ Service::~Service()
 }
 
 
-ServiceProcedure* Service::procedure(const std::string& name)
+ServiceProcedure* Service::getProcedure(const std::string& name)
 {
     ProcedureMap::iterator it = _procedures.find( name );
     if( it == _procedures.end() )
@@ -61,7 +61,13 @@ ServiceProcedure* Service::procedure(const std::string& name)
         return 0;
     }
 
-    return it->second;
+    return it->second->clone();
+}
+
+
+void Service::releaseProcedure(ServiceProcedure* proc)
+{
+    delete proc;
 }
 
 
@@ -75,7 +81,7 @@ void Service::registerProcedure(const std::string& name, ServiceProcedure* proc)
 http::Responder* Service::createResponder(const http::Request& req)
 {
     if (req.getHeader("Content-Type") == "text/xml")
-        return new HttpXmlRpcResponder(*this);
+        return new XmlRpcResponder(*this);
 
     return 0;
 }

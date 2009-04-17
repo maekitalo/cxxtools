@@ -40,7 +40,7 @@ namespace cxxtools {
 
 namespace xmlrpc {
 
-HttpXmlRpcResponder::HttpXmlRpcResponder(Service& service)
+XmlRpcResponder::XmlRpcResponder(Service& service)
 : http::Responder(service)
 , _state(OnBegin)
 , _ts(new Utf8Codec)
@@ -54,12 +54,14 @@ HttpXmlRpcResponder::HttpXmlRpcResponder(Service& service)
 }
 
 
-HttpXmlRpcResponder::~HttpXmlRpcResponder()
+XmlRpcResponder::~XmlRpcResponder()
 {
+    if(_proc)
+        _service->releaseProcedure(_proc);
 }
 
 
-void HttpXmlRpcResponder::beginRequest(std::istream& is, http::Request& request)
+void XmlRpcResponder::beginRequest(std::istream& is, http::Request& request)
 {
     _fault.clear();
     _state = OnBegin;
@@ -68,7 +70,7 @@ void HttpXmlRpcResponder::beginRequest(std::istream& is, http::Request& request)
 }
 
 
-std::size_t HttpXmlRpcResponder::readBody(std::istream& is)
+std::size_t XmlRpcResponder::readBody(std::istream& is)
 {
     std::size_t n = 0;
 
@@ -112,7 +114,7 @@ std::size_t HttpXmlRpcResponder::readBody(std::istream& is)
 }
 
 
-void HttpXmlRpcResponder::replyError(std::ostream& os, http::Request& request,
+void XmlRpcResponder::replyError(std::ostream& os, http::Request& request,
                                      http::Reply& reply, const std::exception& ex)
 {
     reply.setHeader("Content-Type", "text/xml");
@@ -137,7 +139,7 @@ void HttpXmlRpcResponder::replyError(std::ostream& os, http::Request& request,
 }
 
 
-void HttpXmlRpcResponder::reply(std::ostream& os, http::Request& request, http::Reply& reply)
+void XmlRpcResponder::reply(std::ostream& os, http::Request& request, http::Reply& reply)
 {
     if( ! _proc )
         throw std::runtime_error("invalid XML-RPC, no method found");
@@ -195,7 +197,7 @@ void HttpXmlRpcResponder::reply(std::ostream& os, http::Request& request, http::
 }
 
 
-void HttpXmlRpcResponder::advance(const cxxtools::xml::Node& node)
+void XmlRpcResponder::advance(const cxxtools::xml::Node& node)
 {
     switch(_state)
     {
@@ -228,7 +230,7 @@ void HttpXmlRpcResponder::advance(const cxxtools::xml::Node& node)
             {
                 const xml::Characters& chars = static_cast<const xml::Characters&>(node);
 
-                _proc = _service->procedure( chars.content().narrow() );
+                _proc = _service->getProcedure( chars.content().narrow() );
                 if( ! _proc )
                     throw std::runtime_error("no such procedure");
 

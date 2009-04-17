@@ -46,7 +46,7 @@ namespace xmlrpc {
 class Service;
 class ServiceProcedure;
 
-class CXXTOOLS_XMLRPC_API HttpXmlRpcResponder : public http::Responder
+class CXXTOOLS_XMLRPC_API XmlRpcResponder : public http::Responder
 {
     enum State
     {
@@ -62,9 +62,9 @@ class CXXTOOLS_XMLRPC_API HttpXmlRpcResponder : public http::Responder
     };
 
     public:
-        HttpXmlRpcResponder(Service& service);
+        XmlRpcResponder(Service& service);
 
-        ~HttpXmlRpcResponder();
+        ~XmlRpcResponder();
 
         void beginRequest(std::istream& in, http::Request& request);
 

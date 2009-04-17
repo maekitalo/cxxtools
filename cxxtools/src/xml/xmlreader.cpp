@@ -36,8 +36,11 @@
 #include "cxxtools/textstream.h"
 #include "cxxtools/utf8codec.h"
 #include "cxxtools/sourceinfo.h"
+#include "cxxtools/log.h"
 #include <stdexcept>
 #include <iostream>
+
+log_define("cxxtools.xml.reader")
 
 namespace cxxtools {
 
@@ -96,78 +99,91 @@ struct XmlReaderImpl
                         return this->onAlpha(c, reader);
             }
 
+            log_warn("unexpected char '" << c << "' in line " << reader.line());
             this->syntaxError(reader.line());
             return 0;
         }
 
         virtual State* onSpace(cxxtools::Char c, XmlReaderImpl& reader)
         {
+            log_warn("unexpected space in line " << reader.line());
             this->syntaxError( reader.line() );
             return this;
         }
 
         virtual State* onOpenBracket(cxxtools::Char c, XmlReaderImpl& reader)
         {
+            log_warn("unexpected open bracket in line " << reader.line());
             this->syntaxError(reader.line());
             return this;
         }
 
         virtual State* onCloseBracket(cxxtools::Char c, XmlReaderImpl& reader)
         {
+            log_warn("unexpected close bracket in line " << reader.line());
             this->syntaxError(reader.line());
             return this;
         }
 
         virtual State* onColon(cxxtools::Char c, XmlReaderImpl& reader)
         {
+            log_warn("unexpected colon in line " << reader.line());
             this->syntaxError(reader.line());
             return this;
         }
 
         virtual State* onSlash(cxxtools::Char c, XmlReaderImpl& reader)
         {
+            log_warn("unexpected slash in line " << reader.line());
             this->syntaxError(reader.line());
             return this;
         }
 
         virtual State* onEqual(cxxtools::Char c, XmlReaderImpl& reader)
         {
+            log_warn("unexpected equal in line " << reader.line());
             this->syntaxError(reader.line());
             return this;
         }
 
         virtual State* onQuote(cxxtools::Char c, XmlReaderImpl& reader)
         {
+            log_warn("unexpected quote in line " << reader.line());
             this->syntaxError(reader.line());
             return this;
         }
 
         virtual State* onExclam(cxxtools::Char c, XmlReaderImpl& reader)
         {
+            log_warn("unexpected exclamation mark in line " << reader.line());
             this->syntaxError(reader.line());
             return this;
         }
 
         virtual State* onQuest(cxxtools::Char c, XmlReaderImpl& reader)
         {
+            log_warn("unexpected questionmark in line " << reader.line());
             this->syntaxError(reader.line());
             return this;
         }
 
         virtual State* onAlpha(cxxtools::Char c, XmlReaderImpl& reader)
         {
+            log_warn("unexpected alpha '" << c << "' in line " << reader.line());
             this->syntaxError(reader.line());
             return this;
         }
 
         virtual State* onEof(cxxtools::Char c, XmlReaderImpl& reader)
         {
+            log_warn("unexpected eof in line " << reader.line());
             this->syntaxError(reader.line());
             return this;
         }
 
         void syntaxError(unsigned line)
         {
+            log_warn("syntax error in line " << line);
             throw XmlError("syntax error", line);
         }
     };
@@ -802,29 +818,12 @@ struct XmlReaderImpl
     };
 
 
-    struct AfterTag : public State
+    struct AfterTag : public OnCharacters
     {
         virtual State* onSpace(cxxtools::Char c, XmlReaderImpl& reader)
         {
             if(reader.depth() == 0)
                 return OnProlog::instance();
-
-            reader._chars.content() += c;
-            return OnCharacters::instance();
-        }
-
-        virtual State* onOpenBracket(cxxtools::Char c, XmlReaderImpl& reader)
-        {
-            return OnTag::instance();
-        }
-
-        virtual State* onAlpha(cxxtools::Char c, XmlReaderImpl& reader)
-        {
-            if(c == '&')
-            {
-                reader._token.clear();
-                return OnEntityReference::instance();
-            }
 
             reader._chars.content() += c;
             return OnCharacters::instance();

@@ -53,6 +53,8 @@ class ServiceProcedure
         virtual ~ServiceProcedure()
         {}
 
+        virtual ServiceProcedure* clone() const = 0;
+
         virtual IDeserializer** beginCall() = 0;
 
         virtual ISerializer* endCall() = 0;
@@ -80,6 +82,11 @@ class BasicServiceProcedure : public ServiceProcedure
         ~BasicServiceProcedure()
         {
             delete _cb;
+        }
+
+        ServiceProcedure* clone() const
+        {
+            return new BasicServiceProcedure(*_cb);
         }
 
         IDeserializer** beginCall()
@@ -133,6 +140,11 @@ class BasicServiceProcedure<R, C, A1, cxxtools::Void> : public ServiceProcedure
             delete _cb;
         }
 
+        ServiceProcedure* clone() const
+        {
+            return new BasicServiceProcedure(*_cb);
+        }
+
         IDeserializer** beginCall()
         {
             _a1.begin(_v1);
@@ -178,6 +190,11 @@ class BasicServiceProcedure<R, C, cxxtools::Void, cxxtools::Void> : public Servi
             delete _cb;
         }
 
+        ServiceProcedure* clone() const
+        {
+            return new BasicServiceProcedure(*_cb);
+        }
+
         IDeserializer** beginCall()
         {
             return _args;
@@ -208,7 +225,9 @@ class CXXTOOLS_XMLRPC_API Service : public http::Service
         virtual ~Service();
 
         // TODO cache service procedures and clone on demand
-        ServiceProcedure* procedure(const std::string& name);
+        ServiceProcedure* getProcedure(const std::string& name);
+
+        void releaseProcedure(ServiceProcedure* proc);
 
         template <typename R, class C>
         void registerMethod(const std::string& name, C& obj, R (C::*method)() )
