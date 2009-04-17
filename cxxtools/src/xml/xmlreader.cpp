@@ -84,7 +84,7 @@ struct XmlReaderImpl
 
                     case '"':
                     case '\'':
-                        return this->onQoute(c, reader);
+                        return this->onQuote(c, reader);
 
                     case '!':
                         return this->onExclam(c, reader);
@@ -136,7 +136,7 @@ struct XmlReaderImpl
             return this;
         }
 
-        virtual State* onQoute(cxxtools::Char c, XmlReaderImpl& reader)
+        virtual State* onQuote(cxxtools::Char c, XmlReaderImpl& reader)
         {
             this->syntaxError(reader.line());
             return this;
@@ -222,7 +222,7 @@ struct XmlReaderImpl
             return this;
         }
 
-        virtual State* onQoute(cxxtools::Char c, XmlReaderImpl& reader)
+        virtual State* onQuote(cxxtools::Char c, XmlReaderImpl& reader)
         {
             reader._chars.content() += c;
             return this;
@@ -323,6 +323,36 @@ struct XmlReaderImpl
         virtual State* onOpenBracket(cxxtools::Char c, XmlReaderImpl& reader)
         {
             return OnTag::instance();
+        }
+
+        virtual State* onSlash(cxxtools::Char c, XmlReaderImpl& reader)
+        {
+            reader._chars.content() += c;
+            return this;
+        }
+
+        virtual State* onEqual(cxxtools::Char c, XmlReaderImpl& reader)
+        {
+            reader._chars.content() += c;
+            return this;
+        }
+
+        virtual State* onQuote(cxxtools::Char c, XmlReaderImpl& reader)
+        {
+            reader._chars.content() += c;
+            return this;
+        }
+
+        virtual State* onExclam(cxxtools::Char c, XmlReaderImpl& reader)
+        {
+            reader._chars.content() += c;
+            return this;
+        }
+
+        virtual State* onQuest(cxxtools::Char c, XmlReaderImpl& reader)
+        {
+            reader._chars.content() += c;
+            return this;
         }
 
         virtual State* onAlpha(cxxtools::Char c, XmlReaderImpl& reader)
@@ -450,7 +480,7 @@ struct XmlReaderImpl
 
     struct OnAttributeValue : public State
     {
-        virtual State* onQoute(cxxtools::Char c, XmlReaderImpl& reader)
+        virtual State* onQuote(cxxtools::Char c, XmlReaderImpl& reader)
         {
             reader._startElem.addAttribute(reader._attr);
             return BeforeAttribute::instance();
@@ -477,7 +507,7 @@ struct XmlReaderImpl
             return this;
         }
 
-        virtual State* onQoute(cxxtools::Char c, XmlReaderImpl& reader)
+        virtual State* onQuote(cxxtools::Char c, XmlReaderImpl& reader)
         {
             return OnAttributeValue::instance();
         }
@@ -644,7 +674,7 @@ struct XmlReaderImpl
             return OnComment::instance();
         }
 
-        virtual State* onQoute(cxxtools::Char c, XmlReaderImpl& reader)
+        virtual State* onQuote(cxxtools::Char c, XmlReaderImpl& reader)
         {
             return OnComment::instance();
         }
@@ -707,7 +737,7 @@ struct XmlReaderImpl
             return this;
         }
 
-        virtual State* onQoute(cxxtools::Char c, XmlReaderImpl& reader)
+        virtual State* onQuote(cxxtools::Char c, XmlReaderImpl& reader)
         {
             return this;
         }
@@ -855,7 +885,7 @@ struct XmlReaderImpl
             return this;
         }
 
-        virtual State* onQoute(cxxtools::Char c, XmlReaderImpl& reader)
+        virtual State* onQuote(cxxtools::Char c, XmlReaderImpl& reader)
         {
             reader._docType.content() += c;
             return this;
@@ -1085,7 +1115,7 @@ struct XmlReaderImpl
             return this;
         }
 
-        virtual State* onQoute(cxxtools::Char c, XmlReaderImpl& reader)
+        virtual State* onQuote(cxxtools::Char c, XmlReaderImpl& reader)
         {
             reader._procInstr.data() += c;
             return this;
@@ -1134,7 +1164,7 @@ struct XmlReaderImpl
 
     struct OnXmlDeclValue : public State
     {
-        virtual State* onQoute(cxxtools::Char c, XmlReaderImpl& reader)
+        virtual State* onQuote(cxxtools::Char c, XmlReaderImpl& reader)
         {
             if(reader._attr.name() == L"version")
             {
@@ -1174,7 +1204,7 @@ struct XmlReaderImpl
             return this;
         }
 
-        virtual State* onQoute(cxxtools::Char c, XmlReaderImpl& reader)
+        virtual State* onQuote(cxxtools::Char c, XmlReaderImpl& reader)
         {
             return OnXmlDeclValue::instance();
         }

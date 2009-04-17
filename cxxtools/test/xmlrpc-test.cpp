@@ -77,6 +77,7 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             this->registerMethod("Integer", *this, &XmlRpcTest::Integer);
             this->registerMethod("Double", *this, &XmlRpcTest::Double);
             this->registerMethod("String", *this, &XmlRpcTest::String);
+            this->registerMethod("EchoString", *this, &XmlRpcTest::EchoString);
             this->registerMethod("EmptyValues", *this, &XmlRpcTest::EmptyValues);
             this->registerMethod("Array", *this, &XmlRpcTest::Array);
             this->registerMethod("Struct", *this, &XmlRpcTest::Struct);
@@ -264,6 +265,33 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _loop->exit();
         }
 
+        void EchoString()
+        {
+            cxxtools::xmlrpc::Service service;
+            service.registerMethod("echoString", *this, &XmlRpcTest::echoString);
+            _server->addService("/foo", service);
+
+            cxxtools::AttachedThread serverThread( cxxtools::callable(*_server, &cxxtools::http::Server::run) );
+            serverThread.start();
+            cxxtools::Thread::sleep(500);
+
+            cxxtools::xmlrpc::Client client(*_loop, "127.0.0.1", 8001, "/foo");
+            cxxtools::xmlrpc::RemoteProcedure<std::string, std::string> echo(client, "echoString");
+            connect( echo.finished, *this, &XmlRpcTest::onStringEchoFinished );
+
+            echo.begin("foo?");
+
+            _loop->run();
+            _server->terminate();
+        }
+
+        void onStringEchoFinished(const std::string& r)
+        {
+            CXXTOOLS_UNIT_ASSERT_EQUALS(r, "foo?")
+
+            _loop->exit();
+        }
+
         void EmptyValues()
         {
             cxxtools::xmlrpc::Service service;
@@ -395,6 +423,11 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(a, "2")
             CXXTOOLS_UNIT_ASSERT_EQUALS(b, "3")
             return "6";
+        }
+
+        std::string echoString(std::string a)
+        {
+            return a;
         }
 
         std::string multiplyEmpty(std::string a, std::string b)
