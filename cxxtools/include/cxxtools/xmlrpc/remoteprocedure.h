@@ -330,7 +330,11 @@ class RemoteProcedure<R, A1, A2,
 
 template <typename R,
           typename A1>
-class RemoteProcedure<R, A1, cxxtools::Void> : public IRemoteProcedure
+class RemoteProcedure<R, A1,
+                      cxxtools::Void,
+                      cxxtools::Void,
+                      cxxtools::Void,
+                      cxxtools::Void> : public IRemoteProcedure
 {
     public:
         RemoteProcedure(Client& client, const std::string& name)
@@ -381,7 +385,12 @@ class RemoteProcedure<R, A1, cxxtools::Void> : public IRemoteProcedure
 
 
 template <typename R>
-class RemoteProcedure<R, cxxtools::Void, cxxtools::Void> : public IRemoteProcedure
+class RemoteProcedure<R,
+                      cxxtools::Void,
+                      cxxtools::Void,
+                      cxxtools::Void,
+                      cxxtools::Void,
+                      cxxtools::Void> : public IRemoteProcedure
 {
     public:
         RemoteProcedure(Client& client, const std::string& name)

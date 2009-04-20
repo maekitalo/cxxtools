@@ -487,6 +487,27 @@ class CXXTOOLS_XMLRPC_API Service : public http::Service
             this->registerProcedure(name, proc);
         }
 
+        template <typename R, class C, typename A1, typename A2, typename A3>
+        void registerMethod(const std::string& name, C& obj, R (C::*method)(A1, A2, A3) )
+        {
+            ServiceProcedure* proc = new BasicServiceProcedure<R, C, A1, A2, A3>( callable(obj, method) );
+            this->registerProcedure(name, proc);
+        }
+
+        template <typename R, class C, typename A1, typename A2, typename A3, typename A4>
+        void registerMethod(const std::string& name, C& obj, R (C::*method)(A1, A2, A3, A4) )
+        {
+            ServiceProcedure* proc = new BasicServiceProcedure<R, C, A1, A2, A3, A4>( callable(obj, method) );
+            this->registerProcedure(name, proc);
+        }
+
+        template <typename R, class C, typename A1, typename A2, typename A3, typename A4, typename A5>
+        void registerMethod(const std::string& name, C& obj, R (C::*method)(A1, A2, A3, A4, A5) )
+        {
+            ServiceProcedure* proc = new BasicServiceProcedure<R, C, A1, A2, A3, A4, A5>( callable(obj, method) );
+            this->registerProcedure(name, proc);
+        }
+
         virtual http::Responder* createResponder(const http::Request&);
 
         virtual void releaseResponder(http::Responder* resp);
