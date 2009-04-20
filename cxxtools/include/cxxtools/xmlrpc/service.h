@@ -64,8 +64,237 @@ class ServiceProcedure
 template < typename R,
            class C,
            typename A1 = cxxtools::Void,
-           typename A2 = cxxtools::Void>
+           typename A2 = cxxtools::Void,
+           typename A3 = cxxtools::Void,
+           typename A4 = cxxtools::Void,
+           typename A5 = cxxtools::Void>
 class BasicServiceProcedure : public ServiceProcedure
+{
+    public:
+        typedef Callable<R, A1, A2, A3, A4, A5> CallableT;
+
+        BasicServiceProcedure( const CallableT& cb )
+        : ServiceProcedure()
+        , _cb(0)
+        {
+            _cb = cb.clone();
+
+            _args[0] = &_a1;
+            _args[1] = &_a2;
+            _args[2] = &_a3;
+            _args[3] = &_a4;
+            _args[4] = &_a5;
+            _args[5] = 0;
+        }
+
+        ~BasicServiceProcedure()
+        {
+            delete _cb;
+        }
+
+        ServiceProcedure* clone() const
+        {
+            return new BasicServiceProcedure(*_cb);
+        }
+
+        IDeserializer** beginCall()
+        {
+            _a1.begin(_v1);
+            _a2.begin(_v2);
+            _a3.begin(_v3);
+            _a4.begin(_v4);
+            _a5.begin(_v5);
+            return _args;
+        }
+
+        ISerializer* endCall()
+        {
+            _rv = _cb->call(_v1, _v2, _v3, _v4, _v5);
+            _r.begin(_rv);
+            return &_r;
+        }
+
+    private:
+        typedef typename TypeTraits<A1>::Value V1;
+        typedef typename TypeTraits<A2>::Value V2;
+        typedef typename TypeTraits<A3>::Value V3;
+        typedef typename TypeTraits<A4>::Value V4;
+        typedef typename TypeTraits<A5>::Value V5;
+        typedef typename TypeTraits<R>::Value RV;
+
+        CallableT* _cb;
+        RV _rv;
+        V1 _v1;
+        V2 _v2;
+        V3 _v3;
+        V4 _v4;
+        V5 _v5;
+
+        IDeserializer* _args[6];
+        Deserializer<V1> _a1;
+        Deserializer<V2> _a2;
+        Deserializer<V3> _a3;
+        Deserializer<V4> _a4;
+        Deserializer<V5> _a5;
+        Serializer<RV> _r;
+};
+
+
+template < typename R,
+           class C,
+           typename A1,
+           typename A2,
+           typename A3,
+           typename A4>
+class BasicServiceProcedure<R, C, A1, A2, A3, A4,
+                            cxxtools::Void> : public ServiceProcedure
+{
+    public:
+        typedef Callable<R, A1, A2, A3, A4> CallableT;
+
+        BasicServiceProcedure( const CallableT& cb )
+        : ServiceProcedure()
+        , _cb(0)
+        {
+            _cb = cb.clone();
+
+            _args[0] = &_a1;
+            _args[1] = &_a2;
+            _args[2] = &_a3;
+            _args[3] = &_a4;
+            _args[4] = 0;
+        }
+
+        ~BasicServiceProcedure()
+        {
+            delete _cb;
+        }
+
+        ServiceProcedure* clone() const
+        {
+            return new BasicServiceProcedure(*_cb);
+        }
+
+        IDeserializer** beginCall()
+        {
+            _a1.begin(_v1);
+            _a2.begin(_v2);
+            _a3.begin(_v3);
+            _a4.begin(_v4);
+
+            return _args;
+        }
+
+        ISerializer* endCall()
+        {
+            _rv = _cb->call(_v1, _v2, _v3, _v4);
+            _r.begin(_rv);
+            return &_r;
+        }
+
+    private:
+        typedef typename TypeTraits<A1>::Value V1;
+        typedef typename TypeTraits<A2>::Value V2;
+        typedef typename TypeTraits<A3>::Value V3;
+        typedef typename TypeTraits<A4>::Value V4;
+
+        typedef typename TypeTraits<R>::Value RV;
+
+        CallableT* _cb;
+        RV _rv;
+        V1 _v1;
+        V2 _v2;
+        V3 _v3;
+        V4 _v4;
+
+        IDeserializer* _args[5];
+        Deserializer<V1> _a1;
+        Deserializer<V2> _a2;
+        Deserializer<V3> _a3;
+        Deserializer<V4> _a4;
+        Serializer<RV> _r;
+};
+
+
+template < typename R,
+           class C,
+           typename A1,
+           typename A2,
+           typename A3>
+class BasicServiceProcedure<R, C, A1, A2, A3,
+                            cxxtools::Void,
+                            cxxtools::Void> : public ServiceProcedure
+{
+    public:
+        typedef Callable<R, A1, A2, A3> CallableT;
+
+        BasicServiceProcedure( const CallableT& cb )
+        : ServiceProcedure()
+        , _cb(0)
+        {
+            _cb = cb.clone();
+
+            _args[0] = &_a1;
+            _args[1] = &_a2;
+            _args[2] = &_a3;
+            _args[3] = 0;
+        }
+
+        ~BasicServiceProcedure()
+        {
+            delete _cb;
+        }
+
+        ServiceProcedure* clone() const
+        {
+            return new BasicServiceProcedure(*_cb);
+        }
+
+        IDeserializer** beginCall()
+        {
+            _a1.begin(_v1);
+            _a2.begin(_v2);
+            _a3.begin(_v3);
+
+            return _args;
+        }
+
+        ISerializer* endCall()
+        {
+            _rv = _cb->call(_v1, _v2, _v3);
+            _r.begin(_rv);
+            return &_r;
+        }
+
+    private:
+        typedef typename TypeTraits<A1>::Value V1;
+        typedef typename TypeTraits<A2>::Value V2;
+        typedef typename TypeTraits<A3>::Value V3;
+
+        typedef typename TypeTraits<R>::Value RV;
+
+        CallableT* _cb;
+        RV _rv;
+        V1 _v1;
+        V2 _v2;
+        V3 _v3;
+
+        IDeserializer* _args[4];
+        Deserializer<V1> _a1;
+        Deserializer<V2> _a2;
+        Deserializer<V3> _a3;
+        Serializer<RV> _r;
+};
+
+
+template < typename R,
+           class C,
+           typename A1,
+           typename A2>
+class BasicServiceProcedure<R, C, A1, A2,
+                            cxxtools::Void,
+                            cxxtools::Void,
+                            cxxtools::Void> : public ServiceProcedure
 {
     public:
         BasicServiceProcedure( const Callable<R, A1, A2>& cb )
@@ -122,7 +351,11 @@ class BasicServiceProcedure : public ServiceProcedure
 template < typename R,
            class C,
            typename A1>
-class BasicServiceProcedure<R, C, A1, cxxtools::Void> : public ServiceProcedure
+class BasicServiceProcedure<R, C, A1,
+                            cxxtools::Void,
+                            cxxtools::Void,
+                            cxxtools::Void,
+                            cxxtools::Void> : public ServiceProcedure
 {
     public:
         BasicServiceProcedure( const Callable<R, A1>& cb )
@@ -173,7 +406,11 @@ class BasicServiceProcedure<R, C, A1, cxxtools::Void> : public ServiceProcedure
 
 template < typename R,
            class C>
-class BasicServiceProcedure<R, C, cxxtools::Void, cxxtools::Void> : public ServiceProcedure
+class BasicServiceProcedure<R, C, cxxtools::Void,
+                                  cxxtools::Void,
+                                  cxxtools::Void,
+                                  cxxtools::Void,
+                                  cxxtools::Void> : public ServiceProcedure
 {
     public:
         BasicServiceProcedure( const Callable<R>& cb )
