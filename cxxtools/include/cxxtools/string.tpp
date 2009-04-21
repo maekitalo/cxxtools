@@ -304,23 +304,40 @@ inline basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::assign(const 
         return *this;
     }
 
-    if( str._data->busy() ) 
+    if( _data->shared() ) //shared
     {
-        _data->assign( str._data->str(), str._data->length() );
+        cxxtools::StringData* newBuffer = str._data;
+        if( str._data->busy() )
+        {
+            newBuffer = new cxxtools::StringData( str._data->str(), str._data->length() );
+        }
+        else
+        {
+            newBuffer->ref();
+        }
 
-        // caller modify ends busy mode
-        _data->setInitial();
-        return *this;
+        if( _data->unref() < 1)
+        {
+            // just in case two threads are trying this at once
+            delete _data;
+        }
+
+        _data = newBuffer;
     }
-    
-    if( _data->unref() < 1 ) 
+    else // unshared
     {
-        delete _data;
-        _data = 0;
+        if( _data->capacity() >= str.size() || str._data->busy() )
+        {
+            _data->assign( str._data->str(), str._data->length() );
+            _data->setInitial();
+        }
+        else
+        {
+            delete _data;
+            _data = str._data;
+            _data->ref();
+        }
     }
-
-    _data = str._data;
-    _data->ref();
 
     return *this;
 }
