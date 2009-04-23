@@ -194,7 +194,7 @@ void TcpSocketImpl::endConnect()
             if( ::connect(this->fd(), reinterpret_cast<const sockaddr*>(&_peeraddr), sizeof(_peeraddr)) == 0 )
             {
                 _isConnected = true;
-                log_debug("connected successfuly");
+                log_debug("connected successfully");
                 return;
             }
 
