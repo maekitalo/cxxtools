@@ -333,9 +333,13 @@ bool Scanner::advance(const cxxtools::xml::Node& node)
                 _current = _current->beginMember("");
                 _state = OnValueBegin;
             }
-            else if(node.type() == xml::Node::EndElement)
+            else if(node.type() == xml::Node::EndElement) // empty array
             {
-                throw SerializationError("invalid XML-RPC parameter");
+                const xml::EndElement& ee = static_cast<const xml::EndElement&>(node);
+                if(ee.name() != L"data")
+                    throw SerializationError("invalid XML-RPC parameter");
+
+                _state = OnDataEnd;
             }
 
             break;

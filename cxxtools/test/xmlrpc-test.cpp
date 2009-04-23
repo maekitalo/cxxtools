@@ -80,6 +80,7 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             this->registerMethod("EchoString", *this, &XmlRpcTest::EchoString);
             this->registerMethod("EmptyValues", *this, &XmlRpcTest::EmptyValues);
             this->registerMethod("Array", *this, &XmlRpcTest::Array);
+            this->registerMethod("EmptyArray", *this, &XmlRpcTest::EmptyArray);
             this->registerMethod("Struct", *this, &XmlRpcTest::Struct);
         }
 
@@ -351,6 +352,34 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _loop->exit();
         }
 
+        void EmptyArray()
+        {
+            cxxtools::xmlrpc::Service service;
+            service.registerMethod("multiply", *this, &XmlRpcTest::multiplyVector);
+            _server->addService("/calc", service);
+
+            cxxtools::AttachedThread serverThread( cxxtools::callable(*_server, &cxxtools::http::Server::run) );
+            serverThread.start();
+            cxxtools::Thread::sleep(500);
+
+            cxxtools::xmlrpc::Client client(*_loop, "127.0.0.1", 8001, "/calc");
+            cxxtools::xmlrpc::RemoteProcedure< std::vector<int>, std::vector<int>, std::vector<int> > multiply(client, "multiply");
+            connect( multiply.finished, *this, &XmlRpcTest::onEmptyArrayFinished );
+
+            std::vector<int> vec;
+            multiply.begin(vec, vec);
+
+            _loop->run();
+            _server->terminate();
+        }
+
+        void onEmptyArrayFinished(const std::vector<int>& r)
+        {
+            //CXXTOOLS_UNIT_ASSERT_EQUALS(r.size(), 0)
+
+            _loop->exit();
+        }
+
         void Struct()
         {
             cxxtools::xmlrpc::Service service;
@@ -440,8 +469,12 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
         std::vector<int> multiplyVector(const std::vector<int>& a, const std::vector<int>& b)
         {
             std::vector<int> r;
-            r.push_back( a.at(0) * b.at(0) );
-            r.push_back( a.at(1) * b.at(1) );
+            if( a.size() )
+            {
+                r.push_back( a.at(0) * b.at(0) );
+                r.push_back( a.at(1) * b.at(1) );
+            }
+
             return r;
         }
 
