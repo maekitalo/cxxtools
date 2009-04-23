@@ -59,8 +59,7 @@ Client::Client(const std::string& server, unsigned short int port)
 }
 
 
-Client::Client(const std::string& server, unsigned short int port,
-    SelectorBase& selector)
+Client::Client(SelectorBase& selector, const std::string& server, unsigned short int port)
 : _parseEvent(_replyHeader)
 , _parser(_parseEvent, true)
 , _request(0)
