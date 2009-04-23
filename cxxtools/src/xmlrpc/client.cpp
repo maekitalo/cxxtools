@@ -43,14 +43,13 @@ Client::Client(SelectorBase& selector, const std::string& server,
                              unsigned short port, const std::string& url)
 : _state(OnBegin)
 , _url(url)
-, _client(server, port)
+, _client(selector, server, port)
 , _request(url)
 , _ts( new Utf8Codec )
 , _reader(_ts)
 , _formatter(_writer)
 , _method(0)
 {
-    _client.setSelector(selector);
     connect(_client.headerReceived, *this, &Client::onReplyHeader);
     connect(_client.bodyAvailable, *this, &Client::onReplyBody);
     connect(_client.replyFinished, *this, &Client::onReplyFinished);

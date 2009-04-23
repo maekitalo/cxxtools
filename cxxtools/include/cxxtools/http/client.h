@@ -93,7 +93,7 @@ class CXXTOOLS_HTTP_API Client : public cxxtools::Connectable
     public:
         Client(const std::string& server, unsigned short int port);
 
-        Client(const std::string& server, unsigned short int port, SelectorBase& selector);
+        Client(SelectorBase& selector, const std::string& server, unsigned short int port);
 
         const ReplyHeader& execute(const Request& request,
             std::size_t timeout = Selectable::WaitInfinite);
