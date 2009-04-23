@@ -104,11 +104,10 @@ inline basic_string<cxxtools::Char>::basic_string(const basic_string& str, size_
 {
 }
 
-inline basic_string<cxxtools::Char>::basic_string(cxxtools::Char* begin, cxxtools::Char* end)
+inline basic_string<cxxtools::Char>::basic_string(const cxxtools::Char* begin, const cxxtools::Char* end)
 : _data( new cxxtools::StringData( begin, end - begin ) )
 {
 }
-
 
 inline basic_string<cxxtools::Char>::~basic_string()
 {

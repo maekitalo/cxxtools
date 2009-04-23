@@ -21,8 +21,11 @@ AC_HEADER_DIRENT
 AC_PROG_CC
 AC_PROG_CXX
 
+AC_CHECK_HEADERS(sys/filio.h)
+
 AC_CHECK_LIB(nsl, setsockopt)
 AC_CHECK_LIB(socket, accept)
+AC_CHECK_LIB(rt, sem_destroy)
 AC_SEARCH_LIBS(dlopen, dl, , AC_MSG_ERROR([dlopen not found]))
 AC_SEARCH_LIBS(inet_ntop, nsl socket resolv)
 AC_CHECK_FUNCS(inet_ntop)

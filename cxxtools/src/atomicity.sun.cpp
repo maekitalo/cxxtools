@@ -37,6 +37,20 @@ namespace cxxtools {
 typedef long atomic_t;
 
 
+atomic_t atomicGet(volatile atomic_t& val)
+{
+    asm volatile ("mfence" : : : "memory");
+    return val;
+}
+
+
+void atomicSet(volatile atomic_t& val, atomic_t n)
+{
+    val = n;
+    asm volatile ("mfence" : : : "memory");
+}
+
+  
 atomic_t atomicIncrement(volatile atomic_t& value)
 {
     volatile ulong_t* uvalue = reinterpret_cast<volatile ulong_t*>(&value);

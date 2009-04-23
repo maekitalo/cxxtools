@@ -87,7 +87,7 @@ class basic_string< cxxtools::Char > {
 
         basic_string(const basic_string& str, size_type pos, size_type n, const allocator_type& a);
 
-        basic_string(cxxtools::Char* begin, cxxtools::Char* end);
+        basic_string(const cxxtools::Char* begin, const cxxtools::Char* end);
 
         ~basic_string();
 

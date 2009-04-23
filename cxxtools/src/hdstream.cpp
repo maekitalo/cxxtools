@@ -27,6 +27,7 @@
  */
 
 #include "cxxtools/hdstream.h"
+#include <ios>
 #include <iomanip>
 #include <cctype>
 

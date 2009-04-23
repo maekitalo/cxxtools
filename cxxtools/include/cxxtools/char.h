@@ -32,6 +32,7 @@
 #include <cxxtools/types.h>
 #include <string>
 #include <cstring>
+#include <ios>
 
 namespace cxxtools {
 
@@ -319,8 +320,8 @@ namespace std {
     {
         typedef cxxtools::Char char_type;
         typedef cxxtools::uint32_t int_type;
-        typedef streamoff off_type;
-        typedef streampos pos_type;
+        typedef std::streamoff off_type;
+        typedef std::streampos pos_type;
         typedef cxxtools::MBState state_type;
 
         inline static void assign(char_type& c1, const char_type& c2);

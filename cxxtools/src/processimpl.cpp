@@ -26,7 +26,7 @@
 #include "processimpl.h"
 #include "iodeviceimpl.h"
 
-#include <cstdlib>
+#include <cstdio>
 #include <vector>
 #include <signal.h>
 #include <errno.h>
@@ -65,7 +65,7 @@ void ProcessImpl::start()
     {
         if( _procInfo.stdInputClosed() )
         {
-            fclose(stdin);
+            std::fclose(stdin);
         }
         else if(_procInfo.stdInput() )
         {
@@ -74,7 +74,7 @@ void ProcessImpl::start()
 
         if( _procInfo.stdOutputClosed() )
         {
-            fclose( stdout);
+            std::fclose(stdout);
         }
         else if( _procInfo.stdOutput() )
         {
@@ -83,7 +83,7 @@ void ProcessImpl::start()
 
         if( _procInfo.stdErrorClosed() )
         {
-            fclose(stderr);
+            std::fclose(stderr);
         }
         else if( _procInfo.stdError() )
         {

@@ -33,6 +33,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <errno.h>
+#include <cstdio>
 
 namespace cxxtools {
 
@@ -89,7 +90,7 @@ void FileImpl::create(const std::string& path)
     if (!f)
         throw SystemError("Could not create file " + path, CXXTOOLS_SOURCEINFO);
 
-    fclose(f);
+    std::fclose(f);
 }
 
 }

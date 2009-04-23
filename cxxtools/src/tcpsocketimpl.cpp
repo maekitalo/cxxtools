@@ -39,6 +39,7 @@
 #include <cstring>
 #include <cassert>
 #include <fcntl.h>
+#include <string.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
