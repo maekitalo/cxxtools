@@ -146,7 +146,7 @@ bool TcpSocketImpl::beginConnect(const std::string& ipaddr, unsigned short int p
         if( ::connect(this->fd(), it->ai_addr, it->ai_addrlen) == 0 )
         {
             _isConnected = true;
-            log_debug("connected successfuly");
+            log_debug("connected successfully");
             return true;
         }
 
