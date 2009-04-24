@@ -66,9 +66,23 @@ namespace xml {
 
             void endl();
 
+            enum FormatFlags {
+              UseIndent = 1,
+              UseEndl = 2
+            };
+
+            void setFormat(int f)  { _flags = f; }
+
+            int format() const             { return _flags; }
+
+            bool useIndent() const         { return _flags | UseIndent; }
+
+            bool useEndl() const           { return _flags | UseEndl; }
+
         private:
             TextOStream _tos;
             std::stack<cxxtools::String> _elements;
+            int _flags;
     };
 
 }

@@ -50,6 +50,8 @@ Client::Client(SelectorBase& selector, const std::string& server,
 , _formatter(_writer)
 , _method(0)
 {
+    _writer.setFormat(0);
+
     connect(_client.headerReceived, *this, &Client::onReplyHeader);
     connect(_client.bodyAvailable, *this, &Client::onReplyBody);
     connect(_client.replyFinished, *this, &Client::onReplyFinished);
@@ -68,6 +70,8 @@ Client::Client(const std::string& server, unsigned short port, const std::string
 , _formatter(_writer)
 , _method(0)
 {
+    _writer.setFormat(0);
+
     connect(_client.headerReceived, *this, &Client::onReplyHeader);
     connect(_client.bodyAvailable, *this, &Client::onReplyBody);
 
