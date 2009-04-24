@@ -191,15 +191,7 @@ void TcpSocketImpl::endConnect()
                 throw IOTimeout();
             }
 
-            log_debug("connect");
-            if( ::connect(this->fd(), reinterpret_cast<const sockaddr*>(&_peeraddr), sizeof(_peeraddr)) == 0 )
-            {
-                _isConnected = true;
-                log_debug("connected successfully");
-                return;
-            }
-
-            log_debug("get error");
+            log_debug("check error");
 
             int sockerr;
             socklen_t optlen = sizeof(sockerr);
@@ -207,8 +199,13 @@ void TcpSocketImpl::endConnect()
             {
                 throw IOError("getsockopt");
             }
+            else if (sockerr != 0)
+            {
+                throw SystemError(sockerr, "connect failed");
+            }
 
-            throw IOError("connect"); //TODO dedicated exception type?
+            log_debug("connected successfully");
+            _isConnected = true;
         }
         catch(...)
         {
