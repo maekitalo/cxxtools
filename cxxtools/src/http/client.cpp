@@ -146,6 +146,9 @@ const ReplyHeader& Client::execute(const Request& request, std::size_t timeout)
 
     log_debug("reply ready");
 
+    if (_stream.fail())
+        throw IOError( CXXTOOLS_ERROR_MSG("failed to read HTTP reply") );
+
     if (_parser.fail())
         throw IOError( CXXTOOLS_ERROR_MSG("invalid HTTP reply") );
 

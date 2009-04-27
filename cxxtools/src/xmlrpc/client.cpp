@@ -49,6 +49,7 @@ Client::Client(SelectorBase& selector, const std::string& server,
 , _reader(_ts)
 , _formatter(_writer)
 , _method(0)
+, _timeout(Selectable::WaitInfinite)
 {
     _writer.setFormat(0);
 
@@ -69,6 +70,7 @@ Client::Client(const std::string& server, unsigned short port, const std::string
 , _reader(_ts)
 , _formatter(_writer)
 , _method(0)
+, _timeout(Selectable::WaitInfinite)
 {
     _writer.setFormat(0);
 
@@ -101,7 +103,7 @@ void Client::call(IDeserializer& r, IRemoteProcedure& method, ISerializer** argv
     _state = OnBegin;
 
     this->prepareRequest(method.name(), argv, argc);
-    http::ReplyHeader header = _client.execute(_request);
+    http::ReplyHeader header = _client.execute(_request, _timeout);
 
     std::string body;
     _client.readBody(body);

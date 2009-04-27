@@ -79,6 +79,10 @@ class CXXTOOLS_XMLRPC_API Client : public cxxtools::Connectable
 
         void call(IDeserializer& r, IRemoteProcedure& method, ISerializer** argv, unsigned argc);
 
+        std::size_t timeout() const  { return _timeout; }
+
+        void timeout(std::size_t t)  { _timeout = t; }
+
     protected:
         void onReplyHeader(http::Client& client);
 
@@ -104,6 +108,7 @@ class CXXTOOLS_XMLRPC_API Client : public cxxtools::Connectable
         DeserializationContext _context;
         Deserializer<Fault> _fh;
         Fault _fault;
+        std::size_t _timeout;
 };
 
 }
