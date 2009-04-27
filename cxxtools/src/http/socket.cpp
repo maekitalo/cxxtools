@@ -67,10 +67,15 @@ Socket::Socket(SelectorBase& selector, Server& server)
     cxxtools::connect(_stream.buffer().outputReady, *this, &Socket::onOutput);
     cxxtools::connect(_timer.timeout, *this, &Socket::onTimeout);
 
-
     _timer.start(_server.readTimeout());
 
     addSelector(selector);
+}
+
+Socket::~Socket()
+{
+    if (_responder)
+        _responder->release();
 }
 
 void Socket::removeSelector()
@@ -186,7 +191,18 @@ void Socket::onInput(StreamBuffer& sb)
 
 bool Socket::doReply()
 {
-    _responder->reply(_reply.body(), _request, _reply);
+    log_trace("http::Socket::doReply");
+    try
+    {
+        _responder->reply(_reply.body(), _request, _reply);
+    }
+    catch (const std::exception& e)
+    {
+        log_warn("responder reported error: " << e.what());
+        _reply.clear();
+        _responder->replyError(_reply.body(), _request, _reply, e);
+    }
+
     _responder->release();
     _responder = 0;
 

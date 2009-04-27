@@ -58,6 +58,7 @@ void Responder::replyError(std::ostream& out, Request& request, Reply& reply, co
 {
     reply.httpReturn(500, "internal server error");
     reply.setHeader("Content-Type", "text/plain");
+    reply.setHeader("Connection", "close");
     out << ex.what();
 }
 

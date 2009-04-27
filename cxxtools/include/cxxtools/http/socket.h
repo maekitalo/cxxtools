@@ -64,6 +64,7 @@ class CXXTOOLS_HTTP_API Socket : public net::TcpSocket, public Connectable
 
     public:
         Socket(SelectorBase& s, Server& server);
+        ~Socket();
 
         void onInput(StreamBuffer& stream);
         bool onOutput(StreamBuffer& stream);
