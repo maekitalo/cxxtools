@@ -90,6 +90,8 @@ class CXXTOOLS_XMLRPC_API Client : public cxxtools::Connectable
 
         void onReplyFinished(http::Client& client);
 
+        void onErrorOccured(http::Client& client, const std::exception& e);
+
         void prepareRequest(const std::string& name, ISerializer** argv, unsigned argc);
 
         void advance(const xml::Node& node);

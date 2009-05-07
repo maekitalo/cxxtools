@@ -56,6 +56,7 @@ class CXXTOOLS_HTTP_API Server : public net::TcpServer, public Connectable
 {
     public:
         Server(const std::string& ip, unsigned short int port);
+        ~Server()  { terminate(); }
 
         void addService(const std::string& url, Service& service);
         void removeService(Service& service);

@@ -46,7 +46,7 @@ Server::Server(const std::string& ip, unsigned short int port)
   _minThreads(4),
   _maxThreads(10),
   _waitingThreads(0),
-  _terminating(false)
+  _terminating(true)
 {
     log_trace("initialize Server class");
 
@@ -80,6 +80,10 @@ void Server::createThread()
 void Server::terminate()
 {
     MutexLock lock(_threadMutex);
+
+    if (_terminating)
+        return;
+
     _terminating = true;
     _selector.wake();
     _terminated.wait(lock);
@@ -88,6 +92,8 @@ void Server::terminate()
 void Server::run()
 {
     log_trace("run server");
+
+    _terminating = false;
 
     {
         MutexLock selectorLock(_selectorMutex);

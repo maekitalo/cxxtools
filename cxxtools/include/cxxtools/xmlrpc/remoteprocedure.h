@@ -63,6 +63,7 @@ class CXXTOOLS_XMLRPC_API IRemoteProcedure
         { return _name; }
 
         Signal<const Fault&> fault;
+        Signal<Client&, const std::exception&> errorOccured;
 
     protected:
         virtual void onFinished() = 0;
