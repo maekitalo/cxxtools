@@ -188,6 +188,11 @@ void XmlRpcResponder::reply(std::ostream& os, http::Request& request, http::Repl
         _writer.writeEndElement(); // methodResponse
         _writer.flush();
     }
+    catch (const Fault& fault)
+    {
+        _fault = fault;
+        replyError(reply.body(), request, reply, fault);
+    }
     catch (...)
     {
         _writer.flush();
