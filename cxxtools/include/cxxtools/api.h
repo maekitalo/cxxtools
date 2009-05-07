@@ -62,6 +62,16 @@
     #define CXXTOOLS_API CXXTOOLS_EXPORT
 #else
     #define CXXTOOLS_API CXXTOOLS_IMPORT
-# endif
+#endif
+
+#if !defined(__NOLOCK_ON_INPUT)
+    // disable locking of iostreams on xlC
+    #define __NOLOCK_ON_INPUT
+#endif
+
+#if !defined(__NOLOCK_ON_OUTPUT)
+    // disable locking of iostreams on xlC
+    #define __NOLOCK_ON_OUTPUT
+#endif
 
 #endif
