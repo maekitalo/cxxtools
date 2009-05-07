@@ -33,6 +33,7 @@
 #include <cxxtools/mutex.h>
 #include <iostream>
 #include <sstream>
+#include <cxxtools/api.h>
 
 #define log_xxxx_enabled(level)   \
   (getLogger() != 0 && getLogger()->isEnabled(::cxxtools::Logger::LOG_LEVEL_ ## level))
