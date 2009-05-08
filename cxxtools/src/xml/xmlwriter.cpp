@@ -108,7 +108,7 @@ void XmlWriter::writeEndElement()
 
     if (_flags & UseIndent)
     {
-        for(size_t n = 0; n < _elements.size(); ++n)
+        for(size_t n = 1; n < _elements.size(); ++n)
         {
             _tos << cxxtools::String(L"  ");
         }
