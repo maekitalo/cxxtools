@@ -320,33 +320,11 @@ void Client::onInput(StreamBuffer& sb)
 
         if (_readHeader)
         {
-            _parser.advance(sb);
-
-            if (_parser.fail())
-                throw std::runtime_error("http parser failed"); // TODO define exception class
-
-            if( _parser.end() )
-            {
-                _contentLength = _replyHeader.contentLength();
-                headerReceived(*this);
-                _readHeader = false;
-
-                if (_contentLength > 0)
-                {
-                    if( sb.in_avail() > 0 )
-                    {
-                        processBodyAvailable();
-                    }
-                }
-                else
-                {
-                    replyFinished(*this);
-                }
-            }
+            processHeaderAvailable(sb);
         }
         else
         {
-            processBodyAvailable();
+            processBodyAvailable(sb);
         }
     }
     catch (const std::exception& e)
@@ -360,11 +338,62 @@ void Client::onInput(StreamBuffer& sb)
     }
 }
 
-void Client::processBodyAvailable()
+void Client::processHeaderAvailable(StreamBuffer& sb)
 {
+    _parser.advance(sb);
+
+    if (_parser.fail())
+        throw std::runtime_error("http parser failed"); // TODO define exception class
+
+    if( _parser.end() )
+    {
+        _contentLength = _replyHeader.contentLength();
+        log_debug("header received - content-length=" << _contentLength);
+
+        headerReceived(*this);
+        _readHeader = false;
+
+        if (_contentLength > 0)
+        {
+            if( sb.in_avail() > 0 )
+            {
+                processBodyAvailable(sb);
+            }
+            else
+            {
+                sb.beginRead();
+            }
+        }
+        else
+        {
+            replyFinished(*this);
+        }
+    }
+    else
+    {
+        sb.beginRead();
+    }
+}
+
+void Client::processBodyAvailable(StreamBuffer& sb)
+{
+    log_trace("processBodyAvailable");
+
+    log_debug("content-length(pre)=" << _contentLength);
+
     _contentLength -= bodyAvailable(*this); // TODO: may throw exception
+
+    log_debug("content-length(post)=" << _contentLength);
+
     if( _contentLength <= 0 )
+    {
+        log_debug("reply finished");
         replyFinished(*this);
+    }
+    else
+    {
+        sb.beginRead();
+    }
 }
 
 } // namespace http

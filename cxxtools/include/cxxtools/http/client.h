@@ -80,7 +80,8 @@ class CXXTOOLS_HTTP_API Client : public cxxtools::Connectable
         long _contentLength;
 
         void sendRequest(const Request& request);
-        void processBodyAvailable();
+        void processHeaderAvailable(StreamBuffer& sb);
+        void processBodyAvailable(StreamBuffer& sb);
 
         void reexecute(const Request& request);
         void doparse();
