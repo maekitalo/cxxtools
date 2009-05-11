@@ -215,7 +215,7 @@ bool Socket::onOutput(StreamBuffer& sb)
 {
     log_trace("onOutput");
 
-    log_debug(this << " send data to " << getPeerAddr());
+    log_debug("send data to " << getPeerAddr());
 
     sb.beginWrite();
 
