@@ -38,6 +38,8 @@
 
 namespace cxxtools {
 
+namespace {
+
 // EACCES Permission denied.
 // EMFILE Too many file descriptors in use by process.
 // ENOENT Directory does not exist, or name is an empty string.
@@ -106,6 +108,8 @@ void throwFileErrno(const std::string& path, const cxxtools::SourceInfo& si)
 
         default: throwErrno(path, si);
     }
+}
+
 }
 
 
