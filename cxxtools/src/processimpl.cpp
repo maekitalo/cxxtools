@@ -29,6 +29,7 @@
 #include <cstdio>
 #include <vector>
 #include <signal.h>
+#include <stdlib.h>
 #include <errno.h>
 #include <cstring> // strerror()
 #include <sys/wait.h>
@@ -167,7 +168,7 @@ bool ProcessImpl::tryWait(int& status)
 
 void ProcessImpl::setEnvVar(const std::string& name, const std::string& value)
 {
-    if( 0 > setenv(name.c_str(),value.c_str(),1) )
+    if( 0 > ::setenv(name.c_str(),value.c_str(),1) )
     {
         throw SystemError( CXXTOOLS_ERROR_MSG("setenv failed") );
     }
@@ -176,14 +177,14 @@ void ProcessImpl::setEnvVar(const std::string& name, const std::string& value)
 
 void ProcessImpl::unsetEnvVar(const std::string& name)
 {
-    unsetenv( name.c_str() );
+    ::unsetenv( name.c_str() );
 }
 
 
 std::string ProcessImpl::getEnvVar(const std::string& name)
 {
     std::string ret;
-    const char* cp = std::getenv(name.c_str());
+    const char* cp = ::getenv(name.c_str());
     if( NULL == cp )
     {
         return ret;
