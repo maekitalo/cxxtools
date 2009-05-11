@@ -34,6 +34,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <errno.h>
+#include <string.h>
 
 namespace cxxtools {
 
