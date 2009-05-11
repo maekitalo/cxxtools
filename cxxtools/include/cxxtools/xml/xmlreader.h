@@ -142,9 +142,9 @@ class CXXTOOLS_XML_API XmlReader
                      - ReportComments
                      - ReportDocumentStart
         */
-        explicit XmlReader(std::istream& is, int flags = 0);
+        XmlReader(std::istream& is, int flags = 0);
 
-        explicit XmlReader(std::basic_istream<Char>& is, int flags = 0);
+        XmlReader(std::basic_istream<Char>& is, int flags = 0);
 
         ~XmlReader();
 

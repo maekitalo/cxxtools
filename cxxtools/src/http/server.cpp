@@ -28,41 +28,13 @@
 
 #include <cxxtools/http/server.h>
 #include <cxxtools/http/socket.h>
-#include <cxxtools/eventloop.h>
-#include <cxxtools/event.h>
 #include <cxxtools/log.h>
 
 log_define("cxxtools.http.server")
-/*
-#define log_trace(msg) std::cerr << msg << std::endl;
-#define log_debug(msg) std::cerr << msg << std::endl;
-#define log_info(msg) std::cerr << msg << std::endl;
-#define log_error(msg) std::cerr << msg << std::endl;
-*/
 
 namespace cxxtools {
 
 namespace http {
-
-
-class ThreadExited : public cxxtools::Event
-{
-    const std::type_info& typeInfo() const
-    {
-        return typeid(ThreadExited);
-    }
-
-    cxxtools::Event& clone(cxxtools::Allocator& allocator) const
-    {
-        void* pEvent= allocator.allocate(sizeof(ThreadExited));
-        return *(new (pEvent)ThreadExited(*this));
-    }
-
-    void destroy(cxxtools::Allocator& allocator)
-    {
-        allocator.deallocate(this, sizeof(ThreadExited));
-    }
-};
 
 
 Server::Server(const std::string& ip, unsigned short int port)
@@ -81,7 +53,6 @@ Server::Server(const std::string& ip, unsigned short int port)
     _selector.add(*this);
     cxxtools::connect(connectionPending, *this, &Server::onConnect);
 }
-
 
 void Server::createThread()
 {
@@ -106,10 +77,8 @@ void Server::createThread()
     }
 }
 
-
 void Server::terminate()
 {
-/*
     MutexLock lock(_threadMutex);
 
     if (_terminating)
@@ -118,36 +87,7 @@ void Server::terminate()
     _terminating = true;
     _selector.wake();
     _terminated.wait(lock);
-*/
-
-    MutexLock lock(_threadMutex);
-    _terminating = true;
-    _selector.wake();
 }
-
-
-void Server::onThreadExit(const ThreadExited& exited)
-{
-    log_trace("Server::onThreadExit");
-
-    MutexLock lock(_threadMutex);
-    log_debug(_terminatedThreads.size() << " threads finished");
-
-    for (Threads::iterator it = _terminatedThreads.begin(); it != _terminatedThreads.end(); ++it)
-    {
-        log_info("join thread " << (*it));
-        (*it)->join();
-        log_debug("delete thread " << (*it));
-        delete *it;
-    }
-
-    log_info("delete " << _terminatedThreads.size() << " thread objects");
-    _terminatedThreads.clear();
-
-    if( _terminating && _threads.empty() )
-        _loop.exit();
-}
-
 
 void Server::run()
 {
@@ -168,10 +108,6 @@ void Server::run()
         listen(_ip, _port);
     }
 
-    _loop.event.subscribe( slot(*this, &Server::onThreadExit) );
-    _loop.run();
-
-/*
     MutexLock lock(_threadMutex);
 
     while (!_terminating || !_threads.empty())
@@ -193,27 +129,22 @@ void Server::run()
         _terminatedThreads.clear();
     }
 
-    log_info("ending final threads");
     for (Threads::iterator it = _terminatedThreads.begin(); it != _terminatedThreads.end(); ++it)
     {
-        log_info("join final thread " << (*it));
+        log_info("join thread " << (*it));
         (*it)->join();
-        log_debug("delete final thread " << (*it));
+        log_debug("delete thread " << (*it));
         delete *it;
     }
 
     _terminated.signal();
-*/
-    log_debug("server finished");
 }
-
 
 void Server::addService(const std::string& url, Service& service)
 {
     log_debug("add service for url <" << url << '>');
     _service.insert(ServicesType::value_type(url, &service));
 }
-
 
 void Server::removeService(Service& service)
 {
@@ -230,7 +161,6 @@ void Server::removeService(Service& service)
         }
     }
 }
-
 
 Responder* Server::getResponder(const Request& request)
 {
@@ -251,13 +181,11 @@ Responder* Server::getResponder(const Request& request)
     return _defaultService.createResponder(request);
 }
 
-
 void Server::onConnect(TcpServer& server)
 {
     log_trace("onConnect");
     new Socket(_selector, *this);
 }
-
 
 void Server::serverThread()
 {
@@ -268,11 +196,10 @@ void Server::serverThread()
 
         public:
             explicit Dec(atomic_t& counter)
-            : _counter(counter)
-            { }
-
+                : _counter(counter)
+                { }
             ~Dec()
-            { atomicDecrement(_counter); }
+                { atomicDecrement(_counter); }
     };
 
     class ThreadTerminator
@@ -280,30 +207,23 @@ void Server::serverThread()
             AttachedThread* _thread;
             Threads& _threads;
             Threads& _terminatedThreads;
-            //Condition& _threadTerminated;
-            EventLoop& _loop;
+            Condition& _threadTerminated;
             Mutex& _threadMutex;
 
         public:
-            ThreadTerminator(AttachedThread* thread, Threads& threads, Threads& terminatedThreads,
-                             // Condition& threadTerminated,
-                             EventLoop& loop, Mutex& threadMutex)
-            : _thread(thread),
-              _threads(threads),
-              _terminatedThreads(terminatedThreads),
-              //_threadTerminated(threadTerminated),
-              _loop(loop),
-              _threadMutex(threadMutex)
-            { }
-
+            ThreadTerminator(AttachedThread* thread, Threads& threads, Threads& terminatedThreads, Condition& threadTerminated, Mutex& threadMutex)
+                : _thread(thread),
+                  _threads(threads),
+                  _terminatedThreads(terminatedThreads),
+                  _threadTerminated(threadTerminated),
+                  _threadMutex(threadMutex)
+                { }
             ~ThreadTerminator()
             {
                 MutexLock threadLock(_threadMutex);
                 _threads.erase(_thread);
                 _terminatedThreads.insert(_thread);
-                //_threadTerminated.signal();
-                ThreadExited exited;
-                _loop.commitEvent(exited);
+                _threadTerminated.signal();
             }
 
             const AttachedThread* thread() const  { return _thread; }
@@ -311,9 +231,7 @@ void Server::serverThread()
 
     MutexLock threadLock(_threadMutex);
 
-    ThreadTerminator terminator(_startingThread, _threads, _terminatedThreads,
-                                 //_threadTerminated,
-                                 _loop, _threadMutex);
+    ThreadTerminator terminator(_startingThread, _threads, _terminatedThreads, _threadTerminated, _threadMutex);
 
     _threads.insert(_startingThread);
 

@@ -35,7 +35,6 @@
 #include <cxxtools/net/tcpsocket.h>
 #include <cxxtools/connectable.h>
 #include <cxxtools/condition.h>
-#include <cxxtools/eventloop.h>
 #include <cxxtools/mutex.h>
 #include <cxxtools/thread.h>
 #include <cxxtools/atomicity.h>
@@ -52,7 +51,6 @@ class Responder;
 class Request;
 class Socket;
 class Service;
-class ThreadExited;
 
 class CXXTOOLS_HTTP_API Server : public net::TcpServer, public Connectable
 {
@@ -81,13 +79,9 @@ class CXXTOOLS_HTTP_API Server : public net::TcpServer, public Connectable
 
         void run();
 
-    protected:
-        void onThreadExit(const ThreadExited& exited);
-
     private:
         std::string _ip;
         unsigned short int _port;
-        EventLoop _loop;
 
         typedef std::multimap<std::string, Service*> ServicesType;
         ServicesType _service;
