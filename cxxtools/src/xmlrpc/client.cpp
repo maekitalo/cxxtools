@@ -74,7 +74,8 @@ Client::Client(const std::string& server, unsigned short port, const std::string
 , _method(0)
 , _timeout(Selectable::WaitInfinite)
 {
-    _writer.setFormat(0);
+    _writer.useIndent(false);
+    _writer.useEndl(false);
 
     connect(_client.headerReceived, *this, &Client::onReplyHeader);
     connect(_client.bodyAvailable, *this, &Client::onReplyBody);
