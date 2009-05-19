@@ -73,6 +73,7 @@ class Serializer : public ISerializer
 
         void begin(const T& type)
         {
+            _si.clear();
             _type = &type;
             _si <<= *_type;
         }

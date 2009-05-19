@@ -242,6 +242,8 @@ class CXXTOOLS_API SerializationInfo
 
         SerializationInfo& operator =(const SerializationInfo& si);
 
+        void clear();
+
     protected:
         void getReference(void*& type, const std::type_info& ti) const;
 

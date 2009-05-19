@@ -203,4 +203,16 @@ SerializationInfo* SerializationInfo::findMember(const std::string& name)
     return 0;
 }
 
+void SerializationInfo::clear()
+{
+    _category = Void;
+    _name = std::string();
+    _type = _name;
+    _id = _name;
+    _fixupAddr = 0;
+    _fixupInfo = 0;
+    _value.clear();
+    _nodes.clear();
+}
+
 } // namespace cxxtools

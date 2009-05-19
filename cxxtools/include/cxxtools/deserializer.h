@@ -93,6 +93,7 @@ class Deserializer : public IDeserializer
         {
             _type = &type;
             _current = &_si;
+            _si.clear();
         }
 
         virtual void* target()
