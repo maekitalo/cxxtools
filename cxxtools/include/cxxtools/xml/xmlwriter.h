@@ -42,7 +42,7 @@ namespace xml {
         public:
             XmlWriter();
 
-            XmlWriter(std::ostream& os);
+            XmlWriter(std::ostream& os, int format =  UseXmlDeclaration | UseIndent | UseEndl);
 
             ~XmlWriter();
 
@@ -67,17 +67,28 @@ namespace xml {
             void endl();
 
             enum FormatFlags {
-              UseIndent = 1,
-              UseEndl = 2
+              UseXmlDeclaration = 1,
+              UseIndent = 2,
+              UseEndl = 4
             };
 
             void setFormat(int f)  { _flags = f; }
 
-            int format() const             { return _flags; }
+            void setFormatFlags(int f, bool sw = true)  { if (sw) _flags |= f; else _flags &= ~f; }
 
-            bool useIndent() const         { return _flags | UseIndent; }
+            int format() const               { return _flags; }
 
-            bool useEndl() const           { return _flags | UseEndl; }
+            bool useXmlDeclaration() const   { return _flags & UseXmlDeclaration; }
+
+            void useXmlDeclaration(bool sw)  { setFormatFlags(UseXmlDeclaration, sw); }
+
+            bool useIndent() const           { return _flags & UseIndent; }
+
+            void useIndent(bool sw)          { setFormatFlags(UseIndent, sw); }
+
+            bool useEndl() const             { return _flags & UseEndl; }
+
+            void useEndl(bool sw)            { setFormatFlags(UseEndl, sw); }
 
         private:
             TextOStream _tos;

@@ -40,13 +40,16 @@ XmlWriter::XmlWriter()
 }
 
 
-XmlWriter::XmlWriter(std::ostream& os)
+XmlWriter::XmlWriter(std::ostream& os, int flags)
 : _tos(os, new Utf8Codec)
-, _flags(UseIndent | UseEndl)
+, _flags(flags)
 {
-    _tos << cxxtools::String(L"<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    if (_flags & UseEndl)
-        this->endl();
+    if (useXmlDeclaration())
+    {
+        _tos << cxxtools::String(L"<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+        if (useEndl())
+            this->endl();
+    }
 }
 
 
@@ -58,8 +61,9 @@ XmlWriter::~XmlWriter()
 void XmlWriter::begin(std::ostream& os)
 {
     _tos.attach(os);
-    _tos << cxxtools::String(L"<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    if (_flags & UseEndl)
+    if (useXmlDeclaration())
+        _tos << cxxtools::String(L"<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+    if (useEndl())
         this->endl();
 }
 
@@ -77,7 +81,7 @@ void XmlWriter::writeStartElement(const cxxtools::String& localName)
 
 void XmlWriter::writeStartElement(const cxxtools::String& localName, const Attribute* attr, size_t attrCount)
 {
-    if (_flags & UseIndent)
+    if (useIndent())
     {
         for(size_t n = 0; n < _elements.size(); ++n)
         {
@@ -94,7 +98,7 @@ void XmlWriter::writeStartElement(const cxxtools::String& localName, const Attri
 
     _tos << cxxtools::Char(L'>');
 
-    if (_flags & UseEndl)
+    if (useEndl())
         this->endl();
 
     _elements.push(localName);
@@ -106,7 +110,7 @@ void XmlWriter::writeEndElement()
     if( _elements.empty() )
         return;
 
-    if (_flags & UseIndent)
+    if (useIndent())
     {
         for(size_t n = 1; n < _elements.size(); ++n)
         {
@@ -116,7 +120,7 @@ void XmlWriter::writeEndElement()
 
     _tos << cxxtools::Char(L'<') << cxxtools::Char(L'/') << _elements.top() << cxxtools::Char(L'>');
 
-    if (_flags & UseEndl)
+    if (useEndl())
         this->endl();
 
     _elements.pop();
@@ -131,7 +135,7 @@ void XmlWriter::writeElement(const cxxtools::String& localName, const cxxtools::
 
 void XmlWriter::writeElement(const cxxtools::String& localName, const Attribute* attr, size_t attrCount, const cxxtools::String& content)
 {
-    if (_flags & UseIndent)
+    if (useIndent())
     {
         for(size_t n = 0; n < _elements.size(); ++n)
         {
@@ -151,7 +155,7 @@ void XmlWriter::writeElement(const cxxtools::String& localName, const Attribute*
     this->writeCharacters(content);
     _tos << cxxtools::Char(L'<') << cxxtools::Char(L'/') << localName << cxxtools::Char(L'>');
 
-    if (_flags & UseEndl)
+    if (useEndl())
         this->endl();
 }
 

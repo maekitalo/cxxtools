@@ -50,7 +50,8 @@ XmlRpcResponder::XmlRpcResponder(Service& service)
 , _proc(0)
 , _args(0)
 {
-    _writer.setFormat(0);
+    _writer.useIndent(false);
+    _writer.useEndl(false);
 
     _formatter.addAlias("bool", "boolean");
 }
