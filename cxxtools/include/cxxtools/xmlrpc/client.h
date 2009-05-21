@@ -68,12 +68,21 @@ class CXXTOOLS_XMLRPC_API Client : public cxxtools::Connectable
     };
 
     public:
+        Client();
+
         Client(SelectorBase& selector, const std::string& addr,
                unsigned short port, const std::string& url);
 
         Client(const std::string& addr, unsigned short port, const std::string& url);
 
         virtual ~Client();
+
+        void connect(const std::string& addr, unsigned short port,
+                     const std::string& url)
+        {
+            _client.connect(addr, port);
+            _request.url(url);
+        }
 
         void beginCall(IDeserializer& r, IRemoteProcedure& method, ISerializer** argv, unsigned argc);
 
@@ -98,7 +107,6 @@ class CXXTOOLS_XMLRPC_API Client : public cxxtools::Connectable
 
     private:
         State _state;
-        std::string _url;
         http::Client _client;
         http::Request _request;
         TextIStream _ts;

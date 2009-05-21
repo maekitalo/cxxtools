@@ -39,10 +39,29 @@ namespace cxxtools {
 
 namespace xmlrpc {
 
+Client::Client()
+: _state(OnBegin)
+, _ts( new Utf8Codec )
+, _reader(_ts)
+, _formatter(_writer)
+, _method(0)
+, _timeout(Selectable::WaitInfinite)
+{
+    _writer.useIndent(false);
+    _writer.useEndl(false);
+
+    cxxtools::connect(_client.headerReceived, *this, &Client::onReplyHeader);
+    cxxtools::connect(_client.bodyAvailable, *this, &Client::onReplyBody);
+    cxxtools::connect(_client.replyFinished, *this, &Client::onReplyFinished);
+    cxxtools::connect(_client.errorOccured, *this, &Client::onErrorOccured);
+
+    _formatter.addAlias("bool", "boolean");
+}
+
+
 Client::Client(SelectorBase& selector, const std::string& server,
                              unsigned short port, const std::string& url)
 : _state(OnBegin)
-, _url(url)
 , _client(selector, server, port)
 , _request(url)
 , _ts( new Utf8Codec )
@@ -54,10 +73,10 @@ Client::Client(SelectorBase& selector, const std::string& server,
     _writer.useIndent(false);
     _writer.useEndl(false);
 
-    connect(_client.headerReceived, *this, &Client::onReplyHeader);
-    connect(_client.bodyAvailable, *this, &Client::onReplyBody);
-    connect(_client.replyFinished, *this, &Client::onReplyFinished);
-    connect(_client.errorOccured, *this, &Client::onErrorOccured);
+    cxxtools::connect(_client.headerReceived, *this, &Client::onReplyHeader);
+    cxxtools::connect(_client.bodyAvailable, *this, &Client::onReplyBody);
+    cxxtools::connect(_client.replyFinished, *this, &Client::onReplyFinished);
+    cxxtools::connect(_client.errorOccured, *this, &Client::onErrorOccured);
 
     _formatter.addAlias("bool", "boolean");
 }
@@ -65,7 +84,6 @@ Client::Client(SelectorBase& selector, const std::string& server,
 
 Client::Client(const std::string& server, unsigned short port, const std::string& url)
 : _state(OnBegin)
-, _url(url)
 , _client(server, port)
 , _request(url)
 , _ts( new Utf8Codec )
@@ -77,9 +95,10 @@ Client::Client(const std::string& server, unsigned short port, const std::string
     _writer.useIndent(false);
     _writer.useEndl(false);
 
-    connect(_client.headerReceived, *this, &Client::onReplyHeader);
-    connect(_client.bodyAvailable, *this, &Client::onReplyBody);
-    connect(_client.errorOccured, *this, &Client::onErrorOccured);
+    cxxtools::connect(_client.headerReceived, *this, &Client::onReplyHeader);
+    cxxtools::connect(_client.bodyAvailable, *this, &Client::onReplyBody);
+    cxxtools::connect(_client.replyFinished, *this, &Client::onReplyFinished);
+    cxxtools::connect(_client.errorOccured, *this, &Client::onErrorOccured);
 
     _formatter.addAlias("bool", "boolean");
 }
@@ -212,7 +231,6 @@ void Client::onReplyFinished(http::Client& client)
 void Client::prepareRequest(const std::string& name, ISerializer** argv, unsigned argc)
 {
     _request.clear();
-    _request.url(_url);
     _request.setHeader("Content-Type", "text/xml");
 
     _writer.begin( _request.body() );
