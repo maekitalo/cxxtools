@@ -590,6 +590,7 @@ inline void operator <<=(SerializationInfo& si, const cxxtools::String& n)
 template <typename T>
 inline void operator >>=(const SerializationInfo& si, std::vector<T>& vec)
 {
+    vec.clear();
     for(SerializationInfo::ConstIterator it = si.begin(); it != si.end(); ++it)
     {
         vec.resize( vec.size() + 1 );
@@ -617,6 +618,7 @@ inline void operator <<=(SerializationInfo& si, const std::vector<T>& vec)
 
 inline void operator >>=(const SerializationInfo& si, std::vector<int>& vec)
 {
+    vec.clear();
     for(SerializationInfo::ConstIterator it = si.begin(); it != si.end(); ++it)
     {
         vec.resize( vec.size() + 1 );
