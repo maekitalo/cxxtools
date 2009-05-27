@@ -33,6 +33,8 @@
 #include <cxxtools/convert.h>
 #include <cxxtools/serializationerror.h>
 #include <vector>
+#include <set>
+#include <list>
 #include <typeinfo>
 
 namespace cxxtools {
@@ -587,8 +589,8 @@ inline void operator <<=(SerializationInfo& si, const cxxtools::String& n)
 }
 
 
-template <typename T>
-inline void operator >>=(const SerializationInfo& si, std::vector<T>& vec)
+template <typename T, typename A>
+inline void operator >>=(const SerializationInfo& si, std::vector<T, A>& vec)
 {
     vec.clear();
     for(SerializationInfo::ConstIterator it = si.begin(); it != si.end(); ++it)
@@ -599,10 +601,10 @@ inline void operator >>=(const SerializationInfo& si, std::vector<T>& vec)
 }
 
 
-template <typename T>
-inline void operator <<=(SerializationInfo& si, const std::vector<T>& vec)
+template <typename T, typename A>
+inline void operator <<=(SerializationInfo& si, const std::vector<T, A>& vec)
 {
-    typename std::vector<T>::const_iterator it;
+    typename std::vector<T, A>::const_iterator it;
 
     for(it = vec.begin(); it != vec.end(); ++it)
     {
@@ -639,6 +641,66 @@ inline void operator <<=(SerializationInfo& si, const std::vector<int>& vec)
     si.setTypeName("array");
     si.setCategory(SerializationInfo::Array);
 }
+
+
+template <typename T, typename A>
+inline void operator >>=(const SerializationInfo& si, std::list<T, A>& list)
+{
+    list.clear();
+    for(SerializationInfo::ConstIterator it = si.begin(); it != si.end(); ++it)
+    {
+        list.resize( list.size() + 1 );
+        *it >>=  list.back();
+    }
+}
+
+
+template <typename T, typename A>
+inline void operator <<=(SerializationInfo& si, const std::list<T, A>& list)
+{
+    typename std::list<T, A>::const_iterator it;
+
+    for(it = list.begin(); it != list.end(); ++it)
+    {
+        SerializationInfo& newSi = si.addMember("item");
+        newSi <<= *it;
+        newSi.setName( newSi.typeName() );
+    }
+
+    si.setTypeName("list");
+    si.setCategory(SerializationInfo::Array);
+}
+
+
+template <typename T, typename C, typename A>
+inline void operator >>=(const SerializationInfo& si, std::set<T, C, A>& set)
+{
+    set.clear();
+    for(SerializationInfo::ConstIterator it = si.begin(); it != si.end(); ++it)
+    {
+        T t();
+        *it >>= t;
+        set.insert(t);
+    }
+}
+
+
+template <typename T, typename C, typename A>
+inline void operator <<=(SerializationInfo& si, const std::set<T, C, A>& set)
+{
+    typename std::set<T, C, A>::const_iterator it;
+
+    for(it = set.begin(); it != set.end(); ++it)
+    {
+        SerializationInfo& newSi = si.addMember("item");
+        newSi <<= *it;
+        newSi.setName( newSi.typeName() );
+    }
+
+    si.setTypeName("set");
+    si.setCategory(SerializationInfo::Array);
+}
+
 
 } // namespace cxxtools
 
