@@ -30,6 +30,8 @@
 
 #include <cxxtools/xmlrpc/api.h>
 #include <cxxtools/xmlrpc/client.h>
+#include <cxxtools/xmlrpc/fault.h>
+#include <cxxtools/xmlrpc/result.h>
 #include <cxxtools/deserializer.h>
 #include <cxxtools/serializer.h>
 #include <cxxtools/signal.h>
@@ -62,8 +64,9 @@ class CXXTOOLS_XMLRPC_API IRemoteProcedure
         const std::string& name() const
         { return _name; }
 
-        Signal<const Fault&> fault;
-        Signal<Client&, const std::exception&> errorOccured;
+        virtual void setFault(int rc, const std::string& msg) = 0;
+
+        virtual Fault& fault() = 0;
 
     protected:
         virtual void onFinished() = 0;
@@ -74,47 +77,83 @@ class CXXTOOLS_XMLRPC_API IRemoteProcedure
 };
 
 
+template <typename R>
+class RemoteProcedureBase : public IRemoteProcedure
+{
+    public:
+        RemoteProcedureBase(Client& client, const std::string& name)
+        : IRemoteProcedure(client, name)
+        { }
+
+        void setFault(int rc, const std::string& msg)
+        {
+            _result.setFault(rc, msg);
+        }
+
+        const R& result()
+        {
+            return _result.get();
+        }
+
+        virtual Fault& fault()
+        {
+            return _result.fault();
+        }
+
+        Signal< const Result<R> & > finished;
+
+    protected:
+        void onFinished()
+        { finished.send(_result); }
+
+        Result<R> _result;
+        Deserializer<R> _r;
+};
+
+
 template <typename R,
           typename A1 = cxxtools::Void,
           typename A2 = cxxtools::Void,
           typename A3 = cxxtools::Void,
           typename A4 = cxxtools::Void,
           typename A5 = cxxtools::Void>
-class RemoteProcedure : public IRemoteProcedure
+class RemoteProcedure : public RemoteProcedureBase<R>
 {
     public:
         RemoteProcedure(Client& client, const std::string& name)
-        : IRemoteProcedure(client, name)
+        : RemoteProcedureBase<R>(client, name)
         { }
-
-        ~RemoteProcedure()
-        {}
 
         void begin(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5)
         {
+            this->_result.clearFault();
+
             _a1.begin(a1);
             _a2.begin(a2);
             _a3.begin(a3);
             _a4.begin(a4);
             _a5.begin(a5);
-            _r.begin(_result);
+
+            this->_r.begin(this->_result.value());
 
             ISerializer* argv[5] = { &_a1, &_a2, &_a3, &_a4, &_a5};
-            this->client()->beginCall(_r, *this, argv, 5);
+            this->client()->beginCall(this->_r, *this, argv, 5);
         }
 
         const R& call(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5)
         {
+            this->_result.clearFault();
+
             _a1.begin(a1);
             _a2.begin(a2);
             _a3.begin(a3);
             _a4.begin(a4);
             _a5.begin(a5);
-            _r.begin(_result);
+            this->_r.begin(this->_result.value());
 
             ISerializer* argv[5] = { &_a1, &_a2, &_a3, &_a4, &_a5};
-            this->client()->call(_r, *this, argv, 5);
-            return _result;
+            this->client()->call(this->_r, *this, argv, 5);
+            return this->_result.get();
         }
 
         const R& operator()(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5)
@@ -122,18 +161,7 @@ class RemoteProcedure : public IRemoteProcedure
             return this->call(a1, a2, a3, a4, a5);
         }
 
-        const R& result()
-        { return _result; }
-
-        Signal<const R&> finished;
-
-    protected:
-        void onFinished()
-        { finished.send(_result); }
-
     private:
-        R _result;
-        Deserializer<R> _r;
         Serializer<A1> _a1;
         Serializer<A2> _a2;
         Serializer<A3> _a3;
@@ -148,40 +176,41 @@ template <typename R,
           typename A3,
           typename A4>
 class RemoteProcedure<R, A1, A2, A3, A4,
-                      cxxtools::Void> : public IRemoteProcedure
+                      cxxtools::Void> : public RemoteProcedureBase<R>
 {
     public:
         RemoteProcedure(Client& client, const std::string& name)
-        : IRemoteProcedure(client, name)
+        : RemoteProcedureBase<R>(client, name)
         { }
-
-        ~RemoteProcedure()
-        {}
 
         void begin(const A1& a1, const A2& a2, const A3& a3, const A4& a4)
         {
+            this->_result.clearFault();
+
             _a1.begin(a1);
             _a2.begin(a2);
             _a3.begin(a3);
             _a4.begin(a4);
 
-            _r.begin(_result);
+            this->_r.begin(this->_result.value());
 
             ISerializer* argv[4] = { &_a1, &_a2, &_a3, &_a4};
-            this->client()->beginCall(_r, *this, argv, 4);
+            this->client()->beginCall(this->_r, *this, argv, 4);
         }
 
         const R& call(const A1& a1, const A2& a2, const A3& a3, const A4& a4)
         {
+            this->_result.clearFault();
+
             _a1.begin(a1);
             _a2.begin(a2);
             _a3.begin(a3);
             _a4.begin(a4);
-            _r.begin(_result);
+            this->_r.begin(this->_result.value());
 
             ISerializer* argv[4] = { &_a1, &_a2, &_a3, &_a4};
-            this->client()->call(_r, *this, argv, 4);
-            return _result;
+            this->client()->call(this->_r, *this, argv, 4);
+            return this->_result.get();
         }
 
         const R& operator()(const A1& a1, const A2& a2, const A3& a3, const A4& a4)
@@ -189,18 +218,7 @@ class RemoteProcedure<R, A1, A2, A3, A4,
             return this->call(a1, a2, a3, a4);
         }
 
-        const R& result()
-        { return _result; }
-
-        Signal<const R&> finished;
-
-    protected:
-        void onFinished()
-        { finished.send(_result); }
-
     private:
-        R _result;
-        Deserializer<R> _r;
         Serializer<A1> _a1;
         Serializer<A2> _a2;
         Serializer<A3> _a3;
@@ -214,37 +232,38 @@ template <typename R,
           typename A3>
 class RemoteProcedure<R, A1, A2, A3,
                       cxxtools::Void,
-                      cxxtools::Void> : public IRemoteProcedure
+                      cxxtools::Void> : public RemoteProcedureBase<R>
 {
     public:
         RemoteProcedure(Client& client, const std::string& name)
-        : IRemoteProcedure(client, name)
+        : RemoteProcedureBase<R>(client, name)
         { }
-
-        ~RemoteProcedure()
-        {}
 
         void begin(const A1& a1, const A2& a2, const A3& a3)
         {
+            this->_result.clearFault();
+
             _a1.begin(a1);
             _a2.begin(a2);
             _a3.begin(a3);
-            _r.begin(_result);
+            this->_r.begin(this->_result.value());
 
             ISerializer* argv[3] = { &_a1, &_a2, &_a3};
-            this->client()->beginCall(_r, *this, argv, 3);
+            this->client()->beginCall(this->_r, *this, argv, 3);
         }
 
         const R& call(const A1& a1, const A2& a2, const A3& a3)
         {
+            this->_result.clearFault();
+
             _a1.begin(a1);
             _a2.begin(a2);
             _a3.begin(a3);
-            _r.begin(_result);
+            this->_r.begin(this->_result.value());
 
             ISerializer* argv[3] = { &_a1, &_a2, &_a3};
-            this->client()->call(_r, *this, argv, 3);
-            return _result;
+            this->client()->call(this->_r, *this, argv, 3);
+            return this->_result.get();
         }
 
         const R& operator()(const A1& a1, const A2& a2, const A3& a3)
@@ -252,18 +271,7 @@ class RemoteProcedure<R, A1, A2, A3,
             return this->call(a1, a2, a3);
         }
 
-        const R& result()
-        { return _result; }
-
-        Signal<const R&> finished;
-
-    protected:
-        void onFinished()
-        { finished.send(_result); }
-
     private:
-        R _result;
-        Deserializer<R> _r;
         Serializer<A1> _a1;
         Serializer<A2> _a2;
         Serializer<A3> _a3;
@@ -276,35 +284,36 @@ template <typename R,
 class RemoteProcedure<R, A1, A2,
                       cxxtools::Void,
                       cxxtools::Void,
-                      cxxtools::Void> : public IRemoteProcedure
+                      cxxtools::Void> : public RemoteProcedureBase<R>
 {
     public:
         RemoteProcedure(Client& client, const std::string& name)
-        : IRemoteProcedure(client, name)
+        : RemoteProcedureBase<R>(client, name)
         { }
-
-        ~RemoteProcedure()
-        {}
 
         void begin(const A1& a1, const A2& a2)
         {
+            this->_result.clearFault();
+
             _a1.begin(a1);
             _a2.begin(a2);
-            _r.begin(_result);
+            this->_r.begin(this->_result.value());
 
             ISerializer* argv[2] = { &_a1, &_a2 };
-            this->client()->beginCall(_r, *this, argv, 2);
+            this->client()->beginCall(this->_r, *this, argv, 2);
         }
 
         const R& call(const A1& a1, const A2& a2)
         {
+            this->_result.clearFault();
+
             _a1.begin(a1);
             _a2.begin(a2);
-            _r.begin(_result);
+            this->_r.begin(this->_result.value());
 
             ISerializer* argv[2] = { &_a1, &_a2 };
-            this->client()->call(_r, *this, argv, 2);
-            return _result;
+            this->client()->call(this->_r, *this, argv, 2);
+            return this->_result.get();
         }
 
         const R& operator()(const A1& a1, const A2& a2)
@@ -312,18 +321,7 @@ class RemoteProcedure<R, A1, A2,
             return this->call(a1, a2);
         }
 
-        const R& result()
-        { return _result; }
-
-        Signal<const R&> finished;
-
-    protected:
-        void onFinished()
-        { finished.send(_result); }
-
     private:
-        R _result;
-        Deserializer<R> _r;
         Serializer<A1> _a1;
         Serializer<A2> _a2;
 };
@@ -335,33 +333,34 @@ class RemoteProcedure<R, A1,
                       cxxtools::Void,
                       cxxtools::Void,
                       cxxtools::Void,
-                      cxxtools::Void> : public IRemoteProcedure
+                      cxxtools::Void> : public RemoteProcedureBase<R>
 {
     public:
         RemoteProcedure(Client& client, const std::string& name)
-        : IRemoteProcedure(client, name)
+        : RemoteProcedureBase<R>(client, name)
         { }
-
-        ~RemoteProcedure()
-        {}
 
         void begin(const A1& a1)
         {
+            this->_result.clearFault();
+
             _a1.begin(a1);
-            _r.begin(_result);
+            this->_r.begin(this->_result.value());
 
             ISerializer* argv[1] = { &_a1 };
-            this->client()->beginCall(_r, *this, argv, 1);
+            this->client()->beginCall(this->_r, *this, argv, 1);
         }
 
         const R& call(const A1& a1)
         {
+            this->_result.clearFault();
+
             _a1.begin(a1);
-            _r.begin(_result);
+            this->_r.begin(this->_result.value());
 
             ISerializer* argv[1] = { &_a1 };
-            this->client()->call(_r, *this, argv, 1);
-            return _result;
+            this->client()->call(this->_r, *this, argv, 1);
+            return this->_result.get();
         }
 
         const R& operator()(const A1& a1)
@@ -369,18 +368,7 @@ class RemoteProcedure<R, A1,
             return this->call(a1);
         }
 
-        const R& result()
-        { return _result; }
-
-        Signal<const R&> finished;
-
-    protected:
-        void onFinished()
-        { finished.send(_result); }
-
     private:
-        R _result;
-        Deserializer<R> _r;
         Serializer<A1> _a1;
 };
 
@@ -391,50 +379,38 @@ class RemoteProcedure<R,
                       cxxtools::Void,
                       cxxtools::Void,
                       cxxtools::Void,
-                      cxxtools::Void> : public IRemoteProcedure
+                      cxxtools::Void> : public RemoteProcedureBase<R>
 {
     public:
         RemoteProcedure(Client& client, const std::string& name)
-        : IRemoteProcedure(client, name)
+        : RemoteProcedureBase<R>(client, name)
         { }
-
-        ~RemoteProcedure()
-        {}
 
         void begin()
         {
-            _r.begin(_result);
+            this->_result.clearFault();
+
+            this->_r.begin(this->_result.value());
 
             ISerializer* argv[1] = { 0 };
-            this->client()->beginCall(_r, *this, argv, 0);
+            this->client()->beginCall(this->_r, *this, argv, 0);
         }
 
         const R& call()
         {
-            _r.begin(_result);
+            this->_result.clearFault();
+
+            this->_r.begin(this->_result.value());
 
             ISerializer* argv[1] = { 0 };
-            this->client()->call(_r, *this, argv, 0);
-            return _result;
+            this->client()->call(this->_r, *this, argv, 0);
+            return this->_result.get();
         }
 
         const R& operator()()
         {
             return this->call();
         }
-
-        const R& result()
-        { return _result; }
-
-        Signal<const R&> finished;
-
-    protected:
-        void onFinished()
-        { finished.send(_result); }
-
-    private:
-        R _result;
-        Deserializer<R> _r;
 };
 
 }

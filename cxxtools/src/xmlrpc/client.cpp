@@ -149,7 +149,7 @@ void Client::call(IDeserializer& r, IRemoteProcedure& method, ISerializer** argv
     if( _state == OnFaultResponseEnd )
     {
         _state = OnBegin;
-        throw _fault;
+        throw method.fault();
     }
 
     _state = OnBegin;
@@ -160,7 +160,6 @@ void Client::call(IDeserializer& r, IRemoteProcedure& method, ISerializer** argv
 
 void Client::onReplyHeader(http::Client& client)
 {
-    _fault.clear();
     _ts.attach( client.in() );
 }
 
@@ -188,20 +187,17 @@ std::size_t Client::onReplyBody(http::Client& client)
     }
     catch(const xml::XmlError& error)
     {
-        _fault.setRc(1);
-        _fault.setText( error.what() );
+        _method->setFault(Fault::invalidXmlRpc, error.what());
         throw;
     }
     catch(const SerializationError& error)
     {
-        _fault.setRc(2);
-        _fault.setText( error.what() );
+        _method->setFault(Fault::invalidMethodParameters, error.what());
         throw;
     }
     catch(const ConversionError& error)
     {
-        _fault.setRc(3);
-        _fault.setText( error.what() );
+        _method->setFault(Fault::invalidMethodParameters, error.what());
         throw;
     }
 
@@ -211,20 +207,16 @@ std::size_t Client::onReplyBody(http::Client& client)
 
 void Client::onErrorOccured(http::Client& client, const std::exception& e)
 {
-    _method->errorOccured(*this, e);
+    if (!_method->fault())
+        _method->setFault(Fault::systemError, e.what());
+
+    _method->onFinished();
 }
 
 
 void Client::onReplyFinished(http::Client& client)
 {
-    if(_state == OnMethodResponseEnd)
-    {
-        _method->onFinished();
-    }
-    else if(_state == OnFaultResponseEnd || _fault.rc() != 0)
-    {
-        _method->fault(_fault);
-    }
+    _method->onFinished();
 }
 
 
@@ -282,7 +274,7 @@ void Client::advance(const cxxtools::xml::Node& node)
 
                 else if( se.name() == L"fault")
                 {
-                    _fh.begin(_fault);
+                    _fh.begin(_method->fault());
                     _scanner.begin(_fh, _context);
                     _state = OnFaultBegin;
                     break;

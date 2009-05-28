@@ -122,23 +122,25 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
 
             cxxtools::xmlrpc::Client client(*_loop, "127.0.0.1", 8001, "/calc");
             cxxtools::xmlrpc::RemoteProcedure<bool> multiply(client, "multiply");
-            connect( multiply.fault, *this, &XmlRpcTest::onFault );
-            connect( multiply.errorOccured, *this, &XmlRpcTest::onError);
+            connect( multiply.finished, *this, &XmlRpcTest::onFault );
             multiply.begin();
 
             _loop->run();
         }
 
-        void onError(cxxtools::xmlrpc::Client& client, const std::exception& e)
+        void onFault(const cxxtools::xmlrpc::Result<bool>& result)
         {
-            log_info("excpetion of type " << typeid(e).name() << " occured");
-            throw;
-        }
+            try
+            {
+                bool v = result.get();
+                CXXTOOLS_UNIT_ASSERT(false);
+            }
+            catch (const cxxtools::xmlrpc::Fault& e)
+            {
+                CXXTOOLS_UNIT_ASSERT_EQUALS(e.rc(), 7)
+                CXXTOOLS_UNIT_ASSERT_EQUALS(e.text(), "Fault")
+            }
 
-        void onFault(const cxxtools::xmlrpc::Fault& fault)
-        {
-            CXXTOOLS_UNIT_ASSERT_EQUALS(fault.rc(), 7)
-            CXXTOOLS_UNIT_ASSERT_EQUALS(fault.text(), "Fault")
             _loop->exit();
         }
 
@@ -160,9 +162,9 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _loop->run();
         }
 
-        void onNothingFinished(const bool& r)
+        void onNothingFinished(const cxxtools::xmlrpc::Result<bool>& r)
         {
-            CXXTOOLS_UNIT_ASSERT_EQUALS(r, false)
+            CXXTOOLS_UNIT_ASSERT_EQUALS(r.get(), false)
 
             _loop->exit();
         }
@@ -185,9 +187,9 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _loop->run();
         }
 
-        void onBooleanFinished(const bool& r)
+        void onBooleanFinished(const cxxtools::xmlrpc::Result<bool>& r)
         {
-            CXXTOOLS_UNIT_ASSERT_EQUALS(r, true)
+            CXXTOOLS_UNIT_ASSERT_EQUALS(r.get(), true)
 
             _loop->exit();
         }
@@ -210,9 +212,9 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _loop->run();
         }
 
-        void onIntegerFinished(const int& r)
+        void onIntegerFinished(const cxxtools::xmlrpc::Result<int>& r)
         {
-            CXXTOOLS_UNIT_ASSERT_EQUALS(r, 6)
+            CXXTOOLS_UNIT_ASSERT_EQUALS(r.get(), 6)
 
             _loop->exit();
         }
@@ -235,9 +237,9 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _loop->run();
         }
 
-        void onDoubleFinished(const double& r)
+        void onDoubleFinished(const cxxtools::xmlrpc::Result<double>& r)
         {
-            CXXTOOLS_UNIT_ASSERT_EQUALS(r, 6.0)
+            CXXTOOLS_UNIT_ASSERT_EQUALS(r.get(), 6.0)
 
             _loop->exit();
         }
@@ -260,9 +262,9 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _loop->run();
         }
 
-        void onStringFinished(const std::string& r)
+        void onStringFinished(const cxxtools::xmlrpc::Result<std::string>& r)
         {
-            CXXTOOLS_UNIT_ASSERT_EQUALS(r, "6")
+            CXXTOOLS_UNIT_ASSERT_EQUALS(r.get(), "6")
 
             _loop->exit();
         }
@@ -285,9 +287,9 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _loop->run();
         }
 
-        void onStringEchoFinished(const std::string& r)
+        void onStringEchoFinished(const cxxtools::xmlrpc::Result<std::string>& r)
         {
-            CXXTOOLS_UNIT_ASSERT_EQUALS(r, "foo?")
+            CXXTOOLS_UNIT_ASSERT_EQUALS(r.get(), "foo?")
 
             _loop->exit();
         }
@@ -310,9 +312,9 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _loop->run();
         }
 
-        void onEmptyFinished(const std::string& r)
+        void onEmptyFinished(const cxxtools::xmlrpc::Result<std::string>& r)
         {
-            CXXTOOLS_UNIT_ASSERT_EQUALS(r, "4")
+            CXXTOOLS_UNIT_ASSERT_EQUALS(r.get(), "4")
             _loop->exit();
         }
 
@@ -338,11 +340,11 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _loop->run();
         }
 
-        void onArrayFinished(const std::vector<int>& r)
+        void onArrayFinished(const cxxtools::xmlrpc::Result<std::vector<int> >& r)
         {
-            CXXTOOLS_UNIT_ASSERT_EQUALS(r.size(), 2)
-            CXXTOOLS_UNIT_ASSERT_EQUALS(r.at(0), 100)
-            CXXTOOLS_UNIT_ASSERT_EQUALS(r.at(1), 400)
+            CXXTOOLS_UNIT_ASSERT_EQUALS(r.get().size(), 2)
+            CXXTOOLS_UNIT_ASSERT_EQUALS(r.get().at(0), 100)
+            CXXTOOLS_UNIT_ASSERT_EQUALS(r.get().at(1), 400)
 
             _loop->exit();
         }
@@ -366,9 +368,9 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _loop->run();
         }
 
-        void onEmptyArrayFinished(const std::vector<int>& r)
+        void onEmptyArrayFinished(const cxxtools::xmlrpc::Result<std::vector<int> >& r)
         {
-            //CXXTOOLS_UNIT_ASSERT_EQUALS(r.size(), 0)
+            CXXTOOLS_UNIT_ASSERT_EQUALS(r.get().size(), 0)
 
             _loop->exit();
         }
@@ -401,11 +403,11 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _loop->run();
         }
 
-        void onStuctFinished(const Color& color)
+        void onStuctFinished(const cxxtools::xmlrpc::Result<Color>& color)
         {
-            CXXTOOLS_UNIT_ASSERT_EQUALS(color.red, 6)
-            CXXTOOLS_UNIT_ASSERT_EQUALS(color.green, 12)
-            CXXTOOLS_UNIT_ASSERT_EQUALS(color.blue, 20)
+            CXXTOOLS_UNIT_ASSERT_EQUALS(color.get().red, 6)
+            CXXTOOLS_UNIT_ASSERT_EQUALS(color.get().green, 12)
+            CXXTOOLS_UNIT_ASSERT_EQUALS(color.get().blue, 20)
 
             _loop->exit();
         }

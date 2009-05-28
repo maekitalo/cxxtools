@@ -41,6 +41,19 @@ namespace xmlrpc {
 class CXXTOOLS_XMLRPC_API Fault : public std::exception
 {
     public:
+        enum ErrorCodes {
+            parseError                  = -32700,
+            unsupportedEncoding         = -32701,
+            invalidCharacterForEncoding = -32702,
+            invalidXmlRpc               = -32600,
+            methodNotFound              = -32601,
+            invalidMethodParameters     = -32602,
+            internalXmlRpcError         = -32603,
+            applicationError            = -32500,
+            systemError                 = -32400,
+            transportError              = -32300
+        };
+
         Fault(const std::string& msg, int rc)
         : _msg(msg)
         , _rc(rc)
@@ -75,6 +88,9 @@ class CXXTOOLS_XMLRPC_API Fault : public std::exception
 
         const char* what() const throw()
         { return _msg.c_str(); }
+
+        operator bool() const
+        { return _rc != 0; }
 
     private:
         std::string _msg;
