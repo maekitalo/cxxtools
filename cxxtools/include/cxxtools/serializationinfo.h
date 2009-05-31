@@ -35,6 +35,7 @@
 #include <vector>
 #include <set>
 #include <list>
+#include <deque>
 #include <typeinfo>
 
 namespace cxxtools {
@@ -668,6 +669,35 @@ inline void operator <<=(SerializationInfo& si, const std::list<T, A>& list)
     }
 
     si.setTypeName("list");
+    si.setCategory(SerializationInfo::Array);
+}
+
+
+template <typename T, typename A>
+inline void operator >>=(const SerializationInfo& si, std::deque<T, A>& deque)
+{
+    deque.clear();
+    for(SerializationInfo::ConstIterator it = si.begin(); it != si.end(); ++it)
+    {
+        deque.resize( deque.size() + 1 );
+        *it >>=  deque.back();
+    }
+}
+
+
+template <typename T, typename A>
+inline void operator <<=(SerializationInfo& si, const std::deque<T, A>& deque)
+{
+    typename std::deque<T, A>::const_iterator it;
+
+    for(it = deque.begin(); it != deque.end(); ++it)
+    {
+        SerializationInfo& newSi = si.addMember("item");
+        newSi <<= *it;
+        newSi.setName( newSi.typeName() );
+    }
+
+    si.setTypeName("deque");
     si.setCategory(SerializationInfo::Array);
 }
 
