@@ -24,8 +24,8 @@ namespace cxxtools {
 namespace unit {
 
 Assertion::Assertion(const std::string& what, const SourceInfo& si)
-: std::logic_error(what)
-, _sourceInfo(si)
+: _sourceInfo(si)
+, _what(what)
 {
 }
 

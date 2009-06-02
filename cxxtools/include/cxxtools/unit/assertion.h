@@ -47,7 +47,7 @@ namespace unit {
             }
         @endcode
     */
-    class Assertion : public std::logic_error
+    class Assertion
     {
         public:
             /** @brief Construct from a message and source info.
@@ -64,8 +64,11 @@ namespace unit {
 
             const SourceInfo& sourceInfo() const;
 
+            const char* what() const  { return _what.c_str(); }
+
         private:
             SourceInfo _sourceInfo;
+            std::string _what;
     };
 
     #define CXXTOOLS_UNIT_ASSERT(cond) \
