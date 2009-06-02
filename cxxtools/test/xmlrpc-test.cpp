@@ -78,6 +78,7 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
         {
             this->registerMethod("Fault", *this, &XmlRpcTest::Fault);
             this->registerMethod("CallbackException", *this, &XmlRpcTest::CallbackException);
+            this->registerMethod("ConnectError", *this, &XmlRpcTest::ConnectError);
             this->registerMethod("Nothing", *this, &XmlRpcTest::Nothing);
             this->registerMethod("Boolean", *this, &XmlRpcTest::Boolean);
             this->registerMethod("Integer", *this, &XmlRpcTest::Integer);
@@ -197,6 +198,32 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             ++_count;
             _loop->exit();
             throw std::runtime_error("my error");
+        }
+
+        void ConnectError()
+        {
+            cxxtools::xmlrpc::Client client(*_loop, "127.0.0.1", 8001, "/calc");
+            cxxtools::xmlrpc::RemoteProcedure<bool> multiply(client, "multiply");
+            connect( multiply.finished, *this, &XmlRpcTest::onConnectErrorCallback );
+
+            multiply.begin();
+
+            try
+            {
+                _loop->run();
+            }
+            catch (const std::exception& e)
+            {
+                log_error("loop exited with exception: " << e.what());
+                CXXTOOLS_UNIT_ASSERT_MSG(false, std::string("unexpected exception ") + typeid(e).name() + ": " + e.what());
+            }
+        }
+
+        void onConnectErrorCallback(const cxxtools::xmlrpc::Result<bool>& r)
+        {
+            log_debug("onConnectErrorCallback");
+            _loop->exit();
+            CXXTOOLS_UNIT_ASSERT_THROW(r.get(), std::exception);
         }
 
         void Boolean()

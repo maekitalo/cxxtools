@@ -306,9 +306,16 @@ void Client::sendRequest(const Request& request)
 
 void Client::onConnect(net::TcpSocket& socket)
 {
-    socket.endConnect();
-    sendRequest(*_request);
-    _stream.buffer().beginWrite();
+    try
+    {
+        socket.endConnect();
+        sendRequest(*_request);
+        _stream.buffer().beginWrite();
+    }
+    catch (const std::exception& e)
+    {
+        errorOccured(*this, e);
+    }
 }
 
 void Client::onOutput(StreamBuffer& sb)

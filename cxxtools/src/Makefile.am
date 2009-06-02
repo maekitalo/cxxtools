@@ -21,6 +21,7 @@ libcxxtools_la_SOURCES = \
 	deserializer.cpp \
 	directory.cpp \
 	directoryimpl.cpp \
+	error.cpp \
 	eventloop.cpp \
 	eventsink.cpp \
 	eventsource.cpp \
@@ -93,6 +94,7 @@ noinst_HEADERS = \
 	clockimpl.h \
 	conditionimpl.h \
 	directoryimpl.h \
+	error.h \
 	fileimpl.h \
 	fileinfoimpl.h \
 	facets.cpp \

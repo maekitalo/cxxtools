@@ -40,7 +40,7 @@ namespace cxxtools {
         public:
             IOError(const std::string& what, const SourceInfo& si);
 
-            IOError(const char* what);
+            explicit IOError(const char* what);
 
             ~IOError() throw()
             {}

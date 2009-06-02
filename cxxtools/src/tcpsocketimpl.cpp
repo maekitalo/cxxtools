@@ -35,6 +35,7 @@
 #include "cxxtools/ioerror.h"
 #include "cxxtools/log.h"
 #include "config.h"
+#include "error.h"
 #include <cerrno>
 #include <cstring>
 #include <cassert>
@@ -153,7 +154,7 @@ bool TcpSocketImpl::beginConnect(const std::string& ipaddr, unsigned short int p
         if(errno != EINPROGRESS)
         {
             close();
-            throw SystemError("connect failed");
+            throw IOError(getErrnoString(errno, "connect").c_str());
         }
 
         log_debug("connect in progress");
@@ -188,6 +189,7 @@ void TcpSocketImpl::endConnect()
             if(false == ret)
             {
                 log_debug("timeout");
+                close();
                 throw IOTimeout();
             }
 
@@ -197,11 +199,14 @@ void TcpSocketImpl::endConnect()
             socklen_t optlen = sizeof(sockerr);
             if( ::getsockopt(this->fd(), SOL_SOCKET, SO_ERROR, &sockerr, &optlen) != 0 )
             {
-                throw IOError("getsockopt");
+                int e = errno;
+                close();
+                throw SystemError(e, "getsockopt");
             }
             else if (sockerr != 0)
             {
-                throw SystemError(sockerr, "connect failed");
+                close();
+                throw IOError(getErrnoString(sockerr, "connect").c_str());
             }
 
             log_debug("connected successfully");

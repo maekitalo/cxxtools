@@ -29,25 +29,9 @@
 #include "cxxtools/systemerror.h"
 #include "cxxtools/log.h"
 #include <errno.h>
-#include <string.h>
-#include <sstream>
+#include "error.h"
 
 log_define("cxxtools.systemerror")
-
-namespace
-{
-    std::string getErrnoString(int err, const char* fn)
-    {
-        if (err != 0)
-        {
-            std::ostringstream msg;
-            msg << fn << ": errno " << err << ": " << strerror(err);
-            return msg.str();
-        }
-        else
-            return fn;
-    }
-}
 
 namespace cxxtools {
 
