@@ -70,12 +70,14 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
         cxxtools::EventLoop* _loop;
         cxxtools::http::Server* _server;
         cxxtools::AttachedThread* _serverThread;
+        unsigned _count;
 
     public:
         XmlRpcTest()
         : cxxtools::unit::TestSuite("cxxtools-xmlrpc-Test")
         {
             this->registerMethod("Fault", *this, &XmlRpcTest::Fault);
+            this->registerMethod("CallbackException", *this, &XmlRpcTest::CallbackException);
             this->registerMethod("Nothing", *this, &XmlRpcTest::Nothing);
             this->registerMethod("Boolean", *this, &XmlRpcTest::Boolean);
             this->registerMethod("Integer", *this, &XmlRpcTest::Integer);
@@ -167,6 +169,34 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(r.get(), false)
 
             _loop->exit();
+        }
+
+        void CallbackException()
+        {
+            cxxtools::xmlrpc::Service service;
+            service.registerMethod("multiply", *this, &XmlRpcTest::multiplyNothing);
+            _server->addService("/calc", service);
+
+            _serverThread->start();
+            cxxtools::Thread::sleep(500);
+
+            cxxtools::xmlrpc::Client client(*_loop, "127.0.0.1", 8001, "/calc");
+            cxxtools::xmlrpc::RemoteProcedure<bool> multiply(client, "multiply");
+            connect( multiply.finished, *this, &XmlRpcTest::onExceptionCallback );
+
+            multiply.begin();
+
+            _count = 0;
+            CXXTOOLS_UNIT_ASSERT_THROW(_loop->run(), std::runtime_error);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(_count, 1);
+        }
+
+        void onExceptionCallback(const cxxtools::xmlrpc::Result<bool>& r)
+        {
+            log_warn("exception callback");
+            ++_count;
+            _loop->exit();
+            throw std::runtime_error("my error");
         }
 
         void Boolean()

@@ -207,16 +207,27 @@ std::size_t Client::onReplyBody(http::Client& client)
 
 void Client::onErrorOccured(http::Client& client, const std::exception& e)
 {
-    if (!_method->fault())
-        _method->setFault(Fault::systemError, e.what());
+    if (_method)
+    {
+        if (!_method->fault())
+            _method->setFault(Fault::systemError, e.what());
 
-    _method->onFinished();
+        IRemoteProcedure* method = _method;
+        _method = 0;
+        method->onFinished();
+    }
+    else
+    {
+        throw;
+    }
 }
 
 
 void Client::onReplyFinished(http::Client& client)
 {
-    _method->onFinished();
+    IRemoteProcedure* method = _method;
+    _method = 0;
+    method->onFinished();
 }
 
 
