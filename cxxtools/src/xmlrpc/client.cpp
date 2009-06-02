@@ -209,6 +209,8 @@ void Client::onErrorOccured(http::Client& client, const std::exception& e)
 {
     if (_method)
     {
+        // TODO do not map local exceptions to cxxtools::xmlrpc::Fault
+
         if (!_method->fault())
             _method->setFault(Fault::systemError, e.what());
 
