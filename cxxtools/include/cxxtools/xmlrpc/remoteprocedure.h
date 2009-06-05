@@ -58,15 +58,15 @@ class CXXTOOLS_XMLRPC_API IRemoteProcedure
         virtual ~IRemoteProcedure()
         { }
 
-        Client* client()
-        { return _client; }
+        Client& client()
+        { return *_client; }
 
         const std::string& name() const
         { return _name; }
 
         virtual void setFault(int rc, const std::string& msg) = 0;
 
-        virtual Fault& fault() = 0;
+        virtual bool failed() const = 0;
 
     protected:
         virtual void onFinished() = 0;
@@ -95,9 +95,9 @@ class RemoteProcedureBase : public IRemoteProcedure
             return _result.get();
         }
 
-        virtual Fault& fault()
+        virtual bool failed() const
         {
-            return _result.fault();
+            return _result.failed();
         }
 
         Signal< const Result<R> & > finished;
@@ -137,7 +137,7 @@ class RemoteProcedure : public RemoteProcedureBase<R>
             this->_r.begin(this->_result.value());
 
             ISerializer* argv[5] = { &_a1, &_a2, &_a3, &_a4, &_a5};
-            this->client()->beginCall(this->_r, *this, argv, 5);
+            this->client().beginCall(this->_r, *this, argv, 5);
         }
 
         const R& call(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5)
@@ -152,7 +152,7 @@ class RemoteProcedure : public RemoteProcedureBase<R>
             this->_r.begin(this->_result.value());
 
             ISerializer* argv[5] = { &_a1, &_a2, &_a3, &_a4, &_a5};
-            this->client()->call(this->_r, *this, argv, 5);
+            this->client().call(this->_r, *this, argv, 5);
             return this->_result.get();
         }
 
@@ -195,7 +195,7 @@ class RemoteProcedure<R, A1, A2, A3, A4,
             this->_r.begin(this->_result.value());
 
             ISerializer* argv[4] = { &_a1, &_a2, &_a3, &_a4};
-            this->client()->beginCall(this->_r, *this, argv, 4);
+            this->client().beginCall(this->_r, *this, argv, 4);
         }
 
         const R& call(const A1& a1, const A2& a2, const A3& a3, const A4& a4)
@@ -209,7 +209,7 @@ class RemoteProcedure<R, A1, A2, A3, A4,
             this->_r.begin(this->_result.value());
 
             ISerializer* argv[4] = { &_a1, &_a2, &_a3, &_a4};
-            this->client()->call(this->_r, *this, argv, 4);
+            this->client().call(this->_r, *this, argv, 4);
             return this->_result.get();
         }
 
@@ -249,7 +249,7 @@ class RemoteProcedure<R, A1, A2, A3,
             this->_r.begin(this->_result.value());
 
             ISerializer* argv[3] = { &_a1, &_a2, &_a3};
-            this->client()->beginCall(this->_r, *this, argv, 3);
+            this->client().beginCall(this->_r, *this, argv, 3);
         }
 
         const R& call(const A1& a1, const A2& a2, const A3& a3)
@@ -262,7 +262,7 @@ class RemoteProcedure<R, A1, A2, A3,
             this->_r.begin(this->_result.value());
 
             ISerializer* argv[3] = { &_a1, &_a2, &_a3};
-            this->client()->call(this->_r, *this, argv, 3);
+            this->client().call(this->_r, *this, argv, 3);
             return this->_result.get();
         }
 
@@ -300,7 +300,7 @@ class RemoteProcedure<R, A1, A2,
             this->_r.begin(this->_result.value());
 
             ISerializer* argv[2] = { &_a1, &_a2 };
-            this->client()->beginCall(this->_r, *this, argv, 2);
+            this->client().beginCall(this->_r, *this, argv, 2);
         }
 
         const R& call(const A1& a1, const A2& a2)
@@ -312,7 +312,7 @@ class RemoteProcedure<R, A1, A2,
             this->_r.begin(this->_result.value());
 
             ISerializer* argv[2] = { &_a1, &_a2 };
-            this->client()->call(this->_r, *this, argv, 2);
+            this->client().call(this->_r, *this, argv, 2);
             return this->_result.get();
         }
 
@@ -348,7 +348,7 @@ class RemoteProcedure<R, A1,
             this->_r.begin(this->_result.value());
 
             ISerializer* argv[1] = { &_a1 };
-            this->client()->beginCall(this->_r, *this, argv, 1);
+            this->client().beginCall(this->_r, *this, argv, 1);
         }
 
         const R& call(const A1& a1)
@@ -359,7 +359,7 @@ class RemoteProcedure<R, A1,
             this->_r.begin(this->_result.value());
 
             ISerializer* argv[1] = { &_a1 };
-            this->client()->call(this->_r, *this, argv, 1);
+            this->client().call(this->_r, *this, argv, 1);
             return this->_result.get();
         }
 
@@ -393,7 +393,7 @@ class RemoteProcedure<R,
             this->_r.begin(this->_result.value());
 
             ISerializer* argv[1] = { 0 };
-            this->client()->beginCall(this->_r, *this, argv, 0);
+            this->client().beginCall(this->_r, *this, argv, 0);
         }
 
         const R& call()
@@ -403,7 +403,7 @@ class RemoteProcedure<R,
             this->_r.begin(this->_result.value());
 
             ISerializer* argv[1] = { 0 };
-            this->client()->call(this->_r, *this, argv, 0);
+            this->client().call(this->_r, *this, argv, 0);
             return this->_result.get();
         }
 

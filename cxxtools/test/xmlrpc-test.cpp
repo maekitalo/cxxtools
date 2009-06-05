@@ -77,6 +77,7 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
         : cxxtools::unit::TestSuite("cxxtools-xmlrpc-Test")
         {
             this->registerMethod("Fault", *this, &XmlRpcTest::Fault);
+            this->registerMethod("Exception", *this, &XmlRpcTest::Exception);
             this->registerMethod("CallbackException", *this, &XmlRpcTest::CallbackException);
             this->registerMethod("ConnectError", *this, &XmlRpcTest::ConnectError);
             this->registerMethod("Nothing", *this, &XmlRpcTest::Nothing);
@@ -142,6 +143,39 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             {
                 CXXTOOLS_UNIT_ASSERT_EQUALS(e.rc(), 7)
                 CXXTOOLS_UNIT_ASSERT_EQUALS(e.text(), "Fault")
+            }
+
+            _loop->exit();
+        }
+
+        void Exception()
+        {
+            cxxtools::xmlrpc::Service service;
+            service.registerMethod("multiply", *this, &XmlRpcTest::throwException);
+            _server->addService("/calc", service);
+
+            _serverThread->start();
+            cxxtools::Thread::sleep(500);
+
+            cxxtools::xmlrpc::Client client(*_loop, "127.0.0.1", 8001, "/calc");
+            cxxtools::xmlrpc::RemoteProcedure<bool> multiply(client, "multiply");
+            connect( multiply.finished, *this, &XmlRpcTest::onException );
+            multiply.begin();
+
+            _loop->run();
+        }
+
+        void onException(const cxxtools::xmlrpc::Result<bool>& result)
+        {
+            try
+            {
+                bool v = result.get();
+                CXXTOOLS_UNIT_ASSERT(false);
+            }
+            catch (const cxxtools::xmlrpc::Fault& e)
+            {
+                CXXTOOLS_UNIT_ASSERT_EQUALS(e.rc(), 0)
+                CXXTOOLS_UNIT_ASSERT_EQUALS(e.text(), "Exception")
             }
 
             _loop->exit();
@@ -472,6 +506,12 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
         bool throwFault()
         {
             throw cxxtools::xmlrpc::Fault("Fault", 7);
+            return false;
+        }
+
+        bool throwException()
+        {
+            throw std::runtime_error("Exception");
             return false;
         }
 

@@ -37,25 +37,37 @@ namespace xmlrpc {
 class IResult
 {
     public:
+        IResult()
+            : _failed(false)
+            { }
+
         void setFault(int rc, const std::string& msg)
         {
             _fault.setRc(rc);
             _fault.setText(msg);
+            _failed = true;
         }
 
         void clearFault()
-        { _fault.clear(); }
+        {
+            _failed = false;
+            _fault.clear();
+        }
 
         Fault& fault()  { return _fault; }
 
         void checkFault() const
         {
-            if (_fault)
+            if (_failed)
                 throw _fault;
         }
 
+        bool failed() const
+        { return _failed; }
+
     private:
         Fault _fault;
+        bool _failed;
 };
 
 template <typename R>

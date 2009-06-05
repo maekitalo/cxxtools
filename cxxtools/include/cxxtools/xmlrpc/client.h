@@ -129,6 +129,7 @@ class CXXTOOLS_XMLRPC_API Client : public cxxtools::Connectable
         Scanner _scanner;
         IRemoteProcedure* _method;
         DeserializationContext _context;
+        Fault _fault;
         Deserializer<Fault> _fh;
         std::size_t _timeout;
 };

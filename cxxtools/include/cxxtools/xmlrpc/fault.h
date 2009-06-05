@@ -89,9 +89,6 @@ class CXXTOOLS_XMLRPC_API Fault : public std::exception
         const char* what() const throw()
         { return _msg.c_str(); }
 
-        operator bool() const
-        { return _rc != 0; }
-
     private:
         std::string _msg;
         int _rc;
