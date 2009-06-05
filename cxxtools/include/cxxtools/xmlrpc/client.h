@@ -40,6 +40,7 @@
 #include <cxxtools/connectable.h>
 #include <cxxtools/textstream.h>
 #include <string>
+#include <sstream>
 #include <cstddef>
 
 namespace cxxtools {
@@ -91,6 +92,18 @@ class CXXTOOLS_XMLRPC_API Client : public cxxtools::Connectable
         std::size_t timeout() const  { return _timeout; }
 
         void timeout(std::size_t t)  { _timeout = t; }
+
+        std::string url() const
+        {
+            std::ostringstream s;
+            s << "http://"
+              << _client.server()
+              << ':'
+              << _client.port()
+              << _request.url();
+
+            return s.str();
+        }
 
     protected:
         void onReplyHeader(http::Client& client);

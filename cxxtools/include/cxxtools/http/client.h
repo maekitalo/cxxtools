@@ -132,6 +132,12 @@ class CXXTOOLS_HTTP_API Client : public cxxtools::Connectable
             return _stream;
         }
 
+        const std::string& server() const
+        { return _server; }
+
+        unsigned short int port() const
+        { return _port; }
+
         Signal<Client&> requestSent;
         Signal<Client&> headerReceived;
         cxxtools::Delegate<std::size_t, Client&> bodyAvailable;
