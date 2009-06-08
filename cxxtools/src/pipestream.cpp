@@ -89,7 +89,8 @@ namespace cxxtools
         log_debug(ret << " bytes written to fd " << getWriteFd());
         if (ret < bufsize)
           std::memmove(obuffer, obuffer + ret, bufsize - ret);
-        setp(obuffer + bufsize - ret, obuffer + bufsize);
+        setp(obuffer, obuffer + bufsize);
+        pbump(bufsize - ret);
       }
     }
     else

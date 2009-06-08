@@ -78,7 +78,8 @@ namespace cxxtools
       {
         log_debug(ret << " bytes written to fd " << fd);
         std::copy(pptr(), pptr() + ret, obuffer);
-        setp(obuffer + ret, obuffer + bufsize - ret);
+        setp(obuffer, obuffer + bufsize - ret);
+        pbump(ret);
       }
     }
     else

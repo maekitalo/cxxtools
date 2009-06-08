@@ -268,7 +268,8 @@ void StreamBuffer::endWrite()
         }
     }
 
-    this->setp(_obuffer + leftover, _obuffer + _obufferSize);
+    this->setp(_obuffer, _obuffer + _obufferSize);
+    this->pbump( leftover );
 }
 
 
@@ -299,7 +300,8 @@ StreamBuffer::int_type StreamBuffer::overflow(int_type ch)
         {
             traits_type::move(_obuffer, _obuffer + written, leftover);
         }
-        this->setp(_obuffer + leftover, _obuffer + _obufferSize);
+        this->setp(_obuffer, _obuffer + _obufferSize);
+        this->pbump( leftover );
     }
     else
     {
@@ -339,7 +341,7 @@ int StreamBuffer::sync()
 
     if( pptr() )
     {
-        while( this->pptr() > _obuffer )
+        while( this->pptr() > this->pbase() )
         {
             const int_type ch = this->overflow( traits_type::eof() );
             if( ch == traits_type::eof() )

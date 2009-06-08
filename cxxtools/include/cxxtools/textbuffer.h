@@ -253,7 +253,8 @@ class BasicTextBuffer : public std::basic_streambuf<CharT>
                     std::char_traits<char_type>::move(_ibuf, fromNext, leftover);
                 }
 
-                this->setp( _ibuf + leftover, _ibuf + _ibufmax );
+                this->setp( _ibuf, _ibuf + _ibufmax );
+                this->pbump( leftover );
 
                 if(res == CodecType::error)
                     throw ConversionError("character conversion failed");
