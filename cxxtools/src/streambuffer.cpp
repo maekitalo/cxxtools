@@ -309,8 +309,10 @@ StreamBuffer::int_type StreamBuffer::overflow(int_type ch)
         // sync/flush we copy the output buffer to a larger one
         size_t bufsize = _obufferSize + (_obufferSize/2);
         char* buf = new char[ bufsize ];
-        traits_type::move(buf, _obuffer, _obufferSize);
+        traits_type::copy(buf, _obuffer, _obufferSize);
         std::swap(_obuffer, buf);
+        this->setp(_obuffer, _obuffer + bufsize);
+        this->pbump( _obufferSize );
         _obufferSize = bufsize;
         delete [] buf;
     }
