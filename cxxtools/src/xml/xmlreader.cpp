@@ -193,13 +193,13 @@ struct XmlReaderImpl
     {
         virtual State* onSpace(cxxtools::Char c, XmlReaderImpl& reader)
         {
-            reader._chars.content() += c;
+            reader.appendContent(c);
             return this;
         }
 
         virtual State* onOpenBracket(cxxtools::Char c, XmlReaderImpl& reader)
         {
-            reader._chars.content() += c;
+            reader.appendContent(c);
             return this;
         }
 
@@ -216,49 +216,49 @@ struct XmlReaderImpl
                 return AfterTag::instance();
             }
 
-            reader._chars.content() += c;
+            reader.appendContent(c);
             return this;
         }
 
         virtual State* onColon(cxxtools::Char c, XmlReaderImpl& reader)
         {
-            reader._chars.content() += c;
+            reader.appendContent(c);
             return this;
         }
 
         virtual State* onSlash(cxxtools::Char c, XmlReaderImpl& reader)
         {
-            reader._chars.content() += c;
+            reader.appendContent(c);
             return this;
         }
 
         virtual State* onEqual(cxxtools::Char c, XmlReaderImpl& reader)
         {
-            reader._chars.content() += c;
+            reader.appendContent(c);
             return this;
         }
 
         virtual State* onQuote(cxxtools::Char c, XmlReaderImpl& reader)
         {
-            reader._chars.content() += c;
+            reader.appendContent(c);
             return this;
         }
 
         virtual State* onExclam(cxxtools::Char c, XmlReaderImpl& reader)
         {
-            reader._chars.content() += c;
+            reader.appendContent(c);
             return this;
         }
 
         virtual State* onQuest(cxxtools::Char c, XmlReaderImpl& reader)
         {
-            reader._chars.content() += c;
+            reader.appendContent(c);
             return this;
         }
 
         virtual State* onAlpha(cxxtools::Char c, XmlReaderImpl& reader)
         {
-            reader._chars.content() += c;
+            reader.appendContent(c);
             return this;
         }
 
@@ -326,13 +326,13 @@ struct XmlReaderImpl
     {
         virtual State* onSpace(cxxtools::Char c, XmlReaderImpl& reader)
         {
-            reader._chars.content() += c;
+            reader.appendContent(c);
             return this;
         }
 
         virtual State* onColon(cxxtools::Char c, XmlReaderImpl& reader)
         {
-            reader._chars.content() += c;
+            reader.appendContent(c);
             return this;
         }
 
@@ -343,31 +343,31 @@ struct XmlReaderImpl
 
         virtual State* onSlash(cxxtools::Char c, XmlReaderImpl& reader)
         {
-            reader._chars.content() += c;
+            reader.appendContent(c);
             return this;
         }
 
         virtual State* onEqual(cxxtools::Char c, XmlReaderImpl& reader)
         {
-            reader._chars.content() += c;
+            reader.appendContent(c);
             return this;
         }
 
         virtual State* onQuote(cxxtools::Char c, XmlReaderImpl& reader)
         {
-            reader._chars.content() += c;
+            reader.appendContent(c);
             return this;
         }
 
         virtual State* onExclam(cxxtools::Char c, XmlReaderImpl& reader)
         {
-            reader._chars.content() += c;
+            reader.appendContent(c);
             return this;
         }
 
         virtual State* onQuest(cxxtools::Char c, XmlReaderImpl& reader)
         {
-            reader._chars.content() += c;
+            reader.appendContent(c);
             return this;
         }
 
@@ -379,7 +379,7 @@ struct XmlReaderImpl
                 return OnEntityReference::instance();
             }
 
-            reader._chars.content() += c;
+            reader.appendContent(c);
             return this;
         }
 
@@ -825,7 +825,7 @@ struct XmlReaderImpl
             if(reader.depth() == 0)
                 return OnProlog::instance();
 
-            reader._chars.content() += c;
+            reader.appendContent(c);
             return OnCharacters::instance();
         }
 
@@ -1539,6 +1539,19 @@ struct XmlReaderImpl
     void resolveEntity(String& str)
     {
         str = _resolver.resolveEntity( str );
+    }
+
+    void appendContent(cxxtools::Char c)
+    {
+        String& content = _chars.content();
+        if (content.capacity() <= content.size() + 20)
+        {
+            if (content.capacity() < 16)
+                content.reserve(16);
+            else
+                content.reserve(content.capacity() + content.capacity() / 2);
+        }
+        content += c;
     }
 
     std::basic_streambuf<Char>* _textBuffer;

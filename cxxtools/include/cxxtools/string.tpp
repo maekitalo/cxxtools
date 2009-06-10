@@ -168,7 +168,7 @@ inline void basic_string<cxxtools::Char>::resize(size_t n, cxxtools::Char ch)
 
 inline void basic_string<cxxtools::Char>::reserve(size_t n)
 {
-    if( n == this->capacity() && _data->busy() )
+    if( (n == this->capacity() && _data->busy()) || n == 0 )
         return;
 
     const size_type size = this->size();
@@ -1016,6 +1016,8 @@ inline std::string basic_string<cxxtools::Char>::narrow() const
     size_type len = this->length();
     const cxxtools::Char* s = _data->str();
 
+    ret.reserve(len);
+
     for(size_t n = 0; n < len; ++n){
         ret.append( 1, s->narrow('_') );
         ++s;
@@ -1028,6 +1030,8 @@ inline std::string basic_string<cxxtools::Char>::narrow() const
 inline basic_string<cxxtools::Char> basic_string<cxxtools::Char>::widen(const std::string& str)
 {
     std::basic_string<cxxtools::Char> ret;
+
+    ret.reserve(str.size());
 
     for(size_t n = 0; n < str.size(); ++n)
         ret += cxxtools::Char( str[n] );

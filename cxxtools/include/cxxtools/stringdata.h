@@ -127,8 +127,8 @@ class StringData {
 
         /** @brief Check if in busy state
 
-            Busy mode means that a modifying action that reuires more than one
-            calls by the caller was started. This is the case if a non-const
+            Busy mode means that a modifying action that rquires more than one
+            call by the caller was started. This is the case if a non-const
             iterator was aquired or the index operator is used. Busy mode will
             be ended if the client calls a modifying action which would also
             invalidate an iterator even if the class was not shared.
