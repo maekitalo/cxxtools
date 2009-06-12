@@ -37,6 +37,7 @@ with -f <filename> a file, which will be sent to the server instead.
 #include <cxxtools/xmlrpc/service.h>
 #include <cxxtools/http/server.h>
 #include <cxxtools/xmlrpc/remoteprocedure.h>
+#include <cxxtools/clock.h>
 #include <fstream>
 
 ////////////////////////////////////////////////////////////////////////
@@ -96,7 +97,7 @@ int main(int argc, char* argv[])
       std::cout << "run rpcecho client" << std::endl;
 
       // take option -n <number> to specify, how often the request should be called (1 by default)
-      cxxtools::Arg<unsigned> number(argc, argv, 'n', 1);
+      cxxtools::Arg<unsigned> number(argc, argv, 'c', 1);
       cxxtools::Arg<bool> doEcho(argc, argv, 'e');
 
       // define a xlmrpc client
@@ -108,6 +109,14 @@ int main(int argc, char* argv[])
       // optionally pass a filename with -f
       cxxtools::Arg<const char*> filename(argc, argv, 'f');
 
+      // option -n - do not output return value (good for benchmarking)
+      cxxtools::Arg<bool> noout(argc, argv, 'n');
+
+      cxxtools::Clock clock;
+      clock.start();
+
+      unsigned size = 0;
+
       if (filename.isSet())
       {
         // read a file into a stringstream
@@ -117,16 +126,34 @@ int main(int argc, char* argv[])
 
         // send data from file to server and print reply to std::cout
         for (unsigned n = 0; n < number; ++n)
-          std::cout << echo(data.str(), doEcho);
+        {
+          std::string v = echo(data.str(), doEcho);
+          size += v.size();
+          if (!noout)
+            std::cout << v;
+        }
       }
       else
       {
         // no filename given, so send just the parameters to the server.
 
         for (unsigned n = 0; n < number; ++n)
+        {
           for (int a = 1; a < argc; ++a)
-            std::cout << echo(argv[a], doEcho) << std::endl;
+          {
+            std::string v = echo(argv[a], doEcho);
+            size += v.size();
+            if (!noout)
+              std::cout << v << '\n';
+          }
+        }
       }
+
+      cxxtools::Timespan t = clock.stop();
+      double T = t.toUSecs() / 1e6;
+      unsigned kbytes = size / 1024.0;
+      std::cerr << T << " s, " << (number.getValue() / T) << " msg/s\n"
+                << kbytes << " kbytes, " << (kbytes / T) << " kbytes/s\n";
     }
   }
   catch (const std::exception& e)
