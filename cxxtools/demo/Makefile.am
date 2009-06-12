@@ -1,6 +1,6 @@
 noinst_PROGRAMS = arg arg-set cgi dir dlloader dynbuffer getini hd \
 	httprequest httpserver iconv log logbench logsh md5sum mime multifstream netcat netio \
-	netmsg pipestream pool signals thread uuencode cxxlog
+	netmsg pipestream pool signals thread uuencode cxxlog rpcecho
 
 arg_SOURCES = arg.cpp
 arg_set_SOURCES = arg-set.cpp
@@ -28,12 +28,14 @@ signals_SOURCES = signals.cpp
 thread_SOURCES = thread.cpp
 uuencode_SOURCES = uuencode.cpp
 cxxlog_SOURCES = cxxlog.cpp
+rpcecho_SOURCES = rpcecho.cpp
 
 INCLUDES = -I$(top_builddir)/include
 LDADD = $(top_builddir)/src/libcxxtools.la
 AM_CXXFLAGS = $(PTHREAD_CFLAGS)
 httpserver_LDADD = $(top_builddir)/src/http/libcxxtools-http.la
 httprequest_LDADD = $(top_builddir)/src/http/libcxxtools-http.la
+rpcecho_LDADD = $(top_builddir)/src/xmlrpc/libcxxtools-xmlrpc.la
 
 log.properties:
 	/bin/sh $(top_builddir)/cxxtools-config --properties cxxtools >$@
