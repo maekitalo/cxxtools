@@ -165,6 +165,8 @@ void XmlWriter::writeCharacters(const cxxtools::String& text)
     static const cxxtools::Char lt[] = { '&', 'l', 't', ';', 0 };
     static const cxxtools::Char gt[] = { '&', 'g', 't', ';', 0 };
     static const cxxtools::Char amp[] = { '&', 'a', 'm', 'p', ';', 0 };
+    static const cxxtools::Char quot[] = { '&', 'q', 'u', 'o', 't', ';', 0 };
+    static const cxxtools::Char apos[] = { '&', 'a', 'p', 'o', 's', ';', 0 };
 
     cxxtools::String::const_iterator it;
     for(it = text.begin(); it != text.end(); ++it)
@@ -181,6 +183,14 @@ void XmlWriter::writeCharacters(const cxxtools::String& text)
 
             case '&':
                 _tos << amp;
+                break;
+
+            case '"':
+                _tos << quot;
+                break;
+
+            case '\'':
+                _tos << apos;
                 break;
 
             default:
