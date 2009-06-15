@@ -275,7 +275,7 @@ inline void StringData::replace(size_type pos, size_type n, size_type n2, cxxtoo
 inline void StringData::reserve(size_type n)
 {
     // only resize if necessary
-    if(n < _capacity)
+    if(n <= _capacity)
         return;
 
     n += 16;
