@@ -85,7 +85,6 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             this->registerMethod("Integer", *this, &XmlRpcTest::Integer);
             this->registerMethod("Double", *this, &XmlRpcTest::Double);
             this->registerMethod("String", *this, &XmlRpcTest::String);
-            this->registerMethod("EchoString", *this, &XmlRpcTest::EchoString);
             this->registerMethod("EmptyValues", *this, &XmlRpcTest::EmptyValues);
             this->registerMethod("Array", *this, &XmlRpcTest::Array);
             this->registerMethod("EmptyArray", *this, &XmlRpcTest::EmptyArray);
@@ -338,31 +337,6 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
         void String()
         {
             cxxtools::xmlrpc::Service service;
-            service.registerMethod("multiply", *this, &XmlRpcTest::multiplyString);
-            _server->addService("/calc", service);
-
-            _serverThread->start();
-            cxxtools::Thread::sleep(500);
-
-            cxxtools::xmlrpc::Client client(*_loop, "127.0.0.1", 8001, "/calc");
-            cxxtools::xmlrpc::RemoteProcedure<std::string, std::string, std::string> multiply(client, "multiply");
-            connect( multiply.finished, *this, &XmlRpcTest::onStringFinished );
-
-            multiply.begin("2", "3");
-
-            _loop->run();
-        }
-
-        void onStringFinished(const cxxtools::xmlrpc::Result<std::string>& r)
-        {
-            CXXTOOLS_UNIT_ASSERT_EQUALS(r.get(), "6")
-
-            _loop->exit();
-        }
-
-        void EchoString()
-        {
-            cxxtools::xmlrpc::Service service;
             service.registerMethod("echoString", *this, &XmlRpcTest::echoString);
             _server->addService("/foo", service);
 
@@ -373,14 +347,14 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             cxxtools::xmlrpc::RemoteProcedure<std::string, std::string> echo(client, "echoString");
             connect( echo.finished, *this, &XmlRpcTest::onStringEchoFinished );
 
-            echo.begin("foo?");
+            echo.begin("\xc3\xaf\xc2\xbb\xc2\xbf'\"&<> foo?");
 
             _loop->run();
         }
 
         void onStringEchoFinished(const cxxtools::xmlrpc::Result<std::string>& r)
         {
-            CXXTOOLS_UNIT_ASSERT_EQUALS(r.get(), "foo?")
+            CXXTOOLS_UNIT_ASSERT_EQUALS(r.get(), "\xc3\xaf\xc2\xbb\xc2\xbf'\"&<> foo?")
 
             _loop->exit();
         }
@@ -535,13 +509,6 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
         double multiplyDouble(double a, double b)
         {
             return a*b;
-        }
-
-        std::string multiplyString(std::string a, std::string b)
-        {
-            CXXTOOLS_UNIT_ASSERT_EQUALS(a, "2")
-            CXXTOOLS_UNIT_ASSERT_EQUALS(b, "3")
-            return "6";
         }
 
         std::string echoString(std::string a)
