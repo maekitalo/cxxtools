@@ -175,7 +175,7 @@ class BasicTextBuffer : public std::basic_streambuf<CharT>
             if( _target )
             {
                 std::streamsize n = _target->rdbuf()->in_avail();
-                do_underflow(n);
+                return do_underflow(n).second;
             }
 
             return this->in_avail();
@@ -286,16 +286,20 @@ class BasicTextBuffer : public std::basic_streambuf<CharT>
             if( this->gptr() < this->egptr() )
                 return traits_type::to_int_type( *this->gptr() );
 
-            return do_underflow(_ebufmax);
+            return do_underflow(_ebufmax).first;
         }
 
 
-        virtual int_type do_underflow(std::streamsize size)
+        std::pair<int_type, std::streamsize> do_underflow(std::streamsize size)
         {
+			typedef std::pair<int_type, std::streamsize> ret_type;
+
+			std::streamsize n = 0;
+
             if( this->pptr() )
             {
                 if( -1 == this->terminate() )
-                    return traits_type::eof();
+                    return ret_type(traits_type::eof(), 0);
             }
 
             if( ! this->gptr() )
@@ -317,7 +321,7 @@ class BasicTextBuffer : public std::basic_streambuf<CharT>
             size = bufavail < size ? bufavail : size;
             if(size)
             {
-                std::streamsize n = _target->rdbuf()->sgetn( _ebuf + _ebufsize, size );
+                n = _target->rdbuf()->sgetn( _ebuf + _ebufsize, size );
                 _ebufsize += n;
                 if(n == 0)
                     atEof = true;
@@ -363,13 +367,13 @@ class BasicTextBuffer : public std::basic_streambuf<CharT>
                 throw ConversionError("character conversion failed");
 
             if( this->gptr() < this->egptr() )
-                return traits_type::to_int_type( *this->gptr() );
+                return ret_type(traits_type::to_int_type( *this->gptr() ), n);
 
             // fail if partial charactes are at the end of the stream
             if(r == CodecType::partial && atEof)
                 throw ConversionError("character conversion failed");
 
-            return traits_type::eof();
+            return ret_type(traits_type::eof(), 0);
         }
 
         template <typename T>
