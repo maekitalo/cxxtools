@@ -135,8 +135,8 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
         {
             try
             {
-                bool v = result.get();
-                CXXTOOLS_UNIT_ASSERT(false);
+                result.get();
+                CXXTOOLS_UNIT_ASSERT_MSG(false, "cxxtools::xmlrpc::Fault exception expected");
             }
             catch (const cxxtools::xmlrpc::Fault& e)
             {

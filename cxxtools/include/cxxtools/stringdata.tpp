@@ -25,6 +25,7 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
+
 #include <algorithm>
 
 namespace cxxtools {
@@ -42,10 +43,10 @@ inline StringData::StringData(const cxxtools::Char* s, size_type length, const a
 {
     _str = _allocator.allocate(length + 1, _str);
     _capacity = length;
+    _length = length;
 
     traits_type::copy(_str, s, length);
     _str[length] = cxxtools::Char::null();
-    _length = length;
 }
 
 

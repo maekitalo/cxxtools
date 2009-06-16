@@ -74,9 +74,9 @@ inline basic_string<cxxtools::Char>::basic_string(size_type n, cxxtools::Char c)
 inline basic_string<cxxtools::Char>::basic_string(const basic_string& str)
 : _data(0)
 {
-	// if the other string is not being modified with iterators we can
-	// share the same data. Otherwise the other string is marked as
-	// busy and we need to copy on write
+    // if the other string is not being modified with iterators we can
+    // share the same data. Otherwise the other string is marked as
+    // busy and we need to copy on write
     if( str._data->busy() == false ) {
         _data = str._data;
         _data->ref();
@@ -109,11 +109,12 @@ inline basic_string<cxxtools::Char>::basic_string(const cxxtools::Char* begin, c
 {
 }
 
+
 inline basic_string<cxxtools::Char>::~basic_string()
 {
-	// Noone else references this data if the reference counter
-	// is at one or this string is marked as busy because someone
-	// has a mutating iterator on it.
+    // Noone else references this data if the reference counter
+    // is at one or this string is marked as busy because someone
+    // has a mutating iterator on it.
     if( _data->busy() || _data->unref() < 1 ) {
         delete _data;
         _data = 0;
@@ -303,7 +304,7 @@ inline basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::assign(const 
         return *this;
     }
 
-    if( _data->shared() ) //shared
+    if( _data->shared() )
     {
         cxxtools::StringData* newBuffer = str._data;
         if( str._data->busy() )
@@ -366,7 +367,8 @@ inline basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::assign(const 
 {
     // this is a modifying action and if multiple instances reference this
     // data instance we need to copy on write first.
-    if( _data->shared() ) {
+    if( _data->shared() )
+    {
         cxxtools::StringData* newBuffer = new cxxtools::StringData( str, length );
         _data->unref();
         _data = newBuffer;
@@ -1074,39 +1076,39 @@ inline OutIterT basic_string<cxxtools::Char>::toUtf16(OutIterT to) const
 template <typename InIterT>
 inline basic_string<cxxtools::Char> basic_string<cxxtools::Char>::fromUtf16(InIterT from, InIterT fromEnd)
 {
-	std::basic_string<cxxtools::Char> ret;
+    std::basic_string<cxxtools::Char> ret;
 
-	for( ; from != fromEnd; ++from)
-	{
-		unsigned ch = *from;
+    for( ; from != fromEnd; ++from)
+    {
+        unsigned ch = *from;
 
-		// high surrogate
-		if (ch >= 0xD800 && ch <= 0xDBFF) 
-		{
-			// invalid or missing low surrogate
-			if(++from == fromEnd || *from < 0xDC00 || *from > 0xDFFF) 
-			{
-				ret += cxxtools::Char(0xFFFD);
-				break;
-			}
+        // high surrogate
+        if (ch >= 0xD800 && ch <= 0xDBFF) 
+        {
+            // invalid or missing low surrogate
+            if(++from == fromEnd || *from < 0xDC00 || *from > 0xDFFF) 
+            {
+                ret += cxxtools::Char(0xFFFD);
+                break;
+            }
 
-			const unsigned lo = *from;
-			ch = ((ch - 0xD800) << 10) + (lo - 0xDC00) + 0x0010000U;
-			ret += cxxtools::Char(ch);
-		}
-		// not a surrogate
-		else if(ch < 0xDC00 || ch > 0xDFFF)
-		{
-			ret += cxxtools::Char(ch);
-		}
-		// not a valid unicode point
-		else
-		{
-		    ret += cxxtools::Char(0xFFFD);
-		}
-	}
+            const unsigned lo = *from;
+            ch = ((ch - 0xD800) << 10) + (lo - 0xDC00) + 0x0010000U;
+            ret += cxxtools::Char(ch);
+        }
+        // not a surrogate
+        else if(ch < 0xDC00 || ch > 0xDFFF)
+        {
+            ret += cxxtools::Char(ch);
+        }
+        // not a valid unicode point
+        else
+        {
+            ret += cxxtools::Char(0xFFFD);
+        }
+    }
 
-	return ret;
+    return ret;
 }
 
 }

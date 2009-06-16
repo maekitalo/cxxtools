@@ -29,27 +29,29 @@
 #define cxxtools_TextBuffer_h
 
 #include <cxxtools/api.h>
+#include <cxxtools/char.h>
 #include <cxxtools/textcodec.h>
 #include <cxxtools/conversionerror.h>
 #include <iostream>
 
 namespace cxxtools {
 
+
 /** @brief Converts character sequences with different encodings.
 
-	This class derives from std::basic_streambuf which is the super-class of all stream buffer
-	classes. Stream buffer classes are used to connect to an external device, transport characters
-	from and to this external device and buffer the characters in an internal buffer.
+    This class derives from std::basic_streambuf which is the super-class of all stream buffer
+    classes. Stream buffer classes are used to connect to an external device, transport characters
+    from and to this external device and buffer the characters in an internal buffer.
 
-	The internal character set can be specified using the template parameters 'char_type_', the
-	external character set using 'extern_type_'. The external type is the input type and output
-	type when reading from or writing to the external device. The internal type is the type
-	which is used to internally store the data from the external device after the external
-	format was converted using the Codec which is passed when constructing an object of this
-	class.
+    The internal character set can be specified using the template parameters 'char_type_', the
+    external character set using 'extern_type_'. The external type is the input type and output
+    type when reading from or writing to the external device. The internal type is the type
+    which is used to internally store the data from the external device after the external
+    format was converted using the Codec which is passed when constructing an object of this
+    class.
 
-	The Codec object which is passed as pointer to the constructor will afterwards be completely
-	managed by this class and also be deleted by this class when it's destructed!
+    The Codec object which is passed as pointer to the constructor will afterwards be completely
+    managed by this class and also be deleted by this class when it's destructed!
 
   @see std::basic_streambuf
 */
