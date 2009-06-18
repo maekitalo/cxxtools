@@ -129,7 +129,11 @@ void TcpServerImpl::listen(const std::string& ipaddr, unsigned short int port, i
     }
 
     close();
-    throw SystemError("bind");
+
+    if (errno == EADDRINUSE)
+        throw AddressInUse();
+    else
+        throw SystemError("bind");
 }
 
 

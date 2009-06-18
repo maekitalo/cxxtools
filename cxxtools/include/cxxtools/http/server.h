@@ -102,7 +102,12 @@ class CXXTOOLS_HTTP_API Server : public net::TcpServer, public Connectable
         unsigned _minThreads;
         unsigned _maxThreads;
         atomic_t _waitingThreads;
-        bool _terminating;
+        enum {
+          Stopped,
+          Starting,
+          Running,
+          Terminating
+        } _runmode;
         Condition _terminated;
         Condition _threadTerminated;
 

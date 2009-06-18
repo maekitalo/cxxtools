@@ -46,7 +46,7 @@ Server::Server(const std::string& ip, unsigned short int port)
   _minThreads(4),
   _maxThreads(10),
   _waitingThreads(0),
-  _terminating(true)
+  _runmode(Stopped)
 {
     log_trace("initialize Server class");
 
@@ -81,22 +81,29 @@ void Server::terminate()
 {
     MutexLock lock(_threadMutex);
 
-    if (_terminating)
+    if (_runmode != Running)
         return;
 
-    _terminating = true;
+    _runmode = Terminating;
     _selector.wake();
     _terminated.wait(lock);
+    _runmode = Stopped;
 }
 
 void Server::run()
 {
     log_trace("run server");
 
-    _terminating = false;
+    if (_runmode != Stopped)
+        throw std::runtime_error("http server already running");
+
+    _runmode = Starting;
 
     {
         MutexLock selectorLock(_selectorMutex);
+
+        listen(_ip, _port);
+        _runmode = Running;
 
         log_debug("start " << _minThreads << " threads");
         for (unsigned n = 0; n < _minThreads; ++n)
@@ -104,13 +111,11 @@ void Server::run()
             log_debug("start thread " << n);
             createThread();
         }
-
-        listen(_ip, _port);
     }
 
     MutexLock lock(_threadMutex);
 
-    while (!_terminating || !_threads.empty())
+    while (_runmode == Running || !_threads.empty())
     {
         log_info("wait for finished threads");
 
@@ -253,7 +258,7 @@ void Server::serverThread()
 
         log_debug("selectorLock obtained; " << _waitingThreads << " threads left");
 
-        if (_terminating)
+        if (_runmode == Terminating)
         {
             log_debug("server terminating");
             break;
@@ -267,7 +272,7 @@ void Server::serverThread()
             log_debug("wait selector");
             _selector.wait();
 
-            if (_terminating)
+            if (_runmode == Terminating)
                 return;
 
             log_debug("check for idle sockets to add to selector");
