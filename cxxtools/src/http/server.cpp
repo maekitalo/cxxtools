@@ -44,7 +44,7 @@ Server::Server(const std::string& ip, unsigned short int port)
   _writeTimeout(5000),
   _keepAliveTimeout(30000),
   _minThreads(4),
-  _maxThreads(10),
+  _maxThreads(200),
   _waitingThreads(0),
   _runmode(Stopped)
 {
