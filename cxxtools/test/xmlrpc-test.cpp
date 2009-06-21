@@ -48,6 +48,12 @@ struct Color
 };
 
 
+typedef std::set<int> IntSet;
+typedef std::multiset<int> IntMultiset;
+typedef std::map<int, int> IntMap;
+typedef std::multimap<int, int> IntMultimap;
+
+
 void operator >>=(const cxxtools::SerializationInfo& si, Color& color)
 {
     color.red = si.getValue<int>("red");
@@ -89,6 +95,10 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             this->registerMethod("Array", *this, &XmlRpcTest::Array);
             this->registerMethod("EmptyArray", *this, &XmlRpcTest::EmptyArray);
             this->registerMethod("Struct", *this, &XmlRpcTest::Struct);
+            this->registerMethod("Set", *this, &XmlRpcTest::Set);
+            this->registerMethod("Multiset", *this, &XmlRpcTest::Multiset);
+            this->registerMethod("Map", *this, &XmlRpcTest::Map);
+            this->registerMethod("Multimap", *this, &XmlRpcTest::Multimap);
         }
 
         void failTest()
@@ -114,6 +124,9 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             delete _serverThread;
         }
 
+        ////////////////////////////////////////////////////////////
+        // Fault
+        //
         void Fault()
         {
             cxxtools::xmlrpc::Service service;
@@ -147,6 +160,15 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _loop->exit();
         }
 
+        bool throwFault()
+        {
+            throw cxxtools::xmlrpc::Fault("Fault", 7);
+            return false;
+        }
+
+        ////////////////////////////////////////////////////////////
+        // Exception
+        //
         void Exception()
         {
             cxxtools::xmlrpc::Service service;
@@ -180,6 +202,15 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _loop->exit();
         }
 
+        bool throwException()
+        {
+            throw std::runtime_error("Exception");
+            return false;
+        }
+
+        ////////////////////////////////////////////////////////////
+        // Nothing
+        //
         void Nothing()
         {
             cxxtools::xmlrpc::Service service;
@@ -205,6 +236,14 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _loop->exit();
         }
 
+        bool multiplyNothing()
+        {
+            return false;
+        }
+
+        ////////////////////////////////////////////////////////////
+        // CallbackException
+        //
         void CallbackException()
         {
             cxxtools::xmlrpc::Service service;
@@ -233,6 +272,9 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             throw std::runtime_error("my error");
         }
 
+        ////////////////////////////////////////////////////////////
+        // ConnectError
+        //
         void ConnectError()
         {
             cxxtools::xmlrpc::Client client(*_loop, "127.0.0.1", 8001, "/calc");
@@ -259,6 +301,9 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_THROW(r.get(), std::exception);
         }
 
+        ////////////////////////////////////////////////////////////
+        // Boolean
+        //
         void Boolean()
         {
             cxxtools::xmlrpc::Service service;
@@ -284,6 +329,16 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _loop->exit();
         }
 
+        bool multiplyBoolean(bool a, bool b)
+        {
+            CXXTOOLS_UNIT_ASSERT_EQUALS(a, true)
+            CXXTOOLS_UNIT_ASSERT_EQUALS(b, true)
+            return true;
+        }
+
+        ////////////////////////////////////////////////////////////
+        // Integer
+        //
         void Integer()
         {
             cxxtools::xmlrpc::Service service;
@@ -309,6 +364,14 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _loop->exit();
         }
 
+        int multiplyInt(int a, int b)
+        {
+            return a*b;
+        }
+
+        ////////////////////////////////////////////////////////////
+        // Double
+        //
         void Double()
         {
             cxxtools::xmlrpc::Service service;
@@ -334,6 +397,14 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _loop->exit();
         }
 
+        double multiplyDouble(double a, double b)
+        {
+            return a*b;
+        }
+
+        ////////////////////////////////////////////////////////////
+        // String
+        //
         void String()
         {
             cxxtools::xmlrpc::Service service;
@@ -359,6 +430,14 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _loop->exit();
         }
 
+        std::string echoString(std::string a)
+        {
+            return a;
+        }
+
+        ////////////////////////////////////////////////////////////
+        // EmptyValues
+        //
         void EmptyValues()
         {
             cxxtools::xmlrpc::Service service;
@@ -383,6 +462,16 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _loop->exit();
         }
 
+        std::string multiplyEmpty(std::string a, std::string b)
+        {
+            CXXTOOLS_UNIT_ASSERT_EQUALS(a, "")
+            CXXTOOLS_UNIT_ASSERT_EQUALS(b, "")
+            return "4";
+        }
+
+        ////////////////////////////////////////////////////////////
+        // Array
+        //
         void Array()
         {
             cxxtools::xmlrpc::Service service;
@@ -405,6 +494,18 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _loop->run();
         }
 
+        std::vector<int> multiplyVector(const std::vector<int>& a, const std::vector<int>& b)
+        {
+            std::vector<int> r;
+            if( a.size() )
+            {
+                r.push_back( a.at(0) * b.at(0) );
+                r.push_back( a.at(1) * b.at(1) );
+            }
+
+            return r;
+        }
+
         void onArrayFinished(const cxxtools::xmlrpc::Result<std::vector<int> >& r)
         {
             CXXTOOLS_UNIT_ASSERT_EQUALS(r.get().size(), 2)
@@ -414,6 +515,9 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _loop->exit();
         }
 
+        ////////////////////////////////////////////////////////////
+        // EmptyArray
+        //
         void EmptyArray()
         {
             cxxtools::xmlrpc::Service service;
@@ -440,6 +544,9 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _loop->exit();
         }
 
+        ////////////////////////////////////////////////////////////
+        // Struct
+        //
         void Struct()
         {
             cxxtools::xmlrpc::Service service;
@@ -477,64 +584,6 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _loop->exit();
         }
 
-        bool throwFault()
-        {
-            throw cxxtools::xmlrpc::Fault("Fault", 7);
-            return false;
-        }
-
-        bool throwException()
-        {
-            throw std::runtime_error("Exception");
-            return false;
-        }
-
-        bool multiplyNothing()
-        {
-            return false;
-        }
-
-        bool multiplyBoolean(bool a, bool b)
-        {
-            CXXTOOLS_UNIT_ASSERT_EQUALS(a, true)
-            CXXTOOLS_UNIT_ASSERT_EQUALS(b, true)
-            return true;
-        }
-
-        int multiplyInt(int a, int b)
-        {
-            return a*b;
-        }
-
-        double multiplyDouble(double a, double b)
-        {
-            return a*b;
-        }
-
-        std::string echoString(std::string a)
-        {
-            return a;
-        }
-
-        std::string multiplyEmpty(std::string a, std::string b)
-        {
-            CXXTOOLS_UNIT_ASSERT_EQUALS(a, "")
-            CXXTOOLS_UNIT_ASSERT_EQUALS(b, "")
-            return "4";
-        }
-
-        std::vector<int> multiplyVector(const std::vector<int>& a, const std::vector<int>& b)
-        {
-            std::vector<int> r;
-            if( a.size() )
-            {
-                r.push_back( a.at(0) * b.at(0) );
-                r.push_back( a.at(1) * b.at(1) );
-            }
-
-            return r;
-        }
-
         Color multiplyColor(const Color& a, const Color& b)
         {
             Color color;
@@ -543,6 +592,205 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             color.blue = a.blue * b.blue;
             return color;
         }
+
+        ////////////////////////////////////////////////////////////
+        // Set
+        //
+        void Set()
+        {
+            cxxtools::xmlrpc::Service service;
+            service.registerMethod("multiplyset", *this, &XmlRpcTest::multiplySet);
+            _server->addService("/test", service);
+            _serverThread->start();
+            cxxtools::Thread::sleep(500);
+
+            cxxtools::xmlrpc::Client client(*_loop, "127.0.0.1", 8001, "/test");
+            cxxtools::xmlrpc::RemoteProcedure<IntSet, IntSet, int> multiply(client, "multiplyset");
+            connect( multiply.finished, *this, &XmlRpcTest::onSetFinished );
+
+            IntSet myset;
+            myset.insert(4);
+            myset.insert(5);
+            myset.insert(11);
+            myset.insert(5);
+
+            multiply.begin(myset, 2);
+
+            _loop->run();
+        }
+
+        void onSetFinished(const cxxtools::xmlrpc::Result<IntSet>& result)
+        {
+            const IntSet& v = result.get();
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v.size(), 3);
+            CXXTOOLS_UNIT_ASSERT(v.find(8) != v.end());
+            CXXTOOLS_UNIT_ASSERT(v.find(10) != v.end());
+            CXXTOOLS_UNIT_ASSERT(v.find(22) != v.end());
+
+            _loop->exit();
+        }
+
+        IntSet multiplySet(const IntSet& s, int f)
+        {
+            IntSet ret;
+            for (IntSet::const_iterator it = s.begin(); it != s.end(); ++it)
+                ret.insert(*it * f);
+            return ret;
+        }
+
+        ////////////////////////////////////////////////////////////
+        // Multiset
+        //
+        void Multiset()
+        {
+            cxxtools::xmlrpc::Service service;
+            service.registerMethod("multiplyset", *this, &XmlRpcTest::multiplyMultiset);
+            _server->addService("/test", service);
+            _serverThread->start();
+            cxxtools::Thread::sleep(500);
+
+            cxxtools::xmlrpc::Client client(*_loop, "127.0.0.1", 8001, "/test");
+            cxxtools::xmlrpc::RemoteProcedure<IntMultiset, IntMultiset, int> multiply(client, "multiplyset");
+            connect( multiply.finished, *this, &XmlRpcTest::onMultisetFinished );
+
+            IntMultiset myset;
+            myset.insert(4);
+            myset.insert(5);
+            myset.insert(11);
+            myset.insert(5);
+
+            multiply.begin(myset, 2);
+
+            _loop->run();
+        }
+
+        void onMultisetFinished(const cxxtools::xmlrpc::Result<IntMultiset>& result)
+        {
+            const IntMultiset& v = result.get();
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v.size(), 4);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v.count(8), 1);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v.count(10), 2);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v.count(22), 1);
+
+            _loop->exit();
+        }
+
+        IntMultiset multiplyMultiset(const IntMultiset& s, int f)
+        {
+            IntMultiset ret;
+            for (IntMultiset::const_iterator it = s.begin(); it != s.end(); ++it)
+                ret.insert(*it * f);
+            return ret;
+        }
+
+        ////////////////////////////////////////////////////////////
+        // Map
+        //
+        void Map()
+        {
+            cxxtools::xmlrpc::Service service;
+            service.registerMethod("multiplymap", *this, &XmlRpcTest::multiplyMap);
+
+            _server->addService("/test", service);
+            _serverThread->start();
+            cxxtools::Thread::sleep(500);
+
+            cxxtools::xmlrpc::Client client(*_loop, "127.0.0.1", 8001, "/test");
+            cxxtools::xmlrpc::RemoteProcedure<IntMap, IntMap, int> multiply(client, "multiplymap");
+            connect( multiply.finished, *this, &XmlRpcTest::onMultiplyMapFinished );
+
+            IntMap mymap;
+            mymap[2] = 4;
+            mymap[7] = 7;
+            mymap[1] = -1;
+
+            multiply.begin(mymap, 2);
+
+            _loop->run();
+        }
+
+        void onMultiplyMapFinished(const cxxtools::xmlrpc::Result<IntMap>& result)
+        {
+            const IntMap& v = result.get();
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v.size(), 3);
+            CXXTOOLS_UNIT_ASSERT(v.find(2) != v.end());
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v.find(2)->second, 8);
+            CXXTOOLS_UNIT_ASSERT(v.find(7) != v.end());
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v.find(7)->second, 14);
+            CXXTOOLS_UNIT_ASSERT(v.find(1) != v.end());
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v.find(1)->second, -2);
+
+            _loop->exit();
+        }
+
+        IntMap multiplyMap(const IntMap& m, int f)
+        {
+            IntMap ret;
+            for (IntMap::const_iterator it = m.begin(); it != m.end(); ++it)
+            {
+                ret[it->first] = it->second * f;
+            }
+
+            return ret;
+        }
+
+        ////////////////////////////////////////////////////////////
+        // Multimap
+        //
+        void Multimap()
+        {
+            cxxtools::xmlrpc::Service service;
+            service.registerMethod("multiplymultimap", *this, &XmlRpcTest::multiplyMultimap);
+
+            _server->addService("/test", service);
+            _serverThread->start();
+            cxxtools::Thread::sleep(500);
+
+            cxxtools::xmlrpc::Client client(*_loop, "127.0.0.1", 8001, "/test");
+            cxxtools::xmlrpc::RemoteProcedure<IntMultimap, IntMultimap, int> multiply(client, "multiplymultimap");
+            connect( multiply.finished, *this, &XmlRpcTest::onMultiplyMultimapFinished );
+
+            IntMultimap mymap;
+            mymap.insert(IntMultimap::value_type(2, 4));
+            mymap.insert(IntMultimap::value_type(7, 7));
+            mymap.insert(IntMultimap::value_type(7, 8));
+            mymap.insert(IntMultimap::value_type(1, -1));
+
+            multiply.begin(mymap, 2);
+
+            _loop->run();
+        }
+
+        void onMultiplyMultimapFinished(const cxxtools::xmlrpc::Result<IntMultimap>& result)
+        {
+            const IntMultimap& v = result.get();
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v.size(), 4);
+            CXXTOOLS_UNIT_ASSERT(v.lower_bound(2) != v.end());
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v.lower_bound(2)->second, 8);
+            CXXTOOLS_UNIT_ASSERT(v.lower_bound(7) != v.end());
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v.lower_bound(7)->second, 14);
+            IntMultimap::const_iterator it = v.lower_bound(7);
+            ++it;
+            CXXTOOLS_UNIT_ASSERT(it != v.end());
+            CXXTOOLS_UNIT_ASSERT_EQUALS(it->first, 7);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(it->second, 16);
+            CXXTOOLS_UNIT_ASSERT(v.lower_bound(1) != v.end());
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v.lower_bound(1)->second, -2);
+
+            _loop->exit();
+        }
+
+        IntMultimap multiplyMultimap(const IntMultimap& m, int f)
+        {
+            IntMultimap ret;
+            for (IntMultimap::const_iterator it = m.begin(); it != m.end(); ++it)
+            {
+                ret.insert(IntMultimap::value_type(it->first, it->second * f));
+            }
+
+            return ret;
+        }
+
 };
 
 cxxtools::unit::RegisterTest<XmlRpcTest> register_XmlRpcTest;
