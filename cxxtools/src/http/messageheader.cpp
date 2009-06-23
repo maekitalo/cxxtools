@@ -30,6 +30,7 @@
 #include <cxxtools/clock.h>
 #include <cctype>
 #include <sstream>
+#include <stdio.h>
 
 namespace cxxtools {
 
