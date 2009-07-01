@@ -605,6 +605,7 @@ struct XmlReaderImpl
 
         virtual State* onCloseBracket(cxxtools::Char c, XmlReaderImpl& reader)
         {
+            reader._chars.clear();
             reader._current = &(reader._startElem);
             reader._depth++;
             return AfterTag::instance();
