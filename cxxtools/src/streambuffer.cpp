@@ -123,14 +123,15 @@ void StreamBuffer::beginRead()
         char* to = _ibuffer + _pbmax - putback;
         char* from = this->gptr() - putback;
 
-        if(to == from)
-            throw std::logic_error( CXXTOOLS_ERROR_MSG("StreamBuffer is full") );
-
         leftover = egptr() - gptr();
         std::memmove( to, from, putback + leftover );
     }
 
     size_t used = _pbmax + leftover;
+
+    if( _ibufferSize == used )
+        throw std::logic_error( CXXTOOLS_ERROR_MSG("StreamBuffer is full") );
+
     _ioDevice->beginRead( _ibuffer + used, _ibufferSize - used );
     _reading = true;
 
