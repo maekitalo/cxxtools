@@ -105,6 +105,7 @@ nobase_include_HEADERS = \
         cxxtools/serializationerror.h \
         cxxtools/serializationinfo.h \
         cxxtools/serializer.h \
+        cxxtools/settings.h \
         cxxtools/signal.h \
         cxxtools/signal.tpp \
         cxxtools/singleton.h \
@@ -170,7 +171,9 @@ nobase_include_HEADERS = \
         cxxtools/xml/processinginstruction.h \
         cxxtools/xml/startelement.h \
         cxxtools/xml/xmlerror.h \
+        cxxtools/xml/xmldeserializer.h \
         cxxtools/xml/xmlreader.h \
+        cxxtools/xml/xmlserializer.h \
         cxxtools/xml/xmlwriter.h \
         cxxtools/xmlrpc/api.h \
         cxxtools/xmlrpc/client.h \

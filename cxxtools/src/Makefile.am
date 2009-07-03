@@ -60,6 +60,9 @@ libcxxtools_la_SOURCES = \
 	selectorimpl.cpp \
 	semaphore.cpp \
 	semaphoreimpl.cpp \
+	settings.cpp \
+	settingsreader.cpp \
+	settingswriter.cpp \
 	serializationerror.cpp \
 	serializationinfo.cpp \
 	serializer.cpp \
@@ -106,6 +109,8 @@ noinst_HEADERS = \
 	selectableimpl.h \
 	selectorimpl.h \
 	semaphoreimpl.h \
+	settingsreader.h \
+	settingswriter.h \
 	threadimpl.h \
 	unicode.h \
 	tcpserverimpl.h \

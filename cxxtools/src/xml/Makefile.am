@@ -13,8 +13,10 @@ libcxxtools_xml_la_SOURCES = \
 	namespacecontext.cpp \
 	processinginstruction.cpp \
 	startelement.cpp \
+	xmldeserializer.cpp \
 	xmlerror.cpp \
 	xmlreader.cpp \
+	xmlserializer.cpp \
 	xmlwriter.cpp
 
 libcxxtools_xml_la_LIBADD = $(top_builddir)/src/libcxxtools.la
