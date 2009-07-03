@@ -610,9 +610,8 @@ inline void operator <<=(SerializationInfo& si, const std::vector<T, A>& vec)
 
     for(it = vec.begin(); it != vec.end(); ++it)
     {
-        SerializationInfo& newSi = si.addMember("item");
+        SerializationInfo& newSi = si.addMember(std::string());
         newSi <<= *it;
-        newSi.setName( newSi.typeName() );
     }
 
     si.setTypeName("array");
@@ -636,7 +635,7 @@ inline void operator <<=(SerializationInfo& si, const std::vector<int>& vec)
 
     for(it = vec.begin(); it != vec.end(); ++it)
     {
-        SerializationInfo& newSi = si.addMember("int");
+        SerializationInfo& newSi = si.addMember(std::string());
         newSi <<= *it;
     }
 
@@ -664,9 +663,8 @@ inline void operator <<=(SerializationInfo& si, const std::list<T, A>& list)
 
     for(it = list.begin(); it != list.end(); ++it)
     {
-        SerializationInfo& newSi = si.addMember("item");
+        SerializationInfo& newSi = si.addMember(std::string());
         newSi <<= *it;
-        newSi.setName( newSi.typeName() );
     }
 
     si.setTypeName("list");
@@ -693,9 +691,8 @@ inline void operator <<=(SerializationInfo& si, const std::deque<T, A>& deque)
 
     for(it = deque.begin(); it != deque.end(); ++it)
     {
-        SerializationInfo& newSi = si.addMember("item");
+        SerializationInfo& newSi = si.addMember(std::string());
         newSi <<= *it;
-        newSi.setName( newSi.typeName() );
     }
 
     si.setTypeName("deque");
@@ -723,9 +720,8 @@ inline void operator <<=(SerializationInfo& si, const std::set<T, C, A>& set)
 
     for(it = set.begin(); it != set.end(); ++it)
     {
-        SerializationInfo& newSi = si.addMember("item");
+        SerializationInfo& newSi = si.addMember(std::string());
         newSi <<= *it;
-        newSi.setName( newSi.typeName() );
     }
 
     si.setTypeName("set");
@@ -753,9 +749,8 @@ inline void operator <<=(SerializationInfo& si, const std::multiset<T, C, A>& mu
 
     for(it = multiset.begin(); it != multiset.end(); ++it)
     {
-        SerializationInfo& newSi = si.addMember("item");
+        SerializationInfo& newSi = si.addMember(std::string());
         newSi <<= *it;
-        newSi.setName( newSi.typeName() );
     }
 
     si.setTypeName("multiset");
@@ -799,9 +794,8 @@ inline void operator <<=(SerializationInfo& si, const std::map<K, V, P, A>& map)
 
     for(it = map.begin(); it != map.end(); ++it)
     {
-        SerializationInfo& newSi = si.addMember("item");
+        SerializationInfo& newSi = si.addMember(std::string());
         newSi <<= *it;
-        newSi.setName( newSi.typeName() );
     }
 
     si.setTypeName("map");
@@ -829,9 +823,8 @@ inline void operator <<=(SerializationInfo& si, const std::multimap<T, C, P, A>&
 
     for(it = multimap.begin(); it != multimap.end(); ++it)
     {
-        SerializationInfo& newSi = si.addMember("item");
+        SerializationInfo& newSi = si.addMember(std::string());
         newSi <<= *it;
-        newSi.setName( newSi.typeName() );
     }
 
     si.setTypeName("multimap");

@@ -45,11 +45,13 @@ class Formatter
 
         virtual void addReference(const std::string& name, const cxxtools::String& value) = 0;
 
-        virtual void beginArray(const std::string& name, const std::string& id) = 0;
+        virtual void beginArray(const std::string& name, const std::string& type,
+                                const std::string& id) = 0;
 
         virtual void finishArray() = 0;
 
-        virtual void beginObject(const std::string& name, const std::string& id) = 0;
+        virtual void beginObject(const std::string& name, const std::string& type,
+                                 const std::string& id) = 0;
 
         virtual void beginMember(const std::string& name) = 0;
 

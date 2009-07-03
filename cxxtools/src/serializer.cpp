@@ -58,7 +58,7 @@ void ISerializer::formatEach(const cxxtools::SerializationInfo& si, Formatter& f
     }
     else if(si.category() == SerializationInfo::Object)
     {
-        formatter.beginObject( si.name(), si.id() );
+        formatter.beginObject( si.name(), si.typeName(), si.id() );
 
         SerializationInfo::ConstIterator it;
         for(it = si.begin(); it != si.end(); ++it)
@@ -76,7 +76,7 @@ void ISerializer::formatEach(const cxxtools::SerializationInfo& si, Formatter& f
     }
     else if(si.category() == cxxtools::SerializationInfo::Array)
     {
-        formatter.beginArray( si.name(), si.id() );
+        formatter.beginArray( si.name(), si.typeName(), si.id() );
 
         SerializationInfo::ConstIterator it;
         for(it = si.begin(); it != si.end(); ++it)

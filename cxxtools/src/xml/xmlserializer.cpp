@@ -123,7 +123,8 @@ void XmlFormatter::addReference(const std::string& name, const cxxtools::String&
 }
 
 
-void XmlFormatter::beginArray(const std::string& name, const std::string& id)
+void XmlFormatter::beginArray(const std::string& name, const std::string& type,
+                              const std::string& id)
 {
     if( ! id.empty() )
     {
@@ -141,7 +142,8 @@ void XmlFormatter::finishArray()
 }
 
 
-void XmlFormatter::beginObject(const std::string& name, const std::string& id)
+void XmlFormatter::beginObject(const std::string& name, const std::string& type,
+                               const std::string& id)
 {
     if( ! id.empty() )
     {
