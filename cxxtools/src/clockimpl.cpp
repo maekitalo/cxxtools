@@ -61,7 +61,8 @@ DateTime ClockImpl::getSystemTime()
 
     gettimeofday(&tod, NULL);
 
-    gmtime_r(&tod.tv_sec, &tim);
+    time_t sec = tod.tv_sec;
+    gmtime_r(&sec, &tim);
 
     return DateTime( tim.tm_year + 1900,
                      tim.tm_mon + 1,
@@ -79,7 +80,8 @@ DateTime ClockImpl::getLocalTime()
     gettimeofday(&tod, NULL);
 
     struct tm tim;
-    localtime_r(&tod.tv_sec, &tim);
+    time_t sec = tod.tv_sec;
+    localtime_r(&sec, &tim);
 
     return DateTime( tim.tm_year + 1900,
                      tim.tm_mon + 1,
