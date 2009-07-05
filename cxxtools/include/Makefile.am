@@ -63,8 +63,6 @@ nobase_include_HEADERS = \
 		cxxtools/http/socket.h \
 		cxxtools/http/service.h \
 		cxxtools/http/responder.h \
-        cxxtools/iconverter.h \
-        cxxtools/iconvstream.h \
         cxxtools/inifile.h \
         cxxtools/iniparser.h \
         cxxtools/invokable.h \
@@ -188,3 +186,9 @@ nobase_include_HEADERS = \
 
 nobase_nodist_include_HEADERS = \
         cxxtools/config.h
+
+if MAKE_ICONVSTREAM
+nobase_include_HEADERS += \
+        cxxtools/iconverter.h \
+        cxxtools/iconvstream.h
+endif

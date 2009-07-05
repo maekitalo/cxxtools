@@ -30,7 +30,6 @@ libcxxtools_la_SOURCES = \
 	fileimpl.cpp \
 	fileinfo.cpp \
 	hdstream.cpp \
-	iconvstream.cpp \
 	inifile.cpp \
 	iniparser.cpp \
 	iodevice.cpp \
@@ -117,6 +116,10 @@ noinst_HEADERS = \
 	tcpserverimpl.h \
 	tcpsocketimpl.h
 
+if MAKE_ICONVSTREAM
+libcxxtools_la_SOURCES += \
+	iconvstream.cpp
+endif
 
 if MAKE_ATOMICITY_SUN
 libcxxtools_la_SOURCES += \

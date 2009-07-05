@@ -32,10 +32,19 @@ AC_CHECK_FUNCS(inet_ntop)
 
 AC_SUBST(NETWORK_LIBS)
 
-AM_ICONV
-if test "$am_cv_func_iconv" !=  yes; then
-  AC_MSG_ERROR(iconv not found);
+AC_ARG_WITH([with_iconvstream],
+    AS_HELP_STRING([--with-iconvstream=yes|no], [compile iconv stream (default: no)]),
+    [with_iconvstream=$withval],
+    [with_iconvstream=no])
+
+if test "$with_iconvstream" = yes; then
+  AM_ICONV
+  if test "$am_cv_func_iconv" !=  yes; then
+    AC_MSG_ERROR(iconv not found);
+  fi
 fi
+
+AM_CONDITIONAL(MAKE_ICONVSTREAM, test $with_iconvstream = yes)
 
 AC_LANG(C++)
 ACX_PTHREAD

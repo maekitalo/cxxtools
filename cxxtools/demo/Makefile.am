@@ -1,5 +1,5 @@
 noinst_PROGRAMS = arg arg-set cgi dir dlloader dynbuffer getini hd \
-	httprequest httpserver iconv log logbench logsh md5sum mime multifstream netcat netio \
+	httprequest httpserver log logbench logsh md5sum mime multifstream netcat netio \
 	netmsg pipestream pool signals thread uuencode cxxlog rpcecho
 
 arg_SOURCES = arg.cpp
@@ -12,7 +12,6 @@ getini_SOURCES = getini.cpp
 hd_SOURCES = hd.cpp
 httprequest_SOURCES = httprequest.cpp
 httpserver_SOURCES = httpserver.cpp
-iconv_SOURCES = iconv.cpp
 log_SOURCES = log.cpp
 logbench_SOURCES = logbench.cpp
 logsh_SOURCES = logsh.cpp
@@ -29,6 +28,11 @@ thread_SOURCES = thread.cpp
 uuencode_SOURCES = uuencode.cpp
 cxxlog_SOURCES = cxxlog.cpp
 rpcecho_SOURCES = rpcecho.cpp
+
+if MAKE_ICONVSTREAM
+noinst_PROGRAMS += iconv
+iconv_SOURCES = iconv.cpp
+endif
 
 INCLUDES = -I$(top_builddir)/include
 LDADD = $(top_builddir)/src/libcxxtools.la
