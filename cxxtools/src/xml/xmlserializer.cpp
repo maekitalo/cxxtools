@@ -128,11 +128,20 @@ void XmlFormatter::beginArray(const std::string& name, const std::string& type,
 {
     if( ! id.empty() )
     {
-        cxxtools::xml::Attribute attr( cxxtools::String(L"id"), cxxtools::String::widen( id ) );
-        _writer->writeStartElement( cxxtools::String::widen( name ), &attr, 1 );
+        Attribute attr( cxxtools::String(L"id"), cxxtools::String::widen( id ) );
+
+        if( ! name.empty() )
+            _writer->writeStartElement( cxxtools::String::widen( name ), &attr, 1 );
+        else
+            _writer->writeStartElement( cxxtools::String::widen( type ), &attr, 1 );
     }
     else
-        _writer->writeStartElement( cxxtools::String::widen( name ) );
+    {
+        if( ! name.empty() )
+            _writer->writeStartElement( cxxtools::String::widen( name ) );
+        else
+            _writer->writeStartElement( cxxtools::String::widen( type ) );
+    }
 }
 
 
