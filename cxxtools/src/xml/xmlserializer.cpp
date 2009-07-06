@@ -109,10 +109,19 @@ void XmlFormatter::addValue(const std::string& name, const std::string& type,
     if( ! id.empty() )
     {
         cxxtools::xml::Attribute attr( cxxtools::String(L"id"), cxxtools::String::widen( id ) );
-        _writer->writeElement( cxxtools::String::widen( name ), &attr, 1, value );
+
+        if( ! name.empty() )
+            _writer->writeElement( cxxtools::String::widen( name ), &attr, 1, value );
+        else
+            _writer->writeElement( cxxtools::String::widen( type ), &attr, 1, value );
     }
     else
-        _writer->writeElement( cxxtools::String::widen( name ), value );
+    {
+        if( ! name.empty() )
+            _writer->writeElement( cxxtools::String::widen( name ), value );
+        else
+            _writer->writeElement( cxxtools::String::widen( type ), value );
+    }
 }
 
 
@@ -157,10 +166,19 @@ void XmlFormatter::beginObject(const std::string& name, const std::string& type,
     if( ! id.empty() )
     {
         cxxtools::xml::Attribute attr( cxxtools::String(L"id"), cxxtools::String::widen( id ) );
-        _writer->writeStartElement( cxxtools::String::widen( name ), &attr, 1 );
+
+        if( ! name.empty() )
+            _writer->writeStartElement( cxxtools::String::widen( name ), &attr, 1 );
+        else
+            _writer->writeStartElement( cxxtools::String::widen( type ), &attr, 1 );
     }
     else
-        _writer->writeStartElement( cxxtools::String::widen( name ) );
+    {
+        if( ! name.empty() )
+            _writer->writeStartElement( cxxtools::String::widen( name ) );
+        else
+            _writer->writeStartElement( cxxtools::String::widen( type ) );
+    }
 }
 
 
