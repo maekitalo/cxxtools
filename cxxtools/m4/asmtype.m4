@@ -64,7 +64,7 @@ AC_DEFUN([AC_CXXTOOLS_ATOMICTYPE],
       [ #define _WINSOCKAPI_
         #include <windows.h>
         int main() { LONG value; InterlockedIncrement(&value); } ])
-  AC_CHECKATOMICTYPE([att_arm], [CXXTOOLS_ATOMICITY_ARM],
+  AC_CHECKATOMICTYPE([att_arm], [CXXTOOLS_ATOMICITY_GCC_ARM],
       [
         #include <csignal>
         typedef std::sig_atomic_t atomic_t;
@@ -73,11 +73,11 @@ AC_DEFUN([AC_CXXTOOLS_ATOMICTYPE],
                int a, b, c;
 
                asm volatile (  "0:\n\t"
-                                       "ldr %0, [%3]\n\t"
+                                       "ldr %0, [[%3]]\n\t"
                                        "add %1, %0, %4\n\t"
-                                       "swp %2, %1, [%3]\n\t"
+                                       "swp %2, %1, [[%3]]\n\t"
                                        "cmp %0, %2\n\t"
-                                       "swpne %1, %2, [%3]\n\t"
+                                       "swpne %1, %2, [[%3]]\n\t"
                                        "bne 0b"
                                        : "=&r" (a), "=&r" (b), "=&r" (c)
                                        : "r" (&dest), "r" (1)
