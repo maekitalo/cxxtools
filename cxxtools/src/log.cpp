@@ -89,8 +89,8 @@ namespace cxxtools
   {
       static std::string fname;
       static std::ofstream outfile;
-      static cxxtools::Streamcounter counter;
-      static cxxtools::Tee tee;
+      static Streamcounter counter;
+      static Tee tee;
       static net::UdpSender loghost;
       static net::UdpOStream udpmessage;
       static unsigned maxfilesize;
@@ -182,8 +182,8 @@ namespace cxxtools
 
   std::string LoggerImpl::fname;
   std::ofstream LoggerImpl::outfile;
-  cxxtools::Streamcounter LoggerImpl::counter;
-  cxxtools::Tee LoggerImpl::tee(LoggerImpl::outfile, LoggerImpl::counter);
+  Streamcounter LoggerImpl::counter;
+  Tee LoggerImpl::tee(LoggerImpl::outfile, LoggerImpl::counter);
   net::UdpSender LoggerImpl::loghost;
   net::UdpOStream LoggerImpl::udpmessage(LoggerImpl::loghost);
   unsigned LoggerImpl::maxfilesize = 0;
@@ -277,6 +277,17 @@ namespace cxxtools
 
   namespace
   {
+    class StaticDeinitializer
+    {
+      public:
+        ~StaticDeinitializer()
+        {
+          Logger::setEnabled(false);
+        }
+    };
+
+    StaticDeinitializer staticDeinitializer;
+
     typedef std::list<Logger*> loggers_type;
 
     loggers_type& getBaseLoggers()
@@ -485,6 +496,9 @@ namespace cxxtools
       std::ostream& out()     { return msg; }
       void flush()
       {
+        if (!Logger::isEnabled())
+          return;
+
         try
         {
           MutexLock lock(Logger::mutex);
@@ -533,11 +547,12 @@ namespace cxxtools
   {
     if (msg)
     {
-      if (l->isEnabled(Logger::LOG_LEVEL_TRACE))
+      if (Logger::isEnabled()
+        && l->isEnabled(Logger::LOG_LEVEL_TRACE))
       {
         try
         {
-          cxxtools::MutexLock lock(cxxtools::Logger::mutex);
+          MutexLock lock(Logger::mutex);
           l->logentry("TRACE")
             << "EXIT " << msg->str() << std::endl;
         }
@@ -558,11 +573,13 @@ namespace cxxtools
 
   void LogTracer::enter()
   {
-    if (msg && l->isEnabled(Logger::LOG_LEVEL_TRACE))
+    if (msg
+      && Logger::isEnabled()
+      && l->isEnabled(Logger::LOG_LEVEL_TRACE))
     {
       try
       {
-        cxxtools::MutexLock lock(cxxtools::Logger::mutex);
+        MutexLock lock(Logger::mutex);
         l->logentry("TRACE")
           << "ENTER " << msg->str() << std::endl;
       }

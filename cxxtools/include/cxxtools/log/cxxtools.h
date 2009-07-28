@@ -70,10 +70,12 @@
   }
 
 #define log_define(category) \
-  static inline ::cxxtools::Logger* getLogger()   \
+  static ::cxxtools::Logger* getLogger()   \
   {  \
     static cxxtools::Logger* logger = 0; \
-    if (logger == 0 && ::cxxtools::Logger::isEnabled()) \
+    if (!::cxxtools::Logger::isEnabled()) \
+      return 0; \
+    if (logger == 0) \
       logger = ::cxxtools::Logger::getCategoryLogger(category); \
     return logger; \
   }
