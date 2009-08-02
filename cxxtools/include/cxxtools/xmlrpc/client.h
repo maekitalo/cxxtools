@@ -85,6 +85,16 @@ class CXXTOOLS_XMLRPC_API Client : public cxxtools::Connectable
             _request.url(url);
         }
 
+        void auth(const std::string& username, const std::string& password)
+        {
+            _client.auth(username, password);
+        }
+
+        void clearAuth()
+        {
+            _client.clearAuth();
+        }
+
         void beginCall(IDeserializer& r, IRemoteProcedure& method, ISerializer** argv, unsigned argc);
 
         void call(IDeserializer& r, IRemoteProcedure& method, ISerializer** argv, unsigned argc);

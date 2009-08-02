@@ -40,16 +40,25 @@ int main(int argc, char* argv[])
 
     cxxtools::Arg<bool> headers(argc, argv, 'h');
     cxxtools::Arg<bool> returncode(argc, argv, 'c');
-    cxxtools::Arg<std::string> user(argc, argv, 'u');   // TODO auth
+    cxxtools::Arg<std::string> user(argc, argv, 'u'); // passed as "username:password"
     cxxtools::Arg<std::string> server(argc, argv, 's', "127.0.0.1");
     cxxtools::Arg<unsigned short int> port(argc, argv, 'p', 80);
 
-    //std::string::size_type p = user.getValue().find('/');
-    //if (p != std::string::npos)
-      //request.setAuth(user.getValue().substr(0, p),
-                      //user.getValue().substr(p + 1));
-
     cxxtools::http::Client client(server, port);
+
+    if (user.isSet())
+    {
+      std::string::size_type p = user.getValue().find(':');
+      if (p != std::string::npos)
+      {
+        client.auth(user.getValue().substr(0, p),
+                    user.getValue().substr(p + 1));
+      }
+      else
+      {
+        client.auth(user, std::string());
+      }
+    }
 
     for (int a = 1; a < argc; ++a)
         std::cout << client.get(argv[a]);

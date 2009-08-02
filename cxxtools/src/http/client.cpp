@@ -29,6 +29,9 @@
 #include <cxxtools/http/client.h>
 #include <cxxtools/http/parser.h>
 #include <cxxtools/ioerror.h>
+#include <cxxtools/base64stream.h>
+#include <sstream>
+
 #include <cxxtools/log.h>
 
 log_define("cxxtools.http.client")
@@ -253,10 +256,10 @@ void Client::sendRequest(const Request& request)
     log_debug("send request " << request.url());
 
     const std::string contentLength = "Content-Length";
-    const std::string server = "Server";
     const std::string connection = "Connection";
     const std::string date = "Date";
     const std::string host = "Host";
+    const std::string authorization = "Authorization";
 
     _stream << request.method() << ' '
             << request.url() << " HTTP/"
@@ -272,11 +275,6 @@ void Client::sendRequest(const Request& request)
    if (!request.header().hasHeader(contentLength))
     {
         _stream << "Content-Length: " << request.bodySize() << "\r\n";
-    }
-
-    if (!request.header().hasHeader(server))
-    {
-        _stream << "Server: cxxtools-Net-Server\r\n";
     }
 
     if (!request.header().hasHeader(connection))
@@ -295,6 +293,18 @@ void Client::sendRequest(const Request& request)
         if (_port != 80)
             _stream << ':' << _port;
         _stream << "\r\n";
+    }
+
+    if (!_username.empty() && !request.header().hasHeader(authorization))
+    {
+        std::ostringstream d;
+        Base64ostream b(d);
+        b << _username
+          << ':'
+          << _password;
+        b.end();
+        log_debug("set Authorization to " << d.str());
+        _stream << "Authorization: Basic " << d.str() << "\r\n";
     }
 
     _stream << "\r\n";

@@ -79,6 +79,9 @@ class CXXTOOLS_HTTP_API Client : public cxxtools::Connectable
         bool _readHeader;
         long _contentLength;
 
+        std::string _username;
+        std::string _password;
+
         void sendRequest(const Request& request);
         void processHeaderAvailable(StreamBuffer& sb);
         void processBodyAvailable(StreamBuffer& sb);
@@ -97,20 +100,28 @@ class CXXTOOLS_HTTP_API Client : public cxxtools::Connectable
 
         Client(SelectorBase& selector, const std::string& server, unsigned short int port);
 
+        // Sets the server and port. No actual network connect is done.
         void connect(const std::string& server, unsigned short int port)
         {
             _server = server;
             _port = port;
         }
 
+        // Sends the passed request to the server and parses the headers.
+        // The body must be read with readBody.
+        // This method blocks or times out until the body is parsed.
         const ReplyHeader& execute(const Request& request,
             std::size_t timeout = Selectable::WaitInfinite);
 
         const ReplyHeader& header()
         { return _replyHeader; }
 
+        // Reads the http body after header read with execute.
+        // This method blocks until the body is received.
         void readBody(std::string& s);
 
+        // Reads the http body after header read with execute.
+        // This method blocks until the body is received.
         std::string readBody()
         {
             std::string ret;
@@ -118,16 +129,27 @@ class CXXTOOLS_HTTP_API Client : public cxxtools::Connectable
             return ret;
         }
 
+        // Combines the execute and readBody methods in one call.
+        // This method blocks until the reply is recieved.
         std::string get(const std::string& url,
             std::size_t timeout = Selectable::WaitInfinite);
 
+        // Starts a new request.
+        // This method does not block. To actually process the request, the
+        // event loop must be executed. The state of the request is signaled
+        // with the corresponding signals and delegates.
+        // The delegate "bodyAvailable" must be connected, if a body is
+        // received.
         void beginExecute(const Request& request);
 
         void setSelector(SelectorBase& selector);
 
+        // Executes the underlying selector until a event occures or the
+        // specified timeout is reached.
         void wait(std::size_t msecs);
 
-        std::istream& in()   // reply body is received here
+        // Returns the underlying stream, where the reply may be read.
+        std::istream& in()
         {
             return _stream;
         }
@@ -138,10 +160,27 @@ class CXXTOOLS_HTTP_API Client : public cxxtools::Connectable
         unsigned short int port() const
         { return _port; }
 
+        // Sets the username and password for all subsequent requests.
+        void auth(const std::string& username, const std::string& password)
+        { _username = username; _password = password; }
+
+        void clearAuth()
+        { _username.clear(); _password.clear(); }
+
+        // Signals that the request is sent to the server.
         Signal<Client&> requestSent;
+
+        // Signals that the header is received.
         Signal<Client&> headerReceived;
+
+        // This delegate is called, when data is arrived while reading the
+        // body. The connected fuctor must return the number of bytes read.
         cxxtools::Delegate<std::size_t, Client&> bodyAvailable;
+
+        // Signals that the reply is completely processed.
         Signal<Client&> replyFinished;
+
+        // Signals that a exception is catched while processing the request.
         Signal<Client&, const std::exception&> errorOccured;
 };
 
