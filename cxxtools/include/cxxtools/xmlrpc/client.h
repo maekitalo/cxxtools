@@ -29,45 +29,24 @@
 #define cxxtools_xmlrpc_Client_h
 
 #include <cxxtools/xmlrpc/api.h>
-#include <cxxtools/xmlrpc/fault.h>
-#include <cxxtools/xmlrpc/formatter.h>
-#include <cxxtools/xmlrpc/scanner.h>
-#include <cxxtools/xml/xmlreader.h>
-#include <cxxtools/xml/xmlwriter.h>
-#include <cxxtools/http/client.h>
-#include <cxxtools/http/request.h>
-#include <cxxtools/deserializer.h>
-#include <cxxtools/serializer.h>
-#include <cxxtools/connectable.h>
-#include <cxxtools/textstream.h>
+#include <cxxtools/noncopyable.h>
 #include <string>
-#include <sstream>
-#include <cstddef>
 
 namespace cxxtools {
 
 class SelectorBase;
+class ISerializer;
+class IDeserializer;
 
 namespace xmlrpc {
 
 class IRemoteProcedure;
+class ClientImpl;
 
 
-class CXXTOOLS_XMLRPC_API Client : public cxxtools::Connectable
+class CXXTOOLS_XMLRPC_API Client : public NonCopyable
 {
-    enum State
-    {
-        OnBegin,
-        OnMethodResponseBegin,
-        OnFaultBegin,
-        OnFaultEnd,
-        OnFaultResponseEnd,
-        OnParamsBegin,
-        OnParam,
-        OnParamEnd,
-        OnParamsEnd,
-        OnMethodResponseEnd
-    };
+        ClientImpl* _impl;
 
     public:
         Client();
@@ -80,69 +59,22 @@ class CXXTOOLS_XMLRPC_API Client : public cxxtools::Connectable
         virtual ~Client();
 
         void connect(const std::string& addr, unsigned short port,
-                     const std::string& url)
-        {
-            _client.connect(addr, port);
-            _request.url(url);
-        }
+                     const std::string& url);
 
-        void auth(const std::string& username, const std::string& password)
-        {
-            _client.auth(username, password);
-        }
+        void auth(const std::string& username, const std::string& password);
 
-        void clearAuth()
-        {
-            _client.clearAuth();
-        }
+        void clearAuth();
 
         void beginCall(IDeserializer& r, IRemoteProcedure& method, ISerializer** argv, unsigned argc);
 
         void call(IDeserializer& r, IRemoteProcedure& method, ISerializer** argv, unsigned argc);
 
-        std::size_t timeout() const  { return _timeout; }
+        std::size_t timeout() const;
 
-        void timeout(std::size_t t)  { _timeout = t; }
+        void timeout(std::size_t t);
 
-        std::string url() const
-        {
-            std::ostringstream s;
-            s << "http://"
-              << _client.server()
-              << ':'
-              << _client.port()
-              << _request.url();
+        std::string url() const;
 
-            return s.str();
-        }
-
-    protected:
-        void onReplyHeader(http::Client& client);
-
-        std::size_t onReplyBody(http::Client& client);
-
-        void onReplyFinished(http::Client& client);
-
-        void onErrorOccured(http::Client& client, const std::exception& e);
-
-        void prepareRequest(const std::string& name, ISerializer** argv, unsigned argc);
-
-        void advance(const xml::Node& node);
-
-    private:
-        State _state;
-        http::Client _client;
-        http::Request _request;
-        TextIStream _ts;
-        xml::XmlReader _reader;
-        xml::XmlWriter _writer;
-        Formatter _formatter;
-        Scanner _scanner;
-        IRemoteProcedure* _method;
-        DeserializationContext _context;
-        Fault _fault;
-        Deserializer<Fault> _fh;
-        std::size_t _timeout;
 };
 
 }

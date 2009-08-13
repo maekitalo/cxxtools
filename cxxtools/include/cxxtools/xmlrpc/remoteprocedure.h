@@ -45,7 +45,7 @@ class Fault;
 
 class CXXTOOLS_XMLRPC_API IRemoteProcedure
 {
-    friend class Client;
+    friend class ClientImpl;
 
     public:
         IRemoteProcedure(Client& client, const std::string& name)
