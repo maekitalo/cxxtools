@@ -35,6 +35,7 @@
 #include <cxxtools/xml/xmlreader.h>
 #include <cxxtools/xml/xmlwriter.h>
 #include <cxxtools/http/client.h>
+#include <cxxtools/http/request.h>
 #include <cxxtools/deserializer.h>
 #include <cxxtools/serializer.h>
 #include <cxxtools/connectable.h>

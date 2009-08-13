@@ -26,38 +26,88 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef cxxtools_Http_Client_h
-#define cxxtools_Http_Client_h
+#ifndef cxxtools_Http_ClientImpl_h
+#define cxxtools_Http_ClientImpl_h
 
-#include <cxxtools/http/api.h>
+#include <cxxtools/net/tcpserver.h>
+#include <cxxtools/net/tcpsocket.h>
+#include <cxxtools/http/parser.h>
+#include <cxxtools/http/request.h>
+#include <cxxtools/http/reply.h>
 #include <cxxtools/selectable.h>
-#include <cxxtools/signal.h>
+#include <cxxtools/iostream.h>
+#include <cxxtools/timer.h>
+#include <cxxtools/connectable.h>
 #include <cxxtools/delegate.h>
-#include <cxxtools/noncopyable.h>
 #include <string>
+#include <sstream>
+#include <cstddef>
 
 namespace cxxtools {
 
-class SelectorBase;
-
 namespace http {
 
-class ClientImpl;
-class ReplyHeader;
-class Request;
+class Client;
 
-class CXXTOOLS_HTTP_API Client : private NonCopyable
+class ClientImpl : public Connectable
 {
-        ClientImpl* _impl;
+        friend class ParseEvent;
+
+        Client* _client;
+
+        class CXXTOOLS_HTTP_API ParseEvent : public HeaderParser::MessageHeaderEvent
+        {
+                ReplyHeader& _replyHeader;
+
+            public:
+                explicit ParseEvent(ReplyHeader& replyHeader)
+                    : HeaderParser::MessageHeaderEvent(replyHeader),
+                      _replyHeader(replyHeader)
+                    { }
+
+                void onHttpReturn(unsigned ret, const std::string& text);
+        };
+
+        ParseEvent _parseEvent;
+        HeaderParser _parser;
+
+        const Request* _request;
+        ReplyHeader _replyHeader;
+
+        std::string _server;
+        unsigned short int _port;
+        net::TcpSocket _socket;
+        IOStream _stream;
+        bool _readHeader;
+        long _contentLength;
+
+        std::string _username;
+        std::string _password;
+
+        void sendRequest(const Request& request);
+        void processHeaderAvailable(StreamBuffer& sb);
+        void processBodyAvailable(StreamBuffer& sb);
+
+        void reexecute(const Request& request);
+        void doparse();
+
+    protected:
+        void onConnect(net::TcpSocket& socket);
+        void onOutput(StreamBuffer& sb);
+        void onInput(StreamBuffer& sb);
 
     public:
-        Client();
-        Client(const std::string& server, unsigned short int port);
+        ClientImpl(Client* client);
+        ClientImpl(Client* client, const std::string& server, unsigned short int port);
 
-        Client(SelectorBase& selector, const std::string& server, unsigned short int port);
+        ClientImpl(Client* client, SelectorBase& selector, const std::string& server, unsigned short int port);
 
         // Sets the server and port. No actual network connect is done.
-        void connect(const std::string& server, unsigned short int port);
+        void connect(const std::string& server, unsigned short int port)
+        {
+            _server = server;
+            _port = port;
+        }
 
         // Sends the passed request to the server and parses the headers.
         // The body must be read with readBody.
@@ -65,7 +115,8 @@ class CXXTOOLS_HTTP_API Client : private NonCopyable
         const ReplyHeader& execute(const Request& request,
             std::size_t timeout = Selectable::WaitInfinite);
 
-        const ReplyHeader& header();
+        const ReplyHeader& header()
+        { return _replyHeader; }
 
         // Reads the http body after header read with execute.
         // This method blocks until the body is received.
@@ -100,32 +151,24 @@ class CXXTOOLS_HTTP_API Client : private NonCopyable
         void wait(std::size_t msecs);
 
         // Returns the underlying stream, where the reply may be read from.
-        std::istream& in();
+        std::istream& in()
+        {
+            return _stream;
+        }
 
-        const std::string& server() const;
+        const std::string& server() const
+        { return _server; }
 
-        unsigned short int port() const;
+        unsigned short int port() const
+        { return _port; }
 
         // Sets the username and password for all subsequent requests.
-        void auth(const std::string& username, const std::string& password);
+        void auth(const std::string& username, const std::string& password)
+        { _username = username; _password = password; }
 
-        void clearAuth();
+        void clearAuth()
+        { _username.clear(); _password.clear(); }
 
-        // Signals that the request is sent to the server.
-        Signal<Client&> requestSent;
-
-        // Signals that the header is received.
-        Signal<Client&> headerReceived;
-
-        // This delegate is called, when data is arrived while reading the
-        // body. The connected fuctor must return the number of bytes read.
-        cxxtools::Delegate<std::size_t, Client&> bodyAvailable;
-
-        // Signals that the reply is completely processed.
-        Signal<Client&> replyFinished;
-
-        // Signals that a exception is catched while processing the request.
-        Signal<Client&, const std::exception&> errorOccured;
 };
 
 } // namespace http
