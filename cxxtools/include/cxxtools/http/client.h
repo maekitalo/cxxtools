@@ -56,6 +56,8 @@ class CXXTOOLS_HTTP_API Client : private NonCopyable
 
         Client(SelectorBase& selector, const std::string& server, unsigned short int port);
 
+        ~Client();
+
         // Sets the server and port. No actual network connect is done.
         void connect(const std::string& server, unsigned short int port);
 

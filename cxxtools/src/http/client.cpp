@@ -50,6 +50,11 @@ Client::Client(SelectorBase& selector, const std::string& server, unsigned short
 {
 }
 
+Client::~Client()
+{
+  delete _impl;
+}
+
 void Client::connect(const std::string& server, unsigned short int port)
 {
     _impl->connect(server, port);
