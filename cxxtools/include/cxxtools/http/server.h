@@ -87,6 +87,7 @@ class CXXTOOLS_HTTP_API Server : public net::TcpServer, public Connectable
         ServicesType _service;
         Selector _selector;
         NotFoundService _defaultService;
+        NotAuthenticatedService _noAuthService;
 
         std::size_t _readTimeout;
         std::size_t _writeTimeout;

@@ -86,6 +86,22 @@ class CXXTOOLS_HTTP_API NotFoundService : public Service
         NotFoundResponder _responder;
 };
 
+class NotAuthenticatedResponder;
+
+class CXXTOOLS_HTTP_API NotAuthenticatedService : public Service
+{
+    public:
+        NotAuthenticatedService()
+            { }
+
+        Responder* createResponder(const Request&);
+
+        Responder* createResponder(const Request&, const std::string& realm, const std::string& authContent);
+
+        void releaseResponder(Responder* responder);
+
+};
+
 } // namespace http
 
 } // namespace cxxtools

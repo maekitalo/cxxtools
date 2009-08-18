@@ -174,6 +174,11 @@ Responder* Server::getResponder(const Request& request)
     for (ServicesType::const_iterator it = _service.lower_bound(request.url());
         it != _service.end() && it->first == request.url(); ++it)
     {
+        if (!it->second->checkAuth(request))
+        {
+            return _noAuthService.createResponder(request, it->second->realm(), it->second->authContent());
+        }
+
         Responder* resp = it->second->createResponder(request);
         if (resp)
         {

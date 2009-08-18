@@ -36,6 +36,9 @@ namespace cxxtools {
 
 namespace http {
 
+// Responder
+//
+
 void Responder::beginRequest(std::istream& in, Request& request)
 {
 }
@@ -62,10 +65,16 @@ void Responder::replyError(std::ostream& out, Request& request, Reply& reply, co
     out << ex.what();
 }
 
+// NotFoundResponder
+//
+
 void NotFoundResponder::reply(std::ostream& out, Request& request, Reply& reply)
 {
     reply.httpReturn(404, "Not found");
 }
+
+// NotFoundService
+//
 
 Responder* NotFoundService::createResponder(const Request&)
 {
@@ -75,6 +84,54 @@ Responder* NotFoundService::createResponder(const Request&)
 void NotFoundService::releaseResponder(Responder*)
 { }
 
+// NotAuthenticatedResponder 
+//
+
+class NotAuthenticatedResponder : public Responder
+{
+        std::string _realm;
+        std::string _content;
+
+    public:
+        explicit NotAuthenticatedResponder(Service& service, const std::string& realm, const std::string& content)
+            : Responder(service),
+              _realm(realm),
+              _content(content)
+            { }
+
+        void reply(std::ostream&, Request& request, Reply& reply);
+};
+
+void NotAuthenticatedResponder::reply(std::ostream& out, Request& request, Reply& reply)
+{
+    reply.setHeader("WWW-Authenticate", "Basic realm=\"" + _realm + '"');
+
+    reply.httpReturn(401, "not authorized");
+
+    if (_content.empty())
+        out << "<html><body><h1>not authorized</h1></body></html>";
+    else
+        out << _content;
+
+}
+
+// NotAuthenticatedService
+//
+
+Responder* NotAuthenticatedService::createResponder(const Request& request)
+{
+    return createResponder(request, std::string(), std::string());
+}
+
+Responder* NotAuthenticatedService::createResponder(const Request& request, const std::string& realm, const std::string& authContent)
+{
+    return new NotAuthenticatedResponder(*this, realm, authContent);
+}
+
+void NotAuthenticatedService::releaseResponder(Responder* responder)
+{
+    delete responder;
+}
 
 } // namespace http
 

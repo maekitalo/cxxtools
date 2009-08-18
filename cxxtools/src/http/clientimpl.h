@@ -39,6 +39,7 @@
 #include <cxxtools/timer.h>
 #include <cxxtools/connectable.h>
 #include <cxxtools/delegate.h>
+#include <cxxtools/refcounted.h>
 #include <string>
 #include <sstream>
 #include <cstddef>
@@ -49,7 +50,7 @@ namespace http {
 
 class Client;
 
-class ClientImpl : public Connectable
+class ClientImpl : public RefCounted, public Connectable
 {
         friend class ParseEvent;
 
