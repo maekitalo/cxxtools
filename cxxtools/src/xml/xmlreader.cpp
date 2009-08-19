@@ -55,7 +55,7 @@ struct XmlReaderImpl
 
         State* onChar(cxxtools::Char c, XmlReaderImpl& reader)
         {
-            //std::cerr << "onChar: " << c.narrow('_') << std::endl;
+            //log_debug(static_cast<void*>(this) << " onChar: " << c.narrow('_') << " state: " << typeid(*this).name());
 
             if( c == std::char_traits<cxxtools::Char>::to_char_type( std::char_traits<cxxtools::Char>::eof() ) )
             {
@@ -1519,8 +1519,6 @@ struct XmlReaderImpl
 
     bool advance()
     {
-        const cxxtools::Char eof = std::char_traits<char>::eof();
-
         _current = 0;
         cxxtools::Char ch = 0;
         while( ! _current && _textBuffer->in_avail() > 0 )
