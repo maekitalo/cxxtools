@@ -119,6 +119,7 @@ void ClientImpl::beginCall(IDeserializer& r, IRemoteProcedure& method, ISerializ
 
     this->prepareRequest(method.name(), argv, argc);
     _client.beginExecute(_request);
+    _reader.reset(_ts);
     _scanner.begin(r,_context);
 }
 
