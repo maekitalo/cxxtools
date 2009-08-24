@@ -94,36 +94,21 @@ size_t IODevice::read(char* buffer, size_t n)
 {
     if( async() )
     {
-        if( ! _rbuf )
+        if( _rbuf )
+            throw IOPending( CXXTOOLS_ERROR_MSG("read operation pending") );
+
+        try // TODO pass buffer pointer/length to onEndRead
         {
-            try // TODO pass buffer pointer/length to onEndRead
-            {
-                this->beginRead(buffer, n);
-                return this->onEndRead(_eof);
-            }
-            catch(...)
-            {
-                _rbuf = 0; _rbuflen = 0; _ravail = 0;
-                throw;
-            }
+            this->beginRead(buffer, n);
+            size_t n = this->onEndRead(_eof);
+            _rbuf = 0; _rbuflen = 0; _ravail = 0;
+            return n;
         }
-
-        size_t available = this->onEndRead(_eof);
-        size_t transferred = std::min(n, available);
-        size_t leftover = available > n ? available - n : 0;
-
-        memcpy( buffer, _rbuf, transferred );
-        if(leftover > 0)
-            memmove(_rbuf, _rbuf+transferred, leftover);
-
-        _ravail = leftover + this->onBeginRead(_rbuf+leftover, _rbuflen-leftover, _eof);
-
-        if(_ravail || _eof || _wavail)
-            this->setState(Selectable::Avail);
-        else
-            this->setState(Selectable::Busy);
-
-        return transferred;
+        catch(...)
+        {
+            _rbuf = 0; _rbuflen = 0; _ravail = 0;
+            throw;
+        }
     }
 
     return this->onRead(buffer, n, _eof);
@@ -178,13 +163,15 @@ size_t IODevice::write(const char* buffer, size_t n)
     {
         if( _wbuf )
         {
-            return this->endWrite();
+            throw IOPending( CXXTOOLS_ERROR_MSG("write operation pending") );
         }
 
         try
         {
             this->beginWrite(buffer, n);
-            return endWrite();
+            size_t c = endWrite();
+            _wbuf = 0; _wbuflen = 0; _wavail = 0;
+            return c;
         }
         catch(...)
         {

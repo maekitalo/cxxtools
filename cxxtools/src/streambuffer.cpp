@@ -43,9 +43,7 @@ StreamBuffer::StreamBuffer(IODevice& ioDevice, size_t bufferSize, bool extend)
   _obufferSize(bufferSize),
   _obuffer(0),
   _oextend(extend),
-  _pbmax(4),
-  _reading(false),
-  _flushing(false)
+  _pbmax(4)
 {
     this->setg(0, 0, 0);
     this->setp(0, 0);
@@ -61,9 +59,7 @@ StreamBuffer::StreamBuffer(size_t bufferSize, bool extend)
   _obufferSize(bufferSize),
   _obuffer(0),
   _oextend(extend),
-  _pbmax(4),
-  _reading(false),
-  _flushing(false)
+  _pbmax(4)
 {
     this->setg(0, 0, 0);
     this->setp(0, 0);
@@ -105,7 +101,7 @@ IODevice* StreamBuffer::device()
 
 void StreamBuffer::beginRead()
 {
-    if(_reading || _ioDevice == 0)
+    if(_ioDevice == 0 || _ioDevice->reading())
         return;
 
     if( ! _ibuffer )
@@ -133,7 +129,6 @@ void StreamBuffer::beginRead()
         throw std::logic_error( CXXTOOLS_ERROR_MSG("StreamBuffer is full") );
 
     _ioDevice->beginRead( _ibuffer + used, _ibufferSize - used );
-    _reading = true;
 
     this->setg( _ibuffer + (_pbmax - putback), // start of get area
                 _ibuffer + used, // gptr position
@@ -151,7 +146,6 @@ void StreamBuffer::onRead(IODevice& dev)
 void StreamBuffer::endRead()
 {
     size_t readSize = _ioDevice->endRead();
-    _reading = false;
 
     this->setg( this->eback(), // start of get area
                 this->gptr(), // gptr position
@@ -166,7 +160,7 @@ StreamBuffer::int_type StreamBuffer::underflow()
     if( ! _ioDevice )
         return traits_type::eof();
 
-    if(_reading)
+    if(_ioDevice->reading())
         this->endRead();
 
     if( this->gptr() < this->egptr() )
@@ -213,7 +207,7 @@ void StreamBuffer::beginWrite()
 {
     log_trace("beginWrite; out_avail=" << out_avail());
 
-    if(_flushing || _ioDevice == 0 )
+    if(_ioDevice == 0 || _ioDevice->writing())
         return;
 
     if( this->pptr() )
@@ -222,7 +216,6 @@ void StreamBuffer::beginWrite()
         if(avail > 0)
         {
             _ioDevice->beginWrite(_obuffer, avail);
-            _flushing = true;
         }
     }
 }
@@ -230,7 +223,7 @@ void StreamBuffer::beginWrite()
 
 void StreamBuffer::discard()
 {
-    if (_reading || _flushing)
+    if (_ioDevice && (_ioDevice->reading() || _ioDevice->writing()))
         throw IOPending( CXXTOOLS_ERROR_MSG("discard failed - streambuffer is in use") );
 
     if (gptr())
@@ -254,7 +247,6 @@ void StreamBuffer::endWrite()
 {
     log_trace("endWrite; out_avail=" << out_avail());
 
-    _flushing = false;
     size_t leftover = 0;
 
     if( this->pptr() )
@@ -286,7 +278,7 @@ StreamBuffer::int_type StreamBuffer::overflow(int_type ch)
         _obuffer = new char[_obufferSize];
         this->setp(_obuffer, _obuffer + _obufferSize);
     }
-    else if(_flushing) // beginWrite is unfinished
+    else if(_ioDevice->writing()) // beginWrite is unfinished
     {
         this->endWrite();
     }
@@ -387,12 +379,12 @@ StreamBuffer::seekoff(off_type off, std::ios::seekdir dir, std::ios::openmode)
         return ret;
     }
 
-    if(_flushing)
+    if(_ioDevice->writing())
     {
         this->endWrite();
     }
 
-    if(_reading)
+    if(_ioDevice->reading())
     {
         this->endRead();
     }

@@ -129,8 +129,6 @@ class CXXTOOLS_API StreamBuffer : public BasicStreamBuffer<char>
         char* _obuffer;
         bool _oextend;
         const size_t _pbmax;
-        bool _reading;
-        bool _flushing;
 };
 
 } // namespace cxxtools
