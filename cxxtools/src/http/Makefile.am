@@ -3,6 +3,7 @@ INCLUDES= -I$(top_builddir)/include
 lib_LTLIBRARIES = libcxxtools-http.la
 
 libcxxtools_http_la_SOURCES = \
+	chunkedreader.cpp \
 	client.cpp \
 	clientimpl.cpp \
 	messageheader.cpp \
@@ -12,6 +13,7 @@ libcxxtools_http_la_SOURCES = \
 	responder.cpp
 
 noinst_HEADERS = \
+    chunkedreader.h \
     clientimpl.h
 
 libcxxtools_http_la_LIBADD = $(top_builddir)/src/libcxxtools.la

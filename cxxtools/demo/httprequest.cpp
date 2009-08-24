@@ -29,8 +29,30 @@
 #include <exception>
 #include <iostream>
 #include <cxxtools/http/client.h>
+#include <cxxtools/http/request.h>
 #include <cxxtools/arg.h>
+#include <cxxtools/eventloop.h>
 #include <cxxtools/loginit.h>
+
+std::size_t printer(cxxtools::http::Client& client)
+{
+  char buffer[8192];
+  std::streamsize n = client.in().readsome(buffer, sizeof(buffer));
+  std::cout.write(buffer, n);
+  return n;
+}
+
+cxxtools::EventLoop loop;
+
+void ready(cxxtools::http::Client& client)
+{
+  loop.exit();
+}
+
+void error(cxxtools::http::Client& client, const std::exception& e)
+{
+  throw;
+}
 
 int main(int argc, char* argv[])
 {
@@ -43,6 +65,7 @@ int main(int argc, char* argv[])
     cxxtools::Arg<std::string> user(argc, argv, 'u'); // passed as "username:password"
     cxxtools::Arg<std::string> server(argc, argv, 's', "127.0.0.1");
     cxxtools::Arg<unsigned short int> port(argc, argv, 'p', 80);
+    cxxtools::Arg<bool> async(argc, argv, 'a');
 
     cxxtools::http::Client client(server, port);
 
@@ -60,12 +83,29 @@ int main(int argc, char* argv[])
       }
     }
 
+    if (async)
+    {
+      connect(client.bodyAvailable, printer);
+      connect(client.replyFinished, ready);
+      connect(client.errorOccured, error);
+      client.setSelector(loop);
+    }
+
     for (int a = 1; a < argc; ++a)
+    {
+      if (async)
+      {
+        cxxtools::http::Request request(argv[a]);
+        client.beginExecute(request);
+        loop.run();
+      }
+      else
         std::cout << client.get(argv[a]);
+    }
   }
   catch (const std::exception& e)
   {
-    std::cerr << e.what() << std::endl;
+    std::cerr << "ERROR: " << e.what() << std::endl;
   }
 }
 

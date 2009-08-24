@@ -51,11 +51,12 @@ ClientImpl::ClientImpl(Client* client)
 , _parseEvent(_replyHeader)
 , _parser(_parseEvent, true)
 , _request(0)
-, _server(std::string())
 , _port(0)
 , _stream(8192, true)
 , _readHeader(true)
 , _contentLength(0)
+, _chunkedEncoding(false)
+, _chunkedIStream(_stream.rdbuf())
 {
     _stream.attachDevice(_socket);
     cxxtools::connect(_socket.connected, *this, &ClientImpl::onConnect);
@@ -74,6 +75,8 @@ ClientImpl::ClientImpl(Client* client, const std::string& server, unsigned short
 , _stream(8192, true)
 , _readHeader(true)
 , _contentLength(0)
+, _chunkedEncoding(false)
+, _chunkedIStream(_stream.rdbuf())
 {
     _stream.attachDevice(_socket);
     cxxtools::connect(_socket.connected, *this, &ClientImpl::onConnect);
@@ -92,6 +95,8 @@ ClientImpl::ClientImpl(Client* client, SelectorBase& selector, const std::string
 , _stream(8192, true)
 , _readHeader(true)
 , _contentLength(0)
+, _chunkedEncoding(false)
+, _chunkedIStream(_stream.rdbuf())
 {
     _stream.attachDevice(_socket);
     cxxtools::connect(_socket.connected, *this, &ClientImpl::onConnect);
@@ -185,21 +190,49 @@ const ReplyHeader& ClientImpl::execute(const Request& request, std::size_t timeo
 
 void ClientImpl::readBody(std::string& s)
 {
-    unsigned n = _replyHeader.contentLength();
-
-    log_debug("read body; content-size: " << n);
-
     s.clear();
-    s.reserve(n);
 
-    char ch;
-    while (n-- && _stream.get(ch))
-        s += ch;
+    _chunkedEncoding = _replyHeader.chunkedTransferEncoding();
+    _chunkedIStream.reset();
 
-    if (_stream.fail())
-        throw IOError( CXXTOOLS_ERROR_MSG("error reading HTTP reply body") );
+    if (_chunkedEncoding)
+    {
+        log_debug("read body with chunked encoding");
 
-    //log_debug("body read: \"" << s << '"');
+        char ch;
+        while (_chunkedIStream.get(ch))
+            s += ch;
+
+        log_debug("eod=" << _chunkedIStream.eod());
+
+        if (_chunkedIStream.eod())
+        {
+            _parser.readHeader();
+            doparse();
+
+            if (_parser.fail())
+                throw std::runtime_error("http parser failed"); // TODO define exception class
+        }
+        else
+            throw std::runtime_error("chunked stream not complete");
+    }
+    else
+    {
+        unsigned n = _replyHeader.contentLength();
+
+        log_debug("read body; content-size: " << n);
+
+        s.reserve(n);
+
+        char ch;
+        while (n-- && _stream.get(ch))
+            s += ch;
+
+        if (_stream.fail())
+            throw IOError( CXXTOOLS_ERROR_MSG("error reading HTTP reply body") );
+
+        //log_debug("body read: \"" << s << '"');
+    }
 
     if (!_replyHeader.keepAlive())
     {
@@ -385,14 +418,17 @@ void ClientImpl::processHeaderAvailable(StreamBuffer& sb)
 
     if( _parser.end() )
     {
-        _contentLength = _replyHeader.contentLength();
-        log_debug("header received - content-length=" << _contentLength);
+        _chunkedEncoding = _replyHeader.chunkedTransferEncoding();
 
         _client->headerReceived(*_client);
         _readHeader = false;
 
-        if (_contentLength > 0)
+        if (_chunkedEncoding)
         {
+            log_debug("chunked transfer encoding used");
+
+            _chunkedIStream.reset();
+
             if( sb.in_avail() > 0 )
             {
                 processBodyAvailable(sb);
@@ -404,7 +440,24 @@ void ClientImpl::processHeaderAvailable(StreamBuffer& sb)
         }
         else
         {
-            _client->replyFinished(*_client);
+            _contentLength = _replyHeader.contentLength();
+            log_debug("header received - content-length=" << _contentLength);
+
+            if (_contentLength > 0)
+            {
+                if( sb.in_avail() > 0 )
+                {
+                    processBodyAvailable(sb);
+                }
+                else
+                {
+                    sb.beginRead();
+                }
+            }
+            else
+            {
+                _client->replyFinished(*_client);
+            }
         }
     }
     else
@@ -417,20 +470,67 @@ void ClientImpl::processBodyAvailable(StreamBuffer& sb)
 {
     log_trace("processBodyAvailable");
 
-    log_debug("content-length(pre)=" << _contentLength);
-
-    _contentLength -= _client->bodyAvailable(*_client); // TODO: may throw exception
-
-    log_debug("content-length(post)=" << _contentLength);
-
-    if( _contentLength <= 0 )
+    if (_chunkedEncoding)
     {
-        log_debug("reply finished");
-        _client->replyFinished(*_client);
+        if (_chunkedIStream.rdbuf()->in_avail() > 0)
+        {
+            if (!_chunkedIStream.eod())
+            {
+                log_debug("read chunked encoding body");
+
+                while (_chunkedIStream.rdbuf()->in_avail() > 0
+                    && !_chunkedIStream.eod())
+                {
+                    log_debug("bodyAvailable");
+                    _client->bodyAvailable(*_client);
+                }
+
+                log_debug("in_avail=" << _chunkedIStream.rdbuf()->in_avail() << " eod=" << _chunkedIStream.eod());
+                if (_chunkedIStream.eod())
+                {
+                    _parser.readHeader();
+                }
+            }
+
+            if (_chunkedIStream.eod() && sb.in_avail() > 0)
+            {
+                log_debug("read chunked encoding post headers");
+
+                _parser.advance(sb);
+                if (_parser.fail())
+                    throw std::runtime_error("http parser failed"); // TODO define exception class
+
+                if( _parser.end() )
+                {
+                    log_debug("reply finished");
+                    _client->replyFinished(*_client);
+                }
+            }
+
+            if (!_chunkedIStream.eod() || !_parser.end())
+            {
+                log_debug("call beginRead");
+                sb.beginRead();
+            }
+        }
     }
     else
     {
-        sb.beginRead();
+        log_debug("content-length(pre)=" << _contentLength);
+
+        _contentLength -= _client->bodyAvailable(*_client); // TODO: may throw exception
+
+        log_debug("content-length(post)=" << _contentLength);
+
+        if( _contentLength <= 0 )
+        {
+            log_debug("reply finished");
+            _client->replyFinished(*_client);
+        }
+        else
+        {
+            sb.beginRead();
+        }
     }
 }
 

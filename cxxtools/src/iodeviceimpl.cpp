@@ -154,11 +154,11 @@ size_t IODeviceImpl::read( char* buffer, size_t count, bool& eof )
 
         if(ret > 0)
         {
-            log_debug("::read(" << _fd << ", " << count << ") => \"" << std::string(buffer, ret) << "\")");
+            log_debug("::read(" << _fd << ", " << count << ") returned " << ret << " => \"" << std::string(buffer, ret) << "\")");
             break;
         }
 
-        log_debug("::read (" << _fd << ", " << count << ") returned " << ret << " errno=" << errno);
+        log_debug("::read(" << _fd << ", " << count << ") returned " << ret << " errno=" << errno);
 
         if(ret == 0 || errno == ECONNRESET)
         {

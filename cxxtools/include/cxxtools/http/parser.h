@@ -147,6 +147,12 @@ class CXXTOOLS_HTTP_API HeaderParser
         {
             state = (client ? &HeaderParser::state_cl_protocol0 : &HeaderParser::state_cmd0);
         }
+
+        /// returns parser to header reading state
+        void readHeader()
+        {
+          state = &HeaderParser::state_h0;
+        }
 };
 
 } // namespace http

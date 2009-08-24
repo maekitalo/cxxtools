@@ -42,6 +42,7 @@
 #include <string>
 #include <sstream>
 #include <cstddef>
+#include "chunkedreader.h"
 
 namespace cxxtools {
 
@@ -80,6 +81,8 @@ class ClientImpl : public Connectable
         IOStream _stream;
         bool _readHeader;
         long _contentLength;
+        bool _chunkedEncoding;
+        ChunkedIStream _chunkedIStream;
 
         std::string _username;
         std::string _password;
@@ -153,7 +156,8 @@ class ClientImpl : public Connectable
         // Returns the underlying stream, where the reply may be read from.
         std::istream& in()
         {
-            return _stream;
+            return _chunkedEncoding ? static_cast<std::istream&>(_chunkedIStream)
+                                    : static_cast<std::istream&>(_stream);
         }
 
         const std::string& server() const

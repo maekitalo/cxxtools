@@ -120,7 +120,7 @@ void Server::run()
         log_info("wait for finished threads");
 
         _threadTerminated.wait(lock);
-        log_debug(_terminatedThreads.size() << " threads finished");
+        log_debug(_terminatedThreads.size() << " threads finished; " << atomicGet(_waitingThreads) << " waiting threads");
 
         for (Threads::iterator it = _terminatedThreads.begin(); it != _terminatedThreads.end(); ++it)
         {

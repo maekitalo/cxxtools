@@ -42,7 +42,9 @@ class CXXTOOLS_HTTP_API MessageHeader
         class CXXTOOLS_HTTP_API StringLessIgnoreCase
         {
             public:
-                bool operator()(const std::string& s1, const std::string& s2) const;
+                int compare(const std::string& s1, const std::string& s2) const;
+                bool operator()(const std::string& s1, const std::string& s2) const
+                    { return compare(s1, s2) < 0; }
         };
 
         typedef std::map<std::string, std::string, StringLessIgnoreCase> Headers;
@@ -109,6 +111,8 @@ class CXXTOOLS_HTTP_API MessageHeader
             _httpVersionMajor = major;
             _httpVersionMinor = minor;
         }
+
+        bool chunkedTransferEncoding() const;
 
         std::size_t contentLength() const;
 

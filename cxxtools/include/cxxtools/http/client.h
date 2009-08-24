@@ -120,7 +120,7 @@ class CXXTOOLS_HTTP_API Client : private NonCopyable
         Signal<Client&> headerReceived;
 
         // This delegate is called, when data is arrived while reading the
-        // body. The connected fuctor must return the number of bytes read.
+        // body. The connected functor must return the number of bytes read.
         cxxtools::Delegate<std::size_t, Client&> bodyAvailable;
 
         // Signals that the reply is completely processed.
