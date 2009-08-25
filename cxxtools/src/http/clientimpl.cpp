@@ -506,12 +506,12 @@ void ClientImpl::processBodyAvailable(StreamBuffer& sb)
                     _client->replyFinished(*_client);
                 }
             }
+        }
 
-            if (!_chunkedIStream.eod() || !_parser.end())
-            {
-                log_debug("call beginRead");
-                sb.beginRead();
-            }
+        if (!_chunkedIStream.eod() || !_parser.end())
+        {
+            log_debug("call beginRead");
+            sb.beginRead();
         }
     }
     else

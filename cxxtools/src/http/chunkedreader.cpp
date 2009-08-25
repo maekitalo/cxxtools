@@ -20,7 +20,6 @@
 #include "chunkedreader.h"
 #include <stdexcept>
 #include <cxxtools/log.h>
-#include <cxxtools/hdstream.h>
 
 log_define("cxxtools.http.chunkedreader")
 
@@ -52,17 +51,6 @@ namespace cxxtools
         throw std::runtime_error(s.str());
       }
 
-      std::string dump(const char* s, unsigned n)
-      {
-        std::ostringstream str;
-
-        {
-          cxxtools::Hdostream h(str);
-          h.write(s, n);
-          h.flush();
-        }
-        return str.str();
-      }
     }
 
     ////////////////////////////////////////////////////////////////////
@@ -242,15 +230,10 @@ namespace cxxtools
       if (n > _chunkSize)
         n = _chunkSize;
 
-      log_debug("read " << n << " bytes from stream, chunk size left " << _chunkSize);
-
       n = _ib->sgetn(_buffer, n);
       setg(_buffer, _buffer, _buffer + n);
 
       _chunkSize -= n;
-
-      log_debug("got " << n << " bytes from stream, chunk size left " << _chunkSize);
-      log_debug(dump(_buffer, n));
 
       if (_chunkSize <= 0)
         _state = &ChunkedReader::onDataEnd0;

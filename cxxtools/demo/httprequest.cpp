@@ -36,10 +36,17 @@
 
 std::size_t printer(cxxtools::http::Client& client)
 {
+  std::streamsize s = 0;
   char buffer[8192];
-  std::streamsize n = client.in().readsome(buffer, sizeof(buffer));
-  std::cout.write(buffer, n);
-  return n;
+
+  while (client.in().rdbuf()->in_avail() > 0)
+  {
+    std::streamsize n = client.in().readsome(buffer, sizeof(buffer));
+    s += n;
+    std::cout.write(buffer, n);
+  }
+
+  return s;
 }
 
 cxxtools::EventLoop loop;
