@@ -17,6 +17,9 @@
  *
  */
 
+#ifndef HTTP_CHUNKEDHREADER_H
+#define HTTP_CHUNKEDHREADER_H
+
 #include <streambuf>
 #include <iostream>
 
@@ -24,8 +27,6 @@ namespace cxxtools
 {
   namespace http
   {
-    class ChunkedParser;
-
     class ChunkedReader : public std::streambuf
     {
         std::streambuf* _ib;
@@ -59,10 +60,11 @@ namespace cxxtools
     class ChunkedIStream : public std::istream
     {
         ChunkedReader _streambuf;
+
       public:
         explicit ChunkedIStream(std::streambuf* ib)
-          : _streambuf(ib),
-            std::istream(&_streambuf)
+          : std::istream(&_streambuf),
+            _streambuf(ib)
           { }
 
         void reset()        { _streambuf.reset(); clear(); }
@@ -71,3 +73,5 @@ namespace cxxtools
 
   }
 }
+
+#endif // HTTP_CHUNKEDHREADER_H

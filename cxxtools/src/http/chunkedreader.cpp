@@ -19,6 +19,7 @@
 
 #include "chunkedreader.h"
 #include <stdexcept>
+#include <sstream>
 #include <cxxtools/log.h>
 
 log_define("cxxtools.http.chunkedreader")
