@@ -518,9 +518,11 @@ void ClientImpl::processBodyAvailable(StreamBuffer& sb)
     {
         log_debug("content-length(pre)=" << _contentLength);
 
-        _contentLength -= _client->bodyAvailable(*_client); // TODO: may throw exception
-
-        log_debug("content-length(post)=" << _contentLength);
+        while (_contentLength > 0 && sb.in_avail() > 0)
+        {
+            _contentLength -= _client->bodyAvailable(*_client); // TODO: may throw exception
+            log_debug("content-length(post)=" << _contentLength);
+        }
 
         if( _contentLength <= 0 )
         {
