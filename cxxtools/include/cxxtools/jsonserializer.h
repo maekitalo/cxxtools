@@ -41,14 +41,16 @@ namespace cxxtools
             JsonFormatter()
                 : _ts(0),
                   _level(1),
-                  _lastLevel(0)
+                  _lastLevel(0),
+                  _beautify(false)
             {
             }
 
             explicit JsonFormatter(std::basic_ostream<cxxtools::Char>& ts)
                 : _ts(0),
                   _level(1),
-                  _lastLevel(0)
+                  _lastLevel(0),
+                  _beautify(false)
             {
                 begin(ts);
             }
@@ -76,6 +78,10 @@ namespace cxxtools
 
             virtual void finishObject();
 
+            bool beautify() const     { return _beautify; }
+
+            void beautify(bool sw)    { _beautify = sw; }
+
         private:
             void indent();
             void stringOut(const std::string& str);
@@ -84,6 +90,7 @@ namespace cxxtools
             std::basic_ostream<cxxtools::Char>* _ts;
             unsigned _level;
             unsigned _lastLevel;
+            bool _beautify;
     };
 
     class JsonSerializer
@@ -114,6 +121,11 @@ namespace cxxtools
                 s.setName(name);
                 s.format(_formatter);
             }
+
+            bool beautify() const     { return _formatter.beautify(); }
+
+            void beautify(bool sw)    { _formatter.beautify(sw); }
+
 
         private:
             JsonFormatter _formatter;
