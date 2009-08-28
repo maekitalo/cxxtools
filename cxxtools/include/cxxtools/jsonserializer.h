@@ -94,7 +94,6 @@ namespace cxxtools
             explicit JsonSerializer(std::basic_ostream<cxxtools::Char>& ts)
                 : _formatter(ts)
             {
-                begin(ts);
             }
 
             void begin(std::basic_ostream<cxxtools::Char>& ts)
