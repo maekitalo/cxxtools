@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 by Dr. Marc Boris Duerner
+ * Copyright (C) 2009 by Tommi Meakitalo
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -25,47 +25,38 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-#ifndef cxxtools_xmlrpc_Client_h
-#define cxxtools_xmlrpc_Client_h
+#ifndef cxxtools_xmlrpc_HttpClient_h
+#define cxxtools_xmlrpc_HttpClient_h
 
-#include <cxxtools/xmlrpc/api.h>
-#include <cxxtools/noncopyable.h>
-#include <string>
+#include <cxxtools/xmlrpc/client.h>
 
 namespace cxxtools {
 
-class SelectorBase;
-class ISerializer;
-class IDeserializer;
-
 namespace xmlrpc {
 
-class IRemoteProcedure;
-class ClientImpl;
+class HttpClientImpl;
 
-
-class CXXTOOLS_XMLRPC_API Client : public NonCopyable
+class CXXTOOLS_XMLRPC_API HttpClient : public Client
 {
-        ClientImpl* _impl;
-
-    protected:
-        void impl(ClientImpl* i) { _impl = i; }
-
     public:
-        Client();
+        HttpClient();
 
-        virtual ~Client();
+        HttpClient(SelectorBase& selector, const std::string& addr,
+               unsigned short port, const std::string& url);
 
-        void beginCall(IDeserializer& r, IRemoteProcedure& method, ISerializer** argv, unsigned argc);
+        HttpClient(const std::string& addr, unsigned short port, const std::string& url);
 
-        void call(IDeserializer& r, IRemoteProcedure& method, ISerializer** argv, unsigned argc);
+        virtual ~HttpClient();
 
-        std::size_t timeout() const;
+        void connect(const std::string& addr, unsigned short port,
+                     const std::string& url);
 
-        void timeout(std::size_t t);
+        void auth(const std::string& username, const std::string& password);
 
-        std::string url() const;
+        void clearAuth();
 
+    private:
+        HttpClientImpl* _impl;
 };
 
 }

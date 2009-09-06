@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 by Dr. Marc Boris Duerner
+ * Copyright (C) 2009 by Tommi Meakitalo
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -25,51 +25,56 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-#ifndef cxxtools_xmlrpc_Client_h
-#define cxxtools_xmlrpc_Client_h
 
-#include <cxxtools/xmlrpc/api.h>
-#include <cxxtools/noncopyable.h>
-#include <string>
+#include "cxxtools/xmlrpc/httpclient.h"
+#include "httpclientimpl.h"
 
 namespace cxxtools {
 
-class SelectorBase;
-class ISerializer;
-class IDeserializer;
-
 namespace xmlrpc {
 
-class IRemoteProcedure;
-class ClientImpl;
-
-
-class CXXTOOLS_XMLRPC_API Client : public NonCopyable
+HttpClient::HttpClient()
+: _impl(new HttpClientImpl())
 {
-        ClientImpl* _impl;
+  impl(_impl);
+}
 
-    protected:
-        void impl(ClientImpl* i) { _impl = i; }
 
-    public:
-        Client();
+HttpClient::HttpClient(SelectorBase& selector, const std::string& server,
+                             unsigned short port, const std::string& url)
+: _impl(new HttpClientImpl(selector, server, port, url))
+{
+    impl(_impl);
+}
 
-        virtual ~Client();
 
-        void beginCall(IDeserializer& r, IRemoteProcedure& method, ISerializer** argv, unsigned argc);
+HttpClient::HttpClient(const std::string& server, unsigned short port, const std::string& url)
+: _impl(new HttpClientImpl(server, port, url))
+{
+    impl(_impl);
+}
 
-        void call(IDeserializer& r, IRemoteProcedure& method, ISerializer** argv, unsigned argc);
 
-        std::size_t timeout() const;
+HttpClient::~HttpClient()
+{
+    delete _impl;
+}
 
-        void timeout(std::size_t t);
+void HttpClient::connect(const std::string& addr, unsigned short port, const std::string& url)
+{
+    _impl->connect(addr, port, url);
+}
 
-        std::string url() const;
+void HttpClient::auth(const std::string& username, const std::string& password)
+{
+    _impl->auth(username, password);
+}
 
-};
-
+void HttpClient::clearAuth()
+{
+    _impl->clearAuth();
 }
 
 }
 
-#endif
+}

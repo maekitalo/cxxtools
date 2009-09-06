@@ -35,7 +35,7 @@
 
 #include <cxxtools/log.h>
 
-log_define("cxxtools.http.client")
+log_define("cxxtools.http.client.impl")
 
 namespace cxxtools {
 
@@ -346,7 +346,7 @@ void ClientImpl::sendRequest(const Request& request)
 
     _stream << "\r\n";
 
-    log_debug("send body");
+    log_debug("send body; " << request.bodySize() << " bytes");
 
     request.sendBody(_stream);
 }

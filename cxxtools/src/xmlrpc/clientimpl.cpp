@@ -37,6 +37,8 @@
 #include "cxxtools/http/replyheader.h"
 #include "cxxtools/selector.h"
 #include "cxxtools/utf8codec.h"
+#include "cxxtools/log.h"
+
 
 namespace cxxtools {
 
@@ -53,59 +55,8 @@ ClientImpl::ClientImpl()
     _writer.useIndent(false);
     _writer.useEndl(false);
 
-    cxxtools::connect(_client.headerReceived, *this, &ClientImpl::onReplyHeader);
-    cxxtools::connect(_client.bodyAvailable, *this, &ClientImpl::onReplyBody);
-    cxxtools::connect(_client.replyFinished, *this, &ClientImpl::onReplyFinished);
-    cxxtools::connect(_client.errorOccured, *this, &ClientImpl::onErrorOccured);
-
     _formatter.addAlias("bool", "boolean");
 }
-
-
-ClientImpl::ClientImpl(SelectorBase& selector, const std::string& server,
-                             unsigned short port, const std::string& url)
-: _state(OnBegin)
-, _client(selector, server, port)
-, _request(url)
-, _ts( new Utf8Codec )
-, _reader(_ts)
-, _formatter(_writer)
-, _method(0)
-, _timeout(Selectable::WaitInfinite)
-{
-    _writer.useIndent(false);
-    _writer.useEndl(false);
-
-    cxxtools::connect(_client.headerReceived, *this, &ClientImpl::onReplyHeader);
-    cxxtools::connect(_client.bodyAvailable, *this, &ClientImpl::onReplyBody);
-    cxxtools::connect(_client.replyFinished, *this, &ClientImpl::onReplyFinished);
-    cxxtools::connect(_client.errorOccured, *this, &ClientImpl::onErrorOccured);
-
-    _formatter.addAlias("bool", "boolean");
-}
-
-
-ClientImpl::ClientImpl(const std::string& server, unsigned short port, const std::string& url)
-: _state(OnBegin)
-, _client(server, port)
-, _request(url)
-, _ts( new Utf8Codec )
-, _reader(_ts)
-, _formatter(_writer)
-, _method(0)
-, _timeout(Selectable::WaitInfinite)
-{
-    _writer.useIndent(false);
-    _writer.useEndl(false);
-
-    cxxtools::connect(_client.headerReceived, *this, &ClientImpl::onReplyHeader);
-    cxxtools::connect(_client.bodyAvailable, *this, &ClientImpl::onReplyBody);
-    cxxtools::connect(_client.replyFinished, *this, &ClientImpl::onReplyFinished);
-    cxxtools::connect(_client.errorOccured, *this, &ClientImpl::onErrorOccured);
-
-    _formatter.addAlias("bool", "boolean");
-}
-
 
 ClientImpl::~ClientImpl()
 {
@@ -117,10 +68,12 @@ void ClientImpl::beginCall(IDeserializer& r, IRemoteProcedure& method, ISerializ
     _method = &method;
     _state = OnBegin;
 
-    this->prepareRequest(method.name(), argv, argc);
-    _client.beginExecute(_request);
+    prepareRequest(method.name(), argv, argc);
+
+    beginExecute();
+
     _reader.reset(_ts);
-    _scanner.begin(r,_context);
+    _scanner.begin(r, _context);
 }
 
 
@@ -129,12 +82,9 @@ void ClientImpl::call(IDeserializer& r, IRemoteProcedure& method, ISerializer** 
     _method = &method;
     _state = OnBegin;
 
-    this->prepareRequest(method.name(), argv, argc);
-    http::ReplyHeader header = _client.execute(_request, _timeout);
+    prepareRequest(method.name(), argv, argc);
 
-    std::string body;
-    _client.readBody(body);
-    std::istringstream is(body);
+    std::istringstream is(execute());
     _ts.attach(is);
     _reader.reset(_ts);
     _scanner.begin(r, _context);
@@ -142,11 +92,9 @@ void ClientImpl::call(IDeserializer& r, IRemoteProcedure& method, ISerializer** 
     while( _reader.get().type() !=  cxxtools::xml::Node::EndDocument )
     {
         const cxxtools::xml::Node& node = _reader.get();
-        this->advance(node);
+        advance(node);
         _reader.next();
     }
-
-    _ts.detach();
 
     // let xml::ParseError SerializationError, ConversionError propagate
 
@@ -162,13 +110,12 @@ void ClientImpl::call(IDeserializer& r, IRemoteProcedure& method, ISerializer** 
 }
 
 
-void ClientImpl::onReplyHeader(http::Client& client)
+void ClientImpl::onReadReplyBegin(std::istream& is)
 {
-    _ts.attach( client.in() );
+    _ts.attach(is);
 }
 
-
-std::size_t ClientImpl::onReplyBody(http::Client& client)
+std::size_t ClientImpl::onReadReply()
 {
     std::size_t n = 0;
 
@@ -185,7 +132,7 @@ std::size_t ClientImpl::onReplyBody(http::Client& client)
             while( _reader.advance() ) // xml::ParseError
             {
                 const cxxtools::xml::Node& node = _reader.get();
-                this->advance(node); // SerializationError, ConversionError
+                advance(node); // SerializationError, ConversionError
             }
         }
     }
@@ -209,7 +156,15 @@ std::size_t ClientImpl::onReplyBody(http::Client& client)
 }
 
 
-void ClientImpl::onErrorOccured(http::Client& client, const std::exception& e)
+void ClientImpl::onReplyFinished()
+{
+    IRemoteProcedure* method = _method;
+    _method = 0;
+    method->onFinished();
+}
+
+
+void ClientImpl::onErrorOccured(const std::exception& e)
 {
     if (_method)
     {
@@ -229,20 +184,9 @@ void ClientImpl::onErrorOccured(http::Client& client, const std::exception& e)
 }
 
 
-void ClientImpl::onReplyFinished(http::Client& client)
-{
-    IRemoteProcedure* method = _method;
-    _method = 0;
-    method->onFinished();
-}
-
-
 void ClientImpl::prepareRequest(const std::string& name, ISerializer** argv, unsigned argc)
 {
-    _request.clear();
-    _request.setHeader("Content-Type", "text/xml");
-
-    _writer.begin( _request.body() );
+    _writer.begin( prepareRequest() );
     _writer.writeStartElement( L"methodCall" );
     _writer.writeElement( L"methodName", cxxtools::String::widen(name) );
     _writer.writeStartElement( L"params" );

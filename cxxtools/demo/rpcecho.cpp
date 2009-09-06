@@ -37,6 +37,7 @@ with -f <filename> a file, which will be sent to the server instead.
 #include <cxxtools/xmlrpc/service.h>
 #include <cxxtools/http/server.h>
 #include <cxxtools/xmlrpc/remoteprocedure.h>
+#include <cxxtools/xmlrpc/httpclient.h>
 #include <cxxtools/clock.h>
 #include <fstream>
 
@@ -101,7 +102,7 @@ int main(int argc, char* argv[])
       cxxtools::Arg<bool> doEcho(argc, argv, 'e');
 
       // define a xlmrpc client
-      cxxtools::xmlrpc::Client client(ip, port, "/myservice");
+      cxxtools::xmlrpc::HttpClient client(ip, port, "/myservice");
 
       // define remote procedure with std::string return value and a std::string and a bool parameter:
       cxxtools::xmlrpc::RemoteProcedure<std::string, std::string, bool> echo(client, "echo");

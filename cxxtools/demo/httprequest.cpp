@@ -34,29 +34,64 @@
 #include <cxxtools/eventloop.h>
 #include <cxxtools/loginit.h>
 
-std::size_t printer(cxxtools::http::Client& client)
+class AsyncRequester : public cxxtools::Connectable
 {
-  std::streamsize s = 0;
-  char buffer[8192];
+    cxxtools::http::Client& _client;
+    char** _argv;
 
-  while (client.in().rdbuf()->in_avail() > 0)
+    cxxtools::http::Request _request;
+    cxxtools::EventLoop _loop;
+
+    std::size_t onBodyAvailable(cxxtools::http::Client& client);
+    void onReady(cxxtools::http::Client& client);
+    void onError(cxxtools::http::Client& client, const std::exception& e);
+
+  public:
+    AsyncRequester(cxxtools::http::Client& client, char** argv)
+      : _client(client),
+        _argv(argv)
+    {
+      connect(_client.bodyAvailable, *this, &AsyncRequester::onBodyAvailable);
+      connect(_client.replyFinished, *this, &AsyncRequester::onReady);
+      connect(_client.errorOccured, *this, &AsyncRequester::onError);
+      _client.setSelector(_loop);
+    }
+
+    void run()
+    {
+      if (*_argv)
+      {
+        _request.url(*_argv++);
+        _client.beginExecute(_request);
+        _loop.run();
+      }
+    }
+};
+
+std::size_t AsyncRequester::onBodyAvailable(cxxtools::http::Client& client)
+{
+  char buffer[8192];
+  std::streamsize n = client.in().readsome(buffer, sizeof(buffer));
+  std::cout.write(buffer, n);
+
+  return n;
+}
+
+void AsyncRequester::onReady(cxxtools::http::Client& client)
+{
+  if (*_argv)
   {
-    std::streamsize n = client.in().readsome(buffer, sizeof(buffer));
-    s += n;
-    std::cout.write(buffer, n);
+    _request.url(*_argv++);
+    client.beginExecute(_request);
+  }
+  else
+  {
+    _loop.exit();
   }
 
-  return s;
 }
 
-cxxtools::EventLoop loop;
-
-void ready(cxxtools::http::Client& client)
-{
-  loop.exit();
-}
-
-void error(cxxtools::http::Client& client, const std::exception& e)
+void AsyncRequester::onError(cxxtools::http::Client& client, const std::exception& e)
 {
   throw;
 }
@@ -92,22 +127,15 @@ int main(int argc, char* argv[])
 
     if (async)
     {
-      connect(client.bodyAvailable, printer);
-      connect(client.replyFinished, ready);
-      connect(client.errorOccured, error);
-      client.setSelector(loop);
+      AsyncRequester ar(client, argv + 1);
+      ar.run();
     }
-
-    for (int a = 1; a < argc; ++a)
+    else
     {
-      if (async)
+      for (int a = 1; a < argc; ++a)
       {
-        cxxtools::http::Request request(argv[a]);
-        client.beginExecute(request);
-        loop.run();
-      }
-      else
         std::cout << client.get(argv[a]);
+      }
     }
   }
   catch (const std::exception& e)

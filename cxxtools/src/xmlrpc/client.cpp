@@ -35,42 +35,12 @@ namespace cxxtools {
 namespace xmlrpc {
 
 Client::Client()
-: _impl(new ClientImpl())
+: _impl(0)
 {
 }
-
-
-Client::Client(SelectorBase& selector, const std::string& server,
-                             unsigned short port, const std::string& url)
-: _impl(new ClientImpl(selector, server, port, url))
-{
-}
-
-
-Client::Client(const std::string& server, unsigned short port, const std::string& url)
-: _impl(new ClientImpl(server, port, url))
-{
-}
-
 
 Client::~Client()
 {
-    delete _impl;
-}
-
-void Client::connect(const std::string& addr, unsigned short port, const std::string& url)
-{
-    _impl->connect(addr, port, url);
-}
-
-void Client::auth(const std::string& username, const std::string& password)
-{
-    _impl->auth(username, password);
-}
-
-void Client::clearAuth()
-{
-    _impl->clearAuth();
 }
 
 void Client::beginCall(IDeserializer& r, IRemoteProcedure& method, ISerializer** argv, unsigned argc)

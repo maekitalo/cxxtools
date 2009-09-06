@@ -72,29 +72,7 @@ class ClientImpl : public cxxtools::Connectable
     public:
         ClientImpl();
 
-        ClientImpl(SelectorBase& selector, const std::string& addr,
-               unsigned short port, const std::string& url);
-
-        ClientImpl(const std::string& addr, unsigned short port, const std::string& url);
-
         virtual ~ClientImpl();
-
-        void connect(const std::string& addr, unsigned short port,
-                     const std::string& url)
-        {
-            _client.connect(addr, port);
-            _request.url(url);
-        }
-
-        void auth(const std::string& username, const std::string& password)
-        {
-            _client.auth(username, password);
-        }
-
-        void clearAuth()
-        {
-            _client.clearAuth();
-        }
 
         void beginCall(IDeserializer& r, IRemoteProcedure& method, ISerializer** argv, unsigned argc);
 
@@ -104,35 +82,29 @@ class ClientImpl : public cxxtools::Connectable
 
         void timeout(std::size_t t)  { _timeout = t; }
 
-        std::string url() const
-        {
-            std::ostringstream s;
-            s << "http://"
-              << _client.server()
-              << ':'
-              << _client.port()
-              << _request.url();
-
-            return s.str();
-        }
+        virtual std::string url() const = 0;
 
     protected:
-        void onReplyHeader(http::Client& client);
+        void onReadReplyBegin(std::istream& is);
 
-        std::size_t onReplyBody(http::Client& client);
+        std::size_t onReadReply();
 
-        void onReplyFinished(http::Client& client);
+        void onReplyFinished();
 
-        void onErrorOccured(http::Client& client, const std::exception& e);
+        void onErrorOccured(const std::exception& e);
 
+        virtual void beginExecute() = 0;
+
+        virtual std::string execute() = 0;
+
+        virtual std::ostream& prepareRequest() = 0;
+
+    private:
         void prepareRequest(const std::string& name, ISerializer** argv, unsigned argc);
 
         void advance(const xml::Node& node);
 
-    private:
         State _state;
-        http::Client _client;
-        http::Request _request;
         TextIStream _ts;
         xml::XmlReader _reader;
         xml::XmlWriter _writer;
