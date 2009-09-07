@@ -69,7 +69,8 @@ class Service
             return true;
         }
 
-        void setReaml(const std::string& realm, const std::string& content);
+        void setRealm(const std::string& realm, const std::string& content = std::string())
+            { _realm = realm; _authContent = content; }
 
         const std::string& realm() const        { return _realm; }
         const std::string& authContent() const  { return _authContent; }
