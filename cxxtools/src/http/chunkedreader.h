@@ -50,7 +50,7 @@ namespace cxxtools
         void reset()      { _state = &ChunkedReader::onBegin; setg(0, 0, 0); }
         bool eod() const  { return _state == 0; }
 
-        int showmanyc();
+        std::streamsize showmanyc();
         virtual int sync();
         virtual int_type overflow(int_type ch);
         virtual int_type underflow();
