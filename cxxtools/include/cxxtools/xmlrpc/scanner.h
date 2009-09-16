@@ -90,6 +90,7 @@ class CXXTOOLS_XMLRPC_API Scanner
         State _state;
         IDeserializer* _current;
         DeserializationContext* _context;
+        String _value;
 };
 
 }

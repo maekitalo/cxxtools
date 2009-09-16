@@ -62,11 +62,18 @@ void Formatter::addValue(const std::string& name, const std::string& type,
 {
     _writer->writeStartElement( cxxtools::String::widen("value") );
 
-    std::map<std::string, std::string>::iterator it = _typemap.find(type);
-    if( it != _typemap.end() )
-        _writer->writeElement( cxxtools::String::widen(it->second), value );
+    if (type == "string")
+    {
+        _writer->writeCharacters(value);
+    }
     else
-        _writer->writeElement( cxxtools::String::widen(type), value );
+    {
+        std::map<std::string, std::string>::iterator it = _typemap.find(type);
+        if( it != _typemap.end() )
+            _writer->writeElement( cxxtools::String::widen(it->second), value );
+        else
+            _writer->writeElement( cxxtools::String::widen(type), value );
+    }
 
     _writer->writeEndElement();
 }
