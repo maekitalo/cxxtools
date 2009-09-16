@@ -251,9 +251,6 @@ void JsonFormatter::stringOut(const std::string& str)
         else if (*it == '\\')
             *_ts << cxxtools::Char(L'\\')
                 << cxxtools::Char(L'\\');
-        else if (*it == '/')
-            *_ts << cxxtools::Char(L'\\')
-                << cxxtools::Char(L'/');
         else if (*it == '\b')
             *_ts << cxxtools::Char(L'\\')
                 << cxxtools::Char(L'b');
