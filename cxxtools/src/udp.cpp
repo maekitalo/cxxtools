@@ -58,9 +58,9 @@ namespace net
     memset(&hints, 0, sizeof(hints));
     hints.ai_socktype = SOCK_DGRAM;
 
-    Addrinfo ai(ipaddr, port, hints);
+    AddrInfo ai(ipaddr, port, hints);
 
-    for (Addrinfo::const_iterator it = ai.begin(); it != ai.end(); ++it)
+    for (AddrInfo::const_iterator it = ai.begin(); it != ai.end(); ++it)
     {
       try
       {
@@ -146,10 +146,10 @@ namespace net
 
   void UdpReceiver::bind(const char* ipaddr, unsigned short int port)
   {
-    Addrinfo ai(ipaddr, port);
+    AddrInfo ai(ipaddr, port);
 
     int reuseAddr = 1;
-    for (Addrinfo::const_iterator it = ai.begin(); it != ai.end(); ++it)
+    for (AddrInfo::const_iterator it = ai.begin(); it != ai.end(); ++it)
     {
       try
       {

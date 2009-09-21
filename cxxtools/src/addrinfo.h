@@ -43,11 +43,18 @@ namespace net {
   class AddrInfo : private cxxtools::NonCopyable
   {
       struct addrinfo* ai;
+
+    public:
+      void init(const std::string& ipaddr, unsigned short port);
       void init(const std::string& ipaddr, unsigned short port,
                 const addrinfo& hints);
 
-    public:
-      AddrInfo(const std::string& ipaddr, unsigned short port);
+      AddrInfo()
+        : ai(0)
+        { }
+      AddrInfo(const std::string& ipaddr, unsigned short port)
+        : ai(0)
+        { init(ipaddr, port); }
       AddrInfo(const std::string& ipaddr, unsigned short port,
                const addrinfo& hints)
         : ai(0)
@@ -83,8 +90,6 @@ namespace net {
       const_iterator begin() const  { return const_iterator(ai); }
       const_iterator end() const    { return const_iterator(); }
   };
-
-  typedef AddrInfo Addrinfo;
 
 } // namespace net
 

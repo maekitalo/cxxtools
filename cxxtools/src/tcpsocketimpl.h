@@ -32,6 +32,7 @@
 #include "cxxtools/api.h"
 #include "cxxtools/signal.h"
 #include "iodeviceimpl.h"
+#include "addrinfo.h"
 #include <string>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -54,6 +55,11 @@ class TcpSocketImpl : public IODeviceImpl
         TcpSocket& _socket;
         bool _isConnected;
         struct sockaddr_storage _peeraddr;
+        AddrInfo _addrInfo;
+        AddrInfo::const_iterator _addrInfoPtr;
+
+        int checkConnect();
+        bool tryConnect();
 
     public:
         TcpSocketImpl(TcpSocket& socket);

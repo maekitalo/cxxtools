@@ -83,13 +83,13 @@ void TcpServerImpl::listen(const std::string& ipaddr, unsigned short int port, i
 {
     log_debug("listen on " << ipaddr << " port " << port << " backlog " << backlog);
 
-    Addrinfo ai(ipaddr, port);
+    AddrInfo ai(ipaddr, port);
 
     int reuseAddr = 1;
 
     // getaddrinfo() may return more than one addrinfo structure, so work
     // them all out, until we find a pretty useable one
-    for (Addrinfo::const_iterator it = ai.begin(); it != ai.end(); ++it)
+    for (AddrInfo::const_iterator it = ai.begin(); it != ai.end(); ++it)
     {
         try
         {
