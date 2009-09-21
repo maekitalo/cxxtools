@@ -35,6 +35,7 @@ namespace xmlrpc {
 
 HttpClientImpl::HttpClientImpl()
 {
+    _request.method("POST");
     cxxtools::connect(_client.headerReceived, *this, &HttpClientImpl::onReplyHeader);
     cxxtools::connect(_client.bodyAvailable, *this, &HttpClientImpl::onReplyBody);
     cxxtools::connect(_client.replyFinished, *this, &HttpClientImpl::onReplyFinished);
@@ -46,6 +47,7 @@ HttpClientImpl::HttpClientImpl(SelectorBase& selector, const std::string& addr,
 : _client(selector, addr, port)
 , _request(url)
 {
+    _request.method("POST");
     cxxtools::connect(_client.headerReceived, *this, &HttpClientImpl::onReplyHeader);
     cxxtools::connect(_client.bodyAvailable, *this, &HttpClientImpl::onReplyBody);
     cxxtools::connect(_client.replyFinished, *this, &HttpClientImpl::onReplyFinished);
@@ -56,6 +58,7 @@ HttpClientImpl::HttpClientImpl(const std::string& addr, unsigned short port, con
 : _client(addr, port)
 , _request(url)
 {
+    _request.method("POST");
     cxxtools::connect(_client.headerReceived, *this, &HttpClientImpl::onReplyHeader);
     cxxtools::connect(_client.bodyAvailable, *this, &HttpClientImpl::onReplyBody);
     cxxtools::connect(_client.replyFinished, *this, &HttpClientImpl::onReplyFinished);
@@ -111,6 +114,7 @@ std::ostream& HttpClientImpl::prepareRequest()
 {
     _request.clear();
     _request.setHeader("Content-Type", "text/xml");
+    _request.method("POST");
     return _request.body();
 }
 
