@@ -293,11 +293,11 @@ void ClientImpl::sendRequest(const Request& request)
 {
     log_debug("send request " << request.url());
 
-    const std::string contentLength = "Content-Length";
-    const std::string connection = "Connection";
-    const std::string date = "Date";
-    const std::string host = "Host";
-    const std::string authorization = "Authorization";
+    static const std::string contentLength = "Content-Length";
+    static const std::string connection = "Connection";
+    static const std::string date = "Date";
+    static const std::string host = "Host";
+    static const std::string authorization = "Authorization";
 
     _stream << request.method() << ' '
             << request.url() << " HTTP/"
