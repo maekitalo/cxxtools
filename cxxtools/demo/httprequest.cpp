@@ -102,8 +102,6 @@ int main(int argc, char* argv[])
   {
     log_init();
 
-    cxxtools::Arg<bool> headers(argc, argv, 'h');
-    cxxtools::Arg<bool> returncode(argc, argv, 'c');
     cxxtools::Arg<std::string> user(argc, argv, 'u'); // passed as "username:password"
     cxxtools::Arg<std::string> server(argc, argv, 's', "127.0.0.1");
     cxxtools::Arg<unsigned short int> port(argc, argv, 'p', 80);

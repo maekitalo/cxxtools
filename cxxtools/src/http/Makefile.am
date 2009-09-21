@@ -10,6 +10,7 @@ libcxxtools_http_la_SOURCES = \
 	parser.cpp \
 	server.cpp \
 	socket.cpp \
+	request.cpp \
 	responder.cpp
 
 noinst_HEADERS = \

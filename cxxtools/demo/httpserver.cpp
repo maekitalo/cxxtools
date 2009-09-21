@@ -17,12 +17,13 @@
  *
  */
 
-#include <vector>
 #include <cxxtools/http/server.h>
+#include <cxxtools/http/request.h>
 #include <cxxtools/http/reply.h>
 #include <cxxtools/mutex.h>
 #include <cxxtools/eventloop.h>
 #include <cxxtools/loginit.h>
+#include <cxxtools/arg.h>
 
 // HelloResponder
 //
@@ -41,28 +42,36 @@ void HelloResponder::reply(std::ostream& out, cxxtools::http::Request& request, 
   reply.addHeader("Content-Type", "text/html");
   out << "<html>\n"
          " <head>\n"
-         "  <title>Hello World-application for tntnet</title>\n"
+         "  <title>Hello World-application</title>\n"
          " </head>\n"
-         "\n"
          " <body bgcolor=\"#FFFFFF\">\n"
-         "  <img src=\"tntnet.jpg\" align=\"right\">\n"
-         "\n"
          "  <h1>Hello World</h1>\n"
-         "\n"
-         "  <form>\n"
-         "   What's your name?\n"
-         "   <input type=\"text\" name=\"name\" value=\"\"> <br>\n"
-         "   <input type=\"submit\">\n"
-         "  </form>\n"
-         "\n"
          " </body>\n"
-         "</html>\n\n\n";
+         "</html>\n";
 
 }
 
 // HelloService
 //
 typedef cxxtools::http::CachedService<HelloResponder> HelloService;
+
+// implement authenticator
+//
+class MyAuthenticator : public cxxtools::http::Authenticator
+{
+  public:
+    virtual bool checkAuth(const cxxtools::http::Request&) const;
+};
+
+bool MyAuthenticator::checkAuth(const cxxtools::http::Request& request) const
+{
+  cxxtools::http::Request::Auth auth = request.auth();
+
+  if (auth.user != "cxxtools" || auth.password != "mypassword")
+    return false;
+
+  return true;
+}
 
 // main
 //
@@ -72,8 +81,17 @@ int main(int argc, char* argv[])
   {
     log_init();
 
-    cxxtools::http::Server server("0.0.0.0", 8001);
+    cxxtools::Arg<std::string> listenIp(argc, argv, 'l', "0.0.0.0");
+    cxxtools::Arg<unsigned short int> listenPort(argc, argv, 'p', 8001);
+    cxxtools::Arg<bool> auth(argc, argv, 'a');
+
+    cxxtools::http::Server server(listenIp, listenPort);
     HelloService service;
+
+    MyAuthenticator authenticator;
+    if (auth)
+      service.addAuthenticator(&authenticator);
+
     server.addService("/hello", service);
     server.run();
   }

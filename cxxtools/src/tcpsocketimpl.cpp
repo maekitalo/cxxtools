@@ -205,6 +205,7 @@ void TcpSocketImpl::endConnect()
             }
             else if (sockerr != 0)
             {
+                // TODO try next AddrInfo
                 close();
                 throw IOError(getErrnoString(sockerr, "connect").c_str());
             }
@@ -284,6 +285,7 @@ bool TcpSocketImpl::checkPollEvent(pollfd& pfd)
         else if ( pfd.revents & POLLERR )
         {
             // TODO not really connected but error
+            // TODO try next AddrInfo
             _socket.connected.send(_socket);
         }
 

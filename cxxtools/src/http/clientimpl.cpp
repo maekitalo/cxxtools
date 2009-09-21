@@ -30,7 +30,8 @@
 #include <cxxtools/http/client.h>
 #include <cxxtools/http/parser.h>
 #include <cxxtools/ioerror.h>
-#include <cxxtools/base64stream.h>
+#include <cxxtools/textstream.h>
+#include <cxxtools/base64codec.h>
 #include <sstream>
 
 #include <cxxtools/log.h>
@@ -335,11 +336,11 @@ void ClientImpl::sendRequest(const Request& request)
     if (!_username.empty() && !request.header().hasHeader(authorization))
     {
         std::ostringstream d;
-        Base64ostream b(d);
+        BasicTextOStream<char, char> b(d, new Base64Codec());
         b << _username
           << ':'
           << _password;
-        b.end();
+        b.terminate();
         log_debug("set Authorization to " << d.str());
         _stream << "Authorization: Basic " << d.str() << "\r\n";
     }

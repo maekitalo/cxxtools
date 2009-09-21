@@ -44,6 +44,12 @@ class Request
         std::ostringstream _body;
 
     public:
+        struct Auth
+        {
+            std::string user;
+            std::string password;
+        };
+
         explicit Request(const std::string& url = std::string())
         : _header(url)
         { }
@@ -115,6 +121,8 @@ class Request
 
         void sendBody(std::ostream& out) const
         { out << _body.str(); }
+
+        Auth auth() const;
 
 };
 
