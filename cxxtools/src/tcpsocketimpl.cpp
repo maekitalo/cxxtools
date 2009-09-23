@@ -228,14 +228,25 @@ void TcpSocketImpl::endConnect()
     {
         try
         {
-            int sockerr = checkConnect();
-            if (_isConnected)
-                return;
-
-            log_debug("checkConnect returned " << sockerr);
-
-            while (sockerr == EINPROGRESS)
+            while (true)
             {
+                int sockerr = checkConnect();
+                if (_isConnected)
+                    return;
+
+                if (sockerr != EINPROGRESS)
+                {
+                    // something went wrong - look for next addrInfo
+                    if (++_addrInfoPtr == _addrInfo.end())
+                    {
+                        // no more addrInfo - propagate error
+                        throw IOError(getErrnoString(sockerr, "connect").c_str());
+                    }
+
+                    if (tryConnect())
+                        return;
+                }
+
                 pollfd pfd;
                 pfd.fd = this->fd();
                 pfd.revents = 0;
@@ -249,24 +260,7 @@ void TcpSocketImpl::endConnect()
                     log_debug("timeout");
                     throw IOTimeout();
                 }
-
-                sockerr = checkConnect();
-                if (_isConnected)
-                    return;
-
-                // something went wrong - look for next addrInfo
-                if (++_addrInfoPtr == _addrInfo.end())
-                {
-                    // no more addrInfo - propagate error
-                    throw IOError(getErrnoString(sockerr, "connect").c_str());
-                }
-
-                if (tryConnect())
-                    return;
             }
-
-            log_debug("connect error");
-            throw IOError(getErrnoString(sockerr, "connect").c_str());
         }
         catch(...)
         {

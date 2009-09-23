@@ -96,6 +96,7 @@ class ClientImpl : public Connectable
 
     protected:
         void onConnect(net::TcpSocket& socket);
+        void onErrorOccured(IODevice& socket);
         void onOutput(StreamBuffer& sb);
         void onInput(StreamBuffer& sb);
 

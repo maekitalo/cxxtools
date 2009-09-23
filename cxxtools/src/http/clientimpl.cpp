@@ -61,6 +61,7 @@ ClientImpl::ClientImpl(Client* client)
 {
     _stream.attachDevice(_socket);
     cxxtools::connect(_socket.connected, *this, &ClientImpl::onConnect);
+    cxxtools::connect(_socket.errorOccured, *this, &ClientImpl::onErrorOccured);
     cxxtools::connect(_stream.buffer().outputReady, *this, &ClientImpl::onOutput);
     cxxtools::connect(_stream.buffer().inputReady, *this, &ClientImpl::onInput);
 }
@@ -81,6 +82,7 @@ ClientImpl::ClientImpl(Client* client, const std::string& server, unsigned short
 {
     _stream.attachDevice(_socket);
     cxxtools::connect(_socket.connected, *this, &ClientImpl::onConnect);
+    cxxtools::connect(_socket.errorOccured, *this, &ClientImpl::onErrorOccured);
     cxxtools::connect(_stream.buffer().outputReady, *this, &ClientImpl::onOutput);
     cxxtools::connect(_stream.buffer().inputReady, *this, &ClientImpl::onInput);
 }
@@ -101,6 +103,7 @@ ClientImpl::ClientImpl(Client* client, SelectorBase& selector, const std::string
 {
     _stream.attachDevice(_socket);
     cxxtools::connect(_socket.connected, *this, &ClientImpl::onConnect);
+    cxxtools::connect(_socket.errorOccured, *this, &ClientImpl::onErrorOccured);
     cxxtools::connect(_stream.buffer().outputReady, *this, &ClientImpl::onOutput);
     cxxtools::connect(_stream.buffer().inputReady, *this, &ClientImpl::onInput);
     setSelector(selector);
@@ -133,6 +136,8 @@ void ClientImpl::doparse()
 
 const ReplyHeader& ClientImpl::execute(const Request& request, std::size_t timeout)
 {
+    log_trace("execute request " << request.url());
+
     _replyHeader.clear();
 
     _socket.setTimeout(timeout);
@@ -144,9 +149,12 @@ const ReplyHeader& ClientImpl::execute(const Request& request, std::size_t timeo
         _socket.connect(_server, _port);
     }
 
+    log_debug("send request");
     sendRequest(request);
+    log_debug("flush stream");
     _stream.flush();
 
+    log_debug("flush stream ready");
     if (!_stream && shouldReconnect)
     {
         // sending failed and we were not connected before, so try again
@@ -356,11 +364,26 @@ void ClientImpl::onConnect(net::TcpSocket& socket)
 {
     try
     {
+        log_trace("onConnect");
         socket.endConnect();
         sendRequest(*_request);
+
+        log_debug("request sent - begin write");
         _stream.buffer().beginWrite();
     }
     catch (const std::exception& e)
+    {
+        _client->errorOccured(*_client, e);
+    }
+}
+
+void ClientImpl::onErrorOccured(IODevice& socket)
+{
+    try
+    {
+        throw IOError( CXXTOOLS_ERROR_MSG("error occured in i/o-device") );
+    }
+    catch (const IOError& e)
     {
         _client->errorOccured(*_client, e);
     }
