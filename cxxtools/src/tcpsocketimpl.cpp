@@ -149,52 +149,72 @@ int TcpSocketImpl::checkConnect()
     return sockerr;
 }
 
+void TcpSocketImpl::checkPendingError()
+{
+    if (_connectResult.second)
+    {
+        if (_connectResult.first)
+        {
+            throw IOError(getErrnoString(_connectResult.first, _connectResult.second).c_str());
+        }
+        else
+        {
+            throw IOError("invalid address information");
+        }
+    }
+}
 
-bool TcpSocketImpl::tryConnect()
+
+std::pair<int, const char*> TcpSocketImpl::tryConnect()
 {
     log_trace("tryConnect");
 
     if (_addrInfoPtr == _addrInfo.end())
     {
         log_debug("no more address informations");
-        throw SystemError("invalid address information");
+        return std::pair<int, const char*>(0, "invalid address information");
     }
 
-    int fd;
     while (true)
     {
-        log_debug("create socket");
-        fd = ::socket(_addrInfoPtr->ai_family, SOCK_STREAM, 0);
-        if (fd >= 0)
+        int fd;
+        while (true)
+        {
+            log_debug("create socket");
+            fd = ::socket(_addrInfoPtr->ai_family, SOCK_STREAM, 0);
+            if (fd >= 0)
+                break;
+
+            if (++_addrInfoPtr == _addrInfo.end())
+                return std::pair<int, const char*>(errno, "socket");
+        }
+
+        IODeviceImpl::open(fd, true);
+
+        std::memmove(&_peeraddr, _addrInfoPtr->ai_addr, _addrInfoPtr->ai_addrlen);
+
+        log_debug("created socket " << _fd << " max: " << FD_SETSIZE);
+
+        if( ::connect(this->fd(), _addrInfoPtr->ai_addr, _addrInfoPtr->ai_addrlen) == 0 )
+        {
+            _isConnected = true;
+            log_debug("connected successfully");
             break;
+        }
 
-        if (++_addrInfoPtr == _addrInfo.end())
-            throw IOError(getErrnoString(errno, "socket").c_str());
-    }
+        if (errno == EINPROGRESS)
+        {
+            log_debug("connect in progress");
+            memmove(&_peeraddr, _addrInfoPtr->ai_addr, _addrInfoPtr->ai_addrlen);
+            break;
+        }
 
-    IODeviceImpl::open(fd, true);
-
-    std::memmove(&_peeraddr, _addrInfoPtr->ai_addr, _addrInfoPtr->ai_addrlen);
-
-    log_debug("created socket " << _fd << " max: " << FD_SETSIZE);
-
-    if( ::connect(this->fd(), _addrInfoPtr->ai_addr, _addrInfoPtr->ai_addrlen) == 0 )
-    {
-        _isConnected = true;
-        log_debug("connected successfully");
-        return true;
-    }
-
-    if(errno != EINPROGRESS)
-    {
         close();
-        throw IOError(getErrnoString(errno, "connect").c_str());
+        if (++_addrInfoPtr == _addrInfo.end())
+            return std::pair<int, const char*>(errno, "socket");
     }
 
-    log_debug("connect in progress");
-    memmove(&_peeraddr, _addrInfoPtr->ai_addr, _addrInfoPtr->ai_addrlen);
-
-    return false;
+    return std::pair<int, const char*>(0, 0);
 }
 
 
@@ -211,7 +231,9 @@ bool TcpSocketImpl::beginConnect(const std::string& ipaddr, unsigned short int p
 
     _addrInfo.init(ipaddr, port);
     _addrInfoPtr = _addrInfo.begin();
-    return tryConnect();
+    _connectResult = tryConnect();
+    checkPendingError();
+    return _isConnected;
 }
 
 
@@ -228,6 +250,8 @@ void TcpSocketImpl::endConnect()
     {
         try
         {
+            checkPendingError();
+
             while (true)
             {
                 int sockerr = checkConnect();
@@ -237,14 +261,17 @@ void TcpSocketImpl::endConnect()
                 if (sockerr != EINPROGRESS)
                 {
                     // something went wrong - look for next addrInfo
+                    log_debug("sockerr is " << sockerr << " try next");
                     if (++_addrInfoPtr == _addrInfo.end())
                     {
                         // no more addrInfo - propagate error
                         throw IOError(getErrnoString(sockerr, "connect").c_str());
                     }
 
-                    if (tryConnect())
+                    _connectResult = tryConnect();
+                    if (_isConnected)
                         return;
+                    checkPendingError();
                 }
 
                 pollfd pfd;
@@ -327,20 +354,34 @@ bool TcpSocketImpl::checkPollEvent(pollfd& pfd)
 
     if( ! _isConnected )
     {
-        if( pfd.revents & POLLOUT )
+        if ( pfd.revents & POLLERR )
+        {
+            AddrInfo::const_iterator ptr = _addrInfoPtr;
+            if (++ptr == _addrInfo.end())
+            {
+                // not really connected but error
+                _socket.connected.send(_socket);
+                return true;
+            }
+            else
+            {
+                _addrInfoPtr = ptr;
+
+                _connectResult = tryConnect();
+
+                if (_isConnected || _connectResult.second)
+                    _socket.connected.send(_socket);
+
+                return _isConnected;
+            }
+        }
+        else if( pfd.revents & POLLOUT )
         {
             _socket.connected.send(_socket);
+            return true;
         }
-        else if ( pfd.revents & POLLERR )
-        {
-            if (++_addrInfoPtr == _addrInfo.end())
-                // TODO not really connected but error
-                _socket.connected.send(_socket);
-            else
-                tryConnect();
-        }
-
-        return true;
+        else
+            return false;
     }
 
     return IODeviceImpl::checkPollEvent(pfd);

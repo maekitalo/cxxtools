@@ -59,7 +59,9 @@ class TcpSocketImpl : public IODeviceImpl
         AddrInfo::const_iterator _addrInfoPtr;
 
         int checkConnect();
-        bool tryConnect();
+        void checkPendingError();
+        std::pair<int, const char*> tryConnect();
+        std::pair<int, const char*> _connectResult;
 
     public:
         TcpSocketImpl(TcpSocket& socket);
