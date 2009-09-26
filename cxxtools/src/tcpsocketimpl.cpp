@@ -367,10 +367,16 @@ bool TcpSocketImpl::checkPollEvent(pollfd& pfd)
             {
                 _addrInfoPtr = ptr;
 
+                close();
                 _connectResult = tryConnect();
 
                 if (_isConnected || _connectResult.second)
                     _socket.connected.send(_socket);
+                else
+                    // TODO is there a cleaner way?
+                    // problem: by closing the previous file handle _pfd is set to 0.
+                    //   creating a new socket in tryConnect may also change the value of fd.
+                    initializePoll(&pfd, 1);
 
                 return _isConnected;
             }
