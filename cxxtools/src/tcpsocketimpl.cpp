@@ -360,6 +360,7 @@ bool TcpSocketImpl::checkPollEvent(pollfd& pfd)
             if (++ptr == _addrInfo.end())
             {
                 // not really connected but error
+                // end of addrinfo list means that no working addrinfo was found
                 _socket.connected.send(_socket);
                 return true;
             }
@@ -371,11 +372,11 @@ bool TcpSocketImpl::checkPollEvent(pollfd& pfd)
                 _connectResult = tryConnect();
 
                 if (_isConnected || _connectResult.second)
+                    // immediate success or error
                     _socket.connected.send(_socket);
                 else
-                    // TODO is there a cleaner way?
-                    // problem: by closing the previous file handle _pfd is set to 0.
-                    //   creating a new socket in tryConnect may also change the value of fd.
+                    // by closing the previous file handle _pfd is set to 0.
+                    // creating a new socket in tryConnect may also change the value of fd.
                     initializePoll(&pfd, 1);
 
                 return _isConnected;
