@@ -29,6 +29,7 @@
 
 #include <cxxtools/jsonserializer.h>
 #include <cxxtools/log.h>
+#include <cxxtools/utf8codec.h>
 
 log_define("cxxtools.jsonformatter")
 
@@ -62,15 +63,17 @@ void JsonFormatter::finish()
 {
     log_trace("finish");
 
-    checkTs(_ts);
+    if (_ts)
+    {
+        if (_beautify)
+            *_ts << cxxtools::Char(L'\n')
+                 << cxxtools::Char(L'}')
+                 << cxxtools::Char(L'\n');
+        else
+            *_ts << cxxtools::Char(L'}');
 
-    if (_beautify)
-        *_ts << cxxtools::Char(L'\n')
-             << cxxtools::Char(L'}')
-             << cxxtools::Char(L'\n');
-    else
-        *_ts << cxxtools::Char(L'}');
-    _ts = 0;
+        _ts = 0;
+    }
 }
 
 void JsonFormatter::addValue(const std::string& name, const std::string& type,
@@ -303,5 +306,22 @@ void JsonFormatter::stringOut(const cxxtools::String& str)
             *_ts << *it;
     }
 }
+
+JsonSerializer::JsonSerializer(std::ostream& os,
+    TextCodec<cxxtools::Char, char>* codec)
+    : _ts(new TextOStream(os, codec ? codec : new Utf8Codec()))
+{
+    _formatter.begin(*_ts);
+}
+
+JsonSerializer& JsonSerializer::begin(std::ostream& os,
+    TextCodec<cxxtools::Char, char>* codec)
+{
+    delete _ts;
+    _ts = new TextOStream(os, codec ? codec : new Utf8Codec());
+    _formatter.begin(*_ts);
+    return *this;
+}
+
 
 }

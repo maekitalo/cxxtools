@@ -32,10 +32,11 @@
 #include <cxxtools/formatter.h>
 #include <cxxtools/textstream.h>
 #include <cxxtools/serializer.h>
+#include <cxxtools/noncopyable.h>
 
 namespace cxxtools
 {
-    class JsonFormatter : public cxxtools::Formatter
+    class JsonFormatter : public Formatter
     {
         public:
             JsonFormatter()
@@ -93,20 +94,36 @@ namespace cxxtools
             bool _beautify;
     };
 
-    class JsonSerializer
+    class JsonSerializer : private NonCopyable
     {
         public:
-            JsonSerializer() { }
-
-            explicit JsonSerializer(std::basic_ostream<cxxtools::Char>& ts)
-                : _formatter(ts)
+            JsonSerializer()
+                : _ts(0)
             {
             }
 
-            void begin(std::basic_ostream<cxxtools::Char>& ts)
+            explicit JsonSerializer(std::basic_ostream<cxxtools::Char>& ts)
+                : _ts(0)
             {
                 _formatter.begin(ts);
             }
+
+            explicit JsonSerializer(std::ostream& os,
+                TextCodec<cxxtools::Char, char>* codec = 0);
+
+            ~JsonSerializer()
+            {
+                delete _ts;
+            }
+
+            JsonSerializer& begin(std::basic_ostream<cxxtools::Char>& ts)
+            {
+                _formatter.begin(ts);
+                return *this;
+            }
+
+            JsonSerializer& begin(std::ostream& os,
+                TextCodec<cxxtools::Char, char>* codec = 0);
 
             void finish()
             {
@@ -114,12 +131,13 @@ namespace cxxtools
             }
 
             template <typename T>
-            void serialize(const T& v, const std::string& name)
+            JsonSerializer& serialize(const T& v, const std::string& name)
             {
                 cxxtools::Serializer<T> s;
                 s.begin(v);
                 s.setName(name);
                 s.format(_formatter);
+                return *this;
             }
 
             bool beautify() const     { return _formatter.beautify(); }
@@ -129,6 +147,7 @@ namespace cxxtools
 
         private:
             JsonFormatter _formatter;
+            std::basic_ostream<cxxtools::Char>* _ts;
     };
 }
 
