@@ -26,8 +26,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef PT_NET_TcpSocketImpl_H
-#define PT_NET_TcpSocketImpl_H
+#ifndef CXXTOOLS_NET_TcpSocketImpl_H
+#define CXXTOOLS_NET_TcpSocketImpl_H
 
 #include "cxxtools/api.h"
 #include "cxxtools/signal.h"

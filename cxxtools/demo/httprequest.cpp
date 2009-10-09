@@ -33,6 +33,9 @@
 #include <cxxtools/arg.h>
 #include <cxxtools/eventloop.h>
 #include <cxxtools/loginit.h>
+#include <cxxtools/log.h>
+
+log_define("cxxtools.demo.httprequest")
 
 class AsyncRequester : public cxxtools::Connectable
 {
@@ -93,6 +96,7 @@ void AsyncRequester::onReady(cxxtools::http::Client& client)
 
 void AsyncRequester::onError(cxxtools::http::Client& client, const std::exception& e)
 {
+  log_warn("error occured: " << e.what());
   throw;
 }
 

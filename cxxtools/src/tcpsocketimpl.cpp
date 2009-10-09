@@ -49,7 +49,12 @@ namespace {
 
     void formatIp(const sockaddr_storage& addr, std::string& str)
     {
-#ifndef HAVE_INET_NTOP
+#ifdef HAVE_INET_NTOP
+        const sockaddr_in* sa = reinterpret_cast<const sockaddr_in*>(&addr);
+        char strbuf[INET6_ADDRSTRLEN + 1];
+        const char* p = inet_ntop(sa->sin_family, &sa->sin_addr, strbuf, sizeof(strbuf));
+        str = (p == 0 ? "-" : strbuf);
+#else
         static cxxtools::Mutex monitor;
         cxxtools::MutexLock lock(monitor);
 
@@ -59,11 +64,6 @@ namespace {
             str = p;
         else
             str.clear();
-#else
-        const sockaddr_in* sa = reinterpret_cast<const sockaddr_in*>(&addr);
-        char strbuf[INET6_ADDRSTRLEN + 1];
-        const char* p = inet_ntop(sa->sin_family, &sa->sin_addr, strbuf, sizeof(strbuf));
-        str = (p == 0 ? "-" : strbuf);
 #endif
     }
 }
