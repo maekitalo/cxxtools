@@ -29,23 +29,22 @@
 #ifndef cxxtools_Http_Socket_h
 #define cxxtools_Http_Socket_h
 
-#include <cxxtools/http/api.h>
 #include <cxxtools/net/tcpsocket.h>
-#include <cxxtools/http/parser.h>
 #include <cxxtools/http/request.h>
 #include <cxxtools/http/reply.h>
 #include <cxxtools/iostream.h>
 #include <cxxtools/timer.h>
 #include <cxxtools/connectable.h>
+#include "parser.h"
 
 namespace cxxtools {
 
 namespace http {
 
-class Server;
+class ServerImpl;
 class Responder;
 
-class CXXTOOLS_HTTP_API Socket : public net::TcpSocket, public Connectable
+class Socket : public net::TcpSocket, public Connectable
 {
         class ParseEvent : public HeaderParser::MessageHeaderEvent
         {
@@ -63,7 +62,7 @@ class CXXTOOLS_HTTP_API Socket : public net::TcpSocket, public Connectable
         };
 
     public:
-        Socket(SelectorBase& s, Server& server);
+        Socket(SelectorBase& s, ServerImpl& server);
         ~Socket();
 
         void onInput(StreamBuffer& stream);
@@ -82,7 +81,7 @@ class CXXTOOLS_HTTP_API Socket : public net::TcpSocket, public Connectable
         const Reply& reply() const     { return _reply; }
 
     private:
-        Server& _server;
+        ServerImpl& _server;
 
         ParseEvent _parseEvent;
         HeaderParser _parser;

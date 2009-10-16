@@ -9,13 +9,17 @@ libcxxtools_http_la_SOURCES = \
 	messageheader.cpp \
 	parser.cpp \
 	server.cpp \
+	serverimpl.cpp \
 	socket.cpp \
 	request.cpp \
 	responder.cpp
 
 noinst_HEADERS = \
     chunkedreader.h \
-    clientimpl.h
+    clientimpl.h \
+    parser.h \
+    serverimpl.h \
+	socket.h
 
 libcxxtools_http_la_LIBADD = $(top_builddir)/src/libcxxtools.la
 

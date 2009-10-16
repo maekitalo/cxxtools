@@ -35,7 +35,7 @@
 #include <cxxtools/xmlrpc/formatter.h>
 #include <cxxtools/xml/xmlreader.h>
 #include <cxxtools/xml/xmlwriter.h>
-#include <cxxtools/http/server.h>
+#include <cxxtools/http/responder.h>
 #include <cxxtools/serializer.h>
 #include <cxxtools/textstream.h>
 

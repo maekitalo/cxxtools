@@ -54,13 +54,11 @@ nobase_include_HEADERS = \
 		cxxtools/http/api.h \
 		cxxtools/http/client.h \
 		cxxtools/http/messageheader.h \
-		cxxtools/http/parser.h \
 		cxxtools/http/reply.h \
 		cxxtools/http/replyheader.h \
 		cxxtools/http/request.h \
 		cxxtools/http/requestheader.h \
 		cxxtools/http/server.h \
-		cxxtools/http/socket.h \
 		cxxtools/http/service.h \
 		cxxtools/http/responder.h \
         cxxtools/inifile.h \

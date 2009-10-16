@@ -26,8 +26,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <cxxtools/http/socket.h>
-#include <cxxtools/http/server.h>
+#include "socket.h"
+#include "serverimpl.h"
 #include <cxxtools/log.h>
 #include <cassert>
 
@@ -52,7 +52,7 @@ void Socket::ParseEvent::onUrlParam(const std::string& q)
     _request.qparams(q);
 }
 
-Socket::Socket(SelectorBase& selector, Server& server)
+Socket::Socket(SelectorBase& selector, ServerImpl& server)
     : TcpSocket(server),
       _server(server),
       _parseEvent(_request),

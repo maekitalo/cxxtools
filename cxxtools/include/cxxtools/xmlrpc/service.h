@@ -30,7 +30,7 @@
 #define cxxtools_xmlrpc_Service_h
 
 #include <cxxtools/xmlrpc/api.h>
-#include <cxxtools/http/server.h>
+#include <cxxtools/http/service.h>
 #include <cxxtools/deserializer.h>
 #include <cxxtools/serializer.h>
 #include <cxxtools/void.h>

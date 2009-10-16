@@ -28,7 +28,7 @@
 
 #include "clientimpl.h"
 #include <cxxtools/http/client.h>
-#include <cxxtools/http/parser.h>
+#include "parser.h"
 #include <cxxtools/ioerror.h>
 #include <cxxtools/textstream.h>
 #include <cxxtools/base64codec.h>

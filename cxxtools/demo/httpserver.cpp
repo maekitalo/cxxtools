@@ -20,8 +20,7 @@
 #include <cxxtools/http/server.h>
 #include <cxxtools/http/request.h>
 #include <cxxtools/http/reply.h>
-#include <cxxtools/mutex.h>
-#include <cxxtools/eventloop.h>
+#include <cxxtools/http/responder.h>
 #include <cxxtools/loginit.h>
 #include <cxxtools/arg.h>
 

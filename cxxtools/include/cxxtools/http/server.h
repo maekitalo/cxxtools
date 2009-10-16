@@ -30,103 +30,40 @@
 #define cxxtools_Http_Server_h
 
 #include <cxxtools/http/api.h>
-#include <cxxtools/http/responder.h>
-#include <cxxtools/net/tcpserver.h>
-#include <cxxtools/net/tcpsocket.h>
-#include <cxxtools/connectable.h>
-#include <cxxtools/condition.h>
-#include <cxxtools/mutex.h>
-#include <cxxtools/thread.h>
-#include <cxxtools/atomicity.h>
+#include <string>
 #include <cstddef>
-#include <map>
-#include <set>
-#include <list>
 
 namespace cxxtools {
 
 namespace http {
 
-class Responder;
 class Request;
-class Socket;
 class Service;
+class ServerImpl;
 
-class CXXTOOLS_HTTP_API Server : public net::TcpServer, public Connectable
+class CXXTOOLS_HTTP_API Server
 {
     public:
         Server(const std::string& ip, unsigned short int port);
-        ~Server()  { terminate(); }
+        ~Server();
 
         void addService(const std::string& url, Service& service);
         void removeService(Service& service);
 
-        Responder* getResponder(const Request& request);
-        Responder* getDefaultResponder(const Request& request)
-            { return _defaultService.createResponder(request); }
+        std::size_t readTimeout() const;
+        std::size_t writeTimeout() const;
+        std::size_t keepAliveTimeout() const;
 
-        void onConnect(TcpServer& server);
-
-        std::size_t readTimeout() const       { return _readTimeout; }
-        std::size_t writeTimeout() const      { return _writeTimeout; }
-        std::size_t keepAliveTimeout() const  { return _keepAliveTimeout; }
-
-        void readTimeout(std::size_t ms)      { _readTimeout = ms; }
-        void writeTimeout(std::size_t ms)     { _writeTimeout = ms; }
-        void keepAliveTimeout(std::size_t ms) { _keepAliveTimeout = ms; }
+        void readTimeout(std::size_t ms);
+        void writeTimeout(std::size_t ms);
+        void keepAliveTimeout(std::size_t ms);
 
         void terminate();
 
         void run();
 
     private:
-        std::string _ip;
-        unsigned short int _port;
-
-        typedef std::multimap<std::string, Service*> ServicesType;
-        ServicesType _service;
-        Selector _selector;
-        NotFoundService _defaultService;
-        NotAuthenticatedService _noAuthService;
-
-        std::size_t _readTimeout;
-        std::size_t _writeTimeout;
-        std::size_t _keepAliveTimeout;
-
-        void serverThread();
-
-        Mutex _threadMutex;
-        Mutex _createThreadMutex;
-        Mutex _selectorMutex;
-        Condition _threadRunning;
-        AttachedThread* _startingThread;
-        unsigned _minThreads;
-        unsigned _maxThreads;
-        atomic_t _waitingThreads;
-        enum {
-          Stopped,
-          Starting,
-          Running,
-          Terminating
-        } _runmode;
-        Condition _terminated;
-        Condition _threadTerminated;
-
-        typedef std::set<AttachedThread*> Threads;
-        Threads _threads;
-        Threads _terminatedThreads;
-
-        typedef std::list<Socket*> ServerSockets;
-        ServerSockets _readySockets;
-        Mutex _idleSocketsMutex;
-        ServerSockets _idleSockets;
-
-        bool hasReplyToDo() const  { return !_readySockets.empty(); }
-        friend class Socket;
-        void addReadySockets(Socket* s)
-            { _readySockets.push_back(s); }
-
-        void createThread();
+        ServerImpl* _impl;
 };
 
 

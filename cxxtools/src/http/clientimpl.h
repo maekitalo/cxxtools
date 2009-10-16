@@ -31,7 +31,7 @@
 
 #include <cxxtools/net/tcpserver.h>
 #include <cxxtools/net/tcpsocket.h>
-#include <cxxtools/http/parser.h>
+#include "parser.h"
 #include <cxxtools/http/request.h>
 #include <cxxtools/http/reply.h>
 #include <cxxtools/selectable.h>
