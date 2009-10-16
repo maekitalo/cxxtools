@@ -52,7 +52,6 @@ ClientImpl::ClientImpl(Client* client)
 , _parseEvent(_replyHeader)
 , _parser(_parseEvent, true)
 , _request(0)
-, _port(0)
 , _stream(8192, true)
 , _readHeader(true)
 , _contentLength(0)
@@ -67,13 +66,12 @@ ClientImpl::ClientImpl(Client* client)
 }
 
 
-ClientImpl::ClientImpl(Client* client, const std::string& server, unsigned short int port)
+ClientImpl::ClientImpl(Client* client, const net::AddrInfo& addrinfo)
 : _client(client)
 , _parseEvent(_replyHeader)
 , _parser(_parseEvent, true)
 , _request(0)
-, _server(server)
-, _port(port)
+, _addrInfo(addrinfo)
 , _stream(8192, true)
 , _readHeader(true)
 , _contentLength(0)
@@ -87,14 +85,12 @@ ClientImpl::ClientImpl(Client* client, const std::string& server, unsigned short
     cxxtools::connect(_stream.buffer().inputReady, *this, &ClientImpl::onInput);
 }
 
-
-ClientImpl::ClientImpl(Client* client, SelectorBase& selector, const std::string& server, unsigned short int port)
+ClientImpl::ClientImpl(Client* client, SelectorBase& selector, const net::AddrInfo& addrinfo)
 : _client(client)
 , _parseEvent(_replyHeader)
 , _parser(_parseEvent, true)
 , _request(0)
-, _server(server)
-, _port(port)
+, _addrInfo(addrinfo)
 , _stream(8192, true)
 , _readHeader(true)
 , _contentLength(0)
@@ -118,7 +114,7 @@ void ClientImpl::setSelector(SelectorBase& selector)
 void ClientImpl::reexecute(const Request& request)
 {
     log_debug("reconnect");
-    _socket.connect(_server, _port);
+    _socket.connect(_addrInfo);
 
     _stream.clear();
     _stream.buffer().discard();
@@ -146,7 +142,7 @@ const ReplyHeader& ClientImpl::execute(const Request& request, std::size_t timeo
     if (!shouldReconnect)
     {
         log_debug("connect");
-        _socket.connect(_server, _port);
+        _socket.connect(_addrInfo);
     }
 
     log_debug("send request");
@@ -281,12 +277,12 @@ void ClientImpl::beginExecute(const Request& request)
 
             _stream.clear();
             _stream.buffer().discard();
-            _socket.beginConnect(_server, _port);
+            _socket.beginConnect(_addrInfo);
         }
     }
     else
     {
-        _socket.beginConnect(_server, _port);
+        _socket.beginConnect(_addrInfo);
     }
 }
 
@@ -335,9 +331,10 @@ void ClientImpl::sendRequest(const Request& request)
 
     if (!request.header().hasHeader(host))
     {
-        _stream << "Host: " << _server;
-        if (_port != 80)
-            _stream << ':' << _port;
+        _stream << "Host: " << _addrInfo.host();
+        unsigned short port = _addrInfo.port();
+        if (port != 80)
+            _stream << ':' << port;
         _stream << "\r\n";
     }
 

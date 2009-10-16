@@ -82,9 +82,22 @@ int main(int argc, char* argv[])
 
     cxxtools::Arg<std::string> listenIp(argc, argv, 'l', "0.0.0.0");
     cxxtools::Arg<unsigned short int> listenPort(argc, argv, 'p', 8001);
+
     cxxtools::Arg<bool> auth(argc, argv, 'a');
 
-    cxxtools::http::Server server(listenIp, listenPort);
+    cxxtools::http::Server server;
+    server.listen(listenIp, listenPort);
+
+    // collect additional ports to listen on
+    while (true)
+    {
+        cxxtools::Arg<unsigned short int> listenPort(argc, argv, 'p');
+        if (!listenPort.isSet())
+            break;
+
+        server.listen(listenIp, listenPort);
+    }
+
     HelloService service;
 
     MyAuthenticator authenticator;

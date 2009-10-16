@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 by Marc Boris Duerner, Tommi Maekitalo
+ * Copyright (C) 2003,2009 Tommi Maekitalo
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,52 +26,67 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef cxxtools_Http_Server_h
-#define cxxtools_Http_Server_h
-
-#include <cxxtools/http/api.h>
+#include "addrinfoimpl.h"
+#include <cxxtools/systemerror.h>
 #include <string>
-#include <cstddef>
+#include <sstream>
+#include <string.h>
 
 namespace cxxtools {
 
-namespace http {
+namespace net {
 
-class Request;
-class Service;
-class ServerImpl;
+  void AddrInfoImpl::init(const std::string& host, unsigned short port)
+  {
+    struct addrinfo hints;
 
-class CXXTOOLS_HTTP_API Server
-{
-    public:
-        Server();
-        Server(const std::string& ip, unsigned short int port);
-        ~Server();
+    // give some useful default values to use for getaddrinfo()
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_socktype = SOCK_STREAM;
 
-        void listen(const std::string& ip, unsigned short int port);
+    init(host, port, hints);
+  }
 
-        void addService(const std::string& url, Service& service);
-        void removeService(Service& service);
+  void AddrInfoImpl::init(const std::string& host, unsigned short port,
+    const addrinfo& hints)
+  {
+    if (_ai)
+    {
+      freeaddrinfo(_ai);
+      _ai = 0;
+    }
 
-        std::size_t readTimeout() const;
-        std::size_t writeTimeout() const;
-        std::size_t keepAliveTimeout() const;
+    _host = host;
+    _port = port;
 
-        void readTimeout(std::size_t ms);
-        void writeTimeout(std::size_t ms);
-        void keepAliveTimeout(std::size_t ms);
+    std::ostringstream p;
+    p << port;
 
-        void terminate();
+    // TODO: exception type
+    if (0 != ::getaddrinfo(host.c_str(), p.str().c_str(), &hints, &_ai))
+      throw SystemError(0, ("invalid ipaddress " + host).c_str());
 
-        void run();
+    // TODO: exception type
+    if (_ai == 0)
+      throw SystemError("getaddrinfo");
+  }
 
-    private:
-        ServerImpl* _impl;
-};
+  AddrInfoImpl::~AddrInfoImpl()
+  {
+    if (_ai)
+      freeaddrinfo(_ai);
+  }
 
+  const std::string& AddrInfoImpl::host() const
+  {
+    return _host;
+  }
 
-} // namespace http
+  unsigned short AddrInfoImpl::port() const
+  {
+    return _port;
+  }
+
+} // namespace net
 
 } // namespace cxxtools
-
-#endif

@@ -80,6 +80,7 @@ nobase_include_HEADERS = \
         cxxtools/mime.h \
         cxxtools/multifstream.h \
         cxxtools/mutex.h \
+        cxxtools/net/addrinfo.h \
         cxxtools/net/net.h \
         cxxtools/net/tcpserver.h \
         cxxtools/net/tcpsocket.h \

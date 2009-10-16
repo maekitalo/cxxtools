@@ -29,10 +29,10 @@
 #ifndef CXXTOOLS_NET_TcpSocketImpl_H
 #define CXXTOOLS_NET_TcpSocketImpl_H
 
-#include "cxxtools/api.h"
 #include "cxxtools/signal.h"
 #include "iodeviceimpl.h"
-#include "addrinfo.h"
+#include "cxxtools/net/addrinfo.h"
+#include "addrinfoimpl.h"
 #include <string>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -56,7 +56,7 @@ class TcpSocketImpl : public IODeviceImpl
         bool _isConnected;
         struct sockaddr_storage _peeraddr;
         AddrInfo _addrInfo;
-        AddrInfo::const_iterator _addrInfoPtr;
+        AddrInfoImpl::const_iterator _addrInfoPtr;
 
         int checkConnect();
         void checkPendingError();
@@ -77,9 +77,9 @@ class TcpSocketImpl : public IODeviceImpl
         bool isConnected() const
         { return _isConnected; }
 
-        void connect(const std::string& ipaddr, unsigned short int port);
+        void connect(const AddrInfo& addrinfo);
 
-        bool beginConnect(const std::string& ipaddr, unsigned short int port);
+        bool beginConnect(const AddrInfo& addrinfo);
 
         void endConnect();
 

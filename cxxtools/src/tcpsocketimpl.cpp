@@ -116,10 +116,10 @@ std::string TcpSocketImpl::getPeerAddr() const
 }
 
 
-void TcpSocketImpl::connect(const std::string& ipaddr, unsigned short int port)
+void TcpSocketImpl::connect(const AddrInfo& addrInfo)
 {
-    log_debug("connect to " << ipaddr << " port " << port);
-    this->beginConnect(ipaddr, port);
+    log_debug("connect");
+    this->beginConnect(addrInfo);
     this->endConnect();
 }
 
@@ -169,7 +169,7 @@ std::pair<int, const char*> TcpSocketImpl::tryConnect()
 {
     log_trace("tryConnect");
 
-    if (_addrInfoPtr == _addrInfo.end())
+    if (_addrInfoPtr == _addrInfo.impl()->end())
     {
         log_debug("no more address informations");
         return std::pair<int, const char*>(0, "invalid address information");
@@ -185,7 +185,7 @@ std::pair<int, const char*> TcpSocketImpl::tryConnect()
             if (fd >= 0)
                 break;
 
-            if (++_addrInfoPtr == _addrInfo.end())
+            if (++_addrInfoPtr == _addrInfo.impl()->end())
                 return std::pair<int, const char*>(errno, "socket");
         }
 
@@ -210,7 +210,7 @@ std::pair<int, const char*> TcpSocketImpl::tryConnect()
         }
 
         close();
-        if (++_addrInfoPtr == _addrInfo.end())
+        if (++_addrInfoPtr == _addrInfo.impl()->end())
             return std::pair<int, const char*>(errno, "socket");
     }
 
@@ -218,9 +218,9 @@ std::pair<int, const char*> TcpSocketImpl::tryConnect()
 }
 
 
-bool TcpSocketImpl::beginConnect(const std::string& ipaddr, unsigned short int port)
+bool TcpSocketImpl::beginConnect(const AddrInfo& addrInfo)
 {
-    log_trace("begin connect to " << ipaddr << " port " << port);
+    log_trace("begin connect");
 
     if (_isConnected)
     {
@@ -229,8 +229,8 @@ bool TcpSocketImpl::beginConnect(const std::string& ipaddr, unsigned short int p
         _isConnected = false;
     }
 
-    _addrInfo.init(ipaddr, port);
-    _addrInfoPtr = _addrInfo.begin();
+    _addrInfo = addrInfo;
+    _addrInfoPtr = _addrInfo.impl()->begin();
     _connectResult = tryConnect();
     checkPendingError();
     return _isConnected;
@@ -262,7 +262,7 @@ void TcpSocketImpl::endConnect()
                 {
                     // something went wrong - look for next addrInfo
                     log_debug("sockerr is " << sockerr << " try next");
-                    if (++_addrInfoPtr == _addrInfo.end())
+                    if (++_addrInfoPtr == _addrInfo.impl()->end())
                     {
                         // no more addrInfo - propagate error
                         throw IOError(getErrnoString(sockerr, "connect").c_str());
@@ -356,8 +356,8 @@ bool TcpSocketImpl::checkPollEvent(pollfd& pfd)
     {
         if ( pfd.revents & POLLERR )
         {
-            AddrInfo::const_iterator ptr = _addrInfoPtr;
-            if (++ptr == _addrInfo.end())
+            AddrInfoImpl::const_iterator ptr = _addrInfoPtr;
+            if (++ptr == _addrInfo.impl()->end())
             {
                 // not really connected but error
                 // end of addrinfo list means that no working addrinfo was found

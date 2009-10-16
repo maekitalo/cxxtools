@@ -62,7 +62,7 @@ class Socket : public net::TcpSocket, public Connectable
         };
 
     public:
-        Socket(SelectorBase& s, ServerImpl& server);
+        Socket(SelectorBase& s, ServerImpl& server, net::TcpServer& tcpServer);
         ~Socket();
 
         void onInput(StreamBuffer& stream);

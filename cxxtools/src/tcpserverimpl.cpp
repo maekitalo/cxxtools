@@ -26,8 +26,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "addrinfo.h"
+#include <cxxtools/net/addrinfo.h>
 #include "tcpserverimpl.h"
+#include "addrinfoimpl.h"
 #include <cxxtools/net/tcpserver.h>
 #include <cxxtools/systemerror.h>
 #include <cxxtools/selector.h>
@@ -85,11 +86,11 @@ void TcpServerImpl::listen(const std::string& ipaddr, unsigned short int port, i
 
     AddrInfo ai(ipaddr, port);
 
-    int reuseAddr = 1;
+    static const int reuseAddr = 1;
 
     // getaddrinfo() may return more than one addrinfo structure, so work
     // them all out, until we find a pretty useable one
-    for (AddrInfo::const_iterator it = ai.begin(); it != ai.end(); ++it)
+    for (AddrInfoImpl::const_iterator it = ai.impl()->begin(); it != ai.impl()->end(); ++it)
     {
         try
         {
@@ -111,7 +112,7 @@ void TcpServerImpl::listen(const std::string& ipaddr, unsigned short int port, i
         if (::bind(_fd, it->ai_addr, it->ai_addrlen) == 0)
         {
             // save our information
-            std::memmove(&servaddr, it->ai_addr, it->ai_addrlen);
+            std::memmove(&_servaddr, it->ai_addr, it->ai_addrlen);
 
             log_debug("listen");
             if( ::listen(_fd, backlog) < 0 )

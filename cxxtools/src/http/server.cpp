@@ -33,14 +33,25 @@ namespace cxxtools {
 
 namespace http {
 
-Server::Server(const std::string& ip, unsigned short int port)
-    : _impl(new ServerImpl(ip, port))
+Server::Server()
+    : _impl(new ServerImpl())
 {
+}
+
+Server::Server(const std::string& ip, unsigned short int port)
+    : _impl(new ServerImpl())
+{
+    _impl->listen(ip, port);
 }
 
 Server::~Server()
 {
     delete _impl;
+}
+
+void Server::listen(const std::string& ip, unsigned short int port)
+{
+    _impl->listen(ip, port);
 }
 
 void Server::addService(const std::string& url, Service& service)

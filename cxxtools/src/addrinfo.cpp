@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003 Tommi Maekitalo
+ * Copyright (C) 2005,2009 Tommi Maekitalo
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,54 +26,68 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "addrinfo.h"
-#include <cxxtools/systemerror.h>
-#include <string>
-#include <sstream>
-#include <string.h>
+#include <cxxtools/net/addrinfo.h>
+#include "addrinfoimpl.h"
 
-namespace cxxtools {
+namespace cxxtools
+{
 
-namespace net {
+namespace net
+{
 
-  void AddrInfo::init(const std::string& ipaddr, unsigned short port)
-  {
-    struct addrinfo hints;
+AddrInfo::AddrInfo(AddrInfoImpl* impl)
+  : _impl(impl)
+{
+    if (_impl)
+        _impl->addRef();
+}
 
-    // give some useful default values to use for getaddrinfo()
-    memset(&hints, 0, sizeof(hints));
-    hints.ai_socktype = SOCK_STREAM;
 
-    init(ipaddr, port, hints);
-  }
+AddrInfo::AddrInfo(const std::string& host, unsigned short port)
+    : _impl(new AddrInfoImpl(host, port))
+{
+    _impl->addRef();
+}
 
-  void AddrInfo::init(const std::string& ipaddr, unsigned short port,
-    const addrinfo& hints)
-  {
-    if (ai)
+AddrInfo::AddrInfo(const AddrInfo& src)
+    : _impl(src._impl)
+{
+    _impl->addRef();
+}
+
+AddrInfo::~AddrInfo()
+{
+    if (_impl)
+        _impl->release();
+}
+
+AddrInfo& AddrInfo::operator= (const AddrInfo& src)
+{
+    if (src._impl != _impl)
     {
-      freeaddrinfo(ai);
-      ai = 0;
+        if (_impl)
+            _impl->release();
+
+        _impl = src._impl;
+
+        if (_impl)
+            _impl->addRef();
     }
 
-    std::ostringstream p;
-    p << port;
+    return *this;
+}
 
-    // TODO: exception type
-    if (0 != ::getaddrinfo(ipaddr.c_str(), p.str().c_str(), &hints, &ai))
-      throw SystemError(0, ("invalid ipaddress " + ipaddr).c_str());
+const std::string& AddrInfo::host() const
+{
+  return _impl->host();
+}
 
-    // TODO: exception type
-    if (ai == 0)
-      throw SystemError("getaddrinfo");
-  }
+unsigned short AddrInfo::port() const
+{
+  return _impl->port();
+}
 
-  AddrInfo::~AddrInfo()
-  {
-    if (ai)
-      freeaddrinfo(ai);
-  }
 
-} // namespace net
+}
 
-} // namespace cxxtools
+}

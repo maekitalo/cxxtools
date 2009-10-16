@@ -52,8 +52,8 @@ void Socket::ParseEvent::onUrlParam(const std::string& q)
     _request.qparams(q);
 }
 
-Socket::Socket(SelectorBase& selector, ServerImpl& server)
-    : TcpSocket(server),
+Socket::Socket(SelectorBase& selector, ServerImpl& server, net::TcpServer& tcpServer)
+    : TcpSocket(tcpServer),
       _server(server),
       _parseEvent(_request),
       _parser(_parseEvent, false),
@@ -144,6 +144,7 @@ void Socket::onInput(StreamBuffer& sb)
             _contentLength = _request.header().contentLength();
             if (_contentLength == 0)
             {
+                _timer.stop();
                 _server.addReadySockets(this);
                 return;
             }
@@ -180,6 +181,7 @@ void Socket::onInput(StreamBuffer& sb)
 
         if (_contentLength <= 0)
         {
+            _timer.stop();
             _server.addReadySockets(this);
         }
         else
@@ -247,7 +249,10 @@ bool Socket::onOutput(StreamBuffer& sb)
             _request.clear();
             _reply.clear();
             _parser.reset(false);
-            _stream.buffer().beginRead();
+            if (sb.in_avail())
+                onInput(sb);
+            else
+                _stream.buffer().beginRead();
         }
         else
         {

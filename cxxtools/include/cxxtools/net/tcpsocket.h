@@ -31,6 +31,7 @@
 
 #include <cxxtools/api.h>
 #include <cxxtools/iodevice.h>
+#include <cxxtools/net/addrinfo.h>
 #include <string>
 
 namespace cxxtools {
@@ -38,10 +39,11 @@ namespace cxxtools {
 namespace net {
 
 class TcpServer;
+class AddrInfo;
 
 class CXXTOOLS_API TcpSocket : public IODevice
 {
-    class TcpSocketImpl* _impl;
+        class TcpSocketImpl* _impl;
 
     public:
         TcpSocket();
@@ -49,6 +51,8 @@ class CXXTOOLS_API TcpSocket : public IODevice
         TcpSocket(const TcpServer& server);
 
         TcpSocket(const std::string& ipaddr, unsigned short int port);
+
+        explicit TcpSocket(const AddrInfo& addrinfo);
 
         ~TcpSocket();
 
@@ -65,9 +69,15 @@ class CXXTOOLS_API TcpSocket : public IODevice
 
         void accept(const TcpServer& server);
 
-        void connect(const std::string& ipaddr, unsigned short int port);
+        void connect(const AddrInfo& addrinfo);
 
-        bool beginConnect(const std::string& ipaddr, unsigned short int port);
+        void connect(const std::string& ipaddr, unsigned short int port)
+        { connect(AddrInfo(ipaddr, port)); }
+
+        bool beginConnect(const AddrInfo& addrinfo);
+
+        bool beginConnect(const std::string& ipaddr, unsigned short int port)
+        { beginConnect(AddrInfo(ipaddr, port)); }
 
         void endConnect();
 

@@ -27,6 +27,7 @@
  */
 
 #include <cxxtools/http/client.h>
+#include <cxxtools/net/addrinfo.h>
 #include "clientimpl.h"
 
 namespace cxxtools {
@@ -38,15 +39,24 @@ Client::Client()
 {
 }
 
+Client::Client(const net::AddrInfo& addrinfo)
+: _impl(new ClientImpl(this, addrinfo))
+{
+}
 
-Client::Client(const std::string& server, unsigned short int port)
-: _impl(new ClientImpl(this, server, port))
+Client::Client(const std::string& host, unsigned short int port)
+: _impl(new ClientImpl(this, net::AddrInfo(host, port)))
 {
 }
 
 
-Client::Client(SelectorBase& selector, const std::string& server, unsigned short int port)
-: _impl(new ClientImpl(this, selector, server, port))
+Client::Client(SelectorBase& selector, const net::AddrInfo& addrinfo)
+: _impl(new ClientImpl(this, selector, addrinfo))
+{
+}
+
+Client::Client(SelectorBase& selector, const std::string& host, unsigned short int port)
+: _impl(new ClientImpl(this, selector, net::AddrInfo(host, port)))
 {
 }
 
@@ -55,9 +65,14 @@ Client::~Client()
   delete _impl;
 }
 
-void Client::connect(const std::string& server, unsigned short int port)
+void Client::connect(const net::AddrInfo& addrinfo)
 {
-    _impl->connect(server, port);
+    _impl->connect(addrinfo);
+}
+
+void Client::connect(const std::string& host, unsigned short int port)
+{
+    _impl->connect(net::AddrInfo(host, port));
 }
 
 const ReplyHeader& Client::execute(const Request& request, std::size_t timeout)
@@ -100,9 +115,9 @@ std::istream& Client::in()
     return _impl->in();
 }
 
-const std::string& Client::server() const
+const std::string& Client::host() const
 {
-    return _impl->server();
+    return _impl->host();
 }
 
 unsigned short int Client::port() const

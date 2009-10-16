@@ -3,23 +3,25 @@ INCLUDES= -I$(top_builddir)/include
 lib_LTLIBRARIES = libcxxtools-http.la
 
 libcxxtools_http_la_SOURCES = \
-	chunkedreader.cpp \
-	client.cpp \
-	clientimpl.cpp \
-	messageheader.cpp \
-	parser.cpp \
-	server.cpp \
-	serverimpl.cpp \
-	socket.cpp \
-	request.cpp \
-	responder.cpp
+    chunkedreader.cpp \
+    client.cpp \
+    clientimpl.cpp \
+    listener.cpp \
+    messageheader.cpp \
+    parser.cpp \
+    server.cpp \
+    serverimpl.cpp \
+    socket.cpp \
+    request.cpp \
+    responder.cpp
 
 noinst_HEADERS = \
     chunkedreader.h \
     clientimpl.h \
+    listener.h \
     parser.h \
     serverimpl.h \
-	socket.h
+    socket.h
 
 libcxxtools_http_la_LIBADD = $(top_builddir)/src/libcxxtools.la
 

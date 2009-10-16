@@ -69,7 +69,7 @@ std::string HttpClientImpl::url() const
 {
     std::ostringstream s;
     s << "http://"
-      << _client.server()
+      << _client.host()
       << ':'
       << _client.port()
       << _request.url();

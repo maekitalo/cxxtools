@@ -277,7 +277,7 @@ namespace cxxtools {
             }
 
         protected:
-            /** @brief Constructs a detched thread
+            /** @brief Constructs a detached thread
 
                 Constructs a thread object to execute the virtual method
                 run() when start() is called. %DetachedThreads are always
@@ -292,7 +292,7 @@ namespace cxxtools {
                 Thread::detach();
             }
 
-            /** @brief Destroys a detched thread
+            /** @brief Destroys a detached thread
 
                 This method is called after the thread has finished. The
                 default implementation uses delete to destruct this object.

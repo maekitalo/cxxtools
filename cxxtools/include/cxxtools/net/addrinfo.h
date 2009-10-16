@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 by Marc Boris Duerner, Tommi Maekitalo
+ * Copyright (C) 2005,2009 Tommi Maekitalo
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,52 +26,45 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef cxxtools_Http_Server_h
-#define cxxtools_Http_Server_h
+#ifndef CXXTOOLS_NET_ADDRINFO_H
+#define CXXTOOLS_NET_ADDRINFO_H
 
-#include <cxxtools/http/api.h>
+#include <cxxtools/api.h>
 #include <string>
-#include <cstddef>
 
-namespace cxxtools {
-
-namespace http {
-
-class Request;
-class Service;
-class ServerImpl;
-
-class CXXTOOLS_HTTP_API Server
+namespace cxxtools
 {
-    public:
-        Server();
-        Server(const std::string& ip, unsigned short int port);
-        ~Server();
 
-        void listen(const std::string& ip, unsigned short int port);
+namespace net
+{
 
-        void addService(const std::string& url, Service& service);
-        void removeService(Service& service);
+    class AddrInfoImpl;
 
-        std::size_t readTimeout() const;
-        std::size_t writeTimeout() const;
-        std::size_t keepAliveTimeout() const;
+    class CXXTOOLS_API AddrInfo
+    {
+        public:
+            AddrInfo()
+                : _impl(0)
+                { }
+            explicit AddrInfo(AddrInfoImpl* impl);
+            AddrInfo(const std::string& host, unsigned short port);
+            AddrInfo(const AddrInfo& src);
+            ~AddrInfo();
 
-        void readTimeout(std::size_t ms);
-        void writeTimeout(std::size_t ms);
-        void keepAliveTimeout(std::size_t ms);
+            AddrInfo& operator= (const AddrInfo& src);
 
-        void terminate();
+            const std::string& host() const;
+            unsigned short port() const;
 
-        void run();
+            AddrInfoImpl* impl()               { return _impl; }
+            const AddrInfoImpl* impl() const   { return _impl; }
 
-    private:
-        ServerImpl* _impl;
-};
+        private:
+            AddrInfoImpl* _impl;
+    };
 
-
-} // namespace http
+} // namespace net
 
 } // namespace cxxtools
 
-#endif
+#endif // CXXTOOLS_NET_ADDRINFO_H

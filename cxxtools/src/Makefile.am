@@ -4,6 +4,7 @@ lib_LTLIBRARIES = libcxxtools.la
 
 libcxxtools_la_SOURCES = \
 	addrinfo.cpp \
+	addrinfoimpl.cpp \
 	application.cpp \
 	applicationimpl.cpp \
 	base64stream.cpp \
@@ -92,7 +93,7 @@ libcxxtools_la_SOURCES = \
 	udpstream.cpp
 
 noinst_HEADERS = \
-	addrinfo.h \
+	addrinfoimpl.h \
 	applicationimpl.h \
 	clockimpl.h \
 	conditionimpl.h \

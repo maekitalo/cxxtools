@@ -32,6 +32,7 @@
 #include <string>
 #include <cxxtools/net/tcpserver.h>
 #include <cxxtools/net/tcpsocket.h>
+#include <cxxtools/net/addrinfo.h>
 #include <cxxtools/streambuffer.h>
 #include <cxxtools/iostream.h>
 
@@ -58,6 +59,15 @@ namespace net
                       unsigned bufsize = 8192, std::size_t timeout = Selectable::WaitInfinite)
             : IOStream(bufsize)
             , _socket(ipaddr, port)
+            {
+                _socket.setTimeout(timeout);
+                this->attachDevice(_socket);
+            }
+
+            explicit TcpStream(const AddrInfo& addrinfo,
+                      unsigned bufsize = 8192, std::size_t timeout = Selectable::WaitInfinite)
+            : IOStream(bufsize)
+            , _socket(addrinfo)
             {
                 _socket.setTimeout(timeout);
                 this->attachDevice(_socket);
@@ -94,6 +104,9 @@ namespace net
 
             void close()
             { _socket.close(); }
+
+            void connect(const AddrInfo& addrinfo)
+            { _socket.connect(addrinfo); }
 
             void connect(const std::string& ipaddr, unsigned short int port)
             { _socket.connect(ipaddr, port); }

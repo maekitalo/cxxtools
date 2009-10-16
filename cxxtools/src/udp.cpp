@@ -26,7 +26,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "addrinfo.h"
+#include <cxxtools/net/addrinfo.h>
+#include "addrinfoimpl.h"
 #include <cxxtools/net/udp.h>
 #include <cxxtools/dynbuffer.h>
 #include <cxxtools/log.h>
@@ -58,9 +59,9 @@ namespace net
     memset(&hints, 0, sizeof(hints));
     hints.ai_socktype = SOCK_DGRAM;
 
-    AddrInfo ai(ipaddr, port, hints);
+    AddrInfo ai(new AddrInfoImpl(ipaddr, port, hints));
 
-    for (AddrInfo::const_iterator it = ai.begin(); it != ai.end(); ++it)
+    for (AddrInfoImpl::const_iterator it = ai.impl()->begin(); it != ai.impl()->end(); ++it)
     {
       try
       {
@@ -149,7 +150,7 @@ namespace net
     AddrInfo ai(ipaddr, port);
 
     int reuseAddr = 1;
-    for (AddrInfo::const_iterator it = ai.begin(); it != ai.end(); ++it)
+    for (AddrInfoImpl::const_iterator it = ai.impl()->begin(); it != ai.impl()->end(); ++it)
     {
       try
       {

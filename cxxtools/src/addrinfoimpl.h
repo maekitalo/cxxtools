@@ -29,7 +29,7 @@
 #ifndef CXXTOOLS_ADDRINFO_H
 #define CXXTOOLS_ADDRINFO_H
 
-#include <cxxtools/noncopyable.h>
+#include <cxxtools/refcounted.h>
 #include <string>
 #include <iterator>
 #include <sys/types.h>
@@ -40,26 +40,28 @@ namespace cxxtools {
 
 namespace net {
 
-  class AddrInfo : private cxxtools::NonCopyable
+  class AddrInfoImpl : public cxxtools::RefCounted
   {
-      struct addrinfo* ai;
+      std::string _host;
+      unsigned short _port;
+      struct addrinfo* _ai;
 
     public:
-      void init(const std::string& ipaddr, unsigned short port);
-      void init(const std::string& ipaddr, unsigned short port,
+      void init(const std::string& host, unsigned short port);
+      void init(const std::string& host, unsigned short port,
                 const addrinfo& hints);
 
-      AddrInfo()
-        : ai(0)
+      AddrInfoImpl()
+        : _ai(0)
         { }
-      AddrInfo(const std::string& ipaddr, unsigned short port)
-        : ai(0)
-        { init(ipaddr, port); }
-      AddrInfo(const std::string& ipaddr, unsigned short port,
+      AddrInfoImpl(const std::string& host, unsigned short port)
+        : _ai(0)
+        { init(host, port); }
+      AddrInfoImpl(const std::string& host, unsigned short port,
                const addrinfo& hints)
-        : ai(0)
-        { init(ipaddr, port, hints); }
-      ~AddrInfo();
+        : _ai(0)
+        { init(host, port, hints); }
+      ~AddrInfoImpl();
 
       class const_iterator : public std::iterator<std::forward_iterator_tag, addrinfo>
       {
@@ -87,7 +89,10 @@ namespace net {
             { return current; }
       };
 
-      const_iterator begin() const  { return const_iterator(ai); }
+      const std::string& host() const;
+      unsigned short port() const;
+
+      const_iterator begin() const  { return const_iterator(_ai); }
       const_iterator end() const    { return const_iterator(); }
   };
 

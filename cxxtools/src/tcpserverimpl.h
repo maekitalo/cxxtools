@@ -32,6 +32,8 @@
 #include "selectableimpl.h"
 #include <cxxtools/signal.h>
 #include <string>
+#include <sys/types.h>
+#include <sys/socket.h>
 
 namespace cxxtools {
 
@@ -45,7 +47,7 @@ namespace net {
   {
     private:
       TcpServer& _server;
-      struct sockaddr_storage servaddr;
+      struct sockaddr_storage _servaddr;
       int _fd;
       pollfd* _pfd;
 
@@ -59,7 +61,7 @@ namespace net {
       void listen(const std::string& ipaddr, unsigned short int port, int backlog = 5);
 
       const struct sockaddr_storage& getAddr() const
-      { return servaddr; }
+      { return _servaddr; }
 
       int fd() const
       { return _fd; }

@@ -40,6 +40,12 @@ namespace cxxtools {
 
 class SelectorBase;
 
+namespace net {
+
+class AddrInfo;
+
+}
+
 namespace http {
 
 class ClientImpl;
@@ -52,14 +58,17 @@ class CXXTOOLS_HTTP_API Client : private NonCopyable
 
     public:
         Client();
-        Client(const std::string& server, unsigned short int port);
+        Client(const std::string& host, unsigned short int port);
+        Client(const net::AddrInfo& addr);
 
-        Client(SelectorBase& selector, const std::string& server, unsigned short int port);
+        Client(SelectorBase& selector, const std::string& host, unsigned short int port);
+        Client(SelectorBase& selector, const net::AddrInfo& addrinfo);
 
         ~Client();
 
-        // Sets the server and port. No actual network connect is done.
-        void connect(const std::string& server, unsigned short int port);
+        // Sets the host and port. No actual network connect is done.
+        void connect(const net::AddrInfo& addrinof);
+        void connect(const std::string& host, unsigned short int port);
 
         // Sends the passed request to the server and parses the headers.
         // The body must be read with readBody.
@@ -104,7 +113,7 @@ class CXXTOOLS_HTTP_API Client : private NonCopyable
         // Returns the underlying stream, where the reply may be read from.
         std::istream& in();
 
-        const std::string& server() const;
+        const std::string& host() const;
 
         unsigned short int port() const;
 
