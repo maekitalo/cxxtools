@@ -30,19 +30,14 @@
 #include "tcpserverimpl.h"
 #include "addrinfoimpl.h"
 #include <cxxtools/net/tcpserver.h>
+#include <cxxtools/net/net.h>
 #include <cxxtools/systemerror.h>
 #include <cxxtools/selector.h>
-#include <cxxtools/net/net.h> // AddrInUse
 #include <cxxtools/log.h>
 #include <cerrno>
 #include <cassert>
 #include <cstring>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/types.h>
-#include <sys/socket.h>
 #include <sys/poll.h>
-#include <sys/select.h>
 
 log_define("cxxtools.net.tcpserverimpl")
 
@@ -51,9 +46,9 @@ namespace cxxtools {
 namespace net {
 
 TcpServerImpl::TcpServerImpl(TcpServer& server)
-: _fd(-1)
+: _server(server)
+, _fd(-1)
 , _pfd(0)
-, _server(server)
 {
 
 }
@@ -142,47 +137,41 @@ bool TcpServerImpl::wait(std::size_t msecs)
 {
     log_debug("wait " << msecs);
 
-    if( this->fd() > FD_SETSIZE )
-    {
-        throw IOError( "FD_SETSIZE too small for fd" );
-    }
+    struct pollfd fds;
+    fds.fd = fd();
+    fds.events = POLLIN;
 
-    fd_set rfds;
-    FD_ZERO(&rfds);
+    log_debug("poll timeout " << msecs);
 
-    struct timeval* timeout = 0;
-    struct timeval tv;
-    if(msecs != Selector::WaitInfinite)
+    while (true)
     {
-        tv.tv_sec = msecs / 1000;
-        tv.tv_usec = (msecs % 1000) * 1000;
-        timeout = &tv;
-    }
+        int p = ::poll(&fds, 1, msecs);
 
-    if( this->fd() > 0 )
-    {
-        FD_SET(this->fd(), &rfds);
-    }
+        log_debug("poll returns " << p << " revents " << fds.revents);
 
-    while( true )
-    {
-        int ret = ::select(this->fd() + 1, &rfds, 0, 0, timeout);
-        if( ret != -1 )
+        if (p > 0)
+        {
             break;
-
-        if( errno != EINTR )
-            throw IOError( "select failed" );
+        }
+        else if (p < 0)
+        {
+            if (errno != EINTR)
+            {
+                log_error("error in poll; errno=" << errno);
+                throw SystemError("poll");
+            }
+        }
+        else if (p == 0)
+        {
+            log_debug("poll timeout (" << msecs << ')');
+            throw Timeout();
+        }
     }
 
-    int avail = 0;
-
-    if( FD_ISSET(this->fd(), &rfds) )
-    {
+    if (fds.revents | POLLIN)
         _server.connectionPending.send(_server);
-        ++avail;
-    }
 
-    return avail != 0;
+    return fds.revents;
 }
 
 

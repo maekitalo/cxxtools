@@ -32,6 +32,7 @@
 #include <cxxtools/api.h>
 #include <cxxtools/iodevice.h>
 #include <cxxtools/net/addrinfo.h>
+#include <cxxtools/signal.h>
 #include <string>
 
 namespace cxxtools {
@@ -77,7 +78,7 @@ class CXXTOOLS_API TcpSocket : public IODevice
         bool beginConnect(const AddrInfo& addrinfo);
 
         bool beginConnect(const std::string& ipaddr, unsigned short int port)
-        { beginConnect(AddrInfo(ipaddr, port)); }
+        { return beginConnect(AddrInfo(ipaddr, port)); }
 
         void endConnect();
 
