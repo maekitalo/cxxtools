@@ -74,7 +74,7 @@ namespace cxxtools
       atomic_t refs() const      { return rc; }
   };
 
-  typedef AtomicRefCounted RefCounted;
+  typedef SimpleRefCounted RefCounted;
 }
 
 #endif // CXXTOOLS_REFCOUNTED_H
