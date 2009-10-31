@@ -134,7 +134,6 @@ nobase_include_HEADERS = \
         cxxtools/utf8codec.h \
         cxxtools/uuencode.h \
         cxxtools/void.h \
-        cxxtools/uuencode.h \
         cxxtools/xmltag.h \
         cxxtools/log/cxxtools.h \
         cxxtools/log/cxxtools_init.h \
