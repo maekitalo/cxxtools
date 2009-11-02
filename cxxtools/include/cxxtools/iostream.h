@@ -217,7 +217,7 @@ class CXXTOOLS_API IStream : public BasicIStream<char>
 };
 
 
-class CXXTOOLS_API OStream : public BasicIStream<char>
+class CXXTOOLS_API OStream : public BasicOStream<char>
 {
     public:
         explicit OStream(size_t bufferSize = 8192, bool extend = false);
