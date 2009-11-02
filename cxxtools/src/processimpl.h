@@ -14,8 +14,6 @@ class ProcessImpl
     public:
         ProcessImpl(const ProcessInfo& procInfo);
 
-        ~ProcessImpl();
-
         const ProcessInfo& procInfo() const
         { return _procInfo; }
 

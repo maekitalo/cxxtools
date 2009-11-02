@@ -45,11 +45,6 @@ ProcessImpl::ProcessImpl(const ProcessInfo& procInfo)
 }
 
 
-ProcessImpl::~ProcessImpl()
-{
-}
-
-
 void ProcessImpl::start()
 {
     _state = Process::Running;
