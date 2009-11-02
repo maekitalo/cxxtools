@@ -31,6 +31,7 @@
 
 #include <cxxtools/api.h>
 #include <cxxtools/iodevice.h>
+#include <cxxtools/noncopyable.h>
 #include <string>
 #include <vector>
 
@@ -47,7 +48,7 @@ class ProcessInfo
 
         /** @brief Adds an argument to the list of arguments
         */
-        void addArg(const std::string& argument);
+        ProcessInfo& addArg(const std::string& argument);
 
         unsigned argCount() const;
 
@@ -86,7 +87,7 @@ class ProcessInfo
 };
 
 //! Process Environment
-class CXXTOOLS_API Process
+class CXXTOOLS_API Process : private NonCopyable
 {
     public:
         enum State
@@ -102,10 +103,10 @@ class CXXTOOLS_API Process
         /**
             @param command Name of the executable along with its arguments
         */
-        Process(const std::string& commandline);
+        explicit Process(const std::string& commandline);
 
         //! Constructs a Process with a process info structure
-        Process(const ProcessInfo& procInfo);
+        explicit Process(const ProcessInfo& procInfo);
 
         //! Dtor
         ~Process();
@@ -181,9 +182,10 @@ inline const std::string& ProcessInfo::command() const
 }
 
 
-inline void ProcessInfo::addArg(const std::string& argument)
+inline ProcessInfo& ProcessInfo::addArg(const std::string& argument)
 {
     _args.push_back(argument);
+    return *this;
 }
 
 
