@@ -52,6 +52,18 @@ PipeIODevice::~PipeIODevice()
     {}
 }
 
+void PipeIODevice::redirect(int newFd, bool close)
+{
+    int ret = ::dup2(fd(), newFd);
+    if (ret < 0)
+        throw SystemError("dup2");
+
+    if (close)
+    {
+        IODevice::close();
+        _impl.open(newFd, async());
+    }
+}
 
 void PipeIODevice::open(int fd, bool isAsync)
 {
@@ -121,17 +133,22 @@ PipeImpl::PipeImpl(bool isAsync)
 }
 
 
-PipeImpl::~PipeImpl()
-{
-}
-
-
-IODevice& PipeImpl::out()
+PipeIODevice& PipeImpl::out()
 {
     return _out;
 }
 
-IODevice& PipeImpl::in()
+const PipeIODevice& PipeImpl::out() const
+{
+    return _out;
+}
+
+PipeIODevice& PipeImpl::in()
+{
+    return _in;
+}
+
+const PipeIODevice& PipeImpl::in() const
 {
     return _in;
 }

@@ -34,12 +34,9 @@
 
 namespace cxxtools
 {
-
-namespace ext
-{
   Pipe::Pipe(OpenMode mode)
   {
-      _impl = new cxxtools::PipeImpl(mode & IODevice::Async);
+    _impl = new cxxtools::PipeImpl(mode & IODevice::Async);
   }
 
 
@@ -54,91 +51,48 @@ namespace ext
     return _impl->out();
   }
 
+  const IODevice& Pipe::out() const
+  {
+    return _impl->out();
+  }
+
   IODevice& Pipe::in()
   {
     return _impl->in();
   }
-}
 
-  Pipe::~Pipe()
+  const IODevice& Pipe::in() const
   {
-    if (fd[0] >= 0)
-      ::close(fd[0]);
-    if (fd[1] >= 0)
-      ::close(fd[1]);
+    return _impl->in();
   }
 
-  void Pipe::create()
+  int Pipe::getReadFd() const
   {
-    if(::pipe(fd) != 0)
-      throw SystemError(errno, "pipe");
+    return _impl->out().fd();
   }
 
-  void Pipe::closeReadFd()
+  int Pipe::getWriteFd() const
   {
-    if (fd[0] >= 0)
-    {
-      ::close(fd[0]);
-      fd[0] = -1;
-    }
+    return _impl->in().fd();
   }
 
-  void Pipe::closeWriteFd()
+  /// Redirect read-end to stdin.
+  /// When the close argument is set, closes the original filedescriptor
+  void Pipe::redirectStdin(bool close)
   {
-    if (fd[1] >= 0)
-    {
-      ::close(fd[1]);
-      fd[1] = -1;
-    }
+    _impl->out().redirect(0, close);
   }
 
-  void Pipe::redirect(int& oldFd, int newFd, bool close)
+  void Pipe::redirectStdout(bool close)
   {
-    int ret = ::dup2(oldFd, newFd);
-    if(ret < 0)
-      throw SystemError(errno, "dup2");
-
-    if (close)
-    {
-      ::close(oldFd);
-      oldFd = newFd;
-    }
+    _impl->in().redirect(1, close);
   }
 
-  size_t Pipe::write(const void* buf, size_t count)
+  /// Redirect write-end to stdout.
+  /// When the close argument is set, closes the original filedescriptor
+  void Pipe::redirectStderr(bool close)
   {
-    ssize_t c;
-    do
-    {
-      c = ::write(fd[1], buf, count);
-    } while (c < 0 && errno == EINTR);
-
-    if(c < 0)
-      throw SystemError(errno, "write");
-
-    return static_cast<size_t>(c);
+    _impl->in().redirect(2, close);
   }
 
-  size_t Pipe::read(void* buf, size_t count)
-  {
-    ssize_t c;
-    do
-    {
-      c = ::read(fd[0], buf, count);
-    } while (c < 0 && errno == EINTR);
-
-    if(c < 0)
-      throw SystemError(errno, "read");
-
-    return static_cast<size_t>(c);
-  }
-
-  char Pipe::read()
-  {
-    char ch;
-    size_t c = read(&ch, 1);
-    if (c <= 0)
-      throw std::runtime_error("nothing read from pipe");
-    return ch;
-  }
 }

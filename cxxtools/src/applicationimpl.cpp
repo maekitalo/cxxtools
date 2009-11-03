@@ -36,14 +36,14 @@
 
 namespace {
 
-    cxxtools::ext::Pipe* pt_signal_pipe = 0;
+    cxxtools::Pipe* pt_signal_pipe = 0;
     static char _signalBuffer[128];
 
     void initSignalPipe()
     {
         if( ! pt_signal_pipe )
         {
-            pt_signal_pipe = new cxxtools::ext::Pipe(cxxtools::ext::Pipe::Async);
+            pt_signal_pipe = new cxxtools::Pipe(cxxtools::Pipe::Async);
             pt_signal_pipe->out().beginRead( _signalBuffer, sizeof(_signalBuffer) );
         }
     }

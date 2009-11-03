@@ -53,7 +53,8 @@ int main(int argc, char* argv[])
 
       std::cout << "waiting for child to become ready" << std::endl;
 
-      char ch = pipe.read(); // wait for child to get ready
+      char ch;
+      pipe.out().read(&ch, 1); // wait for child to get ready
       std::cout << "child is ready - he sent '" << ch << '\'' << std::endl;
 
       // now we copy everything, the child sends through the stream
@@ -71,7 +72,8 @@ int main(int argc, char* argv[])
       // we do some long initialization:
       ::sleep(1);
 
-      pipe.write('a');
+      char ch = 'a';
+      pipe.in().write(&ch, 1);
 
       // make another break
       ::sleep(1);

@@ -29,14 +29,21 @@ namespace cxxtools {
 
 class PipeIODevice : public IODevice
 {
+        friend class PipeImpl;
+
     public:
         PipeIODevice();
 
         ~PipeIODevice();
 
-        void open(int fd, bool isAsync);
+        int fd() const
+        { return _impl.fd(); }
+
+        void redirect(int fd, bool close = true);
 
     protected:
+        void open(int fd, bool isAsync);
+
         void onClose()
         { _impl.close(); }
 
@@ -78,11 +85,21 @@ class PipeImpl
     public:
         PipeImpl(bool isAsync);
 
-        ~PipeImpl();
+        PipeIODevice& in();
 
-        IODevice& in();
+        const PipeIODevice& in() const;
 
-        IODevice& out();
+        PipeIODevice& out();
+
+        const PipeIODevice& out() const;
+
+        void redirect(int fd, bool close = true);
+
+        int getReadFd() const
+            { return out().fd(); }
+
+        int getWriteFd() const
+            { return in().fd(); }
 
     private:
         PipeIODevice _out;

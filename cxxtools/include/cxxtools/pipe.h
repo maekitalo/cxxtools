@@ -39,10 +39,8 @@
 namespace cxxtools
 {
 
-class PipeImpl;
+    class PipeImpl;
 
-namespace ext
-{
     class CXXTOOLS_API Pipe : private NonCopyable
     {
       private:
@@ -59,7 +57,7 @@ namespace ext
             The default constructor will create the pipe and the appropriate
             IODevices to read and write to the pipe.
         */
-        Pipe(OpenMode mode = Sync);
+        explicit Pipe(OpenMode mode = Sync);
         
         /** @brief Destructor
             
@@ -72,65 +70,40 @@ namespace ext
             @return An IODevice used to read from the pipe
         */
         IODevice& out();
+
+        const IODevice& out() const;
         
         /** @brief Endpoint of the pipe to write to
             
             @return An IODevice used to write to the pipe
         */
         IODevice& in();
+
+        const IODevice& in() const;
+
+        int getReadFd() const;
+
+        int getWriteFd() const;
+
+        void closeReadFd()
+        { out().close(); }
+
+        void closeWriteFd()
+        { in().close(); }
+
+        /// Redirect write-end to stdout.
+        /// When the close argument is set, closes the original filedescriptor
+        void redirectStdout(bool close = true);
+
+        /// Redirect read-end to stdin.
+        /// When the close argument is set, closes the original filedescriptor
+        void redirectStdin(bool close = true);
+
+        /// Redirect write-end to stdout.
+        /// When the close argument is set, closes the original filedescriptor
+        void redirectStderr(bool close = true);
+
     };
-}
-
-  class Pipe : private NonCopyable
-  {
-      int fd[2];
-
-      void redirect(int& oldFd, int newFd, bool close);
-
-    public:
-      Pipe(bool doCreate = true)
-      {
-        if (doCreate)
-          create();
-      }
-
-      ~Pipe();
-
-      void create();
-
-      int getReadFd() const   { return fd[0]; }
-      int getWriteFd() const  { return fd[1]; }
-
-      void closeReadFd();
-      void closeWriteFd();
-
-      void releaseReadFd()    { fd[0] = -1; }
-      void releaseWriteFd()   { fd[1] = -1; }
-
-      /// Redirect write-end to stdout.
-      /// When the close argument is set, closes the original filedescriptor
-      void redirectStdout(bool close = true)
-        { redirect(fd[1], 1, close); }
-
-      /// Redirect read-end to stdin.
-      /// When the close argument is set, closes the original filedescriptor
-      void redirectStdin(bool close = true)
-        { redirect(fd[0], 0, close); }
-
-      /// Redirect write-end to stdout.
-      /// When the close argument is set, closes the original filedescriptor
-      void redirectStderr(bool close = true)
-        { redirect(fd[1], 2, close); }
-
-      size_t write(const void* buf, size_t count);
-      void write(char ch)
-      {
-        write(&ch, 1);
-      }
-
-      size_t read(void* buf, size_t count);
-      char read();
-  };
 
 }
 
