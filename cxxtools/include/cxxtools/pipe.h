@@ -103,6 +103,28 @@ namespace cxxtools
         /// When the close argument is set, closes the original filedescriptor
         void redirectStderr(bool close = true);
 
+        size_t write(const char* buf, size_t count)
+        {
+          return out().write(buf, count);
+        }
+
+        void write(char ch)
+        {
+          out().write(&ch, 1);
+        }
+
+        size_t read(char* buf, size_t count)
+        {
+          return in().read(buf, count);
+        }
+
+        char read()
+        {
+          char ch;
+          in().read(&ch, 1);
+          return ch;
+        }
+
     };
 
 }
