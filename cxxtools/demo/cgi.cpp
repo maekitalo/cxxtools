@@ -32,20 +32,17 @@
 #include <cxxtools/xmltag.h>
 #include <cxxtools/arg.h>
 
-using cxxtools::Cgi;
-using cxxtools::Xmltag;
-
 int cgidemo()
 {
-  Cgi q;  // this parses all input-parameters
+  cxxtools::Cgi q;  // this parses all input-parameters
 
   // print standard-header
-  std::cout << Cgi::header();
+  std::cout << cxxtools::Cgi::header();
 
-  Xmltag html("html");  // start html-block
-  Xmltag body("body");  // start body-block
+  cxxtools::Xmltag html("html");  // start html-block
+  cxxtools::Xmltag body("body");  // start body-block
 
-  Xmltag form("form");  // start form
+  cxxtools::Xmltag form("form");  // start form
   std::cout << "<input type=\"text\" name=\"v\">"
                "<br>"
                "<input type=\"submit\">";
@@ -55,9 +52,9 @@ int cgidemo()
                "you entered: ";
 
   {
-    Xmltag bold("b");  // bold here in an embedded scope
+    cxxtools::Xmltag bold("b");  // bold here in an embedded scope
     std::cout << q["v"];
-  } // alternatvie 2: implicitly closing bold-tag by leaving scope
+  } // alternative 2: implicitly closing bold-tag by leaving scope
 
   // automatically close body and html by leaving scope
 
@@ -66,22 +63,22 @@ int cgidemo()
 
 int tagstest()
 {
-  Xmltag("html");  // prints <html></html>
+  cxxtools::Xmltag("html");  // prints <html></html>
   std::cout << '\n';
 
-  Xmltag("test param=1");  // prints <test param=1></test>
+  cxxtools::Xmltag("test param=1");  // prints <test param=1></test>
   std::cout << '\n';
 
-  Xmltag("<noparam>");     // prints <noparam></noparam>
+  cxxtools::Xmltag("<noparam>");     // prints <noparam></noparam>
   std::cout << '\n';
 
-  Xmltag("<param p=1>");   // prints <param p=1></param>
+  cxxtools::Xmltag("<param p=1>");   // prints <param p=1></param>
   std::cout << '\n';
 
-  Xmltag("<param>", "p=1");   // prints <param p=1></param>
+  cxxtools::Xmltag("<param>", "p=1");   // prints <param p=1></param>
   std::cout << '\n';
 
-  Xmltag("<br>").clear();  // prints <br>
+  cxxtools::Xmltag("<br>").clear();  // prints <br>
   std::cout << '\n';
 
   std::cout << std::endl;

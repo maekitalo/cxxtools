@@ -30,8 +30,6 @@
 #include <cxxtools/arg.h>
 #include <iostream>
 
-using cxxtools::Arg;
-
 void print_int(const char* txt, int i)
 {
   std::cout << txt << ": " << i << std::endl;
@@ -51,23 +49,23 @@ int main(int argc, char* argv[])
 {
   try
   {
-    Arg<int> int_param(5); // default-value 5
+    cxxtools::Arg<int> int_param(5); // default-value 5
     int_param.set(argc, argv, 'i');
     int_param.set(argc, argv, "--int");
 
     print_int("option -i|--int", int_param);
 
-    Arg<const char*> charp_param("hi"); // default-value
+    cxxtools::Arg<const char*> charp_param("hi"); // default-value
     charp_param.set(argc, argv, 'p');
     charp_param.set(argc, argv, "--charp");
 
     print_charp("option -p|--charp", charp_param);
 
-    Arg<std::string> string_param("hi"); // default-value
+    cxxtools::Arg<std::string> string_param("hi"); // default-value
     string_param.set(argc, argv, 's');
     string_param.set(argc, argv, "--string");
 
-    Arg<std::string> string_arg;
+    cxxtools::Arg<std::string> string_arg;
     string_arg.setNoOpt(argc, argv);
 
     print_string("option -s|--string", string_param);
