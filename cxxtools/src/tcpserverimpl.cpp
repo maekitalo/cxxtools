@@ -38,6 +38,7 @@
 #include <cassert>
 #include <cstring>
 #include <sys/poll.h>
+#include <unistd.h>
 
 log_define("cxxtools.net.tcpserverimpl")
 
