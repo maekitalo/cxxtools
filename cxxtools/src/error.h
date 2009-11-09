@@ -32,10 +32,16 @@
 #define ERROR_H
 
 #include <string>
+#include <errno.h>
 
 namespace cxxtools
 {
     std::string getErrnoString(int err, const char* fn);
+
+    inline std::string getErrnoString(const char* fn)
+    {
+        return getErrnoString(errno, fn);
+    }
 }
 
 #endif

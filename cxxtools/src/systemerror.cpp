@@ -58,7 +58,7 @@ SystemError::SystemError(int err, const char* fn)
 
 
 SystemError::SystemError(const char* fn)
-: std::runtime_error( getErrnoString(errno, fn) )
+: std::runtime_error( getErrnoString(fn) )
 , m_errno(errno)
 {
   log_debug("system error; " << what());
