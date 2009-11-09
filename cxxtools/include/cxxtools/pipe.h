@@ -105,23 +105,23 @@ namespace cxxtools
 
         size_t write(const char* buf, size_t count)
         {
-          return out().write(buf, count);
+          return in().write(buf, count);
         }
 
         void write(char ch)
         {
-          out().write(&ch, 1);
+          in().write(&ch, 1);
         }
 
         size_t read(char* buf, size_t count)
         {
-          return in().read(buf, count);
+          return out().read(buf, count);
         }
 
         char read()
         {
           char ch;
-          in().read(&ch, 1);
+          out().read(&ch, 1);
           return ch;
         }
 
