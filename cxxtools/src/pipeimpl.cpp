@@ -128,7 +128,7 @@ PipeImpl::PipeImpl(bool isAsync)
     if(-1 == ::pipe(fds) )
         throw SystemError( CXXTOOLS_ERROR_MSG("pipe failed") );
 
-    _out.open( fds[0] ,isAsync );
+    _out.open( fds[0], isAsync );
     _in.open( fds[1], isAsync );
 }
 

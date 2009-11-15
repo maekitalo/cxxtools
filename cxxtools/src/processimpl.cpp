@@ -41,50 +41,155 @@ namespace cxxtools {
 ProcessImpl::ProcessImpl(const ProcessInfo& procInfo)
 : _state(Process::Ready)
 , _procInfo(procInfo)
+, _stdInput(0)
+, _stdOutput(0)
+, _stdError(0)
+, _stdinPipe(0)
+, _stdoutPipe(0)
+, _stderrPipe(0)
 {
+}
+
+
+ProcessImpl::~ProcessImpl()
+{
+    delete _stdinPipe;
+    delete _stdoutPipe;
+    delete _stderrPipe;
 }
 
 
 void ProcessImpl::start()
 {
-    _state = Process::Running;
-    m_pid = fork();
+    if (_state == Process::Running)
+        throw std::runtime_error("invalid state in process start");
 
-    if( m_pid < 0 )
+    delete _stdinPipe;
+    _stdinPipe = 0;
+
+    delete _stdoutPipe;
+    _stdoutPipe = 0;
+
+    delete _stderrPipe;
+    _stderrPipe = 0;
+
+    if (_procInfo.stdInputMode() == ProcessInfo::Capture)
     {
-        m_pid = -1;
+        _stdinPipe = new Pipe();
+        _stdInput = &_stdinPipe->in();
+    }
+    else if (_procInfo.stdInput())
+    {
+        _stdInput = _procInfo.stdInput();
+    }
+
+    if (_procInfo.stdOutputMode() == ProcessInfo::Capture)
+    {
+        _stdoutPipe = new Pipe();
+        _stdOutput = &_stdoutPipe->out();
+    }
+    else if (_procInfo.stdOutput())
+    {
+        _stdOutput = _procInfo.stdOutput();
+    }
+
+    if (_procInfo.stdErrorMode() == ProcessInfo::Capture)
+    {
+        _stderrPipe = new Pipe();
+        _stdError = &_stderrPipe->out();
+    }
+    else if (_procInfo.stdErrorMode() == ProcessInfo::Combine)
+    {
+        _stdError = &_stdinPipe->out();
+    }
+    else if (_procInfo.stdError())
+    {
+        _stdError = _procInfo.stdError();
+    }
+
+    _state = Process::Running;
+    _pid = fork();
+
+    if( _pid < 0 )
+    {
+        _pid = -1;
         _state = Process::Failed;
         throw SystemError( CXXTOOLS_ERROR_MSG("fork failed") );
     }
 
-    if( m_pid == 0) // child Process
+    if( _pid == 0) // child Process
     {
-        if( _procInfo.stdInputClosed() )
+        // check detach state
+
+        if (_procInfo.detach())
+        {
+            _pid = fork();
+            if( _pid < 0 )
+            {
+                fprintf(stderr, "%s\n", std::strerror(errno));
+                std::exit(-1);
+            }
+            else if (_pid > 0)
+            {
+                // child
+                std::exit(0);
+            }
+
+            // child child
+        }
+
+        // redirect stdin
+
+        if (_procInfo.stdInputMode() == ProcessInfo::Close)
         {
             std::fclose(stdin);
         }
-        else if(_procInfo.stdInput() )
+        else if (_procInfo.stdInputMode() == ProcessInfo::Capture)
+        {
+            _stdinPipe->closeWriteFd();
+            _stdinPipe->redirectStdin();
+        }
+        else if (_procInfo.stdInput())
         {
             dup2(_procInfo.stdInput()->ioimpl().fd(), STDIN_FILENO);
         }
 
-        if( _procInfo.stdOutputClosed() )
+        // redirect stdout
+
+        if (_procInfo.stdOutputMode() == ProcessInfo::Close)
         {
             std::fclose(stdout);
         }
-        else if( _procInfo.stdOutput() )
+        else if (_procInfo.stdOutputMode() == ProcessInfo::Capture)
         {
-            dup2(_procInfo.stdOutput()->ioimpl().fd(), STDOUT_FILENO);
+            _stdoutPipe->closeReadFd();
+            _stdoutPipe->redirectStdout();
+        }
+        else if (_procInfo.stdOutput())
+        {
+            dup2(_procInfo.stdInput()->ioimpl().fd(), STDOUT_FILENO);
         }
 
-        if( _procInfo.stdErrorClosed() )
+        // redirect stderr
+
+        if (_procInfo.stdErrorMode() == ProcessInfo::Close)
         {
             std::fclose(stderr);
         }
-        else if( _procInfo.stdError() )
+        else if (_procInfo.stdErrorMode() == ProcessInfo::Capture)
+        {
+            _stderrPipe->redirectStderr();
+        }
+        else if (_procInfo.stdErrorMode() == ProcessInfo::Combine)
+        {
+            _stdoutPipe->redirectStderr(false);
+        }
+        else if (_procInfo.stdError())
         {
             dup2(_procInfo.stdError()->ioimpl().fd(), STDERR_FILENO);
         }
+
+        // exec
 
         std::vector< std::vector<char> > args;
 
@@ -114,39 +219,62 @@ void ProcessImpl::start()
             std::exit(-1);
         }
     }
+    else if (_procInfo.detach())
+    {
+        // wait for 1st child to exit
+        wait();
+        _pid = 0;
+    }
+    else
+    {
+        // parent
 
-    return;
+        // check for open pipes
+
+        if (_procInfo.stdInputMode() == ProcessInfo::Capture)
+            _stdinPipe->closeReadFd();
+
+        if (_procInfo.stdOutputMode() == ProcessInfo::Capture)
+            _stdoutPipe->closeWriteFd();
+
+        if (_procInfo.stdErrorMode() == ProcessInfo::Capture)
+            _stderrPipe->closeWriteFd();
+    }
 }
 
 
 void ProcessImpl::kill()
 {
     int iStatus;
-    if( 0 > ::kill(m_pid,SIGINT)
-        || 0 > ::waitpid(m_pid,&iStatus,WNOHANG|WUNTRACED) )
+    if( 0 > ::kill(_pid, SIGINT)
+        || 0 > ::waitpid(_pid, &iStatus, WNOHANG|WUNTRACED) )
     {
-        throw SystemError(std::strerror(errno),CXXTOOLS_SOURCEINFO);
+        throw SystemError(std::strerror(errno), CXXTOOLS_SOURCEINFO);
     }
+
+    _state = Process::Finished;
+    _pid = 0;
 }
 
 
 int ProcessImpl::wait()
 {
     int iStatus;
-    if( 0 > waitpid(m_pid,&iStatus,WUNTRACED) )
+    if( 0 > waitpid(_pid, &iStatus, WUNTRACED) )
     {
         _state = Process::Failed;
         throw SystemError( CXXTOOLS_ERROR_MSG("waitpid failed") );
     }
 
     _state = Process::Finished;
+    _pid = 0;
     return iStatus;
 }
 
 
 bool ProcessImpl::tryWait(int& status)
 {
-    pid_t ret = waitpid(m_pid, &status, WUNTRACED|WNOHANG);
+    pid_t ret = waitpid(_pid, &status, WUNTRACED|WNOHANG);
     if( 0 > ret)
     {
         _state = Process::Failed;
@@ -157,13 +285,14 @@ bool ProcessImpl::tryWait(int& status)
         return false;
 
     _state = Process::Finished;
+    _pid = 0;
     return true;
 }
 
 
 void ProcessImpl::setEnvVar(const std::string& name, const std::string& value)
 {
-    if( 0 > ::setenv(name.c_str(),value.c_str(),1) )
+    if( 0 > ::setenv(name.c_str(), value.c_str(), 1) )
     {
         throw SystemError( CXXTOOLS_ERROR_MSG("setenv failed") );
     }

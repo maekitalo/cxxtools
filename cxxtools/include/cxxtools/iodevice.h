@@ -294,7 +294,7 @@ class CXXTOOLS_API IODevice : public Selectable
         //! @brief Sets or unsets the device to eof
         void setEof(bool eof);
 
-        //! @brief Sets or unsets the device to eof
+        //! @brief Sets or unsets the device to async
         void setAsync(bool async);
 
     private:

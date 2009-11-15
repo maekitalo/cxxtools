@@ -41,6 +41,14 @@ namespace cxxtools {
 class ProcessInfo
 {
     public:
+        enum IODeviceMode
+        {
+            Close   = 0,
+            Keep    = 1,
+            Capture = 2,
+            Combine = 3  // combine stderr with stdout; only valid for stderr
+        };
+
         //! process info can contain at least the command
         ProcessInfo(const std::string& command);
 
@@ -54,36 +62,65 @@ class ProcessInfo
 
         const std::string& arg(unsigned idx) const;
 
-        //! @brief Replaces or, if null, closes the standard input
-        void setStdInput(IODevice* dev);
 
-        IODevice* stdInput() const;
+        bool detach() const
+        { return _detach; }
 
-        bool stdInputClosed() const;
+        void detach(bool sw)
+        { _detach = sw; }
 
-        //! @brief Replaces or, if null, closes the standard output
-        void setStdOutput(IODevice* dev);
 
-        bool stdOutputClosed() const;
+        void setStdInput(IODeviceMode mode)
+        { _stdinMode = mode; }
 
-        IODevice* stdOutput() const;
+        void setStdInput(IODevice* dev)
+        { _stdin = dev; }
 
-        //! @brief Replaces or, if null, closes the standard error
-        void setStdError(IODevice* dev);
+        IODevice* stdInput() const
+        { return _stdin; }
 
-        IODevice* stdError() const;
+        IODeviceMode stdInputMode() const
+        { return _stdinMode; }
 
-        bool stdErrorClosed() const;
+
+        void setStdOutput(IODeviceMode mode)
+        { _stdoutMode = mode; }
+
+        void setStdOutput(IODevice* dev)
+        { _stdout = dev; }
+
+        IODevice* stdOutput() const
+        { return _stdout; }
+
+        IODeviceMode stdOutputMode() const
+        { return _stdoutMode; }
+
+
+        void setStdError(IODeviceMode mode)
+        { _stderrMode = mode; }
+
+        void setStdError(IODevice* dev)
+        { _stderr = dev; }
+
+        IODevice* stdError() const
+        { return _stderr; }
+
+        IODeviceMode stdErrorMode() const
+        { return _stderrMode; }
 
     private:
         std::string _command;
         std::vector<std::string> _args;
+        bool _detach;
+
+        IODeviceMode _stdinMode;
         IODevice* _stdin;
-        bool _stdinClosed;
+
+        IODeviceMode _stdoutMode;
         IODevice* _stdout;
-        bool _stdoutClosed;
+
+        IODeviceMode _stderrMode;
         IODevice* _stderr;
-        bool _stderrClosed;
 };
 
 //! Process Environment
@@ -133,6 +170,12 @@ class CXXTOOLS_API Process : private NonCopyable
         */
         int wait();
 
+        IODevice* stdInput();
+
+        IODevice* stdOutput();
+
+        IODevice* stdError();
+
         //! Set environment variable
         /**
             @throw SystemError
@@ -166,12 +209,13 @@ class CXXTOOLS_API Process : private NonCopyable
 
 inline ProcessInfo::ProcessInfo(const std::string& command)
 : _command(command)
+, _detach(false)
+, _stdinMode(Close)
 , _stdin(0)
-, _stdinClosed(false)
+, _stdoutMode(Keep)
 , _stdout(0)
-, _stdoutClosed(false)
+, _stderrMode(Keep)
 , _stderr(0)
-, _stderrClosed(false)
 {
 }
 
@@ -186,75 +230,6 @@ inline ProcessInfo& ProcessInfo::addArg(const std::string& argument)
 {
     _args.push_back(argument);
     return *this;
-}
-
-
-inline void ProcessInfo::setStdInput(IODevice* dev)
-{
-    if( dev )
-        _stdinClosed = false;
-    else
-        _stdinClosed = true;
-
-    _stdin = dev;
-}
-
-
-inline IODevice* ProcessInfo::stdInput() const
-{
-    return _stdin;
-}
-
-
-inline bool ProcessInfo::stdInputClosed() const
-{
-    return _stdinClosed;
-}
-
-
-inline void ProcessInfo::setStdOutput(IODevice* dev)
-{
-    if( dev )
-        _stdoutClosed = false;
-    else
-        _stdoutClosed = true;
-
-    _stdout = dev;
-}
-
-
-inline IODevice* ProcessInfo::stdOutput() const
-{
-    return _stdout;
-}
-
-
-inline bool ProcessInfo::stdOutputClosed() const
-{
-    return _stdoutClosed;
-}
-
-
-inline void ProcessInfo::setStdError(IODevice* dev)
-{
-    if( dev )
-        _stderrClosed = false;
-    else
-        _stderrClosed = true;
-
-    _stderr = dev;
-}
-
-
-inline IODevice* ProcessInfo::stdError() const
-{
-    return _stderr;
-}
-
-
-inline bool ProcessInfo::stdErrorClosed() const
-{
-    return _stderrClosed;
 }
 
 

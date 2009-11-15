@@ -3,16 +3,20 @@
 
 #include "cxxtools/process.h"
 #include "cxxtools/systemerror.h"
+#include "cxxtools/noncopyable.h"
+#include "cxxtools/pipe.h"
 #include <cstdlib>
 #include <sstream>
 #include <unistd.h>
 
 namespace cxxtools {
 
-class ProcessImpl
+class ProcessImpl : private NonCopyable
 {
     public:
         ProcessImpl(const ProcessInfo& procInfo);
+
+        ~ProcessImpl();
 
         const ProcessInfo& procInfo() const
         { return _procInfo; }
@@ -28,6 +32,15 @@ class ProcessImpl
 
         bool tryWait(int& status);
 
+        IODevice* stdInput()
+        { return _stdInput; }
+
+        IODevice* stdOutput()
+        { return _stdOutput; }
+
+        IODevice* stdError()
+        { return _stdError; }
+
         static void setEnvVar(const std::string& name, const std::string& value);
 
         static void unsetEnvVar(const std::string& name);
@@ -39,9 +52,17 @@ class ProcessImpl
         static unsigned long usedMemory();
 
     private:
-        pid_t m_pid;
+        pid_t _pid;
         Process::State _state;
         ProcessInfo _procInfo;
+
+        IODevice* _stdInput;
+        IODevice* _stdOutput;
+        IODevice* _stdError;
+
+        Pipe* _stdinPipe;
+        Pipe* _stdoutPipe;
+        Pipe* _stderrPipe;
 };
 
 } // namespace cxxtools

@@ -46,7 +46,8 @@ Process::Process(const ProcessInfo& procInfo)
 Process::~Process()
 {
     try {
-        this->kill();
+        if (state() == Running)
+            this->wait();
     } 
     catch(...) {}
 
@@ -81,6 +82,24 @@ void Process::kill()
 int Process::wait() 
 {
     return _impl->wait();
+}
+
+
+IODevice* Process::stdInput()
+{
+    return _impl->stdInput();
+}
+
+
+IODevice* Process::stdOutput()
+{
+    return _impl->stdOutput();
+}
+
+
+IODevice* Process::stdError()
+{
+    return _impl->stdError();
 }
 
 

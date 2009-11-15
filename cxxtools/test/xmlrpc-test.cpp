@@ -27,7 +27,6 @@
  */
 #include "cxxtools/unit/testsuite.h"
 #include "cxxtools/unit/registertest.h"
-#include "cxxtools/unit/testmain.h"
 #include "cxxtools/xmlrpc/service.h"
 #include "cxxtools/xmlrpc/httpclient.h"
 #include "cxxtools/xmlrpc/fault.h"

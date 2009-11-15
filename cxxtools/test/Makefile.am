@@ -1,10 +1,12 @@
-noinst_PROGRAMS = net-test xmlrpc-test
+noinst_PROGRAMS = net-test xmlrpc-test process-test
 
 INCLUDES = -I$(top_builddir)/include
 
-net_test_SOURCES = net-test.cpp tcpsockettest.cpp
+net_test_SOURCES = test-main.cpp tcpsockettest.cpp
 
-xmlrpc_test_SOURCES = xmlrpc-test.cpp
+xmlrpc_test_SOURCES = test-main.cpp xmlrpc-test.cpp
+
+process_test_SOURCES = test-main.cpp process-test.cpp
 
 LDADD = $(top_builddir)/src/libcxxtools.la \
         $(top_builddir)/src/unit/libcxxtools-unit.la \
