@@ -32,49 +32,46 @@
 #include <cxxtools/noncopyable.h>
 #include <cxxtools/api.h>
 #include <cxxtools/iodevice.h>
-
 #include <unistd.h>
-#include <cxxtools/noncopyable.h>
 
 namespace cxxtools
 {
-
     class PipeImpl;
 
-    class CXXTOOLS_API Pipe : private NonCopyable
-    {
-      private:
-        class cxxtools::PipeImpl* _impl;
-        
-      public:
+class CXXTOOLS_API Pipe : private NonCopyable
+{
+    private:
+        class PipeImpl* _impl;
+
+    public:
         typedef int OpenMode;
-        
+
         static const int Sync  = 0;
         static const int Async = 1;
-        
+
         /** @brief Creates the pipe with two IODevices
-            
+
             The default constructor will create the pipe and the appropriate
             IODevices to read and write to the pipe.
         */
         explicit Pipe(OpenMode mode = Sync);
-        
+
         /** @brief Destructor
-            
+
             Destroys the pipe and closes the internal IODevices.
         */
         ~Pipe();
-        
+
         /** @brief Endpoint of the pipe to read from
-            
+
             @return An IODevice used to read from the pipe
         */
         IODevice& out();
 
         const IODevice& out() const;
-        
+
         /** @brief Endpoint of the pipe to write to
-            
+
             @return An IODevice used to write to the pipe
         */
         IODevice& in();
@@ -125,7 +122,7 @@ namespace cxxtools
           return ch;
         }
 
-    };
+};
 
 }
 

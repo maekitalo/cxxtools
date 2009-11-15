@@ -34,65 +34,65 @@
 
 namespace cxxtools
 {
-  Pipe::Pipe(OpenMode mode)
-  {
-    _impl = new cxxtools::PipeImpl(mode & IODevice::Async);
-  }
+Pipe::Pipe(OpenMode mode)
+{
+    _impl = new PipeImpl(mode & IODevice::Async);
+}
 
 
-  Pipe::~Pipe()
-  {
+Pipe::~Pipe()
+{
     delete _impl;
-  }
+}
 
 
-  IODevice& Pipe::out()
-  {
+IODevice& Pipe::out()
+{
     return _impl->out();
-  }
+}
 
-  const IODevice& Pipe::out() const
-  {
+const IODevice& Pipe::out() const
+{
     return _impl->out();
-  }
+}
 
-  IODevice& Pipe::in()
-  {
+IODevice& Pipe::in()
+{
     return _impl->in();
-  }
+}
 
-  const IODevice& Pipe::in() const
-  {
+const IODevice& Pipe::in() const
+{
     return _impl->in();
-  }
+}
 
-  int Pipe::getReadFd() const
-  {
+int Pipe::getReadFd() const
+{
     return _impl->out().fd();
-  }
+}
 
-  int Pipe::getWriteFd() const
-  {
+int Pipe::getWriteFd() const
+{
     return _impl->in().fd();
-  }
+}
 
-  /// Redirect read-end to stdin.
-  /// When the close argument is set, closes the original filedescriptor
-  void Pipe::redirectStdin(bool close)
-  {
+/// Redirect read-end to stdin.
+/// When the close argument is set, closes the original filedescriptor
+void Pipe::redirectStdin(bool close)
+{
     _impl->out().redirect(0, close);
-  }
+}
 
-  void Pipe::redirectStdout(bool close)
-  {
+void Pipe::redirectStdout(bool close)
+{
     _impl->in().redirect(1, close);
-  }
+}
 
-  /// Redirect write-end to stdout.
-  /// When the close argument is set, closes the original filedescriptor
-  void Pipe::redirectStderr(bool close)
-  {
+/// Redirect write-end to stdout.
+/// When the close argument is set, closes the original filedescriptor
+void Pipe::redirectStderr(bool close)
+{
     _impl->in().redirect(2, close);
-  }
+}
 
 }
