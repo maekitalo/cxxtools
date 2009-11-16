@@ -26,6 +26,11 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+#include "config.h"
+#ifdef HAVE_ACCEPT4
+#include <sys/socket.h>
+#endif
+
 #include "tcpsocketimpl.h"
 #include "tcpserverimpl.h"
 #include "cxxtools/net/tcpserver.h"
@@ -189,7 +194,7 @@ std::pair<int, const char*> TcpSocketImpl::tryConnect()
                 return std::pair<int, const char*>(errno, "socket");
         }
 
-        IODeviceImpl::open(fd, true);
+        IODeviceImpl::open(fd, true, false);
 
         std::memmove(&_peeraddr, _addrInfoPtr->ai_addr, _addrInfoPtr->ai_addrlen);
 
@@ -298,17 +303,29 @@ void TcpSocketImpl::endConnect()
 }
 
 
-void TcpSocketImpl::accept(const TcpServer& server)
+void TcpSocketImpl::accept(const TcpServer& server, bool closeOnExec)
 {
     socklen_t peeraddr_len = sizeof(_peeraddr);
 
     log_debug( "accept " << server.impl().fd() );
+
+#ifdef HAVE_ACCEPT4
+    int fd = SOCK_NONBLOCK;
+    if (closeOnExec)
+      fd |= SOCK_CLOEXEC;
+    _fd = ::accept4(server.impl().fd(), reinterpret_cast <struct sockaddr*>(&_peeraddr), &peeraddr_len, SOCK_NONBLOCK | SOCK_CLOEXEC);
+#else
     _fd = ::accept(server.impl().fd(), reinterpret_cast <struct sockaddr*>(&_peeraddr), &peeraddr_len);
+#endif
+
     if( _fd < 0 )
       throw SystemError("accept");
 
-
-    IODeviceImpl::open(_fd, true);
+#ifdef HAVE_ACCEPT4
+    IODeviceImpl::open(_fd, false, false);
+#else
+    IODeviceImpl::open(_fd, true, closeOnExec);
+#endif
     //TODO ECONNABORTED EINTR EPERM
 
     _isConnected = true;

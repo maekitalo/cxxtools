@@ -61,13 +61,13 @@ void PipeIODevice::redirect(int newFd, bool close)
     if (close)
     {
         IODevice::close();
-        _impl.open(newFd, async());
+        _impl.open(newFd, async(), false);
     }
 }
 
 void PipeIODevice::open(int fd, bool isAsync)
 {
-    _impl.open(fd, isAsync);
+    _impl.open(fd, isAsync, false);
     this->setEnabled(true);
     this->setAsync(isAsync);
     this->setEof(false);

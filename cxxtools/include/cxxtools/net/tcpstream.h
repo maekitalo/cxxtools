@@ -111,8 +111,8 @@ namespace net
             void connect(const std::string& ipaddr, unsigned short int port)
             { _socket.connect(ipaddr, port); }
 
-            void accept(const TcpServer& server)
-            { _socket.accept(server); }
+            void accept(const TcpServer& server, bool closeOnExec)
+            { _socket.accept(server, closeOnExec); }
 
             std::string getSockAddr() const
             { return _socket.getSockAddr(); }

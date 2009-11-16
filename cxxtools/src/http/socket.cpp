@@ -30,6 +30,8 @@
 #include "serverimpl.h"
 #include <cxxtools/log.h>
 #include <cassert>
+#include <unistd.h>
+#include <fcntl.h>
 
 log_define("cxxtools.http.socket")
 
@@ -60,6 +62,8 @@ Socket::Socket(SelectorBase& selector, ServerImpl& server, net::TcpServer& tcpSe
       _responder(0)
 {
     log_info("connection accepted from " << getPeerAddr());
+
+    fcntl(getFd(), F_SETFD, FD_CLOEXEC);
 
     _stream.attachDevice(*this);
     _stream.buffer().beginRead();

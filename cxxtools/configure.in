@@ -29,6 +29,13 @@ AC_CHECK_LIB(rt, sem_destroy)
 AC_SEARCH_LIBS(dlopen, dl, , AC_MSG_ERROR([dlopen not found]))
 AC_SEARCH_LIBS(inet_ntop, nsl socket resolv)
 AC_CHECK_FUNCS(inet_ntop)
+AC_COMPILE_IFELSE(
+    [
+      #include <sys/types.h>
+      #include <sys/socket.h>
+      void f() { accept4(0, 0, 0, 0); }
+    ],
+    AC_DEFINE(HAVE_ACCEPT4, [], [defined if accept4 is found]))
 
 AC_SUBST(NETWORK_LIBS)
 
