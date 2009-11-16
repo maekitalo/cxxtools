@@ -42,7 +42,7 @@ class CXXTOOLS_HTTP_API MessageHeader
         class CXXTOOLS_HTTP_API StringLessIgnoreCase
         {
             public:
-                int compare(const std::string& s1, const std::string& s2) const;
+                static int compare(const std::string& s1, const std::string& s2);
                 bool operator()(const std::string& s1, const std::string& s2) const
                     { return compare(s1, s2) < 0; }
         };
