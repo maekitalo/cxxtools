@@ -28,6 +28,9 @@
 
 #include "httpclientimpl.h"
 #include "cxxtools/log.h"
+#include "cxxtools/http/replyheader.h"
+
+log_define("cxxtools.xmlrpc.httpclient.impl")
 
 namespace cxxtools {
 
@@ -79,6 +82,15 @@ std::string HttpClientImpl::url() const
 
 void HttpClientImpl::onReplyHeader(http::Client& client)
 {
+    log_debug("httpReturnCode=" << client.header().httpReturnCode()
+        << " content-type=" << client.header().getHeader("Content-Type"));
+
+    if (client.header().httpReturnCode() != 200
+      || client.header().getHeader("Content-Type") != "text/xml")
+    {
+        throw std::runtime_error("invalid xmlrpc reply");
+    }
+
     ClientImpl::onReadReplyBegin(client.in());
 }
 
