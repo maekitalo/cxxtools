@@ -28,6 +28,7 @@
 
 #include "config.h"
 #ifdef HAVE_ACCEPT4
+#include <sys/types.h>
 #include <sys/socket.h>
 #endif
 
