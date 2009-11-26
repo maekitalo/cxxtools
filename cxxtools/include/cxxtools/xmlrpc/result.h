@@ -29,6 +29,7 @@
 #define cxxtools_xmlrpc_Result_h
 
 #include <string>
+#include <cxxtools/xmlrpc/fault.h>
 
 namespace cxxtools {
 

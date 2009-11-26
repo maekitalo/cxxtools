@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 by Dr. Marc Boris Duerner
+ * Copyright (C) 2009 by Dr. Marc Boris Duerner, Tommi Maekitalo
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -34,7 +34,6 @@
 
 namespace cxxtools {
 
-class SelectorBase;
 class ISerializer;
 class IDeserializer;
 

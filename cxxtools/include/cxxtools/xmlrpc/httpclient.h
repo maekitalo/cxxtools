@@ -32,6 +32,8 @@
 
 namespace cxxtools {
 
+class SelectorBase;
+
 namespace xmlrpc {
 
 class HttpClientImpl;
