@@ -34,8 +34,20 @@
 #include <cxxtools/noncopyable.h>
 #include <string>
 #include <vector>
+#include <stdexcept>
 
 namespace cxxtools {
+
+//! ProcessFailed exception
+// thrown when a process does not terminate normally in wait()
+class ProcessFailed : public std::runtime_error
+{
+    public:
+        ProcessFailed()
+            : std::runtime_error("process failed")
+            { }
+};
+
 
 //! Process parameters
 class ProcessInfo

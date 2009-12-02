@@ -1,4 +1,4 @@
-noinst_PROGRAMS = net-test xmlrpc-test process-test
+noinst_PROGRAMS = net-test xmlrpc-test process-test abort
 
 INCLUDES = -I$(top_builddir)/include
 
@@ -7,6 +7,8 @@ net_test_SOURCES = test-main.cpp tcpsockettest.cpp
 xmlrpc_test_SOURCES = test-main.cpp xmlrpc-test.cpp
 
 process_test_SOURCES = test-main.cpp process-test.cpp
+
+abort_SOURCES = abort.cpp
 
 LDADD = $(top_builddir)/src/libcxxtools.la \
         $(top_builddir)/src/unit/libcxxtools-unit.la \

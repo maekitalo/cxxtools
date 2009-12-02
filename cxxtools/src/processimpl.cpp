@@ -268,24 +268,34 @@ int ProcessImpl::wait()
 
     _state = Process::Finished;
     _pid = 0;
-    return iStatus;
+
+    if (!WIFEXITED(iStatus))
+        throw ProcessFailed();
+
+    return WEXITSTATUS(iStatus);
 }
 
 
 bool ProcessImpl::tryWait(int& status)
 {
-    pid_t ret = waitpid(_pid, &status, WUNTRACED|WNOHANG);
-    if( 0 > ret)
+    int iStatus;
+    pid_t ret = waitpid(_pid, &iStatus, WUNTRACED|WNOHANG);
+    if (0 > ret)
     {
         _state = Process::Failed;
         throw SystemError(std::strerror(errno), CXXTOOLS_SOURCEINFO);
     }
 
-    if(ret == 0)
+    if (ret == 0)
         return false;
 
     _state = Process::Finished;
     _pid = 0;
+
+    if (!WIFEXITED(status))
+        throw ProcessFailed();
+
+    status = WEXITSTATUS(iStatus);
     return true;
 }
 

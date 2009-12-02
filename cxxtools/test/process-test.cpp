@@ -34,10 +34,11 @@ class ProcessTest : public cxxtools::unit::TestSuite
         ProcessTest()
         : cxxtools::unit::TestSuite("cxxtools-process-Test")
         {
-            this->registerMethod("GrepFilter", *this, &ProcessTest::GrepFilter);
+            registerMethod("grepFilter", *this, &ProcessTest::grepFilter);
+            registerMethod("processFail", *this, &ProcessTest::processFail);
         }
 
-        void GrepFilter()
+        void grepFilter()
         {
             // warning: we assume here, that the pipe has a buffer, which is big enough
 
@@ -72,6 +73,13 @@ class ProcessTest : public cxxtools::unit::TestSuite
 
             process.wait();
 
+        }
+
+        void processFail()
+        {
+            cxxtools::Process process("./abort");
+            process.start();
+            CXXTOOLS_UNIT_ASSERT_THROW(process.wait(), cxxtools::ProcessFailed);
         }
 
 };
