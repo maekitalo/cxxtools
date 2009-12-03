@@ -77,7 +77,7 @@ class ProcessTest : public cxxtools::unit::TestSuite
 
         void processFail()
         {
-            cxxtools::Process process("./abort");
+            cxxtools::Process process(TESTDIR "/abort");
             process.start();
             CXXTOOLS_UNIT_ASSERT_THROW(process.wait(), cxxtools::ProcessFailed);
         }

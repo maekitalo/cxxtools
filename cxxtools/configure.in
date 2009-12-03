@@ -115,6 +115,9 @@ AC_COMPILE_IFELSE(
 
 AC_SUBST(CXXTOOLS_STD_LOCALE)
 
+TESTDIR="`pwd`/test"
+AC_SUBST(TESTDIR)
+
 AC_CONFIG_FILES([cxxtools-config], [chmod +x cxxtools-config])
 
 AC_CONFIG_FILES([
