@@ -65,6 +65,12 @@ class CXXTOOLS_HTTP_API Server
 
         void run();
 
+        unsigned minThreads() const;
+        void minThreads(unsigned m);
+
+        unsigned maxThreads() const;
+        void maxThreads(unsigned m);
+
     private:
         ServerImpl* _impl;
 };

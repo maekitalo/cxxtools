@@ -79,6 +79,12 @@ class ServerImpl : public Connectable
 
         void run();
 
+        unsigned minThreads() const           { return _minThreads; }
+        void minThreads(unsigned m)           { _minThreads = m; }
+
+        unsigned maxThreads() const           { return _maxThreads; }
+        void maxThreads(unsigned m)           { _maxThreads = m; }
+
     private:
 
         typedef std::vector<Listener*> Listeners;

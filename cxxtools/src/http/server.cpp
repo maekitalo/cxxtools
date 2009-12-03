@@ -104,6 +104,27 @@ void Server::run()
     _impl->run();
 }
 
+unsigned Server::minThreads() const
+{
+    return _impl->minThreads();
+}
+
+void Server::minThreads(unsigned m)
+{
+    _impl->minThreads(m);
+}
+
+unsigned Server::maxThreads() const
+{
+    return _impl->maxThreads();
+}
+
+void Server::maxThreads(unsigned m)
+{
+    _impl->maxThreads(m);
+}
+
+
 } // namespace http
 
 } // namespace cxxtools
