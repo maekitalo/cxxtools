@@ -152,7 +152,7 @@ int main(int argc, char* argv[])
 
       cxxtools::Timespan t = clock.stop();
       double T = t.toUSecs() / 1e6;
-      unsigned kbytes = size / 1024.0;
+      unsigned kbytes = size / 1024;
       std::cerr << T << " s, " << (number.getValue() / T) << " msg/s\n"
                 << kbytes << " kbytes, " << (kbytes / T) << " kbytes/s\n";
     }
