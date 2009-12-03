@@ -37,14 +37,15 @@ namespace cxxtools {
 namespace http {
 
 
-ServerImpl::ServerImpl()
+ServerImpl::ServerImpl(Signal<Server::Runmode>& runmodeChanged)
 : _readTimeout(5000),
   _writeTimeout(5000),
   _keepAliveTimeout(30000),
   _minThreads(4),
   _maxThreads(200),
   _waitingThreads(0),
-  _runmode(Stopped)
+  _runmodeChanged(runmodeChanged),
+  _runmode(Server::Stopped)
 {
     log_trace("initialize ServerImpl class");
 }
@@ -89,13 +90,13 @@ void ServerImpl::terminate()
 {
     MutexLock lock(_threadMutex);
 
-    if (_runmode != Running)
+    if (_runmode != Server::Running)
         return;
 
-    _runmode = Terminating;
+    runmode(Server::Terminating);
     _selector.wake();
     _terminated.wait(lock);
-    _runmode = Stopped;
+    runmode(Server::Stopped);
 
     for (Listeners::iterator it = _listeners.begin(); it != _listeners.end(); ++it)
         (*it)->close();
@@ -105,20 +106,20 @@ void ServerImpl::run()
 {
     log_trace("run server");
 
-    if (_runmode != Stopped)
+    if (_runmode != Server::Stopped)
         throw std::runtime_error("http server already running");
 
     if (_listeners.empty())
         throw std::runtime_error("no listeners defined in http server");
 
-    _runmode = Starting;
+    runmode(Server::Starting);
 
     {
         MutexLock selectorLock(_selectorMutex);
 
         for (Listeners::iterator it = _listeners.begin(); it != _listeners.end(); ++it)
             (*it)->listen();
-        _runmode = Running;
+        runmode(Server::Running);
 
         log_debug("start " << _minThreads << " threads");
         for (unsigned n = 0; n < _minThreads; ++n)
@@ -130,7 +131,7 @@ void ServerImpl::run()
 
     MutexLock lock(_threadMutex);
 
-    while (_runmode == Running || !_threads.empty())
+    while (_runmode == Server::Running || !_threads.empty())
     {
         log_info("wait for finished threads");
 
@@ -281,7 +282,7 @@ void ServerImpl::serverThread()
 
         log_debug("selectorLock obtained; " << _waitingThreads << " threads left");
 
-        if (_runmode == Terminating)
+        if (_runmode == Server::Terminating)
         {
             log_debug("server terminating");
             break;
@@ -297,7 +298,7 @@ void ServerImpl::serverThread()
             log_debug("wait selector");
             _selector.wait();
 
-            if (_runmode == Terminating)
+            if (_runmode == Server::Terminating)
                 return;
 
             log_debug("check for idle sockets to add to selector");

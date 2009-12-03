@@ -30,6 +30,7 @@
 #define cxxtools_Http_ServerImpl_h
 
 #include <cxxtools/http/responder.h>
+#include <cxxtools/http/server.h>
 #include <cxxtools/net/tcpserver.h>
 #include <cxxtools/connectable.h>
 #include <cxxtools/condition.h>
@@ -53,7 +54,7 @@ class Service;
 class ServerImpl : public Connectable
 {
     public:
-        ServerImpl();
+        explicit ServerImpl(Signal<Server::Runmode>& runmodeChanged);
         ~ServerImpl();
 
         void listen(const std::string& ip, unsigned short int port);
@@ -86,6 +87,11 @@ class ServerImpl : public Connectable
         void maxThreads(unsigned m)           { _maxThreads = m; }
 
     private:
+        void runmode(Server::Runmode runmode)
+        {
+            _runmode = runmode;
+            _runmodeChanged(runmode);
+        }
 
         typedef std::vector<Listener*> Listeners;
         Listeners _listeners;
@@ -110,12 +116,9 @@ class ServerImpl : public Connectable
         unsigned _minThreads;
         unsigned _maxThreads;
         atomic_t _waitingThreads;
-        enum {
-          Stopped,
-          Starting,
-          Running,
-          Terminating
-        } _runmode;
+
+        Signal<Server::Runmode>& _runmodeChanged;
+        Server::Runmode _runmode;
         Condition _terminated;
         Condition _threadTerminated;
 

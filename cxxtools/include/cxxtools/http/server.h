@@ -30,6 +30,7 @@
 #define cxxtools_Http_Server_h
 
 #include <cxxtools/http/api.h>
+#include <cxxtools/signal.h>
 #include <string>
 #include <cstddef>
 
@@ -70,6 +71,15 @@ class CXXTOOLS_HTTP_API Server
 
         unsigned maxThreads() const;
         void maxThreads(unsigned m);
+
+        enum Runmode {
+          Stopped,
+          Starting,
+          Running,
+          Terminating
+        };
+
+        Signal<Runmode> runmodeChanged;
 
     private:
         ServerImpl* _impl;

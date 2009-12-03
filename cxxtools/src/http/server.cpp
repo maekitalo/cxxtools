@@ -34,12 +34,12 @@ namespace cxxtools {
 namespace http {
 
 Server::Server()
-    : _impl(new ServerImpl())
+    : _impl(new ServerImpl(runmodeChanged))
 {
 }
 
 Server::Server(const std::string& ip, unsigned short int port)
-    : _impl(new ServerImpl())
+    : _impl(new ServerImpl(runmodeChanged))
 {
     _impl->listen(ip, port);
 }
