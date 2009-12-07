@@ -86,7 +86,7 @@ class ProcessInfo
         { _stdinMode = mode; }
 
         void setStdInput(IODevice* dev)
-        { _stdin = dev; }
+        { _stdin = dev; _stdinMode = Keep; }
 
         IODevice* stdInput() const
         { return _stdin; }
@@ -99,7 +99,7 @@ class ProcessInfo
         { _stdoutMode = mode; }
 
         void setStdOutput(IODevice* dev)
-        { _stdout = dev; }
+        { _stdout = dev; _stdoutMode = Keep; }
 
         IODevice* stdOutput() const
         { return _stdout; }
@@ -112,7 +112,7 @@ class ProcessInfo
         { _stderrMode = mode; }
 
         void setStdError(IODevice* dev)
-        { _stderr = dev; }
+        { _stderr = dev; _stderrMode = Keep; }
 
         IODevice* stdError() const
         { return _stderr; }

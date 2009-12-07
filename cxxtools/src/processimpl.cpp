@@ -82,6 +82,10 @@ void ProcessImpl::start()
     {
         _stdInput = _procInfo.stdInput();
     }
+    else
+    {
+        _stdInput = 0;
+    }
 
     if (_procInfo.stdOutputMode() == ProcessInfo::Capture)
     {
@@ -91,6 +95,10 @@ void ProcessImpl::start()
     else if (_procInfo.stdOutput())
     {
         _stdOutput = _procInfo.stdOutput();
+    }
+    else
+    {
+        _stdOutput = 0;
     }
 
     if (_procInfo.stdErrorMode() == ProcessInfo::Capture)
@@ -105,6 +113,10 @@ void ProcessImpl::start()
     else if (_procInfo.stdError())
     {
         _stdError = _procInfo.stdError();
+    }
+    else
+    {
+        _stdError = 0;
     }
 
     _state = Process::Running;
@@ -149,9 +161,9 @@ void ProcessImpl::start()
             _stdinPipe->closeWriteFd();
             _stdinPipe->redirectStdin();
         }
-        else if (_procInfo.stdInput())
+        else if (_stdInput)
         {
-            dup2(_procInfo.stdInput()->ioimpl().fd(), STDIN_FILENO);
+            dup2(_stdInput->ioimpl().fd(), STDIN_FILENO);
         }
 
         // redirect stdout
@@ -165,9 +177,9 @@ void ProcessImpl::start()
             _stdoutPipe->closeReadFd();
             _stdoutPipe->redirectStdout();
         }
-        else if (_procInfo.stdOutput())
+        else if (_stdOutput)
         {
-            dup2(_procInfo.stdOutput()->ioimpl().fd(), STDOUT_FILENO);
+            dup2(_stdOutput->ioimpl().fd(), STDOUT_FILENO);
         }
 
         // redirect stderr
@@ -184,9 +196,9 @@ void ProcessImpl::start()
         {
             _stdoutPipe->redirectStderr(false);
         }
-        else if (_procInfo.stdError())
+        else if (_stdError)
         {
-            dup2(_procInfo.stdError()->ioimpl().fd(), STDERR_FILENO);
+            dup2(_stdError->ioimpl().fd(), STDERR_FILENO);
         }
 
         // exec
