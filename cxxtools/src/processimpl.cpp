@@ -167,7 +167,7 @@ void ProcessImpl::start()
         }
         else if (_procInfo.stdOutput())
         {
-            dup2(_procInfo.stdInput()->ioimpl().fd(), STDOUT_FILENO);
+            dup2(_procInfo.stdOutput()->ioimpl().fd(), STDOUT_FILENO);
         }
 
         // redirect stderr
