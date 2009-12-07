@@ -28,9 +28,6 @@
 
 #include <cxxtools/http/responder.h>
 #include <cxxtools/http/reply.h>
-#include <cxxtools/log.h>
-
-log_define("cxxtools.http.responder")
 
 namespace cxxtools {
 
