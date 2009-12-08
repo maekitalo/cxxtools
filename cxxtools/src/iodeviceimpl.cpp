@@ -290,11 +290,14 @@ bool IODeviceImpl::wait(std::size_t msecs)
 
 bool IODeviceImpl::wait(std::size_t umsecs, pollfd& pfd)
 {
-    int msecs = umsecs;
+    int msecs = static_cast<int>(umsecs);
+
     if( umsecs > std::numeric_limits<int>::max() )
     {
-        umsecs == SelectorBase::WaitInfinite ? -1
-                                             : std::numeric_limits<int>::max();
+        if(umsecs == SelectorBase::WaitInfinite)
+            msecs = -1;
+        else
+            msecs = std::numeric_limits<int>::max();
     }
 
     int ret = -1;
