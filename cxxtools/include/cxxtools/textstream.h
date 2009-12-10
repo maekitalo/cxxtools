@@ -87,7 +87,7 @@ class BasicTextIStream : public std::basic_istream<CharT>
             init(&_buffer);
         }
 
-        BasicTextIStream(CodecType* codec)
+        explicit BasicTextIStream(CodecType* codec)
         : std::basic_istream<intern_type>(0)
         , _buffer( 0, codec )
         {
@@ -162,7 +162,7 @@ class BasicTextOStream : public std::basic_ostream<CharT>
     public:
         /** @brief Construct by output stream and codec.
 
-            The output stream @a os is used ro write a character sequence
+            The output stream @a os is used to write a character sequence
             which has been converted using the codec @a codec. The Codec
             object which is passed as pointer will afterwards be managed
             by this class and be deleted on destruction
@@ -172,7 +172,7 @@ class BasicTextOStream : public std::basic_ostream<CharT>
         , _buffer( &os , codec )
         { init(&_buffer); }
 
-        BasicTextOStream(CodecType* codec)
+        explicit BasicTextOStream(CodecType* codec)
         : std::basic_ostream<intern_type>(0)
         , _buffer( 0 , codec )
         { init(&_buffer); }
@@ -255,12 +255,12 @@ class BasicTextStream : public std::basic_iostream<CharT>
         , _buffer( &ios, codec)
         { init(&_buffer); }
 
-        BasicTextStream(CodecType* codec)
+        explicit BasicTextStream(CodecType* codec)
         : std::basic_iostream<intern_type>(0)
         , _buffer(0, codec)
         { init(&_buffer); }
 
-        //! @brief Deletes to codec.
+        //! @brief Deletes the codec.
         ~BasicTextStream()
         { }
 
@@ -306,7 +306,7 @@ class CXXTOOLS_API TextIStream : public BasicTextIStream<Char, char>
         */
         TextIStream(std::istream& is, Codec* codec);
 
-        TextIStream(Codec* codec);
+        explicit TextIStream(Codec* codec);
 
         ~TextIStream();
 };
@@ -322,14 +322,14 @@ class CXXTOOLS_API TextOStream : public BasicTextOStream<Char, char>
     public:
         /** @brief Constructor
 
-            The stream will write bytes to \a is and use the codec \a codec
+            The stream will write bytes to \a os and use the codec \a codec
             for character conversion. The codec will be destroyed by the
             buffer of this stream if the codec was constructed with a
             refcount of 0.
         */
         TextOStream(std::ostream& os, Codec* codec);
 
-        TextOStream(Codec* codec);
+        explicit TextOStream(Codec* codec);
 
         ~TextOStream();
 };
@@ -345,14 +345,14 @@ class CXXTOOLS_API TextStream : public BasicTextStream<Char, char>
     public:
         /** @brief Constructor
 
-            The stream will write or write bytes to \a is and use the codec
+            The stream will write or write bytes to \a ios and use the codec
             \a codec for character conversion. The codec will be destroyed
             by the buffer of this stream if the codec was constructed with a
             refcount of 0.
         */
         TextStream(std::iostream& ios, Codec* codec);
 
-        TextStream(Codec* codec);
+        explicit TextStream(Codec* codec);
 
         ~TextStream();
 };
