@@ -33,6 +33,8 @@
 #include <cxxtools/types.h>
 #include <cxxtools/char.h>
 #include <cxxtools/textcodec.h>
+#include <cxxtools/string.h>
+#include <string>
 
 namespace cxxtools {
 
@@ -88,6 +90,14 @@ namespace cxxtools {
             // inheritdoc
             int do_encoding() const throw()
             { return 0; }
+
+            static String decode(const char* data, unsigned size);
+            static String decode(const std::string& data)
+            { return decode(data.data(), data.size()); }
+
+            static std::string encode(const Char* data, unsigned size);
+            static std::string encode(const String& data)
+            { return encode(data.data(), data.size()); }
     };
 
 } //namespace cxxtools

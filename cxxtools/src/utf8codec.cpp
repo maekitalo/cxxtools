@@ -26,6 +26,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 #include "cxxtools/utf8codec.h"
+#include <cxxtools/conversionerror.h>
 
 #define halfShift uint32_t(10)
 #define halfBase cxxtools::Char(0x0010000)
@@ -289,6 +290,65 @@ int Utf8Codec::do_max_length() const throw()
 bool Utf8Codec::do_always_noconv() const throw()
 {
     return false;
+}
+
+String Utf8Codec::decode(const char* data, unsigned size)
+{
+    Utf8Codec codec;
+
+    Char to[16];
+    MBState state;
+    String ret;
+    const char* from = data;
+
+    result r;
+    do
+    {
+        Char* to_next = to;
+
+        const char* from_next = from;
+        r = codec.in(state, from, from + size, from_next, to, &to[sizeof(to) / sizeof(Char)], to_next);
+
+        if (r == error)
+            throw ConversionError("character conversion failed");
+
+        ret.append(to, to_next);
+
+        size -= (from_next - from);
+        from = from_next;
+
+    } while (r == partial);
+
+    return ret;
+}
+
+std::string Utf8Codec::encode(const Char* data, unsigned size)
+{
+    Utf8Codec codec;
+    char to[16];
+    MBState state;
+    
+    result r;
+    const Char* from = data;
+    std::string ret;
+
+    do{
+        const Char* from_next;
+
+        char* to_next = to;
+        r = codec.out(state, from, from + size, from_next, to, to + sizeof(to), to_next);
+
+        if (r == error)
+            throw ConversionError("character conversion failed");
+
+        ret.append(to, to_next);
+
+        size -= (from_next - from);
+        from = from_next;
+
+    } while (r == partial);
+
+    return ret;
 }
 
 } // namespace cxxtools
