@@ -49,7 +49,7 @@ int main(int argc, char* argv[])
       // I'm a server
 
       // listen to a port
-      cxxtools::net::Server server(ip.getValue(), port);
+      cxxtools::net::TcpServer server(ip.getValue(), port);
 
       // accept a connetion
       cxxtools::net::iostream worker(server, bufsize);

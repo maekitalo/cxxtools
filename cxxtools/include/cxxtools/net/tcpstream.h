@@ -41,10 +41,6 @@ namespace cxxtools
 
 namespace net
 {
-
-    typedef TcpServer Server; // for compatibility
-    typedef TcpSocket Stream; // for compatibility
-
     class TcpStream : public IOStream
     {
         public:
@@ -111,7 +107,7 @@ namespace net
             void connect(const std::string& ipaddr, unsigned short int port)
             { _socket.connect(ipaddr, port); }
 
-            void accept(const TcpServer& server, bool closeOnExec)
+            void accept(const TcpServer& server, bool closeOnExec = false)
             { _socket.accept(server, closeOnExec); }
 
             std::string getSockAddr() const

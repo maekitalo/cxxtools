@@ -44,16 +44,16 @@ int server(int argc, char* argv[])
   cxxtools::Arg<const char*> ip(argc, argv, 'i', "0.0.0.0");
   cxxtools::Arg<bool> verbose(argc, argv, 'v');
 
-  cxxtools::net::Server server(ip.getValue(), port);
+  cxxtools::net::TcpServer server(ip.getValue(), port);
 
   while (1)
   {
-    cxxtools::net::Stream worker(server);
+    cxxtools::net::TcpSocket worker(server);
 
     std::cout << "connection accepted" << std::endl;
 
     char buffer[BUFSIZE];
-    // NOTE: use std::streamsize, not Stream::size_type
+    // NOTE: use std::streamsize, not TcpSocket::size_type
     std::streamsize count = 0;
     std::streamsize n = 0;
     while ( (n = worker.read(buffer, BUFSIZE)) > 0)
@@ -75,7 +75,7 @@ int server(int argc, char* argv[])
 ////////////////////////////////////////////////////////////////////////
 // Client
 //
-void run_test(cxxtools::net::Stream& conn, unsigned bs, const char* buffer, unsigned secs)
+void run_test(cxxtools::net::TcpSocket& conn, unsigned bs, const char* buffer, unsigned secs)
 {
   std::cout << "bs " << bs << std::flush;
 
@@ -86,7 +86,7 @@ void run_test(cxxtools::net::Stream& conn, unsigned bs, const char* buffer, unsi
 
   timeval current;
 
-  // NOTE: use std::streamsize, not Stream::size_type
+  // NOTE: use std::streamsize, not TcpSocket::size_type
   std::streamsize count = 0;
   while (1)
   {
@@ -115,7 +115,7 @@ int client(int argc, char* argv[])
   cxxtools::Arg<unsigned> bufsize(argc, argv, 't', BUFSIZE);
   cxxtools::Arg<unsigned> B(argc, argv, 'B', 0);
 
-  cxxtools::net::Stream conn(ip.getValue(), port);
+  cxxtools::net::TcpSocket conn(ip.getValue(), port);
 
   cxxtools::Dynbuffer<char> buffer(bufsize);
   std::generate(buffer.begin(), buffer.end(), rand);
