@@ -30,7 +30,7 @@
  * This demo shows, how to create a child-process, use a pipe to signal
  * from child to parent and another pipe to send a datastream.
  */
-
+#include <cxxtools/pipe.h>
 #include <cxxtools/pipestream.h>
 #include <cxxtools/fork.h>
 
@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
 
     if (fork.parent())
     {
-      pipe.closeWriteFd();
+      pipe.in().close();
       pstream.closeWriteFd();
 
       std::cout << "waiting for child to become ready" << std::endl;
@@ -66,7 +66,7 @@ int main(int argc, char* argv[])
     }
     else // child
     {
-      pipe.closeReadFd();
+      pipe.out().close();
       pstream.closeReadFd();
 
       // we do some long initialization:

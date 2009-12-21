@@ -24,7 +24,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 #include "processimpl.h"
-#include "iodeviceimpl.h"
+#include "pipeimpl.h"
 
 #include <cstdio>
 #include <vector>
@@ -66,39 +66,26 @@ void ProcessImpl::start()
 
     delete _stdinPipe;
     _stdinPipe = 0;
+    _stdInput = 0;
 
     delete _stdoutPipe;
     _stdoutPipe = 0;
+    _stdOutput = 0;
 
     delete _stderrPipe;
     _stderrPipe = 0;
+    _stdError = 0;
 
     if (_procInfo.stdInputMode() == ProcessInfo::Capture)
     {
         _stdinPipe = new Pipe();
         _stdInput = &_stdinPipe->in();
     }
-    else if (_procInfo.stdInput())
-    {
-        _stdInput = _procInfo.stdInput();
-    }
-    else
-    {
-        _stdInput = 0;
-    }
 
     if (_procInfo.stdOutputMode() == ProcessInfo::Capture)
     {
         _stdoutPipe = new Pipe();
         _stdOutput = &_stdoutPipe->out();
-    }
-    else if (_procInfo.stdOutput())
-    {
-        _stdOutput = _procInfo.stdOutput();
-    }
-    else
-    {
-        _stdOutput = 0;
     }
 
     if (_procInfo.stdErrorMode() == ProcessInfo::Capture)
@@ -109,14 +96,6 @@ void ProcessImpl::start()
     else if (_procInfo.stdErrorMode() == ProcessInfo::Combine)
     {
         _stdError = &_stdinPipe->out();
-    }
-    else if (_procInfo.stdError())
-    {
-        _stdError = _procInfo.stdError();
-    }
-    else
-    {
-        _stdError = 0;
     }
 
     _state = Process::Running;
@@ -158,12 +137,12 @@ void ProcessImpl::start()
         }
         else if (_procInfo.stdInputMode() == ProcessInfo::Capture)
         {
-            _stdinPipe->closeWriteFd();
-            _stdinPipe->redirectStdin();
+            _stdinPipe->in().close();
+            _stdinPipe->impl()->redirectStdin();
         }
-        else if (_stdInput)
+        else if (_procInfo.stdInput())
         {
-            dup2(_stdInput->ioimpl().fd(), STDIN_FILENO);
+            dup2(_procInfo.stdInput()->ioimpl().fd(), STDIN_FILENO);
         }
 
         // redirect stdout
@@ -174,12 +153,12 @@ void ProcessImpl::start()
         }
         else if (_procInfo.stdOutputMode() == ProcessInfo::Capture)
         {
-            _stdoutPipe->closeReadFd();
-            _stdoutPipe->redirectStdout();
+            _stdoutPipe->out().close();
+            _stdoutPipe->impl()->redirectStdout();
         }
-        else if (_stdOutput)
+        else if (_procInfo.stdOutput())
         {
-            dup2(_stdOutput->ioimpl().fd(), STDOUT_FILENO);
+            dup2(_procInfo.stdOutput()->ioimpl().fd(), STDOUT_FILENO);
         }
 
         // redirect stderr
@@ -190,15 +169,15 @@ void ProcessImpl::start()
         }
         else if (_procInfo.stdErrorMode() == ProcessInfo::Capture)
         {
-            _stderrPipe->redirectStderr();
+            _stderrPipe->impl()->redirectStderr();
         }
         else if (_procInfo.stdErrorMode() == ProcessInfo::Combine)
         {
-            _stdoutPipe->redirectStderr(false);
+            _stdoutPipe->impl()->redirectStderr(false);
         }
-        else if (_stdError)
+        else if (_procInfo.stdError())
         {
-            dup2(_stdError->ioimpl().fd(), STDERR_FILENO);
+            dup2(_procInfo.stdError()->ioimpl().fd(), STDERR_FILENO);
         }
 
         // exec
@@ -244,13 +223,13 @@ void ProcessImpl::start()
         // check for open pipes
 
         if (_procInfo.stdInputMode() == ProcessInfo::Capture)
-            _stdinPipe->closeReadFd();
+            _stdinPipe->out().close();
 
         if (_procInfo.stdOutputMode() == ProcessInfo::Capture)
-            _stdoutPipe->closeWriteFd();
+            _stdoutPipe->in().close();
 
         if (_procInfo.stdErrorMode() == ProcessInfo::Capture)
-            _stderrPipe->closeWriteFd();
+            _stderrPipe->in().close();
     }
 }
 

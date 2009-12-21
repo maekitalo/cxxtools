@@ -78,28 +78,6 @@ class CXXTOOLS_API Pipe : private NonCopyable
 
         const IODevice& in() const;
 
-        int getReadFd() const;
-
-        int getWriteFd() const;
-
-        void closeReadFd()
-        { out().close(); }
-
-        void closeWriteFd()
-        { in().close(); }
-
-        /// Redirect write-end to stdout.
-        /// When the close argument is set, closes the original filedescriptor
-        void redirectStdout(bool close = true);
-
-        /// Redirect read-end to stdin.
-        /// When the close argument is set, closes the original filedescriptor
-        void redirectStdin(bool close = true);
-
-        /// Redirect write-end to stdout.
-        /// When the close argument is set, closes the original filedescriptor
-        void redirectStderr(bool close = true);
-
         size_t write(const char* buf, size_t count)
         {
           return in().write(buf, count);
@@ -122,6 +100,8 @@ class CXXTOOLS_API Pipe : private NonCopyable
           return ch;
         }
 
+        PipeImpl* impl()
+        { return _impl; }
 };
 
 }

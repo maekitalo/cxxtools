@@ -153,4 +153,19 @@ const PipeIODevice& PipeImpl::in() const
     return _in;
 }
 
+void PipeImpl::redirectStdin(bool close)
+{
+    out().redirect(0, close);
+}
+
+void PipeImpl::redirectStdout(bool close)
+{
+    in().redirect(1, close);
+}
+
+void PipeImpl::redirectStderr(bool close)
+{
+    in().redirect(2, close);
+}
+
 }

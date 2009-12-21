@@ -111,6 +111,18 @@ class PipeImpl
         int getWriteFd() const
             { return in().fd(); }
 
+        /// Redirect write-end to stdout.
+        /// When the close argument is set, closes the original filedescriptor
+        void redirectStdout(bool close = true);
+
+        /// Redirect read-end to stdin.
+        /// When the close argument is set, closes the original filedescriptor
+        void redirectStdin(bool close = true);
+
+        /// Redirect write-end to stdout.
+        /// When the close argument is set, closes the original filedescriptor
+        void redirectStderr(bool close = true);
+
     private:
         PipeIODevice _out;
         PipeIODevice _in;

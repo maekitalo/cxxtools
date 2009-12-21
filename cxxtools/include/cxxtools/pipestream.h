@@ -30,17 +30,21 @@
 #define CXXTOOLS_PIPESTREAM_H
 
 #include <iostream>
-#include <cxxtools/pipe.h>
 
 namespace cxxtools
 {
+  /** @brief Simple unix pipe iostream
+
+      This iostream works only on POSIX systems. A portable alternative is
+      to use an IOStream attached to the input or output end of a Pipe.
+  */
   class Pipestreambuf : public std::streambuf
   {
       std::streambuf::int_type overflow(std::streambuf::int_type ch);
       std::streambuf::int_type underflow();
       int sync();
 
-      Pipe pipe;
+      int fds[2];
 
       unsigned bufsize;
       char* ibuffer;
@@ -50,15 +54,18 @@ namespace cxxtools
       explicit Pipestreambuf(unsigned bufsize = 8192);
       ~Pipestreambuf();
 
-      void closeReadFd()      { sync(); pipe.closeReadFd(); }
-      void closeWriteFd()     { sync(); pipe.closeWriteFd(); }
+      void closeReadFd();
+      void closeWriteFd();
 
-      int getReadFd() const   { return pipe.getReadFd(); }
-      int getWriteFd() const  { return pipe.getWriteFd(); }
+      int getReadFd() const
+      { return fds[0]; }
 
-      void redirectStdout(bool close = true)   { pipe.redirectStdout(close); }
-      void redirectStdin(bool close = true)    { pipe.redirectStdin(close); }
-      void redirectStderr(bool close = true)   { pipe.redirectStderr(close); }
+      int getWriteFd() const
+      { return fds[1]; }
+
+      void redirectStdout(bool close = true);
+      void redirectStdin(bool close = true);
+      void redirectStderr(bool close = true);
   };
 
   class Pipestream : public std::iostream
