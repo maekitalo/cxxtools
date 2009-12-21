@@ -135,21 +135,21 @@ void IODeviceImpl::close()
 
 size_t IODeviceImpl::beginRead(char* buffer, size_t n, bool& eof)
 {
-     if(_pfd)
-     {
-         _pfd->events |= POLLIN;
-     }
+    if(_pfd)
+    {
+        _pfd->events |= POLLIN;
+    }
 
-     return 0;
+    return 0;
 }
 
 
 size_t IODeviceImpl::endRead(bool& eof)
 {
-     if(_pfd)
-     {
-         _pfd->events &= ~POLLIN;
-     }
+    if(_pfd)
+    {
+        _pfd->events &= ~POLLIN;
+    }
 
     return this->read( _device.rbuf(), _device.rbuflen(), eof );
 }
@@ -202,21 +202,21 @@ size_t IODeviceImpl::read( char* buffer, size_t count, bool& eof )
 
 size_t IODeviceImpl::beginWrite(const char* buffer, size_t n)
 {
-     if(_pfd)
-     {
-         _pfd->events |= POLLOUT;
-     }
+    if(_pfd)
+    {
+        _pfd->events |= POLLOUT;
+    }
 
-     return 0;
+    return 0;
 }
 
 
 size_t IODeviceImpl::endWrite()
 {
-     if(_pfd)
-     {
-         _pfd->events &= ~POLLOUT;
-     }
+    if(_pfd)
+    {
+        _pfd->events &= ~POLLOUT;
+    }
 
     return this->write( _device.wbuf(), _device.wbuflen() );
 }
