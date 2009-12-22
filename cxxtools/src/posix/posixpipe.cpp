@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007 Tommi Maekitalo
+ * Copyright (C) 2009 Tommi Maekitalo
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,61 +26,42 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-/**
- * This demo shows, how to create a child-process, use a pipe to signal
- * from child to parent and another pipe to send a datastream.
- */
-#include <cxxtools/pipe.h>
-#include <cxxtools/posix/pipestream.h>
-#include <cxxtools/fork.h>
+#include "cxxtools/posix/pipe.h"
+#include "pipeimpl.h"
 
-int main(int argc, char* argv[])
+namespace cxxtools
 {
-  try
-  {
-    // create pipe, where child signals, that he is initialized
-    cxxtools::posix::Pipe pipe;
+namespace posix
+{
 
-    cxxtools::posix::Pipestream pstream;
+int Pipe::getReadFd() const
+{
+    return impl()->out().fd();
+}
 
-    // fork child-process
-    cxxtools::Fork fork;
+int Pipe::getWriteFd() const
+{
+    return impl()->in().fd();
+}
 
-    if (fork.parent())
-    {
-      pipe.closeWriteFd();
-      pstream.closeWriteFd();
+/// Redirect read-end to stdin.
+/// When the close argument is set, closes the original filedescriptor
+void Pipe::redirectStdin(bool close)
+{
+    impl()->out().redirect(0, close);
+}
 
-      std::cout << "waiting for child to become ready" << std::endl;
+void Pipe::redirectStdout(bool close)
+{
+    impl()->in().redirect(1, close);
+}
 
-      char ch = pipe.read();
-      std::cout << "child is ready - he sent '" << ch << '\'' << std::endl;
+/// Redirect write-end to stdout.
+/// When the close argument is set, closes the original filedescriptor
+void Pipe::redirectStderr(bool close)
+{
+    impl()->in().redirect(2, close);
+}
 
-      // now we copy everything, the child sends through the stream
-      std::cout << pstream.rdbuf() << std::flush;
-
-      fork.wait();
-
-      std::cout << "child terminated normally" << std::endl;
-    }
-    else // child
-    {
-      pipe.closeReadFd();
-      pstream.closeReadFd();
-
-      // we simulate some long initialization:
-      ::sleep(1);
-
-      pipe.write('a');
-
-      // make another break
-      ::sleep(1);
-
-      pstream << "Hello World!" << std::endl;
-    }
-  }
-  catch (const std::exception& e)
-  {
-    std::cerr << e.what() << std::endl;
-  }
+}
 }

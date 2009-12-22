@@ -4,7 +4,7 @@
 #include "cxxtools/process.h"
 #include "cxxtools/systemerror.h"
 #include "cxxtools/noncopyable.h"
-#include "cxxtools/pipe.h"
+#include "cxxtools/posix/pipe.h"
 #include <cstdlib>
 #include <sstream>
 #include <unistd.h>
@@ -60,9 +60,9 @@ class ProcessImpl : private NonCopyable
         IODevice* _stdOutput;
         IODevice* _stdError;
 
-        Pipe* _stdinPipe;
-        Pipe* _stdoutPipe;
-        Pipe* _stderrPipe;
+        posix::Pipe* _stdinPipe;
+        posix::Pipe* _stdoutPipe;
+        posix::Pipe* _stderrPipe;
 };
 
 } // namespace cxxtools

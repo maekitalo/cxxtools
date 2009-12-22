@@ -26,7 +26,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <cxxtools/pipestream.h>
+#include <cxxtools/posix/pipestream.h>
 #include <cxxtools/syserror.h>
 #include <algorithm>
 #include <unistd.h>
@@ -40,14 +40,13 @@ log_define("cxxtools.pipestream")
 
 namespace cxxtools
 {
+namespace posix
+{
   Pipestreambuf::Pipestreambuf(unsigned bufsize_)
     : bufsize(bufsize_),
       ibuffer(0),
       obuffer(0)
-  {
-    if(-1 == ::pipe(fds) )
-        throw SystemError( CXXTOOLS_ERROR_MSG("pipe failed") );
-  }
+  { }
 
   Pipestreambuf::~Pipestreambuf()
   {
@@ -73,60 +72,6 @@ namespace cxxtools
 
     delete [] ibuffer;
     delete [] obuffer;
-  }
-
-  void Pipestreambuf::redirectStdin(bool closeOld)
-  {
-    int oldFd = fds[1];
-
-    int ret = ::dup2(fds[1], 0);
-    if (ret < 0)
-        throw SystemError("dup2");
-
-    if (closeOld)
-    {
-      close(oldFd);
-    }
-  }
-
-  void Pipestreambuf::redirectStdout(bool closeOld)
-  {
-    int oldFd = fds[0];
-
-    int ret = ::dup2(fds[0], 1);
-    if (ret < 0)
-        throw SystemError("dup2");
-
-    if (closeOld)
-    {
-      close(oldFd);
-    }
-  }
-
-  void Pipestreambuf::redirectStderr(bool closeOld)
-  {
-    int oldFd = fds[0];
-
-    int ret = ::dup2(fds[0], 2);
-    if (ret < 0)
-        throw SystemError("dup2");
-
-    if (closeOld)
-    {
-      close(oldFd);
-    }
-  }
-
-  void Pipestreambuf::closeReadFd()
-  {
-    sync();
-    close(fds[0]);
-  }
-
-  void Pipestreambuf::closeWriteFd()
-  {
-    sync();
-    close(fds[1]);
   }
 
   std::streambuf::int_type Pipestreambuf::overflow(std::streambuf::int_type ch)
@@ -224,4 +169,5 @@ namespace cxxtools
     return 0;
   }
 
+}
 }

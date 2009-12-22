@@ -78,19 +78,19 @@ void ProcessImpl::start()
 
     if (_procInfo.stdInputMode() == ProcessInfo::Capture)
     {
-        _stdinPipe = new Pipe();
+        _stdinPipe = new posix::Pipe();
         _stdInput = &_stdinPipe->in();
     }
 
     if (_procInfo.stdOutputMode() == ProcessInfo::Capture)
     {
-        _stdoutPipe = new Pipe();
+        _stdoutPipe = new posix::Pipe();
         _stdOutput = &_stdoutPipe->out();
     }
 
     if (_procInfo.stdErrorMode() == ProcessInfo::Capture)
     {
-        _stderrPipe = new Pipe();
+        _stderrPipe = new posix::Pipe();
         _stdError = &_stderrPipe->out();
     }
     else if (_procInfo.stdErrorMode() == ProcessInfo::Combine)
@@ -138,7 +138,7 @@ void ProcessImpl::start()
         else if (_procInfo.stdInputMode() == ProcessInfo::Capture)
         {
             _stdinPipe->in().close();
-            _stdinPipe->impl()->redirectStdin();
+            _stdinPipe->redirectStdin();
         }
         else if (_procInfo.stdInput())
         {
@@ -154,7 +154,7 @@ void ProcessImpl::start()
         else if (_procInfo.stdOutputMode() == ProcessInfo::Capture)
         {
             _stdoutPipe->out().close();
-            _stdoutPipe->impl()->redirectStdout();
+            _stdoutPipe->redirectStdout();
         }
         else if (_procInfo.stdOutput())
         {
@@ -169,11 +169,11 @@ void ProcessImpl::start()
         }
         else if (_procInfo.stdErrorMode() == ProcessInfo::Capture)
         {
-            _stderrPipe->impl()->redirectStderr();
+            _stderrPipe->redirectStderr();
         }
         else if (_procInfo.stdErrorMode() == ProcessInfo::Combine)
         {
-            _stdoutPipe->impl()->redirectStderr(false);
+            _stdoutPipe->redirectStderr(false);
         }
         else if (_procInfo.stdError())
         {

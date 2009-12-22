@@ -37,7 +37,6 @@ nobase_include_HEADERS = \
         cxxtools/dir.h \
         cxxtools/directory.h \
         cxxtools/dlloader.h \
-        cxxtools/dynbuffer.h \
         cxxtools/event.h \
         cxxtools/eventloop.h \
         cxxtools/eventsink.h \
@@ -89,8 +88,9 @@ nobase_include_HEADERS = \
         cxxtools/net/udpstream.h \
         cxxtools/noncopyable.h \
         cxxtools/pipe.h \
-        cxxtools/pipestream.h \
         cxxtools/pool.h \
+        cxxtools/posix/pipe.h \
+        cxxtools/posix/pipestream.h \
         cxxtools/process.h \
         cxxtools/properties.h \
         cxxtools/query_params.h \

@@ -32,7 +32,7 @@
 #include <cxxtools/net/udpstream.h>
 #include <cxxtools/tee.h>
 #include <cxxtools/streamcounter.h>
-#include <cxxtools/pipestream.h>
+#include <cxxtools/posix/pipestream.h>
 #include <cxxtools/systemerror.h>
 #include <list>
 #include <vector>
@@ -95,7 +95,7 @@ namespace cxxtools
       static net::UdpOStream udpmessage;
       static unsigned maxfilesize;
       static unsigned maxbackupindex;
-      static Pipestream* pipe;
+      static posix::Pipestream* pipe;
 
       static std::string mkfilename(unsigned idx);
 
@@ -188,7 +188,7 @@ namespace cxxtools
   net::UdpOStream LoggerImpl::udpmessage(LoggerImpl::loghost);
   unsigned LoggerImpl::maxfilesize = 0;
   unsigned LoggerImpl::maxbackupindex = 0;
-  Pipestream* LoggerImpl::pipe = 0;
+  posix::Pipestream* LoggerImpl::pipe = 0;
 
   void LoggerImpl::setFile(const std::string& fname_)
   {
@@ -222,7 +222,7 @@ namespace cxxtools
         throw std::runtime_error("unknown group \"" + group + "\" in logging configuration");
     }
 
-    pipe = new Pipestream();
+    pipe = new posix::Pipestream();
     pid_t pid = ::fork();
 
     if(pid < 0)

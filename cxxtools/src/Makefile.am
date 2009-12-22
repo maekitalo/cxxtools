@@ -49,7 +49,8 @@ libcxxtools_la_SOURCES = \
 	muteximpl.cpp \
 	pipe.cpp \
 	pipeimpl.cpp \
-	pipestream.cpp \
+	posix/pipestream.cpp \
+	posix/posixpipe.cpp \
 	process.cpp \
 	processimpl.cpp \
 	properties.cpp \

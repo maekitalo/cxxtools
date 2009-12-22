@@ -26,12 +26,15 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef CXXTOOLS_PIPESTREAM_H
-#define CXXTOOLS_PIPESTREAM_H
+#ifndef CXXTOOLS_POSIX_PIPESTREAM_H
+#define CXXTOOLS_POSIX_PIPESTREAM_H
 
 #include <iostream>
+#include <cxxtools/posix/pipe.h>
 
 namespace cxxtools
+{
+namespace posix
 {
   /** @brief Simple unix pipe iostream
 
@@ -44,7 +47,7 @@ namespace cxxtools
       std::streambuf::int_type underflow();
       int sync();
 
-      int fds[2];
+      posix::Pipe pipe;
 
       unsigned bufsize;
       char* ibuffer;
@@ -54,18 +57,15 @@ namespace cxxtools
       explicit Pipestreambuf(unsigned bufsize = 8192);
       ~Pipestreambuf();
 
-      void closeReadFd();
-      void closeWriteFd();
+      void closeReadFd()      { sync(); pipe.closeReadFd(); }
+      void closeWriteFd()     { sync(); pipe.closeWriteFd(); }
 
-      int getReadFd() const
-      { return fds[0]; }
+      int getReadFd() const   { return pipe.getReadFd(); }
+      int getWriteFd() const  { return pipe.getWriteFd(); }
 
-      int getWriteFd() const
-      { return fds[1]; }
-
-      void redirectStdout(bool close = true);
-      void redirectStdin(bool close = true);
-      void redirectStderr(bool close = true);
+      void redirectStdout(bool close = true)   { pipe.redirectStdout(close); }
+      void redirectStdin(bool close = true)    { pipe.redirectStdin(close); }
+      void redirectStderr(bool close = true)   { pipe.redirectStderr(close); }
   };
 
   class Pipestream : public std::iostream
@@ -96,5 +96,6 @@ namespace cxxtools
       void redirectStderr(bool close = true)   { streambuf.redirectStderr(close); }
   };
 }
+}
 
-#endif // CXXTOOLS_PIPESTREAM_H
+#endif // CXXTOOLS_POSIX_PIPESTREAM_H
