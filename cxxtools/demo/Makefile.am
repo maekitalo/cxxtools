@@ -1,4 +1,4 @@
-noinst_PROGRAMS = arg arg-set cgi dir dlloader dynbuffer getini hd \
+noinst_PROGRAMS = arg arg-set cgi dir dlloader getini hd \
 	httprequest httpserver log logbench logsh md5sum mime multifstream netcat netio \
 	netmsg pipestream pool signals thread uuencode cxxlog rpcecho
 
@@ -7,7 +7,6 @@ arg_set_SOURCES = arg-set.cpp
 cgi_SOURCES = cgi.cpp
 dir_SOURCES = dir.cpp
 dlloader_SOURCES = dlloader.cpp
-dynbuffer_SOURCES = dynbuffer.cpp
 getini_SOURCES = getini.cpp
 hd_SOURCES = hd.cpp
 httprequest_SOURCES = httprequest.cpp

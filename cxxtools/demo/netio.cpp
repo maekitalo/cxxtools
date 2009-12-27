@@ -28,9 +28,9 @@
 
 #include <cxxtools/net/tcpstream.h>
 #include <cxxtools/arg.h>
-#include <cxxtools/dynbuffer.h>
 #include <cxxtools/loginit.h>
 #include <sys/time.h>
+#include <vector>
 #include <stdlib.h>
 
 const unsigned BUFSIZE = 65536;
@@ -117,8 +117,8 @@ int client(int argc, char* argv[])
 
   cxxtools::net::TcpSocket conn(ip.getValue(), port);
 
-  cxxtools::Dynbuffer<char> buffer(bufsize);
-  std::generate(buffer.begin(), buffer.end(), rand);
+  std::vector<char> buffer(bufsize);
+  std::generate(&buffer[0], &buffer[bufsize], rand);
 
   std::cout << "test" << std::endl;
 

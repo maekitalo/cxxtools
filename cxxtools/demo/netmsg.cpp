@@ -27,9 +27,9 @@
  */
 
 #include <cxxtools/net/udp.h>
-#include <cxxtools/dynbuffer.h>
 #include <cxxtools/arg.h>
 #include <cxxtools/loginit.h>
+#include <vector>
 #include <iostream>
 
 void usage(const char* progname)
@@ -83,13 +83,13 @@ int main(int argc, char* argv[])
       if (timeout.isSet())
         receiver.setTimeout(timeout);
 
-      cxxtools::Dynbuffer<char> buffer(size);
+      std::vector<char> buffer(size);
 
       std::cout << "waiting for messages on port " << port << std::endl;
       do
       {
-        cxxtools::net::UdpReceiver::size_type s = receiver.recv(buffer.data(), size);
-        std::string msg(buffer.data(), s);
+        cxxtools::net::UdpReceiver::size_type s = receiver.recv(&buffer[0], size);
+        std::string msg(&buffer[0], s);
         std::cout << msg;
         if (!nonewline)
           std::cout << std::endl;

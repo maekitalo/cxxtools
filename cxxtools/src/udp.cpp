@@ -29,11 +29,11 @@
 #include <cxxtools/net/addrinfo.h>
 #include "addrinfoimpl.h"
 #include <cxxtools/net/udp.h>
-#include <cxxtools/dynbuffer.h>
 #include <cxxtools/log.h>
 #include <cxxtools/systemerror.h>
 #include <netdb.h>
 #include <sys/poll.h>
+#include <vector>
 #include <errno.h>
 #include <string.h>
 
@@ -126,9 +126,9 @@ namespace net
 
   std::string UdpSender::recv(size_type length, int flags) const
   {
-    cxxtools::Dynbuffer<char> buffer(length);
-    size_type len = recv(buffer.data(), length, flags);
-    return std::string(buffer.data(), len);
+    std::vector<char> buffer(length);
+    size_type len = recv(&buffer[0], length, flags);
+    return std::string(&buffer[0], len);
   }
 
   //////////////////////////////////////////////////////////////////////
@@ -202,9 +202,9 @@ namespace net
 
   std::string UdpReceiver::recv(size_type length, int flags)
   {
-    cxxtools::Dynbuffer<char> buffer(length);
-    size_type len = recv(buffer.data(), length, flags);
-    return std::string(buffer.data(), len);
+    std::vector<char> buffer(length);
+    size_type len = recv(&buffer[0], length, flags);
+    return std::string(&buffer[0], len);
   }
 
   UdpReceiver::size_type UdpReceiver::send(const void* message, size_type length, int flags) const
