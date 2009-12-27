@@ -83,6 +83,25 @@ AC_DEFUN([AC_CXXTOOLS_ATOMICTYPE],
                                        : "r" (&dest), "r" (1)
                                        : "cc", "memory");
         } ])
+  AC_CHECKATOMICTYPE([att_mips], [CXXTOOLS_ATOMICITY_GCC_MIPS],
+      [
+        #include <csignal>
+        typedef std::sig_atomic_t atomic_t;
+
+        void atomicIncrement(volatile atomic_t& val)
+        {
+            atomic_t tmp, result = 0;
+
+            asm volatile ("    .set    mips32\n"
+                          "1:  ll      %0, %2\n"
+                          "    addu    %1, %0, 1\n"
+                          "    sc      %1, %2\n"
+                          "    beqz    %1, 1b\n"
+                          "    .set    mips0\n"
+                          : "=&r" (result), "=&r" (tmp), "=m" (val)
+                          : "m" (val));
+        }
+         ])
   AC_CHECKATOMICTYPE([att_ppc], [CXXTOOLS_ATOMICITY_GCC_PPC],
       [
         #include <csignal>
