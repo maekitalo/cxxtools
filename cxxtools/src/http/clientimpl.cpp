@@ -114,10 +114,12 @@ void ClientImpl::setSelector(SelectorBase& selector)
 void ClientImpl::reexecute(const Request& request)
 {
     log_debug("reconnect");
-    _socket.connect(_addrInfo);
 
     _stream.clear();
     _stream.buffer().discard();
+
+    _socket.connect(_addrInfo);
+
     sendRequest(request);
     _stream.flush();
 }
