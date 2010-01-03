@@ -1,3 +1,231 @@
+2009-12-27 tommi@tntnet.org
+ - remove cxxtools::Dynbuffer (use std::vector instead)
+
+2009-12-22 tommi@tntnet.org
+ - split pipe class into generic and posix specific functionality
+
+2009-12-21 tommi@tntnet.org
+ - remove old compatibility typedefs cxxtools::net::Server and cxxtools::net::Stream
+
+2009-12-17 tommi@tntnet.org
+ - new static methods Utf8Codec::encode and Utf8Codec::decode
+
+2009-12-06 tommi@tntnet.org
+ - make building of demos and unittests optional by configure flags --disable-demos and --disable-unittest
+
+2009-11-16 tommi@tntnet.org
+ - support for FD_CLOEXEC flag on sockets and support for accept4 (conditional by configure check)
+
+2009-11-15 tommi@tntnet.org
+ - improve Process class
+
+2009-11-03 tommi@tntnet.org
+ - merge cxxtools::ext::Pipe and cxxtools::Pipe into cxxtools::Pipe
+
+2009-10-30 tommi@tntnet.org
+ - make SimpleRefCounted the default in RefCounted again
+
+2009-10-16 tommi@tntnet.org
+ - new class cxxtools::net::AddrInfo, which encapsulates ip and port
+ - let cxxtools::RefCounted use atomic_t
+ - support for multiple listeners to httpserver
+
+2009-09-06 tommi@tntnet.org
+ - extract http code from xmlrpc client into a separate class
+
+2009-08-28 tommi@tntnet.org
+ - do not indent json by default but make it optional
+
+2009-08-25 tommi@tntnet.org
+ - support for chunked encoding transfer in http-client
+
+2009-08-18 tommi@tntnet.org
+ - add support for authentication to http server
+
+2009-08-02 tommi@tntnet.org
+ - add http authorization to http client
+
+2009-07-05 tommi@tntnet.org
+ - compile iconvstream only if explicitely configured
+
+2009-07-03 tommi@tntnet.org
+ - implement json serializer
+
+2009-07-03 d-marc
+ - added settings and xml serialization
+
+2009-06-21 tommi@tntnet.org
+ - add serialization for all std container templates
+
+2009-06-12 tommi@tntnet.org
+ - add new rpcclient and server demo rpcecho
+
+2009-06-02 tommi@tntnet.org
+ - propagte connect error in http client through errorOccured signal
+
+2009-05-31 tommi@tntnet.org
+ - serialization for std::deque
+
+2009-05-28 tommi@tntnet.org
+ - improved exception handling in xmlrpc
+
+2009-05-27 tommi@tntnet.org
+ - serializer for std::list and std::set
+
+2009-04-04 tommi@tntnet.org
+ - move http to a separate library
+ - move net-headers to own subdirectory
+
+2009-04-03 d-marc
+ - throw on endConnect if connect failed
+
+2009-04-03 d-marc
+ - added xmlrpc library
+
+2009-04-02 d-marc
+ - added xml reader and writer
+
+2009-04-02 d-marc
+ - added serializer, deserializer and serializationinfo class
+
+2009-04-01 d-marc
+ - added stringstream
+
+2009-04-01 d-marc
+ - added codecs
+
+2009-03-31 d-marc
+ - added textstreams
+
+2009-03-26 d-marc
+ - added unicode capable string class
+
+2009-03-26 tommi@tntnet.org
+ - make httpserver multithreaded
+
+2009-03-23 d-marc
+ - added unicode char class
+
+2009-03-23 d-marc
+ - added getSystemTime method
+
+2009-03-22 tommi@tntnet.org
+ - http client rewritten and new http server
+
+2009-02-27 tommi@tntnet.org
+ - new FreeDestroyPolicy for smart pointers
+
+2009-02-23 d-marc
+ - added TCP iostream
+
+2009-02-19 d-marc
+ - added unit test for tcp
+
+2009-02-18 d-marc
+ - added unit testing library
+
+2009-02-17 d-marc
+ - sockets are always async
+
+2009-02-16 tommi@tntnet.org
+ - return std::string for ip adresses instead of system specific structure
+
+2009-02-13 tommi@tntnet.org
+ - make destroy policy methods of smart pointer public
+
+2009-02-13 d-marc
+ - added blocking connect
+
+2009-02-11 d-marc
+ - renamed to TcpServer
+
+2009-02-10 d-marc
+ - added signal for pending connections
+
+2009-02-10 d-marc
+ - TcpServersocket is a Selectable
+
+2009-02-09 d-marc
+ - moved tcp server socket to separate header
+
+2009-02-09 d-marc
+ - moved addrinfo to separate files
+
+2008-12-19 d-marc
+ - added streambuf for iodevices
+
+2008-12-18 d-marc
+ - added semaphore class
+
+2008-12-17 d-marc
+ - new classes EventLoop, Process, IODevice, Selectable, Selector, Application, Timer
+
+2008-12-16 tommi@tntnet.org
+ - new methods in pipe to easily redirect stdin, stdout and stderr
+
+2008-12-16 tommi@tntnet.org
+ - new method cxxtools::net::iostream::canRead()
+
+2008-12-12 d-marc
+ - added event soure and sink class
+
+2008-12-02 d-marc
+ - added singleton template and typetraits
+
+2008-12-02 d-marc
+ - added high precision system clock
+
+2008-12-02 d-marc
+ - added date and time classes
+
+2008-12-01 tommi@tntnet.org
+ - default to maxbackupindex of 2 instead of 10 in cxxtools-config-script
+
+2008-12-01 tommi@tntnet.org
+ - use spinlock instead of mutex in logger
+
+2008-12-01 d-marc
+ - added conversion algos
+
+2008-11-26 d-marc
+ - mutex class consolidation; Added more IOError types
+
+2008-11-25 d-marc
+ - added tryReadLock and tryWriteLock for ReadWriteMutex
+
+2008-11-24 d-marc
+ - added IOError and AccessFailed
+
+2008-11-19 d-marc
+ - renamed timedwait in condition
+
+2008-11-05 tommi@tntnet.org
+ - rename RWLock to RWMutex and add typedef for old name for compatibility
+
+2008-11-04 d-marc
+ - unified attached and detached thread classes
+
+2008-10-30 d-marc
+ - use callables as thread functors
+
+2008-09-12 tommi@tntnet.org
+ - add LGPL exception for large templates and macros
+
+2008-08-14 d-marc
+ - added tryLock method to SpinMutex
+
+2008-08-08 tommi@tntnet.org
+ - move mutex classes into separate files and add spinlock mutex
+
+2008-07-03 tommi@tntnet.org
+  - don't throw exceptions when logging fails
+
+2008-06-18 tommi@tntnet.org
+  - use non-atomic reference counting by default and add atomic refcounted class and smart pointer policy
+
+2008-06-10 d-marc
+  - added new file/dir API
+
 2008-06-18 tommi@tntnet.org
   - split referencecounting into a thread safe and a non thread safe variant
 
