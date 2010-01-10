@@ -136,37 +136,12 @@ inline void convert(bool& n, const cxxtools::String& str)
 
 inline void convert(bool& n, const std::string& str)
 {
-    if( ( str.size() == 4 ) &&
-        ( str[0] == 't' ) &&
-        ( str[1] == 'r' ) &&
-        ( str[2] == 'u' ) &&
-        ( str[3] == 'e' ) )
-    {
+    if (str == "true" || str == "1")
         n = true;
-    }
-    else if( ( str.size() == 5 ) &&
-        ( str[0] == 'f' ) &&
-        ( str[1] == 'a' ) &&
-        ( str[2] == 'l' ) &&
-        ( str[3] == 's' ) &&
-        ( str[4] == 'e' ) )
-    {
+    else if (str == "false" || str == "0")
         n = false;
-    }
-    else if( ( str.size() == 1 ) &&
-        ( str[0] == '1' ) )
-    {
-        n = true;
-    }
-    else if( ( str.size() == 1 ) &&
-        ( str[0] == '0' ) )
-    {
-        n = false;
-    }
     else
-    {
         throw cxxtools::ConversionError( CXXTOOLS_CONVERSIONERROR(bool, std::string) );
-    }
 }
 
 inline void convert(cxxtools::String& s, char value)
