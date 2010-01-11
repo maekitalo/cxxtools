@@ -51,7 +51,7 @@ class SelectorImpl
 
         void changed( Selectable& dev );
 
-        bool wait(unsigned int msecs);
+        bool wait(std::size_t msecs);
 
         void wake();
 

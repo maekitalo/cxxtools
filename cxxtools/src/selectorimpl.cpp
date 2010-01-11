@@ -130,7 +130,7 @@ void SelectorImpl::changed( Selectable& s )
 }
 
 
-bool SelectorImpl::wait(unsigned int umsecs)
+bool SelectorImpl::wait(std::size_t umsecs)
 {
     _clock.start();
 
@@ -167,7 +167,7 @@ bool SelectorImpl::wait(unsigned int umsecs)
         // Eintraege einfuegen
         pollfd* pCurr= &_pollfds[0];
 
-        // Event Pipe einfuegen TODO Pt::System::Pipe verwenden
+        // Event Pipe einfuegen TODO cxxtools::Pipe verwenden
         pCurr->fd = _wakePipe[0];
         pCurr->events = POLLIN;
 

@@ -143,36 +143,6 @@ bool SelectorBase::updateTimer(std::size_t& lowestTimeout)
 }
 
 
-/*bool SelectorBase::wait(unsigned int msecs)
-{
-	Timespan now = Clock::getSystemTicks();
-
-	if( ! _timers.empty() )
-	{
-		Timer* timer = _timers.begin()->second;
-		if( now >= timer->finished() )
-		{
-			msecs = 0;
-		}
-		else
-		{
-			Pt::int64_t remaining = (timer->finished() - now).toUSecs();
-			size_t timerTimeout = (remaining / 1000);
-			if(remaining % 1000 > 0) ++timerTimeout;
-			msecs = std::min(msecs, timerTimeout);
-		}
-	}
-
-	bool active = this->onWait(msecs);
-	if( updateTimer(msecs) )
-	{
-		active = true;
-	}
-
-	return active;
-}*/
-
-
 bool SelectorBase::wait(std::size_t msecs)
 {
     size_t timerTimeout = Selector::WaitInfinite;
