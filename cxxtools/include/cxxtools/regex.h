@@ -95,6 +95,9 @@ namespace cxxtools
       /// returns the end position of the n-th expression
       regoff_t offsetEnd(unsigned n) const     { return matchbuf[n].rm_eo; }
 
+      /// returns true if the n-th element is set.
+      bool has(unsigned n) const
+        { return matchbuf[n].rm_so >= 0; }
       /// returns the n-th element. No range checking is done.
       std::string get(unsigned n) const;
       /// replace each occurence of "$n" with the n-th element (n: 0..9).

@@ -45,7 +45,9 @@ namespace cxxtools
 
   std::string RegexSMatch::get(unsigned n) const
   {
-    return str.substr(matchbuf[n].rm_so, matchbuf[n].rm_eo - matchbuf[n].rm_so);
+    return has(n) ? str.substr(matchbuf[n].rm_so,
+                               matchbuf[n].rm_eo - matchbuf[n].rm_so)
+                  : std::string();
   }
 
   std::string RegexSMatch::format(const std::string& s) const
