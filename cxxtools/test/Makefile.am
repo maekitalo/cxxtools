@@ -1,4 +1,10 @@
-noinst_PROGRAMS = net-test xmlrpc-test process-test abort alltests
+noinst_PROGRAMS = \
+    net-test \
+    xmlrpc-test \
+    process-test \
+    abort \
+    base64-test \
+    alltests
 
 AM_CPPFLAGS = -I$(top_builddir)/include
 
@@ -9,7 +15,14 @@ xmlrpc_test_SOURCES = test-main.cpp xmlrpc-test.cpp
 process_test_SOURCES = test-main.cpp process-test.cpp
 process_test_CPPFLAGS = -I$(top_builddir)/include -DTOP_BUILDDIR='"$(abs_top_builddir)"'
 
-alltests_SOURCES = test-main.cpp tcpsockettest.cpp xmlrpc-test.cpp process-test.cpp
+base64_test_SOURCES = test-main.cpp base64-test.cpp
+
+alltests_SOURCES = \
+    test-main.cpp \
+    tcpsockettest.cpp \
+    xmlrpc-test.cpp \
+    process-test.cpp \
+    base64-test.cpp
 
 abort_SOURCES = abort.cpp
 

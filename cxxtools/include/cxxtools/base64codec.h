@@ -209,7 +209,7 @@ inline Base64Codec::result Base64Codec::do_out(cxxtools::MBState& state,
             break;
     }
 
-    do
+    while (true)
     {
         *toNext++   = toBase64( (*first >> 2) & 0x3f );
         *(toNext++) = toBase64( ((*first << 4) + ((*second) >> 4)) & 0x3f );
@@ -226,7 +226,6 @@ inline Base64Codec::result Base64Codec::do_out(cxxtools::MBState& state,
         second = fromNext++;
         third =  fromNext++;
     }
-    while(fromNext < fromEnd) ;
 
     switch( fromEnd - fromNext )
     {
