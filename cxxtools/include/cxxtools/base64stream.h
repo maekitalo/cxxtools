@@ -30,75 +30,30 @@
 #define CXXTOOLS_BASE64STREAM_H
 
 #include <iostream>
+#include <cxxtools/textstream.h>
+#include <cxxtools/base64codec.h>
 
 namespace cxxtools
 {
-
-class Base64stream_streambuf : public std::streambuf
-{
-    std::streambuf* sinksource;
-    char obuffer[3];
-    char decodebuf[3];
-    unsigned count;
-    bool indecode;
-    bool eofflag;
-
-  public:
-    Base64stream_streambuf(std::streambuf* sinksource_)
-      : sinksource(sinksource_),
-        count(0),
-        indecode(false),
-        eofflag(false)
-      { }
-    ~Base64stream_streambuf()
-      { if (indecode) end(); }
-
-    void end();
-    void reset()  { eofflag = false; }
-
-  protected:
-    std::streambuf::int_type overflow(std::streambuf::int_type ch);
-    std::streambuf::int_type underflow();
-    int sync();
-
-  private:
-    void putChar(char ch);
-    int getval();
-};
 
 /**
  Base64ostream is a base64-encoder.
  
  To base64-encode, instantiate a Base64ostream with an outputstream.
  Write the data to encode into the stream. Base64ostream writes the
- base64-encoded data to the outputstream.  When ready call end() to
- pad and flush. The stream is also padded and flushed in the
+ base64-encoded data to the outputstream.  When ready call terminate()
+ to pad and flush. The stream is also padded and flushed in the
  destructor, when there are characters left.
  */
 
-class Base64ostream : public std::ostream
+class Base64ostream : public BasicTextOStream<char, char>
 {
-    Base64stream_streambuf streambuf;
-
   public:
-    /// instantiate encode with a output-stream, which received encoded
-    /// Data.
-    Base64ostream(std::ostream& out)
-      : std::ostream(0),
-        streambuf(out.rdbuf())
-      {
-        init(&streambuf);
-      }
-    /// instantiate encode with a output-std::streambuf.
-    Base64ostream(std::streambuf* sb)
-      : std::ostream(0),
-        streambuf(sb)
-      {
-        init(&streambuf);
-      }
+    explicit Base64ostream(std::ostream& out)
+      : BasicTextOStream<char, char>(out, new Base64Codec())
+      { }
 
-    /// pad and flush stream.
-    void end()  { streambuf.end(); }
+    void end()  { terminate(); }
 };
 
 /**
@@ -109,23 +64,14 @@ class Base64ostream : public std::ostream
  decoded output.
  */
 
-class Base64istream : public std::istream
+class Base64istream : public BasicTextIStream<char, char>
 {
-    Base64stream_streambuf streambuf;
-
   public:
-    Base64istream(std::istream& in)
-      : std::istream(0),
-        streambuf(in.rdbuf())
-      { init(&streambuf); }
-    Base64istream(std::streambuf* sb)
-      : std::istream(0),
-        streambuf(sb)
-      { init(&streambuf); }
+    explicit Base64istream(std::istream& in)
+      : BasicTextIStream<char, char>(in, new Base64Codec())
+      { }
 
-    /// If a istream has multiple base64-streams, you can skip to
-    /// the next stream after getting eof.
-    void reset()  { streambuf.reset(); }
+    void reset()  { terminate(); }
 };
 
 }
