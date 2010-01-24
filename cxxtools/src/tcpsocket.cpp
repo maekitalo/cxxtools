@@ -162,10 +162,10 @@ int TcpSocket::getFd() const
 }
 
 
-void TcpSocket::accept(const TcpServer& server, bool closeOnExec)
+void TcpSocket::accept(const TcpServer& server, bool inherit)
 {
     this->close();
-    _impl->accept(server, closeOnExec);
+    _impl->accept(server, inherit);
     this->setEnabled(true);
     this->setAsync(true);
     this->setEof(false);

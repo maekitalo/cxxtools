@@ -95,7 +95,7 @@ void IODeviceImpl::open(const std::string& path, IODevice::OpenMode mode)
 }
 
 
-void IODeviceImpl::open(int fd, bool isAsync, bool closeOnExec)
+void IODeviceImpl::open(int fd, bool isAsync, bool inherit)
 {
     _fd = fd;
 
@@ -108,7 +108,7 @@ void IODeviceImpl::open(int fd, bool isAsync, bool closeOnExec)
             throw IOError(getErrnoString("Could not set fd to non-blocking"), CXXTOOLS_SOURCEINFO);
     }
 
-    if (closeOnExec)
+    if (!inherit)
     {
         int flags = fcntl(_fd, F_GETFD);
         flags |= FD_CLOEXEC ;

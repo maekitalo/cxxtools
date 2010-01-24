@@ -68,7 +68,7 @@ class CXXTOOLS_API TcpSocket : public IODevice
         std::size_t getTimeout() const
         { return timeout(); }
 
-        void accept(const TcpServer& server, bool closeOnExec = false);
+        void accept(const TcpServer& server, bool inherit = false);
 
         void connect(const AddrInfo& addrinfo);
 

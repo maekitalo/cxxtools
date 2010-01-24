@@ -88,7 +88,7 @@ namespace cxxtools {
 
             virtual void open(const std::string& path, IODevice::OpenMode mode);
 
-            virtual void open(int fd, bool isAsync, bool closeOnExec);
+            virtual void open(int fd, bool isAsync, bool inherit);
 
             virtual void close();
 

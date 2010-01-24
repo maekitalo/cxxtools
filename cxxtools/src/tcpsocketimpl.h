@@ -83,7 +83,7 @@ class TcpSocketImpl : public IODeviceImpl
 
         void endConnect();
 
-        void accept(const TcpServer& server, bool closeOnExec);
+        void accept(const TcpServer& server, bool inherit);
 
         // implementation using poll
         void initWait(pollfd& pfd);
