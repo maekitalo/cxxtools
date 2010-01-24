@@ -27,7 +27,10 @@
  */
 
 #include <cxxtools/net/addrinfo.h>
+#include <cxxtools/log.h>
 #include "addrinfoimpl.h"
+
+log_define("cxxtools.net.addrinfo")
 
 namespace cxxtools
 {
@@ -46,6 +49,7 @@ AddrInfo::AddrInfo(AddrInfoImpl* impl)
 AddrInfo::AddrInfo(const std::string& host, unsigned short port)
     : _impl(new AddrInfoImpl(host, port))
 {
+    log_debug("host=" << host << " port=" << port);
     _impl->addRef();
 }
 
