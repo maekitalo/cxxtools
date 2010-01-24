@@ -263,16 +263,18 @@ std::string ClientImpl::get(const std::string& url, std::size_t timeout)
 
 void ClientImpl::beginExecute(const Request& request)
 {
+    log_trace("beginExecute");
+
     _request = &request;
     _replyHeader.clear();
     if (_socket.isConnected())
     {
+        log_debug("we are connected already");
         sendRequest(*_request);
         try
         {
             _stream.buffer().beginWrite();
         }
-
         catch (const cxxtools::IOError&)
         {
             log_debug("first write failed, so connection is not active any more");
@@ -284,6 +286,7 @@ void ClientImpl::beginExecute(const Request& request)
     }
     else
     {
+        log_debug("not yet connected - do it now");
         _socket.beginConnect(_addrInfo);
     }
 }
@@ -372,18 +375,31 @@ void ClientImpl::onConnect(net::TcpSocket& socket)
     }
     catch (const std::exception& e)
     {
+        log_debug("error occured");
+
+        _socket.close();
+
+        if (_client->errorOccured.connectionCount() == 0)
+            throw;
+
         _client->errorOccured(*_client, e);
     }
 }
 
 void ClientImpl::onErrorOccured(IODevice& socket)
 {
+    log_trace("error occured");
     try
     {
         throw IOError( CXXTOOLS_ERROR_MSG("error occured in i/o-device") );
     }
     catch (const IOError& e)
     {
+        _socket.close();
+
+        if (_client->errorOccured.connectionCount() == 0)
+            throw;
+
         _client->errorOccured(*_client, e);
     }
 }
@@ -427,7 +443,9 @@ void ClientImpl::onInput(StreamBuffer& sb)
 
         _socket.close();
 
-        // TODO propagate exception if signal errorOccured is not connected
+        if (_client->errorOccured.connectionCount() == 0)
+            throw;
+
         _client->errorOccured(*_client, e);
     }
 }
@@ -479,6 +497,12 @@ void ClientImpl::processHeaderAvailable(StreamBuffer& sb)
             }
             else
             {
+                if (!_replyHeader.keepAlive())
+                {
+                    log_debug("close socket - no keep alive");
+                    _socket.close();
+                }
+
                 _client->replyFinished(*_client);
             }
         }
@@ -526,6 +550,13 @@ void ClientImpl::processBodyAvailable(StreamBuffer& sb)
                 if( _parser.end() )
                 {
                     log_debug("reply finished");
+
+                    if (!_replyHeader.keepAlive())
+                    {
+                        log_debug("close socket - no keep alive");
+                        _socket.close();
+                    }
+
                     _client->replyFinished(*_client);
                 }
             }
@@ -550,6 +581,13 @@ void ClientImpl::processBodyAvailable(StreamBuffer& sb)
         if( _contentLength <= 0 )
         {
             log_debug("reply finished");
+
+            if (!_replyHeader.keepAlive())
+            {
+                log_debug("close socket - no keep alive");
+                _socket.close();
+            }
+
             _client->replyFinished(*_client);
         }
         else
