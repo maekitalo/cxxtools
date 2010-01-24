@@ -119,7 +119,7 @@ namespace cxxtools
       out << "Content-Transfer-Encoding: base64\n\n";
       Base64ostream enc(out);
       enc << mimePart.getBody();
-      enc.end();
+      enc.terminate();
       out << "\n\n";
     }
     else
