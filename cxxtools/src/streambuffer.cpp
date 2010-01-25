@@ -85,11 +85,13 @@ void StreamBuffer::attach(IODevice& ioDevice)
 
         disconnect(ioDevice.inputReady, *this, &StreamBuffer::onRead);
         disconnect(ioDevice.outputReady, *this, &StreamBuffer::onWrite);
+        disconnect(ioDevice.errorOccured, *this, &StreamBuffer::onError);
     }
 
     _ioDevice = &ioDevice;
     connect(ioDevice.inputReady, *this, &StreamBuffer::onRead);
     connect(ioDevice.outputReady, *this, &StreamBuffer::onWrite);
+    connect(ioDevice.errorOccured, *this, &StreamBuffer::onError);
 }
 
 
@@ -240,6 +242,15 @@ void StreamBuffer::onWrite(IODevice& dev)
 
     this->endWrite();
     outputReady.send(*this);
+}
+
+
+void StreamBuffer::onError(IODevice& dev)
+{
+    if (_ioDevice->reading())
+        dev.endRead();
+    if (_ioDevice->writing())
+        dev.endWrite();
 }
 
 

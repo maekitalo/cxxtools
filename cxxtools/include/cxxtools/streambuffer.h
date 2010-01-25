@@ -121,6 +121,8 @@ class CXXTOOLS_API StreamBuffer : public BasicStreamBuffer<char>
 
         void endWrite();
 
+        void onError(IODevice& dev);
+
     private:
         IODevice* _ioDevice;
         size_t _ibufferSize;

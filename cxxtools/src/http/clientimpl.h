@@ -78,13 +78,14 @@ class ClientImpl : public Connectable
         net::AddrInfo _addrInfo;
         net::TcpSocket _socket;
         IOStream _stream;
-        bool _readHeader;
-        long _contentLength;
-        bool _chunkedEncoding;
         ChunkedIStream _chunkedIStream;
-
         std::string _username;
         std::string _password;
+
+        long _contentLength;
+        bool _readHeader;
+        bool _chunkedEncoding;
+        bool _reconnectOnError;
 
         void sendRequest(const Request& request);
         void processHeaderAvailable(StreamBuffer& sb);

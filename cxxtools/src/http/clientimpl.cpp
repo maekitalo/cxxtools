@@ -53,10 +53,11 @@ ClientImpl::ClientImpl(Client* client)
 , _parser(_parseEvent, true)
 , _request(0)
 , _stream(8192, true)
-, _readHeader(true)
-, _contentLength(0)
-, _chunkedEncoding(false)
 , _chunkedIStream(_stream.rdbuf())
+, _contentLength(0)
+, _readHeader(true)
+, _chunkedEncoding(false)
+, _reconnectOnError(false)
 {
     _stream.attachDevice(_socket);
     cxxtools::connect(_socket.connected, *this, &ClientImpl::onConnect);
@@ -73,10 +74,11 @@ ClientImpl::ClientImpl(Client* client, const net::AddrInfo& addrinfo)
 , _request(0)
 , _addrInfo(addrinfo)
 , _stream(8192, true)
-, _readHeader(true)
-, _contentLength(0)
-, _chunkedEncoding(false)
 , _chunkedIStream(_stream.rdbuf())
+, _contentLength(0)
+, _readHeader(true)
+, _chunkedEncoding(false)
+, _reconnectOnError(false)
 {
     _stream.attachDevice(_socket);
     cxxtools::connect(_socket.connected, *this, &ClientImpl::onConnect);
@@ -92,10 +94,11 @@ ClientImpl::ClientImpl(Client* client, SelectorBase& selector, const net::AddrIn
 , _request(0)
 , _addrInfo(addrinfo)
 , _stream(8192, true)
-, _readHeader(true)
-, _contentLength(0)
-, _chunkedEncoding(false)
 , _chunkedIStream(_stream.rdbuf())
+, _contentLength(0)
+, _readHeader(true)
+, _chunkedEncoding(false)
+, _reconnectOnError(false)
 {
     _stream.attachDevice(_socket);
     cxxtools::connect(_socket.connected, *this, &ClientImpl::onConnect);
@@ -274,6 +277,7 @@ void ClientImpl::beginExecute(const Request& request)
         try
         {
             _stream.buffer().beginWrite();
+            _reconnectOnError = true;
         }
         catch (const cxxtools::IOError&)
         {
@@ -282,12 +286,14 @@ void ClientImpl::beginExecute(const Request& request)
             _stream.clear();
             _stream.buffer().discard();
             _socket.beginConnect(_addrInfo);
+            _reconnectOnError = false;
         }
     }
     else
     {
         log_debug("not yet connected - do it now");
         _socket.beginConnect(_addrInfo);
+        _reconnectOnError = false;
     }
 }
 
@@ -389,18 +395,27 @@ void ClientImpl::onConnect(net::TcpSocket& socket)
 void ClientImpl::onErrorOccured(IODevice& socket)
 {
     log_trace("error occured");
-    try
+    if (_reconnectOnError && _request != 0)
     {
-        throw IOError( CXXTOOLS_ERROR_MSG("error occured in i/o-device") );
+        log_debug("reconnect on error");
+        reexecute(*_request);
+        _reconnectOnError = false;
     }
-    catch (const IOError& e)
+    else
     {
-        _socket.close();
+        try
+        {
+            throw IOError( CXXTOOLS_ERROR_MSG("error occured in i/o-device") );
+        }
+        catch (const IOError& e)
+        {
+            _socket.close();
 
-        if (_client->errorOccured.connectionCount() == 0)
-            throw;
+            if (_client->errorOccured.connectionCount() == 0)
+                throw;
 
-        _client->errorOccured(*_client, e);
+            _client->errorOccured(*_client, e);
+        }
     }
 }
 
