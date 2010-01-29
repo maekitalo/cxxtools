@@ -116,7 +116,7 @@ void ClientImpl::setSelector(SelectorBase& selector)
 
 void ClientImpl::reexecute(const Request& request)
 {
-    log_debug("reconnect");
+    log_debug("reexecute");
 
     _stream.clear();
     _stream.buffer().discard();
@@ -395,27 +395,27 @@ void ClientImpl::onConnect(net::TcpSocket& socket)
 void ClientImpl::onErrorOccured(IODevice& socket)
 {
     log_trace("error occured");
-    if (_reconnectOnError && _request != 0)
+    try
     {
-        log_debug("reconnect on error");
-        reexecute(*_request);
-        _reconnectOnError = false;
-    }
-    else
-    {
-        try
+        if (_reconnectOnError && _request != 0)
+        {
+            log_debug("reconnect on error");
+            reexecute(*_request);
+            _reconnectOnError = false;
+        }
+        else
         {
             throw IOError( CXXTOOLS_ERROR_MSG("error occured in i/o-device") );
         }
-        catch (const IOError& e)
-        {
-            _socket.close();
+    }
+    catch (const std::exception& e)
+    {
+        _socket.close();
 
-            if (_client->errorOccured.connectionCount() == 0)
-                throw;
+        if (_client->errorOccured.connectionCount() == 0)
+            throw;
 
-            _client->errorOccured(*_client, e);
-        }
+        _client->errorOccured(*_client, e);
     }
 }
 
