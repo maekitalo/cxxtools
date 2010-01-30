@@ -107,6 +107,11 @@ const std::string& DirectoryIterator::operator*() const
 }
 
 
+const std::string* DirectoryIterator::operator->() const
+{
+    return &_impl->name();
+}
+
 
 Directory::Directory()
 : _impl(0)

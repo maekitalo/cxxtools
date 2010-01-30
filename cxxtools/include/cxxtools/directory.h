@@ -86,6 +86,8 @@ class DirectoryIterator
         //! @brief Returns the name of the file the iterator points at
         const std::string& operator*() const;
 
+        const std::string* operator->() const;
+
     private:
         //! @internal
         class DirectoryIteratorImpl* _impl;
