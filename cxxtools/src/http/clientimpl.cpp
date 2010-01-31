@@ -60,6 +60,8 @@ ClientImpl::ClientImpl(Client* client)
 , _reconnectOnError(false)
 {
     _stream.attachDevice(_socket);
+    _stream.exceptions(std::ios::failbit | std::ios::badbit);     
+    _chunkedIStream.exceptions(std::ios::failbit | std::ios::badbit);
     cxxtools::connect(_socket.connected, *this, &ClientImpl::onConnect);
     cxxtools::connect(_socket.errorOccured, *this, &ClientImpl::onErrorOccured);
     cxxtools::connect(_stream.buffer().outputReady, *this, &ClientImpl::onOutput);
@@ -81,6 +83,8 @@ ClientImpl::ClientImpl(Client* client, const net::AddrInfo& addrinfo)
 , _reconnectOnError(false)
 {
     _stream.attachDevice(_socket);
+    _stream.exceptions(std::ios::failbit | std::ios::badbit);                     
+    _chunkedIStream.exceptions(std::ios::failbit | std::ios::badbit);             
     cxxtools::connect(_socket.connected, *this, &ClientImpl::onConnect);
     cxxtools::connect(_socket.errorOccured, *this, &ClientImpl::onErrorOccured);
     cxxtools::connect(_stream.buffer().outputReady, *this, &ClientImpl::onOutput);
@@ -101,6 +105,8 @@ ClientImpl::ClientImpl(Client* client, SelectorBase& selector, const net::AddrIn
 , _reconnectOnError(false)
 {
     _stream.attachDevice(_socket);
+    _stream.exceptions(std::ios::failbit | std::ios::badbit);                     
+    _chunkedIStream.exceptions(std::ios::failbit | std::ios::badbit);             
     cxxtools::connect(_socket.connected, *this, &ClientImpl::onConnect);
     cxxtools::connect(_socket.errorOccured, *this, &ClientImpl::onErrorOccured);
     cxxtools::connect(_stream.buffer().outputReady, *this, &ClientImpl::onOutput);
@@ -400,8 +406,8 @@ void ClientImpl::onErrorOccured(IODevice& socket)
         if (_reconnectOnError && _request != 0)
         {
             log_debug("reconnect on error");
-            reexecute(*_request);
             _reconnectOnError = false;
+            reexecute(*_request);
         }
         else
         {
@@ -540,7 +546,8 @@ void ClientImpl::processBodyAvailable(StreamBuffer& sb)
             {
                 log_debug("read chunked encoding body");
 
-                while (_chunkedIStream.rdbuf()->in_avail() > 0
+                while (_chunkedIStream.good()
+                    && _chunkedIStream.rdbuf()->in_avail() > 0
                     && !_chunkedIStream.eod())
                 {
                     log_debug("bodyAvailable");
@@ -587,7 +594,7 @@ void ClientImpl::processBodyAvailable(StreamBuffer& sb)
     {
         log_debug("content-length(pre)=" << _contentLength);
 
-        while (_contentLength > 0 && sb.in_avail() > 0)
+        while (_stream.good() && _contentLength > 0 && sb.in_avail() > 0)                                            
         {
             _contentLength -= _client->bodyAvailable(*_client); // TODO: may throw exception
             log_debug("content-length(post)=" << _contentLength);
