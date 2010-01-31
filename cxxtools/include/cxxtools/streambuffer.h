@@ -50,7 +50,7 @@ class BasicStreamBuffer : public std::basic_streambuf<CharT>
              return this->showfull();
         }
 
-     protected:
+    protected:
         virtual std::streamsize xspeekn(CharT* buffer, std::streamsize size)
         {
             if(size == 0)
@@ -129,8 +129,9 @@ class CXXTOOLS_API StreamBuffer : public BasicStreamBuffer<char>
         char* _ibuffer;
         std::size_t _obufferSize;
         char* _obuffer;
-        bool _oextend;
         const size_t _pbmax;
+        bool _oextend;
+        bool _exceptionPending;
 };
 
 } // namespace cxxtools

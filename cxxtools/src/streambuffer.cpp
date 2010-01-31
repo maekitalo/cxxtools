@@ -42,8 +42,9 @@ StreamBuffer::StreamBuffer(IODevice& ioDevice, size_t bufferSize, bool extend)
   _ibuffer(0),
   _obufferSize(bufferSize),
   _obuffer(0),
+  _pbmax(4),
   _oextend(extend),
-  _pbmax(4)
+  _exceptionPending(false)
 {
     this->setg(0, 0, 0);
     this->setp(0, 0);
@@ -58,8 +59,9 @@ StreamBuffer::StreamBuffer(size_t bufferSize, bool extend)
   _ibuffer(0),
   _obufferSize(bufferSize),
   _obuffer(0),
+  _pbmax(4),
   _oextend(extend),
-  _pbmax(4)
+  _exceptionPending(false)
 {
     this->setg(0, 0, 0);
     this->setp(0, 0);
@@ -103,6 +105,12 @@ IODevice* StreamBuffer::device()
 
 void StreamBuffer::beginRead()
 {
+    if (_exceptionPending)
+    {
+        _exceptionPending = false;
+        throw;
+    }
+
     if(_ioDevice == 0 || _ioDevice->reading())
         return;
 
@@ -140,8 +148,19 @@ void StreamBuffer::beginRead()
 
 void StreamBuffer::onRead(IODevice& dev)
 {
-    this->endRead();
-    inputReady.send(*this);
+    try
+    {
+        _exceptionPending = true;
+        this->endRead();
+        _exceptionPending = false;
+        inputReady.send(*this);
+    }
+    catch (...)
+    {
+        inputReady.send(*this);
+        if (_exceptionPending)
+            throw;
+    }
 }
 
 
@@ -209,6 +228,12 @@ void StreamBuffer::beginWrite()
 {
     log_trace("beginWrite; out_avail=" << out_avail());
 
+    if (_exceptionPending)
+    {
+        _exceptionPending = false;
+        throw;
+    }
+
     if(_ioDevice == 0 || _ioDevice->writing())
         return;
 
@@ -240,8 +265,19 @@ void StreamBuffer::onWrite(IODevice& dev)
 {
     log_trace("onWrite");
 
-    this->endWrite();
-    outputReady.send(*this);
+    try
+    {
+        _exceptionPending = true;
+        this->endWrite();
+        _exceptionPending = false;
+        outputReady.send(*this);
+    }
+    catch (...)
+    {
+        outputReady.send(*this);
+        if (_exceptionPending)
+            throw;
+    }
 }
 
 
