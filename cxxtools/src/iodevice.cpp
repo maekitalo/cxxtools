@@ -74,7 +74,18 @@ size_t IODevice::endRead()
     if( ! _rbuf )
         return 0;
 
-    size_t n = this->onEndRead(_eof);
+    size_t n;
+    try
+    {
+        n = this->onEndRead(_eof);
+    }
+    catch (...)
+    {
+        _rbuf = 0;
+        _rbuflen = 0;
+        _ravail = 0;
+        throw;
+    }
 
     if(_wavail > 0)
         this->setState(Selectable::Avail);
@@ -86,6 +97,7 @@ size_t IODevice::endRead()
     _rbuf = 0;
     _rbuflen = 0;
     _ravail = 0;
+
     return n;
 }
 
@@ -141,7 +153,18 @@ size_t IODevice::endWrite()
     if( ! _wbuf )
         return 0;
 
-    size_t n =  onEndWrite();
+    size_t n;
+    try
+    {
+        n = onEndWrite();
+    }
+    catch (...)
+    {
+        _wbuf = 0;
+        _wbuflen = 0;
+        _wavail = 0;
+        throw;
+    }
 
     if(_ravail > 0 || (_rbuf && _eof) )
         this->setState(Selectable::Avail);
@@ -153,6 +176,7 @@ size_t IODevice::endWrite()
     _wbuf = 0;
     _wbuflen = 0;
     _wavail = 0;
+
     return n;
 }
 
