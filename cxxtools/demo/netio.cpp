@@ -123,11 +123,11 @@ int client(int argc, char* argv[])
   std::cout << "test" << std::endl;
 
   if (B.isSet())
-    run_test(conn, B, buffer.data(), secs);
+    run_test(conn, B, &buffer[0], secs);
   else
   {
     for (unsigned bs=256; bs <= bufsize.getValue(); bs <<= 1)
-      run_test(conn, bs, buffer.data(), secs);
+      run_test(conn, bs, &buffer[0], secs);
   }
 
   return 0;
