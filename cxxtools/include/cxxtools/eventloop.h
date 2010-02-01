@@ -40,7 +40,6 @@
 
 namespace cxxtools {
 
-    class Timer;
     class Selectable;
 
     /** @brief Thread-safe event loop supporting I/O multiplexing and Timers.

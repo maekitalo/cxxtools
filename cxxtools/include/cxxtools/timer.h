@@ -57,7 +57,7 @@ namespace cxxtools {
             connect(timer.timeout, onTimer);
 
             cxxtools::EventLoop loop;
-            loop.addTimer(timer);
+            loop.add(timer);
             timer.start(1000);
 
             loop.run();
