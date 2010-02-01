@@ -124,11 +124,18 @@ void IODeviceImpl::close()
 {
     if(_fd != -1)
     {
-        if( ::close(_fd) != 0 )
-            throw IOError(getErrnoString("Could not close file handle"), CXXTOOLS_SOURCEINFO);
-
+        int fd = _fd;
         _fd = -1;
         _pfd = 0;
+
+        while ( ::close(fd) != 0 )
+        {
+            if( errno != EINTR )
+            {
+                log_error("close of iodevice failed; errno=" << errno);
+                throw IOError(getErrnoString("Could not close file handle"), CXXTOOLS_SOURCEINFO);
+            }
+        }
     }
 }
 

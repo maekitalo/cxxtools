@@ -391,10 +391,19 @@ void ClientImpl::onConnect(net::TcpSocket& socket)
 
         _socket.close();
 
-        if (_client->errorOccured.connectionCount() == 0)
-            throw;
+        if (_reconnectOnError && _request != 0)
+        {
+            log_debug("reconnect on error");
+            _reconnectOnError = false;
+            reexecute(*_request);
+        }
+        else
+        {
+            if (_client->errorOccured.connectionCount() == 0)
+                throw;
 
-        _client->errorOccured(*_client, e);
+            _client->errorOccured(*_client, e);
+        }
     }
 }
 

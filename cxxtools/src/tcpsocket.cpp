@@ -89,8 +89,10 @@ TcpSocket::~TcpSocket()
     {
         this->close();
     }
-    catch(...)
-    {}
+    catch(const std::exception& e)
+    {
+        log_error("TcpSocket::close failed: " << e.what());
+    }
 
     delete _impl;
 }
