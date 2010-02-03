@@ -110,6 +110,16 @@ void ClientImpl::call(IDeserializer& r, IRemoteProcedure& method, ISerializer** 
 }
 
 
+const IRemoteProcedure* ClientImpl::activeProcedure() const
+{
+    return _method;
+}
+
+void ClientImpl::cancel()
+{
+    _method = 0;
+}
+
 void ClientImpl::onReadReplyBegin(std::istream& is)
 {
     _ts.attach(is);

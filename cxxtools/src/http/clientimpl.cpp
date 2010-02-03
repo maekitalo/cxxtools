@@ -628,6 +628,14 @@ void ClientImpl::processBodyAvailable(StreamBuffer& sb)
     }
 }
 
+void ClientImpl::cancel()
+{
+    _socket.close();
+    _stream.clear();
+    _stream.buffer().discard();
+}
+
+
 } // namespace http
 
 } // namespace cxxtools

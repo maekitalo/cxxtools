@@ -176,6 +176,7 @@ class ClientImpl : public Connectable
         void clearAuth()
         { _username.clear(); _password.clear(); }
 
+        void cancel();
 };
 
 } // namespace http

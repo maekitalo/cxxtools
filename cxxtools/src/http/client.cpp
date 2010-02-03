@@ -77,7 +77,15 @@ void Client::connect(const std::string& host, unsigned short int port)
 
 const ReplyHeader& Client::execute(const Request& request, std::size_t timeout)
 {
-    return _impl->execute(request, timeout);
+    try
+    {
+        return _impl->execute(request, timeout);
+    }
+    catch (...)
+    {
+        cancel();
+        throw;
+    }
 }
 
 const ReplyHeader& Client::header()
@@ -133,6 +141,11 @@ void Client::auth(const std::string& username, const std::string& password)
 void Client::clearAuth()
 {
     _impl->clearAuth();
+}
+
+void Client::cancel()
+{
+    _impl->cancel();
 }
 
 } // namespace http

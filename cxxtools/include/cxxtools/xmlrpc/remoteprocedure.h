@@ -56,7 +56,7 @@ class CXXTOOLS_XMLRPC_API IRemoteProcedure
         IRemoteProcedure(Client& client, const char* name);
 
         virtual ~IRemoteProcedure()
-        { }
+        { cancel(); }
 
         Client& client()
         { return *_client; }
@@ -67,6 +67,12 @@ class CXXTOOLS_XMLRPC_API IRemoteProcedure
         virtual void setFault(int rc, const std::string& msg) = 0;
 
         virtual bool failed() const = 0;
+
+        void cancel()
+        {
+            if (_client && _client->activeProcedure() == this)
+                _client->cancel();
+        }
 
     protected:
         virtual void onFinished() = 0;

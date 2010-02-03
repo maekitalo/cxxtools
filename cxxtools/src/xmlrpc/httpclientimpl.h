@@ -80,6 +80,8 @@ class HttpClientImpl : public ClientImpl
 
         virtual std::ostream& prepareRequest();
 
+        virtual void cancel();
+
     private:
         http::Client _client;
         http::Request _request;

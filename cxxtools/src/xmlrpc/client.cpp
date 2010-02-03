@@ -68,6 +68,16 @@ std::string Client::url() const
     return _impl->url();
 }
 
+const IRemoteProcedure* Client::activeProcedure() const
+{
+    return _impl->activeProcedure();
+}
+
+void Client::cancel()
+{
+    _impl->cancel();
+}
+
 }
 
 }

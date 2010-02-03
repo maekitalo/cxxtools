@@ -84,6 +84,10 @@ class ClientImpl : public cxxtools::Connectable
 
         virtual std::string url() const = 0;
 
+        const IRemoteProcedure* activeProcedure() const;
+
+        virtual void cancel();
+
     protected:
         void onReadReplyBegin(std::istream& is);
 

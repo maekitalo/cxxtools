@@ -65,6 +65,9 @@ class CXXTOOLS_XMLRPC_API Client : public NonCopyable
 
         std::string url() const;
 
+        const IRemoteProcedure* activeProcedure() const;
+
+        void cancel();
 };
 
 }

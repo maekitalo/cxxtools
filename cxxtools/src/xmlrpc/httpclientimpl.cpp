@@ -131,6 +131,13 @@ std::ostream& HttpClientImpl::prepareRequest()
 }
 
 
+void HttpClientImpl::cancel()
+{
+    _client.cancel();
+    ClientImpl::cancel();
+}
+
+
 }
 
 }

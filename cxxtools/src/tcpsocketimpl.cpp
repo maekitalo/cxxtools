@@ -159,9 +159,12 @@ void TcpSocketImpl::checkPendingError()
 {
     if (_connectResult.second)
     {
-        if (_connectResult.first)
+        std::pair<int, const char*> p = _connectResult;
+        _connectResult = std::pair<int, const char*>(0, 0);
+
+        if (p.first)
         {
-            throw IOError(getErrnoString(_connectResult.first, _connectResult.second).c_str());
+            throw IOError(getErrnoString(p.first, p.second).c_str());
         }
         else
         {
@@ -174,6 +177,8 @@ void TcpSocketImpl::checkPendingError()
 std::pair<int, const char*> TcpSocketImpl::tryConnect()
 {
     log_trace("tryConnect");
+
+    assert(_fd == -1);
 
     if (_addrInfoPtr == _addrInfo.impl()->end())
     {
@@ -211,13 +216,12 @@ std::pair<int, const char*> TcpSocketImpl::tryConnect()
         if (errno == EINPROGRESS)
         {
             log_debug("connect in progress");
-            memmove(&_peeraddr, _addrInfoPtr->ai_addr, _addrInfoPtr->ai_addrlen);
             break;
         }
 
         close();
         if (++_addrInfoPtr == _addrInfo.impl()->end())
-            return std::pair<int, const char*>(errno, "socket");
+            return std::pair<int, const char*>(errno, "connect");
     }
 
     return std::pair<int, const char*>(0, 0);
@@ -228,12 +232,7 @@ bool TcpSocketImpl::beginConnect(const AddrInfo& addrInfo)
 {
     log_trace("begin connect");
 
-    if (_isConnected)
-    {
-        // TODO throw exception instead?
-        close();
-        _isConnected = false;
-    }
+    assert(!_isConnected);
 
     _addrInfo = addrInfo;
     _addrInfoPtr = _addrInfo.impl()->begin();
@@ -252,54 +251,54 @@ void TcpSocketImpl::endConnect()
         _pfd->events &= ~POLLOUT;
     }
 
-    if( ! _isConnected )
-    {
-        try
-        {
-            checkPendingError();
+    checkPendingError();
 
-            while (true)
+    if( _isConnected )
+        return;
+
+    try
+    {
+        while (true)
+        {
+            pollfd pfd;
+            pfd.fd = this->fd();
+            pfd.revents = 0;
+            pfd.events = POLLOUT;
+
+            log_debug("wait " << timeout() << " ms");
+            bool avail = this->wait(this->timeout(), pfd);
+
+            if (avail)
             {
+                // something has happened
                 int sockerr = checkConnect();
                 if (_isConnected)
                     return;
 
-                if (sockerr != EINPROGRESS)
+                if (++_addrInfoPtr == _addrInfo.impl()->end())
                 {
-                    // something went wrong - look for next addrInfo
-                    log_debug("sockerr is " << sockerr << " try next");
-                    if (++_addrInfoPtr == _addrInfo.impl()->end())
-                    {
-                        // no more addrInfo - propagate error
-                        throw IOError(getErrnoString(sockerr, "connect").c_str());
-                    }
-
-                    _connectResult = tryConnect();
-                    if (_isConnected)
-                        return;
-                    checkPendingError();
-                }
-
-                pollfd pfd;
-                pfd.fd = this->fd();
-                pfd.revents = 0;
-                pfd.events = POLLOUT;
-
-                log_debug("wait " << timeout() << " ms");
-                bool ret = this->wait(this->timeout(), pfd);
-                if(false == ret)
-                {
-                    // nothing has happened in time
-                    log_debug("timeout");
-                    throw IOTimeout();
+                    // no more addrInfo - propagate error
+                    throw IOError(getErrnoString(sockerr, "connect").c_str());
                 }
             }
-        }
-        catch(...)
-        {
+            else if (++_addrInfoPtr == _addrInfo.impl()->end())
+            {
+                log_debug("timeout");
+                throw IOTimeout();
+            }
+
             close();
-            throw;
+
+            _connectResult = tryConnect();
+            if (_isConnected)
+                return;
+            checkPendingError();
         }
+    }
+    catch(...)
+    {
+        close();
+        throw;
     }
 }
 
@@ -351,7 +350,7 @@ std::size_t TcpSocketImpl::initializePoll(pollfd* pfd, std::size_t pollSize)
     assert(pfd != 0);
     assert(pollSize >= 1);
 
-    log_debug("TcpSocketImpl::initializePoll " << pollSize);
+    log_debug("TcpSocketImpl::initializePoll " << pollSize << "; fd=" << _fd);
 
     std::size_t ret = IODeviceImpl::initializePoll(pfd, pollSize);
     assert(ret == 1);
@@ -370,46 +369,69 @@ bool TcpSocketImpl::checkPollEvent(pollfd& pfd)
 {
     log_debug("checkPollEvent " << pfd.revents);
 
-    if( ! _isConnected )
+    if( _isConnected )
+        return IODeviceImpl::checkPollEvent(pfd);
+
+    if ( pfd.revents & POLLERR )
     {
-        if ( pfd.revents & POLLERR )
+        AddrInfoImpl::const_iterator ptr = _addrInfoPtr;
+        if (++ptr == _addrInfo.impl()->end())
         {
-            AddrInfoImpl::const_iterator ptr = _addrInfoPtr;
-            if (++ptr == _addrInfo.impl()->end())
-            {
-                // not really connected but error
-                // end of addrinfo list means that no working addrinfo was found
-                _socket.connected.send(_socket);
-                return true;
-            }
-            else
-            {
-                _addrInfoPtr = ptr;
-
-                close();
-                _connectResult = tryConnect();
-
-                if (_isConnected || _connectResult.second)
-                    // immediate success or error
-                    _socket.connected.send(_socket);
-                else
-                    // by closing the previous file handle _pfd is set to 0.
-                    // creating a new socket in tryConnect may also change the value of fd.
-                    initializePoll(&pfd, 1);
-
-                return _isConnected;
-            }
-        }
-        else if( pfd.revents & POLLOUT )
-        {
+            // not really connected but error
+            // end of addrinfo list means that no working addrinfo was found
+            log_debug("no more addrinfos found");
             _socket.connected.send(_socket);
             return true;
         }
         else
-            return false;
+        {
+            _addrInfoPtr = ptr;
+
+            close();
+            _connectResult = tryConnect();
+
+            if (_isConnected || _connectResult.second)
+            {
+                // immediate success or error
+                log_debug("connected successfully");
+                _socket.connected.send(_socket);
+            }
+            else
+                // by closing the previous file handle _pfd is set to 0.
+                // creating a new socket in tryConnect may also change the value of fd.
+                initializePoll(&pfd, 1);
+
+            return _isConnected;
+        }
+    }
+    else if( pfd.revents & POLLOUT )
+    {
+        int sockerr = checkConnect();
+        if (_isConnected)
+        {
+            _socket.connected.send(_socket);
+            return true;
+        }
+
+        // something went wrong - look for next addrInfo
+        log_debug("sockerr is " << sockerr << " try next");
+        if (++_addrInfoPtr == _addrInfo.impl()->end())
+        {
+            // no more addrInfo - propagate error
+            _connectResult = std::pair<int, const char*>(sockerr, "connect");
+            _socket.connected.send(_socket);
+            return true;
+        }
+
+        _connectResult = tryConnect();
+        if (_isConnected)
+        {
+            _socket.connected.send(_socket);
+            return true;
+        }
     }
 
-    return IODeviceImpl::checkPollEvent(pfd);
+    return false;
 }
 
 } // namespace net

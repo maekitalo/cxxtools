@@ -122,6 +122,8 @@ class CXXTOOLS_HTTP_API Client : private NonCopyable
 
         void clearAuth();
 
+        void cancel();
+
         // Signals that the request is sent to the server.
         Signal<Client&> requestSent;
 

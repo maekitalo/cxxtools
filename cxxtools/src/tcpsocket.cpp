@@ -148,7 +148,15 @@ bool TcpSocket::beginConnect(const AddrInfo& addrinfo)
 
 void TcpSocket::endConnect()
 {
-    _impl->endConnect();
+    try
+    {
+        _impl->endConnect();
+    }
+    catch (...)
+    {
+        close();
+        throw;
+    }
 }
 
 
