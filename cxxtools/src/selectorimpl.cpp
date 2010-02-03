@@ -140,7 +140,7 @@ bool SelectorImpl::wait(std::size_t umsecs)
     if (umsecs != SelectorBase::WaitInfinite &&
         umsecs > std::numeric_limits<int>::max())
     {
-        msecs= std::numeric_limits<int>::max();
+        msecs = std::numeric_limits<int>::max();
     }
 
     if (_isDirty)

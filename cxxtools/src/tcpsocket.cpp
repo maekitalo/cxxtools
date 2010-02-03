@@ -190,6 +190,7 @@ SelectableImpl& TcpSocket::simpl()
 
 void TcpSocket::onClose()
 {
+    cancel();
     _impl->close();
 }
 
@@ -245,6 +246,12 @@ size_t TcpSocket::onEndWrite()
 size_t TcpSocket::onWrite(const char* buffer, size_t count)
 {
     return _impl->write(buffer, count);
+}
+
+
+void TcpSocket::onCancel()
+{
+    _impl->cancel();
 }
 
 

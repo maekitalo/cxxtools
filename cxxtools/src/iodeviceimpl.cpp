@@ -268,6 +268,15 @@ size_t IODeviceImpl::write( const char* buffer, size_t count )
 }
 
 
+void IODeviceImpl::cancel()
+{
+    if(_pfd)
+    {
+        _pfd->events &= ~(POLLIN|POLLOUT);
+    }
+}
+
+
 void IODeviceImpl::sync() const
 {
     int ret = fsync(_fd);

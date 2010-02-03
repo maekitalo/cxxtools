@@ -121,6 +121,8 @@ class CXXTOOLS_API TcpSocket : public IODevice
         // inherit doc
         virtual size_t onWrite(const char* buffer, size_t count);
 
+        virtual void onCancel();
+
     public:
         // inherit doc
         virtual SelectableImpl& simpl();

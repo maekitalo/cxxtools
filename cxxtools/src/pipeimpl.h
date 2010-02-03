@@ -55,7 +55,7 @@ class PipeIODevice : public IODevice
         void open(int fd, bool isAsync);
 
         void onClose()
-        { _impl.close(); }
+        { cancel(); _impl.close(); }
 
         bool onWait(std::size_t msecs);
 
@@ -70,6 +70,8 @@ class PipeIODevice : public IODevice
         size_t onEndWrite();
 
         size_t onWrite(const char* buffer, size_t count);
+
+        void onCancel();
 
         void onSync() const;
 

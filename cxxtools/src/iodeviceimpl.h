@@ -104,6 +104,8 @@ namespace cxxtools {
 
             virtual size_t write( const char* buffer, size_t count );
 
+            virtual void cancel();
+
             virtual void sync() const;
 
             void attach(SelectorBase& s);

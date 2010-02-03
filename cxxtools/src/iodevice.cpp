@@ -208,6 +208,25 @@ size_t IODevice::write(const char* buffer, size_t n)
 }
 
 
+void IODevice::cancel()
+{
+    if (!_rbuf && !_wbuf)
+        return;
+
+    onCancel();
+
+    setState(Selectable::Idle);
+
+    _rbuf = 0;
+    _rbuflen = 0;
+    _ravail = 0;
+
+    _wbuf = 0;
+    _wbuflen = 0;
+    _wavail = 0;
+}
+
+
 bool IODevice::seekable() const
 {
     return onSeekable();

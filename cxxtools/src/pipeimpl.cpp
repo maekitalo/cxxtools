@@ -116,6 +116,12 @@ size_t PipeIODevice::onWrite(const char* buffer, size_t count)
 }
 
 
+void PipeIODevice::onCancel()
+{
+    _impl.cancel();
+}
+
+
 void PipeIODevice::onSync() const
 {
     _impl.sync();
