@@ -117,13 +117,385 @@ class RemoteProcedureBase : public IRemoteProcedure
 };
 
 
+// this part is generated with remoteprocedure.pl:
+
 template <typename R,
           typename A1 = cxxtools::Void,
           typename A2 = cxxtools::Void,
           typename A3 = cxxtools::Void,
           typename A4 = cxxtools::Void,
-          typename A5 = cxxtools::Void>
+          typename A5 = cxxtools::Void,
+          typename A6 = cxxtools::Void,
+          typename A7 = cxxtools::Void,
+          typename A8 = cxxtools::Void,
+          typename A9 = cxxtools::Void,
+          typename A10 = cxxtools::Void>
 class RemoteProcedure : public RemoteProcedureBase<R>
+{
+    public:
+        RemoteProcedure(Client& client, const std::string& name)
+        : RemoteProcedureBase<R>(client, name)
+        { }
+
+        void begin(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7, const A8& a8, const A9& a9, const A10& a10)
+        {
+            this->_result.clearFault();
+
+            _a1.begin(a1);
+            _a2.begin(a2);
+            _a3.begin(a3);
+            _a4.begin(a4);
+            _a5.begin(a5);
+            _a6.begin(a6);
+            _a7.begin(a7);
+            _a8.begin(a8);
+            _a9.begin(a9);
+            _a10.begin(a10);
+
+            this->_r.begin(this->_result.value());
+
+            ISerializer* argv[10] = { &_a1, &_a2, &_a3, &_a4, &_a5, &_a6, &_a7, &_a8, &_a9, &_a10 };
+            this->client().beginCall(this->_r, *this, argv, 10);
+        }
+
+        const R& call(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7, const A8& a8, const A9& a9, const A10& a10)
+        {
+            this->_result.clearFault();
+
+            _a1.begin(a1);
+            _a2.begin(a2);
+            _a3.begin(a3);
+            _a4.begin(a4);
+            _a5.begin(a5);
+            _a6.begin(a6);
+            _a7.begin(a7);
+            _a8.begin(a8);
+            _a9.begin(a9);
+            _a10.begin(a10);
+            this->_r.begin(this->_result.value());
+
+            ISerializer* argv[10] = { &_a1, &_a2, &_a3, &_a4, &_a5, &_a6, &_a7, &_a8, &_a9, &_a10 };
+            this->client().call(this->_r, *this, argv, 10);
+            return this->_result.get();
+        }
+
+        const R& operator()(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7, const A8& a8, const A9& a9, const A10& a10)
+        {
+            return this->call(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10);
+        }
+
+    private:
+        Serializer<A1> _a1;
+        Serializer<A2> _a2;
+        Serializer<A3> _a3;
+        Serializer<A4> _a4;
+        Serializer<A5> _a5;
+        Serializer<A6> _a6;
+        Serializer<A7> _a7;
+        Serializer<A8> _a8;
+        Serializer<A9> _a9;
+        Serializer<A10> _a10;
+};
+
+
+template <typename R,
+          typename A1,
+          typename A2,
+          typename A3,
+          typename A4,
+          typename A5,
+          typename A6,
+          typename A7,
+          typename A8,
+          typename A9>
+class RemoteProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8, A9,
+                      cxxtools::Void> : public RemoteProcedureBase<R>
+{
+    public:
+        RemoteProcedure(Client& client, const std::string& name)
+        : RemoteProcedureBase<R>(client, name)
+        { }
+
+        void begin(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7, const A8& a8, const A9& a9)
+        {
+            this->_result.clearFault();
+
+            _a1.begin(a1);
+            _a2.begin(a2);
+            _a3.begin(a3);
+            _a4.begin(a4);
+            _a5.begin(a5);
+            _a6.begin(a6);
+            _a7.begin(a7);
+            _a8.begin(a8);
+            _a9.begin(a9);
+
+            this->_r.begin(this->_result.value());
+
+            ISerializer* argv[9] = { &_a1, &_a2, &_a3, &_a4, &_a5, &_a6, &_a7, &_a8, &_a9 };
+            this->client().beginCall(this->_r, *this, argv, 9);
+        }
+
+        const R& call(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7, const A8& a8, const A9& a9)
+        {
+            this->_result.clearFault();
+
+            _a1.begin(a1);
+            _a2.begin(a2);
+            _a3.begin(a3);
+            _a4.begin(a4);
+            _a5.begin(a5);
+            _a6.begin(a6);
+            _a7.begin(a7);
+            _a8.begin(a8);
+            _a9.begin(a9);
+            this->_r.begin(this->_result.value());
+
+            ISerializer* argv[9] = { &_a1, &_a2, &_a3, &_a4, &_a5, &_a6, &_a7, &_a8, &_a9 };
+            this->client().call(this->_r, *this, argv, 9);
+            return this->_result.get();
+        }
+
+        const R& operator()(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7, const A8& a8, const A9& a9)
+        {
+            return this->call(a1, a2, a3, a4, a5, a6, a7, a8, a9);
+        }
+
+    private:
+        Serializer<A1> _a1;
+        Serializer<A2> _a2;
+        Serializer<A3> _a3;
+        Serializer<A4> _a4;
+        Serializer<A5> _a5;
+        Serializer<A6> _a6;
+        Serializer<A7> _a7;
+        Serializer<A8> _a8;
+        Serializer<A9> _a9;
+};
+
+
+template <typename R,
+          typename A1,
+          typename A2,
+          typename A3,
+          typename A4,
+          typename A5,
+          typename A6,
+          typename A7,
+          typename A8>
+class RemoteProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8,
+                      cxxtools::Void,
+                      cxxtools::Void> : public RemoteProcedureBase<R>
+{
+    public:
+        RemoteProcedure(Client& client, const std::string& name)
+        : RemoteProcedureBase<R>(client, name)
+        { }
+
+        void begin(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7, const A8& a8)
+        {
+            this->_result.clearFault();
+
+            _a1.begin(a1);
+            _a2.begin(a2);
+            _a3.begin(a3);
+            _a4.begin(a4);
+            _a5.begin(a5);
+            _a6.begin(a6);
+            _a7.begin(a7);
+            _a8.begin(a8);
+
+            this->_r.begin(this->_result.value());
+
+            ISerializer* argv[8] = { &_a1, &_a2, &_a3, &_a4, &_a5, &_a6, &_a7, &_a8 };
+            this->client().beginCall(this->_r, *this, argv, 8);
+        }
+
+        const R& call(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7, const A8& a8)
+        {
+            this->_result.clearFault();
+
+            _a1.begin(a1);
+            _a2.begin(a2);
+            _a3.begin(a3);
+            _a4.begin(a4);
+            _a5.begin(a5);
+            _a6.begin(a6);
+            _a7.begin(a7);
+            _a8.begin(a8);
+            this->_r.begin(this->_result.value());
+
+            ISerializer* argv[8] = { &_a1, &_a2, &_a3, &_a4, &_a5, &_a6, &_a7, &_a8 };
+            this->client().call(this->_r, *this, argv, 8);
+            return this->_result.get();
+        }
+
+        const R& operator()(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7, const A8& a8)
+        {
+            return this->call(a1, a2, a3, a4, a5, a6, a7, a8);
+        }
+
+    private:
+        Serializer<A1> _a1;
+        Serializer<A2> _a2;
+        Serializer<A3> _a3;
+        Serializer<A4> _a4;
+        Serializer<A5> _a5;
+        Serializer<A6> _a6;
+        Serializer<A7> _a7;
+        Serializer<A8> _a8;
+};
+
+
+template <typename R,
+          typename A1,
+          typename A2,
+          typename A3,
+          typename A4,
+          typename A5,
+          typename A6,
+          typename A7>
+class RemoteProcedure<R, A1, A2, A3, A4, A5, A6, A7,
+                      cxxtools::Void,
+                      cxxtools::Void,
+                      cxxtools::Void> : public RemoteProcedureBase<R>
+{
+    public:
+        RemoteProcedure(Client& client, const std::string& name)
+        : RemoteProcedureBase<R>(client, name)
+        { }
+
+        void begin(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7)
+        {
+            this->_result.clearFault();
+
+            _a1.begin(a1);
+            _a2.begin(a2);
+            _a3.begin(a3);
+            _a4.begin(a4);
+            _a5.begin(a5);
+            _a6.begin(a6);
+            _a7.begin(a7);
+
+            this->_r.begin(this->_result.value());
+
+            ISerializer* argv[7] = { &_a1, &_a2, &_a3, &_a4, &_a5, &_a6, &_a7 };
+            this->client().beginCall(this->_r, *this, argv, 7);
+        }
+
+        const R& call(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7)
+        {
+            this->_result.clearFault();
+
+            _a1.begin(a1);
+            _a2.begin(a2);
+            _a3.begin(a3);
+            _a4.begin(a4);
+            _a5.begin(a5);
+            _a6.begin(a6);
+            _a7.begin(a7);
+            this->_r.begin(this->_result.value());
+
+            ISerializer* argv[7] = { &_a1, &_a2, &_a3, &_a4, &_a5, &_a6, &_a7 };
+            this->client().call(this->_r, *this, argv, 7);
+            return this->_result.get();
+        }
+
+        const R& operator()(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7)
+        {
+            return this->call(a1, a2, a3, a4, a5, a6, a7);
+        }
+
+    private:
+        Serializer<A1> _a1;
+        Serializer<A2> _a2;
+        Serializer<A3> _a3;
+        Serializer<A4> _a4;
+        Serializer<A5> _a5;
+        Serializer<A6> _a6;
+        Serializer<A7> _a7;
+};
+
+
+template <typename R,
+          typename A1,
+          typename A2,
+          typename A3,
+          typename A4,
+          typename A5,
+          typename A6>
+class RemoteProcedure<R, A1, A2, A3, A4, A5, A6,
+                      cxxtools::Void,
+                      cxxtools::Void,
+                      cxxtools::Void,
+                      cxxtools::Void> : public RemoteProcedureBase<R>
+{
+    public:
+        RemoteProcedure(Client& client, const std::string& name)
+        : RemoteProcedureBase<R>(client, name)
+        { }
+
+        void begin(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6)
+        {
+            this->_result.clearFault();
+
+            _a1.begin(a1);
+            _a2.begin(a2);
+            _a3.begin(a3);
+            _a4.begin(a4);
+            _a5.begin(a5);
+            _a6.begin(a6);
+
+            this->_r.begin(this->_result.value());
+
+            ISerializer* argv[6] = { &_a1, &_a2, &_a3, &_a4, &_a5, &_a6 };
+            this->client().beginCall(this->_r, *this, argv, 6);
+        }
+
+        const R& call(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6)
+        {
+            this->_result.clearFault();
+
+            _a1.begin(a1);
+            _a2.begin(a2);
+            _a3.begin(a3);
+            _a4.begin(a4);
+            _a5.begin(a5);
+            _a6.begin(a6);
+            this->_r.begin(this->_result.value());
+
+            ISerializer* argv[6] = { &_a1, &_a2, &_a3, &_a4, &_a5, &_a6 };
+            this->client().call(this->_r, *this, argv, 6);
+            return this->_result.get();
+        }
+
+        const R& operator()(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6)
+        {
+            return this->call(a1, a2, a3, a4, a5, a6);
+        }
+
+    private:
+        Serializer<A1> _a1;
+        Serializer<A2> _a2;
+        Serializer<A3> _a3;
+        Serializer<A4> _a4;
+        Serializer<A5> _a5;
+        Serializer<A6> _a6;
+};
+
+
+template <typename R,
+          typename A1,
+          typename A2,
+          typename A3,
+          typename A4,
+          typename A5>
+class RemoteProcedure<R, A1, A2, A3, A4, A5,
+                      cxxtools::Void,
+                      cxxtools::Void,
+                      cxxtools::Void,
+                      cxxtools::Void,
+                      cxxtools::Void> : public RemoteProcedureBase<R>
 {
     public:
         RemoteProcedure(Client& client, const std::string& name)
@@ -142,7 +514,7 @@ class RemoteProcedure : public RemoteProcedureBase<R>
 
             this->_r.begin(this->_result.value());
 
-            ISerializer* argv[5] = { &_a1, &_a2, &_a3, &_a4, &_a5};
+            ISerializer* argv[5] = { &_a1, &_a2, &_a3, &_a4, &_a5 };
             this->client().beginCall(this->_r, *this, argv, 5);
         }
 
@@ -157,7 +529,7 @@ class RemoteProcedure : public RemoteProcedureBase<R>
             _a5.begin(a5);
             this->_r.begin(this->_result.value());
 
-            ISerializer* argv[5] = { &_a1, &_a2, &_a3, &_a4, &_a5};
+            ISerializer* argv[5] = { &_a1, &_a2, &_a3, &_a4, &_a5 };
             this->client().call(this->_r, *this, argv, 5);
             return this->_result.get();
         }
@@ -182,6 +554,11 @@ template <typename R,
           typename A3,
           typename A4>
 class RemoteProcedure<R, A1, A2, A3, A4,
+                      cxxtools::Void,
+                      cxxtools::Void,
+                      cxxtools::Void,
+                      cxxtools::Void,
+                      cxxtools::Void,
                       cxxtools::Void> : public RemoteProcedureBase<R>
 {
     public:
@@ -200,7 +577,7 @@ class RemoteProcedure<R, A1, A2, A3, A4,
 
             this->_r.begin(this->_result.value());
 
-            ISerializer* argv[4] = { &_a1, &_a2, &_a3, &_a4};
+            ISerializer* argv[4] = { &_a1, &_a2, &_a3, &_a4 };
             this->client().beginCall(this->_r, *this, argv, 4);
         }
 
@@ -214,7 +591,7 @@ class RemoteProcedure<R, A1, A2, A3, A4,
             _a4.begin(a4);
             this->_r.begin(this->_result.value());
 
-            ISerializer* argv[4] = { &_a1, &_a2, &_a3, &_a4};
+            ISerializer* argv[4] = { &_a1, &_a2, &_a3, &_a4 };
             this->client().call(this->_r, *this, argv, 4);
             return this->_result.get();
         }
@@ -238,6 +615,11 @@ template <typename R,
           typename A3>
 class RemoteProcedure<R, A1, A2, A3,
                       cxxtools::Void,
+                      cxxtools::Void,
+                      cxxtools::Void,
+                      cxxtools::Void,
+                      cxxtools::Void,
+                      cxxtools::Void,
                       cxxtools::Void> : public RemoteProcedureBase<R>
 {
     public:
@@ -252,9 +634,10 @@ class RemoteProcedure<R, A1, A2, A3,
             _a1.begin(a1);
             _a2.begin(a2);
             _a3.begin(a3);
+
             this->_r.begin(this->_result.value());
 
-            ISerializer* argv[3] = { &_a1, &_a2, &_a3};
+            ISerializer* argv[3] = { &_a1, &_a2, &_a3 };
             this->client().beginCall(this->_r, *this, argv, 3);
         }
 
@@ -267,7 +650,7 @@ class RemoteProcedure<R, A1, A2, A3,
             _a3.begin(a3);
             this->_r.begin(this->_result.value());
 
-            ISerializer* argv[3] = { &_a1, &_a2, &_a3};
+            ISerializer* argv[3] = { &_a1, &_a2, &_a3 };
             this->client().call(this->_r, *this, argv, 3);
             return this->_result.get();
         }
@@ -290,6 +673,11 @@ template <typename R,
 class RemoteProcedure<R, A1, A2,
                       cxxtools::Void,
                       cxxtools::Void,
+                      cxxtools::Void,
+                      cxxtools::Void,
+                      cxxtools::Void,
+                      cxxtools::Void,
+                      cxxtools::Void,
                       cxxtools::Void> : public RemoteProcedureBase<R>
 {
     public:
@@ -303,6 +691,7 @@ class RemoteProcedure<R, A1, A2,
 
             _a1.begin(a1);
             _a2.begin(a2);
+
             this->_r.begin(this->_result.value());
 
             ISerializer* argv[2] = { &_a1, &_a2 };
@@ -339,6 +728,11 @@ class RemoteProcedure<R, A1,
                       cxxtools::Void,
                       cxxtools::Void,
                       cxxtools::Void,
+                      cxxtools::Void,
+                      cxxtools::Void,
+                      cxxtools::Void,
+                      cxxtools::Void,
+                      cxxtools::Void,
                       cxxtools::Void> : public RemoteProcedureBase<R>
 {
     public:
@@ -351,6 +745,7 @@ class RemoteProcedure<R, A1,
             this->_result.clearFault();
 
             _a1.begin(a1);
+
             this->_r.begin(this->_result.value());
 
             ISerializer* argv[1] = { &_a1 };
@@ -381,6 +776,11 @@ class RemoteProcedure<R, A1,
 
 template <typename R>
 class RemoteProcedure<R,
+                      cxxtools::Void,
+                      cxxtools::Void,
+                      cxxtools::Void,
+                      cxxtools::Void,
+                      cxxtools::Void,
                       cxxtools::Void,
                       cxxtools::Void,
                       cxxtools::Void,
@@ -418,6 +818,8 @@ class RemoteProcedure<R,
             return this->call();
         }
 };
+
+// end of generation
 
 }
 
