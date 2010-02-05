@@ -28,23 +28,25 @@
 #include "cxxtools/selector.h"
 #include "cxxtools/application.h"
 #include "cxxtools/systemerror.h"
+#include "iodeviceimpl.h"
 #include <string.h>
 #include <fcntl.h>
 #include <signal.h>
 #include <unistd.h>
 #include <iostream>
 
-namespace {
+namespace
+{
 
-    cxxtools::Pipe* pt_signal_pipe = 0;
+    cxxtools::Pipe* cxxtools_signal_pipe = 0;
     static char _signalBuffer[128];
 
     void initSignalPipe()
     {
-        if( ! pt_signal_pipe )
+        if( ! cxxtools_signal_pipe )
         {
-            pt_signal_pipe = new cxxtools::Pipe(cxxtools::Pipe::Async);
-            pt_signal_pipe->out().beginRead( _signalBuffer, sizeof(_signalBuffer) );
+            cxxtools_signal_pipe = new cxxtools::Pipe(cxxtools::Pipe::Async);
+            cxxtools_signal_pipe->out().beginRead( _signalBuffer, sizeof(_signalBuffer) );
         }
     }
 
@@ -76,11 +78,11 @@ namespace {
 }
 
 
-extern "C" void pt_system_application_sighandler(int sigNo)
+extern "C" void cxxtools_system_application_sighandler(int sigNo)
 {
-    if(pt_signal_pipe)
+    if (cxxtools_signal_pipe)
     {
-        pt_signal_pipe->in().write( (char*)&sigNo, sizeof(sigNo) );
+        cxxtools_signal_pipe->in().ioimpl().sigwrite(sigNo);
     }
 }
 
@@ -94,14 +96,14 @@ ApplicationImpl::ApplicationImpl()
 
 ApplicationImpl::~ApplicationImpl()
 {
-    disconnect(pt_signal_pipe->out().inputReady, processSignal);
+    disconnect(cxxtools_signal_pipe->out().inputReady, processSignal);
 }
 
 
 void ApplicationImpl::init(SelectorBase& s)
 {
-    pt_signal_pipe->out().setSelector(&s);
-    connect(pt_signal_pipe->out().inputReady, processSignal);
+    cxxtools_signal_pipe->out().setSelector(&s);
+    connect(cxxtools_signal_pipe->out().inputReady, processSignal);
 }
 
 
@@ -112,7 +114,7 @@ bool ApplicationImpl::catchSystemSignal(int sig)
     {
         struct sigaction act;
 
-        act.sa_handler = pt_system_application_sighandler;
+        act.sa_handler = cxxtools_system_application_sighandler;
         sigemptyset(&act.sa_mask);
         act.sa_flags = SA_RESTART;
 

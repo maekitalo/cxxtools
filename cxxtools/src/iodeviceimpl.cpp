@@ -268,6 +268,12 @@ size_t IODeviceImpl::write( const char* buffer, size_t count )
 }
 
 
+void IODeviceImpl::sigwrite(int sig)
+{
+    ::write(_fd, (const void*)&sig, sizeof(sig));
+}
+
+
 void IODeviceImpl::cancel()
 {
     if(_pfd)
