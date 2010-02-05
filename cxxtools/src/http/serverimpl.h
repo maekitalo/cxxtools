@@ -111,6 +111,7 @@ class ServerImpl : public Connectable
         Mutex _threadMutex;
         Mutex _createThreadMutex;
         Mutex _selectorMutex;
+        Mutex _serviceMutex;
         Condition _threadRunning;
         AttachedThread* _startingThread;
         unsigned _minThreads;
