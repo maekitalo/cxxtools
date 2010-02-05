@@ -93,7 +93,7 @@ AM_CONDITIONAL(MAKE_ATOMICITY_PTHREAD,    test "$CXXTOOLS_ATOMICITY" = CXXTOOLS_
 AM_CONDITIONAL(MAKE_ATOMICITY_GENERIC,    test "$CXXTOOLS_ATOMICITY" = CXXTOOLS_ATOMICITY_GENERIC)
 
 #
-# checking existance of suseconds_t, needed by hirestime.h
+# checking existence of suseconds_t, needed by hirestime.h
 #
 AC_CHECKING(for suseconds_t)
 
