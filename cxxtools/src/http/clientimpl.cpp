@@ -60,8 +60,6 @@ ClientImpl::ClientImpl(Client* client)
 , _reconnectOnError(false)
 {
     _stream.attachDevice(_socket);
-    _stream.exceptions(std::ios::failbit | std::ios::badbit);     
-    _chunkedIStream.exceptions(std::ios::failbit | std::ios::badbit);
     cxxtools::connect(_socket.connected, *this, &ClientImpl::onConnect);
     cxxtools::connect(_socket.errorOccured, *this, &ClientImpl::onErrorOccured);
     cxxtools::connect(_stream.buffer().outputReady, *this, &ClientImpl::onOutput);
@@ -83,8 +81,6 @@ ClientImpl::ClientImpl(Client* client, const net::AddrInfo& addrinfo)
 , _reconnectOnError(false)
 {
     _stream.attachDevice(_socket);
-    _stream.exceptions(std::ios::failbit | std::ios::badbit);                     
-    _chunkedIStream.exceptions(std::ios::failbit | std::ios::badbit);             
     cxxtools::connect(_socket.connected, *this, &ClientImpl::onConnect);
     cxxtools::connect(_socket.errorOccured, *this, &ClientImpl::onErrorOccured);
     cxxtools::connect(_stream.buffer().outputReady, *this, &ClientImpl::onOutput);
@@ -105,8 +101,6 @@ ClientImpl::ClientImpl(Client* client, SelectorBase& selector, const net::AddrIn
 , _reconnectOnError(false)
 {
     _stream.attachDevice(_socket);
-    _stream.exceptions(std::ios::failbit | std::ios::badbit);                     
-    _chunkedIStream.exceptions(std::ios::failbit | std::ios::badbit);             
     cxxtools::connect(_socket.connected, *this, &ClientImpl::onConnect);
     cxxtools::connect(_socket.errorOccured, *this, &ClientImpl::onErrorOccured);
     cxxtools::connect(_stream.buffer().outputReady, *this, &ClientImpl::onOutput);
@@ -231,6 +225,9 @@ void ClientImpl::readBody(std::string& s)
         }
         else
             throw std::runtime_error("chunked stream not complete");
+
+        if (_chunkedIStream.fail())
+            throw IOError( CXXTOOLS_ERROR_MSG("error reading HTTP reply body") );
     }
     else
     {
@@ -591,6 +588,9 @@ void ClientImpl::processBodyAvailable(StreamBuffer& sb)
                     _client->replyFinished(*_client);
                 }
             }
+
+            if (_chunkedIStream.fail())
+                throw IOError( CXXTOOLS_ERROR_MSG("error reading HTTP reply body") );
         }
 
         if (!_chunkedIStream.eod() || !_parser.end())
@@ -608,6 +608,9 @@ void ClientImpl::processBodyAvailable(StreamBuffer& sb)
             _contentLength -= _client->bodyAvailable(*_client); // TODO: may throw exception
             log_debug("content-length(post)=" << _contentLength);
         }
+
+        if (_stream.fail())
+            throw IOError( CXXTOOLS_ERROR_MSG("error reading HTTP reply body") );
 
         if( _contentLength <= 0 )
         {
