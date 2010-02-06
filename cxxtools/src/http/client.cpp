@@ -62,7 +62,7 @@ Client::Client(SelectorBase& selector, const std::string& host, unsigned short i
 
 Client::~Client()
 {
-  delete _impl;
+    delete _impl;
 }
 
 void Client::connect(const net::AddrInfo& addrinfo)

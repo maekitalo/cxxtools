@@ -30,10 +30,7 @@
 #include <cxxtools/xml/startelement.h>
 #include <cxxtools/xml/endelement.h>
 #include <cxxtools/xml/characters.h>
-#include <cxxtools/log.h>
 #include <cxxtools/string.h>
-
-log_define("cxxtools.xmlrpc.scanner")
 
 namespace cxxtools {
 
@@ -53,7 +50,6 @@ bool Scanner::advance(const cxxtools::xml::Node& node)
     {
         case OnParam:
         {
-            log_debug("OnParam");
             if(node.type() == xml::Node::StartElement) // i4, struct, array...
             {
                 const xml::StartElement& se = static_cast<const xml::StartElement&>(node);
@@ -73,12 +69,10 @@ bool Scanner::advance(const cxxtools::xml::Node& node)
 
         case OnValueBegin:
         {
-            log_debug("OnValueBegin, node type " << node.type());
             if(node.type() == xml::Node::StartElement) // i4, struct, array...
             {
                 const xml::StartElement& se = static_cast<const xml::StartElement&>(node);
 
-                log_debug("-> found type " << se.name().narrow());
                 if(se.name() == L"struct")
                 {
                     _state = OnStructBegin;
@@ -123,34 +117,28 @@ bool Scanner::advance(const cxxtools::xml::Node& node)
 
         case OnValueEnd:
         {
-            log_debug("OnValueEnd, node type " << node.type());
-
             if(node.type() == xml::Node::EndElement)
             {
                 const xml::EndElement& ee = static_cast<const xml::EndElement&>(node);
 
                 if(ee.name() == L"member")
                 {
-                    log_debug("OnValueEnd member");
                     _current = _current->leaveMember();
                     _state = OnStructBegin;
                 }
                 else if(ee.name() == L"data")
                 {
-                    log_debug("OnValueEnd data");
                     _current = _current->leaveMember();
                     _state = OnDataEnd;
                 }
                 else if(ee.name() == L"param")
                 {
-                    log_debug("OnValueEnd data other " << ee.name().narrow());
                     _current->fixup(*_context);
                     _state = OnValueEnd;
                     return true;
                 }
                 else if(ee.name() == L"fault")
                 {
-                    log_debug("OnValueEnd data other " << ee.name().narrow());
                     _current->fixup(*_context);
                     _state = OnValueEnd;
                     return true;
@@ -165,7 +153,6 @@ bool Scanner::advance(const cxxtools::xml::Node& node)
                 const xml::StartElement& se = static_cast<const xml::StartElement&>(node);
                 if(se.name() == L"value")
                 {
-                    log_debug("OnValueEnd data value");
                     _current = _current->leaveMember();
                     _current = _current->beginMember(std::string());
                     _state = OnValueBegin;
@@ -181,7 +168,6 @@ bool Scanner::advance(const cxxtools::xml::Node& node)
 
         case OnStructBegin:
         {
-            log_debug("OnStructBegin");
             if(node.type() == xml::Node::StartElement) // <member>
             {
                 const xml::StartElement& se = static_cast<const xml::StartElement&>(node);
@@ -200,7 +186,6 @@ bool Scanner::advance(const cxxtools::xml::Node& node)
 
         case OnStructEnd:
         {
-            log_debug("OnStructEnd");
             if(node.type() == xml::Node::EndElement) // </value>
             {
                 const xml::EndElement& ee = static_cast<const xml::EndElement&>(node);
@@ -220,7 +205,6 @@ bool Scanner::advance(const cxxtools::xml::Node& node)
 
         case OnMemberBegin:
         {
-            log_debug("OnMemberBegin");
             if(node.type() == xml::Node::StartElement) // name
             {
                 const xml::StartElement& se = static_cast<const xml::StartElement&>(node);
@@ -240,7 +224,6 @@ bool Scanner::advance(const cxxtools::xml::Node& node)
 
         case OnNameBegin:
         {
-            log_debug("OnNameBegin");
             if(node.type() == xml::Node::Characters) // member-name
             {
                 const xml::Characters& chars = static_cast<const xml::Characters&>(node);
@@ -260,7 +243,6 @@ bool Scanner::advance(const cxxtools::xml::Node& node)
 
         case OnName:
         {
-            log_debug("OnName");
             if(node.type() == xml::Node::EndElement) // </name>
             {
                 const xml::EndElement& ee = static_cast<const xml::EndElement&>(node);
@@ -280,7 +262,6 @@ bool Scanner::advance(const cxxtools::xml::Node& node)
 
         case OnNameEnd:
         {
-            log_debug("OnNameEnd");
             if(node.type() == xml::Node::StartElement) // <value>
             {
                 const xml::StartElement& se = static_cast<const xml::StartElement&>(node);
@@ -300,19 +281,16 @@ bool Scanner::advance(const cxxtools::xml::Node& node)
 
         case OnScalarBegin:
         {
-            log_debug("OnScalarBegin ");
             if(node.type() == xml::Node::Characters)
             {
                 const xml::Characters& chars = static_cast<const xml::Characters&>(node);
                 _state = OnScalar;
 
-               log_debug("-> found value " << chars.content().narrow());
                 _current->setValue( chars.content() );
             }
             else if(node.type() == xml::Node::EndElement) // no content, for example empty strings
             {
                
-               log_debug("-> found empty value ");
                 _current->setValue( cxxtools::String() );
                 _state = OnScalarEnd;
             }
@@ -326,7 +304,6 @@ bool Scanner::advance(const cxxtools::xml::Node& node)
 
         case OnScalar:
         {
-            log_debug("OnScalar");
             if(node.type() == xml::Node::EndElement) // </int>, boolean ...
             {
                 _state = OnScalarEnd;
@@ -341,7 +318,6 @@ bool Scanner::advance(const cxxtools::xml::Node& node)
 
         case OnScalarEnd:
         {
-            log_debug("OnScalarEnd");
             if(node.type() == xml::Node::EndElement) // </value>
             {
                 const xml::EndElement& ee = static_cast<const xml::EndElement&>(node);
@@ -361,7 +337,6 @@ bool Scanner::advance(const cxxtools::xml::Node& node)
 
         case OnArrayBegin:
         {
-            log_debug("OnArrayBegin");
             if(node.type() == xml::Node::StartElement) // <data>
             {
                 const xml::StartElement& se = static_cast<const xml::StartElement&>(node);
@@ -381,11 +356,9 @@ bool Scanner::advance(const cxxtools::xml::Node& node)
 
         case OnDataBegin:
         {
-            log_debug("OnDataBegin");
             if(node.type() == xml::Node::StartElement) // value
             {
-                log_debug(_current);
-                _current = _current->beginMember("");
+                _current = _current->beginMember(std::string());
                 _state = OnValueBegin;
             }
             else if(node.type() == xml::Node::EndElement) // empty array
@@ -402,7 +375,6 @@ bool Scanner::advance(const cxxtools::xml::Node& node)
 
         case OnDataEnd:
         {
-            log_debug("OnDataEnd");
             if(node.type() == xml::Node::EndElement) // </array>
             {
                 const xml::EndElement& ee = static_cast<const xml::EndElement&>(node);
@@ -422,7 +394,6 @@ bool Scanner::advance(const cxxtools::xml::Node& node)
 
         case OnArrayEnd:
         {
-            log_debug("OnArrayEnd");
             if(node.type() == xml::Node::EndElement) // </value>
             {
                 const xml::EndElement& ee = static_cast<const xml::EndElement&>(node);
