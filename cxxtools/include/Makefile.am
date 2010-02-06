@@ -17,6 +17,7 @@ nobase_include_HEADERS = \
         cxxtools/byteorder.h \
         cxxtools/base64codec.h \
         cxxtools/base64stream.h \
+        cxxtools/cache.h \
         cxxtools/callable.h \
         cxxtools/callable.tpp \
         cxxtools/char.h \
