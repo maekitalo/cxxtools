@@ -29,9 +29,11 @@
 #include "cxxtools/xmlrpc/httpclient.h"
 #include "httpclientimpl.h"
 
-namespace cxxtools {
+namespace cxxtools
+{
 
-namespace xmlrpc {
+namespace xmlrpc
+{
 
 HttpClient::HttpClient()
 : _impl(new HttpClientImpl())
@@ -58,6 +60,11 @@ HttpClient::HttpClient(const std::string& server, unsigned short port, const std
 HttpClient::~HttpClient()
 {
     delete _impl;
+}
+
+void HttpClient::connect(const net::AddrInfo& addrinfo, const std::string& url)
+{
+    _impl->connect(addrinfo, url);
 }
 
 void HttpClient::connect(const std::string& addr, unsigned short port, const std::string& url)

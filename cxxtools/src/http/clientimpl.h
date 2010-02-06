@@ -44,9 +44,11 @@
 #include <cstddef>
 #include "chunkedreader.h"
 
-namespace cxxtools {
+namespace cxxtools
+{
 
-namespace http {
+namespace http
+{
 
 class Client;
 

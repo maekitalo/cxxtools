@@ -32,9 +32,16 @@
 #include <cxxtools/http/request.h>
 #include "clientimpl.h"
 
-namespace cxxtools {
+namespace cxxtools
+{
 
-namespace xmlrpc {
+namespace net
+{
+    class AddrInfo;
+}
+
+namespace xmlrpc
+{
 
 class HttpClientImpl : public ClientImpl
 {
@@ -45,6 +52,12 @@ class HttpClientImpl : public ClientImpl
                unsigned short port, const std::string& url);
 
         HttpClientImpl(const std::string& addr, unsigned short port, const std::string& url);
+
+        void connect(const net::AddrInfo& addrinfo, const std::string& url)
+        {
+            _client.connect(addrinfo);
+            _request.url(url);
+        }
 
         void connect(const std::string& addr, unsigned short port,
                      const std::string& url)

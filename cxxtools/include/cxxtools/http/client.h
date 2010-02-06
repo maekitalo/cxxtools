@@ -36,17 +36,20 @@
 #include <cxxtools/noncopyable.h>
 #include <string>
 
-namespace cxxtools {
+namespace cxxtools
+{
 
 class SelectorBase;
 
-namespace net {
+namespace net
+{
 
 class AddrInfo;
 
 }
 
-namespace http {
+namespace http
+{
 
 class ClientImpl;
 class ReplyHeader;
@@ -67,7 +70,7 @@ class CXXTOOLS_HTTP_API Client : private NonCopyable
         ~Client();
 
         // Sets the host and port. No actual network connect is done.
-        void connect(const net::AddrInfo& addrinof);
+        void connect(const net::AddrInfo& addrinfo);
         void connect(const std::string& host, unsigned short int port);
 
         // Sends the passed request to the server and parses the headers.

@@ -30,11 +30,18 @@
 
 #include <cxxtools/xmlrpc/client.h>
 
-namespace cxxtools {
+namespace cxxtools
+{
 
 class SelectorBase;
 
-namespace xmlrpc {
+namespace net
+{
+    class AddrInfo;
+}
+
+namespace xmlrpc
+{
 
 class HttpClientImpl;
 
@@ -49,6 +56,8 @@ class CXXTOOLS_XMLRPC_API HttpClient : public Client
         HttpClient(const std::string& addr, unsigned short port, const std::string& url);
 
         virtual ~HttpClient();
+
+        void connect(const net::AddrInfo& addrinfo, const std::string& url);
 
         void connect(const std::string& addr, unsigned short port,
                      const std::string& url);
