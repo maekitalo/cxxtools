@@ -100,10 +100,12 @@ void ClientImpl::call(IDeserializer& r, IRemoteProcedure& method, ISerializer** 
 
     if (_method->failed() )
     {
+        _method = 0;
         _state = OnBegin;
         throw _fault;
     }
 
+    _method = 0;
     _state = OnBegin;
 
     // _method contains a valid return value now
