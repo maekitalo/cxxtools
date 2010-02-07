@@ -303,7 +303,7 @@ void TcpSocketImpl::endConnect()
 }
 
 
-void TcpSocketImpl::accept(const TcpServer& server, bool closeOnExec)
+void TcpSocketImpl::accept(const TcpServer& server, bool inherit)
 {
     socklen_t peeraddr_len = sizeof(_peeraddr);
 
@@ -311,7 +311,7 @@ void TcpSocketImpl::accept(const TcpServer& server, bool closeOnExec)
 
 #ifdef HAVE_ACCEPT4
     int fd = SOCK_NONBLOCK;
-    if (closeOnExec)
+    if (!inherit)
       fd |= SOCK_CLOEXEC;
     _fd = ::accept4(server.impl().fd(), reinterpret_cast <struct sockaddr*>(&_peeraddr), &peeraddr_len, SOCK_NONBLOCK | SOCK_CLOEXEC);
 #else
@@ -324,7 +324,7 @@ void TcpSocketImpl::accept(const TcpServer& server, bool closeOnExec)
 #ifdef HAVE_ACCEPT4
     IODeviceImpl::open(_fd, false, false);
 #else
-    IODeviceImpl::open(_fd, true, closeOnExec);
+    IODeviceImpl::open(_fd, true, inherit);
 #endif
     //TODO ECONNABORTED EINTR EPERM
 
