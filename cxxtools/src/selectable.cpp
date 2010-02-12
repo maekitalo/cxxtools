@@ -75,8 +75,8 @@ void Selectable::close()
 {
     if( this->enabled() )
     {
-        this->setEnabled(false);
         this->onClose();
+        this->setEnabled(false);
     }
 }
 

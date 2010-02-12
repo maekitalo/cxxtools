@@ -40,6 +40,8 @@
 #include "cxxtools/log.h"
 
 
+log_define("cxxtools.xmlrpc.client.impl")
+
 namespace cxxtools {
 
 namespace xmlrpc {
@@ -170,6 +172,7 @@ std::size_t ClientImpl::onReadReply()
 
 void ClientImpl::onReplyFinished()
 {
+    log_debug("onReplyFinished; method=" << static_cast<void*>(_method));
     IRemoteProcedure* method = _method;
     _method = 0;
     method->onFinished();
@@ -178,6 +181,7 @@ void ClientImpl::onReplyFinished()
 
 void ClientImpl::onErrorOccured(const std::exception& e)
 {
+    log_debug("onErrorOccured; method="  << static_cast<void*>(_method) << ": " << e.what());
     if (_method)
     {
         // TODO do not map local exceptions to cxxtools::xmlrpc::Fault

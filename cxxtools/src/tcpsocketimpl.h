@@ -89,9 +89,6 @@ class TcpSocketImpl : public IODeviceImpl
         void initWait(pollfd& pfd);
 
         // implementation using poll
-        std::size_t initializePoll(pollfd* pfd, std::size_t pollSize);
-
-        // implementation using poll
         bool checkPollEvent(pollfd& pfd);
 };
 

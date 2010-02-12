@@ -345,26 +345,6 @@ void TcpSocketImpl::initWait(pollfd& pfd)
 }
 
 
-std::size_t TcpSocketImpl::initializePoll(pollfd* pfd, std::size_t pollSize)
-{
-    assert(pfd != 0);
-    assert(pollSize >= 1);
-
-    log_debug("TcpSocketImpl::initializePoll " << pollSize << "; fd=" << _fd);
-
-    std::size_t ret = IODeviceImpl::initializePoll(pfd, pollSize);
-    assert(ret == 1);
-
-    if( ! _isConnected )
-    {
-        log_debug("not connected, setting POLLOUT ");
-        pfd->events = POLLOUT;
-    }
-
-    return ret;
-}
-
-
 bool TcpSocketImpl::checkPollEvent(pollfd& pfd)
 {
     log_debug("checkPollEvent " << pfd.revents);

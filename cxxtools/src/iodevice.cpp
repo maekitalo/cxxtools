@@ -50,10 +50,13 @@ IODevice::~IODevice()
 
 void IODevice::beginRead(char* buffer, size_t n)
 {
-    if ( ! async() )
+    if (!async())
         throw std::logic_error( CXXTOOLS_ERROR_MSG("Device not in async mode") );
 
-    if(_rbuf)
+    if (!enabled())
+        throw std::logic_error( CXXTOOLS_ERROR_MSG("Device not enabled") );
+
+    if (_rbuf)
         throw IOPending( CXXTOOLS_ERROR_MSG("read operation pending") );
 
     size_t r = this->onBeginRead(buffer, n, _eof);
@@ -104,7 +107,7 @@ size_t IODevice::endRead()
 
 size_t IODevice::read(char* buffer, size_t n)
 {
-    if( async() )
+    if (async())
     {
         if( _rbuf )
             throw IOPending( CXXTOOLS_ERROR_MSG("read operation pending") );
@@ -129,10 +132,13 @@ size_t IODevice::read(char* buffer, size_t n)
 
 void IODevice::beginWrite(const char* buffer, size_t n)
 {
-    if ( ! async() )
+    if (!async())
         throw std::logic_error( CXXTOOLS_ERROR_MSG("Device not in async mode") );
 
-    if(_wbuf)
+    if (!enabled())
+        throw std::logic_error( CXXTOOLS_ERROR_MSG("Device not enabled") );
+
+    if (_wbuf)
         throw IOPending( CXXTOOLS_ERROR_MSG("write operation pending") );
 
     size_t r = this->onBeginWrite(buffer, n);
@@ -210,9 +216,6 @@ size_t IODevice::write(const char* buffer, size_t n)
 
 void IODevice::cancel()
 {
-    if (!_rbuf && !_wbuf)
-        return;
-
     onCancel();
 
     setState(Selectable::Idle);

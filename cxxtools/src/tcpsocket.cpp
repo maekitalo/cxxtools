@@ -33,6 +33,7 @@
 #include "cxxtools/log.h"
 #include <errno.h>
 #include <cxxtools/systemerror.h>
+#include <cxxtools/ioerror.h>
 
 log_define("cxxtools.net.tcpsocket")
 
@@ -215,6 +216,9 @@ void TcpSocket::onDetach(SelectorBase& sb)
 
 size_t TcpSocket::onBeginRead(char* buffer, size_t n, bool& eof)
 {
+    if (!_impl->isConnected())
+        throw IOPending( CXXTOOLS_ERROR_MSG("connect operation pending") );
+
     return _impl->beginRead(buffer, n, eof);
 }
 
@@ -233,6 +237,9 @@ size_t TcpSocket::onRead(char* buffer, size_t count, bool& eof)
 
 size_t TcpSocket::onBeginWrite(const char* buffer, size_t n)
 {
+    if (!_impl->isConnected())
+        throw IOPending( CXXTOOLS_ERROR_MSG("connect operation pending") );
+
     return _impl->beginWrite(buffer, n);
 }
 
@@ -251,7 +258,16 @@ size_t TcpSocket::onWrite(const char* buffer, size_t count)
 
 void TcpSocket::onCancel()
 {
-    _impl->cancel();
+    if (_impl->isConnected())
+    {
+        _impl->cancel();
+    }
+    else if (enabled())
+    {
+        // we are in connecting state
+        _impl->close();
+        setEnabled(false);
+    }
 }
 
 
