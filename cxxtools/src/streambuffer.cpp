@@ -148,19 +148,25 @@ void StreamBuffer::beginRead()
 
 void StreamBuffer::onRead(IODevice& dev)
 {
+    _exceptionPending = true;
+
     try
     {
-        _exceptionPending = true;
-        this->endRead();
-        _exceptionPending = false;
-        inputReady.send(*this);
+        endRead();
     }
     catch (...)
     {
         inputReady.send(*this);
         if (_exceptionPending)
+        {
+            _exceptionPending = false;
             throw;
+        }
+        return;
     }
+
+    _exceptionPending = false;
+    inputReady.send(*this);
 }
 
 
@@ -265,19 +271,24 @@ void StreamBuffer::onWrite(IODevice& dev)
 {
     log_trace("onWrite");
 
+    _exceptionPending = true;
     try
     {
-        _exceptionPending = true;
-        this->endWrite();
-        _exceptionPending = false;
-        outputReady.send(*this);
+        endWrite();
     }
     catch (...)
     {
         outputReady.send(*this);
         if (_exceptionPending)
+        {
+            _exceptionPending = false;
             throw;
+        }
+        return;
     }
+
+    _exceptionPending = false;
+    outputReady.send(*this);
 }
 
 

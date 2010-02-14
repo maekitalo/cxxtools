@@ -93,6 +93,7 @@ class ClientImpl : public Connectable
         void processHeaderAvailable(StreamBuffer& sb);
         void processBodyAvailable(StreamBuffer& sb);
 
+        void handleException(const std::exception& e);
         void reexecute(const Request& request);
         void doparse();
 
