@@ -85,7 +85,7 @@ class IODeviceImpl;
     IOStreams can be constructed at runtime.
     Examples of %IODevices are the SerialDevice, the endpoints of a Pipe
     or the FileDevice. A Selector can be used to wait on activity on an
-    %IODevice, which will send the %Singal inputReady or outputReady of the
+    %IODevice, which will send the %Signal inputReady or outputReady of the
     %IODevice that is ready to perform I/O.
 */
 class CXXTOOLS_API IODevice : public Selectable
