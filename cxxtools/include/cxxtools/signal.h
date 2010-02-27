@@ -233,6 +233,31 @@ inline Connection connect(Signal<const cxxtools::Event&>& sender, Signal<const c
     return sender.connect( slot(receiver) );
 }
 
+template <typename R>
+void disconnect(Signal<const cxxtools::Event&>& signal, R(*func)(const cxxtools::Event&))
+{
+    signal.disconnect( slot(func) );
+}
+
+template <typename R, class BaseT, class ClassT>
+void disconnect( Signal<const cxxtools::Event&>& signal,
+                    BaseT& object, R(ClassT::*memFunc)(const cxxtools::Event&) )
+{
+    signal.disconnect( slot(object, memFunc) );
+}
+
+template <typename R, class BaseT, class ClassT>
+void disconnect( Signal<const cxxtools::Event&>& signal,
+                    BaseT& object, R(ClassT::*memFunc)(const cxxtools::Event&) const )
+{
+    signal.disconnect( slot(object, memFunc) );
+}
+
+inline void disconnect(Signal<const cxxtools::Event&>& sender, Signal<const cxxtools::Event&>& receiver)
+{
+    sender.disconnect( slot(receiver) );
+}
+
 } // !namespace cxxtools
 
 #endif
