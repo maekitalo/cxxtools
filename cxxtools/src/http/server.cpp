@@ -95,16 +95,6 @@ void Server::keepAliveTimeout(std::size_t ms)
     _impl->keepAliveTimeout(ms);
 }
 
-void Server::start()
-{
-    _impl->start();
-}
-
-void Server::terminate()
-{
-    _impl->terminate();
-}
-
 unsigned Server::minThreads() const
 {
     return _impl->minThreads();

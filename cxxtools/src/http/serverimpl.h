@@ -51,6 +51,7 @@ namespace http
 
 class Worker;
 class Listener;
+class ServerImpl;
 
 class IdleSocketEvent : public Event
 {
@@ -71,6 +72,25 @@ class IdleSocketEvent : public Event
 
 };
 
+class ServerStartEvent : public Event
+{
+        const ServerImpl* _server;
+
+    public:
+        explicit ServerStartEvent(ServerImpl* server)
+            : _server(server)
+            { }
+
+        Event& clone(Allocator& allocator) const;
+
+        void destroy(Allocator& allocator);
+
+        const std::type_info& typeInfo() const;
+
+        const ServerImpl* server() const   { return _server; }
+
+};
+
 class ServerImpl : public Connectable
 {
     public:
@@ -78,8 +98,6 @@ class ServerImpl : public Connectable
         ~ServerImpl();
 
         void listen(const std::string& ip, unsigned short int port);
-        void start();
-        void terminate();
         void createThread();
 
         void addService(const std::string& url, Service& service);
@@ -118,7 +136,9 @@ class ServerImpl : public Connectable
         }
 
         void addIdleSocket(Socket* _socket);
-        void onIdleSocketEvent(const Event& event);
+        void onEvent(const Event& event);
+        void start();
+        void terminate();
 
         friend class Worker;
 

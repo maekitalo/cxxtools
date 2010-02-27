@@ -29,6 +29,7 @@ abort_SOURCES = abort.cpp
 LDADD = $(top_builddir)/src/libcxxtools.la \
         $(top_builddir)/src/unit/libcxxtools-unit.la \
         $(top_builddir)/src/http/libcxxtools-http.la \
+        $(top_builddir)/src/xml/libcxxtools-xml.la \
         $(top_builddir)/src/xmlrpc/libcxxtools-xmlrpc.la
 AM_CXXFLAGS = $(PTHREAD_CFLAGS) -DTESTDIR='"@TESTDIR@"'
 AM_LDFLAGS = $(PTHREAD_LIBS)

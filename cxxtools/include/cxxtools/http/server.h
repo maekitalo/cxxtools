@@ -65,9 +65,6 @@ class CXXTOOLS_HTTP_API Server : private cxxtools::NonCopyable
         void writeTimeout(std::size_t ms);
         void keepAliveTimeout(std::size_t ms);
 
-        void start();
-        void terminate();
-
         unsigned minThreads() const;
         void minThreads(unsigned m);
 

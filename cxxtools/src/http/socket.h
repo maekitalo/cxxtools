@@ -35,6 +35,8 @@
 #include <cxxtools/iostream.h>
 #include <cxxtools/timer.h>
 #include <cxxtools/connectable.h>
+#include <cxxtools/signal.h>
+#include <cxxtools/method.h>
 #include "parser.h"
 
 namespace cxxtools {
@@ -85,6 +87,10 @@ class Socket : public net::TcpSocket, public Connectable
         const Reply& reply() const     { return _reply; }
 
         Signal<Socket&> inputReady;
+
+        MethodSlot<void, Socket, StreamBuffer&> inputSlot;
+        MethodSlot<bool, Socket, StreamBuffer&> outputSlot;
+        MethodSlot<void, Socket> timeoutSlot;
 
     private:
         net::TcpServer& _tcpServer;

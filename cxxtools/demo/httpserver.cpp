@@ -115,7 +115,6 @@ int main(int argc, char* argv[])
       service.addAuthenticator(&authenticator);
 
     server.addService("/hello", service);
-    server.start();
     loop.run();
   }
   catch (const std::exception& e)

@@ -55,19 +55,36 @@ const std::type_info& IdleSocketEvent::typeInfo() const
     return typeid(*this);
 }
 
+Event& ServerStartEvent::clone(Allocator& allocator) const
+{
+    return *(new ServerStartEvent(*this));
+}
+
+void ServerStartEvent::destroy(Allocator& allocator)
+{
+    delete this;
+}
+
+const std::type_info& ServerStartEvent::typeInfo() const
+{
+    return typeid(*this);
+}
+
 ServerImpl::ServerImpl(EventLoop& eventLoop, Signal<Server::Runmode>& runmodeChanged)
     : _eventLoop(eventLoop),
       _readTimeout(20000),
       _writeTimeout(20000),
       _keepAliveTimeout(30000),
       _idleTimeout(100),
-      _minThreads(8),
+      _minThreads(5),
       _maxThreads(200),
       _waitingThreads(0),
       _runmodeChanged(runmodeChanged),
       _runmode(Server::Stopped)
 {
-    connect(_eventLoop.event, *this, &ServerImpl::onIdleSocketEvent);
+    connect(_eventLoop.event, *this, &ServerImpl::onEvent);
+    connect(_eventLoop.exited, *this, &ServerImpl::terminate);
+    _eventLoop.commitEvent(ServerStartEvent(this));
 }
 
 ServerImpl::~ServerImpl()
@@ -177,18 +194,27 @@ void ServerImpl::addIdleSocket(Socket* _socket)
     _eventLoop.commitEvent(IdleSocketEvent(_socket));
 }
 
-void ServerImpl::onIdleSocketEvent(const Event& event)
+void ServerImpl::onEvent(const Event& event)
 {
-    const IdleSocketEvent* ev = dynamic_cast<const IdleSocketEvent*>(&event);
-    if (ev)
+    const IdleSocketEvent* idleSocketEvent;
+    const ServerStartEvent* serverStartEvent;
+
+    if ((idleSocketEvent = dynamic_cast<const IdleSocketEvent*>(&event)) != 0)
     {
-        Socket* socket = ev->socket();
+        Socket* socket = idleSocketEvent->socket();
 
         log_debug("add idle socket " << static_cast<void*>(socket) << " to selector");
 
         _idleSockets.insert(socket);
         socket->setSelector(&_eventLoop);
         connect(socket->inputReady, *this, &ServerImpl::onInput);
+    }
+    else if ((serverStartEvent = dynamic_cast<const ServerStartEvent*>(&event)) != 0)
+    {
+        if (serverStartEvent->server() == this)
+        {
+            start();
+        }
     }
 }
 

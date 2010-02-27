@@ -104,7 +104,6 @@ int main(int argc, char* argv[])
       server.addService("/myservice", service);
 
       // now start the server and run the event loop
-      server.start();
       loop.run();
     }
     else
