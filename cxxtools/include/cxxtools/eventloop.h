@@ -115,15 +115,15 @@ namespace cxxtools {
         Events can be added to the internal event queue, even from other threads
         using the method EventLoop::commitEvent or EventLoop::queueEvent. The
         first method will add the event to the internal queue and wake the
-        event loop, the latter allows queing multiple event and it is up to
+        event loop, the latter allows queing multiple events and it is up to
         the caller to wake the event loop by calling EventLoop::wake when all
         events are added. When the event loop processes its event, the signal
         "event" is send for each processed event. Events are processes in the
         order they were added.
 
-        To start the %EventLoop the method EventLoop::run must be executed. It block
+        To start the %EventLoop the method EventLoop::run must be executed. It blocks
         until the event loop is stopped. To stop the %EventLoop, EventLoop::exit
-        must be called. The delivery of the events occurs inside the Thread that
+        must be called. The delivery of the events occurs inside the thread that
         started the execution of the event loop.
 
         %IODevices and %Timers can be added to an %EventLoop just as to Selector.
