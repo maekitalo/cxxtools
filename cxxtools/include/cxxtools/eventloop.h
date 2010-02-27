@@ -89,6 +89,10 @@ namespace cxxtools {
             */
             Signal<const Event&> event;
 
+            /** @brief Emited when the eventloop is exited
+            */
+            Signal<> exited;
+
         protected:
             /** @brief Constructs the EventLoop
             */

@@ -101,6 +101,8 @@ void EventLoop::onRun()
         if( ! active )
             timeout.send();
     }
+
+    exited();
 }
 
 
