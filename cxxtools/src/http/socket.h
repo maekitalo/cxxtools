@@ -62,11 +62,18 @@ class Socket : public net::TcpSocket, public Connectable
         };
 
     public:
-        Socket(SelectorBase& s, ServerImpl& server, net::TcpServer& tcpServer);
+        Socket(ServerImpl& server, net::TcpServer& tcpServer);
+        explicit Socket(Socket& socket);
         ~Socket();
 
-        void onInput(StreamBuffer& stream);
-        bool onOutput(StreamBuffer& stream);
+        void accept();
+
+        void setSelector(SelectorBase* s);
+        void removeSelector();
+
+        void onIODeviceInput(IODevice& iodevice);
+        void onInput(StreamBuffer& sb);
+        bool onOutput(StreamBuffer& sb);
         void onTimeout();
 
         bool doReply();
@@ -74,13 +81,13 @@ class Socket : public net::TcpSocket, public Connectable
         bool isReady() const
         { return _parser.end() && _contentLength == 0; }
 
-        void addSelector(SelectorBase& s);
-        void removeSelector();
-
         const Request& request() const { return _request; }
         const Reply& reply() const     { return _reply; }
 
+        Signal<Socket&> inputReady;
+
     private:
+        net::TcpServer& _tcpServer;
         ServerImpl& _server;
 
         ParseEvent _parseEvent;

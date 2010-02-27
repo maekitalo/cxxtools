@@ -30,6 +30,7 @@
 #include <cxxtools/http/request.h>
 #include <cxxtools/http/reply.h>
 #include <cxxtools/http/responder.h>
+#include <cxxtools/eventloop.h>
 #include <cxxtools/loginit.h>
 #include <cxxtools/arg.h>
 
@@ -94,8 +95,8 @@ int main(int argc, char* argv[])
 
     cxxtools::Arg<bool> auth(argc, argv, 'a');
 
-    cxxtools::http::Server server;
-    server.listen(listenIp, listenPort);
+    cxxtools::EventLoop loop;
+    cxxtools::http::Server server(loop, listenIp, listenPort);
 
     // collect additional ports to listen on
     while (true)
@@ -114,7 +115,8 @@ int main(int argc, char* argv[])
       service.addAuthenticator(&authenticator);
 
     server.addService("/hello", service);
-    server.run();
+    server.start();
+    loop.run();
   }
   catch (const std::exception& e)
   {

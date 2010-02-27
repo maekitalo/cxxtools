@@ -48,6 +48,7 @@ with -f <filename> a file, which will be sent to the server instead.
 #include <cxxtools/xmlrpc/remoteprocedure.h>
 #include <cxxtools/xmlrpc/httpclient.h>
 #include <cxxtools/clock.h>
+#include <cxxtools/eventloop.h>
 #include <fstream>
 
 ////////////////////////////////////////////////////////////////////////
@@ -91,16 +92,20 @@ int main(int argc, char* argv[])
     {
       std::cout << "run rpcecho server" << std::endl;
 
+      // create a event loop
+      cxxtools::EventLoop loop;
+
       // the http server is instantiated with a ip address and a port number
-      cxxtools::http::Server server(ip, port);
+      cxxtools::http::Server server(loop, ip, port);
 
       // we create an instance of the service class
       EchoServerService service;
       // ... and register it under a url
       server.addService("/myservice", service);
 
-      // now run the server
-      server.run();
+      // now start the server and run the event loop
+      server.start();
+      loop.run();
     }
     else
     {

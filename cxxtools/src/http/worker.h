@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 Tommi Maekitalo
+ * Copyright (C) 2010 Tommi Maekitalo
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,33 +26,37 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "listener.h"
-#include "serverimpl.h"
+#ifndef CXXTOOLS_HTTP_WORKER_H
+#define CXXTOOLS_HTTP_WORKER_H
+
 #include <cxxtools/selector.h>
-#include "socket.h"
+#include <cxxtools/thread.h>
 
 namespace cxxtools
 {
-
 namespace http
 {
 
-Listener::Listener(const std::string& ip, unsigned short int port,
-    SelectorBase& selector, ServerImpl& httpServer)
-    : _ip(ip),
-      _port(port),
-      _tcpServer(),
-      _selector(selector),
-      _httpServer(httpServer)
+class ServerImpl;
+
+class Worker : public AttachedThread
 {
-    selector.add(_tcpServer);
-    connect(_tcpServer.connectionPending, *this, &Listener::onConnect);
+    public:
+        explicit Worker(ServerImpl& server)
+            : AttachedThread(callable(*this, &Worker::run)),
+              _server(server)
+        {
+        }
+
+        void run();
+
+    private:
+        ServerImpl& _server;
+        Selector _selector;
+};
+
+}
 }
 
-void Listener::onConnect(net::TcpServer& tcpServer)
-{
-    new Socket(_selector, _httpServer, tcpServer);
-}
+#endif // CXXTOOLS_HTTP_WORKER_H
 
-}
-}

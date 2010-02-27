@@ -54,26 +54,25 @@ void Socket::ParseEvent::onUrlParam(const std::string& q)
     _request.qparams(q);
 }
 
-Socket::Socket(SelectorBase& selector, ServerImpl& server, net::TcpServer& tcpServer)
-    : TcpSocket(tcpServer),
+Socket::Socket(ServerImpl& server, net::TcpServer& tcpServer)
+    : _tcpServer(tcpServer),
       _server(server),
       _parseEvent(_request),
       _parser(_parseEvent, false),
       _responder(0)
 {
-    log_info("connection accepted from " << getPeerAddr());
-
-    fcntl(getFd(), F_SETFD, FD_CLOEXEC);
-
     _stream.attachDevice(*this);
-    _stream.buffer().beginRead();
-    cxxtools::connect(_stream.buffer().inputReady, *this, &Socket::onInput);
-    cxxtools::connect(_stream.buffer().outputReady, *this, &Socket::onOutput);
-    cxxtools::connect(_timer.timeout, *this, &Socket::onTimeout);
+}
 
-    _timer.start(_server.readTimeout());
-
-    addSelector(selector);
+Socket::Socket(Socket& socket)
+    : _tcpServer(socket._tcpServer),
+      _server(socket._server),
+      _parseEvent(_request),
+      _parser(_parseEvent, false),
+      _responder(0)
+{
+    _stream.attachDevice(*this);
+    cxxtools::connect(IODevice::inputReady, *this, &Socket::onIODeviceInput);
 }
 
 Socket::~Socket()
@@ -82,28 +81,62 @@ Socket::~Socket()
         _responder->release();
 }
 
+void Socket::accept()
+{
+    net::TcpSocket::accept(_tcpServer);
+
+    _stream.buffer().beginRead();
+
+    _timer.start(_server.readTimeout());
+}
+
+void Socket::setSelector(SelectorBase* s)
+{
+    if (selector() == s)
+        return;
+
+    if (selector() != 0)
+    {
+        cxxtools::disconnect(_stream.buffer().inputReady, *this, &Socket::onInput);
+        cxxtools::disconnect(_stream.buffer().outputReady, *this, &Socket::onOutput);
+        cxxtools::disconnect(_timer.timeout, *this, &Socket::onTimeout);
+    }
+
+    if (s)
+    {
+        s->add(*this);
+        s->add(_timer);
+
+        cxxtools::connect(_stream.buffer().inputReady, *this, &Socket::onInput);
+        cxxtools::connect(_stream.buffer().outputReady, *this, &Socket::onOutput);
+        cxxtools::connect(_timer.timeout, *this, &Socket::onTimeout);
+    }
+    else
+    {
+        TcpSocket::setSelector(0);
+        _timer.setSelector(0);
+    }
+}
+
 void Socket::removeSelector()
 {
     TcpSocket::setSelector(0);
     _timer.setSelector(0);
+    cxxtools::disconnect(_stream.buffer().inputReady, *this, &Socket::onInput);
+    cxxtools::disconnect(_stream.buffer().outputReady, *this, &Socket::onOutput);
+    cxxtools::disconnect(_timer.timeout, *this, &Socket::onTimeout);
 }
 
-void Socket::addSelector(SelectorBase& selector)
+void Socket::onIODeviceInput(IODevice& iodevice)
 {
-    selector.add(*this);
-    selector.add(_timer);
+    inputReady(*this);
 }
 
 void Socket::onInput(StreamBuffer& sb)
 {
-    log_trace("onInput");
-    log_debug(this << " read data from " << getPeerAddr());
-
     if (sb.in_avail() == 0 || sb.device()->eof())
     {
-        log_debug("end of stream");
         close();
-        delete this;
         return;
     }
 
@@ -146,10 +179,11 @@ void Socket::onInput(StreamBuffer& sb)
             }
 
             _contentLength = _request.header().contentLength();
+            log_debug("content length of request is " << _contentLength);
             if (_contentLength == 0)
             {
                 _timer.stop();
-                _server.addReadySockets(this);
+                doReply();
                 return;
             }
 
@@ -186,7 +220,7 @@ void Socket::onInput(StreamBuffer& sb)
         if (_contentLength <= 0)
         {
             _timer.stop();
-            _server.addReadySockets(this);
+            doReply();
         }
         else
         {
@@ -262,7 +296,6 @@ bool Socket::onOutput(StreamBuffer& sb)
         {
             log_debug("don't do keep alive");
             close();
-            delete this;
             return false;
         }
     }
@@ -274,7 +307,6 @@ void Socket::onTimeout()
 {
     log_debug("timeout");
     close();
-    delete this;
 }
 
 void Socket::sendReply()

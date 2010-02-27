@@ -6,19 +6,18 @@ libcxxtools_http_la_SOURCES = \
     chunkedreader.cpp \
     client.cpp \
     clientimpl.cpp \
-    listener.cpp \
     messageheader.cpp \
     parser.cpp \
     server.cpp \
     serverimpl.cpp \
     socket.cpp \
     request.cpp \
-    responder.cpp
+    responder.cpp \
+    worker.cpp
 
 noinst_HEADERS = \
     chunkedreader.h \
     clientimpl.h \
-    listener.h \
     parser.h \
     serverimpl.h \
     socket.h

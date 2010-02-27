@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 by Marc Boris Duerner, Tommi Maekitalo
+ * Copyright (C) 2010 Tommi Maekitalo
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,142 +26,180 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "socket.h"
 #include "serverimpl.h"
+#include "worker.h"
+#include <cxxtools/net/tcpserver.h>
+#include <cxxtools/eventloop.h>
 #include <cxxtools/log.h>
+#include "listener.h"
 
-log_define("cxxtools.http.server")
+log_define("cxxtools.http.server.impl")
 
-namespace cxxtools {
-
-namespace http {
-
-
-ServerImpl::ServerImpl(Signal<Server::Runmode>& runmodeChanged)
-: _readTimeout(5000),
-  _writeTimeout(5000),
-  _keepAliveTimeout(30000),
-  _minThreads(4),
-  _maxThreads(200),
-  _waitingThreads(0),
-  _runmodeChanged(runmodeChanged),
-  _runmode(Server::Stopped)
+namespace cxxtools
 {
-    log_trace("initialize ServerImpl class");
+namespace http
+{
+
+Event& IdleSocketEvent::clone(Allocator& allocator) const
+{
+    return *(new IdleSocketEvent(*this));
+}
+
+void IdleSocketEvent::destroy(Allocator& allocator)
+{
+    delete this;
+}
+
+const std::type_info& IdleSocketEvent::typeInfo() const
+{
+    return typeid(*this);
+}
+
+ServerImpl::ServerImpl(EventLoop& eventLoop, Signal<Server::Runmode>& runmodeChanged)
+    : _eventLoop(eventLoop),
+      _readTimeout(20000),
+      _writeTimeout(20000),
+      _keepAliveTimeout(30000),
+      _idleTimeout(100),
+      _minThreads(8),
+      _maxThreads(200),
+      _waitingThreads(0),
+      _runmodeChanged(runmodeChanged),
+      _runmode(Server::Stopped)
+{
+    connect(_eventLoop.event, *this, &ServerImpl::onIdleSocketEvent);
 }
 
 ServerImpl::~ServerImpl()
 {
-    terminate();
-
-    for (Listeners::iterator it = _listeners.begin(); it != _listeners.end(); ++it)
-        delete (*it);
+    if (_runmode == Server::Running)
+        terminate();
 }
 
 void ServerImpl::listen(const std::string& ip, unsigned short int port)
 {
-    _listeners.push_back(new Listener(ip, port, _selector, *this));
+    log_debug("listen on " << ip << " port " << port);
+    Listener* listener = new Listener(ip, port);
+    try
+    {
+        _listener.push_back(listener);
+        _queue.put(new Socket(*this, *listener));
+    }
+    catch (...)
+    {
+        delete listener;
+        throw;
+    }
 }
 
-void ServerImpl::createThread()
+void ServerImpl::start()
 {
-    log_trace("ServerImpl::createThread");
+    log_trace("start server");
+    runmode(Server::Starting);
 
-    MutexLock ctLock(_createThreadMutex);
     MutexLock lock(_threadMutex);
-
-    if (_threads.size() < _maxThreads)
+    while (_threads.size() < _minThreads)
     {
-        log_debug("create thread object");
-        _startingThread = new AttachedThread(callable(*this, &ServerImpl::serverThread));
-
-        log_debug("run thread " << _startingThread);
-        _startingThread->create();
-
-        log_debug("wait for thread running");
-        _threadRunning.wait(lock);
-
-        log_debug("thread " << _startingThread << " is running");
-        _startingThread = 0;
+        Worker* worker = new Worker(*this);
+        _threads.insert(worker);
+        worker->start();
     }
+
+    runmode(Server::Running);
 }
 
 void ServerImpl::terminate()
 {
-    MutexLock lock(_threadMutex);
+    log_trace("terminate");
 
-    if (_runmode != Server::Running)
-        return;
+    MutexLock lock(_threadMutex);
 
     runmode(Server::Terminating);
-    _selector.wake();
-    _terminated.wait(lock);
-    runmode(Server::Stopped);
 
-    for (Listeners::iterator it = _listeners.begin(); it != _listeners.end(); ++it)
-        (*it)->close();
-}
+    log_debug("wake " << _listener.size() << " listeners");
+    for (ServerImpl::ListenerType::iterator it = _listener.begin(); it != _listener.end(); ++it)
+        (*it)->wakeConnect();
 
-void ServerImpl::run()
-{
-    log_trace("run server");
-
-    if (_runmode != Server::Stopped)
-        throw std::runtime_error("http server already running");
-
-    if (_listeners.empty())
-        throw std::runtime_error("no listeners defined in http server");
-
-    runmode(Server::Starting);
-
+    log_debug("terminate " << _threads.size() << " threads");
+    while (!_threads.empty() || !_terminatedThreads.empty())
     {
-        MutexLock selectorLock(_selectorMutex);
-
-        for (Listeners::iterator it = _listeners.begin(); it != _listeners.end(); ++it)
-            (*it)->listen();
-        runmode(Server::Running);
-
-        log_debug("start " << _minThreads << " threads");
-        for (unsigned n = 0; n < _minThreads; ++n)
+        if (!_threads.empty())
         {
-            log_debug("start thread " << n);
-            createThread();
+            log_debug("wait for terminated thread");
+            _threadTerminated.wait(lock);
         }
-    }
 
-    MutexLock lock(_threadMutex);
-
-    while (_runmode == Server::Running || !_threads.empty())
-    {
-        log_info("wait for finished threads");
-
-        _threadTerminated.wait(lock);
-        log_debug(_terminatedThreads.size() << " threads finished; " << atomicGet(_waitingThreads) << " waiting threads");
-
-        for (Threads::iterator it = _terminatedThreads.begin(); it != _terminatedThreads.end(); ++it)
+        for (Threads::iterator it = _terminatedThreads.begin();
+            it != _terminatedThreads.end(); ++it)
         {
-            log_info("join thread " << (*it));
+            log_debug("join thread");
             (*it)->join();
-            log_debug("delete thread " << (*it));
             delete *it;
         }
 
-        log_info("delete " << _terminatedThreads.size() << " thread objects");
         _terminatedThreads.clear();
     }
 
-    for (Threads::iterator it = _terminatedThreads.begin(); it != _terminatedThreads.end(); ++it)
-    {
-        log_info("join thread " << (*it));
-        (*it)->join();
-        log_debug("delete thread " << (*it));
+    log_debug("delete " << _listener.size() << " listeners");
+    for (ServerImpl::ListenerType::iterator it = _listener.begin(); it != _listener.end(); ++it)
         delete *it;
+    _listener.clear();
+
+
+    while (!_queue.empty())
+        delete _queue.get();
+
+    runmode(Server::Stopped);
+}
+
+void ServerImpl::createThread()
+{
+    MutexLock lock(_threadMutex);
+    Worker* worker = new Worker(*this);
+    _threads.insert(worker);
+    log_info("create thread " << static_cast<void*>(worker));
+    worker->start();
+}
+
+void ServerImpl::threadTerminated(Worker* worker)
+{
+    log_info("thread " << static_cast<void*>(worker) << " terminated");
+    MutexLock lock(_threadMutex);
+    _threads.erase(worker);
+    _terminatedThreads.insert(worker);
+    _threadTerminated.signal();
+}
+
+void ServerImpl::addIdleSocket(Socket* _socket)
+{
+    log_debug("add idle socket " << static_cast<void*>(_socket));
+
+    _eventLoop.commitEvent(IdleSocketEvent(_socket));
+}
+
+void ServerImpl::onIdleSocketEvent(const Event& event)
+{
+    const IdleSocketEvent* ev = dynamic_cast<const IdleSocketEvent*>(&event);
+    if (ev)
+    {
+        Socket* socket = ev->socket();
+
+        log_debug("add idle socket " << static_cast<void*>(socket) << " to selector");
+
+        _idleSockets.insert(socket);
+        socket->setSelector(&_eventLoop);
+        connect(socket->inputReady, *this, &ServerImpl::onInput);
     }
+}
 
-    for (Listeners::iterator it = _listeners.begin(); it != _listeners.end(); ++it)
-        (*it)->close();
+void ServerImpl::onInput(Socket& _socket)
+{
+    _socket.setSelector(0);
+    log_debug("search socket " << static_cast<void*>(&_socket) << " in idle sockets");
+    _idleSockets.erase(&_socket);
 
-    _terminated.signal();
+    disconnect(_socket.inputReady, *this, &ServerImpl::onInput);
+    _queue.put(&_socket);
 }
 
 void ServerImpl::addService(const std::string& url, Service& service)
@@ -216,141 +254,6 @@ Responder* ServerImpl::getResponder(const Request& request)
     return _defaultService.createResponder(request);
 }
 
-void ServerImpl::onConnect(net::TcpServer& server)
-{
-    log_trace("onConnect");
-    new Socket(_selector, *this, server);
+
 }
-
-void ServerImpl::serverThread()
-{
-    log_trace("serverThread");
-    class Counter
-    {
-            atomic_t& _counter;
-
-        public:
-            explicit Counter(atomic_t& counter)
-                : _counter(counter)
-                { atomicIncrement(_counter); }
-
-            ~Counter()
-                { atomicDecrement(_counter); }
-    };
-
-    class ThreadTerminator
-    {
-            AttachedThread* _thread;
-            Threads& _threads;
-            Threads& _terminatedThreads;
-            Condition& _threadTerminated;
-            Mutex& _threadMutex;
-
-        public:
-            ThreadTerminator(AttachedThread* thread, Threads& threads, Threads& terminatedThreads, Condition& threadTerminated, Mutex& threadMutex)
-                : _thread(thread),
-                  _threads(threads),
-                  _terminatedThreads(terminatedThreads),
-                  _threadTerminated(threadTerminated),
-                  _threadMutex(threadMutex)
-                { }
-            ~ThreadTerminator()
-            {
-                MutexLock threadLock(_threadMutex);
-                _threads.erase(_thread);
-                _terminatedThreads.insert(_thread);
-                _threadTerminated.signal();
-            }
-
-            const AttachedThread* thread() const  { return _thread; }
-    };
-
-    MutexLock threadLock(_threadMutex);
-
-    ThreadTerminator terminator(_startingThread, _threads, _terminatedThreads, _threadTerminated, _threadMutex);
-
-    _threads.insert(_startingThread);
-
-    log_info("thread running (" << _startingThread << ')');
-    _threadRunning.signal();
-
-    threadLock.unlock();
-
-    MutexLock selectorLock(_selectorMutex, false);
-
-    do
-    {
-        {
-            Counter m(_waitingThreads);
-            log_debug("wait for selector lock; " << _waitingThreads << " threads waiting");
-            selectorLock.lock();
-        }
-
-        log_debug("selectorLock obtained; " << _waitingThreads << " threads left");
-
-        if (_runmode == Server::Terminating)
-        {
-            log_debug("server terminating");
-            break;
-        }
-
-        if (atomicGet(_waitingThreads) == 0)
-            createThread();
-
-        // Execute events until at least one request is parsed and ready for
-        // processing:
-        while (_readySockets.empty())
-        {
-            log_debug("wait selector");
-            _selector.wait();
-
-            if (_runmode == Server::Terminating)
-                return;
-
-            log_debug("check for idle sockets to add to selector");
-            MutexLock lock(_idleSocketsMutex);
-            while (!_idleSockets.empty())
-            {
-                log_debug("add idle socket " << _idleSockets.front() << " to selector");
-                _idleSockets.front()->addSelector(_selector);
-                _idleSockets.pop_front();
-            }
-        }
-
-        Socket* s = _readySockets.front();
-        log_debug("socket " << s << " ready");
-        _readySockets.pop_front();
-        s->removeSelector();
-
-        log_debug("release selector lock");
-        selectorLock.unlock();
-
-        try
-        {
-            log_info("execute reply for url " << s->request().url());
-            // doReply returns true, if the request was executed with keep
-            // alive. If no keep alive is handled, the socket deletes itself.
-            if (s->doReply())
-            {
-                log_debug("add socket to idle sockets and wake up selector");
-                MutexLock lock(_idleSocketsMutex);
-                _idleSockets.push_back(s);
-                _selector.wake();
-            }
-            else
-                log_debug("socket destroyed");
-        }
-        catch (const std::exception& e)
-        {
-            delete s;
-            log_error(e.what());
-        }
-
-    } while (atomicGet(_waitingThreads) < _minThreads);
-
-    log_info("end thread " << terminator.thread());
 }
-
-} // namespace http
-
-} // namespace cxxtools

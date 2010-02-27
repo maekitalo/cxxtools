@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 by Marc Boris Duerner, Tommi Maekitalo
+ * Copyright (C) 2009 Tommi Maekitalo
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,38 +26,61 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef cxxtools_Http_ServerImpl_h
-#define cxxtools_Http_ServerImpl_h
+#ifndef CXXTOOLS_HTTP_SERVERIMPL_H
+#define CXXTOOLS_HTTP_SERVERIMPL_H
 
-#include <cxxtools/http/responder.h>
-#include <cxxtools/http/server.h>
-#include <cxxtools/net/tcpserver.h>
-#include <cxxtools/connectable.h>
-#include <cxxtools/condition.h>
-#include <cxxtools/mutex.h>
-#include <cxxtools/thread.h>
-#include <cxxtools/atomicity.h>
 #include <cstddef>
 #include <set>
-#include <list>
-#include "listener.h"
+#include <cxxtools/queue.h>
+#include <cxxtools/selector.h>
+#include <cxxtools/iodevice.h>
+#include <cxxtools/connectable.h>
+#include <cxxtools/event.h>
+#include <cxxtools/http/server.h>
+#include <cxxtools/http/service.h>
+#include <cxxtools/http/responder.h>
+#include "socket.h"
 
-namespace cxxtools {
+namespace cxxtools
+{
 
-namespace http {
+class EventLoop;
 
-class Responder;
-class Request;
-class Socket;
-class Service;
+namespace http
+{
+
+class Worker;
+class Listener;
+
+class IdleSocketEvent : public Event
+{
+        Socket* _socket;
+
+    public:
+        explicit IdleSocketEvent(Socket* socket)
+            : _socket(socket)
+            { }
+
+        Event& clone(Allocator& allocator) const;
+
+        void destroy(Allocator& allocator);
+
+        const std::type_info& typeInfo() const;
+
+        Socket* socket() const   { return _socket; }
+
+};
 
 class ServerImpl : public Connectable
 {
     public:
-        explicit ServerImpl(Signal<Server::Runmode>& runmodeChanged);
+        ServerImpl(EventLoop& eventLoop, Signal<Server::Runmode>& runmodeChanged);
         ~ServerImpl();
 
         void listen(const std::string& ip, unsigned short int port);
+        void start();
+        void terminate();
+        void createThread();
 
         void addService(const std::string& url, Service& service);
         void removeService(Service& service);
@@ -66,25 +89,26 @@ class ServerImpl : public Connectable
         Responder* getDefaultResponder(const Request& request)
             { return _defaultService.createResponder(request); }
 
-        void onConnect(net::TcpServer& server);
-
         std::size_t readTimeout() const       { return _readTimeout; }
         std::size_t writeTimeout() const      { return _writeTimeout; }
         std::size_t keepAliveTimeout() const  { return _keepAliveTimeout; }
+        std::size_t idleTimeout() const       { return _idleTimeout; }
 
         void readTimeout(std::size_t ms)      { _readTimeout = ms; }
         void writeTimeout(std::size_t ms)     { _writeTimeout = ms; }
         void keepAliveTimeout(std::size_t ms) { _keepAliveTimeout = ms; }
-
-        void terminate();
-
-        void run();
+        void idleTimeout(std::size_t ms)      { _idleTimeout = ms; }
 
         unsigned minThreads() const           { return _minThreads; }
         void minThreads(unsigned m)           { _minThreads = m; }
 
         unsigned maxThreads() const           { return _maxThreads; }
         void maxThreads(unsigned m)           { _maxThreads = m; }
+
+        void onInput(Socket& _socket);
+
+        bool isTerminating() const
+        { return _runmode == Server::Terminating; }
 
     private:
         void runmode(Server::Runmode runmode)
@@ -93,63 +117,50 @@ class ServerImpl : public Connectable
             _runmodeChanged(runmode);
         }
 
-        typedef std::vector<Listener*> Listeners;
-        Listeners _listeners;
+        void addIdleSocket(Socket* _socket);
+        void onIdleSocketEvent(const Event& event);
 
-        typedef std::multimap<std::string, Service*> ServicesType;
-        ServicesType _service;
-        Selector _selector;
-        NotFoundService _defaultService;
-        NotAuthenticatedService _noAuthService;
+        friend class Worker;
+
+        ////////////////////////////////////////////////////
+        EventLoop& _eventLoop;
 
         std::size_t _readTimeout;
         std::size_t _writeTimeout;
         std::size_t _keepAliveTimeout;
-
-        void serverThread();
-
-        Mutex _threadMutex;
-        Mutex _createThreadMutex;
-        Mutex _selectorMutex;
-        Mutex _serviceMutex;
-        Condition _threadRunning;
-        AttachedThread* _startingThread;
+        std::size_t _idleTimeout;
         unsigned _minThreads;
         unsigned _maxThreads;
         atomic_t _waitingThreads;
 
         Signal<Server::Runmode>& _runmodeChanged;
         Server::Runmode _runmode;
-        Condition _terminated;
-        Condition _threadTerminated;
 
-        typedef std::set<AttachedThread*> Threads;
+        Queue<Socket*> _queue;
+        std::set<Socket*> _idleSockets;
+
+        ////////////////////////////////////////////////////
+        typedef std::vector<Listener*> ListenerType;
+        ListenerType _listener;
+
+        ////////////////////////////////////////////////////
+        typedef std::set<Worker*> Threads;
         Threads _threads;
         Threads _terminatedThreads;
+        Mutex _threadMutex;
+        Condition _threadTerminated;
+        void threadTerminated(Worker* worker);
 
-        typedef std::list<Socket*> ServerSockets;
-
-        // _readySockets: Sockets, where http requests is parsed completely and
-        //   are ready for execution.
-        // _idleSockets:  Sockets, which are executed with keep alive and begin
-        //   waiting for next request. They should be added to the selector
-        //   immediately, but since the selector runs in a different thread,
-        //   the sockets are first put here and the thread, which runs
-        //   currently the selector is waked up.
-        ServerSockets _readySockets;
-        Mutex _idleSocketsMutex;
-        ServerSockets _idleSockets;
-
-        friend class Socket;
-        void addReadySockets(Socket* s)
-            { _readySockets.push_back(s); }
-
-        void createThread();
+        ////////////////////////////////////////////////////
+        typedef std::multimap<std::string, Service*> ServicesType;
+        Mutex _serviceMutex;
+        ServicesType _service;
+        NotFoundService _defaultService;
+        NotAuthenticatedService _noAuthService;
 };
 
+}
+}
 
-} // namespace http
+#endif // CXXTOOLS_HTTP_SERVERIMPL_H
 
-} // namespace cxxtools
-
-#endif

@@ -31,10 +31,13 @@
 
 #include <cxxtools/http/api.h>
 #include <cxxtools/signal.h>
+#include <cxxtools/noncopyable.h>
 #include <string>
 #include <cstddef>
 
 namespace cxxtools {
+
+class EventLoop;
 
 namespace http {
 
@@ -42,11 +45,11 @@ class Request;
 class Service;
 class ServerImpl;
 
-class CXXTOOLS_HTTP_API Server
+class CXXTOOLS_HTTP_API Server : private cxxtools::NonCopyable
 {
     public:
-        Server();
-        Server(const std::string& ip, unsigned short int port);
+        explicit Server(EventLoop& eventLoop);
+        Server(EventLoop& eventLoop, const std::string& ip, unsigned short int port);
         ~Server();
 
         void listen(const std::string& ip, unsigned short int port);
@@ -62,9 +65,8 @@ class CXXTOOLS_HTTP_API Server
         void writeTimeout(std::size_t ms);
         void keepAliveTimeout(std::size_t ms);
 
+        void start();
         void terminate();
-
-        void run();
 
         unsigned minThreads() const;
         void minThreads(unsigned m);

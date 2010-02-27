@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 Tommi Maekitalo
+ * Copyright (C) 2010 Tommi Maekitalo
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,46 +26,37 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef cxxtools_http_Listener_H
-#define cxxtools_http_Listener_H
+#ifndef CXXTOOLS_HTTP_LISTENER_H
+#define CXXTOOLS_HTTP_LISTENER_H
 
-#include <cxxtools/connectable.h>
 #include <cxxtools/net/tcpserver.h>
+#include <cxxtools/net/tcpsocket.h>
 
 namespace cxxtools
 {
-
-class SelectorBase;
-
 namespace http
 {
 
-class ServerImpl;
-
-class Listener : public Connectable
+class Listener : public net::TcpServer
 {
         std::string _ip;
-        unsigned short int _port;
-
-        net::TcpServer _tcpServer;
-        SelectorBase& _selector;
-        ServerImpl& _httpServer;
-
-        void onConnect(net::TcpServer& tcpServer);
+        unsigned short _port;
 
     public:
-        Listener(const std::string& ip, unsigned short int port,
-            SelectorBase& selector, ServerImpl& httpServer);
+        Listener(const std::string& ip, unsigned short port)
+            : net::TcpServer(ip, port),
+              _ip(ip),
+              _port(port)
+        { }
 
-        void listen()
-        { _tcpServer.listen(_ip, _port); }
-
-        void close()
-        { _tcpServer.close(); }
+        void wakeConnect()
+        {
+            net::TcpSocket(_ip, _port);
+        }
 };
 
 }
 }
 
-#endif // cxxtools_http_Listener_H
+#endif // CXXTOOLS_HTTP_LISTENER_H
 

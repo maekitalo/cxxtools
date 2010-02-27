@@ -27,19 +27,20 @@
  */
 
 #include <cxxtools/http/server.h>
+#include <cxxtools/eventloop.h>
 #include "serverimpl.h"
 
 namespace cxxtools {
 
 namespace http {
 
-Server::Server()
-    : _impl(new ServerImpl(runmodeChanged))
+Server::Server(EventLoop& eventLoop)
+    : _impl(new ServerImpl(eventLoop, runmodeChanged))
 {
 }
 
-Server::Server(const std::string& ip, unsigned short int port)
-    : _impl(new ServerImpl(runmodeChanged))
+Server::Server(EventLoop& eventLoop, const std::string& ip, unsigned short int port)
+    : _impl(new ServerImpl(eventLoop, runmodeChanged))
 {
     _impl->listen(ip, port);
 }
@@ -94,14 +95,14 @@ void Server::keepAliveTimeout(std::size_t ms)
     _impl->keepAliveTimeout(ms);
 }
 
+void Server::start()
+{
+    _impl->start();
+}
+
 void Server::terminate()
 {
     _impl->terminate();
-}
-
-void Server::run()
-{
-    _impl->run();
 }
 
 unsigned Server::minThreads() const
