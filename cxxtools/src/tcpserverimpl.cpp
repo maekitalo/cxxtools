@@ -80,7 +80,7 @@ void TcpServerImpl::listen(const std::string& ipaddr, unsigned short int port, i
 {
     log_debug("listen on " << ipaddr << " port " << port << " backlog " << backlog);
 
-    AddrInfo ai(ipaddr, port);
+    AddrInfo ai(ipaddr, port, true);
 
     static const int reuseAddr = 1;
 

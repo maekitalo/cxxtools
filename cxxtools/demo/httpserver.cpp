@@ -89,7 +89,7 @@ int main(int argc, char* argv[])
   {
     log_init();
 
-    cxxtools::Arg<std::string> listenIp(argc, argv, 'l', "0.0.0.0");
+    cxxtools::Arg<std::string> listenIp(argc, argv, 'l');
     cxxtools::Arg<unsigned short int> listenPort(argc, argv, 'p', 8001);
 
     cxxtools::Arg<bool> auth(argc, argv, 'a');

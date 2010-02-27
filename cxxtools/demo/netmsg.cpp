@@ -38,7 +38,7 @@ void usage(const char* progname)
                "       " << progname << " -l [-h host] [-p port] [-s size] [-c] [-e] [-n]\n"
                "options:\n"
                "  -l             receiver-mode\n"
-               "  -h host        hostname (default 127.0.0.1 in sender, 0.0.0.0 in receiver)\n"
+               "  -h host        hostname (default localhost in sender, any in receiver)\n"
                "  -p port        udp-port to use\n"
                "  -s size        size of receive-buffer in bytes (default 1024)\n"
                "  -c             continuous-mode - don't stop after receiving message\n"
@@ -70,7 +70,7 @@ int main(int argc, char* argv[])
     if (receive)
     {
       cxxtools::Arg<unsigned> size(argc, argv, 's', 1024);
-      cxxtools::Arg<const char*> host(argc, argv, 'h', "0.0.0.0");
+      cxxtools::Arg<const char*> host(argc, argv, 'h');
       cxxtools::Arg<bool> continuous(argc, argv, 'c');
 
       if (argc > 1)
@@ -103,7 +103,7 @@ int main(int argc, char* argv[])
     }
     else
     {
-      cxxtools::Arg<const char*> host(argc, argv, 'h', "127.0.0.1");
+      cxxtools::Arg<const char*> host(argc, argv, 'h');
       cxxtools::Arg<bool> broadcast(argc, argv, 'b');
 
       if (argc <= 1)

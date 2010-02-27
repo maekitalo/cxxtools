@@ -38,7 +38,7 @@ int main(int argc, char* argv[])
   {
     log_init();
 
-    cxxtools::Arg<const char*> ip(argc, argv, 'i', "0.0.0.0");
+    cxxtools::Arg<const char*> ip(argc, argv, 'i');
     cxxtools::Arg<unsigned short> port(argc, argv, 'p', 1234);
     cxxtools::Arg<unsigned> bufsize(argc, argv, 'b', 8192);
     cxxtools::Arg<bool> listen(argc, argv, 'l');

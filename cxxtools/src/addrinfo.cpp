@@ -28,6 +28,7 @@
 
 #include <cxxtools/net/addrinfo.h>
 #include <cxxtools/log.h>
+#include <string.h>
 #include "addrinfoimpl.h"
 
 log_define("cxxtools.net.addrinfo")
@@ -46,10 +47,18 @@ AddrInfo::AddrInfo(AddrInfoImpl* impl)
 }
 
 
-AddrInfo::AddrInfo(const std::string& host, unsigned short port)
-    : _impl(new AddrInfoImpl(host, port))
+AddrInfo::AddrInfo(const std::string& host, unsigned short port, bool listen)
+    : _impl(0)
 {
     log_debug("host=" << host << " port=" << port);
+
+    struct addrinfo hints;
+    memset(&hints, 0, sizeof(hints));
+    hints.ai_socktype = SOCK_STREAM;
+    if (listen)
+        hints.ai_flags |= AI_PASSIVE;
+    _impl = new AddrInfoImpl(host, port, hints);
+
     _impl->addRef();
 }
 

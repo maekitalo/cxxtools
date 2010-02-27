@@ -84,7 +84,7 @@ int main(int argc, char* argv[])
 
     cxxtools::Arg<bool> server(argc, argv, 'S');
 
-    cxxtools::Arg<std::string> ip(argc, argv, 'i', server.isSet() ? "0.0.0.0" : "127.0.0.1");
+    cxxtools::Arg<std::string> ip(argc, argv, 'i');
     cxxtools::Arg<unsigned short> port(argc, argv, 'p', 7002);
 
     if (server)

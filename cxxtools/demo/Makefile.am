@@ -36,9 +36,9 @@ endif
 INCLUDES = -I$(top_builddir)/include
 LDADD = $(top_builddir)/src/libcxxtools.la
 AM_CXXFLAGS = $(PTHREAD_CFLAGS)
-httpserver_LDADD = $(top_builddir)/src/http/libcxxtools-http.la
-httprequest_LDADD = $(top_builddir)/src/http/libcxxtools-http.la
-rpcecho_LDADD = $(top_builddir)/src/xmlrpc/libcxxtools-xmlrpc.la
+httpserver_LDADD =  $(top_builddir)/src/libcxxtools.la $(top_builddir)/src/http/libcxxtools-http.la
+httprequest_LDADD = $(top_builddir)/src/libcxxtools.la $(top_builddir)/src/http/libcxxtools-http.la
+rpcecho_LDADD = $(top_builddir)/src/libcxxtools.la $(top_builddir)/src/http/libcxxtools-http.la $(top_builddir)/src/xml/libcxxtools-xml.la $(top_builddir)/src/xmlrpc/libcxxtools-xmlrpc.la
 
 log.properties:
 	/bin/sh $(top_builddir)/cxxtools-config --properties cxxtools >$@

@@ -32,9 +32,11 @@
 #include <sstream>
 #include <string.h>
 
-namespace cxxtools {
+namespace cxxtools
+{
 
-namespace net {
+namespace net
+{
 
   void AddrInfoImpl::init(const std::string& host, unsigned short port)
   {
@@ -63,7 +65,7 @@ namespace net {
     p << port;
 
     // TODO: exception type
-    if (0 != ::getaddrinfo(host.c_str(), p.str().c_str(), &hints, &_ai))
+    if (0 != ::getaddrinfo(host.empty() ? 0 : host.c_str(), p.str().c_str(), &hints, &_ai))
       throw SystemError(0, ("invalid ipaddress " + host).c_str());
 
     // TODO: exception type

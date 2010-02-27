@@ -47,7 +47,7 @@ namespace net
                 : _impl(0)
                 { }
             explicit AddrInfo(AddrInfoImpl* impl);
-            AddrInfo(const std::string& host, unsigned short port);
+            AddrInfo(const std::string& host, unsigned short port, bool listen = false);
             AddrInfo(const AddrInfo& src);
             ~AddrInfo();
 

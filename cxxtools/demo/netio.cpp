@@ -41,7 +41,7 @@ const unsigned BUFSIZE = 65536;
 int server(int argc, char* argv[])
 {
   cxxtools::Arg<unsigned short> port(argc, argv, 'p', 1234);
-  cxxtools::Arg<const char*> ip(argc, argv, 'i', "0.0.0.0");
+  cxxtools::Arg<const char*> ip(argc, argv, 'i');
   cxxtools::Arg<bool> verbose(argc, argv, 'v');
 
   cxxtools::net::TcpServer server(ip.getValue(), port);
@@ -110,7 +110,7 @@ void run_test(cxxtools::net::TcpSocket& conn, unsigned bs, const char* buffer, u
 int client(int argc, char* argv[])
 {
   cxxtools::Arg<unsigned short> port(argc, argv, 'p', 1234);
-  cxxtools::Arg<const char*> ip(argc, argv, 'i', "127.0.0.1");
+  cxxtools::Arg<const char*> ip(argc, argv, 'i');
   cxxtools::Arg<unsigned> secs(argc, argv, 't', 1);
   cxxtools::Arg<unsigned> bufsize(argc, argv, 't', BUFSIZE);
   cxxtools::Arg<unsigned> B(argc, argv, 'B', 0);
