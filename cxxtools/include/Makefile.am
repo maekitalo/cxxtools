@@ -95,6 +95,7 @@ nobase_include_HEADERS = \
         cxxtools/process.h \
         cxxtools/properties.h \
         cxxtools/query_params.h \
+        cxxtools/queue.h \
         cxxtools/quotedprintablestream.h \
         cxxtools/refcounted.h \
         cxxtools/regex.h \
