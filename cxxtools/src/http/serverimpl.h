@@ -91,6 +91,19 @@ class ServerStartEvent : public Event
 
 };
 
+class NoWaitingThreadsEvent : public Event
+{
+    public:
+        NoWaitingThreadsEvent()  { }
+
+        Event& clone(Allocator& allocator) const;
+
+        void destroy(Allocator& allocator);
+
+        const std::type_info& typeInfo() const;
+
+};
+
 class ServerImpl : public Connectable
 {
     public:
@@ -98,7 +111,7 @@ class ServerImpl : public Connectable
         ~ServerImpl();
 
         void listen(const std::string& ip, unsigned short int port);
-        void createThread();
+        void noWaitingThreads();
 
         void addService(const std::string& url, Service& service);
         void removeService(Service& service);

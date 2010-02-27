@@ -52,7 +52,7 @@ void Worker::run()
         }
 
         if (_server._queue.numWaiting() == 0)
-            _server.createThread();  // TODO send event and let the main loop start the new thread
+            _server.noWaitingThreads();
 
         if (!socket->isConnected())
         {

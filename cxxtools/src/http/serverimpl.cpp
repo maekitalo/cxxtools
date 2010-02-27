@@ -70,6 +70,21 @@ const std::type_info& ServerStartEvent::typeInfo() const
     return typeid(*this);
 }
 
+Event& NoWaitingThreadsEvent::clone(Allocator& allocator) const
+{
+    return *(new NoWaitingThreadsEvent(*this));
+}
+
+void NoWaitingThreadsEvent::destroy(Allocator& allocator)
+{
+    delete this;
+}
+
+const std::type_info& NoWaitingThreadsEvent::typeInfo() const
+{
+    return typeid(*this);
+}
+
 ServerImpl::ServerImpl(EventLoop& eventLoop, Signal<Server::Runmode>& runmodeChanged)
     : _eventLoop(eventLoop),
       _readTimeout(20000),
@@ -169,13 +184,10 @@ void ServerImpl::terminate()
     runmode(Server::Stopped);
 }
 
-void ServerImpl::createThread()
+void ServerImpl::noWaitingThreads()
 {
-    MutexLock lock(_threadMutex);
-    Worker* worker = new Worker(*this);
-    _threads.insert(worker);
-    log_info("create thread " << static_cast<void*>(worker));
-    worker->start();
+    if (_runmode == Server::Running)
+        _eventLoop.commitEvent(NoWaitingThreadsEvent());
 }
 
 void ServerImpl::threadTerminated(Worker* worker)
@@ -196,12 +208,10 @@ void ServerImpl::addIdleSocket(Socket* _socket)
 
 void ServerImpl::onEvent(const Event& event)
 {
-    const IdleSocketEvent* idleSocketEvent;
-    const ServerStartEvent* serverStartEvent;
-
-    if ((idleSocketEvent = dynamic_cast<const IdleSocketEvent*>(&event)) != 0)
+    if (event.typeInfo() == typeid(IdleSocketEvent))
     {
-        Socket* socket = idleSocketEvent->socket();
+        const IdleSocketEvent& idleSocketEvent = static_cast<const IdleSocketEvent&>(event);
+        Socket* socket = idleSocketEvent.socket();
 
         log_debug("add idle socket " << static_cast<void*>(socket) << " to selector");
 
@@ -209,9 +219,18 @@ void ServerImpl::onEvent(const Event& event)
         socket->setSelector(&_eventLoop);
         connect(socket->inputReady, *this, &ServerImpl::onInput);
     }
-    else if ((serverStartEvent = dynamic_cast<const ServerStartEvent*>(&event)) != 0)
+    else if (event.typeInfo() == typeid(NoWaitingThreadsEvent))
     {
-        if (serverStartEvent->server() == this)
+        MutexLock lock(_threadMutex);
+        Worker* worker = new Worker(*this);
+        _threads.insert(worker);
+        log_info("create thread " << static_cast<void*>(worker));
+        worker->start();
+    }
+    else if (event.typeInfo() == typeid(ServerStartEvent))
+    {
+        const ServerStartEvent& serverStartEvent = static_cast<const ServerStartEvent&>(event);
+        if (serverStartEvent.server() == this)
         {
             start();
         }
