@@ -124,6 +124,7 @@ namespace cxxtools {
                 wait without timeout.
 
                 @param msecs timeout in miliseconds
+                @return true on timeout
             */
             bool wait(std::size_t msecs = WaitInfinite);
 
