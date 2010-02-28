@@ -22,13 +22,15 @@ libcxxtools_http_la_SOURCES = \
 noinst_HEADERS = \
     chunkedreader.h \
     clientimpl.h \
+    listener.h \
     notauthenticatedresponder.h \
     notauthenticatedservice.h \
     notfoundresponder.h \
     notfoundservice.h \
     parser.h \
     serverimpl.h \
-    socket.h
+    socket.h \
+    worker.h
 
 libcxxtools_http_la_LIBADD = $(top_builddir)/src/libcxxtools.la
 
