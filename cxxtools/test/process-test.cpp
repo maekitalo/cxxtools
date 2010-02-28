@@ -32,10 +32,6 @@
 #include "cxxtools/eventloop.h"
 #include "cxxtools/unit/testsuite.h"
 #include "cxxtools/unit/registertest.h"
-#include "cxxtools/log.h"
-
-log_define("cxxtools.test.process")
-
 
 class ProcessTest : public cxxtools::unit::TestSuite
 {

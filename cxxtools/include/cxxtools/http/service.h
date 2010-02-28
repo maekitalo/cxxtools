@@ -29,6 +29,7 @@
 #ifndef cxxtools_Http_Service_h
 #define cxxtools_Http_Service_h
 
+#include <cxxtools/http/api.h>
 #include <cxxtools/mutex.h>
 #include <vector>
 #include <string>
@@ -46,7 +47,7 @@ class Authenticator
         virtual bool checkAuth(const Request&) const = 0;
 };
 
-class Service
+class CXXTOOLS_HTTP_API Service
 {
         std::vector<const Authenticator*> _authenticators;
         std::string _realm;

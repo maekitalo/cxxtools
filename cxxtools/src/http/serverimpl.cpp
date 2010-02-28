@@ -28,7 +28,6 @@
 
 #include "serverimpl.h"
 #include "worker.h"
-#include <cxxtools/net/tcpserver.h>
 #include <cxxtools/eventloop.h>
 #include <cxxtools/log.h>
 #include "listener.h"

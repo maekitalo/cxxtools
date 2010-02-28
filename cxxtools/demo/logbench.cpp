@@ -38,8 +38,6 @@
 #include <sys/time.h>
 #include <iomanip>
 
-log_define("log")
-
 namespace bench
 {
   log_define("bench")

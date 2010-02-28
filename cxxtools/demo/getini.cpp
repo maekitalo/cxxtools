@@ -36,8 +36,6 @@
 #include <cxxtools/log.h>
 #include <cxxtools/arg.h>
 
-log_define("cxxtools.getini")
-
 int main(int argc, char* argv[])
 {
   log_init();

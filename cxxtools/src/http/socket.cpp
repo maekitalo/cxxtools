@@ -55,27 +55,27 @@ void Socket::ParseEvent::onUrlParam(const std::string& q)
 }
 
 Socket::Socket(ServerImpl& server, net::TcpServer& tcpServer)
-    : _tcpServer(tcpServer),
+    : inputSlot(slot(*this, &Socket::onInput)),
+      outputSlot(slot(*this, &Socket::onOutput)),
+      timeoutSlot(slot(*this, &Socket::onTimeout)),
+      _tcpServer(tcpServer),
       _server(server),
       _parseEvent(_request),
       _parser(_parseEvent, false),
-      _responder(0),
-      inputSlot(slot(*this, &Socket::onInput)),
-      outputSlot(slot(*this, &Socket::onOutput)),
-      timeoutSlot(slot(*this, &Socket::onTimeout))
+      _responder(0)
 {
     _stream.attachDevice(*this);
 }
 
 Socket::Socket(Socket& socket)
-    : _tcpServer(socket._tcpServer),
+    : inputSlot(slot(*this, &Socket::onInput)),
+      outputSlot(slot(*this, &Socket::onOutput)),
+      timeoutSlot(slot(*this, &Socket::onTimeout)),
+      _tcpServer(socket._tcpServer),
       _server(socket._server),
       _parseEvent(_request),
       _parser(_parseEvent, false),
-      _responder(0),
-      inputSlot(slot(*this, &Socket::onInput)),
-      outputSlot(slot(*this, &Socket::onOutput)),
-      timeoutSlot(slot(*this, &Socket::onTimeout))
+      _responder(0)
 {
     _stream.attachDevice(*this);
     cxxtools::connect(IODevice::inputReady, *this, &Socket::onIODeviceInput);

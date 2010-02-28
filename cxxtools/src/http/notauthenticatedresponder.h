@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 by Marc Boris Duerner, Tommi Maekitalo
+ * Copyright (C) 2010 Tommi Maekitalo
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,44 +26,33 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef cxxtools_Http_Responder_h
-#define cxxtools_Http_Responder_h
+#ifndef CXXTOOLS_HTTP_NOTAUTHENTICATEDRESPONDER_H
+#define CXXTOOLS_HTTP_NOTAUTHENTICATEDRESPONDER_H
 
-#include <cxxtools/http/api.h>
-#include <cxxtools/http/service.h>
-#include <iosfwd>
-#include <exception>
+#include <cxxtools/http/responder.h>
+#include <string>
 
 namespace cxxtools
 {
 namespace http
 {
 
-class Request;
-class Reply;
-
-class CXXTOOLS_HTTP_API Responder
+class NotAuthenticatedResponder : public Responder
 {
+        std::string _realm;
+        std::string _content;
+
     public:
-        explicit Responder(Service& service)
-            : _service(service)
-        { }
+        explicit NotAuthenticatedResponder(Service& service, const std::string& realm, const std::string& content)
+            : Responder(service),
+              _realm(realm),
+              _content(content)
+            { }
 
-        virtual ~Responder() { }
-
-        virtual void beginRequest(std::istream& in, Request& request);
-        virtual std::size_t readBody(std::istream&);
-        virtual void reply(std::ostream&, Request& request, Reply& reply) = 0;
-        virtual void replyError(std::ostream&, Request& request, Reply& reply, const std::exception& ex);
-
-        void release()     { _service.releaseResponder(this); }
-
-    private:
-        Service& _service;
+        void reply(std::ostream&, Request& request, Reply& reply);
 };
 
-} // namespace http
+}
+}
 
-} // namespace cxxtools
-
-#endif
+#endif // CXXTOOLS_HTTP_NOTAUTHENTICATEDRESPONDER_H

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 by Marc Boris Duerner, Tommi Maekitalo
+ * Copyright (C) 2010 Tommi Maekitalo
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,44 +26,18 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef cxxtools_Http_Responder_h
-#define cxxtools_Http_Responder_h
-
-#include <cxxtools/http/api.h>
-#include <cxxtools/http/service.h>
-#include <iosfwd>
-#include <exception>
+#include "notfoundresponder.h"
+#include <cxxtools/http/reply.h>
 
 namespace cxxtools
 {
 namespace http
 {
 
-class Request;
-class Reply;
-
-class CXXTOOLS_HTTP_API Responder
+void NotFoundResponder::reply(std::ostream& out, Request& request, Reply& reply)
 {
-    public:
-        explicit Responder(Service& service)
-            : _service(service)
-        { }
+    reply.httpReturn(404, "Not found");
+}
 
-        virtual ~Responder() { }
-
-        virtual void beginRequest(std::istream& in, Request& request);
-        virtual std::size_t readBody(std::istream&);
-        virtual void reply(std::ostream&, Request& request, Reply& reply) = 0;
-        virtual void replyError(std::ostream&, Request& request, Reply& reply, const std::exception& ex);
-
-        void release()     { _service.releaseResponder(this); }
-
-    private:
-        Service& _service;
-};
-
-} // namespace http
-
-} // namespace cxxtools
-
-#endif
+}
+}

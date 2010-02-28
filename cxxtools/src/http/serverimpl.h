@@ -32,14 +32,14 @@
 #include <cstddef>
 #include <set>
 #include <cxxtools/queue.h>
-#include <cxxtools/selector.h>
-#include <cxxtools/iodevice.h>
 #include <cxxtools/connectable.h>
 #include <cxxtools/event.h>
 #include <cxxtools/http/server.h>
 #include <cxxtools/http/service.h>
 #include <cxxtools/http/responder.h>
 #include "socket.h"
+#include "notfoundservice.h"
+#include "notauthenticatedservice.h"
 
 namespace cxxtools
 {

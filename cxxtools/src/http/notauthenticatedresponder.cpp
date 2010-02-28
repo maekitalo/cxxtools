@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 by Marc Boris Duerner, Tommi Maekitalo
+ * Copyright (C) 2010 Tommi Maekitalo
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,44 +26,26 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef cxxtools_Http_Responder_h
-#define cxxtools_Http_Responder_h
-
-#include <cxxtools/http/api.h>
-#include <cxxtools/http/service.h>
-#include <iosfwd>
-#include <exception>
+#include "notauthenticatedresponder.h"
+#include <cxxtools/http/reply.h>
 
 namespace cxxtools
 {
 namespace http
 {
 
-class Request;
-class Reply;
-
-class CXXTOOLS_HTTP_API Responder
+void NotAuthenticatedResponder::reply(std::ostream& out, Request& request, Reply& reply)
 {
-    public:
-        explicit Responder(Service& service)
-            : _service(service)
-        { }
+    reply.setHeader("WWW-Authenticate", "Basic realm=\"" + _realm + '"');
 
-        virtual ~Responder() { }
+    reply.httpReturn(401, "not authorized");
 
-        virtual void beginRequest(std::istream& in, Request& request);
-        virtual std::size_t readBody(std::istream&);
-        virtual void reply(std::ostream&, Request& request, Reply& reply) = 0;
-        virtual void replyError(std::ostream&, Request& request, Reply& reply, const std::exception& ex);
+    if (_content.empty())
+        out << "<html><body><h1>not authorized</h1></body></html>";
+    else
+        out << _content;
 
-        void release()     { _service.releaseResponder(this); }
+}
 
-    private:
-        Service& _service;
-};
-
-} // namespace http
-
-} // namespace cxxtools
-
-#endif
+}
+}

@@ -7,6 +7,10 @@ libcxxtools_http_la_SOURCES = \
     client.cpp \
     clientimpl.cpp \
     messageheader.cpp \
+    notauthenticatedresponder.cpp \
+    notauthenticatedservice.cpp \
+    notfoundresponder.cpp \
+    notfoundservice.cpp \
     parser.cpp \
     server.cpp \
     serverimpl.cpp \
@@ -18,6 +22,10 @@ libcxxtools_http_la_SOURCES = \
 noinst_HEADERS = \
     chunkedreader.h \
     clientimpl.h \
+    notauthenticatedresponder.h \
+    notauthenticatedservice.h \
+    notfoundresponder.h \
+    notfoundservice.h \
     parser.h \
     serverimpl.h \
     socket.h
