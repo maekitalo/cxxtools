@@ -38,7 +38,7 @@ namespace cxxtools {
     /** @brief This class is used to control concurrent access.
 
         The Condition class is used to control concurrent access in a queued
-        manner. The Condition class supports two types of signalling events,
+        manner. The Condition class supports two types of signaling events,
         manual reset and automatic reset.
         Manual resets cause all blocked callers to be released. This can be
         understood as some kind of broadcast to signal all blocked callers at
