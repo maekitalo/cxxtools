@@ -35,6 +35,14 @@
 
 namespace cxxtools
 {
+    /** @brief This class implements a thread safe queue.
+
+        A queue is a container where the elements put into the queue are
+        fetched in the same order (first-in-first-out, fifo).
+        The class has a optional maximum size. If the size is set to 0 the
+        queue has no limit. Otherwise putting a element to the queue may
+        block until another thread fetches a element or icreases the limit.
+     */
     template <typename T>
     class Queue
     {
@@ -43,7 +51,7 @@ namespace cxxtools
             typedef typename std::deque<T>::size_type size_type;
 
         private:
-            Mutex _mutex;
+            mutable Mutex _mutex;
             Condition _notEmpty;
             Condition _notFull;
             std::deque<value_type> _queue;
@@ -51,19 +59,62 @@ namespace cxxtools
             size_type _numWaiting;
 
         public:
+            /// @brief Default Constructor.
             Queue()
                 : _maxSize(0),
                   _numWaiting(0)
             { }
 
+            /** @brief Returns the next element.
+
+                This method returns the next element. If the queue is empty,
+                the thread will be locked until a element is available.
+             */
             value_type get();
+
+            /** @brief Adds a element to the queue.
+
+                This method adds a element to the queue. If the queue has
+                reached his maximum size, the method blocks until there is
+                space available.
+             */
             void put(value_type element);
 
-            bool empty() const            { return _queue.empty(); }
-            size_type size() const        { return _queue.size(); }
+            /// @brief Returns true, if the queue is empty.
+            bool empty() const
+            {
+                MutexLock lock(_mutex);
+                return _queue.empty();
+            }
+
+            /// @brief Returns the number of elements currently in queue.
+            size_type size() const
+            {
+                MutexLock lock(_mutex);
+                return _queue.size();
+            }
+
+            /** @brief sets the maximum size of the queue.
+
+                Setting the maximum size of the queue may wake up another
+                thread, if it is waiting for space to get available and the
+                limit is increased.
+             */
             void maxSize(size_type m);
-            size_type maxSize() const     { return _maxSize; }
-            size_type numWaiting() const  { return _numWaiting; }
+
+            /// @brief returns the maximum size of the queue.
+            size_type maxSize() const
+            {
+                MutexLock lock(_mutex);
+                return _maxSize;
+            }
+
+            /// @brief returns the number of threads blocked in the get method.
+            size_type numWaiting() const
+            {
+                MutexLock lock(_mutex);
+                return _numWaiting;
+            }
     };
 
     template <typename T>
