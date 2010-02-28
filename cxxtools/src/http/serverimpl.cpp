@@ -41,12 +41,14 @@ namespace http
 
 Event& IdleSocketEvent::clone(Allocator& allocator) const
 {
-    return *(new IdleSocketEvent(*this));
+    void* m = allocator.allocate(sizeof(IdleSocketEvent));
+    return *(new (m)IdleSocketEvent(*this));
 }
 
 void IdleSocketEvent::destroy(Allocator& allocator)
 {
-    delete this;
+    this->~IdleSocketEvent();
+    allocator.deallocate(this, sizeof(IdleSocketEvent));
 }
 
 const std::type_info& IdleSocketEvent::typeInfo() const
@@ -56,12 +58,14 @@ const std::type_info& IdleSocketEvent::typeInfo() const
 
 Event& ServerStartEvent::clone(Allocator& allocator) const
 {
-    return *(new ServerStartEvent(*this));
+    void* m = allocator.allocate(sizeof(ServerStartEvent));
+    return *(new (m)ServerStartEvent(*this));
 }
 
 void ServerStartEvent::destroy(Allocator& allocator)
 {
-    delete this;
+    this->~ServerStartEvent();
+    allocator.deallocate(this, sizeof(ServerStartEvent));
 }
 
 const std::type_info& ServerStartEvent::typeInfo() const
@@ -71,12 +75,14 @@ const std::type_info& ServerStartEvent::typeInfo() const
 
 Event& NoWaitingThreadsEvent::clone(Allocator& allocator) const
 {
-    return *(new NoWaitingThreadsEvent(*this));
+    void* m = allocator.allocate(sizeof(NoWaitingThreadsEvent));
+    return *(new (m)NoWaitingThreadsEvent(*this));
 }
 
 void NoWaitingThreadsEvent::destroy(Allocator& allocator)
 {
-    delete this;
+    this->~NoWaitingThreadsEvent();
+    allocator.deallocate(this, sizeof(NoWaitingThreadsEvent));
 }
 
 const std::type_info& NoWaitingThreadsEvent::typeInfo() const
