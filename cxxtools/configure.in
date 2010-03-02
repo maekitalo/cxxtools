@@ -32,6 +32,24 @@ AC_CHECK_LIB(rt, sem_destroy)
 AC_SEARCH_LIBS(dlopen, dl, , AC_MSG_ERROR([dlopen not found]))
 AC_SEARCH_LIBS(inet_ntop, nsl socket resolv)
 AC_CHECK_FUNCS(inet_ntop accept4)
+AC_TYPE_LONG_LONG_INT
+AC_TYPE_UNSIGNED_LONG_LONG_INT
+
+if test "$ac_cv_type_long_long_int" = yes; then
+    HAVE_LONG_LONG=HAVE_LONG_LONG
+else
+    AC_MSG_WARN([long long not found]);
+    HAVE_LONG_LONG=NO_LONG_LONG
+fi
+AC_SUBST(HAVE_LONG_LONG, "$HAVE_LONG_LONG")
+
+if test "$ac_cv_type_unsigned_long_long_int" = yes; then
+    HAVE_UNSIGNED_LONG_LONG=HAVE_UNSIGNED_LONG_LONG
+else
+    AC_MSG_WARN([unsigned long long not found ($ac_cv_type_unsigned_long_long_int)]);
+    HAVE_UNSIGNED_LONG_LONG=NO_UNSIGNED_LONG_LONG
+fi
+AC_SUBST(HAVE_UNSIGNED_LONG_LONG, "$HAVE_UNSIGNED_LONG_LONG")
 
 AC_SUBST(NETWORK_LIBS)
 

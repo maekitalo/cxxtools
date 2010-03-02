@@ -38,6 +38,7 @@
 #include <list>
 #include <deque>
 #include <typeinfo>
+#include <cxxtools/config.h>
 
 namespace cxxtools {
 
@@ -537,6 +538,40 @@ inline void operator <<=(SerializationInfo& si, unsigned long n)
     si.setValue(n);
     si.setTypeName("int");
 }
+
+
+#ifdef HAVE_LONG_LONG
+
+inline void operator >>=(const SerializationInfo& si, long long& n)
+{
+    si.toValue(n);
+}
+
+
+inline void operator <<=(SerializationInfo& si, long long n)
+{
+    si.setValue(n);
+    si.setTypeName("int");
+}
+
+#endif
+
+
+#ifdef HAVE_UNSIGNED_LONG_LONG
+
+inline void operator >>=(const SerializationInfo& si, unsigned long long& n)
+{
+    si.toValue(n);
+}
+
+
+inline void operator <<=(SerializationInfo& si, unsigned long long n)
+{
+    si.setValue(n);
+    si.setTypeName("int");
+}
+
+#endif
 
 
 inline void operator >>=(const SerializationInfo& si, float& n)

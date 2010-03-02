@@ -7,3 +7,9 @@
 
 /** defines, whether c++ locales are supported */
 #define @CXXTOOLS_STD_LOCALE@
+
+/** defines, whether type long long exists */
+#define @HAVE_LONG_LONG@
+
+/** defines, whether type unsigned long long exists */
+#define @HAVE_UNSIGNED_LONG_LONG@
