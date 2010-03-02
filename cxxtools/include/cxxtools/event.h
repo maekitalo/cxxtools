@@ -30,10 +30,10 @@
 #define cxxtools_EVENT_H
 
 #include <typeinfo>
+#include <cxxtools/allocator.h>
 
-namespace cxxtools {
-
-	class Allocator;
+namespace cxxtools
+{
 
     /** \brief Base class for all event types.
 
@@ -55,6 +55,36 @@ namespace cxxtools {
             virtual void destroy(Allocator& allocator) = 0;
 
             virtual const std::type_info& typeInfo() const = 0;
+    };
+
+    template <typename T>
+    class BasicEvent : public Event
+    {
+        public:
+            BasicEvent()
+            {
+            }
+
+            BasicEvent(const BasicEvent& src)
+            {
+            }
+
+            virtual const std::type_info& typeInfo() const
+            {
+                return typeid(T);
+            }
+
+            virtual Event& clone(Allocator& allocator) const
+            {
+                void* pEvent = allocator.allocate(sizeof(T));
+                return *(new (pEvent)T(*static_cast<const T*>(this)));
+            }
+
+            virtual void destroy(Allocator& allocator)
+            {
+                this->~BasicEvent();
+                allocator.deallocate(this, sizeof(T));
+            }
     };
 
 } // namespace cxxtools

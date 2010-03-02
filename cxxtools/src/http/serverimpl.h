@@ -53,7 +53,7 @@ class Worker;
 class Listener;
 class ServerImpl;
 
-class IdleSocketEvent : public Event
+class IdleSocketEvent : public BasicEvent<IdleSocketEvent>
 {
         Socket* _socket;
 
@@ -62,17 +62,11 @@ class IdleSocketEvent : public Event
             : _socket(socket)
             { }
 
-        Event& clone(Allocator& allocator) const;
-
-        void destroy(Allocator& allocator);
-
-        const std::type_info& typeInfo() const;
-
         Socket* socket() const   { return _socket; }
 
 };
 
-class ServerStartEvent : public Event
+class ServerStartEvent : public BasicEvent<ServerStartEvent>
 {
         const ServerImpl* _server;
 
@@ -81,27 +75,12 @@ class ServerStartEvent : public Event
             : _server(server)
             { }
 
-        Event& clone(Allocator& allocator) const;
-
-        void destroy(Allocator& allocator);
-
-        const std::type_info& typeInfo() const;
-
         const ServerImpl* server() const   { return _server; }
 
 };
 
-class NoWaitingThreadsEvent : public Event
+class NoWaitingThreadsEvent : public BasicEvent<NoWaitingThreadsEvent>
 {
-    public:
-        NoWaitingThreadsEvent()  { }
-
-        Event& clone(Allocator& allocator) const;
-
-        void destroy(Allocator& allocator);
-
-        const std::type_info& typeInfo() const;
-
 };
 
 class ServerImpl : public Connectable
@@ -149,7 +128,9 @@ class ServerImpl : public Connectable
         }
 
         void addIdleSocket(Socket* _socket);
-        void onEvent(const Event& event);
+        void onIdleSocket(const IdleSocketEvent& event);
+        void onNoWaitingThreads(const NoWaitingThreadsEvent& event);
+        void onServerStart(const ServerStartEvent& event);
         void start();
         void terminate();
 

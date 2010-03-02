@@ -39,57 +39,6 @@ namespace cxxtools
 namespace http
 {
 
-Event& IdleSocketEvent::clone(Allocator& allocator) const
-{
-    void* m = allocator.allocate(sizeof(IdleSocketEvent));
-    return *(new (m)IdleSocketEvent(*this));
-}
-
-void IdleSocketEvent::destroy(Allocator& allocator)
-{
-    this->~IdleSocketEvent();
-    allocator.deallocate(this, sizeof(IdleSocketEvent));
-}
-
-const std::type_info& IdleSocketEvent::typeInfo() const
-{
-    return typeid(*this);
-}
-
-Event& ServerStartEvent::clone(Allocator& allocator) const
-{
-    void* m = allocator.allocate(sizeof(ServerStartEvent));
-    return *(new (m)ServerStartEvent(*this));
-}
-
-void ServerStartEvent::destroy(Allocator& allocator)
-{
-    this->~ServerStartEvent();
-    allocator.deallocate(this, sizeof(ServerStartEvent));
-}
-
-const std::type_info& ServerStartEvent::typeInfo() const
-{
-    return typeid(*this);
-}
-
-Event& NoWaitingThreadsEvent::clone(Allocator& allocator) const
-{
-    void* m = allocator.allocate(sizeof(NoWaitingThreadsEvent));
-    return *(new (m)NoWaitingThreadsEvent(*this));
-}
-
-void NoWaitingThreadsEvent::destroy(Allocator& allocator)
-{
-    this->~NoWaitingThreadsEvent();
-    allocator.deallocate(this, sizeof(NoWaitingThreadsEvent));
-}
-
-const std::type_info& NoWaitingThreadsEvent::typeInfo() const
-{
-    return typeid(*this);
-}
-
 ServerImpl::ServerImpl(EventLoop& eventLoop, Signal<Server::Runmode>& runmodeChanged)
     : _eventLoop(eventLoop),
       _readTimeout(20000),
@@ -102,15 +51,28 @@ ServerImpl::ServerImpl(EventLoop& eventLoop, Signal<Server::Runmode>& runmodeCha
       _runmodeChanged(runmodeChanged),
       _runmode(Server::Stopped)
 {
-    connect(_eventLoop.event, *this, &ServerImpl::onEvent);
+    _eventLoop.event.subscribe(slot(*this, &ServerImpl::onIdleSocket));
+    _eventLoop.event.subscribe(slot(*this, &ServerImpl::onNoWaitingThreads));
+    _eventLoop.event.subscribe(slot(*this, &ServerImpl::onServerStart));
+
     connect(_eventLoop.exited, *this, &ServerImpl::terminate);
+
     _eventLoop.commitEvent(ServerStartEvent(this));
 }
 
 ServerImpl::~ServerImpl()
 {
     if (_runmode == Server::Running)
-        terminate();
+    {
+        try
+        {
+            terminate();
+        }
+        catch (const std::exception& e)
+        {
+            log_fatal("exception in http-server termination occured: " << e.what());
+        }
+    }
 }
 
 void ServerImpl::listen(const std::string& ip, unsigned short int port)
@@ -182,7 +144,6 @@ void ServerImpl::terminate()
         delete *it;
     _listener.clear();
 
-
     while (!_queue.empty())
         delete _queue.get();
 
@@ -211,34 +172,31 @@ void ServerImpl::addIdleSocket(Socket* _socket)
     _eventLoop.commitEvent(IdleSocketEvent(_socket));
 }
 
-void ServerImpl::onEvent(const Event& event)
+void ServerImpl::onIdleSocket(const IdleSocketEvent& event)
 {
-    if (event.typeInfo() == typeid(IdleSocketEvent))
-    {
-        const IdleSocketEvent& idleSocketEvent = static_cast<const IdleSocketEvent&>(event);
-        Socket* socket = idleSocketEvent.socket();
+    Socket* socket = event.socket();
 
-        log_debug("add idle socket " << static_cast<void*>(socket) << " to selector");
+    log_debug("add idle socket " << static_cast<void*>(socket) << " to selector");
 
-        _idleSockets.insert(socket);
-        socket->setSelector(&_eventLoop);
-        connect(socket->inputReady, *this, &ServerImpl::onInput);
-    }
-    else if (event.typeInfo() == typeid(NoWaitingThreadsEvent))
+    _idleSockets.insert(socket);
+    socket->setSelector(&_eventLoop);
+    connect(socket->inputReady, *this, &ServerImpl::onInput);
+}
+
+void ServerImpl::onNoWaitingThreads(const NoWaitingThreadsEvent& event)
+{
+    MutexLock lock(_threadMutex);
+    Worker* worker = new Worker(*this);
+    _threads.insert(worker);
+    log_info("create thread " << static_cast<void*>(worker));
+    worker->start();
+}
+
+void ServerImpl::onServerStart(const ServerStartEvent& event)
+{
+    if (event.server() == this)
     {
-        MutexLock lock(_threadMutex);
-        Worker* worker = new Worker(*this);
-        _threads.insert(worker);
-        log_info("create thread " << static_cast<void*>(worker));
-        worker->start();
-    }
-    else if (event.typeInfo() == typeid(ServerStartEvent))
-    {
-        const ServerStartEvent& serverStartEvent = static_cast<const ServerStartEvent&>(event);
-        if (serverStartEvent.server() == this)
-        {
-            start();
-        }
+        start();
     }
 }
 

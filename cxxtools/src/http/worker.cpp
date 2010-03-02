@@ -62,7 +62,7 @@ void Worker::run()
 
             if (_server.isTerminating())
             {
-                log_debug("server is terminating - quit thread (l)");
+                log_debug("server is terminating - quit thread");
                 _server._queue.put(socket);
                 break;
             }
