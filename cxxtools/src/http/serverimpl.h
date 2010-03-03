@@ -44,7 +44,7 @@
 namespace cxxtools
 {
 
-class EventLoop;
+class EventLoopBase;
 
 namespace http
 {
@@ -86,7 +86,7 @@ class NoWaitingThreadsEvent : public BasicEvent<NoWaitingThreadsEvent>
 class ServerImpl : public Connectable
 {
     public:
-        ServerImpl(EventLoop& eventLoop, Signal<Server::Runmode>& runmodeChanged);
+        ServerImpl(EventLoopBase& eventLoop, Signal<Server::Runmode>& runmodeChanged);
         ~ServerImpl();
 
         void listen(const std::string& ip, unsigned short int port);
@@ -137,7 +137,7 @@ class ServerImpl : public Connectable
         friend class Worker;
 
         ////////////////////////////////////////////////////
-        EventLoop& _eventLoop;
+        EventLoopBase& _eventLoop;
 
         std::size_t _readTimeout;
         std::size_t _writeTimeout;

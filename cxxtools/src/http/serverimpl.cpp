@@ -39,7 +39,7 @@ namespace cxxtools
 namespace http
 {
 
-ServerImpl::ServerImpl(EventLoop& eventLoop, Signal<Server::Runmode>& runmodeChanged)
+ServerImpl::ServerImpl(EventLoopBase& eventLoop, Signal<Server::Runmode>& runmodeChanged)
     : _eventLoop(eventLoop),
       _readTimeout(20000),
       _writeTimeout(20000),

@@ -34,12 +34,12 @@ namespace cxxtools {
 
 namespace http {
 
-Server::Server(EventLoop& eventLoop)
+Server::Server(EventLoopBase& eventLoop)
     : _impl(new ServerImpl(eventLoop, runmodeChanged))
 {
 }
 
-Server::Server(EventLoop& eventLoop, const std::string& ip, unsigned short int port)
+Server::Server(EventLoopBase& eventLoop, const std::string& ip, unsigned short int port)
     : _impl(new ServerImpl(eventLoop, runmodeChanged))
 {
     _impl->listen(ip, port);

@@ -37,7 +37,7 @@
 
 namespace cxxtools {
 
-class EventLoop;
+class EventLoopBase;
 
 namespace http {
 
@@ -48,8 +48,8 @@ class ServerImpl;
 class CXXTOOLS_HTTP_API Server : private cxxtools::NonCopyable
 {
     public:
-        explicit Server(EventLoop& eventLoop);
-        Server(EventLoop& eventLoop, const std::string& ip, unsigned short int port);
+        explicit Server(EventLoopBase& eventLoop);
+        Server(EventLoopBase& eventLoop, const std::string& ip, unsigned short int port);
         ~Server();
 
         void listen(const std::string& ip, unsigned short int port);
