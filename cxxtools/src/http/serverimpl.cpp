@@ -53,6 +53,7 @@ ServerImpl::ServerImpl(EventLoopBase& eventLoop, Signal<Server::Runmode>& runmod
 {
     _eventLoop.event.subscribe(slot(*this, &ServerImpl::onIdleSocket));
     _eventLoop.event.subscribe(slot(*this, &ServerImpl::onNoWaitingThreads));
+    _eventLoop.event.subscribe(slot(*this, &ServerImpl::onThreadTerminated));
     _eventLoop.event.subscribe(slot(*this, &ServerImpl::onServerStart));
 
     connect(_eventLoop.exited, *this, &ServerImpl::terminate);
@@ -160,9 +161,17 @@ void ServerImpl::threadTerminated(Worker* worker)
 {
     log_info("thread " << static_cast<void*>(worker) << " terminated");
     MutexLock lock(_threadMutex);
+
     _threads.erase(worker);
-    _terminatedThreads.insert(worker);
-    _threadTerminated.signal();
+    if (_runmode == Server::Running)
+    {
+        _eventLoop.commitEvent(ThreadTerminatedEvent(worker));
+    }
+    else
+    {
+        _terminatedThreads.insert(worker);
+        _threadTerminated.signal();
+    }
 }
 
 void ServerImpl::addIdleSocket(Socket* _socket)
@@ -190,6 +199,11 @@ void ServerImpl::onNoWaitingThreads(const NoWaitingThreadsEvent& event)
     _threads.insert(worker);
     log_info("create thread " << static_cast<void*>(worker));
     worker->start();
+}
+
+void ServerImpl::onThreadTerminated(const ThreadTerminatedEvent& event)
+{
+    delete event.worker();
 }
 
 void ServerImpl::onServerStart(const ServerStartEvent& event)

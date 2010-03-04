@@ -58,7 +58,7 @@ void Worker::run()
         {
             // do blocking accept
             socket->accept();
-            log_debug("accepted");
+            log_debug("connection accepted from " << socket->getPeerAddr());
 
             if (_server.isTerminating())
             {

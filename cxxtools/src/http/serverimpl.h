@@ -71,7 +71,7 @@ class ServerStartEvent : public BasicEvent<ServerStartEvent>
         const ServerImpl* _server;
 
     public:
-        explicit ServerStartEvent(ServerImpl* server)
+        explicit ServerStartEvent(const ServerImpl* server)
             : _server(server)
             { }
 
@@ -81,6 +81,18 @@ class ServerStartEvent : public BasicEvent<ServerStartEvent>
 
 class NoWaitingThreadsEvent : public BasicEvent<NoWaitingThreadsEvent>
 {
+};
+
+class ThreadTerminatedEvent : public BasicEvent<ThreadTerminatedEvent>
+{
+        Worker* _worker;
+
+    public:
+        explicit ThreadTerminatedEvent(Worker* worker)
+            : _worker(worker)
+            { }
+
+        Worker* worker() const   { return _worker; }
 };
 
 class ServerImpl : public Connectable
@@ -130,6 +142,7 @@ class ServerImpl : public Connectable
         void addIdleSocket(Socket* _socket);
         void onIdleSocket(const IdleSocketEvent& event);
         void onNoWaitingThreads(const NoWaitingThreadsEvent& event);
+        void onThreadTerminated(const ThreadTerminatedEvent& event);
         void onServerStart(const ServerStartEvent& event);
         void start();
         void terminate();
