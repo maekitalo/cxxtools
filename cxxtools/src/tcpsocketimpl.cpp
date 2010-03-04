@@ -148,7 +148,7 @@ int TcpSocketImpl::checkConnect()
 
     if (sockerr == 0)
     {
-        log_debug("connected successfully");
+        log_debug("connected successfully to " << getPeerAddr());
         _isConnected = true;
     }
 
@@ -329,7 +329,7 @@ void TcpSocketImpl::accept(const TcpServer& server, bool inherit)
     //TODO ECONNABORTED EINTR EPERM
 
     _isConnected = true;
-    log_debug( "accepted " << server.impl().fd() << " => " << _fd );
+    log_debug( "accepted " << server.impl().fd() << " => " << _fd  << " from " << getPeerAddr());
 }
 
 
