@@ -209,7 +209,7 @@ std::pair<int, const char*> TcpSocketImpl::tryConnect()
         if( ::connect(this->fd(), _addrInfoPtr->ai_addr, _addrInfoPtr->ai_addrlen) == 0 )
         {
             _isConnected = true;
-            log_debug("connected successfully");
+            log_debug("connected successfully to " << getPeerAddr());
             break;
         }
 
