@@ -414,32 +414,28 @@ void ClientImpl::onConnect(net::TcpSocket& socket)
 void ClientImpl::onErrorOccured(IODevice& socket)
 {
     log_trace("error occured");
-
-    _socket.close();
-
-    if (_reconnectOnError && _request != 0)
+    try
     {
-        log_debug("reconnect on error");
-        _reconnectOnError = false;
-        reexecute(*_request);
-    }
-    else
-    {
-        try
+        if (_reconnectOnError && _request != 0)
+        {
+            log_debug("reconnect on error");
+            _reconnectOnError = false;
+            reexecute(*_request);
+        }
+        else
         {
             throw IOError( CXXTOOLS_ERROR_MSG("error occured in i/o-device") );
         }
-        catch (const std::exception& e)
-        {
-            if (_client->errorOccured.connectionCount() == 0)
-                throw;
-
-            _client->errorOccured(*_client, e);
-        }
-
-        return;
     }
+    catch (const std::exception& e)
+    {
+        _socket.close();
 
+        if (_client->errorOccured.connectionCount() == 0)
+            throw;
+
+        _client->errorOccured(*_client, e);
+    }
 }
 
 void ClientImpl::onOutput(StreamBuffer& sb)
