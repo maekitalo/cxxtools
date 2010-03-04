@@ -138,7 +138,7 @@ bool SelectorImpl::wait(std::size_t umsecs)
 
     int msecs = umsecs;
     if (umsecs != SelectorBase::WaitInfinite &&
-        umsecs > std::numeric_limits<int>::max())
+        umsecs > static_cast<std::size_t>(std::numeric_limits<int>::max()))
     {
         msecs = std::numeric_limits<int>::max();
     }
@@ -190,7 +190,7 @@ bool SelectorImpl::wait(std::size_t umsecs)
     int ret = -1;
     while( true )
     {
-        if(msecs != SelectorBase::WaitInfinite)
+        if(umsecs != SelectorBase::WaitInfinite)
         {
             int64_t diff = _clock.stop().totalMSecs();
             _clock.start();
