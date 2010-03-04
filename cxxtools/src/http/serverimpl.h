@@ -128,6 +128,7 @@ class ServerImpl : public Connectable
         void maxThreads(unsigned m)           { _maxThreads = m; }
 
         void onInput(Socket& _socket);
+        void onKeepAliveTimeout(Socket& _socket);
 
         bool isTerminating() const
         { return _runmode == Server::Terminating; }

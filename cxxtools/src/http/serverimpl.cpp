@@ -160,6 +160,7 @@ void ServerImpl::noWaitingThreads()
 void ServerImpl::threadTerminated(Worker* worker)
 {
     log_info("thread " << static_cast<void*>(worker) << " terminated");
+
     MutexLock lock(_threadMutex);
 
     _threads.erase(worker);
@@ -190,19 +191,55 @@ void ServerImpl::onIdleSocket(const IdleSocketEvent& event)
     _idleSockets.insert(socket);
     socket->setSelector(&_eventLoop);
     connect(socket->inputReady, *this, &ServerImpl::onInput);
+    connect(socket->keepAliveTimeout, *this, &ServerImpl::onKeepAliveTimeout);
 }
 
 void ServerImpl::onNoWaitingThreads(const NoWaitingThreadsEvent& event)
 {
     MutexLock lock(_threadMutex);
-    Worker* worker = new Worker(*this);
-    _threads.insert(worker);
-    log_info("create thread " << static_cast<void*>(worker));
-    worker->start();
+
+    if (_threads.size() >= maxThreads())
+    {
+        log_warn("thread limit " << maxThreads() << " reached");
+        return;
+    }
+
+    try
+    {
+        Worker* worker = new Worker(*this);
+        try
+        {
+            log_info("create thread " << static_cast<void*>(worker));
+            worker->start();
+            _threads.insert(worker);
+
+            log_debug(_threads.size() << " threads running");
+        }
+        catch (const std::exception&)
+        {
+            delete worker;
+            throw;
+        }
+    }
+    catch (const std::exception& e)
+    {
+        log_warn("failed to create thread: " << e.what());
+    }
 }
 
 void ServerImpl::onThreadTerminated(const ThreadTerminatedEvent& event)
 {
+    MutexLock lock(_threadMutex);
+    log_trace("thread terminated (" << static_cast<void*>(event.worker()) << ") " << _threads.size() << " threads left");
+    try
+    {
+        event.worker()->join();
+    }
+    catch (const std::exception& e)
+    {
+        log_error("failed to join thread: " << e.what());
+    }
+
     delete event.worker();
 }
 
@@ -222,6 +259,13 @@ void ServerImpl::onInput(Socket& _socket)
 
     disconnect(_socket.inputReady, *this, &ServerImpl::onInput);
     _queue.put(&_socket);
+}
+
+void ServerImpl::onKeepAliveTimeout(Socket& _socket)
+{
+    log_debug("keep alive timeout; search socket " << static_cast<void*>(&_socket) << " in idle sockets");
+    _idleSockets.erase(&_socket);
+    delete &_socket;
 }
 
 void ServerImpl::addService(const std::string& url, Service& service)
@@ -267,7 +311,7 @@ Responder* ServerImpl::getResponder(const Request& request)
         Responder* resp = it->second->createResponder(request);
         if (resp)
         {
-            log_debug("responder created");
+            log_debug("got responder");
             return resp;
         }
     }

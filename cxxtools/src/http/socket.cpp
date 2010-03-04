@@ -312,7 +312,7 @@ bool Socket::onOutput(StreamBuffer& sb)
 void Socket::onTimeout()
 {
     log_debug("timeout");
-    close();
+    keepAliveTimeout(*this);
 }
 
 void Socket::sendReply()
