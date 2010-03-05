@@ -53,7 +53,7 @@ AC_SUBST(HAVE_UNSIGNED_LONG_LONG, "$HAVE_UNSIGNED_LONG_LONG")
 
 AC_SUBST(NETWORK_LIBS)
 
-AC_ARG_WITH([with_iconvstream],
+AC_ARG_WITH([iconvstream],
     AS_HELP_STRING([--with-iconvstream=yes|no], [compile iconv stream (default: no)]),
     [with_iconvstream=$withval],
     [with_iconvstream=no])
