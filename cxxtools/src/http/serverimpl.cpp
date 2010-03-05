@@ -257,8 +257,15 @@ void ServerImpl::onInput(Socket& _socket)
     log_debug("search socket " << static_cast<void*>(&_socket) << " in idle sockets");
     _idleSockets.erase(&_socket);
 
-    disconnect(_socket.inputReady, *this, &ServerImpl::onInput);
-    _queue.put(&_socket);
+    if (_socket.isConnected())
+    {
+        disconnect(_socket.inputReady, *this, &ServerImpl::onInput);
+        _queue.put(&_socket);
+    }
+    else
+    {
+        delete &_socket;
+    }
 }
 
 void ServerImpl::onKeepAliveTimeout(Socket& _socket)
