@@ -96,6 +96,8 @@ class HttpClientImpl : public ClientImpl
         virtual void cancel();
 
     private:
+        static void verifyHeader(const http::ReplyHeader& header);
+
         http::Client _client;
         http::Request _request;
 };

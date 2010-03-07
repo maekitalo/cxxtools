@@ -85,11 +85,7 @@ void HttpClientImpl::onReplyHeader(http::Client& client)
     log_debug("httpReturnCode=" << client.header().httpReturnCode()
         << " content-type=" << client.header().getHeader("Content-Type"));
 
-    if (client.header().httpReturnCode() != 200
-      || client.header().getHeader("Content-Type") != "text/xml")
-    {
-        throw std::runtime_error("invalid xmlrpc reply");
-    }
+    verifyHeader(client.header());
 
     ClientImpl::onReadReplyBegin(client.in());
 }
@@ -117,8 +113,20 @@ void HttpClientImpl::beginExecute()
 std::string HttpClientImpl::execute()
 {
     _client.execute(_request, timeout());
+
     std::string body;
-    _client.readBody(body);
+
+    try
+    {
+        verifyHeader(_client.header());
+        _client.readBody(body);
+    }
+    catch (...)
+    {
+        _client.cancel();
+        throw;
+    }
+
     return body;
 }
 
@@ -135,6 +143,27 @@ void HttpClientImpl::cancel()
 {
     _client.cancel();
     ClientImpl::cancel();
+}
+
+void HttpClientImpl::verifyHeader(const http::ReplyHeader& header)
+{
+    if (header.httpReturnCode() != 200)
+    {
+        std::ostringstream msg;
+        msg << "invalid http return code "
+            << header.httpReturnCode()
+            << ": "
+            << header.httpReturnText();
+        throw std::runtime_error(msg.str());
+    }
+
+    if (header.getHeader("Content-Type") != "text/xml")
+    {
+        std::ostringstream msg;
+        msg << "invalid content type " << header.getHeader("Content-Type");
+        throw std::runtime_error(msg.str());
+    }
+
 }
 
 
