@@ -75,7 +75,8 @@ class CXXTOOLS_HTTP_API Server : private cxxtools::NonCopyable
           Stopped,
           Starting,
           Running,
-          Terminating
+          Terminating,
+          Failed
         };
 
         Signal<Runmode> runmodeChanged;

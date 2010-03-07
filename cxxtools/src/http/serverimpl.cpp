@@ -116,39 +116,46 @@ void ServerImpl::terminate()
 
     runmode(Server::Terminating);
 
-    log_debug("wake " << _listener.size() << " listeners");
-    for (ServerImpl::ListenerType::iterator it = _listener.begin(); it != _listener.end(); ++it)
-        (*it)->wakeConnect();
-
-    log_debug("terminate " << _threads.size() << " threads");
-    while (!_threads.empty() || !_terminatedThreads.empty())
+    try
     {
-        if (!_threads.empty())
+        log_debug("wake " << _listener.size() << " listeners");
+        for (ServerImpl::ListenerType::iterator it = _listener.begin(); it != _listener.end(); ++it)
+            (*it)->wakeConnect();
+
+        log_debug("terminate " << _threads.size() << " threads");
+        while (!_threads.empty() || !_terminatedThreads.empty())
         {
-            log_debug("wait for terminated thread");
-            _threadTerminated.wait(lock);
+            if (!_threads.empty())
+            {
+                log_debug("wait for terminated thread");
+                _threadTerminated.wait(lock);
+            }
+
+            for (Threads::iterator it = _terminatedThreads.begin();
+                it != _terminatedThreads.end(); ++it)
+            {
+                log_debug("join thread");
+                (*it)->join();
+                delete *it;
+            }
+
+            _terminatedThreads.clear();
         }
 
-        for (Threads::iterator it = _terminatedThreads.begin();
-            it != _terminatedThreads.end(); ++it)
-        {
-            log_debug("join thread");
-            (*it)->join();
+        log_debug("delete " << _listener.size() << " listeners");
+        for (ServerImpl::ListenerType::iterator it = _listener.begin(); it != _listener.end(); ++it)
             delete *it;
-        }
+        _listener.clear();
 
-        _terminatedThreads.clear();
+        while (!_queue.empty())
+            delete _queue.get();
+
+        runmode(Server::Stopped);
     }
-
-    log_debug("delete " << _listener.size() << " listeners");
-    for (ServerImpl::ListenerType::iterator it = _listener.begin(); it != _listener.end(); ++it)
-        delete *it;
-    _listener.clear();
-
-    while (!_queue.empty())
-        delete _queue.get();
-
-    runmode(Server::Stopped);
+    catch (const std::exception& e)
+    {
+        runmode(Server::Failed);
+    }
 }
 
 void ServerImpl::noWaitingThreads()

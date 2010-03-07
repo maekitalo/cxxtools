@@ -133,6 +133,10 @@ class ServerImpl : public Connectable
         bool isTerminating() const
         { return _runmode == Server::Terminating; }
 
+        void terminate();
+        Server::Runmode runmode() const
+        { return _runmode; }
+
     private:
         void runmode(Server::Runmode runmode)
         {
@@ -146,7 +150,6 @@ class ServerImpl : public Connectable
         void onThreadTerminated(const ThreadTerminatedEvent& event);
         void onServerStart(const ServerStartEvent& event);
         void start();
-        void terminate();
 
         friend class Worker;
 

@@ -47,6 +47,12 @@ Server::Server(EventLoopBase& eventLoop, const std::string& ip, unsigned short i
 
 Server::~Server()
 {
+    if (!_impl)
+        return;
+
+    if (_impl->runmode() == Running)
+        _impl->terminate();
+
     delete _impl;
 }
 
