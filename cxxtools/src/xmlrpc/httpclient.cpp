@@ -72,6 +72,11 @@ void HttpClient::connect(const std::string& addr, unsigned short port, const std
     _impl->connect(addr, port, url);
 }
 
+void HttpClient::url(const std::string& url)
+{
+    _impl->url(url);
+}
+
 void HttpClient::auth(const std::string& username, const std::string& password)
 {
     _impl->auth(username, password);

@@ -62,6 +62,7 @@ class CXXTOOLS_XMLRPC_API HttpClient : public Client
         void connect(const std::string& addr, unsigned short port,
                      const std::string& url);
 
+        void url(const std::string& url);
         void auth(const std::string& username, const std::string& password);
 
         void clearAuth();

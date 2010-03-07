@@ -66,6 +66,11 @@ class HttpClientImpl : public ClientImpl
             _request.url(url);
         }
 
+        void url(const std::string& url)
+        {
+            _request.url(url);
+        }
+
         void auth(const std::string& username, const std::string& password)
         {
             _client.auth(username, password);
