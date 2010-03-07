@@ -49,6 +49,7 @@ namespace cxxtools
         public:
             typedef T value_type;
             typedef typename std::deque<T>::size_type size_type;
+            typedef typename std::deque<T>::const_reference const_reference;
 
         private:
             mutable Mutex _mutex;
@@ -78,7 +79,7 @@ namespace cxxtools
                 reached his maximum size, the method blocks until there is
                 space available.
              */
-            void put(value_type element);
+            void put(const_reference element);
 
             /// @brief Returns true, if the queue is empty.
             bool empty() const
@@ -139,7 +140,7 @@ namespace cxxtools
     }
 
     template <typename T>
-    void Queue<T>::put(Queue<T>::value_type element)
+    void Queue<T>::put(typename Queue<T>::const_reference element)
     {
         MutexLock lock(_mutex);
 
