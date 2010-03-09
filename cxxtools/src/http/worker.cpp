@@ -54,7 +54,7 @@ void Worker::run()
         if (_server._queue.numWaiting() == 0)
             _server.noWaitingThreads();
 
-        if (!socket->isConnected())
+        if (!socket->hasAccepted())
         {
             // do blocking accept
             socket->accept();
@@ -69,6 +69,11 @@ void Worker::run()
 
             // new connection arrived - create new accept socket
             _server._queue.put(new Socket(*socket));
+        }
+        else if (!socket->isConnected())
+        {
+            log_debug("socket is not connected any more");
+            delete socket;
         }
 
         socket->setSelector(&_selector);

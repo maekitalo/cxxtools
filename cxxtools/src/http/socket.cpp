@@ -62,7 +62,8 @@ Socket::Socket(ServerImpl& server, net::TcpServer& tcpServer)
       _server(server),
       _parseEvent(_request),
       _parser(_parseEvent, false),
-      _responder(0)
+      _responder(0),
+      _accepted(false)
 {
     _stream.attachDevice(*this);
 }
@@ -75,7 +76,8 @@ Socket::Socket(Socket& socket)
       _server(socket._server),
       _parseEvent(_request),
       _parser(_parseEvent, false),
-      _responder(0)
+      _responder(0),
+      _accepted(false)
 {
     _stream.attachDevice(*this);
     cxxtools::connect(IODevice::inputReady, *this, &Socket::onIODeviceInput);
@@ -90,6 +92,8 @@ Socket::~Socket()
 void Socket::accept()
 {
     net::TcpSocket::accept(_tcpServer);
+
+    _accepted = true;
 
     _stream.buffer().beginRead();
 

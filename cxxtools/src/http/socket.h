@@ -69,6 +69,7 @@ class Socket : public net::TcpSocket, public Connectable
         ~Socket();
 
         void accept();
+        bool hasAccepted() const  { return _accepted; }
 
         void setSelector(SelectorBase* s);
         void removeSelector();
@@ -107,6 +108,7 @@ class Socket : public net::TcpSocket, public Connectable
         Responder* _responder;
         IOStream _stream;
 
+        bool _accepted;
 };
 
 } // namespace http
