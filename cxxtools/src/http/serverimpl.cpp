@@ -198,7 +198,7 @@ void ServerImpl::onIdleSocket(const IdleSocketEvent& event)
     _idleSockets.insert(socket);
     socket->setSelector(&_eventLoop);
     connect(socket->inputReady, *this, &ServerImpl::onInput);
-    connect(socket->keepAliveTimeout, *this, &ServerImpl::onKeepAliveTimeout);
+    connect(socket->timeout, *this, &ServerImpl::onTimeout);
 }
 
 void ServerImpl::onNoWaitingThreads(const NoWaitingThreadsEvent& event)
@@ -267,6 +267,7 @@ void ServerImpl::onInput(Socket& _socket)
     if (_socket.isConnected())
     {
         disconnect(_socket.inputReady, *this, &ServerImpl::onInput);
+        disconnect(_socket.timeout, *this, &ServerImpl::onTimeout);
         _queue.put(&_socket);
     }
     else
@@ -275,9 +276,10 @@ void ServerImpl::onInput(Socket& _socket)
     }
 }
 
-void ServerImpl::onKeepAliveTimeout(Socket& _socket)
+void ServerImpl::onTimeout(Socket& _socket)
 {
-    log_debug("keep alive timeout; search socket " << static_cast<void*>(&_socket) << " in idle sockets");
+    log_debug("timeout; socket " << static_cast<void*>(&_socket));
+
     _idleSockets.erase(&_socket);
     delete &_socket;
 }
