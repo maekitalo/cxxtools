@@ -33,7 +33,6 @@
 #include <cxxtools/net/tcpserver.h>
 #include <cxxtools/net/tcpsocket.h>
 #include <cxxtools/net/addrinfo.h>
-#include <cxxtools/streambuffer.h>
 #include <cxxtools/iostream.h>
 
 namespace cxxtools
