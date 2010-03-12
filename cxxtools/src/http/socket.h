@@ -90,6 +90,8 @@ class Socket : public net::TcpSocket, public Connectable
         Signal<Socket&> inputReady;
         Signal<Socket&> timeout;
 
+        StreamBuffer& buffer()         { return _stream.buffer(); }
+
         MethodSlot<void, Socket, StreamBuffer&> inputSlot;
         MethodSlot<bool, Socket, StreamBuffer&> outputSlot;
         MethodSlot<void, Socket> timeoutSlot;

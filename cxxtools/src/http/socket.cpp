@@ -66,6 +66,7 @@ Socket::Socket(ServerImpl& server, net::TcpServer& tcpServer)
       _accepted(false)
 {
     _stream.attachDevice(*this);
+    cxxtools::connect(IODevice::inputReady, *this, &Socket::onIODeviceInput);
 }
 
 Socket::Socket(Socket& socket)
@@ -139,6 +140,7 @@ void Socket::removeSelector()
 
 void Socket::onIODeviceInput(IODevice& iodevice)
 {
+    log_debug("onIODeviceInput");
     inputReady(*this);
 }
 

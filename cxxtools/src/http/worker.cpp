@@ -80,6 +80,9 @@ void Worker::run()
 
         try
         {
+            if (socket->buffer().in_avail())
+                socket->onInput(socket->buffer());
+
             while (_selector.wait(_server.idleTimeout()) && socket->isConnected())
                 ;
 
