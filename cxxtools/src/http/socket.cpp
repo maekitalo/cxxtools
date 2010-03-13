@@ -101,7 +101,7 @@ void Socket::accept()
     _timer.start(_server.readTimeout());
 }
 
-void Socket::setSelector(SelectorBase* s)
+void Socket::setSelector(SelectorBase* s, bool connectInput)
 {
     if (selector() == s)
         return;
@@ -118,7 +118,8 @@ void Socket::setSelector(SelectorBase* s)
         s->add(*this);
         s->add(_timer);
 
-        cxxtools::connect(_stream.buffer().inputReady, inputSlot);
+        if (connectInput)
+            cxxtools::connect(_stream.buffer().inputReady, inputSlot);
         cxxtools::connect(_stream.buffer().outputReady, outputSlot);
         cxxtools::connect(_timer.timeout, timeoutSlot);
     }
@@ -146,8 +147,11 @@ void Socket::onIODeviceInput(IODevice& iodevice)
 
 void Socket::onInput(StreamBuffer& sb)
 {
+    log_debug("onInput");
+
     if (sb.in_avail() == 0 || sb.device()->eof())
     {
+        sb.discardException();
         close();
         return;
     }
@@ -317,6 +321,7 @@ bool Socket::onOutput(StreamBuffer& sb)
     catch (const std::exception& e)
     {
         log_warn("exception occured when processing request: " << e.what());
+        sb.discardException();
         close();
         timeout(*this);
         return false;

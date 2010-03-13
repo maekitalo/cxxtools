@@ -31,8 +31,10 @@
 #include <cxxtools/http/reply.h>
 #include <cxxtools/http/responder.h>
 #include <cxxtools/eventloop.h>
-#include <cxxtools/loginit.h>
+#include <cxxtools/log.h>
 #include <cxxtools/arg.h>
+
+log_define("cxxtools.demo.httpserver")
 
 // HelloResponder
 //
@@ -48,6 +50,8 @@ class HelloResponder : public cxxtools::http::Responder
 
 void HelloResponder::reply(std::ostream& out, cxxtools::http::Request& request, cxxtools::http::Reply& reply)
 {
+  log_debug("send hello");
+
   reply.addHeader("Content-Type", "text/html");
   out << "<html>\n"
          " <head>\n"

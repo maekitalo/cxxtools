@@ -87,6 +87,9 @@ class CXXTOOLS_API StreamBuffer : public BasicStreamBuffer<char>
 
         void discard();
 
+        void discardException()
+        { _exceptionPending = false; }
+
         Signal<StreamBuffer&> inputReady;
 
         Signal<StreamBuffer&> outputReady;

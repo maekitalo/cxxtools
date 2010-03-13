@@ -76,7 +76,7 @@ void Worker::run()
             delete socket;
         }
 
-        socket->setSelector(&_selector);
+        socket->setSelector(&_selector, true);
 
         try
         {
