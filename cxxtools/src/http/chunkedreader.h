@@ -55,6 +55,7 @@ namespace cxxtools
 
       public:
         explicit ChunkedReader(std::streambuf* ib, unsigned bufsize = 8192);
+        ~ChunkedReader()  { delete[] _buffer; }
 
         void reset()      { _state = &ChunkedReader::onBegin; setg(0, 0, 0); }
         bool eod() const  { return _state == 0; }

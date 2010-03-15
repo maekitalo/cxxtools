@@ -68,7 +68,7 @@ namespace cxxtools
 
     ChunkedReader::ChunkedReader(std::streambuf* ib, unsigned bufsize)
         : _ib(ib),
-          _buffer(new char[bufsize]),
+          _buffer(0),
           _bufsize(bufsize),
           _state(&ChunkedReader::onBegin)
     {
@@ -239,6 +239,9 @@ namespace cxxtools
 
       if (n > _chunkSize)
         n = _chunkSize;
+
+      if (!_buffer)
+        _buffer = new char[_bufsize];
 
       n = _ib->sgetn(_buffer, n);
       setg(_buffer, _buffer, _buffer + n);
