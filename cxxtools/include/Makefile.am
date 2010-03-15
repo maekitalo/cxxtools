@@ -5,6 +5,7 @@ nobase_include_HEADERS = \
         cxxtools/atomicity.generic.h \
         cxxtools/atomicity.pthread.h \
         cxxtools/atomicity.gcc.arm.h \
+        cxxtools/atomicity.gcc.avr32.h \
         cxxtools/atomicity.gcc.mips.h \
         cxxtools/atomicity.gcc.ppc.h \
         cxxtools/atomicity.gcc.sparc.h \
