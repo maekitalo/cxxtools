@@ -71,7 +71,7 @@ class Socket : public net::TcpSocket, public Connectable
         void accept();
         bool hasAccepted() const  { return _accepted; }
 
-        void setSelector(SelectorBase* s, bool connectInput);
+        void setSelector(SelectorBase* s);
         void removeSelector();
 
         void onIODeviceInput(IODevice& iodevice);

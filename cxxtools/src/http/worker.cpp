@@ -76,7 +76,8 @@ void Worker::run()
             delete socket;
         }
 
-        socket->setSelector(&_selector, true);
+        socket->setSelector(&_selector);
+        connect(socket->buffer().inputReady, socket->inputSlot);
 
         try
         {

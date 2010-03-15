@@ -101,7 +101,7 @@ void Socket::accept()
     _timer.start(_server.readTimeout());
 }
 
-void Socket::setSelector(SelectorBase* s, bool connectInput)
+void Socket::setSelector(SelectorBase* s)
 {
     if (selector() == s)
         return;
@@ -118,8 +118,6 @@ void Socket::setSelector(SelectorBase* s, bool connectInput)
         s->add(*this);
         s->add(_timer);
 
-        if (connectInput)
-            cxxtools::connect(_stream.buffer().inputReady, inputSlot);
         cxxtools::connect(_stream.buffer().outputReady, outputSlot);
         cxxtools::connect(_timer.timeout, timeoutSlot);
     }
