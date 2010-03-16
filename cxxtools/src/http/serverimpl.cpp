@@ -151,6 +151,9 @@ void ServerImpl::terminate()
         while (!_queue.empty())
             delete _queue.get();
 
+        for (std::set<Socket*>::iterator it = _idleSockets.begin(); it != _idleSockets.end(); ++it)
+            delete *it;
+
         runmode(Server::Stopped);
     }
     catch (const std::exception& e)
@@ -187,7 +190,15 @@ void ServerImpl::addIdleSocket(Socket* _socket)
 {
     log_debug("add idle socket " << static_cast<void*>(_socket));
 
-    _eventLoop.commitEvent(IdleSocketEvent(_socket));
+    if (_runmode == Server::Running)
+    {
+        _eventLoop.commitEvent(IdleSocketEvent(_socket));
+    }
+    else
+    {
+        log_debug("delete socket " << static_cast<void*>(_socket) << "; server not running");
+        delete _socket;
+    }
 }
 
 void ServerImpl::onIdleSocket(const IdleSocketEvent& event)
