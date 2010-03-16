@@ -67,6 +67,8 @@ namespace cxxtools {
     */
     class CXXTOOLS_API Timer
     {
+        class Sentry;
+
         public:
             /** @brief Default constructor
 
@@ -133,6 +135,7 @@ namespace cxxtools {
             { return _finished; }
 
         private:
+            Sentry* _sentry;
             SelectorBase* _selector;
             bool          _active;
             std::size_t   _interval;

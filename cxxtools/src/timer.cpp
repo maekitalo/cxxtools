@@ -30,8 +30,39 @@
 
 namespace cxxtools {
 
+class Timer::Sentry
+{
+    public:
+        Sentry(Sentry*& sentry)
+        : _deleted(false)
+        , _sentry(sentry)
+        {
+           sentry = this;
+        }
+
+        ~Sentry()
+        {
+            if( ! _deleted )
+                this->detach();
+        }
+
+        bool operator!() const
+        { return _deleted; }
+
+        void detach()
+        {
+            _sentry = 0;
+            _deleted = true;
+        }
+
+    bool _deleted;
+    Sentry*& _sentry;
+};
+
+
 Timer::Timer()
-: _selector(0)
+: _sentry(0)
+, _selector(0)
 , _active(false)
 , _interval(0)
 , _remaining(0)
@@ -47,6 +78,9 @@ Timer::~Timer()
             _selector->remove(*this);
     }
     catch(...) {}
+
+    if(_sentry)
+        _sentry->detach();
 }
 
 
@@ -105,9 +139,15 @@ bool Timer::update(const Timespan& now)
 
     bool hasElapsed = now >= _finished;
 
+    Timer::Sentry sentry(_sentry);
+
     while( _active && now >= _finished )
     {
         _finished += (_interval * 1000);
+
+        if( ! sentry )
+            return hasElapsed;
+
         timeout.send();
     }
 
