@@ -88,18 +88,18 @@ class ClientImpl : public Connectable
         bool _readHeader;
         bool _chunkedEncoding;
         bool _reconnectOnError;
+        bool _errorPending;
 
         void sendRequest(const Request& request);
         void processHeaderAvailable(StreamBuffer& sb);
         void processBodyAvailable(StreamBuffer& sb);
 
-        void handleException(const std::exception& e);
         void reexecute(const Request& request);
+        void reexecuteBegin(const Request& request);
         void doparse();
 
     protected:
         void onConnect(net::TcpSocket& socket);
-        void onErrorOccured(IODevice& socket);
         void onOutput(StreamBuffer& sb);
         void onInput(StreamBuffer& sb);
 
@@ -148,6 +148,8 @@ class ClientImpl : public Connectable
         // The delegate "bodyAvailable" must be connected, if a body is
         // received.
         void beginExecute(const Request& request);
+
+        void endExecute();
 
         void setSelector(SelectorBase& selector);
 

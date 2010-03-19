@@ -32,6 +32,7 @@
 #include <cxxtools/http/request.h>
 #include <cxxtools/arg.h>
 #include <cxxtools/eventloop.h>
+#include <cxxtools/timer.h>
 #include <cxxtools/loginit.h>
 #include <cxxtools/log.h>
 
@@ -41,23 +42,27 @@ class AsyncRequester : public cxxtools::Connectable
 {
     cxxtools::http::Client& _client;
     char** _argv;
+    unsigned _wait;
 
     cxxtools::http::Request _request;
     cxxtools::EventLoop _loop;
+    cxxtools::Timer _timer;
 
     std::size_t onBodyAvailable(cxxtools::http::Client& client);
     void onReady(cxxtools::http::Client& client);
-    void onError(cxxtools::http::Client& client, const std::exception& e);
+    void onTimeout();
 
   public:
-    AsyncRequester(cxxtools::http::Client& client, char** argv)
+    AsyncRequester(cxxtools::http::Client& client, char** argv, unsigned wait)
       : _client(client),
-        _argv(argv)
+        _argv(argv),
+        _wait(wait)
     {
       connect(_client.bodyAvailable, *this, &AsyncRequester::onBodyAvailable);
       connect(_client.replyFinished, *this, &AsyncRequester::onReady);
-      connect(_client.errorOccured, *this, &AsyncRequester::onError);
+      connect(_timer.timeout, *this, &AsyncRequester::onTimeout);
       _client.setSelector(_loop);
+      _loop.add(_timer);
     }
 
     void run()
@@ -84,8 +89,13 @@ void AsyncRequester::onReady(cxxtools::http::Client& client)
 {
   if (*_argv)
   {
-    _request.url(*_argv++);
-    client.beginExecute(_request);
+    if (_wait)
+      _timer.start(_wait);
+    else
+    {
+      _request.url(*_argv++);
+      client.beginExecute(_request);
+    }
   }
   else
   {
@@ -94,10 +104,11 @@ void AsyncRequester::onReady(cxxtools::http::Client& client)
 
 }
 
-void AsyncRequester::onError(cxxtools::http::Client& client, const std::exception& e)
+void AsyncRequester::onTimeout()
 {
-  log_warn("error occured: " << e.what());
-  throw;
+  _timer.stop();
+  _request.url(*_argv++);
+  _client.beginExecute(_request);
 }
 
 int main(int argc, char* argv[])
@@ -110,6 +121,7 @@ int main(int argc, char* argv[])
     cxxtools::Arg<std::string> server(argc, argv, 's');
     cxxtools::Arg<unsigned short int> port(argc, argv, 'p', 80);
     cxxtools::Arg<bool> async(argc, argv, 'a');
+    cxxtools::Arg<unsigned> wait(argc, argv, 'w'); // wait between requests in seconds
 
     cxxtools::http::Client client(server, port);
 
@@ -129,13 +141,16 @@ int main(int argc, char* argv[])
 
     if (async)
     {
-      AsyncRequester ar(client, argv + 1);
+      AsyncRequester ar(client, argv + 1, wait * 1000);
       ar.run();
     }
     else
     {
       for (int a = 1; a < argc; ++a)
       {
+        if (wait > 0 && a > 1)
+          cxxtools::Thread::sleep(wait * 1000);
+
         std::cout << client.get(argv[a]);
       }
     }

@@ -90,9 +90,9 @@ class HttpClientImpl : public ClientImpl
 
         void onReplyFinished(http::Client& client);
 
-        void onErrorOccured(http::Client& client, const std::exception& e);
-
         virtual void beginExecute();
+
+        virtual void endExecute();
 
         virtual std::string execute();
 

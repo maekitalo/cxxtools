@@ -75,6 +75,11 @@ template <typename R>
 class Result : public IResult
 {
     public:
+        explicit Result(Client& client)
+            : _client(client)
+        {
+        }
+
         R& value()
         {
             return _result;
@@ -82,11 +87,13 @@ class Result : public IResult
 
         const R& get() const
         {
+            _client.endCall();
             checkFault();
             return _result;
         }
 
     private:
+        Client& _client;
         R _result;
 };
 

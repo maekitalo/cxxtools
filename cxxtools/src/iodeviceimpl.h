@@ -135,6 +135,7 @@ namespace cxxtools {
             std::size_t _timeout;
             pollfd* _pfd;
             DestructionSentry* _sentry;
+            bool _errorPending;
     };
 
 } //namespace cxxtools

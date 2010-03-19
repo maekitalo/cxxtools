@@ -58,10 +58,10 @@ ClientImpl::ClientImpl(Client* client)
 , _readHeader(true)
 , _chunkedEncoding(false)
 , _reconnectOnError(false)
+, _errorPending(false)
 {
     _stream.attachDevice(_socket);
     cxxtools::connect(_socket.connected, *this, &ClientImpl::onConnect);
-    cxxtools::connect(_socket.errorOccured, *this, &ClientImpl::onErrorOccured);
     cxxtools::connect(_stream.buffer().outputReady, *this, &ClientImpl::onOutput);
     cxxtools::connect(_stream.buffer().inputReady, *this, &ClientImpl::onInput);
 }
@@ -79,10 +79,10 @@ ClientImpl::ClientImpl(Client* client, const net::AddrInfo& addrinfo)
 , _readHeader(true)
 , _chunkedEncoding(false)
 , _reconnectOnError(false)
+, _errorPending(false)
 {
     _stream.attachDevice(_socket);
     cxxtools::connect(_socket.connected, *this, &ClientImpl::onConnect);
-    cxxtools::connect(_socket.errorOccured, *this, &ClientImpl::onErrorOccured);
     cxxtools::connect(_stream.buffer().outputReady, *this, &ClientImpl::onOutput);
     cxxtools::connect(_stream.buffer().inputReady, *this, &ClientImpl::onInput);
 }
@@ -99,10 +99,10 @@ ClientImpl::ClientImpl(Client* client, SelectorBase& selector, const net::AddrIn
 , _readHeader(true)
 , _chunkedEncoding(false)
 , _reconnectOnError(false)
+, _errorPending(false)
 {
     _stream.attachDevice(_socket);
     cxxtools::connect(_socket.connected, *this, &ClientImpl::onConnect);
-    cxxtools::connect(_socket.errorOccured, *this, &ClientImpl::onErrorOccured);
     cxxtools::connect(_stream.buffer().outputReady, *this, &ClientImpl::onOutput);
     cxxtools::connect(_stream.buffer().inputReady, *this, &ClientImpl::onInput);
     setSelector(selector);
@@ -112,28 +112,6 @@ ClientImpl::ClientImpl(Client* client, SelectorBase& selector, const net::AddrIn
 void ClientImpl::setSelector(SelectorBase& selector)
 {
     selector.add(_socket);
-}
-
-
-void ClientImpl::handleException(const std::exception& e)
-{
-    log_warn("error of type " << typeid(e).name() << " occured: " << e.what());
-
-    _socket.close();
-
-    if (!_reconnectOnError || _request == 0)
-    {
-         if (_client->errorOccured.connectionCount() == 0)
-             throw;
- 
-         _client->errorOccured(*_client, e);
-    }
-    else
-    {
-        log_debug("reconnect on error");
-        _reconnectOnError = false;
-        reexecute(*_request);
-    }
 }
 
 
@@ -148,6 +126,17 @@ void ClientImpl::reexecute(const Request& request)
 
     sendRequest(request);
     _stream.flush();
+}
+
+void ClientImpl::reexecuteBegin(const Request& request)
+{
+    log_debug("reexecuteBegin");
+
+    _stream.clear();
+    _stream.buffer().discard();
+
+    _socket.beginConnect(_addrInfo);
+    _reconnectOnError = false;
 }
 
 void ClientImpl::doparse()
@@ -175,10 +164,8 @@ const ReplyHeader& ClientImpl::execute(const Request& request, std::size_t timeo
 
     log_debug("send request");
     sendRequest(request);
-    log_debug("flush stream");
     _stream.flush();
 
-    log_debug("flush stream ready");
     if (!_stream && shouldReconnect)
     {
         // sending failed and we were not connected before, so try again
@@ -294,6 +281,7 @@ void ClientImpl::beginExecute(const Request& request)
 {
     log_trace("beginExecute");
 
+    _errorPending = false;
     _request = &request;
     _replyHeader.clear();
     if (_socket.isConnected())
@@ -320,6 +308,16 @@ void ClientImpl::beginExecute(const Request& request)
         log_debug("not yet connected - do it now");
         _socket.beginConnect(_addrInfo);
         _reconnectOnError = false;
+    }
+}
+
+
+void ClientImpl::endExecute()
+{
+    if (_errorPending)
+    {
+        _errorPending = false;
+        throw;
     }
 }
 
@@ -399,6 +397,8 @@ void ClientImpl::onConnect(net::TcpSocket& socket)
     try
     {
         log_trace("onConnect");
+
+        _errorPending = false;
         socket.endConnect();
         sendRequest(*_request);
 
@@ -407,34 +407,11 @@ void ClientImpl::onConnect(net::TcpSocket& socket)
     }
     catch (const std::exception& e)
     {
-        handleException(e);
-    }
-}
+        _errorPending = true;
+        _client->replyFinished(*_client);
 
-void ClientImpl::onErrorOccured(IODevice& socket)
-{
-    log_trace("error occured");
-    try
-    {
-        if (_reconnectOnError && _request != 0)
-        {
-            log_debug("reconnect on error");
-            _reconnectOnError = false;
-            reexecute(*_request);
-        }
-        else
-        {
-            throw IOError( CXXTOOLS_ERROR_MSG("error occured in i/o-device") );
-        }
-    }
-    catch (const std::exception& e)
-    {
-        _socket.close();
-
-        if (_client->errorOccured.connectionCount() == 0)
+        if (_errorPending)
             throw;
-
-        _client->errorOccured(*_client, e);
     }
 }
 
@@ -444,21 +421,48 @@ void ClientImpl::onOutput(StreamBuffer& sb)
 
     try
     {
-        if( sb.out_avail() > 0 )
+        try
         {
-            sb.beginWrite();
+            _errorPending = false;
+
+            sb.endWrite();
+
+            if( sb.out_avail() > 0 )
+            {
+                sb.beginWrite();
+            }
+            else
+            {
+                sb.beginRead();
+                _client->requestSent(*_client);
+                _parser.reset(true);
+                _readHeader = true;
+            }
         }
-        else
+        catch (const IOError& e)
         {
-            sb.beginRead();
-            _client->requestSent(*_client);
-            _parser.reset(true);
-            _readHeader = true;
+            if (_reconnectOnError && _request != 0)
+            {
+                log_debug("reconnect on error");
+                _socket.close();
+                _reconnectOnError = false;
+                reexecuteBegin(*_request);
+                return;
+            }
+
+            throw;
         }
     }
     catch (const std::exception& e)
     {
-        handleException(e);
+        log_warn("error of type " << typeid(e).name() << " occured: " << e.what());
+
+        _errorPending = true;
+
+        _client->replyFinished(*_client);
+
+        if (_errorPending)
+            throw;
     }
 }
 
@@ -466,20 +470,47 @@ void ClientImpl::onInput(StreamBuffer& sb)
 {
     try
     {
-        log_trace("ClientImpl::onInput; readHeader=" << _readHeader);
+        try
+        {
+            log_trace("ClientImpl::onInput; readHeader=" << _readHeader);
 
-        if (_readHeader)
-        {
-            processHeaderAvailable(sb);
+            _errorPending = false;
+
+            sb.endRead();
+
+            if (_readHeader)
+            {
+                processHeaderAvailable(sb);
+            }
+            else
+            {
+                processBodyAvailable(sb);
+            }
         }
-        else
+        catch (const IOError& e)
         {
-            processBodyAvailable(sb);
+            // after writing the request, the first read request may
+            // detect, that the server has already closed the connection,
+            // so check it here
+            if (_readHeader && _reconnectOnError && _request != 0)
+            {
+                log_debug("reconnect on error");
+                _socket.close();
+                _reconnectOnError = false;
+                reexecuteBegin(*_request);
+                return;
+            }
+
+            throw;
         }
     }
     catch (const std::exception& e)
     {
-        handleException(e);
+        _errorPending = true;
+      _client->replyFinished(*_client);
+
+      if (_errorPending)
+          throw;
     }
 }
 

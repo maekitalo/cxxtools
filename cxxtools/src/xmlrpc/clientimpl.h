@@ -76,6 +76,8 @@ class ClientImpl : public cxxtools::Connectable
 
         void beginCall(IDeserializer& r, IRemoteProcedure& method, ISerializer** argv, unsigned argc);
 
+        void endCall();
+
         void call(IDeserializer& r, IRemoteProcedure& method, ISerializer** argv, unsigned argc);
 
         std::size_t timeout() const  { return _timeout; }
@@ -95,15 +97,15 @@ class ClientImpl : public cxxtools::Connectable
 
         void onReplyFinished();
 
-        void onErrorOccured(const std::exception& e);
-
         virtual void beginExecute() = 0;
+
+        virtual void endExecute() = 0;
 
         virtual std::string execute() = 0;
 
         virtual std::ostream& prepareRequest() = 0;
 
-    private:
+    protected:
         void prepareRequest(const std::string& name, ISerializer** argv, unsigned argc);
 
         void advance(const xml::Node& node);
@@ -119,6 +121,7 @@ class ClientImpl : public cxxtools::Connectable
         Fault _fault;
         Deserializer<Fault> _fh;
         std::size_t _timeout;
+        bool _errorPending;
 };
 
 }

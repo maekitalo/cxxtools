@@ -48,6 +48,11 @@ void Client::beginCall(IDeserializer& r, IRemoteProcedure& method, ISerializer**
     _impl->beginCall(r, method, argv, argc);
 }
 
+void Client::endCall()
+{
+    _impl->endCall();
+}
+
 void Client::call(IDeserializer& r, IRemoteProcedure& method, ISerializer** argv, unsigned argc)
 {
     _impl->call(r, method, argv, argc);

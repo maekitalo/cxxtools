@@ -229,14 +229,6 @@ class CXXTOOLS_API IODevice : public Selectable
         */
         Signal<IODevice&> outputReady;
  
-        /** @brief Notifies when an error occured
-
-            This signal is send when the device is monitored
-            in a Selector or EventLoop and an error occured 
-            on the device.
-        */
-        Signal<IODevice&> errorOccured;
-
         virtual IODeviceImpl& ioimpl() = 0;
 
         bool reading() const

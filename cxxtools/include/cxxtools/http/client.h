@@ -107,6 +107,8 @@ class CXXTOOLS_HTTP_API Client : private NonCopyable
         // received.
         void beginExecute(const Request& request);
 
+        void endExecute();
+
         void setSelector(SelectorBase& selector);
 
         // Executes the underlying selector until a event occures or the
@@ -139,9 +141,6 @@ class CXXTOOLS_HTTP_API Client : private NonCopyable
 
         // Signals that the reply is completely processed.
         Signal<Client&> replyFinished;
-
-        // Signals that a exception is catched while processing the request.
-        Signal<Client&, const std::exception&> errorOccured;
 };
 
 } // namespace http

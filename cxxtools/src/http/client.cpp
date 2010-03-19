@@ -108,6 +108,11 @@ void Client::beginExecute(const Request& request)
     _impl->beginExecute(request);
 }
 
+void Client::endExecute()
+{
+    _impl->endExecute();
+}
+
 void Client::setSelector(SelectorBase& selector)
 {
     _impl->setSelector(selector);

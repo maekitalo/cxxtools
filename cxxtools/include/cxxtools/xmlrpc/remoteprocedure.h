@@ -88,7 +88,8 @@ class RemoteProcedureBase : public IRemoteProcedure
 {
     public:
         RemoteProcedureBase(Client& client, const std::string& name)
-        : IRemoteProcedure(client, name)
+        : IRemoteProcedure(client, name),
+          _result(client)
         { }
 
         void setFault(int rc, const std::string& msg)

@@ -83,12 +83,13 @@ class CXXTOOLS_API StreamBuffer : public BasicStreamBuffer<char>
 
         void beginRead();
 
+        void endRead();
+
         void beginWrite();
 
-        void discard();
+        void endWrite();
 
-        void discardException()
-        { _exceptionPending = false; }
+        void discard();
 
         Signal<StreamBuffer&> inputReady;
 
@@ -118,13 +119,7 @@ class CXXTOOLS_API StreamBuffer : public BasicStreamBuffer<char>
     private:
         void onRead(IODevice& dev);
 
-        void endRead();
-
         void onWrite(IODevice& dev);
-
-        void endWrite();
-
-        void onError(IODevice& dev);
 
     private:
         IODevice* _ioDevice;
@@ -134,7 +129,6 @@ class CXXTOOLS_API StreamBuffer : public BasicStreamBuffer<char>
         char* _obuffer;
         const size_t _pbmax;
         bool _oextend;
-        bool _exceptionPending;
 };
 
 } // namespace cxxtools

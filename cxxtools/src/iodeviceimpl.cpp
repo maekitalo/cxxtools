@@ -51,6 +51,7 @@ IODeviceImpl::IODeviceImpl(IODevice& device)
 , _timeout(Selectable::WaitInfinite)
 , _pfd(0)
 , _sentry(0)
+, _errorPending(false)
 { }
 
 
@@ -160,6 +161,12 @@ size_t IODeviceImpl::endRead(bool& eof)
         _pfd->events &= ~POLLIN;
     }
 
+    if (_errorPending)
+    {
+        _errorPending = false;
+        throw IOError("read error", CXXTOOLS_SOURCEINFO);
+    }
+
     return this->read( _device.rbuf(), _device.rbuflen(), eof );
 }
 
@@ -225,6 +232,12 @@ size_t IODeviceImpl::endWrite()
     if(_pfd)
     {
         _pfd->events &= ~POLLOUT;
+    }
+
+    if (_errorPending)
+    {
+        _errorPending = false;
+        throw IOError("write error", CXXTOOLS_SOURCEINFO);
     }
 
     return this->write( _device.wbuf(), _device.wbuflen() );
@@ -382,13 +395,26 @@ bool IODeviceImpl::checkPollEvent(pollfd& pfd)
 
     if (pfd.revents & POLLERR_MASK)
     {
-        log_debug("send signal errorOccured");
-        _device.errorOccured(_device);
-        avail = true;
-    }
+        _errorPending = true;
 
-    if( ! _sentry )
+        try
+        {
+            if (_device.reading())
+                _device.inputReady(_device);
+            if (_device.writing())
+                _device.outputReady(_device);
+        }
+        catch (...)
+        {
+            _errorPending = false;
+            throw;
+        }
+        _errorPending = false;
+
+        avail = true;
+
         return avail;
+    }
 
     if( pfd.revents & POLLOUT_MASK )
     {

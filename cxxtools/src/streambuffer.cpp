@@ -43,8 +43,7 @@ StreamBuffer::StreamBuffer(IODevice& ioDevice, size_t bufferSize, bool extend)
   _obufferSize(bufferSize),
   _obuffer(0),
   _pbmax(4),
-  _oextend(extend),
-  _exceptionPending(false)
+  _oextend(extend)
 {
     this->setg(0, 0, 0);
     this->setp(0, 0);
@@ -60,8 +59,7 @@ StreamBuffer::StreamBuffer(size_t bufferSize, bool extend)
   _obufferSize(bufferSize),
   _obuffer(0),
   _pbmax(4),
-  _oextend(extend),
-  _exceptionPending(false)
+  _oextend(extend)
 {
     this->setg(0, 0, 0);
     this->setp(0, 0);
@@ -87,13 +85,11 @@ void StreamBuffer::attach(IODevice& ioDevice)
 
         disconnect(ioDevice.inputReady, *this, &StreamBuffer::onRead);
         disconnect(ioDevice.outputReady, *this, &StreamBuffer::onWrite);
-        disconnect(ioDevice.errorOccured, *this, &StreamBuffer::onError);
     }
 
     _ioDevice = &ioDevice;
     connect(ioDevice.inputReady, *this, &StreamBuffer::onRead);
     connect(ioDevice.outputReady, *this, &StreamBuffer::onWrite);
-    connect(ioDevice.errorOccured, *this, &StreamBuffer::onError);
 }
 
 
@@ -105,12 +101,6 @@ IODevice* StreamBuffer::device()
 
 void StreamBuffer::beginRead()
 {
-    if (_exceptionPending)
-    {
-        _exceptionPending = false;
-        throw;
-    }
-
     if(_ioDevice == 0 || _ioDevice->reading())
         return;
 
@@ -148,24 +138,6 @@ void StreamBuffer::beginRead()
 
 void StreamBuffer::onRead(IODevice& dev)
 {
-    _exceptionPending = true;
-
-    try
-    {
-        endRead();
-    }
-    catch (...)
-    {
-        inputReady.send(*this);
-        if (_exceptionPending)
-        {
-            _exceptionPending = false;
-            throw;
-        }
-        return;
-    }
-
-    _exceptionPending = false;
     inputReady.send(*this);
 }
 
@@ -234,12 +206,6 @@ void StreamBuffer::beginWrite()
 {
     log_trace("beginWrite; out_avail=" << out_avail());
 
-    if (_exceptionPending)
-    {
-        _exceptionPending = false;
-        throw;
-    }
-
     if(_ioDevice == 0 || _ioDevice->writing())
         return;
 
@@ -269,35 +235,7 @@ void StreamBuffer::discard()
 
 void StreamBuffer::onWrite(IODevice& dev)
 {
-    log_trace("onWrite");
-
-    _exceptionPending = true;
-    try
-    {
-        endWrite();
-    }
-    catch (...)
-    {
-        outputReady.send(*this);
-        if (_exceptionPending)
-        {
-            _exceptionPending = false;
-            throw;
-        }
-        return;
-    }
-
-    _exceptionPending = false;
     outputReady.send(*this);
-}
-
-
-void StreamBuffer::onError(IODevice& dev)
-{
-    if (_ioDevice->reading())
-        dev.endRead();
-    if (_ioDevice->writing())
-        dev.endWrite();
 }
 
 

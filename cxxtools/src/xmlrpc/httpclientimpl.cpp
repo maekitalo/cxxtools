@@ -42,7 +42,6 @@ HttpClientImpl::HttpClientImpl()
     cxxtools::connect(_client.headerReceived, *this, &HttpClientImpl::onReplyHeader);
     cxxtools::connect(_client.bodyAvailable, *this, &HttpClientImpl::onReplyBody);
     cxxtools::connect(_client.replyFinished, *this, &HttpClientImpl::onReplyFinished);
-    cxxtools::connect(_client.errorOccured, *this, &HttpClientImpl::onErrorOccured);
 }
 
 HttpClientImpl::HttpClientImpl(SelectorBase& selector, const std::string& addr,
@@ -54,7 +53,6 @@ HttpClientImpl::HttpClientImpl(SelectorBase& selector, const std::string& addr,
     cxxtools::connect(_client.headerReceived, *this, &HttpClientImpl::onReplyHeader);
     cxxtools::connect(_client.bodyAvailable, *this, &HttpClientImpl::onReplyBody);
     cxxtools::connect(_client.replyFinished, *this, &HttpClientImpl::onReplyFinished);
-    cxxtools::connect(_client.errorOccured, *this, &HttpClientImpl::onErrorOccured);
 }
 
 HttpClientImpl::HttpClientImpl(const std::string& addr, unsigned short port, const std::string& url)
@@ -65,7 +63,6 @@ HttpClientImpl::HttpClientImpl(const std::string& addr, unsigned short port, con
     cxxtools::connect(_client.headerReceived, *this, &HttpClientImpl::onReplyHeader);
     cxxtools::connect(_client.bodyAvailable, *this, &HttpClientImpl::onReplyBody);
     cxxtools::connect(_client.replyFinished, *this, &HttpClientImpl::onReplyFinished);
-    cxxtools::connect(_client.errorOccured, *this, &HttpClientImpl::onErrorOccured);
 }
 
 std::string HttpClientImpl::url() const
@@ -100,14 +97,20 @@ void HttpClientImpl::onReplyFinished(http::Client& client)
     ClientImpl::onReplyFinished();
 }
 
-void HttpClientImpl::onErrorOccured(http::Client& client, const std::exception& e)
-{
-    ClientImpl::onErrorOccured(e);
-}
-
 void HttpClientImpl::beginExecute()
 {
     _client.beginExecute(_request);
+}
+
+void HttpClientImpl::endExecute()
+{
+    if (_errorPending)
+    {
+        _errorPending = false;
+        throw;
+    }
+
+    _client.endExecute();
 }
 
 std::string HttpClientImpl::execute()

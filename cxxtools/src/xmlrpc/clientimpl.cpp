@@ -53,6 +53,7 @@ ClientImpl::ClientImpl()
 , _formatter(_writer)
 , _method(0)
 , _timeout(Selectable::WaitInfinite)
+, _errorPending(false)
 {
     _writer.useIndent(false);
     _writer.useEndl(false);
@@ -76,6 +77,12 @@ void ClientImpl::beginCall(IDeserializer& r, IRemoteProcedure& method, ISerializ
 
     _reader.reset(_ts);
     _scanner.begin(r, _context);
+}
+
+
+void ClientImpl::endCall()
+{
+    endExecute();
 }
 
 
@@ -135,6 +142,8 @@ std::size_t ClientImpl::onReadReply()
 
     try
     {
+        _errorPending = false;
+
         while(true)
         {
             std::streamsize m = _ts.buffer().import();
@@ -153,17 +162,22 @@ std::size_t ClientImpl::onReadReply()
     catch(const xml::XmlError& error)
     {
         _method->setFault(Fault::invalidXmlRpc, error.what());
-        throw;
+        _method->onFinished();
     }
     catch(const SerializationError& error)
     {
         _method->setFault(Fault::invalidMethodParameters, error.what());
-        throw;
+        _method->onFinished();
     }
     catch(const ConversionError& error)
     {
         _method->setFault(Fault::invalidMethodParameters, error.what());
-        throw;
+        _method->onFinished();
+    }
+    catch(const std::exception& error)
+    {
+        _errorPending = true;
+        _method->onFinished();
     }
 
     return n;
@@ -173,30 +187,29 @@ std::size_t ClientImpl::onReadReply()
 void ClientImpl::onReplyFinished()
 {
     log_debug("onReplyFinished; method=" << static_cast<void*>(_method));
-    IRemoteProcedure* method = _method;
-    _method = 0;
-    method->onFinished();
-}
 
-
-void ClientImpl::onErrorOccured(const std::exception& e)
-{
-    log_debug("onErrorOccured; method="  << static_cast<void*>(_method) << ": " << e.what());
-    if (_method)
+    try
     {
-        // TODO do not map local exceptions to cxxtools::xmlrpc::Fault
+        _errorPending = false;
+        endExecute();
+    }
+    catch (const std::exception& e)
+    {
+        if (!_method)
+            throw;
 
-        if (!_method->failed())
-            _method->setFault(Fault::systemError, e.what());
+        _errorPending = true;
 
         IRemoteProcedure* method = _method;
         _method = 0;
         method->onFinished();
+        _errorPending = false;
+        return;
     }
-    else
-    {
-        throw;
-    }
+
+    IRemoteProcedure* method = _method;
+    _method = 0;
+    method->onFinished();
 }
 
 
