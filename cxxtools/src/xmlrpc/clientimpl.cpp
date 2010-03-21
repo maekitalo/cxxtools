@@ -34,8 +34,7 @@
 #include "cxxtools/xml/startelement.h"
 #include "cxxtools/xml/characters.h"
 #include "cxxtools/xml/endelement.h"
-#include "cxxtools/http/replyheader.h"
-#include "cxxtools/selector.h"
+#include "cxxtools/selectable.h"
 #include "cxxtools/utf8codec.h"
 #include "cxxtools/log.h"
 

@@ -478,6 +478,8 @@ void ClientImpl::onInput(StreamBuffer& sb)
 
             sb.endRead();
 
+            _reconnectOnError = false;
+
             if (_readHeader)
             {
                 processHeaderAvailable(sb);

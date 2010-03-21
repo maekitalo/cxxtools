@@ -34,8 +34,6 @@
 #include <cxxtools/xmlrpc/scanner.h>
 #include <cxxtools/xml/xmlreader.h>
 #include <cxxtools/xml/xmlwriter.h>
-#include <cxxtools/http/client.h>
-#include <cxxtools/http/request.h>
 #include <cxxtools/deserializer.h>
 #include <cxxtools/serializer.h>
 #include <cxxtools/connectable.h>
@@ -44,11 +42,11 @@
 #include <sstream>
 #include <cstddef>
 
-namespace cxxtools {
+namespace cxxtools
+{
 
-class SelectorBase;
-
-namespace xmlrpc {
+namespace xmlrpc
+{
 
 class IRemoteProcedure;
 
