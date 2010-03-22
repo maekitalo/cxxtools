@@ -6,7 +6,7 @@ noinst_PROGRAMS = \
     base64-test \
     alltests
 
-AM_CPPFLAGS = -I$(top_builddir)/include
+AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/include -I$(top_srcdir)/include
 
 net_test_SOURCES = test-main.cpp tcpsockettest.cpp
 

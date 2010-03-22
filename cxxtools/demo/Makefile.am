@@ -33,7 +33,7 @@ noinst_PROGRAMS += iconv
 iconv_SOURCES = iconv.cpp
 endif
 
-INCLUDES = -I$(top_builddir)/include
+AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/include -I$(top_srcdir)/include
 LDADD = $(top_builddir)/src/libcxxtools.la
 AM_CXXFLAGS = $(PTHREAD_CFLAGS)
 httpserver_LDADD =  $(top_builddir)/src/libcxxtools.la $(top_builddir)/src/http/libcxxtools-http.la
