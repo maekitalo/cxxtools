@@ -74,9 +74,8 @@ void Worker::run()
             }
             else if (socket->isConnected())
             {
-                socket->endRead();
-                if (socket->buffer().in_avail())
-                    socket->onInput(socket->buffer());
+                log_debug("process available input");
+                socket->onInput(socket->buffer());
             }
             else
             {
