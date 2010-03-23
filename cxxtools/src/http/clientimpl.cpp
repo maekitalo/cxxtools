@@ -478,6 +478,9 @@ void ClientImpl::onInput(StreamBuffer& sb)
 
             sb.endRead();
 
+            if (sb.device()->eof())
+                throw IOError("end of input", CXXTOOLS_SOURCEINFO);
+
             _reconnectOnError = false;
 
             if (_readHeader)
@@ -509,10 +512,10 @@ void ClientImpl::onInput(StreamBuffer& sb)
     catch (const std::exception& e)
     {
         _errorPending = true;
-      _client->replyFinished(*_client);
+        _client->replyFinished(*_client);
 
-      if (_errorPending)
-          throw;
+        if (_errorPending)
+            throw;
     }
 }
 

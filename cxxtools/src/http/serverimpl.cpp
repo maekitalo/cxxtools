@@ -196,7 +196,7 @@ void ServerImpl::addIdleSocket(Socket* _socket)
     }
     else
     {
-        log_debug("delete socket " << static_cast<void*>(_socket) << "; server not running");
+        log_debug("server not running; delete " << static_cast<void*>(_socket));
         delete _socket;
     }
 }
@@ -270,21 +270,22 @@ void ServerImpl::onServerStart(const ServerStartEvent& event)
     }
 }
 
-void ServerImpl::onInput(Socket& _socket)
+void ServerImpl::onInput(Socket& socket)
 {
-    _socket.setSelector(0);
-    log_debug("search socket " << static_cast<void*>(&_socket) << " in idle sockets");
-    _idleSockets.erase(&_socket);
+    socket.setSelector(0);
+    log_debug("search socket " << static_cast<void*>(&socket) << " in idle sockets");
+    _idleSockets.erase(&socket);
 
-    if (_socket.isConnected())
+    if (socket.isConnected())
     {
-        disconnect(_socket.inputReady, *this, &ServerImpl::onInput);
-        disconnect(_socket.timeout, *this, &ServerImpl::onTimeout);
-        _queue.put(&_socket);
+        disconnect(socket.inputReady, *this, &ServerImpl::onInput);
+        disconnect(socket.timeout, *this, &ServerImpl::onTimeout);
+        _queue.put(&socket);
     }
     else
     {
-        delete &_socket;
+        log_debug("onInput; delete " << static_cast<void*>(&socket));
+        delete &socket;
     }
 }
 
@@ -299,6 +300,7 @@ void ServerImpl::onKeepAliveTimeout(const KeepAliveTimeoutEvent& event)
 {
     Socket* socket = event.socket();
     _idleSockets.erase(socket);
+    log_debug("onKeepAliveTimeout; delete " << static_cast<void*>(&socket));
     delete socket;
 }
 
