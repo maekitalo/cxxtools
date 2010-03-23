@@ -41,6 +41,8 @@ namespace http
 
 ServerImpl::ServerImpl(EventLoopBase& eventLoop, Signal<Server::Runmode>& runmodeChanged)
     : _eventLoop(eventLoop),
+      _inputSlot(slot(*this, &ServerImpl::onInput)),
+      _timeoutSlot(slot(*this, &ServerImpl::onTimeout)),
       _readTimeout(20000),
       _writeTimeout(20000),
       _keepAliveTimeout(30000),
@@ -209,8 +211,8 @@ void ServerImpl::onIdleSocket(const IdleSocketEvent& event)
 
     _idleSockets.insert(socket);
     socket->setSelector(&_eventLoop);
-    connect(socket->inputReady, *this, &ServerImpl::onInput);
-    connect(socket->timeout, *this, &ServerImpl::onTimeout);
+    connect(socket->inputReady, _inputSlot);
+    connect(socket->timeout, _timeoutSlot);
 }
 
 void ServerImpl::onNoWaitingThreads(const NoWaitingThreadsEvent& event)
@@ -278,8 +280,8 @@ void ServerImpl::onInput(Socket& socket)
 
     if (socket.isConnected())
     {
-        disconnect(socket.inputReady, *this, &ServerImpl::onInput);
-        disconnect(socket.timeout, *this, &ServerImpl::onTimeout);
+        disconnect(socket.inputReady, _inputSlot);
+        disconnect(socket.timeout, _timeoutSlot);
         _queue.put(&socket);
     }
     else
