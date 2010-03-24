@@ -30,14 +30,14 @@
 #include "serverimpl.h"
 #include <cxxtools/log.h>
 #include <cassert>
-#include <unistd.h>
-#include <fcntl.h>
 
 log_define("cxxtools.http.socket")
 
-namespace cxxtools {
+namespace cxxtools
+{
 
-namespace http {
+namespace http
+{
 
 void Socket::ParseEvent::onMethod(const std::string& method)
 {

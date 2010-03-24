@@ -479,7 +479,7 @@ void ClientImpl::onInput(StreamBuffer& sb)
             sb.endRead();
 
             if (sb.device()->eof())
-                throw IOError("end of input", CXXTOOLS_SOURCEINFO);
+                throw IOError( CXXTOOLS_ERROR_MSG("end of input") );
 
             _reconnectOnError = false;
 
