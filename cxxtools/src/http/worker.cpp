@@ -40,6 +40,7 @@ namespace http
 
 void Worker::run()
 {
+    log_info("new thread running");
     while (!_server.isTerminating() && _server._queue.numWaiting() < _server.minThreads())
     {
         Socket* socket = _server._queue.get();
@@ -83,16 +84,14 @@ void Worker::run()
                 delete socket;
             }
 
-            socket->setSelector(&_selector);
             connect(socket->buffer().inputReady, socket->inputSlot);
 
-            while (_selector.wait(_server.idleTimeout()) && socket->isConnected())
+            while (socket->wait(_server.idleTimeout()) && socket->isConnected())
                 ;
 
             if (socket->isConnected())
             {
                 log_debug("timeout processing socket");
-                socket->setSelector(0);
                 disconnect(socket->buffer().inputReady, socket->inputSlot);
                 _server.addIdleSocket(socket);
             }
@@ -113,7 +112,7 @@ void Worker::run()
         }
     }
 
-    log_debug("thread terminated");
+    log_info("thread terminated");
     _server.threadTerminated(this);
 }
 

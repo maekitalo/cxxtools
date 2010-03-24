@@ -170,8 +170,8 @@ class ServerImpl : public Connectable
         ////////////////////////////////////////////////////
         EventLoopBase& _eventLoop;
 
-        MethodSlot<void, ServerImpl, Socket&> _inputSlot;
-        MethodSlot<void, ServerImpl, Socket&> _timeoutSlot;
+        MethodSlot<void, ServerImpl, Socket&> inputSlot;
+        MethodSlot<void, ServerImpl, Socket&> timeoutSlot;
 
         std::size_t _readTimeout;
         std::size_t _writeTimeout;

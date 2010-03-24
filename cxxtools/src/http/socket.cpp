@@ -56,8 +56,6 @@ void Socket::ParseEvent::onUrlParam(const std::string& q)
 
 Socket::Socket(ServerImpl& server, net::TcpServer& tcpServer)
     : inputSlot(slot(*this, &Socket::onInput)),
-      outputSlot(slot(*this, &Socket::onOutput)),
-      timeoutSlot(slot(*this, &Socket::onTimeout)),
       _tcpServer(tcpServer),
       _server(server),
       _parseEvent(_request),
@@ -67,12 +65,12 @@ Socket::Socket(ServerImpl& server, net::TcpServer& tcpServer)
 {
     _stream.attachDevice(*this);
     cxxtools::connect(IODevice::inputReady, *this, &Socket::onIODeviceInput);
+    cxxtools::connect(_stream.buffer().outputReady, *this, &Socket::onOutput);
+    cxxtools::connect(_timer.timeout, *this, &Socket::onTimeout);
 }
 
 Socket::Socket(Socket& socket)
     : inputSlot(slot(*this, &Socket::onInput)),
-      outputSlot(slot(*this, &Socket::onOutput)),
-      timeoutSlot(slot(*this, &Socket::onTimeout)),
       _tcpServer(socket._tcpServer),
       _server(socket._server),
       _parseEvent(_request),
@@ -82,6 +80,8 @@ Socket::Socket(Socket& socket)
 {
     _stream.attachDevice(*this);
     cxxtools::connect(IODevice::inputReady, *this, &Socket::onIODeviceInput);
+    cxxtools::connect(_stream.buffer().outputReady, *this, &Socket::onOutput);
+    cxxtools::connect(_timer.timeout, *this, &Socket::onTimeout);
 }
 
 Socket::~Socket()
@@ -103,38 +103,14 @@ void Socket::accept()
 
 void Socket::setSelector(SelectorBase* s)
 {
-    if (selector() == s)
-        return;
-
-    if (selector() != 0)
-    {
-        cxxtools::disconnect(_stream.buffer().inputReady, inputSlot);
-        cxxtools::disconnect(_stream.buffer().outputReady, outputSlot);
-        cxxtools::disconnect(_timer.timeout, timeoutSlot);
-    }
-
-    if (s)
-    {
-        s->add(*this);
-        s->add(_timer);
-
-        cxxtools::connect(_stream.buffer().outputReady, outputSlot);
-        cxxtools::connect(_timer.timeout, timeoutSlot);
-    }
-    else
-    {
-        TcpSocket::setSelector(0);
-        _timer.setSelector(0);
-    }
+    s->add(*this);
+    s->add(_timer);
 }
 
 void Socket::removeSelector()
 {
     TcpSocket::setSelector(0);
     _timer.setSelector(0);
-    cxxtools::disconnect(_stream.buffer().inputReady, inputSlot);
-    cxxtools::disconnect(_stream.buffer().outputReady, outputSlot);
-    cxxtools::disconnect(_timer.timeout, timeoutSlot);
 }
 
 void Socket::onIODeviceInput(IODevice& iodevice)

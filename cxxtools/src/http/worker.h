@@ -29,7 +29,6 @@
 #ifndef CXXTOOLS_HTTP_WORKER_H
 #define CXXTOOLS_HTTP_WORKER_H
 
-#include <cxxtools/selector.h>
 #include <cxxtools/thread.h>
 
 namespace cxxtools
@@ -52,7 +51,6 @@ class Worker : public AttachedThread
 
     private:
         ServerImpl& _server;
-        Selector _selector;
 };
 
 }

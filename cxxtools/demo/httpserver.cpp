@@ -102,6 +102,12 @@ int main(int argc, char* argv[])
     cxxtools::EventLoop loop;
     cxxtools::http::Server server(loop, listenIp, listenPort);
 
+    cxxtools::Arg<unsigned> minThreads(argc, argv, 't', server.minThreads());
+    cxxtools::Arg<unsigned> maxThreads(argc, argv, 'T', server.maxThreads());
+
+    server.minThreads(minThreads);
+    server.maxThreads(maxThreads);
+
     // collect additional ports to listen on
     while (true)
     {

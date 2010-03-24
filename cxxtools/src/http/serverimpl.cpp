@@ -41,8 +41,8 @@ namespace http
 
 ServerImpl::ServerImpl(EventLoopBase& eventLoop, Signal<Server::Runmode>& runmodeChanged)
     : _eventLoop(eventLoop),
-      _inputSlot(slot(*this, &ServerImpl::onInput)),
-      _timeoutSlot(slot(*this, &ServerImpl::onTimeout)),
+      inputSlot(slot(*this, &ServerImpl::onInput)),
+      timeoutSlot(slot(*this, &ServerImpl::onTimeout)),
       _readTimeout(20000),
       _writeTimeout(20000),
       _keepAliveTimeout(30000),
@@ -172,8 +172,6 @@ void ServerImpl::noWaitingThreads()
 
 void ServerImpl::threadTerminated(Worker* worker)
 {
-    log_info("thread " << static_cast<void*>(worker) << " terminated");
-
     MutexLock lock(_threadMutex);
 
     _threads.erase(worker);
@@ -211,8 +209,8 @@ void ServerImpl::onIdleSocket(const IdleSocketEvent& event)
 
     _idleSockets.insert(socket);
     socket->setSelector(&_eventLoop);
-    connect(socket->inputReady, _inputSlot);
-    connect(socket->timeout, _timeoutSlot);
+    connect(socket->inputReady, inputSlot);
+    connect(socket->timeout, timeoutSlot);
 }
 
 void ServerImpl::onNoWaitingThreads(const NoWaitingThreadsEvent& event)
@@ -230,7 +228,7 @@ void ServerImpl::onNoWaitingThreads(const NoWaitingThreadsEvent& event)
         Worker* worker = new Worker(*this);
         try
         {
-            log_info("create thread " << static_cast<void*>(worker));
+            log_debug("create thread " << static_cast<void*>(worker) << "; running threads=" << _threads.size());
             worker->start();
             _threads.insert(worker);
 
@@ -251,7 +249,7 @@ void ServerImpl::onNoWaitingThreads(const NoWaitingThreadsEvent& event)
 void ServerImpl::onThreadTerminated(const ThreadTerminatedEvent& event)
 {
     MutexLock lock(_threadMutex);
-    log_trace("thread terminated (" << static_cast<void*>(event.worker()) << ") " << _threads.size() << " threads left");
+    log_debug("thread terminated (" << static_cast<void*>(event.worker()) << ") " << _threads.size() << " threads left");
     try
     {
         event.worker()->join();
@@ -274,14 +272,14 @@ void ServerImpl::onServerStart(const ServerStartEvent& event)
 
 void ServerImpl::onInput(Socket& socket)
 {
-    socket.setSelector(0);
+    socket.removeSelector();
     log_debug("search socket " << static_cast<void*>(&socket) << " in idle sockets");
     _idleSockets.erase(&socket);
 
     if (socket.isConnected())
     {
-        disconnect(socket.inputReady, _inputSlot);
-        disconnect(socket.timeout, _timeoutSlot);
+        disconnect(socket.inputReady, inputSlot);
+        disconnect(socket.timeout, timeoutSlot);
         _queue.put(&socket);
     }
     else
