@@ -49,6 +49,12 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+#ifdef HAVE_TCP_DEFER_ACCEPT
+#  include <netinet/tcp.h>
+#  include <sys/types.h>
+#  include <sys/socket.h>
+#endif
+
 log_define("cxxtools.net.tcpsocket.impl")
 
 namespace {
@@ -303,23 +309,25 @@ void TcpSocketImpl::endConnect()
 }
 
 
-void TcpSocketImpl::accept(const TcpServer& server, bool inherit)
+void TcpSocketImpl::accept(const TcpServer& server, unsigned flags)
 {
     socklen_t peeraddr_len = sizeof(_peeraddr);
 
     log_debug( "accept " << server.impl().fd() );
 
+    bool inherit = (flags & TcpSocket::INHERIT) != 0;
+
 #ifdef HAVE_ACCEPT4
     int fd = SOCK_NONBLOCK;
     if (!inherit)
-      fd |= SOCK_CLOEXEC;
+        fd |= SOCK_CLOEXEC;
     _fd = ::accept4(server.impl().fd(), reinterpret_cast <struct sockaddr*>(&_peeraddr), &peeraddr_len, SOCK_NONBLOCK | SOCK_CLOEXEC);
 #else
     _fd = ::accept(server.impl().fd(), reinterpret_cast <struct sockaddr*>(&_peeraddr), &peeraddr_len);
 #endif
 
     if( _fd < 0 )
-      throw SystemError("accept");
+        throw SystemError("accept");
 
 #ifdef HAVE_ACCEPT4
     IODeviceImpl::open(_fd, false, false);
@@ -327,6 +335,16 @@ void TcpSocketImpl::accept(const TcpServer& server, bool inherit)
     IODeviceImpl::open(_fd, true, inherit);
 #endif
     //TODO ECONNABORTED EINTR EPERM
+
+#ifdef HAVE_TCP_DEFER_ACCEPT
+    if (flags & TcpSocket::READFIRST)
+    {
+        int deferSecs = 30;
+        if (::setsockopt(server.impl().fd(), SOL_TCP, TCP_DEFER_ACCEPT,
+            &deferSecs, sizeof(deferSecs)) < 0)
+            throw cxxtools::SystemError("setsockopt(TCP_DEFER_ACCEPT)");
+    }
+#endif
 
     _isConnected = true;
     log_debug( "accepted " << server.impl().fd() << " => " << _fd  << " from " << getPeerAddr());

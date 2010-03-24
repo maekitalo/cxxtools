@@ -47,9 +47,12 @@ class CXXTOOLS_API TcpSocket : public IODevice
         class TcpSocketImpl* _impl;
 
     public:
+        // flags for accept method
+        enum { INHERIT = 1, READFIRST = 2 };
+
         TcpSocket();
 
-        TcpSocket(const TcpServer& server);
+        TcpSocket(const TcpServer& server, unsigned flags = 0);
 
         TcpSocket(const std::string& ipaddr, unsigned short int port);
 
@@ -68,7 +71,7 @@ class CXXTOOLS_API TcpSocket : public IODevice
         std::size_t getTimeout() const
         { return timeout(); }
 
-        void accept(const TcpServer& server, bool inherit = false);
+        void accept(const TcpServer& server, unsigned flags = 0);
 
         void connect(const AddrInfo& addrinfo);
 

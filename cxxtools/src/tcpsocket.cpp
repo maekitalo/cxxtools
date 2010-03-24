@@ -48,13 +48,13 @@ TcpSocket::TcpSocket()
 }
 
 
-TcpSocket::TcpSocket(const TcpServer& server)
+TcpSocket::TcpSocket(const TcpServer& server, unsigned flags)
 : _impl(0)
 {
     _impl = new TcpSocketImpl(*this);
     std::auto_ptr<TcpSocketImpl> impl(_impl);
 
-    this->accept(server);
+    this->accept(server, flags);
 
     impl.release();
 }
@@ -173,10 +173,10 @@ int TcpSocket::getFd() const
 }
 
 
-void TcpSocket::accept(const TcpServer& server, bool inherit)
+void TcpSocket::accept(const TcpServer& server, unsigned flags)
 {
     this->close();
-    _impl->accept(server, inherit);
+    _impl->accept(server, flags);
     this->setEnabled(true);
     this->setAsync(true);
     this->setEof(false);
