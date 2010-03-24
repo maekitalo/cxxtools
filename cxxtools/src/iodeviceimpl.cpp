@@ -400,9 +400,19 @@ bool IODeviceImpl::checkPollEvent(pollfd& pfd)
         try
         {
             if (_device.reading())
+            {
+                avail = true;
                 _device.inputReady(_device);
+            }
+
+            if( ! _sentry )
+                return avail;
+
             if (_device.writing())
+            {
+                avail = true;
                 _device.outputReady(_device);
+            }
         }
         catch (...)
         {
@@ -410,8 +420,6 @@ bool IODeviceImpl::checkPollEvent(pollfd& pfd)
             throw;
         }
         _errorPending = false;
-
-        avail = true;
 
         return avail;
     }
