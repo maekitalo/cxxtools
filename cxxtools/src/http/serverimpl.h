@@ -37,7 +37,6 @@
 #include <cxxtools/http/server.h>
 #include <cxxtools/http/service.h>
 #include <cxxtools/http/responder.h>
-#include <cxxtools/clock.h>
 #include "socket.h"
 #include "notfoundservice.h"
 #include "notauthenticatedservice.h"
@@ -141,11 +140,6 @@ class ServerImpl : public Connectable
         unsigned maxThreads() const           { return _maxThreads; }
         void maxThreads(unsigned m)           { _maxThreads = m; }
 
-        cxxtools::int64_t threadStartDelay() const
-            { return _threadStartDelay.totalMSecs(); }
-        void threadStartDelay(cxxtools::int64_t d)
-            { _threadStartDelay = Timespan(d * 1000); }
-
         void onInput(Socket& _socket);
         void onTimeout(Socket& _socket);
 
@@ -185,8 +179,6 @@ class ServerImpl : public Connectable
         std::size_t _idleTimeout;
         unsigned _minThreads;
         unsigned _maxThreads;
-        Timespan _threadStartDelay;
-        Timespan _lastThreadStart;
 
         Signal<Server::Runmode>& _runmodeChanged;
         Server::Runmode _runmode;

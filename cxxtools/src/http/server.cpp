@@ -121,17 +121,6 @@ void Server::maxThreads(unsigned m)
     _impl->maxThreads(m);
 }
 
-cxxtools::int64_t Server::threadStartDelay() const
-{
-    return _impl->threadStartDelay();
-}
-
-void Server::threadStartDelay(cxxtools::int64_t d)
-{
-    _impl->threadStartDelay(d);
-}
-
-
 } // namespace http
 
 } // namespace cxxtools

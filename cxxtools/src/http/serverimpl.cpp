@@ -49,7 +49,6 @@ ServerImpl::ServerImpl(EventLoopBase& eventLoop, Signal<Server::Runmode>& runmod
       _idleTimeout(100),
       _minThreads(5),
       _maxThreads(200),
-      _threadStartDelay(100000), // 100ms
       _runmodeChanged(runmodeChanged),
       _runmode(Server::Stopped)
 {
@@ -167,12 +166,8 @@ void ServerImpl::terminate()
 void ServerImpl::noWaitingThreads()
 {
     MutexLock lock(_threadMutex);
-    Timespan now = Clock::getSystemTicks();
-    if (_runmode == Server::Running && now - _lastThreadStart >= _threadStartDelay)
-    {
-        _lastThreadStart = now;
+    if (_runmode == Server::Running)
         _eventLoop.commitEvent(NoWaitingThreadsEvent());
-    }
 }
 
 void ServerImpl::threadTerminated(Worker* worker)
