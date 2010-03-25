@@ -32,6 +32,7 @@
 #include <cxxtools/http/api.h>
 #include <cxxtools/signal.h>
 #include <cxxtools/noncopyable.h>
+#include <cxxtools/types.h>
 #include <string>
 #include <cstddef>
 
@@ -70,6 +71,10 @@ class CXXTOOLS_HTTP_API Server : private cxxtools::NonCopyable
 
         unsigned maxThreads() const;
         void maxThreads(unsigned m);
+
+        /// returns the start delay for threads in milliseconds
+        cxxtools::int64_t threadStartDelay() const;
+        void threadStartDelay(cxxtools::int64_t d);
 
         enum Runmode {
           Stopped,
