@@ -126,7 +126,7 @@ namespace cxxtools
     log_debug(ret << " bytes read");
     setg(ibuffer, ibuffer, ibuffer + ret);
 
-    return traits_type::to_char_type(*gptr());
+    return traits_type::to_int_type(*gptr());
   }
 
   int Fdstreambuf::sync()
