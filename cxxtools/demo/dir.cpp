@@ -26,9 +26,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <exception>
 #include <iostream>
-#include <cxxtools/dir.h>
+#include <cxxtools/directory.h>
 #include <algorithm>
 #include <iterator>
 
@@ -38,7 +37,7 @@ int main(int argc, char* argv[])
   {
     for (int a = 1; a < argc; ++a)
     {
-      cxxtools::Dir d(argv[a]);
+      cxxtools::Directory d(argv[a]);
       std::copy(d.begin(),
                 d.end(),
                 std::ostream_iterator<std::string>(std::cout, "\n"));
