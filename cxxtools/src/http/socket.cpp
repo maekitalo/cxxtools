@@ -92,7 +92,7 @@ Socket::~Socket()
 
 void Socket::accept()
 {
-    net::TcpSocket::accept(_tcpServer, net::TcpSocket::READFIRST);
+    net::TcpSocket::accept(_tcpServer, net::TcpSocket::DEFER_ACCEPT);
 
     _accepted = true;
 

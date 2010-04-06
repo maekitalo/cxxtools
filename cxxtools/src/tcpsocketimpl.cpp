@@ -49,40 +49,33 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
-#ifdef HAVE_TCP_DEFER_ACCEPT
-#  include <netinet/tcp.h>
-#  include <sys/types.h>
-#  include <sys/socket.h>
-#endif
-
 log_define("cxxtools.net.tcpsocket.impl")
 
-namespace {
+namespace cxxtools
+{
 
-    void formatIp(const sockaddr_storage& addr, std::string& str)
-    {
+namespace net
+{
+
+void formatIp(const sockaddr_storage& addr, std::string& str)
+{
 #ifdef HAVE_INET_NTOP
-        const sockaddr_in* sa = reinterpret_cast<const sockaddr_in*>(&addr);
-        char strbuf[INET6_ADDRSTRLEN + 1];
-        const char* p = inet_ntop(sa->sin_family, &sa->sin_addr, strbuf, sizeof(strbuf));
-        str = (p == 0 ? "-" : strbuf);
+    const sockaddr_in* sa = reinterpret_cast<const sockaddr_in*>(&addr);
+    char strbuf[INET6_ADDRSTRLEN + 1];
+    const char* p = inet_ntop(sa->sin_family, &sa->sin_addr, strbuf, sizeof(strbuf));
+    str = (p == 0 ? "-" : strbuf);
 #else
-        static cxxtools::Mutex monitor;
-        cxxtools::MutexLock lock(monitor);
+    static cxxtools::Mutex monitor;
+    cxxtools::MutexLock lock(monitor);
 
-        const sockaddr_in* sa = reinterpret_cast<const sockaddr_in*>(&addr);
-        const char* p = inet_ntoa(sa->sin_addr);
-        if (p)
-            str = p;
-        else
-            str.clear();
+    const sockaddr_in* sa = reinterpret_cast<const sockaddr_in*>(&addr);
+    const char* p = inet_ntoa(sa->sin_addr);
+    if (p)
+        str = p;
+    else
+        str.clear();
 #endif
-    }
 }
-
-namespace cxxtools {
-
-namespace net {
 
 TcpSocketImpl::TcpSocketImpl(TcpSocket& socket)
 : IODeviceImpl(socket)
@@ -313,18 +306,7 @@ void TcpSocketImpl::accept(const TcpServer& server, unsigned flags)
 {
     socklen_t peeraddr_len = sizeof(_peeraddr);
 
-    log_debug( "accept " << server.impl().fd() );
-
-    bool inherit = (flags & TcpSocket::INHERIT) != 0;
-
-#ifdef HAVE_ACCEPT4
-    int fd = SOCK_NONBLOCK;
-    if (!inherit)
-        fd |= SOCK_CLOEXEC;
-    _fd = ::accept4(server.impl().fd(), reinterpret_cast <struct sockaddr*>(&_peeraddr), &peeraddr_len, SOCK_NONBLOCK | SOCK_CLOEXEC);
-#else
-    _fd = ::accept(server.impl().fd(), reinterpret_cast <struct sockaddr*>(&_peeraddr), &peeraddr_len);
-#endif
+    _fd = server.impl().accept(flags, reinterpret_cast <struct sockaddr*>(&_peeraddr), peeraddr_len);
 
     if( _fd < 0 )
         throw SystemError("accept");
@@ -336,18 +318,8 @@ void TcpSocketImpl::accept(const TcpServer& server, unsigned flags)
 #endif
     //TODO ECONNABORTED EINTR EPERM
 
-#ifdef HAVE_TCP_DEFER_ACCEPT
-    if (flags & TcpSocket::READFIRST)
-    {
-        int deferSecs = 30;
-        if (::setsockopt(server.impl().fd(), SOL_TCP, TCP_DEFER_ACCEPT,
-            &deferSecs, sizeof(deferSecs)) < 0)
-            throw cxxtools::SystemError("setsockopt(TCP_DEFER_ACCEPT)");
-    }
-#endif
-
     _isConnected = true;
-    log_debug( "accepted " << server.impl().fd() << " => " << _fd  << " from " << getPeerAddr());
+    log_debug( "accepted from " << getPeerAddr());
 }
 
 

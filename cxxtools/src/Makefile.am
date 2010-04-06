@@ -88,7 +88,6 @@ libcxxtools_la_SOURCES = \
 	tcpserver.cpp \
 	tcpsocket.cpp \
 	tcpsocketimpl.cpp \
-	tcpstream.cpp \
 	udp.cpp \
 	udpstream.cpp
 

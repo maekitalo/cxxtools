@@ -40,14 +40,25 @@
 #include <sys/time.h>
 #include <unistd.h>
 
-namespace cxxtools {
+namespace cxxtools
+{
 
 class SelectorBase;
 
-namespace net {
+namespace net
+{
 
 class TcpServer;
 class TcpSocket;
+
+void formatIp(const sockaddr_storage& addr, std::string& str);
+
+inline std::string formatIp(const sockaddr_storage& addr)
+{
+    std::string ret;
+    formatIp(addr, ret);
+    return ret;
+}
 
 class TcpSocketImpl : public IODeviceImpl
 {

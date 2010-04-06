@@ -41,13 +41,13 @@ TcpServer::TcpServer()
 }
 
 
-TcpServer::TcpServer(const std::string& ipaddr, unsigned short int port, int backlog)
+TcpServer::TcpServer(const std::string& ipaddr, unsigned short int port, int backlog, unsigned flags)
 : _impl(0)
 {
     _impl = new TcpServerImpl(*this);
     std::auto_ptr<TcpServerImpl> impl(_impl);
 
-    this->listen(ipaddr, port, backlog);
+    this->listen(ipaddr, port, backlog, flags);
 
     impl.release();
 }
@@ -66,23 +66,11 @@ TcpServer::~TcpServer()
 }
 
 
-void TcpServer::listen(const std::string& ipaddr, unsigned short int port, int backlog)
+void TcpServer::listen(const std::string& ipaddr, unsigned short int port, int backlog, unsigned flags)
 {
     this->close();
-    _impl->listen(ipaddr, port, backlog);
+    _impl->listen(ipaddr, port, backlog, flags);
     this->setEnabled(true);
-}
-
-
-const struct sockaddr_storage& TcpServer::getAddr() const
-{
-    return _impl->getAddr();
-}
-
-
-int TcpServer::getFd() const
-{
-    return _impl->fd();
 }
 
 

@@ -26,64 +26,83 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef CXXTOOLS_NET_TcpServerImpl_H
-#define CXXTOOLS_NET_TcpServerImpl_H
+#ifndef CXXTOOLS_NET_TCPSERVERIMPL_H
+#define CXXTOOLS_NET_TCPSERVERIMPL_H
 
 #include "selectableimpl.h"
 #include <cxxtools/signal.h>
 #include <string>
+#include <vector>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include "config.h"
 
-namespace cxxtools {
+namespace cxxtools
+{
 
 class SelectorBase;
 
-namespace net {
+namespace net
+{
 
-  class TcpServer;
+class TcpServer;
 
-  class TcpServerImpl : public SelectableImpl
-  {
+class TcpServerImpl : public SelectableImpl
+{
     private:
-      TcpServer& _server;
-      struct sockaddr_storage _servaddr;
-      int _fd;
-      pollfd* _pfd;
+        TcpServer& _server;
 
-    public:
-      TcpServerImpl(TcpServer& server);
+        struct Listener
+        {
+            int _fd;
+            struct sockaddr_storage _servaddr;
+        };
 
-      void create(int domain, int type, int protocol);
+        typedef std::vector<Listener> Listeners;
 
-      void close();
+        Listeners _listeners;
 
-      void listen(const std::string& ipaddr, unsigned short int port, int backlog = 5);
+        int _pendingAccept;
 
-      const struct sockaddr_storage& getAddr() const
-      { return _servaddr; }
+        pollfd* _pfd;
 
-      int fd() const
-      { return _fd; }
+#ifdef HAVE_TCP_DEFER_ACCEPT
+        bool _deferAccept;
+#endif
 
-      bool wait(std::size_t msecs);
+        int create(int domain, int type, int protocol);
 
-      void attach(SelectorBase& s);
+      public:
+        TcpServerImpl(TcpServer& server);
 
-      void detach(SelectorBase& s);
+        void close();
 
-      // implementation using poll
-      std::size_t pollSize() const;
+        void listen(const std::string& ipaddr, unsigned short int port, int backlog, unsigned flags);
 
-      // implementation using poll
-      std::size_t initializePoll(pollfd* pfd, std::size_t pollSize);
+#ifdef HAVE_TCP_DEFER_ACCEPT
+        void deferAccept(bool sw);
+#endif
 
-      // implementation using poll
-      bool checkPollEvent();
-  };
+        bool wait(std::size_t msecs);
+
+        void attach(SelectorBase& s);
+
+        void detach(SelectorBase& s);
+
+        // implementation using poll
+        std::size_t pollSize() const;
+
+        // implementation using poll
+        std::size_t initializePoll(pollfd* pfd, std::size_t pollSize);
+
+        // implementation using poll
+        bool checkPollEvent();
+
+        int accept(int flags, struct sockaddr* sa, socklen_t& sa_len);
+};
 
 } // namespace net
 
 } // namespace cxxtools
 
-#endif // CXXTOOLS_NET_TCPSTREAM_H
+#endif // CXXTOOLS_NET_TCPSERVERIMPL_H

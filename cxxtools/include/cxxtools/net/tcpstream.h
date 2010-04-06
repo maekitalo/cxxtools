@@ -78,9 +78,9 @@ namespace net
             }
 
             explicit TcpStream(TcpServer& server, unsigned bufsize = 8192,
-                      std::size_t timeout = Selectable::WaitInfinite)
+                      unsigned flags = 0, std::size_t timeout = Selectable::WaitInfinite)
             : IOStream(bufsize)
-            , _socket(server)
+            , _socket(server, flags)
             {
                _socket.setTimeout(timeout);
                 this->attachDevice(_socket);
@@ -94,9 +94,6 @@ namespace net
             std::size_t getTimeout() const
             { return _socket.getTimeout(); }
 
-            /// Returns true, if we can read without blocking.
-            bool canRead();
-
             void close()
             { _socket.close(); }
 
@@ -106,7 +103,7 @@ namespace net
             void connect(const std::string& ipaddr, unsigned short int port)
             { _socket.connect(ipaddr, port); }
 
-            void accept(const TcpServer& server, bool flags = 0)
+            void accept(const TcpServer& server, unsigned flags = 0)
             { _socket.accept(server, flags); }
 
             std::string getSockAddr() const

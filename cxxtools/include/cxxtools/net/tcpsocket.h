@@ -48,7 +48,7 @@ class CXXTOOLS_API TcpSocket : public IODevice
 
     public:
         // flags for accept method
-        enum { INHERIT = 1, READFIRST = 2 };
+        enum { INHERIT = 1, DEFER_ACCEPT = 2 };
 
         TcpSocket();
 
