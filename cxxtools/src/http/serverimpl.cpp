@@ -78,10 +78,10 @@ ServerImpl::~ServerImpl()
     }
 }
 
-void ServerImpl::listen(const std::string& ip, unsigned short int port)
+void ServerImpl::listen(const std::string& ip, unsigned short int port, int backlog)
 {
     log_debug("listen on " << ip << " port " << port);
-    Listener* listener = new Listener(ip, port);
+    Listener* listener = new Listener(ip, port, backlog, net::TcpServer::DEFER_ACCEPT);
     try
     {
         _listener.push_back(listener);

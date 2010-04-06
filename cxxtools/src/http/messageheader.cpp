@@ -35,16 +35,18 @@
 
 log_define("cxxtools.http.messageheader")
 
-namespace cxxtools {
+namespace cxxtools
+{
 
-namespace http {
+namespace http
+{
 
 int MessageHeader::StringLessIgnoreCase::compare
-    (const std::string& s1, const std::string& s2)
+    (const char* s1, const char* s2)
 {
-    std::string::const_iterator it1 = s1.begin();
-    std::string::const_iterator it2 = s2.begin();
-    while (it1 != s1.end() && it2 != s2.end())
+    const char* it1 = s1;
+    const char* it2 = s2;
+    while (*it1 && *it2)
     {
         if (*it1 != *it2)
         {
@@ -59,43 +61,118 @@ int MessageHeader::StringLessIgnoreCase::compare
         ++it2;
     }
 
-    return it1 == s1.end() ? (it2 != s2.end()) ? -1 : 0
-                           : (it2 == s2.end()) ? 1 : 0;
+    return *it1 ? 1
+                : *it2 ? -1 : 0;
+}
+
+const unsigned MessageHeader::MAXHEADERSIZE;
+
+char* MessageHeader::findEnd()
+{
+    char* p = rawdata;
+    while (*p)
+    {
+        p += std::strlen(p) + 1; // skip key
+        p += std::strlen(p) + 1; // skip value
+    }
+
+    return p;
+}
+
+const char* MessageHeader::getHeader(const char* key) const
+{
+    for (const_iterator it = begin(); it != end(); ++it)
+    {
+        if (StringLessIgnoreCase::compare(key, it->first) == 0)
+            return it->second;
+    }
+
+    return 0;
+}
+
+void MessageHeader::setHeader(const char* key, const char* value, bool replace)
+{
+    log_debug("setHeader(\"" << key << "\", \"" << value << "\", " << replace << ')');
+
+    if (!*key)
+        throw std::runtime_error("empty key not allowed in messageheader");
+
+    if (replace)
+        removeHeader(key);
+
+    char* p = findEnd();
+
+    size_t lk = strlen(key);     // length of key
+    size_t lv = strlen(value);   // length of value
+
+    if (p - rawdata + lk + lv + 2 > MAXHEADERSIZE)
+        throw std::runtime_error("message header too big");
+
+    std::strcpy(p, key);   // copy key
+    p += lk + 1;
+    std::strcpy(p, value); // copy value
+    p[lv + 1] = '\0';      // put new message end marker in place
+}
+
+void MessageHeader::removeHeader(const char* key)
+{
+    if (!*key)
+        throw std::runtime_error("empty key not allowed in messageheader");
+
+    char* p = findEnd();
+
+    const_iterator it = begin();
+    while (it != end())
+    {
+        if (StringLessIgnoreCase::compare(key, it->first) == 0)
+        {
+            unsigned slen = it->second - it->first + std::strlen(it->second);
+
+            std::memcpy(
+                rawdata + (it->first - rawdata),
+                it->first + slen,
+                p - it->first + slen);
+
+            p -= slen;
+
+            it.fixup();
+        }
+        else
+            ++it;
+    }
 }
 
 bool MessageHeader::chunkedTransferEncoding() const
 {
-    std::string s = getHeader("Transfer-Encoding");
-    log_debug("Transfer-Encoding=" << s << " chunked=" << (StringLessIgnoreCase().compare(s, "chunked") == 0));
-    return StringLessIgnoreCase().compare(s, "chunked") == 0;
+    const char* s = getHeader("Transfer-Encoding");
+    return s && StringLessIgnoreCase::compare(s, "chunked") == 0;
 }
 
 std::size_t MessageHeader::contentLength() const
 {
-    std::string s = getHeader("Content-Length");
-    if (s.empty())
+    const char* s = getHeader("Content-Length");
+    if (s == 0)
         return 0;
 
-    std::istringstream ss(s);
     std::size_t size = 0;
-    ss >> size;
+    while (*s >= '0' && *s <= '9')
+        size = size * 10 + (*s++ - '0');
+
     return size;
 }
 
 bool MessageHeader::keepAlive() const
 {
-    std::string ch = getHeader("Connection");
+    const char* ch = getHeader("Connection");
 
-    for (std::string::iterator c = ch.begin(); c != ch.end(); ++c)
-        *c = std::tolower(*c);
-
-    return StringLessIgnoreCase().compare(ch, "keep-alive") == 0 ||
-           (ch.empty()
-                && httpVersionMajor() == 1
-                && httpVersionMinor() >= 1);
+    if (ch == 0)
+        return httpVersionMajor() == 1
+            && httpVersionMinor() >= 1;
+    else
+        return StringLessIgnoreCase().compare(ch, "keep-alive") == 0;
 }
 
-std::string MessageHeader::htdateCurrent()
+char* MessageHeader::htdateCurrent(char* buffer)
 {
     int year = 0;
     unsigned month = 0;
@@ -112,11 +189,10 @@ std::string MessageHeader::htdateCurrent()
     static const char* wday[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
     static const char* monthn[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
                                    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
-    char buffer[80];
     sprintf(buffer, "%s, %02d %s %d %02d:%02d:%02d GMT",
                     wday[dayOfWeek], day, monthn[month-1], year, hour, min, sec);
 
-    return std::string(buffer);
+    return buffer;
 }
 
 } // namespace http

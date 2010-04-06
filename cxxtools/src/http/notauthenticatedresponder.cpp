@@ -36,7 +36,7 @@ namespace http
 
 void NotAuthenticatedResponder::reply(std::ostream& out, Request& request, Reply& reply)
 {
-    reply.setHeader("WWW-Authenticate", "Basic realm=\"" + _realm + '"');
+    reply.setHeader("WWW-Authenticate", ("Basic realm=\"" + _realm + '"').c_str());
 
     reply.httpReturn(401, "not authorized");
 

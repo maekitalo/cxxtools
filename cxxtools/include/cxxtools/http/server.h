@@ -49,10 +49,10 @@ class CXXTOOLS_HTTP_API Server : private cxxtools::NonCopyable
 {
     public:
         explicit Server(EventLoopBase& eventLoop);
-        Server(EventLoopBase& eventLoop, const std::string& ip, unsigned short int port);
+        Server(EventLoopBase& eventLoop, const std::string& ip, unsigned short int port, int backlog = 5);
         ~Server();
 
-        void listen(const std::string& ip, unsigned short int port);
+        void listen(const std::string& ip, unsigned short int port, int backlog = 5);
 
         void addService(const std::string& url, Service& service);
         void removeService(Service& service);

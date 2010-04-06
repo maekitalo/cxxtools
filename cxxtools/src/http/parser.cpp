@@ -110,12 +110,12 @@ namespace http {
 
     void HeaderParser::MessageHeaderEvent::onKey(const std::string& key)
     {
-        _key = key;
+        strncpy(_key, key.c_str(), MessageHeader::MAXHEADERSIZE);
     }
 
     void HeaderParser::MessageHeaderEvent::onValue(const std::string& value)
     {
-        _header.addHeader(_key, value);
+        _header.addHeader(_key, value.c_str());
     }
 
     std::size_t HeaderParser::advance(std::streambuf& sb)

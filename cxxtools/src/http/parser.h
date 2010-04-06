@@ -30,14 +30,15 @@
 #define cxxtools_Http_Parser_h
 
 #include <cxxtools/http/api.h>
+#include <cxxtools/http/messageheader.h>
 #include <string>
 #include <iostream>
 
-namespace cxxtools {
+namespace cxxtools
+{
 
-namespace http {
-
-class MessageHeader;
+namespace http
+{
 
 class CXXTOOLS_HTTP_API HeaderParser
 {
@@ -59,7 +60,7 @@ class CXXTOOLS_HTTP_API HeaderParser
         class CXXTOOLS_HTTP_API MessageHeaderEvent : public Event
         {
                 MessageHeader& _header;
-                std::string _key;
+                char _key[MessageHeader::MAXHEADERSIZE];
 
             public:
                 explicit MessageHeaderEvent(MessageHeader& header)

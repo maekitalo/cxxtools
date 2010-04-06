@@ -55,27 +55,27 @@ class Reply
         const ReplyHeader& header() const
         { return _header; }
 
-        void setHeader(const std::string& key, const std::string& value)
+        void setHeader(const char* key, const char* value)
         {
             _header.setHeader(key, value);
         }
 
-        void addHeader(const std::string& key, const std::string& value)
+        void addHeader(const char* key, const char* value)
         {
             _header.addHeader(key, value);
         }
 
-        void removeHeader(const std::string& key)
+        void removeHeader(const char* key)
         {
             _header.removeHeader(key);
         }
 
-        std::string getHeader(const std::string& key) const
+        const char* getHeader(const char* key) const
         {
             return _header.getHeader(key);
         }
 
-        bool hasHeader(const std::string& key) const
+        bool hasHeader(const char* key) const
         {
             return _header.hasHeader(key);
         }

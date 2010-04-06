@@ -31,74 +31,124 @@
 
 #include <cxxtools/http/api.h>
 #include <string>
-#include <map>
+#include <cstring>
 
-namespace cxxtools {
+namespace cxxtools
+{
 
-namespace http {
+namespace http
+{
 
 class CXXTOOLS_HTTP_API MessageHeader
 {
+    public:
+        static const unsigned MAXHEADERSIZE = 4096;
+
+    private:
         class CXXTOOLS_HTTP_API StringLessIgnoreCase
         {
             public:
-                static int compare(const std::string& s1, const std::string& s2);
-                bool operator()(const std::string& s1, const std::string& s2) const
+                static int compare(const char* s1, const char* s2);
+                bool operator()(const char* s1, const char* s2) const
                     { return compare(s1, s2) < 0; }
         };
 
-        typedef std::map<std::string, std::string, StringLessIgnoreCase> Headers;
-        Headers _headers;
+        char rawdata[MAXHEADERSIZE];  // key_1\0value_1\0key_2\0value_2\0...key_n\0value_n\0\0
+        char* findEnd();
         unsigned _httpVersionMajor;
         unsigned _httpVersionMinor;
 
     public:
-        typedef Headers::const_iterator const_iterator;
+        typedef std::pair<const char*, const char*> value_type;
+        class const_iterator
+            : public std::iterator<std::forward_iterator_tag, value_type>
+        {
+            friend class MessageHeader;
+
+            value_type current_value;
+
+            void fixup()
+            {
+                if (*current_value.first)
+                    current_value.second = current_value.first + std::strlen(current_value.first) + 1;
+                else
+                    current_value.first = current_value.second = 0;
+            }
+
+            void moveForward()
+            {
+                current_value.first = current_value.second + std::strlen(current_value.second) + 1;
+                fixup();
+            }
+
+          public:
+            const_iterator()
+                : current_value(0, 0)
+            { }
+
+            explicit const_iterator(const char* p)
+                : current_value(p, p)
+            {
+                fixup();
+            }
+
+            bool operator== (const const_iterator& it) const
+            { return current_value.first == it.current_value.first; }
+
+            bool operator!= (const const_iterator& it) const
+            { return current_value.first != it.current_value.first; }
+
+            const_iterator& operator++()
+            {
+                moveForward();
+                return *this;
+            }
+
+            const_iterator operator++(int)
+            {
+                const_iterator ret = *this;
+                moveForward();
+                return ret;
+            }
+
+            const value_type& operator* () const   { return current_value; }
+            const value_type* operator-> () const  { return &current_value; }
+        };
+
 
         MessageHeader()
-            : _httpVersionMajor(1)
-            , _httpVersionMinor(1)
-            { }
+            : _httpVersionMajor(1),
+              _httpVersionMinor(1)
+        {
+            rawdata[0] = rawdata[1] = '\0';
+        }
 
         virtual ~MessageHeader()  {}
 
         void clear()
         {
-            _headers.clear();
+            rawdata[0] = rawdata[1] = '\0';
             _httpVersionMajor = 1;
             _httpVersionMinor = 1;
         }
 
-        void setHeader(const std::string& key, const std::string& value)
-        {
-            _headers[key] = value;
-        }
+        void setHeader(const char* key, const char* value, bool replace = true);
 
-        void addHeader(const std::string& key, const std::string& value)
-        {
-            Headers::iterator it = _headers.find(key);
-            if (it == _headers.end())
-                _headers[key] = value;
-            else
-            {
-                it->second += ',';
-                it->second += value;
-            }
-        }
+        void addHeader(const char* key, const char* value)
+        { setHeader(key, value, false); }
 
-        void removeHeader(const std::string& key)
-        {
-            _headers.erase(key);
-        }
+        void removeHeader(const char* key);
 
-        std::string getHeader(const std::string& key) const
-        {
-            Headers::const_iterator it = _headers.find(key);
-            return it == _headers.end() ? std::string() : it->second;
-        }
+        const char* getHeader(const char* key) const;
 
-        bool hasHeader(const std::string& key) const
-        { return _headers.find(key) != _headers.end(); }
+        bool hasHeader(const char* key) const
+        { return getHeader(key) != 0; }
+
+        const_iterator begin() const
+        { return const_iterator(rawdata); }
+
+        const_iterator end() const
+        { return const_iterator(); }
 
         unsigned httpVersionMajor() const
         { return _httpVersionMajor; }
@@ -116,16 +166,11 @@ class CXXTOOLS_HTTP_API MessageHeader
 
         std::size_t contentLength() const;
 
-        const_iterator begin() const
-        { return _headers.begin(); }
-
-        const_iterator end() const
-        { return _headers.end(); }
-
         bool keepAlive() const;
 
         /// Returns a properly formatted current time-string, as needed in http.
-        static std::string htdateCurrent();
+        /// The buffer must have at least 30 bytes.
+        static char* htdateCurrent(char* buffer);
 
 };
 

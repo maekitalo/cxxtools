@@ -114,7 +114,7 @@ class ServerImpl : public Connectable
         ServerImpl(EventLoopBase& eventLoop, Signal<Server::Runmode>& runmodeChanged);
         ~ServerImpl();
 
-        void listen(const std::string& ip, unsigned short int port);
+        void listen(const std::string& ip, unsigned short int port, int backlog);
         void noWaitingThreads();
 
         void addService(const std::string& url, Service& service);
