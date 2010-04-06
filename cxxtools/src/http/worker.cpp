@@ -82,6 +82,7 @@ void Worker::run()
             {
                 log_debug("socket is not connected any more; delete " << static_cast<void*>(socket));
                 delete socket;
+                continue;
             }
 
             connect(socket->buffer().inputReady, socket->inputSlot);
