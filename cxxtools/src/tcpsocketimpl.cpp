@@ -314,6 +314,7 @@ void TcpSocketImpl::accept(const TcpServer& server, unsigned flags)
 #ifdef HAVE_ACCEPT4
     IODeviceImpl::open(_fd, false, false);
 #else
+    bool inherit = (flags & TcpSocket::INHERIT) != 0;
     IODeviceImpl::open(_fd, true, inherit);
 #endif
     //TODO ECONNABORTED EINTR EPERM
