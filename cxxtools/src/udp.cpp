@@ -31,6 +31,7 @@
 #include <cxxtools/net/udp.h>
 #include <cxxtools/log.h>
 #include <cxxtools/systemerror.h>
+#include <cxxtools/net/tcpserver.h>
 #include <netdb.h>
 #include <sys/poll.h>
 #include <vector>
@@ -111,7 +112,7 @@ namespace net
     if (ret < 0 && errno == EAGAIN)
     {
       if (getTimeout() == 0)
-        throw Timeout();
+        throw IOTimeout();
 
       poll(POLLIN);
 
@@ -187,7 +188,7 @@ namespace net
     if (ret < 0 && errno == EAGAIN)
     {
       if (getTimeout() == 0)
-        throw Timeout();
+        throw IOTimeout();
 
       poll(POLLIN);
 

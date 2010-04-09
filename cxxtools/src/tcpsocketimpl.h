@@ -51,14 +51,16 @@ namespace net
 class TcpServer;
 class TcpSocket;
 
-void formatIp(const sockaddr_storage& addr, std::string& str);
+void formatIp(const sockaddr_in& addr, std::string& str);
 
-inline std::string formatIp(const sockaddr_storage& addr)
+inline std::string formatIp(const sockaddr_in& addr)
 {
     std::string ret;
     formatIp(addr, ret);
     return ret;
 }
+
+std::string getSockAddr(int fd);
 
 class TcpSocketImpl : public IODeviceImpl
 {

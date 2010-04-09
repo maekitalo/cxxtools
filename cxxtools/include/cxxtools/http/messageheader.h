@@ -44,7 +44,6 @@ class CXXTOOLS_HTTP_API MessageHeader
     public:
         static const unsigned MAXHEADERSIZE = 4096;
 
-    private:
         class CXXTOOLS_HTTP_API StringLessIgnoreCase
         {
             public:
@@ -53,6 +52,7 @@ class CXXTOOLS_HTTP_API MessageHeader
                     { return compare(s1, s2) < 0; }
         };
 
+    private:
         char rawdata[MAXHEADERSIZE];  // key_1\0value_1\0key_2\0value_2\0...key_n\0value_n\0\0
         char* findEnd();
         unsigned _httpVersionMajor;
@@ -143,6 +143,8 @@ class CXXTOOLS_HTTP_API MessageHeader
 
         bool hasHeader(const char* key) const
         { return getHeader(key) != 0; }
+
+        bool isHeaderValue(const char* key, const char* value) const;
 
         const_iterator begin() const
         { return const_iterator(rawdata); }

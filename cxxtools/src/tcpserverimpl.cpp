@@ -141,7 +141,7 @@ void TcpServerImpl::listen(const std::string& ipaddr, unsigned short int port, i
                 continue;
             }
 
-            log_debug("bind " << formatIp(*reinterpret_cast<const sockaddr_storage*>(it->ai_addr)));
+            log_debug("bind " << formatIp(*reinterpret_cast<const sockaddr_in*>(it->ai_addr)));
             fn = "bind";
             if (::bind(fd, it->ai_addr, it->ai_addrlen) != 0)
             {
@@ -262,7 +262,7 @@ bool TcpServerImpl::wait(std::size_t msecs)
         else if (p == 0)
         {
             log_debug("poll timeout (" << msecs << ')');
-            throw Timeout();
+            throw IOTimeout();
         }
     }
 
@@ -315,7 +315,7 @@ bool TcpServerImpl::checkPollEvent()
 
     bool ret = false;
     Resetter<int> resetter(_pendingAccept, noPendingAccept);
-    for (int n = 0; n < _listeners.size(); ++n)
+    for (Listeners::size_type n = 0; n < _listeners.size(); ++n)
     {
         if (_pfd[n].revents | POLLIN)
         {
@@ -354,7 +354,7 @@ int TcpServerImpl::accept(int flags, struct sockaddr* sa, socklen_t& sa_len)
             }
         }
 
-        for (int n = 0; n < fds.size(); ++n)
+        for (std::vector<pollfd>::size_type n = 0; n < fds.size(); ++n)
         {
             if (fds[n].revents | POLLIN)
             {

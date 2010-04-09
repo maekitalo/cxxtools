@@ -37,14 +37,6 @@ namespace cxxtools
 
 namespace net
 {
-  typedef IOTimeout Timeout;
-
-  class AddressInUse : public IOError
-  {
-    public:
-      AddressInUse();
-  };
-
   //////////////////////////////////////////////////////////////////////
   /**
    * Wrapper for BSD sockets.

@@ -33,10 +33,7 @@
 #include <cxxtools/arg.h>
 #include <cxxtools/eventloop.h>
 #include <cxxtools/timer.h>
-#include <cxxtools/loginit.h>
 #include <cxxtools/log.h>
-
-log_define("cxxtools.demo.httprequest")
 
 class AsyncRequester : public cxxtools::Connectable
 {

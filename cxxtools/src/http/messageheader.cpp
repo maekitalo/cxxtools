@@ -90,6 +90,14 @@ const char* MessageHeader::getHeader(const char* key) const
     return 0;
 }
 
+bool MessageHeader::isHeaderValue(const char* key, const char* value) const
+{
+    const char* h = getHeader(key);
+    if (h == 0)
+        return false;
+    return StringLessIgnoreCase::compare(h, value) == 0;
+}
+
 void MessageHeader::setHeader(const char* key, const char* value, bool replace)
 {
     log_debug("setHeader(\"" << key << "\", \"" << value << "\", " << replace << ')');
@@ -144,8 +152,7 @@ void MessageHeader::removeHeader(const char* key)
 
 bool MessageHeader::chunkedTransferEncoding() const
 {
-    const char* s = getHeader("Transfer-Encoding");
-    return s && StringLessIgnoreCase::compare(s, "chunked") == 0;
+    return isHeaderValue("Transfer-Encoding", "chunked");
 }
 
 std::size_t MessageHeader::contentLength() const

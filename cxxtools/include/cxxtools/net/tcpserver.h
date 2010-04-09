@@ -32,11 +32,22 @@
 #include <cxxtools/api.h>
 #include <cxxtools/selectable.h>
 #include <cxxtools/signal.h>
+#include <cxxtools/ioerror.h>
 #include <string>
 
-namespace cxxtools {
+namespace cxxtools
+{
 
-namespace net {
+namespace net
+{
+
+  class AddressInUse : public IOError
+  {
+    public:
+      AddressInUse()
+        : IOError("address in use")
+        { }
+  };
 
   class CXXTOOLS_API TcpServer : public Selectable
   {

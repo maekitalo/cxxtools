@@ -29,6 +29,7 @@
 #include <cxxtools/net/net.h>
 #include <cxxtools/log.h>
 #include <cxxtools/systemerror.h>
+#include "tcpsocketimpl.h"
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
@@ -47,40 +48,6 @@ namespace cxxtools
 
 namespace net
 {
-  namespace
-  {
-    void formatIp(const sockaddr_storage& addr, std::string& str)
-    {
-#ifdef HAVE_INET_NTOP
-      const sockaddr_in* sa = reinterpret_cast<const sockaddr_in*>(&addr);
-      char strbuf[INET6_ADDRSTRLEN + 1];
-      const char* p = inet_ntop(sa->sin_family, &sa->sin_addr, strbuf, sizeof(strbuf));
-      str = (p == 0 ? "-" : strbuf);
-#else
-      static cxxtools::Mutex monitor;
-      cxxtools::MutexLock lock(monitor);
-
-      const sockaddr_in* sa = reinterpret_cast<const sockaddr_in*>(&addr);
-      const char* p = inet_ntoa(sa->sin_addr);
-      if (p)
-        str = p;
-      else
-        str.clear();
-#endif
-    }
-  }
-
-  //////////////////////////////////////////////////////////////////////
-  // Exception class
-  //
-  /*Timeout::Timeout()
-    : IOError("Timeout")
-    { }*/
-
-  AddressInUse::AddressInUse()
-    : IOError("address in use")
-    { }
-
   ////////////////////////////////////////////////////////////////////////
   // implementation of Socket
   //
@@ -122,18 +89,7 @@ namespace net
   }
 
   std::string Socket::getSockAddr() const
-  {
-    struct sockaddr_storage addr;
-
-    socklen_t slen = sizeof(addr);
-    if (::getsockname(getFd(), reinterpret_cast <struct sockaddr *> (&addr), &slen) < 0)
-      throw SystemError("getsockname");
-
-    std::string ret;
-    formatIp(addr, ret);
-
-    return ret;
-  }
+  { return net::getSockAddr(getFd()); }
 
   void Socket::setTimeout(int t)
   {
@@ -187,7 +143,7 @@ namespace net
     else if (p == 0)
     {
       log_debug("poll timeout (" << getTimeout() << ')');
-      throw Timeout();
+      throw IOTimeout();
     }
 
     return fds.revents;

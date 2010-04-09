@@ -57,24 +57,42 @@ namespace cxxtools
 namespace net
 {
 
-void formatIp(const sockaddr_storage& addr, std::string& str)
+void formatIp(const sockaddr_in& sa, std::string& str)
 {
 #ifdef HAVE_INET_NTOP
-    const sockaddr_in* sa = reinterpret_cast<const sockaddr_in*>(&addr);
-    char strbuf[INET6_ADDRSTRLEN + 1];
-    const char* p = inet_ntop(sa->sin_family, &sa->sin_addr, strbuf, sizeof(strbuf));
-    str = (p == 0 ? "-" : strbuf);
+      char strbuf[INET6_ADDRSTRLEN + 1];
+      const char* p = inet_ntop(sa.sin_family, &sa.sin_addr, strbuf, sizeof(strbuf));
+      str = (p == 0 ? "-" : strbuf);
 #else
-    static cxxtools::Mutex monitor;
-    cxxtools::MutexLock lock(monitor);
+      static cxxtools::Mutex monitor;
+      cxxtools::MutexLock lock(monitor);
 
-    const sockaddr_in* sa = reinterpret_cast<const sockaddr_in*>(&addr);
-    const char* p = inet_ntoa(sa->sin_addr);
-    if (p)
+      const char* p = inet_ntoa(sa.sin_addr);
+      if (p)
         str = p;
-    else
+      else
         str.clear();
 #endif
+}
+
+std::string getSockAddr(int fd)
+{
+    union
+    {
+      struct sockaddr_storage storage;
+      struct sockaddr         sa;
+      struct sockaddr_in      sa_in;
+      struct sockaddr_in6     sa_in6;
+      struct in_addr          addr;
+    } addr;
+
+    socklen_t slen = sizeof(addr);
+    if (::getsockname(fd, &addr.sa, &slen) < 0)
+        throw SystemError("getsockname");
+
+    std::string ret;
+    formatIp(addr.sa_in, ret);
+    return ret;
 }
 
 TcpSocketImpl::TcpSocketImpl(TcpSocket& socket)
@@ -100,23 +118,23 @@ void TcpSocketImpl::close()
 
 
 std::string TcpSocketImpl::getSockAddr() const
-{
-    struct sockaddr_storage addr;
-
-    socklen_t slen = sizeof(addr);
-    if (::getsockname(fd(), reinterpret_cast<struct sockaddr*>(&addr), &slen) < 0)
-        throw SystemError("getsockname");
-
-    std::string ret;
-    formatIp(addr, ret);
-    return ret;
-}
-
+{ return net::getSockAddr(fd()); }
 
 std::string TcpSocketImpl::getPeerAddr() const
 {
+    union
+    {
+      struct sockaddr_storage storage;
+      struct sockaddr         sa;
+      struct sockaddr_in      sa_in;
+      struct sockaddr_in6     sa_in6;
+      struct in_addr          addr;
+    } addr;
+
+    addr.storage = _peeraddr;
+
     std::string ret;
-    formatIp(_peeraddr, ret);
+    formatIp(addr.sa_in, ret);
     return ret;
 }
 

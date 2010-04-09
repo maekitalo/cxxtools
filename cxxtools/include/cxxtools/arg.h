@@ -42,7 +42,7 @@ class ArgBase
       : m_isset(false)
     { }
 
-    static void removeArg(int& argc, char* argv[], int pos, unsigned n)
+    static void removeArg(int& argc, char* argv[], int pos, int n)
     {
       for ( ; pos < argc - n; ++pos)
         argv[pos] = argv[pos + n];
