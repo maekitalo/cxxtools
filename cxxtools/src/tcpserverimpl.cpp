@@ -317,7 +317,7 @@ bool TcpServerImpl::checkPollEvent()
     Resetter<int> resetter(_pendingAccept, noPendingAccept);
     for (Listeners::size_type n = 0; n < _listeners.size(); ++n)
     {
-        if (_pfd[n].revents | POLLIN)
+        if (_pfd[n].revents & POLLIN)
         {
             _pendingAccept = n;
             _server.connectionPending.send(_server);
