@@ -53,8 +53,9 @@ class CXXTOOLS_HTTP_API MessageHeader
         };
 
     private:
-        char rawdata[MAXHEADERSIZE];  // key_1\0value_1\0key_2\0value_2\0...key_n\0value_n\0\0
-        char* findEnd();
+        char _rawdata[MAXHEADERSIZE];  // key_1\0value_1\0key_2\0value_2\0...key_n\0value_n\0\0
+        unsigned _endOffset;
+        char* eptr() { return _rawdata + _endOffset; }
         unsigned _httpVersionMajor;
         unsigned _httpVersionMinor;
 
@@ -120,17 +121,12 @@ class CXXTOOLS_HTTP_API MessageHeader
             : _httpVersionMajor(1),
               _httpVersionMinor(1)
         {
-            rawdata[0] = rawdata[1] = '\0';
+            _rawdata[0] = _rawdata[1] = '\0';
         }
 
         virtual ~MessageHeader()  {}
 
-        void clear()
-        {
-            rawdata[0] = rawdata[1] = '\0';
-            _httpVersionMajor = 1;
-            _httpVersionMinor = 1;
-        }
+        void clear();
 
         void setHeader(const char* key, const char* value, bool replace = true);
 
@@ -147,7 +143,7 @@ class CXXTOOLS_HTTP_API MessageHeader
         bool isHeaderValue(const char* key, const char* value) const;
 
         const_iterator begin() const
-        { return const_iterator(rawdata); }
+        { return const_iterator(_rawdata); }
 
         const_iterator end() const
         { return const_iterator(); }

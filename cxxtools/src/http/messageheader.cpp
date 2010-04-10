@@ -67,18 +67,6 @@ int MessageHeader::StringLessIgnoreCase::compare
 
 const unsigned MessageHeader::MAXHEADERSIZE;
 
-char* MessageHeader::findEnd()
-{
-    char* p = rawdata;
-    while (*p)
-    {
-        p += std::strlen(p) + 1; // skip key
-        p += std::strlen(p) + 1; // skip value
-    }
-
-    return p;
-}
-
 const char* MessageHeader::getHeader(const char* key) const
 {
     for (const_iterator it = begin(); it != end(); ++it)
@@ -98,6 +86,14 @@ bool MessageHeader::isHeaderValue(const char* key, const char* value) const
     return StringLessIgnoreCase::compare(h, value) == 0;
 }
 
+void MessageHeader::clear()
+{
+    _rawdata[0] = _rawdata[1] = '\0';
+    _endOffset = 0;
+    _httpVersionMajor = 1;
+    _httpVersionMinor = 1;
+}
+
 void MessageHeader::setHeader(const char* key, const char* value, bool replace)
 {
     log_debug("setHeader(\"" << key << "\", \"" << value << "\", " << replace << ')');
@@ -108,18 +104,20 @@ void MessageHeader::setHeader(const char* key, const char* value, bool replace)
     if (replace)
         removeHeader(key);
 
-    char* p = findEnd();
+    char* p = eptr();
 
     size_t lk = strlen(key);     // length of key
     size_t lv = strlen(value);   // length of value
 
-    if (p - rawdata + lk + lv + 2 > MAXHEADERSIZE)
+    if (p - _rawdata + lk + lv + 2 > MAXHEADERSIZE)
         throw std::runtime_error("message header too big");
 
     std::strcpy(p, key);   // copy key
     p += lk + 1;
     std::strcpy(p, value); // copy value
     p[lv + 1] = '\0';      // put new message end marker in place
+
+    _endOffset = (p + lv + 1) - _rawdata;
 }
 
 void MessageHeader::removeHeader(const char* key)
@@ -127,17 +125,17 @@ void MessageHeader::removeHeader(const char* key)
     if (!*key)
         throw std::runtime_error("empty key not allowed in messageheader");
 
-    char* p = findEnd();
+    char* p = eptr();
 
     const_iterator it = begin();
     while (it != end())
     {
         if (StringLessIgnoreCase::compare(key, it->first) == 0)
         {
-            unsigned slen = it->second - it->first + std::strlen(it->second);
+            unsigned slen = it->second - it->first + std::strlen(it->second) + 1;
 
             std::memcpy(
-                rawdata + (it->first - rawdata),
+                const_cast<char*>(it->first),
                 it->first + slen,
                 p - it->first + slen);
 
@@ -148,6 +146,8 @@ void MessageHeader::removeHeader(const char* key)
         else
             ++it;
     }
+
+    _endOffset = p - _rawdata;
 }
 
 bool MessageHeader::chunkedTransferEncoding() const
