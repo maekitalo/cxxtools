@@ -399,7 +399,10 @@ bool IODeviceImpl::checkPollEvent(pollfd& pfd)
 
         try
         {
-            if (_device.reading())
+            bool reading = _device.reading();
+            bool writing = _device.writing();
+
+            if (reading)
             {
                 avail = true;
                 _device.inputReady(_device);
@@ -408,10 +411,19 @@ bool IODeviceImpl::checkPollEvent(pollfd& pfd)
             if( ! _sentry )
                 return avail;
 
-            if (_device.writing())
+            if (writing)
             {
                 avail = true;
                 _device.outputReady(_device);
+            }
+
+            if( ! _sentry )
+                return avail;
+
+            if (!reading && !writing)
+            {
+                avail = true;
+                _device.close();
             }
         }
         catch (...)

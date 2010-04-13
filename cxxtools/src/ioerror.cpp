@@ -87,4 +87,17 @@ IOPending::IOPending(const char* msg)
 : IOError(msg)
 {
 }
+
+
+DeviceClosed::DeviceClosed(const std::string& what, const SourceInfo& si)
+: IOError(what, si)
+{
+}
+
+
+DeviceClosed::DeviceClosed(const char* msg)
+: IOError(msg)
+{
+}
+
 } // namespace cxxtools

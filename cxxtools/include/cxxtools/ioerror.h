@@ -122,6 +122,17 @@ namespace cxxtools {
             {}
     };
 
+    class DeviceClosed : public IOError
+    {
+        public:
+            DeviceClosed(const std::string& what, const SourceInfo& si);
+
+            DeviceClosed(const char* what);
+
+            ~DeviceClosed() throw()
+            {}
+    };
+
 } // namespace cxxtools
 
 #endif

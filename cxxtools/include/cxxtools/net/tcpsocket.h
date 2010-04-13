@@ -87,6 +87,10 @@ class CXXTOOLS_API TcpSocket : public IODevice
 
         Signal<TcpSocket&> connected;
 
+        /** @brief Notifies when the device is closed while no reading or writing is pending
+         */
+        Signal<TcpSocket&> closed;
+ 
         bool isConnected() const;
 
         int getFd() const;

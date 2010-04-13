@@ -359,7 +359,16 @@ bool TcpSocketImpl::checkPollEvent(pollfd& pfd)
     log_debug("checkPollEvent " << pfd.revents);
 
     if( _isConnected )
+    {
+        if ( pfd.revents & POLLERR )
+        {
+            _device.close();
+            _socket.closed(_socket);
+            return true;
+        }
+
         return IODeviceImpl::checkPollEvent(pfd);
+    }
 
     if ( pfd.revents & POLLERR )
     {
@@ -369,7 +378,7 @@ bool TcpSocketImpl::checkPollEvent(pollfd& pfd)
             // not really connected but error
             // end of addrinfo list means that no working addrinfo was found
             log_debug("no more addrinfos found");
-            _socket.connected.send(_socket);
+            _socket.connected(_socket);
             return true;
         }
         else
@@ -383,12 +392,14 @@ bool TcpSocketImpl::checkPollEvent(pollfd& pfd)
             {
                 // immediate success or error
                 log_debug("connected successfully");
-                _socket.connected.send(_socket);
+                _socket.connected(_socket);
             }
             else
+            {
                 // by closing the previous file handle _pfd is set to 0.
                 // creating a new socket in tryConnect may also change the value of fd.
                 initializePoll(&pfd, 1);
+            }
 
             return _isConnected;
         }
@@ -398,7 +409,7 @@ bool TcpSocketImpl::checkPollEvent(pollfd& pfd)
         int sockerr = checkConnect();
         if (_isConnected)
         {
-            _socket.connected.send(_socket);
+            _socket.connected(_socket);
             return true;
         }
 
@@ -408,14 +419,14 @@ bool TcpSocketImpl::checkPollEvent(pollfd& pfd)
         {
             // no more addrInfo - propagate error
             _connectResult = std::pair<int, const char*>(sockerr, "connect");
-            _socket.connected.send(_socket);
+            _socket.connected(_socket);
             return true;
         }
 
         _connectResult = tryConnect();
         if (_isConnected)
         {
-            _socket.connected.send(_socket);
+            _socket.connected(_socket);
             return true;
         }
     }

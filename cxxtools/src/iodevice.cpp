@@ -54,7 +54,7 @@ void IODevice::beginRead(char* buffer, size_t n)
         throw std::logic_error( CXXTOOLS_ERROR_MSG("Device not in async mode") );
 
     if (!enabled())
-        throw std::logic_error( CXXTOOLS_ERROR_MSG("Device not enabled") );
+        throw DeviceClosed( CXXTOOLS_ERROR_MSG("Device closed") );
 
     if (_rbuf)
         throw IOPending( CXXTOOLS_ERROR_MSG("read operation pending") );
