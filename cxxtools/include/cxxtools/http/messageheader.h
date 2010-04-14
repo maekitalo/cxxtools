@@ -118,7 +118,8 @@ class CXXTOOLS_HTTP_API MessageHeader
 
 
         MessageHeader()
-            : _httpVersionMajor(1),
+            : _endOffset(0),
+              _httpVersionMajor(1),
               _httpVersionMinor(1)
         {
             _rawdata[0] = _rawdata[1] = '\0';
