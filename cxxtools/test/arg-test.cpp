@@ -123,8 +123,8 @@ class ArgTest : public cxxtools::unit::TestSuite
             int argc = 6;
             char* argv[] = { arg("prog"), arg("-v"), arg("42"), arg("-i"), arg("-j5"), arg("--foo"), 0 };
 
-            cxxtools::Argp<int> optionJ(argc, argv, 'j');
-            cxxtools::Argp<int> optionV(argc, argv, 'v');
+            cxxtools::Arg<int> optionJ(argc, argv, 'j');
+            cxxtools::Arg<int> optionV(argc, argv, 'v');
 
             CXXTOOLS_UNIT_ASSERT(optionJ.isSet());
             CXXTOOLS_UNIT_ASSERT(optionV.isSet());
@@ -142,8 +142,8 @@ class ArgTest : public cxxtools::unit::TestSuite
             int argc = 6;
             char* argv[] = { arg("prog"), arg("-v"), arg("42"), arg("-I"), arg("include"), arg("-Jfoo"), 0 };
 
-            cxxtools::Argp<const char*> optionI(argc, argv, 'I');
-            cxxtools::Argp<const char*> optionJ(argc, argv, 'J');
+            cxxtools::Arg<const char*> optionI(argc, argv, 'I');
+            cxxtools::Arg<const char*> optionJ(argc, argv, 'J');
 
             CXXTOOLS_UNIT_ASSERT(optionI.isSet());
             CXXTOOLS_UNIT_ASSERT(optionJ.isSet());
@@ -161,8 +161,8 @@ class ArgTest : public cxxtools::unit::TestSuite
             int argc = 6;
             char* argv[] = { arg("prog"), arg("-v"), arg("42"), arg("-Jfoo"), arg("-I"), arg("include"), 0 };
 
-            cxxtools::Argp<std::string> optionI(argc, argv, 'I');
-            cxxtools::Argp<std::string> optionJ(argc, argv, 'J');
+            cxxtools::Arg<std::string> optionI(argc, argv, 'I');
+            cxxtools::Arg<std::string> optionJ(argc, argv, 'J');
 
             CXXTOOLS_UNIT_ASSERT(optionI.isSet());
             CXXTOOLS_UNIT_ASSERT(optionJ.isSet());

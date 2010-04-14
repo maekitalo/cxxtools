@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003,2004 Tommi Maekitalo
+ * Copyright (C) 2003,2004,2010 Tommi Maekitalo
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -37,10 +37,8 @@ namespace cxxtools
 
 class ArgBase
 {
-  public:
-    ArgBase()
-      : m_isset(false)
-    { }
+  protected:
+    bool m_isset;
 
     static void removeArg(int& argc, char* argv[], int pos, int n)
     {
@@ -50,13 +48,121 @@ class ArgBase
       argv[argc] = 0;
     }
 
+  public:
+    ArgBase()
+      : m_isset(false)
+    { }
+
     /**
      * returns true if the option was found and the default value was not used
      */
     bool isSet() const   { return m_isset; }
+};
+
+template <typename T>
+class ArgBaseT : public ArgBase
+{
+    T m_value;
 
   protected:
-    bool m_isset;
+    explicit ArgBaseT(const T& def)
+      : m_value(def)
+    { }
+
+    bool extract(const char* str, int& argc, char* argv[], int i, int n)
+    {
+      std::istringstream s(str);
+      s >> m_value;
+      if (!s.fail())
+      {
+        m_isset = true;
+        removeArg(argc, argv, i, n);
+        return true;
+      }
+      return false;
+    }
+
+  public:
+    /**
+     returns the value.
+     */
+    const T& getValue() const   { return m_value; }
+
+    /**
+     returns the value.
+
+     Instead of calling getValue() the argument can be converted
+     implicitly.
+
+     example:
+
+     \code
+     void print(int i)
+     { std::cout << i << std::endl; }
+
+     int main(int argc, char* argv[])
+     {
+       cxxtools::Arg<int> value(argc, argv, 'v', 0);
+       print(value);   // pass argument as a int to the function
+     }
+     \endcode
+     */
+    operator T() const   { return m_value; }
+};
+
+template <>
+class ArgBaseT<const char*> : public ArgBase
+{
+    const char* m_value;
+
+  protected:
+    explicit ArgBaseT(const char* def)
+      : m_value(def)
+    { }
+
+    bool extract(const char* str, int& argc, char* argv[], int i, int n)
+    {
+      m_value = str;
+      m_isset = true;
+      removeArg(argc, argv, i, n);
+      return true;
+    }
+
+  public:
+    /// returns the extracted value.
+    const char* getValue() const   { return m_value; }
+
+    /// class is convertible to "const char*"
+    operator const char*() const   { return m_value; }
+
+
+};
+
+template <>
+class ArgBaseT<std::string> : public ArgBase
+{
+    std::string m_value;
+
+  protected:
+    explicit ArgBaseT(const std::string& def)
+      : m_value(def)
+    { }
+
+    bool extract(const char* str, int& argc, char* argv[], int i, int n)
+    {
+      m_value = str;
+      m_isset = true;
+      removeArg(argc, argv, i, n);
+      return true;
+    }
+
+  public:
+    /// returns the extracted value.
+    const std::string& getValue() const   { return m_value; }
+
+    /// class is convertible to "const std::string&"
+    operator const std::string&() const   { return m_value; }
+
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -84,7 +190,7 @@ class ArgBase
 
  */
 template <typename T>
-class Arg : public ArgBase
+class Arg : public ArgBaseT<T>
 {
   public:
     /**
@@ -93,7 +199,7 @@ class Arg : public ArgBase
      \param def    initial value
      */
     Arg(const T& def = T())
-      : m_value(def)
+      : ArgBaseT<T>(def)
       { }
 
     /**
@@ -111,7 +217,7 @@ class Arg : public ArgBase
      \endcode
      */
     Arg(int& argc, char* argv[], char ch, const T& def = T())
-      : m_value(def)
+      : ArgBaseT<T>(def)
     {
       set(argc, argv, ch);
     }
@@ -128,14 +234,15 @@ class Arg : public ArgBase
      \endcode
      */
     Arg(int& argc, char* argv[], const char* str, const T& def = T())
-      : m_value(def)
+      : ArgBaseT<T>(def)
     {
-      m_isset = set(argc, argv, str);
+      this->m_isset = set(argc, argv, str);
     }
 
     Arg(int& argc, char* argv[])
+      : ArgBaseT<T>(T())
     {
-      m_isset = set(argc, argv);
+      this->m_isset = set(argc, argv);
     }
 
     /**
@@ -155,21 +262,25 @@ class Arg : public ArgBase
     bool set(int& argc, char* argv[], char ch)
     {
       // don't extract value, when already found
-      if (m_isset)
+      if (this->m_isset)
         return false;
 
-      for (int i = 1; i < argc - 1; ++i)
-        if (argv[i][0] == '-' && argv[i][1] == ch && argv[i][2] == '\0')
+      for (int i = 1; i < argc; ++i)
+      {
+        if (argv[i][0] == '-' && argv[i][1] == ch)
         {
-          std::istringstream s(argv[i + 1]);
-          s >> m_value;
-          if (!s.fail())
+          if (argv[i][2] == '\0' && i < argc - 1)
           {
-            m_isset = true;
-            removeArg(argc, argv, i, 2);
-            return true;
+            // -O foo
+            if (this->extract(argv[i + 1], argc, argv, i, 2))
+              return true;
           }
+
+          // -Ofoo
+          if (this->extract(argv[i] + 2, argc, argv, i, 1))
+            return true;
         }
+      }
 
       return false;
     }
@@ -189,21 +300,29 @@ class Arg : public ArgBase
     bool set(int& argc, char* argv[], const char* str)
     {
       // don't extract value, when already found
-      if (m_isset)
+      if (this->m_isset)
         return false;
 
-      for (int i = 1; i < argc - 1; ++i)
-        if (strcmp(argv[i], str) == 0)
+      unsigned n = strlen(str);
+      for (int i = 1; i < argc; ++i)
+      {
+        if (strncmp(argv[i], str, n) == 0)
         {
-          std::istringstream s(argv[i + 1]);
-          s >> m_value;
-          if (!s.fail())
+          if (i < argc - 1 && argv[i][n] == '\0')
           {
-            m_isset = true;
-            removeArg(argc, argv, i, 2);
-            return true;
+            // --option value
+            if (this->extract(argv[i + 1], argc, argv, i, 2))
+              return true;
+          }
+
+          if (argv[i][n] == '=')
+          {
+            // --option=vlaue
+            if (this->extract(argv[i] + n, argc, argv, i, 1))
+              return true;
           }
         }
+      }
 
       return false;
     }
@@ -214,51 +333,14 @@ class Arg : public ArgBase
     bool set(int& argc, char* argv[])
     {
       // don't extract value, when already found
-      if (m_isset)
+      if (this->m_isset)
         return false;
 
       if (argc > 1)
-      {
-        std::istringstream s(argv[1]);
-        s >> m_value;
-        if (!s.fail())
-        {
-          m_isset = true;
-          removeArg(argc, argv, 1, 1);
-        }
-      }
+        this->extract(argv[1], argc, argv, 1, 1);
 
-      return m_isset;
+      return this->m_isset;
     }
-
-    /**
-     returns the value.
-     */
-    const T& getValue() const   { return m_value; }
-
-    /**
-     returns the value.
-
-     Instead of calling getValue() the argument can be converted
-     implicitly.
-
-     example:
-
-     \code
-     void print(int i)
-     { std::cout << i << std::endl; }
-
-     int main(int argc, char* argv[])
-     {
-       cxxtools::Arg<int> value(argc, argv, 'v', 0);
-       print(value);   // pass argument as a int to the function
-     }
-     \endcode
-     */
-    operator T() const   { return m_value; }
-
-  private:
-    T    m_value;
 };
 
 ////////////////////////////////////////////////////////////////////////
@@ -364,6 +446,7 @@ class Arg<bool> : public ArgBase
         return false;
 
       for (int i = 1; i < argc; ++i)
+      {
         if (argv[i][0] == '-' && argv[i][1] != '-')
         {
           // starts with a '-', but not with "--"
@@ -385,11 +468,11 @@ class Arg<bool> : public ArgBase
           }
           else
           {
-            // look, if we find the option in a optiongroup
+            // look, if we find the option in an optiongroup
             for (char* p = argv[i] + 1; *p != '\0'; ++p)
               if (*p == ch)
               {
-                // her it is - extract it
+                // here it is - extract it
                 m_value = true;
                 m_isset = true;
                 do
@@ -401,6 +484,7 @@ class Arg<bool> : public ArgBase
               }
           }
         }
+      }
 
       return false;
     }
@@ -427,6 +511,7 @@ class Arg<bool> : public ArgBase
         return false;
 
       for (int i = 1; i < argc; ++i)
+      {
         if (strcmp(argv[i], str) == 0)
         {
           m_value = true;
@@ -434,6 +519,7 @@ class Arg<bool> : public ArgBase
           removeArg(argc, argv, i, 1);
           return true;
         }
+      }
 
       return false;
     }
@@ -455,512 +541,6 @@ class Arg<bool> : public ArgBase
 
   private:
     bool m_value;
-};
-
-////////////////////////////////////////////////////////////////////////
-/**
- Special handling for "const char*".
-
- "const char*" is not extracted with a stream. This is more flexible
- and easier to process. Also parameters can contain spaces.
- */
-template <>
-class Arg<const char*> : public ArgBase
-{
-  public:
-    Arg(const char* def = 0)
-      : m_value(def)
-    { }
-
-    Arg(int& argc, char* argv[], char ch, const char* def = 0)
-      : m_value(def)
-    {
-      m_isset = set(argc, argv, ch);
-    }
-
-    Arg(int& argc, char* argv[], const char* str, const char* def = 0)
-      : m_value(def)
-    {
-      m_isset = set(argc, argv, str);
-    }
-
-    Arg(int& argc, char* argv[])
-      : m_value(0)
-    {
-      m_isset = set(argc, argv);
-    }
-
-    /**
-     setter for the short form.
-     */
-    bool set(int& argc, char* argv[], char ch)
-    {
-      // don't extract value, when already found
-      if (m_isset)
-        return false;
-
-      for (int i = 1; i < argc - 1; ++i)
-        if (argv[i][0] == '-' && argv[i][1] == ch && argv[i][2] == '\0')
-        {
-          m_value = argv[i + 1];
-          m_isset = true;
-          removeArg(argc, argv, i, 2);
-          return true;
-        }
-
-      return false;
-    }
-
-    /**
-     setter for the long form.
-     */
-    bool set(int& argc, char* argv[], const char* str, const char* def = 0)
-    {
-      // don't extract value, when already found
-      if (m_isset)
-        return false;
-
-      for (int i = 1; i < argc - 1; ++i)
-        if (strcmp(argv[i], str) == 0)
-        {
-          m_value = argv[i + 1];
-          m_isset = true;
-          removeArg(argc, argv, i, 2);
-          return true;
-        }
-
-      return false;
-    }
-
-    /**
-     Extracts the next parameter.
-     */
-    bool set(int& argc, char* argv[])
-    {
-      // don't extract value, when already found
-      if (m_isset)
-        return false;
-
-      if (argc > 1)
-      {
-        m_value = argv[1];
-        m_isset = true;
-        removeArg(argc, argv, 1, 1);
-        return true;
-      }
-      else
-        return false;
-    }
-
-    /**
-     returns the extracted value.
-     */
-    const char* getValue() const   { return m_value; }
-
-    /**
-     argument is convertible to "const char*"
-     */
-    operator const char*() const   { return m_value; }
-
-  private:
-    const char* m_value;
-};
-
-////////////////////////////////////////////////////////////////////////
-/**
- Special handling for "std::string".
-
- input-operator for std::string reads just the first word. This is
- not, what we normally expect, so this is speialized here.
- */
-template <>
-class Arg<std::string> : public ArgBase
-{
-  public:
-    Arg(const std::string& def = std::string())
-      : m_value(def)
-    { }
-
-    /**
-     Constructor for the short form.
-     */
-    Arg(int& argc, char* argv[], char ch, const std::string& def = std::string())
-      : m_value(def)
-    {
-      m_isset = set(argc, argv, ch);
-    }
-
-    /**
-     Constructor for the long form.
-     */
-    Arg(int& argc, char* argv[], const char* str, const std::string& def = std::string())
-      : m_value(def)
-    {
-      m_isset = set(argc, argv, str);
-    }
-
-    /**
-     Extracts the next parameter.
-     */
-    Arg(int& argc, char* argv[])
-    {
-      m_isset = set(argc, argv);
-    }
-
-    /**
-     setter for the short form.
-     */
-    bool set(int& argc, char* argv[], char ch)
-    {
-      // don't extract value, when already found
-      if (m_isset)
-        return false;
-
-      for (int i = 1; i < argc - 1; ++i)
-        if (argv[i][0] == '-' && argv[i][1] == ch && argv[i][2] == '\0')
-        {
-          m_value = argv[i + 1];
-          m_isset = true;
-          removeArg(argc, argv, i, 2);
-          return true;
-        }
-
-      return false;
-    }
-
-    /**
-     setter for the long form.
-     */
-    bool set(int& argc, char* argv[], const char* str)
-    {
-      // don't extract value, when already found
-      if (m_isset)
-        return false;
-
-      for (int i = 1; i < argc - 1; ++i)
-        if (strcmp(argv[i], str) == 0)
-        {
-          m_value = argv[i + 1];
-          m_isset = true;
-          removeArg(argc, argv, i, 2);
-          return true;
-        }
-
-      return false;
-    }
-
-    /**
-     Extracts the next parameter.
-     */
-    bool set(int& argc, char* argv[])
-    {
-      // don't extract value, when already found
-      if (m_isset)
-        return false;
-
-      if (argc > 1)
-      {
-        m_value = argv[1];
-        m_isset = true;
-        removeArg(argc, argv, 1, 1);
-        return true;
-      }
-      else
-        return false;
-    }
-
-    /**
-     Extracts the next non-option-parameter.
-     */
-    bool setNoOpt(int& argc, char* argv[])
-    {
-      // don't extract value, when already found
-      if (m_isset)
-        return false;
-
-      for (int i = 1; i < argc; ++i)
-        if (argv[i][0] != '-')
-        {
-          m_isset = true;
-          m_value = argv[i];
-          removeArg(argc, argv, i, 1);
-          return true;
-        }
-
-      return false;
-    }
-
-    /**
-     returns the extracted value.
-     */
-    const std::string& getValue() const   { return m_value; }
-
-    /**
-     argument is convertible to "const std::string&"
-     */
-    operator const std::string&() const   { return m_value; }
-
-  private:
-    std::string m_value;
-};
-
-template <typename T>
-class Argp : public ArgBase
-{
-  public:
-    Argp(const T& def = T())
-      : m_value(def)
-      { }
-
-    Argp(int& argc, char* argv[], char ch, const T& def = T())
-      : m_value(def)
-    {
-      set(argc, argv, ch);
-    }
-
-    Argp(int& argc, char* argv[], const char* str, const T& def = T())
-      : m_value(def)
-    {
-      m_isset = set(argc, argv, str);
-    }
-
-    Argp(int& argc, char* argv[])
-    {
-      m_isset = set(argc, argv);
-    }
-
-    bool set(int& argc, char* argv[], char ch)
-    {
-      // don't extract value, when already found
-      if (m_isset)
-        return false;
-
-      for (int i = 1; i < argc; ++i)
-        if (argv[i][0] == '-' && argv[i][1] == ch)
-        {
-          if (argv[i][2] == '\0' && i < argc - 1)
-          {
-            // -O foo
-            std::istringstream s(argv[i + 1]);
-            s >> m_value;
-            if (!s.fail())
-            {
-              m_isset = true;
-              removeArg(argc, argv, i, 2);
-              return true;
-            }
-          }
-
-          // -Ofoo
-          std::istringstream s(argv[i] + 2);
-          s >> m_value;
-          if (!s.fail())
-          {
-            m_isset = true;
-            removeArg(argc, argv, i, 1);
-            return true;
-          }
-        }
-
-      return false;
-    }
-
-    bool set(int& argc, char* argv[], const char* str)
-    {
-      // don't extract value, when already found
-      if (m_isset)
-        return false;
-
-      unsigned n = strlen(str);
-      for (int i = 1; i < argc - 1; ++i)
-      {
-        if (strncmp(argv[i], str, n) == 0
-          && argv[i][n] == '=')
-        {
-          std::istringstream s(argv[i] + n + 1);
-          s >> m_value;
-          if (!s.fail())
-          {
-            m_isset = true;
-            removeArg(argc, argv, i, 1);
-            return true;
-          }
-        }
-      }
-
-      return false;
-    }
-
-    /**
-     returns the value.
-     */
-    const T& getValue() const   { return m_value; }
-
-    /**
-     returns the value.
-
-     Instead of calling getValue() the argument can be converted
-     implicitly.
-     */
-    operator T() const   { return m_value; }
-
-  private:
-    T    m_value;
-};
-
-template <>
-class Argp<const char*> : public ArgBase
-{
-  public:
-    Argp(const char* def = 0)
-      : m_value(def)
-    { }
-
-    Argp(int& argc, char* argv[], char ch, const char* def = 0)
-      : m_value(def)
-    {
-      m_isset = set(argc, argv, ch);
-    }
-
-    Argp(int& argc, char* argv[], const char* str, const char* def = 0)
-      : m_value(def)
-    {
-      m_isset = set(argc, argv, str);
-    }
-
-    bool set(int& argc, char* argv[], char ch)
-    {
-      // don't extract value, when already found
-      if (m_isset)
-        return false;
-
-      for (int i = 1; i < argc; ++i)
-        if (argv[i][0] == '-' && argv[i][1] == ch)
-        {
-          if (argv[i][2] == '\0' && i < argc - 1)
-          {
-            m_value = argv[i + 1];
-            removeArg(argc, argv, i, 2);
-          }
-          else
-          {
-            m_value = argv[i] + 2;
-            removeArg(argc, argv, i, 1);
-          }
-          m_isset = true;
-          return true;
-        }
-
-      return false;
-    }
-
-    bool set(int& argc, char* argv[], const char* str)
-    {
-      // don't extract value, when already found
-      if (m_isset)
-        return false;
-
-      unsigned n = strlen(str);
-      for (int i = 1; i < argc - 1; ++i)
-      {
-        if (strncmp(argv[i], str, n) == 0
-          && argv[i][n] == '=')
-        {
-          m_value = argv[i] + n + 1;
-          m_isset = true;
-          removeArg(argc, argv, i, 1);
-          return true;
-        }
-      }
-
-      return false;
-    }
-
-    /**
-     returns the value.
-     */
-    const char* getValue() const   { return m_value; }
-
-    operator const char*() const   { return m_value; }
-
-  private:
-    const char* m_value;
-};
-
-template <>
-class Argp<std::string> : public ArgBase
-{
-  public:
-    Argp(const std::string& def = std::string())
-      : m_value(def)
-      { }
-
-    Argp(int& argc, char* argv[], char ch, const std::string& def = std::string())
-      : m_value(def)
-    {
-      m_isset = set(argc, argv, ch);
-    }
-
-    Argp(int& argc, char* argv[], const char* str, const std::string& def = std::string())
-      : m_value(def)
-    {
-      m_isset = set(argc, argv, str);
-    }
-
-    bool set(int& argc, char* argv[], char ch)
-    {
-      // don't extract value, when already found
-      if (m_isset)
-        return false;
-
-      for (int i = 1; i < argc; ++i)
-        if (argv[i][0] == '-' && argv[i][1] == ch)
-        {
-          if (argv[i][2] == '\0' && i < argc - 1)
-          {
-            m_value = argv[i + 1];
-            removeArg(argc, argv, i, 2);
-          }
-          else
-          {
-            m_value = argv[i] + 2;
-            removeArg(argc, argv, i, 1);
-          }
-          m_isset = true;
-          return true;
-        }
-
-      return false;
-    }
-
-    bool set(int& argc, char* argv[], const char* str)
-    {
-      // don't extract value, when already found
-      if (m_isset)
-        return false;
-
-      unsigned n = strlen(str);
-      for (int i = 1; i < argc - 1; ++i)
-      {
-        if (strncmp(argv[i], str, n) == 0
-          && argv[i][n] == '=')
-        {
-          m_value = argv[i] + n + 1;
-          m_isset = true;
-          removeArg(argc, argv, i, 1);
-          return true;
-        }
-      }
-
-      return false;
-    }
-
-    const std::string& getValue() const   { return m_value; }
-
-    operator std::string() const   { return m_value; }
-
-  private:
-    std::string m_value;
 };
 
 }

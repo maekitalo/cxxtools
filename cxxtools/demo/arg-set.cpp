@@ -65,12 +65,6 @@ int main(int argc, char* argv[])
     string_param.set(argc, argv, 's');
     string_param.set(argc, argv, "--string");
 
-    cxxtools::Arg<std::string> string_arg;
-    string_arg.setNoOpt(argc, argv);
-
-    print_string("option -s|--string", string_param);
-    print_string("string-Arg", string_arg);
-
     std::cout << "unprocessed arguments:\n";
     for (int i = 1; i < argc; ++i)
       std::cout << '\t' << i << ": " << argv[i] << std::endl;
