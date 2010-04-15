@@ -139,16 +139,20 @@ class ArgTest : public cxxtools::unit::TestSuite
 
         void testArgpCharp()
         {
-            int argc = 6;
-            char* argv[] = { arg("prog"), arg("-v"), arg("42"), arg("-I"), arg("include"), arg("-Jfoo"), 0 };
+            int argc = 7;
+            char* argv[] = { arg("prog"), arg("-v"), arg("42"),
+                arg("-I"), arg("include"), arg("-Jfoo"), arg("-Khello world"), 0 };
 
             cxxtools::Arg<const char*> optionI(argc, argv, 'I');
             cxxtools::Arg<const char*> optionJ(argc, argv, 'J');
+            cxxtools::Arg<const char*> optionK(argc, argv, 'K');
 
             CXXTOOLS_UNIT_ASSERT(optionI.isSet());
             CXXTOOLS_UNIT_ASSERT(optionJ.isSet());
+            CXXTOOLS_UNIT_ASSERT(optionK.isSet());
             CXXTOOLS_UNIT_ASSERT_EQUALS(strcmp(optionI, "include"), 0);
             CXXTOOLS_UNIT_ASSERT_EQUALS(strcmp(optionJ, "foo"), 0);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(strcmp(optionK, "hello world"), 0);
             CXXTOOLS_UNIT_ASSERT_EQUALS(argc, 3);
             CXXTOOLS_UNIT_ASSERT_EQUALS(strcmp(argv[0], "prog"), 0);
             CXXTOOLS_UNIT_ASSERT_EQUALS(strcmp(argv[1], "-v"), 0);
@@ -158,16 +162,20 @@ class ArgTest : public cxxtools::unit::TestSuite
 
         void testArgpStdString()
         {
-            int argc = 6;
-            char* argv[] = { arg("prog"), arg("-v"), arg("42"), arg("-Jfoo"), arg("-I"), arg("include"), 0 };
+            int argc = 7;
+            char* argv[] = { arg("prog"), arg("-v"), arg("42"), arg("-Jfoo"),
+                arg("-I"), arg("include"), arg("-Khello world"), 0 };
 
             cxxtools::Arg<std::string> optionI(argc, argv, 'I');
             cxxtools::Arg<std::string> optionJ(argc, argv, 'J');
+            cxxtools::Arg<std::string> optionK(argc, argv, 'K');
 
             CXXTOOLS_UNIT_ASSERT(optionI.isSet());
             CXXTOOLS_UNIT_ASSERT(optionJ.isSet());
+            CXXTOOLS_UNIT_ASSERT(optionK.isSet());
             CXXTOOLS_UNIT_ASSERT_EQUALS(optionI.getValue(), "include");
             CXXTOOLS_UNIT_ASSERT_EQUALS(optionJ.getValue(), "foo");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(optionK.getValue(), "hello world");
             CXXTOOLS_UNIT_ASSERT_EQUALS(argc, 3);
             CXXTOOLS_UNIT_ASSERT_EQUALS(strcmp(argv[0], "prog"), 0);
             CXXTOOLS_UNIT_ASSERT_EQUALS(strcmp(argv[1], "-v"), 0);
