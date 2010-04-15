@@ -360,7 +360,13 @@ bool TcpSocketImpl::checkPollEvent(pollfd& pfd)
 
     if( _isConnected )
     {
-        if ( pfd.revents & POLLERR )
+        // check for error while neither reading nor writing
+        //
+        // if reading or writing, IODeviceImpl::checkPollEvent will emit
+        // inputReady or outputReady signal and the user gets an exception in
+        // endRead or endWrite.
+        if ( !_device.reading() && !_device.writing()
+            && (pfd.revents & POLLERR) )
         {
             _device.close();
             _socket.closed(_socket);
