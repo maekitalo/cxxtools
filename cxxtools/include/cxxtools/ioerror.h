@@ -30,12 +30,14 @@
 #define CXXTOOLS_IOERROR_H
 
 #include <cxxtools/sourceinfo.h>
+#include <cxxtools/api.h>
 #include <ios>
 #include <stdexcept>
 
-namespace cxxtools {
+namespace cxxtools
+{
 
-    class IOError : public std::ios::failure
+    class CXXTOOLS_API IOError : public std::ios::failure
     {
         public:
             IOError(const std::string& what, const SourceInfo& si);
@@ -46,7 +48,7 @@ namespace cxxtools {
             {}
     };
 
-    class IOTimeout : public IOError
+    class CXXTOOLS_API IOTimeout : public IOError
     {
         public:
             IOTimeout();
@@ -55,7 +57,7 @@ namespace cxxtools {
             {}
     };
 
-    class AccessFailed : public IOError
+    class CXXTOOLS_API AccessFailed : public IOError
     {
         public:
             AccessFailed(const std::string& what, const SourceInfo& si);
@@ -66,7 +68,7 @@ namespace cxxtools {
             {}
     };
 
-    class PermissionDenied : public AccessFailed
+    class CXXTOOLS_API PermissionDenied : public AccessFailed
     {
         public:
             PermissionDenied(const std::string& resource, const SourceInfo& si);
@@ -75,7 +77,7 @@ namespace cxxtools {
             {}
     };
 
-    class DeviceNotFound : public AccessFailed
+    class CXXTOOLS_API DeviceNotFound : public AccessFailed
     {
         public:
             DeviceNotFound(const std::string& device, const SourceInfo& si);
@@ -84,7 +86,7 @@ namespace cxxtools {
             {}
     };
 
-    class FileNotFound : public AccessFailed
+    class CXXTOOLS_API FileNotFound : public AccessFailed
     {
         public:
             FileNotFound(const std::string& path, const SourceInfo& si);
@@ -95,7 +97,7 @@ namespace cxxtools {
 
     /** @brief A directory could not be found at a given path
     */
-    class DirectoryNotFound : public AccessFailed
+    class CXXTOOLS_API DirectoryNotFound : public AccessFailed
     {
         public:
             /** @brief Construct from path and source info
@@ -111,7 +113,7 @@ namespace cxxtools {
             {}
     };
 
-    class IOPending : public IOError
+    class CXXTOOLS_API IOPending : public IOError
     {
         public:
             IOPending(const std::string& what, const SourceInfo& si);
@@ -122,7 +124,7 @@ namespace cxxtools {
             {}
     };
 
-    class DeviceClosed : public IOError
+    class CXXTOOLS_API DeviceClosed : public IOError
     {
         public:
             DeviceClosed(const std::string& what, const SourceInfo& si);
