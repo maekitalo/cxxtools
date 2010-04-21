@@ -88,24 +88,27 @@ class ArgBaseT : public ArgBase
      */
     const T& getValue() const   { return m_value; }
 
-    /**
-     returns the value.
+    /** @brief Read and extract commandline parameters from argc/argv.
 
-     Instead of calling getValue() the argument can be converted
-     implicitly.
+        Programs usually need some parameters. Usually they start with a '-'
+        followed by a single character and optionally a value.
+        Arg<T> extracts these and other parameters.
 
-     example:
+        This default class processes paramters with a value, which defines
+        a input-extractor-operator operator>> (istream&, T&).
 
-     \code
-     void print(int i)
-     { std::cout << i << std::endl; }
+        Options are removed from the option-list, so programs can easily check
+        after all options are extracted, if there are parameters left.
 
-     int main(int argc, char* argv[])
-     {
-       cxxtools::Arg<int> value(argc, argv, 'v', 0);
-       print(value);   // pass argument as a int to the function
-     }
-     \endcode
+        example:
+        \code
+          int main(int argc, char* argv[])
+          {
+            cxxtools::Arg<int> option_n(argc, argv, 'n', 0);
+            std::cout << "value for -n: " << option_n << endl;
+          }
+        \endcode
+
      */
     operator T() const   { return m_value; }
 };
@@ -165,39 +168,37 @@ class ArgBaseT<std::string> : public ArgBase
 
 };
 
-////////////////////////////////////////////////////////////////////////
-/**
- Read and extract commandline parameters from argc/argv.
+    /** @brief Read and extract commandline parameters from argc/argv.
 
- Programs usually need some parameters. Usually they start with a '-'
- followed by a single character and optionally a value.
- Arg<T> extracts these and other parametes.
+        Programs usually need some parameters. Usually they start with a '-'
+        followed by a single character and optionally a value.
+        Arg<T> extracts these and other parameters.
 
- This default class processes paramters with a value, which defines
- a input-extractor-operator operator>> (istream&, T&).
+        This default class processes paramters with a value, which defines
+        a input-extractor-operator operator>> (istream&, T&).
 
- Options are removed from the option-list, so programs can easily check
- after all options are extracted, if there are parameters left.
+        Options are removed from the option-list, so programs can easily check
+        after all options are extracted, if there are parameters left.
 
- example:
- \code
-   int main(int argc, char* argv[])
-   {
-     cxxtools::Arg<int> option_n(argc, argv, 'n', 0);
-     std::cout << "value for -n: " << option_n << endl;
-   }
- \endcode
+        example:
+        \code
+          int main(int argc, char* argv[])
+          {
+            cxxtools::Arg<int> option_n(argc, argv, 'n', 0);
+            std::cout << "value for -n: " << option_n << endl;
+          }
+        \endcode
 
- */
-template <typename T>
-class Arg : public ArgBaseT<T>
-{
-  public:
-    /**
-     default constructor. Initializes value.
-
-     \param def    initial value
      */
+    template <typename T>
+    class Arg : public ArgBaseT<T>
+    {
+      public:
+        /**
+         default constructor. Initializes value.
+
+         \param def    initial value
+         */
     Arg(const T& def = T())
       : ArgBaseT<T>(def)
       { }
@@ -212,7 +213,7 @@ class Arg : public ArgBaseT<T>
 
      example:
      \code
-      Arg<unsigned> offset(argc, argv, 'o', 0);
+      cxxtools::Arg<unsigned> offset(argc, argv, 'o', 0);
       unsigned value = offset.getValue();
      \endcode
      */
@@ -229,7 +230,7 @@ class Arg : public ArgBaseT<T>
 
      example:
      \code
-       Arg<int> option_number(argc, argv, "--number", 0);
+       cxxtools::Arg<int> option_number(argc, argv, "--number", 0);
        std::cout << "number =" << option_number.getValue() << std::endl;
      \endcode
      */
@@ -254,7 +255,7 @@ class Arg : public ArgBaseT<T>
 
      example:
      \code
-      Arg<unsigned> offset;
+      cxxtools::Arg<unsigned> offset;
       offset.set(argc, argv, 'o');
       unsigned value = offset.getValue();
      \endcode
@@ -292,7 +293,7 @@ class Arg : public ArgBaseT<T>
 
      example:
      \code
-       Arg<int> option_number;
+       cxxtools::Arg<int> option_number;
        number.set(argc, argv, "--number");
        std::cout << "number =" << option_number.getValue() << std::endl;
      \endcode
@@ -352,7 +353,7 @@ class Arg : public ArgBaseT<T>
 
  example:
  \code
-   Arg<bool> debug(argc, argv, 'd');
+   cxxtools::Arg<bool> debug(argc, argv, 'd');
    if (debug)
      std::cout << "debug-mode is set" << std::endl;
  \endcode
@@ -380,7 +381,7 @@ class Arg<bool> : public ArgBase
 
      example:
      \code
-      Arg<unsigned> offset(argc, argv, 'o', 0);
+      cxxtools::Arg<unsigned> offset(argc, argv, 'o', 0);
       unsigned value = offset.getValue();
      \endcode
      */
@@ -405,8 +406,8 @@ class Arg<bool> : public ArgBase
 
      example:
      \code
-      Arg<bool> debug(argc, argv, 'd');
-      Arg<bool> ignore(argc, argv, 'i');
+      cxxtools::Arg<bool> debug(argc, argv, 'd');
+      cxxtools::Arg<bool> ignore(argc, argv, 'i');
      \endcode
 
      Arguments debug and ignore are both set when the program is called
