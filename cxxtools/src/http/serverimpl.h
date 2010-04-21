@@ -201,7 +201,7 @@ class ServerImpl : public Connectable
         ////////////////////////////////////////////////////
         typedef std::multimap<std::string, Service*> ServicesType;
         Mutex _serviceMutex;
-        ServicesType _service;
+        ServicesType _services;
         NotFoundService _defaultService;
         NotAuthenticatedService _noAuthService;
 };

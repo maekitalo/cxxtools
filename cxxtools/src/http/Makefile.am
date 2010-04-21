@@ -14,6 +14,7 @@ libcxxtools_http_la_SOURCES = \
     parser.cpp \
     server.cpp \
     serverimpl.cpp \
+    service.cpp \
     socket.cpp \
     request.cpp \
     responder.cpp \

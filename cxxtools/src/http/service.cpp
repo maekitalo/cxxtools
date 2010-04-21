@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 by Marc Boris Duerner, Tommi Maekitalo
+ * Copyright (C) 2010 Tommi Maekitalo
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,44 +26,72 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef cxxtools_Http_Responder_h
-#define cxxtools_Http_Responder_h
-
-#include <cxxtools/http/api.h>
 #include <cxxtools/http/service.h>
-#include <iosfwd>
-#include <exception>
 
 namespace cxxtools
 {
+
 namespace http
 {
 
-class Request;
-class Reply;
-
-class CXXTOOLS_HTTP_API Responder
+Responder* Service::doCreateResponder(const Request& request)
 {
-    public:
-        explicit Responder(Service& service)
-            : _service(service)
-        { }
+    MutexLock lock(_mutex);
+    ++_responderCount;
+    return createResponder(request);
+}
 
-        virtual ~Responder() { }
+void Service::doReleaseResponder(Responder* responder)
+{
+    MutexLock lock(_mutex);
+    releaseResponder(responder);
+    if (--_responderCount <= 0)
+        _isIdle.signal();
+}
 
-        virtual void beginRequest(std::istream& in, Request& request);
-        virtual std::size_t readBody(std::istream&);
-        virtual void reply(std::ostream&, Request& request, Reply& reply) = 0;
-        virtual void replyError(std::ostream&, Request& request, Reply& reply, const std::exception& ex);
+void Service::waitIdle()
+{
+    MutexLock lock(_mutex);
+    while (_responderCount > 0)
+        _isIdle.wait(lock);
+}
 
-        void release()     { _service.doReleaseResponder(this); }
+bool Service::checkAuth(const Request& request)
+{
+    for (std::vector<const Authenticator*>::const_iterator it = _authenticators.begin();
+        it != _authenticators.end(); ++it)
+    {
+        if (!(*it)->checkAuth(request))
+            return false;
+    }
 
-    private:
-        Service& _service;
-};
+    return true;
+}
 
-} // namespace http
+CachedServiceBase::~CachedServiceBase()
+{
+    for (Responders::iterator it = responders.begin(); it != responders.end(); ++it)
+        delete *it;
+}
 
-} // namespace cxxtools
+Responder* CachedServiceBase::createResponder(const Request& request)
+{
+    if (responders.empty())
+    {
+        return newResponder();
+    }
+    else
+    {
+        Responder* ret = responders.back();
+        responders.pop_back();
+        return ret;
+    }
+}
 
-#endif
+void CachedServiceBase::releaseResponder(Responder* resp)
+{
+    responders.push_back(resp);
+}
+
+}
+}

@@ -31,6 +31,7 @@
 
 #include <cxxtools/http/api.h>
 #include <cxxtools/mutex.h>
+#include <cxxtools/condition.h>
 #include <vector>
 #include <string>
 
@@ -53,22 +54,20 @@ class CXXTOOLS_HTTP_API Service
         std::string _realm;
         std::string _authContent;
 
+        unsigned _responderCount;
+        Mutex _mutex;
+        Condition _isIdle;
+
     public:
+        Service()
+            : _responderCount(0)
+        { }
+
         virtual ~Service() { }
-        virtual Responder* createResponder(const Request&) = 0;
-        virtual void releaseResponder(Responder*) = 0;
+        Responder* doCreateResponder(const Request&);
+        void doReleaseResponder(Responder*);
 
-        bool checkAuth(const Request& request)
-        {
-            for (std::vector<const Authenticator*>::const_iterator it = _authenticators.begin();
-                it != _authenticators.end(); ++it)
-            {
-                if (!(*it)->checkAuth(request))
-                    return false;
-            }
-
-            return true;
-        }
+        bool checkAuth(const Request& request);
 
         void setRealm(const std::string& realm, const std::string& content = std::string())
             { _realm = realm; _authContent = content; }
@@ -78,43 +77,36 @@ class CXXTOOLS_HTTP_API Service
 
         void addAuthenticator(const Authenticator* auth)
             { _authenticators.push_back(auth); }
+
+        void waitIdle();
+
+    protected:
+        virtual Responder* createResponder(const Request&) = 0;
+        virtual void releaseResponder(Responder*) = 0;
 };
 
-template <typename ResponderType>
-class CachedService : public Service
+class CachedServiceBase : public Service
 {
-        Mutex mutex;
         typedef std::vector<Responder*> Responders;
         Responders responders;
 
     public:
-        ~CachedService()
-        {
-            for (typename Responders::iterator it = responders.begin(); it != responders.end(); ++it)
-                delete *it;
-        }
+        ~CachedServiceBase();
 
-        Responder* createResponder(const Request& request)
-        {
-            MutexLock lock(mutex);
-            if (responders.empty())
-            {
-                return new ResponderType(*this);
-            }
-            else
-            {
-                Responder* ret = responders.back();
-                responders.pop_back();
-                return ret;
-            }
-        }
+    protected:
+        virtual Responder* newResponder() = 0;
+        Responder* createResponder(const Request& request);
+        void releaseResponder(Responder* resp);
 
-        void releaseResponder(Responder* resp)
-        {
-            MutexLock lock(mutex);
-            responders.push_back(resp);
-        }
+};
 
+template <typename ResponderType>
+class CachedService : public CachedServiceBase
+{
+    virtual Responder* newResponder()
+    {
+        return new ResponderType(*this);
+    }
 };
 
 } // namespace http

@@ -35,11 +35,13 @@
 #include <string>
 #include <cstddef>
 
-namespace cxxtools {
+namespace cxxtools
+{
 
 class EventLoopBase;
 
-namespace http {
+namespace http
+{
 
 class Request;
 class Service;

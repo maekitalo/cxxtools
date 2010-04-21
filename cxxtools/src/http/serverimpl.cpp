@@ -309,19 +309,20 @@ void ServerImpl::addService(const std::string& url, Service& service)
     log_debug("add service for url <" << url << '>');
 
     MutexLock serviceLock(_serviceMutex);
-    _service.insert(ServicesType::value_type(url, &service));
+    _services.insert(ServicesType::value_type(url, &service));
 }
 
 void ServerImpl::removeService(Service& service)
 {
     MutexLock serviceLock(_serviceMutex);
+    service.waitIdle();
 
-    ServicesType::iterator it = _service.begin();
-    while (it != _service.end())
+    ServicesType::iterator it = _services.begin();
+    while (it != _services.end())
     {
         if (it->second == &service)
         {
-            _service.erase(it++);
+            _services.erase(it++);
         }
         else
         {
@@ -336,15 +337,15 @@ Responder* ServerImpl::getResponder(const Request& request)
 
     MutexLock serviceLock(_serviceMutex);
 
-    for (ServicesType::const_iterator it = _service.lower_bound(request.url());
-        it != _service.end() && it->first == request.url(); ++it)
+    for (ServicesType::const_iterator it = _services.lower_bound(request.url());
+        it != _services.end() && it->first == request.url(); ++it)
     {
         if (!it->second->checkAuth(request))
         {
             return _noAuthService.createResponder(request, it->second->realm(), it->second->authContent());
         }
 
-        Responder* resp = it->second->createResponder(request);
+        Responder* resp = it->second->doCreateResponder(request);
         if (resp)
         {
             log_debug("got responder");
