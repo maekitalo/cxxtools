@@ -308,13 +308,13 @@ void ServerImpl::addService(const std::string& url, Service& service)
 {
     log_debug("add service for url <" << url << '>');
 
-    MutexLock serviceLock(_serviceMutex);
+    WriteLock serviceLock(_serviceMutex);
     _services.insert(ServicesType::value_type(url, &service));
 }
 
 void ServerImpl::removeService(Service& service)
 {
-    MutexLock serviceLock(_serviceMutex);
+    WriteLock serviceLock(_serviceMutex);
     service.waitIdle();
 
     ServicesType::iterator it = _services.begin();
@@ -335,7 +335,7 @@ Responder* ServerImpl::getResponder(const Request& request)
 {
     log_debug("get responder for url <" << request.url() << '>');
 
-    MutexLock serviceLock(_serviceMutex);
+    ReadLock serviceLock(_serviceMutex);
 
     for (ServicesType::const_iterator it = _services.lower_bound(request.url());
         it != _services.end() && it->first == request.url(); ++it)
