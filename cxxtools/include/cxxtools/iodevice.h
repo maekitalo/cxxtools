@@ -243,11 +243,17 @@ class CXXTOOLS_API IODevice : public Selectable
         size_t rbuflen() const
         { return _rbuflen; }
 
+        size_t ravail() const
+        { return _ravail; }
+
         const char* wbuf() const
         { return _wbuf; }
 
         size_t wbuflen() const
         { return _wbuflen; }
+
+        size_t wavail() const
+        { return _wavail; }
 
     protected:
         //! @brief Default Constructor

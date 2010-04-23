@@ -218,6 +218,16 @@ size_t IODeviceImpl::read( char* buffer, size_t count, bool& eof )
 
 size_t IODeviceImpl::beginWrite(const char* buffer, size_t n)
 {
+    log_debug("::write(" << _fd << ", buffer, " << n << ')');
+    ssize_t ret = ::write(_fd, (const void*)buffer, n);
+
+    log_debug("write returned " << ret);
+    if (ret > 0)
+        return static_cast<size_t>(ret);
+
+    if (ret == 0 || errno == ECONNRESET || errno == EPIPE)
+        throw IOError("lost connection to peer");
+
     if(_pfd)
     {
         _pfd->events |= POLLOUT;
@@ -238,6 +248,13 @@ size_t IODeviceImpl::endWrite()
     {
         _errorPending = false;
         throw IOError("write error", CXXTOOLS_SOURCEINFO);
+    }
+
+    if (_device.wavail() > 0)
+    {
+        log_debug("write pending " << _device.wavail());
+        size_t n = _device.wavail();
+        return n;
     }
 
     return this->write( _device.wbuf(), _device.wbuflen() );
@@ -277,7 +294,7 @@ size_t IODeviceImpl::write( const char* buffer, size_t count )
         }
     }
 
-    return ret;
+    return static_cast<size_t>(ret);
 }
 
 
@@ -318,6 +335,12 @@ void IODeviceImpl::detach(SelectorBase& s)
 
 bool IODeviceImpl::wait(std::size_t msecs)
 {
+    if (_device.wavail() > 0)
+    {
+        _device.outputReady(_device);
+        return true;
+    }
+
     pollfd pfd;
     this->initWait(pfd);
     this->wait(msecs, pfd);
@@ -356,9 +379,9 @@ void IODeviceImpl::initWait(pollfd& pfd)
     pfd.revents = 0;
     pfd.events = 0;
 
-    if( _device.rbuf() )
+    if( _device.reading() )
         pfd.events |= POLLIN;
-    if( _device.wbuf() )
+    if( _device.writing() )
         pfd.events |= POLLOUT;
 }
 
@@ -436,7 +459,7 @@ bool IODeviceImpl::checkPollEvent(pollfd& pfd)
         return avail;
     }
 
-    if( pfd.revents & POLLOUT_MASK )
+    if( _device.wavail() > 0 || (pfd.revents & POLLOUT_MASK) )
     {
         log_debug("send signal outputReady");
         _device.outputReady(_device);
