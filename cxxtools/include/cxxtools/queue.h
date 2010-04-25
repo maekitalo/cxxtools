@@ -41,7 +41,7 @@ namespace cxxtools
         fetched in the same order (first-in-first-out, fifo).
         The class has a optional maximum size. If the size is set to 0 the
         queue has no limit. Otherwise putting a element to the queue may
-        block until another thread fetches a element or icreases the limit.
+        block until another thread fetches a element or increases the limit.
      */
     template <typename T>
     class Queue

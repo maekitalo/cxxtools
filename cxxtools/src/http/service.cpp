@@ -27,6 +27,7 @@
  */
 
 #include <cxxtools/http/service.h>
+#include <cxxtools/http/responder.h>
 
 namespace cxxtools
 {

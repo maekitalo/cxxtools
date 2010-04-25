@@ -391,7 +391,7 @@ class QueryParams
     bool has(const string& name) const
     {
       return named_params.find(name) != named_params.end()
-          || useParentValues() && parent->has(name);
+          || (useParentValues() && parent->has(name));
     }
 
     /// replace named parameter in parent or this class if no parent exists
