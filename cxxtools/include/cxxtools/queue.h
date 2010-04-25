@@ -73,6 +73,13 @@ namespace cxxtools
              */
             value_type get();
 
+            /** @brief Returns the next element if the queue is not empty.
+
+                If the queue is empty, a default constructed value_type is returned.
+                The returned flag is set to false, if the queue was empty.
+             */
+            std::pair<value_type, bool> tryGet();
+
             /** @brief Adds a element to the queue.
 
                 This method adds a element to the queue. If the queue has
@@ -137,6 +144,25 @@ namespace cxxtools
         _notFull.signal();
 
         return element;
+    }
+
+    template <typename T>
+    std::pair<typename Queue<T>::value_type, bool> Queue<T>::tryGet()
+    {
+        MutexLock lock(_mutex);
+
+        if (_queue.empty())
+            return std::pair<typename Queue<T>::value_type, bool>(Queue<T>::value_type(), false);
+
+        value_type element = _queue.front();
+        _queue.pop_front();
+
+        if (!_queue.empty())
+            _notEmpty.signal();
+
+        _notFull.signal();
+
+        return std::pair<typename Queue<T>::value_type, bool>(element, true);
     }
 
     template <typename T>

@@ -77,6 +77,8 @@ libcxxtools_la_SOURCES = \
 	textstream.cpp \
 	thread.cpp \
 	threadimpl.cpp \
+	threadpool.cpp \
+	threadpoolimpl.cpp \
 	time.cpp \
 	timer.cpp \
 	timespan.cpp \
