@@ -130,7 +130,7 @@ size_t IODevice::read(char* buffer, size_t n)
 }
 
 
-void IODevice::beginWrite(const char* buffer, size_t n)
+size_t IODevice::beginWrite(const char* buffer, size_t n)
 {
     if (!async())
         throw std::logic_error( CXXTOOLS_ERROR_MSG("Device not in async mode") );
@@ -151,6 +151,8 @@ void IODevice::beginWrite(const char* buffer, size_t n)
     _wbuf = buffer;
     _wbuflen = n;
     _wavail = r;
+
+    return r;
 }
 
 

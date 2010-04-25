@@ -129,7 +129,7 @@ class CXXTOOLS_API IODevice : public Selectable
          */
         size_t read(char* buffer, size_t n);
 
-        void beginWrite(const char* buffer, size_t n);
+        size_t beginWrite(const char* buffer, size_t n);
 
         size_t endWrite();
 

@@ -202,21 +202,23 @@ std::streamsize StreamBuffer::showfull()
 }
 
 
-void StreamBuffer::beginWrite()
+size_t StreamBuffer::beginWrite()
 {
     log_trace("beginWrite; out_avail=" << out_avail());
 
     if(_ioDevice == 0 || _ioDevice->writing())
-        return;
+        return 0;
 
     if( this->pptr() )
     {
         size_t avail = this->pptr() - this->pbase();
         if(avail > 0)
         {
-            _ioDevice->beginWrite(_obuffer, avail);
+            return _ioDevice->beginWrite(_obuffer, avail);
         }
     }
+
+    return 0;
 }
 
 
@@ -239,16 +241,17 @@ void StreamBuffer::onWrite(IODevice& dev)
 }
 
 
-void StreamBuffer::endWrite()
+size_t StreamBuffer::endWrite()
 {
     log_trace("endWrite; out_avail=" << out_avail());
 
     size_t leftover = 0;
+    size_t written = 0;
 
     if( this->pptr() )
     {
         size_t avail = this->pptr() - this->pbase();
-        size_t written = _ioDevice->endWrite();
+        written = _ioDevice->endWrite();
 
         leftover = avail - written;
         if(leftover > 0)
@@ -259,6 +262,8 @@ void StreamBuffer::endWrite()
 
     this->setp(_obuffer, _obuffer + _obufferSize);
     this->pbump( leftover );
+
+    return written;
 }
 
 

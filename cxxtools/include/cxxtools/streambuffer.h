@@ -85,9 +85,9 @@ class CXXTOOLS_API StreamBuffer : public BasicStreamBuffer<char>
 
         void endRead();
 
-        void beginWrite();
+        size_t beginWrite();
 
-        void endWrite();
+        size_t endWrite();
 
         void discard();
 
