@@ -296,7 +296,7 @@ String Utf8Codec::decode(const char* data, unsigned size)
 {
     Utf8Codec codec;
 
-    Char to[16];
+    Char to[64];
     MBState state;
     String ret;
     const char* from = data;
@@ -312,6 +312,9 @@ String Utf8Codec::decode(const char* data, unsigned size)
         if (r == error)
             throw ConversionError("character conversion failed");
 
+        if (r == partial && from_next == from)
+            throw ConversionError("character conversion failed - unexpected end of utf8 sequence");
+
         ret.append(to, to_next);
 
         size -= (from_next - from);
@@ -325,7 +328,7 @@ String Utf8Codec::decode(const char* data, unsigned size)
 std::string Utf8Codec::encode(const Char* data, unsigned size)
 {
     Utf8Codec codec;
-    char to[16];
+    char to[64];
     MBState state;
     
     result r;
