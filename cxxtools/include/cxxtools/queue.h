@@ -149,10 +149,13 @@ namespace cxxtools
     template <typename T>
     std::pair<typename Queue<T>::value_type, bool> Queue<T>::tryGet()
     {
+        typedef typename Queue<T>::value_type value_type;
+        typedef typename std::pair<value_type, bool> return_type;
+
         MutexLock lock(_mutex);
 
         if (_queue.empty())
-            return std::pair<typename Queue<T>::value_type, bool>(Queue<T>::value_type(), false);
+            return return_type(value_type(), false);
 
         value_type element = _queue.front();
         _queue.pop_front();
@@ -162,7 +165,7 @@ namespace cxxtools
 
         _notFull.signal();
 
-        return std::pair<typename Queue<T>::value_type, bool>(element, true);
+        return return_type(element, true);
     }
 
     template <typename T>
