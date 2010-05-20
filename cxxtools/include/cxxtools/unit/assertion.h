@@ -106,6 +106,21 @@ namespace unit {
         catch(const EX &) \
         {}
 
+    #define CXXTOOLS_UNIT_ASSERT_NOTHROW(cond) \
+        try { \
+            cond; \
+        } \
+        catch(const std::exception& e) \
+        { \
+            throw cxxtools::unit::Assertion( \
+                std::string("unexpected exception of type ") + typeid(e).name() + ": " + e.what(), \
+                CXXTOOLS_SOURCEINFO); \
+        } \
+        catch(...) \
+        { \
+            throw cxxtools::unit::Assertion("unexpected exception." , CXXTOOLS_SOURCEINFO); \
+        }
+
 } // namespace unit
 
 } // namespace cxxtools
