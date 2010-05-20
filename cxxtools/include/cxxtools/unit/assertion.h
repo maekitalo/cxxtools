@@ -104,7 +104,7 @@ namespace unit {
             throw cxxtools::unit::Assertion(s, CXXTOOLS_SOURCEINFO); \
         } \
         catch(const EX &) \
-        {} \
+        {}
 
 } // namespace unit
 
