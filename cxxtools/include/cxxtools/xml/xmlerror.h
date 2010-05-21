@@ -43,7 +43,7 @@ class CXXTOOLS_XML_API XmlError : public std::runtime_error
             * @param what The reason of the parse error.
             * @param info Source info containing information about where the exception occured.
             */
-        XmlError(const char* what, unsigned line);
+        XmlError(const std::string& what, unsigned line);
 
         unsigned line() const
         { return _line; }
