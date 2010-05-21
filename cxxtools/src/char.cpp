@@ -58,7 +58,7 @@ ctype<cxxtools::Char>::~ctype()
 
 bool ctype<cxxtools::Char>::do_is(mask m, cxxtools::Char c) const
 {
-    return m == ctypeMask(c);
+    return (m & ctypeMask(c)) != 0;
 }
 
 
