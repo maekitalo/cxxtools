@@ -55,9 +55,9 @@ template <typename T>
 inline void convert(T& t, const cxxtools::String& str)
 {
     cxxtools::StringStream is(str);
+    cxxtools::Char ch;
     is >> t;
-    const std::ios::iostate iostate = is.rdstate();
-    if((iostate&std::ios::failbit) || (iostate&std::ios::badbit) || !(iostate&std::ios::eofbit))
+    if (is.fail() || !(is >> ch).eof())
     {
         throw cxxtools::ConversionError( CXXTOOLS_CONVERSIONERROR(T, cxxtools::String) );
     }
@@ -77,9 +77,9 @@ template <typename T>
 inline void convert(T& t, const std::string& str)
 {
     std::istringstream is(str);
+    char ch;
     is >> t;
-    const std::ios::iostate iostate = is.rdstate();
-    if((iostate&std::ios::failbit) || (iostate&std::ios::badbit) || !(iostate&std::ios::eofbit))
+    if (is.fail() || !(is >> ch).eof())
     {
         throw cxxtools::ConversionError( CXXTOOLS_CONVERSIONERROR(T, std::string) );
     }
@@ -175,13 +175,17 @@ inline void convert(unsigned char& n, const cxxtools::String& str)
 
     // interpret as numeric value
     cxxtools::StringStream ss(str);
+    cxxtools::Char ch;
     unsigned int i = 0;
     ss >> i;
-    const std::ios::iostate iostate = ss.rdstate();
-    if((iostate&std::ios::failbit) || (iostate&std::ios::badbit) || !(iostate&std::ios::eofbit))
+    if (ss.fail()
+      || i > std::numeric_limits<unsigned char>::max()
+      || i < std::numeric_limits<unsigned char>::min()
+      || !(ss >> ch).eof())
     {
         throw cxxtools::ConversionError( CXXTOOLS_CONVERSIONERROR(unsigned char, cxxtools::String) );
     }
+
     n = static_cast<unsigned char>(i);
 }
 
@@ -202,10 +206,13 @@ inline void convert(signed char& n, const cxxtools::String& str)
         
     // interpret as numeric value
     cxxtools::StringStream ss(str);
+    cxxtools::Char ch;
     int i = 0;
     ss >> i;
-    const std::ios::iostate iostate = ss.rdstate();
-    if((iostate&std::ios::failbit) || (iostate&std::ios::badbit) || !(iostate&std::ios::eofbit))
+    if (ss.fail()
+      || i > std::numeric_limits<signed char>::max()
+      || i < std::numeric_limits<signed char>::min()
+      || !(ss >> ch).eof())
     {
         throw cxxtools::ConversionError( CXXTOOLS_CONVERSIONERROR(signed char, cxxtools::String) );
     }
@@ -250,10 +257,10 @@ inline void convert(float& n, const cxxtools::String& str)
     }
 
     cxxtools::StringStream is(str);
+    cxxtools::Char ch;
     is >> n;
 
-    const std::ios::iostate iostate = is.rdstate();
-    if((iostate&std::ios::failbit) || (iostate&std::ios::badbit) || !(iostate&std::ios::eofbit))
+    if (is.fail() || !(is >> ch).eof())
     {
         throw cxxtools::ConversionError( CXXTOOLS_CONVERSIONERROR(float, cxxtools::String) );
     }
@@ -285,10 +292,10 @@ inline void convert(double& n, const cxxtools::String& str)
     }
 
     cxxtools::StringStream is(str);
+    cxxtools::Char ch;
     is >> std::fixed >> std::setprecision(15) >> n;
 
-    const std::ios::iostate iostate = is.rdstate();
-    if((iostate&std::ios::failbit) || (iostate&std::ios::badbit) || !(iostate&std::ios::eofbit))
+    if (is.fail() || !(is >> ch).eof())
     {
         throw cxxtools::ConversionError( CXXTOOLS_CONVERSIONERROR(double, cxxtools::String) );
     }
@@ -319,10 +326,10 @@ inline void convert(float& n, const std::string& str)
     }
 
     std::istringstream is(str);
+    char ch;
     is >> n;
 
-    const std::ios::iostate iostate = is.rdstate();
-    if((iostate&std::ios::failbit) || (iostate&std::ios::badbit) || !(iostate&std::ios::eofbit))
+    if (is.fail() || !(is >> ch).eof())
     {
         throw cxxtools::ConversionError( CXXTOOLS_CONVERSIONERROR(float, std::string) );
     }
@@ -353,10 +360,10 @@ inline void convert(double& n, const std::string& str)
     }
 
     std::stringstream is(str);
+    char ch;
     is >> std::fixed >> std::setprecision(15) >> n;
 
-    const std::ios::iostate iostate = is.rdstate();
-    if((iostate&std::ios::failbit) || (iostate&std::ios::badbit) || !(iostate&std::ios::eofbit))
+    if (is.fail() || !(is >> ch).eof())
     {
         throw cxxtools::ConversionError( CXXTOOLS_CONVERSIONERROR(double, std::string) );
     }

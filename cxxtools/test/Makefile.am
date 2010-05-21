@@ -5,6 +5,7 @@ noinst_PROGRAMS = \
     abort \
     base64-test \
     arg-test \
+    convert-test \
     alltests
 
 AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/include -I$(top_srcdir)/include
@@ -20,13 +21,16 @@ base64_test_SOURCES = test-main.cpp base64-test.cpp
 
 arg_test_SOURCES = test-main.cpp arg-test.cpp
 
+convert_test_SOURCES = test-main.cpp convert-test.cpp
+
 alltests_SOURCES = \
     arg-test.cpp \
     base64-test.cpp \
     tcpsockettest.cpp \
     test-main.cpp \
     process-test.cpp \
-    xmlrpc-test.cpp
+    xmlrpc-test.cpp \
+    convert-test.cpp
 
 abort_SOURCES = abort.cpp
 
