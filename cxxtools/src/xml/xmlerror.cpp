@@ -29,7 +29,7 @@ namespace cxxtools {
 
 namespace xml {
 
-XmlError::XmlError(const char* what, unsigned line)
+XmlError::XmlError(const std::string& what, unsigned line)
 : std::runtime_error(what)
 , _line(line)
 {
