@@ -39,6 +39,7 @@
 #include "cxxtools/log.h"
 #include <stdexcept>
 #include <iostream>
+#include <sstream>
 
 log_define("cxxtools.xml.reader")
 
@@ -99,93 +100,82 @@ struct XmlReaderImpl
                         return this->onAlpha(c, reader);
             }
 
-            log_warn("unexpected char '" << c << "' in line " << reader.line());
-            this->syntaxError(reader.line());
+            std::ostringstream msg;
+            msg << "unexpected char '" << c << '\'';
+            syntaxError(msg.str().c_str(), reader.line());
             return 0;
         }
 
         virtual State* onSpace(cxxtools::Char c, XmlReaderImpl& reader)
         {
-            log_warn("unexpected space in line " << reader.line());
-            this->syntaxError( reader.line() );
+            syntaxError("unexpected space", reader.line() );
             return this;
         }
 
         virtual State* onOpenBracket(cxxtools::Char c, XmlReaderImpl& reader)
         {
-            log_warn("unexpected open bracket in line " << reader.line());
-            this->syntaxError(reader.line());
+            syntaxError("unexpected open bracket", reader.line());
             return this;
         }
 
         virtual State* onCloseBracket(cxxtools::Char c, XmlReaderImpl& reader)
         {
-            log_warn("unexpected close bracket in line " << reader.line());
-            this->syntaxError(reader.line());
+            syntaxError("unexpected close bracket", reader.line());
             return this;
         }
 
         virtual State* onColon(cxxtools::Char c, XmlReaderImpl& reader)
         {
-            log_warn("unexpected colon in line " << reader.line());
-            this->syntaxError(reader.line());
+            syntaxError("unexpected colon", reader.line());
             return this;
         }
 
         virtual State* onSlash(cxxtools::Char c, XmlReaderImpl& reader)
         {
-            log_warn("unexpected slash in line " << reader.line());
-            this->syntaxError(reader.line());
+            syntaxError("unexpected slash", reader.line());
             return this;
         }
 
         virtual State* onEqual(cxxtools::Char c, XmlReaderImpl& reader)
         {
-            log_warn("unexpected equal in line " << reader.line());
-            this->syntaxError(reader.line());
+            syntaxError("unexpected equal", reader.line());
             return this;
         }
 
         virtual State* onQuote(cxxtools::Char c, XmlReaderImpl& reader)
         {
-            log_warn("unexpected quote in line " << reader.line());
-            this->syntaxError(reader.line());
+            syntaxError("unexpected quote", reader.line());
             return this;
         }
 
         virtual State* onExclam(cxxtools::Char c, XmlReaderImpl& reader)
         {
-            log_warn("unexpected exclamation mark in line " << reader.line());
-            this->syntaxError(reader.line());
+            syntaxError("unexpected exclamation mark", reader.line());
             return this;
         }
 
         virtual State* onQuest(cxxtools::Char c, XmlReaderImpl& reader)
         {
-            log_warn("unexpected questionmark in line " << reader.line());
-            this->syntaxError(reader.line());
+            syntaxError("unexpected questionmark", reader.line());
             return this;
         }
 
         virtual State* onAlpha(cxxtools::Char c, XmlReaderImpl& reader)
         {
-            log_warn("unexpected alpha '" << c << "' in line " << reader.line());
-            this->syntaxError(reader.line());
+            std::ostringstream msg;
+            msg << "unexpected alpha '" << c << '\'';
+            syntaxError(msg.str().c_str(), reader.line());
             return this;
         }
 
         virtual State* onEof(cxxtools::Char c, XmlReaderImpl& reader)
         {
-            log_warn("unexpected eof in line " << reader.line());
-            this->syntaxError(reader.line());
+            syntaxError("unexpected end of file", reader.line());
             return this;
         }
 
-        void syntaxError(unsigned line)
-        {
-            log_warn("syntax error in line " << line);
-            throw XmlError("syntax error", line);
-        }
+        static void syntaxError(const char* msg, unsigned line);
+
     };
 
 
@@ -286,7 +276,7 @@ struct XmlReaderImpl
                 return OnCData::instance();
             }
 
-            this->syntaxError( reader.line() );
+            syntaxError("CDATA expected", reader.line());
             return this;
         }
 
@@ -807,7 +797,7 @@ struct XmlReaderImpl
             if(c == '-')
                 return OnComment::instance();
 
-            this->syntaxError(reader.line()); // TODO DOCTYPE
+            State::onAlpha(c, reader);  // throws syntax error // TODO DOCTYPE
             return this;
         }
 
@@ -833,7 +823,7 @@ struct XmlReaderImpl
         virtual State* onEof(cxxtools::Char c, XmlReaderImpl& reader)
         {
             if(reader.depth() > 0)
-                this->syntaxError( reader.line() );
+                return State::onEof(c, reader);  // throws exception
 
             reader._current = &( reader._endDoc );
             return this;
@@ -927,7 +917,7 @@ struct XmlReaderImpl
             }
 
             token.clear();
-            this->syntaxError( reader.line() );
+            syntaxError("DOCTYPE expected", reader.line());
             return this;
         }
 
@@ -960,8 +950,7 @@ struct XmlReaderImpl
                 return BeforeDocType::instance();
             }
 
-            this->syntaxError(reader.line());
-            return this;
+            return State::onAlpha(c, reader);  // throws syntax error
         }
 
         static State* instance()
@@ -1575,6 +1564,15 @@ struct XmlReaderImpl
     Attribute _attr;
     EndDocument _endDoc;
 };
+
+
+void XmlReaderImpl::State::syntaxError(const char* msg, unsigned line)
+{
+    std::ostringstream s;
+    s << msg << " while parsing xml in line " << line;
+    log_warn(s.str());
+    throw XmlError(s.str(), line);
+}
 
 
 XmlReader::XmlReader(std::istream& is, int flags)
