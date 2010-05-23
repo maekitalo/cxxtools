@@ -114,6 +114,7 @@ noinst_HEADERS = \
 	settingsreader.h \
 	settingswriter.h \
 	threadimpl.h \
+	threadpoolimpl.h \
 	unicode.h \
 	tcpserverimpl.h \
 	tcpsocketimpl.h

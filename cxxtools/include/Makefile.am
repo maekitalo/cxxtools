@@ -129,6 +129,7 @@ nobase_include_HEADERS = \
         cxxtools/textcodec.h \
         cxxtools/textstream.h \
         cxxtools/thread.h \
+        cxxtools/threadpool.h \
         cxxtools/time.h \
         cxxtools/timer.h \
         cxxtools/timespan.h \
