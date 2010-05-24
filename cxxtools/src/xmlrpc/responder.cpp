@@ -36,9 +36,11 @@
 #include "cxxtools/http/reply.h"
 #include "cxxtools/utf8codec.h"
 
-namespace cxxtools {
+namespace cxxtools
+{
 
-namespace xmlrpc {
+namespace xmlrpc
+{
 
 XmlRpcResponder::XmlRpcResponder(Service& service)
 : http::Responder(service)
@@ -296,14 +298,14 @@ void XmlRpcResponder::advance(const cxxtools::xml::Node& node)
                     //std::cerr << "-> begin call" << std::endl;
                     _args = _proc->beginCall();
                     if( ! *_args)
-                        std::runtime_error("too many arguments");
+                        throw std::runtime_error("too many arguments");
                 }
                 else
                 {
                     //std::cerr << "-> next argument" << std::endl;
                     ++_args;
                     if( ! *_args)
-                        std::runtime_error("too many arguments");
+                        throw std::runtime_error("too many arguments");
                 }
 
                 _scanner.begin(**_args, _context);
