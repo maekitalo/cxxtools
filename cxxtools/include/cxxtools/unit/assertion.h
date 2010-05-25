@@ -121,6 +121,9 @@ namespace unit {
             throw cxxtools::unit::Assertion("unexpected exception." , CXXTOOLS_SOURCEINFO); \
         }
 
+    #define CXXTOOLS_UNIT_FAIL(what) \
+        throw cxxtools::unit::Assertion(what, CXXTOOLS_SOURCEINFO);
+
 } // namespace unit
 
 } // namespace cxxtools
