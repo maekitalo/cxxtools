@@ -636,10 +636,17 @@ void ClientImpl::processBodyAvailable(StreamBuffer& sb)
                 throw IOError( CXXTOOLS_ERROR_MSG("error reading HTTP reply body") );
         }
 
-        if (!_chunkedIStream.eod() || !_parser.end())
+        if (_socket.enabled())
         {
-            log_debug("call beginRead");
-            sb.beginRead();
+            if ((!_chunkedIStream.eod() || !_parser.end()))
+            {
+                log_debug("call beginRead");
+                sb.beginRead();
+            }
+        }
+        else
+        {
+            cancel();
         }
     }
     else
@@ -667,9 +674,13 @@ void ClientImpl::processBodyAvailable(StreamBuffer& sb)
 
             _client->replyFinished(*_client);
         }
-        else
+        else if (_socket.enabled() && _stream.good())
         {
             sb.beginRead();
+        }
+        else
+        {
+            cancel();
         }
     }
 }
