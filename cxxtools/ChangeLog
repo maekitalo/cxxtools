@@ -1,3 +1,43 @@
+2010-04-05 tommi@tntnet.org
+ - add template class Argp for reading arguments with parameter and add unit tests for Arg* template classes
+
+2010-03-24 tommi@tntnet.org
+ - add support for TCP_DEFER_ACCEPT
+
+2010-03-22 tommi@tntnet.org
+ - support for out of tree builds
+
+2010-03-19 tommi@tntnet.org
+ - replace errorOccured signal with throwing errors in endXXX-methods
+
+2010-03-07 tommi@tntnet.org
+ - make url settable in http xmlrpc client
+
+2010-03-02 tommi@tntnet.org
+ - add new BasicEvent template for easier event definition and use it in http server
+
+2010-02-27 tommi@tntnet.org
+ - add template class for (thread-)queue
+ - add support for listen on any socket and connect to any local by passing an empty ip address
+ - run http server in event loop
+ - add exited signal to event loop
+
+2010-02-07 tommi@tntnet.org
+ - accept gets a inherit flag instead of closeOnExec
+
+2010-02-06 tommi@tntnet.org
+ - add new class cxxtools::Cache
+
+2010-02-05 tommi@tntnet.org
+ - add mutex to service list in httpserver, so that other threads may add or
+   remove services while the server is running
+
+2010-02-04 tommi@tntnet.org
+ - extend number of parameters in xmlrpc clienth from 5 to 10
+
+2010-02-03 tommi@tntnet.org
+ - add cancel method to http client, xmlrpc client and iodevice
+
 2009-12-27 tommi@tntnet.org
  - remove cxxtools::Dynbuffer (use std::vector instead)
 
