@@ -168,37 +168,37 @@ class ArgBaseT<std::string> : public ArgBase
 
 };
 
-    /** @brief Read and extract commandline parameters from argc/argv.
+/** @brief Read and extract commandline parameters from argc/argv.
 
-        Programs usually need some parameters. Usually they start with a '-'
-        followed by a single character and optionally a value.
-        Arg<T> extracts these and other parameters.
+    Programs usually need some parameters. Usually they start with a '-'
+    followed by a single character and optionally a value.
+    Arg<T> extracts these and other parameters.
 
-        This default class processes paramters with a value, which defines
-        a input-extractor-operator operator>> (istream&, T&).
+    This default class processes paramters with a value, which defines
+    a input-extractor-operator operator>> (istream&, T&).
 
-        Options are removed from the option-list, so programs can easily check
-        after all options are extracted, if there are parameters left.
+    Options are removed from the option-list, so programs can easily check
+    after all options are extracted, if there are parameters left.
 
-        example:
-        \code
-          int main(int argc, char* argv[])
-          {
-            cxxtools::Arg<int> option_n(argc, argv, 'n', 0);
-            std::cout << "value for -n: " << option_n << endl;
-          }
-        \endcode
+    example:
+    \code
+      int main(int argc, char* argv[])
+      {
+        cxxtools::Arg<int> option_n(argc, argv, 'n', 0);
+        std::cout << "value for -n: " << option_n << endl;
+      }
+    \endcode
 
+ */
+template <typename T>
+class Arg : public ArgBaseT<T>
+{
+  public:
+    /**
+     default constructor. Initializes value.
+
+     \param def    initial value
      */
-    template <typename T>
-    class Arg : public ArgBaseT<T>
-    {
-      public:
-        /**
-         default constructor. Initializes value.
-
-         \param def    initial value
-         */
     Arg(const T& def = T())
       : ArgBaseT<T>(def)
       { }
@@ -372,32 +372,6 @@ class Arg<bool> : public ArgBase
     { }
 
     /**
-     extract parameter.
-
-     \param argc      1. parameter of main
-     \param argv      2. of main
-     \param ch        optioncharacter
-     \param def       default-value
-
-     example:
-     \code
-      cxxtools::Arg<unsigned> offset(argc, argv, 'o', 0);
-      unsigned value = offset.getValue();
-     \endcode
-     */
-    Arg(int& argc, char* argv[], char ch, bool def = false)
-      : m_value(def)
-    {
-      m_isset = set(argc, argv, ch);
-    }
-
-    Arg(int& argc, char* argv[], const char* str, bool def = false)
-      : m_value(def)
-    {
-      m_isset = set(argc, argv, str);
-    }
-
-    /**
      Use this constructor to extract a bool-parameter.
 
      As a special case options can be grouped. The parameter is
@@ -440,6 +414,18 @@ class Arg<bool> : public ArgBase
      This is useful, if a program defaults to some enabled feature,
      which can be disabled.
      */
+    Arg(int& argc, char* argv[], char ch, bool def = false)
+      : m_value(def)
+    {
+      m_isset = set(argc, argv, ch);
+    }
+
+    Arg(int& argc, char* argv[], const char* str, bool def = false)
+      : m_value(def)
+    {
+      m_isset = set(argc, argv, str);
+    }
+
     bool set(int& argc, char* argv[], char ch)
     {
       // don't extract value, when already found
@@ -543,6 +529,12 @@ class Arg<bool> : public ArgBase
   private:
     bool m_value;
 };
+
+template <typename T>
+std::ostream& operator<< (std::ostream& out, const ArgBaseT<T> arg)
+{
+  return out << arg.getValue();
+}
 
 }
 
