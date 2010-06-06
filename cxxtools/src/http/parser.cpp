@@ -31,6 +31,7 @@
 #include <cxxtools/log.h>
 #include <cctype>
 #include <algorithm>
+#include <string.h>
 
 log_define("cxxtools.http.parser")
 

@@ -32,6 +32,7 @@
 #include <cctype>
 #include <sstream>
 #include <stdio.h>
+#include <string.h>
 
 log_define("cxxtools.http.messageheader")
 
