@@ -51,7 +51,7 @@
 #  include <sys/socket.h>
 #endif
 
-log_define("cxxtools.net.tcpserverimpl")
+log_define("cxxtools.net.tcpserver.impl")
 
 namespace cxxtools
 {
