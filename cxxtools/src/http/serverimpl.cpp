@@ -186,18 +186,18 @@ void ServerImpl::threadTerminated(Worker* worker)
     }
 }
 
-void ServerImpl::addIdleSocket(Socket* _socket)
+void ServerImpl::addIdleSocket(Socket* socket)
 {
-    log_debug("add idle socket " << static_cast<void*>(_socket));
+    log_debug("add idle socket " << static_cast<void*>(socket));
 
     if (_runmode == Server::Running)
     {
-        _eventLoop.commitEvent(IdleSocketEvent(_socket));
+        _eventLoop.commitEvent(IdleSocketEvent(socket));
     }
     else
     {
-        log_debug("server not running; delete " << static_cast<void*>(_socket));
-        delete _socket;
+        log_debug("server not running; delete " << static_cast<void*>(socket));
+        delete socket;
     }
 }
 

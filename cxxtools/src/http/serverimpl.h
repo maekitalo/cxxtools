@@ -157,7 +157,7 @@ class ServerImpl : public Connectable
             _runmodeChanged(runmode);
         }
 
-        void addIdleSocket(Socket* _socket);
+        void addIdleSocket(Socket* socket);
         void onIdleSocket(const IdleSocketEvent& event);
         void onKeepAliveTimeout(const KeepAliveTimeoutEvent& event);
         void onNoWaitingThreads(const NoWaitingThreadsEvent& event);
