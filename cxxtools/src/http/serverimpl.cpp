@@ -53,6 +53,7 @@ ServerImpl::ServerImpl(EventLoopBase& eventLoop, Signal<Server::Runmode>& runmod
       _runmode(Server::Stopped)
 {
     _eventLoop.event.subscribe(slot(*this, &ServerImpl::onIdleSocket));
+    _eventLoop.event.subscribe(slot(*this, &ServerImpl::onActiveSocket));
     _eventLoop.event.subscribe(slot(*this, &ServerImpl::onKeepAliveTimeout));
     _eventLoop.event.subscribe(slot(*this, &ServerImpl::onNoWaitingThreads));
     _eventLoop.event.subscribe(slot(*this, &ServerImpl::onThreadTerminated));
@@ -213,6 +214,11 @@ void ServerImpl::onIdleSocket(const IdleSocketEvent& event)
     connect(socket->timeout, timeoutSlot);
 }
 
+void ServerImpl::onActiveSocket(const ActiveSocketEvent& event)
+{
+    _queue.put(event.socket());
+}
+
 void ServerImpl::onNoWaitingThreads(const NoWaitingThreadsEvent& event)
 {
     MutexLock lock(_threadMutex);
@@ -280,7 +286,7 @@ void ServerImpl::onInput(Socket& socket)
     {
         disconnect(socket.inputReady, inputSlot);
         disconnect(socket.timeout, timeoutSlot);
-        _queue.put(&socket);
+        _eventLoop.commitEvent(ActiveSocketEvent(&socket));
     }
     else
     {

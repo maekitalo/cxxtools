@@ -108,6 +108,19 @@ class ThreadTerminatedEvent : public BasicEvent<ThreadTerminatedEvent>
         Worker* worker() const   { return _worker; }
 };
 
+class ActiveSocketEvent : public BasicEvent<ActiveSocketEvent>
+{
+        Socket* _socket;
+
+    public:
+        explicit ActiveSocketEvent(Socket* socket)
+            : _socket(socket)
+            { }
+
+        Socket* socket() const   { return _socket; }
+
+};
+
 class ServerImpl : public Connectable
 {
     public:
@@ -159,6 +172,7 @@ class ServerImpl : public Connectable
 
         void addIdleSocket(Socket* socket);
         void onIdleSocket(const IdleSocketEvent& event);
+        void onActiveSocket(const ActiveSocketEvent& event);
         void onKeepAliveTimeout(const KeepAliveTimeoutEvent& event);
         void onNoWaitingThreads(const NoWaitingThreadsEvent& event);
         void onThreadTerminated(const ThreadTerminatedEvent& event);
