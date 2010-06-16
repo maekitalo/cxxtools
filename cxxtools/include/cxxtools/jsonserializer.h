@@ -128,6 +128,8 @@ namespace cxxtools
             void finish()
             {
                 _formatter.finish();
+                if (_ts)
+                    _ts->flush();
             }
 
             template <typename T>

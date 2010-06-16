@@ -225,6 +225,7 @@ class XmlSerializer
         {
             _context.fixdown(_formatter);
             _context.clear();
+            flush();
         }
 
         //! @internal
