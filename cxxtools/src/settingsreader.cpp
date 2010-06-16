@@ -31,7 +31,7 @@ namespace cxxtools {
 
 void SettingsReader::State::syntaxError(unsigned line)
 {
-	throw SettingsError( CXXTOOLS_ERROR_MSG("syntax error"), line);
+    throw SettingsError( CXXTOOLS_ERROR_MSG("syntax error"), line);
 }
 
 
