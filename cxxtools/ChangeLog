@@ -1,3 +1,9 @@
+2010-06-16 tommi@tntnet.org
+ - flush textstream in finish method of xml- and jsonserializer
+
+2010-06-07 tommi@tntnet.org
+  - fix race condition in http server when handling idle sockets
+
 2010-04-05 tommi@tntnet.org
  - add template class Argp for reading arguments with parameter and add unit tests for Arg* template classes
 
