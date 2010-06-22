@@ -64,8 +64,10 @@ static const int noPendingAccept = std::numeric_limits<int>::max();
 TcpServerImpl::TcpServerImpl(TcpServer& server)
 : _server(server),
   _pendingAccept(noPendingAccept),
-  _pfd(0),
-  _deferAccept(false)
+  _pfd(0)
+#ifdef HAVE_TCP_DEFER_ACCEPT
+  , _deferAccept(false)
+#endif
 {
 
 }
