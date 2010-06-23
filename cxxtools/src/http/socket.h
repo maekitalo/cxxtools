@@ -94,6 +94,9 @@ class Socket : public net::TcpSocket, public Connectable
 
         MethodSlot<void, Socket, StreamBuffer&> inputSlot;
 
+        Connection inputConnection;
+        Connection timeoutConnection;
+
     private:
         net::TcpServer& _tcpServer;
         ServerImpl& _server;

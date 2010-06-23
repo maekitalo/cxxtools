@@ -210,8 +210,8 @@ void ServerImpl::onIdleSocket(const IdleSocketEvent& event)
 
     _idleSockets.insert(socket);
     socket->setSelector(&_eventLoop);
-    connect(socket->inputReady, inputSlot);
-    connect(socket->timeout, timeoutSlot);
+    socket->inputConnection = connect(socket->inputReady, inputSlot);
+    socket->timeoutConnection = connect(socket->timeout, timeoutSlot);
 }
 
 void ServerImpl::onActiveSocket(const ActiveSocketEvent& event)
@@ -284,8 +284,8 @@ void ServerImpl::onInput(Socket& socket)
 
     if (socket.isConnected())
     {
-        disconnect(socket.inputReady, inputSlot);
-        disconnect(socket.timeout, timeoutSlot);
+        socket.inputConnection.close();
+        socket.timeoutConnection.close();
         _eventLoop.commitEvent(ActiveSocketEvent(&socket));
     }
     else
