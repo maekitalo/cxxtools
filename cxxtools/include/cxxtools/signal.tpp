@@ -332,12 +332,6 @@
 */
 
     template <typename R,class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, class A9>
-    void disconnect(Signal<A1,A2,A3,A4,A5,A6,A7,A8,A9>& signal, const BasicSlot<R,A1,A2,A3,A4,A5,A6,A7,A8,A9>& slot)
-    {
-        return signal.disconnect( slot );
-    }
-
-    template <typename R,class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, class A9>
     void disconnect(Signal<A1,A2,A3,A4,A5,A6,A7,A8,A9>& signal, R(*func)(A1,A2,A3,A4,A5,A6,A7,A8,A9))
     {
         signal.disconnect( slot(func) );
@@ -481,12 +475,6 @@
         return connect( sender, slot(receiver) );
     }
 */
-
-    template <typename R,class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8>
-    void disconnect(Signal<A1,A2,A3,A4,A5,A6,A7,A8>& signal, const BasicSlot<R,A1,A2,A3,A4,A5,A6,A7,A8>& slot)
-    {
-        return signal.disconnect( slot );
-    }
 
     template <typename R,class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8>
     void disconnect(Signal<A1,A2,A3,A4,A5,A6,A7,A8>& signal, R(*func)(A1,A2,A3,A4,A5,A6,A7,A8))
@@ -634,12 +622,6 @@
 */
 
     template <typename R,class A1, class A2, class A3, class A4, class A5, class A6, class A7>
-    void disconnect(Signal<A1,A2,A3,A4,A5,A6,A7>& signal, const BasicSlot<R,A1,A2,A3,A4,A5,A6,A7>& slot)
-    {
-        return signal.disconnect( slot );
-    }
-
-    template <typename R,class A1, class A2, class A3, class A4, class A5, class A6, class A7>
     void disconnect(Signal<A1,A2,A3,A4,A5,A6,A7>& signal, R(*func)(A1,A2,A3,A4,A5,A6,A7))
     {
         signal.disconnect( slot(func) );
@@ -783,12 +765,6 @@
         return connect( sender, slot(receiver) );
     }
 */
-
-    template <typename R,class A1, class A2, class A3, class A4, class A5, class A6>
-    void disconnect(Signal<A1,A2,A3,A4,A5,A6>& signal, const BasicSlot<R,A1,A2,A3,A4,A5,A6>& slot)
-    {
-        return signal.disconnect( slot );
-    }
 
     template <typename R,class A1, class A2, class A3, class A4, class A5, class A6>
     void disconnect(Signal<A1,A2,A3,A4,A5,A6>& signal, R(*func)(A1,A2,A3,A4,A5,A6))
@@ -936,12 +912,6 @@
 */
 
     template <typename R,class A1, class A2, class A3, class A4, class A5>
-    void disconnect(Signal<A1,A2,A3,A4,A5>& signal, const BasicSlot<R,A1,A2,A3,A4,A5>& slot)
-    {
-        return signal.disconnect( slot );
-    }
-
-    template <typename R,class A1, class A2, class A3, class A4, class A5>
     void disconnect(Signal<A1,A2,A3,A4,A5>& signal, R(*func)(A1,A2,A3,A4,A5))
     {
         signal.disconnect( slot(func) );
@@ -1085,12 +1055,6 @@
         return connect( sender, slot(receiver) );
     }
 */
-
-    template <typename R,class A1, class A2, class A3, class A4>
-    void disconnect(Signal<A1,A2,A3,A4>& signal, const BasicSlot<R,A1,A2,A3,A4>& slot)
-    {
-        return signal.disconnect( slot );
-    }
 
     template <typename R,class A1, class A2, class A3, class A4>
     void disconnect(Signal<A1,A2,A3,A4>& signal, R(*func)(A1,A2,A3,A4))
@@ -1238,12 +1202,6 @@
 */
 
     template <typename R,class A1, class A2, class A3>
-    void disconnect(Signal<A1,A2,A3>& signal, const BasicSlot<R,A1,A2,A3>& slot)
-    {
-        return signal.disconnect( slot );
-    }
-
-    template <typename R,class A1, class A2, class A3>
     void disconnect(Signal<A1,A2,A3>& signal, R(*func)(A1,A2,A3))
     {
         signal.disconnect( slot(func) );
@@ -1387,12 +1345,6 @@
         return connect( sender, slot(receiver) );
     }
 */
-
-    template <typename R,class A1, class A2>
-    void disconnect(Signal<A1,A2>& signal, const BasicSlot<R,A1,A2>& slot)
-    {
-        return signal.disconnect( slot );
-    }
 
     template <typename R,class A1, class A2>
     void disconnect(Signal<A1,A2>& signal, R(*func)(A1,A2))
@@ -1540,12 +1492,6 @@
 */
 
     template <typename R,class A1>
-    void disconnect(Signal<A1>& signal, const BasicSlot<R,A1>& slot)
-    {
-        return signal.disconnect( slot );
-    }
-
-    template <typename R,class A1>
     void disconnect(Signal<A1>& signal, R(*func)(A1))
     {
         signal.disconnect( slot(func) );
@@ -1679,12 +1625,6 @@
     Connection connect(Signal<>& signal, BaseT& object, R(ClassT::*memFunc)() const)
     {
         return connect( signal, slot(object, memFunc) );
-    }
-
-    template <typename R>
-    void disconnect(Signal<>& signal, const BasicSlot<R>& slot)
-    {
-        return signal.disconnect( slot );
     }
 
     template <typename R>
