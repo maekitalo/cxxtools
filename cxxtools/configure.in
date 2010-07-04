@@ -139,6 +139,23 @@ AC_COMPILE_IFELSE(
   ],
   AC_DEFINE(HAVE_TCP_DEFER_ACCEPT, [], [defined if TCP_DEFER_ACCEPT is defined]))
 
+AC_COMPILE_IFELSE(
+  [#include <iterator>
+   std::reverse_iterator<char*> r;],
+  [HAVE_REVERSE_ITERATOR=HAVE_REVERSE_ITERATOR
+   AC_DEFINE(HAVE_REVERSE_ITERATOR, [], [defined if std::reverse_iterator<Iterator> is defined])],
+  [HAVE_REVERSE_ITERATOR=NO_REVERSE_ITERATOR])
+
+AC_COMPILE_IFELSE(
+  [#include <iterator>
+   std::reverse_iterator<char*, int, char, char*, char&> r;],
+  [HAVE_REVERSE_ITERATOR_4=HAVE_REVERSE_ITERATOR_4
+   AC_DEFINE(HAVE_REVERSE_ITERATOR_4, [], [defined if std::reverse_iterator<Iterator, Difference, Value, Pointer, Reference> is defined])],
+  [HAVE_REVERSE_ITERATOR_4=NO_REVERSE_ITERATOR_4])
+
+AC_SUBST(HAVE_REVERSE_ITERATOR, "$HAVE_REVERSE_ITERATOR")
+AC_SUBST(HAVE_REVERSE_ITERATOR_4, "$HAVE_REVERSE_ITERATOR_4")
+
 TESTDIR="`pwd`/test"
 AC_SUBST(TESTDIR)
 

@@ -38,6 +38,7 @@
 #include <cassert>
 #include <stdexcept>
 
+#include <cxxtools/config.h>
 
 namespace std {
 
@@ -59,8 +60,15 @@ class basic_string< cxxtools::Char > {
         typedef value_type* iterator;
         typedef const value_type* const_iterator;
 
+#if defined(HAVE_REVERSE_ITERATOR)
         typedef std::reverse_iterator<iterator> reverse_iterator;
         typedef const std::reverse_iterator<const_iterator> const_reverse_iterator;
+#       define HAVE_STRING_REVERSE_ITERATOR
+#elif defined(HAVE_REVERSE_ITERATOR_4)
+        typedef std::reverse_iterator<iterator, difference_type, value_type, pointer, reference> reverse_iterator;
+        typedef std::reverse_iterator<const_iterator, difference_type, value_type, pointer, reference> const_reverse_iterator;
+#       define HAVE_STRING_REVERSE_ITERATOR
+#endif
 
         static const size_type npos = static_cast<size_type>(-1);
 
@@ -100,6 +108,7 @@ class basic_string< cxxtools::Char > {
 
         const_iterator end() const;
 
+#ifdef HAVE_STRING_REVERSE_ITERATOR
         reverse_iterator rbegin()
         { return reverse_iterator( this->end() ); }
 
@@ -111,6 +120,7 @@ class basic_string< cxxtools::Char > {
 
         const_reverse_iterator rend()   const
         { return const_reverse_iterator( this->begin() ); }
+#endif
 
         reference operator[](size_type n)
         {
