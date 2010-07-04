@@ -388,12 +388,32 @@ int TcpServerImpl::accept(int flags, struct sockaddr* sa, socklen_t& sa_len)
 #endif
 
 #ifdef HAVE_ACCEPT4
-    int f = SOCK_NONBLOCK;
-    if (!inherit)
-        f |= SOCK_CLOEXEC;
-    int clientFd = ::accept4(listenerFd, sa, &sa_len, f);
-    if( clientFd < 0 )
-        throw SystemError("accept4");
+    int clientFd;
+    static bool useAccept4 = true;
+    if (useAccept4)
+    {
+        int f = SOCK_NONBLOCK;
+        if (!inherit)
+            f |= SOCK_CLOEXEC;
+        clientFd = ::accept4(listenerFd, sa, &sa_len, f);
+        if( clientFd < 0 )
+        {
+            if (errno == ENOSYS)
+            {
+                log_info("accept4 system call not available - fallback to accept");
+                useAccept4 = false;
+            }
+            else
+                throw SystemError("accept4");
+        }
+    }
+
+    if (!useAccept4)
+    {
+        clientFd = ::accept(listenerFd, sa, &sa_len);
+        if( clientFd < 0 )
+            throw SystemError("accept");
+    }
 #else
     int clientFd = ::accept(listenerFd, sa, &sa_len);
     if( clientFd < 0 )
