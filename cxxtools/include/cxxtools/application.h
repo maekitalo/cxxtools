@@ -68,10 +68,16 @@ namespace cxxtools {
      */
     class CXXTOOLS_API Application : public Connectable
     {
-        public:
-            explicit Application(int argc = 0, char** argv = 0);
+            void construct();
 
-            Application(EventLoopBase* loop, int argc = 0, char** argv = 0);
+        public:
+            Application();
+
+            Application(int argc, char** argv);
+
+            Application(EventLoopBase* loop);
+
+            Application(EventLoopBase* loop, int argc, char** argv);
 
             ~Application();
 

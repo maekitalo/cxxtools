@@ -29,21 +29,21 @@
 #define CXXTOOLS_CONVERSINERROR_H
 
 #include <cxxtools/api.h>
-#include <cxxtools/sourceinfo.h>
 #include <stdexcept>
 
-#define CXXTOOLS_CONVERSIONERROR(to, from) \
-    CXXTOOLS_ERROR_MSG("conversion from " #from " to " #to " failed")
+namespace cxxtools
+{
 
-namespace cxxtools {
-
-class ConversionError : public std::runtime_error
+class CXXTOOLS_API ConversionError : public std::runtime_error
 {
     public:
-        ConversionError(const char* msg);
+        explicit ConversionError(const std::string& msg);
 
         ~ConversionError() throw()
         {}
+
+        static void doThrow(const char* typeto, const char* typefrom);
+
 };
 
 } // namespace cxxtools

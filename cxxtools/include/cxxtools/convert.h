@@ -33,14 +33,17 @@
 #include <cxxtools/string.h>
 #include <cxxtools/stringstream.h>
 #include <cxxtools/conversionerror.h>
+#include <cxxtools/sourceinfo.h>
 #include <sstream>
 #include <string>
 #include <stdexcept>
 #include <iomanip>
 #include <limits>
 #include <iostream>
-
-namespace cxxtools {
+#include <typeinfo>
+ 
+namespace cxxtools
+{
 
 template <typename T>
 inline void convert(cxxtools::String& s, const T& value)
@@ -58,9 +61,7 @@ inline void convert(T& t, const cxxtools::String& str)
     cxxtools::Char ch;
     is >> t;
     if (is.fail() || !(is >> ch).eof())
-    {
-        throw cxxtools::ConversionError( CXXTOOLS_CONVERSIONERROR(T, cxxtools::String) );
-    }
+        ConversionError::doThrow(typeid(T).name(), "cxxtools::String");
 }
 
 
@@ -80,9 +81,7 @@ inline void convert(T& t, const std::string& str)
     char ch;
     is >> t;
     if (is.fail() || !(is >> ch).eof())
-    {
-        throw cxxtools::ConversionError( CXXTOOLS_CONVERSIONERROR(T, std::string) );
-    }
+        ConversionError::doThrow(typeid(T).name(), "std::string");
 }
 
 
@@ -130,7 +129,7 @@ inline void convert(bool& n, const cxxtools::String& str)
     }
     else
     {
-        throw cxxtools::ConversionError( CXXTOOLS_CONVERSIONERROR(bool, cxxtools::String) );
+        ConversionError::doThrow("bool", "cxxtools::String");
     }
 }
 
@@ -141,7 +140,7 @@ inline void convert(bool& n, const std::string& str)
     else if (str == "false" || str == "0")
         n = false;
     else
-        throw cxxtools::ConversionError( CXXTOOLS_CONVERSIONERROR(bool, std::string) );
+        ConversionError::doThrow("bool", "std::string");
 }
 
 inline void convert(cxxtools::String& s, char value)
@@ -153,7 +152,7 @@ inline void convert(cxxtools::String& s, char value)
 inline void convert(char& n, const cxxtools::String& str)
 {
     if( str.empty() )
-        throw cxxtools::ConversionError( CXXTOOLS_CONVERSIONERROR(char, cxxtools::String) );
+        ConversionError::doThrow("char", "cxxtools::String");
 
     n = str[0].narrow('*');
 }
@@ -171,7 +170,7 @@ inline void convert(cxxtools::String& s, unsigned char value)
 inline void convert(unsigned char& n, const cxxtools::String& str)
 {
     if( str.empty() )
-        throw cxxtools::ConversionError( CXXTOOLS_CONVERSIONERROR(unsigned char, cxxtools::String) );
+        ConversionError::doThrow("unsigned char", "cxxtools::String");
 
     // interpret as numeric value
     cxxtools::StringStream ss(str);
@@ -183,7 +182,7 @@ inline void convert(unsigned char& n, const cxxtools::String& str)
       || i < std::numeric_limits<unsigned char>::min()
       || !(ss >> ch).eof())
     {
-        throw cxxtools::ConversionError( CXXTOOLS_CONVERSIONERROR(unsigned char, cxxtools::String) );
+        ConversionError::doThrow("unsigned char", "cxxtools::String");
     }
 
     n = static_cast<unsigned char>(i);
@@ -202,7 +201,7 @@ inline void convert(cxxtools::String& s, signed char value)
 inline void convert(signed char& n, const cxxtools::String& str)
 {
     if( str.empty() )
-        throw cxxtools::ConversionError( CXXTOOLS_CONVERSIONERROR(signed char, cxxtools::String) );
+        ConversionError::doThrow("signed char", "cxxtools::String");
         
     // interpret as numeric value
     cxxtools::StringStream ss(str);
@@ -214,7 +213,7 @@ inline void convert(signed char& n, const cxxtools::String& str)
       || i < std::numeric_limits<signed char>::min()
       || !(ss >> ch).eof())
     {
-        throw cxxtools::ConversionError( CXXTOOLS_CONVERSIONERROR(signed char, cxxtools::String) );
+        ConversionError::doThrow("signed char", "cxxtools::String");
     }
     n = static_cast<signed char>(i);
 }
@@ -262,7 +261,7 @@ inline void convert(float& n, const cxxtools::String& str)
 
     if (is.fail() || !(is >> ch).eof())
     {
-        throw cxxtools::ConversionError( CXXTOOLS_CONVERSIONERROR(float, cxxtools::String) );
+        ConversionError::doThrow("float", "cxxtools::String");
     }
 }
 
@@ -297,7 +296,7 @@ inline void convert(double& n, const cxxtools::String& str)
 
     if (is.fail() || !(is >> ch).eof())
     {
-        throw cxxtools::ConversionError( CXXTOOLS_CONVERSIONERROR(double, cxxtools::String) );
+        ConversionError::doThrow("double", "cxxtools::String");
     }
 }
 
@@ -331,7 +330,7 @@ inline void convert(float& n, const std::string& str)
 
     if (is.fail() || !(is >> ch).eof())
     {
-        throw cxxtools::ConversionError( CXXTOOLS_CONVERSIONERROR(float, std::string) );
+        ConversionError::doThrow("float", "std::string");
     }
 }
 
@@ -365,7 +364,7 @@ inline void convert(double& n, const std::string& str)
 
     if (is.fail() || !(is >> ch).eof())
     {
-        throw cxxtools::ConversionError( CXXTOOLS_CONVERSIONERROR(double, std::string) );
+        ConversionError::doThrow("double", "std::string");
     }
 }
 
@@ -374,7 +373,7 @@ void convert(T& to, const S& from)
 {
     cxxtools::StringStream ss;
     if( !(ss << from && ss >> to) )
-        throw cxxtools::ConversionError( CXXTOOLS_CONVERSIONERROR(streamable, streamable) );
+        ConversionError::doThrow(typeid(T).name(), typeid(S).name());
 }
 
 

@@ -32,7 +32,8 @@
 #include <iostream>
 #include <stdexcept>
 
-namespace {
+namespace
+{
 
 cxxtools::Application*& getSystemAppPtr()
 {
@@ -42,13 +43,10 @@ cxxtools::Application*& getSystemAppPtr()
 
 }
 
-namespace cxxtools {
+namespace cxxtools
+{
 
-Application::Application(int argc, char** argv)
-: _argc(argc)
-, _argv(argv)
-, _loop(0)
-, _owner(0)
+void Application::construct()
 {
     if( getSystemAppPtr() )
         throw std::logic_error("application already initialized");
@@ -59,7 +57,36 @@ Application::Application(int argc, char** argv)
     _impl = new ApplicationImpl;
 
     _owner = new EventLoop();
-    this->init(*_owner);
+    init(*_owner);
+}
+
+Application::Application()
+: _argc(0)
+, _argv(0)
+, _loop(0)
+, _owner(0)
+{
+    construct();
+}
+
+
+Application::Application(int argc, char** argv)
+: _argc(argc)
+, _argv(argv)
+, _loop(0)
+, _owner(0)
+{
+    construct();
+}
+
+
+Application::Application(EventLoopBase* loop)
+: _argc(0)
+, _argv(0)
+, _loop(0)
+, _owner(0)
+{
+    construct();
 }
 
 
@@ -69,16 +96,7 @@ Application::Application(EventLoopBase* loop, int argc, char** argv)
 , _loop(0)
 , _owner(0)
 {
-    if( getSystemAppPtr() )
-        throw std::logic_error("application already initialized");
-
-    // base class already throws if constructed twice
-    ::getSystemAppPtr() = this;
-
-    _impl = new ApplicationImpl;
-
-    if(loop)
-        this->init(*loop);
+    construct();
 }
 
 

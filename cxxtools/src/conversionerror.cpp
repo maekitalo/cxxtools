@@ -25,13 +25,25 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-#include "cxxtools/convert.h"
 
-namespace cxxtools {
+#include "cxxtools/conversionerror.h"
 
-ConversionError::ConversionError(const char* msg)
+namespace cxxtools
+{
+
+ConversionError::ConversionError(const std::string& msg)
 : std::runtime_error(msg)
 {
+}
+
+void ConversionError::doThrow(const char* typeto, const char* typefrom)
+{
+    std::string msg = "conversion from ";
+    msg += typefrom;
+    msg += " to ";
+    msg += typeto;
+    msg += " failed";
+    throw ConversionError(msg);
 }
 
 }
