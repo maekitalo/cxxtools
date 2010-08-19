@@ -125,7 +125,7 @@ void* atomicCompareExchange(void* volatile& dest, void* exch, void* comp)
                    : "=&r" (a), "=&r" (b)
                    : "r" (&dest), "r" (exch), "r" (comp)
                    : "cc", "memory");
-    return a;
+    return (void*)a;
 }
 
 
