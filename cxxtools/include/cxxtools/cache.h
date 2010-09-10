@@ -171,7 +171,6 @@ namespace cxxtools
       /// returns the value to a key or the passed default value if not found.
       /// If the value is found it is a cahce hit and pushed to the top of the
       /// list.
-      std::pair<bool, Value> getx(const Key& key, Value def = Value())
       Value get(const Key& key, Value def = Value())
       {
         return getx(key, def).second;
