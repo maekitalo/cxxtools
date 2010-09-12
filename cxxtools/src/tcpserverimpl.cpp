@@ -138,20 +138,22 @@ void TcpServerImpl::listen(const std::string& ipaddr, unsigned short int port, i
             fn = "setsockopt";
             if (::setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)) < 0)
             {
-                log_debug("could not set SO_REUSEADDR " << fd << "; errno=" << errno << ": " << strerror(errno));
+                log_debug("could not set socket option SO_REUSEADDR " << fd << "; errno=" << errno << ": " << strerror(errno));
                 ::close(fd);
                 continue;
             }
 
+#ifdef IPPROTO_IPV6
             if (it->ai_family == AF_INET6)
             {
               if (::setsockopt(fd, IPPROTO_IPV6, IPV6_V6ONLY, &on, sizeof(on)) < 0)
               {
-                  log_debug("could not set SO_REUSEADDR " << fd << "; errno=" << errno << ": " << strerror(errno));
+                  log_debug("could not set socket option IPV6_V6ONLY " << fd << "; errno=" << errno << ": " << strerror(errno));
                   ::close(fd);
                   continue;
               }
             }
+#endif
 
             log_debug("bind " << formatIp(*reinterpret_cast<const sockaddr_in*>(it->ai_addr)));
             fn = "bind";
