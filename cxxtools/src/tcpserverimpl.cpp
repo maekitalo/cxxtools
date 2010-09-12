@@ -59,7 +59,7 @@ namespace cxxtools
 namespace net
 {
 
-static const int noPendingAccept = std::numeric_limits<int>::max();
+static const int noPendingAccept = -1;
 
 TcpServerImpl::TcpServerImpl(TcpServer& server)
 : _server(server),
@@ -112,7 +112,7 @@ void TcpServerImpl::listen(const std::string& ipaddr, unsigned short int port, i
 
     AddrInfo ai(ipaddr, port, true);
 
-    static const int reuseAddr = 1;
+    static const int on = 1;
 
     const char* fn = "";
 
@@ -136,11 +136,21 @@ void TcpServerImpl::listen(const std::string& ipaddr, unsigned short int port, i
 
             log_debug("setsockopt SO_REUSEADDR");
             fn = "setsockopt";
-            if (::setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &reuseAddr, sizeof(reuseAddr)) < 0)
+            if (::setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)) < 0)
             {
                 log_debug("could not set SO_REUSEADDR " << fd << "; errno=" << errno << ": " << strerror(errno));
                 ::close(fd);
                 continue;
+            }
+
+            if (it->ai_family == AF_INET6)
+            {
+              if (::setsockopt(fd, IPPROTO_IPV6, IPV6_V6ONLY, &on, sizeof(on)) < 0)
+              {
+                  log_debug("could not set SO_REUSEADDR " << fd << "; errno=" << errno << ": " << strerror(errno));
+                  ::close(fd);
+                  continue;
+              }
             }
 
             log_debug("bind " << formatIp(*reinterpret_cast<const sockaddr_in*>(it->ai_addr)));
@@ -342,6 +352,7 @@ int TcpServerImpl::accept(int flags, struct sockaddr* sa, socklen_t& sa_len)
 
         while (true)
         {
+            log_debug("poll");
             int p = ::poll(&fds[0], fds.size(), -1);
             if (p > 0)
             {
@@ -358,8 +369,9 @@ int TcpServerImpl::accept(int flags, struct sockaddr* sa, socklen_t& sa_len)
 
         for (std::vector<pollfd>::size_type n = 0; n < fds.size(); ++n)
         {
-            if (fds[n].revents | POLLIN)
+            if (fds[n].revents & POLLIN)
             {
+                log_debug("detected accept on fd " << fds[n].fd);
                 _pendingAccept = n;
                 break;
             }
