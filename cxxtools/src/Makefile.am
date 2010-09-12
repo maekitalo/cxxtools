@@ -102,7 +102,6 @@ noinst_HEADERS = \
 	error.h \
 	fileimpl.h \
 	fileinfoimpl.h \
-	facets.cpp \
 	iodeviceimpl.h \
 	libraryimpl.h \
 	muteximpl.h \
@@ -183,3 +182,5 @@ libcxxtools_la_LIBADD = $(LIBICONV)
 libcxxtools_la_CXXFLAGS = $(PTHREAD_CFLAGS)
 libcxxtools_la_LDFLAGS = -version-info @sonumber@ $(PTHREAD_LIBS) @SHARED_LIB_FLAG@
 
+EXTRA_dist = \
+	facets.cpp

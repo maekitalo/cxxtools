@@ -61,6 +61,9 @@ namespace cxxtools
       void checkerr(int ret) const;
 
     public:
+      Regex()
+      { }
+
       explicit Regex(const char* ex, int cflags = REG_EXTENDED)
         : expr(new regex_t())
       {

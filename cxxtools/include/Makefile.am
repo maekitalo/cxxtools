@@ -107,6 +107,7 @@ nobase_include_HEADERS = \
         cxxtools/serializationinfo.h \
         cxxtools/serializer.h \
         cxxtools/settings.h \
+        cxxtools/split.h \
         cxxtools/signal.h \
         cxxtools/signal.tpp \
         cxxtools/singleton.h \
