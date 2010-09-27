@@ -152,6 +152,8 @@ void Socket::onInput(StreamBuffer& sb)
 
         if (_parser.end())
         {
+            log_info("request " << _request.method() << ' ' << _request.header().query()
+                << " from client " << getPeerAddr());
             _responder = _server.getResponder(_request);
             try
             {
@@ -305,6 +307,10 @@ void Socket::sendReply()
     const char* server = "Server";
     const char* connection = "Connection";
     const char* date = "Date";
+
+    log_info("request " << _request.method() << ' ' << _request.header().query()
+        << " ready, returncode " << _reply.httpReturnCode() << ' '
+        << _reply.httpReturnText());
 
     _stream << "HTTP/"
         << _reply.header().httpVersionMajor() << '.'

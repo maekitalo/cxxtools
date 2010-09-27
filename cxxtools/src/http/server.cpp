@@ -28,7 +28,10 @@
 
 #include <cxxtools/http/server.h>
 #include <cxxtools/eventloop.h>
+#include <cxxtools/log.h>
 #include "serverimpl.h"
+
+log_define("cxxtools.http.server")
 
 namespace cxxtools {
 
@@ -42,7 +45,7 @@ Server::Server(EventLoopBase& eventLoop)
 Server::Server(EventLoopBase& eventLoop, const std::string& ip, unsigned short int port, int backlog)
     : _impl(new ServerImpl(eventLoop, runmodeChanged))
 {
-    _impl->listen(ip, port, backlog);
+    listen(ip, port, backlog);
 }
 
 Server::~Server()
@@ -58,6 +61,7 @@ Server::~Server()
 
 void Server::listen(const std::string& ip, unsigned short int port, int backlog)
 {
+    log_info("listen ip=" << ip << " port=" << port);
     _impl->listen(ip, port, backlog);
 }
 

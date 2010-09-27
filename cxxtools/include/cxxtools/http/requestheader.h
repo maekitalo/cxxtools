@@ -76,6 +76,8 @@ class RequestHeader : public MessageHeader
         void qparams(const std::string& q)
         { _qparams = q; }
 
+        std::string query() const
+        { return _qparams.empty() ? _url : _url + '?' + _qparams; }
 };
 
 } // namespace http
