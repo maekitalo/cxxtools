@@ -35,6 +35,9 @@
 #include "cxxtools/xml/endelement.h"
 #include "cxxtools/http/reply.h"
 #include "cxxtools/utf8codec.h"
+#include "cxxtools/log.h"
+
+log_define("cxxtools.xmlrpc.responder")
 
 namespace cxxtools
 {
@@ -237,6 +240,7 @@ void XmlRpcResponder::advance(const cxxtools::xml::Node& node)
             {
                 const xml::Characters& chars = static_cast<const xml::Characters&>(node);
 
+                log_info("xmlrpc method <" << chars.content().narrow() << '>');
                 _proc = _service->getProcedure( chars.content().narrow() );
                 if( ! _proc )
                     throw std::runtime_error("no such procedure");
