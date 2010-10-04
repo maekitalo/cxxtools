@@ -31,6 +31,8 @@
 
 #include <cxxtools/md5.h>
 #include <iostream>
+#include <iterator>
+#include <algorithm>
 
 namespace cxxtools
 {
@@ -107,6 +109,22 @@ class Md5stream : public std::ostream
     iterator begin()
       { return iterator(&streambuf); }
 };
+
+template <typename iterator_type>
+std::string md5(iterator_type from, iterator_type to)
+{
+  Md5stream s;
+  std::copy(from, to, std::ostream_iterator<char>(s));
+  return s.getHexDigest();
+}
+
+template <typename data_type>
+std::string md5(const data_type& data)
+{
+  Md5stream s;
+  s << data;
+  return s.getHexDigest();
+}
 
 }
 
