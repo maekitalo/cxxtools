@@ -134,6 +134,7 @@ nobase_include_HEADERS = \
         cxxtools/time.h \
         cxxtools/timer.h \
         cxxtools/timespan.h \
+        cxxtools/trim.h \
         cxxtools/typetraits.h \
         cxxtools/types.h \
         cxxtools/utf8codec.h \
