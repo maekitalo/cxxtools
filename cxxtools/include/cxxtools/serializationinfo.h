@@ -613,6 +613,13 @@ inline void operator <<=(SerializationInfo& si, const std::string& n)
 }
 
 
+inline void operator <<=(SerializationInfo& si, const char* n)
+{
+    si.setValue(n);
+    si.setTypeName("string");
+}
+
+
 inline void operator >>=(const SerializationInfo& si, cxxtools::String& n)
 {
     si.toValue<cxxtools::String>(n);
