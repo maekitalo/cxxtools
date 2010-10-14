@@ -188,8 +188,25 @@ class CXXTOOLS_API SerializationInfo
         SerializationInfo& addMember(const std::string& name);
 
         /** @brief Deserialization of member data
+
+            @throws SerializationError when member is not found.
         */
         const SerializationInfo& getMember(const std::string& name) const;
+
+        /** @brief Deserialization of member data.
+
+            @return true if member is found, false otherwise.
+            The passed value is not modified when the member was not found.
+         */
+        template <typename T>
+        bool getMember(const std::string& name, T& value) const
+        {
+            const SerializationInfo* si = findMember(name);
+            if (si == 0)
+                return false;
+            *si >>= value;
+            return true;
+        }
 
         /** @brief Compiler workaround.
             This is needed for some compilers (GCC 3.x) to allow access to
