@@ -46,12 +46,12 @@ std::streambuf::int_type Md5streambuf::overflow(
   if (pptr() == 0)
   {
     // Ausgabepuffer ist leer - initialisieren
-    MD5Init(&context);
+    cxxtools_MD5Init(&context);
   }
   else
   {
     // konsumiere Zeichen aus dem Puffer
-    MD5Update(&context,
+    cxxtools_MD5Update(&context,
               (const unsigned char*)pbase(),
               pptr() - pbase());
   }
@@ -81,7 +81,7 @@ int Md5streambuf::sync()
   if (pptr() != pbase())
   {
     // konsumiere Zeichen aus dem Puffer
-    MD5Update(&context, (const unsigned char*)pbase(), pptr() - pbase());
+    cxxtools_MD5Update(&context, (const unsigned char*)pbase(), pptr() - pbase());
 
     // leere Ausgabepuffer
     setp(buffer, buffer + bufsize);
@@ -97,13 +97,13 @@ void Md5streambuf::getDigest(unsigned char digest_[16])
     if (pptr() != pbase())
     {
       // konsumiere Zeichen aus dem Puffer
-      MD5Update(&context, (const unsigned char*)pbase(), pptr() - pbase());
+      cxxtools_MD5Update(&context, (const unsigned char*)pbase(), pptr() - pbase());
     }
 
     // deinitialisiere Ausgabepuffer
     setp(0, 0);
 
-    MD5Final(digest, &context);
+    cxxtools_MD5Final(digest, &context);
   }
 
   std::memcpy(digest_, digest, 16);

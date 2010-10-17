@@ -95,10 +95,10 @@ typedef struct {
 extern "C" {
 #endif
 
-void MD5Init PROTO_LIST ((cxxtools_MD5_CTX *));
-void MD5Update PROTO_LIST
+void cxxtools_MD5Init PROTO_LIST ((cxxtools_MD5_CTX *));
+void cxxtools_MD5Update PROTO_LIST
   ((cxxtools_MD5_CTX *, const unsigned char *, unsigned int));
-void MD5Final PROTO_LIST ((unsigned char [16], cxxtools_MD5_CTX *));
+void cxxtools_MD5Final PROTO_LIST ((unsigned char [16], cxxtools_MD5_CTX *));
 
 #ifdef __cplusplus
 }
