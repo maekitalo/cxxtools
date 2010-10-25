@@ -30,7 +30,8 @@ alltests_SOURCES = \
     test-main.cpp \
     process-test.cpp \
     xmlrpc-test.cpp \
-    convert-test.cpp
+    convert-test.cpp \
+    trim-test.cpp
 
 abort_SOURCES = abort.cpp
 
