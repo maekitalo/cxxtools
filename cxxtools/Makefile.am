@@ -17,7 +17,3 @@ SUBDIRS = src \
     $(DEMO_DIR) $(UNITTEST_DIR)
 
 bin_SCRIPTS = cxxtools-config
-
-EXTRA_dist = \
-	m4/acx_pthread.m4 \
-	m4/iconv.m4
