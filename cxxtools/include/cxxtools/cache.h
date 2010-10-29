@@ -122,6 +122,14 @@ namespace cxxtools
         return false;
       }
 
+      /// clears the cache.
+      void clear(bool stats = false)
+      {
+        data.clear();
+        if (stats)
+          hits = misses = 0;
+      }
+
       /// puts a new element in the cache. If the element is already found in
       /// the cache, it is considered a cache hit and pushed to the top of the
       /// list.
