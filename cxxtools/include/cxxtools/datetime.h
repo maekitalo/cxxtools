@@ -36,7 +36,10 @@
 #include <string>
 #include <map>
 
-namespace cxxtools {
+namespace cxxtools
+{
+
+class SerializationInfo;
 
 /** @brief Combined %Date and %Time value
     @ingroup DateTime
@@ -264,9 +267,9 @@ class DateTime
         Time _time;
 };
 
-//CXXTOOLS_API void operator >>=(const SerializationInfo& si, DateTime& dt);
+CXXTOOLS_API void operator >>=(const SerializationInfo& si, DateTime& dt);
 
-//CXXTOOLS_API void operator <<=(SerializationInfo& si, const DateTime& dt);
+CXXTOOLS_API void operator <<=(SerializationInfo& si, const DateTime& dt);
 
 CXXTOOLS_API void convert(DateTime& dt, const std::string& s);
 

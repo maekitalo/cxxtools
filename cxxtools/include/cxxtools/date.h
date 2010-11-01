@@ -331,9 +331,9 @@ class Date
         unsigned _julian;
 };
 
-//CXXTOOLS_API void operator >>=(const SerializationInfo& si, Date& date);
+CXXTOOLS_API void operator >>=(const SerializationInfo& si, Date& date);
 
-//CXXTOOLS_API void operator <<=(SerializationInfo& si, const Date& date);
+CXXTOOLS_API void operator <<=(SerializationInfo& si, const Date& date);
 
 CXXTOOLS_API void convert(std::string& str, const Date& date);
 

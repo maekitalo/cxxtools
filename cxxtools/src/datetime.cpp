@@ -29,7 +29,7 @@
  */
 #include "cxxtools/datetime.h"
 #include "cxxtools/convert.h"
-//#include "cxxtools/serializationinfo.h" // coming soon
+#include "cxxtools/serializationinfo.h"
 #include <algorithm>
 #include <sstream>
 #include <stdexcept>
@@ -96,9 +96,9 @@ void convert(DateTime& dt, const std::string& s)
 
 void convert(std::string& str, const DateTime& dt)
 {
-    // format YYYY-MM-DD hh:mm:ss.sssss
+    // format YYYY-MM-DD hh:mm:ss.sss
     //        0....+....1....+....2....+
-    char ret[25];
+    char ret[24];
     unsigned short n = dt.date().year();
     ret[3] = '0' + n % 10;
     n /= 10;
@@ -133,21 +133,11 @@ void convert(std::string& str, const DateTime& dt)
     str.assign(ret, 23);
 }
 
-/*
 void operator >>=(const SerializationInfo& si, DateTime& datetime)
 {
     std::string s = si.toValue<std::string>();
     convert(datetime, s);
-
-    //Date date(1,1,1);
-    //si.getMember("date") >>= date;
-    //datetime.setDate(date);
-
-    //Time time;
-    //si.getMember("time") >>= time;
-    //datetime.setTime(time);
 }
-
 
 void operator <<=(SerializationInfo& si, const DateTime& datetime)
 {
@@ -155,14 +145,6 @@ void operator <<=(SerializationInfo& si, const DateTime& datetime)
     convert(s, datetime);
     si.setValue(s);
     si.setTypeName( "DateTime");
-
-    //si.setTypeName("DateTime");
-    //SerializationInfo& date = si.addMember("date");
-
-    //date <<= datetime.date();
-    //SerializationInfo& time  = si.addMember("time");
-    //time <<= datetime.time();
 }
-*/
 
 }

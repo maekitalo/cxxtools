@@ -36,7 +36,8 @@
 #include <string>
 #include <stdexcept>
 
-namespace cxxtools {
+namespace cxxtools
+{
 
 class SerializationInfo;
 
@@ -293,9 +294,9 @@ class Time
         unsigned _msecs;
     };
 
-    //CXXTOOLS_API void operator >>=(const SerializationInfo& si, Time& time);
+    CXXTOOLS_API void operator >>=(const SerializationInfo& si, Time& time);
 
-    //CXXTOOLS_API void operator <<=(SerializationInfo& si, const Time& time);
+    CXXTOOLS_API void operator <<=(SerializationInfo& si, const Time& time);
 
     CXXTOOLS_API void convert(std::string& str, const cxxtools::Time& time);
 

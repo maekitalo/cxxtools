@@ -27,10 +27,11 @@
  */
 #include "cxxtools/date.h"
 #include "cxxtools/convert.h"
-//#include "cxxtools/serializationinfo.h" // coming soon
+#include "cxxtools/serializationinfo.h"
 #include <cctype>
 
-namespace cxxtools {
+namespace cxxtools
+{
 
 InvalidDate::InvalidDate(const SourceInfo& si)
 : std::invalid_argument("Invalid date" + si)
@@ -126,13 +127,11 @@ void convert(Date& date, const std::string& s)
 }
 
 
-/*
 void operator>>=(const SerializationInfo& si, Date& date)
 {
     std::string s = si.toValue<std::string>();
     convert(date, s);
 }
-
 
 void operator<<=(SerializationInfo& si, const Date& date)
 {
@@ -141,6 +140,6 @@ void operator<<=(SerializationInfo& si, const Date& date)
     si.setValue(s);
     si.setTypeName("Date");
 }
-*/
+
 }
 

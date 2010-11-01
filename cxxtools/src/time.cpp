@@ -29,11 +29,12 @@
  */
 #include "cxxtools/time.h"
 #include "cxxtools/convert.h"
-// #include "cxxtools/SerializationInfo.h" coming soon
+#include "cxxtools/serializationinfo.h"
 #include <sstream>
 #include <cctype>
 
-namespace cxxtools {
+namespace cxxtools
+{
 
 InvalidTime::InvalidTime(const SourceInfo& si)
 : std::invalid_argument("Invalid time" + si)
@@ -102,7 +103,6 @@ void convert(std::string& str, const Time& time)
     str.assign(ret, 12);
 }
 
-/*
 void operator >>=(const SerializationInfo& si, Time& time)
 {
     std::string s = si.toValue<std::string>();
@@ -117,5 +117,5 @@ void operator <<=(SerializationInfo& si, const Time& time)
     si.setValue(s);
     si.setTypeName("Date");
 }
-*/
+
 } // namespace cxxtools
