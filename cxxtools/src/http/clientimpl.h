@@ -112,6 +112,7 @@ class ClientImpl : public Connectable
         void connect(const net::AddrInfo& addrinfo)
         {
             _addrInfo = addrinfo;
+            _socket.close();
         }
 
         // Sends the passed request to the server and parses the headers.
