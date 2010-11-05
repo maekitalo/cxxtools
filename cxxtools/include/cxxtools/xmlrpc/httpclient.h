@@ -67,6 +67,8 @@ class CXXTOOLS_XMLRPC_API HttpClient : public Client
 
         void clearAuth();
 
+        void setSelector(SelectorBase& selector);
+
     private:
         HttpClientImpl* _impl;
 };

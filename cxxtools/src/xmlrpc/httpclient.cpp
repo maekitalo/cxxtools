@@ -87,6 +87,11 @@ void HttpClient::clearAuth()
     _impl->clearAuth();
 }
 
+void HttpClient::setSelector(SelectorBase& selector)
+{
+    _impl->setSelector(selector);
+}
+
 }
 
 }

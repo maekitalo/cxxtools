@@ -81,6 +81,11 @@ class HttpClientImpl : public ClientImpl
             _client.clearAuth();
         }
 
+        void setSelector(SelectorBase& selector)
+        {
+            _client.setSelector(selector);
+        }
+
         std::string url() const;
 
     protected:
