@@ -47,6 +47,11 @@
 namespace cxxtools
 {
 
+namespace net
+{
+    class Uri;
+}
+
 namespace http
 {
 
@@ -106,7 +111,9 @@ class ClientImpl : public Connectable
     public:
         ClientImpl(Client* client);
         ClientImpl(Client* client, const net::AddrInfo& addrinfo);
+        ClientImpl(Client* client, const net::Uri& uri);
         ClientImpl(Client* client, SelectorBase& selector, const net::AddrInfo& addrinfo);
+        ClientImpl(Client* client, SelectorBase& selector, const net::Uri& uri);
 
         // Sets the server and port. No actual network connect is done.
         void connect(const net::AddrInfo& addrinfo)

@@ -1,16 +1,19 @@
 noinst_PROGRAMS = \
-    net-test \
-    xmlrpc-test \
-    process-test \
     abort \
-    base64-test \
+    alltests \
     arg-test \
+    base64-test \
     convert-test \
-    alltests
+    net-test \
+    process-test \
+    uri-test \
+    xmlrpc-test
 
 AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/include -I$(top_srcdir)/include
 
 net_test_SOURCES = test-main.cpp tcpsockettest.cpp
+
+uri_test_SOURCES = test-main.cpp uri-test.cpp
 
 xmlrpc_test_SOURCES = test-main.cpp xmlrpc-test.cpp
 
@@ -26,12 +29,12 @@ convert_test_SOURCES = test-main.cpp convert-test.cpp
 alltests_SOURCES = \
     arg-test.cpp \
     base64-test.cpp \
+    convert-test.cpp \
     tcpsockettest.cpp \
     test-main.cpp \
-    process-test.cpp \
-    xmlrpc-test.cpp \
-    convert-test.cpp \
-    trim-test.cpp
+    trim-test.cpp \
+    uri-test.cpp \
+    xmlrpc-test.cpp
 
 abort_SOURCES = abort.cpp
 

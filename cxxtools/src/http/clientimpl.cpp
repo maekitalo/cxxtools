@@ -28,6 +28,7 @@
 
 #include "clientimpl.h"
 #include <cxxtools/http/client.h>
+#include <cxxtools/net/uri.h>
 #include "parser.h"
 #include <cxxtools/ioerror.h>
 #include <cxxtools/textstream.h>
@@ -87,6 +88,31 @@ ClientImpl::ClientImpl(Client* client, const net::AddrInfo& addrinfo)
     cxxtools::connect(_stream.buffer().inputReady, *this, &ClientImpl::onInput);
 }
 
+ClientImpl::ClientImpl(Client* client, const net::Uri& uri)
+: _client(client)
+, _parseEvent(_replyHeader)
+, _parser(_parseEvent, true)
+, _request(0)
+, _addrInfo(uri.host(), uri.port())
+, _stream(8192, true)
+, _chunkedIStream(_stream.rdbuf())
+, _contentLength(0)
+, _readHeader(true)
+, _chunkedEncoding(false)
+, _reconnectOnError(false)
+, _errorPending(false)
+, _username(uri.user())
+, _password(uri.password())
+{
+    if (uri.protocol() != "http")
+        throw std::runtime_error("only http is supported by http client");
+
+    _stream.attachDevice(_socket);
+    cxxtools::connect(_socket.connected, *this, &ClientImpl::onConnect);
+    cxxtools::connect(_stream.buffer().outputReady, *this, &ClientImpl::onOutput);
+    cxxtools::connect(_stream.buffer().inputReady, *this, &ClientImpl::onInput);
+}
+
 ClientImpl::ClientImpl(Client* client, SelectorBase& selector, const net::AddrInfo& addrinfo)
 : _client(client)
 , _parseEvent(_replyHeader)
@@ -101,6 +127,31 @@ ClientImpl::ClientImpl(Client* client, SelectorBase& selector, const net::AddrIn
 , _reconnectOnError(false)
 , _errorPending(false)
 {
+    _stream.attachDevice(_socket);
+    cxxtools::connect(_socket.connected, *this, &ClientImpl::onConnect);
+    cxxtools::connect(_stream.buffer().outputReady, *this, &ClientImpl::onOutput);
+    cxxtools::connect(_stream.buffer().inputReady, *this, &ClientImpl::onInput);
+    setSelector(selector);
+}
+
+
+ClientImpl::ClientImpl(Client* client, SelectorBase& selector, const net::Uri& uri)
+: _client(client)
+, _parseEvent(_replyHeader)
+, _parser(_parseEvent, true)
+, _request(0)
+, _addrInfo(uri.host(), uri.port())
+, _stream(8192, true)
+, _chunkedIStream(_stream.rdbuf())
+, _contentLength(0)
+, _readHeader(true)
+, _chunkedEncoding(false)
+, _reconnectOnError(false)
+, _errorPending(false)
+{
+    if (uri.protocol() != "http")
+        throw std::runtime_error("only http is supported by http client");
+
     _stream.attachDevice(_socket);
     cxxtools::connect(_socket.connected, *this, &ClientImpl::onConnect);
     cxxtools::connect(_stream.buffer().outputReady, *this, &ClientImpl::onOutput);

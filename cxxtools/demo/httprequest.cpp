@@ -116,7 +116,7 @@ int main(int argc, char* argv[])
 
     cxxtools::Arg<std::string> user(argc, argv, 'u'); // passed as "username:password"
     cxxtools::Arg<std::string> server(argc, argv, 's');
-    cxxtools::Arg<unsigned short int> port(argc, argv, 'p', 8001);
+    cxxtools::Arg<unsigned short int> port(argc, argv, 'p', 80);
     cxxtools::Arg<bool> async(argc, argv, 'a');
     cxxtools::Arg<unsigned> wait(argc, argv, 'w'); // wait between requests in seconds
 

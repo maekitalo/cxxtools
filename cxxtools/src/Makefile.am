@@ -82,6 +82,7 @@ libcxxtools_la_SOURCES = \
 	time.cpp \
 	timer.cpp \
 	timespan.cpp \
+	uri.cpp \
 	utf8codec.cpp \
 	uuencode.cpp \
 	xmltag.cpp \

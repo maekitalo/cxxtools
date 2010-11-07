@@ -44,19 +44,29 @@ Client::Client(const net::AddrInfo& addrinfo)
 {
 }
 
+Client::Client(const net::Uri& uri)
+: _impl(new ClientImpl(this, uri))
+{
+}
+
 Client::Client(const std::string& host, unsigned short int port)
 : _impl(new ClientImpl(this, net::AddrInfo(host, port)))
 {
 }
 
 
+Client::Client(SelectorBase& selector, const std::string& host, unsigned short int port)
+: _impl(new ClientImpl(this, selector, net::AddrInfo(host, port)))
+{
+}
+
 Client::Client(SelectorBase& selector, const net::AddrInfo& addrinfo)
 : _impl(new ClientImpl(this, selector, addrinfo))
 {
 }
 
-Client::Client(SelectorBase& selector, const std::string& host, unsigned short int port)
-: _impl(new ClientImpl(this, selector, net::AddrInfo(host, port)))
+Client::Client(SelectorBase& selector, const net::Uri& uri)
+: _impl(new ClientImpl(this, selector, uri))
 {
 }
 

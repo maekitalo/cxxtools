@@ -45,6 +45,7 @@ namespace net
 {
 
 class AddrInfo;
+class Uri;
 
 }
 
@@ -62,10 +63,12 @@ class CXXTOOLS_HTTP_API Client : private NonCopyable
     public:
         Client();
         Client(const std::string& host, unsigned short int port);
-        Client(const net::AddrInfo& addr);
+        explicit Client(const net::AddrInfo& addr);
+        explicit Client(const net::Uri& uri);
 
         Client(SelectorBase& selector, const std::string& host, unsigned short int port);
         Client(SelectorBase& selector, const net::AddrInfo& addrinfo);
+        Client(SelectorBase& selector, const net::Uri& uri);
 
         ~Client();
 
