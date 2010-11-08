@@ -38,6 +38,7 @@ class SelectorBase;
 namespace net
 {
     class AddrInfo;
+    class Uri;
 }
 
 namespace xmlrpc
@@ -53,7 +54,11 @@ class CXXTOOLS_XMLRPC_API HttpClient : public Client
         HttpClient(SelectorBase& selector, const std::string& addr,
                unsigned short port, const std::string& url);
 
+        HttpClient(SelectorBase& selector, const net::Uri& uri);
+
         HttpClient(const std::string& addr, unsigned short port, const std::string& url);
+
+        explicit HttpClient(const net::Uri& uri);
 
         virtual ~HttpClient();
 

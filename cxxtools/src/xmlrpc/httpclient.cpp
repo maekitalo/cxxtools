@@ -27,6 +27,7 @@
  */
 
 #include "cxxtools/xmlrpc/httpclient.h"
+#include "cxxtools/net/uri.h"
 #include "httpclientimpl.h"
 
 namespace cxxtools
@@ -50,8 +51,22 @@ HttpClient::HttpClient(SelectorBase& selector, const std::string& server,
 }
 
 
+HttpClient::HttpClient(SelectorBase& selector, const net::Uri& uri)
+: _impl(new HttpClientImpl(selector, uri.host(), uri.port(), uri.url()))
+{
+    impl(_impl);
+}
+
+
 HttpClient::HttpClient(const std::string& server, unsigned short port, const std::string& url)
 : _impl(new HttpClientImpl(server, port, url))
+{
+    impl(_impl);
+}
+
+
+HttpClient::HttpClient(const net::Uri& uri)
+: _impl(new HttpClientImpl(uri.host(), uri.port(), uri.url()))
 {
     impl(_impl);
 }
