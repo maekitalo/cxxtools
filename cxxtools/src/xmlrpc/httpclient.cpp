@@ -55,6 +55,7 @@ HttpClient::HttpClient(SelectorBase& selector, const net::Uri& uri)
 : _impl(new HttpClientImpl(selector, uri.host(), uri.port(), uri.url()))
 {
     impl(_impl);
+    auth(uri.user(), uri.password());
 }
 
 
@@ -69,6 +70,7 @@ HttpClient::HttpClient(const net::Uri& uri)
 : _impl(new HttpClientImpl(uri.host(), uri.port(), uri.url()))
 {
     impl(_impl);
+    auth(uri.user(), uri.password());
 }
 
 
