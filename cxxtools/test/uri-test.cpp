@@ -61,7 +61,7 @@ class UriTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(uri.password(), "password");
             CXXTOOLS_UNIT_ASSERT_EQUALS(uri.host(), "host");
             CXXTOOLS_UNIT_ASSERT_EQUALS(uri.port(), 56);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(uri.url(), "blah.html");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(uri.url(), "/blah.html");
         }
 
         void testUri_UHP()
@@ -73,7 +73,7 @@ class UriTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(uri.password(), "");
             CXXTOOLS_UNIT_ASSERT_EQUALS(uri.host(), "host");
             CXXTOOLS_UNIT_ASSERT_EQUALS(uri.port(), 56);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(uri.url(), "blah.html");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(uri.url(), "/blah.html");
         }
 
         void testUri_UPH()
@@ -85,7 +85,7 @@ class UriTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(uri.password(), "password");
             CXXTOOLS_UNIT_ASSERT_EQUALS(uri.host(), "host");
             CXXTOOLS_UNIT_ASSERT_EQUALS(uri.port(), 80);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(uri.url(), "blah.html");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(uri.url(), "/blah.html");
         }
 
         void testUri_HP()
@@ -97,7 +97,7 @@ class UriTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(uri.password(), "");
             CXXTOOLS_UNIT_ASSERT_EQUALS(uri.host(), "host");
             CXXTOOLS_UNIT_ASSERT_EQUALS(uri.port(), 56);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(uri.url(), "blah.html");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(uri.url(), "/blah.html");
         }
 
         void testUri_H()
@@ -109,7 +109,7 @@ class UriTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(uri.password(), "");
             CXXTOOLS_UNIT_ASSERT_EQUALS(uri.host(), "host");
             CXXTOOLS_UNIT_ASSERT_EQUALS(uri.port(), 80);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(uri.url(), "blah.html");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(uri.url(), "/blah.html");
         }
 
         void testUri_UPH6P()
@@ -121,7 +121,7 @@ class UriTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(uri.password(), "password");
             CXXTOOLS_UNIT_ASSERT_EQUALS(uri.host(), "::1");
             CXXTOOLS_UNIT_ASSERT_EQUALS(uri.port(), 56);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(uri.url(), "blah.html");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(uri.url(), "/blah.html");
         }
 
         void testUri_UH6P()
@@ -133,7 +133,7 @@ class UriTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(uri.password(), "");
             CXXTOOLS_UNIT_ASSERT_EQUALS(uri.host(), "::1");
             CXXTOOLS_UNIT_ASSERT_EQUALS(uri.port(), 56);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(uri.url(), "blah.html");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(uri.url(), "/blah.html");
         }
 
         void testUri_UPH6()
@@ -145,7 +145,7 @@ class UriTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(uri.password(), "password");
             CXXTOOLS_UNIT_ASSERT_EQUALS(uri.host(), "::1");
             CXXTOOLS_UNIT_ASSERT_EQUALS(uri.port(), 80);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(uri.url(), "blah.html");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(uri.url(), "/blah.html");
         }
 
         void testUri_H6P()
@@ -157,7 +157,7 @@ class UriTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(uri.password(), "");
             CXXTOOLS_UNIT_ASSERT_EQUALS(uri.host(), "::1");
             CXXTOOLS_UNIT_ASSERT_EQUALS(uri.port(), 56);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(uri.url(), "blah.html");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(uri.url(), "/blah.html");
         }
 
         void testUri_H6()
@@ -169,7 +169,7 @@ class UriTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(uri.password(), "");
             CXXTOOLS_UNIT_ASSERT_EQUALS(uri.host(), "::1");
             CXXTOOLS_UNIT_ASSERT_EQUALS(uri.port(), 80);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(uri.url(), "blah.html");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(uri.url(), "/blah.html");
         }
 
         void testHttpPort()

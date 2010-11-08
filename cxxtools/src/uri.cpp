@@ -32,7 +32,8 @@ namespace net
 
   Uri::Uri(const std::string& uri)
     : _port(0),
-      _ipv6(false)
+      _ipv6(false),
+      _url(1, '/')
   {
     enum {
       state_0,
@@ -275,7 +276,7 @@ namespace net
        || _protocol == "ftp"   && _port == 21))
       s << ':' << _port;
 
-    s << '/' << _url;
+    s << _url;
 
     return s.str();
   }

@@ -89,6 +89,7 @@ nobase_include_HEADERS = \
         cxxtools/net/tcpstream.h \
         cxxtools/net/udp.h \
         cxxtools/net/udpstream.h \
+        cxxtools/net/uri.h \
         cxxtools/noncopyable.h \
         cxxtools/pipe.h \
         cxxtools/pool.h \
