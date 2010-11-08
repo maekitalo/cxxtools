@@ -84,6 +84,12 @@ void HttpClient::connect(const net::AddrInfo& addrinfo, const std::string& url)
     _impl->connect(addrinfo, url);
 }
 
+void HttpClient::connect(const net::Uri& uri)
+{
+    _impl->connect(uri.host(), uri.port(), uri.url());
+    auth(uri.user(), uri.password());
+}
+
 void HttpClient::connect(const std::string& addr, unsigned short port, const std::string& url)
 {
     _impl->connect(addr, port, url);

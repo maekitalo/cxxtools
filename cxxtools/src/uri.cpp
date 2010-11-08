@@ -34,9 +34,12 @@ namespace cxxtools
 {
 namespace net
 {
-  void Uri::throwInvalid(const std::string& uri) const
+  namespace
   {
-    throw std::runtime_error("invalid uri <" + uri + '>');
+    void throwInvalid(const std::string& uri)
+    {
+      throw std::runtime_error("invalid uri <" + uri + '>');
+    }
   }
 
   Uri::Uri(const std::string& uri)

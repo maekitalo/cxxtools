@@ -43,9 +43,9 @@ namespace net
       unsigned short int _port;
       std::string _url;
 
-      void throwInvalid(const std::string& uri) const;
-
     public:
+      Uri()  { }
+
       Uri(const std::string& str);
 
       void protocol(const std::string& protocol)

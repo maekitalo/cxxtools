@@ -64,6 +64,8 @@ class CXXTOOLS_XMLRPC_API HttpClient : public Client
 
         void connect(const net::AddrInfo& addrinfo, const std::string& url);
 
+        void connect(const net::Uri& uri);
+
         void connect(const std::string& addr, unsigned short port,
                      const std::string& url);
 
