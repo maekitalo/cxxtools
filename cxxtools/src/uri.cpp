@@ -43,8 +43,8 @@ namespace net
   }
 
   Uri::Uri(const std::string& uri)
-    : _port(0),
-      _ipv6(false),
+    : _ipv6(false),
+      _port(0),
       _url(1, '/')
   {
     enum {
@@ -189,8 +189,8 @@ namespace net
             state = state_ipv6ok;
           }
           else if (std::isdigit(ch)
-                || ch >= 'a' && ch <= 'f'
-                || ch >= 'F' && ch <= 'F')
+                || (ch >= 'a' && ch <= 'f')
+                || (ch >= 'F' && ch <= 'F'))
             _host += ch;
           else
             throwInvalid(uri);
@@ -200,8 +200,8 @@ namespace net
           if (ch == ']')
             state = state_ipv6end;
           else if (std::isdigit(ch)
-                || ch >= 'a' && ch <= 'f'
-                || ch >= 'F' && ch <= 'F'
+                || (ch >= 'a' && ch <= 'f')
+                || (ch >= 'F' && ch <= 'F')
                 || ch == ':')
             _host += ch;
           else
@@ -283,9 +283,9 @@ namespace net
       s << _host;
 
     if (!(_port == 0
-       || _protocol == "http"  && _port == 80
-       || _protocol == "https" && _port == 443
-       || _protocol == "ftp"   && _port == 21))
+       || (_protocol == "http"  && _port == 80)
+       || (_protocol == "https" && _port == 443)
+       || (_protocol == "ftp"   && _port == 21)))
       s << ':' << _port;
 
     s << _url;

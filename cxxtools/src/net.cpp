@@ -97,7 +97,7 @@ namespace net
     {
       log_debug("set timeout " << t << ", fd=" << getFd() << ", previous=" << m_timeout);
 
-      if (getFd() >= 0 && (t >= 0 && m_timeout < 0 || t < 0 && m_timeout >= 0))
+      if (getFd() >= 0 && ((t >= 0 && m_timeout < 0) || (t < 0 && m_timeout >= 0)))
       {
         long a = t >= 0 ? O_NONBLOCK : 0;
         log_debug("fcntl(" << getFd() << ", F_SETFL, " << a << ')');

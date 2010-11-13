@@ -72,6 +72,6 @@ namespace cxxtools
         private:
             ThreadPoolImpl* _impl;
     };
-};
+}
 
 #endif // CXXTOOLS_THREADPOOL_H

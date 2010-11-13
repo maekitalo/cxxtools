@@ -197,8 +197,8 @@ static void appendUrl(std::string& url, char ch)
     url += '%';
     char hi = (ch >> 4) & 0x0f;
     char lo = ch & 0x0f;
-    url += hex[hi];
-    url += hex[lo];
+    url += hex[static_cast<int>(hi)];
+    url += hex[static_cast<int>(lo)];
   }
 }
 

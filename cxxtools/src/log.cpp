@@ -646,9 +646,9 @@ void log_init_cxxtools(std::istream& in)
   std::string category;
   std::string filename;
   std::string host;
-  unsigned short int port;
-  unsigned fsize;
-  unsigned maxbackupindex;
+  unsigned short int port = 0;
+  unsigned fsize = 0;
+  unsigned maxbackupindex = 0;
   bool logprocess = false;
   std::string logprocessuser;
   std::string logprocessgroup;
