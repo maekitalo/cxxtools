@@ -828,6 +828,7 @@ inline void operator >>=(const SerializationInfo& si, std::pair<A, B>& p)
 template <typename A, typename B>
 inline void operator <<=(SerializationInfo& si, const std::pair<A, B>& p)
 {
+    si.setTypeName("pair");
     si.addMember("first") <<= p.first;
     si.addMember("second") <<= p.second;
 }
