@@ -294,7 +294,15 @@ struct XmlReaderImpl
         {
             if(c == ';')
             {
-                reader.resolveEntity(reader._token);
+                try
+                {
+                    reader.resolveEntity(reader._token);
+                }
+                catch (const std::exception&)
+                {
+                    throw XmlError("invalid entity " + reader._token.narrow(), reader.line());
+                }
+
                 reader._chars.content() += reader._token;
                 reader._token.clear();
                 return OnCharacters::instance();
@@ -307,6 +315,30 @@ struct XmlReaderImpl
         static State* instance()
         {
             static OnEntityReference _state;
+            return &_state;
+        }
+    };
+
+
+    struct OnAttributeEntityReference : public State
+    {
+        virtual State* onAlpha(cxxtools::Char c, XmlReaderImpl& reader)
+        {
+            if(c == ';')
+            {
+                reader.resolveEntity(reader._token);
+                reader._chars.content() += reader._token;
+                reader._token.clear();
+                return OnAttributeValue::instance();
+            }
+
+            reader._token += c;
+            return this;
+        }
+
+        static State* instance()
+        {
+            static OnAttributeEntityReference _state;
             return &_state;
         }
     };
@@ -492,9 +524,63 @@ struct XmlReaderImpl
             return BeforeAttribute::instance();
         }
 
+        virtual State* onSpace(cxxtools::Char c, XmlReaderImpl& reader)
+        {
+            reader._attr.value() += c;
+            return this;
+        }
+
+        virtual State* onOpenBracket(cxxtools::Char c, XmlReaderImpl& reader)
+        {
+            reader._attr.value() += c;
+            return this;
+        }
+
+        virtual State* onCloseBracket(cxxtools::Char c, XmlReaderImpl& reader)
+        {
+            reader._attr.value() += c;
+            return this;
+        }
+
+        virtual State* onColon(cxxtools::Char c, XmlReaderImpl& reader)
+        {
+            reader._attr.value() += c;
+            return this;
+        }
+
+        virtual State* onSlash(cxxtools::Char c, XmlReaderImpl& reader)
+        {
+            reader._attr.value() += c;
+            return this;
+        }
+
+        virtual State* onEqual(cxxtools::Char c, XmlReaderImpl& reader)
+        {
+            reader._attr.value() += c;
+            return this;
+        }
+
+        virtual State* onExclam(cxxtools::Char c, XmlReaderImpl& reader)
+        {
+            reader._attr.value() += c;
+            return this;
+        }
+
+        virtual State* onQuest(cxxtools::Char c, XmlReaderImpl& reader)
+        {
+            reader._attr.value() += c;
+            return this;
+        }
+
         virtual State* onAlpha(cxxtools::Char c, XmlReaderImpl& reader)
         {
-            reader._attr.value() += c;;
+            if (c == '&')
+            {
+                reader._token.clear();
+                return OnAttributeEntityReference::instance();
+            }
+
+            reader._attr.value() += c;
             return this;
         }
 
@@ -1174,7 +1260,7 @@ struct XmlReaderImpl
 
         virtual State* onAlpha(cxxtools::Char c, XmlReaderImpl& reader)
         {
-            reader._attr.value() += c;;
+            reader._attr.value() += c;
             return this;
         }
 
@@ -1392,6 +1478,7 @@ struct XmlReaderImpl
     : _textBuffer( is.rdbuf() )
     , _buffer(0)
     , _flags(flags)
+    , _resolverp(0)
     , _standalone(true)
     , _depth(0)
     , _line(1)
@@ -1405,6 +1492,7 @@ struct XmlReaderImpl
     : _textBuffer(0)
     , _buffer(0)
     , _flags(flags)
+    , _resolverp(0)
     , _standalone(true)
     , _depth(0)
     , _line(1)
@@ -1419,6 +1507,7 @@ struct XmlReaderImpl
     ~XmlReaderImpl()
     {
         delete _buffer;
+        delete _resolverp;
     }
 
     void reset(std::basic_istream<Char>& is, int flags)
@@ -1463,7 +1552,11 @@ struct XmlReaderImpl
     { return _standalone; }
 
     EntityResolver& entityResolver()
-    { return _resolver; }
+    {
+       if (_resolverp == 0)
+           _resolverp = new EntityResolver();
+       return *_resolverp;
+    }
 
     size_t depth() const
     {
@@ -1526,7 +1619,7 @@ struct XmlReaderImpl
 
     void resolveEntity(String& str)
     {
-        str = _resolver.resolveEntity( str );
+        str = entityResolver().resolveEntity( str );
     }
 
     void appendContent(cxxtools::Char c)
@@ -1545,7 +1638,7 @@ struct XmlReaderImpl
     std::basic_streambuf<Char>* _textBuffer;
     std::basic_streambuf<Char>* _buffer;
     int _flags;
-    EntityResolver _resolver;
+    EntityResolver* _resolverp;
 
     cxxtools::String _version;
     cxxtools::String _encoding;

@@ -30,9 +30,11 @@
 #include <cxxtools/string.h>
 #include <map>
 
-namespace cxxtools {
+namespace cxxtools
+{
 
-namespace xml {
+namespace xml
+{
 
 /**
  * @brief Entity resolver class which associates entities to resolved entity values.
@@ -41,7 +43,9 @@ namespace xml {
  * the entity and the resolved entity value. To resolve the resolves value for an entity
  * the method resolveEntity() can be used.
  */
-class CXXTOOLS_XML_API EntityResolver {
+class CXXTOOLS_XML_API EntityResolver
+{
+
     public:
         /**
          * @brief Constructs a new Resolver object and initializes the entity list using the XML default entities.
@@ -56,7 +60,7 @@ class CXXTOOLS_XML_API EntityResolver {
         /**
          * @brief Resets the entity list to the XML default entities.
          *
-         * The default entities are &amp;lt; &amp;gt; &amp;amp; &amp;apos; &amp;quot;
+         * The default entities are all entities from HTML4
          */
         void clear();
 
@@ -73,10 +77,13 @@ class CXXTOOLS_XML_API EntityResolver {
         /**
          * @brief Returns the resolved entity value (token) for the given entity.
          *
-         * If the entity is not in the list an empty String is returned.
+         * If the entity is not in the list or an dec or hex entity is invalid an exception is thrown.
          *
          * @param entity The resolved entity value for this entity is returned.
-         * @return The resolved entity or an empty String if the entity is not in the list.
+         * @return The resolved entity.
+         * @throws XmlError if the entity is not in the list.
+         *
+         * TODO add const specifier
          */
         String resolveEntity(const String& entity);
 
