@@ -36,8 +36,9 @@ class ThreadImpl
 {
     public:
         ThreadImpl()
-        : _cb(0)
-        , _id(0)
+        : _cb(0),
+          _id(0),
+          _detached(false)
         { }
 
         ~ThreadImpl()
@@ -74,6 +75,7 @@ class ThreadImpl
     private:
         const Callable<void>* _cb;
         pthread_t _id;
+        bool _detached;
 };
 
 }
