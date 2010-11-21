@@ -47,263 +47,275 @@ void EntityResolver::clear()
 {
     _entityMap.clear();
 
-    _entityMap.insert(EntityMap::value_type(L"Acirc", String(1, Char(0x00C2))));
-    _entityMap.insert(EntityMap::value_type(L"acirc", String(1, Char(0x00E2))));
-    _entityMap.insert(EntityMap::value_type(L"acute", String(1, Char(0x00B4))));
-    _entityMap.insert(EntityMap::value_type(L"AElig", String(1, Char(0x00C6))));
-    _entityMap.insert(EntityMap::value_type(L"aelig", String(1, Char(0x00E6))));
-    _entityMap.insert(EntityMap::value_type(L"Agrave", String(1, Char(0x00C0))));
-    _entityMap.insert(EntityMap::value_type(L"agrave", String(1, Char(0x00E0))));
-    _entityMap.insert(EntityMap::value_type(L"alefsym", String(1, Char(0x2135))));
-    _entityMap.insert(EntityMap::value_type(L"Alpha", String(1, Char(0x0391))));
-    _entityMap.insert(EntityMap::value_type(L"alpha", String(1, Char(0x03B1))));
-    _entityMap.insert(EntityMap::value_type(L"amp", String(1, Char(0x0026))));
-    _entityMap.insert(EntityMap::value_type(L"and", String(1, Char(0x2227))));
-    _entityMap.insert(EntityMap::value_type(L"ang", String(1, Char(0x2220))));
-    _entityMap.insert(EntityMap::value_type(L"apos", String(1, Char(0x0027))));
-    _entityMap.insert(EntityMap::value_type(L"Aring", String(1, Char(0x00C5))));
-    _entityMap.insert(EntityMap::value_type(L"aring", String(1, Char(0x00E5))));
-    _entityMap.insert(EntityMap::value_type(L"asymp", String(1, Char(0x2248))));
-    _entityMap.insert(EntityMap::value_type(L"Atilde", String(1, Char(0x00C3))));
-    _entityMap.insert(EntityMap::value_type(L"atilde", String(1, Char(0x00E3))));
-    _entityMap.insert(EntityMap::value_type(L"Auml", String(1, Char(0x00C4))));
-    _entityMap.insert(EntityMap::value_type(L"auml", String(1, Char(0x00E4))));
-    _entityMap.insert(EntityMap::value_type(L"bdquo", String(1, Char(0x201E))));
-    _entityMap.insert(EntityMap::value_type(L"Beta", String(1, Char(0x0392))));
-    _entityMap.insert(EntityMap::value_type(L"beta", String(1, Char(0x03B2))));
-    _entityMap.insert(EntityMap::value_type(L"brvbar", String(1, Char(0x00A6))));
-    _entityMap.insert(EntityMap::value_type(L"bull", String(1, Char(0x2022))));
-    _entityMap.insert(EntityMap::value_type(L"cap", String(1, Char(0x2229))));
-    _entityMap.insert(EntityMap::value_type(L"Ccedil", String(1, Char(0x00C7))));
-    _entityMap.insert(EntityMap::value_type(L"ccedil", String(1, Char(0x00E7))));
-    _entityMap.insert(EntityMap::value_type(L"cedil", String(1, Char(0x00B8))));
-    _entityMap.insert(EntityMap::value_type(L"cent", String(1, Char(0x00A2))));
-    _entityMap.insert(EntityMap::value_type(L"Chi", String(1, Char(0x03A7))));
-    _entityMap.insert(EntityMap::value_type(L"chi", String(1, Char(0x03C7))));
-    _entityMap.insert(EntityMap::value_type(L"circ", String(1, Char(0x02C6))));
-    _entityMap.insert(EntityMap::value_type(L"clubs", String(1, Char(0x2663))));
-    _entityMap.insert(EntityMap::value_type(L"cong", String(1, Char(0x2245))));
-    _entityMap.insert(EntityMap::value_type(L"copy", String(1, Char(0x00A9))));
-    _entityMap.insert(EntityMap::value_type(L"crarr", String(1, Char(0x21B5))));
-    _entityMap.insert(EntityMap::value_type(L"cup", String(1, Char(0x222A))));
-    _entityMap.insert(EntityMap::value_type(L"curren", String(1, Char(0x00A4))));
-    _entityMap.insert(EntityMap::value_type(L"Dagger", String(1, Char(0x2021))));
-    _entityMap.insert(EntityMap::value_type(L"dagger", String(1, Char(0x2020))));
-    _entityMap.insert(EntityMap::value_type(L"dArr", String(1, Char(0x21D3))));
-    _entityMap.insert(EntityMap::value_type(L"darr", String(1, Char(0x2193))));
-    _entityMap.insert(EntityMap::value_type(L"deg", String(1, Char(0x00B0))));
-    _entityMap.insert(EntityMap::value_type(L"Delta", String(1, Char(0x0394))));
-    _entityMap.insert(EntityMap::value_type(L"delta", String(1, Char(0x03B4))));
-    _entityMap.insert(EntityMap::value_type(L"diams", String(1, Char(0x2666))));
-    _entityMap.insert(EntityMap::value_type(L"divide", String(1, Char(0x00F7))));
-    _entityMap.insert(EntityMap::value_type(L"Eacute", String(1, Char(0x00C9))));
-    _entityMap.insert(EntityMap::value_type(L"eacute", String(1, Char(0x00E9))));
-    _entityMap.insert(EntityMap::value_type(L"Ecirc", String(1, Char(0x00CA))));
-    _entityMap.insert(EntityMap::value_type(L"ecirc", String(1, Char(0x00EA))));
-    _entityMap.insert(EntityMap::value_type(L"Egrave", String(1, Char(0x00C8))));
-    _entityMap.insert(EntityMap::value_type(L"egrave", String(1, Char(0x00E8))));
-    _entityMap.insert(EntityMap::value_type(L"empty", String(1, Char(0x2205))));
-    _entityMap.insert(EntityMap::value_type(L"emsp", String(1, Char(0x2003))));
-    _entityMap.insert(EntityMap::value_type(L"ensp", String(1, Char(0x2002))));
-    _entityMap.insert(EntityMap::value_type(L"Epsilon", String(1, Char(0x0395))));
-    _entityMap.insert(EntityMap::value_type(L"epsilon", String(1, Char(0x03B5))));
-    _entityMap.insert(EntityMap::value_type(L"equiv", String(1, Char(0x2261))));
-    _entityMap.insert(EntityMap::value_type(L"Eta", String(1, Char(0x0397))));
-    _entityMap.insert(EntityMap::value_type(L"eta", String(1, Char(0x03B7))));
-    _entityMap.insert(EntityMap::value_type(L"ETH", String(1, Char(0x00D0))));
-    _entityMap.insert(EntityMap::value_type(L"eth", String(1, Char(0x00F0))));
-    _entityMap.insert(EntityMap::value_type(L"Euml", String(1, Char(0x00CB))));
-    _entityMap.insert(EntityMap::value_type(L"euml", String(1, Char(0x00EB))));
-    _entityMap.insert(EntityMap::value_type(L"euro", String(1, Char(0x20AC))));
-    _entityMap.insert(EntityMap::value_type(L"exist", String(1, Char(0x2203))));
-    _entityMap.insert(EntityMap::value_type(L"fnof", String(1, Char(0x0192))));
-    _entityMap.insert(EntityMap::value_type(L"forall", String(1, Char(0x2200))));
-    _entityMap.insert(EntityMap::value_type(L"frac12", String(1, Char(0x00BD))));
-    _entityMap.insert(EntityMap::value_type(L"frac14", String(1, Char(0x00BC))));
-    _entityMap.insert(EntityMap::value_type(L"frac34", String(1, Char(0x00BE))));
-    _entityMap.insert(EntityMap::value_type(L"frasl", String(1, Char(0x2044))));
-    _entityMap.insert(EntityMap::value_type(L"Gamma", String(1, Char(0x0393))));
-    _entityMap.insert(EntityMap::value_type(L"gamma", String(1, Char(0x03B3))));
-    _entityMap.insert(EntityMap::value_type(L"ge", String(1, Char(0x2265))));
-    _entityMap.insert(EntityMap::value_type(L"gt", String(1, Char(0x003E))));
-    _entityMap.insert(EntityMap::value_type(L"hArr", String(1, Char(0x21D4))));
-    _entityMap.insert(EntityMap::value_type(L"harr", String(1, Char(0x2194))));
-    _entityMap.insert(EntityMap::value_type(L"hearts", String(1, Char(0x2665))));
-    _entityMap.insert(EntityMap::value_type(L"hellip", String(1, Char(0x2026))));
-    _entityMap.insert(EntityMap::value_type(L"Iacute", String(1, Char(0x00CD))));
-    _entityMap.insert(EntityMap::value_type(L"iacute", String(1, Char(0x00ED))));
-    _entityMap.insert(EntityMap::value_type(L"Icirc", String(1, Char(0x00CE))));
-    _entityMap.insert(EntityMap::value_type(L"icirc", String(1, Char(0x00EE))));
-    _entityMap.insert(EntityMap::value_type(L"iexcl", String(1, Char(0x00A1))));
-    _entityMap.insert(EntityMap::value_type(L"Igrave", String(1, Char(0x00CC))));
-    _entityMap.insert(EntityMap::value_type(L"igrave", String(1, Char(0x00EC))));
-    _entityMap.insert(EntityMap::value_type(L"image", String(1, Char(0x2111))));
-    _entityMap.insert(EntityMap::value_type(L"infin", String(1, Char(0x221E))));
-    _entityMap.insert(EntityMap::value_type(L"int", String(1, Char(0x222B))));
-    _entityMap.insert(EntityMap::value_type(L"Iota", String(1, Char(0x0399))));
-    _entityMap.insert(EntityMap::value_type(L"iota", String(1, Char(0x03B9))));
-    _entityMap.insert(EntityMap::value_type(L"iquest", String(1, Char(0x00BF))));
-    _entityMap.insert(EntityMap::value_type(L"isin", String(1, Char(0x2208))));
-    _entityMap.insert(EntityMap::value_type(L"Iuml", String(1, Char(0x00CF))));
-    _entityMap.insert(EntityMap::value_type(L"iuml", String(1, Char(0x00EF))));
-    _entityMap.insert(EntityMap::value_type(L"Kappa", String(1, Char(0x039A))));
-    _entityMap.insert(EntityMap::value_type(L"kappa", String(1, Char(0x03BA))));
-    _entityMap.insert(EntityMap::value_type(L"Lambda", String(1, Char(0x039B))));
-    _entityMap.insert(EntityMap::value_type(L"lambda", String(1, Char(0x03BB))));
-    _entityMap.insert(EntityMap::value_type(L"lang", String(1, Char(0x2329))));
-    _entityMap.insert(EntityMap::value_type(L"laquo", String(1, Char(0x00AB))));
-    _entityMap.insert(EntityMap::value_type(L"lArr", String(1, Char(0x21D0))));
-    _entityMap.insert(EntityMap::value_type(L"larr", String(1, Char(0x2190))));
-    _entityMap.insert(EntityMap::value_type(L"lceil", String(1, Char(0x2308))));
-    _entityMap.insert(EntityMap::value_type(L"ldquo", String(1, Char(0x201C))));
-    _entityMap.insert(EntityMap::value_type(L"le", String(1, Char(0x2264))));
-    _entityMap.insert(EntityMap::value_type(L"lfloor", String(1, Char(0x230A))));
-    _entityMap.insert(EntityMap::value_type(L"lowast", String(1, Char(0x2217))));
-    _entityMap.insert(EntityMap::value_type(L"loz", String(1, Char(0x25CA))));
-    _entityMap.insert(EntityMap::value_type(L"lrm", String(1, Char(0x200E))));
-    _entityMap.insert(EntityMap::value_type(L"lsaquo", String(1, Char(0x2039))));
-    _entityMap.insert(EntityMap::value_type(L"lsquo", String(1, Char(0x2018))));
-    _entityMap.insert(EntityMap::value_type(L"lt", String(1, Char(0x003C))));
-    _entityMap.insert(EntityMap::value_type(L"macr", String(1, Char(0x00AF))));
-    _entityMap.insert(EntityMap::value_type(L"mdash", String(1, Char(0x2014))));
-    _entityMap.insert(EntityMap::value_type(L"micro", String(1, Char(0x00B5))));
-    _entityMap.insert(EntityMap::value_type(L"middot", String(1, Char(0x00B7))));
-    _entityMap.insert(EntityMap::value_type(L"minus", String(1, Char(0x2212))));
-    _entityMap.insert(EntityMap::value_type(L"Mu", String(1, Char(0x039C))));
-    _entityMap.insert(EntityMap::value_type(L"mu", String(1, Char(0x03BC))));
-    _entityMap.insert(EntityMap::value_type(L"nabla", String(1, Char(0x2207))));
-    _entityMap.insert(EntityMap::value_type(L"nbsp", String(1, Char(0x00A0))));
-    _entityMap.insert(EntityMap::value_type(L"ndash", String(1, Char(0x2013))));
-    _entityMap.insert(EntityMap::value_type(L"ne", String(1, Char(0x2260))));
-    _entityMap.insert(EntityMap::value_type(L"ni", String(1, Char(0x220B))));
-    _entityMap.insert(EntityMap::value_type(L"not", String(1, Char(0x00AC))));
-    _entityMap.insert(EntityMap::value_type(L"notin", String(1, Char(0x2209))));
-    _entityMap.insert(EntityMap::value_type(L"nsub", String(1, Char(0x2284))));
-    _entityMap.insert(EntityMap::value_type(L"Ntilde", String(1, Char(0x00D1))));
-    _entityMap.insert(EntityMap::value_type(L"ntilde", String(1, Char(0x00F1))));
-    _entityMap.insert(EntityMap::value_type(L"Nu", String(1, Char(0x039D))));
-    _entityMap.insert(EntityMap::value_type(L"nu", String(1, Char(0x03BD))));
-    _entityMap.insert(EntityMap::value_type(L"Oacute", String(1, Char(0x00D3))));
-    _entityMap.insert(EntityMap::value_type(L"oacute", String(1, Char(0x00F3))));
-    _entityMap.insert(EntityMap::value_type(L"Ocirc", String(1, Char(0x00D4))));
-    _entityMap.insert(EntityMap::value_type(L"ocirc", String(1, Char(0x00F4))));
-    _entityMap.insert(EntityMap::value_type(L"OElig", String(1, Char(0x0152))));
-    _entityMap.insert(EntityMap::value_type(L"oelig", String(1, Char(0x0153))));
-    _entityMap.insert(EntityMap::value_type(L"Ograve", String(1, Char(0x00D2))));
-    _entityMap.insert(EntityMap::value_type(L"ograve", String(1, Char(0x00F2))));
-    _entityMap.insert(EntityMap::value_type(L"oline", String(1, Char(0x203E))));
-    _entityMap.insert(EntityMap::value_type(L"Omega", String(1, Char(0x03A9))));
-    _entityMap.insert(EntityMap::value_type(L"omega", String(1, Char(0x03C9))));
-    _entityMap.insert(EntityMap::value_type(L"Omicron", String(1, Char(0x039F))));
-    _entityMap.insert(EntityMap::value_type(L"omicron", String(1, Char(0x03BF))));
-    _entityMap.insert(EntityMap::value_type(L"oplus", String(1, Char(0x2295))));
-    _entityMap.insert(EntityMap::value_type(L"or", String(1, Char(0x2228))));
-    _entityMap.insert(EntityMap::value_type(L"ordf", String(1, Char(0x00AA))));
-    _entityMap.insert(EntityMap::value_type(L"ordm", String(1, Char(0x00BA))));
-    _entityMap.insert(EntityMap::value_type(L"Oslash", String(1, Char(0x00D8))));
-    _entityMap.insert(EntityMap::value_type(L"oslash", String(1, Char(0x00F8))));
-    _entityMap.insert(EntityMap::value_type(L"Otilde", String(1, Char(0x00D5))));
-    _entityMap.insert(EntityMap::value_type(L"otilde", String(1, Char(0x00F5))));
-    _entityMap.insert(EntityMap::value_type(L"otimes", String(1, Char(0x2297))));
-    _entityMap.insert(EntityMap::value_type(L"Ouml", String(1, Char(0x00D6))));
-    _entityMap.insert(EntityMap::value_type(L"ouml", String(1, Char(0x00F6))));
-    _entityMap.insert(EntityMap::value_type(L"para", String(1, Char(0x00B6))));
-    _entityMap.insert(EntityMap::value_type(L"part", String(1, Char(0x2202))));
-    _entityMap.insert(EntityMap::value_type(L"permil", String(1, Char(0x2030))));
-    _entityMap.insert(EntityMap::value_type(L"perp", String(1, Char(0x22A5))));
-    _entityMap.insert(EntityMap::value_type(L"Phi", String(1, Char(0x03A6))));
-    _entityMap.insert(EntityMap::value_type(L"phi", String(1, Char(0x03C6))));
-    _entityMap.insert(EntityMap::value_type(L"Pi", String(1, Char(0x03A0))));
-    _entityMap.insert(EntityMap::value_type(L"pi", String(1, Char(0x03C0))));
-    _entityMap.insert(EntityMap::value_type(L"piv", String(1, Char(0x03D6))));
-    _entityMap.insert(EntityMap::value_type(L"plusmn", String(1, Char(0x00B1))));
-    _entityMap.insert(EntityMap::value_type(L"pound", String(1, Char(0x00A3))));
-    _entityMap.insert(EntityMap::value_type(L"Prime", String(1, Char(0x2033))));
-    _entityMap.insert(EntityMap::value_type(L"prime", String(1, Char(0x2032))));
-    _entityMap.insert(EntityMap::value_type(L"prod", String(1, Char(0x220F))));
-    _entityMap.insert(EntityMap::value_type(L"prop", String(1, Char(0x221D))));
-    _entityMap.insert(EntityMap::value_type(L"Psi", String(1, Char(0x03A8))));
-    _entityMap.insert(EntityMap::value_type(L"psi", String(1, Char(0x03C8))));
-    _entityMap.insert(EntityMap::value_type(L"quot", String(1, Char(0x0022))));
-    _entityMap.insert(EntityMap::value_type(L"radic", String(1, Char(0x221A))));
-    _entityMap.insert(EntityMap::value_type(L"rang", String(1, Char(0x232A))));
-    _entityMap.insert(EntityMap::value_type(L"raquo", String(1, Char(0x00BB))));
-    _entityMap.insert(EntityMap::value_type(L"rArr", String(1, Char(0x21D2))));
-    _entityMap.insert(EntityMap::value_type(L"rarr", String(1, Char(0x2192))));
-    _entityMap.insert(EntityMap::value_type(L"rceil", String(1, Char(0x2309))));
-    _entityMap.insert(EntityMap::value_type(L"rdquo", String(1, Char(0x201D))));
-    _entityMap.insert(EntityMap::value_type(L"real", String(1, Char(0x211C))));
-    _entityMap.insert(EntityMap::value_type(L"reg", String(1, Char(0x00AE))));
-    _entityMap.insert(EntityMap::value_type(L"rfloor", String(1, Char(0x230B))));
-    _entityMap.insert(EntityMap::value_type(L"Rho", String(1, Char(0x03A1))));
-    _entityMap.insert(EntityMap::value_type(L"rho", String(1, Char(0x03C1))));
-    _entityMap.insert(EntityMap::value_type(L"rlm", String(1, Char(0x200F))));
-    _entityMap.insert(EntityMap::value_type(L"rsaquo", String(1, Char(0x203A))));
-    _entityMap.insert(EntityMap::value_type(L"rsquo", String(1, Char(0x2019))));
-    _entityMap.insert(EntityMap::value_type(L"sbquo", String(1, Char(0x201A))));
-    _entityMap.insert(EntityMap::value_type(L"Scaron", String(1, Char(0x0160))));
-    _entityMap.insert(EntityMap::value_type(L"scaron", String(1, Char(0x0161))));
-    _entityMap.insert(EntityMap::value_type(L"sdot", String(1, Char(0x22C5))));
-    _entityMap.insert(EntityMap::value_type(L"sect", String(1, Char(0x00A7))));
-    _entityMap.insert(EntityMap::value_type(L"shy", String(1, Char(0x00AD))));
-    _entityMap.insert(EntityMap::value_type(L"Sigma", String(1, Char(0x03A3))));
-    _entityMap.insert(EntityMap::value_type(L"sigma", String(1, Char(0x03C3))));
-    _entityMap.insert(EntityMap::value_type(L"sigmaf", String(1, Char(0x03C2))));
-    _entityMap.insert(EntityMap::value_type(L"sim", String(1, Char(0x223C))));
-    _entityMap.insert(EntityMap::value_type(L"spades", String(1, Char(0x2660))));
-    _entityMap.insert(EntityMap::value_type(L"sub", String(1, Char(0x2282))));
-    _entityMap.insert(EntityMap::value_type(L"sube", String(1, Char(0x2286))));
-    _entityMap.insert(EntityMap::value_type(L"sum", String(1, Char(0x2211))));
-    _entityMap.insert(EntityMap::value_type(L"sup", String(1, Char(0x2283))));
-    _entityMap.insert(EntityMap::value_type(L"sup1", String(1, Char(0x00B9))));
-    _entityMap.insert(EntityMap::value_type(L"sup2", String(1, Char(0x00B2))));
-    _entityMap.insert(EntityMap::value_type(L"sup3", String(1, Char(0x00B3))));
-    _entityMap.insert(EntityMap::value_type(L"supe", String(1, Char(0x2287))));
-    _entityMap.insert(EntityMap::value_type(L"szlig", String(1, Char(0x00DF))));
-    _entityMap.insert(EntityMap::value_type(L"Tau", String(1, Char(0x03A4))));
-    _entityMap.insert(EntityMap::value_type(L"tau", String(1, Char(0x03C4))));
-    _entityMap.insert(EntityMap::value_type(L"there4", String(1, Char(0x2234))));
-    _entityMap.insert(EntityMap::value_type(L"Theta", String(1, Char(0x0398))));
-    _entityMap.insert(EntityMap::value_type(L"theta", String(1, Char(0x03B8))));
-    _entityMap.insert(EntityMap::value_type(L"thetasym", String(1, Char(0x03D1))));
-    _entityMap.insert(EntityMap::value_type(L"thinsp", String(1, Char(0x2009))));
-    _entityMap.insert(EntityMap::value_type(L"THORN", String(1, Char(0x00DE))));
-    _entityMap.insert(EntityMap::value_type(L"thorn", String(1, Char(0x00FE))));
-    _entityMap.insert(EntityMap::value_type(L"tilde", String(1, Char(0x02DC))));
-    _entityMap.insert(EntityMap::value_type(L"times", String(1, Char(0x00D7))));
-    _entityMap.insert(EntityMap::value_type(L"trade", String(1, Char(0x2122))));
-    _entityMap.insert(EntityMap::value_type(L"Uacute", String(1, Char(0x00DA))));
-    _entityMap.insert(EntityMap::value_type(L"uacute", String(1, Char(0x00FA))));
-    _entityMap.insert(EntityMap::value_type(L"uArr", String(1, Char(0x21D1))));
-    _entityMap.insert(EntityMap::value_type(L"uarr", String(1, Char(0x2191))));
-    _entityMap.insert(EntityMap::value_type(L"Ucirc", String(1, Char(0x00DB))));
-    _entityMap.insert(EntityMap::value_type(L"ucirc", String(1, Char(0x00FB))));
-    _entityMap.insert(EntityMap::value_type(L"Ugrave", String(1, Char(0x00D9))));
-    _entityMap.insert(EntityMap::value_type(L"ugrave", String(1, Char(0x00F9))));
-    _entityMap.insert(EntityMap::value_type(L"uml", String(1, Char(0x00A8))));
-    _entityMap.insert(EntityMap::value_type(L"upsih", String(1, Char(0x03D2))));
-    _entityMap.insert(EntityMap::value_type(L"Upsilon", String(1, Char(0x03A5))));
-    _entityMap.insert(EntityMap::value_type(L"upsilon", String(1, Char(0x03C5))));
-    _entityMap.insert(EntityMap::value_type(L"Uuml", String(1, Char(0x00DC))));
-    _entityMap.insert(EntityMap::value_type(L"uuml", String(1, Char(0x00FC))));
-    _entityMap.insert(EntityMap::value_type(L"weierp", String(1, Char(0x2118))));
-    _entityMap.insert(EntityMap::value_type(L"Xi", String(1, Char(0x039E))));
-    _entityMap.insert(EntityMap::value_type(L"xi", String(1, Char(0x03BE))));
-    _entityMap.insert(EntityMap::value_type(L"Yacute", String(1, Char(0x00DD))));
-    _entityMap.insert(EntityMap::value_type(L"yacute", String(1, Char(0x00FD))));
-    _entityMap.insert(EntityMap::value_type(L"yen", String(1, Char(0x00A5))));
-    _entityMap.insert(EntityMap::value_type(L"Yuml", String(1, Char(0x0178))));
-    _entityMap.insert(EntityMap::value_type(L"yuml", String(1, Char(0x00FF))));
-    _entityMap.insert(EntityMap::value_type(L"Zeta", String(1, Char(0x0396))));
-    _entityMap.insert(EntityMap::value_type(L"zeta", String(1, Char(0x03B6))));
-    _entityMap.insert(EntityMap::value_type(L"zwj", String(1, Char(0x200D))));
-    _entityMap.insert(EntityMap::value_type(L"zwnj", String(1, Char(0x200C))));
+    struct Ent
+    {
+      const wchar_t* entity;
+      cxxtools::uint32_t charValue;
+    };
+
+    static const Ent ent[] = {
+      { L"Acirc", 0x00C2 },
+      { L"acirc", 0x00E2 },
+      { L"acute", 0x00B4 },
+      { L"AElig", 0x00C6 },
+      { L"aelig", 0x00E6 },
+      { L"Agrave", 0x00C0 },
+      { L"agrave", 0x00E0 },
+      { L"alefsym", 0x2135 },
+      { L"Alpha", 0x0391 },
+      { L"alpha", 0x03B1 },
+      { L"amp", 0x0026 },
+      { L"and", 0x2227 },
+      { L"ang", 0x2220 },
+      { L"apos", 0x0027 },
+      { L"Aring", 0x00C5 },
+      { L"aring", 0x00E5 },
+      { L"asymp", 0x2248 },
+      { L"Atilde", 0x00C3 },
+      { L"atilde", 0x00E3 },
+      { L"Auml", 0x00C4 },
+      { L"auml", 0x00E4 },
+      { L"bdquo", 0x201E },
+      { L"Beta", 0x0392 },
+      { L"beta", 0x03B2 },
+      { L"brvbar", 0x00A6 },
+      { L"bull", 0x2022 },
+      { L"cap", 0x2229 },
+      { L"Ccedil", 0x00C7 },
+      { L"ccedil", 0x00E7 },
+      { L"cedil", 0x00B8 },
+      { L"cent", 0x00A2 },
+      { L"Chi", 0x03A7 },
+      { L"chi", 0x03C7 },
+      { L"circ", 0x02C6 },
+      { L"clubs", 0x2663 },
+      { L"cong", 0x2245 },
+      { L"copy", 0x00A9 },
+      { L"crarr", 0x21B5 },
+      { L"cup", 0x222A },
+      { L"curren", 0x00A4 },
+      { L"Dagger", 0x2021 },
+      { L"dagger", 0x2020 },
+      { L"dArr", 0x21D3 },
+      { L"darr", 0x2193 },
+      { L"deg", 0x00B0 },
+      { L"Delta", 0x0394 },
+      { L"delta", 0x03B4 },
+      { L"diams", 0x2666 },
+      { L"divide", 0x00F7 },
+      { L"Eacute", 0x00C9 },
+      { L"eacute", 0x00E9 },
+      { L"Ecirc", 0x00CA },
+      { L"ecirc", 0x00EA },
+      { L"Egrave", 0x00C8 },
+      { L"egrave", 0x00E8 },
+      { L"empty", 0x2205 },
+      { L"emsp", 0x2003 },
+      { L"ensp", 0x2002 },
+      { L"Epsilon", 0x0395 },
+      { L"epsilon", 0x03B5 },
+      { L"equiv", 0x2261 },
+      { L"Eta", 0x0397 },
+      { L"eta", 0x03B7 },
+      { L"ETH", 0x00D0 },
+      { L"eth", 0x00F0 },
+      { L"Euml", 0x00CB },
+      { L"euml", 0x00EB },
+      { L"euro", 0x20AC },
+      { L"exist", 0x2203 },
+      { L"fnof", 0x0192 },
+      { L"forall", 0x2200 },
+      { L"frac12", 0x00BD },
+      { L"frac14", 0x00BC },
+      { L"frac34", 0x00BE },
+      { L"frasl", 0x2044 },
+      { L"Gamma", 0x0393 },
+      { L"gamma", 0x03B3 },
+      { L"ge", 0x2265 },
+      { L"gt", 0x003E },
+      { L"hArr", 0x21D4 },
+      { L"harr", 0x2194 },
+      { L"hearts", 0x2665 },
+      { L"hellip", 0x2026 },
+      { L"Iacute", 0x00CD },
+      { L"iacute", 0x00ED },
+      { L"Icirc", 0x00CE },
+      { L"icirc", 0x00EE },
+      { L"iexcl", 0x00A1 },
+      { L"Igrave", 0x00CC },
+      { L"igrave", 0x00EC },
+      { L"image", 0x2111 },
+      { L"infin", 0x221E },
+      { L"int", 0x222B },
+      { L"Iota", 0x0399 },
+      { L"iota", 0x03B9 },
+      { L"iquest", 0x00BF },
+      { L"isin", 0x2208 },
+      { L"Iuml", 0x00CF },
+      { L"iuml", 0x00EF },
+      { L"Kappa", 0x039A },
+      { L"kappa", 0x03BA },
+      { L"Lambda", 0x039B },
+      { L"lambda", 0x03BB },
+      { L"lang", 0x2329 },
+      { L"laquo", 0x00AB },
+      { L"lArr", 0x21D0 },
+      { L"larr", 0x2190 },
+      { L"lceil", 0x2308 },
+      { L"ldquo", 0x201C },
+      { L"le", 0x2264 },
+      { L"lfloor", 0x230A },
+      { L"lowast", 0x2217 },
+      { L"loz", 0x25CA },
+      { L"lrm", 0x200E },
+      { L"lsaquo", 0x2039 },
+      { L"lsquo", 0x2018 },
+      { L"lt", 0x003C },
+      { L"macr", 0x00AF },
+      { L"mdash", 0x2014 },
+      { L"micro", 0x00B5 },
+      { L"middot", 0x00B7 },
+      { L"minus", 0x2212 },
+      { L"Mu", 0x039C },
+      { L"mu", 0x03BC },
+      { L"nabla", 0x2207 },
+      { L"nbsp", 0x00A0 },
+      { L"ndash", 0x2013 },
+      { L"ne", 0x2260 },
+      { L"ni", 0x220B },
+      { L"not", 0x00AC },
+      { L"notin", 0x2209 },
+      { L"nsub", 0x2284 },
+      { L"Ntilde", 0x00D1 },
+      { L"ntilde", 0x00F1 },
+      { L"Nu", 0x039D },
+      { L"nu", 0x03BD },
+      { L"Oacute", 0x00D3 },
+      { L"oacute", 0x00F3 },
+      { L"Ocirc", 0x00D4 },
+      { L"ocirc", 0x00F4 },
+      { L"OElig", 0x0152 },
+      { L"oelig", 0x0153 },
+      { L"Ograve", 0x00D2 },
+      { L"ograve", 0x00F2 },
+      { L"oline", 0x203E },
+      { L"Omega", 0x03A9 },
+      { L"omega", 0x03C9 },
+      { L"Omicron", 0x039F },
+      { L"omicron", 0x03BF },
+      { L"oplus", 0x2295 },
+      { L"or", 0x2228 },
+      { L"ordf", 0x00AA },
+      { L"ordm", 0x00BA },
+      { L"Oslash", 0x00D8 },
+      { L"oslash", 0x00F8 },
+      { L"Otilde", 0x00D5 },
+      { L"otilde", 0x00F5 },
+      { L"otimes", 0x2297 },
+      { L"Ouml", 0x00D6 },
+      { L"ouml", 0x00F6 },
+      { L"para", 0x00B6 },
+      { L"part", 0x2202 },
+      { L"permil", 0x2030 },
+      { L"perp", 0x22A5 },
+      { L"Phi", 0x03A6 },
+      { L"phi", 0x03C6 },
+      { L"Pi", 0x03A0 },
+      { L"pi", 0x03C0 },
+      { L"piv", 0x03D6 },
+      { L"plusmn", 0x00B1 },
+      { L"pound", 0x00A3 },
+      { L"Prime", 0x2033 },
+      { L"prime", 0x2032 },
+      { L"prod", 0x220F },
+      { L"prop", 0x221D },
+      { L"Psi", 0x03A8 },
+      { L"psi", 0x03C8 },
+      { L"quot", 0x0022 },
+      { L"radic", 0x221A },
+      { L"rang", 0x232A },
+      { L"raquo", 0x00BB },
+      { L"rArr", 0x21D2 },
+      { L"rarr", 0x2192 },
+      { L"rceil", 0x2309 },
+      { L"rdquo", 0x201D },
+      { L"real", 0x211C },
+      { L"reg", 0x00AE },
+      { L"rfloor", 0x230B },
+      { L"Rho", 0x03A1 },
+      { L"rho", 0x03C1 },
+      { L"rlm", 0x200F },
+      { L"rsaquo", 0x203A },
+      { L"rsquo", 0x2019 },
+      { L"sbquo", 0x201A },
+      { L"Scaron", 0x0160 },
+      { L"scaron", 0x0161 },
+      { L"sdot", 0x22C5 },
+      { L"sect", 0x00A7 },
+      { L"shy", 0x00AD },
+      { L"Sigma", 0x03A3 },
+      { L"sigma", 0x03C3 },
+      { L"sigmaf", 0x03C2 },
+      { L"sim", 0x223C },
+      { L"spades", 0x2660 },
+      { L"sub", 0x2282 },
+      { L"sube", 0x2286 },
+      { L"sum", 0x2211 },
+      { L"sup", 0x2283 },
+      { L"sup1", 0x00B9 },
+      { L"sup2", 0x00B2 },
+      { L"sup3", 0x00B3 },
+      { L"supe", 0x2287 },
+      { L"szlig", 0x00DF },
+      { L"Tau", 0x03A4 },
+      { L"tau", 0x03C4 },
+      { L"there4", 0x2234 },
+      { L"Theta", 0x0398 },
+      { L"theta", 0x03B8 },
+      { L"thetasym", 0x03D1 },
+      { L"thinsp", 0x2009 },
+      { L"THORN", 0x00DE },
+      { L"thorn", 0x00FE },
+      { L"tilde", 0x02DC },
+      { L"times", 0x00D7 },
+      { L"trade", 0x2122 },
+      { L"Uacute", 0x00DA },
+      { L"uacute", 0x00FA },
+      { L"uArr", 0x21D1 },
+      { L"uarr", 0x2191 },
+      { L"Ucirc", 0x00DB },
+      { L"ucirc", 0x00FB },
+      { L"Ugrave", 0x00D9 },
+      { L"ugrave", 0x00F9 },
+      { L"uml", 0x00A8 },
+      { L"upsih", 0x03D2 },
+      { L"Upsilon", 0x03A5 },
+      { L"upsilon", 0x03C5 },
+      { L"Uuml", 0x00DC },
+      { L"uuml", 0x00FC },
+      { L"weierp", 0x2118 },
+      { L"Xi", 0x039E },
+      { L"xi", 0x03BE },
+      { L"Yacute", 0x00DD },
+      { L"yacute", 0x00FD },
+      { L"yen", 0x00A5 },
+      { L"Yuml", 0x0178 },
+      { L"yuml", 0x00FF },
+      { L"Zeta", 0x0396 },
+      { L"zeta", 0x03B6 },
+      { L"zwj", 0x200D },
+      { L"zwnj", 0x200C },
+      { 0, 0 }
+    };
+
+    for (const Ent* e = ent; e->entity; ++e)
+        _entityMap.insert(EntityMap::value_type(e->entity, String(1, Char(e->charValue))));
 }
 
 
 void EntityResolver::addEntity(const String& entity, const String& token)
 {
-  _entityMap.insert( std::pair<String, String>(entity, token) );
+    _entityMap.insert( std::pair<String, String>(entity, token) );
 }
 
 
