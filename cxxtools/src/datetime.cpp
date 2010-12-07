@@ -135,8 +135,39 @@ void convert(std::string& str, const DateTime& dt)
 
 void operator >>=(const SerializationInfo& si, DateTime& datetime)
 {
-    std::string s = si.toValue<std::string>();
-    convert(datetime, s);
+    if (si.category() == cxxtools::SerializationInfo::Object)
+    {
+        unsigned short year, month, day, hour, min, sec, msec;
+        si.getMember("year") >>= year;
+        si.getMember("month") >>= month;
+        si.getMember("day") >>= day;
+        si.getMember("hour") >>= hour;
+
+        const cxxtools::SerializationInfo* p;
+
+        if ((p = si.findMember("minute")) != 0)
+            *p >>= min;
+        else
+            si.getMember("min") >>= min;
+
+        if ((p = si.findMember("second")) != 0)
+            *p >>= sec;
+        else
+            si.getMember("sec") >>= sec;
+
+        if ((p = si.findMember("millisecond")) != 0
+            || (p = si.findMember("msec")) != 0)
+            *p >>= msec;
+        else
+            msec = 0;
+
+        datetime.set(year, month, day, hour, min, sec, msec);
+    }
+    else
+    {
+        std::string s = si.toValue<std::string>();
+        convert(datetime, s);
+    }
 }
 
 void operator <<=(SerializationInfo& si, const DateTime& datetime)

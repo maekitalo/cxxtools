@@ -129,8 +129,19 @@ void convert(Date& date, const std::string& s)
 
 void operator>>=(const SerializationInfo& si, Date& date)
 {
-    std::string s = si.toValue<std::string>();
-    convert(date, s);
+    if (si.category() == cxxtools::SerializationInfo::Object)
+    {
+        unsigned short year, month, day;
+        si.getMember("year") >>= year;
+        si.getMember("month") >>= month;
+        si.getMember("day") >>= day;
+        date.set(year, month, day);
+    }
+    else
+    {
+        std::string s = si.toValue<std::string>();
+        convert(date, s);
+    }
 }
 
 void operator<<=(SerializationInfo& si, const Date& date)

@@ -105,8 +105,37 @@ void convert(std::string& str, const Time& time)
 
 void operator >>=(const SerializationInfo& si, Time& time)
 {
-    std::string s = si.toValue<std::string>();
-    convert(time, s);;
+    if (si.category() == cxxtools::SerializationInfo::Object)
+    {
+        unsigned short hour, min, sec, msec;
+
+        si.getMember("hour") >>= hour;
+
+        const cxxtools::SerializationInfo* p;
+
+        if ((p = si.findMember("minute")) != 0)
+            *p >>= min;
+        else
+            si.getMember("min") >>= min;
+
+        if ((p = si.findMember("second")) != 0)
+            *p >>= sec;
+        else
+            si.getMember("sec") >>= sec;
+
+        if ((p = si.findMember("millisecond")) != 0
+            || (p = si.findMember("msec")) != 0)
+            *p >>= msec;
+        else
+            msec = 0;
+
+        time.set(hour, min, sec, msec);
+    }
+    else
+    {
+        std::string s = si.toValue<std::string>();
+        convert(time, s);;
+    }
 }
 
 
