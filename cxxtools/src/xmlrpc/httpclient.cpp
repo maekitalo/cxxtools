@@ -52,7 +52,7 @@ HttpClient::HttpClient(SelectorBase& selector, const std::string& server,
 
 
 HttpClient::HttpClient(SelectorBase& selector, const net::Uri& uri)
-: _impl(new HttpClientImpl(selector, uri.host(), uri.port(), uri.url()))
+: _impl(new HttpClientImpl(selector, uri.host(), uri.port(), uri.path()))
 {
     impl(_impl);
     auth(uri.user(), uri.password());
@@ -67,7 +67,7 @@ HttpClient::HttpClient(const std::string& server, unsigned short port, const std
 
 
 HttpClient::HttpClient(const net::Uri& uri)
-: _impl(new HttpClientImpl(uri.host(), uri.port(), uri.url()))
+: _impl(new HttpClientImpl(uri.host(), uri.port(), uri.path()))
 {
     impl(_impl);
     auth(uri.user(), uri.password());
@@ -86,7 +86,7 @@ void HttpClient::connect(const net::AddrInfo& addrinfo, const std::string& url)
 
 void HttpClient::connect(const net::Uri& uri)
 {
-    _impl->connect(uri.host(), uri.port(), uri.url());
+    _impl->connect(uri.host(), uri.port(), uri.path());
     auth(uri.user(), uri.password());
 }
 

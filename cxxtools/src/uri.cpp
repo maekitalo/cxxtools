@@ -44,8 +44,7 @@ namespace net
 
   Uri::Uri(const std::string& uri)
     : _ipv6(false),
-      _port(0),
-      _url(1, '/')
+      _port(0)
   {
     enum {
       state_0,
@@ -61,7 +60,9 @@ namespace net
       state_ipv6ok,
       state_ipv6end,
       state_port,
-      state_url
+      state_path,
+      state_query,
+      state_fragment
     } state = state_0;
 
     std::string token;
@@ -125,7 +126,8 @@ namespace net
           {
             _host = _user;
             _user.clear();
-            state = state_url;
+            _path = ch;
+            state = state_path;
           }
           else if (ch == '@')
             state = state_host;
@@ -144,7 +146,8 @@ namespace net
             _host = _user;
             _user.clear();
             _password.clear();
-            state = state_url;
+            _path = ch;
+            state = state_path;
           }
           else if (std::isdigit(ch))
           {
@@ -170,7 +173,10 @@ namespace net
 
         case state_host:
           if (ch == '/')
-            state = state_url;
+          {
+            _path = ch;
+            state = state_path;
+          }
           else if (ch == ':')
             state = state_port;
           else if (_host.empty() && ch == '[')
@@ -215,14 +221,20 @@ namespace net
             state = state_port;
           }
           else if (ch == '/')
-            state = state_url;
+          {
+            _path = ch;
+            state = state_path;
+          }
           else
             throwInvalid(uri);
           break;
 
         case state_port:
           if (ch == '/')
-            state = state_url;
+          {
+            _path = ch;
+            state = state_path;
+          }
           else if (std::isdigit(ch))
           {
             hasPort = true;
@@ -232,17 +244,35 @@ namespace net
             throwInvalid(uri);
           break;
 
-        case state_url:
-          _url += ch;
+        case state_path:
+          if (ch == '?')
+            state = state_query;
+          else if (ch == '#')
+            state = state_fragment;
+          else
+            _path += ch;
+          break;
+
+        case state_query:
+          if (ch == '#')
+            state = state_fragment;
+          else
+            _query += ch;
+          break;
+
+        case state_fragment:
+          _fragment += ch;
           break;
       }
     }
 
     switch (state)
     {
-      case state_url:
       case state_port:
       case state_host:
+      case state_path:
+      case state_query:
+      case state_fragment:
         break;
 
       case state_user_or_host:
@@ -288,7 +318,11 @@ namespace net
        || (_protocol == "ftp"   && _port == 21)))
       s << ':' << _port;
 
-    s << _url;
+    s << _path;
+    if (!_query.empty())
+      s << '?' << _query;
+    if (!_fragment.empty())
+      s << '#' << _fragment;
 
     return s.str();
   }

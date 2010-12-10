@@ -41,7 +41,9 @@ namespace net
       std::string _password;
       std::string _host;
       unsigned short int _port;
-      std::string _url;
+      std::string _path;
+      std::string _query;
+      std::string _fragment;
 
     public:
       Uri()  { }
@@ -78,11 +80,23 @@ namespace net
       unsigned short int port() const
         { return _port; }
 
-      void url(const std::string& url)
-        { _url = url; }
+      void path(const std::string& path)
+        { _path = path; }
 
-      const std::string& url() const
-        { return _url; }
+      const std::string& path() const
+        { return _path; }
+
+      void query(const std::string& query)
+        { _query = query; }
+
+      const std::string& query() const
+        { return _query; }
+
+      void fragment(const std::string& fragment)
+        { _fragment = fragment; }
+
+      const std::string& fragment() const
+        { return _fragment; }
 
       std::string str() const;
   };
