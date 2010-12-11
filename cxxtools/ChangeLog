@@ -1,3 +1,68 @@
+2010-12-10 tommi@tntnet.org
+ - add query and fragment parts to uri class
+
+2010-12-07 tommi@tntnet.org
+ - accept dates, times and datetimes with discrete components in deserialization
+
+2010-11-21 tommi@tntnet.org
+ - set user agent header in http client if not set by user
+
+2010-11-20 tommi@tntnet.org
+ - fix handling of detached threads
+ - support for special characters in xml attributes as well as html entities
+   add all html4 entities into default list of entities in entityresolver
+   delay instantiation of entityresolver until really needed
+
+2010-11-17 tommi@tntnet.org
+ - fix for serialization of std::pair (type name was not set)
+
+2010-11-13 tommi@tntnet.org
+ - reduce compiler warnings by cleaning up code
+
+2010-11-08 tommi@tntnet.org
+ - add constructor and connect with cxxtools::net::Uri method to xmlrpc client
+ - take username and password from uri in xmlrpc client
+ - add default constructor to uri class
+
+2010-11-07 tommi@tntnet.org
+ - add class cxxtools::net::Uri for parsing uris
+
+2010-11-05 tommi@tntnet.org
+close socket in http client when new address is set
+make selector settable in cxxtools::xmlrpc::HttpClient
+
+2010-11-01 tommi@tntnet.org
+ - add serialization operators to Date, Time and DateTime
+
+2010-10-29 tommi@tntnet.org
+ - new method clear in cxxtools::Cache to clear the cache
+
+2010-10-17 tommi@tntnet.org
+ - add cxxtools prefix to md5 code to prevent name clash with other md5 libraries
+
+2010-10-14 tommi@tntnet.org
+ - new member template function SerialzationInfo::getMember(name, value), which
+   deserializes a member only if the value is found and do not throw, if the
+   member is not found; a success flag is returned as bool
+
+2010-10-08 tommi@tntnet.org
+ - add serialization operator for string constant
+
+2010-10-04 tommi@tntnet.org
+ - add helper templates cxxtools::md5
+
+2010-09-12 tommi@tntnet.org
+ - fix handling of IPv6 in server socket
+ - add configure check for IPv6
+ - new utility functions split, join and trim
+
+2010-08-19 tommi@tntnet.org
+ - fixes for atomicity on sun
+ - fix compile problem for atomicity for arm
+
+2010-08-17 tommi@tntnet.org
+ - fix reading of chunked encoded data in http client
+
 2010-08-01 tommi@tntnet.org
  - release 2.0
 
