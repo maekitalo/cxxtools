@@ -348,34 +348,39 @@ int TcpServerImpl::accept(int flags, struct sockaddr* sa, socklen_t& sa_len)
     Resetter<int> resetter(_pendingAccept);
     if (_pendingAccept == noPendingAccept)
     {
-        Resetter<pollfd*> resetter(_pfd);
-        std::vector<pollfd> fds(_listeners.size());
-        initializePoll(&fds[0], fds.size());
-
-        while (true)
+        if (_listeners.size() == 1)
+            _pendingAccept = 0;
+        else
         {
-            log_debug("poll");
-            int p = ::poll(&fds[0], fds.size(), -1);
-            if (p > 0)
-            {
-                break;
-            }
-            else if (p < 0)
-            {
-                if (errno == EINTR)
-                    continue;
-                log_error("error in poll; errno=" << errno);
-                throw SystemError("poll");
-            }
-        }
+            Resetter<pollfd*> resetter(_pfd);
+            std::vector<pollfd> fds(_listeners.size());
+            initializePoll(&fds[0], fds.size());
 
-        for (std::vector<pollfd>::size_type n = 0; n < fds.size(); ++n)
-        {
-            if (fds[n].revents & POLLIN)
+            while (true)
             {
-                log_debug("detected accept on fd " << fds[n].fd);
-                _pendingAccept = n;
-                break;
+                log_debug("poll");
+                int p = ::poll(&fds[0], fds.size(), -1);
+                if (p > 0)
+                {
+                    break;
+                }
+                else if (p < 0)
+                {
+                    if (errno == EINTR)
+                        continue;
+                    log_error("error in poll; errno=" << errno);
+                    throw SystemError("poll");
+                }
+            }
+
+            for (std::vector<pollfd>::size_type n = 0; n < fds.size(); ++n)
+            {
+                if (fds[n].revents & POLLIN)
+                {
+                    log_debug("detected accept on fd " << fds[n].fd);
+                    _pendingAccept = n;
+                    break;
+                }
             }
         }
 
