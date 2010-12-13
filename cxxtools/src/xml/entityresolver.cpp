@@ -23,14 +23,21 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
+
 #include <cxxtools/xml/entityresolver.h>
+#include <cxxtools/mutex.h>
 #include <stdexcept>
+#include <cxxtools/log.h>
+
+log_define("cxxtools.xml.entityresolver")
 
 namespace cxxtools
 {
 
 namespace xml
 {
+
+EntityResolver::EntityMap EntityResolver::_staticEntityMap;
 
 EntityResolver::EntityResolver()
 {
@@ -45,6 +52,7 @@ EntityResolver::~EntityResolver()
 
 void EntityResolver::clear()
 {
+    log_trace("clear");
     _entityMap.clear();
 
     struct Ent
@@ -308,8 +316,18 @@ void EntityResolver::clear()
       { 0, 0 }
     };
 
-    for (const Ent* e = ent; e->entity; ++e)
-        _entityMap.insert(EntityMap::value_type(e->entity, String(1, Char(e->charValue))));
+    static ReadWriteMutex mutex;
+    ReadLock rlock(mutex);
+    if (_staticEntityMap.empty())
+    {
+        rlock.unlock();
+        WriteLock wlock(mutex);
+        if (_staticEntityMap.empty())
+        {
+            for (const Ent* e = ent; e->entity; ++e)
+                _staticEntityMap.insert(EntityMap::value_type(e->entity, String(1, Char(e->charValue))));
+        }
+    }
 }
 
 
@@ -354,10 +372,12 @@ String EntityResolver::resolveEntity(const String& entity)
         return String( 1, Char(code) );
     }
 
-    std::map<String, String>::const_iterator it = _entityMap.find(entity);
+    EntityMap::const_iterator it = _entityMap.find(entity);
     if( it == _entityMap.end() )
     {
-        throw std::runtime_error("invalid entity " + entity.narrow());
+        it = _staticEntityMap.find(entity);
+        if( it == _staticEntityMap.end() )
+            throw std::runtime_error("invalid entity " + entity.narrow());
     }
 
     return it->second;

@@ -1478,7 +1478,6 @@ struct XmlReaderImpl
     : _textBuffer( is.rdbuf() )
     , _buffer(0)
     , _flags(flags)
-    , _resolverp(0)
     , _standalone(true)
     , _depth(0)
     , _line(1)
@@ -1492,7 +1491,6 @@ struct XmlReaderImpl
     : _textBuffer(0)
     , _buffer(0)
     , _flags(flags)
-    , _resolverp(0)
     , _standalone(true)
     , _depth(0)
     , _line(1)
@@ -1507,7 +1505,6 @@ struct XmlReaderImpl
     ~XmlReaderImpl()
     {
         delete _buffer;
-        delete _resolverp;
     }
 
     void reset(std::basic_istream<Char>& is, int flags)
@@ -1553,9 +1550,7 @@ struct XmlReaderImpl
 
     EntityResolver& entityResolver()
     {
-       if (_resolverp == 0)
-           _resolverp = new EntityResolver();
-       return *_resolverp;
+       return _resolver;
     }
 
     size_t depth() const
@@ -1638,7 +1633,7 @@ struct XmlReaderImpl
     std::basic_streambuf<Char>* _textBuffer;
     std::basic_streambuf<Char>* _buffer;
     int _flags;
-    EntityResolver* _resolverp;
+    EntityResolver _resolver;
 
     cxxtools::String _version;
     cxxtools::String _encoding;

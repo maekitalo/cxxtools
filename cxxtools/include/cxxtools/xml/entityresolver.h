@@ -54,7 +54,7 @@ class CXXTOOLS_XML_API EntityResolver
          */
         EntityResolver();
 
-        //! Empty destructor.
+        //! Empty destructor. TODO remove (delay to prevent abi break)
         virtual ~EntityResolver();
 
         /**
@@ -90,7 +90,8 @@ class CXXTOOLS_XML_API EntityResolver
     private:
         //! Entity map containing entities which are associated to their resolved entity value.
         typedef std::map<String, String> EntityMap;
-        std::map<String, String> _entityMap;
+        EntityMap _entityMap;
+        static EntityMap _staticEntityMap;
 };
 
 }
