@@ -319,7 +319,7 @@ class Arg : public ArgBaseT<T>
           if (argv[i][n] == '=')
           {
             // --option=vlaue
-            if (this->extract(argv[i] + n, argc, argv, i, 1))
+            if (this->extract(argv[i] + n + 1, argc, argv, i, 1))
               return true;
           }
         }
