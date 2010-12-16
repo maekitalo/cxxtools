@@ -54,9 +54,6 @@ class CXXTOOLS_XML_API EntityResolver
          */
         EntityResolver();
 
-        //! Empty destructor. TODO remove (delay to prevent abi break)
-        virtual ~EntityResolver();
-
         /**
          * @brief Resets the entity list to the XML default entities.
          *
@@ -83,9 +80,8 @@ class CXXTOOLS_XML_API EntityResolver
          * @return The resolved entity.
          * @throws XmlError if the entity is not in the list.
          *
-         * TODO add const specifier
          */
-        String resolveEntity(const String& entity);
+        String resolveEntity(const String& entity) const;
 
     private:
         //! Entity map containing entities which are associated to their resolved entity value.

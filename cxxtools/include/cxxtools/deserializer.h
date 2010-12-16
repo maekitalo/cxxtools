@@ -68,6 +68,8 @@ class CXXTOOLS_API IDeserializer
 
         virtual IDeserializer* beginMember(const std::string& name) = 0;
 
+        virtual IDeserializer* beginMember(const std::string& name, const std::string& type) = 0;
+
         virtual IDeserializer* leaveMember() = 0;
 
         virtual void fixup(DeserializationContext& ctx) = 0;
@@ -130,6 +132,14 @@ class Deserializer : public IDeserializer
         virtual IDeserializer* beginMember(const std::string& name)
         {
             SerializationInfo& child = _current->addMember(name);
+            _current = &child;
+            return this;
+        }
+
+        virtual IDeserializer* beginMember(const std::string& name, const std::string& type)
+        {
+            SerializationInfo& child = _current->addMember(name);
+            child.setTypeName(type);
             _current = &child;
             return this;
         }

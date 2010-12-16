@@ -45,11 +45,6 @@ EntityResolver::EntityResolver()
 }
 
 
-EntityResolver::~EntityResolver()
-{
-}
-
-
 void EntityResolver::clear()
 {
     log_trace("clear");
@@ -337,7 +332,7 @@ void EntityResolver::addEntity(const String& entity, const String& token)
 }
 
 
-String EntityResolver::resolveEntity(const String& entity)
+String EntityResolver::resolveEntity(const String& entity) const
 {
     if (!entity.empty() && entity[0] == L'#')
     {

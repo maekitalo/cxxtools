@@ -40,18 +40,9 @@ Attribute::Attribute(const String& name, const String& value)
 }
 
 
-Attribute::~Attribute()
-{
-}
-
-
-
-
-
 StartElement::StartElement() 
 : Node(Node::StartElement)
 {
-
 }
 
 

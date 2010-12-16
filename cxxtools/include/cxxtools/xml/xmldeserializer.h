@@ -126,6 +126,9 @@ namespace xml {
             cxxtools::String _nodeName;
 
             cxxtools::String _nodeId;
+
+            cxxtools::String _nodeType;
+
     };
 
 } // namespace xml

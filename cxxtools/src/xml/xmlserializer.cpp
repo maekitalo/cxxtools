@@ -106,21 +106,22 @@ void XmlFormatter::flush()
 void XmlFormatter::addValue(const std::string& name, const std::string& type,
                              const cxxtools::String& value, const std::string& id)
 {
-    if( ! id.empty() )
-    {
-        cxxtools::xml::Attribute attr( cxxtools::String(L"id"), cxxtools::String::widen( id ) );
+    cxxtools::xml::Attribute attrs[2];
+    size_t countAttrs = 0;
 
-        if( ! name.empty() )
-            _writer->writeElement( cxxtools::String::widen( name ), &attr, 1, value );
-        else
-            _writer->writeElement( cxxtools::String::widen( type ), &attr, 1, value );
+    if( ! id.empty() )
+        attrs[countAttrs++] = cxxtools::xml::Attribute( cxxtools::String(L"id"), cxxtools::String::widen( id ) );
+
+    if( ! name.empty() )
+    {
+        if ( ! type.empty() )
+            attrs[countAttrs++] = cxxtools::xml::Attribute( cxxtools::String(L"type"), cxxtools::String::widen( type ) );
+
+        _writer->writeElement( cxxtools::String::widen( name ), attrs, countAttrs, value );
     }
     else
     {
-        if( ! name.empty() )
-            _writer->writeElement( cxxtools::String::widen( name ), value );
-        else
-            _writer->writeElement( cxxtools::String::widen( type ), value );
+        _writer->writeElement( cxxtools::String::widen( type ), attrs, countAttrs, value );
     }
 }
 

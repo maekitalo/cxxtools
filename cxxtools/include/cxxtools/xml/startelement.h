@@ -62,9 +62,6 @@ namespace xml {
              */
             Attribute(const String& name, const String& value);
 
-            //! Empty destructor
-            virtual ~Attribute();
-
             /**
              * @brief Returns the name of this attribute.
              * @return The attribute's name.
