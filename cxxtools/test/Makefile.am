@@ -7,6 +7,7 @@ noinst_PROGRAMS = \
     net-test \
     process-test \
     uri-test \
+    xmlreader-test \
     xmlrpc-test
 
 AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/include -I$(top_srcdir)/include
@@ -14,6 +15,8 @@ AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/include -I$(top_srcdir)/incl
 net_test_SOURCES = test-main.cpp tcpsockettest.cpp
 
 uri_test_SOURCES = test-main.cpp uri-test.cpp
+
+xmlreader_test_SOURCES = test-main.cpp xmlreader-test.cpp
 
 xmlrpc_test_SOURCES = test-main.cpp xmlrpc-test.cpp
 
@@ -34,6 +37,7 @@ alltests_SOURCES = \
     test-main.cpp \
     trim-test.cpp \
     uri-test.cpp \
+    xmlreader-test.cpp \
     xmlrpc-test.cpp
 
 abort_SOURCES = abort.cpp

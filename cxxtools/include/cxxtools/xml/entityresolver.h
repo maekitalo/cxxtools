@@ -87,7 +87,6 @@ class CXXTOOLS_XML_API EntityResolver
         //! Entity map containing entities which are associated to their resolved entity value.
         typedef std::map<String, String> EntityMap;
         EntityMap _entityMap;
-        static EntityMap _staticEntityMap;
 };
 
 }
