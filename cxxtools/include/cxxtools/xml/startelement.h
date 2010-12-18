@@ -76,7 +76,7 @@ namespace xml {
              * @brief Sets the name of this attribute.
              * @param name The new name of this attribute.
              */
-            void setName(const String name)
+            void setName(const String& name)
             {_name = name;}
 
             /**
@@ -93,7 +93,7 @@ namespace xml {
              * @brief Sets the value of this attribute.
              * @param value The new value of this attribute.
              */
-            void setValue(const String value)
+            void setValue(const String& value)
             {_value = value;}
 
             void clear()
@@ -184,7 +184,7 @@ namespace xml {
              * @brief Sets the tag name of the end start for which this StartElement object was created.
              * @param name The new name for this StartElement object.
              */
-            void setName(const String name)
+            void setName(const String& name)
             {_name = name;}
 
             /**
@@ -224,7 +224,7 @@ namespace xml {
              * @return The value of the request attribute; or an empty string if there is no attribute
              * with this name.
              */
-            const String& attribute(const String attributeName) const;
+            const String& attribute(const String& attributeName) const;
 
             /**
              * @return Checks if the StartElement has an attribute with the given name.
@@ -235,7 +235,7 @@ namespace xml {
              * @param attributeName It is checked if an attribute with this attribute name exists.
              * @return $true$ if an attribute with this name exists; $false$ otherwise.
              */
-            bool hasAttribute(const String attributeName) const;
+            bool hasAttribute(const String& attributeName) const;
 
             /**
              * @brief Returns the namespace conText of this StartElement.

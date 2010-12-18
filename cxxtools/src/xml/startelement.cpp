@@ -58,7 +58,7 @@ StartElement::~StartElement()
 }
 
 
-const String& StartElement::attribute(const String attributeName) const
+const String& StartElement::attribute(const String& attributeName) const
 {
     static const String null;
     
@@ -72,7 +72,7 @@ const String& StartElement::attribute(const String attributeName) const
 }
 
 
-bool StartElement::hasAttribute(const String attributeName) const
+bool StartElement::hasAttribute(const String& attributeName) const
 {
     for(std::list<Attribute>::const_iterator it = _attributes.begin(); it != _attributes.end(); ++it) {
         if(it->name() == attributeName) {

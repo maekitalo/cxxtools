@@ -101,7 +101,7 @@ namespace cxxtools {
                  * @brief Sets the tag name of the end tag for which this EndElement object was created.
                  * @param name The new name for this EndElement object.
                  */
-                void setName(const String name);
+                void setName(const String& name);
 
                 /**
                  * @brief Compares this EndElement object with the given node.

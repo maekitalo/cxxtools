@@ -54,7 +54,7 @@ const String& EndElement::name() const
 }
 
 
-void EndElement::setName(const String name)
+void EndElement::setName(const String& name)
 {
     _name = name;
 }

@@ -674,7 +674,7 @@ void EntityResolver::getEntity(std::basic_ostream<Char>& os, Char ch) const
         printEntity(os, rent[u].entity);
     else if (rent[o].charValue == ch.value())
         printEntity(os, rent[o].entity);
-    else if (ch.value() >= ' ' && ch.value() <= 0x1F)
+    else if (ch.value() >= ' ' && ch.value() <= 0x7F)
         os << ch;
     else
         os << Char('&') << Char('#') << ch.value() << Char(';');

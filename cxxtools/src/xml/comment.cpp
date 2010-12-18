@@ -53,7 +53,7 @@ const String& Comment::text() const
 }
 
 
-void Comment::setText(const String text)
+void Comment::setText(const String& text)
 {
     _text = text;
 }

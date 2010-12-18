@@ -93,7 +93,7 @@ namespace cxxtools {
                  * @brief Sets the Text of this Comment object.
                  * @param text The new Text for this Comment object.
                  */
-                void setText(const String text);
+                void setText(const String& text);
 
             private:
                 //! The Text of this Comment object.
