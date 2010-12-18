@@ -81,33 +81,46 @@ namespace unit {
     };
 
     #define CXXTOOLS_UNIT_ASSERT(cond) \
-        if( !(cond) ) throw cxxtools::unit::Assertion(#cond, CXXTOOLS_SOURCEINFO);
+        if( !(cond) ) \
+            throw cxxtools::unit::Assertion(#cond, CXXTOOLS_SOURCEINFO);
 
     #define CXXTOOLS_UNIT_ASSERT_MSG(cond, what) \
-        if( !(cond) ) throw cxxtools::unit::Assertion((what), CXXTOOLS_SOURCEINFO);
+        if( !(cond) ) \
+        { \
+            std::ostringstream _cxxtools_msg; \
+            _cxxtools_msg << what; \
+            throw cxxtools::unit::Assertion(_cxxtools_msg.str(), CXXTOOLS_SOURCEINFO); \
+        }
 
     #define CXXTOOLS_UNIT_ASSERT_EQUALS(value1, value2) \
         if( ! ((value1) == (value2)) ) \
         { \
-          std::ostringstream _cxxtools_msg; \
-          _cxxtools_msg << "not equal: value1 (" #value1 ")=<" << value1 << "> value2 (" #value2 ")=<" << value2 << '>'; \
-          throw cxxtools::unit::Assertion(_cxxtools_msg.str(), CXXTOOLS_SOURCEINFO); \
+            std::ostringstream _cxxtools_msg; \
+            _cxxtools_msg << "not equal: value1 (" #value1 ")=<" << value1 << "> value2 (" #value2 ")=<" << value2 << '>'; \
+            throw cxxtools::unit::Assertion(_cxxtools_msg.str(), CXXTOOLS_SOURCEINFO); \
         }
 
     #define CXXTOOLS_UNIT_ASSERT_THROW(cond, EX) \
-        try { \
-            cond; \
-            throw std::string("Exception expected."); \
-        } \
-        catch(const std::string & s) \
-        { \
-            throw cxxtools::unit::Assertion(s, CXXTOOLS_SOURCEINFO); \
-        } \
-        catch(const EX &) \
-        {}
+      { \
+          struct _cxxtools_ex { }; \
+          try \
+          { \
+              cond; \
+              throw _cxxtools_ex(); \
+          } \
+          catch(const _cxxtools_ex &) \
+          { \
+              std::ostringstream _cxxtools_msg; \
+              _cxxtools_msg << "exception of type " #EX " expected in " #cond; \
+              throw cxxtools::unit::Assertion(_cxxtools_msg.str(), CXXTOOLS_SOURCEINFO); \
+          } \
+          catch(const EX &) \
+          {} \
+      }
 
     #define CXXTOOLS_UNIT_ASSERT_NOTHROW(cond) \
         try { \
+        \
             cond; \
         } \
         catch(const std::exception& e) \
@@ -122,7 +135,11 @@ namespace unit {
         }
 
     #define CXXTOOLS_UNIT_FAIL(what) \
-        throw cxxtools::unit::Assertion(what, CXXTOOLS_SOURCEINFO);
+        { \
+            std::ostringstream _cxxtools_msg; \
+            _cxxtools_msg << what; \
+            throw cxxtools::unit::Assertion(_cxxtools_msg.str(), CXXTOOLS_SOURCEINFO); \
+        }
 
 } // namespace unit
 

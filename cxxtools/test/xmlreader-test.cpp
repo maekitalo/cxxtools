@@ -37,7 +37,9 @@ class XmlReaderTest : public cxxtools::unit::TestSuite
         XmlReaderTest()
         : cxxtools::unit::TestSuite("cxxtools-xmlreader-Test")
         {
-            registerMethod("testXmlEntity", *this, &XmlReaderTest::testXmlEntity);
+            registerMethod("XmlEntity", *this, &XmlReaderTest::XmlEntity);
+            registerMethod("ReverseEntity", *this, &XmlReaderTest::ReverseEntity);
+            registerMethod("AllEntities", *this, &XmlReaderTest::AllEntities);
         }
 
         void setUp()
@@ -48,11 +50,81 @@ class XmlReaderTest : public cxxtools::unit::TestSuite
         {
         }
 
-        void testXmlEntity()
+        void XmlEntity()
         {
             cxxtools::xml::EntityResolver resolver;
-            cxxtools::String r = resolver.resolveEntity(cxxtools::String(L"auml"));
+            cxxtools::String r;
+
+            r = resolver.resolveEntity(cxxtools::String(L"auml"));
             CXXTOOLS_UNIT_ASSERT(r == cxxtools::String(L"ä"));
+
+            r = resolver.resolveEntity(cxxtools::String(L"Ouml"));
+            CXXTOOLS_UNIT_ASSERT(r == cxxtools::String(L"Ö"));
+
+            r = resolver.resolveEntity(cxxtools::String(L"AElig"));
+            CXXTOOLS_UNIT_ASSERT(r == cxxtools::String(1, cxxtools::Char(0xC6)));
+
+            r = resolver.resolveEntity(cxxtools::String(L"zwnj"));
+            CXXTOOLS_UNIT_ASSERT(r == cxxtools::String(1, cxxtools::Char(0x200C)));
+
+            r = resolver.resolveEntity(cxxtools::String(L"#x200C"));
+            CXXTOOLS_UNIT_ASSERT(r == cxxtools::String(1, cxxtools::Char(0x200C)));
+
+            r = resolver.resolveEntity(cxxtools::String(L"#1234"));
+            CXXTOOLS_UNIT_ASSERT(r == cxxtools::String(1, cxxtools::Char(1234)));
+
+            CXXTOOLS_UNIT_ASSERT_THROW(resolver.resolveEntity(cxxtools::String(L"zwnjj")), std::exception);
+            CXXTOOLS_UNIT_ASSERT_THROW(resolver.resolveEntity(cxxtools::String(L"AEli")), std::exception);
+
+        }
+
+        void ReverseEntity()
+        {
+            cxxtools::xml::EntityResolver resolver;
+
+            cxxtools::String r;
+
+            r = resolver.getEntity(cxxtools::Char(L'&'));
+            CXXTOOLS_UNIT_ASSERT_MSG(r == cxxtools::String(L"&amp;"),
+                "failed to get entity for character '&'; expected \"&amp;\" returned \"" << r.narrow() << '"');
+
+            r = resolver.getEntity(cxxtools::Char(0x2665));
+            CXXTOOLS_UNIT_ASSERT_MSG(r == cxxtools::String(L"&hearts;"),
+                "failed to get entity for character code 0x2665; expected \"&hearts;\" returned \"" << r.narrow() << '"');
+
+            r = resolver.getEntity(cxxtools::Char(0x2666));
+            CXXTOOLS_UNIT_ASSERT_MSG(r == cxxtools::String(L"&diams;"),
+                "failed to get entity for character code 0x2666; expected \"&diams;\" returned \"" << r.narrow() << '"');
+
+            r = resolver.getEntity(cxxtools::Char(0x0022));
+            CXXTOOLS_UNIT_ASSERT_MSG(r == cxxtools::String(L"&quot;"),
+                "failed to get entity for character code 0x0022; expected \"&quot;\" returned \"" << r.narrow() << '"');
+
+            r = resolver.getEntity(cxxtools::Char(1234));
+            CXXTOOLS_UNIT_ASSERT_MSG(r == cxxtools::String(L"&#1234;"),
+                "failed to get entity for character code 1234; expected \"&#1234;\" returned \"" << r.narrow() << '"');
+
+        }
+
+        void AllEntities()
+        {
+            cxxtools::xml::EntityResolver resolver;
+            for (unsigned n = 0; n <= 0xFFFF; ++n)
+            {
+                cxxtools::String r = resolver.getEntity(cxxtools::Char(n));
+                if (r.size() > 2 && r[0] == '&' && r[r.size() - 1] == ';')
+                {
+                    cxxtools::String rr = resolver.resolveEntity(r.substr(1, r.size() - 2));
+                    CXXTOOLS_UNIT_ASSERT_MSG(
+                        rr == cxxtools::String(1, cxxtools::Char(n)),
+                        "resolving char code " << n << " failed; entity \"" << r.narrow() << '"');
+                }
+                else
+                {
+                    CXXTOOLS_UNIT_ASSERT_MSG(r[0] == cxxtools::Char(n),
+                        "resolving char code " << n << " failed");
+                }
+            }
         }
 
 };

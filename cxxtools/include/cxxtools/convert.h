@@ -48,7 +48,7 @@ namespace cxxtools
 template <typename T>
 inline void convert(cxxtools::String& s, const T& value)
 {
-    cxxtools::StringStream os;
+    cxxtools::OStringStream os;
     os << value;
     s = os.str();
 }
@@ -57,7 +57,7 @@ inline void convert(cxxtools::String& s, const T& value)
 template <typename T>
 inline void convert(T& t, const cxxtools::String& str)
 {
-    cxxtools::StringStream is(str);
+    cxxtools::IStringStream is(str);
     cxxtools::Char ch;
     is >> t;
     if (is.fail() || !(is >> ch).eof())
@@ -160,7 +160,7 @@ inline void convert(char& n, const cxxtools::String& str)
 
 inline void convert(cxxtools::String& s, unsigned char value)
 {
-    cxxtools::StringStream ss;
+    cxxtools::OStringStream ss;
     unsigned int i = static_cast<unsigned int>(value);
     ss << i;
     s = ss.str();
@@ -173,7 +173,7 @@ inline void convert(unsigned char& n, const cxxtools::String& str)
         ConversionError::doThrow("unsigned char", "cxxtools::String");
 
     // interpret as numeric value
-    cxxtools::StringStream ss(str);
+    cxxtools::IStringStream ss(str);
     cxxtools::Char ch;
     unsigned int i = 0;
     ss >> i;
@@ -191,7 +191,7 @@ inline void convert(unsigned char& n, const cxxtools::String& str)
 
 inline void convert(cxxtools::String& s, signed char value)
 {
-    cxxtools::StringStream ss;
+    cxxtools::OStringStream ss;
     int i = static_cast<signed int>(value);
     ss << i;
     s = ss.str();
@@ -204,7 +204,7 @@ inline void convert(signed char& n, const cxxtools::String& str)
         ConversionError::doThrow("signed char", "cxxtools::String");
         
     // interpret as numeric value
-    cxxtools::StringStream ss(str);
+    cxxtools::IStringStream ss(str);
     cxxtools::Char ch;
     int i = 0;
     ss >> i;
@@ -240,7 +240,7 @@ inline void convert(cxxtools::String& s, float value)
         return;
     }
 
-    cxxtools::StringStream os;
+    cxxtools::OStringStream os;
     os << value;
     s = os.str();
 }
@@ -255,7 +255,7 @@ inline void convert(float& n, const cxxtools::String& str)
         return;
     }
 
-    cxxtools::StringStream is(str);
+    cxxtools::IStringStream is(str);
     cxxtools::Char ch;
     is >> n;
 
@@ -275,7 +275,7 @@ inline void convert(cxxtools::String& s, double value)
         return;
     }
 
-    cxxtools::StringStream os;
+    cxxtools::OStringStream os;
     os << std::fixed << std::setprecision(15) << value;
     s = os.str();
 }
@@ -290,7 +290,7 @@ inline void convert(double& n, const cxxtools::String& str)
         return;
     }
 
-    cxxtools::StringStream is(str);
+    cxxtools::IStringStream is(str);
     cxxtools::Char ch;
     is >> std::fixed >> std::setprecision(15) >> n;
 

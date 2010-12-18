@@ -83,6 +83,24 @@ class CXXTOOLS_XML_API EntityResolver
          */
         String resolveEntity(const String& entity) const;
 
+        /**
+         * @brief Returns the entity value (token) of the given character.
+         *
+         * Returns the entity of the given char. If there is no entity found, either the
+         * given character as a string or a numeric entity is returned depending of the
+         * passed flag.
+         */
+        String getEntity(Char ch) const;
+
+        /**
+         * @brief Outputs the entity value (token) of the given character.
+         *
+         * Returns the entity of the given char. If there is no entity found, either the
+         * given character as a string or a numeric entity is returned depending of the
+         * passed flag.
+         */
+        void getEntity(std::basic_ostream<Char>& os, Char ch) const;
+
     private:
         //! Entity map containing entities which are associated to their resolved entity value.
         typedef std::map<String, String> EntityMap;

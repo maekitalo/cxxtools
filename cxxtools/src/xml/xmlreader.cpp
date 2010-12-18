@@ -1553,6 +1553,11 @@ struct XmlReaderImpl
        return _resolver;
     }
 
+    const EntityResolver& entityResolver() const
+    {
+       return _resolver;
+    }
+
     size_t depth() const
     {
         return _depth;

@@ -83,6 +83,8 @@ class CXXTOOLS_API basic_stringstream<cxxtools::Char> : public basic_iostream<cx
 namespace cxxtools {
 
     typedef std::basic_stringstream<cxxtools::Char> StringStream;
+    typedef std::basic_ostringstream<cxxtools::Char> OStringStream;
+    typedef std::basic_istringstream<cxxtools::Char> IStringStream;
 
 } // namespace cxxtools
 

@@ -25,6 +25,7 @@
  */
 #include "cxxtools/xml/xmlwriter.h"
 #include "cxxtools/xml/startelement.h"
+#include "cxxtools/xml/entityresolver.h"
 #include "cxxtools/utf8codec.h"
 #include <iostream>
 
@@ -166,41 +167,11 @@ void XmlWriter::writeElement(const cxxtools::String& localName, const Attribute*
 
 void XmlWriter::writeCharacters(const cxxtools::String& text)
 {
-    static const cxxtools::Char lt[] = { '&', 'l', 't', ';', 0 };
-    static const cxxtools::Char gt[] = { '&', 'g', 't', ';', 0 };
-    static const cxxtools::Char amp[] = { '&', 'a', 'm', 'p', ';', 0 };
-    static const cxxtools::Char quot[] = { '&', 'q', 'u', 'o', 't', ';', 0 };
-    static const cxxtools::Char apos[] = { '&', 'a', 'p', 'o', 's', ';', 0 };
+    static EntityResolver resolver;
 
     cxxtools::String::const_iterator it;
     for(it = text.begin(); it != text.end(); ++it)
-    {
-        switch( it->value() )
-        {
-            case '<':
-                _tos << lt;
-                break;
-
-            case '>':
-                _tos << gt;
-                break;
-
-            case '&':
-                _tos << amp;
-                break;
-
-            case '"':
-                _tos << quot;
-                break;
-
-            case '\'':
-                _tos << apos;
-                break;
-
-            default:
-                _tos << *it;
-        }
-    }
+        resolver.getEntity(_tos, *it);
 }
 
 
