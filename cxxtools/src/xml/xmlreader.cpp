@@ -327,7 +327,7 @@ struct XmlReaderImpl
             if(c == ';')
             {
                 reader.resolveEntity(reader._token);
-                reader._chars.content() += reader._token;
+                reader._attr.value() += reader._token;
                 reader._token.clear();
                 return OnAttributeValue::instance();
             }
