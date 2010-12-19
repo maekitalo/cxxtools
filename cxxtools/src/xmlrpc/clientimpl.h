@@ -104,7 +104,7 @@ class ClientImpl : public cxxtools::Connectable
         virtual std::ostream& prepareRequest() = 0;
 
     protected:
-        void prepareRequest(const std::string& name, ISerializer** argv, unsigned argc);
+        void prepareRequest(const String& name, ISerializer** argv, unsigned argc);
 
         void advance(const xml::Node& node);
 

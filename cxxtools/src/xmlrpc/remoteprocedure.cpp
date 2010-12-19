@@ -34,7 +34,7 @@ namespace xmlrpc {
 
 IRemoteProcedure::IRemoteProcedure(Client& client, const char* name)
 : _client(&client)
-, _name(name)
+, _name(String::widen(name))
 {
 }
 

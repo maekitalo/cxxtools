@@ -45,6 +45,14 @@ namespace cxxtools {
 
 namespace xmlrpc {
 
+namespace
+{
+    static const String methodCall = L"methodCall";
+    static const String methodName = L"methodName";
+    static const String params = L"params";
+    static const String param = L"param";
+}
+
 ClientImpl::ClientImpl()
 : _state(OnBegin)
 , _ts( new Utf8Codec )
@@ -212,16 +220,16 @@ void ClientImpl::onReplyFinished()
 }
 
 
-void ClientImpl::prepareRequest(const std::string& name, ISerializer** argv, unsigned argc)
+void ClientImpl::prepareRequest(const String& name, ISerializer** argv, unsigned argc)
 {
     _writer.begin( prepareRequest() );
-    _writer.writeStartElement( L"methodCall" );
-    _writer.writeElement( L"methodName", cxxtools::String::widen(name) );
-    _writer.writeStartElement( L"params" );
+    _writer.writeStartElement( methodCall );
+    _writer.writeElement( methodName, name );
+    _writer.writeStartElement( params );
 
     for(unsigned n = 0; n < argc; ++n)
     {
-        _writer.writeStartElement( L"param" );
+        _writer.writeStartElement( param );
         argv[n]->format(_formatter);
         _writer.writeEndElement();
     }

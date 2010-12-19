@@ -213,9 +213,12 @@ inline void basic_string<cxxtools::Char>::detach(size_type reserveSize)
 
 inline void basic_string<cxxtools::Char>::clear()
 {
-    this->detach(0);
-    _data->setInitial();
-    _data->clear();
+    if (!empty() )
+    {
+        this->detach(0);
+        _data->setInitial();
+        _data->clear();
+    }
 }
 
 

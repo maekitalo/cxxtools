@@ -93,44 +93,19 @@ inline void convert(cxxtools::String& s, const cxxtools::String& str)
 
 inline void convert(cxxtools::String& s, bool value)
 {
-    s = value ?
-        cxxtools::String::widen("true") :
-        cxxtools::String::widen("false");
+    static const String trueValue = L"true";
+    static const String falseValue = L"false";
+    s = value ? trueValue : falseValue;
 }
 
 inline void convert(bool& n, const cxxtools::String& str)
 {
-    if( ( str.size() == 4 ) &&
-        ( str[0] == cxxtools::Char('t') ) &&
-        ( str[1] == cxxtools::Char('r') ) &&
-        ( str[2] == cxxtools::Char('u') ) &&
-        ( str[3] == cxxtools::Char('e') ) )
-    {
+    if (str == L"true" || str == L"1")
         n = true;
-    }
-    else if( ( str.size() == 5 ) &&
-        ( str[0] == cxxtools::Char('f') ) &&
-        ( str[1] == cxxtools::Char('a') ) &&
-        ( str[2] == cxxtools::Char('l') ) &&
-        ( str[3] == cxxtools::Char('s') ) &&
-        ( str[4] == cxxtools::Char('e') ) )
-    {
+    else if (str == L"false" || str == L"0")
         n = false;
-    }
-    else if( ( str.size() == 1 ) &&
-        ( str[0] == cxxtools::Char('1') ) )
-    {
-        n = true;
-    }
-    else if( ( str.size() == 1 ) &&
-        ( str[0] == cxxtools::Char('0') ) )
-    {
-        n = false;
-    }
     else
-    {
         ConversionError::doThrow("bool", "cxxtools::String");
-    }
 }
 
 inline void convert(bool& n, const std::string& str)

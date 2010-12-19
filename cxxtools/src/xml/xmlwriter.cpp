@@ -34,6 +34,11 @@ namespace cxxtools {
 
 namespace xml {
 
+namespace
+{
+    static const String xmlPraefix(L"<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+}
+
 XmlWriter::XmlWriter()
 : _tos(new Utf8Codec)
 , _flags(UseXmlDeclaration | UseIndent | UseEndl)
@@ -47,9 +52,9 @@ XmlWriter::XmlWriter(std::ostream& os, int flags)
 {
     if (useXmlDeclaration())
     {
-        _tos << cxxtools::String(L"<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+        _tos << xmlPraefix;
         if (useEndl())
-            this->endl();
+            endl();
     }
 }
 
@@ -63,46 +68,46 @@ void XmlWriter::begin(std::ostream& os)
 {
     _tos.attach(os);
     if (useXmlDeclaration())
-        _tos << cxxtools::String(L"<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+        _tos << xmlPraefix;
     if (useEndl())
-        this->endl();
+        endl();
 }
 
 
-void XmlWriter::writeStartElement(const cxxtools::String& prefix, const cxxtools::String& localName, const cxxtools::String& ns)
+void XmlWriter::writeStartElement(const String& prefix, const String& localName, const String& ns)
 {
 }
 
 
-void XmlWriter::writeStartElement(const cxxtools::String& localName)
+void XmlWriter::writeStartElement(const String& localName)
 {
-    this->writeStartElement(localName, 0, 0);
+    writeStartElement(localName, 0, 0);
 }
 
 
-void XmlWriter::writeStartElement(const cxxtools::String& localName, const Attribute* attr, size_t attrCount)
+void XmlWriter::writeStartElement(const String& localName, const Attribute* attr, size_t attrCount)
 {
     if (useIndent())
     {
         for(size_t n = 0; n < _elements.size(); ++n)
         {
-            _tos << cxxtools::String(L"  ");
+            _tos << Char(' ') << Char(' ');
         }
     }
 
-    _tos << cxxtools::Char(L'<') << localName;
+    _tos << Char('<') << localName;
 
     for(size_t n = 0; n < attrCount; ++n)
     {
-        _tos << cxxtools::Char(' ') << attr[n].name() << cxxtools::String(L"=\"");
+        _tos << Char(' ') << attr[n].name() << Char('=') << Char('"');
         writeCharacters(attr[n].value());
-        _tos << cxxtools::Char('"');
+        _tos << Char('"');
     }
 
-    _tos << cxxtools::Char(L'>');
+    _tos << Char('>');
 
     if (useEndl())
-        this->endl();
+        endl();
 
     _elements.push(localName);
 }
@@ -117,59 +122,59 @@ void XmlWriter::writeEndElement()
     {
         for(size_t n = 1; n < _elements.size(); ++n)
         {
-            _tos << cxxtools::String(L"  ");
+            _tos << Char(' ') << Char(' ');
         }
     }
 
-    _tos << cxxtools::Char(L'<') << cxxtools::Char(L'/') << _elements.top() << cxxtools::Char(L'>');
+    _tos << Char(L'<') << Char(L'/') << _elements.top() << Char(L'>');
 
     if (useEndl())
-        this->endl();
+        endl();
 
     _elements.pop();
 }
 
 
-void XmlWriter::writeElement(const cxxtools::String& localName, const cxxtools::String& content)
+void XmlWriter::writeElement(const String& localName, const String& content)
 {
-    this->writeElement(localName, 0, 0, content);
+    writeElement(localName, 0, 0, content);
 }
 
 
-void XmlWriter::writeElement(const cxxtools::String& localName, const Attribute* attr, size_t attrCount, const cxxtools::String& content)
+void XmlWriter::writeElement(const String& localName, const Attribute* attr, size_t attrCount, const String& content)
 {
     if (useIndent())
     {
         for(size_t n = 0; n < _elements.size(); ++n)
         {
-            _tos << cxxtools::String(L"  ");
+            _tos << Char(' ') << Char(' ');
         }
     }
 
-    _tos << cxxtools::Char(L'<') << localName;
+    _tos << Char(L'<') << localName;
 
     for(size_t n = 0; n < attrCount; ++n)
     {
-        _tos << cxxtools::Char(' ') << attr[n].name() << cxxtools::String(L"=\"");
+        _tos << Char(' ') << attr[n].name() << Char('=') << Char('"');
         writeCharacters(attr[n].value());
-        _tos << cxxtools::Char('"');
+        _tos << Char('"');
     }
 
-    _tos << cxxtools::Char(L'>');
+    _tos << Char('>');
 
-    this->writeCharacters(content);
-    _tos << cxxtools::Char(L'<') << cxxtools::Char(L'/') << localName << cxxtools::Char(L'>');
+    writeCharacters(content);
+    _tos << Char('<') << Char('/') << localName << Char('>');
 
     if (useEndl())
-        this->endl();
+        endl();
 }
 
 
-void XmlWriter::writeCharacters(const cxxtools::String& text)
+void XmlWriter::writeCharacters(const String& text)
 {
     static EntityResolver resolver;
 
-    cxxtools::String::const_iterator it;
+    String::const_iterator it;
     for(it = text.begin(); it != text.end(); ++it)
         resolver.getEntity(_tos, *it);
 }
@@ -183,7 +188,7 @@ void XmlWriter::flush()
 
 void XmlWriter::endl()
 {
-    _tos << cxxtools::Char('\n');
+    _tos << Char('\n');
 }
 
 } // namespace xml

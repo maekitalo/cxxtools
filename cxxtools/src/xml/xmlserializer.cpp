@@ -46,13 +46,13 @@ XmlFormatter::XmlFormatter()
 
 XmlFormatter::XmlFormatter(std::ostream& os)
 : _writer( 0 )
-, _deleter( new cxxtools::xml::XmlWriter(os) )
+, _deleter( new XmlWriter(os) )
 {
     _writer = _deleter.get();
 }
 
 
-XmlFormatter::XmlFormatter(cxxtools::xml::XmlWriter* writer)
+XmlFormatter::XmlFormatter(XmlWriter* writer)
 : _writer(writer)
 , _deleter(0)
 {
@@ -70,12 +70,12 @@ void XmlFormatter::attach(std::ostream& os)
     if (_writer)
         throw std::logic_error("XmlSerizalizer is already open." + CXXTOOLS_SOURCEINFO);
 
-    _deleter.reset(new cxxtools::xml::XmlWriter(os));
+    _deleter.reset(new XmlWriter(os));
     _writer = _deleter.get();
 }
 
 
-void XmlFormatter::attach(cxxtools::xml::XmlWriter& writer)
+void XmlFormatter::attach(XmlWriter& writer)
 {
     if (_writer)
         throw std::logic_error("XmlSerizalizer is already open." + CXXTOOLS_SOURCEINFO);
@@ -106,16 +106,16 @@ void XmlFormatter::flush()
 void XmlFormatter::addValue(const std::string& name, const std::string& type,
                              const cxxtools::String& value, const std::string& id)
 {
-    cxxtools::xml::Attribute attrs[2];
+    Attribute attrs[2];
     size_t countAttrs = 0;
 
     if( ! id.empty() )
-        attrs[countAttrs++] = cxxtools::xml::Attribute( cxxtools::String(L"id"), cxxtools::String::widen( id ) );
+        attrs[countAttrs++] = Attribute( cxxtools::String(L"id"), cxxtools::String::widen( id ) );
 
     if( ! name.empty() )
     {
         if ( ! type.empty() )
-            attrs[countAttrs++] = cxxtools::xml::Attribute( cxxtools::String(L"type"), cxxtools::String::widen( type ) );
+            attrs[countAttrs++] = Attribute( cxxtools::String(L"type"), cxxtools::String::widen( type ) );
 
         _writer->writeElement( cxxtools::String::widen( name ), attrs, countAttrs, value );
     }
@@ -128,7 +128,7 @@ void XmlFormatter::addValue(const std::string& name, const std::string& type,
 
 void XmlFormatter::addReference(const std::string& name, const cxxtools::String& value)
 {
-    cxxtools::xml::Attribute attr( cxxtools::String(L"ref"), value );
+    Attribute attr( cxxtools::String(L"ref"), value );
     _writer->writeElement( cxxtools::String::widen( name ), &attr, 1, cxxtools::String() );
 }
 
@@ -166,7 +166,7 @@ void XmlFormatter::beginObject(const std::string& name, const std::string& type,
 {
     if( ! id.empty() )
     {
-        cxxtools::xml::Attribute attr( cxxtools::String(L"id"), cxxtools::String::widen( id ) );
+        Attribute attr( cxxtools::String(L"id"), cxxtools::String::widen( id ) );
 
         if( ! name.empty() )
             _writer->writeStartElement( cxxtools::String::widen( name ), &attr, 1 );
@@ -201,10 +201,7 @@ void XmlFormatter::finishObject()
 
 void XmlFormatter::finish()
 {
-
 }
-
-
 
 
 XmlSerializer::XmlSerializer()
@@ -218,7 +215,7 @@ XmlSerializer::XmlSerializer(std::ostream& os)
 }
 
 
-XmlSerializer::XmlSerializer(cxxtools::xml::XmlWriter* writer)
+XmlSerializer::XmlSerializer(XmlWriter* writer)
 : _formatter(writer)
 {
 }
@@ -226,7 +223,7 @@ XmlSerializer::XmlSerializer(cxxtools::xml::XmlWriter* writer)
 
 XmlSerializer::~XmlSerializer()
 {
-    this->finish();
+    finish();
 }
 
 
@@ -236,7 +233,7 @@ void XmlSerializer::attach(std::ostream& os)
 }
 
 
-void XmlSerializer::attach(cxxtools::xml::XmlWriter& writer)
+void XmlSerializer::attach(XmlWriter& writer)
 {
     _formatter.attach(writer);
 }

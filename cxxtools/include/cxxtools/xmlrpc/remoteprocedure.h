@@ -48,9 +48,14 @@ class CXXTOOLS_XMLRPC_API IRemoteProcedure
     friend class ClientImpl;
 
     public:
-        IRemoteProcedure(Client& client, const std::string& name)
+        IRemoteProcedure(Client& client, const String& name)
         : _client(&client)
         , _name(name)
+        { }
+
+        IRemoteProcedure(Client& client, const std::string& name)
+        : _client(&client)
+        , _name(String::widen(name))
         { }
 
         IRemoteProcedure(Client& client, const char* name);
@@ -61,7 +66,7 @@ class CXXTOOLS_XMLRPC_API IRemoteProcedure
         Client& client()
         { return *_client; }
 
-        const std::string& name() const
+        const String& name() const
         { return _name; }
 
         virtual void setFault(int rc, const std::string& msg) = 0;
@@ -79,7 +84,7 @@ class CXXTOOLS_XMLRPC_API IRemoteProcedure
 
     private:
         Client* _client;
-        std::string _name;
+        String _name;
 };
 
 
