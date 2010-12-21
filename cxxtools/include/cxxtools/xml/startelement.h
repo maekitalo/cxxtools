@@ -52,7 +52,8 @@ namespace xml {
     {
         public:
             //! Constructs a new Attribute object with an empty name and value.
-            Attribute();
+            Attribute()
+            { }
 
             /**
              * @brief Constructs a new Attribute using the given name and value.
@@ -60,41 +61,44 @@ namespace xml {
              * @param name The name of the XML attribute.
              * @param value The value of the XML attribute.
              */
-            Attribute(const String& name, const String& value);
+            Attribute(const String& name, const String& value)
+            : _name(name), _value(value)
+            { }
+
 
             /**
              * @brief Returns the name of this attribute.
              * @return The attribute's name.
              */
             const String& name() const
-            {return _name;}
+            { return _name; }
 
             String& name()
-            {return _name;}
+            { return _name; }
 
             /**
              * @brief Sets the name of this attribute.
              * @param name The new name of this attribute.
              */
             void setName(const String& name)
-            {_name = name;}
+            { _name = name; }
 
             /**
              * @brief Returns the value of this attribute.
              * @return The attribute's value.
              */
             const String& value() const
-            {return _value;}
+            { return _value; }
 
             String& value()
-            {return _value;}
+            { return _value; }
 
             /**
              * @brief Sets the value of this attribute.
              * @param value The new value of this attribute.
              */
             void setValue(const String& value)
-            {_value = value;}
+            { _value = value; }
 
             void clear()
             { _name.clear(); _value.clear(); }
@@ -130,7 +134,9 @@ namespace xml {
     {
         public:
             //! Constructs a new StartElement object with no name and an empty attribute list.
-            StartElement();
+            StartElement()
+            : Node(Node::StartElement)
+            { }
 
             /**
              * @brief Constructs a new StartElement object with the given string as tag name.
@@ -138,10 +144,10 @@ namespace xml {
              * @param name The name of the EndElement object. This is an optional parameter.
              * Default is an empty string.
              */
-            StartElement(const String& name);
-
-            //! Empty destructor
-            ~StartElement();
+            StartElement(const String& name)
+            : Node(Node::StartElement),
+              _name(name)
+            { }
 
             /**
              * @brief Clones this StartElement object by creating a duplicate on the heap and returning it.

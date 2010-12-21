@@ -56,10 +56,9 @@ namespace xml {
              * @param prefix The namespace prefix which can be added to a tag name to specify that
              * this tag belongs to that namespace.
              */
-            Namespace(const String& namespaceURI, const String& prefix);
-
-            //! Empty destructor
-            ~Namespace();
+            Namespace(const String& namespaceUri, const String& prefix)
+            : _prefix(prefix), _namespaceUri(namespaceUri)
+            { }
 
             /**
              * @brief Returns the prefix of this namespace.

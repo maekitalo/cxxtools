@@ -42,13 +42,15 @@ namespace xmlrpc {
 class CXXTOOLS_XMLRPC_API Formatter : public cxxtools::Formatter
 {
     public:
-        Formatter(xml::XmlWriter& writer);
+        Formatter(xml::XmlWriter& writer)
+        : _writer(&writer)
+        { }
 
-        ~Formatter();
+        void addAlias(const std::string& type, const std::string& alias)
+        { _typemap[type] = alias; }
 
-        void addAlias(const std::string& type, const std::string& alias);
-
-        void attach(xml::XmlWriter& writer);
+        void attach(xml::XmlWriter& writer)
+        { _writer = &writer; }
 
         void addValue(const std::string& name, const std::string& type,
                       const cxxtools::String& value, const std::string& id);

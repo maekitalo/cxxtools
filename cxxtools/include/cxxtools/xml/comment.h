@@ -55,10 +55,11 @@ namespace cxxtools {
                  *
                  * @param Text The content/Text of the Comment object.
                  */
-                Comment(const String& Text);
+                explicit Comment(const String& text)
+                : Node(Node::Comment)
+                , _text(text)
+                { }
 
-                //! Empty destructor
-                ~Comment();
 
                 /**
                  * @brief Clones this Comment object by creating a duplicate on the heap and returning it.
@@ -76,7 +77,8 @@ namespace cxxtools {
                  *
                  * @return The Text of this Comment object.
                  */
-                String& text();
+                String& text()
+                { return _text; }
 
                 /**
                  * @brief Returns the content/Text of this Comment object.
@@ -87,13 +89,15 @@ namespace cxxtools {
                  *
                  * @return The Text of this Comment object.
                  */
-                const String& text() const;
+                const String& text() const
+                { return _text; }
 
                 /**
                  * @brief Sets the Text of this Comment object.
                  * @param text The new Text for this Comment object.
                  */
-                void setText(const String& text);
+                void setText(const String& text)
+                { _text = text; }
 
             private:
                 //! The Text of this Comment object.

@@ -42,8 +42,10 @@ namespace cxxtools
 namespace http
 {
 
-int MessageHeader::StringLessIgnoreCase::compare
-    (const char* s1, const char* s2)
+namespace
+{
+
+int compareIgnoreCase(const char* s1, const char* s2)
 {
     const char* it1 = s1;
     const char* it2 = s2;
@@ -65,14 +67,14 @@ int MessageHeader::StringLessIgnoreCase::compare
     return *it1 ? 1
                 : *it2 ? -1 : 0;
 }
-
+} 
 const unsigned MessageHeader::MAXHEADERSIZE;
 
 const char* MessageHeader::getHeader(const char* key) const
 {
     for (const_iterator it = begin(); it != end(); ++it)
     {
-        if (StringLessIgnoreCase::compare(key, it->first) == 0)
+        if (compareIgnoreCase(key, it->first) == 0)
             return it->second;
     }
 
@@ -84,7 +86,7 @@ bool MessageHeader::isHeaderValue(const char* key, const char* value) const
     const char* h = getHeader(key);
     if (h == 0)
         return false;
-    return StringLessIgnoreCase::compare(h, value) == 0;
+    return compareIgnoreCase(h, value) == 0;
 }
 
 void MessageHeader::clear()
@@ -131,7 +133,7 @@ void MessageHeader::removeHeader(const char* key)
     const_iterator it = begin();
     while (it != end())
     {
-        if (StringLessIgnoreCase::compare(key, it->first) == 0)
+        if (compareIgnoreCase(key, it->first) == 0)
         {
             unsigned slen = it->second - it->first + std::strlen(it->second) + 1;
 
@@ -177,7 +179,7 @@ bool MessageHeader::keepAlive() const
         return httpVersionMajor() == 1
             && httpVersionMinor() >= 1;
     else
-        return StringLessIgnoreCase().compare(ch, "keep-alive") == 0;
+        return compareIgnoreCase(ch, "keep-alive") == 0;
 }
 
 char* MessageHeader::htdateCurrent(char* buffer)

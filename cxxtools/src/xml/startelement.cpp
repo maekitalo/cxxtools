@@ -29,34 +29,6 @@ namespace cxxtools {
 
 namespace xml {
 
-Attribute::Attribute()
-{
-}
-
-
-Attribute::Attribute(const String& name, const String& value) 
-: _name(name), _value(value)
-{
-}
-
-
-StartElement::StartElement() 
-: Node(Node::StartElement)
-{
-}
-
-
-StartElement::StartElement(const String& name)
-: Node(Node::StartElement),
-  _name(name)
-{
-}
-
-
-StartElement::~StartElement()
-{
-}
-
 
 const String& StartElement::attribute(const String& attributeName) const
 {

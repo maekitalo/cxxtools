@@ -53,10 +53,9 @@ namespace xml {
              *
              * @param content The content of the DocTypeDeclaration object.
              */
-            DocTypeDeclaration();
-
-            //! Empty destructor
-            ~DocTypeDeclaration();
+            DocTypeDeclaration()
+            : Node(Node::DocType)
+            { }
 
             void clear()
             { _content.clear(); }
@@ -72,7 +71,8 @@ namespace xml {
              * @brief Returns the content of this DocTypeDeclaration object.
              * @return The content of this DocTypeDeclaration object.
              */
-            const String& content() const;
+            const String& content() const
+            { return _content; }
 
             String& content()
             { return _content; }
@@ -81,7 +81,8 @@ namespace xml {
              * @brief Sets the content of this DocTypeDeclaration object.
              * @param content The new content for this DocTypeDeclaration object.
              */
-            void setContent(const String& content);
+            void setContent(const String& content)
+            { _content = content; }
 
         private:
             //! The content of this DocTypeDeclaration object.

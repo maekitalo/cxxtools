@@ -9,7 +9,6 @@ libcxxtools_xmlrpc_la_SOURCES = \
 	httpclientimpl.cpp \
 	fault.cpp \
 	formatter.cpp \
-	remoteprocedure.cpp \
 	responder.cpp \
 	scanner.cpp \
 	service.cpp

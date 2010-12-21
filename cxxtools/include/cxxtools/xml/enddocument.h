@@ -43,13 +43,13 @@ namespace cxxtools {
          *
          * @see Node
          */
-        class CXXTOOLS_XML_API EndDocument : public Node {
+        class CXXTOOLS_XML_API EndDocument : public Node
+        {
             public:
                 //! Creates an EndDocument object.
-                EndDocument();
-
-                //! Destructs this EndDocument object.
-                ~EndDocument();
+                EndDocument()
+                : Node(Node::EndDocument)
+                { }
 
                 /**
                  * @brief Clones this EndDocument object by creating a duplicate on the heap and returning it.

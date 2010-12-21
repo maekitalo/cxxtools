@@ -49,10 +49,8 @@ namespace xml {
     class CXXTOOLS_XML_API NamespaceContext {
         public:
             //! Creates a new NamespaceContext object which manages the namespaces of an XML document.
-            NamespaceContext();
-
-            //! Empty destructor
-            ~NamespaceContext();
+            NamespaceContext()
+            { }
 
             /**
              * @brief Returns the namespace URI of the namespace which has the prefix that is passed to
@@ -92,7 +90,9 @@ namespace xml {
              *
              * @param elementName The associates for this element name is removed.
              */
-            void removeNamespace(const String& elementName);
+            void removeNamespace(const String& elementName)
+            { _namespaceScopes.erase(elementName); }
+
 
         private:
             //! Multimap that stores the assocations between an element name and its namespace.

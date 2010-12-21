@@ -58,7 +58,10 @@ class CXXTOOLS_XMLRPC_API IRemoteProcedure
         , _name(String::widen(name))
         { }
 
-        IRemoteProcedure(Client& client, const char* name);
+        IRemoteProcedure(Client& client, const char* name)
+        : _client(&client)
+        , _name(String::widen(name))
+        { }
 
         virtual ~IRemoteProcedure()
         { cancel(); }

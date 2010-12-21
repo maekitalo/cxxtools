@@ -46,19 +46,19 @@ namespace cxxtools
 {
 
 template <typename T>
-inline void convert(cxxtools::String& s, const T& value)
+inline void convert(String& s, const T& value)
 {
-    cxxtools::OStringStream os;
+    OStringStream os;
     os << value;
     s = os.str();
 }
 
 
 template <typename T>
-inline void convert(T& t, const cxxtools::String& str)
+inline void convert(T& t, const String& str)
 {
-    cxxtools::IStringStream is(str);
-    cxxtools::Char ch;
+    IStringStream is(str);
+    Char ch;
     is >> t;
     if (is.fail() || !(is >> ch).eof())
         ConversionError::doThrow(typeid(T).name(), "cxxtools::String");
@@ -85,20 +85,20 @@ inline void convert(T& t, const std::string& str)
 }
 
 
-inline void convert(cxxtools::String& s, const cxxtools::String& str)
+inline void convert(String& s, const String& str)
 {
     s = str;
 }
 
 
-inline void convert(cxxtools::String& s, bool value)
+inline void convert(String& s, bool value)
 {
     static const String trueValue = L"true";
     static const String falseValue = L"false";
     s = value ? trueValue : falseValue;
 }
 
-inline void convert(bool& n, const cxxtools::String& str)
+inline void convert(bool& n, const String& str)
 {
     if (str == L"true" || str == L"1")
         n = true;
@@ -118,13 +118,13 @@ inline void convert(bool& n, const std::string& str)
         ConversionError::doThrow("bool", "std::string");
 }
 
-inline void convert(cxxtools::String& s, char value)
+inline void convert(String& s, char value)
 {
-    s = cxxtools::String( 1, cxxtools::Char(value) );
+    s = String( 1, Char(value) );
 }
 
 
-inline void convert(char& n, const cxxtools::String& str)
+inline void convert(char& n, const String& str)
 {
     if( str.empty() )
         ConversionError::doThrow("char", "cxxtools::String");
@@ -133,23 +133,23 @@ inline void convert(char& n, const cxxtools::String& str)
 }
 
 
-inline void convert(cxxtools::String& s, unsigned char value)
+inline void convert(String& s, unsigned char value)
 {
-    cxxtools::OStringStream ss;
+    OStringStream ss;
     unsigned int i = static_cast<unsigned int>(value);
     ss << i;
     s = ss.str();
 }
 
 
-inline void convert(unsigned char& n, const cxxtools::String& str)
+inline void convert(unsigned char& n, const String& str)
 {
     if( str.empty() )
         ConversionError::doThrow("unsigned char", "cxxtools::String");
 
     // interpret as numeric value
-    cxxtools::IStringStream ss(str);
-    cxxtools::Char ch;
+    IStringStream ss(str);
+    Char ch;
     unsigned int i = 0;
     ss >> i;
     if (ss.fail()
@@ -164,23 +164,23 @@ inline void convert(unsigned char& n, const cxxtools::String& str)
 }
 
 
-inline void convert(cxxtools::String& s, signed char value)
+inline void convert(String& s, signed char value)
 {
-    cxxtools::OStringStream ss;
+    OStringStream ss;
     int i = static_cast<signed int>(value);
     ss << i;
     s = ss.str();
 }
 
 
-inline void convert(signed char& n, const cxxtools::String& str)
+inline void convert(signed char& n, const String& str)
 {
     if( str.empty() )
         ConversionError::doThrow("signed char", "cxxtools::String");
         
     // interpret as numeric value
-    cxxtools::IStringStream ss(str);
-    cxxtools::Char ch;
+    IStringStream ss(str);
+    Char ch;
     int i = 0;
     ss >> i;
     if (ss.fail()
@@ -194,19 +194,19 @@ inline void convert(signed char& n, const cxxtools::String& str)
 }
 
 
-inline void convert(cxxtools::String& s, const std::string& value)
+inline void convert(String& s, const std::string& value)
 {
-    s = cxxtools::String::widen(value);
+    s = String::widen(value);
 }
 
 
-inline void convert(std::string& s,const cxxtools::String& str)
+inline void convert(std::string& s,const String& str)
 {
     s = str.narrow();
 }
 
 
-inline void convert(cxxtools::String& s, float value)
+inline void convert(String& s, float value)
 {
     // not a number
     if(value != value)
@@ -215,13 +215,13 @@ inline void convert(cxxtools::String& s, float value)
         return;
     }
 
-    cxxtools::OStringStream os;
+    OStringStream os;
     os << value;
     s = os.str();
 }
 
 
-inline void convert(float& n, const cxxtools::String& str)
+inline void convert(float& n, const String& str)
 {
     // not a number
     if(str == L"NAN")
@@ -230,8 +230,8 @@ inline void convert(float& n, const cxxtools::String& str)
         return;
     }
 
-    cxxtools::IStringStream is(str);
-    cxxtools::Char ch;
+    IStringStream is(str);
+    Char ch;
     is >> n;
 
     if (is.fail() || !(is >> ch).eof())
@@ -241,7 +241,7 @@ inline void convert(float& n, const cxxtools::String& str)
 }
 
 
-inline void convert(cxxtools::String& s, double value)
+inline void convert(String& s, double value)
 {
     // not a number
     if(value != value)
@@ -250,13 +250,13 @@ inline void convert(cxxtools::String& s, double value)
         return;
     }
 
-    cxxtools::OStringStream os;
+    OStringStream os;
     os << std::fixed << std::setprecision(15) << value;
     s = os.str();
 }
 
 
-inline void convert(double& n, const cxxtools::String& str)
+inline void convert(double& n, const String& str)
 {
     // not a number
     if(str == L"NAN")
@@ -265,8 +265,8 @@ inline void convert(double& n, const cxxtools::String& str)
         return;
     }
 
-    cxxtools::IStringStream is(str);
-    cxxtools::Char ch;
+    IStringStream is(str);
+    Char ch;
     is >> std::fixed >> std::setprecision(15) >> n;
 
     if (is.fail() || !(is >> ch).eof())
@@ -346,7 +346,7 @@ inline void convert(double& n, const std::string& str)
 template<typename T, typename S>
 void convert(T& to, const S& from)
 {
-    cxxtools::StringStream ss;
+    StringStream ss;
     if( !(ss << from && ss >> to) )
         ConversionError::doThrow(typeid(T).name(), typeid(S).name());
 }

@@ -34,11 +34,6 @@ namespace cxxtools {
 
 namespace xmlrpc {
 
-Client::Client()
-: _impl(0)
-{
-}
-
 Client::~Client()
 {
 }

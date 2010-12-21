@@ -30,6 +30,7 @@
 #include "serverimpl.h"
 #include <cxxtools/log.h>
 #include <cassert>
+#include "config.h"
 
 log_define("cxxtools.http.socket")
 
@@ -331,7 +332,7 @@ void Socket::sendReply()
 
     if (!_reply.header().hasHeader(server))
     {
-        _stream << "Server: cxxtools-Net-Server\r\n";
+        _stream << "Server: cxxtools-Http-Server " PACKAGE_VERSION "\r\n";
     }
 
     if (!_reply.header().hasHeader(connection))

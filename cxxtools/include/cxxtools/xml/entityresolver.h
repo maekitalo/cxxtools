@@ -52,14 +52,16 @@ class CXXTOOLS_XML_API EntityResolver
          *
          * The constructor calls clear() which clears the entity list and adds the XML default entities.
          */
-        EntityResolver();
+        EntityResolver()
+        { }
 
         /**
          * @brief Resets the entity list to the XML default entities.
          *
          * The default entities are all entities from HTML4
          */
-        void clear();
+        void clear()
+        { _entityMap.clear(); }
 
         /**
          * @brief Adds the given entity and the given resolved entity value (token) to the entity list.
@@ -69,7 +71,9 @@ class CXXTOOLS_XML_API EntityResolver
          * @param entity A list entry for this entity is created and associated with the also given token.
          * @param token The resolved entity value that is associated with the also given entity.
          */
-        void addEntity(const String& entity, const String& token);
+        void addEntity(const String& entity, const String& token)
+        { _entityMap.insert( std::pair<String, String>(entity, token) ); }
+
 
         /**
          * @brief Returns the resolved entity value (token) for the given entity.

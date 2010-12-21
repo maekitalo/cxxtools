@@ -29,32 +29,11 @@
 #include <cxxtools/xmlrpc/formatter.h>
 #include <cxxtools/serializationinfo.h>
 
-namespace cxxtools {
-
-namespace xmlrpc {
-
-Formatter::Formatter(xml::XmlWriter& writer)
-: _writer(&writer)
+namespace cxxtools
 {
-}
 
-
-Formatter::~Formatter()
+namespace xmlrpc
 {
-}
-
-
-void Formatter::addAlias(const std::string& type, const std::string& alias)
-{
-    _typemap[type] = alias;
-}
-
-
-void Formatter::attach(xml::XmlWriter& writer)
-{
-    _writer = &writer;
-}
-
 
 void Formatter::addValue(const std::string& name, const std::string& type,
                          const cxxtools::String& value, const std::string& id)

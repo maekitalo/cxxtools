@@ -50,10 +50,9 @@ namespace cxxtools {
         class CXXTOOLS_XML_API ProcessingInstruction : public Node {
             public:
                 //! Constructs a new ProcessingInstruction.
-                ProcessingInstruction();
-
-                //! Empty destructor
-                ~ProcessingInstruction();
+                ProcessingInstruction()
+                : Node(Node::ProcessingInstruction)
+                { }
 
                 void clear()
                 { _target.clear(); _data.clear(); }
@@ -72,7 +71,8 @@ namespace cxxtools {
                  *
                  * @return The target of this processing instruction.
                  */
-                const String& target() const;
+                const String& target() const
+                { return _target; }
 
                 String& target()
                 { return _target; }
@@ -82,7 +82,9 @@ namespace cxxtools {
                  *
                  * @param target The target for this processing instruction.
                  */
-                void setTarget(const String& target);
+                void setTarget(const String& target)
+                { _target = target; }
+
 
                 /**
                  * @brief Returns the processor instruction's data.
@@ -92,7 +94,9 @@ namespace cxxtools {
                  *
                  * @return The data of this processing instruction.
                  */
-                const String& data() const;
+                const String& data() const
+                { return _data; }
+
 
                 String& data()
                 { return _data; }
@@ -102,7 +106,8 @@ namespace cxxtools {
                  *
                  * @param data The data for this processing instruction.
                  */
-                void setData(const String& data);
+                void setData(const String& data)
+                { _data = data; }
 
             private:
                 //! The target of this processing instruction.

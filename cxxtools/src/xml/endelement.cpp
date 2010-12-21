@@ -30,36 +30,6 @@ namespace cxxtools {
 namespace xml {
 
 
-EndElement::EndElement(const String& name)
-: Node(Node::EndElement),
-  _name(name)
-{
-}
-
-
-EndElement::~EndElement()
-{
-}
-
-
-String& EndElement::name()
-{
-    return _name;
-}
-
-
-const String& EndElement::name() const
-{
-    return _name;
-}
-
-
-void EndElement::setName(const String& name)
-{
-    _name = name;
-}
-
-
 bool EndElement::operator==(const Node& node) const
 {
     const EndElement* e = dynamic_cast<const EndElement*>(&node);

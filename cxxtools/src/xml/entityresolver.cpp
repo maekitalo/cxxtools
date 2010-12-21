@@ -559,22 +559,6 @@ namespace
   }
 }
 
-EntityResolver::EntityResolver()
-{
-}
-
-
-void EntityResolver::clear()
-{
-    _entityMap.clear();
-}
-
-
-void EntityResolver::addEntity(const String& entity, const String& token)
-{
-    _entityMap.insert( std::pair<String, String>(entity, token) );
-}
-
 
 String EntityResolver::resolveEntity(const String& entity) const
 {

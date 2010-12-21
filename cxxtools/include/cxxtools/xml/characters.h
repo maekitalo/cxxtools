@@ -57,10 +57,9 @@ namespace cxxtools {
                  * @param content The content of the Character object. This is an optional parameter.
                  * Default is an empty string.
                  */
-                Characters( const String& content = String() );
-
-                //! Empty destructor
-                ~Characters();
+                explicit Characters( const String& content = String() )
+                : Node(Node::Characters), _content(content)
+                { }
 
                 /**
                  * @brief Clones this Character object by creating a duplicate on the heap and returning it.
@@ -73,7 +72,8 @@ namespace cxxtools {
                  * @brief Returns $true$ if the content of this Character object is empty; $false$ otherwise.
                  * @return $true$ if the content of this Character object is empty; $false$ otherwise.
                  */
-                bool empty() const;
+                bool empty() const
+                { return _content.empty(); }
 
                 void clear()
                 { _content.clear(); }
@@ -88,7 +88,8 @@ namespace cxxtools {
                  *
                  * @return The content of this Character object.
                  */
-                String& content();
+                String& content()
+                { return _content; }
 
                 /**
                  * @brief Returns the content of this Character object.
@@ -100,13 +101,15 @@ namespace cxxtools {
                  *
                  * @return The content of this Character object.
                  */
-                const String& content() const;
+                const String& content() const
+                { return _content; }
 
                 /**
                  * @brief Sets the content of this Character object.
                  * @param content The new content for this Character object.
                  */
-                void setContent(const String& content);
+                void setContent(const String& content)
+                { _content = content; }
 
                 /**
                  * @brief Compares this Character object with the given node.

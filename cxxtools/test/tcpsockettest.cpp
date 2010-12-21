@@ -64,7 +64,7 @@ class TcpSocketTest : public cxxtools::unit::TestSuite
             cxxtools::net::TcpSocket client;
             connect(client.connected, *this, &TcpSocketTest::onConnectFailed);
 
-            client.beginConnect("127.0.0.2", 9000);
+            client.beginConnect("", 9000);
             selector.add(client);
             selector.wait(1000);
         }
@@ -78,13 +78,13 @@ class TcpSocketTest : public cxxtools::unit::TestSuite
         {
             this->reportMessage("\nSTART");
 
-            cxxtools::net::TcpServer server("127.0.0.1", 8000);
+            cxxtools::net::TcpServer server("", 8000);
             connect(server.connectionPending, *this, &TcpSocketTest::onAccept);
 
             connect(_acceptor->inputReady, *this, &TcpSocketTest::onInput);
 
             cxxtools::net::TcpSocket client;
-            client.beginConnect("127.0.0.1", 8000);
+            client.beginConnect("", 8000);
             connect(client.connected, *this, &TcpSocketTest::onConnect);
             connect(client.outputReady, *this, &TcpSocketTest::onOutput);
 
@@ -99,7 +99,7 @@ class TcpSocketTest : public cxxtools::unit::TestSuite
             this->reportMessage("\nSTART");
             cxxtools::Selector selector;
 
-            cxxtools::net::TcpServer server("127.0.0.1", 8000);
+            cxxtools::net::TcpServer server("", 8000);
             connect(server.connectionPending, *this, &TcpSocketTest::onAccept);
             selector.add(server);
 
@@ -107,7 +107,7 @@ class TcpSocketTest : public cxxtools::unit::TestSuite
             selector.add(*_acceptor);
 
             cxxtools::net::TcpSocket client;
-            client.beginConnect("127.0.0.1", 8000);
+            client.beginConnect("", 8000);
             connect(client.connected, *this, &TcpSocketTest::onConnect);
             connect(client.outputReady, *this, &TcpSocketTest::onOutput);
             selector.add(client);

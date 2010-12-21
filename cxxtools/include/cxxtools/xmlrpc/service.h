@@ -1000,7 +1000,8 @@ class BasicServiceProcedure<R,
 class CXXTOOLS_XMLRPC_API Service : public http::Service
 {
     public:
-        Service();
+        Service()
+        { }
 
         virtual ~Service();
 

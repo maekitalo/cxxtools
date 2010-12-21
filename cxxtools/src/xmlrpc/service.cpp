@@ -38,10 +38,6 @@ namespace cxxtools {
 
 namespace xmlrpc {
 
-Service::Service()
-{
-}
-
 
 Service::~Service()
 {
