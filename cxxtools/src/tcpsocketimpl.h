@@ -77,7 +77,7 @@ class TcpSocketImpl : public IODeviceImpl
         std::pair<int, const char*> _connectResult;
 
     public:
-        TcpSocketImpl(TcpSocket& socket);
+        explicit TcpSocketImpl(TcpSocket& socket);
 
         ~TcpSocketImpl();
 

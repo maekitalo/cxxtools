@@ -50,8 +50,6 @@ namespace xml {
         public:
             /**
              * @brief Constructs a new DocTypeDeclaration object with the given string as content.
-             *
-             * @param content The content of the DocTypeDeclaration object.
              */
             DocTypeDeclaration()
             : Node(Node::DocType)

@@ -67,7 +67,9 @@ int compareIgnoreCase(const char* s1, const char* s2)
     return *it1 ? 1
                 : *it2 ? -1 : 0;
 }
+
 } 
+
 const unsigned MessageHeader::MAXHEADERSIZE;
 
 const char* MessageHeader::getHeader(const char* key) const
