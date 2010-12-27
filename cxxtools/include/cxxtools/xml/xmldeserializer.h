@@ -129,6 +129,10 @@ namespace xml {
 
             cxxtools::String _nodeType;
 
+            cxxtools::String _nodeCategory;
+
+            SerializationInfo::Category nodeCategory() const;
+
     };
 
 } // namespace xml

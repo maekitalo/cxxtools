@@ -38,7 +38,7 @@ namespace xmlrpc
 void Formatter::addValue(const std::string& name, const std::string& type,
                          const cxxtools::String& value, const std::string& id)
 {
-    _writer->writeStartElement( cxxtools::String::widen("value") );
+    _writer->writeStartElement( L"value" );
 
     if (type == "string")
     {
@@ -66,9 +66,9 @@ void Formatter::addReference(const std::string& name, const cxxtools::String& va
 void Formatter::beginArray(const std::string&, const std::string&,
                            const std::string&)
 {
-    _writer->writeStartElement( cxxtools::String::widen("value") );
-    _writer->writeStartElement( cxxtools::String::widen("array") );
-    _writer->writeStartElement( cxxtools::String::widen("data") );
+    _writer->writeStartElement( L"value" );
+    _writer->writeStartElement( L"array" );
+    _writer->writeStartElement( L"data" );
 }
 
 
@@ -83,15 +83,15 @@ void Formatter::finishArray()
 void Formatter::beginObject(const std::string& name, const std::string& type,
                             const std::string& id)
 {
-    _writer->writeStartElement( cxxtools::String::widen("value") );
-    _writer->writeStartElement( cxxtools::String::widen("struct") );
+    _writer->writeStartElement( L"value" );
+    _writer->writeStartElement( L"struct" );
 }
 
 
 void Formatter::beginMember(const std::string& name)
 {
-    _writer->writeStartElement( cxxtools::String::widen("member") );
-    _writer->writeElement( cxxtools::String::widen("name"), cxxtools::String::widen(name) );
+    _writer->writeStartElement( L"member" );
+    _writer->writeElement( L"name", cxxtools::String::widen(name) );
 }
 
 

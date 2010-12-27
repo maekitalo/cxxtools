@@ -89,6 +89,7 @@ void XmlDeserializer::beginDocument(const cxxtools::xml::Node& node)
         {
             _nodeName = static_cast<const cxxtools::xml::StartElement&>(node).name();
             _nodeType = static_cast<const cxxtools::xml::StartElement&>(node).attribute(L"type");
+            _nodeCategory = static_cast<const cxxtools::xml::StartElement&>(node).attribute(L"category");
             _deser->setName( _nodeName.narrow() );
 
             _nodeId = static_cast<const cxxtools::xml::StartElement&>(node).attribute(L"id");
@@ -101,7 +102,6 @@ void XmlDeserializer::beginDocument(const cxxtools::xml::Node& node)
             break;
         }
         default:
-            std::cerr << "NODE: " << node.type() << std::endl;
             throw std::logic_error("Expected start element");
     };
 }
@@ -131,6 +131,7 @@ void XmlDeserializer::onRootElement(const cxxtools::xml::Node& node)
         {
             _nodeName = static_cast<const cxxtools::xml::StartElement&>(node).name();
             _nodeType = static_cast<const cxxtools::xml::StartElement&>(node).attribute(L"type");
+            _nodeCategory = static_cast<const cxxtools::xml::StartElement&>(node).attribute(L"category");
 
             _processNode = &XmlDeserializer::onStartElement;
             break;
@@ -151,7 +152,7 @@ void XmlDeserializer::onStartElement(const cxxtools::xml::Node& node)
             const cxxtools::xml::Characters& chars = static_cast<const cxxtools::xml::Characters&>(node);
             if(cxxtools::String::npos != chars.content().find_first_not_of(L" \t\n\r") )
             {
-                _deser = _deser->beginMember(_nodeName.narrow(), _nodeType.narrow() );
+                _deser = _deser->beginMember(_nodeName.narrow(), _nodeType.narrow(), nodeCategory());
                 _deser->setValue( chars.content() );
                 _deser = _deser->leaveMember();
                 //_current->addValue( _nodeName.narrow(), chars.content() );
@@ -163,7 +164,7 @@ void XmlDeserializer::onStartElement(const cxxtools::xml::Node& node)
                 if(_deser == 0)
                     throw std::logic_error("Element outside document tree");
 
-                _deser = _deser->beginMember(_nodeName.narrow(), _nodeType.narrow() );
+                _deser = _deser->beginMember(_nodeName.narrow(), _nodeType.narrow(), nodeCategory() );
                 //SerializationInfo& added = _current->addMember( _nodeName.narrow() );
                 //_current = &added;
 
@@ -177,12 +178,13 @@ void XmlDeserializer::onStartElement(const cxxtools::xml::Node& node)
             if(_deser == 0)
                 throw std::logic_error("Element outside document tree");
 
-            _deser = _deser->beginMember(_nodeName.narrow(), _nodeType.narrow() );
+            _deser = _deser->beginMember(_nodeName.narrow(), _nodeType.narrow(), nodeCategory() );
             //SerializationInfo& added = _current->addMember( _nodeName.narrow() );
             //_current = &added;
 
             _nodeName = static_cast<const cxxtools::xml::StartElement&>(node).name();
             _nodeType = static_cast<const cxxtools::xml::StartElement&>(node).attribute(L"type");
+            _nodeCategory = static_cast<const cxxtools::xml::StartElement&>(node).attribute(L"category");
             break;
         }
         case cxxtools::xml::Node::EndElement:
@@ -190,7 +192,7 @@ void XmlDeserializer::onStartElement(const cxxtools::xml::Node& node)
             if( _nodeName != static_cast<const cxxtools::xml::EndElement&>(node).name() )
                 throw std::logic_error("Invalid element");
 
-            _deser = _deser->beginMember(_nodeName.narrow(), _nodeType.narrow() );
+            _deser = _deser->beginMember(_nodeName.narrow(), _nodeType.narrow(), nodeCategory() );
             _deser->setValue( cxxtools::String() );
             _deser = _deser->leaveMember();
             //_current->addValue( _nodeName.narrow(), Pt::String() );
@@ -212,11 +214,12 @@ void XmlDeserializer::onWhitespace(const cxxtools::xml::Node& node)
         {
             _nodeName = static_cast<const cxxtools::xml::StartElement&>(node).name();
             _nodeType = static_cast<const cxxtools::xml::StartElement&>(node).attribute(L"type");
+            _nodeCategory = static_cast<const cxxtools::xml::StartElement&>(node).attribute(L"category");
 
             cxxtools::String refId = static_cast<const cxxtools::xml::StartElement&>(node).attribute(L"ref");
             if( ! refId.empty() )
             {
-                _deser = _deser->beginMember(_nodeName.narrow(), _nodeType.narrow() );
+                _deser = _deser->beginMember(_nodeName.narrow(), _nodeType.narrow(), nodeCategory() );
                 _deser->setReference( refId.narrow() );
                 _deser = _deser->leaveMember();
                 //SerializationInfo& ref = _current->addValue( _nodeName.narrow(), refId );
@@ -277,6 +280,7 @@ void XmlDeserializer::onEndElement(const cxxtools::xml::Node& node)
         {
             _nodeName = static_cast<const cxxtools::xml::StartElement&>(node).name();
             _nodeType = static_cast<const cxxtools::xml::StartElement&>(node).attribute(L"type");
+            _nodeCategory = static_cast<const cxxtools::xml::StartElement&>(node).attribute(L"category");
             _processNode = &XmlDeserializer::onStartElement;
             break;
         }
@@ -300,8 +304,18 @@ void XmlDeserializer::onEndElement(const cxxtools::xml::Node& node)
         {
             throw std::logic_error("Expected start element");
         }
-    };
+    }
+
 }
+
+SerializationInfo::Category XmlDeserializer::nodeCategory() const
+{
+    return _nodeCategory == L"array" ? SerializationInfo::Array :
+           _nodeCategory == L"struct" || _nodeCategory == L"object" ? SerializationInfo::Object :
+           _nodeCategory == L"scalar" || _nodeCategory == L"value" ? SerializationInfo::Value :
+           SerializationInfo::Void;
+}
+
 
 } // namespace xml
 

@@ -132,6 +132,9 @@ class XmlFormatter : public cxxtools::Formatter
         void finish();
 
     private:
+        void beginComplexElement(const std::string& name, const std::string& type,
+                        const std::string& id, const String& category);
+
         //! @internal
         cxxtools::xml::XmlWriter* _writer;
 

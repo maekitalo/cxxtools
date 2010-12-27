@@ -66,9 +66,7 @@ class CXXTOOLS_API IDeserializer
 
         virtual void setReference(const std::string& id) = 0;
 
-        virtual IDeserializer* beginMember(const std::string& name) = 0;
-
-        virtual IDeserializer* beginMember(const std::string& name, const std::string& type) = 0;
+        virtual IDeserializer* beginMember(const std::string& name, const std::string& type, SerializationInfo::Category category) = 0;
 
         virtual IDeserializer* leaveMember() = 0;
 
@@ -129,17 +127,11 @@ class Deserializer : public IDeserializer
            _current->setCategory(SerializationInfo::Reference);
         }
 
-        virtual IDeserializer* beginMember(const std::string& name)
-        {
-            SerializationInfo& child = _current->addMember(name);
-            _current = &child;
-            return this;
-        }
-
-        virtual IDeserializer* beginMember(const std::string& name, const std::string& type)
+        virtual IDeserializer* beginMember(const std::string& name, const std::string& type, SerializationInfo::Category category)
         {
             SerializationInfo& child = _current->addMember(name);
             child.setTypeName(type);
+            child.setCategory(category);
             _current = &child;
             return this;
         }

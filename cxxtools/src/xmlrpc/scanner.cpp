@@ -31,6 +31,7 @@
 #include <cxxtools/xml/endelement.h>
 #include <cxxtools/xml/characters.h>
 #include <cxxtools/string.h>
+#include <cxxtools/serializationinfo.h>
 
 namespace cxxtools {
 
@@ -50,7 +51,7 @@ bool Scanner::advance(const cxxtools::xml::Node& node)
     {
         case OnParam:
         {
-            if(node.type() == xml::Node::StartElement) // i4, struct, array...
+            if(node.type() == xml::Node::StartElement) // value
             {
                 const xml::StartElement& se = static_cast<const xml::StartElement&>(node);
 
@@ -87,6 +88,7 @@ bool Scanner::advance(const cxxtools::xml::Node& node)
                 }
 
                 _value.clear();
+                _type = se.name();
             }
             else if(node.type() == xml::Node::Characters)
             {
@@ -154,7 +156,7 @@ bool Scanner::advance(const cxxtools::xml::Node& node)
                 if(se.name() == L"value")
                 {
                     _current = _current->leaveMember();
-                    _current = _current->beginMember(std::string());
+                    _current = _current->beginMember(std::string(), _type.narrow(), SerializationInfo::Value);
                     _state = OnValueBegin;
                 }
                 else
@@ -229,7 +231,7 @@ bool Scanner::advance(const cxxtools::xml::Node& node)
                 const xml::Characters& chars = static_cast<const xml::Characters&>(node);
                 const std::string& name = chars.content().narrow();
 
-                _current = _current->beginMember(name);
+                _current = _current->beginMember(name, std::string(), SerializationInfo::Object);
 
                 _state = OnName;
             }
@@ -358,7 +360,7 @@ bool Scanner::advance(const cxxtools::xml::Node& node)
         {
             if(node.type() == xml::Node::StartElement) // value
             {
-                _current = _current->beginMember(std::string());
+                _current = _current->beginMember(std::string(), std::string(), SerializationInfo::Array);
                 _state = OnValueBegin;
             }
             else if(node.type() == xml::Node::EndElement) // empty array
