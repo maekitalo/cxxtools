@@ -113,18 +113,19 @@ const cxxtools::String& SerializationInfo::toString() const
 
 SerializationInfo& SerializationInfo::addMember(const std::string& name)
 {
-    ///SerializationInfo* info = new SerializationInfo();
-    ///info->setParent(*this);
-    ///info->setName(name);
-    ///_nodes.push_back( info );
     SerializationInfo info;
     _nodes.push_back( info );
     _nodes.back().setParent(*this);
     _nodes.back().setName(name);
 
-    _category = Object;
+    // category Array overrides Object (is this a hack?)
+    // This is needed for xmldeserialization. In the xml file the root node of a array
+    // has a category attribute. When the serializationinfo of the array is created
+    // it is known, that it is of category Array. When the members of the array are read,
+    // they should not make an object out of the array.
+    if (_category != Array)
+        _category = Object;
 
-    ///return *info;
     return _nodes.back();
 }
 

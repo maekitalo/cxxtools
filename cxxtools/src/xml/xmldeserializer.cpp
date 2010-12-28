@@ -152,7 +152,9 @@ void XmlDeserializer::onStartElement(const cxxtools::xml::Node& node)
             const cxxtools::xml::Characters& chars = static_cast<const cxxtools::xml::Characters&>(node);
             if(cxxtools::String::npos != chars.content().find_first_not_of(L" \t\n\r") )
             {
-                _deser = _deser->beginMember(_nodeName.narrow(), _nodeType.narrow(), nodeCategory());
+                std::string nodeName = _nodeName.narrow();
+                std::string nodeType = _nodeType.empty() ? nodeName : _nodeType.narrow();
+                _deser = _deser->beginMember(nodeName, nodeType, nodeCategory());
                 _deser->setValue( chars.content() );
                 _deser = _deser->leaveMember();
                 //_current->addValue( _nodeName.narrow(), chars.content() );
@@ -164,7 +166,9 @@ void XmlDeserializer::onStartElement(const cxxtools::xml::Node& node)
                 if(_deser == 0)
                     throw std::logic_error("Element outside document tree");
 
-                _deser = _deser->beginMember(_nodeName.narrow(), _nodeType.narrow(), nodeCategory() );
+                std::string nodeName = _nodeName.narrow();
+                std::string nodeType = _nodeType.empty() ? nodeName : _nodeType.narrow();
+                _deser = _deser->beginMember(nodeName, nodeType, nodeCategory());
                 //SerializationInfo& added = _current->addMember( _nodeName.narrow() );
                 //_current = &added;
 
@@ -178,7 +182,9 @@ void XmlDeserializer::onStartElement(const cxxtools::xml::Node& node)
             if(_deser == 0)
                 throw std::logic_error("Element outside document tree");
 
-            _deser = _deser->beginMember(_nodeName.narrow(), _nodeType.narrow(), nodeCategory() );
+            std::string nodeName = _nodeName.narrow();
+            std::string nodeType = _nodeType.empty() ? nodeName : _nodeType.narrow();
+            _deser = _deser->beginMember(nodeName, nodeType, nodeCategory());
             //SerializationInfo& added = _current->addMember( _nodeName.narrow() );
             //_current = &added;
 
@@ -192,7 +198,9 @@ void XmlDeserializer::onStartElement(const cxxtools::xml::Node& node)
             if( _nodeName != static_cast<const cxxtools::xml::EndElement&>(node).name() )
                 throw std::logic_error("Invalid element");
 
-            _deser = _deser->beginMember(_nodeName.narrow(), _nodeType.narrow(), nodeCategory() );
+            std::string nodeName = _nodeName.narrow();
+            std::string nodeType = _nodeType.empty() ? nodeName : _nodeType.narrow();
+            _deser = _deser->beginMember(nodeName, nodeType, nodeCategory());
             _deser->setValue( cxxtools::String() );
             _deser = _deser->leaveMember();
             //_current->addValue( _nodeName.narrow(), Pt::String() );
@@ -219,7 +227,9 @@ void XmlDeserializer::onWhitespace(const cxxtools::xml::Node& node)
             cxxtools::String refId = static_cast<const cxxtools::xml::StartElement&>(node).attribute(L"ref");
             if( ! refId.empty() )
             {
-                _deser = _deser->beginMember(_nodeName.narrow(), _nodeType.narrow(), nodeCategory() );
+                std::string nodeName = _nodeName.narrow();
+                std::string nodeType = _nodeType.empty() ? nodeName : _nodeType.narrow();
+                _deser = _deser->beginMember(nodeName, nodeType, nodeCategory());
                 _deser->setReference( refId.narrow() );
                 _deser = _deser->leaveMember();
                 //SerializationInfo& ref = _current->addValue( _nodeName.narrow(), refId );
