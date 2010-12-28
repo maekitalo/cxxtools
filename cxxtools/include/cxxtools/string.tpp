@@ -190,6 +190,7 @@ inline void basic_string<cxxtools::Char>::detach(size_type reserveSize)
     if( _data->shared() ) 
     {
         cxxtools::StringData* newBuffer = new cxxtools::StringData();
+        newBuffer->reserve( reserveSize );
         newBuffer->assign( _data->str(), _data->length() );
 
         if( _data->unref() < 1)
