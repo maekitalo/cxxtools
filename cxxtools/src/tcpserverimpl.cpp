@@ -130,7 +130,7 @@ void TcpServerImpl::listen(const std::string& ipaddr, unsigned short int port, i
             }
             catch (const SystemError&)
             {
-                log_debug("could not create socket; errno=" << errno << ": " << strerror(errno));
+                log_debug("could not create socket; errno=" << errno << ": " << std::strerror(errno));
                 continue;
             }
 
@@ -138,7 +138,7 @@ void TcpServerImpl::listen(const std::string& ipaddr, unsigned short int port, i
             fn = "setsockopt";
             if (::setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)) < 0)
             {
-                log_debug("could not set socket option SO_REUSEADDR " << fd << "; errno=" << errno << ": " << strerror(errno));
+                log_debug("could not set socket option SO_REUSEADDR " << fd << "; errno=" << errno << ": " << std::strerror(errno));
                 ::close(fd);
                 continue;
             }
@@ -148,7 +148,7 @@ void TcpServerImpl::listen(const std::string& ipaddr, unsigned short int port, i
             {
               if (::setsockopt(fd, IPPROTO_IPV6, IPV6_V6ONLY, &on, sizeof(on)) < 0)
               {
-                  log_debug("could not set socket option IPV6_V6ONLY " << fd << "; errno=" << errno << ": " << strerror(errno));
+                  log_debug("could not set socket option IPV6_V6ONLY " << fd << "; errno=" << errno << ": " << std::strerror(errno));
                   ::close(fd);
                   continue;
               }
@@ -159,7 +159,7 @@ void TcpServerImpl::listen(const std::string& ipaddr, unsigned short int port, i
             fn = "bind";
             if (::bind(fd, it->ai_addr, it->ai_addrlen) != 0)
             {
-                log_debug("could not bind " << fd << "; errno=" << errno << ": " << strerror(errno));
+                log_debug("could not bind " << fd << "; errno=" << errno << ": " << std::strerror(errno));
                 ::close(fd);
                 continue;
             }

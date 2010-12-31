@@ -30,6 +30,7 @@
 
 #include <cxxtools/api.h>
 #include <stdexcept>
+#include <string>
 
 namespace cxxtools
 {

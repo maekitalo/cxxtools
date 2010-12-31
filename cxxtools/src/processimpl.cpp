@@ -117,7 +117,7 @@ void ProcessImpl::start()
             _pid = fork();
             if( _pid < 0 )
             {
-                fprintf(stderr, "%s\n", std::strerror(errno));
+                std::fprintf(stderr, "%s\n", std::strerror(errno));
                 std::exit(-1);
             }
             else if (_pid > 0)
