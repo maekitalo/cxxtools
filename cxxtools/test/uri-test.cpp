@@ -34,7 +34,7 @@ class UriTest : public cxxtools::unit::TestSuite
 {
     public:
         UriTest()
-        : cxxtools::unit::TestSuite("cxxtools-arg-Test")
+        : cxxtools::unit::TestSuite("cxxtools-uri-Test")
         {
             registerMethod("testUri_UPHP", *this, &UriTest::testUri_UPHP);
             registerMethod("testUri_UHP", *this, &UriTest::testUri_UHP);

@@ -33,7 +33,7 @@ namespace cxxtools
 namespace net
 {
 
-  class Uri
+  class CXXTOOLS_API Uri
   {
       bool _ipv6;
       std::string _protocol;
