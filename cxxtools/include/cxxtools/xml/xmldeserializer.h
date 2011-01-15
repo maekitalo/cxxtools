@@ -48,9 +48,6 @@ namespace xml {
     class XmlDeserializer
     {
         public:
-            typedef void (*Fixup)(void**, const std::type_info&, void*);
-
-        public:
             XmlDeserializer(cxxtools::xml::XmlReader& reader);
 
             XmlDeserializer(std::istream& is);
@@ -79,6 +76,28 @@ namespace xml {
             {
                 _context.fixup();
                 _context.clear();
+            }
+
+            template <typename T>
+            static void toObject(const std::string& str, T& type)
+            {
+               std::istringstream in(str);
+               XmlDeserializer d(in);
+               d.deserialize(type);
+            }
+
+            template <typename T>
+            static void toObject(XmlReader& in, T& type)
+            {
+               XmlDeserializer d(in);
+               d.deserialize(type);
+            }
+
+            template <typename T>
+            static void toObject(std::istream& in, T& type)
+            {
+               XmlDeserializer d(in);
+               d.deserialize(type);
             }
 
         protected:

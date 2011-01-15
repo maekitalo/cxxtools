@@ -32,6 +32,7 @@
 #include <cxxtools/formatter.h>
 #include <cxxtools/serializer.h>
 #include <memory>
+#include <sstream>
 
 namespace cxxtools {
 
@@ -233,6 +234,16 @@ class XmlSerializer
 
         //! @internal
         void flush();
+
+        template <typename T>
+        static std::string toString(const T& type, const std::string& name)
+        {
+          std::ostringstream os;
+          XmlSerializer s(os);
+          s.serialize(type, name);
+          s.finish();
+          return os.str();
+        }
 
     private:
         XmlFormatter _formatter;

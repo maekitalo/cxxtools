@@ -33,6 +33,7 @@
 #include <cxxtools/textstream.h>
 #include <cxxtools/serializer.h>
 #include <cxxtools/noncopyable.h>
+#include <sstream>
 
 namespace cxxtools
 {
@@ -146,6 +147,15 @@ namespace cxxtools
 
             void beautify(bool sw)    { _formatter.beautify(sw); }
 
+            template <typename T>
+            static std::string toString(const T& type, const std::string& name)
+            {
+                std::ostringstream os;
+                JsonSerializer s(os);
+                s.serialize(type, name);
+                s.finish();
+                return os.str();
+            }
 
         private:
             JsonFormatter _formatter;
