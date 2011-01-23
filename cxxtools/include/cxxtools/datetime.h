@@ -162,11 +162,7 @@ class DateTime
             millisecond value. And  accordingly calling this API on a "GMT"
             DateTime will lead to a "GMT" millisecond value.
         */
-        cxxtools::int64_t msecsSinceEpoch() const
-        {
-            static const DateTime dt(1970, 1, 1);
-            return (*this - dt).totalMSecs();
-        }
+        cxxtools::int64_t msecsSinceEpoch() const;
 
         std::string toIsoString() const;
 
@@ -178,84 +174,27 @@ class DateTime
 
         bool operator==(const DateTime& rhs) const
         {
-            return !operator!=(rhs);
+            return _date == rhs._date && _time == rhs._time ;
         }
 
         bool operator!=(const DateTime& rhs) const
         {
-            return _date != rhs._date || _time != rhs._time ;
+            return !operator==(rhs);
         }
 
         /** @brief Assignment by sum operator
         */
-        DateTime& operator+=(const Timespan& ts)
-        {
-            cxxtools::int64_t totalMSecs = ts.totalMSecs();
-            cxxtools::int64_t days = totalMSecs / Time::MSecsPerDay;
-            cxxtools::int64_t overrun = totalMSecs % Time::MSecsPerDay;
-
-            if( (-overrun) > _time.totalMSecs()  )
-            {
-                days -= 1;
-            }
-            else if( overrun + _time.totalMSecs() > Time::MSecsPerDay)
-            {
-                days += 1;
-            }
-
-            _date += static_cast<int>(days);
-            _time += Timespan(overrun * 1000);
-            return *this;
-        }
+        DateTime& operator+=(const Timespan& ts);
 
         /** @brief Assignment by difference operator
         */
-        DateTime& operator-=(const Timespan& ts)
-        {
-            cxxtools::int64_t totalMSecs = ts.totalMSecs();
-            cxxtools::int64_t days = totalMSecs / Time::MSecsPerDay;
-            cxxtools::int64_t overrun = totalMSecs % Time::MSecsPerDay;
+        DateTime& operator-=(const Timespan& ts);
 
-            if( overrun > _time.totalMSecs() )
-            {
-                days += 1;
-            }
-            else if(_time.totalMSecs() - overrun > Time::MSecsPerDay)
-            {
-                days -= 1;
-            }
+        friend Timespan operator-(const DateTime& first, const DateTime& second);
 
-            _date -= static_cast<int>(days);
-            _time -= Timespan( overrun * 1000 );
-            return *this;
-        }
+        friend DateTime operator+(const DateTime& dt, const Timespan& ts);
 
-        friend Timespan operator-(const DateTime& first, const DateTime& second)
-        {
-            cxxtools::int64_t dayDiff      = cxxtools::int64_t( first.date().julian() ) -
-                                       cxxtools::int64_t( second.date().julian() );
-
-            cxxtools::int64_t milliSecDiff = cxxtools::int64_t( first.time().totalMSecs() ) -
-                                       cxxtools::int64_t( second.time().totalMSecs() );
-
-            cxxtools::int64_t result = (dayDiff * Time::MSecsPerDay + milliSecDiff) * 1000;
-
-            return result;
-        }
-
-        friend DateTime operator+(const DateTime& dt, const Timespan& ts)
-        {
-            DateTime tmp = dt;
-            tmp += ts;
-            return tmp;
-        }
-
-        friend DateTime operator-(const DateTime& dt, const Timespan& ts)
-        {
-            DateTime tmp = dt;
-            tmp -= ts;
-            return tmp;
-        }
+        friend DateTime operator-(const DateTime& dt, const Timespan& ts);
 
         bool operator< (const DateTime& dt) const
         {

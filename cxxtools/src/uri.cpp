@@ -29,6 +29,7 @@
 #include <cxxtools/net/uri.h>
 #include <stdexcept>
 #include <sstream>
+#include <cctype>
 
 namespace cxxtools
 {

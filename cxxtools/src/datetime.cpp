@@ -37,9 +37,13 @@
 #include <cmath>
 #include <cassert>
 
-namespace cxxtools {
+namespace cxxtools
+{
 
-inline unsigned short getNumber2(const char* s)
+namespace
+{
+
+unsigned short getNumber2(const char* s)
 {
     if( ! std::isdigit(s[0]) || !std::isdigit(s[1]) )
         throw ConversionError( CXXTOOLS_ERROR_MSG("Invalid DateTime format") );
@@ -47,7 +51,7 @@ inline unsigned short getNumber2(const char* s)
     return (s[0] - '0') * 10 + (s[1] - '0');
 }
 
-inline unsigned short getNumber3(const char* s)
+unsigned short getNumber3(const char* s)
 {
     if (!std::isdigit(s[0]) || !std::isdigit(s[1]) || !std::isdigit(s[2]))
         throw ConversionError( CXXTOOLS_ERROR_MSG("Invalid DateTime format") );
@@ -57,8 +61,7 @@ inline unsigned short getNumber3(const char* s)
         + (s[2] - '0');
 }
 
-
-inline unsigned short getNumber4(const char* s)
+unsigned short getNumber4(const char* s)
 {
     if( ! std::isdigit(s[0]) || ! std::isdigit(s[1]) ||
         ! std::isdigit(s[2]) || ! std::isdigit(s[3]) )
@@ -70,6 +73,80 @@ inline unsigned short getNumber4(const char* s)
         + (s[3] - '0');
 }
 
+}
+
+cxxtools::int64_t DateTime::msecsSinceEpoch() const
+{
+    static const DateTime dt(1970, 1, 1);
+    return (*this - dt).totalMSecs();
+}
+
+DateTime& DateTime::operator+=(const Timespan& ts)
+{
+    cxxtools::int64_t totalMSecs = ts.totalMSecs();
+    cxxtools::int64_t days = totalMSecs / Time::MSecsPerDay;
+    cxxtools::int64_t overrun = totalMSecs % Time::MSecsPerDay;
+
+    if( (-overrun) > _time.totalMSecs()  )
+    {
+        days -= 1;
+    }
+    else if( overrun + _time.totalMSecs() > Time::MSecsPerDay)
+    {
+        days += 1;
+    }
+
+    _date += static_cast<int>(days);
+    _time += Timespan(overrun * 1000);
+    return *this;
+}
+
+DateTime& DateTime::operator-=(const Timespan& ts)
+{
+    cxxtools::int64_t totalMSecs = ts.totalMSecs();
+    cxxtools::int64_t days = totalMSecs / Time::MSecsPerDay;
+    cxxtools::int64_t overrun = totalMSecs % Time::MSecsPerDay;
+
+    if( overrun > _time.totalMSecs() )
+    {
+        days += 1;
+    }
+    else if(_time.totalMSecs() - overrun > Time::MSecsPerDay)
+    {
+        days -= 1;
+    }
+
+    _date -= static_cast<int>(days);
+    _time -= Timespan( overrun * 1000 );
+    return *this;
+}
+
+Timespan operator-(const DateTime& first, const DateTime& second)
+{
+    cxxtools::int64_t dayDiff      = cxxtools::int64_t( first.date().julian() ) -
+                               cxxtools::int64_t( second.date().julian() );
+
+    cxxtools::int64_t milliSecDiff = cxxtools::int64_t( first.time().totalMSecs() ) -
+                               cxxtools::int64_t( second.time().totalMSecs() );
+
+    cxxtools::int64_t result = (dayDiff * Time::MSecsPerDay + milliSecDiff) * 1000;
+
+    return result;
+}
+
+DateTime operator+(const DateTime& dt, const Timespan& ts)
+{
+    DateTime tmp = dt;
+    tmp += ts;
+    return tmp;
+}
+
+DateTime operator-(const DateTime& dt, const Timespan& ts)
+{
+    DateTime tmp = dt;
+    tmp -= ts;
+    return tmp;
+}
 
 void convert(DateTime& dt, const std::string& s)
 {

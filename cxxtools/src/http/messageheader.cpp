@@ -70,7 +70,6 @@ int compareIgnoreCase(const char* s1, const char* s2)
 
 } 
 
-const unsigned MessageHeader::MAXHEADERSIZE;
 
 const char* MessageHeader::getHeader(const char* key) const
 {
@@ -194,7 +193,7 @@ char* MessageHeader::htdateCurrent(char* buffer)
     unsigned sec = 0;
     unsigned msec = 0;
 
-    cxxtools::DateTime dt = cxxtools::Clock::getSystemTime();
+    DateTime dt = Clock::getSystemTime();
     dt.get(year, month, day, hour, min, sec, msec);
     unsigned dayOfWeek = dt.date().dayOfWeek();
 
