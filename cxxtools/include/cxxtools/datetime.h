@@ -257,6 +257,34 @@ class DateTime
             return tmp;
         }
 
+        bool operator< (const DateTime& dt) const
+        {
+            return _date < dt._date
+                || (_date == dt._date
+                  && _time < dt._time);
+        }
+
+        bool operator<= (const DateTime& dt) const
+        {
+            return _date < dt._date
+                || (_date == dt._date
+                  && _time <= dt._time);
+        }
+
+        bool operator> (const DateTime& dt) const
+        {
+            return _date > dt._date
+                || (_date == dt._date
+                  && _time > dt._time);
+        }
+
+        bool operator>= (const DateTime& dt) const
+        {
+            return _date > dt._date
+                || (_date == dt._date
+                  && _time >= dt._time);
+        }
+
     private:
         DateTime(unsigned jd)
         : _date(jd)
