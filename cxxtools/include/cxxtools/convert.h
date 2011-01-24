@@ -261,7 +261,7 @@ inline void convert(double& n, const String& str)
     // not a number
     if(str == L"NAN")
     {
-        n = std::numeric_limits<float>::quiet_NaN();
+        n = std::numeric_limits<double>::quiet_NaN();
         return;
     }
 
@@ -329,7 +329,7 @@ inline void convert(double& n, const std::string& str)
     // not a number
     if(str == "NAN")
     {
-        n = std::numeric_limits<float>::quiet_NaN();
+        n = std::numeric_limits<double>::quiet_NaN();
         return;
     }
 
