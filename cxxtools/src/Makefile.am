@@ -16,6 +16,7 @@ libcxxtools_la_SOURCES = \
 	connection.cpp \
 	cgi.cpp \
 	conversionerror.cpp \
+	convert.cpp \
 	date.cpp \
 	datetime.cpp \
 	deserializer.cpp \
