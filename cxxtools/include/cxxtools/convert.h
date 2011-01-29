@@ -126,6 +126,18 @@ CXXTOOLS_API void convert(std::string& s, double value);
 
 CXXTOOLS_API void convert(double& n, const std::string& str);
 
+inline void convert(float& n, const wchar_t* str)
+{ convert(n, String(str)); }
+
+inline void convert(float& n, const char* str)
+{ convert(n, std::string(str)); }
+
+inline void convert(double& n, const char* str)
+{ convert(n, std::string(str)); }
+
+inline void convert(double& n, const wchar_t* str)
+{ convert(n, String(str)); }
+
 template<typename T, typename S>
 void convert(T& to, const S& from)
 {

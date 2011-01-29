@@ -30,6 +30,7 @@
 #include "cxxtools/unit/testsuite.h"
 #include "cxxtools/unit/registertest.h"
 #include "cxxtools/string.h"
+#include <limits>
 
 class ConvertTest : public cxxtools::unit::TestSuite
 {
@@ -39,6 +40,8 @@ class ConvertTest : public cxxtools::unit::TestSuite
         {
             registerMethod("successTest", *this, &ConvertTest::successTest);
             registerMethod("failTest", *this, &ConvertTest::failTest);
+            registerMethod("nanTest", *this, &ConvertTest::nanTest);
+            registerMethod("infTest", *this, &ConvertTest::infTest);
         }
 
         void successTest()
@@ -64,6 +67,99 @@ class ConvertTest : public cxxtools::unit::TestSuite
           CXXTOOLS_UNIT_ASSERT_THROW(n = cxxtools::convert<int>(S), cxxtools::ConversionError);
 
         }
+
+        void nanTest()
+        {
+          // test string to number
+
+          double d = cxxtools::convert<double>("NaN");
+          CXXTOOLS_UNIT_ASSERT(d != d);
+
+          float f = cxxtools::convert<float>("NaN");
+          CXXTOOLS_UNIT_ASSERT(f != f);
+
+          d = cxxtools::convert<double>(L"NaN");
+          CXXTOOLS_UNIT_ASSERT(d != d);
+
+          f = cxxtools::convert<float>(L"NaN");
+          CXXTOOLS_UNIT_ASSERT(f != f);
+
+          // test number to string
+
+          std::string s = cxxtools::convert<std::string>(d);
+          CXXTOOLS_UNIT_ASSERT_EQUALS(s, "nan");
+
+          s = cxxtools::convert<std::string>(f);
+          CXXTOOLS_UNIT_ASSERT_EQUALS(s, "nan");
+
+          cxxtools::String ss = cxxtools::convert<cxxtools::String>(d);
+          CXXTOOLS_UNIT_ASSERT_EQUALS(ss.narrow(), "nan");
+
+          ss = cxxtools::convert<cxxtools::String>(f);
+          CXXTOOLS_UNIT_ASSERT_EQUALS(ss.narrow(), "nan");
+
+        }
+
+        void infTest()
+        {
+          // test string to number
+
+          double d = cxxtools::convert<double>("inf");
+          CXXTOOLS_UNIT_ASSERT_EQUALS(d, std::numeric_limits<double>::infinity());
+
+          float f = cxxtools::convert<float>("inf");
+          CXXTOOLS_UNIT_ASSERT_EQUALS(d, std::numeric_limits<float>::infinity());
+
+          d = cxxtools::convert<double>(L"iNf");
+          CXXTOOLS_UNIT_ASSERT_EQUALS(d, std::numeric_limits<double>::infinity());
+
+          f = cxxtools::convert<float>(L"inF");
+          CXXTOOLS_UNIT_ASSERT_EQUALS(d, std::numeric_limits<float>::infinity());
+
+          // test number to string
+
+          std::string s = cxxtools::convert<std::string>(d);
+          CXXTOOLS_UNIT_ASSERT_EQUALS(s, "inf");
+
+          s = cxxtools::convert<std::string>(f);
+          CXXTOOLS_UNIT_ASSERT_EQUALS(s, "inf");
+
+          cxxtools::String ss = cxxtools::convert<cxxtools::String>(d);
+          CXXTOOLS_UNIT_ASSERT_EQUALS(ss.narrow(), "inf");
+
+          ss = cxxtools::convert<cxxtools::String>(f);
+          CXXTOOLS_UNIT_ASSERT_EQUALS(ss.narrow(), "inf");
+
+          // negative inf
+
+          // string to number
+          d = cxxtools::convert<double>("-inf");
+          CXXTOOLS_UNIT_ASSERT_EQUALS(d, -std::numeric_limits<double>::infinity());
+
+          f = cxxtools::convert<float>("-inf");
+          CXXTOOLS_UNIT_ASSERT_EQUALS(d, -std::numeric_limits<float>::infinity());
+
+          d = cxxtools::convert<double>(L"-iNf");
+          CXXTOOLS_UNIT_ASSERT_EQUALS(d, -std::numeric_limits<double>::infinity());
+
+          f = cxxtools::convert<float>(L"-INF");
+          CXXTOOLS_UNIT_ASSERT_EQUALS(d, -std::numeric_limits<float>::infinity());
+
+          // test number to string
+          s = cxxtools::convert<std::string>(d);
+          CXXTOOLS_UNIT_ASSERT_EQUALS(s, "-inf");
+
+          s = cxxtools::convert<std::string>(f);
+          CXXTOOLS_UNIT_ASSERT_EQUALS(s, "-inf");
+
+          ss = cxxtools::convert<cxxtools::String>(d);
+          CXXTOOLS_UNIT_ASSERT_EQUALS(ss.narrow(), "-inf");
+
+          ss = cxxtools::convert<cxxtools::String>(f);
+          CXXTOOLS_UNIT_ASSERT_EQUALS(ss.narrow(), "-inf");
+
+        }
+
 };
 
 cxxtools::unit::RegisterTest<ConvertTest> register_ConvertTest;

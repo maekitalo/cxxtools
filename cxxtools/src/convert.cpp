@@ -29,9 +29,33 @@
 #include <cxxtools/convert.h>
 #include <iomanip>
 #include <limits>
+#include <cctype>
 
 namespace cxxtools
 {
+
+namespace
+{
+  template <typename CharT>
+  bool _stricmpL(const CharT* p1, const CharT* p2)
+  {
+    unsigned n;
+    for (n = 0; p1[n] && p2[n]; ++n)
+        if (std::tolower(p1[n]) != std::tolower(p2[n]))
+            return false;
+    return p1[n] == p2[n];
+  }
+
+  bool _stricmpL(const String& s, const wchar_t* p)
+  {
+    String::size_type n = 0;
+    for ( ; n < s.size(); ++n)
+        if (cxxtools::tolower(s[n]) != p[n])
+            return false;
+    return p[n] == L'\0';
+  }
+
+}
 
 void convert(String& s, bool value)
 {
@@ -68,7 +92,7 @@ void convert(String& s, char value)
 
 void convert(char& n, const String& str)
 {
-    if( str.empty() )
+    if ( str.empty() )
         ConversionError::doThrow("char", "cxxtools::String");
 
     n = str[0].narrow('*');
@@ -86,7 +110,7 @@ void convert(String& s, unsigned char value)
 
 void convert(unsigned char& n, const String& str)
 {
-    if( str.empty() )
+    if ( str.empty() )
         ConversionError::doThrow("unsigned char", "cxxtools::String");
 
     // interpret as numeric value
@@ -117,7 +141,7 @@ void convert(String& s, signed char value)
 
 void convert(signed char& n, const String& str)
 {
-    if( str.empty() )
+    if ( str.empty() )
         ConversionError::doThrow("signed char", "cxxtools::String");
         
     // interpret as numeric value
@@ -138,9 +162,9 @@ void convert(signed char& n, const String& str)
 void convert(String& s, float value)
 {
     // not a number
-    if(value != value)
+    if (value != value)
     {
-        s = L"NAN";
+        s = L"nan";
         return;
     }
 
@@ -153,9 +177,23 @@ void convert(String& s, float value)
 void convert(float& n, const String& str)
 {
     // not a number
-    if(str == L"NAN")
+    if (_stricmpL(str, L"nan"))
     {
         n = std::numeric_limits<float>::quiet_NaN();
+        return;
+    }
+
+    // inf
+    if (_stricmpL(str, L"inf"))
+    {
+        n = std::numeric_limits<float>::infinity();
+        return;
+    }
+
+    // -inf
+    if (_stricmpL(str, L"-inf"))
+    {
+        n = -std::numeric_limits<float>::infinity();
         return;
     }
 
@@ -173,9 +211,9 @@ void convert(float& n, const String& str)
 void convert(String& s, double value)
 {
     // not a number
-    if(value != value)
+    if (value != value)
     {
-        s = L"NAN";
+        s = L"nan";
         return;
     }
 
@@ -188,9 +226,23 @@ void convert(String& s, double value)
 void convert(double& n, const String& str)
 {
     // not a number
-    if(str == L"NAN")
+    if (_stricmpL(str, L"nan"))
     {
         n = std::numeric_limits<double>::quiet_NaN();
+        return;
+    }
+
+    // inf
+    if (_stricmpL(str, L"inf"))
+    {
+        n = std::numeric_limits<double>::infinity();
+        return;
+    }
+
+    // -inf
+    if (_stricmpL(str, L"-inf"))
+    {
+        n = -std::numeric_limits<double>::infinity();
         return;
     }
 
@@ -207,9 +259,9 @@ void convert(double& n, const String& str)
 void convert(std::string& s, float value)
 {
     // not a number
-    if(value != value)
+    if (value != value)
     {
-        s = "NAN";
+        s = "nan";
         return;
     }
 
@@ -222,11 +274,26 @@ void convert(std::string& s, float value)
 void convert(float& n, const std::string& str)
 {
     // not a number
-    if(str == "NAN")
+    if (_stricmpL(str.c_str(), "nan"))
     {
         n = std::numeric_limits<float>::quiet_NaN();
         return;
     }
+
+    // inf
+    if (_stricmpL(str.c_str(), "inf"))
+    {
+        n = std::numeric_limits<float>::infinity();
+        return;
+    }
+
+    // -inf
+    if (_stricmpL(str.c_str(), "-inf"))
+    {
+        n = -std::numeric_limits<float>::infinity();
+        return;
+    }
+
 
     std::istringstream is(str);
     char ch;
@@ -242,23 +309,46 @@ void convert(float& n, const std::string& str)
 void convert(std::string& s, double value)
 {
     // not a number
-    if(value != value)
+    if (value != value)
     {
-        s = "NAN";
-        return;
+        s = "nan";
     }
-
-    std::ostringstream os;
-    os << std::fixed << std::setprecision(15) << value;
-    s = os.str();
+    else if (value == std::numeric_limits<double>::infinity())
+    {
+        s = "inf";
+    }
+    else if (value == -std::numeric_limits<double>::infinity())
+    {
+        s = "-inf";
+    }
+    else
+    {
+        std::ostringstream os;
+        os << std::fixed << std::setprecision(15) << value;
+        s = os.str();
+    }
 }
 
 void convert(double& n, const std::string& str)
 {
     // not a number
-    if(str == "NAN")
+    if (_stricmpL(str.c_str(), "nan"))
     {
         n = std::numeric_limits<double>::quiet_NaN();
+        return;
+    }
+
+    // inf
+    if (_stricmpL(str.c_str(), "inf"))
+    {
+        n = std::numeric_limits<double>::infinity();
+        return;
+    }
+
+    // -inf
+    if (_stricmpL(str.c_str(), "-inf"))
+    {
+        n = -std::numeric_limits<double>::infinity();
         return;
     }
 
