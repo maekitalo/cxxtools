@@ -75,6 +75,21 @@ namespace cxxtools
       unsigned hits;
       unsigned misses;
 
+      bool _push(const Key& key, const Value& value)
+      {
+        for (typename DataType::iterator it = data.begin(); it != data.end(); ++it)
+        {
+          if (it->first == key)
+          {
+            data.erase(it);
+            data.push_front(typename DataType::value_type(key, value));
+            return true;
+          }
+        }
+
+        return false;
+      }
+
     public:
       typedef typename DataType::size_type size_type;
       typedef typename DataType::value_type value_type;
@@ -135,22 +150,36 @@ namespace cxxtools
       /// list.
       void put(const Key& key, const Value& value)
       {
-        for (typename DataType::iterator it = data.begin(); it != data.end(); ++it)
-        {
-          if (it->first == key)
-          {
-            data.erase(it);
-            data.push_front(typename DataType::value_type(key, value));
-            return;
-          }
-        }
+        if (_push(key, value))
+          return;
 
+        // A element is normally searched first in the cache using the get
+        // method and if not found, read from the source and put into the
+        // cache. Therefore it is considered a cache miss, when a new object
+        // is put into the cache.
         ++misses;
 
         if (data.size() < maxElements / 2)
           data.push_back(typename DataType::value_type(key, value));
         else
           data.insert(data.begin() + maxElements / 2, typename DataType::value_type(key, value));
+
+        if (data.size() > maxElements)
+          data.pop_back();
+      }
+
+      /// puts a new element on the top of the cache. If the element is already
+      /// found in the cache, it is considered a cache hit and pushed to the
+      /// top of the list. This method actually overrides the need, that a element
+      /// needs a hit to get to the top of the cache.
+      void put_top(const Key& key, const Value& value)
+      {
+        if (_push(key, value))
+          return;
+
+        ++misses;
+
+        data.push_front(typename DataType::value_type(key, value));
 
         if (data.size() > maxElements)
           data.pop_back();

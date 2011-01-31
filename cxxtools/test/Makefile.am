@@ -3,6 +3,7 @@ noinst_PROGRAMS = \
     alltests \
     arg-test \
     base64-test \
+    cache-test \
     convert-test \
     net-test \
     process-test \
@@ -27,11 +28,14 @@ base64_test_SOURCES = test-main.cpp base64-test.cpp
 
 arg_test_SOURCES = test-main.cpp arg-test.cpp
 
+cache_test_SOURCES = test-main.cpp cache-test.cpp
+
 convert_test_SOURCES = test-main.cpp convert-test.cpp
 
 alltests_SOURCES = \
     arg-test.cpp \
     base64-test.cpp \
+    cache-test.cpp \
     convert-test.cpp \
     tcpsockettest.cpp \
     test-main.cpp \
