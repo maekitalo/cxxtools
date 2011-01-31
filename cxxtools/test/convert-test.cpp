@@ -107,6 +107,9 @@ class ConvertTest : public cxxtools::unit::TestSuite
           double d = cxxtools::convert<double>("inf");
           CXXTOOLS_UNIT_ASSERT_EQUALS(d, std::numeric_limits<double>::infinity());
 
+          d = cxxtools::convert<double>("infinity");
+          CXXTOOLS_UNIT_ASSERT_EQUALS(d, std::numeric_limits<double>::infinity());
+
           float f = cxxtools::convert<float>("inf");
           CXXTOOLS_UNIT_ASSERT_EQUALS(d, std::numeric_limits<float>::infinity());
 

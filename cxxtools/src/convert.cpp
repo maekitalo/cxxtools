@@ -184,14 +184,14 @@ void convert(float& n, const String& str)
     }
 
     // inf
-    if (_stricmpL(str, L"inf"))
+    if (_stricmpL(str, L"inf") || _stricmpL(str.c_str(), L"infinity"))
     {
         n = std::numeric_limits<float>::infinity();
         return;
     }
 
     // -inf
-    if (_stricmpL(str, L"-inf"))
+    if (_stricmpL(str, L"-inf") || _stricmpL(str.c_str(), L"-infinity"))
     {
         n = -std::numeric_limits<float>::infinity();
         return;
@@ -233,14 +233,14 @@ void convert(double& n, const String& str)
     }
 
     // inf
-    if (_stricmpL(str, L"inf"))
+    if (_stricmpL(str, L"inf") || _stricmpL(str.c_str(), L"infinity"))
     {
         n = std::numeric_limits<double>::infinity();
         return;
     }
 
     // -inf
-    if (_stricmpL(str, L"-inf"))
+    if (_stricmpL(str, L"-inf") || _stricmpL(str.c_str(), L"-infinity"))
     {
         n = -std::numeric_limits<double>::infinity();
         return;
@@ -281,14 +281,14 @@ void convert(float& n, const std::string& str)
     }
 
     // inf
-    if (_stricmpL(str.c_str(), "inf"))
+    if (_stricmpL(str.c_str(), "inf") || _stricmpL(str.c_str(), "infinity"))
     {
         n = std::numeric_limits<float>::infinity();
         return;
     }
 
     // -inf
-    if (_stricmpL(str.c_str(), "-inf"))
+    if (_stricmpL(str.c_str(), "-inf") || _stricmpL(str.c_str(), "-infinity"))
     {
         n = -std::numeric_limits<float>::infinity();
         return;
@@ -339,14 +339,14 @@ void convert(double& n, const std::string& str)
     }
 
     // inf
-    if (_stricmpL(str.c_str(), "inf"))
+    if (_stricmpL(str.c_str(), "inf") || _stricmpL(str.c_str(), "infinity"))
     {
         n = std::numeric_limits<double>::infinity();
         return;
     }
 
     // -inf
-    if (_stricmpL(str.c_str(), "-inf"))
+    if (_stricmpL(str.c_str(), "-inf") || _stricmpL(str.c_str(), "-infinity"))
     {
         n = -std::numeric_limits<double>::infinity();
         return;
