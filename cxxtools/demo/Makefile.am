@@ -1,6 +1,7 @@
 noinst_PROGRAMS = arg arg-set cgi dir dlloader getini hd \
-	httprequest httpserver log logbench logsh md5sum mime multifstream netcat netio \
-	netmsg pipestream pool signals thread threadpool uuencode cxxlog rpcecho splitter
+	httprequest httpserver log logbench logsh md5sum mime multifstream netcat \
+	netio netmsg pipestream pool signals thread threadpool uuencode cxxlog \
+	rpcecho splitter json
 
 arg_SOURCES = arg.cpp
 arg_set_SOURCES = arg-set.cpp
@@ -29,6 +30,7 @@ uuencode_SOURCES = uuencode.cpp
 cxxlog_SOURCES = cxxlog.cpp
 rpcecho_SOURCES = rpcecho.cpp
 splitter_SOURCES = splitter.cpp
+json_SOURCES = json.cpp
 
 if MAKE_ICONVSTREAM
 noinst_PROGRAMS += iconv
@@ -41,6 +43,7 @@ AM_CXXFLAGS = $(PTHREAD_CFLAGS)
 httpserver_LDADD =  $(top_builddir)/src/libcxxtools.la $(top_builddir)/src/http/libcxxtools-http.la
 httprequest_LDADD = $(top_builddir)/src/libcxxtools.la $(top_builddir)/src/http/libcxxtools-http.la
 rpcecho_LDADD = $(top_builddir)/src/libcxxtools.la $(top_builddir)/src/http/libcxxtools-http.la $(top_builddir)/src/xml/libcxxtools-xml.la $(top_builddir)/src/xmlrpc/libcxxtools-xmlrpc.la
+json_LDADD = $(top_builddir)/src/libcxxtools.la $(top_builddir)/src/http/libcxxtools-http.la
 
 log.properties:
 	/bin/sh $(top_builddir)/cxxtools-config --properties cxxtools >$@
