@@ -114,7 +114,7 @@ void JsonFormatter::addValue(const std::string& name, const std::string& type,
             *_ts << cxxtools::Char(L' ');
     }
 
-    if (type == "int" || type == "double")
+    if (type == "int" || type == "double" || type == "bool")
     {
         stringOut(value);
     }
