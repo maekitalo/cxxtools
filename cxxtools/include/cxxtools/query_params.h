@@ -294,7 +294,7 @@ class QueryParams
 
     /// get all unnamed parameters
     template <typename output_iterator>
-    void get(output_iterator& o) const
+    void get(output_iterator o) const
     { std::copy(unnamed_params.begin(), unnamed_params.end(), o); }
 
     /// add unnamed parameter to parent or this class if no parent
