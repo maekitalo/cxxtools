@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003 Tommi Maekitalo
+ * Copyright (C) 2011 Tommi Maekitalo
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,285 +26,200 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef CXXTOOLS_POOL_H
-#define CXXTOOLS_POOL_H
-
-#include <cxxtools/condition.h>
-#include <stack>
+#include <cxxtools/smartptr.h>
+#include <cxxtools/noncopyable.h>
+#include <cxxtools/mutex.h>
+#include <vector>
 
 namespace cxxtools
 {
+  /**
+   This class is a factory for objects wich are default constructable.
+   */
+  template <class T>
+  class DefaultCreator
+  {
+    public:
+      T* operator() ()
+      { return new T(); }
+  };
 
-/**
- This class is a factory for objects wich are default constructable.
- */
-template <class T>
-class DefaultCreator
-{
-  public:
-    T* operator() ()
-    { return new T(); }
-};
+  /**
+   A Pool is a container for pooled objects.
 
-/**
- A Pool is a container for reusable objects.
+   It maintains a list of object instances, which are not in use. If a
+   program needs a instance, it can request one with the get-method. The
+   pool returns a smart pointer to an instance. When the pointer is released,
+   the instance is put back into the pool or dropped, if the pool has already
+   a maximum number of instances.
+   */
+  template <typename ObjectType,
+            typename CreatorType = DefaultCreator<ObjectType>,
+            template <class> class OwnershipPolicy = RefLinked,
+            template <class> class DestroyPolicy = DefaultDestroyPolicy>
+  class Pool : private NonCopyable
+  {
+    public:
+      class Ptr : public OwnershipPolicy<ObjectType>,
+                  public DestroyPolicy<ObjectType>
+      {
+          ObjectType* object;
+          Pool<ObjectType, CreatorType, OwnershipPolicy, DestroyPolicy>* pool;
+          typedef OwnershipPolicy<ObjectType> OwnershipPolicyType;
+          typedef DestroyPolicy<ObjectType> DestroyPolicyType;
 
- It maintains a list of objects, which are not in use. If a program
- needs a object, he can request one with the get-method. The Pool
- returns a object, which is convertable to the needed object. As long
- as the program holds this special object, the object is in use.
-
- Objects are created when needed and only deleted on request.
- A upper limit of objects can be passed to the constructor. This makes
- only sense in a multithreaded environment, because the get-method
- blocks, when the limit is reached and waits for someone to release a
- object.
- */
-template <typename T, typename CreatorType = DefaultCreator<T> >
-class Pool
-{
-  public:
-    /**
-     The PoolObject holds a reference to the object.
-     The held object is released for reuse, when the last reference
-     is destroyed.
-     */
-    class PoolObject
-    {
-      public:
-        typedef Pool<T, CreatorType> pool_type;
-        typedef PoolObject* ptr_type;
-        typedef const PoolObject* const_ptr_type;
-
-      private:
-        T* ptr;
-        pool_type* mypool;
-
-        mutable const_ptr_type prev;
-        mutable const_ptr_type next;
-
-        void unlink(bool reuse = true)
-        {
-          if (mypool)
+          void doUnlink()
           {
+            if (OwnershipPolicyType::unlink(object))
             {
-              MutexLock lock(mypool->mutex);
-              if (next == this)
-              {
-                if (reuse && (mypool->maxCount == 0 || mypool->currentCount <= mypool->maxCount))
-                  mypool->freePool.push(ptr);
-                else
-                {
-                  delete ptr;
-                  --mypool->currentCount;
-                }
-                mypool->objectAvailable.signal();
-              }
-              else
-              {
-                next->prev = prev;
-                prev->next = next;
-              }
+              if (pool == 0 || !pool->put(*this))
+                destroy(object);
             }
-            next = prev = this;
           }
-        }
 
-        void link(const PoolObject& s)
-        {
-          mypool = s.mypool;
-          ptr = s.ptr;
-          if (mypool)
+        public:
+          Ptr()
+            : object(0)
+            {}
+          Ptr(ObjectType* ptr)
+            : object(ptr)
+            { OwnershipPolicyType::link(*this, ptr); }
+          Ptr(const Ptr& ptr)
+            : object(ptr.object),
+              pool(ptr.pool)
+            { OwnershipPolicyType::link(ptr, ptr.object); }
+          ~Ptr()
+            { doUnlink(); }
+
+          Ptr& operator= (const Ptr& ptr)
           {
-            prev = &s;
-            next = s.next;
-            MutexLock lock(mypool->mutex);
-            prev->next = this;
-            next->prev = this;
+            if (object != ptr.object)
+            {
+              doUnlink();
+              object = ptr.object;
+              pool = ptr.pool;
+              OwnershipPolicyType::link(ptr, object);
+            }
+            return *this;
           }
-        }
 
-      public:
-        PoolObject()
-          : ptr(0),
-            mypool(0),
-            prev(this),
-            next(this)
-        { }
+          /// The object can be dereferenced like the held object
+          ObjectType* operator->() const              { return object; }
+          /// The object can be dereferenced like the held object
+          ObjectType& operator*() const               { return *object; }
 
-        PoolObject(T* o, pool_type& p)
-          : ptr(o),
-            mypool(&p),
-            prev(this),
-            next(this)
-        { }
+          bool operator== (const ObjectType* p) const { return object == p; }
+          bool operator!= (const ObjectType* p) const { return object != p; }
+          bool operator< (const ObjectType* p) const  { return object < p; }
+          bool operator! () const { return object == 0; }
+          operator bool () const  { return object != 0; }
 
-        PoolObject(const PoolObject& s)
-          : ptr(s.ptr),
-            mypool(s.mypool),
-            prev(this),
-            next(this)
+          ObjectType* getPointer()              { return object; }
+          const ObjectType* getPointer() const  { return object; }
+          operator ObjectType* ()               { return object; }
+          operator const ObjectType* () const   { return object; }
+
+          void setPool(Pool<ObjectType, CreatorType, OwnershipPolicy, DestroyPolicy>* p)
+          { pool = p; }
+
+          // don't put the object back to the pool
+          void release()
+          { pool = 0; }
+      };
+
+    private:
+      typedef std::vector<Ptr> Container;
+      Container freePool;
+      unsigned maxSpare;
+      mutable Mutex mutex;
+      CreatorType creator;
+
+      bool put(Ptr& po) // returns true, if object was put into the freePool vector
+      {
+        MutexLock lock(mutex);
+        if (maxSpare == 0 || freePool.size() < maxSpare)
         {
-          if (mypool)
-            link(s);
+          po.setPool(0);
+          freePool.push_back(po);
+          return true;
         }
 
-        ~PoolObject()
+        return false;
+      }
+
+    public:
+      explicit Pool(unsigned maxSpare_ = 0, CreatorType creator_ = CreatorType())
+        : maxSpare(maxSpare_),
+          creator(creator_)
+          { }
+
+      explicit Pool(CreatorType creator_)
+        : maxSpare(0),
+          creator(creator_)
+          { }
+
+      ~Pool()
+      {
+        freePool.clear();
+      }
+
+      Ptr get()
+      {
+        MutexLock lock(mutex);
+        Ptr po;
+        if (freePool.empty())
         {
-          unlink();
+          po = creator();
         }
-
-        PoolObject& operator= (const PoolObject& s)
+        else
         {
-          if (ptr != s.ptr)
-          {
-            unlink();
-            link(s);
-          }
-          return *this;
+          po = freePool.back();
+          freePool.pop_back();
         }
 
-        /**
-         The reference can be dropped before destruction.
-         */
-        void release(bool reuse = true)
-        {
-          unlink(reuse);
-          mypool = 0;
-        }
-
-        /// The object can be dereferenced like the held object
-        T* operator->() const              { return ptr; }
-        /// The object can be dereferenced like the held object
-        T& operator*() const               { return *ptr; }
-        /// The object is convertable to a pointer to the held object
-        operator T* () const               { return ptr; }
-        /// The object is convertable to a reference to the held object
-        operator T& () const               { return *ptr; }
-        bool operator== (const T* p) const { return ptr == p; }
-    };
-
-    friend class PoolObject;
-
-    typedef PoolObject objectptr_type;
-
-  private:
-    typedef std::stack<T*> objectcontainer_type;
-    unsigned currentCount;
-    unsigned maxCount;
-    objectcontainer_type freePool;
-    mutable Mutex mutex;
-    mutable Condition objectAvailable;
-    CreatorType creator;
-
-    // make non-copyable
-    Pool(const Pool&); // no implementation
-    Pool& operator= (const Pool&); // no implementation
-
-  public:
-    /// Create a Pool with a maximum count.
-    /// If count is 0, no limit is used
-    explicit Pool(unsigned _maxCount = 0, CreatorType _creator = CreatorType())
-      : currentCount(0),
-        maxCount(_maxCount),
-        creator(_creator)
-    { }
-
-    /// create a Pool without limit and a special creator
-    explicit Pool(CreatorType _creator)
-      : currentCount(0),
-        maxCount(0),
-        creator(_creator)
-    { }
-
-    /// destructing the Pool destroys all free objects too
-    ~Pool()
-    {
-      while (!freePool.empty())
-      {
-        delete freePool.top();
-        freePool.pop();
-      }
-    }
-
-    /**
-     Returns a wrapper-class, which helds the object in use.
-
-     This method does the actual work of the Pool. It creates new
-     objects, when needed and the upper limit is not reached.
-     */
-    objectptr_type get()
-    {
-      MutexLock lock(mutex);
-
-      if (maxCount > 0)
-        while (freePool.empty() && currentCount >= maxCount)
-          objectAvailable.wait(lock);
-
-      T* obj;
-
-      if (freePool.empty())
-      {
-        obj = creator();
-        ++currentCount;
-      }
-      else
-      {
-        obj = freePool.top();
-        freePool.pop();
+        po.setPool(this);
+        return po;
       }
 
-      lock.unlock();
-
-      objectptr_type po(obj, *this);
-      return po;
-    }
-
-    /**
-     Release all free objects.
-
-     A maximum number of objects kept can be passed.
-     Objects in use are not counted at all.
-     */
-    void drop(unsigned keep = 0)
-    {
-      MutexLock lock(mutex);
-      while (freePool.size() > keep)
+      void drop(unsigned keep = 0)
       {
-        delete freePool.top();
-        --currentCount;
-        freePool.pop();
-      }
-      objectAvailable.signal();
-    }
-
-    unsigned getCurrentSize() const
-    {
-      MutexLock lock(mutex);
-      return currentCount;
-    }
-
-    unsigned getMaximumSize() const
-    { return maxCount; }
-
-    void setMaximumSize(unsigned s)
-    {
-      MutexLock lock(mutex);
-      maxCount = s;
-      while (!freePool.empty() && currentCount > maxCount)
-      {
-        delete freePool.top();
-        --currentCount;
-        freePool.pop();
+        MutexLock lock(mutex);
+        if (freePool.size() > keep)
+          freePool.resize(keep);
       }
 
-    }
+      unsigned getMaximumSize() const
+      {
+        MutexLock lock(mutex);
+        return maxSpare;
+      }
 
-    CreatorType& getCreator()               { return creator; }
-    const CreatorType& getCreator() const   { return creator; }
-};
+      unsigned size() const
+      {
+        MutexLock lock(mutex);
+        return freePool.size();
+      }
+
+      unsigned getCurrentSize() const
+      {
+        MutexLock lock(mutex);
+        return freePool.size();
+      }
+
+      void setMaximumSize(unsigned s)
+      {
+        MutexLock lock(mutex);
+        maxSpare = s;
+        if (freePool.size() > s)
+          freePool.resize(s);
+      }
+
+      CreatorType& getCreator()
+      { return creator; }
+
+      const CreatorType& getCreator() const
+      { return creator; }
+
+  };
 
 }
-
-#endif // CXXTOOLS_POOL_H
-

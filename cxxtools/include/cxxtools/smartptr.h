@@ -33,7 +33,7 @@
 
 namespace cxxtools
 {
-  template <typename objectType>
+  template <typename ObjectType>
   class RefLinked
   {
       mutable const RefLinked* prev;
@@ -45,14 +45,14 @@ namespace cxxtools
           next(0)
           { }
 
-      bool unlink(objectType* object)
+      bool unlink(ObjectType* object)
       {
-        bool ret = false;
         if (object)
         {
           if (next == this)
           {
-            ret = true;
+            next = prev = 0;
+            return true;
           }
           else
           {
@@ -61,33 +61,40 @@ namespace cxxtools
           }
           next = prev = this;
         }
-        return ret;
+        return false;
       }
 
-      void link(const RefLinked& ptr, objectType* object)
+      void link(const RefLinked& ptr, ObjectType* object)
       {
         if (object)
         {
-          prev = &ptr;
-          next = ptr.next;
-          prev->next = this;
-          next->prev = this;
+          if (ptr.next)
+          {
+            prev = &ptr;
+            next = ptr.next;
+            prev->next = this;
+            next->prev = this;
+          }
+          else
+          {
+            prev = next = this;
+          }
         }
       }
   };
 
-  template <typename objectType>
+  template <typename ObjectType>
   class InternalRefCounted
   {
     protected:
-      bool unlink(objectType* object)
+      bool unlink(ObjectType* object)
       {
         if (object)
           object->release();
         return false;
       }
 
-      void link(const InternalRefCounted& ptr, objectType* object)
+      void link(const InternalRefCounted& ptr, ObjectType* object)
       {
         if (object)
           object->addRef();
@@ -95,7 +102,7 @@ namespace cxxtools
 
   };
 
-  template <typename objectType>
+  template <typename ObjectType>
   class ExternalRefCounted
   {
       unsigned* rc;
@@ -104,20 +111,19 @@ namespace cxxtools
       ExternalRefCounted()
         : rc(0)  { }
 
-      bool unlink(objectType* object)
+      bool unlink(ObjectType* object)
       {
         if (object && --*rc <= 0)
         {
           delete rc;
-          // no need to set rc to 0 since the pointer is either
-          // destroyed or another object is linked in
+          rc = 0;
           return true;
         }
         else
           return false;
       }
 
-      void link(const ExternalRefCounted& ptr, objectType* object)
+      void link(const ExternalRefCounted& ptr, ObjectType* object)
       {
         if (object)
         {
@@ -138,7 +144,7 @@ namespace cxxtools
         { return rc ? *rc : 0; }
   };
 
-  template <typename objectType>
+  template <typename ObjectType>
   class ExternalAtomicRefCounted
   {
       volatile atomic_t* rc;
@@ -147,20 +153,19 @@ namespace cxxtools
       ExternalAtomicRefCounted()
         : rc(0)  { }
 
-      bool unlink(objectType* object)
+      bool unlink(ObjectType* object)
       {
         if (object && atomicDecrement(*rc) <= 0)
         {
           delete rc;
-          // no need to set rc to 0 since the pointer is either
-          // destroyed or another object is linked in
+          rc = 0;
           return true;
         }
         else
           return false;
       }
 
-      void link(const ExternalAtomicRefCounted& ptr, objectType* object)
+      void link(const ExternalAtomicRefCounted& ptr, ObjectType* object)
       {
         if (object)
         {
@@ -181,11 +186,11 @@ namespace cxxtools
         { return rc ? *rc : 0; }
   };
 
-  template <typename objectType>
+  template <typename ObjectType>
   class DefaultDestroyPolicy
   {
     public:
-      static void destroy(objectType* ptr)
+      static void destroy(ObjectType* ptr)
       { delete ptr; }
   };
 
@@ -193,15 +198,15 @@ namespace cxxtools
   class FreeDestroyPolicy
   {
     protected:
-      void destroy(T* ptr)
+      static void destroy(T* ptr)
       { free(ptr); }
   };
 
-  template <typename objectType>
+  template <typename ObjectType>
   class ArrayDestroyPolicy
   {
     public:
-      static void destroy(objectType* ptr)
+      static void destroy(ObjectType* ptr)
       { delete[] ptr; }
   };
 
@@ -227,59 +232,59 @@ namespace cxxtools
    * makes it straight-forward to use.
    *
    */
-  template <typename objectType,
-            template <class> class ownershipPolicy = InternalRefCounted,
-            template <class> class destroyPolicy = DefaultDestroyPolicy>
-  class SmartPtr : public ownershipPolicy<objectType>,
-                   public destroyPolicy<objectType>
+  template <typename ObjectType,
+            template <class> class OwnershipPolicy = InternalRefCounted,
+            template <class> class DestroyPolicy = DefaultDestroyPolicy>
+  class SmartPtr : public OwnershipPolicy<ObjectType>,
+                   public DestroyPolicy<ObjectType>
   {
-      objectType* object;
-      typedef ownershipPolicy<objectType> ownershipPolicyType;
-      typedef destroyPolicy<objectType> destroyPolicyType;
+      ObjectType* object;
+      typedef OwnershipPolicy<ObjectType> OwnershipPolicyType;
+      typedef DestroyPolicy<ObjectType> DestroyPolicyType;
 
     public:
       SmartPtr()
         : object(0)
         {}
-      SmartPtr(objectType* ptr)
+      SmartPtr(ObjectType* ptr)
         : object(ptr)
-        { ownershipPolicyType::link(*this, ptr); }
+        { OwnershipPolicyType::link(*this, ptr); }
       SmartPtr(const SmartPtr& ptr)
         : object(ptr.object)
-        { ownershipPolicyType::link(ptr, ptr.object); }
+        { OwnershipPolicyType::link(ptr, ptr.object); }
       ~SmartPtr()
-        { if (ownershipPolicyType::unlink(object))
+        { if (OwnershipPolicyType::unlink(object))
             destroy(object); }
 
       SmartPtr& operator= (const SmartPtr& ptr)
       {
         if (object != ptr.object)
         {
-          if (ownershipPolicyType::unlink(object))
+          if (OwnershipPolicyType::unlink(object))
             destroy(object);
 
           object = ptr.object;
 
-          ownershipPolicyType::link(ptr, object);
+          OwnershipPolicyType::link(ptr, object);
         }
         return *this;
       }
 
       /// The object can be dereferenced like the held object
-      objectType* operator->() const              { return object; }
+      ObjectType* operator->() const              { return object; }
       /// The object can be dereferenced like the held object
-      objectType& operator*() const               { return *object; }
+      ObjectType& operator*() const               { return *object; }
 
-      bool operator== (const objectType* p) const { return object == p; }
-      bool operator!= (const objectType* p) const { return object != p; }
-      bool operator< (const objectType* p) const  { return object < p; }
+      bool operator== (const ObjectType* p) const { return object == p; }
+      bool operator!= (const ObjectType* p) const { return object != p; }
+      bool operator< (const ObjectType* p) const  { return object < p; }
       bool operator! () const { return object == 0; }
       operator bool () const  { return object != 0; }
 
-      objectType* getPointer()              { return object; }
-      const objectType* getPointer() const  { return object; }
-      operator objectType* ()               { return object; }
-      operator const objectType* () const   { return object; }
+      ObjectType* getPointer()              { return object; }
+      const ObjectType* getPointer() const  { return object; }
+      operator ObjectType* ()               { return object; }
+      operator const ObjectType* () const   { return object; }
   };
 
 }

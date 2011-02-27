@@ -45,7 +45,7 @@ class Connection
       log_info("create connection");
     }
 
-    Connection(const std::string& db_)
+    explicit Connection(const std::string& db_)
       : db(db_)
     {
       log_info("create connection to \"" << db << '"');
@@ -68,7 +68,7 @@ class Connector
     std::string db;
 
   public:
-    Connector(const std::string& db_)
+    explicit Connector(const std::string& db_)
       : db(db_)
       { }
     Connection* operator() ()
