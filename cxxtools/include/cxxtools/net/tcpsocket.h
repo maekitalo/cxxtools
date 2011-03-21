@@ -98,6 +98,10 @@ class CXXTOOLS_API TcpSocket : public IODevice
         short poll(short events) const;
 
     protected:
+        TcpSocket(TcpSocketImpl* impl)
+        : _impl(impl)
+        { }
+
         // inherit doc
         virtual void onClose();
 

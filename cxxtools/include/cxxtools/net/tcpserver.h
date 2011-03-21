@@ -91,4 +91,4 @@ namespace net
 
 } // namespace cxxtools
 
-#endif // CXXTOOLS_NET_TCPSTREAM_H
+#endif // CXXTOOLS_NET_TcpServer_H
