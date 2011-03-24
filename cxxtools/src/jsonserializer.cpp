@@ -116,7 +116,10 @@ void JsonFormatter::addValue(const std::string& name, const std::string& type,
 
     if (type == "int" || type == "double" || type == "bool")
     {
-        stringOut(value);
+        if (value == L"nan" || value == L"inf" || value == L"-inf")
+            *_ts << cxxtools::String(L"null");
+        else
+            stringOut(value);
     }
     else
     {
