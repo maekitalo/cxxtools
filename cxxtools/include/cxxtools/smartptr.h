@@ -235,7 +235,7 @@ namespace cxxtools
   */
   class DefaultDestroyPolicy
   {
-    protected:
+    public:
       static void destroy(ObjectType* ptr)
       { delete ptr; }
   };
@@ -243,7 +243,7 @@ namespace cxxtools
   template <typename T>
   class FreeDestroyPolicy
   {
-    protected:
+    public:
       static void destroy(T* ptr)
       { free(ptr); }
   };
@@ -251,7 +251,7 @@ namespace cxxtools
   template <typename ObjectType>
   class ArrayDestroyPolicy
   {
-    protected:
+    public:
       static void destroy(ObjectType* ptr)
       { delete[] ptr; }
   };
