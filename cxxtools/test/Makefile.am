@@ -8,6 +8,7 @@ noinst_PROGRAMS = \
     net-test \
     pool-test \
     process-test \
+    smartptr-test \
     uri-test \
     xmlreader-test \
     xmlrpc-test
@@ -22,7 +23,7 @@ alltests_SOURCES = \
     cache-test.cpp \
     convert-test.cpp \
     pool-test.cpp \
-    tcpsockettest.cpp \
+    smartptr-test.cpp \
     test-main.cpp \
     trim-test.cpp \
     uri-test.cpp \
@@ -43,6 +44,8 @@ process_test_SOURCES = test-main.cpp process-test.cpp
 process_test_CPPFLAGS = -I$(top_builddir)/include -DTOP_BUILDDIR='"$(abs_top_builddir)"'
 
 pool_test_SOURCES = test-main.cpp pool-test.cpp
+
+smartptr_test_SOURCES = test-main.cpp smartptr-test.cpp
 
 uri_test_SOURCES = test-main.cpp uri-test.cpp
 

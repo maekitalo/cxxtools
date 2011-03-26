@@ -33,7 +33,18 @@
 
 namespace cxxtools
 {
+  /**
+      \param ObjectType The managed object type
+  */
   template <typename ObjectType>
+  /** \brief Reference linking.
+
+      Reference linking means that no counter is required to keep track of
+      the smart pointer objects, but all smart pointers form a linked
+      list. When the list becomes empty the raw pointer si deleted. This
+      Model has the advantage that it does not need to allocate memory,
+      but is prone to circular dependencies.
+  */
   class RefLinked
   {
       mutable const RefLinked* prev;
@@ -45,6 +56,7 @@ namespace cxxtools
           next(0)
           { }
 
+      //! \brief Unlink a smart pointer from a managed object
       bool unlink(ObjectType* object)
       {
         if (object)
@@ -58,12 +70,13 @@ namespace cxxtools
           {
             next->prev = prev;
             prev->next = next;
+            next = prev = this;
           }
-          next = prev = this;
         }
         return false;
       }
 
+      //! \brief Link a smart pointer to a managed object
       void link(const RefLinked& ptr, ObjectType* object)
       {
         if (object)
@@ -81,12 +94,24 @@ namespace cxxtools
           }
         }
       }
+
   };
 
+  /**
+      \param ObjectType The managed object type
+  */
   template <typename ObjectType>
+  /** \brief Intrusive reference counting.
+
+      Intrusive reference couting means that the reference count is part of the
+      managed heap object. Linking and unlinking will only increase and decrease this
+      counter, but not delete it. The managed object needs to implement the functions
+      release() and addRef() and must delete itself if the counter reaches zero.
+  */
   class InternalRefCounted
   {
     protected:
+      //! \brief unlink a smart pointer from a managed object
       bool unlink(ObjectType* object)
       {
         if (object)
@@ -94,6 +119,7 @@ namespace cxxtools
         return false;
       }
 
+      //! \brief link a smart pointer to a managed object
       void link(const InternalRefCounted& ptr, ObjectType* object)
       {
         if (object)
@@ -102,7 +128,17 @@ namespace cxxtools
 
   };
 
+  /**
+      \param ObjectType The managed object type
+  */
   template <typename ObjectType>
+  /** \brief Non-intrusive reference counting.
+
+      Non-intrusive reference couting means that the reference count is not part of the
+      managed heap object but part of the policy. Linking and unlinking will increase and
+      decrease the policies counter and delete the managed object if it reaches zero. A
+      small amount of memory needs to be allocated for the counter variable.
+  */
   class ExternalRefCounted
   {
       unsigned* rc;
@@ -111,6 +147,7 @@ namespace cxxtools
       ExternalRefCounted()
         : rc(0)  { }
 
+      //! \brief unlink a smart pointer from a managed object
       bool unlink(ObjectType* object)
       {
         if (object && --*rc <= 0)
@@ -123,6 +160,7 @@ namespace cxxtools
           return false;
       }
 
+      //! \brief link a smart pointer to a managed object
       void link(const ExternalRefCounted& ptr, ObjectType* object)
       {
         if (object)
@@ -183,13 +221,21 @@ namespace cxxtools
 
     public:
       atomic_t refs() const
-        { return rc ? *rc : 0; }
+        { return rc ? atomicGet(*rc) : 0; }
   };
 
+  /**
+      \param ObjectType The managed object type
+  */
   template <typename ObjectType>
+  /** \brief deleter policy for smart pointer
+
+      The DeletePolicy implements the method, which instructs the SmartPtr to free the
+      object which it helds by deleting it.
+  */
   class DefaultDestroyPolicy
   {
-    public:
+    protected:
       static void destroy(ObjectType* ptr)
       { delete ptr; }
   };
@@ -205,7 +251,7 @@ namespace cxxtools
   template <typename ObjectType>
   class ArrayDestroyPolicy
   {
-    public:
+    protected:
       static void destroy(ObjectType* ptr)
       { delete[] ptr; }
   };

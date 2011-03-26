@@ -76,6 +76,7 @@ class PoolTest : public cxxtools::unit::TestSuite
           CXXTOOLS_UNIT_ASSERT_EQUALS(pool.size(), 0);
         }
 
+        CXXTOOLS_UNIT_ASSERT_EQUALS(pool.size(), 1);
         CXXTOOLS_UNIT_ASSERT_EQUALS(Object::ctorCount, 1);
       }
 
