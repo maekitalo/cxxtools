@@ -117,7 +117,6 @@ nobase_include_HEADERS = \
         cxxtools/slot.tpp \
         cxxtools/smartptr.h \
         cxxtools/sourceinfo.h \
-        cxxtools/sudo.h \
         cxxtools/streambuffer.h \
         cxxtools/streamcounter.h \
         cxxtools/stringdata.h \
