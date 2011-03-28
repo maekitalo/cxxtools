@@ -32,6 +32,7 @@
 #include <cxxtools/http/api.h>
 #include <string>
 #include <cstring>
+#include <utility>
 
 namespace cxxtools
 {
