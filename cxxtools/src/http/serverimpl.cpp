@@ -124,6 +124,7 @@ void ServerImpl::terminate()
         log_debug("wake " << _listener.size() << " listeners");
         for (ServerImpl::ListenerType::iterator it = _listener.begin(); it != _listener.end(); ++it)
             (*it)->wakeConnect();
+        _queue.put(0);
 
         log_debug("terminate " << _threads.size() << " threads");
         while (!_threads.empty() || !_terminatedThreads.empty())
