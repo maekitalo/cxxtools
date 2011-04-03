@@ -1,3 +1,108 @@
+2011-03-29 tommi@tntnet.org
+
+ - fix stopping http server without listener
+
+2011-03-27 tommi@tntnet.org
+
+ - remove cxxtools::sodo - it was non functional anyway
+
+2011-03-26 tommi@tntnet.org
+
+ - split rpcecho demo into separate client and server for simplification
+ - add documentation and unit test to smartptr and do some minor fixes
+ - make destroy policy method public in smartptr (it is called in tntnet directly)
+
+2011-03-24 tommi@tntnet.org
+
+ - make null from nan, inf and -inf in json serializer
+
+2011-02-27 tommi@tntnet.org
+
+ - reimplement cxxtools::pool using smart pointer instead of proxy object
+
+2011-02-04 tommi@tntnet.org
+
+ - do not pass output_iterator as reference to QueryParams::get to get unnamed params; iterators should be always by value
+
+2011-02-03 tommi@tntnet.org
+
+ - do not put boolean values into quotation marks in json
+
+2011-01-31 tommi@tntnet.org
+
+ - add demo for json serializer in a http server
+ - accept "inifity" for float and double values in convert
+ - add put_top method to cache to use it as a simple lru cache
+
+2011-01-29 tommi@tntnet.org
+
+ - improved support nan and inf in conversion functions for float and double
+
+2011-01-26 tommi@tntnet.org
+
+ - fix include guard in atomicity.h
+
+2011-01-24 tommi@tntnet.org
+
+ - fix data type in conversion function
+ - fix license header
+ - do not inline larger functions in cxxtools::convert
+
+2011-01-23 tommi@tntnet.org
+
+ - add compare operators to cxxtools::DateTime
+ - move some larger methods from DateTime to cpp file and other small code cleanup
+
+2011-01-16 tommi@tntnet.org
+
+ - do not use explicit IPv4 addresses in xmlrpc unittest
+
+2011-01-15 tommi@tntnet.org
+ - add static toString and toObject methods to serializers and deserializer to simplify api
+
+2010-12-31 tommi@tntnet.org
+ - fix some problems due to apache stl (were issues in cxxtools - not apache stl)
+
+2010-12-28 tommi@tntnet.org
+ - bugfix: accidentally removed allocation for string when copied
+ - 2 fixes for xmldeserialation:
+   - move type from tag name back to typeName in serializationinfo
+   - do not change category from Array to Object when elements are added to an array
+
+2010-12-27 tommi@tntnet.org
+ - add category to xmlserializer
+ - set type of serializationinfo in xmlrpc scanner
+ - reduce some more allocations
+
+2010-12-21 tommi@tntnet.org
+ - reduced library size by inlining trivial methods and other small optimizations
+
+2010-12-19 tommi@tntnet.org
+ - reduced allocations
+
+2010-12-18 tommi@tntnet.org
+ - reverse xml entity resolver
+ - better error reporting in failed unittests
+ - cxxtools::OStringStream and cxxtools::IStringStream as typedefs
+ - use reverse xml entity resolver in xml writer
+ - fix reading xml entities in xml attribute values
+ - pass strings by const reference instead of const copies in xml reader
+
+2010-12-17 tommi@tntnet.org
+ - remove need for static initialization and locking in xml entityresolver
+ - add xmlreader test frame
+
+2010-12-16 tommi@tntnet.org
+ - set xml attribute "type" in xmlserializer and read it in deserializer
+ - clean up some code (breaking abi)
+
+2010-12-16 tommi@tntnet.org
+ - fix parsing options like --option=value
+
+2010-12-13 tommi@tntnet.org
+ - small optimization in tcpserver: don't use poll in accept, if we have only one listener
+ - use static entity map with delayed initialization in xmlreader
+
 2010-12-10 tommi@tntnet.org
  - add query and fragment parts to uri class
 
@@ -28,8 +133,8 @@
  - add class cxxtools::net::Uri for parsing uris
 
 2010-11-05 tommi@tntnet.org
-close socket in http client when new address is set
-make selector settable in cxxtools::xmlrpc::HttpClient
+ - close socket in http client when new address is set
+ - make selector settable in cxxtools::xmlrpc::HttpClient
 
 2010-11-01 tommi@tntnet.org
  - add serialization operators to Date, Time and DateTime
