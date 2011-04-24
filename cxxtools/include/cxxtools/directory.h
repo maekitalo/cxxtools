@@ -25,8 +25,8 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-#ifndef PT_SYSTEM_DIRECTORY_H
-#define PT_SYSTEM_DIRECTORY_H
+#ifndef CXXTOOLS_DIRECTORY_H
+#define CXXTOOLS_DIRECTORY_H
 
 #include <cxxtools/sourceinfo.h>
 #include <cxxtools/fileinfo.h>

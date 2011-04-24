@@ -66,14 +66,14 @@
 namespace cxxtools {
 
 /** @brief Source code info class
-    @ingroup Pt
+    @ingroup cxxtools
 
     This class is used to store information about a location in the source 
-    code. The CXXTOOLS_SOURCEINFO macro can be used to construct a Pt::SourceInfo
+    code. The CXXTOOLS_SOURCEINFO macro can be used to construct a cxxtools::SourceInfo
     object conveniently.
 
     @code
-        Pt::SourceInfo si(PT_SOURCEINFO);
+        cxxtools::SourceInfo si(CXXTOOLS_SOURCEINFO);
 
         // print file, line and function
         std::cout << si.file() << std::endl;
@@ -88,7 +88,7 @@ class SourceInfo {
     public:
         /** @brief Constructor
 
-            Do not use the constructor directly, but the PT_SOURCEINFO
+            Do not use the constructor directly, but the CXXTOOLS_SOURCEINFO
             macro to take advantage of compiler specific macros to
             indicate the source file name, position and function name.
         */

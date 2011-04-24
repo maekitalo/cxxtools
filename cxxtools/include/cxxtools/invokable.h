@@ -35,6 +35,6 @@ namespace cxxtools {
 
 #include <cxxtools/invokable.tpp>
 
-} // namespace Pt
+} // namespace cxxtools
 
 #endif

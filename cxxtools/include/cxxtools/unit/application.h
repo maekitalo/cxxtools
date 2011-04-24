@@ -48,8 +48,8 @@ namespace unit {
         @code
             int main()
             {
-                Pt::Unit::Reporter reporter;
-                Pt::Unit::Application app;
+                cxxtools::Unit::Reporter reporter;
+                cxxtools::Unit::Application app;
                 app.setReporter(reporter);
                 return app.run();
             }

@@ -39,4 +39,4 @@ void TestProtocol::run(TestSuite& suite)
 
 } // namespace Unit
 
-} // namespace Pt
+} // namespace cxxtools

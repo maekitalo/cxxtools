@@ -45,14 +45,14 @@ namespace unit {
         std::exception and overrides std::exception::what() to return an
         error message Besides the error message, Assertions can provide
         information where the exception was raised in the source code through
-        a SourceInfo object. It is recommended to use the PT_UNIT_ASSERT
+        a SourceInfo object. It is recommended to use the CXXTOOLS_UNIT_ASSERT
         for easy creation from a source info object.
 
         @code
             void myTest()
             {
                 int ten = 5 + 5;
-                PT_UNIT_ASSERT(ten == 10)
+                CXXTOOLS_UNIT_ASSERT(ten == 10)
             }
         @endcode
     */
@@ -63,7 +63,7 @@ namespace unit {
 
                 Constructs a assertion exception from a message string
                 and a source info object that describes where the
-                assertion failed. Use the PT_UNIT_ASSERT macro instead
+                assertion failed. Use the CXXTOOLS_UNIT_ASSERT macro instead
                 of this constructor.
 
                 @param what Error message

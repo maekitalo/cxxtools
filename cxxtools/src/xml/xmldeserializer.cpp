@@ -116,7 +116,7 @@ void XmlDeserializer::onRootElement(const cxxtools::xml::Node& node)
             const cxxtools::xml::Characters& chars = static_cast<const cxxtools::xml::Characters&>(node);
             if(cxxtools::String::npos != chars.content().find_first_not_of(L" \t\n\r") )
             {
-                /// OLD: throw std::logic_error("Invalid element" + PT_SOURCEINFO);
+                /// OLD: throw std::logic_error("Invalid element" + CXXTOOLS_SOURCEINFO);
                 _deser->setValue( chars.content() ); /// NEW
                 _processNode = &XmlDeserializer::onContent;
             }
@@ -203,7 +203,7 @@ void XmlDeserializer::onStartElement(const cxxtools::xml::Node& node)
             _deser = _deser->beginMember(nodeName, nodeType, nodeCategory());
             _deser->setValue( cxxtools::String() );
             _deser = _deser->leaveMember();
-            //_current->addValue( _nodeName.narrow(), Pt::String() );
+            //_current->addValue( _nodeName.narrow(), cxxtools::String() );
 
             _processNode = &XmlDeserializer::onEndElement;
             break;

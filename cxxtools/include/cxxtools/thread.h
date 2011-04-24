@@ -26,8 +26,8 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-#if !defined(PT_SYSTEM_THREAD_H)
-#define PT_SYSTEM_THREAD_H
+#if !defined(CXXTOOLS_SYSTEM_THREAD_H)
+#define CXXTOOLS_SYSTEM_THREAD_H
 
 #include <cxxtools/noncopyable.h>
 #include <cxxtools/callable.h>
