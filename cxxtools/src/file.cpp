@@ -98,6 +98,16 @@ void File::move(const std::string& to)
     _path = to;
 }
 
+void File::link(const std::string& to)
+{
+    FileImpl::link(path().c_str(), to.c_str());
+}
+
+void File::symlink(const std::string& to)
+{
+    FileImpl::symlink(path().c_str(), to.c_str());
+}
+
 // TODO This should be done on a file system basis. If we'd have a relative file here,
 // with no path, and try to determine the parent, an empty string would be returned,
 // though a parent is available.

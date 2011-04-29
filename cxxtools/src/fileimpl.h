@@ -44,6 +44,10 @@ class FileImpl
 
         static void move(const std::string& path, const std::string& to);
 
+        static void link(const std::string& path, const std::string& to);
+
+        static void symlink(const std::string& path, const std::string& to);
+
         static void create(const std::string& path);
 };
 

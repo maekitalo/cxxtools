@@ -155,6 +155,20 @@ void FileImpl::move(const std::string& path, const std::string& to)
 }
 
 
+void FileImpl::link(const std::string& path, const std::string& to)
+{
+    if( 0 != ::link(path.c_str(), to.c_str()) )
+        throwFileErrno(path, CXXTOOLS_SOURCEINFO);
+}
+
+
+void FileImpl::symlink(const std::string& path, const std::string& to)
+{
+    if( 0 != ::symlink(path.c_str(), to.c_str()) )
+        throwFileErrno(path, CXXTOOLS_SOURCEINFO);
+}
+
+
 void FileImpl::create(const std::string& path)
 {
     int fd = open(path.c_str(), O_RDWR|O_EXCL|O_CREAT, 0777);

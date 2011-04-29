@@ -109,6 +109,10 @@ class File
         */
         void move(const std::string& to);
 
+        void link(const std::string& newpath);
+
+        void symlink(const std::string& newpath);
+
     public:
         //! @brief Creates a new file at the path given by \a path
         static File create(const std::string& path);
