@@ -148,10 +148,13 @@ namespace cxxtools
             void beautify(bool sw)    { _formatter.beautify(sw); }
 
             template <typename T>
-            static std::string toString(const T& type, const std::string& name)
+            static std::string toString(const T& type, const std::string& name, bool beautify = false)
             {
                 std::ostringstream os;
-                JsonSerializer s(os);
+                JsonSerializer s;
+                if (beautify)
+                  s.beautify(true);
+                s.begin(os);
                 s.serialize(type, name);
                 s.finish();
                 return os.str();

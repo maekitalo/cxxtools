@@ -33,12 +33,11 @@
 #include <cxxtools/serializer.h>
 #include <memory>
 #include <sstream>
+#include <cxxtools/xml/xmlwriter.h>
 
 namespace cxxtools {
 
 namespace xml {
-
-class XmlWriter;
 
 /** @brief Serialize objects or object data to XML
 
@@ -236,10 +235,12 @@ class XmlSerializer
         void flush();
 
         template <typename T>
-        static std::string toString(const T& type, const std::string& name)
+        static std::string toString(const T& type, const std::string& name, bool beautify = false)
         {
           std::ostringstream os;
-          XmlSerializer s(os);
+          XmlWriter writer(os, beautify ? XmlWriter::UseXmlDeclaration | XmlWriter::UseIndent | XmlWriter::UseEndl
+                                        : XmlWriter::UseXmlDeclaration);
+          XmlSerializer s(&writer);
           s.serialize(type, name);
           s.finish();
           return os.str();
