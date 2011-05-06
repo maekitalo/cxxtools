@@ -142,7 +142,7 @@ namespace cxxtools
     else if (loghost.isConnected())
       return udpmessage;
     else
-      return std::cout;
+      return std::cerr;
   }
 
   void LoggerImpl::logEnd(std::ostream& appender)
