@@ -82,6 +82,11 @@ inline void convert(String& s, const String& str)
     s = str;
 }
 
+inline void convert(std::string& s, const std::string& str)
+{
+    s = str;
+}
+
 CXXTOOLS_API void convert(String& s, bool value);
 
 CXXTOOLS_API void convert(bool& n, const String& str);
