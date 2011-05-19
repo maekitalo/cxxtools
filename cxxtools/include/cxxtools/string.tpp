@@ -1015,7 +1015,7 @@ basic_string<cxxtools::Char>::find_last_not_of(cxxtools::Char ch, size_type pos)
 }
 
 
-inline std::string basic_string<cxxtools::Char>::narrow() const
+inline std::string basic_string<cxxtools::Char>::narrow(char dfault) const
 {
     std::string ret;
     size_type len = this->length();
@@ -1024,7 +1024,7 @@ inline std::string basic_string<cxxtools::Char>::narrow() const
     ret.reserve(len);
 
     for(size_t n = 0; n < len; ++n){
-        ret.append( 1, s->narrow('_') );
+        ret.append( 1, s->narrow(dfault) );
         ++s;
     }
 

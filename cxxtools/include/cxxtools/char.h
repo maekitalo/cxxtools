@@ -121,7 +121,7 @@ namespace cxxtools {
              * @return An 8-bit char which is a narrowed representation of this character object or
              * the default character if this character object's value is out of range (>255).
              */
-            char narrow(char def) const;
+            char narrow(char def = '?') const;
 
             static Char null()
             {

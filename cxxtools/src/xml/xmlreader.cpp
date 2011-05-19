@@ -163,7 +163,7 @@ struct XmlReaderImpl
         virtual State* onAlpha(cxxtools::Char c, XmlReaderImpl& reader)
         {
             std::ostringstream msg;
-            msg << "unexpected alpha '" << c << '\'';
+            msg << "unexpected alpha '" << c.narrow() << '\'';
             syntaxError(msg.str().c_str(), reader.line());
             return this;
         }

@@ -340,7 +340,7 @@ class basic_string< cxxtools::Char > {
     public:
         void detach(size_type reserveSize);
 
-        std::string narrow() const;
+        std::string narrow(char dfault = '?') const;
 
         static basic_string widen(const std::string& str);
 
