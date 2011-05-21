@@ -48,7 +48,6 @@ nobase_include_HEADERS = \
         cxxtools/formatter.h \
         cxxtools/file.h \
         cxxtools/fileinfo.h \
-        cxxtools/fork.h \
         cxxtools/function.h \
         cxxtools/function.tpp \
         cxxtools/hdstream.h \
@@ -93,6 +92,8 @@ nobase_include_HEADERS = \
         cxxtools/noncopyable.h \
         cxxtools/pipe.h \
         cxxtools/pool.h \
+        cxxtools/posix/exec.h \
+        cxxtools/posix/fork.h \
         cxxtools/posix/pipe.h \
         cxxtools/posix/pipestream.h \
         cxxtools/process.h \

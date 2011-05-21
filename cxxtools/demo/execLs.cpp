@@ -27,10 +27,9 @@
  */
 
 #include <iostream>
-#include <cxxtools/fork.h>
+#include <cxxtools/posix/fork.h>
 #include <cxxtools/posix/pipestream.h>
-#include <cxxtools/iostream.h>
-#include <unistd.h>
+#include <cxxtools/posix/exec.h>
 
 // example for starting a sub process and reading its output through a stream
 //
@@ -43,7 +42,7 @@ int main(int argc, char* argv[])
     cxxtools::posix::Pipestream pipe;
 
     // Fork this process.
-    cxxtools::Fork fork;
+    cxxtools::posix::Fork fork;
 
     // This runs twice now.
 
@@ -59,9 +58,9 @@ int main(int argc, char* argv[])
       // This is not really needed since /bin/ls never reads from stdin.
       pipe.closeReadFd();
 
-      // replace the child process with /bin/ls
-      ::execl("/bin/ls", "/bin/ls", 0);
-      exit(1); // never reached
+      cxxtools::posix::Exec e("ls");
+      e.push_back("/bin");
+      e.exec();
     }
 
     // here we are in the parent process

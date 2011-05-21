@@ -32,7 +32,7 @@
  */
 #include <cxxtools/pipe.h>
 #include <cxxtools/posix/pipestream.h>
-#include <cxxtools/fork.h>
+#include <cxxtools/posix/fork.h>
 
 int main(int argc, char* argv[])
 {
@@ -44,7 +44,7 @@ int main(int argc, char* argv[])
     cxxtools::posix::Pipestream pstream;
 
     // fork child-process
-    cxxtools::Fork fork;
+    cxxtools::posix::Fork fork;
 
     if (fork.parent())
     {
