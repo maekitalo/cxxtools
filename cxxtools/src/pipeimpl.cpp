@@ -52,7 +52,7 @@ PipeIODevice::~PipeIODevice()
     {}
 }
 
-void PipeIODevice::redirect(int newFd, bool close)
+void PipeIODevice::redirect(int newFd, bool close, bool inherit)
 {
     int ret = ::dup2(fd(), newFd);
     if (ret < 0)
@@ -61,13 +61,13 @@ void PipeIODevice::redirect(int newFd, bool close)
     if (close)
     {
         IODevice::close();
-        _impl.open(newFd, async(), false);
+        _impl.open(newFd, async(), inherit);
     }
 }
 
 void PipeIODevice::open(int fd, bool isAsync)
 {
-    _impl.open(fd, isAsync, false);
+    _impl.open(fd, isAsync, true);
     this->setEnabled(true);
     this->setAsync(isAsync);
     this->setEof(false);
@@ -159,19 +159,19 @@ const PipeIODevice& PipeImpl::in() const
     return _in;
 }
 
-void PipeImpl::redirectStdin(bool close)
+void PipeImpl::redirectStdin(bool close, bool inherit)
 {
-    out().redirect(0, close);
+    out().redirect(0, close, inherit);
 }
 
-void PipeImpl::redirectStdout(bool close)
+void PipeImpl::redirectStdout(bool close, bool inherit)
 {
-    in().redirect(1, close);
+    in().redirect(1, close, inherit);
 }
 
-void PipeImpl::redirectStderr(bool close)
+void PipeImpl::redirectStderr(bool close, bool inherit)
 {
-    in().redirect(2, close);
+    in().redirect(2, close, inherit);
 }
 
 }

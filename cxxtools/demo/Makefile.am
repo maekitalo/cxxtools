@@ -1,7 +1,7 @@
 noinst_PROGRAMS = arg arg-set cgi dir dlloader getini hd \
 	httprequest httpserver log logbench logsh md5sum mime multifstream netcat \
 	netio netmsg pipestream pool signals thread threadpool uuencode cxxlog \
-	rpcechoserver rpcechoclient splitter json regex
+	rpcechoserver rpcechoclient splitter json regex execLs
 
 arg_SOURCES = arg.cpp
 arg_set_SOURCES = arg-set.cpp
@@ -33,6 +33,7 @@ rpcechoclient_SOURCES = rpcechoclient.cpp
 splitter_SOURCES = splitter.cpp
 json_SOURCES = json.cpp
 regex_SOURCES = regex.cpp
+execLs_SOURCES = execLs.cpp
 
 if MAKE_ICONVSTREAM
 noinst_PROGRAMS += iconv

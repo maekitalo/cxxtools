@@ -64,15 +64,15 @@ class CXXTOOLS_API Pipe : public cxxtools::Pipe
 
         /// Redirect write-end to stdout.
         /// When the close argument is set, closes the original filedescriptor
-        void redirectStdout(bool close = true);
+        void redirectStdout(bool close = true, bool inherit = true);
 
         /// Redirect read-end to stdin.
         /// When the close argument is set, closes the original filedescriptor
-        void redirectStdin(bool close = true);
+        void redirectStdin(bool close = true, bool inherit = true);
 
         /// Redirect write-end to stdout.
         /// When the close argument is set, closes the original filedescriptor
-        void redirectStderr(bool close = true);
+        void redirectStderr(bool close = true, bool inherit = true);
 
         size_t write(const char* buf, size_t count)
         {

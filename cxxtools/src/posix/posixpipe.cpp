@@ -46,21 +46,21 @@ int Pipe::getWriteFd() const
 
 /// Redirect read-end to stdin.
 /// When the close argument is set, closes the original filedescriptor
-void Pipe::redirectStdin(bool close)
+void Pipe::redirectStdin(bool close, bool inherit)
 {
-    impl()->out().redirect(0, close);
+    impl()->out().redirect(0, close, inherit);
 }
 
-void Pipe::redirectStdout(bool close)
+void Pipe::redirectStdout(bool close, bool inherit)
 {
-    impl()->in().redirect(1, close);
+    impl()->in().redirect(1, close, inherit);
 }
 
 /// Redirect write-end to stdout.
 /// When the close argument is set, closes the original filedescriptor
-void Pipe::redirectStderr(bool close)
+void Pipe::redirectStderr(bool close, bool inherit)
 {
-    impl()->in().redirect(2, close);
+    impl()->in().redirect(2, close, inherit);
 }
 
 }

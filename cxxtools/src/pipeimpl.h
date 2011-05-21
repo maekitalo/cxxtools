@@ -49,7 +49,7 @@ class PipeIODevice : public IODevice
         int fd() const
         { return _impl.fd(); }
 
-        void redirect(int fd, bool close = true);
+        void redirect(int fd, bool close, bool inherit);
 
     protected:
         void open(int fd, bool isAsync);
@@ -105,7 +105,7 @@ class PipeImpl
 
         const PipeIODevice& out() const;
 
-        void redirect(int fd, bool close = true);
+        void redirect(int fd, bool close, bool inherit);
 
         int getReadFd() const
             { return out().fd(); }
@@ -115,15 +115,15 @@ class PipeImpl
 
         /// Redirect write-end to stdout.
         /// When the close argument is set, closes the original filedescriptor
-        void redirectStdout(bool close = true);
+        void redirectStdout(bool close, bool inherit);
 
         /// Redirect read-end to stdin.
         /// When the close argument is set, closes the original filedescriptor
-        void redirectStdin(bool close = true);
+        void redirectStdin(bool close, bool inherit);
 
         /// Redirect write-end to stdout.
         /// When the close argument is set, closes the original filedescriptor
-        void redirectStderr(bool close = true);
+        void redirectStderr(bool close, bool inherit);
 
     private:
         PipeIODevice _out;
