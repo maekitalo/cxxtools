@@ -66,6 +66,13 @@ namespace posix
       void redirectStdout(bool close = true)   { pipe.redirectStdout(close); }
       void redirectStdin(bool close = true)    { pipe.redirectStdin(close); }
       void redirectStderr(bool close = true)   { pipe.redirectStderr(close); }
+
+      IODevice& out()
+      { return pipe.out(); }
+
+      IODevice& in()
+      { return pipe.in(); }
+
   };
 
   class Pipestream : public std::iostream
@@ -94,6 +101,13 @@ namespace posix
       void redirectStdout(bool close = true)   { streambuf.redirectStdout(close); }
       void redirectStdin(bool close = true)    { streambuf.redirectStdin(close); }
       void redirectStderr(bool close = true)   { streambuf.redirectStderr(close); }
+
+      IODevice& out()
+      { return streambuf.out(); }
+
+      IODevice& in()
+      { return streambuf.in(); }
+
   };
 }
 }

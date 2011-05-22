@@ -69,16 +69,24 @@ namespace cxxtools
         pid_t pid;
 
       public:
-        Fork()
-          : pid(::fork())
+        Fork(bool now = true)
+          : pid(0)
         {
-          if (pid < 0)
-            throw SysError("fork");
+          if (now)
+            fork();
         }
+
         ~Fork()
         {
           if (pid)
             wait();
+        }
+
+        void fork()
+        {
+          pid = ::fork();
+          if (pid < 0)
+            throw SysError("fork");
         }
 
         pid_t getPid() const  { return pid; }

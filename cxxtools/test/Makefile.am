@@ -7,7 +7,6 @@ noinst_PROGRAMS = \
     convert-test \
     net-test \
     pool-test \
-    process-test \
     smartptr-test \
     uri-test \
     xmlreader-test \
@@ -39,9 +38,6 @@ cache_test_SOURCES = test-main.cpp cache-test.cpp
 convert_test_SOURCES = test-main.cpp convert-test.cpp
 
 net_test_SOURCES = test-main.cpp tcpsockettest.cpp
-
-process_test_SOURCES = test-main.cpp process-test.cpp
-process_test_CPPFLAGS = -I$(top_builddir)/include -DTOP_BUILDDIR='"$(abs_top_builddir)"'
 
 pool_test_SOURCES = test-main.cpp pool-test.cpp
 

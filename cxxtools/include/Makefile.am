@@ -92,6 +92,8 @@ nobase_include_HEADERS = \
         cxxtools/noncopyable.h \
         cxxtools/pipe.h \
         cxxtools/pool.h \
+        cxxtools/posix/commandinput.h \
+        cxxtools/posix/commandoutput.h \
         cxxtools/posix/exec.h \
         cxxtools/posix/fork.h \
         cxxtools/posix/pipe.h \

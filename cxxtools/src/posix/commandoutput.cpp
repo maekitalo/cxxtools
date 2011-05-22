@@ -26,31 +26,29 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <iostream>
 #include <cxxtools/posix/commandoutput.h>
+#include <cxxtools/posix/pipestream.h>
+#include <stdexcept>
 
-// example for starting a sub process and reading its output through a stream
-//
-int main(int argc, char* argv[])
+namespace cxxtools
 {
-  try
+  namespace posix
   {
-    // create a class of type CommandOutput
-    cxxtools::posix::CommandOutput ls("ls");
+    void CommandOutput::run(bool combineStderr)
+    {
+      _fork.fork();
+      if (_fork.child())
+      {
+        streambuf.redirectStdout();
+        if (combineStderr)
+          streambuf.redirectStderr(false);
 
-    // add some parameters
-    ls.push_back("-l");
-    ls.push_back("/bin");
+        streambuf.closeReadFd();
+        _exec.exec();
+      }
 
-    // run the process
-    ls.run();
+      streambuf.closeWriteFd();
+    }
 
-    // read the output of the process (copy it to std::cout here)
-    std::cout << ls.rdbuf();
-  }
-  catch (const std::exception& e)
-  {
-    std::cerr << e.what() << std::endl;
   }
 }
-
