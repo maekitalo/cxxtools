@@ -127,7 +127,6 @@ nobase_include_HEADERS = \
         cxxtools/string.h \
         cxxtools/string.tpp \
         cxxtools/stringstream.h \
-        cxxtools/syserror.h \
         cxxtools/systemerror.h \
         cxxtools/tee.h \
         cxxtools/textbuffer.h \
