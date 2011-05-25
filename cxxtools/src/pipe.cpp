@@ -28,9 +28,6 @@
 
 #include "cxxtools/pipe.h"
 #include "pipeimpl.h"
-#include "cxxtools/syserror.h"
-#include <errno.h>
-#include <string>
 
 namespace cxxtools
 {

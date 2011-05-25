@@ -32,7 +32,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
-#include <cxxtools/syserror.h>
+#include <cxxtools/systemerror.h>
 
 namespace cxxtools
 {
@@ -86,7 +86,7 @@ namespace cxxtools
         {
           pid = ::fork();
           if (pid < 0)
-            throw SysError("fork");
+            throw SystemError("fork");
         }
 
         pid_t getPid() const  { return pid; }

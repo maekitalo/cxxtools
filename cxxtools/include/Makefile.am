@@ -98,7 +98,6 @@ nobase_include_HEADERS = \
         cxxtools/posix/fork.h \
         cxxtools/posix/pipe.h \
         cxxtools/posix/pipestream.h \
-        cxxtools/process.h \
         cxxtools/properties.h \
         cxxtools/query_params.h \
         cxxtools/queue.h \

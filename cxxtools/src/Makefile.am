@@ -53,8 +53,6 @@ libcxxtools_la_SOURCES = \
 	posix/commandoutput.cpp \
 	posix/pipestream.cpp \
 	posix/posixpipe.cpp \
-	process.cpp \
-	processimpl.cpp \
 	properties.cpp \
 	query_params.cpp \
 	quotedprintablestream.cpp \

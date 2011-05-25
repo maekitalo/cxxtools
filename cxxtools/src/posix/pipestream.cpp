@@ -27,7 +27,7 @@
  */
 
 #include <cxxtools/posix/pipestream.h>
-#include <cxxtools/syserror.h>
+#include <cxxtools/systemerror.h>
 #include <algorithm>
 #include <unistd.h>
 #include <cxxtools/log.h>

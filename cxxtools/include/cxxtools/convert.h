@@ -37,7 +37,7 @@
 #include <sstream>
 #include <string>
 #include <typeinfo>
- 
+
 namespace cxxtools
 {
 
