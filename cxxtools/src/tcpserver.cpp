@@ -29,10 +29,26 @@
 #include "tcpserverimpl.h"
 #include <cxxtools/net/tcpserver.h>
 #include <memory>
+#include <sstream>
 
 namespace cxxtools {
 
 namespace net {
+
+namespace
+{
+  std::string AddressInUseMsg(const std::string& ipaddr, unsigned short int port)
+  {
+    std::ostringstream msg;
+    msg << "address " << ipaddr << ':' << port << " in use";
+    return msg.str();
+  }
+}
+
+AddressInUse::AddressInUse(const std::string& ipaddr, unsigned short int port)
+    : IOError(AddressInUseMsg(ipaddr, port))
+{
+}
 
 TcpServer::TcpServer()
 : _impl(0)

@@ -201,7 +201,7 @@ void TcpServerImpl::listen(const std::string& ipaddr, unsigned short int port, i
     if (_listeners.empty())
     {
         if (errno == EADDRINUSE)
-            throw AddressInUse();
+            throw AddressInUse(ipaddr, port);
         else
             throw SystemError(fn);
     }

@@ -47,6 +47,8 @@ namespace net
       AddressInUse()
         : IOError("address in use")
         { }
+
+      AddressInUse(const std::string& ipaddr, unsigned short int port);
   };
 
   class CXXTOOLS_API TcpServer : public Selectable
