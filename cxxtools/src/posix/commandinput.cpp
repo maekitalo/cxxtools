@@ -41,7 +41,14 @@ namespace cxxtools
       {
         streambuf.redirectStdin();
         streambuf.closeWriteFd();
-        _exec.exec();
+        try
+        {
+          _exec.exec();
+        }
+        catch (const SystemError&)
+        {
+          ::_exit(-1);
+        }
       }
 
       streambuf.closeReadFd();

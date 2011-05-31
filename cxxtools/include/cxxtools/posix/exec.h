@@ -81,7 +81,7 @@ namespace cxxtools
         {
           args[argc + 1] = 0;
           ::execvp(args[0], args);
-          throw cxxtools::SystemError("execvp");
+          throw SystemError("execvp");
         }
     };
 
