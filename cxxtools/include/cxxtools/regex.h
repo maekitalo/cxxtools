@@ -80,6 +80,7 @@ namespace cxxtools
       bool match(const std::string& str_, int eflags = 0) const;
 
       void free()  { expr = 0; }
+      bool empty() const    { return expr.getPointer() == 0; }
   };
 
   /// collects matches in a regex

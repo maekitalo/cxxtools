@@ -311,59 +311,6 @@ void ServerImpl::onKeepAliveTimeout(const KeepAliveTimeoutEvent& event)
     delete socket;
 }
 
-void ServerImpl::addService(const std::string& url, Service& service)
-{
-    log_debug("add service for url <" << url << '>');
-
-    WriteLock serviceLock(_serviceMutex);
-    _services.insert(ServicesType::value_type(url, &service));
-}
-
-void ServerImpl::removeService(Service& service)
-{
-    WriteLock serviceLock(_serviceMutex);
-    service.waitIdle();
-
-    ServicesType::iterator it = _services.begin();
-    while (it != _services.end())
-    {
-        if (it->second == &service)
-        {
-            _services.erase(it++);
-        }
-        else
-        {
-            ++it;
-        }
-    }
-}
-
-Responder* ServerImpl::getResponder(const Request& request)
-{
-    log_debug("get responder for url <" << request.url() << '>');
-
-    ReadLock serviceLock(_serviceMutex);
-
-    for (ServicesType::const_iterator it = _services.lower_bound(request.url());
-        it != _services.end() && it->first == request.url(); ++it)
-    {
-        if (!it->second->checkAuth(request))
-        {
-            return _noAuthService.createResponder(request, it->second->realm(), it->second->authContent());
-        }
-
-        Responder* resp = it->second->doCreateResponder(request);
-        if (resp)
-        {
-            log_debug("got responder");
-            return resp;
-        }
-    }
-
-    log_debug("use default responder");
-    return _defaultService.createResponder(request);
-}
-
 
 }
 }

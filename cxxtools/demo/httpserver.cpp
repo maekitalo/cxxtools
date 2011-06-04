@@ -31,6 +31,7 @@
 #include <cxxtools/http/reply.h>
 #include <cxxtools/http/responder.h>
 #include <cxxtools/eventloop.h>
+#include <cxxtools/regex.h>
 #include <cxxtools/log.h>
 #include <cxxtools/arg.h>
 
@@ -124,7 +125,8 @@ int main(int argc, char* argv[])
     if (auth)
       service.addAuthenticator(&authenticator);
 
-    server.addService("/hello", service);
+    server.addService(cxxtools::Regex("ll"), service);
+    //server.addService("/hello", service);
     loop.run();
   }
   catch (const std::exception& e)

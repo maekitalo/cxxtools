@@ -70,6 +70,11 @@ void Server::addService(const std::string& url, Service& service)
     _impl->addService(url, service);
 }
 
+void Server::addService(const Regex& url, Service& service)
+{
+    _impl->addService(url, service);
+}
+
 void Server::removeService(Service& service)
 {
     _impl->removeService(service);

@@ -39,6 +39,7 @@ namespace cxxtools
 {
 
 class EventLoopBase;
+class Regex;
 
 namespace http
 {
@@ -57,6 +58,7 @@ class CXXTOOLS_HTTP_API Server : private cxxtools::NonCopyable
         void listen(const std::string& ip, unsigned short int port, int backlog = 5);
 
         void addService(const std::string& url, Service& service);
+        void addService(const Regex& url, Service& service);
         void removeService(Service& service);
 
         std::size_t readTimeout() const;

@@ -6,6 +6,7 @@ libcxxtools_http_la_SOURCES = \
     chunkedreader.cpp \
     client.cpp \
     clientimpl.cpp \
+    mapper.cpp \
     messageheader.cpp \
     notauthenticatedresponder.cpp \
     notauthenticatedservice.cpp \

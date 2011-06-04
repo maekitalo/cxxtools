@@ -34,12 +34,10 @@
 #include <cxxtools/queue.h>
 #include <cxxtools/connectable.h>
 #include <cxxtools/event.h>
+#include <cxxtools/noncopyable.h>
 #include <cxxtools/http/server.h>
-#include <cxxtools/http/service.h>
-#include <cxxtools/http/responder.h>
+#include "mapper.h"
 #include "socket.h"
-#include "notfoundservice.h"
-#include "notauthenticatedservice.h"
 
 namespace cxxtools
 {
@@ -121,7 +119,7 @@ class ActiveSocketEvent : public BasicEvent<ActiveSocketEvent>
 
 };
 
-class ServerImpl : public Connectable
+class ServerImpl : public Connectable, private NonCopyable
 {
     public:
         ServerImpl(EventLoopBase& eventLoop, Signal<Server::Runmode>& runmodeChanged);
@@ -130,12 +128,17 @@ class ServerImpl : public Connectable
         void listen(const std::string& ip, unsigned short int port, int backlog);
         void noWaitingThreads();
 
-        void addService(const std::string& url, Service& service);
-        void removeService(Service& service);
+        void addService(const std::string& url, Service& service)
+        { _mapper.addService(url, service); }
+        void addService(const Regex& url, Service& service)
+        { _mapper.addService(url, service); }
+        void removeService(Service& service)
+        { _mapper.removeService(service); }
 
-        Responder* getResponder(const Request& request);
+        Responder* getResponder(const Request& request)
+            { return _mapper.getResponder(request); }
         Responder* getDefaultResponder(const Request& request)
-            { return _defaultService.createResponder(request); }
+            { return _mapper.getDefaultResponder(request); }
 
         std::size_t readTimeout() const       { return _readTimeout; }
         std::size_t writeTimeout() const      { return _writeTimeout; }
@@ -212,12 +215,7 @@ class ServerImpl : public Connectable
         Condition _threadTerminated;
         void threadTerminated(Worker* worker);
 
-        ////////////////////////////////////////////////////
-        typedef std::multimap<std::string, Service*> ServicesType;
-        ReadWriteMutex _serviceMutex;
-        ServicesType _services;
-        NotFoundService _defaultService;
-        NotAuthenticatedService _noAuthService;
+        Mapper _mapper;
 };
 
 }
