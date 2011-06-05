@@ -28,6 +28,7 @@
 
 #include <cxxtools/http/responder.h>
 #include <cxxtools/http/reply.h>
+#include <cxxtools/http/request.h>
 
 namespace cxxtools
 {
@@ -36,6 +37,7 @@ namespace http
 
 void Responder::beginRequest(std::istream& in, Request& request)
 {
+    _request = &request;
 }
 
 std::size_t Responder::readBody(std::istream& in)
@@ -45,7 +47,7 @@ std::size_t Responder::readBody(std::istream& in)
     std::size_t ret = 0;
     while (sb->in_avail() > 0)
     {
-        sb->sbumpc();
+        _request->body() << std::streambuf::traits_type::to_char_type(sb->sbumpc());
         ++ret;
     }
 

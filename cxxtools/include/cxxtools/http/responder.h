@@ -60,6 +60,7 @@ class CXXTOOLS_HTTP_API Responder
 
     private:
         Service& _service;
+        Request* _request;
 };
 
 } // namespace http
