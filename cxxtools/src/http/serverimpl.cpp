@@ -31,6 +31,7 @@
 #include <cxxtools/eventloop.h>
 #include <cxxtools/log.h>
 #include "listener.h"
+#include <signal.h>
 
 log_define("cxxtools.http.server.impl")
 
