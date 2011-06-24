@@ -56,7 +56,7 @@ class BasicIStream : public std::basic_istream<CharT>
         {
             BasicStreamBuffer<CharT>* tmp = _buffer;
             _buffer = buffer;
-            rdbuf(buffer);
+            this->rdbuf(buffer);
             return tmp;
         }
 
@@ -106,7 +106,7 @@ class BasicOStream : public std::basic_ostream<CharT>
         {
             BasicStreamBuffer<CharT>* tmp = _buffer;
             _buffer = buffer;
-            rdbuf(buffer);
+            this->rdbuf(buffer);
             return tmp;
         }
 
@@ -152,7 +152,7 @@ class BasicIOStream : public std::basic_iostream<CharT>
         {
             BasicStreamBuffer<CharT>* tmp = _buffer;
             _buffer = buffer;
-            rdbuf(buffer);
+            this->rdbuf(buffer);
             return tmp;
         }
 
