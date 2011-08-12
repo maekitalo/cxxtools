@@ -129,7 +129,7 @@ iconvstreambuf::int_type iconvstreambuf::overflow(int_type c)
           &inbufptr, &inbytesleft,
           &outbufptr, &outbytesleft);
 
-    if (s < 0 && errno != 0 && errno != EINVAL && errno != E2BIG)
+    if (s == size_t(-1) && errno != 0 && errno != EINVAL && errno != E2BIG)
     {
       log_warn("convert failed");
       return traits_type::eof();
