@@ -54,7 +54,7 @@ class SmartPtrTest : public cxxtools::unit::TestSuite
 {
     public:
         SmartPtrTest()
-        : cxxtools::unit::TestSuite( "SmartPtrTest" )
+        : cxxtools::unit::TestSuite( "SmartPtr" )
         {
             registerMethod( "RefCounted", *this, &SmartPtrTest::RefCounted );
             registerMethod( "InternalRefCounted", *this, &SmartPtrTest::InternalRefCounted );

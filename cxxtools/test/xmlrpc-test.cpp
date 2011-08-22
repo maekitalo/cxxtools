@@ -77,7 +77,7 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
 
     public:
         XmlRpcTest()
-        : cxxtools::unit::TestSuite("cxxtools-xmlrpc-Test")
+        : cxxtools::unit::TestSuite("xmlrpc")
         {
             registerMethod("Fault", *this, &XmlRpcTest::Fault);
             registerMethod("Exception", *this, &XmlRpcTest::Exception);

@@ -1,16 +1,6 @@
 noinst_PROGRAMS = \
     abort \
-    alltests \
-    arg-test \
-    base64-test \
-    cache-test \
-    convert-test \
-    net-test \
-    pool-test \
-    smartptr-test \
-    uri-test \
-    xmlreader-test \
-    xmlrpc-test
+    alltests
 
 AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/include -I$(top_srcdir)/include
 
@@ -27,27 +17,8 @@ alltests_SOURCES = \
     trim-test.cpp \
     uri-test.cpp \
     xmlreader-test.cpp \
-    xmlrpc-test.cpp
-
-arg_test_SOURCES = test-main.cpp arg-test.cpp
-
-base64_test_SOURCES = test-main.cpp base64-test.cpp
-
-cache_test_SOURCES = test-main.cpp cache-test.cpp
-
-convert_test_SOURCES = test-main.cpp convert-test.cpp
-
-net_test_SOURCES = test-main.cpp tcpsockettest.cpp
-
-pool_test_SOURCES = test-main.cpp pool-test.cpp
-
-smartptr_test_SOURCES = test-main.cpp smartptr-test.cpp
-
-uri_test_SOURCES = test-main.cpp uri-test.cpp
-
-xmlreader_test_SOURCES = test-main.cpp xmlreader-test.cpp
-
-xmlrpc_test_SOURCES = test-main.cpp xmlrpc-test.cpp
+    xmlrpc-test.cpp \
+    xmlserializer-test.cpp
 
 LDADD = $(top_builddir)/src/libcxxtools.la \
         $(top_builddir)/src/unit/libcxxtools-unit.la \

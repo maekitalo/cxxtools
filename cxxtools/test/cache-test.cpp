@@ -34,7 +34,7 @@ class CacheTest : public cxxtools::unit::TestSuite
 {
     public:
         CacheTest()
-        : cxxtools::unit::TestSuite("cxxtools-cache-Test")
+        : cxxtools::unit::TestSuite("cache")
         {
             registerMethod("cacheTest", *this, &CacheTest::cacheTest);
         }

@@ -46,7 +46,7 @@ class ArgTest : public cxxtools::unit::TestSuite
 
     public:
         ArgTest()
-        : cxxtools::unit::TestSuite("cxxtools-arg-Test")
+        : cxxtools::unit::TestSuite("arg")
         {
             registerMethod("testArgBool", *this, &ArgTest::testArgBool);
             registerMethod("testArgCharP", *this, &ArgTest::testArgCharP);

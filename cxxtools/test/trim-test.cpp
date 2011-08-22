@@ -34,7 +34,7 @@ class TrimTest : public cxxtools::unit::TestSuite
 {
     public:
         TrimTest()
-        : cxxtools::unit::TestSuite("cxxtools-trim-Test")
+        : cxxtools::unit::TestSuite("trim")
         {
             registerMethod("ltrimTest", *this, &TrimTest::ltrimTest);
             registerMethod("rtrimTest", *this, &TrimTest::rtrimTest);

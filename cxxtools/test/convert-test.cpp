@@ -36,7 +36,7 @@ class ConvertTest : public cxxtools::unit::TestSuite
 {
     public:
         ConvertTest()
-        : cxxtools::unit::TestSuite("cxxtools-convert-Test")
+        : cxxtools::unit::TestSuite("convert")
         {
             registerMethod("successTest", *this, &ConvertTest::successTest);
             registerMethod("failTest", *this, &ConvertTest::failTest);

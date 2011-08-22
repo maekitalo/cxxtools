@@ -35,7 +35,7 @@ class XmlReaderTest : public cxxtools::unit::TestSuite
 {
     public:
         XmlReaderTest()
-        : cxxtools::unit::TestSuite("cxxtools-xmlreader-Test")
+        : cxxtools::unit::TestSuite("xmlreader")
         {
             registerMethod("XmlEntity", *this, &XmlReaderTest::XmlEntity);
             registerMethod("ReverseEntity", *this, &XmlReaderTest::ReverseEntity);

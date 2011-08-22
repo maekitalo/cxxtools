@@ -37,7 +37,7 @@ class ProcessTest : public cxxtools::unit::TestSuite
 {
     public:
         ProcessTest()
-        : cxxtools::unit::TestSuite("cxxtools-process-Test")
+        : cxxtools::unit::TestSuite("process")
         {
             registerMethod("grepFilter", *this, &ProcessTest::grepFilter);
             registerMethod("processFail", *this, &ProcessTest::processFail);

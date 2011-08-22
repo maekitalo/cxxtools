@@ -36,7 +36,7 @@ class Base64Test : public cxxtools::unit::TestSuite
 {
     public:
         Base64Test()
-        : cxxtools::unit::TestSuite("cxxtools-base64-Test")
+        : cxxtools::unit::TestSuite("base64")
         {
             registerMethod("encodeTest0", *this, &Base64Test::encodeTest0);
             registerMethod("encodeTest1", *this, &Base64Test::encodeTest1);

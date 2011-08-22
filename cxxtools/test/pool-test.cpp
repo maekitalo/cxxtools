@@ -45,7 +45,7 @@ class PoolTest : public cxxtools::unit::TestSuite
 
   public:
     PoolTest()
-    : cxxtools::unit::TestSuite("cxxtools-pool-Test")
+    : cxxtools::unit::TestSuite("pool")
     {
       registerMethod("poolTest", *this, &PoolTest::poolTest);
       registerMethod("maxspareTest", *this, &PoolTest::maxspareTest);

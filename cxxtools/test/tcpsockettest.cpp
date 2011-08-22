@@ -37,7 +37,7 @@ class TcpSocketTest : public cxxtools::unit::TestSuite
 {
     public:
         TcpSocketTest()
-        : cxxtools::unit::TestSuite("TcpSocketTest")
+        : cxxtools::unit::TestSuite("TcpSocket")
         {
             this->registerMethod( "NonBlockingWithSelector", *this,
                                   &TcpSocketTest::NonBlockingWithSelector);
