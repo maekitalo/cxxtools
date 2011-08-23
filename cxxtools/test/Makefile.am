@@ -1,10 +1,7 @@
 noinst_PROGRAMS = \
-    abort \
     alltests
 
 AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/include -I$(top_srcdir)/include
-
-abort_SOURCES = abort.cpp
 
 alltests_SOURCES = \
     arg-test.cpp \
@@ -17,8 +14,7 @@ alltests_SOURCES = \
     trim-test.cpp \
     uri-test.cpp \
     xmlreader-test.cpp \
-    xmlrpc-test.cpp \
-    xmlserializer-test.cpp
+    xmlrpc-test.cpp
 
 LDADD = $(top_builddir)/src/libcxxtools.la \
         $(top_builddir)/src/unit/libcxxtools-unit.la \
