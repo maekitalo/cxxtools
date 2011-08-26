@@ -15,9 +15,11 @@ nobase_include_HEADERS = \
         cxxtools/atomicity.sun.h \
         cxxtools/atomicity.h \
         cxxtools/api.h \
-        cxxtools/byteorder.h \
         cxxtools/base64codec.h \
         cxxtools/base64stream.h \
+        cxxtools/bindeserializer.h \
+        cxxtools/binserializer.h \
+        cxxtools/byteorder.h \
         cxxtools/cache.h \
         cxxtools/callable.h \
         cxxtools/callable.tpp \
@@ -119,6 +121,8 @@ nobase_include_HEADERS = \
         cxxtools/slot.tpp \
         cxxtools/smartptr.h \
         cxxtools/sourceinfo.h \
+        cxxtools/argin.h \
+        cxxtools/argout.h \
         cxxtools/streambuffer.h \
         cxxtools/streamcounter.h \
         cxxtools/stringdata.h \

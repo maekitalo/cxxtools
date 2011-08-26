@@ -64,6 +64,8 @@ class CXXTOOLS_API IDeserializer
 
         virtual void setId(const std::string& id) = 0;
 
+        virtual void setTypeName(const std::string& type) = 0;
+
         virtual void setReference(const std::string& id) = 0;
 
         virtual IDeserializer* beginMember(const std::string& name, const std::string& type, SerializationInfo::Category category) = 0;
@@ -114,6 +116,11 @@ class Deserializer : public IDeserializer
         virtual void setId(const std::string& id)
         {
             _current->setId(id);
+        }
+
+        virtual void setTypeName(const std::string& type)
+        {
+            _current->setTypeName(type);
         }
 
         virtual void setValue(const cxxtools::String& value)

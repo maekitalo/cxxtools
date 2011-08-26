@@ -1,11 +1,13 @@
 noinst_PROGRAMS = \
-    alltests
+    alltests \
+	serializer-bench
 
 AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/include -I$(top_srcdir)/include
 
 alltests_SOURCES = \
     arg-test.cpp \
     base64-test.cpp \
+    binserializer-test.cpp \
     cache-test.cpp \
     convert-test.cpp \
     pool-test.cpp \
@@ -15,6 +17,8 @@ alltests_SOURCES = \
     uri-test.cpp \
     xmlreader-test.cpp \
     xmlrpc-test.cpp
+
+serializer_bench_SOURCES = serializer-bench.cpp
 
 LDADD = $(top_builddir)/src/libcxxtools.la \
         $(top_builddir)/src/unit/libcxxtools-unit.la \

@@ -1,0 +1,54 @@
+category:
+    byte: 1=value, 2=object, 6=array, 8=reference
+name:
+    zero terminated string
+type:
+    zero terminated string
+id:
+    zero terminated string
+value: (only when category=value
+    zero terminated utf-8 string
+member prefix: (only when category=object)
+    \1=member  \xff=eod
+member name: (only when category=object)
+    zero terminated string
+member:
+    ...
+nodes: (when category=object|array)
+    category=\xff determines end of data
+
+value:
+    \1                       category
+    foobar\0                 name
+    int\0                    type
+    \0                       id
+    4711\0                   value
+    \xff                     eod
+
+object:
+    \2                       category
+    myobject\0               name
+    mytype\0                 type
+    \0                       id
+    \1                       member1 prefix
+    firstMember\0            member1 name
+    \1 \0 int \0 4711        member1 value
+    \1                       member2 prefix
+    secondMember\0           member2 name
+    \1 \0 int \0 4712        member2 value
+    \xff                     eod
+
+array:
+    \6                       category
+    myarray\0                name
+    vector<int>\0            type
+    \0                       id
+    \1 \0 int \0 4711        element1
+    \1 \0 int \0 4712        element2
+    \xff                     eod
+
+reference:
+    \8                       category
+    foo\0                    name
+    bar\0                    value
+    \xff                     eod
