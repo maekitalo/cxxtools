@@ -2,11 +2,25 @@ category:
     byte: 1=value, 2=object, 6=array, 8=reference
 name:
     zero terminated string
-type:
-    zero terminated string
+type: byte
+    typecodes: 0=empty
+               1=bool
+               2=char
+               3=string
+               4=int
+               5=double
+               32=pair
+               64=array
+               65=list
+               66=deque
+               67=set
+               68=multiset
+               69=map
+               70=multimap
+               255=other + zero terminated string
 id:
     zero terminated string
-value: (only when category=value
+value: (only when category=value)
     zero terminated utf-8 string
 member prefix: (only when category=object)
     \1=member  \xff=eod
@@ -20,7 +34,7 @@ nodes: (when category=object|array)
 value:
     \1                       category
     foobar\0                 name
-    int\0                    type
+    \4                       type (4=int)
     \0                       id
     4711\0                   value
     \xff                     eod
@@ -28,23 +42,23 @@ value:
 object:
     \2                       category
     myobject\0               name
-    mytype\0                 type
+    \xffmytype\0             type
     \0                       id
     \1                       member1 prefix
     firstMember\0            member1 name
-    \1 \0 int \0 4711        member1 value
+    \1 \0 \4 4711            member1 value
     \1                       member2 prefix
     secondMember\0           member2 name
-    \1 \0 int \0 4712        member2 value
+    \1 \0 \4 4712            member2 value
     \xff                     eod
 
 array:
     \6                       category
     myarray\0                name
-    vector<int>\0            type
+    \x40                     type (64=0x40=array)
     \0                       id
-    \1 \0 int \0 4711        element1
-    \1 \0 int \0 4712        element2
+    \1 \0 \4 4711            element1
+    \1 \0 \4 4712            element2
     \xff                     eod
 
 reference:

@@ -27,6 +27,7 @@
  */
 
 #include <cxxtools/bindeserializer.h>
+#include <cxxtools/binserializer.h>
 #include <cxxtools/utf8codec.h>
 #include <iostream>
 
@@ -56,7 +57,7 @@ void BinDeserializer::get(IDeserializer* deser)
 
     if (category != SerializationInfo::Reference)
     {
-        read(_type);
+        readType(_type);
         deser->setTypeName(_type);
 
         read(id);
@@ -91,6 +92,32 @@ void BinDeserializer::read(std::string& str)
     char ch;
     while (_in.get(ch) && ch != '\0')
         str += ch;
+}
+
+void BinDeserializer::readType(std::string& str)
+{
+    char ch;
+    if (_in.get(ch))
+    {
+        switch (static_cast<BinSerializer::TypeCode>(ch))
+        {
+            case BinSerializer::TypeEmpty: str.clear(); break;
+            case BinSerializer::TypeBool: str = "bool"; break;
+            case BinSerializer::TypeChar: str = "char"; break;
+            case BinSerializer::TypeString: str = "string"; break;
+            case BinSerializer::TypeInt: str = "int"; break;
+            case BinSerializer::TypeDouble: str = "double"; break;
+            case BinSerializer::TypePair: str = "pair"; break;
+            case BinSerializer::TypeArray: str = "array"; break;
+            case BinSerializer::TypeList: str = "list"; break;
+            case BinSerializer::TypeDeque: str = "deque"; break;
+            case BinSerializer::TypeSet: str = "set"; break;
+            case BinSerializer::TypeMultiset: str = "multiset"; break;
+            case BinSerializer::TypeMap: str = "map"; break;
+            case BinSerializer::TypeMultimap: str = "multimap"; break;
+            default: read(str); break;
+        }
+    }
 }
 
 void BinDeserializer::processValueData(IDeserializer* deser)

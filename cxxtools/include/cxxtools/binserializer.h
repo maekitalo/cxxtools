@@ -74,6 +74,25 @@ namespace cxxtools
     class BinSerializer : private NonCopyable
     {
         public:
+            enum TypeCode
+            {
+                TypeEmpty = 0,
+                TypeBool = 1,
+                TypeChar = 2,
+                TypeString = 3,
+                TypeInt = 4,
+                TypeDouble = 5,
+                TypePair = 32,
+                TypeArray = 64,
+                TypeList = 65,
+                TypeDeque = 66,
+                TypeSet = 67,
+                TypeMultiset = 68,
+                TypeMap = 69,
+                TypeMultimap = 70,
+                TypeOther = 255
+            };
+
             BinSerializer()
             {
             }

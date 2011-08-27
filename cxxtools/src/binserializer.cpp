@@ -31,6 +31,44 @@
 
 namespace cxxtools
 {
+
+namespace
+{
+  void printTypeCode(std::ostream& out, const std::string& type)
+  {
+      if (type.empty())
+          out << static_cast<char>(BinSerializer::TypeEmpty);
+      else if (type == "bool")
+          out << static_cast<char>(BinSerializer::TypeBool);
+      else if (type == "char")
+          out << static_cast<char>(BinSerializer::TypeChar);
+      else if (type == "string")
+          out << static_cast<char>(BinSerializer::TypeString);
+      else if (type == "int")
+          out << static_cast<char>(BinSerializer::TypeInt);
+      else if (type == "double")
+          out << static_cast<char>(BinSerializer::TypeDouble);
+      else if (type == "pair")
+          out << static_cast<char>(BinSerializer::TypePair);
+      else if (type == "array")
+          out << static_cast<char>(BinSerializer::TypeArray);
+      else if (type == "list")
+          out << static_cast<char>(BinSerializer::TypeList);
+      else if (type == "deque")
+          out << static_cast<char>(BinSerializer::TypeDeque);
+      else if (type == "set")
+          out << static_cast<char>(BinSerializer::TypeSet);
+      else if (type == "multiset")
+          out << static_cast<char>(BinSerializer::TypeMultiset);
+      else if (type == "map")
+          out << static_cast<char>(BinSerializer::TypeMap);
+      else if (type == "multimap")
+          out << static_cast<char>(BinSerializer::TypeMultimap);
+      else
+          out << static_cast<char>(BinSerializer::TypeOther) << type << '\0';
+  }
+}
+
 BinFormatter::BinFormatter()
     : _out(0),
       _ts(new Utf8Codec())
@@ -58,9 +96,9 @@ void BinFormatter::addValue(const std::string& name, const std::string& type,
                       const cxxtools::String& value, const std::string& id)
 {
     *_out << static_cast<char>(SerializationInfo::Value)
-          << name << '\0'
-          << type << '\0'
-          << id << '\0';
+          << name << '\0';
+    printTypeCode(*_out, type);
+    *_out << id << '\0';
 
     _ts << value;
     _ts.flush();
@@ -81,9 +119,9 @@ void BinFormatter::beginArray(const std::string& name, const std::string& type,
                         const std::string& id)
 {
     *_out << static_cast<char>(SerializationInfo::Array)
-          << name << '\0'
-          << type << '\0'
-          << id << '\0';
+          << name << '\0';
+    printTypeCode(*_out, type);
+    *_out << id << '\0';
 }
 
 void BinFormatter::finishArray()
@@ -95,9 +133,9 @@ void BinFormatter::beginObject(const std::string& name, const std::string& type,
                          const std::string& id)
 {
     *_out << static_cast<char>(SerializationInfo::Object)
-          << name << '\0'
-          << type << '\0'
-          << id << '\0';
+          << name << '\0';
+    printTypeCode(*_out, type);
+    *_out << id << '\0';
 }
 
 void BinFormatter::beginMember(const std::string& name)

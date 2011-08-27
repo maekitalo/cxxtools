@@ -106,28 +106,39 @@ int main(int argc, char* argv[])
     {
         cxxtools::Arg<unsigned> N(argc, argv, 'n', 10000);
 
-        // fill
-/*
-        std::vector<std::string> v;
-        for (unsigned n = 0; n < N; ++n)
-            v.push_back(cxxtools::convert<std::string>(n));
-            */
-
-        TestObject obj;
-        std::vector<TestObject> v;
-        for (unsigned n = 0; n < N; ++n)
         {
-            obj.intValue = n;
-            obj.stringValue = cxxtools::convert<std::string>(n);
-            obj.doubleValue = sqrt(n);
-            v.push_back(obj);
+            std::cout << "vector of int values:" << std::endl;
+
+            std::vector<int> v;
+            for (unsigned n = 0; n < N; ++n)
+                v.push_back(n);
+
+            std::cout << "xml:" << std::endl;
+            benchXmlSerialization(v);
+
+            std::cout << "bin:" << std::endl;
+            benchBinSerialization(v);
         }
 
-        std::cout << "xml:" << std::endl;
-        benchXmlSerialization(v);
+        {
+            std::cout << "vector of custom objects:" << std::endl;
 
-        std::cout << "bin:" << std::endl;
-        benchBinSerialization(v);
+            TestObject obj;
+            std::vector<TestObject> v;
+            for (unsigned n = 0; n < N; ++n)
+            {
+                obj.intValue = n;
+                obj.stringValue = cxxtools::convert<std::string>(n);
+                obj.doubleValue = sqrt(n);
+                v.push_back(obj);
+            }
+
+            std::cout << "xml:" << std::endl;
+            benchXmlSerialization(v);
+
+            std::cout << "bin:" << std::endl;
+            benchBinSerialization(v);
+        }
 
     }
     catch (const std::exception& e)

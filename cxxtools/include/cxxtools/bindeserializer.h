@@ -57,6 +57,7 @@ namespace cxxtools
         private:
             BinDeserializer(BinDeserializer& s);
             void read(std::string& str);
+            void readType(std::string& str);
             void processValueData(IDeserializer* deser);
             void processObjectMembers(IDeserializer* deser);
             void processArrayData(IDeserializer* deser);
