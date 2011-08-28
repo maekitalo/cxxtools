@@ -65,7 +65,6 @@ class ServiceProcedure
 
 // BasicServiceProcedure with 10 arguments
 template <typename R,
-          class C,
           typename A1 = cxxtools::Void,
           typename A2 = cxxtools::Void,
           typename A3 = cxxtools::Void,
@@ -174,7 +173,6 @@ class BasicServiceProcedure : public ServiceProcedure
 
 // BasicServiceProcedure with 9 arguments
 template <typename R,
-          class C,
           typename A1,
           typename A2,
           typename A3,
@@ -185,7 +183,7 @@ template <typename R,
           typename A8,
           typename A9>
 class BasicServiceProcedure<R,
-                            C, A1, A2, A3, A4, A5, A6, A7, A8, A9,
+                            A1, A2, A3, A4, A5, A6, A7, A8, A9,
                             cxxtools::Void> : public ServiceProcedure
 {
     public:
@@ -279,7 +277,6 @@ class BasicServiceProcedure<R,
 
 // BasicServiceProcedure with 8 arguments
 template <typename R,
-          class C,
           typename A1,
           typename A2,
           typename A3,
@@ -289,7 +286,7 @@ template <typename R,
           typename A7,
           typename A8>
 class BasicServiceProcedure<R,
-                            C, A1, A2, A3, A4, A5, A6, A7, A8,
+                            A1, A2, A3, A4, A5, A6, A7, A8,
                             cxxtools::Void,
                             cxxtools::Void> : public ServiceProcedure
 {
@@ -379,7 +376,6 @@ class BasicServiceProcedure<R,
 
 // BasicServiceProcedure with 7 arguments
 template <typename R,
-          class C,
           typename A1,
           typename A2,
           typename A3,
@@ -388,7 +384,7 @@ template <typename R,
           typename A6,
           typename A7>
 class BasicServiceProcedure<R,
-                            C, A1, A2, A3, A4, A5, A6, A7,
+                            A1, A2, A3, A4, A5, A6, A7,
                             cxxtools::Void,
                             cxxtools::Void,
                             cxxtools::Void> : public ServiceProcedure
@@ -474,7 +470,6 @@ class BasicServiceProcedure<R,
 
 // BasicServiceProcedure with 6 arguments
 template <typename R,
-          class C,
           typename A1,
           typename A2,
           typename A3,
@@ -482,7 +477,7 @@ template <typename R,
           typename A5,
           typename A6>
 class BasicServiceProcedure<R,
-                            C, A1, A2, A3, A4, A5, A6,
+                            A1, A2, A3, A4, A5, A6,
                             cxxtools::Void,
                             cxxtools::Void,
                             cxxtools::Void,
@@ -564,14 +559,13 @@ class BasicServiceProcedure<R,
 
 // BasicServiceProcedure with 5 arguments
 template <typename R,
-          class C,
           typename A1,
           typename A2,
           typename A3,
           typename A4,
           typename A5>
 class BasicServiceProcedure<R,
-                            C, A1, A2, A3, A4, A5,
+                            A1, A2, A3, A4, A5,
                             cxxtools::Void,
                             cxxtools::Void,
                             cxxtools::Void,
@@ -649,13 +643,12 @@ class BasicServiceProcedure<R,
 
 // BasicServiceProcedure with 4 arguments
 template <typename R,
-          class C,
           typename A1,
           typename A2,
           typename A3,
           typename A4>
 class BasicServiceProcedure<R,
-                            C, A1, A2, A3, A4,
+                            A1, A2, A3, A4,
                             cxxtools::Void,
                             cxxtools::Void,
                             cxxtools::Void,
@@ -729,12 +722,11 @@ class BasicServiceProcedure<R,
 
 // BasicServiceProcedure with 3 arguments
 template <typename R,
-          class C,
           typename A1,
           typename A2,
           typename A3>
 class BasicServiceProcedure<R,
-                            C, A1, A2, A3,
+                            A1, A2, A3,
                             cxxtools::Void,
                             cxxtools::Void,
                             cxxtools::Void,
@@ -804,11 +796,10 @@ class BasicServiceProcedure<R,
 
 // BasicServiceProcedure with 2 arguments
 template <typename R,
-          class C,
           typename A1,
           typename A2>
 class BasicServiceProcedure<R,
-                            C, A1, A2,
+                            A1, A2,
                             cxxtools::Void,
                             cxxtools::Void,
                             cxxtools::Void,
@@ -874,10 +865,9 @@ class BasicServiceProcedure<R,
 
 // BasicServiceProcedure with 1 arguments
 template <typename R,
-          class C,
           typename A1>
 class BasicServiceProcedure<R,
-                            C, A1,
+                            A1,
                             cxxtools::Void,
                             cxxtools::Void,
                             cxxtools::Void,
@@ -938,10 +928,8 @@ class BasicServiceProcedure<R,
 
 
 // BasicServiceProcedure with 0 arguments
-template <typename R,
-          class C>
+template <typename R>
 class BasicServiceProcedure<R,
-                            C,
                             cxxtools::Void,
                             cxxtools::Void,
                             cxxtools::Void,
@@ -999,90 +987,88 @@ class BasicServiceProcedure<R,
 
 class CXXTOOLS_XMLRPC_API Service : public http::Service
 {
+        friend class XmlRpcResponder;
+
     public:
         Service()
         { }
 
         virtual ~Service();
 
-        ServiceProcedure* getProcedure(const std::string& name);
-
-        void releaseProcedure(ServiceProcedure* proc);
-
         template <typename R, class C>
         void registerMethod(const std::string& name, C& obj, R (C::*method)() )
         {
-            ServiceProcedure* proc = new BasicServiceProcedure<R, C>( callable(obj, method) );
+            ServiceProcedure* proc = new BasicServiceProcedure<R>( callable(obj, method) );
             this->registerProcedure(name, proc);
         }
 
         template <typename R, class C, typename A1>
         void registerMethod(const std::string& name, C& obj, R (C::*method)(A1) )
         {
-            ServiceProcedure* proc = new BasicServiceProcedure<R, C, A1>( callable(obj, method) );
+            ServiceProcedure* proc = new BasicServiceProcedure<R, A1>( callable(obj, method) );
             this->registerProcedure(name, proc);
         }
 
         template <typename R, class C, typename A1, typename A2>
         void registerMethod(const std::string& name, C& obj, R (C::*method)(A1, A2) )
         {
-            ServiceProcedure* proc = new BasicServiceProcedure<R, C, A1, A2>( callable(obj, method) );
+            ServiceProcedure* proc = new BasicServiceProcedure<R, A1, A2>( callable(obj, method) );
             this->registerProcedure(name, proc);
         }
 
         template <typename R, class C, typename A1, typename A2, typename A3>
         void registerMethod(const std::string& name, C& obj, R (C::*method)(A1, A2, A3) )
         {
-            ServiceProcedure* proc = new BasicServiceProcedure<R, C, A1, A2, A3>( callable(obj, method) );
+            ServiceProcedure* proc = new BasicServiceProcedure<R, A1, A2, A3>( callable(obj, method) );
             this->registerProcedure(name, proc);
         }
 
         template <typename R, class C, typename A1, typename A2, typename A3, typename A4>
         void registerMethod(const std::string& name, C& obj, R (C::*method)(A1, A2, A3, A4) )
         {
-            ServiceProcedure* proc = new BasicServiceProcedure<R, C, A1, A2, A3, A4>( callable(obj, method) );
+            ServiceProcedure* proc = new BasicServiceProcedure<R, A1, A2, A3, A4>( callable(obj, method) );
             this->registerProcedure(name, proc);
         }
 
         template <typename R, class C, typename A1, typename A2, typename A3, typename A4, typename A5>
         void registerMethod(const std::string& name, C& obj, R (C::*method)(A1, A2, A3, A4, A5) )
         {
-            ServiceProcedure* proc = new BasicServiceProcedure<R, C, A1, A2, A3, A4, A5>( callable(obj, method) );
+            ServiceProcedure* proc = new BasicServiceProcedure<R, A1, A2, A3, A4, A5>( callable(obj, method) );
             this->registerProcedure(name, proc);
         }
 
         template <typename R, class C, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6>
         void registerMethod(const std::string& name, C& obj, R (C::*method)(A1, A2, A3, A4, A5, A6) )
         {
-            ServiceProcedure* proc = new BasicServiceProcedure<R, C, A1, A2, A3, A4, A5, A6>( callable(obj, method) );
+            ServiceProcedure* proc = new BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6>( callable(obj, method) );
             this->registerProcedure(name, proc);
         }
 
         template <typename R, class C, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7>
         void registerMethod(const std::string& name, C& obj, R (C::*method)(A1, A2, A3, A4, A5, A6, A7) )
         {
-            ServiceProcedure* proc = new BasicServiceProcedure<R, C, A1, A2, A3, A4, A5, A6, A7>( callable(obj, method) );
+            ServiceProcedure* proc = new BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7>( callable(obj, method) );
             this->registerProcedure(name, proc);
         }
 
         template <typename R, class C, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7, typename A8>
         void registerMethod(const std::string& name, C& obj, R (C::*method)(A1, A2, A3, A4, A5, A6, A7, A8) )
         {
-            ServiceProcedure* proc = new BasicServiceProcedure<R, C, A1, A2, A3, A4, A5, A6, A7, A8>( callable(obj, method) );
+            ServiceProcedure* proc = new BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8>( callable(obj, method) );
             this->registerProcedure(name, proc);
         }
 
         template <typename R, class C, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7, typename A8, typename A9>
         void registerMethod(const std::string& name, C& obj, R (C::*method)(A1, A2, A3, A4, A5, A6, A7, A8, A9) )
         {
-            ServiceProcedure* proc = new BasicServiceProcedure<R, C, A1, A2, A3, A4, A5, A6, A7, A8, A9>( callable(obj, method) );
+            ServiceProcedure* proc = new BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8, A9>( callable(obj, method) );
             this->registerProcedure(name, proc);
         }
 
         template <typename R, class C, typename A1, typename A2, typename A3, typename A4, typename A5, typename A6, typename A7, typename A8, typename A9, typename A10>
         void registerMethod(const std::string& name, C& obj, R (C::*method)(A1, A2, A3, A4, A5, A6, A7, A8, A9, A10) )
         {
-            ServiceProcedure* proc = new BasicServiceProcedure<R, C, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>( callable(obj, method) );
+            ServiceProcedure* proc = new BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>( callable(obj, method) );
             this->registerProcedure(name, proc);
         }
 
@@ -1091,6 +1077,10 @@ class CXXTOOLS_XMLRPC_API Service : public http::Service
         virtual void releaseResponder(http::Responder* resp);
 
     protected:
+        ServiceProcedure* getProcedure(const std::string& name);
+
+        void releaseProcedure(ServiceProcedure* proc);
+
         void registerProcedure(const std::string& name, ServiceProcedure* proc);
 
     private:
