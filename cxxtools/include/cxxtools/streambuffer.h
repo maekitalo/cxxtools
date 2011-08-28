@@ -69,7 +69,7 @@ class CXXTOOLS_API StreamBuffer : public BasicStreamBuffer<char>
                                  , public Connectable
 {
     public:
-        //! @brief Contructs an IOBuffer for an IODevice
+        //! @brief Constructs an IOBuffer for an IODevice
         explicit StreamBuffer(IODevice& ioDevice, size_t bufferSize = 8192, bool extend = false);
 
         //! @brief Default constructor

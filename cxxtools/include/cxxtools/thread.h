@@ -77,7 +77,7 @@ namespace cxxtools {
             */
             Thread();
 
-            /** @brief Contructs a thread with a thread entry
+            /** @brief Constructs a thread with a thread entry
 
                 Constructs a thread object to execute the %Callable \a cb.
                 The Thread is not started on construction, but when start()
@@ -197,7 +197,7 @@ namespace cxxtools {
     class AttachedThread : public Thread
     {
         public:
-            /** @brief Contructs a thread with a thread entry
+            /** @brief Constructs a thread with a thread entry
 
                 Constructs a thread object to execute the %Callable \a cb.
                 The Thread is not started on construction, but when start()

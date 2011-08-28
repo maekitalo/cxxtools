@@ -98,7 +98,7 @@ namespace cxxtools {
             }
 
         protected:
-            /**  @brief Contructor
+            /**  @brief Constructor
              */
             Singleton()
             { }

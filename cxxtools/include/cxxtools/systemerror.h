@@ -59,7 +59,7 @@ class SystemError : public std::runtime_error
 class OpenLibraryFailed : public SystemError
 {
     public:
-        //! @brief Contructs from a message string and source info
+        //! @brief Constructs from a message string and source info
         OpenLibraryFailed(const std::string& msg, const cxxtools::SourceInfo& si);
 
         //! @brief Destructor
