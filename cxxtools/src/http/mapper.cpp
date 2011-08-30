@@ -50,16 +50,16 @@ void Mapper::removeService(Service& service)
     WriteLock serviceLock(_serviceMutex);
     service.waitIdle();
 
-    ServicesType::iterator it = _services.begin();
-    while (it != _services.end())
+    ServicesType::size_type n = 0;
+    while (n < _services.size())
     {
-        if (it->second == &service)
+        if (_services[n].second == &service)
         {
-            _services.erase(it++);
+            _services.erase(_services.begin() + n);
         }
         else
         {
-            ++it;
+            ++n;
         }
     }
 }
