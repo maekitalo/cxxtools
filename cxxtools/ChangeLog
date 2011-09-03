@@ -1,3 +1,87 @@
+2011-08-30 tommi@tntnet.org
+
+ - fix crash in http server when last service is removed manually
+
+2011-08-28 tommi@tntnet.org
+
+ - fix potential memory leak
+ - remove unused template parameter
+
+2011-08-26 tommi@tntnet.org
+
+ - implement binary serializer/deserializer
+
+2011-08-26 tommi@tntnet.org
+
+ - helper classes for controling input or output using command line argument
+
+2011-08-12 tommi@tntnet.org
+
+ - fix error checking in iconvstream
+
+2011-06-24 tommi@tntnet.org
+
+ - fix for clang++: looks like it is pinkier about missing this when accessing members of base classes in template classes
+
+2011-06-05 tommi@tntnet.org
+
+ - ignore SIGPIPE in http server
+
+2011-06-05 tommi@tntnet.org
+
+ - read body into request body in http server by default
+
+2011-06-04 tommi@tntnet.org
+
+ - regular expressions can now be used for mapping to responder in http server
+
+2011-05-31 tommi@tntnet.org
+
+ - do not throw after fork but just exit with -1 in command input and output
+
+2011-05-26 tommi@tntnet.org
+
+ - remove now obsolet class process.cpp
+
+2011-05-23 tommi@tntnet.org
+
+ - remove obsolete cxxtools::SysError class (replaced with cxxtools::SystemError long time ago)
+
+2011-05-22 tommi@tntnet.org
+
+ - add classes cxxtools::posix::CommandInput and cxxtools::posix::CommandOutput for easily reading from and writing to processes
+
+2011-05-21 tommi@tntnet.org
+
+ - move Fork-class from cxxtools to cxxtools::posix namespace
+ - add a wrapper cxxtools::posix::Exec around exec??-functions of posix
+
+2011-05-21 tommi@tntnet.org
+
+ - inherit pipe filedescriptor by default in cxxtools::posix::Pipe
+
+2011-05-19 tommi@tntnet.org
+
+ - set default char ? to cxxtools::Char::narrow
+ - use ? instead of _ as default in cxxtools::String::narrow
+ - fix error message in xml reader when unexpected character is found
+
+2011-05-08 tommi@tntnet.org
+
+ - add conversion function from std::string to std::string (just assignment)
+
+2011-05-06 tommi@tntnet.org
+
+ - print log messages to stderr instead of stdout
+
+2011-04-29 tommi@tntnet.org
+
+ - add beautify flag to static toString methods of xml and json serializers
+
+2011-04-29 tommi@tntnet.org
+
+ - add link and symlink methods to file class
+
 2011-03-29 tommi@tntnet.org
 
  - fix stopping http server without listener
