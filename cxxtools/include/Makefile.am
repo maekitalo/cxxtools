@@ -78,6 +78,17 @@ nobase_include_HEADERS = \
         cxxtools/main.h \
         cxxtools/md5.h \
         cxxtools/md5stream.h \
+        cxxtools/membar.gcc.arm.h \
+        cxxtools/membar.gcc.h \
+        cxxtools/membar.gcc.mips.h \
+        cxxtools/membar.gcc.nosmp.h \
+        cxxtools/membar.gcc.ppc.h \
+        cxxtools/membar.gcc.sparc32.h \
+        cxxtools/membar.gcc.sparc64.h \
+        cxxtools/membar.gcc.x86.h \
+        cxxtools/membar.sun.h \
+        cxxtools/membar.windows.h \
+        cxxtools/membar.h \
         cxxtools/method.h \
         cxxtools/method.tpp \
         cxxtools/mime.h \
