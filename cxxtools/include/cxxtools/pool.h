@@ -56,7 +56,7 @@ namespace cxxtools
   template <typename ObjectType,
             typename CreatorType = DefaultCreator<ObjectType>,
             template <class> class OwnershipPolicy = RefLinked,
-            template <class> class DestroyPolicy = DefaultDestroyPolicy>
+            template <class> class DestroyPolicy = DeletePolicy>
   class Pool : private NonCopyable
   {
     public:
