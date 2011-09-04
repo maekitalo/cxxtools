@@ -233,7 +233,7 @@ namespace cxxtools
       The DeletePolicy implements the method, which instructs the SmartPtr to free the
       object which it helds by deleting it.
   */
-  class DefaultDestroyPolicy
+  class DeletePolicy
   {
     public:
       static void destroy(ObjectType* ptr)
@@ -280,7 +280,7 @@ namespace cxxtools
    */
   template <typename ObjectType,
             template <class> class OwnershipPolicy = InternalRefCounted,
-            template <class> class DestroyPolicy = DefaultDestroyPolicy>
+            template <class> class DestroyPolicy = DeletePolicy>
   class SmartPtr : public OwnershipPolicy<ObjectType>,
                    public DestroyPolicy<ObjectType>
   {
