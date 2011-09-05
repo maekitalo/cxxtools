@@ -240,6 +240,14 @@ namespace cxxtools
       { delete ptr; }
   };
 
+  template <typename ObjectType>
+  /** \brief old name for DeletePolicy for compatibility.
+
+      \deprecated
+  */
+  class DefaultDestroyPolicy : public DeletePolicy<ObjectType>
+  { };
+
   template <typename T>
   class FreeDestroyPolicy
   {
