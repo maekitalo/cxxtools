@@ -288,7 +288,7 @@ namespace cxxtools
    */
   template <typename ObjectType,
             template <class> class OwnershipPolicy = InternalRefCounted,
-            template <class> class DestroyPolicy = DeletePolicy>
+            template <class> class DestroyPolicy = DefaultDestroyPolicy>
   class SmartPtr : public OwnershipPolicy<ObjectType>,
                    public DestroyPolicy<ObjectType>
   {
