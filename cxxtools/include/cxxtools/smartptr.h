@@ -228,10 +228,25 @@ namespace cxxtools
       \param ObjectType The managed object type
   */
   template <typename ObjectType>
-  /** \brief deleter policy for smart pointer
+  /** \brief old name for DeletePolicy for compatibility.
 
-      The DeletePolicy implements the method, which instructs the SmartPtr to free the
+      The DefaultDestroyPolicy implements the method, which instructs the SmartPtr to free the
       object which it helds by deleting it.
+  */
+  class DefaultDestroyPolicy
+  {
+    public:
+      static void destroy(ObjectType* ptr)
+      { delete ptr; }
+  };
+
+  /**
+      \param ObjectType The managed object type
+  */
+  template <typename ObjectType>
+  /** \brief deleter policy for smart pointer.
+
+      The DeletePolicy is actually an alternative name for DefaultDestroyPolicy.
   */
   class DeletePolicy
   {
@@ -239,14 +254,6 @@ namespace cxxtools
       static void destroy(ObjectType* ptr)
       { delete ptr; }
   };
-
-  template <typename ObjectType>
-  /** \brief old name for DeletePolicy for compatibility.
-
-      \deprecated
-  */
-  class DefaultDestroyPolicy : public DeletePolicy<ObjectType>
-  { };
 
   template <typename T>
   class FreeDestroyPolicy
