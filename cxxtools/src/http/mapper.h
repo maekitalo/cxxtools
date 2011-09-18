@@ -17,6 +17,9 @@
  *
  */
 
+#ifndef CXXTOOLS_HTTP_MAPPER_H
+#define CXXTOOLS_HTTP_MAPPER_H
+
 #include "notfoundservice.h"
 #include "notauthenticatedservice.h"
 #include <map>
@@ -62,3 +65,5 @@ class Mapper
 };
 }
 }
+
+#endif // CXXTOOLS_HTTP_MAPPER_H
