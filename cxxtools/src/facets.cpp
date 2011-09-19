@@ -28,8 +28,6 @@
 
 #include <cxxtools/facets.h>
 
-namespace std {
-
 locale::id numpunct<cxxtools::Char>::id;
 
 
