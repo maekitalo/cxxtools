@@ -30,7 +30,7 @@ AC_DEFUN([AC_CHECKATOMICTYPE],
     if test "$ac_cxxtools_atomicity" = "$1" -o "$ac_cxxtools_atomicity" = "probe"
     then
       AC_COMPILE_IFELSE(
-        [$3],
+        [AC_LANG_SOURCE([$3])],
         CXXTOOLS_ATOMICITY=$2
         ac_cxxtools_atomicity=$1,
         if test "$ac_cxxtools_atomicity" = "$1"
