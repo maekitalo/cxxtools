@@ -67,11 +67,11 @@ namespace cxxtools
         typedef Exec::reference reference;
 
         explicit CommandOutput(const std::string& cmd, unsigned bufsize = 8192)
-          : _fork(false),
+          : std::istream(&streambuf),
+            _fork(false),
             _exec(cmd),
             streambuf(bufsize)
         {
-          init(&streambuf);
         }
 
         void push_back(const std::string& arg)

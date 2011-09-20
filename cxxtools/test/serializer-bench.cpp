@@ -129,7 +129,7 @@ int main(int argc, char* argv[])
             {
                 obj.intValue = n;
                 obj.stringValue = cxxtools::convert<std::string>(n);
-                obj.doubleValue = sqrt(n);
+                obj.doubleValue = sqrt(static_cast<double>(n));
                 v.push_back(obj);
             }
 

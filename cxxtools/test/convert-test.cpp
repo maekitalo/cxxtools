@@ -31,6 +31,7 @@
 #include "cxxtools/unit/registertest.h"
 #include "cxxtools/string.h"
 #include <limits>
+#include <string.h>
 
 class ConvertTest : public cxxtools::unit::TestSuite
 {
@@ -125,13 +126,13 @@ class ConvertTest : public cxxtools::unit::TestSuite
           CXXTOOLS_UNIT_ASSERT_EQUALS(s, "inf");
 
           s = cxxtools::convert<std::string>(f);
-          CXXTOOLS_UNIT_ASSERT_EQUALS(s, "inf");
+          CXXTOOLS_UNIT_ASSERT(strcasecmp(s.c_str(), "inf") == 0);
 
           cxxtools::String ss = cxxtools::convert<cxxtools::String>(d);
-          CXXTOOLS_UNIT_ASSERT_EQUALS(ss.narrow(), "inf");
+          CXXTOOLS_UNIT_ASSERT(strcasecmp(ss.narrow().c_str(), "inf") == 0);
 
           ss = cxxtools::convert<cxxtools::String>(f);
-          CXXTOOLS_UNIT_ASSERT_EQUALS(ss.narrow(), "inf");
+          CXXTOOLS_UNIT_ASSERT(strcasecmp(ss.narrow().c_str(), "inf") == 0);
 
           // negative inf
 
@@ -153,13 +154,13 @@ class ConvertTest : public cxxtools::unit::TestSuite
           CXXTOOLS_UNIT_ASSERT_EQUALS(s, "-inf");
 
           s = cxxtools::convert<std::string>(f);
-          CXXTOOLS_UNIT_ASSERT_EQUALS(s, "-inf");
+          CXXTOOLS_UNIT_ASSERT(strcasecmp(s.c_str(), "-inf") == 0);
 
           ss = cxxtools::convert<cxxtools::String>(d);
-          CXXTOOLS_UNIT_ASSERT_EQUALS(ss.narrow(), "-inf");
+          CXXTOOLS_UNIT_ASSERT(strcasecmp(ss.narrow().c_str(), "-inf") == 0);
 
           ss = cxxtools::convert<cxxtools::String>(f);
-          CXXTOOLS_UNIT_ASSERT_EQUALS(ss.narrow(), "-inf");
+          CXXTOOLS_UNIT_ASSERT(strcasecmp(ss.narrow().c_str(), "-inf") == 0);
 
         }
 

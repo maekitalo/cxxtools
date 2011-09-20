@@ -64,11 +64,11 @@ namespace cxxtools
         typedef Exec::reference reference;
 
         explicit CommandInput(const std::string& cmd, unsigned bufsize = 8192)
-          : _fork(false),
+          : std::ostream(&streambuf),
+            _fork(false),
             _exec(cmd),
             streambuf(bufsize)
         {
-          init(&streambuf);
         }
 
         void push_back(const std::string& arg)

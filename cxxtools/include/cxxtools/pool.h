@@ -64,7 +64,7 @@ namespace cxxtools
                   public DestroyPolicy<ObjectType>
       {
           ObjectType* object;
-          Pool<ObjectType, CreatorType, OwnershipPolicy, DestroyPolicy>* pool;
+          Pool* pool;
           typedef OwnershipPolicy<ObjectType> OwnershipPolicyType;
           typedef DestroyPolicy<ObjectType> DestroyPolicyType;
 
@@ -119,7 +119,7 @@ namespace cxxtools
           operator ObjectType* ()               { return object; }
           operator const ObjectType* () const   { return object; }
 
-          void setPool(Pool<ObjectType, CreatorType, OwnershipPolicy, DestroyPolicy>* p)
+          void setPool(Pool* p)
           { pool = p; }
 
           // don't put the object back to the pool

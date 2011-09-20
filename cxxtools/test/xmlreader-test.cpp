@@ -56,10 +56,10 @@ class XmlReaderTest : public cxxtools::unit::TestSuite
             cxxtools::String r;
 
             r = resolver.resolveEntity(cxxtools::String(L"auml"));
-            CXXTOOLS_UNIT_ASSERT(r == cxxtools::String(L"ä"));
+            CXXTOOLS_UNIT_ASSERT(r == cxxtools::String(1, cxxtools::Char(0xE4)));
 
             r = resolver.resolveEntity(cxxtools::String(L"Ouml"));
-            CXXTOOLS_UNIT_ASSERT(r == cxxtools::String(L"Ö"));
+            CXXTOOLS_UNIT_ASSERT(r == cxxtools::String(1, cxxtools::Char(0xD6)));
 
             r = resolver.resolveEntity(cxxtools::String(L"AElig"));
             CXXTOOLS_UNIT_ASSERT(r == cxxtools::String(1, cxxtools::Char(0xC6)));
