@@ -134,28 +134,28 @@ AC_COMPILE_IFELSE(
 AC_SUBST(CXXTOOLS_STD_LOCALE)
 
 AC_COMPILE_IFELSE(
-  [#include <netinet/tcp.h>
+  [AC_LANG_SOURCE([#include <netinet/tcp.h>
    int i = TCP_DEFER_ACCEPT;
-  ],
+  ])],
   AC_DEFINE(HAVE_TCP_DEFER_ACCEPT, [], [defined if TCP_DEFER_ACCEPT is defined]))
 
 AC_COMPILE_IFELSE(
-  [#include <sys/socket.h>
+  [AC_LANG_SOURCE([#include <sys/socket.h>
    #include <netinet/in.h>
    int i = IPPROTO_IPV6;
-  ],
+  ])],
   AC_DEFINE(HAVE_IPV6, [], [defined if IPV6 is supported]))
 
 AC_COMPILE_IFELSE(
-  [#include <iterator>
-   std::reverse_iterator<char*> r;],
+  [AC_LANG_SOURCE([#include <iterator>
+   std::reverse_iterator<char*> r;])],
   [HAVE_REVERSE_ITERATOR=HAVE_REVERSE_ITERATOR
    AC_DEFINE(HAVE_REVERSE_ITERATOR, [], [defined if std::reverse_iterator<Iterator> is defined])],
   [HAVE_REVERSE_ITERATOR=NO_REVERSE_ITERATOR])
 
 AC_COMPILE_IFELSE(
-  [#include <iterator>
-   std::reverse_iterator<char*, int, char, char*, char&> r;],
+  [AC_LANG_SOURCE([#include <iterator>
+   std::reverse_iterator<char*, int, char, char*, char&> r;])],
   [HAVE_REVERSE_ITERATOR_4=HAVE_REVERSE_ITERATOR_4
    AC_DEFINE(HAVE_REVERSE_ITERATOR_4, [], [defined if std::reverse_iterator<Iterator, Difference, Value, Pointer, Reference> is defined])],
   [HAVE_REVERSE_ITERATOR_4=NO_REVERSE_ITERATOR_4])
