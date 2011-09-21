@@ -70,6 +70,7 @@ std::istream& operator>> (std::istream& in, ProcStat& p)
 std::ostream& operator<< (std::ostream& out, ProcStat& p)
 {
   out << p.cpu << ' ' << p.user << ' ' << p.nice << ' ' << p.system << ' ' << p.idle << ' ' << p.iowait << ' ' << p.irq << ' ' << p.softirq;
+  return out;
 }
 
 void operator<<= (cxxtools::SerializationInfo& si, const ProcStat& p)
