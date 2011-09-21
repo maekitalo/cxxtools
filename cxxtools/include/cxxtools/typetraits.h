@@ -134,6 +134,88 @@ namespace cxxtools {
         static const unsigned int isReference = 0;
     };
 
+
+    template <typename T>
+    struct IntTraits
+    {};
+    
+
+    template <>
+    struct IntTraits<signed char>
+    {
+        typedef unsigned char Unsigned;
+        typedef signed char Signed;
+    };
+
+    template <>
+    struct IntTraits<unsigned char>
+    {
+        typedef unsigned char Unsigned;
+        typedef signed char Signed;
+    };
+
+
+    template <>
+    struct IntTraits<short>
+    {
+        typedef unsigned short Unsigned;
+        typedef signed short Signed;
+    };
+
+    template <>
+    struct IntTraits<unsigned short>
+    {
+        typedef unsigned short Unsigned;
+        typedef signed short Signed;
+    };
+
+
+    template <>
+    struct IntTraits<int>
+    {
+        typedef unsigned int Unsigned;
+        typedef signed int Signed;
+    };
+ 
+    template <>
+    struct IntTraits<unsigned int>
+    {
+        typedef unsigned int Unsigned;
+        typedef signed int Signed;
+    };
+
+
+    template <>
+    struct IntTraits<long>
+    {
+        typedef unsigned long Unsigned;
+        typedef signed long Signed;
+    };
+
+
+    template <>
+    struct IntTraits<unsigned long>
+    {
+        typedef unsigned long Unsigned;
+        typedef signed long Signed;
+    };
+
+
+    template <>
+    struct IntTraits<long long>
+    {
+        typedef unsigned long long Unsigned;
+        typedef signed long long Signed;
+    };
+
+
+    template <>
+    struct IntTraits<unsigned long long>
+    {
+        typedef unsigned long long Unsigned;
+        typedef signed long long Signed;
+    };
+
 } // !namespace cxxtools
 
 

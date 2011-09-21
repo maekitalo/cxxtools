@@ -34,35 +34,169 @@
 namespace cxxtools
 {
 
-namespace
+template <typename IterT>
+void _skipws(IterT& it, IterT end)
 {
-  template <typename CharT>
-  bool _stricmpL(const CharT* p1, const CharT* p2)
-  {
-    unsigned n;
-    for (n = 0; p1[n] && p2[n]; ++n)
-        if (std::tolower(p1[n]) != std::tolower(p2[n]))
-            return false;
-    return p1[n] == p2[n];
-  }
-
-  bool _stricmpL(const String& s, const wchar_t* p)
-  {
-    String::size_type n = 0;
-    for ( ; n < s.size(); ++n)
-        if (cxxtools::tolower(s[n]) != p[n])
-            return false;
-    return p[n] == L'\0';
-  }
-
+    while (it != end && isspace(*it))
+        ++it;
 }
 
-void convert(String& s, bool value)
+template<typename T>
+class nullterm_array_iterator : public std::iterator<std::input_iterator_tag, T>
 {
-    static const String trueValue = L"true";
-    static const String falseValue = L"false";
-    s = value ? trueValue : falseValue;
+    public:
+        nullterm_array_iterator()
+        : _ptr(0)
+        { }
+
+        explicit nullterm_array_iterator(const T* ptr)
+        : _ptr(ptr)
+        {
+            if(*_ptr == '\0')
+                _ptr = 0;
+        }
+
+        nullterm_array_iterator<T>& operator=(const nullterm_array_iterator<T>& it)
+        {
+            _ptr = it._ptr;
+            return *this;
+        }
+
+        bool operator==(const nullterm_array_iterator<T>& it) const
+        {
+            return _ptr == it._ptr;
+        }
+
+        bool operator!=(const nullterm_array_iterator<T>& it) const
+        {
+            return _ptr != it._ptr;
+        }
+
+        const T& operator*() const
+        {
+            return *_ptr;
+        }
+
+        nullterm_array_iterator<T>& operator++()
+        {
+            if(*++_ptr == '\0')
+                _ptr = 0;
+
+            return *this;
+        }
+
+        nullterm_array_iterator<T> operator++(int)
+        {
+            if(*++_ptr == '\0')
+                _ptr = 0;
+
+            return *this;
+        }
+
+    private:
+        const T* _ptr;
+};
+
+//
+// Conversions to cxxtools::String
+//
+
+void convert(String& s, const std::string& value)
+{
+    s = String::widen(value);
 }
+
+void convert(String& str, bool value)
+{
+    static const wchar_t* trueValue = L"true";
+    static const wchar_t* falseValue = L"false";
+    str = value ? trueValue : falseValue;
+}
+
+void convert(String& str, char value)
+{
+    str = String( 1, Char(value) );
+}
+
+void convert(String& str, unsigned char value)
+{
+    str.clear();
+    putInt(std::back_inserter(str), value);
+}
+
+
+void convert(String& str, signed char value)
+{
+    str.clear();
+    putInt(std::back_inserter(str), value);
+}
+
+
+void convert(String& str, short value)
+{
+    str.clear();
+    putInt(std::back_inserter(str), value);
+}
+
+
+void convert(String& str, unsigned short value)
+{
+    str.clear();
+    putInt(std::back_inserter(str), value);
+}
+
+
+void convert(String& str, int value)
+{
+    str.clear();
+    putInt(std::back_inserter(str), value);
+}
+
+
+void convert(String& str, unsigned int value)
+{
+    str.clear();
+    putInt(std::back_inserter(str), value);
+}
+
+
+void convert(String& str, long value)
+{
+    str.clear();
+    putInt(std::back_inserter(str), value);
+}
+
+
+void convert(String& str, unsigned long value)
+{
+    str.clear();
+    putInt(std::back_inserter(str), value);
+}
+
+
+void convert(String& str, float value)
+{
+    str.clear();
+    putFloat(std::back_inserter(str), value);
+}
+
+
+void convert(String& str, double value)
+{
+    str.clear();
+    putFloat(std::back_inserter(str), value);
+}
+
+
+void convert(String& str, long double value)
+{
+    str.clear();
+    putFloat(std::back_inserter(str), value);
+}
+
+//
+// Conversions from cxxtools::String
+//
 
 void convert(bool& n, const String& str)
 {
@@ -74,6 +208,280 @@ void convert(bool& n, const String& str)
         ConversionError::doThrow("bool", "cxxtools::String");
 }
 
+void convert(char& c, const String& str)
+{
+    if ( str.empty() )
+        ConversionError::doThrow("char", "cxxtools::String");
+
+    int n = str[0];
+    c = n;
+}
+
+void convert(unsigned char& n, const String& str)
+{
+    bool ok = false;
+    String::const_iterator r = getInt( str.begin(), str.end(), ok, n );
+
+    if (ok)
+        _skipws(r, str.end());
+
+    if( r != str.end() || ! ok )
+        ConversionError::doThrow("unsigned char", "cxxtools::String");
+}
+
+
+void convert(signed char& n, const String& str)
+{
+    bool ok = false;
+    String::const_iterator r = getInt( str.begin(), str.end(), ok, n );
+
+    if (ok)
+        _skipws(r, str.end());
+
+    if( r != str.end() || ! ok )
+        ConversionError::doThrow("signed char", "cxxtools::String");
+}
+
+
+void convert(short& n, const String& str)
+{
+    bool ok = false;
+    String::const_iterator r = getInt( str.begin(), str.end(), ok, n );
+
+    if (ok)
+        _skipws(r, str.end());
+
+    if( r != str.end() || ! ok )
+        ConversionError::doThrow("short", "cxxtools::String");
+}
+
+
+void convert(unsigned short& n, const String& str)
+{
+    bool ok = false;
+    String::const_iterator r = getInt( str.begin(), str.end(), ok, n );
+
+    if (ok)
+        _skipws(r, str.end());
+
+    if( r != str.end() || ! ok )
+        ConversionError::doThrow("unsigned short", "cxxtools::String");
+}
+
+
+void convert(int& n, const String& str)
+{
+    bool ok = false;
+    String::const_iterator r = getInt( str.begin(), str.end(), ok, n );
+
+    if (ok)
+        _skipws(r, str.end());
+
+    if( r != str.end() || ! ok )
+        ConversionError::doThrow("int", "cxxtools::String");
+}
+
+
+void convert(unsigned int& n, const String& str)
+{
+    bool ok = false;
+    String::const_iterator r = getInt( str.begin(), str.end(), ok, n );
+
+    if (ok)
+        _skipws(r, str.end());
+
+    if( r != str.end() || ! ok )
+        ConversionError::doThrow("unsigned int", "cxxtools::String");
+}
+
+
+void convert(long& n, const String& str)
+{
+    bool ok = false;
+    String::const_iterator r = getInt( str.begin(), str.end(), ok, n );
+
+    if (ok)
+        _skipws(r, str.end());
+
+    if( r != str.end() || ! ok )
+        ConversionError::doThrow("long", "cxxtools::String");
+}
+
+
+void convert(unsigned long& n, const String& str)
+{
+    bool ok = false;
+    String::const_iterator r = getInt( str.begin(), str.end(), ok, n );
+
+    if (ok)
+        _skipws(r, str.end());
+
+    if( r != str.end() || ! ok )
+        ConversionError::doThrow("unsigned long", "cxxtools::String");
+}
+
+
+void convert(float& n, const String& str)
+{
+    bool ok = false;
+    String::const_iterator r = getFloat(str.begin(), str.end(), ok, n);
+
+    if (ok)
+        _skipws(r, str.end());
+
+    if(r != str.end() || ! ok)
+        ConversionError::doThrow("float", "cxxtools::String");
+}
+
+
+void convert(double& n, const String& str)
+{
+    bool ok = false;
+    String::const_iterator r = getFloat(str.begin(), str.end(), ok, n);
+
+    if (ok)
+        _skipws(r, str.end());
+
+    if(r != str.end() || ! ok)
+        ConversionError::doThrow("double", "cxxtools::String");
+}
+
+
+void convert(long double& n, const String& str)
+{
+    bool ok = false;
+    String::const_iterator r = getFloat(str.begin(), str.end(), ok, n);
+
+    if (ok)
+        _skipws(r, str.end());
+
+    if(r != str.end() || ! ok)
+        ConversionError::doThrow("long double", "cxxtools::String");
+}
+
+//
+// Conversions from cxxtools::Char*
+//
+
+void convert(int& n, const Char* str)
+{
+    bool ok = false;
+    nullterm_array_iterator<Char> it(str);
+    nullterm_array_iterator<Char> end;
+    it = getInt( it, end, ok, n );
+
+    if (ok)
+        _skipws(it, end);
+
+    if( it != end || ! ok )
+        ConversionError::doThrow("int", "const char*");
+}
+
+//
+// Conversions to std::string
+//
+
+void convert(std::string& s, const String& str)
+{
+    s = str.narrow();
+}
+
+
+void convert(std::string& str, bool value)
+{
+    static const char* trueValue = "true";
+    static const char* falseValue = "false";
+    str = value ? trueValue : falseValue;
+}
+
+
+void convert(std::string& str, char value)
+{
+    str.clear();
+    str += value;
+}
+
+
+void convert(std::string& str, signed char value)
+{
+    str.clear();
+    putInt(std::back_inserter(str), value);
+}
+
+
+void convert(std::string& str, unsigned char value)
+{
+    str.clear();
+    putInt(std::back_inserter(str), value);
+}
+
+
+void convert(std::string& str, short value)
+{
+    str.clear();
+    putInt(std::back_inserter(str), value);
+}
+
+
+void convert(std::string& str, unsigned short value)
+{
+    str.clear();
+    putInt(std::back_inserter(str), value);
+}
+
+
+void convert(std::string& str, int value)
+{
+    str.clear();
+    putInt(std::back_inserter(str), value);
+}
+
+
+void convert(std::string& str, unsigned int value)
+{
+    str.clear();
+    putInt(std::back_inserter(str), value);
+}
+
+
+void convert(std::string& str, long value)
+{
+    str.clear();
+    putInt(std::back_inserter(str), value);
+}
+
+
+void convert(std::string& str, unsigned long value)
+{
+    str.clear();
+    putInt(std::back_inserter(str), value);
+}
+
+
+void convert(std::string& str, float value)
+{
+    str.clear();
+    putFloat(std::back_inserter(str), value);
+}
+
+
+void convert(std::string& str, double value)
+{
+    str.clear();
+    putFloat(std::back_inserter(str), value);
+}
+
+
+void convert(std::string& str, long double value)
+{
+    str.clear();
+    putFloat(std::back_inserter(str), value);
+}
+
+//
+// Conversions from std::string
+//
+
 void convert(bool& n, const std::string& str)
 {
     if (str == "true" || str == "1")
@@ -84,282 +492,172 @@ void convert(bool& n, const std::string& str)
         ConversionError::doThrow("bool", "std::string");
 }
 
-void convert(String& s, char value)
-{
-    s = String( 1, Char(value) );
-}
 
-
-void convert(char& n, const String& str)
+void convert(char& c, const std::string& str)
 {
     if ( str.empty() )
-        ConversionError::doThrow("char", "cxxtools::String");
+        ConversionError::doThrow("char", "std::string");
 
-    n = str[0].narrow('*');
+    int n = str[0];
+    c = n;
 }
 
 
-void convert(String& s, unsigned char value)
+void convert(signed char& n, const std::string& str)
 {
-    OStringStream ss;
-    unsigned int i = static_cast<unsigned int>(value);
-    ss << i;
-    s = ss.str();
+    bool ok = false;
+    std::string::const_iterator r = getInt( str.begin(), str.end(), ok, n );
+
+    if( r != str.end() || ! ok )
+        ConversionError::doThrow("signed char", "std::string");
 }
 
 
-void convert(unsigned char& n, const String& str)
+void convert(unsigned char& n, const std::string& str)
 {
-    if ( str.empty() )
-        ConversionError::doThrow("unsigned char", "cxxtools::String");
+    bool ok = false;
+    std::string::const_iterator r = getInt( str.begin(), str.end(), ok, n );
 
-    // interpret as numeric value
-    IStringStream ss(str);
-    Char ch;
-    unsigned int i = 0;
-    ss >> i;
-    if (ss.fail()
-      || i > std::numeric_limits<unsigned char>::max()
-      || i < std::numeric_limits<unsigned char>::min()
-      || !(ss >> ch).eof())
-    {
-        ConversionError::doThrow("unsigned char", "cxxtools::String");
-    }
+    if (ok)
+        _skipws(r, str.end());
 
-    n = static_cast<unsigned char>(i);
+    if( r != str.end() || ! ok )
+        ConversionError::doThrow("unsigned char", "std::string");
 }
 
 
-void convert(String& s, signed char value)
+void convert(short& n, const std::string& str)
 {
-    OStringStream ss;
-    int i = static_cast<signed int>(value);
-    ss << i;
-    s = ss.str();
+    bool ok = false;
+    std::string::const_iterator r = getInt( str.begin(), str.end(), ok, n );
+
+    if (ok)
+        _skipws(r, str.end());
+
+    if( r != str.end() || ! ok )
+        ConversionError::doThrow("short", "std::string");
 }
 
 
-void convert(signed char& n, const String& str)
+void convert(unsigned short& n, const std::string& str)
 {
-    if ( str.empty() )
-        ConversionError::doThrow("signed char", "cxxtools::String");
-        
-    // interpret as numeric value
-    IStringStream ss(str);
-    Char ch;
-    int i = 0;
-    ss >> i;
-    if (ss.fail()
-      || i > std::numeric_limits<signed char>::max()
-      || i < std::numeric_limits<signed char>::min()
-      || !(ss >> ch).eof())
-    {
-        ConversionError::doThrow("signed char", "cxxtools::String");
-    }
-    n = static_cast<signed char>(i);
-}
+    bool ok = false;
+    std::string::const_iterator r = getInt( str.begin(), str.end(), ok, n );
 
-void convert(String& s, float value)
-{
-    // not a number
-    if (value != value)
-    {
-        s = L"nan";
-        return;
-    }
+    if (ok)
+        _skipws(r, str.end());
 
-    OStringStream os;
-    os << value;
-    s = os.str();
+    if( r != str.end() || ! ok )
+        ConversionError::doThrow("unsigned short", "std::string");
 }
 
 
-void convert(float& n, const String& str)
+void convert(int& n, const std::string& str)
 {
-    // not a number
-    if (_stricmpL(str, L"nan"))
-    {
-        n = std::numeric_limits<float>::quiet_NaN();
-        return;
-    }
+    bool ok = false;
+    std::string::const_iterator r = getInt( str.begin(), str.end(), ok, n );
 
-    // inf
-    if (_stricmpL(str, L"inf") || _stricmpL(str.c_str(), L"infinity"))
-    {
-        n = std::numeric_limits<float>::infinity();
-        return;
-    }
+    if (ok)
+        _skipws(r, str.end());
 
-    // -inf
-    if (_stricmpL(str, L"-inf") || _stricmpL(str.c_str(), L"-infinity"))
-    {
-        n = -std::numeric_limits<float>::infinity();
-        return;
-    }
-
-    IStringStream is(str);
-    Char ch;
-    is >> n;
-
-    if (is.fail() || !(is >> ch).eof())
-    {
-        ConversionError::doThrow("float", "cxxtools::String");
-    }
+    if( r != str.end() || ! ok )
+        ConversionError::doThrow("int", "std::string");
 }
 
 
-void convert(String& s, double value)
+void convert(unsigned int& n, const std::string& str)
 {
-    // not a number
-    if (value != value)
-    {
-        s = L"nan";
-        return;
-    }
+    bool ok = false;
+    std::string::const_iterator r = getInt( str.begin(), str.end(), ok, n );
 
-    OStringStream os;
-    os << std::fixed << std::setprecision(15) << value;
-    s = os.str();
+    if (ok)
+        _skipws(r, str.end());
+
+    if( r != str.end() || ! ok )
+        ConversionError::doThrow("unsigned int", "std::string");
 }
 
 
-void convert(double& n, const String& str)
+void convert(long& n, const std::string& str)
 {
-    // not a number
-    if (_stricmpL(str, L"nan"))
-    {
-        n = std::numeric_limits<double>::quiet_NaN();
-        return;
-    }
+    bool ok = false;
+    std::string::const_iterator r = getInt( str.begin(), str.end(), ok, n );
 
-    // inf
-    if (_stricmpL(str, L"inf") || _stricmpL(str.c_str(), L"infinity"))
-    {
-        n = std::numeric_limits<double>::infinity();
-        return;
-    }
+    if (ok)
+        _skipws(r, str.end());
 
-    // -inf
-    if (_stricmpL(str, L"-inf") || _stricmpL(str.c_str(), L"-infinity"))
-    {
-        n = -std::numeric_limits<double>::infinity();
-        return;
-    }
-
-    IStringStream is(str);
-    Char ch;
-    is >> std::fixed >> std::setprecision(15) >> n;
-
-    if (is.fail() || !(is >> ch).eof())
-    {
-        ConversionError::doThrow("double", "cxxtools::String");
-    }
+    if( r != str.end() || ! ok )
+        ConversionError::doThrow("long", "std::string");
 }
 
-void convert(std::string& s, float value)
-{
-    // not a number
-    if (value != value)
-    {
-        s = "nan";
-        return;
-    }
 
-    std::ostringstream os;
-    os << value;
-    s = os.str();
+void convert(unsigned long& n, const std::string& str)
+{
+    bool ok = false;
+    std::string::const_iterator r = getInt( str.begin(), str.end(), ok, n );
+
+    if (ok)
+        _skipws(r, str.end());
+
+    if( r != str.end() || ! ok )
+        ConversionError::doThrow("unsigned long", "std::string");
 }
 
 
 void convert(float& n, const std::string& str)
 {
-    // not a number
-    if (_stricmpL(str.c_str(), "nan"))
-    {
-        n = std::numeric_limits<float>::quiet_NaN();
-        return;
-    }
+    bool ok = false;
+    std::string::const_iterator r = getFloat(str.begin(), str.end(), ok, n);
 
-    // inf
-    if (_stricmpL(str.c_str(), "inf") || _stricmpL(str.c_str(), "infinity"))
-    {
-        n = std::numeric_limits<float>::infinity();
-        return;
-    }
+    if (ok)
+        _skipws(r, str.end());
 
-    // -inf
-    if (_stricmpL(str.c_str(), "-inf") || _stricmpL(str.c_str(), "-infinity"))
-    {
-        n = -std::numeric_limits<float>::infinity();
-        return;
-    }
-
-
-    std::istringstream is(str);
-    char ch;
-    is >> n;
-
-    if (is.fail() || !(is >> ch).eof())
-    {
+    if(r != str.end() || ! ok)
         ConversionError::doThrow("float", "std::string");
-    }
 }
 
-
-void convert(std::string& s, double value)
-{
-    // not a number
-    if (value != value)
-    {
-        s = "nan";
-    }
-    else if (value == std::numeric_limits<double>::infinity())
-    {
-        s = "inf";
-    }
-    else if (value == -std::numeric_limits<double>::infinity())
-    {
-        s = "-inf";
-    }
-    else
-    {
-        std::ostringstream os;
-        os << std::fixed << std::setprecision(15) << value;
-        s = os.str();
-    }
-}
 
 void convert(double& n, const std::string& str)
 {
-    // not a number
-    if (_stricmpL(str.c_str(), "nan"))
-    {
-        n = std::numeric_limits<double>::quiet_NaN();
-        return;
-    }
+    bool ok = false;
+    std::string::const_iterator r = getFloat(str.begin(), str.end(), ok, n);
 
-    // inf
-    if (_stricmpL(str.c_str(), "inf") || _stricmpL(str.c_str(), "infinity"))
-    {
-        n = std::numeric_limits<double>::infinity();
-        return;
-    }
+    if (ok)
+        _skipws(r, str.end());
 
-    // -inf
-    if (_stricmpL(str.c_str(), "-inf") || _stricmpL(str.c_str(), "-infinity"))
-    {
-        n = -std::numeric_limits<double>::infinity();
-        return;
-    }
-
-    std::stringstream is(str);
-    char ch;
-    is >> std::fixed >> std::setprecision(15) >> n;
-
-    if (is.fail() || !(is >> ch).eof())
-    {
+    if(r != str.end() || ! ok)
         ConversionError::doThrow("double", "std::string");
-    }
+}
+
+
+void convert(long double& n, const std::string& str)
+{
+    bool ok = false;
+    std::string::const_iterator r = getFloat(str.begin(), str.end(), ok, n);
+
+    if (ok)
+        _skipws(r, str.end());
+
+    if(r != str.end() || ! ok)
+        ConversionError::doThrow("long double", "std::string");
+}
+
+//
+// Conversions from const char*
+//
+
+void convert(int& n, const char* str)
+{
+    bool ok = false;
+    nullterm_array_iterator<char> it(str);
+    nullterm_array_iterator<char> end;
+    it = getInt( it, end, ok, n );
+
+    if (ok)
+        _skipws(it, end);
+
+    if( it != end || ! ok )
+        ConversionError::doThrow("int", "const char*");
 }
 
 }
