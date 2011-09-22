@@ -9,6 +9,14 @@ type: byte
                3=string
                4=int
                5=double
+               16=int8
+               17=int16
+               18=int32
+               19=int64
+               24=uint8
+               25=uint16
+               26=uint32
+               27=uint64
                32=pair
                64=array
                65=list

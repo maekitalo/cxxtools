@@ -27,6 +27,7 @@
  */
 
 #include <cxxtools/deserializer.h>
+#include <cxxtools/binserializer.h>
 #include <cxxtools/noncopyable.h>
 
 namespace cxxtools
@@ -34,6 +35,8 @@ namespace cxxtools
     class CXXTOOLS_API BinDeserializer : private NonCopyable
     {
         public:
+            typedef BinSerializer::TypeCode TypeCode;
+
             BinDeserializer(std::istream& in);
 
             template <typename T>
@@ -57,8 +60,8 @@ namespace cxxtools
         private:
             BinDeserializer(BinDeserializer& s);
             void read(std::string& str);
-            void readType(std::string& str);
-            void processValueData(IDeserializer* deser);
+            TypeCode readType(std::string& str);
+            void processValueData(IDeserializer* deser, TypeCode typeCode);
             void processObjectMembers(IDeserializer* deser);
             void processArrayData(IDeserializer* deser);
             void processReference(IDeserializer* deser);

@@ -28,6 +28,8 @@
 
 #include <cxxtools/binserializer.h>
 #include <cxxtools/utf8codec.h>
+#include <limits>
+#include <stdint.h>
 
 namespace cxxtools
 {
@@ -97,12 +99,98 @@ void BinFormatter::addValue(const std::string& name, const std::string& type,
 {
     *_out << static_cast<char>(SerializationInfo::Value)
           << name << '\0';
-    printTypeCode(*_out, type);
-    *_out << id << '\0';
 
-    _ts << value;
-    _ts.flush();
-    *_out << '\0' << '\xff';
+    if (type == "int")
+    {
+        if (value.size() > 0 && value[0] == L'-' || value[0] == L'+')
+        {
+            int64_t v = convert<int64_t>(value);
+            if (v >= std::numeric_limits<int8_t>::min() && v <= std::numeric_limits<int8_t>::max())
+            {
+                *_out << static_cast<char>(BinSerializer::TypeInt8)
+                      << id << '\0'
+                      << static_cast<char>(v);
+            }
+            else if (v >= std::numeric_limits<int16_t>::min() && v <= std::numeric_limits<int16_t>::max())
+            {
+                *_out << static_cast<char>(BinSerializer::TypeInt16)
+                      << id << '\0'
+                      << static_cast<char>(v)
+                      << static_cast<char>(v >> 8);
+            }
+            else if (v >= std::numeric_limits<int32_t>::min() && v <= std::numeric_limits<int32_t>::max())
+            {
+                *_out << static_cast<char>(BinSerializer::TypeInt32)
+                      << id << '\0'
+                      << static_cast<char>(v)
+                      << static_cast<char>(v >> 8)
+                      << static_cast<char>(v >> 16)
+                      << static_cast<char>(v >> 24);
+            }
+            else
+            {
+                *_out << static_cast<char>(BinSerializer::TypeInt64)
+                      << id << '\0'
+                      << static_cast<char>(v)
+                      << static_cast<char>(v >> 8)
+                      << static_cast<char>(v >> 16)
+                      << static_cast<char>(v >> 24)
+                      << static_cast<char>(v >> 32)
+                      << static_cast<char>(v >> 40)
+                      << static_cast<char>(v >> 48)
+                      << static_cast<char>(v >> 56);
+            }
+        }
+        else
+        {
+            uint64_t v = convert<uint64_t>(value);
+            if (v <= std::numeric_limits<uint8_t>::max())
+            {
+                *_out << static_cast<char>(BinSerializer::TypeUInt8)
+                      << id << '\0'
+                      << static_cast<char>(v);
+            }
+            else if (v <= std::numeric_limits<uint16_t>::max())
+            {
+                *_out << static_cast<char>(BinSerializer::TypeUInt16)
+                      << id << '\0'
+                      << static_cast<char>(v)
+                      << static_cast<char>(v >> 8);
+            }
+            else if (v <= std::numeric_limits<uint32_t>::max())
+            {
+                *_out << static_cast<char>(BinSerializer::TypeUInt32)
+                      << id << '\0'
+                      << static_cast<char>(v)
+                      << static_cast<char>(v >> 8)
+                      << static_cast<char>(v >> 16)
+                      << static_cast<char>(v >> 24);
+            }
+            else
+            {
+                *_out << static_cast<char>(BinSerializer::TypeUInt64)
+                      << id << '\0'
+                      << static_cast<char>(v)
+                      << static_cast<char>(v >> 8)
+                      << static_cast<char>(v >> 16)
+                      << static_cast<char>(v >> 24)
+                      << static_cast<char>(v >> 32)
+                      << static_cast<char>(v >> 40)
+                      << static_cast<char>(v >> 48)
+                      << static_cast<char>(v >> 56);
+            }
+        }
+    }
+    else
+    {
+        printTypeCode(*_out, type);
+        *_out << id << '\0';
+        _ts << value;
+        _ts.flush();
+        *_out << '\0';
+    }
+
+    *_out << '\xff';
 }
 
 void BinFormatter::addReference(const std::string& name, const cxxtools::String& value)

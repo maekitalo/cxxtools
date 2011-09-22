@@ -31,6 +31,8 @@
 #include "cxxtools/serializationinfo.h"
 #include "cxxtools/binserializer.h"
 #include "cxxtools/bindeserializer.h"
+#include <limits>
+#include <stdint.h>
 
 namespace
 {
@@ -101,6 +103,7 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
             : cxxtools::unit::TestSuite("binserializer")
         {
             registerMethod("testScalar", *this, &BinSerializerTest::testScalar);
+            registerMethod("testInt", *this, &BinSerializerTest::testInt);
             registerMethod("testArray", *this, &BinSerializerTest::testArray);
             registerMethod("testObject", *this, &BinSerializerTest::testObject);
             registerMethod("testComplexObject", *this, &BinSerializerTest::testComplexObject);
@@ -119,6 +122,47 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
             deserializer.deserialize(value2);
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(value, value2);
+        }
+
+        template <typename IntT>
+        void testIntValue(IntT value)
+        {
+            std::stringstream data;
+            cxxtools::BinSerializer serializer(data);
+            cxxtools::BinDeserializer deserializer(data);
+
+            serializer.serialize(value, "value");
+
+            IntT result = 0;
+            deserializer.deserialize(result);
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(value, result);
+        }
+
+        void testInt()
+        {
+            testIntValue(30);
+            testIntValue(300);
+            testIntValue(100000);
+
+            testIntValue(-30);
+            testIntValue(-300);
+            testIntValue(-100000);
+
+            testIntValue(static_cast<int64_t>(std::numeric_limits<int8_t>::max()) + 1);
+            testIntValue(static_cast<int64_t>(std::numeric_limits<int16_t>::max()) + 1);
+            testIntValue(static_cast<int64_t>(std::numeric_limits<int32_t>::max()) + 1);
+            testIntValue(std::numeric_limits<int64_t>::max());
+
+            testIntValue(static_cast<int64_t>(std::numeric_limits<int8_t>::min()) - 1);
+            testIntValue(static_cast<int64_t>(std::numeric_limits<int16_t>::min()) - 1);
+            testIntValue(static_cast<int64_t>(std::numeric_limits<int32_t>::min()) - 1);
+            testIntValue(std::numeric_limits<int64_t>::min());
+
+            testIntValue(static_cast<uint64_t>(std::numeric_limits<uint8_t>::max()) + 1);
+            testIntValue(static_cast<uint64_t>(std::numeric_limits<uint16_t>::max()) + 1);
+            testIntValue(static_cast<uint64_t>(std::numeric_limits<uint32_t>::max()) + 1);
+            testIntValue(std::numeric_limits<uint64_t>::max());
         }
 
         void testArray()

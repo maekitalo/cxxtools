@@ -29,7 +29,12 @@
 #include <cxxtools/bindeserializer.h>
 #include <cxxtools/binserializer.h>
 #include <cxxtools/utf8codec.h>
+#include <cxxtools/log.h>
 #include <iostream>
+#include <sstream>
+#include <stdint.h>
+
+log_define("cxxtools.bindeserializer")
 
 namespace cxxtools
 {
@@ -55,9 +60,11 @@ void BinDeserializer::get(IDeserializer* deser)
     read(name);
     deser->setName(name);
 
+    TypeCode typeCode = BinSerializer::TypeEmpty;
+
     if (category != SerializationInfo::Reference)
     {
-        readType(_type);
+        typeCode = readType(_type);
         deser->setTypeName(_type);
 
         read(id);
@@ -67,7 +74,7 @@ void BinDeserializer::get(IDeserializer* deser)
     switch (category)
     {
         case SerializationInfo::Value:
-            processValueData(deser);
+            processValueData(deser, typeCode);
             break;
 
         case SerializationInfo::Object:
@@ -94,18 +101,26 @@ void BinDeserializer::read(std::string& str)
         str += ch;
 }
 
-void BinDeserializer::readType(std::string& str)
+BinDeserializer::TypeCode BinDeserializer::readType(std::string& str)
 {
-    char ch;
-    if (_in.get(ch))
+    TypeCode typeCode = static_cast<BinSerializer::TypeCode>(_in.get());
+    if (_in)
     {
-        switch (static_cast<BinSerializer::TypeCode>(ch))
+        switch (typeCode)
         {
             case BinSerializer::TypeEmpty: str.clear(); break;
             case BinSerializer::TypeBool: str = "bool"; break;
             case BinSerializer::TypeChar: str = "char"; break;
             case BinSerializer::TypeString: str = "string"; break;
-            case BinSerializer::TypeInt: str = "int"; break;
+            case BinSerializer::TypeInt:
+            case BinSerializer::TypeInt8:
+            case BinSerializer::TypeInt16:
+            case BinSerializer::TypeInt32:
+            case BinSerializer::TypeInt64:
+            case BinSerializer::TypeUInt8:
+            case BinSerializer::TypeUInt16:
+            case BinSerializer::TypeUInt32:
+            case BinSerializer::TypeUInt64: str = "int"; break;
             case BinSerializer::TypeDouble: str = "double"; break;
             case BinSerializer::TypePair: str = "pair"; break;
             case BinSerializer::TypeArray: str = "array"; break;
@@ -115,22 +130,152 @@ void BinDeserializer::readType(std::string& str)
             case BinSerializer::TypeMultiset: str = "multiset"; break;
             case BinSerializer::TypeMap: str = "map"; break;
             case BinSerializer::TypeMultimap: str = "multimap"; break;
-            default: read(str); break;
+            case BinSerializer::TypeOther: read(str); break;
+            default:
+            {
+                std::ostringstream msg;
+                msg << "unknown serialization type code " << typeCode; 
+                throw SerializationError(CXXTOOLS_ERROR_MSG(msg.str())); 
+            }
         }
     }
+
+    return typeCode;
 }
 
-void BinDeserializer::processValueData(IDeserializer* deser)
+void BinDeserializer::processValueData(IDeserializer* deser, TypeCode typeCode)
 {
+    std::string value;
     char ch;
 
-    std::string value;
-    while (_in.get(ch) && ch != '\0')
-        value += ch;
-    deser->setValue(Utf8Codec::decode(value.data(), value.size()));
+    switch (typeCode)
+    {
+        case BinSerializer::TypeInt8:
+            {
+                int8_t ch = static_cast<int8_t>(_in.get());
+                value = convert<std::string>(ch);
+            }
+            break;
+
+        case BinSerializer::TypeUInt8:
+            {
+                uint8_t ch = static_cast<uint8_t>(_in.get());
+                value = convert<std::string>(ch);
+            }
+            break;
+
+        case BinSerializer::TypeInt16:
+            {
+                int16_t v;
+                uint8_t ch = static_cast<uint8_t>(_in.get());
+                v = static_cast<uint16_t>(ch);
+                ch = static_cast<uint8_t>(_in.get());
+                v |= static_cast<uint16_t>(ch) << 8;
+                value = convert<std::string>(v);
+            }
+            break;
+
+        case BinSerializer::TypeUInt16:
+            {
+                uint16_t v;
+                uint8_t ch = static_cast<uint8_t>(_in.get());
+                v = static_cast<uint16_t>(ch);
+                ch = static_cast<uint8_t>(_in.get());
+                v |= static_cast<uint16_t>(ch) << 8;
+                value = convert<std::string>(v);
+            }
+            break;
+
+        case BinSerializer::TypeInt32:
+            {
+                int32_t v;
+                uint8_t ch = static_cast<uint8_t>(_in.get());
+                v = static_cast<uint32_t>(ch);
+                ch = static_cast<uint8_t>(_in.get());
+                v |= static_cast<uint32_t>(ch) << 8;
+                ch = static_cast<uint8_t>(_in.get());
+                v |= static_cast<uint32_t>(ch) << 16;
+                ch = static_cast<uint8_t>(_in.get());
+                v |= static_cast<uint32_t>(ch) << 24;
+                value = convert<std::string>(v);
+            }
+            break;
+
+        case BinSerializer::TypeUInt32:
+            {
+                uint32_t v;
+                uint8_t ch = static_cast<uint8_t>(_in.get());
+                v = static_cast<uint32_t>(ch);
+                ch = static_cast<uint8_t>(_in.get());
+                v |= static_cast<uint32_t>(ch) << 8;
+                ch = static_cast<uint8_t>(_in.get());
+                v |= static_cast<uint32_t>(ch) << 16;
+                ch = static_cast<uint8_t>(_in.get());
+                v |= static_cast<uint32_t>(ch) << 24;
+                value = convert<std::string>(v);
+            }
+            break;
+
+        case BinSerializer::TypeInt64:
+            {
+                int64_t v;
+                uint8_t ch = static_cast<uint8_t>(_in.get());
+                v = static_cast<int64_t>(ch);
+                ch = static_cast<uint8_t>(_in.get());
+                v |= static_cast<uint64_t>(ch) << 8;
+                ch = static_cast<uint8_t>(_in.get());
+                v |= static_cast<uint64_t>(ch) << 16;
+                ch = static_cast<uint8_t>(_in.get());
+                v |= static_cast<uint64_t>(ch) << 24;
+                ch = static_cast<uint8_t>(_in.get());
+                v |= static_cast<uint64_t>(ch) << 32;
+                ch = static_cast<uint8_t>(_in.get());
+                v |= static_cast<uint64_t>(ch) << 40;
+                ch = static_cast<uint8_t>(_in.get());
+                v |= static_cast<uint64_t>(ch) << 48;
+                ch = static_cast<uint8_t>(_in.get());
+                v |= static_cast<uint64_t>(ch) << 56;
+                value = convert<std::string>(v);
+            }
+            break;
+
+        case BinSerializer::TypeUInt64:
+            {
+                uint64_t v;
+                uint8_t ch = static_cast<uint8_t>(_in.get());
+                v = static_cast<uint64_t>(ch);
+                ch = static_cast<uint8_t>(_in.get());
+                v |= static_cast<uint64_t>(ch) << 8;
+                ch = static_cast<uint8_t>(_in.get());
+                v |= static_cast<uint64_t>(ch) << 16;
+                ch = static_cast<uint8_t>(_in.get());
+                v |= static_cast<uint64_t>(ch) << 24;
+                ch = static_cast<uint8_t>(_in.get());
+                v |= static_cast<uint64_t>(ch) << 32;
+                ch = static_cast<uint8_t>(_in.get());
+                v |= static_cast<uint64_t>(ch) << 40;
+                ch = static_cast<uint8_t>(_in.get());
+                v |= static_cast<uint64_t>(ch) << 48;
+                ch = static_cast<uint8_t>(_in.get());
+                v |= static_cast<uint64_t>(ch) << 56;
+                value = convert<std::string>(v);
+            }
+            break;
+
+        default:
+            {
+                while (_in.get(ch) && ch != '\0')
+                    value += ch;
+            }
+            break;
+    }
 
     if (_in.get(ch) && ch != '\xff')
         throw SerializationError(CXXTOOLS_ERROR_MSG("end of data marker expected")); 
+
+    log_debug("type code=" << typeCode << " value=" << value);
+
+    deser->setValue(Utf8Codec::decode(value.data(), value.size()));
 }
 
 void BinDeserializer::processObjectMembers(IDeserializer* deser)
