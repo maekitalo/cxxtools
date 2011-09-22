@@ -81,65 +81,73 @@ namespace unit {
     };
 
     #define CXXTOOLS_UNIT_ASSERT(cond) \
-        if( !(cond) ) \
-            throw cxxtools::unit::Assertion(#cond, CXXTOOLS_SOURCEINFO);
+        do { \
+            if( !(cond) ) \
+                throw cxxtools::unit::Assertion(#cond, CXXTOOLS_SOURCEINFO); \
+        } while (false)
 
     #define CXXTOOLS_UNIT_ASSERT_MSG(cond, what) \
-        if( !(cond) ) \
-        { \
-            std::ostringstream _cxxtools_msg; \
-            _cxxtools_msg << what; \
-            throw cxxtools::unit::Assertion(_cxxtools_msg.str(), CXXTOOLS_SOURCEINFO); \
-        }
+        do { \
+            if( !(cond) ) \
+            { \
+                std::ostringstream _cxxtools_msg; \
+                _cxxtools_msg << what; \
+                throw cxxtools::unit::Assertion(_cxxtools_msg.str(), CXXTOOLS_SOURCEINFO); \
+            } \
+        } while (false)
 
     #define CXXTOOLS_UNIT_ASSERT_EQUALS(value1, value2) \
-        if( ! ((value1) == (value2)) ) \
-        { \
-            std::ostringstream _cxxtools_msg; \
-            _cxxtools_msg << "not equal: value1 (" #value1 ")=<" << value1 << "> value2 (" #value2 ")=<" << value2 << '>'; \
-            throw cxxtools::unit::Assertion(_cxxtools_msg.str(), CXXTOOLS_SOURCEINFO); \
-        }
+        do { \
+            if( ! ((value1) == (value2)) ) \
+            { \
+                std::ostringstream _cxxtools_msg; \
+                _cxxtools_msg << "not equal: value1 (" #value1 ")=<" << value1 << "> value2 (" #value2 ")=<" << value2 << '>'; \
+                throw cxxtools::unit::Assertion(_cxxtools_msg.str(), CXXTOOLS_SOURCEINFO); \
+            } \
+        } while (false)
 
     #define CXXTOOLS_UNIT_ASSERT_THROW(cond, EX) \
-      { \
-          struct _cxxtools_ex { }; \
-          try \
-          { \
-              cond; \
-              throw _cxxtools_ex(); \
-          } \
-          catch(const _cxxtools_ex &) \
-          { \
-              std::ostringstream _cxxtools_msg; \
-              _cxxtools_msg << "exception of type " #EX " expected in " #cond; \
-              throw cxxtools::unit::Assertion(_cxxtools_msg.str(), CXXTOOLS_SOURCEINFO); \
-          } \
-          catch(const EX &) \
-          {} \
-      }
+        do { \
+            struct _cxxtools_ex { }; \
+            try \
+            { \
+                cond; \
+                throw _cxxtools_ex(); \
+            } \
+            catch(const _cxxtools_ex &) \
+            { \
+                std::ostringstream _cxxtools_msg; \
+                _cxxtools_msg << "exception of type " #EX " expected in " #cond; \
+                throw cxxtools::unit::Assertion(_cxxtools_msg.str(), CXXTOOLS_SOURCEINFO); \
+            } \
+            catch(const EX &) \
+            {} \
+        } while (false)
 
     #define CXXTOOLS_UNIT_ASSERT_NOTHROW(cond) \
-        try { \
-        \
-            cond; \
-        } \
-        catch(const std::exception& e) \
-        { \
-            throw cxxtools::unit::Assertion( \
-                std::string("unexpected exception of type ") + typeid(e).name() + ": " + e.what(), \
-                CXXTOOLS_SOURCEINFO); \
-        } \
-        catch(...) \
-        { \
-            throw cxxtools::unit::Assertion("unexpected exception." , CXXTOOLS_SOURCEINFO); \
-        }
+        do { \
+            try { \
+            \
+                cond; \
+            } \
+            catch(const std::exception& e) \
+            { \
+                throw cxxtools::unit::Assertion( \
+                    std::string("unexpected exception of type ") + typeid(e).name() + ": " + e.what(), \
+                    CXXTOOLS_SOURCEINFO); \
+            } \
+            catch(...) \
+            { \
+                throw cxxtools::unit::Assertion("unexpected exception." , CXXTOOLS_SOURCEINFO); \
+            } \
+        } while (false)
 
     #define CXXTOOLS_UNIT_FAIL(what) \
-        { \
+        do { \
             std::ostringstream _cxxtools_msg; \
             _cxxtools_msg << what; \
             throw cxxtools::unit::Assertion(_cxxtools_msg.str(), CXXTOOLS_SOURCEINFO); \
-        }
+        } while (false)
 
 } // namespace unit
 
