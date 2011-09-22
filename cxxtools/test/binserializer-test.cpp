@@ -31,8 +31,11 @@
 #include "cxxtools/serializationinfo.h"
 #include "cxxtools/binserializer.h"
 #include "cxxtools/bindeserializer.h"
+#include "cxxtools/log.h"
 #include <limits>
 #include <stdint.h>
+
+log_define("cxxtools.test.binserializer")
 
 namespace
 {
@@ -104,6 +107,7 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
         {
             registerMethod("testScalar", *this, &BinSerializerTest::testScalar);
             registerMethod("testInt", *this, &BinSerializerTest::testInt);
+            registerMethod("testDouble", *this, &BinSerializerTest::testDouble);
             registerMethod("testArray", *this, &BinSerializerTest::testArray);
             registerMethod("testObject", *this, &BinSerializerTest::testObject);
             registerMethod("testComplexObject", *this, &BinSerializerTest::testComplexObject);
@@ -163,6 +167,49 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
             testIntValue(static_cast<uint64_t>(std::numeric_limits<uint16_t>::max()) + 1);
             testIntValue(static_cast<uint64_t>(std::numeric_limits<uint32_t>::max()) + 1);
             testIntValue(std::numeric_limits<uint64_t>::max());
+        }
+
+        void testDoubleValue(double value)
+        {
+            std::stringstream data;
+            cxxtools::BinSerializer serializer(data);
+            cxxtools::BinDeserializer deserializer(data);
+
+            serializer.serialize(value, "value");
+            double result = 0.0;
+            deserializer.deserialize(result);
+
+            log_debug("test double value " << value << " => " << result);
+
+            if (value != value) // check for nan
+                CXXTOOLS_UNIT_ASSERT(result != result);
+            else if (value == std::numeric_limits<double>::infinity())
+                CXXTOOLS_UNIT_ASSERT_EQUALS(result, std::numeric_limits<double>::infinity());
+            else if (value == -std::numeric_limits<double>::infinity())
+                CXXTOOLS_UNIT_ASSERT_EQUALS(result, -std::numeric_limits<double>::infinity());
+            else
+                CXXTOOLS_UNIT_ASSERT(value / result < 1.00001 && value / result > 0.99999);
+        }
+
+        void testDouble()
+        {
+            testDoubleValue(-3.877e-123);
+            testDoubleValue(std::numeric_limits<double>::max());
+            //testDoubleValue(std::numeric_limits<double>::min());
+            testDoubleValue(std::numeric_limits<double>::infinity());
+            testDoubleValue(-std::numeric_limits<double>::infinity());
+            testDoubleValue(std::numeric_limits<double>::quiet_NaN());
+
+            std::stringstream data;
+            cxxtools::BinSerializer serializer(data);
+            cxxtools::BinDeserializer deserializer(data);
+
+            serializer.serialize(std::numeric_limits<double>::quiet_NaN(), "value");
+            double result = 0.0;
+            deserializer.deserialize(result);
+
+            CXXTOOLS_UNIT_ASSERT(result != result); 
+
         }
 
         void testArray()

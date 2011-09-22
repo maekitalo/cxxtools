@@ -100,25 +100,30 @@ void benchBinSerialization(const T& d)
     benchSerialization<T, cxxtools::BinSerializer, cxxtools::BinDeserializer>(d);
 }
 
+template <typename T>
+void benchVector(const char* typeName, unsigned N)
+{
+    std::cout << "vector of " << typeName << " values:" << std::endl;
+
+    std::vector<T> v;
+    for (unsigned n = 0; n < N; ++n)
+        v.push_back(n);
+
+    std::cout << "xml:" << std::endl;
+    benchXmlSerialization(v);
+
+    std::cout << "bin:" << std::endl;
+    benchBinSerialization(v);
+}
+
 int main(int argc, char* argv[])
 {
     try
     {
         cxxtools::Arg<unsigned> N(argc, argv, 'n', 10000);
 
-        {
-            std::cout << "vector of int values:" << std::endl;
-
-            std::vector<int> v;
-            for (unsigned n = 0; n < N; ++n)
-                v.push_back(n);
-
-            std::cout << "xml:" << std::endl;
-            benchXmlSerialization(v);
-
-            std::cout << "bin:" << std::endl;
-            benchBinSerialization(v);
-        }
+        benchVector<int>("int", N);
+        benchVector<double>("double", N);
 
         {
             std::cout << "vector of custom objects:" << std::endl;

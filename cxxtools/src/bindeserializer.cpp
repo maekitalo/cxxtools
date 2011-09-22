@@ -54,7 +54,7 @@ void BinDeserializer::get(IDeserializer* deser)
 
     char ch;
     if (!_in.get(ch))
-        throw SerializationError(CXXTOOLS_ERROR_MSG("category expected")); 
+        throw SerializationError(CXXTOOLS_ERROR_MSG("category expected"));
     category = static_cast<SerializationInfo::Category>(ch);
 
     read(name);
@@ -90,7 +90,7 @@ void BinDeserializer::get(IDeserializer* deser)
             break;
 
         default:
-            throw SerializationError(CXXTOOLS_ERROR_MSG("unknown category")); 
+            throw SerializationError(CXXTOOLS_ERROR_MSG("unknown category"));
     }
 }
 
@@ -121,7 +121,8 @@ BinDeserializer::TypeCode BinDeserializer::readType(std::string& str)
             case BinSerializer::TypeUInt16:
             case BinSerializer::TypeUInt32:
             case BinSerializer::TypeUInt64: str = "int"; break;
-            case BinSerializer::TypeDouble: str = "double"; break;
+            case BinSerializer::TypeDouble:
+            case BinSerializer::TypeBcdDouble: str = "double"; break;
             case BinSerializer::TypePair: str = "pair"; break;
             case BinSerializer::TypeArray: str = "array"; break;
             case BinSerializer::TypeList: str = "list"; break;
@@ -134,8 +135,8 @@ BinDeserializer::TypeCode BinDeserializer::readType(std::string& str)
             default:
             {
                 std::ostringstream msg;
-                msg << "unknown serialization type code " << typeCode; 
-                throw SerializationError(CXXTOOLS_ERROR_MSG(msg.str())); 
+                msg << "unknown serialization type code " << typeCode;
+                throw SerializationError(msg.str(), CXXTOOLS_SOURCEINFO);
             }
         }
     }
@@ -262,6 +263,37 @@ void BinDeserializer::processValueData(IDeserializer* deser, TypeCode typeCode)
             }
             break;
 
+        case BinSerializer::TypeBcdDouble:
+            {
+                if (_in.get(ch))
+                {
+                    if (ch == '\xf0')
+                    {
+                        value = "nan";
+                    }
+                    else if (ch == '\xf1')
+                    {
+                        value = "inf";
+                    }
+                    else if (ch == '\xf2')
+                    {
+                        value = "-inf";
+                    }
+                    else
+                    {
+                        static const char d[16] = "0123456789+-. e";
+                        while (_in && ch != '\xff')
+                        {
+                            value += d[static_cast<uint8_t>(ch) >> 4];
+                            value += d[static_cast<uint8_t>(ch) & 0xf];
+                            _in.get(ch);
+                        }
+                        _in.putback(ch);
+                    }
+                }
+            }
+            break;
+
         default:
             {
                 while (_in.get(ch) && ch != '\0')
@@ -271,7 +303,7 @@ void BinDeserializer::processValueData(IDeserializer* deser, TypeCode typeCode)
     }
 
     if (_in.get(ch) && ch != '\xff')
-        throw SerializationError(CXXTOOLS_ERROR_MSG("end of data marker expected")); 
+        throw SerializationError(CXXTOOLS_ERROR_MSG("end of data marker expected"));
 
     log_debug("type code=" << typeCode << " value=" << value);
 
@@ -284,7 +316,7 @@ void BinDeserializer::processObjectMembers(IDeserializer* deser)
     while (_in.get(ch) && ch != '\xff')
     {
         if (ch != '\1')
-            throw SerializationError(CXXTOOLS_ERROR_MSG("object member marker expected")); 
+            throw SerializationError(CXXTOOLS_ERROR_MSG("object member marker expected"));
 
         std::string memberName;
         read(memberName);
@@ -315,7 +347,7 @@ void BinDeserializer::processReference(IDeserializer* deser)
     deser->setReference(ref);
     char ch = '\0';
     if (_in.get(ch) && ch != '\xff')
-        throw SerializationError(CXXTOOLS_ERROR_MSG("end of data marker expected")); 
+        throw SerializationError(CXXTOOLS_ERROR_MSG("end of data marker expected"));
 }
 
 }

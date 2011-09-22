@@ -9,6 +9,7 @@ type: byte
                3=string
                4=int
                5=double
+               6=bcd double
                16=int8
                17=int16
                18=int32
@@ -73,4 +74,15 @@ reference:
     \8                       category
     foo\0                    name
     bar\0                    value
+    \xff                     eod
+
+bcd double:
+    \xf0   nan
+    \xf1   inf
+    \xf2   -inf
+    half bytes:  0-9: digits
+                 a: +
+                 b: -
+                 c: .
+                 e: e
     \xff                     eod

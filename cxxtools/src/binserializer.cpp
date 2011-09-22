@@ -28,8 +28,11 @@
 
 #include <cxxtools/binserializer.h>
 #include <cxxtools/utf8codec.h>
+#include <cxxtools/log.h>
 #include <limits>
 #include <stdint.h>
+
+log_define("cxxtools.binserializer")
 
 namespace cxxtools
 {
@@ -102,7 +105,7 @@ void BinFormatter::addValue(const std::string& name, const std::string& type,
 
     if (type == "int")
     {
-        if (value.size() > 0 && value[0] == L'-' || value[0] == L'+')
+        if (value.size() > 0 && (value[0] == L'-' || value[0] == L'+'))
         {
             int64_t v = convert<int64_t>(value);
             if (v >= std::numeric_limits<int8_t>::min() && v <= std::numeric_limits<int8_t>::max())
@@ -179,6 +182,63 @@ void BinFormatter::addValue(const std::string& name, const std::string& type,
                       << static_cast<char>(v >> 48)
                       << static_cast<char>(v >> 56);
             }
+        }
+    }
+    else if (type == "double")
+    {
+        static const char d[257] = "                " // 00-0f
+                                   "                " // 10-1f
+                                   "           \xa \xb\xc " // 20-2f
+                                   "\x0\x1\x2\x3\x4\x5\x6\x7\x8\x9      " // 30-3f
+                                   "                " // 40-4f
+                                   "                " // 50-5f
+                                   "     \xe          " // 60-6f
+                                   "                " // 70-7f
+                                   "                " // 80-8f
+                                   "                " // 90-9f
+                                   "                " // a0-af
+                                   "                " // b0-bf
+                                   "                " // c0-cf
+                                   "                " // d0-df
+                                   "                " // e0-ef
+                                   "                "; // f0-ff
+
+        *_out << static_cast<char>(BinSerializer::TypeBcdDouble)
+              << id << '\0';
+
+        log_debug("bcd encode " << value.narrow());
+
+        if (value == String(L"nan"))
+        {
+            *_out << '\xf0';
+        }
+        else if (value == String(L"inf"))
+        {
+            *_out << '\xf1';
+        }
+        else if (value == String(L"-inf"))
+        {
+            *_out << '\xf2';
+        }
+        else
+        {
+            bool high = true;
+            char ch;
+            for (String::const_iterator it = value.begin(); it != value.end(); ++it)
+            {
+                int v = it->value();
+                if (high)
+                    ch = d[v] << 4;
+                else
+                {
+                    ch |= d[v];
+                    *_out << ch;
+                }
+                high = !high;
+            }
+
+            if (!high)
+                *_out << static_cast<char>(ch | '\xd');
         }
     }
     else

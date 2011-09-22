@@ -82,6 +82,7 @@ namespace cxxtools
                 TypeString = 3,
                 TypeInt = 4,
                 TypeDouble = 5,
+                TypeBcdDouble = 6,
                 TypeInt8 = 16,
                 TypeInt16 = 17,
                 TypeInt32 = 18,
