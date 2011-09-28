@@ -34,24 +34,17 @@
 #include <cxxtools/eventloop.h>
 
 ////////////////////////////////////////////////////////////////////////
-// This defines a xmlrpc service. A xmlrpc service defines functions, which
-// can be called remotely.
+// This defines functions, which we want to be called remotely.
 //
-class EchoServerService : public cxxtools::xmlrpc::Service
-{
-  public:
-    EchoServerService()
-    {
-      registerMethod("echo", *this, &EchoServerService::echo);
-    }
-
-    std::string echo(const std::string& message);
-};
-
-std::string EchoServerService::echo(const std::string& message)
+std::string echo(const std::string& message)
 {
   std::cout << message << std::endl;
   return message;
+}
+
+double add(double a1, double a2)
+{
+  return a1 + a2;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -68,15 +61,20 @@ int main(int argc, char* argv[])
 
     std::cout << "run rpcecho server" << std::endl;
 
-    // create a event loop
+    // create an event loop
     cxxtools::EventLoop loop;
 
-    // the http server is instantiated with a ip address and a port number
+    // the http server is instantiated with an ip address and a port number
     cxxtools::http::Server server(loop, ip, port);
 
     // we create an instance of the service class
-    EchoServerService service;
-    // ... and register it under a url
+    cxxtools::xmlrpc::Service service;
+
+    // we register our functions
+    service.registerFunction("echo", echo);
+    service.registerFunction("add", add);
+
+    // ... and register the service under a url
     server.addService("/myservice", service);
 
     // now start the server and run the event loop

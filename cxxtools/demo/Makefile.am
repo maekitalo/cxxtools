@@ -1,7 +1,7 @@
 noinst_PROGRAMS = arg arg-set cgi dir dlloader getini hd \
 	httprequest httpserver log logbench logsh md5sum mime multifstream netcat \
 	netio netmsg pipestream pool signals thread threadpool uuencode cxxlog \
-	rpcechoserver rpcechoclient splitter json regex execLs
+	rpcserver rpcechoclient rpcaddclient splitter json regex execLs
 
 arg_SOURCES = arg.cpp
 arg_set_SOURCES = arg-set.cpp
@@ -28,8 +28,9 @@ thread_SOURCES = thread.cpp
 threadpool_SOURCES = threadpool.cpp
 uuencode_SOURCES = uuencode.cpp
 cxxlog_SOURCES = cxxlog.cpp
-rpcechoserver_SOURCES = rpcechoserver.cpp
+rpcserver_SOURCES = rpcserver.cpp
 rpcechoclient_SOURCES = rpcechoclient.cpp
+rpcaddclient_SOURCES = rpcaddclient.cpp
 splitter_SOURCES = splitter.cpp
 json_SOURCES = json.cpp
 regex_SOURCES = regex.cpp
@@ -50,8 +51,9 @@ AM_CXXFLAGS = $(PTHREAD_CFLAGS)
 
 httpserver_LDADD =  $(HTTP_LIBS)
 httprequest_LDADD = $(HTTP_LIBS)
-rpcechoserver_LDADD = $(XMLRPC_LIBS)
+rpcserver_LDADD = $(XMLRPC_LIBS)
 rpcechoclient_LDADD = $(XMLRPC_LIBS)
+rpcaddclient_LDADD = $(XMLRPC_LIBS)
 json_LDADD = $(HTTP_LIBS)
 
 log.properties:

@@ -21,7 +21,7 @@ my %opt;
 
 getopts('n:N:', \%opt);
 
-my $N = $opt{n} || 5;
+my $N = $opt{n} || 10;
 my $ns = $opt{N} || 'cxxtools';
 
 sub mklist {
@@ -38,8 +38,7 @@ my $first = 1;
 for (my $nn = $N; $nn >= 0; --$nn)
 {
   print "// BasicServiceProcedure with $nn arguments\n";
-  print "template <typename R,
-          class C";
+  print "template <typename R";
 
   my $typeList = $nn ? (", " . mklist('A', $nn)) : '';
   my $varList = mklist('_v', $nn);
@@ -72,8 +71,7 @@ EOF
                             ', @v);
     print <<EOF;
 >
-class BasicServiceProcedure<R,
-                            C$typeList,
+class BasicServiceProcedure<R$typeList,
                             $voids> : public ServiceProcedure
 EOF
   }
@@ -182,16 +180,49 @@ EOF
 print <<EOF;
 class CXXTOOLS_XMLRPC_API Service : public http::Service
 {
+        friend class XmlRpcResponder;
+
     public:
-        Service();
+        Service()
+        { }
 
         virtual ~Service();
 
-        ServiceProcedure* getProcedure(const std::string& name);
+EOF
 
-        void releaseProcedure(ServiceProcedure* proc);
+for (my $n = 0; $n <= $N; ++$n)
+{
+  my $typenameList = join ('', map { ", typename A$_" } (1..$n));
+  my $typeList = mklist('A', $n);
+  my $typeList0 = join ('', map { ", A$_" } (1..$n));
+
+print <<EOF;
+        template <typename R$typenameList>
+        void registerFunction(const std::string& name, R (*fn)($typeList))
+        {
+            ServiceProcedure* proc = new BasicServiceProcedure<R$typeList0>(cxxtools::callable(fn));
+            this->registerProcedure(name, proc);
+        }
 
 EOF
+}
+
+for (my $n = 0; $n <= $N; ++$n)
+{
+  my $typenameList = join ('', map { ", typename A$_" } (1..$n));
+  my $typeList = mklist('A', $n);
+  my $typeList0 = join ('', map { ", A$_" } (1..$n));
+
+print <<EOF;
+        template <typename R$typenameList>
+        void registerCallable(const std::string& name, const Callable<R$typeList0>& cb)
+        {
+            ServiceProcedure* proc = new BasicServiceProcedure<R$typeList0>(cb);
+            this->registerProcedure(name, proc);
+        }
+
+EOF
+}
 
 for (my $n = 0; $n <= $N; ++$n)
 {
@@ -203,7 +234,7 @@ print <<EOF;
         template <typename R, class C$typenameList>
         void registerMethod(const std::string& name, C& obj, R (C::*method)($typeList) )
         {
-            ServiceProcedure* proc = new BasicServiceProcedure<R, C$typeList0>( callable(obj, method) );
+            ServiceProcedure* proc = new BasicServiceProcedure<R$typeList0>( callable(obj, method) );
             this->registerProcedure(name, proc);
         }
 
@@ -216,6 +247,10 @@ print <<EOF;
         virtual void releaseResponder(http::Responder* resp);
 
     protected:
+        ServiceProcedure* getProcedure(const std::string& name);
+
+        void releaseProcedure(ServiceProcedure* proc);
+
         void registerProcedure(const std::string& name, ServiceProcedure* proc);
 
     private:
