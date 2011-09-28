@@ -242,11 +242,11 @@ EOF
 }
 
 print <<EOF;
+    protected:
         virtual http::Responder* createResponder(const http::Request&);
 
         virtual void releaseResponder(http::Responder* resp);
 
-    protected:
         ServiceProcedure* getProcedure(const std::string& name);
 
         void releaseProcedure(ServiceProcedure* proc);

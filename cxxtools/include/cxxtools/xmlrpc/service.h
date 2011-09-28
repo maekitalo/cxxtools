@@ -1217,11 +1217,11 @@ class CXXTOOLS_XMLRPC_API Service : public http::Service
             this->registerProcedure(name, proc);
         }
 
+    protected:
         virtual http::Responder* createResponder(const http::Request&);
 
         virtual void releaseResponder(http::Responder* resp);
 
-    protected:
         ServiceProcedure* getProcedure(const std::string& name);
 
         void releaseProcedure(ServiceProcedure* proc);
