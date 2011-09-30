@@ -64,12 +64,10 @@ namespace
 }
 
 template <typename T, typename Serializer, typename Deserializer>
-void benchSerialization(const T& d)
+void benchSerialization(const T& d, const char* fname = 0)
 {
     std::stringstream data;
-    std::ofstream o(typeid(Serializer).name());
-    cxxtools::Tee tee(data, o);
-    Serializer serializer(tee);
+    Serializer serializer(data);
     Deserializer deserializer(data);
 
     cxxtools::Clock clock;
@@ -77,6 +75,11 @@ void benchSerialization(const T& d)
     serializer.serialize(d, "d");
     serializer.finish();
     cxxtools::Timespan ts = clock.stop();
+    if (fname)
+    {
+        std::ofstream f(fname);
+        f << data.str();
+    }
 
     T v2;
     clock.start();
@@ -89,19 +92,19 @@ void benchSerialization(const T& d)
 }
 
 template <typename T>
-void benchXmlSerialization(const T& d)
+void benchXmlSerialization(const T& d, const char* fname = 0)
 {
-    benchSerialization<T, cxxtools::xml::XmlSerializer, cxxtools::xml::XmlDeserializer>(d);
+    benchSerialization<T, cxxtools::xml::XmlSerializer, cxxtools::xml::XmlDeserializer>(d, fname);
 }
 
 template <typename T>
-void benchBinSerialization(const T& d)
+void benchBinSerialization(const T& d, const char* fname = 0)
 {
-    benchSerialization<T, cxxtools::BinSerializer, cxxtools::BinDeserializer>(d);
+    benchSerialization<T, cxxtools::BinSerializer, cxxtools::BinDeserializer>(d, fname);
 }
 
 template <typename T>
-void benchVector(const char* typeName, unsigned N)
+void benchVector(const char* typeName, unsigned N, bool fileoutput)
 {
     std::cout << "vector of " << typeName << " values:" << std::endl;
 
@@ -110,20 +113,26 @@ void benchVector(const char* typeName, unsigned N)
         v.push_back(n);
 
     std::cout << "xml:" << std::endl;
-    benchXmlSerialization(v);
+    benchXmlSerialization(v, fileoutput ? (std::string("vector-") + typeName + ".xml").c_str() : 0);
 
     std::cout << "bin:" << std::endl;
-    benchBinSerialization(v);
+    benchBinSerialization(v, fileoutput ? (std::string("vector-") + typeName + ".bin").c_str() : 0);
 }
 
 int main(int argc, char* argv[])
 {
     try
     {
-        cxxtools::Arg<unsigned> N(argc, argv, 'n', 10000);
+        cxxtools::Arg<unsigned> N(argc, argv, 'n', 100000);
+        cxxtools::Arg<bool> fileoutput(argc, argv, 'f');
 
-        benchVector<int>("int", N);
-        benchVector<double>("double", N);
+        std::cout << "benchmark xml serializer with " << N.getValue() << " iterations\n\n"
+                     "options:\n"
+                     "   -n <number>       specify number of iterations\n"
+                     "   -f                write serialized output to files\n" << std::endl;
+
+        benchVector<int>("int", N, fileoutput);
+        benchVector<double>("double", N, fileoutput);
 
         {
             std::cout << "vector of custom objects:" << std::endl;
@@ -139,10 +148,10 @@ int main(int argc, char* argv[])
             }
 
             std::cout << "xml:" << std::endl;
-            benchXmlSerialization(v);
+            benchXmlSerialization(v, fileoutput ? "custobject.xml" : 0);
 
             std::cout << "bin:" << std::endl;
-            benchBinSerialization(v);
+            benchBinSerialization(v, fileoutput ? "custobject.bin" : 0);
         }
 
     }
