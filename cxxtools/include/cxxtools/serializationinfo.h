@@ -427,6 +427,18 @@ inline bool SerializationInfo::ConstIterator::operator!=(const ConstIterator& ot
 }
 
 
+inline void operator >>=(const SerializationInfo& si, SerializationInfo& ssi)
+{
+    ssi = si;
+}
+
+
+inline void operator <<=(SerializationInfo& si, const SerializationInfo& ssi)
+{
+    si = ssi;
+}
+
+
 inline void operator >>=(const SerializationInfo& si, bool& n)
 {
     si.toValue(n);
