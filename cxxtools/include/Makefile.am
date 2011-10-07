@@ -2,6 +2,8 @@ nobase_include_HEADERS = \
         cxxtools/allocator.h \
         cxxtools/application.h \
         cxxtools/arg.h \
+        cxxtools/argin.h \
+        cxxtools/argout.h \
         cxxtools/atomicity.generic.h \
         cxxtools/atomicity.pthread.h \
         cxxtools/atomicity.gcc.arm.h \
@@ -132,8 +134,6 @@ nobase_include_HEADERS = \
         cxxtools/slot.tpp \
         cxxtools/smartptr.h \
         cxxtools/sourceinfo.h \
-        cxxtools/argin.h \
-        cxxtools/argout.h \
         cxxtools/streambuffer.h \
         cxxtools/streamcounter.h \
         cxxtools/stringdata.h \

@@ -32,7 +32,7 @@ namespace cxxtools
      * Using this class it is easy to provide a command line switch to the user
      * to redirect output to a file.
      *
-     * Example:
+     * Examples:
      * \code
      * int main(int argc, char* argv[])
      * {
@@ -40,6 +40,15 @@ namespace cxxtools
      *   out << "this is printed to std::cout or to a file when a file name with the -o option is passed" << std::endl;
      * }
      * \endcode
+     *
+     * \code
+     * int main(int argc, char* argv[])
+     * {
+     *   cxxtools::ArgOut out(argc, argv);
+     *   out << "this is printed to std::cout or to a file when a file name is passed as a parameter" << std::endl;
+     * }
+     * \endcode
+     *
      */
     class ArgOut : public std::ostream
     {
@@ -59,15 +68,21 @@ namespace cxxtools
             }
 
         public:
-            ArgOut(int argc, char* argv[], char option)
+            ArgOut(int& argc, char* argv[], char option)
             {
                 Arg<const char*> ofile(argc, argv, option);
                 doInit(ofile);
             }
 
-            ArgOut(int argc, char* argv[], const char* option)
+            ArgOut(int& argc, char* argv[], const char* option)
             {
                 Arg<const char*> ofile(argc, argv, option);
+                doInit(ofile);
+            }
+
+            ArgOut(int& argc, char* argv[])
+            {
+                Arg<const char*> ofile(argc, argv);
                 doInit(ofile);
             }
 
