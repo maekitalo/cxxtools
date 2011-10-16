@@ -334,7 +334,7 @@ void ClientImpl::beginExecute(const Request& request)
             _stream.buffer().beginWrite();
             _reconnectOnError = true;
         }
-        catch (const cxxtools::IOError&)
+        catch (const IOError&)
         {
             log_debug("first write failed, so connection is not active any more");
 
@@ -453,7 +453,7 @@ void ClientImpl::onConnect(net::TcpSocket& socket)
         log_debug("request sent - begin write");
         _stream.buffer().beginWrite();
     }
-    catch (const std::exception& e)
+    catch (const std::exception& )
     {
         _errorPending = true;
         _client->replyFinished(*_client);
@@ -682,6 +682,13 @@ void ClientImpl::processBodyAvailable(StreamBuffer& sb)
             if (_chunkedIStream.fail())
                 throw IOError( CXXTOOLS_ERROR_MSG("error reading HTTP reply body") );
         }
+        else if( _chunkedIStream.eod() )
+        {
+            if( _replyHeader.hasHeader("Trailer") )
+                _parser.readHeader();
+            else
+                _client->replyFinished(*_client);
+        }
 
         if (_socket.enabled())
         {
@@ -700,7 +707,7 @@ void ClientImpl::processBodyAvailable(StreamBuffer& sb)
     {
         log_debug("content-length(pre)=" << _contentLength);
 
-        while (_stream.good() && _contentLength > 0 && sb.in_avail() > 0)                                            
+        while (_stream.good() && _contentLength > 0 && sb.in_avail() > 0)
         {
             _contentLength -= _client->bodyAvailable(*_client); // TODO: may throw exception
             log_debug("content-length(post)=" << _contentLength);
@@ -737,6 +744,8 @@ void ClientImpl::cancel()
     _socket.close();
     _stream.clear();
     _stream.buffer().discard();
+
+    _chunkedIStream.reset();
 }
 
 
