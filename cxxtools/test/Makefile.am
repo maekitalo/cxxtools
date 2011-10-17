@@ -1,6 +1,8 @@
 noinst_PROGRAMS = \
     alltests \
-	serializer-bench
+	serializer-bench \
+	rpcbenchclient \
+	rpcbenchserver
 
 AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/include -I$(top_srcdir)/include
 
@@ -19,6 +21,8 @@ alltests_SOURCES = \
     xmlrpc-test.cpp
 
 serializer_bench_SOURCES = serializer-bench.cpp
+rpcbenchclient_SOURCES = rpcbenchclient.cpp
+rpcbenchserver_SOURCES = rpcbenchserver.cpp
 
 LDADD = $(top_builddir)/src/libcxxtools.la \
         $(top_builddir)/src/unit/libcxxtools-unit.la \
