@@ -31,6 +31,8 @@
 #include <cxxtools/api.h>
 #include <cxxtools/convert.h>
 #include <cxxtools/serializationinfo.h>
+#include <cxxtools/noncopyable.h>
+#include <vector>
 #include <map>
 
 namespace cxxtools {
@@ -105,7 +107,7 @@ class Serializer : public ISerializer
 };
 
 
-class CXXTOOLS_API SerializationContext
+class CXXTOOLS_API SerializationContext : private NonCopyable
 {
     public:
         SerializationContext();
