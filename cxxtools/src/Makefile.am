@@ -72,6 +72,7 @@ libcxxtools_la_SOURCES = \
 	serializer.cpp \
 	signal.cpp \
 	streambuffer.cpp \
+	string.cpp \
 	stringstream.cpp \
 	systemerror.cpp \
 	tee.cpp \

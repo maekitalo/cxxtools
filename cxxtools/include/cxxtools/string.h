@@ -35,7 +35,6 @@
 
 #include <string>
 #include <iterator>
-#include <cassert>
 #include <stdexcept>
 
 #include <cxxtools/config.h>
@@ -444,6 +443,75 @@ class basic_string< cxxtools::Char > {
 
     inline bool operator>(const basic_string<cxxtools::Char>& a, const wchar_t* b)
     { return a.compare(b) > 0; }
+
+    template <typename InIterT>
+    basic_string<cxxtools::Char> basic_string<cxxtools::Char>::fromUtf16(InIterT from, InIterT fromEnd)
+    {
+        std::basic_string<cxxtools::Char> ret;
+
+        for( ; from != fromEnd; ++from)
+        {
+            unsigned ch = *from;
+
+            // high surrogate
+            if (ch >= 0xD800 && ch <= 0xDBFF) 
+            {
+                // invalid or missing low surrogate
+                if(++from == fromEnd || *from < 0xDC00 || *from > 0xDFFF) 
+                {
+                    ret += cxxtools::Char(0xFFFD);
+                    break;
+                }
+
+                const unsigned lo = *from;
+                ch = ((ch - 0xD800) << 10) + (lo - 0xDC00) + 0x0010000U;
+                ret += cxxtools::Char(ch);
+            }
+            // not a surrogate
+            else if(ch < 0xDC00 || ch > 0xDFFF)
+            {
+                ret += cxxtools::Char(ch);
+            }
+            // not a valid unicode point
+            else
+            {
+                ret += cxxtools::Char(0xFFFD);
+            }
+        }
+
+        return ret;
+    }
+
+    template <typename OutIterT>
+    OutIterT basic_string<cxxtools::Char>::toUtf16(OutIterT to) const
+    {
+        const_iterator from = this->begin();
+        const_iterator fromEnd = this->end();
+
+        for( ; from != fromEnd; ++from)
+        {
+            const int ch = *from;
+
+            if( ch < 0xD800 ||
+               (ch > 0xDFFF && ch <= 0xFFFF) )
+            {
+                *to++ = *from;
+            }
+            else if(ch > 0xFFFF && ch <= 0x0010FFFF)
+            {
+                const int n = (ch - 0x0010000UL);
+                *to++ = ((n >> 10) + 0xD800);
+                *to++ = ((n & 0x3FFU) + 0xDC00);
+            }
+            else
+            {
+                *to++ = 0xFFFD;
+            }
+        }
+
+        return to;
+    }
+
 
 } // namespace std
 
