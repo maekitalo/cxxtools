@@ -29,14 +29,12 @@
 #ifndef CXXTOOLS_HTTP_SERVERIMPL_H
 #define CXXTOOLS_HTTP_SERVERIMPL_H
 
+#include "serverimplbase.h"
 #include <cstddef>
 #include <set>
 #include <cxxtools/queue.h>
-#include <cxxtools/connectable.h>
 #include <cxxtools/event.h>
-#include <cxxtools/noncopyable.h>
 #include <cxxtools/http/server.h>
-#include "mapper.h"
 #include "socket.h"
 
 namespace cxxtools
@@ -119,59 +117,25 @@ class ActiveSocketEvent : public BasicEvent<ActiveSocketEvent>
 
 };
 
-class ServerImpl : public Connectable, private NonCopyable
+class ServerImpl : public ServerImplBase, public Connectable
 {
     public:
         ServerImpl(EventLoopBase& eventLoop, Signal<Server::Runmode>& runmodeChanged);
         ~ServerImpl();
 
+        // override from ServerImplBase
         void listen(const std::string& ip, unsigned short int port, int backlog);
-        void noWaitingThreads();
-
-        void addService(const std::string& url, Service& service)
-        { _mapper.addService(url, service); }
-        void addService(const Regex& url, Service& service)
-        { _mapper.addService(url, service); }
-        void removeService(Service& service)
-        { _mapper.removeService(service); }
-
-        Responder* getResponder(const Request& request)
-            { return _mapper.getResponder(request); }
-        Responder* getDefaultResponder(const Request& request)
-            { return _mapper.getDefaultResponder(request); }
-
-        std::size_t readTimeout() const       { return _readTimeout; }
-        std::size_t writeTimeout() const      { return _writeTimeout; }
-        std::size_t keepAliveTimeout() const  { return _keepAliveTimeout; }
-        std::size_t idleTimeout() const       { return _idleTimeout; }
-
-        void readTimeout(std::size_t ms)      { _readTimeout = ms; }
-        void writeTimeout(std::size_t ms)     { _writeTimeout = ms; }
-        void keepAliveTimeout(std::size_t ms) { _keepAliveTimeout = ms; }
-        void idleTimeout(std::size_t ms)      { _idleTimeout = ms; }
-
-        unsigned minThreads() const           { return _minThreads; }
-        void minThreads(unsigned m)           { _minThreads = m; }
-
-        unsigned maxThreads() const           { return _maxThreads; }
-        void maxThreads(unsigned m)           { _maxThreads = m; }
-
-        void onInput(Socket& _socket);
-        void onTimeout(Socket& _socket);
 
         bool isTerminating() const
-        { return _runmode == Server::Terminating; }
+        { return runmode() == Server::Terminating; }
 
+        // override from ServerImplBase
         void terminate();
-        Server::Runmode runmode() const
-        { return _runmode; }
 
     private:
-        void runmode(Server::Runmode runmode)
-        {
-            _runmode = runmode;
-            _runmodeChanged(runmode);
-        }
+        void noWaitingThreads();
+        void onInput(Socket& _socket);
+        void onTimeout(Socket& _socket);
 
         void addIdleSocket(Socket* socket);
         void onIdleSocket(const IdleSocketEvent& event);
@@ -185,20 +149,9 @@ class ServerImpl : public Connectable, private NonCopyable
         friend class Worker;
 
         ////////////////////////////////////////////////////
-        EventLoopBase& _eventLoop;
 
         MethodSlot<void, ServerImpl, Socket&> inputSlot;
         MethodSlot<void, ServerImpl, Socket&> timeoutSlot;
-
-        std::size_t _readTimeout;
-        std::size_t _writeTimeout;
-        std::size_t _keepAliveTimeout;
-        std::size_t _idleTimeout;
-        unsigned _minThreads;
-        unsigned _maxThreads;
-
-        Signal<Server::Runmode>& _runmodeChanged;
-        Server::Runmode _runmode;
 
         Queue<Socket*> _queue;
         std::set<Socket*> _idleSockets;
@@ -214,8 +167,6 @@ class ServerImpl : public Connectable, private NonCopyable
         Mutex _threadMutex;
         Condition _threadTerminated;
         void threadTerminated(Worker* worker);
-
-        Mapper _mapper;
 };
 
 }

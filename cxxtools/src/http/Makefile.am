@@ -32,6 +32,7 @@ noinst_HEADERS = \
     notfoundservice.h \
     parser.h \
     serverimpl.h \
+    serverimplbase.h \
     socket.h \
     worker.h
 

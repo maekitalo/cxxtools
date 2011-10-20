@@ -41,17 +41,9 @@ namespace http
 {
 
 ServerImpl::ServerImpl(EventLoopBase& eventLoop, Signal<Server::Runmode>& runmodeChanged)
-    : _eventLoop(eventLoop),
+    : ServerImplBase(eventLoop, runmodeChanged),
       inputSlot(slot(*this, &ServerImpl::onInput)),
-      timeoutSlot(slot(*this, &ServerImpl::onTimeout)),
-      _readTimeout(20000),
-      _writeTimeout(20000),
-      _keepAliveTimeout(30000),
-      _idleTimeout(100),
-      _minThreads(5),
-      _maxThreads(200),
-      _runmodeChanged(runmodeChanged),
-      _runmode(Server::Stopped)
+      timeoutSlot(slot(*this, &ServerImpl::onTimeout))
 {
     _eventLoop.event.subscribe(slot(*this, &ServerImpl::onIdleSocket));
     _eventLoop.event.subscribe(slot(*this, &ServerImpl::onActiveSocket));
@@ -67,7 +59,7 @@ ServerImpl::ServerImpl(EventLoopBase& eventLoop, Signal<Server::Runmode>& runmod
 
 ServerImpl::~ServerImpl()
 {
-    if (_runmode == Server::Running)
+    if (runmode() == Server::Running)
     {
         try
         {
@@ -105,7 +97,7 @@ void ServerImpl::start()
     ::signal(SIGPIPE, SIG_IGN);
 
     MutexLock lock(_threadMutex);
-    while (_threads.size() < _minThreads)
+    while (_threads.size() < minThreads())
     {
         Worker* worker = new Worker(*this);
         _threads.insert(worker);
@@ -172,7 +164,7 @@ void ServerImpl::terminate()
 void ServerImpl::noWaitingThreads()
 {
     MutexLock lock(_threadMutex);
-    if (_runmode == Server::Running)
+    if (runmode() == Server::Running)
         _eventLoop.commitEvent(NoWaitingThreadsEvent());
 }
 
@@ -181,7 +173,7 @@ void ServerImpl::threadTerminated(Worker* worker)
     MutexLock lock(_threadMutex);
 
     _threads.erase(worker);
-    if (_runmode == Server::Running)
+    if (runmode() == Server::Running)
     {
         _eventLoop.commitEvent(ThreadTerminatedEvent(worker));
     }
@@ -196,7 +188,7 @@ void ServerImpl::addIdleSocket(Socket* socket)
 {
     log_debug("add idle socket " << static_cast<void*>(socket));
 
-    if (_runmode == Server::Running)
+    if (runmode() == Server::Running)
     {
         _eventLoop.commitEvent(IdleSocketEvent(socket));
     }

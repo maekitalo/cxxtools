@@ -46,7 +46,7 @@ namespace http
 
 class Request;
 class Service;
-class ServerImpl;
+class ServerImplBase;
 
 class CXXTOOLS_HTTP_API Server : private cxxtools::NonCopyable
 {
@@ -86,7 +86,7 @@ class CXXTOOLS_HTTP_API Server : private cxxtools::NonCopyable
         Signal<Runmode> runmodeChanged;
 
     private:
-        ServerImpl* _impl;
+        ServerImplBase* _impl;
 };
 
 
