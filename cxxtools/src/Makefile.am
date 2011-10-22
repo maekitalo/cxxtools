@@ -164,9 +164,14 @@ libcxxtools_la_SOURCES += \
 	atomicity.gcc.x86.cpp
 endif
 
-if MAKE_ATOMICITY_GCC_SPARC
+if MAKE_ATOMICITY_GCC_SPARC32
 libcxxtools_la_SOURCES += \
-	atomicity.gcc.sparc.cpp
+	atomicity.gcc.sparc32.cpp
+endif
+
+if MAKE_ATOMICITY_GCC_SPARC64
+libcxxtools_la_SOURCES += \
+	atomicity.gcc.sparc64.cpp
 endif
 
 if MAKE_ATOMICITY_GCC_AVR32

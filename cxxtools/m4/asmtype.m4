@@ -117,7 +117,7 @@ AC_DEFUN([AC_CXXTOOLS_ATOMICTYPE],
                           "isync\n"
                           : "=&b" (result), "=&b" (tmp): "r" (&val): "cc", "memory");
         } ])
-  AC_CHECKATOMICTYPE([att_sparc], [CXXTOOLS_ATOMICITY_GCC_SPARC],
+  AC_CHECKATOMICTYPE([att_sparc], [CXXTOOLS_ATOMICITY_GCC_SPARC32],
       [
         #include <csignal>
         typedef std::sig_atomic_t atomic_t;
@@ -127,6 +127,30 @@ AC_DEFUN([AC_CXXTOOLS_ATOMICTYPE],
             register atomic_t tmp asm("o4");
             register atomic_t ret asm("o5");
 
+            asm volatile("stbar" : : : "memory");
+            asm volatile(
+                    "1:     ld      [%%g1], %%o4\n\t"
+                    "       add     %%o4, 1, %%o5\n\t"
+                    /*      cas     [%%g1], %%o4, %%o5 */
+                    "       .word   0xdbe0500c\n\t"
+                    "       cmp     %%o4, %%o5\n\t"
+                    "       bne     1b\n\t"
+                    "        add    %%o5, 1, %%o5"
+                    : "=&r" (tmp), "=&r" (ret)
+                    : "r" (dest)
+                    : "memory", "cc");
+        } ])
+  AC_CHECKATOMICTYPE([att_sparc], [CXXTOOLS_ATOMICITY_GCC_SPARC64],
+      [
+        #include <csignal>
+        typedef std::sig_atomic_t atomic_t;
+        void atomicIncrement(volatile atomic_t& val)
+        {
+            register volatile atomic_t* dest asm("g1") = &val;
+            register atomic_t tmp asm("o4");
+            register atomic_t ret asm("o5");
+
+            asm volatile ("membar	#LoadLoad | #LoadStore | #StoreStore | #StoreLoad" : : : "memory");
             asm volatile(
                     "1:     ld      [%%g1], %%o4\n\t"
                     "       add     %%o4, 1, %%o5\n\t"

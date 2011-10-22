@@ -33,8 +33,11 @@
 #elif defined(CXXTOOLS_ATOMICITY_GCC_MIPS)
     #include "atomicity.gcc.mips.cpp"
 
-#elif defined(CXXTOOLS_ATOMICITY_GCC_SPARC)
-    #include "atomicity.gcc.sparc.cpp"
+#elif defined(CXXTOOLS_ATOMICITY_GCC_SPARC32)
+    #include "atomicity.gcc.sparc32.cpp"
+
+#elif defined(CXXTOOLS_ATOMICITY_GCC_SPARC64)
+    #include "atomicity.gcc.sparc64.cpp"
 
 #elif defined(CXXTOOLS_ATOMICITY_GCC_X86_64)
     #include "atomicity.gcc.x86_64.cpp"

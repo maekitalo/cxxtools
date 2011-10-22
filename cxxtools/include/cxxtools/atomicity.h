@@ -46,8 +46,11 @@
 #elif defined(CXXTOOLS_ATOMICITY_GCC_AVR32)
     #include <cxxtools/atomicity.gcc.avr32.h>
 
-#elif defined(CXXTOOLS_ATOMICITY_GCC_SPARC)
-    #include <cxxtools/atomicity.gcc.sparc.h>
+#elif defined(CXXTOOLS_ATOMICITY_GCC_SPARC32)
+    #include <cxxtools/atomicity.gcc.sparc32.h>
+
+#elif defined(CXXTOOLS_ATOMICITY_GCC_SPARC64)
+    #include <cxxtools/atomicity.gcc.sparc64.h>
 
 #elif defined(CXXTOOLS_ATOMICITY_GCC_X86_64)
     #include <cxxtools/atomicity.gcc.x86_64.h>
@@ -102,8 +105,9 @@
 
     #elif defined(__sparc__) || defined(sparc) || defined(__sparc) || \
           defined(__sparcv8) || defined(__sparcv9)
-        #define CXXTOOLS_ATOMICITY_GCC_SPARC
-        #include <cxxtools/atomicity.gcc.sparc.h>
+        #define CXXTOOLS_ATOMICITY_GCC_SPARC32
+        // TODO how can I check, if it is 32 or 64 bit?
+        #include <cxxtools/atomicity.gcc.sparc32.h>
 
     #else
         #include <cxxtools/atomicity.generic.h>

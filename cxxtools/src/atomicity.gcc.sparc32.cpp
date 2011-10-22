@@ -26,7 +26,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <cxxtools/atomicity.gcc.sparc.h>
+#include <cxxtools/atomicity.gcc.sparc32.h>
 #include <csignal>
 
 namespace cxxtools {
@@ -34,7 +34,7 @@ namespace cxxtools {
 
 atomic_t atomicGet(volatile atomic_t& val)
 {
-    asm volatile ("membar	#LoadLoad | #LoadStore | #StoreStore | #StoreLoad" : : : "memory");
+    asm volatile("stbar" : : : "memory");
     return val;
 }
 
@@ -42,7 +42,7 @@ atomic_t atomicGet(volatile atomic_t& val)
 void atomicSet(volatile atomic_t& val, atomic_t n)
 {
     val = n;
-    asm volatile ("membar	#LoadLoad | #LoadStore | #StoreStore | #StoreLoad" : : : "memory");
+    asm volatile("stbar" : : : "memory");
 }
 
 

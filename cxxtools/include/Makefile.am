@@ -4,17 +4,6 @@ nobase_include_HEADERS = \
         cxxtools/arg.h \
         cxxtools/argin.h \
         cxxtools/argout.h \
-        cxxtools/atomicity.generic.h \
-        cxxtools/atomicity.pthread.h \
-        cxxtools/atomicity.gcc.arm.h \
-        cxxtools/atomicity.gcc.avr32.h \
-        cxxtools/atomicity.gcc.mips.h \
-        cxxtools/atomicity.gcc.ppc.h \
-        cxxtools/atomicity.gcc.sparc.h \
-        cxxtools/atomicity.windows.h \
-        cxxtools/atomicity.gcc.x86.h \
-        cxxtools/atomicity.gcc.x86_64.h \
-        cxxtools/atomicity.sun.h \
         cxxtools/atomicity.h \
         cxxtools/api.h \
         cxxtools/base64codec.h \
@@ -80,16 +69,8 @@ nobase_include_HEADERS = \
         cxxtools/main.h \
         cxxtools/md5.h \
         cxxtools/md5stream.h \
-        cxxtools/membar.gcc.arm.h \
         cxxtools/membar.gcc.h \
-        cxxtools/membar.gcc.mips.h \
         cxxtools/membar.gcc.nosmp.h \
-        cxxtools/membar.gcc.ppc.h \
-        cxxtools/membar.gcc.sparc32.h \
-        cxxtools/membar.gcc.sparc64.h \
-        cxxtools/membar.gcc.x86.h \
-        cxxtools/membar.sun.h \
-        cxxtools/membar.windows.h \
         cxxtools/membar.h \
         cxxtools/method.h \
         cxxtools/method.tpp \
@@ -214,3 +195,73 @@ nobase_include_HEADERS += \
         cxxtools/iconverter.h \
         cxxtools/iconvstream.h
 endif
+
+if MAKE_ATOMICITY_SUN
+nobase_include_HEADERS += \
+        cxxtools/membar.sun.h \
+        cxxtools/atomicity.sun.h
+endif
+
+if MAKE_ATOMICITY_WINDOWS
+nobase_include_HEADERS += \
+        cxxtools/membar.windows.h \
+        cxxtools/atomicity.windows.h
+endif
+
+if MAKE_ATOMICITY_GCC_ARM
+nobase_include_HEADERS += \
+        cxxtools/membar.gcc.arm.h \
+        cxxtools/atomicity.gcc.arm.h
+endif
+
+if MAKE_ATOMICITY_GCC_MIPS
+nobase_include_HEADERS += \
+        cxxtools/membar.gcc.mips.h \
+        cxxtools/atomicity.gcc.mips.h
+endif
+
+if MAKE_ATOMICITY_GCC_PPC
+nobase_include_HEADERS += \
+        cxxtools/membar.gcc.ppc.h \
+        cxxtools/atomicity.gcc.ppc.h
+endif
+
+if MAKE_ATOMICITY_GCC_X86_64
+nobase_include_HEADERS += \
+        cxxtools/membar.gcc.x86.h \
+        cxxtools/atomicity.gcc.x86_64.h
+endif
+
+if MAKE_ATOMICITY_GCC_X86
+nobase_include_HEADERS += \
+        cxxtools/membar.gcc.x86.h \
+        cxxtools/atomicity.gcc.x86.h
+endif
+
+if MAKE_ATOMICITY_GCC_SPARC32
+nobase_include_HEADERS += \
+        cxxtools/membar.gcc.sparc32.h \
+        cxxtools/atomicity.gcc.sparc32.h
+endif
+
+if MAKE_ATOMICITY_GCC_SPARC64
+nobase_include_HEADERS += \
+        cxxtools/membar.gcc.sparc64.h \
+        cxxtools/atomicity.gcc.sparc64.h
+endif
+
+if MAKE_ATOMICITY_GCC_AVR32
+nobase_include_HEADERS += \
+        cxxtools/atomicity.gcc.avr32.h
+endif
+
+if MAKE_ATOMICITY_PTHREAD
+nobase_include_HEADERS += \
+        cxxtools/atomicity.pthread.h
+endif
+
+if MAKE_ATOMICITY_GENERIC
+nobase_include_HEADERS += \
+        cxxtools/atomicity.generic.h
+endif
+
