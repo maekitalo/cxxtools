@@ -25,8 +25,6 @@
 #include <cxxtools/clock.h>
 #include <cxxtools/timespan.h>
 
-std::vector<cxxtools::AttachedThread*> clientThreads;
-
 class BenchClient
 {
     void exec();

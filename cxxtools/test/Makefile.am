@@ -14,6 +14,7 @@ alltests_SOURCES = \
     convert-test.cpp \
     pool-test.cpp \
     smartptr-test.cpp \
+    string-test.cpp \
     test-main.cpp \
     trim-test.cpp \
     uri-test.cpp \
