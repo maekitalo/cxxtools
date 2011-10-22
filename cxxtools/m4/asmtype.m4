@@ -49,7 +49,7 @@ AC_DEFUN([AC_CXXTOOLS_ATOMICTYPE],
     [atomictype],
     AS_HELP_STRING([--with-atomictype],
                    [force atomic type. Accepted arguments:
-                    sun, windows, att_x86, att_x86_64, att_arm, att_mips, att_ppc, att_sparc, pthread,
+                    sun, windows, att_x86, att_x86_64, att_arm, att_mips, att_ppc, att_sparc32, att_sparc64, pthread,
                     generic, probe]),
     [ ac_cxxtools_atomicity=$withval ],
     [ ac_cxxtools_atomicity=probe ])
@@ -117,7 +117,7 @@ AC_DEFUN([AC_CXXTOOLS_ATOMICTYPE],
                           "isync\n"
                           : "=&b" (result), "=&b" (tmp): "r" (&val): "cc", "memory");
         } ])
-  AC_CHECKATOMICTYPE([att_sparc], [CXXTOOLS_ATOMICITY_GCC_SPARC32],
+  AC_CHECKATOMICTYPE([att_sparc64], [CXXTOOLS_ATOMICITY_GCC_SPARC64],
       [
         #include <csignal>
         typedef std::sig_atomic_t atomic_t;
@@ -127,7 +127,7 @@ AC_DEFUN([AC_CXXTOOLS_ATOMICTYPE],
             register atomic_t tmp asm("o4");
             register atomic_t ret asm("o5");
 
-            asm volatile("stbar" : : : "memory");
+            asm volatile ("membar	#LoadLoad | #LoadStore | #StoreStore | #StoreLoad" : : : "memory");
             asm volatile(
                     "1:     ld      [%%g1], %%o4\n\t"
                     "       add     %%o4, 1, %%o5\n\t"
@@ -140,7 +140,7 @@ AC_DEFUN([AC_CXXTOOLS_ATOMICTYPE],
                     : "r" (dest)
                     : "memory", "cc");
         } ])
-  AC_CHECKATOMICTYPE([att_sparc], [CXXTOOLS_ATOMICITY_GCC_SPARC64],
+  AC_CHECKATOMICTYPE([att_sparc32], [CXXTOOLS_ATOMICITY_GCC_SPARC32],
       [
         #include <csignal>
         typedef std::sig_atomic_t atomic_t;
@@ -150,7 +150,7 @@ AC_DEFUN([AC_CXXTOOLS_ATOMICTYPE],
             register atomic_t tmp asm("o4");
             register atomic_t ret asm("o5");
 
-            asm volatile ("membar	#LoadLoad | #LoadStore | #StoreStore | #StoreLoad" : : : "memory");
+            asm volatile("stbar" : : : "memory");
             asm volatile(
                     "1:     ld      [%%g1], %%o4\n\t"
                     "       add     %%o4, 1, %%o5\n\t"
