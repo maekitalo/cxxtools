@@ -103,10 +103,13 @@
         #define CXXTOOLS_ATOMICITY_GCC_MIPS
         #include <cxxtools/atomicity.gcc.mips.h>
 
+    #elif defined(__sparcv9)
+        #define CXXTOOLS_ATOMICITY_GCC_SPARC64
+        #include <cxxtools/atomicity.gcc.sparc64.h>
+
     #elif defined(__sparc__) || defined(sparc) || defined(__sparc) || \
-          defined(__sparcv8) || defined(__sparcv9)
+          defined(__sparcv8)
         #define CXXTOOLS_ATOMICITY_GCC_SPARC32
-        // TODO how can I check, if it is 32 or 64 bit?
         #include <cxxtools/atomicity.gcc.sparc32.h>
 
     #else
