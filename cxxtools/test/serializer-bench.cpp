@@ -37,6 +37,7 @@
 #include <cxxtools/clock.h>
 #include <cxxtools/convert.h>
 #include <cxxtools/tee.h>
+#include <cxxtools/log.h>
 
 namespace
 {
@@ -123,6 +124,8 @@ int main(int argc, char* argv[])
 {
     try
     {
+        log_init();
+
         cxxtools::Arg<unsigned> N(argc, argv, 'n', 100000);
         cxxtools::Arg<bool> fileoutput(argc, argv, 'f');
 

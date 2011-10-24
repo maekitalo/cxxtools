@@ -106,16 +106,25 @@ void XmlFormatter::flush()
 void XmlFormatter::addValue(const std::string& name, const std::string& type,
                              const cxxtools::String& value, const std::string& id)
 {
-    cxxtools::String tag = cxxtools::String::widen(name.empty() ? type : name);
+    cxxtools::String tag;
+    tag.widen_assign(name.empty() ? type : name);
 
     Attribute attrs[2];
     size_t countAttrs = 0;
 
     if ( ! name.empty() && ! type.empty() )
-        attrs[countAttrs++] = Attribute( cxxtools::String(L"type"), cxxtools::String::widen( type ) );
+    {
+        attrs[countAttrs].name().assign(L"type");
+        attrs[countAttrs].value().widen_assign(type);
+        ++countAttrs;
+    }
 
     if( ! id.empty() )
-        attrs[countAttrs++] = Attribute( cxxtools::String(L"id"), cxxtools::String::widen( id ) );
+    {
+        attrs[countAttrs].name().assign(L"id");
+        attrs[countAttrs].value().widen_assign(id);
+        ++countAttrs;
+    }
 
     _writer->writeElement( tag, attrs, countAttrs, value );
 }
@@ -123,7 +132,7 @@ void XmlFormatter::addValue(const std::string& name, const std::string& type,
 
 void XmlFormatter::addReference(const std::string& name, const cxxtools::String& value)
 {
-    Attribute attr( cxxtools::String(L"ref"), value );
+    Attribute attr( L"ref", value );
     _writer->writeElement( cxxtools::String::widen( name ), &attr, 1, cxxtools::String() );
 }
 
@@ -131,19 +140,32 @@ void XmlFormatter::addReference(const std::string& name, const cxxtools::String&
 void XmlFormatter::beginComplexElement(const std::string& name, const std::string& type,
                               const std::string& id, const String& category)
 {
-    cxxtools::String tag = cxxtools::String::widen(name.empty() ? type : name);
+    cxxtools::String tag;
+    tag.widen_assign(name.empty() ? type : name);
 
     Attribute attrs[3];
     size_t countAttrs = 0;
 
     if ( ! name.empty() && ! type.empty() )
-        attrs[countAttrs++] = Attribute( cxxtools::String(L"type"), cxxtools::String::widen( type ) );
+    {
+        attrs[countAttrs].name().assign(L"type");
+        attrs[countAttrs].value().widen_assign(type);
+        ++countAttrs;
+    }
 
     if( ! id.empty() )
-        attrs[countAttrs++] = Attribute( cxxtools::String(L"id"), cxxtools::String::widen( id ) );
+    {
+        attrs[countAttrs].name().assign(L"id");
+        attrs[countAttrs].value().widen_assign(id);
+        ++countAttrs;
+    }
 
     if ( ! category.empty() )
-        attrs[countAttrs++] = Attribute( cxxtools::String(L"category"), category );
+    {
+        attrs[countAttrs].name().assign(L"category");
+        attrs[countAttrs].value().assign(category);
+        ++countAttrs;
+    }
 
     _writer->writeStartElement( tag, attrs, countAttrs );
 }

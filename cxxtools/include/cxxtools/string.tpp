@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2004-2007 Marc Boris Duerner
+ * Copyright (C) 2011 Tommi Maekitalo
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -28,136 +29,126 @@
 
 namespace std {
 
-inline basic_string<cxxtools::Char>::basic_string()
-: _data( &cxxtools::StringData::emptyInstance() )
-{
-    _data->ref();
-}
-
-
 inline basic_string<cxxtools::Char>::basic_string(const allocator_type& a)
-: _data( new cxxtools::StringData(a) )
+: _d(a)
 {
 }
 
 
 inline basic_string<cxxtools::Char>::basic_string(const cxxtools::Char* str, const allocator_type& a)
-: _data( new cxxtools::StringData( str, char_traits<cxxtools::Char>::length(str), a ) )
+: _d(a)
 {
+    assign(str);
 }
 
 
 inline basic_string<cxxtools::Char>::basic_string(const wchar_t* str, const allocator_type& a)
-: _data( new cxxtools::StringData( str, char_traits<wchar_t>::length(str), a ) )
+: _d(a)
 {
+    assign(str);
 }
 
 
-inline basic_string<cxxtools::Char>::basic_string(const wchar_t* wstr, size_type length, const allocator_type& a)
-: _data( new cxxtools::StringData( wstr, length, a ) )
+inline basic_string<cxxtools::Char>::basic_string(const wchar_t* str, size_type length, const allocator_type& a)
+: _d(a)
 {
+    assign(str, length);
 }
 
 
 inline basic_string<cxxtools::Char>::basic_string(const cxxtools::Char* str, size_type n, const allocator_type& a)
-: _data( new cxxtools::StringData( str, n, a ) )
+: _d(a)
 {
+    assign(str, n);
 }
 
 
-inline basic_string<cxxtools::Char>::basic_string(size_type n, cxxtools::Char c)
-: _data( new cxxtools::StringData( n, c ) )
+inline basic_string<cxxtools::Char>::basic_string(size_type n, cxxtools::Char c, const allocator_type& a)
+: _d(a)
 {
+    assign(n, c);
 }
 
 
-inline basic_string<cxxtools::Char>::basic_string(const basic_string& str, size_type pos)
-: _data( new cxxtools::StringData( str._data->str() + pos, str._data->length() - pos ) )
+inline basic_string<cxxtools::Char>::basic_string(const basic_string& str, const allocator_type& a)
+: _d(a)
 {
+    assign(str);
 }
 
-
-inline basic_string<cxxtools::Char>::basic_string(const basic_string& str, size_type pos, size_type n)
-: _data( new cxxtools::StringData( str._data->str() + pos, n ) )
+inline basic_string<cxxtools::Char>::basic_string(const basic_string& str, size_type pos, const allocator_type& a)
+: _d(a)
 {
+    assign(str, pos, str.length() - pos);
 }
 
 
 inline basic_string<cxxtools::Char>::basic_string(const basic_string& str, size_type pos, size_type n, const allocator_type& a)
-: _data( new cxxtools::StringData( str._data->str() + pos, n, a ) )
+: _d(a)
 {
-}
-
-inline basic_string<cxxtools::Char>::basic_string(const cxxtools::Char* begin, const cxxtools::Char* end)
-: _data( new cxxtools::StringData( begin, end - begin ) )
-{
+    assign(str, pos, n);
 }
 
 
-inline basic_string<cxxtools::Char>::const_iterator basic_string<cxxtools::Char>::begin() const
+inline basic_string<cxxtools::Char>::basic_string(const cxxtools::Char* begin, const cxxtools::Char* end, const allocator_type& a)
+: _d(a)
 {
-    return _data->str();
+    assign(begin, end);
 }
 
 
-inline basic_string<cxxtools::Char>::const_iterator basic_string<cxxtools::Char>::end() const
+template <typename InputIterator>
+basic_string<cxxtools::Char>::basic_string(InputIterator begin, InputIterator end, const allocator_type& a)
+: _d(a)
 {
-    return _data->end();
+    assign(begin, end);
 }
 
 
-inline basic_string<cxxtools::Char>::size_type basic_string<cxxtools::Char>::length() const
+inline basic_string<cxxtools::Char>::~basic_string()
 {
-    return _data->length();
-}
-
-
-inline basic_string<cxxtools::Char>::size_type basic_string<cxxtools::Char>::size() const
-{
-    return _data->length();
-}
-
-
-inline bool basic_string<cxxtools::Char>::empty() const
-{
-    return _data->length() == 0;
-}
-
-
-inline basic_string<cxxtools::Char>::size_type basic_string<cxxtools::Char>::max_size() const
-{
-    return ( size_type(-1) / sizeof(cxxtools::Char) ) - 1;
-}
-
-
-inline basic_string<cxxtools::Char>::size_type basic_string<cxxtools::Char>::capacity() const
-{
-    return _data->capacity();
-}
-
-
-inline const cxxtools::Char* basic_string<cxxtools::Char>::c_str() const
-{
-    return _data->str();
+    if (!isShortString())
+    {
+        _d.deallocate(longStringData(), longStringCapacity() + 1);
+    }
 }
 
 
 inline basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::assign(const basic_string<cxxtools::Char>& str, size_type pos, size_type n)
 {
-    this->assign( str._data->str() + pos, n );   
+    return this->assign( str.data() + pos, n );   
+}
+
+
+template <typename InputIterator>
+basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::assign(InputIterator begin, InputIterator end)
+{
+    clear();
+    append(begin, end);
     return *this;
 }
 
 
 inline basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::append(const basic_string& str)
 {
-    return this->append( str._data->str(), str._data->length() );
+    return this->append( str.data(), str.length() );
 }
 
 
 inline basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::append(const basic_string& str, size_type pos, size_type n)
 {
-    return this->append( str._data->str() + pos, n );
+    return this->append( str.data() + pos, n );
+}
+
+
+template <typename InputIterator>
+basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::append(InputIterator begin, InputIterator end)
+{
+    while (begin != end)
+    {
+        append(1, *begin++);
+    }
+    return *this;
 }
 
 
@@ -166,17 +157,6 @@ inline basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::append(const 
     return this->append( begin, end-begin );
 }
 
-
-inline basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::insert(size_type pos, const cxxtools::Char* str)
-{
-    return this->insert( pos, str, traits_type::length(str) );
-}
-
-
-inline basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::insert(iterator p, cxxtools::Char ch)
-{
-    return this->insert(p, 1, ch);
-}
 
 inline
 basic_string<cxxtools::Char>::size_type
@@ -191,6 +171,75 @@ basic_string<cxxtools::Char>::size_type
 basic_string<cxxtools::Char>::rfind(const cxxtools::Char* str, size_type pos) const
 {
     return this->rfind( str, pos, traits_type::length(str) );
+}
+
+
+template <typename InIterT>
+basic_string<cxxtools::Char> basic_string<cxxtools::Char>::fromUtf16(InIterT from, InIterT fromEnd)
+{
+    std::basic_string<cxxtools::Char> ret;
+
+    for( ; from != fromEnd; ++from)
+    {
+        unsigned ch = *from;
+
+        // high surrogate
+        if (ch >= 0xD800 && ch <= 0xDBFF) 
+        {
+            // invalid or missing low surrogate
+            if(++from == fromEnd || *from < 0xDC00 || *from > 0xDFFF) 
+            {
+                ret += cxxtools::Char(0xFFFD);
+                break;
+            }
+
+            const unsigned lo = *from;
+            ch = ((ch - 0xD800) << 10) + (lo - 0xDC00) + 0x0010000U;
+            ret += cxxtools::Char(ch);
+        }
+        // not a surrogate
+        else if(ch < 0xDC00 || ch > 0xDFFF)
+        {
+            ret += cxxtools::Char(ch);
+        }
+        // not a valid unicode point
+        else
+        {
+            ret += cxxtools::Char(0xFFFD);
+        }
+    }
+
+    return ret;
+}
+
+template <typename OutIterT>
+OutIterT basic_string<cxxtools::Char>::toUtf16(OutIterT to) const
+{
+    const_iterator from = this->begin();
+    const_iterator fromEnd = this->end();
+
+    for( ; from != fromEnd; ++from)
+    {
+        const int ch = *from;
+
+        if( ch < 0xD800 ||
+           (ch > 0xDFFF && ch <= 0xFFFF) )
+        {
+            *to++ = *from;
+        }
+        else if(ch > 0xFFFF && ch <= 0x0010FFFF)
+        {
+            const int n = (ch - 0x0010000UL);
+            *to++ = ((n >> 10) + 0xD800);
+            *to++ = ((n & 0x3FFU) + 0xDC00);
+        }
+        else
+        {
+            *to++ = 0xFFFD;
+        }
+    }
+
+    return to;
 }
 
 

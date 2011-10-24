@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2004-2007 Marc Boris Duerner
+ * Copyright (C) 2011 Tommi Maekitalo
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -31,7 +32,6 @@
 
 #include <cxxtools/api.h>
 #include <cxxtools/char.h>
-#include <cxxtools/stringdata.h>
 
 #include <string>
 #include <iterator>
@@ -72,9 +72,7 @@ class basic_string< cxxtools::Char > {
         static const size_type npos = static_cast<size_type>(-1);
 
     public:
-        basic_string();
-
-        explicit basic_string( const allocator_type& a );
+        explicit basic_string( const allocator_type& a = allocator_type());
 
         basic_string(const cxxtools::Char* str, const allocator_type& a = allocator_type());
 
@@ -84,28 +82,35 @@ class basic_string< cxxtools::Char > {
 
         basic_string(const cxxtools::Char* str, size_type n, const allocator_type& a = allocator_type());
 
-        basic_string(size_type n, cxxtools::Char c);
+        basic_string(size_type n, cxxtools::Char c, const allocator_type& a = allocator_type());
 
         basic_string(const basic_string& str);
 
-        basic_string(const basic_string& str, size_type pos);
+        basic_string(const basic_string& str, const allocator_type& a);
 
-        basic_string(const basic_string& str, size_type pos, size_type n);
+        basic_string(const basic_string& str, size_type pos, const allocator_type& a = allocator_type());
 
-        basic_string(const basic_string& str, size_type pos, size_type n, const allocator_type& a);
+        basic_string(const basic_string& str, size_type pos, size_type n, const allocator_type& a = allocator_type());
 
-        basic_string(const cxxtools::Char* begin, const cxxtools::Char* end);
+        basic_string(const cxxtools::Char* begin, const cxxtools::Char* end, const allocator_type& a = allocator_type());
+
+        template <typename InputIterator>
+        basic_string(InputIterator begin, InputIterator end, const allocator_type& a = allocator_type());
 
         ~basic_string();
 
     public:
-        iterator begin();
+        iterator begin()
+        { return privdata_rw(); }
 
-        iterator end();
+        iterator end()
+        { return privdata_rw() + length(); }
 
-        const_iterator begin() const;
+        const_iterator begin() const
+        { return privdata_ro(); }
 
-        const_iterator end() const;
+        const_iterator end() const
+        { return privdata_ro() + length(); }
 
 #ifdef HAVE_STRING_REVERSE_ITERATOR
         reverse_iterator rbegin()
@@ -122,47 +127,29 @@ class basic_string< cxxtools::Char > {
 #endif
 
         reference operator[](size_type n)
-        {
-            this->detach( _data->length() );
-            _data->setBusy();
-            return *(_data->str() + n);
-        }
+        { return privdata_rw()[n]; }
 
         const_reference operator[](size_type n) const
-        { return *(_data->str() + n); }
+        { return privdata_ro()[n]; }
 
         reference at(size_type n)
-        {
-            if( n > this->size() ) {
-                throw std::out_of_range("The given at-value is out of range");
-            }
-            this->detach( _data->length() );
-            _data->setBusy();
-            return *(_data->str() + n);
-        }
+        { return privdata_rw()[n]; }
 
         const_reference at(size_type n) const
-        {
-            if( n > this->size() ) {
-                throw std::out_of_range("The given at-value is out of range");
-            }
-            return *(_data->str() + n);
-        }
+        { return privdata_ro()[n]; }
 
     public:
         void push_back(cxxtools::Char ch)
         { this->append(1, ch); }
 
-        // untested
         void resize( size_t n, cxxtools::Char ch = value_type() );
 
-        // untested
         void reserve(size_t n = 0);
 
         void swap(basic_string& str);
 
         allocator_type get_allocator() const
-        { return _data->get_allocator(); }
+        { return _d; }
 
         size_type copy(cxxtools::Char* a, size_type n, size_type pos = 0) const;
 
@@ -173,32 +160,47 @@ class basic_string< cxxtools::Char > {
         { return basic_string(*this, pos); }
 
     public:
-        size_type length() const;
+        size_type length() const
+        { return isShortString() ? shortStringLength() : longStringLength(); }
 
-        size_type size() const;
+        size_type size() const
+        { return length(); }
 
-        bool empty() const;
+        bool empty() const
+        { return length() == 0; }
 
-        size_type max_size() const;
+        size_type max_size() const
+        { return ( size_type(-1) / sizeof(cxxtools::Char) ) - 1; }
 
-        size_type capacity() const;
+        size_type capacity() const
+        { return isShortString() ? shortStringCapacity() : longStringCapacity(); }
 
         const cxxtools::Char* data() const
-        { return this->c_str(); }
+        { return privdata_ro(); }
 
-        const cxxtools::Char* c_str() const;
+        const cxxtools::Char* c_str() const
+        { return privdata_ro(); }
 
         basic_string& assign(const basic_string& str);
 
         basic_string& assign(const basic_string& str, size_type pos, size_type n);
 
-        basic_string& assign(const cxxtools::Char* str);
+        basic_string& assign(const wchar_t* str);
+
+        basic_string& assign(const wchar_t* str, size_type n);
+
+        basic_string& assign(const cxxtools::Char* str)
+        { return assign(str, traits_type::length(str)); }
 
         basic_string& assign(const cxxtools::Char* str, size_type length);
 
         basic_string& assign(size_type n, cxxtools::Char c);
 
-        basic_string& append(const cxxtools::Char* str);
+        template <typename InputIterator>
+        basic_string& assign(InputIterator begin, InputIterator end);
+
+        basic_string& append(const cxxtools::Char* str)
+        { return append( str, traits_type::length(str) ); }
 
         basic_string& append(const cxxtools::Char* str, size_type n);
 
@@ -208,27 +210,36 @@ class basic_string< cxxtools::Char > {
 
         basic_string& append(const basic_string& str, size_type pos, size_type n);
 
+        template <typename InputIterator>
+        basic_string& append(InputIterator begin, InputIterator end);
+
         basic_string& append(const cxxtools::Char* begin, const cxxtools::Char* end);
 
-        basic_string& insert(size_type pos, const cxxtools::Char* str);
+        basic_string& insert(size_type pos, const cxxtools::Char* str)
+        { return this->insert( pos, str, traits_type::length(str) ); }
 
         basic_string& insert(size_type pos, const cxxtools::Char* str, size_type n);
 
         basic_string& insert(size_type pos, size_type n, cxxtools::Char ch);
 
-        basic_string& insert(size_type pos, const basic_string& str);
+        basic_string& insert(size_type pos, const basic_string& str)
+        { return insert(pos, str.privdata_ro(), str.length()); }
 
-        basic_string& insert(size_type pos, const basic_string& str, size_type pos2, size_type n);
+        basic_string& insert(size_type pos, const basic_string& str, size_type pos2, size_type n)
+        { return insert(pos, str.privdata_ro() + pos2, n > str.length() ? str.length() : n); }
 
-        basic_string& insert(iterator p, cxxtools::Char ch);
+        basic_string& insert(iterator p, cxxtools::Char ch)
+        { return insert(p - begin(), 1, ch); }
 
-        basic_string& insert(iterator p, size_type n, cxxtools::Char ch);
+        basic_string& insert(iterator p, size_type n, cxxtools::Char ch)
+        { return insert(p - begin(), n, ch); }
 
         // unimplemented
         //template <typename InputIterator>
         //basic_string& insert(iterator p, InputIterator first, InputIterator last);
 
-        void clear();
+        void clear()
+        { setLength(0); }
 
         basic_string& erase(size_type pos = 0, size_type n = npos);
 
@@ -260,6 +271,8 @@ class basic_string< cxxtools::Char > {
         int compare(const basic_string& str) const;
 
         int compare(const cxxtools::Char* str) const;
+
+        int compare(const cxxtools::Char* str, size_type n) const;
 
         int compare(const wchar_t* str) const;
 
@@ -337,11 +350,15 @@ class basic_string< cxxtools::Char > {
         size_type find_last_not_of(cxxtools::Char ch, size_type pos = npos) const;
 
     public:
-        void detach(size_type reserveSize);
-
         std::string narrow(char dfault = '?') const;
 
+        static basic_string widen(const char* str);
+
         static basic_string widen(const std::string& str);
+
+        basic_string& widen_assign(const char* str);
+
+        basic_string& widen_assign(const std::string& str);
 
         template <typename OutIterT>
         OutIterT toUtf16(OutIterT to) const;
@@ -368,13 +385,77 @@ class basic_string< cxxtools::Char > {
         basic_string& operator+=(cxxtools::Char c)
         { return this->append(1, c); }
 
-        const cxxtools::StringData& sdata() const
+    private:
+        struct Ptr
         {
-            return *_data;
-        }
+          cxxtools::Char* _begin;
+          cxxtools::Char* _end;
+          cxxtools::Char* _capacity;
+        };
+
+        static const unsigned _minN = (sizeof(Ptr) / sizeof(cxxtools::uint32_t)) + 1;
+        static const unsigned _N = _minN < 7 ? 7 : _minN;
+
+        struct Data : public allocator_type
+        {
+            Data(const allocator_type& a)
+            : allocator_type(a)
+            {
+                _u._s[0] = 0;
+                _u._s[_N - 1] = _N - 1;
+            }
+
+            union
+            {
+                Ptr _p;
+                cxxtools::uint32_t _s[_N];
+            } _u;
+
+        } _d;
 
     private:
-        cxxtools::StringData* _data;
+        const cxxtools::Char* privdata_ro() const
+        { return isShortString() ? shortStringData() : longStringData(); }
+        cxxtools::Char* privdata_rw()
+        { return isShortString() ? shortStringData() : longStringData(); }
+
+        bool isShortString() const                    { return shortStringData()[_N-1] != cxxtools::Char(0xffff); }
+        void markLongString()                         { shortStringData()[_N-1] = cxxtools::Char(0xffff); }
+        const cxxtools::Char* shortStringData() const { return reinterpret_cast<const cxxtools::Char*>(&_d._u._s[0]); }
+        cxxtools::Char* shortStringData()             { return reinterpret_cast<cxxtools::Char*>(&_d._u._s[0]); }
+        cxxtools::Char  shortStringMagic() const      { return shortStringData()[_N - 1]; }
+        cxxtools::Char& shortStringMagic()            { return shortStringData()[_N - 1]; }
+        size_type shortStringLength() const           { return _N - 1 - shortStringMagic().value(); }
+        size_type shortStringCapacity() const         { return _N - 1; }
+        void setShortStringLength(size_type n)        { shortStringData()[n] = cxxtools::Char(0); shortStringMagic() = cxxtools::Char(_N - n - 1); }
+        void shortStringAssign(const cxxtools::Char* str, size_type n)
+        {
+            traits_type::copy(shortStringData(), str, n);
+            shortStringData()[n] = cxxtools::Char(0);
+            shortStringMagic() = cxxtools::Char(_N - n - 1);
+        }
+        void shortStringAssign(const wchar_t* str, size_type n)
+        {
+            for (size_type nn = 0; nn < n; ++nn)
+                shortStringData()[nn] = str[nn];
+            shortStringData()[n] = cxxtools::Char(0);
+            shortStringMagic() = cxxtools::Char(_N - n - 1);
+        }
+
+        const cxxtools::Char* longStringData() const    { return _d._u._p._begin; }
+        cxxtools::Char* longStringData()                { return _d._u._p._begin; }
+        size_type longStringLength() const              { return _d._u._p._end - _d._u._p._begin; }
+        size_type longStringCapacity() const            { return _d._u._p._capacity - _d._u._p._begin; }
+        void setLength(size_type n)
+        {
+            if (isShortString())
+                setShortStringLength(n);
+            else
+            {
+                _d._u._p._end = _d._u._p._begin + n;
+                _d._u._p._begin[n] = cxxtools::Char::null();
+            }
+        }
     };
 
     inline basic_string<cxxtools::Char> operator+(const basic_string<cxxtools::Char>& a, const basic_string<cxxtools::Char>& b)
@@ -443,75 +524,6 @@ class basic_string< cxxtools::Char > {
 
     inline bool operator>(const basic_string<cxxtools::Char>& a, const wchar_t* b)
     { return a.compare(b) > 0; }
-
-    template <typename InIterT>
-    basic_string<cxxtools::Char> basic_string<cxxtools::Char>::fromUtf16(InIterT from, InIterT fromEnd)
-    {
-        std::basic_string<cxxtools::Char> ret;
-
-        for( ; from != fromEnd; ++from)
-        {
-            unsigned ch = *from;
-
-            // high surrogate
-            if (ch >= 0xD800 && ch <= 0xDBFF) 
-            {
-                // invalid or missing low surrogate
-                if(++from == fromEnd || *from < 0xDC00 || *from > 0xDFFF) 
-                {
-                    ret += cxxtools::Char(0xFFFD);
-                    break;
-                }
-
-                const unsigned lo = *from;
-                ch = ((ch - 0xD800) << 10) + (lo - 0xDC00) + 0x0010000U;
-                ret += cxxtools::Char(ch);
-            }
-            // not a surrogate
-            else if(ch < 0xDC00 || ch > 0xDFFF)
-            {
-                ret += cxxtools::Char(ch);
-            }
-            // not a valid unicode point
-            else
-            {
-                ret += cxxtools::Char(0xFFFD);
-            }
-        }
-
-        return ret;
-    }
-
-    template <typename OutIterT>
-    OutIterT basic_string<cxxtools::Char>::toUtf16(OutIterT to) const
-    {
-        const_iterator from = this->begin();
-        const_iterator fromEnd = this->end();
-
-        for( ; from != fromEnd; ++from)
-        {
-            const int ch = *from;
-
-            if( ch < 0xD800 ||
-               (ch > 0xDFFF && ch <= 0xFFFF) )
-            {
-                *to++ = *from;
-            }
-            else if(ch > 0xFFFF && ch <= 0x0010FFFF)
-            {
-                const int n = (ch - 0x0010000UL);
-                *to++ = ((n >> 10) + 0xD800);
-                *to++ = ((n & 0x3FFU) + 0xDC00);
-            }
-            else
-            {
-                *to++ = 0xFFFD;
-            }
-        }
-
-        return to;
-    }
-
 
 } // namespace std
 

@@ -208,15 +208,15 @@ void BinFormatter::addValue(const std::string& name, const std::string& type,
 
         log_debug("bcd encode " << value.narrow());
 
-        if (value == String(L"nan"))
+        if (value == L"nan")
         {
             *_out << '\xf0';
         }
-        else if (value == String(L"inf"))
+        else if (value == L"inf")
         {
             *_out << '\xf1';
         }
-        else if (value == String(L"-inf"))
+        else if (value == L"-inf")
         {
             *_out << '\xf2';
         }
