@@ -57,9 +57,8 @@ typedef std::vector<BenchClient*> BenchClients;
 
 void BenchClient::exec()
 {
-  while (requestsStarted < maxRequests)
+  while (static_cast<unsigned>(cxxtools::atomicIncrement(requestsStarted)) < maxRequests)
   {
-    ++requestsStarted;
     echo("hi");
   }
 }
