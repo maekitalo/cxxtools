@@ -46,13 +46,13 @@ class ServerImplBase : private NonCopyable
     public:
         ServerImplBase(EventLoopBase& eventLoop, Signal<Server::Runmode>& runmodeChanged)
             : _eventLoop(eventLoop),
-              _runmodeChanged(runmodeChanged),
               _readTimeout(20000),
               _writeTimeout(20000),
               _keepAliveTimeout(30000),
               _idleTimeout(100),
               _minThreads(5),
               _maxThreads(200),
+              _runmodeChanged(runmodeChanged),
               _runmode(Server::Stopped)
         { }
 
