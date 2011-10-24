@@ -156,6 +156,8 @@ basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::assign(const wchar_t
     while (str[length])
         ++length;
     assign(str, length);
+
+    return *this;
 }
 
 
@@ -169,6 +171,8 @@ basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::assign(const wchar_t
     }
 
     setLength(length);
+
+    return *this;
 }
 
 
