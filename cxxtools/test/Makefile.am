@@ -21,14 +21,28 @@ alltests_SOURCES = \
     xmlreader-test.cpp \
     xmlrpc-test.cpp
 
-serializer_bench_SOURCES = serializer-bench.cpp
-rpcbenchclient_SOURCES = rpcbenchclient.cpp
-rpcbenchserver_SOURCES = rpcbenchserver.cpp
-
-LDADD = $(top_builddir)/src/libcxxtools.la \
+alltests_LDADD = $(top_builddir)/src/libcxxtools.la \
         $(top_builddir)/src/unit/libcxxtools-unit.la \
         $(top_builddir)/src/http/libcxxtools-http.la \
         $(top_builddir)/src/xml/libcxxtools-xml.la \
         $(top_builddir)/src/xmlrpc/libcxxtools-xmlrpc.la
+
+serializer_bench_SOURCES = serializer-bench.cpp
+
+serializer_bench_LDADD = $(top_builddir)/src/libcxxtools.la \
+        $(top_builddir)/src/xml/libcxxtools-xml.la
+
+rpcbenchclient_SOURCES = rpcbenchclient.cpp
+
+rpcbenchclient_LDADD = $(top_builddir)/src/libcxxtools.la \
+        $(top_builddir)/src/http/libcxxtools-http.la \
+        $(top_builddir)/src/xmlrpc/libcxxtools-xmlrpc.la
+
+rpcbenchserver_SOURCES = rpcbenchserver.cpp
+
+rpcbenchserver_LDADD = $(top_builddir)/src/libcxxtools.la \
+        $(top_builddir)/src/http/libcxxtools-http.la \
+        $(top_builddir)/src/xmlrpc/libcxxtools-xmlrpc.la
+
 AM_CXXFLAGS = $(PTHREAD_CFLAGS) -DTESTDIR='"@TESTDIR@"'
 AM_LDFLAGS = $(PTHREAD_LIBS)
