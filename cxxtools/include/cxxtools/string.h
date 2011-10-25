@@ -45,7 +45,7 @@ namespace std {
     @ingroup Unicode
 */
 template <>
-class basic_string< cxxtools::Char > {
+class CXXTOOLS_API basic_string< cxxtools::Char > {
     public:
         typedef cxxtools::Char value_type;
         typedef size_t size_type;
@@ -388,9 +388,9 @@ class basic_string< cxxtools::Char > {
     private:
         struct Ptr
         {
-          cxxtools::Char* _begin;
-          cxxtools::Char* _end;
-          cxxtools::Char* _capacity;
+            cxxtools::Char* _begin;
+            cxxtools::Char* _end;
+            cxxtools::Char* _capacity;
         };
 
         static const unsigned _minN = (sizeof(Ptr) / sizeof(cxxtools::uint32_t)) + 1;
