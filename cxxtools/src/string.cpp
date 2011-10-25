@@ -694,8 +694,11 @@ basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::widen_assign(const c
     size_type len = std::char_traits<char>::length(str);
     reserve(len);
 
+    cxxtools::Char* p = privdata_rw();
     for (size_type n = 0; n < len; ++n)
-        *this += cxxtools::Char( str[n] );
+        p[n] = cxxtools::Char( str[n] );
+
+    setLength(len);
 
     return *this;
 }
@@ -706,8 +709,11 @@ basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::widen_assign(const s
     size_type len = str.length();
     reserve(len);
 
+    cxxtools::Char* p = privdata_rw();
     for (size_type n = 0; n < len; ++n)
-        *this += cxxtools::Char( str[n] );
+        p[n] = cxxtools::Char( str[n] );
+
+    setLength(len);
 
     return *this;
 }
