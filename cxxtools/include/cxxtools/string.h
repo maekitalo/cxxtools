@@ -419,27 +419,27 @@ class basic_string< cxxtools::Char > {
         cxxtools::Char* privdata_rw()
         { return isShortString() ? shortStringData() : longStringData(); }
 
-        bool isShortString() const                    { return shortStringData()[_N-1] != cxxtools::Char(0xffff); }
-        void markLongString()                         { shortStringData()[_N-1] = cxxtools::Char(0xffff); }
+        bool isShortString() const                    { return shortStringMagic() != 0xffff; }
+        void markLongString()                         { shortStringMagic() = 0xffff; }
         const cxxtools::Char* shortStringData() const { return reinterpret_cast<const cxxtools::Char*>(&_d._u._s[0]); }
         cxxtools::Char* shortStringData()             { return reinterpret_cast<cxxtools::Char*>(&_d._u._s[0]); }
-        cxxtools::Char  shortStringMagic() const      { return shortStringData()[_N - 1]; }
-        cxxtools::Char& shortStringMagic()            { return shortStringData()[_N - 1]; }
-        size_type shortStringLength() const           { return _N - 1 - shortStringMagic().value(); }
+        cxxtools::uint32_t  shortStringMagic() const  { return _d._u._s[_N - 1]; }
+        cxxtools::uint32_t& shortStringMagic()        { return _d._u._s[_N - 1]; }
+        size_type shortStringLength() const           { return _N - 1 - shortStringMagic(); }
         size_type shortStringCapacity() const         { return _N - 1; }
-        void setShortStringLength(size_type n)        { shortStringData()[n] = cxxtools::Char(0); shortStringMagic() = cxxtools::Char(_N - n - 1); }
+        void setShortStringLength(size_type n)        { shortStringData()[n] = cxxtools::Char(0); shortStringMagic() = _N - n - 1; }
         void shortStringAssign(const cxxtools::Char* str, size_type n)
         {
             traits_type::copy(shortStringData(), str, n);
             shortStringData()[n] = cxxtools::Char(0);
-            shortStringMagic() = cxxtools::Char(_N - n - 1);
+            shortStringMagic() = _N - n - 1;
         }
         void shortStringAssign(const wchar_t* str, size_type n)
         {
             for (size_type nn = 0; nn < n; ++nn)
                 shortStringData()[nn] = str[nn];
             shortStringData()[n] = cxxtools::Char(0);
-            shortStringMagic() = cxxtools::Char(_N - n - 1);
+            shortStringMagic() = _N - n - 1;
         }
 
         const cxxtools::Char* longStringData() const    { return _d._u._p._begin; }
