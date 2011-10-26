@@ -43,6 +43,7 @@ class StringTest : public cxxtools::unit::TestSuite
         {
             cxxtools::unit::TestSuite::registerMethod( "testConstructor", *this, &StringTest::testConstructor );
             cxxtools::unit::TestSuite::registerMethod( "testCompare", *this, &StringTest::testCompare );
+            cxxtools::unit::TestSuite::registerMethod( "testCompareShort", *this, &StringTest::testCompareShort );
             cxxtools::unit::TestSuite::registerMethod( "testAssign", *this, &StringTest::testAssign );
             cxxtools::unit::TestSuite::registerMethod( "testAppend", *this, &StringTest::testAppend );
             cxxtools::unit::TestSuite::registerMethod( "testInsert", *this, &StringTest::testInsert );
@@ -69,6 +70,7 @@ class StringTest : public cxxtools::unit::TestSuite
     protected:
         void testConstructor();
         void testCompare();
+        void testCompareShort();
         void testAssign();
         void testAppend();
         void testInsert();
@@ -180,6 +182,34 @@ void StringTest::testCompare()
     CXXTOOLS_UNIT_ASSERT(y1 == y2);
     CXXTOOLS_UNIT_ASSERT(y1 == empty);
     CXXTOOLS_UNIT_ASSERT(y2 == empty);
+}
+
+void StringTest::testCompareShort()
+{
+    cxxtools::String s(L"abcd");
+
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.compare("abcd")            , 0);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.compare("abc")             , 1);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.compare("abcxyz")          , -1);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.compare("abd")             , -1);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.compare("abb")             , 1);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.compare("ab")              , 1);
+
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.compare("abcd", 4)         , 0);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.compare("abcxyz", 3)       , 1);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.compare("abcxyz", 4)       , -1);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.compare("abd", 3)          , -1);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.compare("abb", 3)          , 1);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.compare("ab", 2)           , 1);
+
+    cxxtools::String x1(L"abc");
+    CXXTOOLS_UNIT_ASSERT(x1 == "abc");
+
+    cxxtools::String y1(L"");
+    cxxtools::String y2("");
+    CXXTOOLS_UNIT_ASSERT(y1 == y2);
+    CXXTOOLS_UNIT_ASSERT(y1 == "");
+    CXXTOOLS_UNIT_ASSERT(y2 == "");
 }
 
 void StringTest::testAssign()

@@ -106,23 +106,22 @@ void XmlFormatter::flush()
 void XmlFormatter::addValue(const std::string& name, const std::string& type,
                              const cxxtools::String& value, const std::string& id)
 {
-    cxxtools::String tag;
-    tag.widen_assign(name.empty() ? type : name);
+    cxxtools::String tag(name.empty() ? type : name);
 
     Attribute attrs[2];
     size_t countAttrs = 0;
 
     if ( ! name.empty() && ! type.empty() )
     {
-        attrs[countAttrs].name().assign(L"type");
-        attrs[countAttrs].value().widen_assign(type);
+        attrs[countAttrs].name() = L"type";
+        attrs[countAttrs].value() = type;
         ++countAttrs;
     }
 
     if( ! id.empty() )
     {
-        attrs[countAttrs].name().assign(L"id");
-        attrs[countAttrs].value().widen_assign(id);
+        attrs[countAttrs].name() = L"id";
+        attrs[countAttrs].value() = id;
         ++countAttrs;
     }
 
@@ -140,23 +139,22 @@ void XmlFormatter::addReference(const std::string& name, const cxxtools::String&
 void XmlFormatter::beginComplexElement(const std::string& name, const std::string& type,
                               const std::string& id, const String& category)
 {
-    cxxtools::String tag;
-    tag.widen_assign(name.empty() ? type : name);
+    cxxtools::String tag(name.empty() ? type : name);
 
     Attribute attrs[3];
     size_t countAttrs = 0;
 
     if ( ! name.empty() && ! type.empty() )
     {
-        attrs[countAttrs].name().assign(L"type");
-        attrs[countAttrs].value().widen_assign(type);
+        attrs[countAttrs].name() = L"type";
+        attrs[countAttrs].value() = type;
         ++countAttrs;
     }
 
     if( ! id.empty() )
     {
-        attrs[countAttrs].name().assign(L"id");
-        attrs[countAttrs].value().widen_assign(id);
+        attrs[countAttrs].name() = L"id";
+        attrs[countAttrs].value() = id;
         ++countAttrs;
     }
 

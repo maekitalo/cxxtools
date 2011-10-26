@@ -150,6 +150,35 @@ basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::assign(const basic_s
 }
 
 
+basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::assign(const std::string& str)
+{
+    size_type len = str.length();
+    reserve(len);
+
+    cxxtools::Char* p = privdata_rw();
+    for (size_type n = 0; n < len; ++n)
+        p[n] = cxxtools::Char( str[n] );
+
+    setLength(len);
+
+    return *this;
+}
+
+
+basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::assign(const std::string& str, size_type pos, size_type len)
+{
+    reserve(len);
+
+    cxxtools::Char* p = privdata_rw();
+    for (size_type n = 0; n < len; ++n)
+        p[n] = cxxtools::Char( str[pos + n] );
+
+    setLength(len);
+
+    return *this;
+}
+
+
 basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::assign(const wchar_t* str)
 {
     size_type length = 0;
@@ -168,6 +197,32 @@ basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::assign(const wchar_t
     for (unsigned n = 0; n < length; ++n)
     {
         d[n] = str[n];
+    }
+
+    setLength(length);
+
+    return *this;
+}
+
+
+basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::assign(const char* str)
+{
+    size_type length = 0;
+    while (str[length])
+        ++length;
+    assign(str, length);
+
+    return *this;
+}
+
+
+basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::assign(const char* str, size_type length)
+{
+    reserve(length);
+    cxxtools::Char* d = privdata_rw();
+    for (unsigned n = 0; n < length; ++n)
+    {
+        d[n] = cxxtools::Char(str[n]);
     }
 
     setLength(length);
@@ -371,6 +426,38 @@ int basic_string<cxxtools::Char>::compare(const basic_string& str) const
 }
 
 
+int basic_string<cxxtools::Char>::compare(const char* str) const
+{
+    size_type size = length();
+    size_type n;
+    const cxxtools::Char* p = privdata_ro();
+    for (n = 0; n < size && str[n]; ++n)
+    {
+        cxxtools::Char ch(str[n]);
+        if (p[n] != ch)
+            return p[n] > ch ? 1 : -1;
+    }
+
+    return n < size ? 1 : str[n] ? -1 : 0;
+}
+
+
+int basic_string<cxxtools::Char>::compare(const char* str, size_type len) const
+{
+    size_type size = length();
+    size_type n;
+    const cxxtools::Char* p = privdata_ro();
+    for (n = 0; n < size && n < len; ++n)
+    {
+        cxxtools::Char ch(str[n]);
+        if (p[n] != ch)
+            return p[n] > ch ? 1 : -1;
+    }
+
+    return n < size ? 1 : n < len ? -1 : 0;
+}
+
+
 int basic_string<cxxtools::Char>::compare(const cxxtools::Char* str) const
 {
     return compare(str, traits_type::length(str));
@@ -406,6 +493,21 @@ int basic_string<cxxtools::Char>::compare(const wchar_t* str) const
     }
 
     return static_cast<int>( *self - cxxtools::Char(*str) );
+}
+
+
+int basic_string<cxxtools::Char>::compare(const wchar_t* str, size_type n) const
+{
+    const cxxtools::Char* self = privdata_ro();
+    size_type nn;
+    for (nn = 0; nn < n; ++nn)
+    {
+        if(*self != str[nn])
+            return *self < cxxtools::Char(str[nn]) ? -1 : +1;
+        ++self;
+    }
+
+    return *self ? 1 : nn < n ? -1 : 0;
 }
 
 
@@ -686,36 +788,6 @@ basic_string<cxxtools::Char> basic_string<cxxtools::Char>::widen(const std::stri
         ret += cxxtools::Char( str[n] );
 
     return ret;
-}
-
-
-basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::widen_assign(const char* str)
-{
-    size_type len = std::char_traits<char>::length(str);
-    reserve(len);
-
-    cxxtools::Char* p = privdata_rw();
-    for (size_type n = 0; n < len; ++n)
-        p[n] = cxxtools::Char( str[n] );
-
-    setLength(len);
-
-    return *this;
-}
-
-
-basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::widen_assign(const std::string& str)
-{
-    size_type len = str.length();
-    reserve(len);
-
-    cxxtools::Char* p = privdata_rw();
-    for (size_type n = 0; n < len; ++n)
-        p[n] = cxxtools::Char( str[n] );
-
-    setLength(len);
-
-    return *this;
 }
 
 
