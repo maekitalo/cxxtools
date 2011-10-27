@@ -1,20 +1,29 @@
 /*
  * Copyright (C) 2011 Tommi Maekitalo
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License as
- * published by the Free Software Foundation; either version 2 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but
- * is provided AS IS, WITHOUT ANY WARRANTY; without even the implied
- * warranty of MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, and
- * NON-INFRINGEMENT.  See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
- *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ * 
+ * As a special exception, you may use this file as part of a free
+ * software library without restriction. Specifically, if other files
+ * instantiate templates or use macros or inline functions from this
+ * file, or you compile this file and link it with other files to
+ * produce an executable, this file does not by itself cause the
+ * resulting executable to be covered by the GNU General Public
+ * License. This exception does not however invalidate any other
+ * reasons why the executable file might be covered by the GNU Library
+ * General Public License.
+ * 
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
 #include <iostream>
@@ -24,6 +33,7 @@
 #include <cxxtools/xmlrpc/httpclient.h>
 #include <cxxtools/clock.h>
 #include <cxxtools/timespan.h>
+#include <cxxtools/atomicity.h>
 
 class BenchClient
 {
@@ -51,7 +61,7 @@ class BenchClient
     { thread.join(); }
 };
 
-cxxtools::atomic_t BenchClient::requestsStarted = 0;
+cxxtools::atomic_t BenchClient::requestsStarted(0);
 unsigned BenchClient::maxRequests = 0;
 typedef std::vector<BenchClient*> BenchClients;
 
@@ -69,9 +79,18 @@ int main(int argc, char* argv[])
   {
     log_init("rpcbenchclient.properties");
 
+    cxxtools::Arg<std::string> ip(argc, argv, 'i');
     cxxtools::Arg<unsigned short> port(argc, argv, 'p', 7002);
     cxxtools::Arg<unsigned> threads(argc, argv, 't', 4);
-    BenchClient::maxRequests = cxxtools::Arg<unsigned>(argc, argv, 'n', 1000);
+    BenchClient::maxRequests = cxxtools::Arg<unsigned>(argc, argv, 'n', 10000);
+
+    std::cout << "call " << BenchClient::maxRequests << " requests with " << threads.getValue() << " threads\n\n"
+                 "options:\n"
+                 "   -l ip      set ip address of server (default: localhost)\n"
+                 "   -p number  set port number of server (default: 7002)\n"
+                 "   -t number  set number of threads (default: 4)\n"
+                 "   -n number  set number of requests (default: 10000)\n"
+              << std::endl;
 
     BenchClients clients;
 
