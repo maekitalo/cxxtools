@@ -63,6 +63,13 @@ inline basic_string<cxxtools::Char>::basic_string(const std::string& str, const 
 }
 
 
+inline basic_string<cxxtools::Char>::basic_string(const basic_string& str)
+: _d(str.get_allocator())
+{
+    assign(str);
+}
+
+
 inline basic_string<cxxtools::Char>::basic_string(const char* str, const allocator_type& a)
 : _d(a)
 {
@@ -176,6 +183,46 @@ basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::append(InputIterator
 inline basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::append(const cxxtools::Char* begin, const cxxtools::Char* end)
 {
     return this->append( begin, end-begin );
+}
+
+
+inline int basic_string<cxxtools::Char>::compare(const cxxtools::Char* str) const
+{
+    return compare(str, traits_type::length(str));
+}
+
+
+inline int basic_string<cxxtools::Char>::compare(size_type pos, size_type n, const basic_string& str) const
+{
+    return compare(pos, n, str, 0, str.length());
+}
+
+
+inline int basic_string<cxxtools::Char>::compare(size_type pos, size_type n, const basic_string& str, size_type pos2, size_type n2) const
+{
+    return compare(pos, n, str.privdata_ro() + pos2, n2);
+}
+
+
+inline int basic_string<cxxtools::Char>::compare(size_type pos, size_type n, const cxxtools::Char* str) const
+{
+    return compare(pos, n, str, traits_type::length(str));
+}
+
+
+inline
+basic_string<cxxtools::Char>::size_type
+basic_string<cxxtools::Char>::find(const basic_string& str, size_type pos) const
+{
+    return this->find( str.privdata_ro(), pos, str.size() );
+}
+
+
+inline
+basic_string<cxxtools::Char>::size_type
+basic_string<cxxtools::Char>::rfind(const basic_string& str, size_type pos) const
+{
+    return this->rfind( str.privdata_ro(), pos, str.size() );
 }
 
 

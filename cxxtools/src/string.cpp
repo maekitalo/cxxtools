@@ -28,17 +28,19 @@
  */
 
 #include <cxxtools/string.h>
+#include <cxxtools/textstream.h>
+#include <cxxtools/utf8codec.h>
+#include <iostream>
 #include <algorithm>
+
+#ifndef INLINE
+#define INLINE
+#endif
 
 namespace std
 {
 
-basic_string<cxxtools::Char>::basic_string(const basic_string& str)
-: _d(str.get_allocator())
-{
-    assign(str);
-}
-
+INLINE
 void basic_string<cxxtools::Char>::resize(size_t n, cxxtools::Char ch)
 {
     size_type size = this->size();
@@ -51,16 +53,14 @@ void basic_string<cxxtools::Char>::resize(size_t n, cxxtools::Char ch)
 }
 
 
+INLINE
 void basic_string<cxxtools::Char>::reserve(size_t n)
 {
     if (capacity() < n)
     {
         // since capacity is always at least shortStringCapacity, we need to use long string
         // to ensure the requested capacity if the current is not enough
-        size_type nn = 16;
-        while (nn < n)
-            nn <<= 1;
-        cxxtools::Char* p = _d.allocate(nn + 1);
+        cxxtools::Char* p = _d.allocate(n + 1);
         size_type l = length();
         const cxxtools::Char* oldData = privdata_ro();
         traits_type::copy(p, oldData, l);
@@ -72,12 +72,26 @@ void basic_string<cxxtools::Char>::reserve(size_t n)
 
         _d._u._p._begin = p;
         _d._u._p._end = p + l;
-        _d._u._p._capacity = p + nn;
+        _d._u._p._capacity = p + n;
         *_d._u._p._end = cxxtools::Char::null();
     }
 }
 
 
+INLINE
+void basic_string<cxxtools::Char>::privreserve(size_t n)
+{
+    if (capacity() < n)
+    {
+        size_type nn = 16;
+        while (nn < n)
+            nn += (nn << 1);
+        reserve(nn);
+    }
+}
+
+
+INLINE
 void basic_string<cxxtools::Char>::swap(basic_string& str)
 {
     if (isShortString())
@@ -115,6 +129,7 @@ void basic_string<cxxtools::Char>::swap(basic_string& str)
 
 
 
+INLINE
 basic_string<cxxtools::Char>::size_type
 basic_string<cxxtools::Char>::copy(cxxtools::Char* a, size_type n, size_type pos) const
 {
@@ -132,6 +147,7 @@ basic_string<cxxtools::Char>::copy(cxxtools::Char* a, size_type n, size_type pos
 }
 
 
+INLINE
 basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::assign(const basic_string<cxxtools::Char>& str)
 {
     // self-assignment check
@@ -140,7 +156,7 @@ basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::assign(const basic_s
         return *this;
     }
 
-    reserve(str.capacity());
+    privreserve(str.capacity());
     cxxtools::Char* p = privdata_rw();
     size_type l = str.length();
     traits_type::copy(p, str.data(), l);
@@ -150,10 +166,11 @@ basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::assign(const basic_s
 }
 
 
+INLINE
 basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::assign(const std::string& str)
 {
     size_type len = str.length();
-    reserve(len);
+    privreserve(len);
 
     cxxtools::Char* p = privdata_rw();
     for (size_type n = 0; n < len; ++n)
@@ -165,9 +182,10 @@ basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::assign(const std::st
 }
 
 
+INLINE
 basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::assign(const std::string& str, size_type pos, size_type len)
 {
-    reserve(len);
+    privreserve(len);
 
     cxxtools::Char* p = privdata_rw();
     for (size_type n = 0; n < len; ++n)
@@ -179,6 +197,7 @@ basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::assign(const std::st
 }
 
 
+INLINE
 basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::assign(const wchar_t* str)
 {
     size_type length = 0;
@@ -190,9 +209,10 @@ basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::assign(const wchar_t
 }
 
 
+INLINE
 basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::assign(const wchar_t* str, size_type length)
 {
-    reserve(length);
+    privreserve(length);
     cxxtools::Char* d = privdata_rw();
     for (unsigned n = 0; n < length; ++n)
     {
@@ -205,6 +225,7 @@ basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::assign(const wchar_t
 }
 
 
+INLINE
 basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::assign(const char* str)
 {
     size_type length = 0;
@@ -216,9 +237,10 @@ basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::assign(const char* s
 }
 
 
+INLINE
 basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::assign(const char* str, size_type length)
 {
-    reserve(length);
+    privreserve(length);
     cxxtools::Char* d = privdata_rw();
     for (unsigned n = 0; n < length; ++n)
     {
@@ -231,12 +253,13 @@ basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::assign(const char* s
 }
 
 
+INLINE
 basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::assign(const cxxtools::Char* str, size_type length)
 {
     // self-assignment check
     if (str != privdata_ro())
     {
-        reserve(length);
+        privreserve(length);
         traits_type::copy(privdata_rw(), str, length);
     }
 
@@ -246,9 +269,10 @@ basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::assign(const cxxtool
 }
 
 
+INLINE
 basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::assign(size_type n, cxxtools::Char ch)
 {
-    reserve(n);
+    privreserve(n);
 
     cxxtools::Char* p = privdata_rw();
     for (size_type nn = 0; nn < n; ++nn)
@@ -260,10 +284,11 @@ basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::assign(size_type n, 
 }
 
 
+INLINE
 basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::append(const cxxtools::Char* str, size_type n)
 {
     size_type l = length();
-    reserve(l + n);
+    privreserve(l + n);
     traits_type::copy(privdata_rw() + l, str, n);
     setLength(l + n);
 
@@ -271,10 +296,11 @@ basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::append(const cxxtool
 }
 
 
+INLINE
 basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::append(size_type n, cxxtools::Char ch)
 {
     size_type l = length();
-    reserve(l + n);
+    privreserve(l + n);
     cxxtools::Char* p = privdata_rw();
     for (size_type nn = 0; nn < n; ++nn)
         p[l + nn] = ch;
@@ -284,10 +310,11 @@ basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::append(size_type n, 
 }
 
 
+INLINE
 basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::insert(size_type pos, const cxxtools::Char* str, size_type n)
 {
     size_type l = length();
-    reserve(l + n);
+    privreserve(l + n);
     cxxtools::Char* p = privdata_rw();
     traits_type::move(p + pos + n, p + pos, l - pos);
     traits_type::copy(p + pos, str, n);
@@ -297,10 +324,11 @@ basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::insert(size_type pos
 }
 
 
+INLINE
 basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::insert(size_type pos, size_type n, cxxtools::Char ch)
 {
     size_type l = length();
-    reserve(l + n);
+    privreserve(l + n);
     cxxtools::Char* p = privdata_rw();
     traits_type::move(p + pos + n, p + pos, l - pos);
     for (size_type nn = 0; nn < n; ++nn)
@@ -311,6 +339,7 @@ basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::insert(size_type pos
 }
 
 
+INLINE
 basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::erase(size_type pos, size_type n)
 {
     cxxtools::Char* p = privdata_rw();
@@ -324,6 +353,7 @@ basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::erase(size_type pos,
 }
 
 
+INLINE
 basic_string<cxxtools::Char>::iterator
 basic_string<cxxtools::Char>::erase(iterator it)
 {
@@ -333,6 +363,7 @@ basic_string<cxxtools::Char>::erase(iterator it)
 }
 
 
+INLINE
 basic_string<cxxtools::Char>::iterator
 basic_string<cxxtools::Char>::erase(iterator first, iterator last)
 {
@@ -342,12 +373,14 @@ basic_string<cxxtools::Char>::erase(iterator first, iterator last)
 }
 
 
+INLINE
 basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::replace(size_type pos, size_type n, const cxxtools::Char* str)
 {
     return replace(pos, n, str, traits_type::length(str));
 }
 
 
+INLINE
 basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::replace(size_type pos, size_type n, const cxxtools::Char* str, size_type n2)
 {
     erase(pos, n);
@@ -356,6 +389,7 @@ basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::replace(size_type po
 }
 
 
+INLINE
 basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::replace(size_type pos, size_type n, size_type n2, cxxtools::Char ch)
 {
     erase(pos, n);
@@ -364,12 +398,14 @@ basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::replace(size_type po
 }
 
 
+INLINE
 basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::replace(size_type pos, size_type n, const basic_string& str)
 {
     return replace(pos, n, str.privdata_ro(), str.length());
 }
 
 
+INLINE
 basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::replace(size_type pos, size_type n,
                                                         const basic_string& str, size_type pos2, size_type n2)
 {
@@ -377,6 +413,7 @@ basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::replace(size_type po
 }
 
 
+INLINE
 basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::replace(iterator i1, iterator i2, const cxxtools::Char* str)
 {
     size_type pos = i1 - begin();
@@ -385,6 +422,7 @@ basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::replace(iterator i1,
 }
 
 
+INLINE
 basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::replace(iterator i1, iterator i2, const cxxtools::Char* str, size_type n)
 {
     size_type pos = i1 - begin();
@@ -393,6 +431,7 @@ basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::replace(iterator i1,
 }
 
 
+INLINE
 basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::replace(iterator i1, iterator i2, size_type n, cxxtools::Char ch)
 {
     size_type pos = i1 - begin();
@@ -401,6 +440,7 @@ basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::replace(iterator i1,
 }
 
 
+INLINE
 basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::replace(iterator i1, iterator i2, const basic_string& str)
 {
     size_type pos = i1 - begin();
@@ -409,6 +449,7 @@ basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::replace(iterator i1,
 }
 
 
+INLINE
 int basic_string<cxxtools::Char>::compare(const basic_string& str) const
 {
     const size_type size = this->size();
@@ -426,6 +467,7 @@ int basic_string<cxxtools::Char>::compare(const basic_string& str) const
 }
 
 
+INLINE
 int basic_string<cxxtools::Char>::compare(const char* str) const
 {
     size_type size = length();
@@ -442,6 +484,7 @@ int basic_string<cxxtools::Char>::compare(const char* str) const
 }
 
 
+INLINE
 int basic_string<cxxtools::Char>::compare(const char* str, size_type len) const
 {
     size_type size = length();
@@ -458,12 +501,7 @@ int basic_string<cxxtools::Char>::compare(const char* str, size_type len) const
 }
 
 
-int basic_string<cxxtools::Char>::compare(const cxxtools::Char* str) const
-{
-    return compare(str, traits_type::length(str));
-}
-
-
+INLINE
 int basic_string<cxxtools::Char>::compare(const cxxtools::Char* str, size_type osize) const
 {
     const size_type size = this->size();
@@ -480,6 +518,7 @@ int basic_string<cxxtools::Char>::compare(const cxxtools::Char* str, size_type o
 }
 
 
+INLINE
 int basic_string<cxxtools::Char>::compare(const wchar_t* str) const
 {
     const cxxtools::Char* self = privdata_ro();
@@ -496,6 +535,7 @@ int basic_string<cxxtools::Char>::compare(const wchar_t* str) const
 }
 
 
+INLINE
 int basic_string<cxxtools::Char>::compare(const wchar_t* str, size_type n) const
 {
     const cxxtools::Char* self = privdata_ro();
@@ -511,24 +551,7 @@ int basic_string<cxxtools::Char>::compare(const wchar_t* str, size_type n) const
 }
 
 
-int basic_string<cxxtools::Char>::compare(size_type pos, size_type n, const basic_string& str) const
-{
-    return compare(pos, n, str, 0, str.length());
-}
-
-
-int basic_string<cxxtools::Char>::compare(size_type pos, size_type n, const basic_string& str, size_type pos2, size_type n2) const
-{
-    return compare(pos, n, str.privdata_ro() + pos2, n2);
-}
-
-
-int basic_string<cxxtools::Char>::compare(size_type pos, size_type n, const cxxtools::Char* str) const
-{
-    return compare(pos, n, str, traits_type::length(str));
-}
-
-
+INLINE
 int basic_string<cxxtools::Char>::compare(size_type pos, size_type n, const cxxtools::Char* str, size_type n2) const
 {
     const size_type size = n;
@@ -548,13 +571,7 @@ int basic_string<cxxtools::Char>::compare(size_type pos, size_type n, const cxxt
 }
 
 
-basic_string<cxxtools::Char>::size_type
-basic_string<cxxtools::Char>::find(const basic_string& str, size_type pos) const
-{
-    return this->find( str.privdata_ro(), pos, str.size() );
-}
-
-
+INLINE
 basic_string<cxxtools::Char>::size_type
 basic_string<cxxtools::Char>::find(const cxxtools::Char* token, size_type pos, size_type n) const
 {
@@ -571,6 +588,7 @@ basic_string<cxxtools::Char>::find(const cxxtools::Char* token, size_type pos, s
 }
 
 
+INLINE
 basic_string<cxxtools::Char>::size_type
 basic_string<cxxtools::Char>::find(cxxtools::Char ch, size_type pos) const
 {
@@ -591,13 +609,7 @@ basic_string<cxxtools::Char>::find(cxxtools::Char ch, size_type pos) const
 }
 
 
-basic_string<cxxtools::Char>::size_type
-basic_string<cxxtools::Char>::rfind(const basic_string& str, size_type pos) const
-{
-    return this->rfind( str.privdata_ro(), pos, str.size() );
-}
-
-
+INLINE
 basic_string<cxxtools::Char>::size_type
 basic_string<cxxtools::Char>::rfind(const cxxtools::Char* token, size_type pos, size_type n) const
 {
@@ -620,6 +632,7 @@ basic_string<cxxtools::Char>::rfind(const cxxtools::Char* token, size_type pos, 
 }
 
 
+INLINE
 basic_string<cxxtools::Char>::size_type
 basic_string<cxxtools::Char>::rfind(cxxtools::Char ch, size_type pos) const
 {
@@ -640,6 +653,7 @@ basic_string<cxxtools::Char>::rfind(cxxtools::Char ch, size_type pos) const
     return npos;
 }
 
+INLINE
 basic_string<cxxtools::Char>::size_type
 basic_string<cxxtools::Char>::find_first_of(const cxxtools::Char* s, size_type pos, size_type n) const
 {
@@ -655,6 +669,7 @@ basic_string<cxxtools::Char>::find_first_of(const cxxtools::Char* s, size_type p
     return npos;
 }
 
+INLINE
 basic_string<cxxtools::Char>::size_type
 basic_string<cxxtools::Char>::find_last_of(const cxxtools::Char* s, size_type pos, size_type n) const
 {
@@ -680,6 +695,7 @@ basic_string<cxxtools::Char>::find_last_of(const cxxtools::Char* s, size_type po
     return npos;
 }
 
+INLINE
 basic_string<cxxtools::Char>::size_type
 basic_string<cxxtools::Char>::find_first_not_of(const cxxtools::Char* tok, size_type pos, size_type n) const
 {
@@ -692,6 +708,7 @@ basic_string<cxxtools::Char>::find_first_not_of(const cxxtools::Char* tok, size_
     return npos;
 }
 
+INLINE
 basic_string<cxxtools::Char>::size_type
 basic_string<cxxtools::Char>::find_first_not_of(cxxtools::Char ch, size_type pos) const
 {
@@ -707,6 +724,7 @@ basic_string<cxxtools::Char>::find_first_not_of(cxxtools::Char ch, size_type pos
 }
 
 
+INLINE
 basic_string<cxxtools::Char>::size_type
 basic_string<cxxtools::Char>::find_last_not_of(const cxxtools::Char* tok, size_type pos, size_type n) const
 {
@@ -728,6 +746,7 @@ basic_string<cxxtools::Char>::find_last_not_of(const cxxtools::Char* tok, size_t
     return npos;
 }
 
+INLINE
 basic_string<cxxtools::Char>::size_type
 basic_string<cxxtools::Char>::find_last_not_of(cxxtools::Char ch, size_type pos) const
 {
@@ -748,6 +767,7 @@ basic_string<cxxtools::Char>::find_last_not_of(cxxtools::Char ch, size_type pos)
 }
 
 
+INLINE
 std::string basic_string<cxxtools::Char>::narrow(char dfault) const
 {
     std::string ret;
@@ -763,12 +783,13 @@ std::string basic_string<cxxtools::Char>::narrow(char dfault) const
 }
 
 
+INLINE
 basic_string<cxxtools::Char> basic_string<cxxtools::Char>::widen(const char* str)
 {
     std::basic_string<cxxtools::Char> ret;
 
     size_type len = std::char_traits<char>::length(str);
-    ret.reserve(len);
+    ret.privreserve(len);
 
     for (size_type n = 0; n < len; ++n)
         ret += cxxtools::Char( str[n] );
@@ -777,17 +798,27 @@ basic_string<cxxtools::Char> basic_string<cxxtools::Char>::widen(const char* str
 }
 
 
+INLINE
 basic_string<cxxtools::Char> basic_string<cxxtools::Char>::widen(const std::string& str)
 {
     std::basic_string<cxxtools::Char> ret;
 
     size_type len = str.length();
-    ret.reserve(len);
+    ret.privreserve(len);
 
     for (size_type n = 0; n < len; ++n)
         ret += cxxtools::Char( str[n] );
 
     return ret;
+}
+
+
+INLINE
+ostream& operator<< (ostream& out, const basic_string<cxxtools::Char>& str)
+{
+    cxxtools::TextOStream tout(out, new cxxtools::Utf8Codec());
+    tout << str;
+    return out;
 }
 
 

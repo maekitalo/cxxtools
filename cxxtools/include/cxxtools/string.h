@@ -36,6 +36,7 @@
 #include <string>
 #include <iterator>
 #include <stdexcept>
+#include <iosfwd>
 
 #include <cxxtools/config.h>
 
@@ -80,9 +81,9 @@ class CXXTOOLS_API basic_string< cxxtools::Char > {
 
         basic_string(const wchar_t* str, size_type n, const allocator_type& a = allocator_type());
 
-        basic_string(const std::string& str, const allocator_type& a = allocator_type());
+        explicit basic_string(const std::string& str, const allocator_type& a = allocator_type());
 
-        basic_string(const char* str, const allocator_type& a = allocator_type());
+        explicit basic_string(const char* str, const allocator_type& a = allocator_type());
 
         basic_string(const char* str, size_type n, const allocator_type& a = allocator_type());
 
@@ -419,7 +420,7 @@ class CXXTOOLS_API basic_string< cxxtools::Char > {
         };
 
         static const unsigned _minN = (sizeof(Ptr) / sizeof(cxxtools::uint32_t)) + 1;
-        static const unsigned _N = _minN < 7 ? 7 : _minN;
+        static const unsigned _N = _minN < 8 ? 8 : _minN;
 
         struct Data : public allocator_type
         {
@@ -443,6 +444,8 @@ class CXXTOOLS_API basic_string< cxxtools::Char > {
         { return isShortString() ? shortStringData() : longStringData(); }
         cxxtools::Char* privdata_rw()
         { return isShortString() ? shortStringData() : longStringData(); }
+
+        void privreserve(size_t n);
 
         bool isShortString() const                    { return shortStringMagic() != 0xffff; }
         void markLongString()                         { shortStringMagic() = 0xffff; }
@@ -564,6 +567,8 @@ class CXXTOOLS_API basic_string< cxxtools::Char > {
 
     inline bool operator>(const basic_string<cxxtools::Char>& a, const wchar_t* b)
     { return a.compare(b) > 0; }
+
+    ostream& operator<< (ostream& out, const basic_string<cxxtools::Char>& str);
 
 } // namespace std
 
