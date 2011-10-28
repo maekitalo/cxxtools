@@ -41,14 +41,12 @@ namespace cxxtools
     : fd(fd_),
       doClose(doClose_),
       bufsize(bufsize_),
-      ibuffer(0),
-      obuffer(0)
+      buffer(0)
   { }
 
   Fdstreambuf::~Fdstreambuf()
   {
-    delete [] ibuffer;
-    delete [] obuffer;
+    delete [] buffer;
 
     if (doClose)
       ::close(fd);
@@ -64,34 +62,37 @@ namespace cxxtools
   {
     log_debug("overflow(" << ch << ')');
 
-    if (pptr() != pbase())
+    setg(0, 0, 0);
+
+    if (pptr() > buffer)
     {
-      log_debug("write " << (pptr() - pbase()) << " bytes to fd " << fd);
-      ssize_t ret = ::write(fd, pbase(), pptr() - pbase());
+      log_debug("write " << (pptr() - buffer) << " bytes to fd " << fd);
+      ssize_t ret;
+      do {
+        ret = ::write(fd, buffer, pptr() - buffer);
+      } while (ret == -1 && errno == EINTR);
 
       if(ret < 0)
         throw SystemError(errno, "write");
 
       if (ret == 0)
         return traits_type::eof();
-      else
-      {
-        log_debug(ret << " bytes written to fd " << fd);
-        std::copy(pptr(), pptr() + ret, obuffer);
-        setp(obuffer, obuffer + bufsize - ret);
-        pbump(ret);
-      }
+
+      log_debug(ret << " bytes written to fd " << fd);
+      ssize_t rest = pptr() - buffer - ret;
+      std::copy(buffer + ret, buffer + ret + rest, buffer);
+      setp(buffer + rest, buffer + bufsize);
     }
     else
     {
       log_debug("initialize outputbuffer");
-      if (obuffer == 0)
+      if (buffer == 0)
       {
         log_debug("allocate " << bufsize << " bytes output buffer");
-        obuffer = new char[bufsize];
+        buffer = new char[bufsize];
       }
 
-      setp(obuffer, obuffer + bufsize);
+      setp(buffer, buffer + bufsize);
     }
 
     if (ch != traits_type::eof())
@@ -108,14 +109,17 @@ namespace cxxtools
     if (sync() != 0)
       return traits_type::eof();
 
-    if (ibuffer == 0)
+    if (buffer == 0)
     {
       log_debug("allocate " << bufsize << " bytes input buffer");
-      ibuffer = new char[bufsize];
+      buffer = new char[bufsize];
     }
 
     log_debug("read from fd " << fd);
-    int ret = ::read(fd, ibuffer, bufsize);
+    ssize_t ret;
+    do {
+      ret = ::read(fd, buffer, bufsize);
+    } while (ret == -1 && errno == EINTR);
 
     if(ret < 0)
       throw SystemError(errno, "read");
@@ -124,7 +128,7 @@ namespace cxxtools
       return traits_type::eof();
 
     log_debug(ret << " bytes read");
-    setg(ibuffer, ibuffer, ibuffer + ret);
+    setg(buffer, buffer, buffer + ret);
 
     return traits_type::to_int_type(*gptr());
   }
@@ -150,6 +154,10 @@ namespace cxxtools
         p += ret;
       }
     }
+
+    setp(0, 0);
+    setg(0, 0, 0);
+
     return 0;
   }
 

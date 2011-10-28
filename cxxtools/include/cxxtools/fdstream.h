@@ -42,8 +42,7 @@ namespace cxxtools
       int fd;
       bool doClose;
       unsigned bufsize;
-      char* ibuffer;
-      char* obuffer;
+      char* buffer;
 
     public:
       explicit Fdstreambuf(int fd, unsigned bufsize = 8192, bool doClose = false);
