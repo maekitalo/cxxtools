@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003 Tommi Maekitalo
+ * Copyright (C) 2011 Tommi Maekitalo
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,82 +26,32 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-/* Copyright (C) 1991-2, RSA Data Security, Inc. Created 1991. All
-rights reserved.
-
-License to copy and use this software is granted provided that it
-is identified as the "RSA Data Security, Inc. MD5 Message-Digest
-Algorithm" in all material mentioning or referencing this software
-or this function.
-
-License is also granted to make and use derivative works provided
-that such works are identified as "derived from the RSA Data
-Security, Inc. MD5 Message-Digest Algorithm" in all material
-mentioning or referencing the derived work.
-
-RSA Data Security, Inc. makes no representations concerning either
-the merchantability of this software or the suitability of this
-software for any particular purpose. It is provided "as is"
-without express or implied warranty of any kind.
-
-These notices must be retained in any copies of any part of this
-documentation and/or software.
- */
-
-/* RSAREF types and constants
- */
-
-/* PROTOTYPES should be set to one if and only if the compiler supports
-  function argument prototyping.
-The following makes PROTOTYPES default to 0 if it has not already
-  been defined with C compiler flags.
- */
-
 #ifndef CXXTOOLS_MD5_H
 #define CXXTOOLS_MD5_H
 
-#ifndef PROTOTYPES
-#define PROTOTYPES 1
-#endif
+#include <cxxtools/md5stream.h>
+#include <iterator>
+#include <algorithm>
 
-/* POINTER defines a generic pointer type */
-typedef unsigned char *POINTER;
+namespace cxxtools
+{
 
-/* UINT2 defines a two byte word */
-typedef unsigned short int UINT2;
-
-/* UINT4 defines a four byte word */
-typedef unsigned int UINT4;
-
-/* PROTO_LIST is defined depending on how PROTOTYPES is defined above.
-   If using PROTOTYPES, then PROTO_LIST returns the list, otherwise it
-  returns an empty list.
- */
-
-#if PROTOTYPES
-#define PROTO_LIST(list) list
-#else
-#define PROTO_LIST(list) ()
-#endif
-
-/* MD5 context. */
-typedef struct {
-  UINT4 state[4];                                   /* state (ABCD) */
-  UINT4 count[2];        /* number of bits, modulo 2^64 (lsb first) */
-  unsigned char buffer[64];                         /* input buffer */
-} cxxtools_MD5_CTX;
-
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-void cxxtools_MD5Init PROTO_LIST ((cxxtools_MD5_CTX *));
-void cxxtools_MD5Update PROTO_LIST
-  ((cxxtools_MD5_CTX *, const unsigned char *, unsigned int));
-void cxxtools_MD5Final PROTO_LIST ((unsigned char [16], cxxtools_MD5_CTX *));
-
-#ifdef __cplusplus
+template <typename iterator_type>
+std::string md5(iterator_type from, iterator_type to)
+{
+  Md5stream s;
+  std::copy(from, to, std::ostream_iterator<char>(s));
+  return s.getHexDigest();
 }
-#endif
 
-#endif /* CXXTOOLS_MD5_H */
+template <typename data_type>
+std::string md5(const data_type& data)
+{
+  Md5stream s;
+  s << data;
+  return s.getHexDigest();
+}
+
+}
+
+#endif  // CXXTOOLS_MD5_H

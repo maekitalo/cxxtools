@@ -27,6 +27,7 @@
  */
 
 #include "cxxtools/md5stream.h"
+#include "md5.h"
 #include <cstring>
 
 namespace cxxtools
@@ -36,8 +37,14 @@ namespace cxxtools
 // Md5streambuf
 //
 Md5streambuf::Md5streambuf()
+  : context(0)
 {
   std::memset(digest, 0, 16);
+}
+
+Md5streambuf::~Md5streambuf()
+{
+  delete context;
 }
 
 std::streambuf::int_type Md5streambuf::overflow(
@@ -46,12 +53,14 @@ std::streambuf::int_type Md5streambuf::overflow(
   if (pptr() == 0)
   {
     // Ausgabepuffer ist leer - initialisieren
-    cxxtools_MD5Init(&context);
+    if (context == 0)
+      context = new cxxtools_MD5_CTX();
+    cxxtools_MD5Init(context);
   }
   else
   {
     // konsumiere Zeichen aus dem Puffer
-    cxxtools_MD5Update(&context,
+    cxxtools_MD5Update(context,
               (const unsigned char*)pbase(),
               pptr() - pbase());
   }
@@ -81,7 +90,7 @@ int Md5streambuf::sync()
   if (pptr() != pbase())
   {
     // konsumiere Zeichen aus dem Puffer
-    cxxtools_MD5Update(&context, (const unsigned char*)pbase(), pptr() - pbase());
+    cxxtools_MD5Update(context, (const unsigned char*)pbase(), pptr() - pbase());
 
     // leere Ausgabepuffer
     setp(buffer, buffer + bufsize);
@@ -97,13 +106,13 @@ void Md5streambuf::getDigest(unsigned char digest_[16])
     if (pptr() != pbase())
     {
       // konsumiere Zeichen aus dem Puffer
-      cxxtools_MD5Update(&context, (const unsigned char*)pbase(), pptr() - pbase());
+      cxxtools_MD5Update(context, (const unsigned char*)pbase(), pptr() - pbase());
     }
 
     // deinitialisiere Ausgabepuffer
     setp(0, 0);
 
-    cxxtools_MD5Final(digest, &context);
+    cxxtools_MD5Final(digest, context);
   }
 
   std::memcpy(digest_, digest, 16);

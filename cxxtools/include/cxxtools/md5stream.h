@@ -29,10 +29,9 @@
 #ifndef CXXTOOLS_MD5STREAM_H
 #define CXXTOOLS_MD5STREAM_H
 
-#include <cxxtools/md5.h>
 #include <iostream>
-#include <iterator>
-#include <algorithm>
+
+struct cxxtools_MD5_CTX;
 
 namespace cxxtools
 {
@@ -41,13 +40,14 @@ class Md5streambuf : public std::streambuf
 {
   public:
     Md5streambuf();
+    ~Md5streambuf();
 
     void getDigest(unsigned char digest[16]);
 
   private:
     static const unsigned int bufsize = 64;
     char buffer[bufsize];
-    cxxtools_MD5_CTX context;
+    cxxtools_MD5_CTX* context;
     unsigned char digest[16];
 
     std::streambuf::int_type overflow(std::streambuf::int_type ch);
@@ -109,22 +109,6 @@ class Md5stream : public std::ostream
     iterator begin()
       { return iterator(&streambuf); }
 };
-
-template <typename iterator_type>
-std::string md5(iterator_type from, iterator_type to)
-{
-  Md5stream s;
-  std::copy(from, to, std::ostream_iterator<char>(s));
-  return s.getHexDigest();
-}
-
-template <typename data_type>
-std::string md5(const data_type& data)
-{
-  Md5stream s;
-  s << data;
-  return s.getHexDigest();
-}
 
 }
 
