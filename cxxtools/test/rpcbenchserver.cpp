@@ -46,15 +46,21 @@ int main(int argc, char* argv[])
 
     cxxtools::Arg<std::string> ip(argc, argv, 'i');
     cxxtools::Arg<unsigned short> port(argc, argv, 'p', 7002);
+    cxxtools::Arg<unsigned> threads(argc, argv, 't', 4);
+    cxxtools::Arg<unsigned> maxThreads(argc, argv, 'T', 200);
 
     std::cout << "rpc echo server running on port " << port.getValue() << "\n\n"
                  "options:\n\n"
                  "   -i ip      set interface address to listen on (default: all interfaces)\n"
                  "   -p number  set port number (default: 7002)\n"
+                 "   -t number  set minimum number of threads (default: 4)\n"
+                 "   -T number  set maximum number of threads (default: 200)\n"
               << std::endl;
 
     cxxtools::EventLoop loop;
     cxxtools::http::Server server(loop, ip, port);
+    server.minThreads(threads);
+    server.maxThreads(maxThreads);
     cxxtools::xmlrpc::Service service;
     service.registerFunction("echo", echo);
     server.addService("/myservice", service);
