@@ -354,37 +354,23 @@ basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::erase(size_type pos,
 
 
 INLINE
-basic_string<cxxtools::Char>::iterator
-basic_string<cxxtools::Char>::erase(iterator it)
-{
-    size_type pos = it - begin();
-    erase(pos, 1);
-    return begin() + pos;
-}
-
-
-INLINE
-basic_string<cxxtools::Char>::iterator
-basic_string<cxxtools::Char>::erase(iterator first, iterator last)
-{
-    size_type pos = first - begin();
-    erase(pos, last - first);
-    return begin() + pos;
-}
-
-
-INLINE
-basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::replace(size_type pos, size_type n, const cxxtools::Char* str)
-{
-    return replace(pos, n, str, traits_type::length(str));
-}
-
-
-INLINE
 basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::replace(size_type pos, size_type n, const cxxtools::Char* str, size_type n2)
 {
-    erase(pos, n);
-    insert(pos, str, n2);
+    cxxtools::Char* p;
+    if (n != n2)
+    {
+        size_type l = length();
+        privreserve(l - n + n2);
+        p = privdata_rw();
+        traits_type::move(p + pos + n2, p + pos + n, l - pos - n);
+        setLength(l - n + n2);
+    }
+    else
+    {
+        p = privdata_rw();
+    }
+
+    traits_type::copy(p + pos, str, n2);
     return *this;
 }
 
@@ -392,60 +378,24 @@ basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::replace(size_type po
 INLINE
 basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::replace(size_type pos, size_type n, size_type n2, cxxtools::Char ch)
 {
-    erase(pos, n);
-    insert(pos, n2, ch);
+    cxxtools::Char* p;
+    if (n != n2)
+    {
+        size_type l = length();
+        privreserve(l - n + n2);
+        p = privdata_rw();
+        traits_type::move(p + pos + n2, p + pos + n, l - pos - n);
+        setLength(l - n + n2);
+    }
+    else
+    {
+        p = privdata_rw();
+    }
+
+    for (size_type nn = 0; nn < n2; ++nn)
+        p[pos + nn] = ch;
+
     return *this;
-}
-
-
-INLINE
-basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::replace(size_type pos, size_type n, const basic_string& str)
-{
-    return replace(pos, n, str.privdata_ro(), str.length());
-}
-
-
-INLINE
-basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::replace(size_type pos, size_type n,
-                                                        const basic_string& str, size_type pos2, size_type n2)
-{
-    return replace(pos, n, str.privdata_ro() + pos2, n2);
-}
-
-
-INLINE
-basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::replace(iterator i1, iterator i2, const cxxtools::Char* str)
-{
-    size_type pos = i1 - begin();
-    size_type n = i2 - i1;
-    return replace(pos, n, str);
-}
-
-
-INLINE
-basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::replace(iterator i1, iterator i2, const cxxtools::Char* str, size_type n)
-{
-    size_type pos = i1 - begin();
-    size_type n1 = i2 - i1;
-    return replace(pos, n1, str, n);
-}
-
-
-INLINE
-basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::replace(iterator i1, iterator i2, size_type n, cxxtools::Char ch)
-{
-    size_type pos = i1 - begin();
-    size_type n1 = i2 - i1;
-    return replace(pos, n1, n, ch);
-}
-
-
-INLINE
-basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::replace(iterator i1, iterator i2, const basic_string& str)
-{
-    size_type pos = i1 - begin();
-    size_type n = i2 - i1;
-    return replace(pos, n, str);
 }
 
 

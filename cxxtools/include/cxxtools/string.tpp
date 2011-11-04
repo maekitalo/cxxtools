@@ -148,6 +148,11 @@ inline basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::assign(const 
 }
 
 
+inline basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::assign(const cxxtools::Char* str)
+{
+    return assign(str, traits_type::length(str));
+}
+
 template <typename InputIterator>
 basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::assign(InputIterator begin, InputIterator end)
 {
@@ -156,6 +161,11 @@ basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::assign(InputIterator
     return *this;
 }
 
+
+inline basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::append(const cxxtools::Char* str)
+{
+    return append( str, traits_type::length(str) );
+}
 
 inline basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::append(const basic_string& str)
 {
@@ -183,6 +193,109 @@ basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::append(InputIterator
 inline basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::append(const cxxtools::Char* begin, const cxxtools::Char* end)
 {
     return this->append( begin, end-begin );
+}
+
+
+inline basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::insert(size_type pos, const cxxtools::Char* str)
+{
+    return this->insert( pos, str, traits_type::length(str) );
+}
+
+inline basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::insert(size_type pos, const basic_string& str)
+{
+    return insert(pos, str.privdata_ro(), str.length());
+}
+
+inline basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::insert(size_type pos, const basic_string& str, size_type pos2, size_type n)
+{
+    return insert(pos, str.privdata_ro() + pos2, n > str.length() ? str.length() : n);
+}
+
+inline basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::insert(iterator p, cxxtools::Char ch)
+{
+    return insert(p - begin(), 1, ch);
+}
+
+inline basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::insert(iterator p, size_type n, cxxtools::Char ch)
+{
+    return insert(p - begin(), n, ch);
+}
+
+inline
+basic_string<cxxtools::Char>::iterator
+basic_string<cxxtools::Char>::erase(iterator it)
+{
+    size_type pos = it - begin();
+    erase(pos, 1);
+    return begin() + pos;
+}
+
+
+inline
+basic_string<cxxtools::Char>::iterator
+basic_string<cxxtools::Char>::erase(iterator first, iterator last)
+{
+    size_type pos = first - begin();
+    erase(pos, last - first);
+    return begin() + pos;
+}
+
+
+inline
+basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::replace(size_type pos, size_type n, const cxxtools::Char* str)
+{
+    return replace(pos, n, str, traits_type::length(str));
+}
+
+
+inline
+basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::replace(size_type pos, size_type n, const basic_string& str)
+{
+    return replace(pos, n, str.privdata_ro(), str.length());
+}
+
+
+inline
+basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::replace(size_type pos, size_type n,
+                                                        const basic_string& str, size_type pos2, size_type n2)
+{
+    return replace(pos, n, str.privdata_ro() + pos2, n2);
+}
+
+
+inline
+basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::replace(iterator i1, iterator i2, const cxxtools::Char* str)
+{
+    size_type pos = i1 - begin();
+    size_type n = i2 - i1;
+    return replace(pos, n, str);
+}
+
+
+inline
+basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::replace(iterator i1, iterator i2, const cxxtools::Char* str, size_type n)
+{
+    size_type pos = i1 - begin();
+    size_type n1 = i2 - i1;
+    return replace(pos, n1, str, n);
+}
+
+
+inline
+basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::replace(iterator i1, iterator i2, size_type n, cxxtools::Char ch)
+{
+    size_type pos = i1 - begin();
+    size_type n1 = i2 - i1;
+    return replace(pos, n1, n, ch);
+}
+
+
+inline
+basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::replace(iterator i1, iterator i2, const basic_string& str)
+{
+    size_type pos = i1 - begin();
+    size_type n = i2 - i1;
+    return replace(pos, n, str);
 }
 
 

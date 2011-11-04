@@ -200,8 +200,7 @@ class CXXTOOLS_API basic_string< cxxtools::Char > {
 
         basic_string& assign(const wchar_t* str, size_type n);
 
-        basic_string& assign(const cxxtools::Char* str)
-        { return assign(str, traits_type::length(str)); }
+        basic_string& assign(const cxxtools::Char* str);
 
         basic_string& assign(const cxxtools::Char* str, size_type length);
 
@@ -214,8 +213,7 @@ class CXXTOOLS_API basic_string< cxxtools::Char > {
         template <typename InputIterator>
         basic_string& assign(InputIterator begin, InputIterator end);
 
-        basic_string& append(const cxxtools::Char* str)
-        { return append( str, traits_type::length(str) ); }
+        basic_string& append(const cxxtools::Char* str);
 
         basic_string& append(const cxxtools::Char* str, size_type n);
 
@@ -230,24 +228,19 @@ class CXXTOOLS_API basic_string< cxxtools::Char > {
 
         basic_string& append(const cxxtools::Char* begin, const cxxtools::Char* end);
 
-        basic_string& insert(size_type pos, const cxxtools::Char* str)
-        { return this->insert( pos, str, traits_type::length(str) ); }
+        basic_string& insert(size_type pos, const cxxtools::Char* str);
 
         basic_string& insert(size_type pos, const cxxtools::Char* str, size_type n);
 
         basic_string& insert(size_type pos, size_type n, cxxtools::Char ch);
 
-        basic_string& insert(size_type pos, const basic_string& str)
-        { return insert(pos, str.privdata_ro(), str.length()); }
+        basic_string& insert(size_type pos, const basic_string& str);
 
-        basic_string& insert(size_type pos, const basic_string& str, size_type pos2, size_type n)
-        { return insert(pos, str.privdata_ro() + pos2, n > str.length() ? str.length() : n); }
+        basic_string& insert(size_type pos, const basic_string& str, size_type pos2, size_type n);
 
-        basic_string& insert(iterator p, cxxtools::Char ch)
-        { return insert(p - begin(), 1, ch); }
+        basic_string& insert(iterator p, cxxtools::Char ch);
 
-        basic_string& insert(iterator p, size_type n, cxxtools::Char ch)
-        { return insert(p - begin(), n, ch); }
+        basic_string& insert(iterator p, size_type n, cxxtools::Char ch);
 
         // unimplemented
         //template <typename InputIterator>
