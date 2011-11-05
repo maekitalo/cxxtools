@@ -1,5 +1,5 @@
 category:
-    byte: 1=value, 2=object, 6=array, 8=reference
+    byte: 1=value, 2=object, 6=array, 8=reference 64=method name 65=response ok 66=response exception
 name:
     zero terminated string
 type: byte
@@ -86,3 +86,20 @@ bcd double:
                  c: .
                  e: e
     \xff                     eod
+
+method name:
+    \x40                     category
+    function\0               function name
+    ...                      array of parameters
+    \xff                     eod
+
+response ok:
+    \x41                     category
+    ...                      scalar return value
+    \xff
+
+response exception:
+    \x42                     category
+    error message\0          error message message
+    \xff                     eod
+
