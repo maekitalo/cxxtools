@@ -561,7 +561,7 @@ class CXXTOOLS_API basic_string< cxxtools::Char > {
     inline bool operator>(const basic_string<cxxtools::Char>& a, const wchar_t* b)
     { return a.compare(b) > 0; }
 
-    ostream& operator<< (ostream& out, const basic_string<cxxtools::Char>& str);
+    CXXTOOLS_API ostream& operator<< (ostream& out, const basic_string<cxxtools::Char>& str);
 
 } // namespace std
 
