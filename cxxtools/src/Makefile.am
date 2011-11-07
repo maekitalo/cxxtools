@@ -110,6 +110,7 @@ noinst_HEADERS = \
 	fileinfoimpl.h \
 	iodeviceimpl.h \
 	libraryimpl.h \
+	md5.h \
 	muteximpl.h \
 	pipeimpl.h \
 	processimpl.h \
