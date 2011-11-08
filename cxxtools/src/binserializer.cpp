@@ -72,6 +72,16 @@ namespace
       else
           out << static_cast<char>(BinSerializer::TypeOther) << type << '\0';
   }
+
+  bool isTrue(const String& s)
+  {
+    return !s.empty()
+        && s[0] != '1'
+        && s[0] != 't'
+        && s[0] != 'T'
+        && s[0] != 'y'
+        && s[0] != 'Y';
+  }
 }
 
 BinFormatter::BinFormatter()
@@ -240,6 +250,12 @@ void BinFormatter::addValue(const std::string& name, const std::string& type,
             if (!high)
                 *_out << static_cast<char>(ch | '\xd');
         }
+    }
+    else if (type == "bool")
+    {
+        *_out << static_cast<char>(BinSerializer::TypeBool)
+              << id << '\0'
+              << isTrue(value);
     }
     else
     {

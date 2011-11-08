@@ -28,7 +28,6 @@
 
 #include <cxxtools/bindeserializer.h>
 #include <cxxtools/binserializer.h>
-#include <cxxtools/utf8codec.h>
 #include <cxxtools/log.h>
 #include <iostream>
 #include <sstream>
@@ -38,6 +37,15 @@ log_define("cxxtools.bindeserializer")
 
 namespace cxxtools
 {
+
+  namespace
+  {
+    inline bool isTrue(char ch)
+    {
+      return ch == '\1' || ch == '1' || ch == 't' || ch == 'T' || ch == 'y' || ch == 'Y';
+    }
+  }
+
 BinDeserializer::BinDeserializer(std::istream& in)
     : _in(in)
 { }
@@ -146,7 +154,7 @@ BinDeserializer::TypeCode BinDeserializer::readType(std::string& str)
 
 void BinDeserializer::processValueData(IDeserializer* deser, TypeCode typeCode)
 {
-    std::string value;
+    String value;
     char ch;
 
     switch (typeCode)
@@ -154,14 +162,14 @@ void BinDeserializer::processValueData(IDeserializer* deser, TypeCode typeCode)
         case BinSerializer::TypeInt8:
             {
                 int8_t ch = static_cast<int8_t>(_in.get());
-                value = convert<std::string>(ch);
+                value = convert<String>(ch);
             }
             break;
 
         case BinSerializer::TypeUInt8:
             {
                 uint8_t ch = static_cast<uint8_t>(_in.get());
-                value = convert<std::string>(ch);
+                value = convert<String>(ch);
             }
             break;
 
@@ -172,7 +180,7 @@ void BinDeserializer::processValueData(IDeserializer* deser, TypeCode typeCode)
                 v = static_cast<uint16_t>(ch);
                 ch = static_cast<uint8_t>(_in.get());
                 v |= static_cast<uint16_t>(ch) << 8;
-                value = convert<std::string>(v);
+                value = convert<String>(v);
             }
             break;
 
@@ -183,7 +191,7 @@ void BinDeserializer::processValueData(IDeserializer* deser, TypeCode typeCode)
                 v = static_cast<uint16_t>(ch);
                 ch = static_cast<uint8_t>(_in.get());
                 v |= static_cast<uint16_t>(ch) << 8;
-                value = convert<std::string>(v);
+                value = convert<String>(v);
             }
             break;
 
@@ -198,7 +206,7 @@ void BinDeserializer::processValueData(IDeserializer* deser, TypeCode typeCode)
                 v |= static_cast<uint32_t>(ch) << 16;
                 ch = static_cast<uint8_t>(_in.get());
                 v |= static_cast<uint32_t>(ch) << 24;
-                value = convert<std::string>(v);
+                value = convert<String>(v);
             }
             break;
 
@@ -213,7 +221,7 @@ void BinDeserializer::processValueData(IDeserializer* deser, TypeCode typeCode)
                 v |= static_cast<uint32_t>(ch) << 16;
                 ch = static_cast<uint8_t>(_in.get());
                 v |= static_cast<uint32_t>(ch) << 24;
-                value = convert<std::string>(v);
+                value = convert<String>(v);
             }
             break;
 
@@ -236,7 +244,7 @@ void BinDeserializer::processValueData(IDeserializer* deser, TypeCode typeCode)
                 v |= static_cast<uint64_t>(ch) << 48;
                 ch = static_cast<uint8_t>(_in.get());
                 v |= static_cast<uint64_t>(ch) << 56;
-                value = convert<std::string>(v);
+                value = convert<String>(v);
             }
             break;
 
@@ -259,7 +267,7 @@ void BinDeserializer::processValueData(IDeserializer* deser, TypeCode typeCode)
                 v |= static_cast<uint64_t>(ch) << 48;
                 ch = static_cast<uint8_t>(_in.get());
                 v |= static_cast<uint64_t>(ch) << 56;
-                value = convert<std::string>(v);
+                value = convert<String>(v);
             }
             break;
 
@@ -269,19 +277,19 @@ void BinDeserializer::processValueData(IDeserializer* deser, TypeCode typeCode)
                 {
                     if (ch == '\xf0')
                     {
-                        value = "nan";
+                        value = L"nan";
                     }
                     else if (ch == '\xf1')
                     {
-                        value = "inf";
+                        value = L"inf";
                     }
                     else if (ch == '\xf2')
                     {
-                        value = "-inf";
+                        value = L"-inf";
                     }
                     else
                     {
-                        static const char d[16] = "0123456789+-. e";
+                        static const wchar_t d[16] = L"0123456789+-. e";
                         while (_in && ch != '\xff')
                         {
                             value += d[static_cast<uint8_t>(ch) >> 4];
@@ -294,20 +302,28 @@ void BinDeserializer::processValueData(IDeserializer* deser, TypeCode typeCode)
             }
             break;
 
+        case BinSerializer::TypeBool:
+            {
+                _in.get(ch);
+                value = convert<String>(isTrue(ch));
+            }
+            break;
+
         default:
             {
                 while (_in.get(ch) && ch != '\0')
-                    value += ch;
+                    value += Char(ch);
             }
             break;
     }
 
+    ch = '\0';
     if (_in.get(ch) && ch != '\xff')
         throw SerializationError(CXXTOOLS_ERROR_MSG("end of data marker expected"));
 
-    log_debug("type code=" << typeCode << " value=" << value);
+    log_debug("type code=" << typeCode << " value=" << value.narrow());
 
-    deser->setValue(Utf8Codec::decode(value.data(), value.size()));
+    deser->setValue(value);
 }
 
 void BinDeserializer::processObjectMembers(IDeserializer* deser)

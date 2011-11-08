@@ -46,6 +46,7 @@ namespace
         int intValue;
         std::string stringValue;
         double doubleValue;
+        bool boolValue;
     };
 
     void operator>>= (const cxxtools::SerializationInfo& si, TestObject& obj)
@@ -53,6 +54,7 @@ namespace
         si.getMember("intValue") >>= obj.intValue;
         si.getMember("stringValue") >>= obj.stringValue;
         si.getMember("doubleValue") >>= obj.doubleValue;
+        si.getMember("boolValue") >>= obj.boolValue;
     }
 
     void operator<<= (cxxtools::SerializationInfo& si, const TestObject& obj)
@@ -60,6 +62,7 @@ namespace
         si.addMember("intValue") <<= obj.intValue;
         si.addMember("stringValue") <<= obj.stringValue;
         si.addMember("doubleValue") <<= obj.doubleValue;
+        si.addMember("boolValue") <<= obj.boolValue;
         si.setTypeName("TestObject");
     }
 }
@@ -153,6 +156,7 @@ int main(int argc, char* argv[])
                 obj.intValue = n;
                 obj.stringValue = cxxtools::convert<std::string>(n);
                 obj.doubleValue = sqrt(static_cast<double>(n));
+                obj.boolValue = n&1;
                 v.push_back(obj);
             }
 
