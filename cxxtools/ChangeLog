@@ -296,7 +296,7 @@
    remove services while the server is running
 
 2010-02-04 tommi@tntnet.org
- - extend number of parameters in xmlrpc clienth from 5 to 10
+ - extend number of parameters in xmlrpc client from 5 to 10
 
 2010-02-03 tommi@tntnet.org
  - add cancel method to http client, xmlrpc client and iodevice
