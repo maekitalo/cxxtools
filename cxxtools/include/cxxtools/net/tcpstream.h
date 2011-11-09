@@ -40,14 +40,15 @@ namespace cxxtools
 
 namespace net
 {
-    class TcpStream : public IOStream
+    class TcpStream : public IOStream, public Connectable
     {
+            void init(std::size_t timeout);
+
         public:
             explicit TcpStream(unsigned bufsize = 8192, std::size_t timeout = Selectable::WaitInfinite)
             : IOStream(bufsize)
             {
-                _socket.setTimeout(timeout);
-                this->attachDevice(_socket);
+                init(timeout);
             }
 
             TcpStream(const std::string& ipaddr, unsigned short int port,
@@ -55,8 +56,7 @@ namespace net
             : IOStream(bufsize)
             , _socket(ipaddr, port)
             {
-                _socket.setTimeout(timeout);
-                this->attachDevice(_socket);
+                init(timeout);
             }
 
             explicit TcpStream(const AddrInfo& addrinfo,
@@ -64,8 +64,7 @@ namespace net
             : IOStream(bufsize)
             , _socket(addrinfo)
             {
-                _socket.setTimeout(timeout);
-                this->attachDevice(_socket);
+                init(timeout);
             }
 
             TcpStream(const char* ipaddr, unsigned short int port,
@@ -73,8 +72,7 @@ namespace net
             : IOStream(bufsize)
             , _socket(ipaddr, port)
             {
-                _socket.setTimeout(timeout);
-                this->attachDevice(_socket);
+                init(timeout);
             }
 
             explicit TcpStream(TcpServer& server, unsigned bufsize = 8192,
@@ -82,8 +80,7 @@ namespace net
             : IOStream(bufsize)
             , _socket(server, flags)
             {
-               _socket.setTimeout(timeout);
-                this->attachDevice(_socket);
+                init(timeout);
             }
 
             /// Set timeout to the given value in milliseconds.
@@ -96,6 +93,15 @@ namespace net
 
             void close()
             { _socket.close(); }
+
+            bool beginConnect(const AddrInfo& addrinfo)
+            { return _socket.beginConnect(addrinfo); }
+
+            bool beginConnect(const std::string& ipaddr, unsigned short int port)
+            { return _socket.beginConnect(ipaddr, port); }
+
+            void endConnect()
+            { _socket.endConnect(); }
 
             void connect(const AddrInfo& addrinfo)
             { _socket.connect(addrinfo); }
@@ -118,8 +124,43 @@ namespace net
             int getFd() const
             { return _socket.getFd(); }
 
+            TcpSocket& socket()
+            { return _socket; }
+
+            /** @brief Notifies about available data
+
+                This signal is send when the Socket is monitored
+                in a Selector or EventLoop and data becomes available.
+
+                The system must call beginRead() to monitor the tcpstream
+                for reading. After the signal is received, data is available
+                in the stream or in case of disconnection, reading fails.
+            */
+            Signal<TcpStream&> inputReady;
+
+            /** @brief Notifies when data can be written
+
+                This signal is send when the Socket is monitored
+                in a Selector or EventLoop and the device is ready
+                to write data.
+            */
+            Signal<TcpStream&> outputReady;
+
+            /** @brief Notifies when the device is connected after beginConnect
+             */
+            Signal<TcpStream&> connected;
+
+            /** @brief Notifies when the device is closed while no reading or writing is pending
+             */
+            Signal<TcpStream&> closed;
+
         private:
             TcpSocket _socket;
+
+            void onInput(IODevice&);
+            void onOutput(IODevice&);
+            void onConnected(TcpSocket&);
+            void onClosed(TcpSocket&);
     };
 
     typedef TcpStream iostream;
