@@ -28,6 +28,7 @@
 
 #include <cxxtools/bindeserializer.h>
 #include <cxxtools/binserializer.h>
+#include <cxxtools/utf8codec.h>
 #include <cxxtools/log.h>
 #include <iostream>
 #include <sstream>
@@ -37,15 +38,6 @@ log_define("cxxtools.bindeserializer")
 
 namespace cxxtools
 {
-
-  namespace
-  {
-    inline bool isTrue(char ch)
-    {
-      return ch == '\1' || ch == '1' || ch == 't' || ch == 'T' || ch == 'y' || ch == 'Y';
-    }
-  }
-
 BinDeserializer::BinDeserializer(std::istream& in)
     : _in(in)
 { }
@@ -72,11 +64,10 @@ void BinDeserializer::get(IDeserializer* deser)
 
     if (category != SerializationInfo::Reference)
     {
-        typeCode = readType(_type);
-        deser->setTypeName(_type);
-
         read(id);
+        typeCode = readType(_type);
         deser->setId(id);
+        deser->setTypeName(_type);
     }
 
     switch (category)
@@ -111,7 +102,7 @@ void BinDeserializer::read(std::string& str)
 
 BinDeserializer::TypeCode BinDeserializer::readType(std::string& str)
 {
-    TypeCode typeCode = static_cast<BinSerializer::TypeCode>(_in.get());
+    TypeCode typeCode = static_cast<TypeCode>(_in.get());
     if (_in)
     {
         switch (typeCode)
@@ -154,7 +145,7 @@ BinDeserializer::TypeCode BinDeserializer::readType(std::string& str)
 
 void BinDeserializer::processValueData(IDeserializer* deser, TypeCode typeCode)
 {
-    String value;
+    std::string value;
     char ch;
 
     switch (typeCode)
@@ -162,14 +153,14 @@ void BinDeserializer::processValueData(IDeserializer* deser, TypeCode typeCode)
         case BinSerializer::TypeInt8:
             {
                 int8_t ch = static_cast<int8_t>(_in.get());
-                value = convert<String>(ch);
+                value = convert<std::string>(ch);
             }
             break;
 
         case BinSerializer::TypeUInt8:
             {
                 uint8_t ch = static_cast<uint8_t>(_in.get());
-                value = convert<String>(ch);
+                value = convert<std::string>(ch);
             }
             break;
 
@@ -180,7 +171,7 @@ void BinDeserializer::processValueData(IDeserializer* deser, TypeCode typeCode)
                 v = static_cast<uint16_t>(ch);
                 ch = static_cast<uint8_t>(_in.get());
                 v |= static_cast<uint16_t>(ch) << 8;
-                value = convert<String>(v);
+                value = convert<std::string>(v);
             }
             break;
 
@@ -191,7 +182,7 @@ void BinDeserializer::processValueData(IDeserializer* deser, TypeCode typeCode)
                 v = static_cast<uint16_t>(ch);
                 ch = static_cast<uint8_t>(_in.get());
                 v |= static_cast<uint16_t>(ch) << 8;
-                value = convert<String>(v);
+                value = convert<std::string>(v);
             }
             break;
 
@@ -206,7 +197,7 @@ void BinDeserializer::processValueData(IDeserializer* deser, TypeCode typeCode)
                 v |= static_cast<uint32_t>(ch) << 16;
                 ch = static_cast<uint8_t>(_in.get());
                 v |= static_cast<uint32_t>(ch) << 24;
-                value = convert<String>(v);
+                value = convert<std::string>(v);
             }
             break;
 
@@ -221,7 +212,7 @@ void BinDeserializer::processValueData(IDeserializer* deser, TypeCode typeCode)
                 v |= static_cast<uint32_t>(ch) << 16;
                 ch = static_cast<uint8_t>(_in.get());
                 v |= static_cast<uint32_t>(ch) << 24;
-                value = convert<String>(v);
+                value = convert<std::string>(v);
             }
             break;
 
@@ -244,7 +235,7 @@ void BinDeserializer::processValueData(IDeserializer* deser, TypeCode typeCode)
                 v |= static_cast<uint64_t>(ch) << 48;
                 ch = static_cast<uint8_t>(_in.get());
                 v |= static_cast<uint64_t>(ch) << 56;
-                value = convert<String>(v);
+                value = convert<std::string>(v);
             }
             break;
 
@@ -267,7 +258,7 @@ void BinDeserializer::processValueData(IDeserializer* deser, TypeCode typeCode)
                 v |= static_cast<uint64_t>(ch) << 48;
                 ch = static_cast<uint8_t>(_in.get());
                 v |= static_cast<uint64_t>(ch) << 56;
-                value = convert<String>(v);
+                value = convert<std::string>(v);
             }
             break;
 
@@ -277,19 +268,19 @@ void BinDeserializer::processValueData(IDeserializer* deser, TypeCode typeCode)
                 {
                     if (ch == '\xf0')
                     {
-                        value = L"nan";
+                        value = "nan";
                     }
                     else if (ch == '\xf1')
                     {
-                        value = L"inf";
+                        value = "inf";
                     }
                     else if (ch == '\xf2')
                     {
-                        value = L"-inf";
+                        value = "-inf";
                     }
                     else
                     {
-                        static const wchar_t d[16] = L"0123456789+-. e";
+                        static const char d[16] = "0123456789+-. e";
                         while (_in && ch != '\xff')
                         {
                             value += d[static_cast<uint8_t>(ch) >> 4];
@@ -303,27 +294,24 @@ void BinDeserializer::processValueData(IDeserializer* deser, TypeCode typeCode)
             break;
 
         case BinSerializer::TypeBool:
-            {
-                _in.get(ch);
-                value = convert<String>(isTrue(ch));
-            }
+            _in.get(ch);
+            value = (ch ? "true" : "false");
             break;
 
         default:
             {
                 while (_in.get(ch) && ch != '\0')
-                    value += Char(ch);
+                    value += ch;
             }
             break;
     }
 
-    ch = '\0';
     if (_in.get(ch) && ch != '\xff')
         throw SerializationError(CXXTOOLS_ERROR_MSG("end of data marker expected"));
 
-    log_debug("type code=" << typeCode << " value=" << value.narrow());
+    log_debug("type code=" << typeCode << " value=" << value);
 
-    deser->setValue(value);
+    deser->setValue(Utf8Codec::decode(value.data(), value.size()));
 }
 
 void BinDeserializer::processObjectMembers(IDeserializer* deser)

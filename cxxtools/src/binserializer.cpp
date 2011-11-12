@@ -111,7 +111,8 @@ void BinFormatter::addValue(const std::string& name, const std::string& type,
                       const cxxtools::String& value, const std::string& id)
 {
     *_out << static_cast<char>(SerializationInfo::Value)
-          << name << '\0';
+          << name << '\0'
+          << id << '\0';
 
     if (type == "int")
     {
@@ -121,20 +122,17 @@ void BinFormatter::addValue(const std::string& name, const std::string& type,
             if (v >= std::numeric_limits<int8_t>::min() && v <= std::numeric_limits<int8_t>::max())
             {
                 *_out << static_cast<char>(BinSerializer::TypeInt8)
-                      << id << '\0'
                       << static_cast<char>(v);
             }
             else if (v >= std::numeric_limits<int16_t>::min() && v <= std::numeric_limits<int16_t>::max())
             {
                 *_out << static_cast<char>(BinSerializer::TypeInt16)
-                      << id << '\0'
                       << static_cast<char>(v)
                       << static_cast<char>(v >> 8);
             }
             else if (v >= std::numeric_limits<int32_t>::min() && v <= std::numeric_limits<int32_t>::max())
             {
                 *_out << static_cast<char>(BinSerializer::TypeInt32)
-                      << id << '\0'
                       << static_cast<char>(v)
                       << static_cast<char>(v >> 8)
                       << static_cast<char>(v >> 16)
@@ -143,7 +141,6 @@ void BinFormatter::addValue(const std::string& name, const std::string& type,
             else
             {
                 *_out << static_cast<char>(BinSerializer::TypeInt64)
-                      << id << '\0'
                       << static_cast<char>(v)
                       << static_cast<char>(v >> 8)
                       << static_cast<char>(v >> 16)
@@ -160,20 +157,17 @@ void BinFormatter::addValue(const std::string& name, const std::string& type,
             if (v <= std::numeric_limits<uint8_t>::max())
             {
                 *_out << static_cast<char>(BinSerializer::TypeUInt8)
-                      << id << '\0'
                       << static_cast<char>(v);
             }
             else if (v <= std::numeric_limits<uint16_t>::max())
             {
                 *_out << static_cast<char>(BinSerializer::TypeUInt16)
-                      << id << '\0'
                       << static_cast<char>(v)
                       << static_cast<char>(v >> 8);
             }
             else if (v <= std::numeric_limits<uint32_t>::max())
             {
                 *_out << static_cast<char>(BinSerializer::TypeUInt32)
-                      << id << '\0'
                       << static_cast<char>(v)
                       << static_cast<char>(v >> 8)
                       << static_cast<char>(v >> 16)
@@ -182,7 +176,6 @@ void BinFormatter::addValue(const std::string& name, const std::string& type,
             else
             {
                 *_out << static_cast<char>(BinSerializer::TypeUInt64)
-                      << id << '\0'
                       << static_cast<char>(v)
                       << static_cast<char>(v >> 8)
                       << static_cast<char>(v >> 16)
@@ -213,8 +206,7 @@ void BinFormatter::addValue(const std::string& name, const std::string& type,
                                    "                " // e0-ef
                                    "                "; // f0-ff
 
-        *_out << static_cast<char>(BinSerializer::TypeBcdDouble)
-              << id << '\0';
+        *_out << static_cast<char>(BinSerializer::TypeBcdDouble);
 
         log_debug("bcd encode " << value.narrow());
 
@@ -254,13 +246,11 @@ void BinFormatter::addValue(const std::string& name, const std::string& type,
     else if (type == "bool")
     {
         *_out << static_cast<char>(BinSerializer::TypeBool)
-              << id << '\0'
               << isTrue(value);
     }
     else
     {
         printTypeCode(*_out, type);
-        *_out << id << '\0';
         _ts << value;
         _ts.flush();
         *_out << '\0';
@@ -283,9 +273,9 @@ void BinFormatter::beginArray(const std::string& name, const std::string& type,
                         const std::string& id)
 {
     *_out << static_cast<char>(SerializationInfo::Array)
-          << name << '\0';
+          << name << '\0'
+          << id << '\0';
     printTypeCode(*_out, type);
-    *_out << id << '\0';
 }
 
 void BinFormatter::finishArray()
@@ -297,9 +287,9 @@ void BinFormatter::beginObject(const std::string& name, const std::string& type,
                          const std::string& id)
 {
     *_out << static_cast<char>(SerializationInfo::Object)
-          << name << '\0';
+          << name << '\0'
+          << id << '\0';
     printTypeCode(*_out, type);
-    *_out << id << '\0';
 }
 
 void BinFormatter::beginMember(const std::string& name)
