@@ -13,6 +13,7 @@ SUBDIRS = src \
     src/http \
     src/xml \
     src/xmlrpc \
+    src/bin \
     include \
     $(DEMO_DIR) $(UNITTEST_DIR)
 

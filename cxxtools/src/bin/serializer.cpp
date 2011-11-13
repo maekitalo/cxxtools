@@ -26,7 +26,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <cxxtools/binserializer.h>
+#include <cxxtools/bin/serializer.h>
 #include <cxxtools/utf8codec.h>
 #include <cxxtools/log.h>
 #include <limits>
@@ -36,41 +36,43 @@ log_define("cxxtools.binserializer")
 
 namespace cxxtools
 {
+namespace bin
+{
 
 namespace
 {
   void printTypeCode(std::ostream& out, const std::string& type)
   {
       if (type.empty())
-          out << static_cast<char>(BinSerializer::TypeEmpty);
+          out << static_cast<char>(Serializer::TypeEmpty);
       else if (type == "bool")
-          out << static_cast<char>(BinSerializer::TypeBool);
+          out << static_cast<char>(Serializer::TypeBool);
       else if (type == "char")
-          out << static_cast<char>(BinSerializer::TypeChar);
+          out << static_cast<char>(Serializer::TypeChar);
       else if (type == "string")
-          out << static_cast<char>(BinSerializer::TypeString);
+          out << static_cast<char>(Serializer::TypeString);
       else if (type == "int")
-          out << static_cast<char>(BinSerializer::TypeInt);
+          out << static_cast<char>(Serializer::TypeInt);
       else if (type == "double")
-          out << static_cast<char>(BinSerializer::TypeDouble);
+          out << static_cast<char>(Serializer::TypeDouble);
       else if (type == "pair")
-          out << static_cast<char>(BinSerializer::TypePair);
+          out << static_cast<char>(Serializer::TypePair);
       else if (type == "array")
-          out << static_cast<char>(BinSerializer::TypeArray);
+          out << static_cast<char>(Serializer::TypeArray);
       else if (type == "list")
-          out << static_cast<char>(BinSerializer::TypeList);
+          out << static_cast<char>(Serializer::TypeList);
       else if (type == "deque")
-          out << static_cast<char>(BinSerializer::TypeDeque);
+          out << static_cast<char>(Serializer::TypeDeque);
       else if (type == "set")
-          out << static_cast<char>(BinSerializer::TypeSet);
+          out << static_cast<char>(Serializer::TypeSet);
       else if (type == "multiset")
-          out << static_cast<char>(BinSerializer::TypeMultiset);
+          out << static_cast<char>(Serializer::TypeMultiset);
       else if (type == "map")
-          out << static_cast<char>(BinSerializer::TypeMap);
+          out << static_cast<char>(Serializer::TypeMap);
       else if (type == "multimap")
-          out << static_cast<char>(BinSerializer::TypeMultimap);
+          out << static_cast<char>(Serializer::TypeMultimap);
       else
-          out << static_cast<char>(BinSerializer::TypeOther) << type << '\0';
+          out << static_cast<char>(Serializer::TypeOther) << type << '\0';
   }
 
   bool isTrue(const String& s)
@@ -84,30 +86,30 @@ namespace
   }
 }
 
-BinFormatter::BinFormatter()
+Formatter::Formatter()
     : _out(0),
       _ts(new Utf8Codec())
 {
 }
 
-BinFormatter::BinFormatter(std::ostream& out)
+Formatter::Formatter(std::ostream& out)
     : _out(0),
       _ts(new Utf8Codec())
 {
     begin(out);
 }
 
-void BinFormatter::begin(std::ostream& out)
+void Formatter::begin(std::ostream& out)
 {
     _out = &out;
     _ts.attach(out);
 }
 
-void BinFormatter::finish()
+void Formatter::finish()
 {
 }
 
-void BinFormatter::addValue(const std::string& name, const std::string& type,
+void Formatter::addValue(const std::string& name, const std::string& type,
                       const cxxtools::String& value, const std::string& id)
 {
     *_out << static_cast<char>(SerializationInfo::Value)
@@ -121,34 +123,34 @@ void BinFormatter::addValue(const std::string& name, const std::string& type,
             int64_t v = convert<int64_t>(value);
             if (v >= std::numeric_limits<int8_t>::min() && v <= std::numeric_limits<int8_t>::max())
             {
-                *_out << static_cast<char>(BinSerializer::TypeInt8)
+                *_out << static_cast<char>(Serializer::TypeInt8)
                       << static_cast<char>(v);
             }
             else if (v >= std::numeric_limits<int16_t>::min() && v <= std::numeric_limits<int16_t>::max())
             {
-                *_out << static_cast<char>(BinSerializer::TypeInt16)
-                      << static_cast<char>(v)
-                      << static_cast<char>(v >> 8);
+                *_out << static_cast<char>(Serializer::TypeInt16)
+                      << static_cast<char>(v >> 8)
+                      << static_cast<char>(v);
             }
             else if (v >= std::numeric_limits<int32_t>::min() && v <= std::numeric_limits<int32_t>::max())
             {
-                *_out << static_cast<char>(BinSerializer::TypeInt32)
-                      << static_cast<char>(v)
-                      << static_cast<char>(v >> 8)
+                *_out << static_cast<char>(Serializer::TypeInt32)
+                      << static_cast<char>(v >> 24)
                       << static_cast<char>(v >> 16)
-                      << static_cast<char>(v >> 24);
+                      << static_cast<char>(v >> 8)
+                      << static_cast<char>(v);
             }
             else
             {
-                *_out << static_cast<char>(BinSerializer::TypeInt64)
-                      << static_cast<char>(v)
-                      << static_cast<char>(v >> 8)
-                      << static_cast<char>(v >> 16)
-                      << static_cast<char>(v >> 24)
-                      << static_cast<char>(v >> 32)
-                      << static_cast<char>(v >> 40)
+                *_out << static_cast<char>(Serializer::TypeInt64)
+                      << static_cast<char>(v >> 56)
                       << static_cast<char>(v >> 48)
-                      << static_cast<char>(v >> 56);
+                      << static_cast<char>(v >> 40)
+                      << static_cast<char>(v >> 32)
+                      << static_cast<char>(v >> 24)
+                      << static_cast<char>(v >> 16)
+                      << static_cast<char>(v >> 8)
+                      << static_cast<char>(v);
             }
         }
         else
@@ -156,34 +158,34 @@ void BinFormatter::addValue(const std::string& name, const std::string& type,
             uint64_t v = convert<uint64_t>(value);
             if (v <= std::numeric_limits<uint8_t>::max())
             {
-                *_out << static_cast<char>(BinSerializer::TypeUInt8)
+                *_out << static_cast<char>(Serializer::TypeUInt8)
                       << static_cast<char>(v);
             }
             else if (v <= std::numeric_limits<uint16_t>::max())
             {
-                *_out << static_cast<char>(BinSerializer::TypeUInt16)
-                      << static_cast<char>(v)
-                      << static_cast<char>(v >> 8);
+                *_out << static_cast<char>(Serializer::TypeUInt16)
+                      << static_cast<char>(v >> 8)
+                      << static_cast<char>(v);
             }
             else if (v <= std::numeric_limits<uint32_t>::max())
             {
-                *_out << static_cast<char>(BinSerializer::TypeUInt32)
-                      << static_cast<char>(v)
-                      << static_cast<char>(v >> 8)
+                *_out << static_cast<char>(Serializer::TypeUInt32)
+                      << static_cast<char>(v >> 24)
                       << static_cast<char>(v >> 16)
-                      << static_cast<char>(v >> 24);
+                      << static_cast<char>(v >> 8)
+                      << static_cast<char>(v);
             }
             else
             {
-                *_out << static_cast<char>(BinSerializer::TypeUInt64)
-                      << static_cast<char>(v)
-                      << static_cast<char>(v >> 8)
-                      << static_cast<char>(v >> 16)
-                      << static_cast<char>(v >> 24)
-                      << static_cast<char>(v >> 32)
-                      << static_cast<char>(v >> 40)
+                *_out << static_cast<char>(Serializer::TypeUInt64)
+                      << static_cast<char>(v >> 56)
                       << static_cast<char>(v >> 48)
-                      << static_cast<char>(v >> 56);
+                      << static_cast<char>(v >> 40)
+                      << static_cast<char>(v >> 32)
+                      << static_cast<char>(v >> 24)
+                      << static_cast<char>(v >> 16)
+                      << static_cast<char>(v >> 8)
+                      << static_cast<char>(v);
             }
         }
     }
@@ -206,7 +208,7 @@ void BinFormatter::addValue(const std::string& name, const std::string& type,
                                    "                " // e0-ef
                                    "                "; // f0-ff
 
-        *_out << static_cast<char>(BinSerializer::TypeBcdDouble);
+        *_out << static_cast<char>(Serializer::TypeBcdDouble);
 
         log_debug("bcd encode " << value.narrow());
 
@@ -245,7 +247,7 @@ void BinFormatter::addValue(const std::string& name, const std::string& type,
     }
     else if (type == "bool")
     {
-        *_out << static_cast<char>(BinSerializer::TypeBool)
+        *_out << static_cast<char>(Serializer::TypeBool)
               << isTrue(value);
     }
     else
@@ -259,7 +261,7 @@ void BinFormatter::addValue(const std::string& name, const std::string& type,
     *_out << '\xff';
 }
 
-void BinFormatter::addReference(const std::string& name, const cxxtools::String& value)
+void Formatter::addReference(const std::string& name, const cxxtools::String& value)
 {
     *_out << static_cast<char>(SerializationInfo::Reference)
           << name << '\0';
@@ -269,7 +271,7 @@ void BinFormatter::addReference(const std::string& name, const cxxtools::String&
     *_out << '\0' << '\xff';
 }
 
-void BinFormatter::beginArray(const std::string& name, const std::string& type,
+void Formatter::beginArray(const std::string& name, const std::string& type,
                         const std::string& id)
 {
     *_out << static_cast<char>(SerializationInfo::Array)
@@ -278,12 +280,12 @@ void BinFormatter::beginArray(const std::string& name, const std::string& type,
     printTypeCode(*_out, type);
 }
 
-void BinFormatter::finishArray()
+void Formatter::finishArray()
 {
     *_out << '\xff';
 }
 
-void BinFormatter::beginObject(const std::string& name, const std::string& type,
+void Formatter::beginObject(const std::string& name, const std::string& type,
                          const std::string& id)
 {
     *_out << static_cast<char>(SerializationInfo::Object)
@@ -292,19 +294,20 @@ void BinFormatter::beginObject(const std::string& name, const std::string& type,
     printTypeCode(*_out, type);
 }
 
-void BinFormatter::beginMember(const std::string& name)
+void Formatter::beginMember(const std::string& name)
 {
     *_out << '\1'
           << name << '\0';
 }
 
-void BinFormatter::finishMember()
+void Formatter::finishMember()
 {
 }
 
-void BinFormatter::finishObject()
+void Formatter::finishObject()
 {
     *_out << '\xff';
 }
 
+}
 }

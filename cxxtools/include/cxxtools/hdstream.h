@@ -30,6 +30,8 @@
 #define CXXTOOLS_HDSTREAM_H
 
 #include <iostream>
+#include <string>
+#include <sstream>
 
 namespace cxxtools
 {
@@ -85,6 +87,22 @@ class Hdostream : public std::ostream
     unsigned getOffset() const         { return streambuf.getOffset(); }
     void setOffset(unsigned offset_)   { streambuf.setOffset(offset_); }
 };
+
+template <typename T>
+void hexDump(std::ostream& out, const T& t)
+{
+  Hdostream hd(out);
+  hd << t << std::flush;
+}
+
+template <typename T>
+std::string hexDump(const T& t)
+{
+  std::ostringstream out;
+  Hdostream hd(out);
+  hd << t << std::flush;
+  return out.str();
+}
 
 }
 

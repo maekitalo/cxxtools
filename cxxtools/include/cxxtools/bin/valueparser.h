@@ -1,0 +1,112 @@
+/*
+ * Copyright (C) 2011 Tommi Maekitalo
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation; either version 2 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * is provided AS IS, WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, and
+ * NON-INFRINGEMENT.  See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301 USA
+ *
+ */
+
+#ifndef CXXTOOLS_BIN_VALUEPARSER_H
+#define CXXTOOLS_BIN_VALUEPARSER_H
+
+#include <cxxtools/serializationinfo.h>
+
+namespace cxxtools
+{
+
+class DeserializationContext;
+class IDeserializer;
+
+namespace bin
+{
+
+class ValueParser
+{
+        ValueParser(const ValueParser&) { }
+        ValueParser& operator= (const ValueParser&) { }
+
+    public:
+        ValueParser()
+            : _next(0)
+        { }
+
+        ~ValueParser() 
+        {
+            delete _next;
+        }
+
+        void begin(IDeserializer& handler, DeserializationContext& context)
+        {
+            _state = state_0;
+            _deserializer = &handler;
+            _context = &context;
+            _int.u = 0;
+            _token.clear();
+        }
+
+        bool advance(char ch); // returns true, if number is read completely
+
+    private:
+
+        bool valueEnd();
+        enum State
+        {
+            state_0,
+            state_value_name,
+            state_value_id,
+            state_value_type,
+            state_value_type_other,
+            state_value_intsign,
+            state_value_int,
+            state_value_uint,
+            state_value_bool,
+            state_value_bcd,
+            state_value_value,
+            state_object_name,
+            state_object_id,
+            state_object_type,
+            state_object_type_other,
+            state_object_member,
+            state_object_member_name,
+            state_object_member_value,
+            state_array_name,
+            state_array_id,
+            state_array_type,
+            state_array_type_other,
+            state_array_member,
+            state_array_member_value,
+            state_array_member_value_next,
+            state_reference_name,
+            state_reference_value,
+            state_end,
+        } _state;
+
+        SerializationInfo::Category _category;
+        std::string _token;
+        unsigned _count;
+        union
+        {
+            cxxtools::int64_t s;
+            cxxtools::uint64_t u;
+            char d[8];
+        } _int;
+        DeserializationContext* _context;
+        IDeserializer* _deserializer;
+        ValueParser* _next;
+};
+}
+}
+
+#endif // CXXTOOLS_BIN_VALUEPARSER_H
+

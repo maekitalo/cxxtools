@@ -26,23 +26,30 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+#ifndef CXXTOOLS_BIN_DESERIALIZER_H
+#define CXXTOOLS_BIN_DESERIALIZER_H
+
 #include <cxxtools/deserializer.h>
 #include <cxxtools/binserializer.h>
 #include <cxxtools/noncopyable.h>
 
 namespace cxxtools
 {
-    class CXXTOOLS_API BinDeserializer : private NonCopyable
+namespace bin
+{
+    class CXXTOOLS_API Deserializer : private NonCopyable
     {
         public:
             typedef BinSerializer::TypeCode TypeCode;
 
-            BinDeserializer(std::istream& in);
+            Deserializer(std::istream& in)
+                : _in(in)
+            { }
 
             template <typename T>
             void deserialize(T& type)
             {
-                Deserializer<T> deser;
+                cxxtools::Deserializer<T> deser;
                 deser.begin(type);
                 this->get(&deser);
                 deser.fixup(_context);
@@ -58,16 +65,10 @@ namespace cxxtools
             void get(IDeserializer* deser);
 
         private:
-            BinDeserializer(BinDeserializer& s);
-            void read(std::string& str);
-            TypeCode readType(std::string& str);
-            void processValueData(IDeserializer* deser, TypeCode typeCode);
-            void processObjectMembers(IDeserializer* deser);
-            void processArrayData(IDeserializer* deser);
-            void processReference(IDeserializer* deser);
-
             std::istream& _in;
-            std::string _type;
             cxxtools::DeserializationContext _context;
     };
 }
+}
+
+#endif // CXXTOOLS_BIN_DESERIALIZER_H

@@ -29,9 +29,10 @@
 #include "cxxtools/unit/testsuite.h"
 #include "cxxtools/unit/registertest.h"
 #include "cxxtools/serializationinfo.h"
-#include "cxxtools/binserializer.h"
-#include "cxxtools/bindeserializer.h"
+#include "cxxtools/bin/serializer.h"
+#include "cxxtools/bin/deserializer.h"
 #include "cxxtools/log.h"
+#include "cxxtools/hdstream.h"
 #include <limits>
 #include <stdint.h>
 
@@ -116,8 +117,8 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
         void testScalar()
         {
             std::stringstream data;
-            cxxtools::BinSerializer serializer(data);
-            cxxtools::BinDeserializer deserializer(data);
+            cxxtools::bin::Serializer serializer(data);
+            cxxtools::bin::Deserializer deserializer(data);
 
             int value = 5;
             serializer.serialize(value, "value");
@@ -132,8 +133,8 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
         void testIntValue(IntT value)
         {
             std::stringstream data;
-            cxxtools::BinSerializer serializer(data);
-            cxxtools::BinDeserializer deserializer(data);
+            cxxtools::bin::Serializer serializer(data);
+            cxxtools::bin::Deserializer deserializer(data);
 
             serializer.serialize(value, "value");
 
@@ -172,8 +173,8 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
         void testDoubleValue(double value)
         {
             std::stringstream data;
-            cxxtools::BinSerializer serializer(data);
-            cxxtools::BinDeserializer deserializer(data);
+            cxxtools::bin::Serializer serializer(data);
+            cxxtools::bin::Deserializer deserializer(data);
 
             serializer.serialize(value, "value");
             double result = 0.0;
@@ -201,8 +202,8 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
             testDoubleValue(std::numeric_limits<double>::quiet_NaN());
 
             std::stringstream data;
-            cxxtools::BinSerializer serializer(data);
-            cxxtools::BinDeserializer deserializer(data);
+            cxxtools::bin::Serializer serializer(data);
+            cxxtools::bin::Deserializer deserializer(data);
 
             serializer.serialize(std::numeric_limits<double>::quiet_NaN(), "value");
             double result = 0.0;
@@ -215,8 +216,8 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
         void testArray()
         {
             std::stringstream data;
-            cxxtools::BinSerializer serializer(data);
-            cxxtools::BinDeserializer deserializer(data);
+            cxxtools::bin::Serializer serializer(data);
+            cxxtools::bin::Deserializer deserializer(data);
 
             std::vector<int> intvector;
             intvector.push_back(4711);
@@ -224,6 +225,8 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
             intvector.push_back(-3);
 
             serializer.serialize(intvector, "intvector");
+
+            log_debug("intvector: " << cxxtools::hexDump(data.str()));
 
             std::vector<int> intvector2;
             deserializer.deserialize(intvector2);
@@ -237,8 +240,8 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
         void testObject()
         {
             std::stringstream data;
-            cxxtools::BinSerializer serializer(data);
-            cxxtools::BinDeserializer deserializer(data);
+            cxxtools::bin::Serializer serializer(data);
+            cxxtools::bin::Deserializer deserializer(data);
 
             TestObject obj;
             obj.intValue = 17;
@@ -258,8 +261,8 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
         void testComplexObject()
         {
             std::stringstream data;
-            cxxtools::BinSerializer serializer(data);
-            cxxtools::BinDeserializer deserializer(data);
+            cxxtools::bin::Serializer serializer(data);
+            cxxtools::bin::Deserializer deserializer(data);
 
             std::vector<TestObject2> v;
             TestObject2 obj;

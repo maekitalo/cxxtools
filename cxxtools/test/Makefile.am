@@ -22,6 +22,7 @@ alltests_SOURCES = \
     xmlrpc-test.cpp
 
 alltests_LDADD = $(top_builddir)/src/libcxxtools.la \
+        $(top_builddir)/src/bin/libcxxtools-bin.la \
         $(top_builddir)/src/unit/libcxxtools-unit.la \
         $(top_builddir)/src/http/libcxxtools-http.la \
         $(top_builddir)/src/xml/libcxxtools-xml.la \
@@ -30,6 +31,7 @@ alltests_LDADD = $(top_builddir)/src/libcxxtools.la \
 serializer_bench_SOURCES = serializer-bench.cpp
 
 serializer_bench_LDADD = $(top_builddir)/src/libcxxtools.la \
+        $(top_builddir)/src/bin/libcxxtools-bin.la \
         $(top_builddir)/src/xml/libcxxtools-xml.la
 
 rpcbenchclient_SOURCES = rpcbenchclient.cpp

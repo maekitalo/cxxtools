@@ -31,8 +31,8 @@
 #include <math.h>
 #include <cxxtools/xml/xmlserializer.h>
 #include <cxxtools/xml/xmldeserializer.h>
-#include <cxxtools/binserializer.h>
-#include <cxxtools/bindeserializer.h>
+#include <cxxtools/bin/serializer.h>
+#include <cxxtools/bin/deserializer.h>
 #include <cxxtools/arg.h>
 #include <cxxtools/clock.h>
 #include <cxxtools/convert.h>
@@ -104,7 +104,7 @@ void benchXmlSerialization(const T& d, const char* fname = 0)
 template <typename T>
 void benchBinSerialization(const T& d, const char* fname = 0)
 {
-    benchSerialization<T, cxxtools::BinSerializer, cxxtools::BinDeserializer>(d, fname);
+    benchSerialization<T, cxxtools::bin::Serializer, cxxtools::bin::Deserializer>(d, fname);
 }
 
 template <typename T>

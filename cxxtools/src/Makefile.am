@@ -7,8 +7,6 @@ libcxxtools_la_SOURCES = \
 	addrinfoimpl.cpp \
 	application.cpp \
 	applicationimpl.cpp \
-	bindeserializer.cpp \
-	binserializer.cpp \
 	char.cpp \
 	clock.cpp \
 	clockimpl.cpp \

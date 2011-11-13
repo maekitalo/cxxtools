@@ -58,6 +58,8 @@ class CXXTOOLS_API IDeserializer
 
         virtual const std::type_info& targetType() = 0;
 
+        virtual void setCategory(SerializationInfo::Category category) = 0;
+
         virtual void setName(const std::string& name) = 0;
 
         virtual void setValue(const cxxtools::String& value) = 0;
@@ -106,6 +108,11 @@ class Deserializer : public IDeserializer
         virtual const std::type_info& targetType()
         {
             return typeid(T);
+        }
+
+        virtual void setCategory(SerializationInfo::Category category)
+        {
+            _current->setCategory(category);
         }
 
         virtual void setName(const std::string& name)
