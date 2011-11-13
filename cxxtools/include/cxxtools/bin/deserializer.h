@@ -30,7 +30,7 @@
 #define CXXTOOLS_BIN_DESERIALIZER_H
 
 #include <cxxtools/deserializer.h>
-#include <cxxtools/binserializer.h>
+#include <cxxtools/bin/serializer.h>
 #include <cxxtools/noncopyable.h>
 
 namespace cxxtools
@@ -40,7 +40,7 @@ namespace bin
     class CXXTOOLS_API Deserializer : private NonCopyable
     {
         public:
-            typedef BinSerializer::TypeCode TypeCode;
+            typedef bin::Serializer::TypeCode TypeCode;
 
             Deserializer(std::istream& in)
                 : _in(in)
