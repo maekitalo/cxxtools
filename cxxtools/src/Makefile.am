@@ -112,7 +112,6 @@ noinst_HEADERS = \
 	md5.h \
 	muteximpl.h \
 	pipeimpl.h \
-	processimpl.h \
 	selectableimpl.h \
 	selectorimpl.h \
 	semaphoreimpl.h \
