@@ -49,7 +49,7 @@ Service::~Service()
 }
 
 
-ServiceProcedure* Service::getProcedure(const std::string& name)
+cxxtools::ServiceProcedure* Service::getProcedure(const std::string& name)
 {
     ProcedureMap::iterator it = _procedures.find( name );
     if( it == _procedures.end() )
@@ -61,18 +61,18 @@ ServiceProcedure* Service::getProcedure(const std::string& name)
 }
 
 
-void Service::releaseProcedure(ServiceProcedure* proc)
+void Service::releaseProcedure(cxxtools::ServiceProcedure* proc)
 {
     delete proc;
 }
 
 
-void Service::registerProcedure(const std::string& name, ServiceProcedure* proc)
+void Service::registerProcedure(const std::string& name, cxxtools::ServiceProcedure* proc)
 {
     ProcedureMap::iterator it = _procedures.find(name);
     if (it == _procedures.end())
     {
-        std::pair<const std::string, ServiceProcedure*> p( name, proc );
+        std::pair<const std::string, cxxtools::ServiceProcedure*> p( name, proc );
         _procedures.insert( p );
     }
     else

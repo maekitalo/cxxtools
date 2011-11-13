@@ -41,10 +41,11 @@
 
 namespace cxxtools {
 
+class ServiceProcedure;
+
 namespace xmlrpc {
 
 class Service;
-class ServiceProcedure;
 
 class CXXTOOLS_XMLRPC_API XmlRpcResponder : public http::Responder
 {
@@ -87,7 +88,7 @@ class CXXTOOLS_XMLRPC_API XmlRpcResponder : public http::Responder
        Formatter _formatter;
        Service* _service;
        DeserializationContext _context;
-       ServiceProcedure* _proc;
+       cxxtools::ServiceProcedure* _proc;
        IDeserializer** _args;
        ISerializer* _result;
        Fault _fault;
