@@ -26,13 +26,15 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+#include <cxxtools/bin/formatter.h>
 #include <cxxtools/bin/serializer.h>
 #include <cxxtools/utf8codec.h>
+#include <cxxtools/convert.h>
 #include <cxxtools/log.h>
 #include <limits>
 #include <stdint.h>
 
-log_define("cxxtools.binserializer")
+log_define("cxxtools.bin.formatter")
 
 namespace cxxtools
 {

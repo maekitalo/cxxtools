@@ -4,7 +4,7 @@ lib_LTLIBRARIES = libcxxtools-bin.la
 
 libcxxtools_bin_la_SOURCES = \
 	deserializer.cpp \
-	serializer.cpp \
+	formatter.cpp \
 	valueparser.cpp
 
 libcxxtools_bin_la_LIBADD = $(top_builddir)/src/libcxxtools.la

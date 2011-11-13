@@ -29,50 +29,14 @@
 #ifndef CXXTOOLS_BIN_SERIALIZER_H
 #define CXXTOOLS_BIN_SERIALIZER_H
 
-#include <cxxtools/formatter.h>
+#include <cxxtools/bin/formatter.h>
 #include <cxxtools/serializer.h>
-#include <cxxtools/textstream.h>
 #include <cxxtools/noncopyable.h>
 
 namespace cxxtools
 {
     namespace bin
     {
-        class Formatter : public cxxtools::Formatter
-        {
-            public:
-                Formatter();
-
-                explicit Formatter(std::ostream& out);
-
-                void begin(std::ostream& out);
-
-                void finish();
-
-                virtual void addValue(const std::string& name, const std::string& type,
-                                      const cxxtools::String& value, const std::string& id);
-
-                virtual void addReference(const std::string& name, const cxxtools::String& value);
-
-                virtual void beginArray(const std::string& name, const std::string& type,
-                                        const std::string& id);
-
-                virtual void finishArray();
-
-                virtual void beginObject(const std::string& name, const std::string& type,
-                                         const std::string& id);
-
-                virtual void beginMember(const std::string& name);
-
-                virtual void finishMember();
-
-                virtual void finishObject();
-
-            private:
-                std::ostream* _out;
-                TextOStream _ts;
-        };
-
         class Serializer : private NonCopyable
         {
             public:

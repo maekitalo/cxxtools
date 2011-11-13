@@ -8,6 +8,7 @@ nobase_include_HEADERS = \
         cxxtools/api.h \
         cxxtools/base64codec.h \
         cxxtools/base64stream.h \
+        cxxtools/bin/formatter.h \
         cxxtools/bin/serializer.h \
         cxxtools/bin/deserializer.h \
         cxxtools/bin/valueparser.h \
