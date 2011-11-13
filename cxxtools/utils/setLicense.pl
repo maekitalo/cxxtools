@@ -39,12 +39,21 @@ use strict;
 use Getopt::Std;
 use File::Copy;
 
+sub eqOnlyWordchar
+{
+  my ($s1, $s2) = @_;
+  $s1 =~ s/\W//g;
+  $s2 =~ s/\W//g;
+  return $s1 eq $s2;
+}
+
 my %opt;
-getopts('g:fi:', \%opt);
+getopts('g:fi:t', \%opt);
 my $copyrightFile = $opt{g} || 'gpl.txt';
 my $frame = $opt{f};
 my $indent = defined($opt{i}) ? $opt{i} : 1;
 my $indentspace = ' ' x $indent;
+my $test = $opt{t};
 
 # read copyright text
 my $copyright;
@@ -87,7 +96,14 @@ foreach my $fname (@ARGV)
       $l =~ s/ß/ss/g;
       push @copyright, $l;
     }
-    $copyrighttext = join ("\n", @copyright) . "\n\n" . $copyright;
+    if (@copyright)
+    {
+      $copyrighttext = join ("\n", @copyright) . "\n\n" . $copyright;
+    }
+    else
+    {
+      $copyrighttext = $copyright;
+    }
   }
   else
   {
@@ -120,12 +136,15 @@ foreach my $fname (@ARGV)
 
   $content = "$copyrighttext\n$body";
 
-  if ($content ne $oldcontent)
+  if (!eqOnlyWordchar($content, $oldcontent))
   {
-    move($fname, "$fname.bak") or die "cannot rename file $fname: $!";
-    open OUT, ">$fname" or die "cannot open file $fname: $!";
-    print OUT $content;
-    close OUT;
+    unless ($test)
+    {
+      move($fname, "$fname.bak") or die "cannot rename file $fname: $!";
+      open OUT, ">$fname" or die "cannot open file $fname: $!";
+      print OUT $content;
+      close OUT;
+    }
     print "ok\n";
   }
   else
