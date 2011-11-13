@@ -284,7 +284,8 @@ void BinDeserializer::processValueData(IDeserializer* deser, TypeCode typeCode)
                         while (_in && ch != '\xff')
                         {
                             value += d[static_cast<uint8_t>(ch) >> 4];
-                            value += d[static_cast<uint8_t>(ch) & 0xf];
+                            if (d[static_cast<uint8_t>(ch) & 0xf] != 0xd)
+                                value += d[static_cast<uint8_t>(ch) & 0xf];
                             _in.get(ch);
                         }
                         _in.putback(ch);
