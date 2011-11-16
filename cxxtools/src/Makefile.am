@@ -7,6 +7,7 @@ libcxxtools_la_SOURCES = \
 	addrinfoimpl.cpp \
 	application.cpp \
 	applicationimpl.cpp \
+	csvdeserializer.cpp \
 	char.cpp \
 	clock.cpp \
 	clockimpl.cpp \

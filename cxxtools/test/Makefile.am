@@ -11,6 +11,7 @@ alltests_SOURCES = \
     base64-test.cpp \
     binserializer-test.cpp \
     cache-test.cpp \
+    csvdeserializer-test.cpp \
     convert-test.cpp \
     pool-test.cpp \
     smartptr-test.cpp \

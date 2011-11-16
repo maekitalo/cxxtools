@@ -30,6 +30,7 @@
 #include "selectableimpl.h"
 #include "cxxtools/ioerror.h"
 #include "cxxtools/selector.h"
+#include "cxxtools/log.h"
 #include <cerrno>
 #include <unistd.h>
 #include <fcntl.h>
@@ -37,6 +38,8 @@
 #include <cassert>
 #include <iostream>
 #include <limits>
+
+log_define("cxxtools.selector.impl")
 
 namespace cxxtools {
 
@@ -205,7 +208,9 @@ bool SelectorImpl::wait(std::size_t umsecs)
             }
         }
 
+        log_debug("poll with " << _pollfds.size() << " fds, timeout=" << msecs << "ms");
         ret = ::poll(&_pollfds[0], _pollfds.size(), msecs);
+        log_debug("poll returns " << ret);
         if( ret != -1 )
             break;
 
