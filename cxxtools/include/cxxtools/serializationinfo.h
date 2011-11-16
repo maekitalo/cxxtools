@@ -666,6 +666,7 @@ template <typename T, typename A>
 inline void operator >>=(const SerializationInfo& si, std::vector<T, A>& vec)
 {
     vec.clear();
+    vec.reserve(si.memberCount());
     for(SerializationInfo::ConstIterator it = si.begin(); it != si.end(); ++it)
     {
         vec.resize( vec.size() + 1 );
@@ -719,6 +720,7 @@ template <typename T, typename A>
 inline void operator >>=(const SerializationInfo& si, std::list<T, A>& list)
 {
     list.clear();
+    list.reserve(si.memberCount());
     for(SerializationInfo::ConstIterator it = si.begin(); it != si.end(); ++it)
     {
         list.resize( list.size() + 1 );
@@ -747,6 +749,7 @@ template <typename T, typename A>
 inline void operator >>=(const SerializationInfo& si, std::deque<T, A>& deque)
 {
     deque.clear();
+    deque.reserve(si.memberCount());
     for(SerializationInfo::ConstIterator it = si.begin(); it != si.end(); ++it)
     {
         deque.resize( deque.size() + 1 );
