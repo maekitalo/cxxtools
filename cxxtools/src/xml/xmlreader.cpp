@@ -650,6 +650,12 @@ struct XmlReaderImpl
             return this;
         }
 
+        virtual State* onColon(cxxtools::Char c, XmlReaderImpl& reader)
+        {
+            reader._attr.name() += c;
+            return this;
+        }
+
         static State* instance()
         {
             static OnAttributeName _state;
