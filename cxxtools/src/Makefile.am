@@ -8,6 +8,7 @@ libcxxtools_la_SOURCES = \
 	application.cpp \
 	applicationimpl.cpp \
 	csvdeserializer.cpp \
+	csvformatter.cpp \
 	char.cpp \
 	clock.cpp \
 	clockimpl.cpp \

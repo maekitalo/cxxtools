@@ -17,6 +17,8 @@ nobase_include_HEADERS = \
         cxxtools/callable.h \
         cxxtools/callable.tpp \
         cxxtools/csvdeserializer.h \
+        cxxtools/csvformatter.h \
+        cxxtools/csvserializer.h \
         cxxtools/char.h \
         cxxtools/cgi.h \
         cxxtools/clock.h \

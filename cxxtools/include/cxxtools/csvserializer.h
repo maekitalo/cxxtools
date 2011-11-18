@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Tommi Maekitalo
+ * Copyright (C) 2010 Tommi Maekitalo
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,72 +26,58 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef CXXTOOLS_CSVDESERIALIZER_H
-#define CXXTOOLS_CSVDESERIALIZER_H
+#ifndef CXXTOOLS_CSVSERIALIZER_H
+#define CXXTOOLS_CSVSERIALIZER_H
 
-#include <cxxtools/char.h>
-#include <cxxtools/deserializer.h>
-#include <cxxtools/textstream.h>
-#include <cxxtools/utf8codec.h>
-#include <cxxtools/noncopyable.h>
+#include <cxxtools/csvformatter.h>
+#include <cxxtools/serializer.h>
 
 namespace cxxtools
 {
-    class CsvDeserializer : private NonCopyable
+    class CsvSerializer
     {
         public:
-            CsvDeserializer(std::istream& in, TextCodec<Char, char>* codec = new Utf8Codec());
+            CsvSerializer(std::ostream& os, TextCodec<Char, char>* codec = new Utf8Codec())
+                : _formatter(os, codec)
+            { }
 
-            CsvDeserializer(TextIStream& in);
+            CsvSerializer(TextOStream& os)
+                : _formatter(os)
+            { }
 
-            ~CsvDeserializer();
+            void selectColumn(const std::string& title)
+            {
+                _formatter.selectColumn(title);
+            }
+
+            void delimiter(Char delimiter)
+            {
+                _formatter.delimiter(delimiter);
+            }
+
+            void quote(Char quote)
+            {
+                _formatter.quote(quote);
+            }
+
+            void lineEnding(const String& le)
+            {
+                _formatter.lineEnding(le);
+            }
 
             template <typename T>
-            void deserialize(T& t)
+            void serialize(const T& type)
             {
-                Deserializer<T> d;
-                d.begin(t);
-                get(&d);
-                d.fixup(_context);
-                _context.fixup();
+                cxxtools::ISerializer* serializer = _context.begin(type);
+                _context.fixdown(_formatter);
+                _formatter.finish();
                 _context.clear();
             }
 
-            Char delimiter() const
-            { return _delimiter; }
-
-            void delimiter(Char ch)
-            { _delimiter = ch; }
-
-            bool readTitle() const
-            { return _readTitle; }
-
-            void readTitle(bool sw)
-            { _readTitle = sw; }
-
-            static const Char autoDelimiter;
-
-            template <typename T>
-            static void toObject(std::istream& in, T& type)
-            {
-                CsvDeserializer d(in);
-                d.deserialize(type);
-            }
-
         private:
-            void get(IDeserializer* d);
-
-            DeserializationContext _context;
-
-            TextIStream* _ts;
-            TextIStream& _in;
-
-            Char _delimiter;
-
-            bool _readTitle;
-
-
+            CsvFormatter _formatter;
+            cxxtools::SerializationContext _context;
     };
 }
 
-#endif // CXXTOOLS_CSVDESERIALIZER_H
+#endif // CXXTOOLS_CSVSERIALIZER_H
