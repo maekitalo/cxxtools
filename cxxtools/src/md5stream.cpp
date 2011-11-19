@@ -27,8 +27,11 @@
  */
 
 #include "cxxtools/md5stream.h"
+#include "cxxtools/log.h"
 #include "md5.h"
 #include <cstring>
+
+log_define("cxxtools.md5stream")
 
 namespace cxxtools
 {
@@ -37,9 +40,10 @@ namespace cxxtools
 // Md5streambuf
 //
 Md5streambuf::Md5streambuf()
-  : context(0)
+  : context(new cxxtools_MD5_CTX())
 {
-  std::memset(digest, 0, 16);
+  log_debug("initialize MD5");
+  cxxtools_MD5Init(context);
 }
 
 Md5streambuf::~Md5streambuf()
@@ -53,13 +57,13 @@ std::streambuf::int_type Md5streambuf::overflow(
   if (pptr() == 0)
   {
     // Ausgabepuffer ist leer - initialisieren
-    if (context == 0)
-      context = new cxxtools_MD5_CTX();
+    log_debug("initialize MD5");
     cxxtools_MD5Init(context);
   }
   else
   {
     // konsumiere Zeichen aus dem Puffer
+    log_debug("process " << (pptr() - pbase()) << " bytes of data");
     cxxtools_MD5Update(context,
               (const unsigned char*)pbase(),
               pptr() - pbase());
@@ -90,6 +94,7 @@ int Md5streambuf::sync()
   if (pptr() != pbase())
   {
     // konsumiere Zeichen aus dem Puffer
+    log_debug("process " << (pptr() - pbase()) << " bytes of data");
     cxxtools_MD5Update(context, (const unsigned char*)pbase(), pptr() - pbase());
 
     // leere Ausgabepuffer
@@ -106,14 +111,21 @@ void Md5streambuf::getDigest(unsigned char digest_[16])
     if (pptr() != pbase())
     {
       // konsumiere Zeichen aus dem Puffer
+      log_debug("process " << (pptr() - pbase()) << " bytes of data");
       cxxtools_MD5Update(context, (const unsigned char*)pbase(), pptr() - pbase());
     }
 
     // deinitialisiere Ausgabepuffer
     setp(0, 0);
-
-    cxxtools_MD5Final(digest, context);
   }
+  else
+  {
+    log_debug("initialize MD5");
+    cxxtools_MD5Init(context);
+  }
+
+  log_debug("finalize MD5");
+  cxxtools_MD5Final(digest, context);
 
   std::memcpy(digest_, digest, 16);
 }
@@ -134,6 +146,7 @@ const char* Md5stream::getHexDigest()
     *p++ = hex[md5[i] & 0xf];
   }
   *p = '\0';
+  log_debug("md5: " << hexdigest);
   return hexdigest;
 }
 

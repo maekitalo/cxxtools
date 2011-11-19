@@ -14,6 +14,7 @@ alltests_SOURCES = \
     csvdeserializer-test.cpp \
     csvserializer-test.cpp \
     convert-test.cpp \
+    md5-test.cpp \
     pool-test.cpp \
     smartptr-test.cpp \
     string-test.cpp \

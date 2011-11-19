@@ -52,6 +52,49 @@ std::string md5(const data_type& data)
   return s.getHexDigest();
 }
 
+template <typename data_type> class md5_hash
+{
+  std::string digest;
+
+public:
+  explicit md5_hash(const data_type& data)
+  {
+    unsigned char _digest[16];
+    Md5stream s;
+    s << data;
+    s.getDigest(_digest);
+    digest.assign(reinterpret_cast<char*>(&_digest[0]), reinterpret_cast<char*>(&_digest[0] + 16));
+  }
+
+  md5_hash(typename data_type::const_iterator from, 
+		   typename data_type::const_iterator to)
+  {
+    unsigned char _digest[16];
+    Md5stream s;
+    std::copy(from, to, std::ostream_iterator<char>(s));
+    s.getDigest(_digest);
+    digest.assign(reinterpret_cast<char*>(&_digest[0]), reinterpret_cast<char*>(&_digest[0] + 16));
+  }
+
+  static const unsigned short blockSize = 64;
+
+  std::string getHexDigest() const
+  {
+    static const char hex[] = "0123456789abcdef";
+    std::string ret;
+    ret.reserve(32);
+    for (unsigned n = 0; n < 16; ++n)
+    {
+      ret.push_back(hex[(digest[n] >> 4) & 0xf]);
+      ret.push_back(hex[digest[n] & 0xf]);
+    }
+    return ret;
+  }
+
+  std::string getDigest() const
+  { return digest; }
+};
+
 }
 
 #endif  // CXXTOOLS_MD5_H
