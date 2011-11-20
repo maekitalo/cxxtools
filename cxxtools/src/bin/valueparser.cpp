@@ -29,6 +29,7 @@
 #include <cxxtools/bin/valueparser.h>
 #include <cxxtools/deserializer.h>
 #include <cxxtools/bin/serializer.h>
+#include <cxxtools/utf8codec.h>
 #include <sstream>
 
 namespace cxxtools
@@ -234,7 +235,7 @@ bool ValueParser::advance(char ch)
         case state_value_value:
             if (ch == '\0')
             {
-                _deserializer->setValue(String::widen(_token));
+                _deserializer->setValue(Utf8Codec::decode(_token));
                 _token.clear();
                 _state = state_end;
             }
