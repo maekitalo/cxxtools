@@ -28,9 +28,12 @@
 
 #include "serverimpl.h"
 #include "worker.h"
+#include "socket.h"
+#include "listener.h"
+
 #include <cxxtools/eventloop.h>
 #include <cxxtools/log.h>
-#include "listener.h"
+
 #include <signal.h>
 
 log_define("cxxtools.http.server.impl")
@@ -39,6 +42,75 @@ namespace cxxtools
 {
 namespace http
 {
+
+class IdleSocketEvent : public BasicEvent<IdleSocketEvent>
+{
+        Socket* _socket;
+
+    public:
+        explicit IdleSocketEvent(Socket* socket)
+            : _socket(socket)
+            { }
+
+        Socket* socket() const   { return _socket; }
+
+};
+
+class KeepAliveTimeoutEvent : public BasicEvent<KeepAliveTimeoutEvent>
+{
+        Socket* _socket;
+
+    public:
+        explicit KeepAliveTimeoutEvent(Socket* socket)
+            : _socket(socket)
+            { }
+
+        Socket* socket() const   { return _socket; }
+
+};
+
+class ServerStartEvent : public BasicEvent<ServerStartEvent>
+{
+        const ServerImpl* _server;
+
+    public:
+        explicit ServerStartEvent(const ServerImpl* server)
+            : _server(server)
+            { }
+
+        const ServerImpl* server() const   { return _server; }
+
+};
+
+class NoWaitingThreadsEvent : public BasicEvent<NoWaitingThreadsEvent>
+{
+};
+
+class ThreadTerminatedEvent : public BasicEvent<ThreadTerminatedEvent>
+{
+        Worker* _worker;
+
+    public:
+        explicit ThreadTerminatedEvent(Worker* worker)
+            : _worker(worker)
+            { }
+
+        Worker* worker() const   { return _worker; }
+};
+
+class ActiveSocketEvent : public BasicEvent<ActiveSocketEvent>
+{
+        Socket* _socket;
+
+    public:
+        explicit ActiveSocketEvent(Socket* socket)
+            : _socket(socket)
+            { }
+
+        Socket* socket() const   { return _socket; }
+
+};
+
 
 ServerImpl::ServerImpl(EventLoopBase& eventLoop, Signal<Server::Runmode>& runmodeChanged)
     : ServerImplBase(eventLoop, runmodeChanged),
@@ -152,6 +224,7 @@ void ServerImpl::terminate()
 
         for (std::set<Socket*>::iterator it = _idleSockets.begin(); it != _idleSockets.end(); ++it)
             delete *it;
+        _idleSockets.clear();
 
         runmode(Server::Stopped);
     }

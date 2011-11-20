@@ -43,7 +43,7 @@ namespace bin
 class ValueParser
 {
         ValueParser(const ValueParser&) { }
-        ValueParser& operator= (const ValueParser&) { }
+        ValueParser& operator= (const ValueParser&) { return *this; }
 
     public:
         ValueParser()

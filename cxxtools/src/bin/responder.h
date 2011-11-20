@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2009 by Dr. Marc Boris Duerner
- * Copyright (C) 2009 by Tommi Meakitalo
+ * Copyright (C) 2011 Tommi Maekitalo
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,76 +25,64 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-#ifndef cxxtools_xmlrpc_Responder_h
-#define cxxtools_xmlrpc_Responder_h
 
-#include <cxxtools/xmlrpc/api.h>
-#include <cxxtools/xmlrpc/fault.h>
-#include <cxxtools/xmlrpc/scanner.h>
-#include <cxxtools/xmlrpc/formatter.h>
-#include <cxxtools/xml/xmlreader.h>
-#include <cxxtools/xml/xmlwriter.h>
-#include <cxxtools/http/responder.h>
+#ifndef CXXTOOLS_BIN_RESPONDER_H
+#define CXXTOOLS_BIN_RESPONDER_H
+
+#include <cxxtools/bin/valueparser.h>
+#include <cxxtools/deserializer.h>
 #include <cxxtools/serializer.h>
-#include <cxxtools/textstream.h>
+#include <cxxtools/iostream.h>
+#include <cxxtools/bin/formatter.h>
 
-namespace cxxtools {
+namespace cxxtools
+{
 
 class ServiceProcedure;
 
-namespace xmlrpc {
-
-class Service;
-
-class CXXTOOLS_XMLRPC_API XmlRpcResponder : public http::Responder
+namespace bin
 {
-    enum State
-    {
-        OnBegin,
-        OnMethodCallBegin,
-        OnMethodNameBegin,
-        OnMethodName,
-        OnMethodNameEnd,
-        OnParams,
-        OnParam,
-        OnParamsEnd,
-        OnMethodCallEnd
-    };
+class RpcServerImpl;
+
+class Responder
+{
+        enum State
+        {
+            state_0,
+            state_method,
+            state_params,
+            state_param,
+        };
 
     public:
-        XmlRpcResponder(Service& service);
+        explicit Responder(RpcServerImpl& server)
+            : _server(server),
+              _state(state_0),
+              _proc(0),
+              _args(0),
+              _result(0)
+        { }
 
-        ~XmlRpcResponder();
+        ~Responder();
 
-        void beginRequest(std::istream& in, http::Request& request);
-
-        std::size_t readBody(std::istream& is);
-
-        void replyError(std::ostream& os, http::Request& request,
-                        http::Reply& reply, const std::exception& ex);
-
-        void reply(std::ostream& os, http::Request& request, http::Reply& reply);
-
-    protected:
-        void advance(const cxxtools::xml::Node& node);
+        void onInput(IOStream& ios);
+        bool advance(char ch);
+        void reply(IOStream& out);
+        void replyError(IOStream& out, const char* msg);
 
     private:
+
+        RpcServerImpl& _server;
         State _state;
-        TextIStream _ts;
-        xml::XmlReader _reader;
-        xml::XmlWriter _writer;
-        Scanner _scanner;
-        Formatter _formatter;
-        Service* _service;
+        std::string _methodName;
+        ValueParser _valueParser;
+
         DeserializationContext _context;
-        cxxtools::ServiceProcedure* _proc;
+        ServiceProcedure* _proc;
         IDeserializer** _args;
         ISerializer* _result;
-        Fault _fault;
+        Formatter _formatter;
 };
-
 }
-
 }
-
-#endif
+#endif // CXXTOOLS_BIN_RESPONDER_H

@@ -30,12 +30,11 @@
 #define CXXTOOLS_HTTP_SERVERIMPL_H
 
 #include "serverimplbase.h"
-#include <cstddef>
 #include <set>
+#include <vector>
 #include <cxxtools/queue.h>
 #include <cxxtools/event.h>
 #include <cxxtools/http/server.h>
-#include "socket.h"
 
 namespace cxxtools
 {
@@ -48,74 +47,13 @@ namespace http
 class Worker;
 class Listener;
 class ServerImpl;
-
-class IdleSocketEvent : public BasicEvent<IdleSocketEvent>
-{
-        Socket* _socket;
-
-    public:
-        explicit IdleSocketEvent(Socket* socket)
-            : _socket(socket)
-            { }
-
-        Socket* socket() const   { return _socket; }
-
-};
-
-class KeepAliveTimeoutEvent : public BasicEvent<KeepAliveTimeoutEvent>
-{
-        Socket* _socket;
-
-    public:
-        explicit KeepAliveTimeoutEvent(Socket* socket)
-            : _socket(socket)
-            { }
-
-        Socket* socket() const   { return _socket; }
-
-};
-
-class ServerStartEvent : public BasicEvent<ServerStartEvent>
-{
-        const ServerImpl* _server;
-
-    public:
-        explicit ServerStartEvent(const ServerImpl* server)
-            : _server(server)
-            { }
-
-        const ServerImpl* server() const   { return _server; }
-
-};
-
-class NoWaitingThreadsEvent : public BasicEvent<NoWaitingThreadsEvent>
-{
-};
-
-class ThreadTerminatedEvent : public BasicEvent<ThreadTerminatedEvent>
-{
-        Worker* _worker;
-
-    public:
-        explicit ThreadTerminatedEvent(Worker* worker)
-            : _worker(worker)
-            { }
-
-        Worker* worker() const   { return _worker; }
-};
-
-class ActiveSocketEvent : public BasicEvent<ActiveSocketEvent>
-{
-        Socket* _socket;
-
-    public:
-        explicit ActiveSocketEvent(Socket* socket)
-            : _socket(socket)
-            { }
-
-        Socket* socket() const   { return _socket; }
-
-};
+class Socket;
+class IdleSocketEvent;
+class KeepAliveTimeoutEvent;
+class ServerStartEvent;
+class NoWaitingThreadsEvent;
+class ThreadTerminatedEvent;
+class ActiveSocketEvent;
 
 class ServerImpl : public ServerImplBase, public Connectable
 {
