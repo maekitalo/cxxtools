@@ -83,13 +83,13 @@ void Socket::onInput(StreamBuffer& sb)
 
     sb.endRead();
 
-    _responder.onInput(_stream);
-
     if (sb.in_avail() == 0 || sb.device()->eof())
     {
         close();
         return;
     }
+
+    _responder.onInput(_stream);
 }
 
 bool Socket::onOutput(StreamBuffer& sb)

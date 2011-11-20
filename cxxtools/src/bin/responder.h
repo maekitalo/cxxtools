@@ -51,7 +51,9 @@ class Responder
             state_0,
             state_method,
             state_params,
+            state_params_skip,
             state_param,
+            state_param_skip,
         };
 
     public:
@@ -60,7 +62,8 @@ class Responder
               _state(state_0),
               _proc(0),
               _args(0),
-              _result(0)
+              _result(0),
+              _failed(false)
         { }
 
         ~Responder();
@@ -82,6 +85,9 @@ class Responder
         IDeserializer** _args;
         ISerializer* _result;
         Formatter _formatter;
+
+        bool _failed;
+        std::string _errorMessage;
 };
 }
 }

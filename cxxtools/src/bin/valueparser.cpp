@@ -78,6 +78,26 @@ namespace
     static const char bcdDigits[16] = "0123456789+-. e";
 }
 
+void ValueParser::begin(IDeserializer& handler, DeserializationContext& context)
+{
+    _state = state_0;
+    _deserializer = &handler;
+    _context = &context;
+    _int.u = 0;
+    _token.clear();
+}
+
+
+void ValueParser::beginSkip()
+{
+    _state = state_0;
+    _deserializer = 0;
+    _context = 0;
+    _int.u = 0;
+    _token.clear();
+}
+
+
 bool ValueParser::advance(char ch)
 {
     switch (_state)
@@ -99,7 +119,8 @@ bool ValueParser::advance(char ch)
                     }
                 }
 
-                _deserializer->setCategory(category);
+                if (_deserializer)
+                    _deserializer->setCategory(category);
             }
             break;
 
@@ -109,7 +130,8 @@ bool ValueParser::advance(char ch)
         case state_reference_name:
             if (ch == '\0')
             {
-                _deserializer->setName(_token);
+                if (_deserializer)
+                    _deserializer->setName(_token);
                 _token.clear();
                 _state = _state == state_value_name  ? state_value_id
                        : _state == state_object_name ? state_object_id
@@ -125,7 +147,8 @@ bool ValueParser::advance(char ch)
         case state_array_id:
             if (ch == '\0')
             {
-                _deserializer->setId(_token);
+                if (_deserializer)
+                    _deserializer->setId(_token);
                 _token.clear();
                 _state = _state == state_value_id  ? state_value_type
                        : _state == state_object_id ? state_object_type
@@ -140,7 +163,9 @@ bool ValueParser::advance(char ch)
                 _state = state_value_type_other;
             else
             {
-                _deserializer->setTypeName(typeName(ch));
+                if (_deserializer)
+                    _deserializer->setTypeName(typeName(ch));
+
                 switch (ch)
                 {
                     case Serializer::TypeInt8:   _count = 1; _state = state_value_intsign; break;
@@ -162,7 +187,9 @@ bool ValueParser::advance(char ch)
         case state_value_type_other:
             if (ch == '\0')
             {
-                _deserializer->setTypeName(_token);
+                if (_deserializer)
+                    _deserializer->setTypeName(_token);
+
                 _token.clear();
                 _state = state_value_value;
             }
@@ -179,39 +206,49 @@ bool ValueParser::advance(char ch)
             _int.d[--_count] = ch;
             if (_count == 0)
             {
-                if (_state == state_value_int)
-                    _deserializer->setValue(convert<String>(_int.s));
-                else
-                    _deserializer->setValue(convert<String>(_int.u));
+                if (_deserializer)
+                {
+                    if (_state == state_value_int)
+                        _deserializer->setValue(convert<String>(_int.s));
+                    else
+                        _deserializer->setValue(convert<String>(_int.u));
+                }
+
                 _int.u = 0;
                 _state = state_end;
             }
             break;
 
         case state_value_bool:
-            _deserializer->setValue(ch ? L"true" : L"false");
+            if (_deserializer)
+                _deserializer->setValue(ch ? L"true" : L"false");
+
             _state = state_end;
             break;
 
         case state_value_bcd:
             if (_token.empty() && ch == '\xf0')
             {
-                _deserializer->setValue(L"nan");
+                if (_deserializer)
+                    _deserializer->setValue(L"nan");
                 _state = state_end;
             }
             else if (_token.empty() && ch == '\xf1')
             {
-                _deserializer->setValue(L"inf");
+                if (_deserializer)
+                    _deserializer->setValue(L"inf");
                 _state = state_end;
             }
             else if (_token.empty() && ch == '\xf2')
             {
-                _deserializer->setValue(L"-inf");
+                if (_deserializer)
+                    _deserializer->setValue(L"-inf");
                 _state = state_end;
             }
             else if (ch == '\xff')
             {
-                _deserializer->setValue(String::widen(_token));
+                if (_deserializer)
+                    _deserializer->setValue(String::widen(_token));
                 _token.clear();
                 return true;
             }
@@ -220,7 +257,8 @@ bool ValueParser::advance(char ch)
                 _token += bcdDigits[static_cast<uint8_t>(ch) >> 4];
                 if ((ch & '\xf') == '\xd')
                 {
-                    _deserializer->setValue(String::widen(_token));
+                    if (_deserializer)
+                        _deserializer->setValue(String::widen(_token));
                     _token.clear();
                     _state = state_end;
                 }
@@ -235,7 +273,8 @@ bool ValueParser::advance(char ch)
         case state_value_value:
             if (ch == '\0')
             {
-                _deserializer->setValue(Utf8Codec::decode(_token));
+                if (_deserializer)
+                    _deserializer->setValue(Utf8Codec::decode(_token));
                 _token.clear();
                 _state = state_end;
             }
@@ -248,7 +287,8 @@ bool ValueParser::advance(char ch)
                 _state = state_object_type_other;
             else
             {
-                _deserializer->setTypeName(typeName(ch));
+                if (_deserializer)
+                    _deserializer->setTypeName(typeName(ch));
                 _state = state_object_member;
             }
             break;
@@ -256,7 +296,8 @@ bool ValueParser::advance(char ch)
         case state_object_type_other:
             if (ch == '\0')
             {
-                _deserializer->setTypeName(_token);
+                if (_deserializer)
+                    _deserializer->setTypeName(_token);
                 _token.clear();
                 _state = state_object_member;
             }
@@ -279,8 +320,15 @@ bool ValueParser::advance(char ch)
             {
                 if (_next == 0)
                     _next = new ValueParser();
-                _deserializer = _deserializer->beginMember(_token, "", SerializationInfo::Void);
-                _next->begin(*_deserializer, *_context);
+
+                if (_deserializer)
+                {
+                    _deserializer = _deserializer->beginMember(_token, "", SerializationInfo::Void);
+                    _next->begin(*_deserializer, *_context);
+                }
+                else
+                    _next->beginSkip();
+
                 _token.clear();
                 _state = state_object_member_value;
             }
@@ -291,7 +339,8 @@ bool ValueParser::advance(char ch)
         case state_object_member_value:
             if (_next->advance(ch))
             {
-                _deserializer = _deserializer->leaveMember();
+                if (_deserializer)
+                    _deserializer = _deserializer->leaveMember();
                 _state = state_object_member;
             }
             break;
@@ -301,7 +350,8 @@ bool ValueParser::advance(char ch)
                 _state = state_array_type_other;
             else
             {
-                _deserializer->setTypeName(typeName(ch));
+                if (_deserializer)
+                    _deserializer->setTypeName(typeName(ch));
                 _state = state_array_member;
             }
             break;
@@ -309,7 +359,8 @@ bool ValueParser::advance(char ch)
         case state_array_type_other:
             if (ch == '\0')
             {
-                _deserializer->setTypeName(_token);
+                if (_deserializer)
+                    _deserializer->setTypeName(_token);
                 _token.clear();
                 _state = state_array_member;
             }
@@ -320,10 +371,20 @@ bool ValueParser::advance(char ch)
         case state_array_member:
             if (ch == '\xff')
                 return true;
+
             if (_next == 0)
                 _next = new ValueParser();
-            _deserializer = _deserializer->beginMember("", "", SerializationInfo::Void);
-            _next->begin(*_deserializer, *_context);
+
+            if (_deserializer)
+            {
+                _deserializer = _deserializer->beginMember("", "", SerializationInfo::Void);
+                _next->begin(*_deserializer, *_context);
+            }
+            else
+            {
+                _next->beginSkip();
+            }
+
             _next->advance(ch);
             _state = state_array_member_value;
             break;
@@ -331,7 +392,8 @@ bool ValueParser::advance(char ch)
         case state_array_member_value:
             if (_next->advance(ch))
             {
-                _deserializer = _deserializer->leaveMember();
+                if (_deserializer)
+                    _deserializer = _deserializer->leaveMember();
                 _state = state_array_member_value_next;
             }
             break;
@@ -343,8 +405,16 @@ bool ValueParser::advance(char ch)
             }
             else
             {
-                _deserializer = _deserializer->beginMember("", "", SerializationInfo::Void);
-                _next->begin(*_deserializer, *_context);
+                if (_deserializer)
+                {
+                    _deserializer = _deserializer->beginMember("", "", SerializationInfo::Void);
+                    _next->begin(*_deserializer, *_context);
+                }
+                else
+                {
+                    _next->beginSkip();
+                }
+
                 _next->advance(ch);
                 _state = state_array_member_value;
             }
@@ -353,7 +423,8 @@ bool ValueParser::advance(char ch)
         case state_reference_value:
             if (ch == '\0')
             {
-                _deserializer->setReference(_token);
+                if (_deserializer)
+                    _deserializer->setReference(_token);
                 _token.clear();
                 _state = state_end;
             }

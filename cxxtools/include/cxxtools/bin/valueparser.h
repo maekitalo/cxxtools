@@ -55,14 +55,9 @@ class ValueParser
             delete _next;
         }
 
-        void begin(IDeserializer& handler, DeserializationContext& context)
-        {
-            _state = state_0;
-            _deserializer = &handler;
-            _context = &context;
-            _int.u = 0;
-            _token.clear();
-        }
+        void begin(IDeserializer& handler, DeserializationContext& context);
+
+        void beginSkip();
 
         bool advance(char ch); // returns true, if number is read completely
 
