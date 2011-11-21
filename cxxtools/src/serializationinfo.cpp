@@ -216,4 +216,17 @@ void SerializationInfo::clear()
     _nodes.clear();
 }
 
+void SerializationInfo::swap(SerializationInfo& si)
+{
+    std::swap(_parent, si._parent);
+    std::swap(_category, si._category);
+    std::swap(_name, si._name);
+    std::swap(_type, si._type);
+    std::swap(_id, si._id);
+    std::swap(_fixupAddr, si._fixupAddr);
+    std::swap(_fixupInfo, si._fixupInfo);
+    std::swap(_value, si._value);
+    _nodes.swap(si._nodes);
+}
+
 } // namespace cxxtools

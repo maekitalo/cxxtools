@@ -69,15 +69,13 @@ class Serializer : public ISerializer
 {
     public:
         Serializer()
-        : _type(0)
-        , _current(&_si)
+        : _current(&_si)
         { }
 
         void begin(const T& type)
         {
             _si.clear();
-            _type = &type;
-            _si <<= *_type;
+            _si <<= type;
         }
 
         virtual void fixdown(SerializationContext& context)
@@ -101,7 +99,6 @@ class Serializer : public ISerializer
         }
 
     private:
-        const T* _type;
         SerializationInfo _si;
         SerializationInfo* _current;
 };
