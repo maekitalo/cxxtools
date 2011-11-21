@@ -682,6 +682,7 @@ inline void operator <<=(SerializationInfo& si, const std::vector<T, A>& vec)
 {
     typename std::vector<T, A>::const_iterator it;
 
+    si.reserve(vec.size());
     for(it = vec.begin(); it != vec.end(); ++it)
     {
         SerializationInfo& newSi = si.addMember(std::string());
@@ -722,7 +723,6 @@ template <typename T, typename A>
 inline void operator >>=(const SerializationInfo& si, std::list<T, A>& list)
 {
     list.clear();
-    list.reserve(si.memberCount());
     for(SerializationInfo::ConstIterator it = si.begin(); it != si.end(); ++it)
     {
         list.resize( list.size() + 1 );
@@ -751,7 +751,6 @@ template <typename T, typename A>
 inline void operator >>=(const SerializationInfo& si, std::deque<T, A>& deque)
 {
     deque.clear();
-    deque.reserve(si.memberCount());
     for(SerializationInfo::ConstIterator it = si.begin(); it != si.end(); ++it)
     {
         deque.resize( deque.size() + 1 );
