@@ -33,7 +33,7 @@
 
 namespace cxxtools
 {
-  std::string ltrim(const std::string& s, const std::string& ws = " \t")
+  inline std::string ltrim(const std::string& s, const std::string& ws = " \t\r\n")
   {
     std::string::size_type p = 0;
     std::string::size_type pp;
@@ -42,7 +42,7 @@ namespace cxxtools
     return s.substr(p);
   }
 
-  std::string rtrim(const std::string& s, const std::string& ws = " \t")
+  inline std::string rtrim(const std::string& s, const std::string& ws = " \t\r\n")
   {
     std::string::size_type p = s.size();
     while (p > 0 && ws.find(s[p - 1]) != std::string::npos)
@@ -50,7 +50,7 @@ namespace cxxtools
     return s.substr(0, p);
   }
 
-  std::string trim(const std::string& s, const std::string& ws = " \t")
+  inline std::string trim(const std::string& s, const std::string& ws = " \t\r\n")
   {
     std::string::size_type pl = 0;
     while (pl < s.size() && ws.find(s[pl]) != std::string::npos)
