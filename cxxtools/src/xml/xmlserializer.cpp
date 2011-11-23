@@ -141,6 +141,9 @@ void XmlFormatter::beginComplexElement(const std::string& name, const std::strin
 {
     cxxtools::String tag(name.empty() ? type : name);
 
+    if (tag.empty())
+        throw std::logic_error("type name or element name must be set in xml formatter");
+
     Attribute attrs[3];
     size_t countAttrs = 0;
 

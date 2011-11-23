@@ -27,6 +27,7 @@
 #include "cxxtools/xml/startelement.h"
 #include "cxxtools/xml/entityresolver.h"
 #include "cxxtools/utf8codec.h"
+#include <stdexcept>
 #include <iostream>
 
 
@@ -87,6 +88,9 @@ void XmlWriter::writeStartElement(const String& localName)
 
 void XmlWriter::writeStartElement(const String& localName, const Attribute* attr, size_t attrCount)
 {
+    if (localName.empty())
+        throw std::runtime_error("local name must not be empty in xml writer");
+
     if (useIndent())
     {
         for(size_t n = 0; n < _elements.size(); ++n)
