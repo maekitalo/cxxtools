@@ -44,22 +44,22 @@ class TrimTest : public cxxtools::unit::TestSuite
         void ltrimTest()
         {
           CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::ltrim(" \t foo bar "), "foo bar ");
-          CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::ltrim(" \t\n foo bar "), "\n foo bar ");
-          CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::ltrim(" \t\n foo bar ", " \t\n"), "foo bar ");
+          CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::ltrim(" \t\n foo bar "), "foo bar ");
+          CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::ltrim(" \t\n foo bar ", " \t"), "\n foo bar ");
         }
 
         void rtrimTest()
         {
           CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::rtrim(" \t foo bar "), " \t foo bar");
-          CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::rtrim(" \t\n foo bar \n "), " \t\n foo bar \n");
-          CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::rtrim(" \t\n foo bar \n ", " \t\n"), " \t\n foo bar");
+          CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::rtrim(" \t\n foo bar \n "), " \t\n foo bar");
+          CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::rtrim(" \t\n foo bar \n ", " \t"), " \t\n foo bar \n");
         }
 
         void trimTest()
         {
           CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::trim(" \t foo bar "), "foo bar");
-          CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::trim(" \t\n foo bar \n "), "\n foo bar \n");
-          CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::trim(" \t\n foo bar \n ", " \t\n"), "foo bar");
+          CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::trim(" \t\n foo bar \n "), "foo bar");
+          CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::trim(" \t\n foo bar \n ", " \t"), "\n foo bar \n");
         }
 
 };
