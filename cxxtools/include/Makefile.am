@@ -69,6 +69,8 @@ nobase_include_HEADERS = \
         cxxtools/iodevice.h \
         cxxtools/iostream.h \
         cxxtools/join.h \
+        cxxtools/jsondeserializer.h \
+        cxxtools/jsonparser.h \
         cxxtools/jsonserializer.h \
         cxxtools/library.h \
         cxxtools/log.h \

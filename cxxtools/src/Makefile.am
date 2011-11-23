@@ -39,6 +39,8 @@ libcxxtools_la_SOURCES = \
 	iodeviceimpl.cpp \
 	ioerror.cpp \
 	iostream.cpp \
+	jsondeserializer.cpp \
+	jsonparser.cpp \
 	jsonserializer.cpp \
 	library.cpp \
 	libraryimpl.cpp \

@@ -29,6 +29,7 @@
 #ifndef CXXTOOLS_CSVDESERIALIZER_H
 #define CXXTOOLS_CSVDESERIALIZER_H
 
+#include <cxxtools/api.h>
 #include <cxxtools/char.h>
 #include <cxxtools/deserializer.h>
 #include <cxxtools/textstream.h>
@@ -37,7 +38,7 @@
 
 namespace cxxtools
 {
-    class CsvDeserializer : private NonCopyable
+    class CXXTOOLS_API CsvDeserializer : private NonCopyable
     {
         public:
             CsvDeserializer(std::istream& in, TextCodec<Char, char>* codec = new Utf8Codec());
