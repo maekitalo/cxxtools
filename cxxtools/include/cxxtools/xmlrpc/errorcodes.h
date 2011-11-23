@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2009 by Dr. Marc Boris Duerner
- * Copyright (C) 2009 by Tommi Meakitalo
+ * Copyright (C) 2011 by Tommi Meakitalo
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,18 +25,32 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-#include <cxxtools/xmlrpc/fault.h>
+#ifndef CXXTOOLS_XMLRPC_ERRORCODES_H
+#define CXXTOOLS_XMLRPC_ERRORCODES_H
 
-namespace cxxtools {
-
-namespace xmlrpc {
-
-Fault::Fault(const char* msg, int rc)
-: _msg(msg)
-, _rc(rc)
+namespace cxxtools
 {
-}
+
+namespace xmlrpc
+{
+
+namespace ErrorCodes
+{
+    static const int parseError                  = -32700;
+    static const int unsupportedEncoding         = -32701;
+    static const int invalidCharacterForEncoding = -32702;
+    static const int invalidXmlRpc               = -32600;
+    static const int methodNotFound              = -32601;
+    static const int invalidMethodParameters     = -32602;
+    static const int internalXmlRpcError         = -32603;
+    static const int applicationError            = -32500;
+    static const int systemError                 = -32400;
+    static const int transportError              = -32300;
 
 }
 
 }
+
+}
+
+#endif

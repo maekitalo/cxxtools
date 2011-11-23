@@ -109,6 +109,10 @@ nobase_include_HEADERS = \
         cxxtools/quotedprintablestream.h \
         cxxtools/refcounted.h \
         cxxtools/regex.h \
+        cxxtools/remoteclient.h \
+        cxxtools/remoteexception.h \
+        cxxtools/remoteprocedure.h \
+        cxxtools/remoteresult.h \
         cxxtools/selector.h \
         cxxtools/selectable.h \
         cxxtools/semaphore.h \
@@ -186,10 +190,9 @@ nobase_include_HEADERS = \
         cxxtools/xml/xmlwriter.h \
         cxxtools/xmlrpc/api.h \
         cxxtools/xmlrpc/client.h \
+        cxxtools/xmlrpc/errorcodes.h \
         cxxtools/xmlrpc/httpclient.h \
-        cxxtools/xmlrpc/fault.h \
         cxxtools/xmlrpc/formatter.h \
-        cxxtools/xmlrpc/remoteprocedure.h \
         cxxtools/xmlrpc/responder.h \
         cxxtools/xmlrpc/result.h \
         cxxtools/xmlrpc/scanner.h \

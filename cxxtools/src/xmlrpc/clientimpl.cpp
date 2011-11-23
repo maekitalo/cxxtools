@@ -29,19 +29,39 @@
 
 #include "cxxtools/xmlrpc/client.h"
 #include "clientimpl.h"
-#include "cxxtools/xmlrpc/remoteprocedure.h"
+#include "cxxtools/remoteprocedure.h"
 #include "cxxtools/xml/xmlerror.h"
 #include "cxxtools/xml/startelement.h"
 #include "cxxtools/xml/characters.h"
 #include "cxxtools/xml/endelement.h"
 #include "cxxtools/selectable.h"
 #include "cxxtools/utf8codec.h"
+#include "cxxtools/xmlrpc/errorcodes.h"
 #include "cxxtools/log.h"
 
 
 log_define("cxxtools.xmlrpc.client.impl")
 
 namespace cxxtools {
+
+
+inline void operator >>=(const cxxtools::SerializationInfo& si, RemoteException& fault)
+{
+    int faultCode;
+    std::string faultString;
+    si.getMember("faultCode") >>= faultCode;
+    si.getMember("faultString") >>= faultString;
+    fault.rc(faultCode);
+    fault.text(faultString);
+}
+
+
+inline void operator <<=(cxxtools::SerializationInfo& si, const RemoteException& fault)
+{
+    si.addMember("faultCode") <<= fault.rc();
+    si.addMember("faultString") <<= fault.text();
+}
+
 
 namespace xmlrpc {
 
@@ -168,17 +188,17 @@ std::size_t ClientImpl::onReadReply()
     }
     catch(const xml::XmlError& error)
     {
-        _method->setFault(Fault::invalidXmlRpc, error.what());
+        _method->setFault(ErrorCodes::invalidXmlRpc, error.what());
         _method->onFinished();
     }
     catch(const SerializationError& error)
     {
-        _method->setFault(Fault::invalidMethodParameters, error.what());
+        _method->setFault(ErrorCodes::invalidMethodParameters, error.what());
         _method->onFinished();
     }
     catch(const ConversionError& error)
     {
-        _method->setFault(Fault::invalidMethodParameters, error.what());
+        _method->setFault(ErrorCodes::invalidMethodParameters, error.what());
         _method->onFinished();
     }
     catch(const std::exception& error)

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 by Dr. Marc Boris Duerner
+ * Copyright (C) 2011 by Tommi Maekitalo
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -25,40 +25,35 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-#ifndef cxxtools_xmlrpc_RemoteProcedure_h
-#define cxxtools_xmlrpc_RemoteProcedure_h
 
-#include <cxxtools/xmlrpc/api.h>
-#include <cxxtools/xmlrpc/client.h>
-#include <cxxtools/xmlrpc/fault.h>
-#include <cxxtools/xmlrpc/result.h>
+#ifndef CXXTOOLS_REMOTEPROCEDURE_H
+#define CXXTOOLS_REMOTEPROCEDURE_H
+
+#include <cxxtools/remoteclient.h>
+#include <cxxtools/remoteresult.h>
 #include <cxxtools/deserializer.h>
 #include <cxxtools/serializer.h>
 #include <cxxtools/signal.h>
+#include <cxxtools/string.h>
 #include <string>
 
-namespace cxxtools {
-
-namespace xmlrpc {
-
-class Fault;
-
-class CXXTOOLS_XMLRPC_API IRemoteProcedure
+namespace cxxtools
 {
-    friend class ClientImpl;
 
+class IRemoteProcedure
+{
     public:
-        IRemoteProcedure(Client& client, const String& name)
+        IRemoteProcedure(RemoteClient& client, const String& name)
         : _client(&client)
         , _name(name)
         { }
 
-        IRemoteProcedure(Client& client, const std::string& name)
+        IRemoteProcedure(RemoteClient& client, const std::string& name)
         : _client(&client)
         , _name(String::widen(name))
         { }
 
-        IRemoteProcedure(Client& client, const char* name)
+        IRemoteProcedure(RemoteClient& client, const char* name)
         : _client(&client)
         , _name(String::widen(name))
         { }
@@ -66,7 +61,7 @@ class CXXTOOLS_XMLRPC_API IRemoteProcedure
         virtual ~IRemoteProcedure()
         { cancel(); }
 
-        Client& client()
+        RemoteClient& client()
         { return *_client; }
 
         const String& name() const
@@ -82,11 +77,10 @@ class CXXTOOLS_XMLRPC_API IRemoteProcedure
                 _client->cancel();
         }
 
-    protected:
         virtual void onFinished() = 0;
 
     private:
-        Client* _client;
+        RemoteClient* _client;
         String _name;
 };
 
@@ -95,7 +89,7 @@ template <typename R>
 class RemoteProcedureBase : public IRemoteProcedure
 {
     public:
-        RemoteProcedureBase(Client& client, const std::string& name)
+        RemoteProcedureBase(RemoteClient& client, const std::string& name)
         : IRemoteProcedure(client, name),
           _result(client)
         { }
@@ -115,18 +109,16 @@ class RemoteProcedureBase : public IRemoteProcedure
             return _result.failed();
         }
 
-        Signal< const Result<R> & > finished;
+        Signal< const RemoteResult<R> & > finished;
 
     protected:
         void onFinished()
         { finished.send(_result); }
 
-        Result<R> _result;
+        RemoteResult<R> _result;
         Deserializer<R> _r;
 };
 
-
-// this part is generated with remoteprocedure.pl:
 
 template <typename R,
           typename A1 = cxxtools::Void,
@@ -142,7 +134,7 @@ template <typename R,
 class RemoteProcedure : public RemoteProcedureBase<R>
 {
     public:
-        RemoteProcedure(Client& client, const std::string& name)
+        RemoteProcedure(RemoteClient& client, const std::string& name)
         : RemoteProcedureBase<R>(client, name)
         { }
 
@@ -221,7 +213,7 @@ class RemoteProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8, A9,
                       cxxtools::Void> : public RemoteProcedureBase<R>
 {
     public:
-        RemoteProcedure(Client& client, const std::string& name)
+        RemoteProcedure(RemoteClient& client, const std::string& name)
         : RemoteProcedureBase<R>(client, name)
         { }
 
@@ -297,7 +289,7 @@ class RemoteProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8,
                       cxxtools::Void> : public RemoteProcedureBase<R>
 {
     public:
-        RemoteProcedure(Client& client, const std::string& name)
+        RemoteProcedure(RemoteClient& client, const std::string& name)
         : RemoteProcedureBase<R>(client, name)
         { }
 
@@ -370,7 +362,7 @@ class RemoteProcedure<R, A1, A2, A3, A4, A5, A6, A7,
                       cxxtools::Void> : public RemoteProcedureBase<R>
 {
     public:
-        RemoteProcedure(Client& client, const std::string& name)
+        RemoteProcedure(RemoteClient& client, const std::string& name)
         : RemoteProcedureBase<R>(client, name)
         { }
 
@@ -440,7 +432,7 @@ class RemoteProcedure<R, A1, A2, A3, A4, A5, A6,
                       cxxtools::Void> : public RemoteProcedureBase<R>
 {
     public:
-        RemoteProcedure(Client& client, const std::string& name)
+        RemoteProcedure(RemoteClient& client, const std::string& name)
         : RemoteProcedureBase<R>(client, name)
         { }
 
@@ -507,7 +499,7 @@ class RemoteProcedure<R, A1, A2, A3, A4, A5,
                       cxxtools::Void> : public RemoteProcedureBase<R>
 {
     public:
-        RemoteProcedure(Client& client, const std::string& name)
+        RemoteProcedure(RemoteClient& client, const std::string& name)
         : RemoteProcedureBase<R>(client, name)
         { }
 
@@ -571,7 +563,7 @@ class RemoteProcedure<R, A1, A2, A3, A4,
                       cxxtools::Void> : public RemoteProcedureBase<R>
 {
     public:
-        RemoteProcedure(Client& client, const std::string& name)
+        RemoteProcedure(RemoteClient& client, const std::string& name)
         : RemoteProcedureBase<R>(client, name)
         { }
 
@@ -632,7 +624,7 @@ class RemoteProcedure<R, A1, A2, A3,
                       cxxtools::Void> : public RemoteProcedureBase<R>
 {
     public:
-        RemoteProcedure(Client& client, const std::string& name)
+        RemoteProcedure(RemoteClient& client, const std::string& name)
         : RemoteProcedureBase<R>(client, name)
         { }
 
@@ -690,7 +682,7 @@ class RemoteProcedure<R, A1, A2,
                       cxxtools::Void> : public RemoteProcedureBase<R>
 {
     public:
-        RemoteProcedure(Client& client, const std::string& name)
+        RemoteProcedure(RemoteClient& client, const std::string& name)
         : RemoteProcedureBase<R>(client, name)
         { }
 
@@ -745,7 +737,7 @@ class RemoteProcedure<R, A1,
                       cxxtools::Void> : public RemoteProcedureBase<R>
 {
     public:
-        RemoteProcedure(Client& client, const std::string& name)
+        RemoteProcedure(RemoteClient& client, const std::string& name)
         : RemoteProcedureBase<R>(client, name)
         { }
 
@@ -797,7 +789,7 @@ class RemoteProcedure<R,
                       cxxtools::Void> : public RemoteProcedureBase<R>
 {
     public:
-        RemoteProcedure(Client& client, const std::string& name)
+        RemoteProcedure(RemoteClient& client, const std::string& name)
         : RemoteProcedureBase<R>(client, name)
         { }
 
@@ -828,10 +820,7 @@ class RemoteProcedure<R,
         }
 };
 
-// end of generation
 
 }
 
-}
-
-#endif
+#endif // CXXTOOLS_REMOTEPROCEDURE_H

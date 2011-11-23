@@ -29,7 +29,7 @@
 #include <iostream>
 #include <cxxtools/arg.h>
 #include <cxxtools/log.h>
-#include <cxxtools/xmlrpc/remoteprocedure.h>
+#include <cxxtools/remoteprocedure.h>
 #include <cxxtools/xmlrpc/httpclient.h>
 
 ////////////////////////////////////////////////////////////////////////
@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
     cxxtools::xmlrpc::HttpClient client(ip, port, "/myservice");
 
     // define remote procedure with std::string return value and a std::string parameter:
-    cxxtools::xmlrpc::RemoteProcedure<std::string, std::string> echo(client, "echo");
+    cxxtools::RemoteProcedure<std::string, std::string> echo(client, "echo");
 
     for (int a = 1; a < argc; ++a)
     {

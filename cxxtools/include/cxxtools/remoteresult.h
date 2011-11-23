@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 by Dr. Marc Boris Duerner, Tommi Maekitalo
+ * Copyright (C) 2011 by Dr. Marc Boris Duerner, Tommi Maekitalo
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -25,54 +25,78 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-#ifndef cxxtools_xmlrpc_Client_h
-#define cxxtools_xmlrpc_Client_h
+#ifndef CXXTOOLS_REMOTERESULT_H
+#define CXXTOOLS_REMOTERESULT_H
 
-#include <cxxtools/xmlrpc/api.h>
-#include <cxxtools/remoteclient.h>
 #include <string>
+#include <cxxtools/remoteclient.h>
+#include <cxxtools/remoteexception.h>
 
-namespace cxxtools {
-
-namespace xmlrpc {
-
-class ClientImpl;
-
-class CXXTOOLS_XMLRPC_API Client : public RemoteClient
+namespace cxxtools
 {
-        ClientImpl* _impl;
 
-        Client(Client&) { }
-        void operator= (const Client&) { }
+class IRemoteResult
+{
+    public:
+        IRemoteResult()
+            : _failed(false)
+            { }
+
+        void setFault(int rc, const std::string& msg)
+        {
+            _failed = true;
+            _rc = rc;
+            _msg = msg;
+        }
+
+        void clearFault()
+        {
+            _failed = false;
+            _rc = 0;
+            _msg.clear();
+        }
+
+        bool failed() const
+        { return _failed; }
 
     protected:
-        void impl(ClientImpl* i) { _impl = i; }
+        void checkFault() const
+        {
+            if (_failed)
+                throw RemoteException(_msg, _rc);
+        }
 
-    public:
-        Client()
-        : _impl(0)
-        { }
-
-        virtual ~Client();
-
-        void beginCall(IDeserializer& r, IRemoteProcedure& method, ISerializer** argv, unsigned argc);
-
-        void endCall();
-
-        void call(IDeserializer& r, IRemoteProcedure& method, ISerializer** argv, unsigned argc);
-
-        std::size_t timeout() const;
-
-        void timeout(std::size_t t);
-
-        std::string url() const;
-
-        const IRemoteProcedure* activeProcedure() const;
-
-        void cancel();
+    private:
+        bool _failed;
+        int _rc;
+        std::string _msg;
 };
 
-}
+template <typename R>
+class RemoteResult : public IRemoteResult
+{
+    public:
+        explicit RemoteResult(RemoteClient& client)
+            : _client(client)
+        {
+        }
+
+        R& value()
+        {
+            return _result;
+        }
+
+        const R& get() const
+        {
+            _client.endCall();
+            checkFault();
+            return _result;
+        }
+
+    private:
+        RemoteClient& _client;
+        R _result;
+};
 
 }
 

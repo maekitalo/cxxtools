@@ -29,7 +29,7 @@
 #include <iostream>
 #include <cxxtools/log.h>
 #include <cxxtools/arg.h>
-#include <cxxtools/xmlrpc/remoteprocedure.h>
+#include <cxxtools/remoteprocedure.h>
 #include <cxxtools/xmlrpc/httpclient.h>
 #include <cxxtools/thread.h>
 #include <cxxtools/mutex.h>
@@ -42,7 +42,7 @@ class BenchClient
     void exec();
 
     cxxtools::xmlrpc::HttpClient client;
-    cxxtools::xmlrpc::RemoteProcedure<std::string, std::string> echo;
+    cxxtools::RemoteProcedure<std::string, std::string> echo;
     cxxtools::AttachedThread thread;
 
     static unsigned _numRequests;

@@ -29,8 +29,8 @@
 #include "cxxtools/unit/registertest.h"
 #include "cxxtools/xmlrpc/service.h"
 #include "cxxtools/xmlrpc/httpclient.h"
-#include "cxxtools/xmlrpc/fault.h"
-#include "cxxtools/xmlrpc/remoteprocedure.h"
+#include "cxxtools/remoteexception.h"
+#include "cxxtools/remoteprocedure.h"
 #include "cxxtools/http/server.h"
 #include "cxxtools/eventloop.h"
 #include "cxxtools/log.h"
@@ -140,21 +140,21 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _server->addService("/calc", service);
 
             cxxtools::xmlrpc::HttpClient client(*_loop, "", _port, "/calc");
-            cxxtools::xmlrpc::RemoteProcedure<bool> multiply(client, "multiply");
+            cxxtools::RemoteProcedure<bool> multiply(client, "multiply");
             connect( multiply.finished, *this, &XmlRpcTest::onFault );
             multiply.begin();
 
             _loop->run();
         }
 
-        void onFault(const cxxtools::xmlrpc::Result<bool>& result)
+        void onFault(const cxxtools::RemoteResult<bool>& result)
         {
             try
             {
                 result.get();
-                CXXTOOLS_UNIT_ASSERT_MSG(false, "cxxtools::xmlrpc::Fault exception expected");
+                CXXTOOLS_UNIT_ASSERT_MSG(false, "cxxtools::RemoteException exception expected");
             }
-            catch (const cxxtools::xmlrpc::Fault& e)
+            catch (const cxxtools::RemoteException& e)
             {
                 CXXTOOLS_UNIT_ASSERT_EQUALS(e.rc(), 7);
                 CXXTOOLS_UNIT_ASSERT_EQUALS(e.text(), "Fault");
@@ -165,7 +165,7 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
 
         bool throwFault()
         {
-            throw cxxtools::xmlrpc::Fault("Fault", 7);
+            throw cxxtools::RemoteException("Fault", 7);
             return false;
         }
 
@@ -179,21 +179,21 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _server->addService("/calc", service);
 
             cxxtools::xmlrpc::HttpClient client(*_loop, "", _port, "/calc");
-            cxxtools::xmlrpc::RemoteProcedure<bool> multiply(client, "multiply");
+            cxxtools::RemoteProcedure<bool> multiply(client, "multiply");
             connect( multiply.finished, *this, &XmlRpcTest::onException );
             multiply.begin();
 
             _loop->run();
         }
 
-        void onException(const cxxtools::xmlrpc::Result<bool>& result)
+        void onException(const cxxtools::RemoteResult<bool>& result)
         {
             try
             {
-                bool v = result.get();
+                result.get();
                 CXXTOOLS_UNIT_ASSERT(false);
             }
-            catch (const cxxtools::xmlrpc::Fault& e)
+            catch (const cxxtools::RemoteException& e)
             {
                 CXXTOOLS_UNIT_ASSERT_EQUALS(e.rc(), 0);
                 CXXTOOLS_UNIT_ASSERT_EQUALS(e.text(), "Exception");
@@ -218,7 +218,7 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _server->addService("/calc", service);
 
             cxxtools::xmlrpc::HttpClient client(*_loop, "", _port, "/calc");
-            cxxtools::xmlrpc::RemoteProcedure<bool> multiply(client, "multiply");
+            cxxtools::RemoteProcedure<bool> multiply(client, "multiply");
             connect( multiply.finished, *this, &XmlRpcTest::onNothingFinished );
 
             multiply.begin();
@@ -226,7 +226,7 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _loop->run();
         }
 
-        void onNothingFinished(const cxxtools::xmlrpc::Result<bool>& r)
+        void onNothingFinished(const cxxtools::RemoteResult<bool>& r)
         {
             CXXTOOLS_UNIT_ASSERT_EQUALS(r.get(), false);
 
@@ -248,7 +248,7 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _server->addService("/calc", service);
 
             cxxtools::xmlrpc::HttpClient client(*_loop, "", _port, "/calc");
-            cxxtools::xmlrpc::RemoteProcedure<bool> multiply(client, "multiply");
+            cxxtools::RemoteProcedure<bool> multiply(client, "multiply");
             connect( multiply.finished, *this, &XmlRpcTest::onExceptionCallback );
 
             multiply.begin();
@@ -258,7 +258,7 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(_count, 1);
         }
 
-        void onExceptionCallback(const cxxtools::xmlrpc::Result<bool>& r)
+        void onExceptionCallback(const cxxtools::RemoteResult<bool>& r)
         {
             log_warn("exception callback");
             ++_count;
@@ -274,7 +274,7 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             log_trace("ConnectError");
 
             cxxtools::xmlrpc::HttpClient client(*_loop, "", _port, "/calc");
-            cxxtools::xmlrpc::RemoteProcedure<bool> multiply(client, "multiply");
+            cxxtools::RemoteProcedure<bool> multiply(client, "multiply");
             connect( multiply.finished, *this, &XmlRpcTest::onConnectErrorCallback );
 
             multiply.begin();
@@ -290,7 +290,7 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             }
         }
 
-        void onConnectErrorCallback(const cxxtools::xmlrpc::Result<bool>& r)
+        void onConnectErrorCallback(const cxxtools::RemoteResult<bool>& r)
         {
             log_debug("onConnectErrorCallback");
             _loop->exit();
@@ -307,7 +307,7 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _server->addService("/calc", service);
 
             cxxtools::xmlrpc::HttpClient client(*_loop, "", _port, "/calc");
-            cxxtools::xmlrpc::RemoteProcedure<bool, bool, bool> multiply(client, "multiply");
+            cxxtools::RemoteProcedure<bool, bool, bool> multiply(client, "multiply");
             connect( multiply.finished, *this, &XmlRpcTest::onBooleanFinished );
 
             multiply.begin(true, true);
@@ -315,7 +315,7 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _loop->run();
         }
 
-        void onBooleanFinished(const cxxtools::xmlrpc::Result<bool>& r)
+        void onBooleanFinished(const cxxtools::RemoteResult<bool>& r)
         {
             CXXTOOLS_UNIT_ASSERT_EQUALS(r.get(), true);
 
@@ -339,7 +339,7 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _server->addService("/calc", service);
 
             cxxtools::xmlrpc::HttpClient client(*_loop, "", _port, "/calc");
-            cxxtools::xmlrpc::RemoteProcedure<int, int, int> multiply(client, "multiply");
+            cxxtools::RemoteProcedure<int, int, int> multiply(client, "multiply");
             connect( multiply.finished, *this, &XmlRpcTest::onIntegerFinished );
 
             multiply.begin(2, 3);
@@ -347,7 +347,7 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _loop->run();
         }
 
-        void onIntegerFinished(const cxxtools::xmlrpc::Result<int>& r)
+        void onIntegerFinished(const cxxtools::RemoteResult<int>& r)
         {
             CXXTOOLS_UNIT_ASSERT_EQUALS(r.get(), 6);
 
@@ -369,7 +369,7 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _server->addService("/calc", service);
 
             cxxtools::xmlrpc::HttpClient client(*_loop, "", _port, "/calc");
-            cxxtools::xmlrpc::RemoteProcedure<double, double, double> multiply(client, "multiply");
+            cxxtools::RemoteProcedure<double, double, double> multiply(client, "multiply");
             connect( multiply.finished, *this, &XmlRpcTest::onDoubleFinished );
 
             multiply.begin(2.0, 3.0);
@@ -377,7 +377,7 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _loop->run();
         }
 
-        void onDoubleFinished(const cxxtools::xmlrpc::Result<double>& r)
+        void onDoubleFinished(const cxxtools::RemoteResult<double>& r)
         {
             CXXTOOLS_UNIT_ASSERT_EQUALS(r.get(), 6.0);
 
@@ -399,7 +399,7 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _server->addService("/foo", service);
 
             cxxtools::xmlrpc::HttpClient client(*_loop, "", _port, "/foo");
-            cxxtools::xmlrpc::RemoteProcedure<std::string, std::string> echo(client, "echoString");
+            cxxtools::RemoteProcedure<std::string, std::string> echo(client, "echoString");
             connect( echo.finished, *this, &XmlRpcTest::onStringEchoFinished );
 
             echo.begin("\xc3\xaf\xc2\xbb\xc2\xbf'\"&<> foo?");
@@ -407,7 +407,7 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _loop->run();
         }
 
-        void onStringEchoFinished(const cxxtools::xmlrpc::Result<std::string>& r)
+        void onStringEchoFinished(const cxxtools::RemoteResult<std::string>& r)
         {
             CXXTOOLS_UNIT_ASSERT_EQUALS(r.get(), "\xc3\xaf\xc2\xbb\xc2\xbf'\"&<> foo?");
 
@@ -429,7 +429,7 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _server->addService("/calc", service);
 
             cxxtools::xmlrpc::HttpClient client(*_loop, "", _port, "/calc");
-            cxxtools::xmlrpc::RemoteProcedure<std::string, std::string, std::string> multiply(client, "multiply");
+            cxxtools::RemoteProcedure<std::string, std::string, std::string> multiply(client, "multiply");
             connect( multiply.finished, *this, &XmlRpcTest::onEmptyFinished );
 
             multiply.begin("", "");
@@ -437,7 +437,7 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _loop->run();
         }
 
-        void onEmptyFinished(const cxxtools::xmlrpc::Result<std::string>& r)
+        void onEmptyFinished(const cxxtools::RemoteResult<std::string>& r)
         {
             CXXTOOLS_UNIT_ASSERT_EQUALS(r.get(), "4");
             _loop->exit();
@@ -460,7 +460,7 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _server->addService("/calc", service);
 
             cxxtools::xmlrpc::HttpClient client(*_loop, "", _port, "/calc");
-            cxxtools::xmlrpc::RemoteProcedure< std::vector<int>, std::vector<int>, std::vector<int> > multiply(client, "multiply");
+            cxxtools::RemoteProcedure< std::vector<int>, std::vector<int>, std::vector<int> > multiply(client, "multiply");
             connect( multiply.finished, *this, &XmlRpcTest::onArrayFinished );
 
             std::vector<int> vec;
@@ -484,7 +484,7 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             return r;
         }
 
-        void onArrayFinished(const cxxtools::xmlrpc::Result<std::vector<int> >& r)
+        void onArrayFinished(const cxxtools::RemoteResult<std::vector<int> >& r)
         {
             CXXTOOLS_UNIT_ASSERT_EQUALS(r.get().size(), 2);
             CXXTOOLS_UNIT_ASSERT_EQUALS(r.get().at(0), 100);
@@ -503,7 +503,7 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _server->addService("/calc", service);
 
             cxxtools::xmlrpc::HttpClient client(*_loop, "", _port, "/calc");
-            cxxtools::xmlrpc::RemoteProcedure< std::vector<int>, std::vector<int>, std::vector<int> > multiply(client, "multiply");
+            cxxtools::RemoteProcedure< std::vector<int>, std::vector<int>, std::vector<int> > multiply(client, "multiply");
             connect( multiply.finished, *this, &XmlRpcTest::onEmptyArrayFinished );
 
             std::vector<int> vec;
@@ -512,7 +512,7 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _loop->run();
         }
 
-        void onEmptyArrayFinished(const cxxtools::xmlrpc::Result<std::vector<int> >& r)
+        void onEmptyArrayFinished(const cxxtools::RemoteResult<std::vector<int> >& r)
         {
             CXXTOOLS_UNIT_ASSERT_EQUALS(r.get().size(), 0);
 
@@ -529,7 +529,7 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _server->addService("/calc", service);
 
             cxxtools::xmlrpc::HttpClient client(*_loop, "", _port, "/calc");
-            cxxtools::xmlrpc::RemoteProcedure< Color, Color, Color > multiply(client, "multiply");
+            cxxtools::RemoteProcedure< Color, Color, Color > multiply(client, "multiply");
             connect( multiply.finished, *this, &XmlRpcTest::onStuctFinished );
 
             Color a;
@@ -547,7 +547,7 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _loop->run();
         }
 
-        void onStuctFinished(const cxxtools::xmlrpc::Result<Color>& color)
+        void onStuctFinished(const cxxtools::RemoteResult<Color>& color)
         {
             CXXTOOLS_UNIT_ASSERT_EQUALS(color.get().red, 6);
             CXXTOOLS_UNIT_ASSERT_EQUALS(color.get().green, 12);
@@ -575,7 +575,7 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _server->addService("/test", service);
 
             cxxtools::xmlrpc::HttpClient client(*_loop, "", _port, "/test");
-            cxxtools::xmlrpc::RemoteProcedure<IntSet, IntSet, int> multiply(client, "multiplyset");
+            cxxtools::RemoteProcedure<IntSet, IntSet, int> multiply(client, "multiplyset");
             connect( multiply.finished, *this, &XmlRpcTest::onSetFinished );
 
             IntSet myset;
@@ -589,7 +589,7 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _loop->run();
         }
 
-        void onSetFinished(const cxxtools::xmlrpc::Result<IntSet>& result)
+        void onSetFinished(const cxxtools::RemoteResult<IntSet>& result)
         {
             const IntSet& v = result.get();
             CXXTOOLS_UNIT_ASSERT_EQUALS(v.size(), 3);
@@ -618,7 +618,7 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _server->addService("/test", service);
 
             cxxtools::xmlrpc::HttpClient client(*_loop, "", _port, "/test");
-            cxxtools::xmlrpc::RemoteProcedure<IntMultiset, IntMultiset, int> multiply(client, "multiplyset");
+            cxxtools::RemoteProcedure<IntMultiset, IntMultiset, int> multiply(client, "multiplyset");
             connect( multiply.finished, *this, &XmlRpcTest::onMultisetFinished );
 
             IntMultiset myset;
@@ -632,7 +632,7 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _loop->run();
         }
 
-        void onMultisetFinished(const cxxtools::xmlrpc::Result<IntMultiset>& result)
+        void onMultisetFinished(const cxxtools::RemoteResult<IntMultiset>& result)
         {
             const IntMultiset& v = result.get();
             CXXTOOLS_UNIT_ASSERT_EQUALS(v.size(), 4);
@@ -662,7 +662,7 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _server->addService("/test", service);
 
             cxxtools::xmlrpc::HttpClient client(*_loop, "", _port, "/test");
-            cxxtools::xmlrpc::RemoteProcedure<IntMap, IntMap, int> multiply(client, "multiplymap");
+            cxxtools::RemoteProcedure<IntMap, IntMap, int> multiply(client, "multiplymap");
             connect( multiply.finished, *this, &XmlRpcTest::onMultiplyMapFinished );
 
             IntMap mymap;
@@ -675,7 +675,7 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _loop->run();
         }
 
-        void onMultiplyMapFinished(const cxxtools::xmlrpc::Result<IntMap>& result)
+        void onMultiplyMapFinished(const cxxtools::RemoteResult<IntMap>& result)
         {
             const IntMap& v = result.get();
             CXXTOOLS_UNIT_ASSERT_EQUALS(v.size(), 3);
@@ -711,7 +711,7 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _server->addService("/test", service);
 
             cxxtools::xmlrpc::HttpClient client(*_loop, "", _port, "/test");
-            cxxtools::xmlrpc::RemoteProcedure<IntMultimap, IntMultimap, int> multiply(client, "multiplymultimap");
+            cxxtools::RemoteProcedure<IntMultimap, IntMultimap, int> multiply(client, "multiplymultimap");
             connect( multiply.finished, *this, &XmlRpcTest::onMultiplyMultimapFinished );
 
             IntMultimap mymap;
@@ -725,7 +725,7 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             _loop->run();
         }
 
-        void onMultiplyMultimapFinished(const cxxtools::xmlrpc::Result<IntMultimap>& result)
+        void onMultiplyMultimapFinished(const cxxtools::RemoteResult<IntMultimap>& result)
         {
             const IntMultimap& v = result.get();
             CXXTOOLS_UNIT_ASSERT_EQUALS(v.size(), 4);

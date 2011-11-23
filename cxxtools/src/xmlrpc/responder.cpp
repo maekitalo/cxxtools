@@ -28,7 +28,7 @@
  */
 #include "cxxtools/xmlrpc/responder.h"
 #include "cxxtools/xmlrpc/service.h"
-#include "cxxtools/xmlrpc/fault.h"
+#include "cxxtools/remoteexception.h"
 #include "cxxtools/xml/xmlerror.h"
 #include "cxxtools/xml/startelement.h"
 #include "cxxtools/xml/characters.h"
@@ -101,20 +101,20 @@ std::size_t XmlRpcResponder::readBody(std::istream& is)
     }
     catch(const xml::XmlError& error)
     {
-        _fault.setRc(1);
-        _fault.setText( error.what() );
+        _fault.rc(1);
+        _fault.text( error.what() );
         throw _fault;
     }
     catch(const SerializationError& error)
     {
-        _fault.setRc(2);
-        _fault.setText( error.what() );
+        _fault.rc(2);
+        _fault.text( error.what() );
         throw _fault;
     }
     catch(const ConversionError& error)
     {
-        _fault.setRc(3);
-        _fault.setText( error.what() );
+        _fault.rc(3);
+        _fault.text( error.what() );
         throw _fault;
     }
 
@@ -164,8 +164,8 @@ void XmlRpcResponder::reply(std::ostream& os, http::Request& request, http::Repl
     {
         if( ! _proc )
         {
-            _fault.setRc(4);
-            _fault.setText("invalid XML-RPC");
+            _fault.rc(4);
+            _fault.text("invalid XML-RPC");
             throw _fault;
         }
 
@@ -174,8 +174,8 @@ void XmlRpcResponder::reply(std::ostream& os, http::Request& request, http::Repl
             ++_args;
             if( * _args )
             {
-                _fault.setRc(5);
-                _fault.setText("invalid XML-RPC, missing arguments");
+                _fault.rc(5);
+                _fault.text("invalid XML-RPC, missing arguments");
                 throw _fault;
             }
         }
@@ -194,9 +194,10 @@ void XmlRpcResponder::reply(std::ostream& os, http::Request& request, http::Repl
         _writer.writeEndElement(); // methodResponse
         _writer.flush();
     }
-    catch (const Fault& fault)
+    catch (const RemoteException& fault)
     {
-        _fault = fault;
+        _fault.rc(fault.rc());
+        _fault.text(fault.text());
         replyError(reply.body(), request, reply, fault);
     }
     catch (...)

@@ -29,7 +29,7 @@
 #include <iostream>
 #include <cxxtools/arg.h>
 #include <cxxtools/log.h>
-#include <cxxtools/xmlrpc/remoteprocedure.h>
+#include <cxxtools/remoteprocedure.h>
 #include <cxxtools/xmlrpc/httpclient.h>
 
 ////////////////////////////////////////////////////////////////////////
@@ -49,7 +49,7 @@ int main(int argc, char* argv[])
 
     // define remote procedure with dobule return value and a double and a std::string parameter:
     // Note: We send the second parameter as a string since it is converted from the server anyway,
-    cxxtools::xmlrpc::RemoteProcedure<double, double, std::string> add(client, "add");
+    cxxtools::RemoteProcedure<double, double, std::string> add(client, "add");
 
     double sum = 0;
     for (int a = 1; a < argc; ++a)

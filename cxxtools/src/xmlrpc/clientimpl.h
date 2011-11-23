@@ -29,7 +29,7 @@
 #define cxxtools_xmlrpc_ClientImpl_h
 
 #include <cxxtools/xmlrpc/api.h>
-#include <cxxtools/xmlrpc/fault.h>
+#include <cxxtools/remoteexception.h>
 #include <cxxtools/xmlrpc/formatter.h>
 #include <cxxtools/xmlrpc/scanner.h>
 #include <cxxtools/xml/xmlreader.h>
@@ -45,11 +45,10 @@
 namespace cxxtools
 {
 
-namespace xmlrpc
-{
-
 class IRemoteProcedure;
 
+namespace xmlrpc
+{
 
 class ClientImpl : public cxxtools::Connectable
 {
@@ -116,8 +115,8 @@ class ClientImpl : public cxxtools::Connectable
         Scanner _scanner;
         IRemoteProcedure* _method;
         DeserializationContext _context;
-        Fault _fault;
-        Deserializer<Fault> _fh;
+        RemoteException _fault;
+        Deserializer<RemoteException> _fh;
         std::size_t _timeout;
         bool _errorPending;
 };

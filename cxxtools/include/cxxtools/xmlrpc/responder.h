@@ -30,7 +30,7 @@
 #define cxxtools_xmlrpc_Responder_h
 
 #include <cxxtools/xmlrpc/api.h>
-#include <cxxtools/xmlrpc/fault.h>
+#include <cxxtools/remoteexception.h>
 #include <cxxtools/xmlrpc/scanner.h>
 #include <cxxtools/xmlrpc/formatter.h>
 #include <cxxtools/xml/xmlreader.h>
@@ -88,10 +88,10 @@ class CXXTOOLS_XMLRPC_API XmlRpcResponder : public http::Responder
         Formatter _formatter;
         Service* _service;
         DeserializationContext _context;
-        cxxtools::ServiceProcedure* _proc;
+        ServiceProcedure* _proc;
         IDeserializer** _args;
         ISerializer* _result;
-        Fault _fault;
+        RemoteException _fault;
 };
 
 }
