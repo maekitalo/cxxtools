@@ -57,6 +57,25 @@ namespace
         si.getMember("boolValue") >>= obj.boolValue;
     }
 
+    struct TestObject2 : public TestObject
+    {
+        std::set<short> setValue;
+        struct
+        {
+            unsigned n;
+            cxxtools::String s;
+        } structValue;
+    };
+
+    inline void operator>>= (const cxxtools::SerializationInfo& si, TestObject2& obj)
+    {
+        si >>= static_cast<TestObject&>(obj);
+        si.getMember("setValue") >>= obj.setValue;
+        const cxxtools::SerializationInfo& ssi = si.getMember("structValue");
+        ssi.getMember("n") >>= obj.structValue.n;
+        ssi.getMember("s") >>= obj.structValue.s;
+    }
+
 }
 
 class JsonDeserializerTest : public cxxtools::unit::TestSuite
@@ -69,6 +88,7 @@ class JsonDeserializerTest : public cxxtools::unit::TestSuite
             registerMethod("testObject", *this, &JsonDeserializerTest::testObject);
             registerMethod("testArray", *this, &JsonDeserializerTest::testArray);
             registerMethod("testStrings", *this, &JsonDeserializerTest::testStrings);
+            registerMethod("testComplexObject", *this, &JsonDeserializerTest::testComplexObject);
         }
 
         void testInt()
@@ -135,6 +155,33 @@ class JsonDeserializerTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[3][1], L'4');
         }
 
+        void testComplexObject()
+        {
+            TestObject2 data;
+
+            std::istringstream in(" {"
+                "\"intValue\": 17, "
+                "\"stringValue\":  \"foo bar\t\","
+                "\"doubleValue\": \"1000\", "
+                "\"boolValue\"  :    true,"
+                "\"setValue\":[5,7,8],"
+                "\"structValue\" : { \"n\":3,\"s\":\"sss\"}"
+            "}");
+
+            cxxtools::JsonDeserializer deserializer(in);
+            deserializer.deserialize(data);
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.intValue, 17);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.stringValue, "foo bar\t");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.doubleValue, 1000.0);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.boolValue, true);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.setValue.size(), 3);
+            CXXTOOLS_UNIT_ASSERT(data.setValue.find(5) != data.setValue.end());
+            CXXTOOLS_UNIT_ASSERT(data.setValue.find(7) != data.setValue.end());
+            CXXTOOLS_UNIT_ASSERT(data.setValue.find(8) != data.setValue.end());
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.structValue.n, 3);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.structValue.s, L"sss");
+        }
 };
 
 cxxtools::unit::RegisterTest<JsonDeserializerTest> register_JsonDeserializerTest;
