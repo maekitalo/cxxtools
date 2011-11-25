@@ -147,12 +147,12 @@ class JsonDeserializerTest : public cxxtools::unit::TestSuite
             deserializer.deserialize(data);
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 4);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0], L"3");
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data[1], L"\t\b");
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data[2], L"");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0], "3");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[1], "\t\b");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[2], "");
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[3].size(), 2);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[3][0].value(), 0x1e04);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data[3][1], L'4');
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[3][1], '4');
         }
 
         void testComplexObject()
@@ -180,7 +180,7 @@ class JsonDeserializerTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT(data.setValue.find(7) != data.setValue.end());
             CXXTOOLS_UNIT_ASSERT(data.setValue.find(8) != data.setValue.end());
             CXXTOOLS_UNIT_ASSERT_EQUALS(data.structValue.n, 3);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data.structValue.s, L"sss");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.structValue.s, "sss");
         }
 };
 
