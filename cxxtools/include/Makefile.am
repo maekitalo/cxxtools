@@ -194,7 +194,6 @@ nobase_include_HEADERS = \
         cxxtools/xmlrpc/httpclient.h \
         cxxtools/xmlrpc/formatter.h \
         cxxtools/xmlrpc/responder.h \
-        cxxtools/xmlrpc/result.h \
         cxxtools/xmlrpc/scanner.h \
         cxxtools/xmlrpc/service.h
 
