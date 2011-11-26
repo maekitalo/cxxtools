@@ -125,18 +125,18 @@ int main(int argc, char* argv[])
     log_init("rpcbenchclient.properties");
 
     cxxtools::Arg<std::string> ip(argc, argv, 'i');
-    cxxtools::Arg<unsigned short> port(argc, argv, 'p', 7002);
     cxxtools::Arg<unsigned> threads(argc, argv, 't', 4);
     cxxtools::Arg<bool> binary(argc, argv, 'b');
+    cxxtools::Arg<unsigned short> port(argc, argv, 'p', binary ? 7003 : 7002);
     BenchClient::numRequests(cxxtools::Arg<unsigned>(argc, argv, 'n', 10000));
 
     std::cout << "execute " << BenchClient::numRequests() << " requests with " << threads.getValue() << " threads\n\n"
                  "options:\n"
                  "   -l ip      set ip address of server (default: localhost)\n"
-                 "   -p number  set port number of server (default: 7002)\n"
+                 "   -p number  set port number of server (default: 7002 or 7003 when for binary)\n"
+                 "   -b         use binary rpc protocol instead of xmlrpc\n"
                  "   -t number  set number of threads (default: 4)\n"
                  "   -n number  set number of requests (default: 10000)\n"
-                 "   -b         use binary rpc protocol instead of xmlrpc\n"
               << std::endl;
 
     BenchClients clients;
