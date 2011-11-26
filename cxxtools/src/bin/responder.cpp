@@ -61,6 +61,7 @@ void Responder::replyError(IOStream& out, const char* msg)
     log_debug("send error \"" << msg << '"');
 
     out << '\x42'
+        << '\0' << '\0' << '\0' << '\0'
         << msg
         << '\0' << '\xff';
 

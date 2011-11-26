@@ -58,7 +58,7 @@ int main(int argc, char* argv[])
     cxxtools::Arg<std::string> ip(argc, argv, 'i');
     cxxtools::Arg<unsigned short> port(argc, argv, 'p', 7102);
 
-    std::cout << "run binary rpc server" << std::endl;
+    std::cout << "run binary rpc server on port " << port.getValue() << std::endl;
 
     // create an event loop
     cxxtools::EventLoop loop;

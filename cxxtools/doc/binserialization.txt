@@ -9,7 +9,7 @@ type: byte
                1=bool
                2=char
                3=string
-               4=int
+               4=int (big endian)
                5=double
                6=bcd double
                16=int8
@@ -95,11 +95,12 @@ method name:
 
 response ok:
     \x41                     category
-    ...                      scalar return value
+    ...                      return value
     \xff
 
 response exception:
     \x42                     category
-    error message\0          error message message
+    4 byte error code (big endian)
+    error message\0          error message
     \xff                     eod
 
