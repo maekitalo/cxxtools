@@ -31,6 +31,7 @@
 #include <cxxtools/log.h>
 #include <cxxtools/xmlrpc/service.h>
 #include <cxxtools/http/server.h>
+#include <cxxtools/bin/rpcserver.h>
 #include <cxxtools/eventloop.h>
 
 ////////////////////////////////////////////////////////////////////////
@@ -58,14 +59,17 @@ int main(int argc, char* argv[])
 
     cxxtools::Arg<std::string> ip(argc, argv, 'i');
     cxxtools::Arg<unsigned short> port(argc, argv, 'p', 7002);
+    cxxtools::Arg<unsigned short> bport(argc, argv, 'b', 7003);
 
-    std::cout << "run rpcecho server" << std::endl;
+    std::cout << "run rpcecho server\n"
+              << "xmlrpc protocol on port "<< port.getValue() << "\n"
+              << "binary protocol on port " << bport.getValue() << std::endl;
 
     // create an event loop
     cxxtools::EventLoop loop;
 
     // the http server is instantiated with an ip address and a port number
-    cxxtools::http::Server server(loop, ip, port);
+    cxxtools::http::Server xmlrpcServer(loop, ip, port);
 
     // we create an instance of the service class
     cxxtools::xmlrpc::Service service;
@@ -75,7 +79,14 @@ int main(int argc, char* argv[])
     service.registerFunction("add", add);
 
     // ... and register the service under a url
-    server.addService("/myservice", service);
+    xmlrpcServer.addService("/myservice", service);
+
+    // for the binary rpc server we define a binary server
+    cxxtools::bin::RpcServer binServer(loop, ip, bport);
+
+    // and register the functions in the server
+    binServer.registerFunction("echo", echo);
+    binServer.registerFunction("add", add);
 
     // now start the server and run the event loop
     loop.run();

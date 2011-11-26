@@ -61,6 +61,9 @@ class ValueParser
 
         bool advance(char ch); // returns true, if number is read completely
 
+        IDeserializer* current()
+        { return _deserializer; }
+
     private:
 
         bool valueEnd();

@@ -31,6 +31,7 @@
 #include <cxxtools/arg.h>
 #include <cxxtools/remoteprocedure.h>
 #include <cxxtools/xmlrpc/httpclient.h>
+#include <cxxtools/bin/rpcclient.h>
 #include <cxxtools/thread.h>
 #include <cxxtools/mutex.h>
 #include <cxxtools/clock.h>
@@ -41,8 +42,7 @@ class BenchClient
 {
     void exec();
 
-    cxxtools::xmlrpc::HttpClient client;
-    cxxtools::RemoteProcedure<std::string, std::string> echo;
+    cxxtools::RemoteClient* client;
     cxxtools::AttachedThread thread;
 
     static unsigned _numRequests;
@@ -52,11 +52,13 @@ class BenchClient
 
   public:
 
-    explicit BenchClient(unsigned short port)
-      : client("", port, "/myservice"),
-        echo(client, "echo"),
+    explicit BenchClient(unsigned short port, cxxtools::RemoteClient* client_)
+      : client(client_),
         thread(cxxtools::callable(*this, &BenchClient::exec))
     { }
+
+    ~BenchClient()
+    { delete client; }
 
     static unsigned numRequests()
     { return _numRequests; }
@@ -90,18 +92,25 @@ static cxxtools::Mutex mutex;
 
 void BenchClient::exec()
 {
+  cxxtools::RemoteProcedure<std::string, std::string> echo(*client, "echo");
+
   while (static_cast<unsigned>(cxxtools::atomicIncrement(_requestsStarted)) <= _numRequests)
   {
     try
     {
-      echo("hi");
+      std::string ret = echo("hi");
       cxxtools::atomicIncrement(_requestsFinished);
+      if (ret != "hi")
+      {
+        std::cerr << "wrong response result \"" << ret << '"' << std::endl;
+        cxxtools::atomicIncrement(_requestsFailed);
+      }
     }
     catch (const std::exception& e)
     {
       {
         cxxtools::MutexLock lock(mutex);
-        std::cerr << "request failed with error " << e.what() << std::endl;
+        std::cerr << "request failed with error message \"" << e.what() << '"' << std::endl;
       }
 
       cxxtools::atomicIncrement(_requestsFailed);
@@ -118,20 +127,29 @@ int main(int argc, char* argv[])
     cxxtools::Arg<std::string> ip(argc, argv, 'i');
     cxxtools::Arg<unsigned short> port(argc, argv, 'p', 7002);
     cxxtools::Arg<unsigned> threads(argc, argv, 't', 4);
+    cxxtools::Arg<bool> binary(argc, argv, 'b');
     BenchClient::numRequests(cxxtools::Arg<unsigned>(argc, argv, 'n', 10000));
 
-    std::cout << "call " << BenchClient::numRequests() << " requests with " << threads.getValue() << " threads\n\n"
+    std::cout << "execute " << BenchClient::numRequests() << " requests with " << threads.getValue() << " threads\n\n"
                  "options:\n"
                  "   -l ip      set ip address of server (default: localhost)\n"
                  "   -p number  set port number of server (default: 7002)\n"
                  "   -t number  set number of threads (default: 4)\n"
                  "   -n number  set number of requests (default: 10000)\n"
+                 "   -b         use binary rpc protocol instead of xmlrpc\n"
               << std::endl;
 
     BenchClients clients;
 
     while (clients.size() < threads)
-      clients.push_back(new BenchClient(port));
+    {
+      cxxtools::RemoteClient* client;
+      if (binary)
+        client = new cxxtools::bin::RpcClient("", port);
+      else
+        client = new cxxtools::xmlrpc::HttpClient("", port, "/myservice");
+      clients.push_back(new BenchClient(port, client));
+    }
 
     cxxtools::Clock cl;
     cl.start();

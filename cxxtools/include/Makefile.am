@@ -11,6 +11,7 @@ nobase_include_HEADERS = \
         cxxtools/bin/formatter.h \
         cxxtools/bin/serializer.h \
         cxxtools/bin/deserializer.h \
+        cxxtools/bin/rpcclient.h \
         cxxtools/bin/rpcserver.h \
         cxxtools/bin/valueparser.h \
         cxxtools/byteorder.h \

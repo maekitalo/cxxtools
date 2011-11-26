@@ -1,7 +1,7 @@
 noinst_PROGRAMS = arg arg-set cgi dir dlloader getini hd \
 	httprequest httpserver log logbench logsh md5sum mime multifstream netcat \
 	netio netmsg pipestream pool signals thread threadpool uuencode cxxlog \
-	rpcserver rpcechoclient rpcaddclient splitter json regex execLs binrpcserver
+	rpcserver rpcechoclient rpcaddclient splitter json regex execLs
 
 arg_SOURCES = arg.cpp
 arg_set_SOURCES = arg-set.cpp
@@ -35,7 +35,6 @@ splitter_SOURCES = splitter.cpp
 json_SOURCES = json.cpp
 regex_SOURCES = regex.cpp
 execLs_SOURCES = execLs.cpp
-binrpcserver_SOURCES = binrpcserver.cpp
 
 if MAKE_ICONVSTREAM
 noinst_PROGRAMS += iconv
@@ -45,7 +44,7 @@ endif
 HTTP_LIBS = $(top_builddir)/src/http/libcxxtools-http.la
 XML_LIBS = $(top_builddir)/src/xml/libcxxtools-xml.la
 XMLRPC_LIBS = $(top_builddir)/src/xmlrpc/libcxxtools-xmlrpc.la
-BINRPC_LIBS = $(top_builddir)/src/bin/libcxxtools-bin.la
+BIN_LIBS = $(top_builddir)/src/bin/libcxxtools-bin.la
 
 AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/include -I$(top_srcdir)/include
 LDADD = $(top_builddir)/src/libcxxtools.la
@@ -53,11 +52,10 @@ AM_CXXFLAGS = $(PTHREAD_CFLAGS)
 
 httpserver_LDADD =  $(HTTP_LIBS)
 httprequest_LDADD = $(HTTP_LIBS)
-rpcserver_LDADD = $(XMLRPC_LIBS)
-rpcechoclient_LDADD = $(XMLRPC_LIBS)
-rpcaddclient_LDADD = $(XMLRPC_LIBS)
+rpcserver_LDADD = $(XMLRPC_LIBS) $(BIN_LIBS)
+rpcechoclient_LDADD = $(XMLRPC_LIBS) $(BIN_LIBS)
+rpcaddclient_LDADD = $(XMLRPC_LIBS) $(BIN_LIBS)
 json_LDADD = $(HTTP_LIBS)
-binrpcserver_LDADD = $(BINRPC_LIBS)
 
 log.properties:
 	/bin/sh $(top_builddir)/cxxtools-config --properties cxxtools >$@

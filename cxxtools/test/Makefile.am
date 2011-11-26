@@ -42,13 +42,15 @@ rpcbenchclient_SOURCES = rpcbenchclient.cpp
 
 rpcbenchclient_LDADD = $(top_builddir)/src/libcxxtools.la \
         $(top_builddir)/src/http/libcxxtools-http.la \
-        $(top_builddir)/src/xmlrpc/libcxxtools-xmlrpc.la
+        $(top_builddir)/src/xmlrpc/libcxxtools-xmlrpc.la \
+        $(top_builddir)/src/bin/libcxxtools-bin.la
 
 rpcbenchserver_SOURCES = rpcbenchserver.cpp
 
 rpcbenchserver_LDADD = $(top_builddir)/src/libcxxtools.la \
         $(top_builddir)/src/http/libcxxtools-http.la \
-        $(top_builddir)/src/xmlrpc/libcxxtools-xmlrpc.la
+        $(top_builddir)/src/xmlrpc/libcxxtools-xmlrpc.la \
+        $(top_builddir)/src/bin/libcxxtools-bin.la
 
 AM_CXXFLAGS = $(PTHREAD_CFLAGS) -DTESTDIR='"@TESTDIR@"'
 AM_LDFLAGS = $(PTHREAD_LIBS)

@@ -48,21 +48,14 @@ class IRemoteProcedure
         , _name(name)
         { }
 
-        IRemoteProcedure(RemoteClient& client, const std::string& name)
-        : _client(&client)
-        , _name(String::widen(name))
-        { }
-
-        IRemoteProcedure(RemoteClient& client, const char* name)
-        : _client(&client)
-        , _name(String::widen(name))
-        { }
-
         virtual ~IRemoteProcedure()
         { cancel(); }
 
         RemoteClient& client()
         { return *_client; }
+
+        void client(RemoteClient& client)
+        { _client = &client; }
 
         const String& name() const
         { return _name; }
@@ -89,7 +82,7 @@ template <typename R>
 class RemoteProcedureBase : public IRemoteProcedure
 {
     public:
-        RemoteProcedureBase(RemoteClient& client, const std::string& name)
+        RemoteProcedureBase(RemoteClient& client, const String& name)
         : IRemoteProcedure(client, name),
           _result(client)
         { }
@@ -134,8 +127,12 @@ template <typename R,
 class RemoteProcedure : public RemoteProcedureBase<R>
 {
     public:
-        RemoteProcedure(RemoteClient& client, const std::string& name)
+        RemoteProcedure(RemoteClient& client, const String& name)
         : RemoteProcedureBase<R>(client, name)
+        { }
+
+        RemoteProcedure(RemoteClient& client, const char* name)
+        : RemoteProcedureBase<R>(client, String(name))
         { }
 
         void begin(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7, const A8& a8, const A9& a9, const A10& a10)
@@ -213,8 +210,12 @@ class RemoteProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8, A9,
                       cxxtools::Void> : public RemoteProcedureBase<R>
 {
     public:
-        RemoteProcedure(RemoteClient& client, const std::string& name)
+        RemoteProcedure(RemoteClient& client, const String& name)
         : RemoteProcedureBase<R>(client, name)
+        { }
+
+        RemoteProcedure(RemoteClient& client, const char* name)
+        : RemoteProcedureBase<R>(client, String(name))
         { }
 
         void begin(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7, const A8& a8, const A9& a9)
@@ -289,8 +290,12 @@ class RemoteProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8,
                       cxxtools::Void> : public RemoteProcedureBase<R>
 {
     public:
-        RemoteProcedure(RemoteClient& client, const std::string& name)
+        RemoteProcedure(RemoteClient& client, const String& name)
         : RemoteProcedureBase<R>(client, name)
+        { }
+
+        RemoteProcedure(RemoteClient& client, const char* name)
+        : RemoteProcedureBase<R>(client, String(name))
         { }
 
         void begin(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7, const A8& a8)
@@ -362,8 +367,12 @@ class RemoteProcedure<R, A1, A2, A3, A4, A5, A6, A7,
                       cxxtools::Void> : public RemoteProcedureBase<R>
 {
     public:
-        RemoteProcedure(RemoteClient& client, const std::string& name)
+        RemoteProcedure(RemoteClient& client, const String& name)
         : RemoteProcedureBase<R>(client, name)
+        { }
+
+        RemoteProcedure(RemoteClient& client, const char* name)
+        : RemoteProcedureBase<R>(client, String(name))
         { }
 
         void begin(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7)
@@ -432,8 +441,12 @@ class RemoteProcedure<R, A1, A2, A3, A4, A5, A6,
                       cxxtools::Void> : public RemoteProcedureBase<R>
 {
     public:
-        RemoteProcedure(RemoteClient& client, const std::string& name)
+        RemoteProcedure(RemoteClient& client, const String& name)
         : RemoteProcedureBase<R>(client, name)
+        { }
+
+        RemoteProcedure(RemoteClient& client, const char* name)
+        : RemoteProcedureBase<R>(client, String(name))
         { }
 
         void begin(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6)
@@ -499,8 +512,12 @@ class RemoteProcedure<R, A1, A2, A3, A4, A5,
                       cxxtools::Void> : public RemoteProcedureBase<R>
 {
     public:
-        RemoteProcedure(RemoteClient& client, const std::string& name)
+        RemoteProcedure(RemoteClient& client, const String& name)
         : RemoteProcedureBase<R>(client, name)
+        { }
+
+        RemoteProcedure(RemoteClient& client, const char* name)
+        : RemoteProcedureBase<R>(client, String(name))
         { }
 
         void begin(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5)
@@ -563,8 +580,12 @@ class RemoteProcedure<R, A1, A2, A3, A4,
                       cxxtools::Void> : public RemoteProcedureBase<R>
 {
     public:
-        RemoteProcedure(RemoteClient& client, const std::string& name)
+        RemoteProcedure(RemoteClient& client, const String& name)
         : RemoteProcedureBase<R>(client, name)
+        { }
+
+        RemoteProcedure(RemoteClient& client, const char* name)
+        : RemoteProcedureBase<R>(client, String(name))
         { }
 
         void begin(const A1& a1, const A2& a2, const A3& a3, const A4& a4)
@@ -624,8 +645,12 @@ class RemoteProcedure<R, A1, A2, A3,
                       cxxtools::Void> : public RemoteProcedureBase<R>
 {
     public:
-        RemoteProcedure(RemoteClient& client, const std::string& name)
+        RemoteProcedure(RemoteClient& client, const String& name)
         : RemoteProcedureBase<R>(client, name)
+        { }
+
+        RemoteProcedure(RemoteClient& client, const char* name)
+        : RemoteProcedureBase<R>(client, String(name))
         { }
 
         void begin(const A1& a1, const A2& a2, const A3& a3)
@@ -682,8 +707,12 @@ class RemoteProcedure<R, A1, A2,
                       cxxtools::Void> : public RemoteProcedureBase<R>
 {
     public:
-        RemoteProcedure(RemoteClient& client, const std::string& name)
+        RemoteProcedure(RemoteClient& client, const String& name)
         : RemoteProcedureBase<R>(client, name)
+        { }
+
+        RemoteProcedure(RemoteClient& client, const char* name)
+        : RemoteProcedureBase<R>(client, String(name))
         { }
 
         void begin(const A1& a1, const A2& a2)
@@ -737,8 +766,12 @@ class RemoteProcedure<R, A1,
                       cxxtools::Void> : public RemoteProcedureBase<R>
 {
     public:
-        RemoteProcedure(RemoteClient& client, const std::string& name)
+        RemoteProcedure(RemoteClient& client, const String& name)
         : RemoteProcedureBase<R>(client, name)
+        { }
+
+        RemoteProcedure(RemoteClient& client, const char* name)
+        : RemoteProcedureBase<R>(client, String(name))
         { }
 
         void begin(const A1& a1)
@@ -789,8 +822,12 @@ class RemoteProcedure<R,
                       cxxtools::Void> : public RemoteProcedureBase<R>
 {
     public:
-        RemoteProcedure(RemoteClient& client, const std::string& name)
+        RemoteProcedure(RemoteClient& client, const String& name)
         : RemoteProcedureBase<R>(client, name)
+        { }
+
+        RemoteProcedure(RemoteClient& client, const char* name)
+        : RemoteProcedureBase<R>(client, String(name))
         { }
 
         void begin()

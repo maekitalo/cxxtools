@@ -46,7 +46,7 @@ Responder::~Responder()
 
 void Responder::reply(IOStream& out)
 {
-    log_debug("send reply");
+    log_info("send reply");
 
     out << '\x41';
     _formatter.begin(out);
@@ -58,7 +58,7 @@ void Responder::reply(IOStream& out)
 
 void Responder::replyError(IOStream& out, const char* msg)
 {
-    log_debug("send error \"" << msg << '"');
+    log_info("send error \"" << msg << '"');
 
     out << '\x42'
         << '\0' << '\0' << '\0' << '\0'
@@ -119,7 +119,7 @@ bool Responder::advance(char ch)
         case state_method:
             if (ch == '\0')
             {
-                log_debug("method name \"" << _methodName << '"');
+                log_info("rpc method \"" << _methodName << '"');
 
                 _proc = _server.getProcedure(_methodName);
 

@@ -337,6 +337,7 @@ void RpcServerImpl::onInput(Socket& socket)
     else
     {
         log_debug("onInput; delete " << static_cast<void*>(&socket));
+        log_info("client " << socket.getPeerAddr() << " closed connection");
         delete &socket;
     }
 }

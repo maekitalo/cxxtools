@@ -71,16 +71,18 @@ void Worker::run()
                 }
 
                 // new connection arrived - create new accept socket
+                log_info("new connection accepted from " << socket->getPeerAddr());
                 _server._queue.put(new Socket(*socket));
             }
             else if (socket->isConnected())
             {
-                log_debug("process available input");
+                log_debug("process available input from " << socket->getPeerAddr());
                 socket->onInput(socket->buffer());
             }
             else
             {
                 log_debug("socket is not connected any more; delete " << static_cast<void*>(socket));
+                log_info("client " << socket->getPeerAddr() << " closed connection");
                 delete socket;
                 continue;
             }
@@ -104,6 +106,7 @@ void Worker::run()
             else
             {
                 log_debug("socket is not connected any more; delete " << static_cast<void*>(socket));
+                log_info("client " << socket->getPeerAddr() << " closed connection");
                 delete socket;
             }
         }

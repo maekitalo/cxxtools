@@ -5,7 +5,9 @@ lib_LTLIBRARIES = libcxxtools-bin.la
 noinst_HEADERS = \
 	listener.h \
 	responder.h \
+	rpcclientimpl.h \
 	rpcserverimpl.h \
+	scanner.h \
 	socket.h \
 	worker.h
 
@@ -14,8 +16,11 @@ libcxxtools_bin_la_SOURCES = \
 	formatter.cpp \
 	responder.cpp \
 	socket.cpp \
+	rpcclient.cpp \
+	rpcclientimpl.cpp \
 	rpcserver.cpp \
 	rpcserverimpl.cpp \
+	scanner.cpp \
 	valueparser.cpp \
 	worker.cpp
 
