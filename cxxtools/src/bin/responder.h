@@ -71,7 +71,7 @@ class Responder
         void onInput(IOStream& ios);
         bool advance(char ch);
         void reply(IOStream& out);
-        void replyError(IOStream& out, const char* msg);
+        void replyError(IOStream& out, const char* msg, int rc);
 
     private:
 

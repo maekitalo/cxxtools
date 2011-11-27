@@ -21,6 +21,7 @@
 #include <cxxtools/log.h>
 #include <cxxtools/remoteprocedure.h>
 #include <cxxtools/bin/rpcclient.h>
+#include <stdexcept>
 
 log_define("cxxtools.bin.rpcclient.impl")
 
@@ -28,7 +29,8 @@ namespace cxxtools
 {
 namespace bin
 {
-RpcClientImpl::RpcClientImpl(RpcClient* client, SelectorBase* selector, const std::string& addr, unsigned short port)
+
+RpcClientImpl::RpcClientImpl(RpcClient* client, SelectorBase& selector, const std::string& addr, unsigned short port)
     : _client(client),
       _proc(0),
       _stream(_socket, 8192, true),
@@ -36,6 +38,25 @@ RpcClientImpl::RpcClientImpl(RpcClient* client, SelectorBase* selector, const st
 {
     setSelector(selector);
     connect(addr, port);
+
+    cxxtools::connect(_socket.connected, *this, &RpcClientImpl::onConnect);
+    cxxtools::connect(_stream.buffer().outputReady, *this, &RpcClientImpl::onOutput);
+    cxxtools::connect(_stream.buffer().inputReady, *this, &RpcClientImpl::onInput);
+
+}
+
+RpcClientImpl::RpcClientImpl(RpcClient* client, const std::string& addr, unsigned short port)
+    : _client(client),
+      _proc(0),
+      _stream(_socket, 8192, true),
+      _formatter(_stream)
+{
+    connect(addr, port);
+
+    cxxtools::connect(_socket.connected, *this, &RpcClientImpl::onConnect);
+    cxxtools::connect(_stream.buffer().outputReady, *this, &RpcClientImpl::onOutput);
+    cxxtools::connect(_stream.buffer().inputReady, *this, &RpcClientImpl::onInput);
+
 }
 
 RpcClientImpl::~RpcClientImpl()
@@ -55,6 +76,9 @@ void RpcClientImpl::close()
 
 void RpcClientImpl::beginCall(IDeserializer& r, IRemoteProcedure& method, ISerializer** argv, unsigned argc)
 {
+    if (_socket.selector() == 0)
+        throw std::logic_error("cannot run async rpc request without a selector");
+
     _proc = &method;
 
     prepareRequest(method.name(), argv, argc);
@@ -64,24 +88,20 @@ void RpcClientImpl::beginCall(IDeserializer& r, IRemoteProcedure& method, ISeria
         try
         {
             _stream.buffer().beginWrite();
-            _reconnectOnError = true;
         }
         catch (const IOError&)
         {
-            log_debug("first write failed, connection is not active any more");
-            _stream.clear();
-            _stream.buffer().discard();
+            log_debug("write failed, connection is not active any more");
             _socket.beginConnect(_addr, _port);
-            _reconnectOnError = true;
         }
     }
     else
     {
         log_debug("not yet connected - do it now");
         _socket.beginConnect(_addr, _port);
-        _reconnectOnError = false;
     }
 
+    _scanner.begin(&r);
 }
 
 void RpcClientImpl::endCall()
@@ -104,21 +124,35 @@ void RpcClientImpl::call(IDeserializer& r, IRemoteProcedure& method, ISerializer
     if (!_socket.isConnected())
         _socket.connect(_addr, _port);
 
-    _stream.flush();
-
-    _scanner.begin(&r);
-
-    char ch;
-    while (_stream.get(ch))
+    try
     {
-        if (_scanner.advance(ch))
-            break;
+        _stream.flush();
+
+        _scanner.begin(&r);
+
+        char ch;
+        while (_stream.get(ch))
+        {
+            if (_scanner.advance(ch))
+            {
+                _scanner.checkException();
+                break;
+            }
+        }
+    }
+    catch (const std::exception& e)
+    {
+        cancel();
+        throw;
     }
 
     _proc = 0;
 
     if (!_stream)
+    {
+        cancel();
         throw std::runtime_error("reading result failed");
+    }
 }
 
 void RpcClientImpl::cancel()
@@ -126,6 +160,7 @@ void RpcClientImpl::cancel()
     _socket.close();
     _stream.clear();
     _stream.buffer().discard();
+    _proc = 0;
 }
 
 void RpcClientImpl::prepareRequest(const String& name, ISerializer** argv, unsigned argc)
@@ -153,8 +188,85 @@ void RpcClientImpl::onConnect(net::TcpSocket& socket)
     }
     catch (const std::exception& )
     {
+        IRemoteProcedure* proc = _proc;
+        cancel();
+
+        if (!proc)
+            throw;
+
         _exceptionPending = true;
-        _proc->onFinished();
+        proc->onFinished();
+
+        if (_exceptionPending)
+            throw;
+    }
+}
+
+void RpcClientImpl::onOutput(StreamBuffer& sb)
+{
+    try
+    {
+        _exceptionPending = false;
+        sb.endWrite();
+        if (sb.out_avail() > 0)
+            sb.beginWrite();
+        else
+            sb.beginRead();
+    }
+    catch (const std::exception&)
+    {
+        IRemoteProcedure* proc = _proc;
+        cancel();
+
+        if (!proc)
+            throw;
+
+        _exceptionPending = true;
+        proc->onFinished();
+
+        if (_exceptionPending)
+            throw;
+    }
+}
+
+void RpcClientImpl::onInput(StreamBuffer& sb)
+{
+    try
+    {
+        _exceptionPending = false;
+        sb.endRead();
+
+        char ch;
+        while (_stream.buffer().in_avail() && _stream.get(ch))
+        {
+            if (_scanner.advance(ch))
+            {
+                _scanner.checkException();
+                IRemoteProcedure* proc = _proc;
+                _proc = 0;
+                proc->onFinished();
+                return;
+            }
+        }
+
+        if (!_stream)
+        {
+            close();
+            throw std::runtime_error("reading result failed");
+        }
+
+        sb.beginRead();
+    }
+    catch (const std::exception&)
+    {
+        IRemoteProcedure* proc = _proc;
+        cancel();
+
+        if (!proc)
+            throw;
+
+        _exceptionPending = true;
+        proc->onFinished();
 
         if (_exceptionPending)
             throw;

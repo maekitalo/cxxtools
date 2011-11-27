@@ -320,6 +320,9 @@ std::string ClientImpl::get(const std::string& url, std::size_t timeout)
 
 void ClientImpl::beginExecute(const Request& request)
 {
+    if (_socket.selector() == 0)
+        throw std::logic_error("cannot run async http request without a selector");
+
     log_trace("beginExecute");
 
     _errorPending = false;

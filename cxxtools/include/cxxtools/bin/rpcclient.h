@@ -45,13 +45,13 @@ class RpcClient : public RemoteClient
         : _impl(0)
         { }
 
-        RpcClient(SelectorBase* selector, const std::string& addr, unsigned short port);
+        RpcClient(SelectorBase& selector, const std::string& addr, unsigned short port);
 
         RpcClient(const std::string& addr, unsigned short port);
 
         virtual ~RpcClient();
 
-        void setSelector(SelectorBase* selector);
+        void setSelector(SelectorBase& selector);
 
         void connect(const std::string& addr, unsigned short port);
 

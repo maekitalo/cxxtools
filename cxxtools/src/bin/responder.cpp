@@ -30,6 +30,7 @@
 #include "rpcserverimpl.h"
 #include <cxxtools/bin/valueparser.h>
 #include <cxxtools/serviceprocedure.h>
+#include <cxxtools/remoteexception.h>
 #include <cxxtools/log.h>
 
 log_define("cxxtools.bin.responder")
@@ -56,12 +57,15 @@ void Responder::reply(IOStream& out)
     out.buffer().beginWrite();
 }
 
-void Responder::replyError(IOStream& out, const char* msg)
+void Responder::replyError(IOStream& out, const char* msg, int rc)
 {
     log_info("send error \"" << msg << '"');
 
     out << '\x42'
-        << '\0' << '\0' << '\0' << '\0'
+        << static_cast<char>(static_cast<uint32_t>(rc) >> 24)
+        << static_cast<char>(static_cast<uint32_t>(rc) >> 16)
+        << static_cast<char>(static_cast<uint32_t>(rc) >> 8)
+        << static_cast<char>(static_cast<uint32_t>(rc))
         << msg
         << '\0' << '\xff';
 
@@ -76,21 +80,25 @@ void Responder::onInput(IOStream& ios)
         {
             if (_failed)
             {
-                replyError(ios, _errorMessage.c_str());
+                replyError(ios, _errorMessage.c_str(), 0);
             }
             else
             {
                 try
                 {
                     _result = _proc->endCall();
+                    reply(ios);
+                }
+                catch (const RemoteException& e)
+                {
+                    ios.buffer().discard();
+                    replyError(ios, e.what(), e.rc());
                 }
                 catch (const std::exception& e)
                 {
                     ios.buffer().discard();
-                    replyError(ios, e.what());
+                    replyError(ios, e.what(), 0);
                 }
-
-                reply(ios);
             }
 
             _server.releaseProcedure(_proc);

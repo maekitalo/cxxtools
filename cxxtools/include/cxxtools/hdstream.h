@@ -104,6 +104,15 @@ std::string hexDump(const T& t)
   return out.str();
 }
 
+inline std::string hexDump(const char* p, unsigned n)
+{
+  std::ostringstream out;
+  Hdostream hd(out);
+  hd.write(p, n);
+  hd.flush();
+  return out.str();
+}
+
 }
 
 #endif  // CXXTOOLS_HDSTREAM_H

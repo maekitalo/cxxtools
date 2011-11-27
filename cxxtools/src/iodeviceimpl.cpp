@@ -36,6 +36,7 @@
 #include <fcntl.h>
 #include <sys/poll.h>
 #include <cxxtools/log.h>
+#include <cxxtools/hdstream.h>
 
 log_define("cxxtools.iodevice.impl")
 
@@ -181,7 +182,7 @@ size_t IODeviceImpl::read( char* buffer, size_t count, bool& eof )
 
         if(ret > 0)
         {
-            log_debug("::read(" << _fd << ", " << count << ") returned " << ret << " => \"" << std::string(buffer, ret) << '"');
+            log_debug("::read(" << _fd << ", " << count << ") returned " << ret << " => \"" << hexDump(buffer, ret) << '"');
             break;
         }
 

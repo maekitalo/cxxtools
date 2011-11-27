@@ -25,6 +25,7 @@
 #include <cxxtools/net/tcpsocket.h>
 #include <cxxtools/iostream.h>
 #include <cxxtools/string.h>
+#include <cxxtools/connectable.h>
 #include <string>
 #include "scanner.h"
 
@@ -38,18 +39,20 @@ namespace bin
 
 class RpcClient;
 
-class RpcClientImpl
+class RpcClientImpl : public Connectable
 {
         RpcClientImpl(RpcClientImpl&) { }
         void operator= (const RpcClientImpl&) { }
 
     public:
-        RpcClientImpl(RpcClient* client, SelectorBase* selector, const std::string& addr, unsigned short port);
+        RpcClientImpl(RpcClient* client, const std::string& addr, unsigned short port);
+
+        RpcClientImpl(RpcClient* client, SelectorBase& selector, const std::string& addr, unsigned short port);
 
         ~RpcClientImpl();
 
-        void setSelector(SelectorBase* selector)
-        { _socket.setSelector(selector); }
+        void setSelector(SelectorBase& selector)
+        { selector.add(_socket); }
 
         void connect(const std::string& addr, unsigned short port);
 
@@ -80,7 +83,6 @@ class RpcClientImpl
         Formatter _formatter;
 
         bool _exceptionPending;
-        bool _reconnectOnError;
 
         std::string _addr;
         unsigned short _port;

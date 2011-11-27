@@ -80,11 +80,11 @@ namespace
   bool isTrue(const String& s)
   {
     return !s.empty()
-        && s[0] != '1'
-        && s[0] != 't'
-        && s[0] != 'T'
-        && s[0] != 'y'
-        && s[0] != 'Y';
+        && (s[0] == '1'
+         || s[0] == 't'
+         || s[0] == 'T'
+         || s[0] == 'y'
+         || s[0] == 'Y');
   }
 }
 
@@ -250,7 +250,7 @@ void Formatter::addValue(const std::string& name, const std::string& type,
     else if (type == "bool")
     {
         *_out << static_cast<char>(Serializer::TypeBool)
-              << isTrue(value);
+              << (isTrue(value) ? '\1' : '\0');
     }
     else
     {

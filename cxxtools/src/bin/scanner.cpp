@@ -19,6 +19,7 @@
 
 #include "scanner.h"
 #include <cxxtools/log.h>
+#include <cxxtools/remoteexception.h>
 
 log_define("cxxtools.bin.scanner")
 
@@ -82,6 +83,12 @@ bool Scanner::advance(char ch)
     }
 
     return false;
+}
+
+void Scanner::checkException()
+{
+    if (_failed)
+        throw RemoteException(_errorMessage, _errorCode);
 }
 
 }

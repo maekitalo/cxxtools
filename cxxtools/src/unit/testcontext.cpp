@@ -28,6 +28,9 @@
 #include "cxxtools/unit/test.h"
 #include "cxxtools/unit/testcontext.h"
 #include "cxxtools/unit/testfixture.h"
+#include "cxxtools/log.h"
+
+log_define("cxxtools.unit.testcontext")
 
 namespace cxxtools {
 
@@ -69,6 +72,7 @@ void TestContext::run()
 {
     try
     {
+        log_debug("run test " << _test.name());
         _test.reportStart(*this);
         _fixture.setUp();
         _setUp = true;

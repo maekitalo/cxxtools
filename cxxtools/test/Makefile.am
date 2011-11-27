@@ -9,6 +9,7 @@ AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/include -I$(top_srcdir)/incl
 alltests_SOURCES = \
     arg-test.cpp \
     base64-test.cpp \
+    binrpc-test.cpp \
     binserializer-test.cpp \
     cache-test.cpp \
     csvdeserializer-test.cpp \
