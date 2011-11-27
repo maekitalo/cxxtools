@@ -52,7 +52,7 @@ class BenchClient
 
   public:
 
-    explicit BenchClient(unsigned short port, cxxtools::RemoteClient* client_)
+    explicit BenchClient(cxxtools::RemoteClient* client_)
       : client(client_),
         thread(cxxtools::callable(*this, &BenchClient::exec))
     { }
@@ -145,10 +145,10 @@ int main(int argc, char* argv[])
     {
       cxxtools::RemoteClient* client;
       if (binary)
-        client = new cxxtools::bin::RpcClient("", port);
+        client = new cxxtools::bin::RpcClient(ip, port);
       else
-        client = new cxxtools::xmlrpc::HttpClient("", port, "/myservice");
-      clients.push_back(new BenchClient(port, client));
+        client = new cxxtools::xmlrpc::HttpClient(ip, port, "/myservice");
+      clients.push_back(new BenchClient(client));
     }
 
     cxxtools::Clock cl;
