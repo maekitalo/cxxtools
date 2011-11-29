@@ -223,23 +223,6 @@ void XmlDeserializer::onWhitespace(const cxxtools::xml::Node& node)
             _nodeName = static_cast<const cxxtools::xml::StartElement&>(node).name();
             _nodeType = static_cast<const cxxtools::xml::StartElement&>(node).attribute(L"type");
             _nodeCategory = static_cast<const cxxtools::xml::StartElement&>(node).attribute(L"category");
-
-            cxxtools::String refId = static_cast<const cxxtools::xml::StartElement&>(node).attribute(L"ref");
-            if( ! refId.empty() )
-            {
-                std::string nodeName = _nodeName.narrow();
-                std::string nodeType = _nodeType.empty() ? nodeName : _nodeType.narrow();
-                _deser = _deser->beginMember(nodeName, nodeType, nodeCategory());
-                _deser->setReference( refId.narrow() );
-                _deser = _deser->leaveMember();
-                //SerializationInfo& ref = _current->addValue( _nodeName.narrow(), refId );
-                //ref.setCategory(SerializationInfo::Reference);
-
-                //ref.setId( refId.narrow() );
-
-                _processNode = &XmlDeserializer::onContent;
-            }
-
             _processNode = &XmlDeserializer::onStartElement;
             break;
         }

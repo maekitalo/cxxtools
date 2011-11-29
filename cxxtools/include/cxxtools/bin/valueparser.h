@@ -94,8 +94,6 @@ class ValueParser
             state_array_member,
             state_array_member_value,
             state_array_member_value_next,
-            state_reference_name,
-            state_reference_value,
             state_end,
         } _state;
 

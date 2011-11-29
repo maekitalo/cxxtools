@@ -110,7 +110,6 @@ bool ValueParser::advance(char ch)
                     case SerializationInfo::Value:     _state = state_value_name;     break;
                     case SerializationInfo::Object:    _state = state_object_name;    break;
                     case SerializationInfo::Array:     _state = state_array_name;     break;
-                    case SerializationInfo::Reference: _state = state_reference_name; break;
                     default:
                     {
                         std::ostringstream msg;
@@ -127,7 +126,6 @@ bool ValueParser::advance(char ch)
         case state_value_name:
         case state_object_name:
         case state_array_name:
-        case state_reference_name:
             if (ch == '\0')
             {
                 if (_deserializer)
@@ -135,8 +133,7 @@ bool ValueParser::advance(char ch)
                 _token.clear();
                 _state = _state == state_value_name  ? state_value_id
                        : _state == state_object_name ? state_object_id
-                       : _state == state_array_name  ? state_array_id
-                       : state_reference_value;
+                       : state_array_id;
             }
             else
                 _token += ch;
@@ -209,9 +206,9 @@ bool ValueParser::advance(char ch)
                 if (_deserializer)
                 {
                     if (_state == state_value_int)
-                        _deserializer->setValue(convert<String>(_int.s));
+                        _deserializer->setValue(IDeserializer::LongInt(_int.s));
                     else
-                        _deserializer->setValue(convert<String>(_int.u));
+                        _deserializer->setValue(IDeserializer::ULongInt(_int.u));
                 }
 
                 _int.u = 0;
@@ -221,7 +218,7 @@ bool ValueParser::advance(char ch)
 
         case state_value_bool:
             if (_deserializer)
-                _deserializer->setValue(ch ? L"true" : L"false");
+                _deserializer->setValue(ch != '\0');
 
             _state = state_end;
             break;
@@ -230,25 +227,25 @@ bool ValueParser::advance(char ch)
             if (_token.empty() && ch == '\xf0')
             {
                 if (_deserializer)
-                    _deserializer->setValue(L"nan");
+                    _deserializer->setValue("nan");
                 _state = state_end;
             }
             else if (_token.empty() && ch == '\xf1')
             {
                 if (_deserializer)
-                    _deserializer->setValue(L"inf");
+                    _deserializer->setValue("inf");
                 _state = state_end;
             }
             else if (_token.empty() && ch == '\xf2')
             {
                 if (_deserializer)
-                    _deserializer->setValue(L"-inf");
+                    _deserializer->setValue("-inf");
                 _state = state_end;
             }
             else if (ch == '\xff')
             {
                 if (_deserializer)
-                    _deserializer->setValue(String::widen(_token));
+                    _deserializer->setValue(_token);
                 _token.clear();
                 return true;
             }
@@ -258,7 +255,7 @@ bool ValueParser::advance(char ch)
                 if ((ch & '\xf') == '\xd')
                 {
                     if (_deserializer)
-                        _deserializer->setValue(String::widen(_token));
+                        _deserializer->setValue(_token);
                     _token.clear();
                     _state = state_end;
                 }
@@ -418,18 +415,6 @@ bool ValueParser::advance(char ch)
                 _next->advance(ch);
                 _state = state_array_member_value;
             }
-            break;
-
-        case state_reference_value:
-            if (ch == '\0')
-            {
-                if (_deserializer)
-                    _deserializer->setReference(_token);
-                _token.clear();
-                _state = state_end;
-            }
-            else
-                _token += ch;
             break;
 
         case state_end:

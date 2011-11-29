@@ -32,6 +32,7 @@ libcxxtools_la_SOURCES = \
 	file.cpp \
 	fileimpl.cpp \
 	fileinfo.cpp \
+	formatter.cpp \
 	hdstream.cpp \
 	inifile.cpp \
 	iniparser.cpp \

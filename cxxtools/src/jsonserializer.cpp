@@ -129,10 +129,6 @@ void JsonFormatter::addValue(const std::string& name, const std::string& type,
     }
 }
 
-void JsonFormatter::addReference(const std::string& name, const cxxtools::String& value)
-{
-}
-
 void JsonFormatter::beginArray(const std::string& name, const std::string& type,
                                const std::string& id)
 {

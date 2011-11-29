@@ -18,6 +18,7 @@ alltests_SOURCES = \
     jsondeserializer-test.cpp \
     md5-test.cpp \
     pool-test.cpp \
+    serializationinfo-test.cpp \
     smartptr-test.cpp \
     string-test.cpp \
     test-main.cpp \

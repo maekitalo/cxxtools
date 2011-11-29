@@ -43,6 +43,8 @@
 #include <cctype>
 #include <cmath>
 
+#include <cxxtools/config.h>
+
 namespace cxxtools
 {
 
@@ -98,6 +100,12 @@ CXXTOOLS_API void convert(int& n, const String& str);
 CXXTOOLS_API void convert(unsigned int& n, const String& str);
 CXXTOOLS_API void convert(long& n, const String& str);
 CXXTOOLS_API void convert(unsigned long& n, const String& str);
+#ifdef HAVE_LONG_LONG
+CXXTOOLS_API void convert(long long& n, const String& str);
+#endif
+#ifdef HAVE_UNSIGNED_LONG_LONG
+CXXTOOLS_API void convert(unsigned long long& n, const String& str);
+#endif
 
 CXXTOOLS_API void convert(float& n, const String& str);
 CXXTOOLS_API void convert(double& n, const String& str);
@@ -171,6 +179,12 @@ CXXTOOLS_API void convert(int& n, const std::string& str);
 CXXTOOLS_API void convert(unsigned int& n, const std::string& str);
 CXXTOOLS_API void convert(long& n, const std::string& str);
 CXXTOOLS_API void convert(unsigned long& n, const std::string& str);
+#ifdef HAVE_LONG_LONG
+CXXTOOLS_API void convert(long long& n, const std::string& str);
+#endif
+#ifdef HAVE_UNSIGNED_LONG_LONG
+CXXTOOLS_API void convert(unsigned long long& n, const std::string& str);
+#endif
 
 CXXTOOLS_API void convert(float& n, const std::string& str);
 CXXTOOLS_API void convert(double& n, const std::string& str);

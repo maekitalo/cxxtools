@@ -61,8 +61,6 @@ namespace cxxtools
             virtual void addValue(const std::string& name, const std::string& type,
                                   const String& value, const std::string& id);
 
-            virtual void addReference(const std::string& name, const String& value);
-
             virtual void beginArray(const std::string& name, const std::string& type,
                                     const std::string& id);
 

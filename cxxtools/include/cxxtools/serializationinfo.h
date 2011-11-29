@@ -50,11 +50,22 @@ class CXXTOOLS_API SerializationInfo
 
     public:
         enum Category {
-            Void = 0, Value = 1, Object = 2, Array = 6, Reference = 8
+            Void = 0, Value = 1, Object = 2, Array = 6
         };
 
         class Iterator;
         class ConstIterator;
+
+#ifdef HAVE_LONG_LONG
+        typedef long long LongInt;
+#else
+        typedef long LongInt;
+#endif
+#ifdef HAVE_UNSIGNED_LONG_LONG
+        typedef unsigned long long ULongInt;
+#else
+        typedef unsigned long LongInt;
+#endif
 
     public:
         SerializationInfo();
@@ -62,7 +73,7 @@ class CXXTOOLS_API SerializationInfo
         SerializationInfo(const SerializationInfo& si);
 
         ~SerializationInfo()
-        {}
+        { _releaseValue(); }
 
         void reserve(size_t n);
 
@@ -116,62 +127,68 @@ class CXXTOOLS_API SerializationInfo
             return _id;
         }
 
-        /** @brief Serialization of weak pointers
-        */
-        void setReference(void* ref);
-
-        /** @brief Serialization of weak pointers
-        */
-        SerializationInfo& addReference(const std::string& name, void* ref);
-
-        /** @brief Deserialization of weak pointers
-        */
-        template <typename T>
-        void toReference(T*& type) const
-        {
-            this->getReference( reinterpret_cast<void*&>(type), typeid(T) );
-        }
-
-        /** @brief Deserialization of weak member pointers
-        */
-        template <typename T>
-        void getReference(const std::string& name, T*& type) const
-        {
-            this->getMember(name).getReference( reinterpret_cast<void*&>(type), typeid(T) );
-        }
-
-        void* fixupAddr() const;
-
-        const std::type_info& fixupInfo() const;
-
         /** @brief Serialization of flat data-types
         */
-        template <typename T>
-        void setValue(const T& value)
-        {
-            convert(_value, value);
-            _category = Value;
-        }
+        void setValue(const String& value)       { _setString(value); }
+        void setValue(const std::string& value)  { _setString8(value); }
+        void setValue(const char* value)         { _setString8(value); }
+        void setValue(bool value)                { _setInt(value) ; }
+        void setValue(char value)                { _setInt(value) ; }
+        void setValue(unsigned char value)       { _setUInt(value) ; }
+        void setValue(short value)               { _setInt(value) ; }
+        void setValue(unsigned short value)      { _setUInt(value) ; }
+        void setValue(int value)                 { _setInt(value) ; }
+        void setValue(unsigned int value)        { _setUInt(value) ; }
+        void setValue(long value)                { _setInt(value) ; }
+        void setValue(unsigned long value)       { _setUInt(value) ; }
+#ifdef HAVE_LONG_LONG
+        void setValue(long long value)           { _setInt(value) ; }
+#endif
+#ifdef HAVE_UNSIGNED_LONG_LONG
+        void setValue(unsigned long long value)  { _setUInt(value) ; }
+#endif
+
+        void setValue(float value)               { _setFloat(value); }
+        void setValue(double value)              { _setFloat(value); }
+        void setValue(long double value)         { _setFloat(value); }
 
         /** @brief Deserialization of flat data-types
         */
+        void getValue(String& value) const;
+        void getValue(std::string& value) const;
+        void getValue(bool& value) const;
+        void getValue(char& value) const;
+        void getValue(signed char& value) const;
+        void getValue(unsigned char& value) const;
+        void getValue(short& value) const              { value = _getInt(); }
+        void getValue(unsigned short& value) const     { value = _getUInt(); }
+        void getValue(int& value) const                { value = _getInt(); }
+        void getValue(unsigned int& value) const       { value = _getUInt(); }
+        void getValue(long& value) const               { value = _getInt(); }
+        void getValue(unsigned long& value) const      { value = _getUInt(); }
+#ifdef HAVE_LONG_LONG
+        void getValue(long long& value) const          { value = _getInt(); }
+#endif
+#ifdef HAVE_UNSIGNED_LONG_LONG
+        void getValue(unsigned long long& value) const { value = _getUInt(); }
+#endif
+        void getValue(float& value) const              { value = _getFloat(); }
+        void getValue(double& value) const             { value = _getFloat(); }
+        void getValue(long double& value) const        { value = _getFloat(); }
+
         template <typename T>
         T toValue() const
         {
-            return convert<T>(_value);
+            T v;
+            getValue(v);
+            return v;
         }
 
         /** @brief Deserialization of flat data-types
         */
         template <typename T>
         void toValue(T& value) const
-        {
-            convert(value, _value);
-        }
-
-        /** @brief Deserialization of flat member data-types
-        */
-        const cxxtools::String& toString() const;
+        { getValue(value); }
 
         /** @brief Serialization of flat member data-types
         */
@@ -268,9 +285,13 @@ class CXXTOOLS_API SerializationInfo
 
         void swap(SerializationInfo& si);
 
-    protected:
-        void getReference(void*& type, const std::type_info& ti) const;
+        bool isString() const   { return _t == t_string; }
+        bool isString8() const  { return _t == t_string8; }
+        bool isInt() const      { return _t == t_int; }
+        bool isUInt() const     { return _t == t_uint; }
+        bool isFloat() const    { return _t == t_float; }
 
+    protected:
         void setParent(SerializationInfo& si)
         { _parent = &si; }
 
@@ -280,9 +301,41 @@ class CXXTOOLS_API SerializationInfo
         std::string _name;
         std::string _type;
         std::string _id;
-        mutable void* _fixupAddr; // only refs
-        mutable const std::type_info* _fixupInfo; // only refs
-        cxxtools::String _value;        // values/refs
+
+        void _releaseValue();
+        void _setString(const String& value);
+        void _setString8(const std::string& value);
+        void _setString8(const char* value);
+        void _setInt(LongInt value);
+        void _setUInt(ULongInt value);
+        void _setFloat(long double value);
+        LongInt _getInt() const;
+        ULongInt _getUInt() const;
+        long double _getFloat() const;
+
+        union U
+        {
+            char _s[sizeof(String) >= sizeof(std::string) ? sizeof(String) : sizeof(std::string)];
+            LongInt _i;
+            ULongInt _u;
+            long double _f;
+        } _u;
+
+        String* _StringPtr()                    { return reinterpret_cast<String*>(_u._s); }
+        const String* _StringPtr() const        { return reinterpret_cast<const String*>(_u._s); }
+        std::string* _String8Ptr()              { return reinterpret_cast<std::string*>(_u._s); }
+        const std::string* _String8Ptr() const  { return reinterpret_cast<const std::string*>(_u._s); }
+
+        enum T
+        {
+          t_none,
+          t_string,
+          t_string8,
+          t_int,
+          t_uint,
+          t_float
+        } _t;
+
         Nodes _nodes;             // objects/arrays
 };
 

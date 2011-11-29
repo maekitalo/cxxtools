@@ -27,6 +27,7 @@
  */
 
 #include <iostream>
+#include <vector>
 #include <cxxtools/log.h>
 #include <cxxtools/arg.h>
 #include <cxxtools/eventloop.h>
@@ -37,6 +38,14 @@
 std::string echo(const std::string& msg)
 {
   return msg;
+}
+
+std::vector<int> seq(int from, int to)
+{
+    std::vector<int> ret;
+    for (int n = from; n <= to; ++n)
+        ret.push_back(n);
+    return ret;
 }
 
 int main(int argc, char* argv[])
@@ -67,12 +76,14 @@ int main(int argc, char* argv[])
     server.maxThreads(maxThreads);
     cxxtools::xmlrpc::Service service;
     service.registerFunction("echo", echo);
+    service.registerFunction("seq", seq);
     server.addService("/myservice", service);
 
     cxxtools::bin::RpcServer binServer(loop, ip, bport);
     binServer.minThreads(threads);
     binServer.maxThreads(maxThreads);
     binServer.registerFunction("echo", echo);
+    binServer.registerFunction("seq", seq);
 
     loop.run();
   }

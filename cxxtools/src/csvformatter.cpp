@@ -151,10 +151,6 @@ namespace cxxtools
         }
     }
 
-    void CsvFormatter::addReference(const std::string& name, const String& value)
-    {
-    }
-
     void CsvFormatter::beginArray(const std::string& name, const std::string& type,
                             const std::string& id)
     {

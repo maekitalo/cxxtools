@@ -41,6 +41,17 @@ class DeserializationContext;
 class CXXTOOLS_API IDeserializer
 {
     public:
+#ifdef HAVE_LONG_LONG
+        typedef long long LongInt;
+#else
+        typedef long LongInt;
+#endif
+#ifdef HAVE_UNSIGNED_LONG_LONG
+        typedef unsigned long long ULongInt;
+#else
+        typedef unsigned long LongInt;
+#endif
+
         IDeserializer()
         : _parent(0)
         {}
@@ -62,13 +73,23 @@ class CXXTOOLS_API IDeserializer
 
         virtual void setName(const std::string& name) = 0;
 
-        virtual void setValue(const cxxtools::String& value) = 0;
+        virtual void setValue(const String& value) = 0;
+
+        virtual void setValue(const std::string& value) = 0;
+
+        virtual void setValue(const char* value) = 0;
+
+        virtual void setValue(bool value) = 0;
+
+        virtual void setValue(LongInt value) = 0;
+
+        virtual void setValue(ULongInt value) = 0;
+
+        virtual void setValue(long double value) = 0;
 
         virtual void setId(const std::string& id) = 0;
 
         virtual void setTypeName(const std::string& type) = 0;
-
-        virtual void setReference(const std::string& id) = 0;
 
         virtual IDeserializer* beginMember(const std::string& name, const std::string& type, SerializationInfo::Category category) = 0;
 
@@ -77,7 +98,7 @@ class CXXTOOLS_API IDeserializer
         virtual void fixup(DeserializationContext& ctx) = 0;
 
     protected:
-        void fixupEach(IDeserializer* deser, cxxtools::SerializationInfo& si, DeserializationContext& ctx);
+        void fixupEach(IDeserializer* deser, SerializationInfo& si, DeserializationContext& ctx);
 
     private:
         IDeserializer* _parent;
@@ -130,15 +151,39 @@ class Deserializer : public IDeserializer
             _current->setTypeName(type);
         }
 
-        virtual void setValue(const cxxtools::String& value)
+        virtual void setValue(const String& value)
         {
             _current->setValue(value);
         }
 
-        virtual void setReference(const std::string& id)
+        virtual void setValue(const std::string& value)
         {
-           _current->setValue(id);
-           _current->setCategory(SerializationInfo::Reference);
+            _current->setValue(value);
+        }
+
+        virtual void setValue(const char* value)
+        {
+            _current->setValue(value);
+        }
+
+        virtual void setValue(bool value)
+        {
+            _current->setValue(value);
+        }
+
+        virtual void setValue(LongInt value)
+        {
+            _current->setValue(value);
+        }
+
+        virtual void setValue(ULongInt value)
+        {
+            _current->setValue(value);
+        }
+
+        virtual void setValue(long double value)
+        {
+            _current->setValue(value);
         }
 
         virtual IDeserializer* beginMember(const std::string& name, const std::string& type, SerializationInfo::Category category)
@@ -168,17 +213,13 @@ class Deserializer : public IDeserializer
 
         virtual void fixup(DeserializationContext& ctx)
         {
-            // SI's for unfixed pointers contain the fixup address now
-            // other types may only point to _type,but not to its members
             *_current >>= *_type;
-
-            fixupEach(this, _si, ctx);
         }
 
     private:
         T* _type;
-        cxxtools::SerializationInfo _si;
-        cxxtools::SerializationInfo* _current;
+        SerializationInfo _si;
+        SerializationInfo* _current;
 };
 
 
@@ -191,24 +232,16 @@ class CXXTOOLS_API DeserializationContext
     };
 
     public:
-        DeserializationContext();
+        DeserializationContext()
+        { }
 
-        virtual ~DeserializationContext();
-
-        void addObject(const std::string& id, void* obj, const std::type_info& fixupInfo);
-
-        void addFixup(const std::string& id, void* obj, const std::type_info& fixupInfo);
+        virtual ~DeserializationContext()
+        { }
 
         void clear();
 
         void fixup();
 
-    protected:
-        virtual bool checkFixup(const std::type_info& from, const std::type_info& to);
-
-    private:
-        std::map<std::string, FixupInfo> _targets;
-        std::map<std::string, FixupInfo> _pointers;
 };
 
 } // namespace cxxtools

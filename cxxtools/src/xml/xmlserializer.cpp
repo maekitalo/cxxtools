@@ -129,13 +129,6 @@ void XmlFormatter::addValue(const std::string& name, const std::string& type,
 }
 
 
-void XmlFormatter::addReference(const std::string& name, const cxxtools::String& value)
-{
-    Attribute attr( L"ref", value );
-    _writer->writeElement( cxxtools::String::widen( name ), &attr, 1, cxxtools::String() );
-}
-
-
 void XmlFormatter::beginComplexElement(const std::string& name, const std::string& type,
                               const std::string& id, const String& category)
 {

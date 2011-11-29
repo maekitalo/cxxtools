@@ -321,6 +321,38 @@ void convert(unsigned long& n, const String& str)
 }
 
 
+#ifdef HAVE_LONG_LONG
+void convert(long long& n, const String& str)
+{
+    bool ok = false;
+    String::const_iterator r = getInt( str.begin(), str.end(), ok, n );
+
+    if (ok)
+        _skipws(r, str.end());
+
+    if( r != str.end() || ! ok )
+        ConversionError::doThrow("unsigned long long", "cxxtools::String");
+}
+
+
+#endif
+
+#ifdef HAVE_UNSIGNED_LONG_LONG
+void convert(unsigned long long& n, const String& str)
+{
+    bool ok = false;
+    String::const_iterator r = getInt( str.begin(), str.end(), ok, n );
+
+    if (ok)
+        _skipws(r, str.end());
+
+    if( r != str.end() || ! ok )
+        ConversionError::doThrow("unsigned long long", "cxxtools::String");
+}
+
+
+#endif
+
 void convert(float& n, const String& str)
 {
     bool ok = false;
@@ -602,6 +634,38 @@ void convert(unsigned long& n, const std::string& str)
     if( r != str.end() || ! ok )
         ConversionError::doThrow("unsigned long", "std::string");
 }
+
+#ifdef HAVE_LONG_LONG
+void convert(long long& n, const std::string& str)
+{
+    bool ok = false;
+    std::string::const_iterator r = getInt( str.begin(), str.end(), ok, n );
+
+    if (ok)
+        _skipws(r, str.end());
+
+    if( r != str.end() || ! ok )
+        ConversionError::doThrow("unsigned long long", "std::string");
+}
+
+
+#endif
+
+#ifdef HAVE_UNSIGNED_LONG_LONG
+void convert(unsigned long long& n, const std::string& str)
+{
+    bool ok = false;
+    std::string::const_iterator r = getInt( str.begin(), str.end(), ok, n );
+
+    if (ok)
+        _skipws(r, str.end());
+
+    if( r != str.end() || ! ok )
+        ConversionError::doThrow("unsigned long long", "std::string");
+}
+
+
+#endif
 
 
 void convert(float& n, const std::string& str)

@@ -57,12 +57,6 @@ void Formatter::addValue(const std::string& name, const std::string& type,
 }
 
 
-void Formatter::addReference(const std::string& name, const cxxtools::String& value)
-{
-    throw SerializationError("references not supported");
-}
-
-
 void Formatter::beginArray(const std::string&, const std::string&,
                            const std::string&)
 {

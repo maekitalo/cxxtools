@@ -46,12 +46,12 @@ class BenchClient
     cxxtools::AttachedThread thread;
 
     static unsigned _numRequests;
+    static unsigned _vectorSize;
     static cxxtools::atomic_t _requestsStarted;
     static cxxtools::atomic_t _requestsFinished;
     static cxxtools::atomic_t _requestsFailed;
 
   public:
-
     explicit BenchClient(cxxtools::RemoteClient* client_)
       : client(client_),
         thread(cxxtools::callable(*this, &BenchClient::exec))
@@ -65,6 +65,12 @@ class BenchClient
 
     static void numRequests(unsigned n)
     { _numRequests = n; }
+
+    static unsigned vectorSize()
+    { return _vectorSize; }
+
+    static void vectorSize(unsigned n)
+    { _vectorSize = n; }
 
     static unsigned requestsStarted()
     { return static_cast<unsigned>(cxxtools::atomicGet(_requestsStarted)); }
@@ -86,6 +92,7 @@ cxxtools::atomic_t BenchClient::_requestsStarted(0);
 cxxtools::atomic_t BenchClient::_requestsFinished(0);
 cxxtools::atomic_t BenchClient::_requestsFailed(0);
 unsigned BenchClient::_numRequests = 0;
+unsigned BenchClient::_vectorSize = 0;
 typedef std::vector<BenchClient*> BenchClients;
 
 static cxxtools::Mutex mutex;
@@ -93,17 +100,31 @@ static cxxtools::Mutex mutex;
 void BenchClient::exec()
 {
   cxxtools::RemoteProcedure<std::string, std::string> echo(*client, "echo");
+  cxxtools::RemoteProcedure<std::vector<int>, int, int> seq(*client, "seq");
 
   while (static_cast<unsigned>(cxxtools::atomicIncrement(_requestsStarted)) <= _numRequests)
   {
     try
     {
-      std::string ret = echo("hi");
-      cxxtools::atomicIncrement(_requestsFinished);
-      if (ret != "hi")
+      if (_vectorSize > 0)
       {
-        std::cerr << "wrong response result \"" << ret << '"' << std::endl;
-        cxxtools::atomicIncrement(_requestsFailed);
+        std::vector<int> ret = seq(1, _vectorSize);
+        cxxtools::atomicIncrement(_requestsFinished);
+        if (ret.size() != _vectorSize)
+        {
+          std::cerr << "wrong response result size " << ret.size() << std::endl;
+          cxxtools::atomicIncrement(_requestsFailed);
+        }
+      }
+      else
+      {
+        std::string ret = echo("hi");
+        cxxtools::atomicIncrement(_requestsFinished);
+        if (ret != "hi")
+        {
+          std::cerr << "wrong response result \"" << ret << '"' << std::endl;
+          cxxtools::atomicIncrement(_requestsFailed);
+        }
       }
     }
     catch (const std::exception& e)
@@ -129,6 +150,7 @@ int main(int argc, char* argv[])
     cxxtools::Arg<bool> binary(argc, argv, 'b');
     cxxtools::Arg<unsigned short> port(argc, argv, 'p', binary ? 7003 : 7002);
     BenchClient::numRequests(cxxtools::Arg<unsigned>(argc, argv, 'n', 10000));
+    BenchClient::vectorSize(cxxtools::Arg<unsigned>(argc, argv, 'v', 0));
 
     std::cout << "execute " << BenchClient::numRequests() << " requests with " << threads.getValue() << " threads\n\n"
                  "options:\n"

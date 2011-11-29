@@ -32,14 +32,7 @@ namespace cxxtools {
 
 void ISerializer::fixdownEach(cxxtools::SerializationInfo& si, SerializationContext& context)
 {
-    if(si.category() == cxxtools::SerializationInfo::Reference)
-    {
-        const void* p = si.toValue<void*>();
-        ISerializer* pointee = context.find(p);
-        pointee->setId( convert<std::string>(pointee) );
-        si.setReference( pointee );
-    }
-    else if(si.category() == cxxtools::SerializationInfo::Object)
+    if(si.category() == cxxtools::SerializationInfo::Object)
     {
         cxxtools::SerializationInfo::Iterator it;
         for(it = si.begin(); it != si.end(); ++it)
@@ -54,7 +47,14 @@ void ISerializer::formatEach(const cxxtools::SerializationInfo& si, Formatter& f
 {
     if(si.category() == SerializationInfo::Value)
     {
-        formatter.addValue( si.name(), si.typeName(), si.toString(), si.id() );
+        if (si.isInt())
+            formatter.addValue( si.name(), si.typeName(), si.toValue<SerializationInfo::LongInt>(), si.id() );
+        else if (si.isUInt())
+            formatter.addValue( si.name(), si.typeName(), si.toValue<SerializationInfo::ULongInt>(), si.id() );
+        else if (si.isFloat())
+            formatter.addValue( si.name(), si.typeName(), si.toValue<long double>(), si.id() );
+        else
+            formatter.addValue( si.name(), si.typeName(), si.toValue<String>(), si.id() );
     }
     else if(si.category() == SerializationInfo::Object)
     {
@@ -69,10 +69,6 @@ void ISerializer::formatEach(const cxxtools::SerializationInfo& si, Formatter& f
         }
 
         formatter.finishObject();
-    }
-    else if(si.category() == cxxtools::SerializationInfo::Reference)
-    {
-        formatter.addReference( si.name(), si.toString() );
     }
     else if(si.category() == cxxtools::SerializationInfo::Array)
     {

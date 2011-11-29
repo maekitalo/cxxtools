@@ -105,7 +105,7 @@ class BinRpcTest : public cxxtools::unit::TestSuite
             char* PORT = getenv("UTEST_PORT");
             if (PORT)
             {
-                std::istringstream s;
+                std::istringstream s(PORT);
                 s >> _port;
             }
         }

@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2009 by Dr. Marc Boris Duerner
- *
+ * Copyright (C) 2011 by Tommi Maekitalo
+ * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
@@ -25,59 +25,35 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-#ifndef cxxtools_xmlrpc_Formatter_h
-#define cxxtools_xmlrpc_Formatter_h
 
-#include <cxxtools/xmlrpc/api.h>
-#include <cxxtools/xml/xmlwriter.h>
 #include <cxxtools/formatter.h>
-#include <cxxtools/string.h>
-#include <string>
-#include <map>
+#include <cxxtools/convert.h>
 
-namespace cxxtools {
-
-namespace xmlrpc {
-
-class CXXTOOLS_XMLRPC_API Formatter : public cxxtools::Formatter
+namespace cxxtools
 {
-    public:
-        Formatter(xml::XmlWriter& writer)
-        : _writer(&writer)
-        { }
+void Formatter::addValue(const std::string& name, const std::string& type,
+                         LongInt value, const std::string& id)
+{
+    addValue(name, type, convert<String>(value), id);
+}
 
-        void addAlias(const std::string& type, const std::string& alias)
-        { _typemap[type] = alias; }
+void Formatter::addValue(const std::string& name, const std::string& type,
+                         const std::string& value, const std::string& id)
+{
+    addValue(name, type, String::widen(value), id);
+}
 
-        void attach(xml::XmlWriter& writer)
-        { _writer = &writer; }
+void Formatter::addValue(const std::string& name, const std::string& type,
+                         ULongInt value, const std::string& id)
+{
+    addValue(name, type, convert<String>(value), id);
+}
 
-        void addValue(const std::string& name, const std::string& type,
-                      const cxxtools::String& value, const std::string& id);
-
-        void beginArray(const std::string& name, const std::string& type,
-                        const std::string& id);
-
-        void finishArray();
-
-        void beginObject(const std::string& name, const std::string& type,
-                         const std::string& id);
-
-        void beginMember(const std::string& name);
-
-        void finishMember();
-
-        void finishObject();
-
-        void finish();
-
-    private:
-        xml::XmlWriter* _writer;
-        std::map<std::string, std::string> _typemap;
-};
-
+void Formatter::addValue(const std::string& name, const std::string& type,
+                         long double value, const std::string& id)
+{
+    addValue(name, type, convert<String>(value), id);
 }
 
 }
 
-#endif

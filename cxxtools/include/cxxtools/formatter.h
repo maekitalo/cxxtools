@@ -31,19 +31,42 @@
 #include <cxxtools/api.h>
 #include <cxxtools/string.h>
 #include <string>
+#include <cxxtools/config.h>
 
-namespace cxxtools {
+namespace cxxtools
+{
 
 class Formatter
 {
     public:
+#ifdef HAVE_LONG_LONG
+        typedef long long LongInt;
+#else
+        typedef long LongInt;
+#endif
+#ifdef HAVE_UNSIGNED_LONG_LONG
+        typedef unsigned long long ULongInt;
+#else
+        typedef unsigned long LongInt;
+#endif
+
         virtual ~Formatter()
         { }
 
         virtual void addValue(const std::string& name, const std::string& type,
                               const cxxtools::String& value, const std::string& id) = 0;
 
-        virtual void addReference(const std::string& name, const cxxtools::String& value) = 0;
+        virtual void addValue(const std::string& name, const std::string& type,
+                              const std::string& value, const std::string& id);
+
+        virtual void addValue(const std::string& name, const std::string& type,
+                              LongInt value, const std::string& id);
+
+        virtual void addValue(const std::string& name, const std::string& type,
+                              ULongInt value, const std::string& id);
+
+        virtual void addValue(const std::string& name, const std::string& type,
+                              long double value, const std::string& id);
 
         virtual void beginArray(const std::string& name, const std::string& type,
                                 const std::string& id) = 0;

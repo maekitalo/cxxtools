@@ -36,7 +36,7 @@ void SettingsWriter::write(const cxxtools::SerializationInfo& si)
     {
         if( it->category() == cxxtools::SerializationInfo::Value )
         {
-            this->writeEntry( it->name(), it->toString(), it->typeName() );
+            this->writeEntry( it->name(), it->toValue<String>(), it->typeName() );
             *_os << std::endl;
         }
         else if( it->category() == cxxtools::SerializationInfo::Object)
@@ -66,7 +66,7 @@ void SettingsWriter::writeParent(const cxxtools::SerializationInfo& sd, const st
         if( it->category() == cxxtools::SerializationInfo::Value )
         {
             *_os << cxxtools::String::widen( prefix ) << '.';
-            this->writeEntry( it->name(), it->toString(), it->typeName() );
+            this->writeEntry( it->name(), it->toValue<String>(), it->typeName() );
             *_os << std::endl;
         }
         else if( it->category() == cxxtools::SerializationInfo::Object )
@@ -92,7 +92,7 @@ void SettingsWriter::writeChild(const cxxtools::SerializationInfo& sd)
 
         if( it->category() == cxxtools::SerializationInfo::Value )
         {
-            this->writeEntry( it->name(), it->toString(), it->typeName() );
+            this->writeEntry( it->name(), it->toValue<String>(), it->typeName() );
         }
         else if( it->category() == cxxtools::SerializationInfo::Object ||
                  it->category() == cxxtools::SerializationInfo::Array)

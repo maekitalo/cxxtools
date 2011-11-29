@@ -113,8 +113,6 @@ class XmlFormatter : public cxxtools::Formatter
         void addValue(const std::string& name, const std::string& type,
                       const cxxtools::String& value, const std::string& id);
 
-        void addReference(const std::string& name, const cxxtools::String& value);
-
         void beginArray(const std::string& name, const std::string& type,
                         const std::string& id);
 
