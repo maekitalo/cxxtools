@@ -176,20 +176,6 @@ class CXXTOOLS_API SerializationInfo
         void getValue(double& value) const             { value = _getFloat(); }
         void getValue(long double& value) const        { value = _getFloat(); }
 
-        template <typename T>
-        T toValue() const
-        {
-            T v;
-            getValue(v);
-            return v;
-        }
-
-        /** @brief Deserialization of flat data-types
-        */
-        template <typename T>
-        void toValue(T& value) const
-        { getValue(value); }
-
         /** @brief Serialization of flat member data-types
         */
         template <typename T>
@@ -223,33 +209,6 @@ class CXXTOOLS_API SerializationInfo
                 return false;
             *si >>= value;
             return true;
-        }
-
-        /** @brief Compiler workaround.
-            This is needed for some compilers (GCC 3.x) to allow access to
-            method 'T getValue(const std::string& name) const' below.
-         */
-        template <typename T>
-        friend T getValue(const std::string& name, SerializationInfo* si);
-
-        /** @brief Deserialization of flat child value types
-        */
-        template <typename T>
-        T getValue(const std::string& name) const
-        {
-            T value;
-            const SerializationInfo& info = this->getMember(name);
-            info.toValue(value);
-            return value;
-        }
-
-        /** @brief Deserialization of flat child value types
-        */
-        template <typename T>
-        void getValue(const std::string& name, T& value) const
-        {
-            const SerializationInfo& info = this->getMember(name);
-            return info.toValue(value);
         }
 
         /** @brief Find member data by name
@@ -496,7 +455,7 @@ inline void operator <<=(SerializationInfo& si, const SerializationInfo& ssi)
 
 inline void operator >>=(const SerializationInfo& si, bool& n)
 {
-    si.toValue(n);
+    si.getValue(n);
 }
 
 
@@ -509,7 +468,7 @@ inline void operator <<=(SerializationInfo& si, bool n)
 
 inline void operator >>=(const SerializationInfo& si, signed char& n)
 {
-    si.toValue(n);
+    si.getValue(n);
 }
 
 
@@ -522,7 +481,7 @@ inline void operator <<=(SerializationInfo& si, signed char n)
 
 inline void operator >>=(const SerializationInfo& si, unsigned char& n)
 {
-    si.toValue(n);
+    si.getValue(n);
 }
 
 
@@ -535,7 +494,7 @@ inline void operator <<=(SerializationInfo& si, unsigned char n)
 
 inline void operator >>=(const SerializationInfo& si, char& n)
 {
-    si.toValue(n);
+    si.getValue(n);
 }
 
 
@@ -548,7 +507,7 @@ inline void operator <<=(SerializationInfo& si, char n)
 
 inline void operator >>=(const SerializationInfo& si, short& n)
 {
-    si.toValue(n);
+    si.getValue(n);
 }
 
 
@@ -561,7 +520,7 @@ inline void operator <<=(SerializationInfo& si, short n)
 
 inline void operator >>=(const SerializationInfo& si, unsigned short& n)
 {
-    si.toValue(n);
+    si.getValue(n);
 }
 
 
@@ -574,7 +533,7 @@ inline void operator <<=(SerializationInfo& si, unsigned short n)
 
 inline void operator >>=(const SerializationInfo& si, int& n)
 {
-    si.toValue(n);
+    si.getValue(n);
 }
 
 
@@ -587,7 +546,7 @@ inline void operator <<=(SerializationInfo& si, int n)
 
 inline void operator >>=(const SerializationInfo& si, unsigned int& n)
 {
-    si.toValue(n);
+    si.getValue(n);
 }
 
 
@@ -600,7 +559,7 @@ inline void operator <<=(SerializationInfo& si, unsigned int n)
 
 inline void operator >>=(const SerializationInfo& si, long& n)
 {
-    si.toValue(n);
+    si.getValue(n);
 }
 
 
@@ -613,7 +572,7 @@ inline void operator <<=(SerializationInfo& si, long n)
 
 inline void operator >>=(const SerializationInfo& si, unsigned long& n)
 {
-    si.toValue(n);
+    si.getValue(n);
 }
 
 
@@ -628,7 +587,7 @@ inline void operator <<=(SerializationInfo& si, unsigned long n)
 
 inline void operator >>=(const SerializationInfo& si, long long& n)
 {
-    si.toValue(n);
+    si.getValue(n);
 }
 
 
@@ -645,7 +604,7 @@ inline void operator <<=(SerializationInfo& si, long long n)
 
 inline void operator >>=(const SerializationInfo& si, unsigned long long& n)
 {
-    si.toValue(n);
+    si.getValue(n);
 }
 
 
@@ -660,7 +619,7 @@ inline void operator <<=(SerializationInfo& si, unsigned long long n)
 
 inline void operator >>=(const SerializationInfo& si, float& n)
 {
-    si.toValue<float>(n);
+    si.getValue(n);
 }
 
 
@@ -673,7 +632,7 @@ inline void operator <<=(SerializationInfo& si, float n)
 
 inline void operator >>=(const SerializationInfo& si, double& n)
 {
-    si.toValue<double>(n);
+    si.getValue(n);
 }
 
 
@@ -686,7 +645,7 @@ inline void operator <<=(SerializationInfo& si, double n)
 
 inline void operator >>=(const SerializationInfo& si, std::string& n)
 {
-    si.toValue<std::string>(n);
+    si.getValue(n);
 }
 
 
@@ -706,7 +665,7 @@ inline void operator <<=(SerializationInfo& si, const char* n)
 
 inline void operator >>=(const SerializationInfo& si, cxxtools::String& n)
 {
-    si.toValue<cxxtools::String>(n);
+    si.getValue(n);
 }
 
 

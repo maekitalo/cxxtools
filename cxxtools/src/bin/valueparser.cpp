@@ -271,7 +271,7 @@ bool ValueParser::advance(char ch)
             if (ch == '\0')
             {
                 if (_deserializer)
-                    _deserializer->setValue(Utf8Codec::decode(_token));
+                    _deserializer->setValue(_token);
                 _token.clear();
                 _state = state_end;
             }

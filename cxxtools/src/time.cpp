@@ -133,8 +133,9 @@ void operator >>=(const SerializationInfo& si, Time& time)
     }
     else
     {
-        std::string s = si.toValue<std::string>();
-        convert(time, s);;
+        std::string s;
+        si.getValue(s);
+        convert(time, s);
     }
 }
 

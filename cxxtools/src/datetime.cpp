@@ -242,7 +242,8 @@ void operator >>=(const SerializationInfo& si, DateTime& datetime)
     }
     else
     {
-        std::string s = si.toValue<std::string>();
+        std::string s;
+        si.getValue(s);
         convert(datetime, s);
     }
 }

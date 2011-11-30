@@ -139,7 +139,8 @@ void operator>>=(const SerializationInfo& si, Date& date)
     }
     else
     {
-        std::string s = si.toValue<std::string>();
+        std::string s;
+        si.getValue(s);
         convert(date, s);
     }
 }

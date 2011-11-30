@@ -48,13 +48,35 @@ void ISerializer::formatEach(const cxxtools::SerializationInfo& si, Formatter& f
     if(si.category() == SerializationInfo::Value)
     {
         if (si.isInt())
-            formatter.addValue( si.name(), si.typeName(), si.toValue<SerializationInfo::LongInt>(), si.id() );
+        {
+            SerializationInfo::LongInt value;
+            si.getValue(value);
+            formatter.addValue( si.name(), si.typeName(), value, si.id() );
+        }
         else if (si.isUInt())
-            formatter.addValue( si.name(), si.typeName(), si.toValue<SerializationInfo::ULongInt>(), si.id() );
+        {
+            SerializationInfo::ULongInt value;
+            si.getValue(value);
+            formatter.addValue( si.name(), si.typeName(), value, si.id() );
+        }
         else if (si.isFloat())
-            formatter.addValue( si.name(), si.typeName(), si.toValue<long double>(), si.id() );
+        {
+            long double value;
+            si.getValue(value);
+            formatter.addValue( si.name(), si.typeName(), value, si.id() );
+        }
+        else if (si.isString8())
+        {
+            std::string value;
+            si.getValue(value);
+            formatter.addValue( si.name(), si.typeName(), value, si.id() );
+        }
         else
-            formatter.addValue( si.name(), si.typeName(), si.toValue<String>(), si.id() );
+        {
+            String value;
+            si.getValue(value);
+            formatter.addValue( si.name(), si.typeName(), value, si.id() );
+        }
     }
     else if(si.category() == SerializationInfo::Object)
     {
