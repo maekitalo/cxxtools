@@ -29,6 +29,7 @@
 #include "httpclientimpl.h"
 #include "cxxtools/log.h"
 #include "cxxtools/http/replyheader.h"
+#include <string.h>
 
 log_define("cxxtools.xmlrpc.httpclient.impl")
 
@@ -160,10 +161,14 @@ void HttpClientImpl::verifyHeader(const http::ReplyHeader& header)
         throw std::runtime_error(msg.str());
     }
 
-    if (!header.isHeaderValue("Content-Type", "text/xml"))
+    const char* contentType = header.getHeader("Content-Type");
+    if (contentType == 0)
+        throw std::runtime_error("missing content type header");
+
+    if (::strncasecmp(contentType, "text/xml", 8) != 0)
     {
         std::ostringstream msg;
-        msg << "invalid content type " << header.getHeader("Content-Type");
+        msg << "invalid content type " << contentType;
         throw std::runtime_error(msg.str());
     }
 
