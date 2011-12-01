@@ -792,6 +792,9 @@ InIterT getInt(InIterT it, InIterT end, bool& ok, T& n, const FormatT& fmt)
     bool pos = false;
     it = getSign(it, end, pos, fmt);
 
+    if (it == end)
+        return it;
+
     bool isNeg = ! pos;
     if( isNeg )
     {
@@ -855,6 +858,9 @@ InIterT getFloat(InIterT it, InIterT end, bool& ok, T& n, const FormatT& fmt)
     bool pos = false;
     it = getSign(it, end, pos, fmt);
     
+    if (it == end)
+        return it;
+
     // NaN, -inf, +inf
     bool done = false;
     while(it != end)

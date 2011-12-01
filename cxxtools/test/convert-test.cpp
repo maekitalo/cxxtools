@@ -43,6 +43,7 @@ class ConvertTest : public cxxtools::unit::TestSuite
             registerMethod("failTest", *this, &ConvertTest::failTest);
             registerMethod("nanTest", *this, &ConvertTest::nanTest);
             registerMethod("infTest", *this, &ConvertTest::infTest);
+            registerMethod("emptyTest", *this, &ConvertTest::emptyTest);
         }
 
         void successTest()
@@ -162,6 +163,17 @@ class ConvertTest : public cxxtools::unit::TestSuite
           ss = cxxtools::convert<cxxtools::String>(f);
           CXXTOOLS_UNIT_ASSERT(strcasecmp(ss.narrow().c_str(), "-inf") == 0);
 
+        }
+
+        void emptyTest()
+        {
+          std::string emptyString;
+          CXXTOOLS_UNIT_ASSERT_THROW(cxxtools::convert<int>(std::string()), cxxtools::ConversionError);
+          CXXTOOLS_UNIT_ASSERT_THROW(cxxtools::convert<int>(cxxtools::String()), cxxtools::ConversionError);
+          CXXTOOLS_UNIT_ASSERT_THROW(cxxtools::convert<unsigned>(std::string()), cxxtools::ConversionError);
+          CXXTOOLS_UNIT_ASSERT_THROW(cxxtools::convert<unsigned>(cxxtools::String()), cxxtools::ConversionError);
+          CXXTOOLS_UNIT_ASSERT_THROW(cxxtools::convert<double>(std::string()), cxxtools::ConversionError);
+          CXXTOOLS_UNIT_ASSERT_THROW(cxxtools::convert<double>(cxxtools::String()), cxxtools::ConversionError);
         }
 
 };
