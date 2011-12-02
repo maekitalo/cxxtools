@@ -79,6 +79,8 @@ class ValueParser
             state_value_uint,
             state_value_bool,
             state_value_bcd,
+            state_value_binary_length,
+            state_value_binary,
             state_value_value,
             state_object_name,
             state_object_id,

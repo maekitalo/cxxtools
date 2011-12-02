@@ -12,6 +12,8 @@ type: byte
                4=int (big endian)
                5=double
                6=bcd double
+               7=binary with 2 byte big endian length field
+               8=binary with 4 byte big endian length field
                16=int8
                17=int16
                18=int32

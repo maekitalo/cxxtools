@@ -352,6 +352,22 @@ void Formatter::addValue(const std::string& name, const std::string& type,
         *_out << static_cast<char>(Serializer::TypeBool)
               << (isTrue(value) ? '\1' : '\0');
     }
+    else if (value.find('\0') != std::string::npos)
+    {
+        uint32_t v = value.size();
+        if (v <= 0xffff)
+            *_out << static_cast<char>(Serializer::TypeBinary2)
+                  << static_cast<char>(v >> 8)
+                  << static_cast<char>(v)
+                  << value;
+        else
+            *_out << static_cast<char>(Serializer::TypeBinary4)
+                  << static_cast<char>(v >> 24)
+                  << static_cast<char>(v >> 16)
+                  << static_cast<char>(v >> 8)
+                  << static_cast<char>(v)
+                  << value;
+    }
     else
     {
         printTypeCode(*_out, type);

@@ -49,6 +49,8 @@ namespace cxxtools
                     TypeInt = 4,
                     TypeDouble = 5,
                     TypeBcdDouble = 6,
+                    TypeBinary2 = 7,
+                    TypeBinary4 = 8,
                     TypeInt8 = 16,
                     TypeInt16 = 17,
                     TypeInt32 = 18,

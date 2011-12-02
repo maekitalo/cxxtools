@@ -57,6 +57,8 @@ namespace
             case Serializer::TypeUInt64: return "int";
             case Serializer::TypeDouble:
             case Serializer::TypeBcdDouble: return "double";
+            case Serializer::TypeBinary2:
+            case Serializer::TypeBinary4: return "binary";
             case Serializer::TypePair: return "pair";
             case Serializer::TypeArray: return "array";
             case Serializer::TypeList: return "list";
@@ -175,6 +177,8 @@ bool ValueParser::advance(char ch)
                     case Serializer::TypeUInt64: _count = 8; _state = state_value_uint; break;
                     case Serializer::TypeBool: _state = state_value_bool; break;
                     case Serializer::TypeBcdDouble: _state = state_value_bcd; break;
+                    case Serializer::TypeBinary2: _count = 2; _state = state_value_binary_length; break;
+                    case Serializer::TypeBinary4: _count = 4; _state = state_value_binary_length; break;
                     default: _state = state_value_value;
                 }
 
@@ -265,6 +269,37 @@ bool ValueParser::advance(char ch)
                 }
             }
 
+            break;
+
+        case state_value_binary_length:
+            _int.d[--_count] = ch;
+            if (_count == 0)
+            {
+                _count = static_cast<unsigned>(_int.u);
+                _int.u = 0;
+                if (_count == 0)
+                {
+                    if (_deserializer)
+                        _deserializer->setValue(std::string());
+                    _state = state_end;
+                }
+                else
+                {
+                    _state = state_value_binary;
+                }
+            }
+            break;
+
+        case state_value_binary:
+            if (_deserializer)
+                _token += ch;
+
+            if (--_count == 0)
+            {
+                if (_deserializer)
+                    _deserializer->setValue(_token);
+                _state = state_end;
+            }
             break;
 
         case state_value_value:

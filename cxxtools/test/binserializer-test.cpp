@@ -112,6 +112,7 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
             registerMethod("testArray", *this, &BinSerializerTest::testArray);
             registerMethod("testObject", *this, &BinSerializerTest::testObject);
             registerMethod("testComplexObject", *this, &BinSerializerTest::testComplexObject);
+            registerMethod("testBinaryData", *this, &BinSerializerTest::testBinaryData);
         }
 
         void testScalar()
@@ -287,6 +288,37 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT(v == v2);
         }
 
+        void testBinaryData()
+        {
+            std::stringstream data;
+            cxxtools::bin::Serializer serializer(data);
+            cxxtools::bin::Deserializer deserializer(data);
+
+            std::string v;
+            for (unsigned n = 0; n < 1024; ++n)
+                v.push_back(static_cast<char>(n));
+
+            serializer.serialize(v, "v");
+            log_debug("v.data=" << cxxtools::hexDump(data.str()));
+
+            std::string v2;
+            deserializer.deserialize(v2);
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v2.size(), 1024);
+            CXXTOOLS_UNIT_ASSERT(v == v2);
+
+            data.str(std::string());
+
+            for (unsigned n = 0; n < 0xffff; ++n)
+                v.push_back(static_cast<char>(n));
+
+            serializer.serialize(v, "v");
+            deserializer.deserialize(v2);
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v2.size(), 0xffff + 1024);
+            CXXTOOLS_UNIT_ASSERT(v == v2);
+
+        }
 };
 
 cxxtools::unit::RegisterTest<BinSerializerTest> register_BinSerializerTest;
