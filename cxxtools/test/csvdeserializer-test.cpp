@@ -62,6 +62,8 @@ class CsvDeserializerTest : public cxxtools::unit::TestSuite
             registerMethod("testObjectVector", *this, &CsvDeserializerTest::testObjectVector);
             registerMethod("testMissigColumn", *this, &CsvDeserializerTest::testMissingColumn);
             registerMethod("testTooManyColumns", *this, &CsvDeserializerTest::testTooManyColumns);
+            registerMethod("testCr", *this, &CsvDeserializerTest::testCr);
+            registerMethod("testEmptyLines", *this, &CsvDeserializerTest::testEmptyLines);
         }
 
         void testVectorVector()
@@ -156,6 +158,54 @@ class CsvDeserializerTest : public cxxtools::unit::TestSuite
 
             cxxtools::CsvDeserializer deserializer(in);
             CXXTOOLS_UNIT_ASSERT_THROW(deserializer.deserialize(data), std::exception);
+        }
+
+        void testCr()
+        {
+            std::vector<std::vector<std::string> > data;
+            std::istringstream in(
+                "A|B|C\r\n"
+                "Hello|World|\r"
+                "34|67|\"23\"\n"
+                "col1|'col2'|col3\r\n");
+
+            cxxtools::CsvDeserializer deserializer(in);
+            deserializer.deserialize(data);
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 3);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0].size(), 3);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[1].size(), 3);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[2].size(), 3);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0][0], "Hello");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0][1], "World");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[1][0], "34");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[1][1], "67");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[1][2], "23");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[2][0], "col1");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[2][1], "col2");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[2][2], "col3");
+        }
+
+        void testEmptyLines()
+        {
+            std::vector<std::vector<std::string> > data;
+            std::istringstream in(
+                "A;B;C\n"
+                ";;\n"
+                ";;\n");
+
+            cxxtools::CsvDeserializer deserializer(in);
+            deserializer.deserialize(data);
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 2);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0].size(), 3);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[1].size(), 3);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0][0], "");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0][1], "");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0][2], "");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[1][0], "");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[1][1], "");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[1][2], "");
         }
 
 };

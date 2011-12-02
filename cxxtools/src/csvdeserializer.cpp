@@ -81,6 +81,7 @@ namespace cxxtools
         {
             state_detectDelim,
             state_title,
+            state_cr,
             state_rowstart,
             state_datastart,
             state_data0,
@@ -117,10 +118,10 @@ namespace cxxtools
                     {
                         titles.back() += ch.narrow();
                     }
-                    else if (ch == L'\n')
+                    else if (ch == L'\n' || ch == L'\r')
                     {
                         log_debug("title=\"" << titles.back() << '"');
-                        state = state_rowstart;
+                        state = (ch == L'\r' ? state_cr : state_rowstart);
                     }
                     else
                     {
@@ -133,10 +134,10 @@ namespace cxxtools
                     break;
 
                 case state_title:
-                    if (ch == L'\n')
+                    if (ch == L'\n' || ch == L'\r')
                     {
                         log_debug("title=\"" << titles.back() << '"');
-                        state = state_rowstart;
+                        state = (ch == L'\r' ? state_cr : state_rowstart);
                         noColumns = titles.size();
                     }
                     else if (ch == delimiter)
@@ -150,35 +151,44 @@ namespace cxxtools
                     }
                     break;
 
+                case state_cr:
+                    state = state_rowstart;
+                    if (ch == L'\n')
+                    {
+                        break;
+                    }
+                    // fallthrough
+
                 case state_rowstart:
                     column = 0;
                     log_debug("new row");
                     deserializer->beginMember(std::string(),
                         std::string(), SerializationInfo::Array);
+                    state = state_datastart;
                     // no break
 
                 case state_datastart:
-                    if (ch == L'\n')
-                    {
-                        checkNoColumns(column, noColumns, lineNo);
-                        deserializer->leaveMember();
-                        state = state_rowstart;
-                        break;
-                    }
-
                     log_debug("member \""
                         << (column < titles.size() ? titles[column] : std::string()) << '"');
                     deserializer->beginMember(
                         column < titles.size() ? titles[column] : std::string(),
                         std::string(), SerializationInfo::Value);
 
-                    if (ch == L'"' || ch == L'\'')
+                    if (ch == L'\n' || ch == L'\r')
+                    {
+                        deserializer->leaveMember();
+                        checkNoColumns(column, noColumns, lineNo);
+                        deserializer->leaveMember();
+                        state = (ch == L'\r' ? state_cr : state_rowstart);
+                    }
+                    else if (ch == L'"' || ch == L'\'')
                     {
                         quote = ch;
                         state = state_qdata;
                     }
                     else if (ch == delimiter)
                     {
+                        ++column;
                         deserializer->leaveMember();
                     }
                     else
@@ -197,7 +207,7 @@ namespace cxxtools
                     }
 
                 case state_data:
-                    if (ch == L'\n')
+                    if (ch == L'\n' || ch == L'\r')
                     {
                         log_debug("value \"" << value << '"');
                         deserializer->setValue(value);
@@ -205,7 +215,7 @@ namespace cxxtools
                         checkNoColumns(column, noColumns, lineNo);
                         deserializer->leaveMember();  // leave data item
                         deserializer->leaveMember();  // leave row
-                        state = state_rowstart;
+                        state = (ch == L'\r' ? state_cr : state_rowstart);
                     }
                     else if (ch == delimiter)
                     {
@@ -243,11 +253,11 @@ namespace cxxtools
                     break;
 
                 case state_qdata_end:
-                    if (ch == L'\n')
+                    if (ch == L'\n' || ch == L'\r')
                     {
                         checkNoColumns(column, noColumns, lineNo);
                         deserializer->leaveMember();  // leave row
-                        state = state_rowstart;
+                        state = (ch == L'\r' ? state_cr : state_rowstart);
                     }
                     else if (ch == delimiter)
                     {
