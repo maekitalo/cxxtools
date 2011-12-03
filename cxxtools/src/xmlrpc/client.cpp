@@ -38,7 +38,7 @@ Client::~Client()
 {
 }
 
-void Client::beginCall(IDeserializer& r, IRemoteProcedure& method, ISerializer** argv, unsigned argc)
+void Client::beginCall(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc)
 {
     _impl->beginCall(r, method, argv, argc);
 }
@@ -48,7 +48,7 @@ void Client::endCall()
     _impl->endCall();
 }
 
-void Client::call(IDeserializer& r, IRemoteProcedure& method, ISerializer** argv, unsigned argc)
+void Client::call(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc)
 {
     _impl->call(r, method, argv, argc);
 }

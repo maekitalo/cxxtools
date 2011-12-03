@@ -27,7 +27,7 @@
  */
 
 #include <cxxtools/jsonparser.h>
-#include <cxxtools/deserializer.h>
+#include <cxxtools/composer.h>
 #include <cxxtools/utf8codec.h>
 #include <cxxtools/log.h>
 
@@ -96,8 +96,7 @@ bool JsonParser::JsonStringParser::advance(Char ch)
 }
 
 JsonParser::JsonParser()
-    : _context(0),
-      _deserializer(0),
+    : _composer(0),
       _next(0)
 { }
 
@@ -155,9 +154,9 @@ int JsonParser::advance(Char ch)
                 if (_next == 0)
                     _next = new JsonParser();
                 log_debug("begin object member " << _stringParser.str());
-                IDeserializer* d = _deserializer->beginMember(Utf8Codec::encode(_stringParser.str()),
+                IComposer* c = _composer->beginMember(Utf8Codec::encode(_stringParser.str()),
                         std::string(), SerializationInfo::Object);
-                _next->begin(*d, *_context);
+                _next->begin(*c);
                 _stringParser.clear();
                 _state = state_object_value;
             }
@@ -171,7 +170,7 @@ int JsonParser::advance(Char ch)
             if (ret != 0)
             {
                 log_debug("leave member");
-                _deserializer->leaveMember();
+                _composer->leaveMember();
                 _state = state_object_e;
             }
 
@@ -201,7 +200,7 @@ int JsonParser::advance(Char ch)
             if (ch == ']')
             {
                 log_debug("leave member");
-                _deserializer->leaveMember();
+                _composer->leaveMember();
                 return 1;
             }
             else if (!std::isspace(ch))
@@ -210,9 +209,9 @@ int JsonParser::advance(Char ch)
                     _next = new JsonParser();
 
                 log_debug("begin array member");
-                IDeserializer* d = _deserializer->beginMember(std::string(),
+                IComposer* c = _composer->beginMember(std::string(),
                         std::string(), SerializationInfo::Array);
-                _next->begin(*d, *_context);
+                _next->begin(*c);
                 _next->advance(ch);
                 _state = state_array_value;
             }
@@ -229,18 +228,18 @@ int JsonParser::advance(Char ch)
             if (ch == ']')
             {
                 log_debug("leave member");
-                _deserializer->leaveMember();
+                _composer->leaveMember();
                 return 1;
             }
             else if (ch == ',')
             {
                 log_debug("leave member");
-                _deserializer->leaveMember();
+                _composer->leaveMember();
 
                 log_debug("begin array member");
-                IDeserializer* d = _deserializer->beginMember(std::string(),
+                IComposer* c = _composer->beginMember(std::string(),
                         std::string(), SerializationInfo::Array);
-                _next->begin(*d, *_context);
+                _next->begin(*c);
                 _state = state_array_value;
             }
             else if (!std::isspace(ch))
@@ -251,8 +250,8 @@ int JsonParser::advance(Char ch)
             if (_stringParser.advance(ch))
             {
                 log_debug("set string value \"" << _stringParser.str() << '"');
-                _deserializer->setValue(_stringParser.str());
-                _deserializer->setTypeName("string");
+                _composer->setValue(_stringParser.str());
+                _composer->setTypeName("string");
                 _stringParser.clear();
                 _state = state_end;
                 return 1;
@@ -263,8 +262,8 @@ int JsonParser::advance(Char ch)
             if (std::isspace(ch))
             {
                 log_debug("set int value \"" << _token << '"');
-                _deserializer->setValue(_token);
-                _deserializer->setTypeName("int");
+                _composer->setValue(_token);
+                _composer->setTypeName("int");
                 _token.clear();
                 return 1;
             }
@@ -280,8 +279,8 @@ int JsonParser::advance(Char ch)
             else
             {
                 log_debug("set int value \"" << _token << '"');
-                _deserializer->setValue(_token);
-                _deserializer->setTypeName("int");
+                _composer->setValue(_token);
+                _composer->setTypeName("int");
                 _token.clear();
                 return -1;
             }
@@ -291,8 +290,8 @@ int JsonParser::advance(Char ch)
             if (std::isspace(ch))
             {
                 log_debug("set double value \"" << _token << '"');
-                _deserializer->setValue(_token);
-                _deserializer->setTypeName("double");
+                _composer->setValue(_token);
+                _composer->setTypeName("double");
                 _token.clear();
                 return 1;
             }
@@ -302,8 +301,8 @@ int JsonParser::advance(Char ch)
             else
             {
                 log_debug("set double value \"" << _token << '"');
-                _deserializer->setValue(_token);
-                _deserializer->setTypeName("double");
+                _composer->setValue(_token);
+                _composer->setTypeName("double");
                 _token.clear();
                 return -1;
             }
@@ -317,14 +316,14 @@ int JsonParser::advance(Char ch)
                 if (_token == "true" || _token == "false")
                 {
                     log_debug("set bool value \"" << _token << '"');
-                    _deserializer->setValue(_token);
-                    _deserializer->setTypeName("bool");
+                    _composer->setValue(_token);
+                    _composer->setTypeName("bool");
                     _token.clear();
                 }
                 else if (_token == "null")
                 {
                     log_debug("set null value \"" << _token << '"');
-                    _deserializer->setTypeName("null");
+                    _composer->setTypeName("null");
                     _token.clear();
                 }
 
@@ -356,27 +355,27 @@ bool JsonParser::finish()
             throw std::runtime_error("unexpected end");
 
         case state_number:
-            _deserializer->setValue(_token);
-            _deserializer->setTypeName("int");
+            _composer->setValue(_token);
+            _composer->setTypeName("int");
             _token.clear();
             return true;
 
         case state_float:
-            _deserializer->setValue(_token);
-            _deserializer->setTypeName("double");
+            _composer->setValue(_token);
+            _composer->setTypeName("double");
             _token.clear();
             return true;
 
         case state_token:
             if (_token == "true" || _token == "false")
             {
-                _deserializer->setValue(_token);
-                _deserializer->setTypeName("bool");
+                _composer->setValue(_token);
+                _composer->setTypeName("bool");
                 _token.clear();
             }
             else if (_token == "null")
             {
-                _deserializer->setTypeName("null");
+                _composer->setTypeName("null");
                 _token.clear();
             }
 

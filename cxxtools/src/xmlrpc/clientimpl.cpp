@@ -93,7 +93,7 @@ ClientImpl::~ClientImpl()
 }
 
 
-void ClientImpl::beginCall(IDeserializer& r, IRemoteProcedure& method, ISerializer** argv, unsigned argc)
+void ClientImpl::beginCall(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc)
 {
     _method = &method;
     _state = OnBegin;
@@ -103,7 +103,7 @@ void ClientImpl::beginCall(IDeserializer& r, IRemoteProcedure& method, ISerializ
     beginExecute();
 
     _reader.reset(_ts);
-    _scanner.begin(r, _context);
+    _scanner.begin(r);
 }
 
 
@@ -113,7 +113,7 @@ void ClientImpl::endCall()
 }
 
 
-void ClientImpl::call(IDeserializer& r, IRemoteProcedure& method, ISerializer** argv, unsigned argc)
+void ClientImpl::call(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc)
 {
     _method = &method;
     _state = OnBegin;
@@ -123,7 +123,7 @@ void ClientImpl::call(IDeserializer& r, IRemoteProcedure& method, ISerializer** 
     std::istringstream is(execute());
     _ts.attach(is);
     _reader.reset(_ts);
-    _scanner.begin(r, _context);
+    _scanner.begin(r);
 
     while( _reader.get().type() !=  cxxtools::xml::Node::EndDocument )
     {
@@ -240,7 +240,7 @@ void ClientImpl::onReplyFinished()
 }
 
 
-void ClientImpl::prepareRequest(const String& name, ISerializer** argv, unsigned argc)
+void ClientImpl::prepareRequest(const String& name, IDecomposer** argv, unsigned argc)
 {
     _writer.begin( prepareRequest() );
     _writer.writeStartElement( methodCall );
@@ -292,7 +292,7 @@ void ClientImpl::advance(const cxxtools::xml::Node& node)
                 else if( se.name() == L"fault")
                 {
                     _fh.begin(_fault);
-                    _scanner.begin(_fh, _context);
+                    _scanner.begin(_fh);
                     _state = OnFaultBegin;
                     break;
                 }

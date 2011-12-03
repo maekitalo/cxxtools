@@ -37,7 +37,7 @@ namespace cxxtools
 {
 namespace bin
 {
-    class CXXTOOLS_API Deserializer : private NonCopyable
+    class CXXTOOLS_API Deserializer : public cxxtools::Deserializer
     {
         public:
             typedef bin::Serializer::TypeCode TypeCode;
@@ -46,27 +46,11 @@ namespace bin
                 : _in(in)
             { }
 
-            template <typename T>
-            void deserialize(T& type)
-            {
-                cxxtools::Deserializer<T> deser;
-                deser.begin(type);
-                this->get(&deser);
-                deser.fixup(_context);
-            }
-
-            void finish()
-            {
-                _context.fixup();
-                _context.clear();
-            }
-
         protected:
-            void get(IDeserializer* deser);
+            void get(IComposer* deser);
 
         private:
             std::istream& _in;
-            cxxtools::DeserializationContext _context;
     };
 }
 }

@@ -55,7 +55,7 @@ void RpcClient::close()
     _impl->close();
 }
 
-void RpcClient::beginCall(IDeserializer& r, IRemoteProcedure& method, ISerializer** argv, unsigned argc)
+void RpcClient::beginCall(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc)
 {
     _impl->beginCall(r, method, argv, argc);
 }
@@ -65,7 +65,7 @@ void RpcClient::endCall()
     _impl->endCall();
 }
 
-void RpcClient::call(IDeserializer& r, IRemoteProcedure& method, ISerializer** argv, unsigned argc)
+void RpcClient::call(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc)
 {
     _impl->call(r, method, argv, argc);
 }

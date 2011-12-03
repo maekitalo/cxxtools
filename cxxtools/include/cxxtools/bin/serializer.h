@@ -30,7 +30,7 @@
 #define CXXTOOLS_BIN_SERIALIZER_H
 
 #include <cxxtools/bin/formatter.h>
-#include <cxxtools/serializer.h>
+#include <cxxtools/decomposer.h>
 #include <cxxtools/noncopyable.h>
 
 namespace cxxtools
@@ -88,7 +88,7 @@ namespace cxxtools
                 template <typename T>
                 Serializer& serialize(const T& v, const std::string& name)
                 {
-                    cxxtools::Serializer<T> s;
+                    Decomposer<T> s;
                     s.begin(v);
                     s.setName(name);
                     s.format(_formatter);

@@ -80,11 +80,10 @@ namespace
     static const char bcdDigits[16] = "0123456789+-. e";
 }
 
-void ValueParser::begin(IDeserializer& handler, DeserializationContext& context)
+void ValueParser::begin(IComposer& handler)
 {
     _state = state_0;
     _deserializer = &handler;
-    _context = &context;
     _int.u = 0;
     _token.clear();
 }
@@ -94,7 +93,6 @@ void ValueParser::beginSkip()
 {
     _state = state_0;
     _deserializer = 0;
-    _context = 0;
     _int.u = 0;
     _token.clear();
 }
@@ -210,9 +208,9 @@ bool ValueParser::advance(char ch)
                 if (_deserializer)
                 {
                     if (_state == state_value_int)
-                        _deserializer->setValue(IDeserializer::LongInt(_int.s));
+                        _deserializer->setValue(IComposer::LongInt(_int.s));
                     else
-                        _deserializer->setValue(IDeserializer::ULongInt(_int.u));
+                        _deserializer->setValue(IComposer::ULongInt(_int.u));
                 }
 
                 _int.u = 0;
@@ -356,7 +354,7 @@ bool ValueParser::advance(char ch)
                 if (_deserializer)
                 {
                     _deserializer = _deserializer->beginMember(_token, "", SerializationInfo::Void);
-                    _next->begin(*_deserializer, *_context);
+                    _next->begin(*_deserializer);
                 }
                 else
                     _next->beginSkip();
@@ -410,7 +408,7 @@ bool ValueParser::advance(char ch)
             if (_deserializer)
             {
                 _deserializer = _deserializer->beginMember("", "", SerializationInfo::Void);
-                _next->begin(*_deserializer, *_context);
+                _next->begin(*_deserializer);
             }
             else
             {
@@ -440,7 +438,7 @@ bool ValueParser::advance(char ch)
                 if (_deserializer)
                 {
                     _deserializer = _deserializer->beginMember("", "", SerializationInfo::Void);
-                    _next->begin(*_deserializer, *_context);
+                    _next->begin(*_deserializer);
                 }
                 else
                 {

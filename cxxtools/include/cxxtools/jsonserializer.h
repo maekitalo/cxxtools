@@ -31,7 +31,7 @@
 
 #include <cxxtools/formatter.h>
 #include <cxxtools/textstream.h>
-#include <cxxtools/serializer.h>
+#include <cxxtools/decomposer.h>
 #include <cxxtools/noncopyable.h>
 #include <sstream>
 
@@ -134,7 +134,7 @@ namespace cxxtools
             template <typename T>
             JsonSerializer& serialize(const T& v, const std::string& name)
             {
-                cxxtools::Serializer<T> s;
+                Decomposer<T> s;
                 s.begin(v);
                 s.setName(name);
                 s.format(_formatter);

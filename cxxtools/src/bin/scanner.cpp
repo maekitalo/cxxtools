@@ -53,7 +53,7 @@ bool Scanner::advance(char ch)
         case state_value:
             if (_vp.advance(ch))
             {
-                _vp.current()->fixup(_context);
+                _vp.current()->fixup();
                 _state = state_end;
             }
             break;

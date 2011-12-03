@@ -28,20 +28,21 @@
 
 #include <cxxtools/bin/deserializer.h>
 #include <cxxtools/bin/valueparser.h>
+#include <cxxtools/serializationerror.h>
 
 namespace cxxtools
 {
 namespace bin
 {
-void Deserializer::get(IDeserializer* deser)
+void Deserializer::get(IComposer* composer)
 {
     ValueParser vp;
-    vp.begin(*deser, _context);
+    vp.begin(*composer);
     char ch;
     while (_in.get(ch) && !vp.advance(ch))
         ;
     if (!_in)
-        throw std::runtime_error("deserialization failed");
+        throw SerializationError("binary deserialization failed");
 }
 }
 }

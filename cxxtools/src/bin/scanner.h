@@ -20,7 +20,7 @@
 #ifndef CXXTOOLS_BIN_SCANNER_H
 #define CXXTOOLS_BIN_SCANNER_H
 
-#include <cxxtools/deserializer.h>
+#include <cxxtools/composer.h>
 #include <cxxtools/bin/valueparser.h>
 #include <string>
 
@@ -36,9 +36,9 @@ namespace cxxtools
                       _failed(false)
                 { }
 
-                void begin(IDeserializer* deserializer)
+                void begin(IComposer* composer)
                 {
-                    _vp.begin(*deserializer, _context);
+                    _vp.begin(*composer);
                     _state = state_0;
                     _failed = false;
                     _errorCode = 0;
@@ -60,7 +60,6 @@ namespace cxxtools
                 } _state;
 
                 ValueParser _vp;
-                DeserializationContext _context;
                 unsigned short _count;
 
                 bool _failed;

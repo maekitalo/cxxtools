@@ -29,8 +29,8 @@
 #ifndef CXXTOOLS_SERVICEPROCEDURE_H
 #define CXXTOOLS_SERVICEPROCEDURE_H
 
-#include <cxxtools/deserializer.h>
-#include <cxxtools/serializer.h>
+#include <cxxtools/composer.h>
+#include <cxxtools/decomposer.h>
 #include <cxxtools/void.h>
 #include <cxxtools/typetraits.h>
 
@@ -47,23 +47,23 @@ class ServiceProcedure
 
         virtual ServiceProcedure* clone() const = 0;
 
-        virtual IDeserializer** beginCall() = 0;
+        virtual IComposer** beginCall() = 0;
 
-        virtual ISerializer* endCall() = 0;
+        virtual IDecomposer* endCall() = 0;
 };
 
 // BasicServiceProcedure with 10 arguments
 template <typename R,
-          typename A1 = cxxtools::Void,
-          typename A2 = cxxtools::Void,
-          typename A3 = cxxtools::Void,
-          typename A4 = cxxtools::Void,
-          typename A5 = cxxtools::Void,
-          typename A6 = cxxtools::Void,
-          typename A7 = cxxtools::Void,
-          typename A8 = cxxtools::Void,
-          typename A9 = cxxtools::Void,
-          typename A10 = cxxtools::Void>
+          typename A1 = Void,
+          typename A2 = Void,
+          typename A3 = Void,
+          typename A4 = Void,
+          typename A5 = Void,
+          typename A6 = Void,
+          typename A7 = Void,
+          typename A8 = Void,
+          typename A9 = Void,
+          typename A10 = Void>
 class BasicServiceProcedure : public ServiceProcedure
 {
     public:
@@ -96,7 +96,7 @@ class BasicServiceProcedure : public ServiceProcedure
             return new BasicServiceProcedure(*_cb);
         }
 
-        IDeserializer** beginCall()
+        IComposer** beginCall()
         {
             _a1.begin(_v1);
             _a2.begin(_v2);
@@ -112,7 +112,7 @@ class BasicServiceProcedure : public ServiceProcedure
             return _args;
         }
 
-        ISerializer* endCall()
+        IDecomposer* endCall()
         {
             _rv = _cb->call(_v1, _v2, _v3, _v4, _v5, _v6, _v7, _v8, _v9, _v10);
             _r.begin(_rv);
@@ -145,18 +145,18 @@ class BasicServiceProcedure : public ServiceProcedure
         V9 _v9;
         V10 _v10;
 
-        IDeserializer* _args[11];
-        Deserializer<V1> _a1;
-        Deserializer<V2> _a2;
-        Deserializer<V3> _a3;
-        Deserializer<V4> _a4;
-        Deserializer<V5> _a5;
-        Deserializer<V6> _a6;
-        Deserializer<V7> _a7;
-        Deserializer<V8> _a8;
-        Deserializer<V9> _a9;
-        Deserializer<V10> _a10;
-        Serializer<RV> _r;
+        IComposer* _args[11];
+        Composer<V1> _a1;
+        Composer<V2> _a2;
+        Composer<V3> _a3;
+        Composer<V4> _a4;
+        Composer<V5> _a5;
+        Composer<V6> _a6;
+        Composer<V7> _a7;
+        Composer<V8> _a8;
+        Composer<V9> _a9;
+        Composer<V10> _a10;
+        Decomposer<RV> _r;
 };
 
 
@@ -172,7 +172,7 @@ template <typename R,
           typename A8,
           typename A9>
 class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8, A9,
-                            cxxtools::Void> : public ServiceProcedure
+                            Void> : public ServiceProcedure
 {
     public:
         BasicServiceProcedure( const Callable<R, A1, A2, A3, A4, A5, A6, A7, A8, A9>& cb )
@@ -203,7 +203,7 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8, A9,
             return new BasicServiceProcedure(*_cb);
         }
 
-        IDeserializer** beginCall()
+        IComposer** beginCall()
         {
             _a1.begin(_v1);
             _a2.begin(_v2);
@@ -218,7 +218,7 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8, A9,
             return _args;
         }
 
-        ISerializer* endCall()
+        IDecomposer* endCall()
         {
             _rv = _cb->call(_v1, _v2, _v3, _v4, _v5, _v6, _v7, _v8, _v9);
             _r.begin(_rv);
@@ -249,17 +249,17 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8, A9,
         V8 _v8;
         V9 _v9;
 
-        IDeserializer* _args[10];
-        Deserializer<V1> _a1;
-        Deserializer<V2> _a2;
-        Deserializer<V3> _a3;
-        Deserializer<V4> _a4;
-        Deserializer<V5> _a5;
-        Deserializer<V6> _a6;
-        Deserializer<V7> _a7;
-        Deserializer<V8> _a8;
-        Deserializer<V9> _a9;
-        Serializer<RV> _r;
+        IComposer* _args[10];
+        Composer<V1> _a1;
+        Composer<V2> _a2;
+        Composer<V3> _a3;
+        Composer<V4> _a4;
+        Composer<V5> _a5;
+        Composer<V6> _a6;
+        Composer<V7> _a7;
+        Composer<V8> _a8;
+        Composer<V9> _a9;
+        Decomposer<RV> _r;
 };
 
 
@@ -274,8 +274,8 @@ template <typename R,
           typename A7,
           typename A8>
 class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8,
-                            cxxtools::Void,
-                            cxxtools::Void> : public ServiceProcedure
+                            Void,
+                            Void> : public ServiceProcedure
 {
     public:
         BasicServiceProcedure( const Callable<R, A1, A2, A3, A4, A5, A6, A7, A8>& cb )
@@ -305,7 +305,7 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8,
             return new BasicServiceProcedure(*_cb);
         }
 
-        IDeserializer** beginCall()
+        IComposer** beginCall()
         {
             _a1.begin(_v1);
             _a2.begin(_v2);
@@ -319,7 +319,7 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8,
             return _args;
         }
 
-        ISerializer* endCall()
+        IDecomposer* endCall()
         {
             _rv = _cb->call(_v1, _v2, _v3, _v4, _v5, _v6, _v7, _v8);
             _r.begin(_rv);
@@ -348,16 +348,16 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8,
         V7 _v7;
         V8 _v8;
 
-        IDeserializer* _args[9];
-        Deserializer<V1> _a1;
-        Deserializer<V2> _a2;
-        Deserializer<V3> _a3;
-        Deserializer<V4> _a4;
-        Deserializer<V5> _a5;
-        Deserializer<V6> _a6;
-        Deserializer<V7> _a7;
-        Deserializer<V8> _a8;
-        Serializer<RV> _r;
+        IComposer* _args[9];
+        Composer<V1> _a1;
+        Composer<V2> _a2;
+        Composer<V3> _a3;
+        Composer<V4> _a4;
+        Composer<V5> _a5;
+        Composer<V6> _a6;
+        Composer<V7> _a7;
+        Composer<V8> _a8;
+        Decomposer<RV> _r;
 };
 
 
@@ -371,9 +371,9 @@ template <typename R,
           typename A6,
           typename A7>
 class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7,
-                            cxxtools::Void,
-                            cxxtools::Void,
-                            cxxtools::Void> : public ServiceProcedure
+                            Void,
+                            Void,
+                            Void> : public ServiceProcedure
 {
     public:
         BasicServiceProcedure( const Callable<R, A1, A2, A3, A4, A5, A6, A7>& cb )
@@ -402,7 +402,7 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7,
             return new BasicServiceProcedure(*_cb);
         }
 
-        IDeserializer** beginCall()
+        IComposer** beginCall()
         {
             _a1.begin(_v1);
             _a2.begin(_v2);
@@ -415,7 +415,7 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7,
             return _args;
         }
 
-        ISerializer* endCall()
+        IDecomposer* endCall()
         {
             _rv = _cb->call(_v1, _v2, _v3, _v4, _v5, _v6, _v7);
             _r.begin(_rv);
@@ -442,15 +442,15 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7,
         V6 _v6;
         V7 _v7;
 
-        IDeserializer* _args[8];
-        Deserializer<V1> _a1;
-        Deserializer<V2> _a2;
-        Deserializer<V3> _a3;
-        Deserializer<V4> _a4;
-        Deserializer<V5> _a5;
-        Deserializer<V6> _a6;
-        Deserializer<V7> _a7;
-        Serializer<RV> _r;
+        IComposer* _args[8];
+        Composer<V1> _a1;
+        Composer<V2> _a2;
+        Composer<V3> _a3;
+        Composer<V4> _a4;
+        Composer<V5> _a5;
+        Composer<V6> _a6;
+        Composer<V7> _a7;
+        Decomposer<RV> _r;
 };
 
 
@@ -463,10 +463,10 @@ template <typename R,
           typename A5,
           typename A6>
 class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6,
-                            cxxtools::Void,
-                            cxxtools::Void,
-                            cxxtools::Void,
-                            cxxtools::Void> : public ServiceProcedure
+                            Void,
+                            Void,
+                            Void,
+                            Void> : public ServiceProcedure
 {
     public:
         BasicServiceProcedure( const Callable<R, A1, A2, A3, A4, A5, A6>& cb )
@@ -494,7 +494,7 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6,
             return new BasicServiceProcedure(*_cb);
         }
 
-        IDeserializer** beginCall()
+        IComposer** beginCall()
         {
             _a1.begin(_v1);
             _a2.begin(_v2);
@@ -506,7 +506,7 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6,
             return _args;
         }
 
-        ISerializer* endCall()
+        IDecomposer* endCall()
         {
             _rv = _cb->call(_v1, _v2, _v3, _v4, _v5, _v6);
             _r.begin(_rv);
@@ -531,14 +531,14 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6,
         V5 _v5;
         V6 _v6;
 
-        IDeserializer* _args[7];
-        Deserializer<V1> _a1;
-        Deserializer<V2> _a2;
-        Deserializer<V3> _a3;
-        Deserializer<V4> _a4;
-        Deserializer<V5> _a5;
-        Deserializer<V6> _a6;
-        Serializer<RV> _r;
+        IComposer* _args[7];
+        Composer<V1> _a1;
+        Composer<V2> _a2;
+        Composer<V3> _a3;
+        Composer<V4> _a4;
+        Composer<V5> _a5;
+        Composer<V6> _a6;
+        Decomposer<RV> _r;
 };
 
 
@@ -550,11 +550,11 @@ template <typename R,
           typename A4,
           typename A5>
 class BasicServiceProcedure<R, A1, A2, A3, A4, A5,
-                            cxxtools::Void,
-                            cxxtools::Void,
-                            cxxtools::Void,
-                            cxxtools::Void,
-                            cxxtools::Void> : public ServiceProcedure
+                            Void,
+                            Void,
+                            Void,
+                            Void,
+                            Void> : public ServiceProcedure
 {
     public:
         BasicServiceProcedure( const Callable<R, A1, A2, A3, A4, A5>& cb )
@@ -581,7 +581,7 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5,
             return new BasicServiceProcedure(*_cb);
         }
 
-        IDeserializer** beginCall()
+        IComposer** beginCall()
         {
             _a1.begin(_v1);
             _a2.begin(_v2);
@@ -592,7 +592,7 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5,
             return _args;
         }
 
-        ISerializer* endCall()
+        IDecomposer* endCall()
         {
             _rv = _cb->call(_v1, _v2, _v3, _v4, _v5);
             _r.begin(_rv);
@@ -615,13 +615,13 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5,
         V4 _v4;
         V5 _v5;
 
-        IDeserializer* _args[6];
-        Deserializer<V1> _a1;
-        Deserializer<V2> _a2;
-        Deserializer<V3> _a3;
-        Deserializer<V4> _a4;
-        Deserializer<V5> _a5;
-        Serializer<RV> _r;
+        IComposer* _args[6];
+        Composer<V1> _a1;
+        Composer<V2> _a2;
+        Composer<V3> _a3;
+        Composer<V4> _a4;
+        Composer<V5> _a5;
+        Decomposer<RV> _r;
 };
 
 
@@ -632,12 +632,12 @@ template <typename R,
           typename A3,
           typename A4>
 class BasicServiceProcedure<R, A1, A2, A3, A4,
-                            cxxtools::Void,
-                            cxxtools::Void,
-                            cxxtools::Void,
-                            cxxtools::Void,
-                            cxxtools::Void,
-                            cxxtools::Void> : public ServiceProcedure
+                            Void,
+                            Void,
+                            Void,
+                            Void,
+                            Void,
+                            Void> : public ServiceProcedure
 {
     public:
         BasicServiceProcedure( const Callable<R, A1, A2, A3, A4>& cb )
@@ -663,7 +663,7 @@ class BasicServiceProcedure<R, A1, A2, A3, A4,
             return new BasicServiceProcedure(*_cb);
         }
 
-        IDeserializer** beginCall()
+        IComposer** beginCall()
         {
             _a1.begin(_v1);
             _a2.begin(_v2);
@@ -673,7 +673,7 @@ class BasicServiceProcedure<R, A1, A2, A3, A4,
             return _args;
         }
 
-        ISerializer* endCall()
+        IDecomposer* endCall()
         {
             _rv = _cb->call(_v1, _v2, _v3, _v4);
             _r.begin(_rv);
@@ -694,12 +694,12 @@ class BasicServiceProcedure<R, A1, A2, A3, A4,
         V3 _v3;
         V4 _v4;
 
-        IDeserializer* _args[5];
-        Deserializer<V1> _a1;
-        Deserializer<V2> _a2;
-        Deserializer<V3> _a3;
-        Deserializer<V4> _a4;
-        Serializer<RV> _r;
+        IComposer* _args[5];
+        Composer<V1> _a1;
+        Composer<V2> _a2;
+        Composer<V3> _a3;
+        Composer<V4> _a4;
+        Decomposer<RV> _r;
 };
 
 
@@ -709,13 +709,13 @@ template <typename R,
           typename A2,
           typename A3>
 class BasicServiceProcedure<R, A1, A2, A3,
-                            cxxtools::Void,
-                            cxxtools::Void,
-                            cxxtools::Void,
-                            cxxtools::Void,
-                            cxxtools::Void,
-                            cxxtools::Void,
-                            cxxtools::Void> : public ServiceProcedure
+                            Void,
+                            Void,
+                            Void,
+                            Void,
+                            Void,
+                            Void,
+                            Void> : public ServiceProcedure
 {
     public:
         BasicServiceProcedure( const Callable<R, A1, A2, A3>& cb )
@@ -740,7 +740,7 @@ class BasicServiceProcedure<R, A1, A2, A3,
             return new BasicServiceProcedure(*_cb);
         }
 
-        IDeserializer** beginCall()
+        IComposer** beginCall()
         {
             _a1.begin(_v1);
             _a2.begin(_v2);
@@ -749,7 +749,7 @@ class BasicServiceProcedure<R, A1, A2, A3,
             return _args;
         }
 
-        ISerializer* endCall()
+        IDecomposer* endCall()
         {
             _rv = _cb->call(_v1, _v2, _v3);
             _r.begin(_rv);
@@ -768,11 +768,11 @@ class BasicServiceProcedure<R, A1, A2, A3,
         V2 _v2;
         V3 _v3;
 
-        IDeserializer* _args[4];
-        Deserializer<V1> _a1;
-        Deserializer<V2> _a2;
-        Deserializer<V3> _a3;
-        Serializer<RV> _r;
+        IComposer* _args[4];
+        Composer<V1> _a1;
+        Composer<V2> _a2;
+        Composer<V3> _a3;
+        Decomposer<RV> _r;
 };
 
 
@@ -781,14 +781,14 @@ template <typename R,
           typename A1,
           typename A2>
 class BasicServiceProcedure<R, A1, A2,
-                            cxxtools::Void,
-                            cxxtools::Void,
-                            cxxtools::Void,
-                            cxxtools::Void,
-                            cxxtools::Void,
-                            cxxtools::Void,
-                            cxxtools::Void,
-                            cxxtools::Void> : public ServiceProcedure
+                            Void,
+                            Void,
+                            Void,
+                            Void,
+                            Void,
+                            Void,
+                            Void,
+                            Void> : public ServiceProcedure
 {
     public:
         BasicServiceProcedure( const Callable<R, A1, A2>& cb )
@@ -812,7 +812,7 @@ class BasicServiceProcedure<R, A1, A2,
             return new BasicServiceProcedure(*_cb);
         }
 
-        IDeserializer** beginCall()
+        IComposer** beginCall()
         {
             _a1.begin(_v1);
             _a2.begin(_v2);
@@ -820,7 +820,7 @@ class BasicServiceProcedure<R, A1, A2,
             return _args;
         }
 
-        ISerializer* endCall()
+        IDecomposer* endCall()
         {
             _rv = _cb->call(_v1, _v2);
             _r.begin(_rv);
@@ -837,10 +837,10 @@ class BasicServiceProcedure<R, A1, A2,
         V1 _v1;
         V2 _v2;
 
-        IDeserializer* _args[3];
-        Deserializer<V1> _a1;
-        Deserializer<V2> _a2;
-        Serializer<RV> _r;
+        IComposer* _args[3];
+        Composer<V1> _a1;
+        Composer<V2> _a2;
+        Decomposer<RV> _r;
 };
 
 
@@ -848,15 +848,15 @@ class BasicServiceProcedure<R, A1, A2,
 template <typename R,
           typename A1>
 class BasicServiceProcedure<R, A1,
-                            cxxtools::Void,
-                            cxxtools::Void,
-                            cxxtools::Void,
-                            cxxtools::Void,
-                            cxxtools::Void,
-                            cxxtools::Void,
-                            cxxtools::Void,
-                            cxxtools::Void,
-                            cxxtools::Void> : public ServiceProcedure
+                            Void,
+                            Void,
+                            Void,
+                            Void,
+                            Void,
+                            Void,
+                            Void,
+                            Void,
+                            Void> : public ServiceProcedure
 {
     public:
         BasicServiceProcedure( const Callable<R, A1>& cb )
@@ -879,14 +879,14 @@ class BasicServiceProcedure<R, A1,
             return new BasicServiceProcedure(*_cb);
         }
 
-        IDeserializer** beginCall()
+        IComposer** beginCall()
         {
             _a1.begin(_v1);
 
             return _args;
         }
 
-        ISerializer* endCall()
+        IDecomposer* endCall()
         {
             _rv = _cb->call(_v1);
             _r.begin(_rv);
@@ -901,25 +901,25 @@ class BasicServiceProcedure<R, A1,
         RV _rv;
         V1 _v1;
 
-        IDeserializer* _args[2];
-        Deserializer<V1> _a1;
-        Serializer<RV> _r;
+        IComposer* _args[2];
+        Composer<V1> _a1;
+        Decomposer<RV> _r;
 };
 
 
 // BasicServiceProcedure with 0 arguments
 template <typename R>
 class BasicServiceProcedure<R,
-                            cxxtools::Void,
-                            cxxtools::Void,
-                            cxxtools::Void,
-                            cxxtools::Void,
-                            cxxtools::Void,
-                            cxxtools::Void,
-                            cxxtools::Void,
-                            cxxtools::Void,
-                            cxxtools::Void,
-                            cxxtools::Void> : public ServiceProcedure
+                            Void,
+                            Void,
+                            Void,
+                            Void,
+                            Void,
+                            Void,
+                            Void,
+                            Void,
+                            Void,
+                            Void> : public ServiceProcedure
 {
     public:
         BasicServiceProcedure( const Callable<R>& cb )
@@ -941,13 +941,13 @@ class BasicServiceProcedure<R,
             return new BasicServiceProcedure(*_cb);
         }
 
-        IDeserializer** beginCall()
+        IComposer** beginCall()
         {
 
             return _args;
         }
 
-        ISerializer* endCall()
+        IDecomposer* endCall()
         {
             _rv = _cb->call();
             _r.begin(_rv);
@@ -960,8 +960,8 @@ class BasicServiceProcedure<R,
         Callable<R>* _cb;
         RV _rv;
 
-        IDeserializer* _args[1];
-        Serializer<RV> _r;
+        IComposer* _args[1];
+        Decomposer<RV> _r;
 };
 
 }

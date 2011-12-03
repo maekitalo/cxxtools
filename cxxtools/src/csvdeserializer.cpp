@@ -30,7 +30,7 @@
 #include <stdexcept>
 #include <cxxtools/log.h>
 
-log_define("cxxtools.csv.deserializer")
+log_define("cxxtools.csv.composer")
 
 namespace cxxtools
 {
@@ -75,7 +75,7 @@ namespace cxxtools
         delete _ts;
     }
 
-    void CsvDeserializer::get(IDeserializer* deserializer)
+    void CsvDeserializer::get(IComposer* composer)
     {
         enum
         {
@@ -162,7 +162,7 @@ namespace cxxtools
                 case state_rowstart:
                     column = 0;
                     log_debug("new row");
-                    deserializer->beginMember(std::string(),
+                    composer->beginMember(std::string(),
                         std::string(), SerializationInfo::Array);
                     state = state_datastart;
                     // no break
@@ -170,15 +170,15 @@ namespace cxxtools
                 case state_datastart:
                     log_debug("member \""
                         << (column < titles.size() ? titles[column] : std::string()) << '"');
-                    deserializer->beginMember(
+                    composer->beginMember(
                         column < titles.size() ? titles[column] : std::string(),
                         std::string(), SerializationInfo::Value);
 
                     if (ch == L'\n' || ch == L'\r')
                     {
-                        deserializer->leaveMember();
+                        composer->leaveMember();
                         checkNoColumns(column, noColumns, lineNo);
-                        deserializer->leaveMember();
+                        composer->leaveMember();
                         state = (ch == L'\r' ? state_cr : state_rowstart);
                     }
                     else if (ch == L'"' || ch == L'\'')
@@ -189,7 +189,7 @@ namespace cxxtools
                     else if (ch == delimiter)
                     {
                         ++column;
-                        deserializer->leaveMember();
+                        composer->leaveMember();
                     }
                     else
                     {
@@ -210,23 +210,23 @@ namespace cxxtools
                     if (ch == L'\n' || ch == L'\r')
                     {
                         log_debug("value \"" << value << '"');
-                        deserializer->setValue(value);
+                        composer->setValue(value);
                         value.clear();
                         checkNoColumns(column, noColumns, lineNo);
-                        deserializer->leaveMember();  // leave data item
-                        deserializer->leaveMember();  // leave row
+                        composer->leaveMember();  // leave data item
+                        composer->leaveMember();  // leave row
                         state = (ch == L'\r' ? state_cr : state_rowstart);
                     }
                     else if (ch == delimiter)
                     {
                         log_debug("value \"" << value << '"');
-                        deserializer->setValue(value);
+                        composer->setValue(value);
                         value.clear();
-                        deserializer->leaveMember();  // leave data item
+                        composer->leaveMember();  // leave data item
                         ++column;
                         log_debug("member \""
                             << (column < titles.size() ? titles[column] : std::string()) << '"');
-                        deserializer->beginMember(
+                        composer->beginMember(
                             column < titles.size() ? titles[column] : std::string(),
                             std::string(), SerializationInfo::Value);
                         state = state_data0;
@@ -241,9 +241,9 @@ namespace cxxtools
                     if (ch == quote)
                     {
                         log_debug("value \"" << value << '"');
-                        deserializer->setValue(value);
+                        composer->setValue(value);
                         value.clear();
-                        deserializer->leaveMember();  // leave data item
+                        composer->leaveMember();  // leave data item
                         state = state_qdata_end;
                     }
                     else
@@ -256,7 +256,7 @@ namespace cxxtools
                     if (ch == L'\n' || ch == L'\r')
                     {
                         checkNoColumns(column, noColumns, lineNo);
-                        deserializer->leaveMember();  // leave row
+                        composer->leaveMember();  // leave row
                         state = (ch == L'\r' ? state_cr : state_rowstart);
                     }
                     else if (ch == delimiter)
@@ -264,7 +264,7 @@ namespace cxxtools
                         ++column;
                         log_debug("member \""
                             << (column < titles.size() ? titles[column] : std::string()) << '"');
-                        deserializer->beginMember(
+                        composer->beginMember(
                             column < titles.size() ? titles[column] : std::string(),
                             std::string(), SerializationInfo::Value);
                         state = state_data0;
@@ -284,27 +284,27 @@ namespace cxxtools
         switch (state)
         {
             case state_datastart:
-                deserializer->leaveMember();  // leave row
+                composer->leaveMember();  // leave row
                 break;
 
             case state_data0:
             case state_data:
                 checkNoColumns(column, noColumns, lineNo);
-                deserializer->setValue(value);
-                deserializer->leaveMember();  // leave data item
-                deserializer->leaveMember();  // leave row
+                composer->setValue(value);
+                composer->leaveMember();  // leave data item
+                composer->leaveMember();  // leave row
                 break;
 
             case state_qdata:
                 checkNoColumns(column, noColumns, lineNo);
                 log_debug("value \"" << quote.narrow() << value << '"');
-                deserializer->setValue(quote + value);
-                deserializer->leaveMember();  // leave data item
-                deserializer->leaveMember();  // leave row
+                composer->setValue(quote + value);
+                composer->leaveMember();  // leave data item
+                composer->leaveMember();  // leave row
                 break;
 
             case state_qdata_end:
-                deserializer->leaveMember();  // leave row
+                composer->leaveMember();  // leave row
                 break;
 
         }

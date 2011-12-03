@@ -36,7 +36,7 @@
 #include <cxxtools/xml/xmlreader.h>
 #include <cxxtools/xml/xmlwriter.h>
 #include <cxxtools/http/responder.h>
-#include <cxxtools/serializer.h>
+#include <cxxtools/decomposer.h>
 #include <cxxtools/textstream.h>
 
 namespace cxxtools {
@@ -87,10 +87,9 @@ class CXXTOOLS_XMLRPC_API XmlRpcResponder : public http::Responder
         Scanner _scanner;
         Formatter _formatter;
         Service* _service;
-        DeserializationContext _context;
         ServiceProcedure* _proc;
-        IDeserializer** _args;
-        ISerializer* _result;
+        IComposer** _args;
+        IDecomposer* _result;
         RemoteException _fault;
 };
 

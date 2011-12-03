@@ -170,7 +170,7 @@ bool Responder::advance(char ch)
                 }
                 else
                 {
-                    _valueParser.begin(**_args, _context);
+                    _valueParser.begin(**_args);
                     _valueParser.advance(ch);
                     _state = state_param;
                 }
@@ -194,7 +194,7 @@ bool Responder::advance(char ch)
             {
                 try
                 {
-                    (*_args)->fixup(_context);
+                    (*_args)->fixup();
                     ++_args;
                     _state = state_params;
                 }

@@ -57,11 +57,11 @@ class RpcClient : public RemoteClient
 
         void close();
 
-        void beginCall(IDeserializer& r, IRemoteProcedure& method, ISerializer** argv, unsigned argc);
+        void beginCall(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc);
 
         void endCall();
 
-        void call(IDeserializer& r, IRemoteProcedure& method, ISerializer** argv, unsigned argc);
+        void call(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc);
 
         const IRemoteProcedure* activeProcedure() const;
 

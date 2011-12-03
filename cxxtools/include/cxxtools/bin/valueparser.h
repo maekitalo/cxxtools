@@ -35,7 +35,7 @@ namespace cxxtools
 {
 
 class DeserializationContext;
-class IDeserializer;
+class IComposer;
 
 namespace bin
 {
@@ -55,13 +55,13 @@ class ValueParser
             delete _next;
         }
 
-        void begin(IDeserializer& handler, DeserializationContext& context);
+        void begin(IComposer& handler);
 
         void beginSkip();
 
         bool advance(char ch); // returns true, if number is read completely
 
-        IDeserializer* current()
+        IComposer* current()
         { return _deserializer; }
 
     private:
@@ -108,8 +108,7 @@ class ValueParser
             cxxtools::uint64_t u;
             char d[8];
         } _int;
-        DeserializationContext* _context;
-        IDeserializer* _deserializer;
+        IComposer* _deserializer;
         ValueParser* _next;
 };
 }

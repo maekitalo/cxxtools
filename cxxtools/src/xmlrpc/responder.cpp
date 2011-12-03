@@ -180,7 +180,7 @@ void XmlRpcResponder::reply(std::ostream& os, http::Request& request, http::Repl
             }
         }
 
-        ISerializer* rh = _proc->endCall();
+        IDecomposer* rh = _proc->endCall();
 
         reply.setHeader("Content-Type", "text/xml");
 
@@ -313,7 +313,7 @@ void XmlRpcResponder::advance(const cxxtools::xml::Node& node)
                         throw std::runtime_error("too many arguments");
                 }
 
-                _scanner.begin(**_args, _context);
+                _scanner.begin(**_args);
                 _state = OnParam;
                 break;
             }

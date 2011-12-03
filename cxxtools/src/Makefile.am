@@ -12,6 +12,7 @@ libcxxtools_la_SOURCES = \
 	char.cpp \
 	clock.cpp \
 	clockimpl.cpp \
+	composer.cpp \
 	condition.cpp \
 	conditionimpl.cpp \
 	connectable.cpp \
@@ -21,7 +22,7 @@ libcxxtools_la_SOURCES = \
 	convert.cpp \
 	date.cpp \
 	datetime.cpp \
-	deserializer.cpp \
+	decomposer.cpp \
 	directory.cpp \
 	directoryimpl.cpp \
 	error.cpp \
@@ -72,7 +73,6 @@ libcxxtools_la_SOURCES = \
 	settingswriter.cpp \
 	serializationerror.cpp \
 	serializationinfo.cpp \
-	serializer.cpp \
 	signal.cpp \
 	streambuffer.cpp \
 	string.cpp \

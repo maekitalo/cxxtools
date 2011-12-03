@@ -31,14 +31,13 @@
 
 #include <cxxtools/jsonparser.h>
 #include <cxxtools/api.h>
-#include <cxxtools/char.h>
 #include <cxxtools/deserializer.h>
 #include <cxxtools/textstream.h>
 #include <cxxtools/utf8codec.h>
 
 namespace cxxtools
 {
-    class CXXTOOLS_API JsonDeserializer
+    class CXXTOOLS_API JsonDeserializer : public Deserializer
     {
         public:
             JsonDeserializer(std::istream& in, TextCodec<Char, char>* codec = new Utf8Codec());
@@ -47,28 +46,11 @@ namespace cxxtools
 
             ~JsonDeserializer();
 
-            template <typename T>
-            void deserialize(T& type)
-            {
-                Deserializer<T> deser;
-                deser.begin(type);
-                this->get(&deser);
-                deser.fixup(_context);
-            }
-
-            void finish()
-            {
-                _context.fixup();
-                _context.clear();
-            }
-
         protected:
-            void get(IDeserializer* deser);
+            virtual void get(IComposer* composer);
 
         private:
             JsonParser _parser;
-            DeserializationContext _context;
-
             TextIStream* _ts;
             TextIStream& _in;
     };

@@ -74,7 +74,7 @@ void RpcClientImpl::close()
     _socket.close();
 }
 
-void RpcClientImpl::beginCall(IDeserializer& r, IRemoteProcedure& method, ISerializer** argv, unsigned argc)
+void RpcClientImpl::beginCall(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc)
 {
     if (_socket.selector() == 0)
         throw std::logic_error("cannot run async rpc request without a selector");
@@ -115,7 +115,7 @@ void RpcClientImpl::endCall()
     }
 }
 
-void RpcClientImpl::call(IDeserializer& r, IRemoteProcedure& method, ISerializer** argv, unsigned argc)
+void RpcClientImpl::call(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc)
 {
     _proc = &method;
 
@@ -163,7 +163,7 @@ void RpcClientImpl::cancel()
     _proc = 0;
 }
 
-void RpcClientImpl::prepareRequest(const String& name, ISerializer** argv, unsigned argc)
+void RpcClientImpl::prepareRequest(const String& name, IDecomposer** argv, unsigned argc)
 {
     _stream << '\x40' << name << '\0';
 

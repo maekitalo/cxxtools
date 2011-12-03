@@ -34,8 +34,7 @@
 
 namespace cxxtools
 {
-    class DeserializationContext;
-    class IDeserializer;
+    class IComposer;
 
     class CXXTOOLS_API JsonParser
     {
@@ -69,12 +68,11 @@ namespace cxxtools
         public:
             JsonParser();
 
-            void begin(IDeserializer& handler, DeserializationContext& context)
+            void begin(IComposer& handler)
             {
                 _state = state_0;
                 _token.clear();
-                _deserializer = &handler;
-                _context = &context;
+                _composer = &handler;
             }
 
             int advance(Char ch); // 1: end character detected; -1: end but char not consumed; 0: no end
@@ -102,8 +100,7 @@ namespace cxxtools
 
             String _token;
 
-            DeserializationContext* _context;
-            IDeserializer* _deserializer;
+            IComposer* _composer;
             JsonStringParser _stringParser;
             JsonParser* _next;
     };

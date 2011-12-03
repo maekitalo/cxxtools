@@ -135,13 +135,13 @@ bool Scanner::advance(const cxxtools::xml::Node& node)
                 }
                 else if(ee.name() == L"param")
                 {
-                    _current->fixup(*_context);
+                    _current->fixup();
                     _state = OnValueEnd;
                     return true;
                 }
                 else if(ee.name() == L"fault")
                 {
-                    _current->fixup(*_context);
+                    _current->fixup();
                     _state = OnValueEnd;
                     return true;
                 }

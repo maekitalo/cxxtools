@@ -25,8 +25,8 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-#ifndef cxxtools_Serializer_h
-#define cxxtools_Serializer_h
+#ifndef cxxtools_Decomposer_h
+#define cxxtools_Decomposer_h
 
 #include <cxxtools/api.h>
 #include <cxxtools/convert.h>
@@ -40,10 +40,10 @@ namespace cxxtools {
 class Formatter;
 class SerializationContext;
 
-class CXXTOOLS_API ISerializer
+class CXXTOOLS_API IDecomposer
 {
     public:
-        virtual ~ISerializer()
+        virtual ~IDecomposer()
         {}
 
         virtual void fixdown(SerializationContext& context) = 0;
@@ -55,7 +55,7 @@ class CXXTOOLS_API ISerializer
         virtual void format(Formatter& formatter) = 0;
 
     protected:
-        ISerializer()
+        IDecomposer()
         {}
 
         static void fixdownEach(cxxtools::SerializationInfo& si, SerializationContext& context);
@@ -65,10 +65,10 @@ class CXXTOOLS_API ISerializer
 
 
 template <typename T>
-class Serializer : public ISerializer
+class Decomposer : public IDecomposer
 {
     public:
-        Serializer()
+        Decomposer()
         : _current(&_si)
         { }
 
@@ -114,26 +114,23 @@ class CXXTOOLS_API SerializationContext : private NonCopyable
         void clear();
 
         template <typename T>
-        ISerializer* begin(const T& type)
+        IDecomposer* begin(const T& type)
         {
-            Serializer<T>* serializer = new Serializer<T>;
-            serializer->begin(type);
-            this->do_begin(&type, serializer);
-            return serializer;
+            Decomposer<T>* decomposer = new Decomposer<T>;
+            decomposer->begin(type);
+            this->do_begin(&type, decomposer);
+            return decomposer;
         }
 
-        //TODO:
-        // void begin(ISerializer& serializer);
-
-        ISerializer* find(const void* p) const;
+        IDecomposer* find(const void* p) const;
 
         void fixdown(Formatter& formatter);
 
     private:
-        void do_begin(const void* target, ISerializer* serializer);
+        void do_begin(const void* target, IDecomposer* decomposer);
 
-        std::map<const void*, ISerializer*> _omap;
-        std::vector<ISerializer*> _stack;
+        std::map<const void*, IDecomposer*> _omap;
+        std::vector<IDecomposer*> _stack;
 };
 
 } // namespace cxxtools

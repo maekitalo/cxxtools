@@ -25,12 +25,12 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-#include "cxxtools/serializer.h"
+#include "cxxtools/decomposer.h"
 #include "cxxtools/formatter.h"
 
 namespace cxxtools {
 
-void ISerializer::fixdownEach(cxxtools::SerializationInfo& si, SerializationContext& context)
+void IDecomposer::fixdownEach(cxxtools::SerializationInfo& si, SerializationContext& context)
 {
     if(si.category() == cxxtools::SerializationInfo::Object)
     {
@@ -43,7 +43,7 @@ void ISerializer::fixdownEach(cxxtools::SerializationInfo& si, SerializationCont
 }
 
 
-void ISerializer::formatEach(const cxxtools::SerializationInfo& si, Formatter& formatter)
+void IDecomposer::formatEach(const cxxtools::SerializationInfo& si, Formatter& formatter)
 {
     if(si.category() == SerializationInfo::Value)
     {
@@ -122,7 +122,7 @@ void SerializationContext::clear()
 {
     _omap.clear();
 
-    std::vector<ISerializer*>::iterator it;
+    std::vector<IDecomposer*>::iterator it;
     for(it = _stack.begin(); it != _stack.end(); ++it)
     {
         delete *it;
@@ -131,9 +131,9 @@ void SerializationContext::clear()
 }
 
 
-ISerializer* SerializationContext::find(const void* p) const
+IDecomposer* SerializationContext::find(const void* p) const
 {
-    std::map<const void*, ISerializer*>::const_iterator it;
+    std::map<const void*, IDecomposer*>::const_iterator it;
     it = _omap.find(p);
     if(it == _omap.end())
         return 0;
@@ -144,11 +144,11 @@ ISerializer* SerializationContext::find(const void* p) const
 
 void SerializationContext::fixdown(Formatter& formatter)
 {
-    std::vector<ISerializer*>::iterator it;
+    std::vector<IDecomposer*>::iterator it;
     for(it = _stack.begin(); it != _stack.end(); ++it)
     {
-        ISerializer* serializer = *it;
-        serializer->fixdown(*this);
+        IDecomposer* decomposer = *it;
+        decomposer->fixdown(*this);
     }
 
     _omap.clear();
@@ -160,10 +160,10 @@ void SerializationContext::fixdown(Formatter& formatter)
 }
 
 
-void SerializationContext::do_begin(const void* target, ISerializer* serializer)
+void SerializationContext::do_begin(const void* target, IDecomposer* decomposer)
 {
-    _omap[target] = serializer;
-    _stack.push_back(serializer);
+    _omap[target] = decomposer;
+    _stack.push_back(decomposer);
 }
 
 } // namespace cxxtools

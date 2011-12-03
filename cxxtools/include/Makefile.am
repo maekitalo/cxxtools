@@ -18,6 +18,7 @@ nobase_include_HEADERS = \
         cxxtools/cache.h \
         cxxtools/callable.h \
         cxxtools/callable.tpp \
+        cxxtools/composer.h \
         cxxtools/csvdeserializer.h \
         cxxtools/csvformatter.h \
         cxxtools/csvserializer.h \
@@ -33,6 +34,7 @@ nobase_include_HEADERS = \
         cxxtools/convert.h \
         cxxtools/date.h\
         cxxtools/datetime.h \
+        cxxtools/decomposer.h \
         cxxtools/delegate.h \
         cxxtools/delegate.tpp \
         cxxtools/deserializer.h \
@@ -119,7 +121,6 @@ nobase_include_HEADERS = \
         cxxtools/semaphore.h \
         cxxtools/serializationerror.h \
         cxxtools/serializationinfo.h \
-        cxxtools/serializer.h \
         cxxtools/serviceprocedure.h \
         cxxtools/settings.h \
         cxxtools/split.h \

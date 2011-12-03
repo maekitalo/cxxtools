@@ -30,7 +30,7 @@
 #define CXXTOOLS_CSVSERIALIZER_H
 
 #include <cxxtools/csvformatter.h>
-#include <cxxtools/serializer.h>
+#include <cxxtools/decomposer.h>
 
 namespace cxxtools
 {
@@ -68,7 +68,7 @@ namespace cxxtools
             template <typename T>
             void serialize(const T& type)
             {
-                cxxtools::ISerializer* serializer = _context.begin(type);
+                IDecomposer* serializer = _context.begin(type);
                 _context.fixdown(_formatter);
                 _formatter.finish();
                 _context.clear();
@@ -76,7 +76,7 @@ namespace cxxtools
 
         private:
             CsvFormatter _formatter;
-            cxxtools::SerializationContext _context;
+            SerializationContext _context;
     };
 }
 

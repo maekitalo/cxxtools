@@ -38,7 +38,7 @@
 
 namespace cxxtools
 {
-    class CXXTOOLS_API CsvDeserializer : private NonCopyable
+    class CXXTOOLS_API CsvDeserializer : public Deserializer
     {
         public:
             CsvDeserializer(std::istream& in, TextCodec<Char, char>* codec = new Utf8Codec());
@@ -46,17 +46,6 @@ namespace cxxtools
             CsvDeserializer(TextIStream& in);
 
             ~CsvDeserializer();
-
-            template <typename T>
-            void deserialize(T& t)
-            {
-                Deserializer<T> d;
-                d.begin(t);
-                get(&d);
-                d.fixup(_context);
-                _context.fixup();
-                _context.clear();
-            }
 
             Char delimiter() const
             { return _delimiter; }
@@ -80,9 +69,7 @@ namespace cxxtools
             }
 
         private:
-            void get(IDeserializer* d);
-
-            DeserializationContext _context;
+            void get(IComposer* d);
 
             TextIStream* _ts;
             TextIStream& _in;

@@ -39,7 +39,7 @@ namespace xml {
 
 XmlDeserializer::XmlDeserializer(cxxtools::xml::XmlReader& reader)
 : _reader(&reader)
-, _deser(0)
+, _composer(0)
 {
 }
 
@@ -47,21 +47,15 @@ XmlDeserializer::XmlDeserializer(cxxtools::xml::XmlReader& reader)
 XmlDeserializer::XmlDeserializer(std::istream& is)
 : _reader( 0 )
 , _deleter( new cxxtools::xml::XmlReader(is) )
-, _deser(0)
+, _composer(0)
 {
     _reader = _deleter.get();
 }
 
 
-XmlDeserializer::~XmlDeserializer()
+void XmlDeserializer::get(cxxtools::IComposer* deser)
 {
-    this->finish();
-}
-
-
-void XmlDeserializer::get(cxxtools::IDeserializer* deser)
-{
-    _deser = deser;
+    _composer = deser;
 
     if(_reader->get().type() != cxxtools::xml::Node::StartElement)
         _reader->nextElement();
@@ -90,12 +84,12 @@ void XmlDeserializer::beginDocument(const cxxtools::xml::Node& node)
             _nodeName = static_cast<const cxxtools::xml::StartElement&>(node).name();
             _nodeType = static_cast<const cxxtools::xml::StartElement&>(node).attribute(L"type");
             _nodeCategory = static_cast<const cxxtools::xml::StartElement&>(node).attribute(L"category");
-            _deser->setName( _nodeName.narrow() );
+            _composer->setName( _nodeName.narrow() );
 
             _nodeId = static_cast<const cxxtools::xml::StartElement&>(node).attribute(L"id");
             if( ! _nodeId.empty() )
             {
-                _deser->setId( _nodeId.narrow() );
+                _composer->setId( _nodeId.narrow() );
             }
 
             _processNode = &XmlDeserializer::onRootElement;
@@ -117,7 +111,7 @@ void XmlDeserializer::onRootElement(const cxxtools::xml::Node& node)
             if(cxxtools::String::npos != chars.content().find_first_not_of(L" \t\n\r") )
             {
                 /// OLD: throw std::logic_error("Invalid element" + CXXTOOLS_SOURCEINFO);
-                _deser->setValue( chars.content() ); /// NEW
+                _composer->setValue( chars.content() ); /// NEW
                 _processNode = &XmlDeserializer::onContent;
             }
             else
@@ -154,21 +148,21 @@ void XmlDeserializer::onStartElement(const cxxtools::xml::Node& node)
             {
                 std::string nodeName = _nodeName.narrow();
                 std::string nodeType = _nodeType.empty() ? nodeName : _nodeType.narrow();
-                _deser = _deser->beginMember(nodeName, nodeType, nodeCategory());
-                _deser->setValue( chars.content() );
-                _deser = _deser->leaveMember();
+                _composer = _composer->beginMember(nodeName, nodeType, nodeCategory());
+                _composer->setValue( chars.content() );
+                _composer = _composer->leaveMember();
                 //_current->addValue( _nodeName.narrow(), chars.content() );
 
                 _processNode = &XmlDeserializer::onContent;
             }
             else
             {
-                if(_deser == 0)
+                if(_composer == 0)
                     throw std::logic_error("Element outside document tree");
 
                 std::string nodeName = _nodeName.narrow();
                 std::string nodeType = _nodeType.empty() ? nodeName : _nodeType.narrow();
-                _deser = _deser->beginMember(nodeName, nodeType, nodeCategory());
+                _composer = _composer->beginMember(nodeName, nodeType, nodeCategory());
                 //SerializationInfo& added = _current->addMember( _nodeName.narrow() );
                 //_current = &added;
 
@@ -179,12 +173,12 @@ void XmlDeserializer::onStartElement(const cxxtools::xml::Node& node)
         }
         case cxxtools::xml::Node::StartElement:
         {
-            if(_deser == 0)
+            if(_composer == 0)
                 throw std::logic_error("Element outside document tree");
 
             std::string nodeName = _nodeName.narrow();
             std::string nodeType = _nodeType.empty() ? nodeName : _nodeType.narrow();
-            _deser = _deser->beginMember(nodeName, nodeType, nodeCategory());
+            _composer = _composer->beginMember(nodeName, nodeType, nodeCategory());
             //SerializationInfo& added = _current->addMember( _nodeName.narrow() );
             //_current = &added;
 
@@ -200,9 +194,9 @@ void XmlDeserializer::onStartElement(const cxxtools::xml::Node& node)
 
             std::string nodeName = _nodeName.narrow();
             std::string nodeType = _nodeType.empty() ? nodeName : _nodeType.narrow();
-            _deser = _deser->beginMember(nodeName, nodeType, nodeCategory());
-            _deser->setValue( cxxtools::String() );
-            _deser = _deser->leaveMember();
+            _composer = _composer->beginMember(nodeName, nodeType, nodeCategory());
+            _composer->setValue( cxxtools::String() );
+            _composer = _composer->leaveMember();
             //_current->addValue( _nodeName.narrow(), cxxtools::String() );
 
             _processNode = &XmlDeserializer::onEndElement;
@@ -228,13 +222,13 @@ void XmlDeserializer::onWhitespace(const cxxtools::xml::Node& node)
         }
         case cxxtools::xml::Node::EndElement:
         {
-            if(_deser == 0)
+            if(_composer == 0)
                 throw std::logic_error("Element outside document tree");
 
             _nodeName = static_cast<const cxxtools::xml::EndElement&>(node).name();
 
             if(_reader->depth() >= _startDepth)
-                _deser = _deser->leaveMember();
+                _composer = _composer->leaveMember();
 
             _processNode = &XmlDeserializer::onEndElement;
             break;
@@ -279,13 +273,13 @@ void XmlDeserializer::onEndElement(const cxxtools::xml::Node& node)
         }
         case cxxtools::xml::Node::EndElement:
         {
-            if(_deser == 0)
+            if(_composer == 0)
                 throw std::logic_error("Invalid parent");
 
             _nodeName = static_cast<const cxxtools::xml::EndElement&>(node).name();
 
             if(_reader->depth() >= _startDepth)
-                _deser = _deser->leaveMember();
+                _composer = _composer->leaveMember();
 
             break;
         }

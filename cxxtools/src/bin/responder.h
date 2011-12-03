@@ -31,7 +31,7 @@
 
 #include <cxxtools/bin/valueparser.h>
 #include <cxxtools/deserializer.h>
-#include <cxxtools/serializer.h>
+#include <cxxtools/decomposer.h>
 #include <cxxtools/iostream.h>
 #include <cxxtools/bin/formatter.h>
 
@@ -80,10 +80,9 @@ class Responder
         std::string _methodName;
         ValueParser _valueParser;
 
-        DeserializationContext _context;
         ServiceProcedure* _proc;
-        IDeserializer** _args;
-        ISerializer* _result;
+        IComposer** _args;
+        IDecomposer* _result;
         Formatter _formatter;
 
         bool _failed;

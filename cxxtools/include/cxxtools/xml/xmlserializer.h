@@ -30,7 +30,7 @@
 
 #include <cxxtools/string.h>
 #include <cxxtools/formatter.h>
-#include <cxxtools/serializer.h>
+#include <cxxtools/decomposer.h>
 #include <memory>
 #include <sstream>
 #include <cxxtools/xml/xmlwriter.h>
@@ -218,8 +218,8 @@ class XmlSerializer
         template <typename T>
         void serialize(const T& type, const std::string& name)
         {
-            cxxtools::ISerializer* serializer = _context.begin(type);
-            serializer->setName(name);
+            cxxtools::IDecomposer* decomposer = _context.begin(type);
+            decomposer->setName(name);
         }
 
         void finish()

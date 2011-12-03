@@ -31,8 +31,8 @@
 
 namespace cxxtools
 {
-    class IDeserializer;
-    class ISerializer;
+    class IComposer;
+    class IDecomposer;
     class IRemoteProcedure;
 
     class RemoteClient
@@ -41,11 +41,11 @@ namespace cxxtools
             virtual ~RemoteClient()
             { }
 
-            virtual void beginCall(IDeserializer& r, IRemoteProcedure& method, ISerializer** argv, unsigned argc) = 0;
+            virtual void beginCall(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc) = 0;
 
             virtual void endCall() = 0;
 
-            virtual void call(IDeserializer& r, IRemoteProcedure& method, ISerializer** argv, unsigned argc) = 0;
+            virtual void call(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc) = 0;
 
             virtual const IRemoteProcedure* activeProcedure() const = 0;
 

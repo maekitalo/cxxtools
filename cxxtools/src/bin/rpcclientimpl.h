@@ -58,11 +58,11 @@ class RpcClientImpl : public Connectable
 
         void close();
 
-        void beginCall(IDeserializer& r, IRemoteProcedure& method, ISerializer** argv, unsigned argc);
+        void beginCall(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc);
 
         void endCall();
 
-        void call(IDeserializer& r, IRemoteProcedure& method, ISerializer** argv, unsigned argc);
+        void call(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc);
 
         const IRemoteProcedure* activeProcedure() const
         { return _proc; }
@@ -70,7 +70,7 @@ class RpcClientImpl : public Connectable
         void cancel();
 
     private:
-        void prepareRequest(const String& name, ISerializer** argv, unsigned argc);
+        void prepareRequest(const String& name, IDecomposer** argv, unsigned argc);
         void onConnect(net::TcpSocket& socket);
         void onOutput(StreamBuffer& sb);
         void onInput(StreamBuffer& sb);

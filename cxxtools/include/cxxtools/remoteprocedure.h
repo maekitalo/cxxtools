@@ -31,8 +31,8 @@
 
 #include <cxxtools/remoteclient.h>
 #include <cxxtools/remoteresult.h>
-#include <cxxtools/deserializer.h>
-#include <cxxtools/serializer.h>
+#include <cxxtools/composer.h>
+#include <cxxtools/decomposer.h>
 #include <cxxtools/signal.h>
 #include <cxxtools/string.h>
 #include <string>
@@ -109,7 +109,7 @@ class RemoteProcedureBase : public IRemoteProcedure
         { finished.send(_result); }
 
         RemoteResult<R> _result;
-        Deserializer<R> _r;
+        Composer<R> _r;
 };
 
 
@@ -152,7 +152,7 @@ class RemoteProcedure : public RemoteProcedureBase<R>
 
             this->_r.begin(this->_result.value());
 
-            ISerializer* argv[10] = { &_a1, &_a2, &_a3, &_a4, &_a5, &_a6, &_a7, &_a8, &_a9, &_a10 };
+            IDecomposer* argv[10] = { &_a1, &_a2, &_a3, &_a4, &_a5, &_a6, &_a7, &_a8, &_a9, &_a10 };
             this->client().beginCall(this->_r, *this, argv, 10);
         }
 
@@ -172,7 +172,7 @@ class RemoteProcedure : public RemoteProcedureBase<R>
             _a10.begin(a10);
             this->_r.begin(this->_result.value());
 
-            ISerializer* argv[10] = { &_a1, &_a2, &_a3, &_a4, &_a5, &_a6, &_a7, &_a8, &_a9, &_a10 };
+            IDecomposer* argv[10] = { &_a1, &_a2, &_a3, &_a4, &_a5, &_a6, &_a7, &_a8, &_a9, &_a10 };
             this->client().call(this->_r, *this, argv, 10);
             return this->_result.get();
         }
@@ -183,16 +183,16 @@ class RemoteProcedure : public RemoteProcedureBase<R>
         }
 
     private:
-        Serializer<A1> _a1;
-        Serializer<A2> _a2;
-        Serializer<A3> _a3;
-        Serializer<A4> _a4;
-        Serializer<A5> _a5;
-        Serializer<A6> _a6;
-        Serializer<A7> _a7;
-        Serializer<A8> _a8;
-        Serializer<A9> _a9;
-        Serializer<A10> _a10;
+        Decomposer<A1> _a1;
+        Decomposer<A2> _a2;
+        Decomposer<A3> _a3;
+        Decomposer<A4> _a4;
+        Decomposer<A5> _a5;
+        Decomposer<A6> _a6;
+        Decomposer<A7> _a7;
+        Decomposer<A8> _a8;
+        Decomposer<A9> _a9;
+        Decomposer<A10> _a10;
 };
 
 
@@ -234,7 +234,7 @@ class RemoteProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8, A9,
 
             this->_r.begin(this->_result.value());
 
-            ISerializer* argv[9] = { &_a1, &_a2, &_a3, &_a4, &_a5, &_a6, &_a7, &_a8, &_a9 };
+            IDecomposer* argv[9] = { &_a1, &_a2, &_a3, &_a4, &_a5, &_a6, &_a7, &_a8, &_a9 };
             this->client().beginCall(this->_r, *this, argv, 9);
         }
 
@@ -253,7 +253,7 @@ class RemoteProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8, A9,
             _a9.begin(a9);
             this->_r.begin(this->_result.value());
 
-            ISerializer* argv[9] = { &_a1, &_a2, &_a3, &_a4, &_a5, &_a6, &_a7, &_a8, &_a9 };
+            IDecomposer* argv[9] = { &_a1, &_a2, &_a3, &_a4, &_a5, &_a6, &_a7, &_a8, &_a9 };
             this->client().call(this->_r, *this, argv, 9);
             return this->_result.get();
         }
@@ -264,15 +264,15 @@ class RemoteProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8, A9,
         }
 
     private:
-        Serializer<A1> _a1;
-        Serializer<A2> _a2;
-        Serializer<A3> _a3;
-        Serializer<A4> _a4;
-        Serializer<A5> _a5;
-        Serializer<A6> _a6;
-        Serializer<A7> _a7;
-        Serializer<A8> _a8;
-        Serializer<A9> _a9;
+        Decomposer<A1> _a1;
+        Decomposer<A2> _a2;
+        Decomposer<A3> _a3;
+        Decomposer<A4> _a4;
+        Decomposer<A5> _a5;
+        Decomposer<A6> _a6;
+        Decomposer<A7> _a7;
+        Decomposer<A8> _a8;
+        Decomposer<A9> _a9;
 };
 
 
@@ -313,7 +313,7 @@ class RemoteProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8,
 
             this->_r.begin(this->_result.value());
 
-            ISerializer* argv[8] = { &_a1, &_a2, &_a3, &_a4, &_a5, &_a6, &_a7, &_a8 };
+            IDecomposer* argv[8] = { &_a1, &_a2, &_a3, &_a4, &_a5, &_a6, &_a7, &_a8 };
             this->client().beginCall(this->_r, *this, argv, 8);
         }
 
@@ -331,7 +331,7 @@ class RemoteProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8,
             _a8.begin(a8);
             this->_r.begin(this->_result.value());
 
-            ISerializer* argv[8] = { &_a1, &_a2, &_a3, &_a4, &_a5, &_a6, &_a7, &_a8 };
+            IDecomposer* argv[8] = { &_a1, &_a2, &_a3, &_a4, &_a5, &_a6, &_a7, &_a8 };
             this->client().call(this->_r, *this, argv, 8);
             return this->_result.get();
         }
@@ -342,14 +342,14 @@ class RemoteProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8,
         }
 
     private:
-        Serializer<A1> _a1;
-        Serializer<A2> _a2;
-        Serializer<A3> _a3;
-        Serializer<A4> _a4;
-        Serializer<A5> _a5;
-        Serializer<A6> _a6;
-        Serializer<A7> _a7;
-        Serializer<A8> _a8;
+        Decomposer<A1> _a1;
+        Decomposer<A2> _a2;
+        Decomposer<A3> _a3;
+        Decomposer<A4> _a4;
+        Decomposer<A5> _a5;
+        Decomposer<A6> _a6;
+        Decomposer<A7> _a7;
+        Decomposer<A8> _a8;
 };
 
 
@@ -389,7 +389,7 @@ class RemoteProcedure<R, A1, A2, A3, A4, A5, A6, A7,
 
             this->_r.begin(this->_result.value());
 
-            ISerializer* argv[7] = { &_a1, &_a2, &_a3, &_a4, &_a5, &_a6, &_a7 };
+            IDecomposer* argv[7] = { &_a1, &_a2, &_a3, &_a4, &_a5, &_a6, &_a7 };
             this->client().beginCall(this->_r, *this, argv, 7);
         }
 
@@ -406,7 +406,7 @@ class RemoteProcedure<R, A1, A2, A3, A4, A5, A6, A7,
             _a7.begin(a7);
             this->_r.begin(this->_result.value());
 
-            ISerializer* argv[7] = { &_a1, &_a2, &_a3, &_a4, &_a5, &_a6, &_a7 };
+            IDecomposer* argv[7] = { &_a1, &_a2, &_a3, &_a4, &_a5, &_a6, &_a7 };
             this->client().call(this->_r, *this, argv, 7);
             return this->_result.get();
         }
@@ -417,13 +417,13 @@ class RemoteProcedure<R, A1, A2, A3, A4, A5, A6, A7,
         }
 
     private:
-        Serializer<A1> _a1;
-        Serializer<A2> _a2;
-        Serializer<A3> _a3;
-        Serializer<A4> _a4;
-        Serializer<A5> _a5;
-        Serializer<A6> _a6;
-        Serializer<A7> _a7;
+        Decomposer<A1> _a1;
+        Decomposer<A2> _a2;
+        Decomposer<A3> _a3;
+        Decomposer<A4> _a4;
+        Decomposer<A5> _a5;
+        Decomposer<A6> _a6;
+        Decomposer<A7> _a7;
 };
 
 
@@ -462,7 +462,7 @@ class RemoteProcedure<R, A1, A2, A3, A4, A5, A6,
 
             this->_r.begin(this->_result.value());
 
-            ISerializer* argv[6] = { &_a1, &_a2, &_a3, &_a4, &_a5, &_a6 };
+            IDecomposer* argv[6] = { &_a1, &_a2, &_a3, &_a4, &_a5, &_a6 };
             this->client().beginCall(this->_r, *this, argv, 6);
         }
 
@@ -478,7 +478,7 @@ class RemoteProcedure<R, A1, A2, A3, A4, A5, A6,
             _a6.begin(a6);
             this->_r.begin(this->_result.value());
 
-            ISerializer* argv[6] = { &_a1, &_a2, &_a3, &_a4, &_a5, &_a6 };
+            IDecomposer* argv[6] = { &_a1, &_a2, &_a3, &_a4, &_a5, &_a6 };
             this->client().call(this->_r, *this, argv, 6);
             return this->_result.get();
         }
@@ -489,12 +489,12 @@ class RemoteProcedure<R, A1, A2, A3, A4, A5, A6,
         }
 
     private:
-        Serializer<A1> _a1;
-        Serializer<A2> _a2;
-        Serializer<A3> _a3;
-        Serializer<A4> _a4;
-        Serializer<A5> _a5;
-        Serializer<A6> _a6;
+        Decomposer<A1> _a1;
+        Decomposer<A2> _a2;
+        Decomposer<A3> _a3;
+        Decomposer<A4> _a4;
+        Decomposer<A5> _a5;
+        Decomposer<A6> _a6;
 };
 
 
@@ -532,7 +532,7 @@ class RemoteProcedure<R, A1, A2, A3, A4, A5,
 
             this->_r.begin(this->_result.value());
 
-            ISerializer* argv[5] = { &_a1, &_a2, &_a3, &_a4, &_a5 };
+            IDecomposer* argv[5] = { &_a1, &_a2, &_a3, &_a4, &_a5 };
             this->client().beginCall(this->_r, *this, argv, 5);
         }
 
@@ -547,7 +547,7 @@ class RemoteProcedure<R, A1, A2, A3, A4, A5,
             _a5.begin(a5);
             this->_r.begin(this->_result.value());
 
-            ISerializer* argv[5] = { &_a1, &_a2, &_a3, &_a4, &_a5 };
+            IDecomposer* argv[5] = { &_a1, &_a2, &_a3, &_a4, &_a5 };
             this->client().call(this->_r, *this, argv, 5);
             return this->_result.get();
         }
@@ -558,11 +558,11 @@ class RemoteProcedure<R, A1, A2, A3, A4, A5,
         }
 
     private:
-        Serializer<A1> _a1;
-        Serializer<A2> _a2;
-        Serializer<A3> _a3;
-        Serializer<A4> _a4;
-        Serializer<A5> _a5;
+        Decomposer<A1> _a1;
+        Decomposer<A2> _a2;
+        Decomposer<A3> _a3;
+        Decomposer<A4> _a4;
+        Decomposer<A5> _a5;
 };
 
 
@@ -599,7 +599,7 @@ class RemoteProcedure<R, A1, A2, A3, A4,
 
             this->_r.begin(this->_result.value());
 
-            ISerializer* argv[4] = { &_a1, &_a2, &_a3, &_a4 };
+            IDecomposer* argv[4] = { &_a1, &_a2, &_a3, &_a4 };
             this->client().beginCall(this->_r, *this, argv, 4);
         }
 
@@ -613,7 +613,7 @@ class RemoteProcedure<R, A1, A2, A3, A4,
             _a4.begin(a4);
             this->_r.begin(this->_result.value());
 
-            ISerializer* argv[4] = { &_a1, &_a2, &_a3, &_a4 };
+            IDecomposer* argv[4] = { &_a1, &_a2, &_a3, &_a4 };
             this->client().call(this->_r, *this, argv, 4);
             return this->_result.get();
         }
@@ -624,10 +624,10 @@ class RemoteProcedure<R, A1, A2, A3, A4,
         }
 
     private:
-        Serializer<A1> _a1;
-        Serializer<A2> _a2;
-        Serializer<A3> _a3;
-        Serializer<A4> _a4;
+        Decomposer<A1> _a1;
+        Decomposer<A2> _a2;
+        Decomposer<A3> _a3;
+        Decomposer<A4> _a4;
 };
 
 
@@ -663,7 +663,7 @@ class RemoteProcedure<R, A1, A2, A3,
 
             this->_r.begin(this->_result.value());
 
-            ISerializer* argv[3] = { &_a1, &_a2, &_a3 };
+            IDecomposer* argv[3] = { &_a1, &_a2, &_a3 };
             this->client().beginCall(this->_r, *this, argv, 3);
         }
 
@@ -676,7 +676,7 @@ class RemoteProcedure<R, A1, A2, A3,
             _a3.begin(a3);
             this->_r.begin(this->_result.value());
 
-            ISerializer* argv[3] = { &_a1, &_a2, &_a3 };
+            IDecomposer* argv[3] = { &_a1, &_a2, &_a3 };
             this->client().call(this->_r, *this, argv, 3);
             return this->_result.get();
         }
@@ -687,9 +687,9 @@ class RemoteProcedure<R, A1, A2, A3,
         }
 
     private:
-        Serializer<A1> _a1;
-        Serializer<A2> _a2;
-        Serializer<A3> _a3;
+        Decomposer<A1> _a1;
+        Decomposer<A2> _a2;
+        Decomposer<A3> _a3;
 };
 
 
@@ -724,7 +724,7 @@ class RemoteProcedure<R, A1, A2,
 
             this->_r.begin(this->_result.value());
 
-            ISerializer* argv[2] = { &_a1, &_a2 };
+            IDecomposer* argv[2] = { &_a1, &_a2 };
             this->client().beginCall(this->_r, *this, argv, 2);
         }
 
@@ -736,7 +736,7 @@ class RemoteProcedure<R, A1, A2,
             _a2.begin(a2);
             this->_r.begin(this->_result.value());
 
-            ISerializer* argv[2] = { &_a1, &_a2 };
+            IDecomposer* argv[2] = { &_a1, &_a2 };
             this->client().call(this->_r, *this, argv, 2);
             return this->_result.get();
         }
@@ -747,8 +747,8 @@ class RemoteProcedure<R, A1, A2,
         }
 
     private:
-        Serializer<A1> _a1;
-        Serializer<A2> _a2;
+        Decomposer<A1> _a1;
+        Decomposer<A2> _a2;
 };
 
 
@@ -782,7 +782,7 @@ class RemoteProcedure<R, A1,
 
             this->_r.begin(this->_result.value());
 
-            ISerializer* argv[1] = { &_a1 };
+            IDecomposer* argv[1] = { &_a1 };
             this->client().beginCall(this->_r, *this, argv, 1);
         }
 
@@ -793,7 +793,7 @@ class RemoteProcedure<R, A1,
             _a1.begin(a1);
             this->_r.begin(this->_result.value());
 
-            ISerializer* argv[1] = { &_a1 };
+            IDecomposer* argv[1] = { &_a1 };
             this->client().call(this->_r, *this, argv, 1);
             return this->_result.get();
         }
@@ -804,7 +804,7 @@ class RemoteProcedure<R, A1,
         }
 
     private:
-        Serializer<A1> _a1;
+        Decomposer<A1> _a1;
 };
 
 
@@ -836,7 +836,7 @@ class RemoteProcedure<R,
 
             this->_r.begin(this->_result.value());
 
-            ISerializer* argv[1] = { 0 };
+            IDecomposer* argv[1] = { 0 };
             this->client().beginCall(this->_r, *this, argv, 0);
         }
 
@@ -846,7 +846,7 @@ class RemoteProcedure<R,
 
             this->_r.begin(this->_result.value());
 
-            ISerializer* argv[1] = { 0 };
+            IDecomposer* argv[1] = { 0 };
             this->client().call(this->_r, *this, argv, 0);
             return this->_result.get();
         }
