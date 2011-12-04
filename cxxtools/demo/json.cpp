@@ -167,15 +167,15 @@ void MainResponder::reply(std::ostream& out, cxxtools::http::Request& request, c
          "        function(request)\n"
          "        {\n"
          "          var r = eval('(' + request.responseText + ')');\n"
-         "          document.getElementById('cpu').innerHTML = r.stat.cpu;\n"
-         "          document.getElementById('user').innerHTML = r.stat.user;\n"
-         "          document.getElementById('nice').innerHTML = r.stat.nice;\n"
-         "          document.getElementById('system').innerHTML = r.stat.system;\n"
-         "          document.getElementById('idle').innerHTML = r.stat.idle;\n"
-         "          document.getElementById('iowait').innerHTML = r.stat.iowait;\n"
-         "          document.getElementById('irq').innerHTML = r.stat.irq;\n"
-         "          document.getElementById('softirq').innerHTML = r.stat.softirq;\n"
-         "          document.getElementById('user').innerHTML = r.stat.user;\n"
+         "          document.getElementById('cpu').innerHTML = r.cpu;\n"
+         "          document.getElementById('user').innerHTML = r.user;\n"
+         "          document.getElementById('nice').innerHTML = r.nice;\n"
+         "          document.getElementById('system').innerHTML = r.system;\n"
+         "          document.getElementById('idle').innerHTML = r.idle;\n"
+         "          document.getElementById('iowait').innerHTML = r.iowait;\n"
+         "          document.getElementById('irq').innerHTML = r.irq;\n"
+         "          document.getElementById('softirq').innerHTML = r.softirq;\n"
+         "          document.getElementById('user').innerHTML = r.user;\n"
          "        });\n"
          "    }\n"
          "\n"
@@ -215,7 +215,7 @@ void StatResponder::reply(std::ostream& out, cxxtools::http::Request& request, c
   cxxtools::MutexLock lock(statMutex);
   reply.addHeader("Content-Type", "application/json");
   cxxtools::JsonSerializer serializer(out);
-  serializer.serialize(currentStat, "stat");
+  serializer.serialize(currentStat);
   serializer.finish();
 }
 
