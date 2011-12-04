@@ -414,7 +414,11 @@ int TcpServerImpl::accept(int flags, struct sockaddr* sa, socklen_t& sa_len)
         int f = SOCK_NONBLOCK;
         if (!inherit)
             f |= SOCK_CLOEXEC;
-        clientFd = ::accept4(listenerFd, sa, &sa_len, f);
+        do
+        {
+            clientFd = ::accept4(listenerFd, sa, &sa_len, f);
+        } while (clientFd < 0 && errno == EINTR);
+
         if( clientFd < 0 )
         {
             if (errno == ENOSYS)
@@ -429,12 +433,21 @@ int TcpServerImpl::accept(int flags, struct sockaddr* sa, socklen_t& sa_len)
 
     if (!useAccept4)
     {
-        clientFd = ::accept(listenerFd, sa, &sa_len);
+        do
+        {
+            clientFd = ::accept(listenerFd, sa, &sa_len);
+        } while (clientFd < 0 && errno == EINTR);
+
         if( clientFd < 0 )
             throw SystemError("accept");
     }
 #else
-    int clientFd = ::accept(listenerFd, sa, &sa_len);
+    int clientFd;
+    do
+    {
+        clientFd = ::accept(listenerFd, sa, &sa_len);
+    } while (clientFd < 0 && errno == EINTR);
+
     if( clientFd < 0 )
         throw SystemError("accept");
 #endif
