@@ -39,7 +39,7 @@ namespace cxxtools
 namespace
 {
 
-void checkTs(std::basic_ostream<cxxtools::Char>* _ts)
+void checkTs(std::basic_ostream<Char>* _ts)
 {
     if (_ts == 0)
         throw std::logic_error("textstream is not set in JsonFormatter");
@@ -47,33 +47,16 @@ void checkTs(std::basic_ostream<cxxtools::Char>* _ts)
 
 }
 
-void JsonFormatter::begin(std::basic_ostream<cxxtools::Char>& ts)
+void JsonFormatter::begin(std::basic_ostream<Char>& ts)
 {
     _ts = &ts;
     _level = 1;
     _lastLevel = 0;
-
-    log_trace("begin");
-    *_ts << cxxtools::Char(L'{');
-    if (_beautify)
-        *_ts << cxxtools::Char(L'\n');
 }
 
 void JsonFormatter::finish()
 {
     log_trace("finish");
-
-    if (_ts)
-    {
-        if (_beautify)
-            *_ts << cxxtools::Char(L'\n')
-                 << cxxtools::Char(L'}')
-                 << cxxtools::Char(L'\n');
-        else
-            *_ts << cxxtools::Char(L'}');
-
-        _ts = 0;
-    }
 }
 
 void JsonFormatter::addValue(const std::string& name, const std::string& type,
@@ -85,14 +68,14 @@ void JsonFormatter::addValue(const std::string& name, const std::string& type,
 
     if (_level == _lastLevel)
     {
-        *_ts << cxxtools::Char(L',');
+        *_ts << Char(L',');
         if (_beautify)
         {
             if (name.empty())
-                *_ts << cxxtools::Char(L' ');
+                *_ts << Char(L' ');
             else
             {
-                *_ts << cxxtools::Char(L'\n');
+                *_ts << Char(L'\n');
                 indent();
             }
         }
@@ -106,12 +89,12 @@ void JsonFormatter::addValue(const std::string& name, const std::string& type,
 
     if (!name.empty())
     {
-        *_ts << cxxtools::Char(L'"');
+        *_ts << Char(L'"');
         stringOut(name);
-        *_ts << cxxtools::Char(L'"')
-             << cxxtools::Char(L':');
+        *_ts << Char(L'"')
+             << Char(L':');
         if (_beautify)
-            *_ts << cxxtools::Char(L' ');
+            *_ts << Char(L' ');
     }
 
     if (type == "int" || type == "double" || type == "bool")
@@ -123,9 +106,9 @@ void JsonFormatter::addValue(const std::string& name, const std::string& type,
     }
     else
     {
-        *_ts << cxxtools::Char(L'"');
+        *_ts << Char(L'"');
         stringOut(value);
-        *_ts << cxxtools::Char(L'"');
+        *_ts << Char(L'"');
     }
 }
 
@@ -136,9 +119,9 @@ void JsonFormatter::beginArray(const std::string& name, const std::string& type,
 
     if (_level == _lastLevel)
     {
-        *_ts << cxxtools::Char(L',');
+        *_ts << Char(L',');
         if (_beautify)
-            *_ts << cxxtools::Char(L'\n');
+            *_ts << Char(L'\n');
     }
     else
         _lastLevel = _level;
@@ -150,17 +133,17 @@ void JsonFormatter::beginArray(const std::string& name, const std::string& type,
 
     if (!name.empty())
     {
-        *_ts << cxxtools::Char(L'"');
+        *_ts << Char(L'"');
         stringOut(name);
-        *_ts << cxxtools::Char(L'"')
-             << cxxtools::Char(L':');
+        *_ts << Char(L'"')
+             << Char(L':');
         if (_beautify)
-            *_ts << cxxtools::Char(L' ');
+            *_ts << Char(L' ');
     }
 
-    *_ts << cxxtools::Char(L'[');
+    *_ts << Char(L'[');
     if (_beautify)
-        *_ts << cxxtools::Char(L'\n');
+        *_ts << Char(L'\n');
 }
 
 void JsonFormatter::finishArray()
@@ -171,10 +154,10 @@ void JsonFormatter::finishArray()
     _lastLevel = _level;
     if (_beautify)
     {
-        *_ts << cxxtools::Char(L'\n');
+        *_ts << Char(L'\n');
         indent();
     }
-    *_ts << cxxtools::Char(L']');
+    *_ts << Char(L']');
 }
 
 void JsonFormatter::beginObject(const std::string& name, const std::string& type,
@@ -186,9 +169,9 @@ void JsonFormatter::beginObject(const std::string& name, const std::string& type
 
     if (_level == _lastLevel)
     {
-        *_ts << cxxtools::Char(L',');
+        *_ts << Char(L',');
         if (_beautify)
-            *_ts << cxxtools::Char(L'\n');
+            *_ts << Char(L'\n');
     }
     else
         _lastLevel = _level;
@@ -200,17 +183,17 @@ void JsonFormatter::beginObject(const std::string& name, const std::string& type
 
     if (!name.empty())
     {
-        *_ts << cxxtools::Char(L'"');
+        *_ts << Char(L'"');
         stringOut(name);
-        *_ts << cxxtools::Char(L'"')
-             << cxxtools::Char(L':');
+        *_ts << Char(L'"')
+             << Char(L':');
         if (_beautify)
-            *_ts << cxxtools::Char(L' ');
+            *_ts << Char(L' ');
     }
 
-    *_ts << cxxtools::Char(L'{');
+    *_ts << Char(L'{');
     if (_beautify)
-        *_ts << cxxtools::Char(L'\n');
+        *_ts << Char(L'\n');
 }
 
 void JsonFormatter::beginMember(const std::string& name)
@@ -231,16 +214,16 @@ void JsonFormatter::finishObject()
     _lastLevel = _level;
     if (_beautify)
     {
-        *_ts << cxxtools::Char(L'\n');
+        *_ts << Char(L'\n');
         indent();
     }
-    *_ts << cxxtools::Char(L'}');
+    *_ts << Char(L'}');
 }
 
 void JsonFormatter::indent()
 {
     for (unsigned n = 0; n < _level; ++n)
-        *_ts << cxxtools::Char(L'\t');
+        *_ts << Char(L'\t');
 }
 
 void JsonFormatter::stringOut(const std::string& str)
@@ -248,28 +231,28 @@ void JsonFormatter::stringOut(const std::string& str)
     for (std::string::const_iterator it = str.begin(); it != str.end(); ++it)
     {
         if (*it == '"')
-            *_ts << cxxtools::Char(L'\\')
-                << cxxtools::Char(L'\"');
+            *_ts << Char(L'\\')
+                << Char(L'\"');
         else if (*it == '\\')
-            *_ts << cxxtools::Char(L'\\')
-                << cxxtools::Char(L'\\');
+            *_ts << Char(L'\\')
+                << Char(L'\\');
         else if (*it == '\b')
-            *_ts << cxxtools::Char(L'\\')
-                << cxxtools::Char(L'b');
+            *_ts << Char(L'\\')
+                << Char(L'b');
         else if (*it == '\f')
-            *_ts << cxxtools::Char(L'\\')
-                << cxxtools::Char(L'f');
+            *_ts << Char(L'\\')
+                << Char(L'f');
         else if (*it == '\n')
-            *_ts << cxxtools::Char(L'\\')
-                << cxxtools::Char(L'n');
+            *_ts << Char(L'\\')
+                << Char(L'n');
         else if (*it == '\r')
-            *_ts << cxxtools::Char(L'\\')
-                << cxxtools::Char(L'r');
+            *_ts << Char(L'\\')
+                << Char(L'r');
         else if (*it == '\t')
-            *_ts << cxxtools::Char(L'\\')
-                << cxxtools::Char(L't');
+            *_ts << Char(L'\\')
+                << Char(L't');
         else
-            *_ts << cxxtools::Char(*it);
+            *_ts << Char(*it);
     }
 }
 
@@ -277,44 +260,55 @@ void JsonFormatter::stringOut(const cxxtools::String& str)
 {
     for (cxxtools::String::const_iterator it = str.begin(); it != str.end(); ++it)
     {
-        if (*it == cxxtools::Char(L'"'))
-            *_ts << cxxtools::Char(L'\\')
-                << cxxtools::Char(L'\"');
-        else if (*it == cxxtools::Char(L'\\'))
-            *_ts << cxxtools::Char(L'\\')
-                << cxxtools::Char(L'\\');
-        else if (*it == cxxtools::Char(L'/'))
-            *_ts << cxxtools::Char(L'\\')
-                << cxxtools::Char(L'/');
-        else if (*it == cxxtools::Char(L'\b'))
-            *_ts << cxxtools::Char(L'\\')
-                << cxxtools::Char(L'b');
-        else if (*it == cxxtools::Char(L'\f'))
-            *_ts << cxxtools::Char(L'\\')
-                << cxxtools::Char(L'f');
-        else if (*it == cxxtools::Char(L'\n'))
-            *_ts << cxxtools::Char(L'\\')
-                << cxxtools::Char(L'n');
-        else if (*it == cxxtools::Char(L'\r'))
-            *_ts << cxxtools::Char(L'\\')
-                << cxxtools::Char(L'r');
-        else if (*it == cxxtools::Char(L'\t'))
-            *_ts << cxxtools::Char(L'\\')
-                << cxxtools::Char(L't');
+        if (*it == Char(L'"'))
+            *_ts << Char(L'\\')
+                << Char(L'\"');
+        else if (*it == Char(L'\\'))
+            *_ts << Char(L'\\')
+                << Char(L'\\');
+        else if (*it == Char(L'/'))
+            *_ts << Char(L'\\')
+                << Char(L'/');
+        else if (*it == Char(L'\b'))
+            *_ts << Char(L'\\')
+                << Char(L'b');
+        else if (*it == Char(L'\f'))
+            *_ts << Char(L'\\')
+                << Char(L'f');
+        else if (*it == Char(L'\n'))
+            *_ts << Char(L'\\')
+                << Char(L'n');
+        else if (*it == Char(L'\r'))
+            *_ts << Char(L'\\')
+                << Char(L'r');
+        else if (*it == Char(L'\t'))
+            *_ts << Char(L'\\')
+                << Char(L't');
+        else if (it->value() >= 0x80)
+        {
+            *_ts << Char(L'\\')
+                 << Char(L'u');
+            static const char hex[] = "0123456789abcdef";
+            uint32_t v = it->value();
+            for (uint32_t s = 16; s > 0; s -= 4)
+            {
+                *_ts << Char(hex[(v >> (s - 4)) & 0xf]);
+            }
+        }
         else
             *_ts << *it;
     }
 }
 
 JsonSerializer::JsonSerializer(std::ostream& os,
-    TextCodec<cxxtools::Char, char>* codec)
+    TextCodec<Char, char>* codec)
     : _ts(new TextOStream(os, codec ? codec : new Utf8Codec()))
 {
     _formatter.begin(*_ts);
 }
 
 JsonSerializer& JsonSerializer::begin(std::ostream& os,
-    TextCodec<cxxtools::Char, char>* codec)
+    TextCodec<Char, char>* codec)
 {
     delete _ts;
     _ts = new TextOStream(os, codec ? codec : new Utf8Codec());

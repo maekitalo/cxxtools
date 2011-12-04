@@ -16,6 +16,7 @@ alltests_SOURCES = \
     csvserializer-test.cpp \
     convert-test.cpp \
     jsondeserializer-test.cpp \
+    jsonserializer-test.cpp \
     md5-test.cpp \
     pool-test.cpp \
     serializationinfo-test.cpp \

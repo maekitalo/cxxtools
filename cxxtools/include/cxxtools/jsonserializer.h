@@ -137,7 +137,20 @@ namespace cxxtools
                 Decomposer<T> s;
                 s.begin(v);
                 s.setName(name);
+                _formatter.beginObject(std::string(), std::string(), std::string());
                 s.format(_formatter);
+                _formatter.finishObject();
+                _ts->flush();
+                return *this;
+            }
+
+            template <typename T>
+            JsonSerializer& serialize(const T& v)
+            {
+                Decomposer<T> s;
+                s.begin(v);
+                s.format(_formatter);
+                _ts->flush();
                 return *this;
             }
 
