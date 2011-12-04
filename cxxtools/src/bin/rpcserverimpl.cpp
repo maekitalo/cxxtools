@@ -101,8 +101,7 @@ RpcServerImpl::RpcServerImpl(EventLoopBase& eventLoop, Signal<RpcServer::Runmode
       _eventLoop(eventLoop),
       inputSlot(slot(*this, &RpcServerImpl::onInput)),
       _minThreads(5),
-      _maxThreads(200),
-      _idleTimeout(200)
+      _maxThreads(200)
 {
     _eventLoop.event.subscribe(slot(*this, &RpcServerImpl::onIdleSocket));
     _eventLoop.event.subscribe(slot(*this, &RpcServerImpl::onNoWaitingThreads));

@@ -85,12 +85,6 @@ namespace cxxtools
                 void maxThreads(unsigned m)
                 { _maxThreads = m; }
 
-                std::size_t idleTimeout() const
-                { return _idleTimeout; }
-
-                void idleTimeout(std::size_t ms)
-                { _idleTimeout = ms; }
-
                 void terminate();
 
                 RpcServer::Runmode runmode() const
@@ -129,7 +123,6 @@ namespace cxxtools
                 ProcedureMap _procedures;
                 unsigned _minThreads;
                 unsigned _maxThreads;
-                std::size_t _idleTimeout;
 
                 std::vector<Listener*> _listener;
                 Queue<Socket*> _queue;

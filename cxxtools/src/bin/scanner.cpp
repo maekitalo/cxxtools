@@ -39,8 +39,6 @@ namespace bin
 
 bool Scanner::advance(char ch)
 {
-    log_debug("process " << static_cast<unsigned>(static_cast<unsigned char>(ch)) << " state=" << static_cast<int>(_state));
-
     switch (_state)
     {
         case state_0:

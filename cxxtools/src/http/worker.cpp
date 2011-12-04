@@ -88,7 +88,7 @@ void Worker::run()
             Connection inputConnection = connect(socket->buffer().inputReady,
                 socket->inputSlot);
 
-            while (socket->wait(_server.idleTimeout()) && socket->isConnected())
+            while (socket->wait(0) && socket->isConnected())
                 ;
 
             if (socket->isConnected())

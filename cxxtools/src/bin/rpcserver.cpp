@@ -88,16 +88,5 @@ void RpcServer::maxThreads(unsigned m)
     _impl->maxThreads(m);
 }
 
-std::size_t RpcServer::idleTimeout() const
-{
-    return _impl->idleTimeout();
-}
-
-void RpcServer::idleTimeout(std::size_t m)
-{
-    _impl->idleTimeout(m);
-}
-
-
 }
 }

@@ -49,7 +49,6 @@ class ServerImplBase : private NonCopyable
               _readTimeout(20000),
               _writeTimeout(20000),
               _keepAliveTimeout(30000),
-              _idleTimeout(100),
               _minThreads(5),
               _maxThreads(200),
               _runmodeChanged(runmodeChanged),
@@ -75,12 +74,10 @@ class ServerImplBase : private NonCopyable
         std::size_t readTimeout() const       { return _readTimeout; }
         std::size_t writeTimeout() const      { return _writeTimeout; }
         std::size_t keepAliveTimeout() const  { return _keepAliveTimeout; }
-        std::size_t idleTimeout() const       { return _idleTimeout; }
 
         void readTimeout(std::size_t ms)      { _readTimeout = ms; }
         void writeTimeout(std::size_t ms)     { _writeTimeout = ms; }
         void keepAliveTimeout(std::size_t ms) { _keepAliveTimeout = ms; }
-        void idleTimeout(std::size_t ms)      { _idleTimeout = ms; }
 
         unsigned minThreads() const           { return _minThreads; }
         void minThreads(unsigned m)           { _minThreads = m; }
@@ -105,7 +102,6 @@ class ServerImplBase : private NonCopyable
         std::size_t _readTimeout;
         std::size_t _writeTimeout;
         std::size_t _keepAliveTimeout;
-        std::size_t _idleTimeout;
 
         unsigned _minThreads;
         unsigned _maxThreads;
