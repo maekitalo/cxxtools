@@ -74,7 +74,7 @@ namespace
 class BinRpcTest : public cxxtools::unit::TestSuite
 {
     private:
-        cxxtools::EventLoop* _loop;
+        cxxtools::EventLoop _loop;
         cxxtools::bin::RpcServer* _server;
         unsigned _count;
         unsigned short _port;
@@ -117,17 +117,16 @@ class BinRpcTest : public cxxtools::unit::TestSuite
 
         void setUp()
         {
-            _loop = new cxxtools::EventLoop();
-            _loop->setIdleTimeout(2000);
-            connect(_loop->timeout, *this, &BinRpcTest::failTest);
-            connect(_loop->timeout, *_loop, &cxxtools::EventLoop::exit);
+            _loop.setIdleTimeout(2000);
+            connect(_loop.timeout, *this, &BinRpcTest::failTest);
+            connect(_loop.timeout, _loop, &cxxtools::EventLoop::exit);
 
-            _server = new cxxtools::bin::RpcServer(*_loop, "", _port);
+            _server = new cxxtools::bin::RpcServer(_loop, "", _port);
+            _server->minThreads(1);
         }
 
         void tearDown()
         {
-            delete _loop;
             delete _server;
         }
 
@@ -138,12 +137,12 @@ class BinRpcTest : public cxxtools::unit::TestSuite
         {
             _server->registerMethod("multiply", *this, &BinRpcTest::throwFault);
 
-            cxxtools::bin::RpcClient client(*_loop, "", _port);
+            cxxtools::bin::RpcClient client(_loop, "", _port);
             cxxtools::RemoteProcedure<bool> multiply(client, "multiply");
             connect( multiply.finished, *this, &BinRpcTest::onFault );
             multiply.begin();
 
-            _loop->run();
+            _loop.run();
         }
 
         void onFault(const cxxtools::RemoteResult<bool>& result)
@@ -159,7 +158,7 @@ class BinRpcTest : public cxxtools::unit::TestSuite
                 CXXTOOLS_UNIT_ASSERT_EQUALS(e.text(), "Fault");
             }
 
-            _loop->exit();
+            _loop.exit();
         }
 
         bool throwFault()
@@ -175,12 +174,12 @@ class BinRpcTest : public cxxtools::unit::TestSuite
         {
             _server->registerMethod("multiply", *this, &BinRpcTest::throwException);
 
-            cxxtools::bin::RpcClient client(*_loop, "", _port);
+            cxxtools::bin::RpcClient client(_loop, "", _port);
             cxxtools::RemoteProcedure<bool> multiply(client, "multiply");
             connect( multiply.finished, *this, &BinRpcTest::onException );
             multiply.begin();
 
-            _loop->run();
+            _loop.run();
         }
 
         void onException(const cxxtools::RemoteResult<bool>& result)
@@ -196,7 +195,7 @@ class BinRpcTest : public cxxtools::unit::TestSuite
                 CXXTOOLS_UNIT_ASSERT_EQUALS(e.text(), "Exception");
             }
 
-            _loop->exit();
+            _loop.exit();
         }
 
         bool throwException()
@@ -212,20 +211,20 @@ class BinRpcTest : public cxxtools::unit::TestSuite
         {
             _server->registerMethod("multiply", *this, &BinRpcTest::multiplyNothing);
 
-            cxxtools::bin::RpcClient client(*_loop, "", _port);
+            cxxtools::bin::RpcClient client(_loop, "", _port);
             cxxtools::RemoteProcedure<bool> multiply(client, "multiply");
             connect( multiply.finished, *this, &BinRpcTest::onNothingFinished );
 
             multiply.begin();
 
-            _loop->run();
+            _loop.run();
         }
 
         void onNothingFinished(const cxxtools::RemoteResult<bool>& r)
         {
             CXXTOOLS_UNIT_ASSERT_EQUALS(r.get(), false);
 
-            _loop->exit();
+            _loop.exit();
         }
 
         bool multiplyNothing()
@@ -240,14 +239,14 @@ class BinRpcTest : public cxxtools::unit::TestSuite
         {
             _server->registerMethod("multiply", *this, &BinRpcTest::multiplyNothing);
 
-            cxxtools::bin::RpcClient client(*_loop, "", _port);
+            cxxtools::bin::RpcClient client(_loop, "", _port);
             cxxtools::RemoteProcedure<bool> multiply(client, "multiply");
             connect( multiply.finished, *this, &BinRpcTest::onExceptionCallback );
 
             multiply.begin();
 
             _count = 0;
-            CXXTOOLS_UNIT_ASSERT_THROW(_loop->run(), std::runtime_error);
+            CXXTOOLS_UNIT_ASSERT_THROW(_loop.run(), std::runtime_error);
             CXXTOOLS_UNIT_ASSERT_EQUALS(_count, 1);
         }
 
@@ -255,7 +254,7 @@ class BinRpcTest : public cxxtools::unit::TestSuite
         {
             log_warn("exception callback");
             ++_count;
-            _loop->exit();
+            _loop.exit();
             throw std::runtime_error("my error");
         }
 
@@ -266,7 +265,7 @@ class BinRpcTest : public cxxtools::unit::TestSuite
         {
             log_trace("ConnectError");
 
-            cxxtools::bin::RpcClient client(*_loop, "", _port + 1);
+            cxxtools::bin::RpcClient client(_loop, "", _port + 1);
             cxxtools::RemoteProcedure<bool> multiply(client, "multiply");
             connect( multiply.finished, *this, &BinRpcTest::onConnectErrorCallback );
 
@@ -274,7 +273,7 @@ class BinRpcTest : public cxxtools::unit::TestSuite
 
             try
             {
-                _loop->run();
+                _loop.run();
             }
             catch (const std::exception& e)
             {
@@ -286,7 +285,7 @@ class BinRpcTest : public cxxtools::unit::TestSuite
         void onConnectErrorCallback(const cxxtools::RemoteResult<bool>& r)
         {
             log_debug("onConnectErrorCallback");
-            _loop->exit();
+            _loop.exit();
             CXXTOOLS_UNIT_ASSERT_THROW(r.get(), std::exception);
         }
 
@@ -297,20 +296,20 @@ class BinRpcTest : public cxxtools::unit::TestSuite
         {
             _server->registerMethod("multiply", *this, &BinRpcTest::multiplyBoolean);
 
-            cxxtools::bin::RpcClient client(*_loop, "", _port);
+            cxxtools::bin::RpcClient client(_loop, "", _port);
             cxxtools::RemoteProcedure<bool, bool, bool> multiply(client, "multiply");
             connect( multiply.finished, *this, &BinRpcTest::onBooleanFinished );
 
             multiply.begin(true, true);
 
-            _loop->run();
+            _loop.run();
         }
 
         void onBooleanFinished(const cxxtools::RemoteResult<bool>& r)
         {
             CXXTOOLS_UNIT_ASSERT_EQUALS(r.get(), true);
 
-            _loop->exit();
+            _loop.exit();
         }
 
         bool multiplyBoolean(bool a, bool b)
@@ -327,20 +326,20 @@ class BinRpcTest : public cxxtools::unit::TestSuite
         {
             _server->registerMethod("multiply", *this, &BinRpcTest::multiplyInt);
 
-            cxxtools::bin::RpcClient client(*_loop, "", _port);
+            cxxtools::bin::RpcClient client(_loop, "", _port);
             cxxtools::RemoteProcedure<int, int, int> multiply(client, "multiply");
             connect( multiply.finished, *this, &BinRpcTest::onIntegerFinished );
 
             multiply.begin(2, 3);
 
-            _loop->run();
+            _loop.run();
         }
 
         void onIntegerFinished(const cxxtools::RemoteResult<int>& r)
         {
             CXXTOOLS_UNIT_ASSERT_EQUALS(r.get(), 6);
 
-            _loop->exit();
+            _loop.exit();
         }
 
         int multiplyInt(int a, int b)
@@ -355,20 +354,20 @@ class BinRpcTest : public cxxtools::unit::TestSuite
         {
             _server->registerMethod("multiply", *this, &BinRpcTest::multiplyDouble);
 
-            cxxtools::bin::RpcClient client(*_loop, "", _port);
+            cxxtools::bin::RpcClient client(_loop, "", _port);
             cxxtools::RemoteProcedure<double, double, double> multiply(client, "multiply");
             connect( multiply.finished, *this, &BinRpcTest::onDoubleFinished );
 
             multiply.begin(2.0, 3.0);
 
-            _loop->run();
+            _loop.run();
         }
 
         void onDoubleFinished(const cxxtools::RemoteResult<double>& r)
         {
             CXXTOOLS_UNIT_ASSERT_EQUALS(r.get(), 6.0);
 
-            _loop->exit();
+            _loop.exit();
         }
 
         double multiplyDouble(double a, double b)
@@ -383,20 +382,20 @@ class BinRpcTest : public cxxtools::unit::TestSuite
         {
             _server->registerMethod("echoString", *this, &BinRpcTest::echoString);
 
-            cxxtools::bin::RpcClient client(*_loop, "", _port);
+            cxxtools::bin::RpcClient client(_loop, "", _port);
             cxxtools::RemoteProcedure<std::string, std::string> echo(client, "echoString");
             connect( echo.finished, *this, &BinRpcTest::onStringEchoFinished );
 
             echo.begin("\xc3\xaf\xc2\xbb\xc2\xbf'\"&<> foo?");
 
-            _loop->run();
+            _loop.run();
         }
 
         void onStringEchoFinished(const cxxtools::RemoteResult<std::string>& r)
         {
             CXXTOOLS_UNIT_ASSERT_EQUALS(r.get(), "\xc3\xaf\xc2\xbb\xc2\xbf'\"&<> foo?");
 
-            _loop->exit();
+            _loop.exit();
         }
 
         std::string echoString(std::string a)
@@ -411,19 +410,19 @@ class BinRpcTest : public cxxtools::unit::TestSuite
         {
             _server->registerMethod("multiply", *this, &BinRpcTest::multiplyEmpty);
 
-            cxxtools::bin::RpcClient client(*_loop, "", _port);
+            cxxtools::bin::RpcClient client(_loop, "", _port);
             cxxtools::RemoteProcedure<std::string, std::string, std::string> multiply(client, "multiply");
             connect( multiply.finished, *this, &BinRpcTest::onEmptyFinished );
 
             multiply.begin("", "");
 
-            _loop->run();
+            _loop.run();
         }
 
         void onEmptyFinished(const cxxtools::RemoteResult<std::string>& r)
         {
             CXXTOOLS_UNIT_ASSERT_EQUALS(r.get(), "4");
-            _loop->exit();
+            _loop.exit();
         }
 
         std::string multiplyEmpty(std::string a, std::string b)
@@ -440,7 +439,7 @@ class BinRpcTest : public cxxtools::unit::TestSuite
         {
             _server->registerMethod("multiply", *this, &BinRpcTest::multiplyVector);
 
-            cxxtools::bin::RpcClient client(*_loop, "", _port);
+            cxxtools::bin::RpcClient client(_loop, "", _port);
             cxxtools::RemoteProcedure< std::vector<int>, std::vector<int>, std::vector<int> > multiply(client, "multiply");
             connect( multiply.finished, *this, &BinRpcTest::onArrayFinished );
 
@@ -450,7 +449,7 @@ class BinRpcTest : public cxxtools::unit::TestSuite
 
             multiply.begin(vec, vec);
 
-            _loop->run();
+            _loop.run();
         }
 
         std::vector<int> multiplyVector(const std::vector<int>& a, const std::vector<int>& b)
@@ -471,7 +470,7 @@ class BinRpcTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(r.get().at(0), 100);
             CXXTOOLS_UNIT_ASSERT_EQUALS(r.get().at(1), 400);
 
-            _loop->exit();
+            _loop.exit();
         }
 
         ////////////////////////////////////////////////////////////
@@ -481,21 +480,21 @@ class BinRpcTest : public cxxtools::unit::TestSuite
         {
             _server->registerMethod("multiply", *this, &BinRpcTest::multiplyVector);
 
-            cxxtools::bin::RpcClient client(*_loop, "", _port);
+            cxxtools::bin::RpcClient client(_loop, "", _port);
             cxxtools::RemoteProcedure< std::vector<int>, std::vector<int>, std::vector<int> > multiply(client, "multiply");
             connect( multiply.finished, *this, &BinRpcTest::onEmptyArrayFinished );
 
             std::vector<int> vec;
             multiply.begin(vec, vec);
 
-            _loop->run();
+            _loop.run();
         }
 
         void onEmptyArrayFinished(const cxxtools::RemoteResult<std::vector<int> >& r)
         {
             CXXTOOLS_UNIT_ASSERT_EQUALS(r.get().size(), 0);
 
-            _loop->exit();
+            _loop.exit();
         }
 
         ////////////////////////////////////////////////////////////
@@ -505,7 +504,7 @@ class BinRpcTest : public cxxtools::unit::TestSuite
         {
             _server->registerMethod("multiply", *this, &BinRpcTest::multiplyColor);
 
-            cxxtools::bin::RpcClient client(*_loop, "", _port);
+            cxxtools::bin::RpcClient client(_loop, "", _port);
             cxxtools::RemoteProcedure< Color, Color, Color > multiply(client, "multiply");
             connect( multiply.finished, *this, &BinRpcTest::onStuctFinished );
 
@@ -521,7 +520,7 @@ class BinRpcTest : public cxxtools::unit::TestSuite
 
             multiply.begin(a, b);
 
-            _loop->run();
+            _loop.run();
         }
 
         void onStuctFinished(const cxxtools::RemoteResult<Color>& color)
@@ -530,7 +529,7 @@ class BinRpcTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(color.get().green, 12);
             CXXTOOLS_UNIT_ASSERT_EQUALS(color.get().blue, 20);
 
-            _loop->exit();
+            _loop.exit();
         }
 
         Color multiplyColor(const Color& a, const Color& b)
@@ -549,7 +548,7 @@ class BinRpcTest : public cxxtools::unit::TestSuite
         {
             _server->registerMethod("multiplyset", *this, &BinRpcTest::multiplySet);
 
-            cxxtools::bin::RpcClient client(*_loop, "", _port);
+            cxxtools::bin::RpcClient client(_loop, "", _port);
             cxxtools::RemoteProcedure<IntSet, IntSet, int> multiply(client, "multiplyset");
             connect( multiply.finished, *this, &BinRpcTest::onSetFinished );
 
@@ -561,7 +560,7 @@ class BinRpcTest : public cxxtools::unit::TestSuite
 
             multiply.begin(myset, 2);
 
-            _loop->run();
+            _loop.run();
         }
 
         void onSetFinished(const cxxtools::RemoteResult<IntSet>& result)
@@ -572,7 +571,7 @@ class BinRpcTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT(v.find(10) != v.end());
             CXXTOOLS_UNIT_ASSERT(v.find(22) != v.end());
 
-            _loop->exit();
+            _loop.exit();
         }
 
         IntSet multiplySet(const IntSet& s, int f)
@@ -590,7 +589,7 @@ class BinRpcTest : public cxxtools::unit::TestSuite
         {
             _server->registerMethod("multiplyset", *this, &BinRpcTest::multiplyMultiset);
 
-            cxxtools::bin::RpcClient client(*_loop, "", _port);
+            cxxtools::bin::RpcClient client(_loop, "", _port);
             cxxtools::RemoteProcedure<IntMultiset, IntMultiset, int> multiply(client, "multiplyset");
             connect( multiply.finished, *this, &BinRpcTest::onMultisetFinished );
 
@@ -602,7 +601,7 @@ class BinRpcTest : public cxxtools::unit::TestSuite
 
             multiply.begin(myset, 2);
 
-            _loop->run();
+            _loop.run();
         }
 
         void onMultisetFinished(const cxxtools::RemoteResult<IntMultiset>& result)
@@ -613,7 +612,7 @@ class BinRpcTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(v.count(10), 2);
             CXXTOOLS_UNIT_ASSERT_EQUALS(v.count(22), 1);
 
-            _loop->exit();
+            _loop.exit();
         }
 
         IntMultiset multiplyMultiset(const IntMultiset& s, int f)
@@ -631,7 +630,7 @@ class BinRpcTest : public cxxtools::unit::TestSuite
         {
             _server->registerMethod("multiplymap", *this, &BinRpcTest::multiplyMap);
 
-            cxxtools::bin::RpcClient client(*_loop, "", _port);
+            cxxtools::bin::RpcClient client(_loop, "", _port);
             cxxtools::RemoteProcedure<IntMap, IntMap, int> multiply(client, "multiplymap");
             connect( multiply.finished, *this, &BinRpcTest::onMultiplyMapFinished );
 
@@ -642,7 +641,7 @@ class BinRpcTest : public cxxtools::unit::TestSuite
 
             multiply.begin(mymap, 2);
 
-            _loop->run();
+            _loop.run();
         }
 
         void onMultiplyMapFinished(const cxxtools::RemoteResult<IntMap>& result)
@@ -656,7 +655,7 @@ class BinRpcTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT(v.find(1) != v.end());
             CXXTOOLS_UNIT_ASSERT_EQUALS(v.find(1)->second, -2);
 
-            _loop->exit();
+            _loop.exit();
         }
 
         IntMap multiplyMap(const IntMap& m, int f)
@@ -677,7 +676,7 @@ class BinRpcTest : public cxxtools::unit::TestSuite
         {
             _server->registerMethod("multiplymultimap", *this, &BinRpcTest::multiplyMultimap);
 
-            cxxtools::bin::RpcClient client(*_loop, "", _port);
+            cxxtools::bin::RpcClient client(_loop, "", _port);
             cxxtools::RemoteProcedure<IntMultimap, IntMultimap, int> multiply(client, "multiplymultimap");
             connect( multiply.finished, *this, &BinRpcTest::onMultiplyMultimapFinished );
 
@@ -689,7 +688,7 @@ class BinRpcTest : public cxxtools::unit::TestSuite
 
             multiply.begin(mymap, 2);
 
-            _loop->run();
+            _loop.run();
         }
 
         void onMultiplyMultimapFinished(const cxxtools::RemoteResult<IntMultimap>& result)
@@ -708,7 +707,7 @@ class BinRpcTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT(v.lower_bound(1) != v.end());
             CXXTOOLS_UNIT_ASSERT_EQUALS(v.lower_bound(1)->second, -2);
 
-            _loop->exit();
+            _loop.exit();
         }
 
         IntMultimap multiplyMultimap(const IntMultimap& m, int f)
