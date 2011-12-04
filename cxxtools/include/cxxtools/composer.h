@@ -88,11 +88,14 @@ class CXXTOOLS_API IComposer
 
         IComposer* leaveMember();
 
-        virtual void fixup() = 0;
+        void fixup()
+        { do_fixup(*_current); }
 
-        void fixupMember(const std::string& name);
+        void fixup(const std::string& name);
 
     protected:
+        virtual void do_fixup(const SerializationInfo& si) = 0;
+
         SerializationInfo _si;
         SerializationInfo* _current;
 
@@ -116,9 +119,10 @@ class Composer : public IComposer
             _si.clear();
         }
 
-        virtual void fixup()
+    protected:
+        virtual void do_fixup(const SerializationInfo& si)
         {
-            *_current >>= *_type;
+            si >>= *_type;
         }
 
     private:

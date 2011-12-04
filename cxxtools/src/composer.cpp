@@ -31,14 +31,12 @@
 
 namespace cxxtools
 {
-    void IComposer::fixupMember(const std::string& name)
+    void IComposer::fixup(const std::string& name)
     {
         SerializationInfo* p = _current->findMember(name);
         if( !p )
             throw std::runtime_error("member " + name + " not found");
-        _current = p;
-        fixup();
-        _current = p->parent();
+        do_fixup(*p);
     }
 
     void IComposer::setCategory(SerializationInfo::Category category)

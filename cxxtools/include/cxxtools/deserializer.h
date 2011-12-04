@@ -57,7 +57,7 @@ namespace cxxtools
                 Composer<T> composer;
                 composer.begin(type);
                 get(&composer);
-                composer.fixupMember(name);
+                composer.fixup(name);
             }
 
         protected:
