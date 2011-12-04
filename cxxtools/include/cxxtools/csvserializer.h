@@ -68,15 +68,14 @@ namespace cxxtools
             template <typename T>
             void serialize(const T& type)
             {
-                IDecomposer* serializer = _context.begin(type);
-                _context.fixdown(_formatter);
+                Decomposer<T> decomposer;
+                decomposer.begin(type);
+                decomposer.format(_formatter);
                 _formatter.finish();
-                _context.clear();
             }
 
         private:
             CsvFormatter _formatter;
-            SerializationContext _context;
     };
 }
 

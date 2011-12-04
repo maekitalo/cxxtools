@@ -28,20 +28,8 @@
 #include "cxxtools/decomposer.h"
 #include "cxxtools/formatter.h"
 
-namespace cxxtools {
-
-void IDecomposer::fixdownEach(cxxtools::SerializationInfo& si, SerializationContext& context)
+namespace cxxtools
 {
-    if(si.category() == cxxtools::SerializationInfo::Object)
-    {
-        cxxtools::SerializationInfo::Iterator it;
-        for(it = si.begin(); it != si.end(); ++it)
-        {
-            fixdownEach(*it, context);
-        }
-    }
-}
-
 
 void IDecomposer::formatEach(const cxxtools::SerializationInfo& si, Formatter& formatter)
 {
@@ -106,64 +94,5 @@ void IDecomposer::formatEach(const cxxtools::SerializationInfo& si, Formatter& f
     }
 }
 
-
-SerializationContext::SerializationContext()
-{
-}
-
-
-SerializationContext::~SerializationContext()
-{
-    this->clear();
-}
-
-
-void SerializationContext::clear()
-{
-    _omap.clear();
-
-    std::vector<IDecomposer*>::iterator it;
-    for(it = _stack.begin(); it != _stack.end(); ++it)
-    {
-        delete *it;
-    }
-    _stack.clear();
-}
-
-
-IDecomposer* SerializationContext::find(const void* p) const
-{
-    std::map<const void*, IDecomposer*>::const_iterator it;
-    it = _omap.find(p);
-    if(it == _omap.end())
-        return 0;
-
-    return it->second;
-}
-
-
-void SerializationContext::fixdown(Formatter& formatter)
-{
-    std::vector<IDecomposer*>::iterator it;
-    for(it = _stack.begin(); it != _stack.end(); ++it)
-    {
-        IDecomposer* decomposer = *it;
-        decomposer->fixdown(*this);
-    }
-
-    _omap.clear();
-
-    for(it = _stack.begin(); it != _stack.end(); ++it)
-    {
-        (*it)->format(formatter);
-    }
-}
-
-
-void SerializationContext::do_begin(const void* target, IDecomposer* decomposer)
-{
-    _omap[target] = decomposer;
-    _stack.push_back(decomposer);
-}
 
 } // namespace cxxtools

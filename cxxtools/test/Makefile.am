@@ -26,7 +26,8 @@ alltests_SOURCES = \
     trim-test.cpp \
     uri-test.cpp \
     xmlreader-test.cpp \
-    xmlrpc-test.cpp
+    xmlrpc-test.cpp \
+    xmlserializer-test.cpp
 
 alltests_LDADD = $(top_builddir)/src/libcxxtools.la \
         $(top_builddir)/src/bin/libcxxtools-bin.la \

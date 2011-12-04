@@ -25,12 +25,12 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-#ifndef cxxtools_Xml_XmlSerializer_h
-#define cxxtools_Xml_XmlSerializer_h
+#ifndef cxxtools_Xml_XmlFormatter_h
+#define cxxtools_Xml_XmlFormatter_h
 
-#include <cxxtools/xml/xmlformatter.h>
-#include <cxxtools/decomposer.h>
-#include <sstream>
+#include <cxxtools/formatter.h>
+#include <cxxtools/xml/xmlwriter.h>
+#include <memory>
 
 namespace cxxtools
 {
@@ -43,7 +43,7 @@ namespace xml
     Thic class performs XML serialization of a single object or
     object data.
 */
-class XmlSerializer
+class XmlFormatter : public cxxtools::Formatter
 {
     public:
         /** @brief Construct a serializer without initializing the
@@ -52,14 +52,15 @@ class XmlSerializer
             The serializer can be "opened" for writing by calling
             method attach().
         */
-        XmlSerializer();
+        XmlFormatter();
 
         /** @brief Construct a serializer writing to a byte stream
 
             The serializer will write the objects as XML with
             UTF-8 encoding to the output stream.
         */
-        XmlSerializer(std::ostream& os);
+        XmlFormatter(std::ostream& os);
+
 
         /** @brief Construct a serializer writing to the given XmlWriter object
 
@@ -67,10 +68,10 @@ class XmlSerializer
             This class will not free the given XmlWriter object. The caller is
             responsible to free it if needed.
         */
-        XmlSerializer(cxxtools::xml::XmlWriter* writer);
+        XmlFormatter(cxxtools::xml::XmlWriter* writer);
 
         //! @brief Destructor
-        ~XmlSerializer();
+        ~XmlFormatter();
 
         /** @brief Opens this serializer for writing into the given stream.
 
@@ -105,43 +106,39 @@ class XmlSerializer
         */
         void detach();
 
-        /** @brief Serialize an object to XML
+        //! @internal
+        void flush();
 
-            The serializer will serialize the object \a type as
-            XML to the assigned stream. The string \a name will be used
-            as the instance name of \a type and appear as the name of the
-            XML element. The type must be serializable.
-        */
-        template <typename T>
-        void serialize(const T& type, const std::string& name)
-        {
-            Decomposer<T> decomposer;
-            decomposer.begin(type);
-            decomposer.setName(name);
-            decomposer.format(_formatter);
-            _formatter.finish();
-            _formatter.flush();
-        }
+        void addValue(const std::string& name, const std::string& type,
+                      const cxxtools::String& value, const std::string& id);
 
-        void finish()
-        {
-        }
+        void beginArray(const std::string& name, const std::string& type,
+                        const std::string& id);
 
-        template <typename T>
-        static std::string toString(const T& type, const std::string& name, bool beautify = false)
-        {
-          std::ostringstream os;
-          XmlWriter writer(os, beautify ? XmlWriter::UseXmlDeclaration | XmlWriter::UseIndent | XmlWriter::UseEndl
-                                        : XmlWriter::UseXmlDeclaration);
-          XmlSerializer s(&writer);
-          s.serialize(type, name);
-          s.finish();
-          return os.str();
-        }
+        void finishArray();
+
+        void beginObject(const std::string& name, const std::string& type,
+                         const std::string& id);
+
+        void beginMember(const std::string& name);
+
+        void finishMember();
+
+        void finishObject();
+
+        void finish();
 
     private:
-        XmlFormatter _formatter;
+        void beginComplexElement(const std::string& name, const std::string& type,
+                        const std::string& id, const String& category);
+
+        //! @internal
+        cxxtools::xml::XmlWriter* _writer;
+
+        //! @internal
+        std::auto_ptr<cxxtools::xml::XmlWriter> _deleter;
 };
+
 
 } // namespace xml
 

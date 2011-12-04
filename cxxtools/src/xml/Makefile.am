@@ -10,6 +10,7 @@ libcxxtools_xml_la_SOURCES = \
 	startelement.cpp \
 	xmldeserializer.cpp \
 	xmlerror.cpp \
+	xmlformatter.cpp \
 	xmlreader.cpp \
 	xmlserializer.cpp \
 	xmlwriter.cpp

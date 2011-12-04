@@ -26,183 +26,12 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 #include "cxxtools/xml/xmlserializer.h"
-#include "cxxtools/xml/xmlwriter.h"
-#include "cxxtools/xml/startelement.h"
-#include "cxxtools/xml/endelement.h"
-#include "cxxtools/xml/characters.h"
-#include "cxxtools/string.h"
-#include "cxxtools/sourceinfo.h"
-#include <stdexcept>
 
-namespace cxxtools {
-
-namespace xml {
-
-XmlFormatter::XmlFormatter()
-: _writer(0)
-, _deleter(0)
+namespace cxxtools
 {
-}
 
-XmlFormatter::XmlFormatter(std::ostream& os)
-: _writer( 0 )
-, _deleter( new XmlWriter(os) )
+namespace xml
 {
-    _writer = _deleter.get();
-}
-
-
-XmlFormatter::XmlFormatter(XmlWriter* writer)
-: _writer(writer)
-, _deleter(0)
-{
-}
-
-
-XmlFormatter::~XmlFormatter()
-{
-    this->detach();
-}
-
-
-void XmlFormatter::attach(std::ostream& os)
-{
-    if (_writer)
-        throw std::logic_error("XmlSerizalizer is already open." + CXXTOOLS_SOURCEINFO);
-
-    _deleter.reset(new XmlWriter(os));
-    _writer = _deleter.get();
-}
-
-
-void XmlFormatter::attach(XmlWriter& writer)
-{
-    if (_writer)
-        throw std::logic_error("XmlSerizalizer is already open." + CXXTOOLS_SOURCEINFO);
-
-    _deleter.reset(0);
-    _writer = &writer;
-}
-
-
-void XmlFormatter::detach()
-{
-    if (_writer)
-    {
-        this->flush();
-        _deleter.reset(0);
-        _writer = 0;
-    }
-}
-
-
-void XmlFormatter::flush()
-{
-    if (_writer)
-        _writer->flush();
-}
-
-
-void XmlFormatter::addValue(const std::string& name, const std::string& type,
-                             const cxxtools::String& value, const std::string& id)
-{
-    cxxtools::String tag(name.empty() ? type : name);
-
-    Attribute attrs[2];
-    size_t countAttrs = 0;
-
-    if ( ! name.empty() && ! type.empty() )
-    {
-        attrs[countAttrs].name() = L"type";
-        attrs[countAttrs].value() = type;
-        ++countAttrs;
-    }
-
-    if( ! id.empty() )
-    {
-        attrs[countAttrs].name() = L"id";
-        attrs[countAttrs].value() = id;
-        ++countAttrs;
-    }
-
-    _writer->writeElement( tag, attrs, countAttrs, value );
-}
-
-
-void XmlFormatter::beginComplexElement(const std::string& name, const std::string& type,
-                              const std::string& id, const String& category)
-{
-    cxxtools::String tag(name.empty() ? type : name);
-
-    if (tag.empty())
-        throw std::logic_error("type name or element name must be set in xml formatter");
-
-    Attribute attrs[3];
-    size_t countAttrs = 0;
-
-    if ( ! name.empty() && ! type.empty() )
-    {
-        attrs[countAttrs].name() = L"type";
-        attrs[countAttrs].value() = type;
-        ++countAttrs;
-    }
-
-    if( ! id.empty() )
-    {
-        attrs[countAttrs].name() = L"id";
-        attrs[countAttrs].value() = id;
-        ++countAttrs;
-    }
-
-    if ( ! category.empty() )
-    {
-        attrs[countAttrs].name().assign(L"category");
-        attrs[countAttrs].value().assign(category);
-        ++countAttrs;
-    }
-
-    _writer->writeStartElement( tag, attrs, countAttrs );
-}
-
-void XmlFormatter::beginArray(const std::string& name, const std::string& type,
-                              const std::string& id)
-{
-    beginComplexElement(name, type, id, L"array");
-}
-
-
-void XmlFormatter::finishArray()
-{
-    _writer->writeEndElement();
-}
-
-
-void XmlFormatter::beginObject(const std::string& name, const std::string& type,
-                               const std::string& id)
-{
-    beginComplexElement(name, type, id, L"struct");
-}
-
-
-void XmlFormatter::beginMember(const std::string& name)
-{
-}
-
-
-void XmlFormatter::finishMember()
-{
-}
-
-
-void XmlFormatter::finishObject()
-{
-    _writer->writeEndElement();
-}
-
-
-void XmlFormatter::finish()
-{
-}
 
 
 XmlSerializer::XmlSerializer()
@@ -245,11 +74,6 @@ void XmlSerializer::detach()
     _formatter.detach();
 }
 
-
-void XmlSerializer::flush()
-{
-    _formatter.flush();
-}
 
 } // namespace xml
 

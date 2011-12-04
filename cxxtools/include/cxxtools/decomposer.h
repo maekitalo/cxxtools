@@ -38,15 +38,11 @@
 namespace cxxtools {
 
 class Formatter;
-class SerializationContext;
-
 class CXXTOOLS_API IDecomposer
 {
     public:
         virtual ~IDecomposer()
         {}
-
-        virtual void fixdown(SerializationContext& context) = 0;
 
         virtual void setName(const std::string& name) = 0;
 
@@ -58,9 +54,7 @@ class CXXTOOLS_API IDecomposer
         IDecomposer()
         {}
 
-        static void fixdownEach(cxxtools::SerializationInfo& si, SerializationContext& context);
-
-        static void formatEach(const cxxtools::SerializationInfo& si, Formatter& formatter);
+        static void formatEach(const SerializationInfo& si, Formatter& formatter);
 };
 
 
@@ -78,11 +72,6 @@ class Decomposer : public IDecomposer
             _si <<= type;
         }
 
-        virtual void fixdown(SerializationContext& context)
-        {
-            this->fixdownEach( _si, context );
-        }
-
         virtual void setId(const std::string& id)
         {
             _si.setId(id);
@@ -95,7 +84,7 @@ class Decomposer : public IDecomposer
 
         virtual void format(Formatter& formatter)
         {
-            this->formatEach( _si, formatter );
+            formatEach( _si, formatter );
         }
 
     private:
@@ -103,35 +92,6 @@ class Decomposer : public IDecomposer
         SerializationInfo* _current;
 };
 
-
-class CXXTOOLS_API SerializationContext : private NonCopyable
-{
-    public:
-        SerializationContext();
-
-        virtual ~SerializationContext();
-
-        void clear();
-
-        template <typename T>
-        IDecomposer* begin(const T& type)
-        {
-            Decomposer<T>* decomposer = new Decomposer<T>;
-            decomposer->begin(type);
-            this->do_begin(&type, decomposer);
-            return decomposer;
-        }
-
-        IDecomposer* find(const void* p) const;
-
-        void fixdown(Formatter& formatter);
-
-    private:
-        void do_begin(const void* target, IDecomposer* decomposer);
-
-        std::map<const void*, IDecomposer*> _omap;
-        std::vector<IDecomposer*> _stack;
-};
 
 } // namespace cxxtools
 
