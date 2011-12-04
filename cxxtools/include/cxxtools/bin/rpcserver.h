@@ -50,10 +50,10 @@ namespace cxxtools
 
             public:
                 RpcServer(EventLoopBase& eventLoop);
-                RpcServer(EventLoopBase& eventLoop, const std::string& ip, unsigned short int port, int backlog = 5);
+                RpcServer(EventLoopBase& eventLoop, const std::string& ip, unsigned short int port, int backlog = 64);
                 ~RpcServer();
 
-                void listen(const std::string& ip, unsigned short int port, int backlog = 5);
+                void listen(const std::string& ip, unsigned short int port, int backlog = 64);
 
                 unsigned minThreads() const;
                 void minThreads(unsigned m);
