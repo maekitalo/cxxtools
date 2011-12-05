@@ -32,7 +32,6 @@
 
 #include <cxxtools/api.h>
 #include <cxxtools/timespan.h>
-#include <cxxtools/sourceinfo.h>
 #include <string>
 #include <stdexcept>
 
@@ -44,7 +43,7 @@ class SerializationInfo;
 class CXXTOOLS_API InvalidTime : public std::invalid_argument
 {
     public:
-        InvalidTime(const SourceInfo& si);
+        InvalidTime();
 
         ~InvalidTime() throw()
 		{}
@@ -128,7 +127,7 @@ class Time
 		{
 		    if ( ! isValid(hour, min, sec , msec) )
 		    {
-		        throw InvalidTime(CXXTOOLS_SOURCEINFO);
+		        throw InvalidTime();
 		    }
 
 		    _msecs = (hour*SecondsPerHour + min*SecondsPerMinute + sec) * 1000 + msec;

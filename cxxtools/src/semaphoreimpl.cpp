@@ -35,7 +35,7 @@ SemaphoreImpl::SemaphoreImpl(unsigned int initial)
 {
     int ret = sem_init(&_handle, 0, initial);
     if( ret == -1 )
-        throw SystemError( CXXTOOLS_ERROR_MSG("sem_init failed") );
+        throw SystemError("sem_init");
 }
 
 
@@ -49,7 +49,7 @@ void SemaphoreImpl::wait()
 {
     int ret = sem_wait(&_handle);
     if(ret == -1)
-        throw SystemError( CXXTOOLS_ERROR_MSG("sem_wait failed") );
+        throw SystemError("sem_wait");
 }
 
 
@@ -61,7 +61,7 @@ bool SemaphoreImpl::tryWait()
         if(errno == EAGAIN)
             return false;
 
-        throw SystemError( CXXTOOLS_ERROR_MSG("sem_trywait failed") );
+        throw SystemError("sem_trywait");
     }
 
     return true;
@@ -76,7 +76,7 @@ void SemaphoreImpl::post()
         if(errno == EINTR)
             goto again;
 
-        throw SystemError( CXXTOOLS_ERROR_MSG("sem_post failed") );
+        throw SystemError("sem_post");
     }
 }
 

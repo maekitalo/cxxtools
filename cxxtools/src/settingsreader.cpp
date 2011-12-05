@@ -27,11 +27,12 @@
  */
 #include "settingsreader.h"
 
-namespace cxxtools {
+namespace cxxtools
+{
 
 void SettingsReader::State::syntaxError(unsigned line)
 {
-    throw SettingsError( CXXTOOLS_ERROR_MSG("syntax error"), line);
+    throw SettingsError("syntax error", line);
 }
 
 
@@ -127,7 +128,7 @@ void SettingsReader::leaveMember()
     //std::cerr << "@" << std::endl;
 
     if(0 == _current->parent() )
-        throw SettingsError( CXXTOOLS_ERROR_MSG("too many closing braces"), _line);
+        throw SettingsError("too many closing braces", _line);
 
     _current = _current->parent();
     --_depth;
@@ -167,7 +168,7 @@ cxxtools::Char SettingsReader::getEscaped()
 {
     cxxtools::Char ch;
     if( ! _is->get(ch) )
-        throw SettingsError( CXXTOOLS_ERROR_MSG("unexpected EOF"), _line );
+        throw SettingsError("unexpected EOF", _line);
 
     switch( ch.value() )
     {

@@ -33,21 +33,8 @@
 
 log_define("cxxtools.systemerror")
 
-namespace cxxtools {
-
-void throwSysErrorIf(bool flag, const char* fn)
+namespace cxxtools
 {
-    if(flag)
-        throw SystemError(fn);
-}
-
-
-void throwSysErrorIf(bool flag, int err, const char* fn)
-{
-    if(flag)
-        throw SystemError(err, fn);
-}
-
 
 SystemError::SystemError(int err, const char* fn)
 : std::runtime_error( getErrnoString(err, fn) )
@@ -65,9 +52,9 @@ SystemError::SystemError(const char* fn)
 }
 
 
-SystemError::SystemError(const std::string& what, const SourceInfo& si)
-: std::runtime_error(what + si)
-, m_errno(0)
+SystemError::SystemError(const char* fn, const std::string& what)
+: std::runtime_error(fn && fn[0] ? (std::string("error in function ") + fn + ": " + what) : what),
+  m_errno(0)
 {
   log_debug("system error; " << std::exception::what());
 }
@@ -76,14 +63,14 @@ SystemError::SystemError(const std::string& what, const SourceInfo& si)
 SystemError::~SystemError() throw()
 { }
 
-OpenLibraryFailed::OpenLibraryFailed(const std::string& msg, const cxxtools::SourceInfo& si)
-: SystemError(msg, si)
+OpenLibraryFailed::OpenLibraryFailed(const std::string& msg)
+: SystemError("", msg)
 {
   log_debug("open library failed; " << what());
 }
 
-SymbolNotFound::SymbolNotFound(const std::string& sym, const cxxtools::SourceInfo& si)
-: SystemError("symbol not found: " + sym, si)
+SymbolNotFound::SymbolNotFound(const std::string& sym)
+: SystemError("", "symbol not found: " + sym)
 , _symbol(sym)
 {
   log_debug("symbol " << sym << " not found; " << what());

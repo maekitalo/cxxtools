@@ -46,7 +46,7 @@ namespace
 unsigned short getNumber2(const char* s)
 {
     if( ! std::isdigit(s[0]) || !std::isdigit(s[1]) )
-        throw ConversionError( CXXTOOLS_ERROR_MSG("Invalid DateTime format") );
+        throw ConversionError("Invalid DateTime format");
 
     return (s[0] - '0') * 10 + (s[1] - '0');
 }
@@ -54,7 +54,7 @@ unsigned short getNumber2(const char* s)
 unsigned short getNumber3(const char* s)
 {
     if (!std::isdigit(s[0]) || !std::isdigit(s[1]) || !std::isdigit(s[2]))
-        throw ConversionError( CXXTOOLS_ERROR_MSG("Invalid DateTime format") );
+        throw ConversionError("Invalid DateTime format");
 
     return (s[0] - '0') * 100
         + (s[1] - '0') * 10
@@ -65,7 +65,7 @@ unsigned short getNumber4(const char* s)
 {
     if( ! std::isdigit(s[0]) || ! std::isdigit(s[1]) ||
         ! std::isdigit(s[2]) || ! std::isdigit(s[3]) )
-        throw ConversionError( CXXTOOLS_ERROR_MSG("Invalid DateTime format") );
+        throw ConversionError("Invalid DateTime format");
 
     return (s[0] - '0') * 1000
         + (s[1] - '0') * 100
@@ -157,7 +157,7 @@ void convert(DateTime& dt, const std::string& s)
         || s.at(13) != ':'
         || s.at(16) != ':'
         || s.at(19) != '.')
-        throw ConversionError( CXXTOOLS_ERROR_MSG("Invalid DateTime format") );
+        throw ConversionError("Invalid DateTime format");
 
     const char* d = s.data();
 

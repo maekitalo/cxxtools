@@ -55,10 +55,10 @@ namespace {
 // EPERM  The directory containing pathname has the sticky bit (S_ISVTX) set
 // EPERM  The filesystem containing pathname does not support the removal of directories.
 // EROFS  pathname refers to a file on a read-only filesystem.
-void throwErrno(const std::string& path, const cxxtools::SourceInfo& si)
+void throwErrno(const char* fn, const std::string& path)
 {
     if(errno == EEXIST)
-        throw AccessFailed(path, si);
+        throw AccessFailed(path);
 
     switch(errno)
     {
@@ -69,34 +69,34 @@ void throwErrno(const std::string& path, const cxxtools::SourceInfo& si)
         case EMLINK:
         case ENOTEMPTY:
         case EXDEV:
-            throw IOError( strerror(errno), si );
+            throw IOError( strerror(errno));
 
         case EACCES:
         case EPERM:
         case EROFS:
         case ENXIO:
-            throw PermissionDenied(path, si);
+            throw PermissionDenied(path);
 
         case ELOOP:
         case ENAMETOOLONG:
         case ENOENT:
         case ENOTDIR:
         case EISDIR:
-            throw FileNotFound(path, si);
+            throw FileNotFound(path);
 
         case ENODEV:
-            throw DeviceNotFound(path, si);
+            throw DeviceNotFound(path);
 
        case ENOMEM:
            throw std::bad_alloc();
 
         default: // EFAULT EMFILE EOVERFLOW
-            throw SystemError( strerror(errno), si );
+            throw SystemError(fn, strerror(errno));
     }
 }
 
 
-void throwFileErrno(const std::string& path, const cxxtools::SourceInfo& si)
+void throwFileErrno(const char* fn, const std::string& path)
 {
     switch(errno)
     {
@@ -105,9 +105,9 @@ void throwFileErrno(const std::string& path, const cxxtools::SourceInfo& si)
         case ENOENT:
         case ENOTDIR:
         case EISDIR:
-            throw FileNotFound(path, si);
+            throw FileNotFound(path);
 
-        default: throwErrno(path, si);
+        default: throwErrno(fn, path);
     }
 }
 
@@ -120,7 +120,7 @@ std::size_t FileImpl::size(const std::string& path)
 
     if( 0 != stat(path.c_str(), &buff) )
     {
-        throwFileErrno(path, CXXTOOLS_SOURCEINFO);
+        throwFileErrno("stat", path);
     }
 
     return buff.st_size;
@@ -137,35 +137,35 @@ void FileImpl::resize(const std::string& path, std::size_t newSize)
     while ( ret == EINTR );
 
     if(ret != 0)
-        throwFileErrno( path, CXXTOOLS_SOURCEINFO);
+        throwFileErrno("truncate", path);
 }
 
 
 void FileImpl::remove(const std::string& path)
 {
     if(0 != ::remove(path.c_str()))
-        throwFileErrno(path, CXXTOOLS_SOURCEINFO);
+        throwFileErrno("remove", path);
 }
 
 
 void FileImpl::move(const std::string& path, const std::string& to)
 {
     if( 0 != ::rename(path.c_str(), to.c_str()) )
-        throwFileErrno(path, CXXTOOLS_SOURCEINFO);
+        throwFileErrno("rename", path);
 }
 
 
 void FileImpl::link(const std::string& path, const std::string& to)
 {
     if( 0 != ::link(path.c_str(), to.c_str()) )
-        throwFileErrno(path, CXXTOOLS_SOURCEINFO);
+        throwFileErrno("link", path);
 }
 
 
 void FileImpl::symlink(const std::string& path, const std::string& to)
 {
     if( 0 != ::symlink(path.c_str(), to.c_str()) )
-        throwFileErrno(path, CXXTOOLS_SOURCEINFO);
+        throwFileErrno("symlink", path);
 }
 
 
@@ -173,7 +173,7 @@ void FileImpl::create(const std::string& path)
 {
     int fd = open(path.c_str(), O_RDWR|O_EXCL|O_CREAT, 0777);
     if( fd < 0 )
-        throwFileErrno(path, CXXTOOLS_SOURCEINFO);
+        throwFileErrno("open", path);
 
     ::close(fd);
 }

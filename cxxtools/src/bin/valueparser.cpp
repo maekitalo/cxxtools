@@ -71,7 +71,7 @@ namespace
             {
                 std::ostringstream msg;
                 msg << "unknown serialization type code " << static_cast<unsigned>(static_cast<unsigned char>(typeCode));
-                throw SerializationError(msg.str(), CXXTOOLS_SOURCEINFO);
+                throw SerializationError(msg.str());
             }
         }
         return 0;  // never reached
@@ -114,7 +114,7 @@ bool ValueParser::advance(char ch)
                     {
                         std::ostringstream msg;
                         msg << "invalid category code " << category;
-                        throw SerializationError(msg.str(), CXXTOOLS_SOURCEINFO);
+                        throw SerializationError(msg.str());
                     }
                 }
 
@@ -341,7 +341,7 @@ bool ValueParser::advance(char ch)
                 return true;
             }
             if (ch != '\1')
-                throw SerializationError("member expected", CXXTOOLS_SOURCEINFO);
+                throw SerializationError("member expected");
             _state = state_object_member_name;
             break;
 
@@ -452,7 +452,7 @@ bool ValueParser::advance(char ch)
 
         case state_end:
             if (ch != '\xff')
-                throw SerializationError("end of value marker expected", CXXTOOLS_SOURCEINFO);
+                throw SerializationError("end of value marker expected");
             return true;
     }
 

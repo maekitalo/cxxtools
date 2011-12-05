@@ -217,7 +217,7 @@ void TcpSocket::onDetach(SelectorBase& sb)
 size_t TcpSocket::onBeginRead(char* buffer, size_t n, bool& eof)
 {
     if (!_impl->isConnected())
-        throw IOPending( CXXTOOLS_ERROR_MSG("connect operation pending") );
+        throw IOPending("connect operation pending");
 
     return _impl->beginRead(buffer, n, eof);
 }
@@ -238,7 +238,7 @@ size_t TcpSocket::onRead(char* buffer, size_t count, bool& eof)
 size_t TcpSocket::onBeginWrite(const char* buffer, size_t n)
 {
     if (!_impl->isConnected())
-        throw IOPending( CXXTOOLS_ERROR_MSG("connect operation pending") );
+        throw IOPending("connect operation pending");
 
     return _impl->beginWrite(buffer, n);
 }

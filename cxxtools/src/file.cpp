@@ -42,7 +42,7 @@ File::File(const std::string& path)
 , _impl(0)
 {
     if( ! File::exists( path.c_str() ) )
-        throw FileNotFound(path, CXXTOOLS_SOURCEINFO);
+        throw FileNotFound(path);
 }
 
 
@@ -51,7 +51,7 @@ File::File(const FileInfo& fi)
 , _impl(0)
 {
     if( ! fi.isFile() )
-        throw FileNotFound(fi.path(), CXXTOOLS_SOURCEINFO);
+        throw FileNotFound(fi.path());
 }
 
 

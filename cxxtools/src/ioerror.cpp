@@ -31,12 +31,6 @@
 
 namespace cxxtools {
 
-IOError::IOError(const std::string& what, const SourceInfo& si)
-: std::ios::failure(what + si)
-{
-}
-
-
 IOError::IOError(const std::string& what)
 : std::ios::failure(what)
 {
@@ -49,48 +43,42 @@ IOTimeout::IOTimeout()
 }
 
 
-AccessFailed::AccessFailed(const std::string& resource, const SourceInfo& si)
-: IOError("could not access " + resource, si)
+AccessFailed::AccessFailed(const std::string& resource)
+: IOError("could not access " + resource)
 {
 }
 
 
-PermissionDenied::PermissionDenied(const std::string& resource, const SourceInfo& si)
-: AccessFailed(resource , si)
+PermissionDenied::PermissionDenied(const std::string& resource)
+: AccessFailed(resource)
 {
 }
 
 
-DeviceNotFound::DeviceNotFound(const std::string& device, const SourceInfo& si)
-: AccessFailed(device, si)
+DeviceNotFound::DeviceNotFound(const std::string& device)
+: AccessFailed(device)
 {}
 
 
 
-FileNotFound::FileNotFound(const std::string& path, const SourceInfo& si)
-: AccessFailed(path, si)
+FileNotFound::FileNotFound(const std::string& path)
+: AccessFailed(path)
 {}
 
 
-DirectoryNotFound::DirectoryNotFound(const std::string& path, const SourceInfo& si)
-: AccessFailed(path, si)
+DirectoryNotFound::DirectoryNotFound(const std::string& path)
+: AccessFailed(path)
 { }
 
 
-IOPending::IOPending(const std::string& what, const SourceInfo& si)
-: IOError(what, si)
+IOPending::IOPending(const std::string& what)
+: IOError(what)
 {
 }
 
 
-IOPending::IOPending(const char* msg)
-: IOError(msg)
-{
-}
-
-
-DeviceClosed::DeviceClosed(const std::string& what, const SourceInfo& si)
-: IOError(what, si)
+DeviceClosed::DeviceClosed(const std::string& what)
+: IOError(what)
 {
 }
 

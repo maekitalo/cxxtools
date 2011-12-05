@@ -29,11 +29,11 @@
 #define cxxtools_SerializationError_h
 
 #include <cxxtools/api.h>
-#include <cxxtools/sourceinfo.h>
 #include <string>
 #include <stdexcept>
 
-namespace cxxtools {
+namespace cxxtools
+{
 
 /** @brief Error during serialization of a type
 
@@ -43,15 +43,10 @@ namespace cxxtools {
 class CXXTOOLS_API SerializationError : public std::runtime_error
 {
     public:
-        /** @brief Construct with message and source-info
+        /** @brief Construct with a message
         */
-        SerializationError(const std::string& msg, const SourceInfo& si);
+        explicit SerializationError(const std::string& msg);
 
-        SerializationError(const char* msg);
-
-        //! @brief Destructor
-        ~SerializationError() throw()
-        {}
 };
 
 } // namespace cxxtools

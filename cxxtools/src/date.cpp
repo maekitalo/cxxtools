@@ -33,8 +33,8 @@
 namespace cxxtools
 {
 
-InvalidDate::InvalidDate(const SourceInfo& si)
-: std::invalid_argument("Invalid date" + si)
+InvalidDate::InvalidDate()
+: std::invalid_argument("Invalid date")
 {
 }
 
@@ -43,7 +43,7 @@ void greg2jul(unsigned& jd, int y, int m, int d)
 {
     if( ! Date::isValid(y, m, d) )
     {
-        throw InvalidDate(CXXTOOLS_SOURCEINFO);
+        throw InvalidDate();
     }
 
     jd=(1461*(y+4800+(m-14)/12))/4+(367*(m-2-12*((m-14)/12)))/12-(3*((y+4900+(m-14)/12)/100))/4+d-32075;
@@ -69,7 +69,7 @@ void jul2greg(unsigned jd, int& y, int& m, int& d)
 inline unsigned short getNumber2(const char* s)
 {
     if (!std::isdigit(s[0]) || !std::isdigit(s[1]))
-    throw ConversionError( CXXTOOLS_ERROR_MSG("Invalid date format.") );
+    throw ConversionError("Invalid date format.");
     return (s[0] - '0') * 10
         + (s[1] - '0');
 }
@@ -79,7 +79,7 @@ inline unsigned short getNumber4(const char* s)
 {
     if ( ! std::isdigit(s[0]) || !std::isdigit(s[1])
         || !std::isdigit(s[2])  || !std::isdigit(s[3]))
-    throw ConversionError( CXXTOOLS_ERROR_MSG("Invalid date format.") );
+    throw ConversionError("Invalid date format.");
 
     return (s[0] - '0') * 1000
         + (s[1] - '0') * 100
@@ -120,7 +120,7 @@ void convert(std::string& str, const Date& date)
 void convert(Date& date, const std::string& s)
 {
     if (s.size() < 10 || s.at(4) != '-' || s.at(7) != '-')
-        throw ConversionError( CXXTOOLS_ERROR_MSG("Illegal date format") );
+        throw ConversionError("Illegal date format");
 
     const char* d = s.data();
     date= Date(getNumber4(d), getNumber2(d + 5), getNumber2(d + 8));

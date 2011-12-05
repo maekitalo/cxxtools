@@ -29,7 +29,6 @@
 #ifndef CXXTOOLS_IOERROR_H
 #define CXXTOOLS_IOERROR_H
 
-#include <cxxtools/sourceinfo.h>
 #include <cxxtools/api.h>
 #include <ios>
 #include <stdexcept>
@@ -40,8 +39,6 @@ namespace cxxtools
     class CXXTOOLS_API IOError : public std::ios::failure
     {
         public:
-            IOError(const std::string& what, const SourceInfo& si);
-
             explicit IOError(const std::string& what);
 
             ~IOError() throw()
@@ -60,9 +57,7 @@ namespace cxxtools
     class CXXTOOLS_API AccessFailed : public IOError
     {
         public:
-            AccessFailed(const std::string& what, const SourceInfo& si);
-
-            AccessFailed(const char* what);
+            explicit AccessFailed(const std::string& what);
 
             ~AccessFailed() throw()
             {}
@@ -71,7 +66,7 @@ namespace cxxtools
     class CXXTOOLS_API PermissionDenied : public AccessFailed
     {
         public:
-            PermissionDenied(const std::string& resource, const SourceInfo& si);
+            explicit PermissionDenied(const std::string& resource);
 
             ~PermissionDenied() throw()
             {}
@@ -80,7 +75,7 @@ namespace cxxtools
     class CXXTOOLS_API DeviceNotFound : public AccessFailed
     {
         public:
-            DeviceNotFound(const std::string& device, const SourceInfo& si);
+            explicit DeviceNotFound(const std::string& device);
 
             ~DeviceNotFound() throw()
             {}
@@ -89,7 +84,7 @@ namespace cxxtools
     class CXXTOOLS_API FileNotFound : public AccessFailed
     {
         public:
-            FileNotFound(const std::string& path, const SourceInfo& si);
+            explicit FileNotFound(const std::string& path);
 
             ~FileNotFound() throw()
             {}
@@ -106,7 +101,7 @@ namespace cxxtools
                 could not be found and the location in the source code where
                 he exception was thrown.
             */
-            DirectoryNotFound(const std::string& path, const SourceInfo& si);
+            explicit DirectoryNotFound(const std::string& path);
 
             //! @brief Destructor
             ~DirectoryNotFound() throw()
@@ -116,9 +111,7 @@ namespace cxxtools
     class CXXTOOLS_API IOPending : public IOError
     {
         public:
-            IOPending(const std::string& what, const SourceInfo& si);
-
-            IOPending(const char* what);
+            explicit IOPending(const std::string& what);
 
             ~IOPending() throw()
             {}
@@ -127,7 +120,7 @@ namespace cxxtools
     class CXXTOOLS_API DeviceClosed : public IOError
     {
         public:
-            DeviceClosed(const std::string& what, const SourceInfo& si);
+            explicit DeviceClosed(const std::string& what);
 
             DeviceClosed(const char* what);
 

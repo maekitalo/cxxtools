@@ -39,7 +39,7 @@ namespace cxxtools {
 class SettingsError : public cxxtools::SerializationError
 {
     public:
-        SettingsError(const char* what, unsigned line);
+        SettingsError(const std::string& what, unsigned line);
 
         //! @brief Destructor
         ~SettingsError() throw()
@@ -62,7 +62,6 @@ class Settings : public cxxtools::SerializationInfo
 
         void save( std::basic_ostream<cxxtools::Char>& os ) const;
 
-        // TODO getSerializable
         template <typename T>
         const bool getObject(T& type, const std::string& name) const
         {

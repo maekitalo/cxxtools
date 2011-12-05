@@ -76,12 +76,12 @@ StreamBuffer::~StreamBuffer()
 void StreamBuffer::attach(IODevice& ioDevice)
 {
     if( ioDevice.busy() )
-        throw IOPending( CXXTOOLS_ERROR_MSG("IODevice in use") );
+        throw IOPending("IODevice in use");
 
     if(_ioDevice)
     {
         if( _ioDevice->busy() )
-            throw IOPending( CXXTOOLS_ERROR_MSG("IODevice in use") );
+            throw IOPending("IODevice in use");
 
         disconnect(ioDevice.inputReady, *this, &StreamBuffer::onRead);
         disconnect(ioDevice.outputReady, *this, &StreamBuffer::onWrite);
@@ -126,7 +126,7 @@ void StreamBuffer::beginRead()
     size_t used = _pbmax + leftover;
 
     if( _ibufferSize == used )
-        throw std::logic_error( CXXTOOLS_ERROR_MSG("StreamBuffer is full") );
+        throw std::logic_error("StreamBuffer is full");
 
     _ioDevice->beginRead( _ibuffer + used, _ibufferSize - used );
 
@@ -225,7 +225,7 @@ size_t StreamBuffer::beginWrite()
 void StreamBuffer::discard()
 {
     if (_ioDevice && (_ioDevice->reading() || _ioDevice->writing()))
-        throw IOPending( CXXTOOLS_ERROR_MSG("discard failed - streambuffer is in use") );
+        throw IOPending("discard failed - streambuffer is in use");
 
     if (gptr())
         this->setg(_ibuffer, _ibuffer + _ibufferSize, _ibuffer + _ibufferSize);

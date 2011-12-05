@@ -65,7 +65,7 @@ void ThreadImpl::detach()
     {
         int ret = pthread_detach(_id);
         if(ret != 0)
-            throw SystemError( CXXTOOLS_ERROR_MSG("pthread_detach") );
+            throw SystemError("pthread_detach");
     }
 
     _detached = true;
@@ -94,7 +94,7 @@ void ThreadImpl::start()
     pthread_attr_destroy(&attrs);
 
     if(ret != 0)
-        throw SystemError( CXXTOOLS_ERROR_MSG("pthread_create") );
+        throw SystemError("pthread_create");
 
     if (_detached)
         detach();
@@ -107,7 +107,7 @@ void ThreadImpl::join()
     int ret = pthread_join(_id, &threadRet);
 
     if(ret != 0)
-        throw SystemError( CXXTOOLS_ERROR_MSG("pthread_join") );
+        throw SystemError("pthread_join");
 }
 
 
@@ -115,7 +115,7 @@ void ThreadImpl::terminate()
 {
     int ret = pthread_kill(_id, SIGKILL);
     if(ret != 0)
-        throw SystemError( CXXTOOLS_ERROR_MSG("pthread_kill") );
+        throw SystemError("pthread_kill");
 }
 
 }

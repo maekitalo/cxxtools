@@ -132,7 +132,7 @@ PipeImpl::PipeImpl(bool isAsync)
 {
     int fds[2];
     if(-1 == ::pipe(fds) )
-        throw SystemError( CXXTOOLS_ERROR_MSG("pipe failed") );
+        throw SystemError("pipe");
 
     _out.open( fds[0], isAsync );
     _in.open( fds[1], isAsync );

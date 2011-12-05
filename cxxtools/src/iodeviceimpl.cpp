@@ -93,7 +93,7 @@ void IODeviceImpl::open(const std::string& path, IODevice::OpenMode mode)
 
     _fd = ::open( path.c_str(), flags );
     if(_fd == -1)
-        throw AccessFailed(getErrnoString("open failed"), CXXTOOLS_SOURCEINFO);
+        throw AccessFailed(getErrnoString("open failed"));
 }
 
 
@@ -107,7 +107,7 @@ void IODeviceImpl::open(int fd, bool isAsync, bool inherit)
         flags |= O_NONBLOCK ;
         int ret = fcntl(_fd, F_SETFL, flags);
         if(-1 == ret)
-            throw IOError(getErrnoString("Could not set fd to non-blocking"), CXXTOOLS_SOURCEINFO);
+            throw IOError(getErrnoString("Could not set fd to non-blocking"));
     }
 
     if (!inherit)
@@ -116,7 +116,7 @@ void IODeviceImpl::open(int fd, bool isAsync, bool inherit)
         flags |= FD_CLOEXEC ;
         int ret = fcntl(_fd, F_SETFD, flags);
         if(-1 == ret)
-            throw IOError(getErrnoString("Could not set FD_CLOEXEC"), CXXTOOLS_SOURCEINFO);
+            throw IOError(getErrnoString("Could not set FD_CLOEXEC"));
     }
 
 }
@@ -137,7 +137,7 @@ void IODeviceImpl::close()
             if( errno != EINTR )
             {
                 log_error("close of iodevice failed; errno=" << errno);
-                throw IOError(getErrnoString("Could not close file handle"), CXXTOOLS_SOURCEINFO);
+                throw IOError(getErrnoString("Could not close file handle"));
             }
         }
     }
@@ -165,7 +165,7 @@ size_t IODeviceImpl::endRead(bool& eof)
     if (_errorPending)
     {
         _errorPending = false;
-        throw IOError("read error", CXXTOOLS_SOURCEINFO);
+        throw IOError("read error");
     }
 
     return this->read( _device.rbuf(), _device.rbuflen(), eof );
@@ -198,7 +198,7 @@ size_t IODeviceImpl::read( char* buffer, size_t count, bool& eof )
             continue;
 
         if(errno != EAGAIN)
-            throw IOError(getErrnoString("read failed"), CXXTOOLS_SOURCEINFO);
+            throw IOError(getErrnoString("read failed"));
 
         pollfd pfd;
         pfd.fd = this->fd();
@@ -248,7 +248,7 @@ size_t IODeviceImpl::endWrite()
     if (_errorPending)
     {
         _errorPending = false;
-        throw IOError("write error", CXXTOOLS_SOURCEINFO);
+        throw IOError("write error");
     }
 
     if (_device.wavail() > 0)
@@ -282,7 +282,7 @@ size_t IODeviceImpl::write( const char* buffer, size_t count )
             continue;
 
         if(errno != EAGAIN)
-            throw IOError(getErrnoString("Could not write to file handle"), CXXTOOLS_SOURCEINFO);
+            throw IOError(getErrnoString("Could not write to file handle"));
 
         pollfd pfd;
         pfd.fd = this->fd();
@@ -318,7 +318,7 @@ void IODeviceImpl::sync() const
 {
     int ret = fsync(_fd);
     if(ret != 0)
-        throw IOError(getErrnoString("Could not sync handle"), CXXTOOLS_SOURCEINFO);
+        throw IOError(getErrnoString("Could not sync handle"));
 }
 
 
@@ -368,7 +368,7 @@ bool IODeviceImpl::wait(std::size_t umsecs, pollfd& pfd)
     } while (ret == -1 && errno == EINTR);
 
     if (ret == -1)
-        throw IOError(getErrnoString("poll failed"), CXXTOOLS_SOURCEINFO );
+        throw IOError(getErrnoString("poll failed"));
 
     return ret > 0;
 }

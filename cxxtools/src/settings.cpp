@@ -33,7 +33,7 @@
 
 namespace cxxtools {
 
-SettingsError::SettingsError(const char* what, unsigned line)
+SettingsError::SettingsError(const std::string& what, unsigned line)
 : SerializationError(what)
 , _line(line)
 {}

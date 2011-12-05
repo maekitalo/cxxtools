@@ -29,18 +29,18 @@
 #define CXXTOOLS_DATE_H
 
 #include <cxxtools/api.h>
-#include <cxxtools/sourceinfo.h>
 #include <string>
 #include <stdexcept>
 
-namespace cxxtools {
+namespace cxxtools
+{
 
 class SerializationInfo;
 
 class CXXTOOLS_API InvalidDate : public std::invalid_argument
 {
     public:
-        InvalidDate(const SourceInfo& si);
+        InvalidDate();
 
         ~InvalidDate() throw()
         {}

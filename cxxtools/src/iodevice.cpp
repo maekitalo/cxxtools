@@ -29,7 +29,8 @@
 #include "cxxtools/iodevice.h"
 #include <string.h>
 
-namespace cxxtools {
+namespace cxxtools
+{
 
 IODevice::IODevice()
 : _eof(false)
@@ -51,13 +52,13 @@ IODevice::~IODevice()
 void IODevice::beginRead(char* buffer, size_t n)
 {
     if (!async())
-        throw std::logic_error( CXXTOOLS_ERROR_MSG("Device not in async mode") );
+        throw std::logic_error("Device not in async mode");
 
     if (!enabled())
-        throw DeviceClosed( CXXTOOLS_ERROR_MSG("Device closed") );
+        throw DeviceClosed("Device closed");
 
     if (_rbuf)
-        throw IOPending( CXXTOOLS_ERROR_MSG("read operation pending") );
+        throw IOPending("read operation pending");
 
     size_t r = this->onBeginRead(buffer, n, _eof);
 
@@ -110,7 +111,7 @@ size_t IODevice::read(char* buffer, size_t n)
     if (async())
     {
         if( _rbuf )
-            throw IOPending( CXXTOOLS_ERROR_MSG("read operation pending") );
+            throw IOPending("read operation pending");
 
         try // TODO pass buffer pointer/length to onEndRead
         {
@@ -133,13 +134,13 @@ size_t IODevice::read(char* buffer, size_t n)
 size_t IODevice::beginWrite(const char* buffer, size_t n)
 {
     if (!async())
-        throw std::logic_error( CXXTOOLS_ERROR_MSG("Device not in async mode") );
+        throw std::logic_error("Device not in async mode");
 
     if (!enabled())
-        throw std::logic_error( CXXTOOLS_ERROR_MSG("Device not enabled") );
+        throw std::logic_error("Device not enabled");
 
     if (_wbuf)
-        throw IOPending( CXXTOOLS_ERROR_MSG("write operation pending") );
+        throw IOPending("write operation pending");
 
     size_t r = this->onBeginWrite(buffer, n);
 
@@ -195,7 +196,7 @@ size_t IODevice::write(const char* buffer, size_t n)
     {
         if( _wbuf )
         {
-            throw IOPending( CXXTOOLS_ERROR_MSG("write operation pending") );
+            throw IOPending("write operation pending");
         }
 
         try

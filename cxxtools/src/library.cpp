@@ -135,7 +135,7 @@ Library& Library::open(const std::string& libname)
     }
     else if( ++idx == path.length() )
     {
-        throw OpenLibraryFailed(path, CXXTOOLS_SOURCEINFO);
+        throw OpenLibraryFailed(path);
     }
 
     path.insert( idx, prefix() );
@@ -166,7 +166,7 @@ Symbol Library::getSymbol(const char* symbol) const
     void* sym = this->resolve(symbol);
     if (sym == 0)
     {
-        throw SymbolNotFound(symbol, CXXTOOLS_SOURCEINFO);
+        throw SymbolNotFound(symbol);
     }
 
     return Symbol(*this, sym);

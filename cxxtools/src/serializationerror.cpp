@@ -27,15 +27,12 @@
  */
 #include <cxxtools/serializationerror.h>
 
-namespace cxxtools {
+namespace cxxtools
+{
 
-SerializationError::SerializationError(const std::string& msg, const SourceInfo& si)
-: std::runtime_error(msg + si)
-{ }
-
-
-SerializationError::SerializationError(const char* msg)
+SerializationError::SerializationError(const std::string& msg)
 : std::runtime_error(msg)
 { }
+
 
 } // namespace cxxtools

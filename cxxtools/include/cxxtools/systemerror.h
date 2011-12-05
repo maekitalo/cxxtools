@@ -29,7 +29,6 @@
 #ifndef CXXTOOLS_SYSTEM_ERROR_H
 #define CXXTOOLS_SYSTEM_ERROR_H
 
-#include <cxxtools/sourceinfo.h>
 #include <stdexcept>
 
 namespace cxxtools {
@@ -43,12 +42,12 @@ class SystemError : public std::runtime_error
 
         explicit SystemError(const char* fn);
 
-        SystemError(const std::string& what, const SourceInfo& si);
+        SystemError(const char* fn, const std::string& msg);
 
         ~SystemError() throw();
 
-        //int getErrno() const
-        //{ return m_errno; }
+        int getErrno() const
+        { return m_errno; }
 
     private:
         int m_errno;
@@ -58,23 +57,28 @@ class SystemError : public std::runtime_error
 */
 class OpenLibraryFailed : public SystemError
 {
+        std::string _library;
+
     public:
-        //! @brief Constructs from a message string and source info
-        OpenLibraryFailed(const std::string& msg, const cxxtools::SourceInfo& si);
+        //! @brief Constructs from a message string
+        explicit OpenLibraryFailed(const std::string& library);
 
         //! @brief Destructor
         ~OpenLibraryFailed() throw()
 		{}
+
+        const std::string& library() const
+        { return _library; }
 };
 
 /** @brief Thrown, when a symbol is not found in a library
 */
 class SymbolNotFound : public SystemError
 {
-    std::string _symbol;
+        std::string _symbol;
 
     public:
-        SymbolNotFound(const std::string& sym, const cxxtools::SourceInfo& si);
+        explicit SymbolNotFound(const std::string& sym);
 
         //! @brief Destructor
         ~SymbolNotFound() throw()

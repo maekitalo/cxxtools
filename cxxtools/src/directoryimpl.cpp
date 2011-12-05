@@ -64,7 +64,7 @@ DirectoryIteratorImpl::DirectoryIteratorImpl(const char* path)
 
     if( !_handle )
     {
-        throw SystemError("Could not open directory", CXXTOOLS_SOURCEINFO);
+        throw SystemError("opendir", "Could not open directory '" + std::string(path) + '\'');
     }
 
     // append a trailing slash if not empty, so we can add the
@@ -142,7 +142,7 @@ void DirectoryImpl::create(const std::string& path)
 {
     if( -1 == ::mkdir(path.c_str(), 0777) )
     {
-        throw SystemError("Could not create directory '" + path + "'" , CXXTOOLS_SOURCEINFO);
+        throw SystemError("mkdir", "Could not create directory '" + path + "'");
     }
 }
 
@@ -158,7 +158,7 @@ bool DirectoryImpl::exists(const std::string& path)
             return false;
         }
 
-        throw SystemError("Could not stat file '" + path + "'", CXXTOOLS_SOURCEINFO);
+        throw SystemError("stat", "Could not stat file '" + path + "'");
     }
 
     return true;
@@ -169,7 +169,7 @@ void DirectoryImpl::remove(const std::string& path)
 {
     if( -1 == ::rmdir(path.c_str()) )
     {
-        throw SystemError("Could not remove directory '" + path + "'", CXXTOOLS_SOURCEINFO);
+        throw SystemError("rmdir", "Could not remove directory '" + path + "'");
     }
 }
 
@@ -178,7 +178,7 @@ void DirectoryImpl::move(const std::string& oldName, const std::string& newName)
 {
     if (0 != ::rename(oldName.c_str(), newName.c_str()))
     {
-        throw SystemError("Could not move directory '" + oldName + "' to '" + newName + "'", CXXTOOLS_SOURCEINFO);
+        throw SystemError("rename", "Could not move directory '" + oldName + "' to '" + newName + "'");
     }
 }
 
@@ -187,7 +187,7 @@ void DirectoryImpl::chdir(const std::string& path)
 {
     if( -1 == ::chdir(path.c_str()) )
     {
-        throw SystemError("Could not change working directory to '" + path + "'", CXXTOOLS_SOURCEINFO);
+        throw SystemError("chdir", "Could not change working directory to '" + path + "'");
     }
 }
 
@@ -197,7 +197,7 @@ std::string DirectoryImpl::cwd()
     char cwd[PATH_MAX];
 
     if( !getcwd(cwd, PATH_MAX) )
-        throw SystemError("Could not get current working directroy", CXXTOOLS_SOURCEINFO);
+        throw SystemError("getcwd");
 
     return std::string(cwd);
 }

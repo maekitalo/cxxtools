@@ -29,6 +29,7 @@
 #include "selectorimpl.h"
 #include "selectableimpl.h"
 #include "cxxtools/ioerror.h"
+#include "cxxtools/systemerror.h"
 #include "cxxtools/selector.h"
 #include "cxxtools/log.h"
 #include <cerrno>
@@ -41,9 +42,18 @@
 
 log_define("cxxtools.selector.impl")
 
-namespace cxxtools {
+namespace cxxtools
+{
 
 const short SelectorImpl::POLL_ERROR_MASK= POLLERR | POLLHUP | POLLNVAL;
+
+namespace
+{
+    void throwSystemError(const char* fn)
+    {
+        throw SystemError(fn);
+    }
+}
 
 SelectorImpl::SelectorImpl()
 : _isDirty(true)
@@ -52,23 +62,23 @@ SelectorImpl::SelectorImpl()
 
     //Open a pipe to send wake up message.
     if( ::pipe( _wakePipe ) )
-        throw std::runtime_error("Could not open pipe." + CXXTOOLS_SOURCEINFO);
+        throwSystemError("pipe");
 
     int flags = ::fcntl(_wakePipe[0], F_GETFL);
     if(-1 == flags)
-        throw std::runtime_error("Could not get pipe flags." + CXXTOOLS_SOURCEINFO);
+        throwSystemError("fcntl");
 
     int ret = ::fcntl(_wakePipe[0], F_SETFL, flags|O_NONBLOCK);
     if(-1 == ret)
-        throw std::runtime_error("Could not set pipe to non-blocking." + CXXTOOLS_SOURCEINFO);
+        throwSystemError("fcntl");
 
     flags = ::fcntl(_wakePipe[1], F_GETFL);
     if(-1 == flags)
-        throw std::runtime_error("Could not get pipe flags." + CXXTOOLS_SOURCEINFO);
+        throwSystemError("fcntl");
 
     ret = ::fcntl(_wakePipe[1], F_SETFL, flags|O_NONBLOCK);
     if(-1 == ret)
-        throw std::runtime_error("Could not set pipe to non-blocking." + CXXTOOLS_SOURCEINFO);
+        throwSystemError("fcntl");
 
 }
 
@@ -215,7 +225,7 @@ bool SelectorImpl::wait(std::size_t umsecs)
             break;
 
         if( errno != EINTR )
-            throw IOError( "Could not poll on file descriptors", CXXTOOLS_SOURCEINFO );
+            throw IOError("Could not poll on file descriptors");
 
     }
 
@@ -230,7 +240,7 @@ bool SelectorImpl::wait(std::size_t umsecs)
 
             if ( _pollfds[0].revents & POLL_ERROR_MASK)
             {
-                throw IOError("poll error on event pipe", CXXTOOLS_SOURCEINFO);
+                throw IOError("poll error on event pipe");
             }
 
             static char buffer[1024];
@@ -252,7 +262,7 @@ bool SelectorImpl::wait(std::size_t umsecs)
                         break;
                 }
 
-                throw IOError("Could not read from pipe", CXXTOOLS_SOURCEINFO);
+                throw IOError("Could not read from pipe");
             }
         }
 

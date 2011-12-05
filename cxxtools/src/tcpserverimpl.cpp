@@ -184,7 +184,7 @@ void TcpServerImpl::listen(const std::string& ipaddr, unsigned short int port, i
                 fn = "fcntl";
                 int ret = ::fcntl(fd, F_SETFD, flags);
                 if (ret == -1)
-                    throw IOError(getErrnoString("Could not set FD_CLOEXEC"), CXXTOOLS_SOURCEINFO);
+                    throw IOError(getErrnoString("Could not set FD_CLOEXEC"));
             }
         }
     }

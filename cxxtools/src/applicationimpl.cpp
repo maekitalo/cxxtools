@@ -120,7 +120,7 @@ bool ApplicationImpl::catchSystemSignal(int sig)
 
         if (-1 == ::sigaction(sig, &act, NULL))
         {
-            throw SystemError( CXXTOOLS_ERROR_MSG("sigaction failed") );
+            throw SystemError("sigaction failed");
         }
 		
 		return true;
@@ -136,7 +136,7 @@ bool ApplicationImpl::raiseSystemSignal(int sig)
     {
 		if( 0 != ::raise(sig) )
         {
-            throw SystemError( CXXTOOLS_ERROR_MSG("sigaction failed") );
+            throw SystemError("sigaction failed");
         }
 
 		return true;

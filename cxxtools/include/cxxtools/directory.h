@@ -28,7 +28,6 @@
 #ifndef CXXTOOLS_DIRECTORY_H
 #define CXXTOOLS_DIRECTORY_H
 
-#include <cxxtools/sourceinfo.h>
 #include <cxxtools/fileinfo.h>
 #include <cxxtools/ioerror.h>
 #include <string>

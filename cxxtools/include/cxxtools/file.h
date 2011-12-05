@@ -28,12 +28,12 @@
 #ifndef CXXTOOLS_FILE_H
 #define CXXTOOLS_FILE_H
 
-#include <cxxtools/sourceinfo.h>
 #include <cxxtools/fileinfo.h>
 #include <cxxtools/ioerror.h>
 #include <string>
 
-namespace cxxtools {
+namespace cxxtools
+{
 
 /** @brief Provides common operations on files.
  */
