@@ -76,6 +76,10 @@ class RpcClient : public RemoteClient
 
         void cancel();
 
+        const std::string& praefix() const;
+
+        void praefix(const std::string& p);
+
 };
 
 }

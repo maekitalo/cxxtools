@@ -101,6 +101,7 @@ class BinRpcTest : public cxxtools::unit::TestSuite
             registerMethod("Multiset", *this, &BinRpcTest::Multiset);
             registerMethod("Map", *this, &BinRpcTest::Map);
             registerMethod("Multimap", *this, &BinRpcTest::Multimap);
+            registerMethod("CallPraefix", *this, &BinRpcTest::CallPraefix);
 
             char* PORT = getenv("UTEST_PORT");
             if (PORT)
@@ -719,6 +720,23 @@ class BinRpcTest : public cxxtools::unit::TestSuite
             }
 
             return ret;
+        }
+
+        ////////////////////////////////////////////////////////////
+        // CallPraefix
+        //
+        void CallPraefix()
+        {
+            _server->registerMethod("somePraefix.multiply", *this, &BinRpcTest::multiplyInt);
+
+            cxxtools::bin::RpcClient client(_loop, "", _port);
+            client.praefix("somePraefix.");
+            cxxtools::RemoteProcedure<int, int, int> multiply(client, "multiply");
+            connect( multiply.finished, *this, &BinRpcTest::onIntegerFinished );
+
+            multiply.begin(2, 3);
+
+            _loop.run();
         }
 
 };

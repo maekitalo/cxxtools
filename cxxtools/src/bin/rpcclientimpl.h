@@ -78,6 +78,12 @@ class RpcClientImpl : public Connectable
 
         void cancel();
 
+        const std::string& praefix() const
+        { return _praefix; }
+
+        void praefix(const std::string& p)
+        { _praefix = p; }
+
     private:
         void prepareRequest(const String& name, IDecomposer** argv, unsigned argc);
         void onConnect(net::TcpSocket& socket);
@@ -95,6 +101,7 @@ class RpcClientImpl : public Connectable
 
         std::string _addr;
         unsigned short _port;
+        std::string _praefix;
 };
 
 }
