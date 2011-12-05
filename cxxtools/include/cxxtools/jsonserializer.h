@@ -34,6 +34,7 @@
 #include <cxxtools/decomposer.h>
 #include <cxxtools/noncopyable.h>
 #include <sstream>
+#include <stdexcept>
 
 namespace cxxtools
 {
@@ -97,12 +98,14 @@ namespace cxxtools
     {
         public:
             JsonSerializer()
-                : _ts(0)
+                : _ts(0),
+                  _inObject(false)
             {
             }
 
             explicit JsonSerializer(std::basic_ostream<cxxtools::Char>& ts)
-                : _ts(0)
+                : _ts(0),
+                  _inObject(false)
             {
                 _formatter.begin(ts);
             }
@@ -126,6 +129,11 @@ namespace cxxtools
 
             void finish()
             {
+                if (_inObject)
+                {
+                    _formatter.finishObject();
+                    _inObject = false;
+                }
                 _formatter.finish();
                 if (_ts)
                     _ts->flush();
@@ -137,16 +145,23 @@ namespace cxxtools
                 Decomposer<T> s;
                 s.begin(v);
                 s.setName(name);
-                _formatter.beginObject(std::string(), std::string(), std::string());
+
+                if (!_inObject)
+                {
+                    _formatter.beginObject(std::string(), std::string(), std::string());
+                    _inObject = true;
+                }
+
                 s.format(_formatter);
-                _formatter.finishObject();
-                _ts->flush();
                 return *this;
             }
 
             template <typename T>
             JsonSerializer& serialize(const T& v)
             {
+                if (_inObject)
+                    throw std::logic_error("can't serialize object without name into another object");
+
                 Decomposer<T> s;
                 s.begin(v);
                 s.format(_formatter);
@@ -174,6 +189,7 @@ namespace cxxtools
         private:
             JsonFormatter _formatter;
             std::basic_ostream<cxxtools::Char>* _ts;
+            bool _inObject;
     };
 }
 

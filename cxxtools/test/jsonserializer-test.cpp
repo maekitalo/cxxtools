@@ -73,6 +73,7 @@ class JsonSerializerTest : public cxxtools::unit::TestSuite
             registerMethod("testPlainObject", *this, &JsonSerializerTest::testPlainObject);
             registerMethod("testPlainArray", *this, &JsonSerializerTest::testPlainArray);
             registerMethod("testPlainString", *this, &JsonSerializerTest::testPlainString);
+            registerMethod("testMultipleObjects", *this, &JsonSerializerTest::testMultipleObjects);
         }
 
         void testInt()
@@ -187,6 +188,16 @@ class JsonSerializerTest : public cxxtools::unit::TestSuite
 
         }
 
+        void testMultipleObjects()
+        {
+            std::ostringstream out;
+            cxxtools::JsonSerializer serializer(out);
+            serializer.serialize("Hi", "a")
+                      .serialize(42, "b")
+                      .finish();
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(out.str(), "{\"a\":\"Hi\",\"b\":42}");
+        }
 };
 
 cxxtools::unit::RegisterTest<JsonSerializerTest> register_JsonSerializerTest;

@@ -302,7 +302,8 @@ void JsonFormatter::stringOut(const cxxtools::String& str)
 
 JsonSerializer::JsonSerializer(std::ostream& os,
     TextCodec<Char, char>* codec)
-    : _ts(new TextOStream(os, codec ? codec : new Utf8Codec()))
+    : _ts(new TextOStream(os, codec ? codec : new Utf8Codec())),
+      _inObject(false)
 {
     _formatter.begin(*_ts);
 }
