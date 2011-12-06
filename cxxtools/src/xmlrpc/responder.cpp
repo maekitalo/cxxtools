@@ -244,7 +244,7 @@ void XmlRpcResponder::advance(const cxxtools::xml::Node& node)
                 log_info("xmlrpc method <" << chars.content().narrow() << '>');
                 _proc = _service->getProcedure( chars.content().narrow() );
                 if( ! _proc )
-                    throw std::runtime_error("no such procedure");
+                    throw std::runtime_error("no such procedure \"" + chars.content().narrow() + '"');
 
                 //std::cerr << "-> Found Procedure: " << chars.content().narrow() << std::endl;
 
