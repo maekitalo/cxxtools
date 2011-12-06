@@ -143,7 +143,7 @@ void TcpServerImpl::listen(const std::string& ipaddr, unsigned short int port, i
                 continue;
             }
 
-#ifdef IPPROTO_IPV6
+#ifdef HAVE_IPV6
             if (it->ai_family == AF_INET6)
             {
               if (::setsockopt(fd, IPPROTO_IPV6, IPV6_V6ONLY, &on, sizeof(on)) < 0)
