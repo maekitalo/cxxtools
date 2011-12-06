@@ -49,6 +49,20 @@ class CXXTOOLS_API SerializationError : public std::runtime_error
 
 };
 
+class CXXTOOLS_API SerializationMemberNotFound : public SerializationError
+{
+        std::string _member;
+
+    public:
+        SerializationMemberNotFound(const std::string& member);
+        ~SerializationMemberNotFound() throw()
+        { }
+
+        const std::string& member() const
+        { return _member; }
+
+};
+
 } // namespace cxxtools
 
 

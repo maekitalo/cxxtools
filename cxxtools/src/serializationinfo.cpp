@@ -153,7 +153,7 @@ const SerializationInfo& SerializationInfo::getMember(const std::string& name) c
             return *it;
     }
 
-    throw SerializationError("Missing info for '" + name + "'");
+    throw SerializationMemberNotFound(name);
 }
 
 

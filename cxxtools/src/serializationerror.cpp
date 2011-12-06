@@ -34,5 +34,10 @@ SerializationError::SerializationError(const std::string& msg)
 : std::runtime_error(msg)
 { }
 
+SerializationMemberNotFound::SerializationMemberNotFound(const std::string& member)
+    : SerializationError("Missing info for '" + member + "'"),
+      _member(member)
+{
+}
 
 } // namespace cxxtools
