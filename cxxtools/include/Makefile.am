@@ -186,6 +186,7 @@ nobase_include_HEADERS = \
         cxxtools/xml/processinginstruction.h \
         cxxtools/xml/startelement.h \
         cxxtools/xml/xmlerror.h \
+        cxxtools/xml/xmlformatter.h \
         cxxtools/xml/xmldeserializer.h \
         cxxtools/xml/xmlreader.h \
         cxxtools/xml/xmlserializer.h \
@@ -193,7 +194,6 @@ nobase_include_HEADERS = \
         cxxtools/xmlrpc/api.h \
         cxxtools/xmlrpc/client.h \
         cxxtools/xmlrpc/errorcodes.h \
-        cxxtools/xmlrpc/formatter.h \
         cxxtools/xmlrpc/httpclient.h \
         cxxtools/xmlrpc/formatter.h \
         cxxtools/xmlrpc/responder.h \
