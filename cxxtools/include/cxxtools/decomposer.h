@@ -38,8 +38,12 @@
 namespace cxxtools {
 
 class Formatter;
+
 class CXXTOOLS_API IDecomposer
 {
+        IDecomposer(const IDecomposer&) { }
+        IDecomposer& operator= (const IDecomposer&) { return *this; }
+
     public:
         virtual ~IDecomposer()
         {}

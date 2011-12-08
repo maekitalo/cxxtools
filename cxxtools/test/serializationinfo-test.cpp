@@ -188,7 +188,7 @@ class SerializationInfoTest : public cxxtools::unit::TestSuite
             si2.setValue(cxxtools::String(L"World"));
             si1.swap(si2);
             CXXTOOLS_UNIT_ASSERT(si1.isString());
-            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<cxxtools::String>(si1), L"World");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<cxxtools::String>(si1), cxxtools::String(L"World"));
             CXXTOOLS_UNIT_ASSERT(si2.isInt());
             CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<int>(si2), 19);
 
@@ -215,7 +215,7 @@ class SerializationInfoTest : public cxxtools::unit::TestSuite
             si2.setValue(cxxtools::String("Bar"));
             si1.swap(si2);
             CXXTOOLS_UNIT_ASSERT(si1.isString());
-            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<cxxtools::String>(si1), L"Bar");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<cxxtools::String>(si1), cxxtools::String(L"Bar"));
             CXXTOOLS_UNIT_ASSERT(si2.isString8());
             CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<std::string>(si2), "Foo");
 
@@ -242,7 +242,7 @@ class SerializationInfoTest : public cxxtools::unit::TestSuite
             si2.setValue(cxxtools::String("Bar"));
             si1.swap(si2);
             CXXTOOLS_UNIT_ASSERT(si1.isString());
-            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<cxxtools::String>(si1), L"Bar");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<cxxtools::String>(si1), cxxtools::String(L"Bar"));
             CXXTOOLS_UNIT_ASSERT(si2.isString());
             CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<std::string>(si2), "Foo");
 

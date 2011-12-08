@@ -36,6 +36,9 @@ namespace cxxtools
 
 class CXXTOOLS_API IComposer
 {
+        IComposer(const IComposer&) { }
+        IComposer& operator= (const IComposer&) { return *this; }
+
     public:
 #ifdef HAVE_LONG_LONG
         typedef long long LongInt;

@@ -37,7 +37,7 @@ namespace cxxtools
     {
             // make non copyable
             Deserializer(const Deserializer&)  { }
-            Deserializer& operator= (const Deserializer&) { }
+            Deserializer& operator= (const Deserializer&) { return *this; }
 
         public:
             Deserializer()
