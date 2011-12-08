@@ -301,7 +301,14 @@ void SerializationInfo::_releaseValue()
     switch (_t)
     {
         case t_string: _StringPtr()->~String(); break;
-        case t_string8: _String8Ptr()->std::string::~string(); break;
+        case t_string8:
+        {
+            // I don't know how to call the destructor without 'using' so that
+            // both gcc and xlc understand it.
+            using std::string;
+            _String8Ptr()->~string();
+            break;
+        }
     }
     _t = t_none;
 }
@@ -495,6 +502,8 @@ SerializationInfo::LongInt SerializationInfo::_getInt() const
         case t_uint:    return _u._u; break;
         case t_float:   return _u._f; break;
     }
+    // should be never reached
+    return 0;
 }
 
 SerializationInfo::ULongInt SerializationInfo::_getUInt() const
@@ -508,6 +517,8 @@ SerializationInfo::ULongInt SerializationInfo::_getUInt() const
         case t_uint:    return _u._u; break;
         case t_float:   return _u._f; break;
     }
+    // should be never reached
+    return 0;
 }
 
 long double SerializationInfo::_getFloat() const
@@ -521,6 +532,8 @@ long double SerializationInfo::_getFloat() const
         case t_uint:    return _u._u; break;
         case t_float:   return _u._f; break;
     }
+    // should be never reached
+    return 0;
 }
 
 
