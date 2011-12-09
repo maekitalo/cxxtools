@@ -429,13 +429,13 @@ void SerializationInfo::getValue(std::string& value) const
 
 namespace
 {
-    inline bool isTrue(const char c)
+    inline bool isFalse(char c)
     {
-        return c == '1'
-            || c == 't'
-            || c == 'T'
-            || c == 'y'
-            || c == 'Y';
+        return c == '0'
+            || c == 'f'
+            || c == 'F'
+            || c == 'n'
+            || c == 'N';
     }
 }
 
@@ -444,8 +444,8 @@ void SerializationInfo::getValue(bool& value) const
     switch (_t)
     {
         case t_none:    value = false; break;
-        case t_string:  value = !_StringPtr()->empty() && isTrue((*_StringPtr())[0].narrow()); break;
-        case t_string8: value = !_StringPtr()->empty() && isTrue((*_String8Ptr())[0]); break;
+        case t_string:  value = !_StringPtr()->empty() && !isFalse((*_StringPtr())[0].narrow()); break;
+        case t_string8: value = !_String8Ptr()->empty() && !isFalse((*_String8Ptr())[0]); break;
         case t_int:     value = _u._i; break;
         case t_uint:    value = _u._u; break;
         case t_float:   value = _u._f; break;
@@ -458,7 +458,7 @@ void SerializationInfo::getValue(char& value) const
     {
         case t_none:    value = '\0'; break;
         case t_string:  value = _StringPtr()->empty() ? '\0' : (*_StringPtr())[0].narrow(); break;
-        case t_string8: value = _StringPtr()->empty() ? '\0' : (*_String8Ptr())[0]; break;
+        case t_string8: value = _String8Ptr()->empty() ? '\0' : (*_String8Ptr())[0]; break;
         case t_int:     value = _u._i; break;
         case t_uint:    value = _u._u; break;
         case t_float:   value = _u._f; break;
@@ -471,7 +471,7 @@ void SerializationInfo::getValue(signed char& value) const
     {
         case t_none:    value = '\0'; break;
         case t_string:  value = _StringPtr()->empty() ? '\0' : (*_StringPtr())[0].narrow(); break;
-        case t_string8: value = _StringPtr()->empty() ? '\0' : (*_String8Ptr())[0]; break;
+        case t_string8: value = _String8Ptr()->empty() ? '\0' : (*_String8Ptr())[0]; break;
         case t_int:     value = _u._i; break;
         case t_uint:    value = _u._u; break;
         case t_float:   value = _u._f; break;
@@ -484,7 +484,7 @@ void SerializationInfo::getValue(unsigned char& value) const
     {
         case t_none:    value = '\0'; break;
         case t_string:  value = _StringPtr()->empty() ? '\0' : (*_StringPtr())[0].narrow(); break;
-        case t_string8: value = _StringPtr()->empty() ? '\0' : (*_String8Ptr())[0]; break;
+        case t_string8: value = _String8Ptr()->empty() ? '\0' : (*_String8Ptr())[0]; break;
         case t_int:     value = _u._i; break;
         case t_uint:    value = _u._u; break;
         case t_float:   value = _u._f; break;

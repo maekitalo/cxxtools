@@ -50,6 +50,7 @@ class SerializationInfoTest : public cxxtools::unit::TestSuite
             registerMethod("testSiAssign", *this, &SerializationInfoTest::testSiAssign);
             registerMethod("testSiCopy", *this, &SerializationInfoTest::testSiCopy);
             registerMethod("testSiSwap", *this, &SerializationInfoTest::testSiSwap);
+            registerMethod("testStringToBool", *this, &SerializationInfoTest::testStringToBool);
         }
 
         void testSiSet()
@@ -283,6 +284,13 @@ class SerializationInfoTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<short>(si2), -17);
         }
 
+        void testStringToBool()
+        {
+            cxxtools::SerializationInfo si;
+
+            si.setValue("78");
+            CXXTOOLS_UNIT_ASSERT(siValue<bool>(si));
+        }
 };
 
 cxxtools::unit::RegisterTest<SerializationInfoTest> register_SerializationInfoTest;
