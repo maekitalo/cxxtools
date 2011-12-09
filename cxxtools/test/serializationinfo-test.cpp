@@ -47,6 +47,12 @@ class SerializationInfoTest : public cxxtools::unit::TestSuite
         : cxxtools::unit::TestSuite("serializationinfo")
         {
             registerMethod("testSiSet", *this, &SerializationInfoTest::testSiSet);
+            registerMethod("testString", *this, &SerializationInfoTest::testString);
+            registerMethod("testString8", *this, &SerializationInfoTest::testString8);
+            registerMethod("testChar", *this, &SerializationInfoTest::testChar);
+            registerMethod("testInt", *this, &SerializationInfoTest::testInt);
+            registerMethod("testUInt", *this, &SerializationInfoTest::testUInt);
+            registerMethod("testDouble", *this, &SerializationInfoTest::testDouble);
             registerMethod("testSiAssign", *this, &SerializationInfoTest::testSiAssign);
             registerMethod("testSiCopy", *this, &SerializationInfoTest::testSiCopy);
             registerMethod("testSiSwap", *this, &SerializationInfoTest::testSiSwap);
@@ -81,6 +87,132 @@ class SerializationInfoTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<unsigned>(si), -17);
             CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<short>(si), -17);
 
+        }
+
+        void testString()
+        {
+            cxxtools::SerializationInfo si;
+            si.setValue(cxxtools::String(L"42"));
+
+            CXXTOOLS_UNIT_ASSERT(si.isString());
+            CXXTOOLS_UNIT_ASSERT(!si.isString8());
+            CXXTOOLS_UNIT_ASSERT(!si.isChar());
+            CXXTOOLS_UNIT_ASSERT(!si.isInt());
+            CXXTOOLS_UNIT_ASSERT(!si.isUInt());
+            CXXTOOLS_UNIT_ASSERT(!si.isFloat());
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<cxxtools::String>(si), L"42");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<std::string>(si), "42");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<char>(si), '4');
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<unsigned char>(si), static_cast<unsigned char>(42));
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<bool>(si), true);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<int>(si), 42);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<double>(si), 42.0);
+        }
+
+        void testString8()
+        {
+            cxxtools::SerializationInfo si;
+            si.setValue(std::string("42"));
+
+            CXXTOOLS_UNIT_ASSERT(!si.isString());
+            CXXTOOLS_UNIT_ASSERT(si.isString8());
+            CXXTOOLS_UNIT_ASSERT(!si.isChar());
+            CXXTOOLS_UNIT_ASSERT(!si.isInt());
+            CXXTOOLS_UNIT_ASSERT(!si.isUInt());
+            CXXTOOLS_UNIT_ASSERT(!si.isFloat());
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<cxxtools::String>(si), L"42");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<std::string>(si), "42");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<char>(si), '4');
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<unsigned char>(si), static_cast<unsigned char>(42));
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<bool>(si), true);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<int>(si), 42);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<double>(si), 42.0);
+        }
+
+        void testChar()
+        {
+            cxxtools::SerializationInfo si;
+            si.setValue('7');
+
+            CXXTOOLS_UNIT_ASSERT(!si.isString());
+            CXXTOOLS_UNIT_ASSERT(!si.isString8());
+            CXXTOOLS_UNIT_ASSERT(si.isChar());
+            CXXTOOLS_UNIT_ASSERT(!si.isInt());
+            CXXTOOLS_UNIT_ASSERT(!si.isUInt());
+            CXXTOOLS_UNIT_ASSERT(!si.isFloat());
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<cxxtools::String>(si), L"7");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<std::string>(si), "7");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<char>(si), '7');
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<unsigned char>(si), static_cast<unsigned char>(7));
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<bool>(si), true);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<int>(si), 7);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<double>(si), 7.0);
+        }
+
+        void testInt()
+        {
+            cxxtools::SerializationInfo si;
+            si.setValue(42);
+
+            CXXTOOLS_UNIT_ASSERT(!si.isString());
+            CXXTOOLS_UNIT_ASSERT(!si.isString8());
+            CXXTOOLS_UNIT_ASSERT(!si.isChar());
+            CXXTOOLS_UNIT_ASSERT(si.isInt());
+            CXXTOOLS_UNIT_ASSERT(!si.isUInt());
+            CXXTOOLS_UNIT_ASSERT(!si.isFloat());
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<cxxtools::String>(si), L"42");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<std::string>(si), "42");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<char>(si), 42);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<unsigned char>(si), static_cast<unsigned char>(42));
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<bool>(si), true);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<int>(si), 42);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<double>(si), 42.0);
+        }
+
+        void testUInt()
+        {
+            cxxtools::SerializationInfo si;
+            si.setValue(static_cast<unsigned int>(42));
+
+            CXXTOOLS_UNIT_ASSERT(!si.isString());
+            CXXTOOLS_UNIT_ASSERT(!si.isString8());
+            CXXTOOLS_UNIT_ASSERT(!si.isChar());
+            CXXTOOLS_UNIT_ASSERT(!si.isInt());
+            CXXTOOLS_UNIT_ASSERT(si.isUInt());
+            CXXTOOLS_UNIT_ASSERT(!si.isFloat());
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<cxxtools::String>(si), L"42");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<std::string>(si), "42");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<char>(si), 42);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<unsigned char>(si), static_cast<unsigned char>(42));
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<bool>(si), true);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<int>(si), 42);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<double>(si), 42.0);
+        }
+
+        void testDouble()
+        {
+            cxxtools::SerializationInfo si;
+            si.setValue(42.0);
+
+            CXXTOOLS_UNIT_ASSERT(!si.isString());
+            CXXTOOLS_UNIT_ASSERT(!si.isString8());
+            CXXTOOLS_UNIT_ASSERT(!si.isChar());
+            CXXTOOLS_UNIT_ASSERT(!si.isInt());
+            CXXTOOLS_UNIT_ASSERT(!si.isUInt());
+            CXXTOOLS_UNIT_ASSERT(si.isFloat());
+
+            //CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<cxxtools::String>(si), L"42");
+            //CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<std::string>(si), "42");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<char>(si), 42);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<unsigned char>(si), static_cast<unsigned char>(42));
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<bool>(si), true);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<int>(si), 42);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<double>(si), 42.0);
         }
 
         void testSiAssign()

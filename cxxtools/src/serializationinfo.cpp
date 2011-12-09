@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2005-2008 by Dr. Marc Boris Duerner
+ * Copyright (C) 2011 by Tommi Maekitalo
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -49,10 +50,10 @@ SerializationInfo::SerializationInfo(const SerializationInfo& si)
 {
     switch (_t)
     {
-        case t_string:  new (_StringPtr()) String(*si._StringPtr());
+        case t_string:  new (_StringPtr()) String(si._String());
                         break;
 
-        case t_string8: new (_String8Ptr()) std::string(*si._String8Ptr());
+        case t_string8: new (_String8Ptr()) std::string(si._String8());
                         break;
 
     }
@@ -69,9 +70,9 @@ SerializationInfo& SerializationInfo::operator=(const SerializationInfo& si)
     _nodes = si._nodes;
 
     if (si._t == t_string)
-        _setString( *si._StringPtr() );
+        _setString( si._String() );
     else if (si._t == t_string8)
-        _setString8( *si._String8Ptr() );
+        _setString8( si._String8() );
     else
     {
         _releaseValue();
@@ -191,8 +192,8 @@ void SerializationInfo::clear()
     _nodes.clear();
     switch (_t)
     {
-        case t_string: _StringPtr()->clear(); break;
-        case t_string8: _String8Ptr()->clear(); break;
+        case t_string: _String().clear(); break;
+        case t_string8: _String8().clear(); break;
         default: _t = t_none; break;
     }
 }
@@ -213,15 +214,15 @@ void SerializationInfo::swap(SerializationInfo& si)
         if (si._t == t_string)
         {
             // this: String, other: String
-            _StringPtr()->swap(*si._StringPtr());
+            _String().swap(si._String());
         }
         else if (si._t == t_string8)
         {
             // this: String, other: std::string
             std::string s;
-            si._String8Ptr()->swap(s);
+            si._String8().swap(s);
             si.setValue(String());
-            si._StringPtr()->swap(*_StringPtr());
+            si._String().swap(_String());
             setValue(s);
         }
         else
@@ -230,7 +231,7 @@ void SerializationInfo::swap(SerializationInfo& si)
             U u = si._u;
             T t = si._t;
             si.setValue(String());
-            _StringPtr()->swap(*si._StringPtr());
+            _String().swap(si._String());
             _releaseValue();
             _u = u;
             _t = t;
@@ -242,22 +243,22 @@ void SerializationInfo::swap(SerializationInfo& si)
         {
             // this: std::string, other: String
             String s;
-            si._StringPtr()->swap(s);
+            si._String().swap(s);
             si.setValue(std::string());
-            _String8Ptr()->swap(*si._String8Ptr());
+            _String8().swap(si._String8());
             setValue(s);
         }
         else if (si._t == t_string8)
         {
             // this: std::string, other: std::string
-            _String8Ptr()->swap(*si._String8Ptr());
+            _String8().swap(si._String8());
         }
         else
         {
             // this: std::string, other: something
             U u = si._u;
             T t = si._t;
-            si.setValue(*_String8Ptr());
+            si.setValue(_String8());
             _releaseValue();
             _u = u;
             _t = t;
@@ -270,7 +271,7 @@ void SerializationInfo::swap(SerializationInfo& si)
             // this: something, other: String
             U u = _u;
             T t = _t;
-            setValue(*si._StringPtr());
+            setValue(si._String());
             si._releaseValue();
             si._u = u;
             si._t = t;
@@ -280,7 +281,7 @@ void SerializationInfo::swap(SerializationInfo& si)
             // this: something, other: std::string
             U u = _u;
             T t = _t;
-            setValue(*si._String8Ptr());
+            setValue(si._String8());
             si._releaseValue();
             si._u = u;
             si._t = t;
@@ -300,13 +301,13 @@ void SerializationInfo::_releaseValue()
 {
     switch (_t)
     {
-        case t_string: _StringPtr()->~String(); break;
+        case t_string: _String().~String(); break;
         case t_string8:
         {
             // I don't know how to call the destructor without 'using' so that
             // both gcc and xlc understand it.
             using std::string;
-            _String8Ptr()->~string();
+            _String8().~string();
             break;
         }
     }
@@ -323,7 +324,7 @@ void SerializationInfo::_setString(const String& value)
     }
     else
     {
-        _StringPtr()->assign(value);
+        _String().assign(value);
     }
 
     _category = Value;
@@ -339,7 +340,7 @@ void SerializationInfo::_setString8(const std::string& value)
     }
     else
     {
-        _String8Ptr()->assign(value);
+        _String8().assign(value);
     }
 
     _category = Value;
@@ -355,8 +356,21 @@ void SerializationInfo::_setString8(const char* value)
     }
     else
     {
-        _String8Ptr()->assign(value);
+        _String8().assign(value);
     }
+
+    _category = Value;
+}
+
+void SerializationInfo::_setChar(char value)
+{
+    if (_t != t_char)
+    {
+        _releaseValue();
+        _t = t_char;
+    }
+
+    _u._c = value;
 
     _category = Value;
 }
@@ -406,8 +420,9 @@ void SerializationInfo::getValue(String& value) const
     switch (_t)
     {
         case t_none:    value.clear(); break;
-        case t_string:  value.assign(*_StringPtr()); break;
-        case t_string8: value.assign(*_String8Ptr()); break;
+        case t_string:  value.assign(_String()); break;
+        case t_string8: value.assign(_String8()); break;
+        case t_char:    value.assign(1, _u._c); break;
         case t_int:     convert(value, _u._i); break;
         case t_uint:    convert(value, _u._u); break;
         case t_float:   convert(value, _u._f); break;
@@ -419,8 +434,9 @@ void SerializationInfo::getValue(std::string& value) const
     switch (_t)
     {
         case t_none:    value.clear(); break;
-        case t_string:  value = _StringPtr()->narrow(); break;
-        case t_string8: value.assign(*_String8Ptr()); break;
+        case t_string:  value = _String().narrow(); break;
+        case t_string8: value.assign(_String8()); break;
+        case t_char:    value.assign(1, _u._c); break;
         case t_int:     convert(value, _u._i); break;
         case t_uint:    convert(value, _u._u); break;
         case t_float:   convert(value, _u._f); break;
@@ -431,7 +447,8 @@ namespace
 {
     inline bool isFalse(char c)
     {
-        return c == '0'
+        return c == '\0'
+            || c == '0'
             || c == 'f'
             || c == 'F'
             || c == 'n'
@@ -439,56 +456,54 @@ namespace
     }
 }
 
-void SerializationInfo::getValue(bool& value) const
+bool SerializationInfo::_getBool() const
 {
     switch (_t)
     {
-        case t_none:    value = false; break;
-        case t_string:  value = !_StringPtr()->empty() && !isFalse((*_StringPtr())[0].narrow()); break;
-        case t_string8: value = !_String8Ptr()->empty() && !isFalse((*_String8Ptr())[0]); break;
-        case t_int:     value = _u._i; break;
-        case t_uint:    value = _u._u; break;
-        case t_float:   value = _u._f; break;
+        case t_none:    return false;
+        case t_string:  return !_String().empty() && !isFalse((_String())[0].narrow());
+        case t_string8: return !_String8().empty() && !isFalse((_String8())[0]);
+        case t_char:    return !isFalse(_u._c);
+        case t_int:     return _u._i;
+        case t_uint:    return _u._u;
+        case t_float:   return _u._f;
     }
+
+    // never reached
+    return false;
 }
 
-void SerializationInfo::getValue(char& value) const
+wchar_t SerializationInfo::_getWChar() const
 {
     switch (_t)
     {
-        case t_none:    value = '\0'; break;
-        case t_string:  value = _StringPtr()->empty() ? '\0' : (*_StringPtr())[0].narrow(); break;
-        case t_string8: value = _String8Ptr()->empty() ? '\0' : (*_String8Ptr())[0]; break;
-        case t_int:     value = _u._i; break;
-        case t_uint:    value = _u._u; break;
-        case t_float:   value = _u._f; break;
+        case t_none:    return L'\0';
+        case t_string:  return _String().empty() ? Char(0) : _String()[0];
+        case t_string8: return _String8().empty() ? '\0' : _String8()[0];
+        case t_char:    return _u._c;
+        case t_int:     return _u._i;
+        case t_uint:    return _u._u;
+        case t_float:   return _u._f;
     }
+
+    // never reached
+    return 0;
 }
 
-void SerializationInfo::getValue(signed char& value) const
+char SerializationInfo::_getChar() const
 {
     switch (_t)
     {
-        case t_none:    value = '\0'; break;
-        case t_string:  value = _StringPtr()->empty() ? '\0' : (*_StringPtr())[0].narrow(); break;
-        case t_string8: value = _String8Ptr()->empty() ? '\0' : (*_String8Ptr())[0]; break;
-        case t_int:     value = _u._i; break;
-        case t_uint:    value = _u._u; break;
-        case t_float:   value = _u._f; break;
+        case t_none:    return '\0'; break;
+        case t_string:  return _String().empty() ? '\0' : (_String())[0].narrow(); break;
+        case t_string8: return _String8().empty() ? '\0' : (_String8())[0]; break;
+        case t_char:    return _u._c; break;
+        case t_int:     return _u._i; break;
+        case t_uint:    return _u._u; break;
+        case t_float:   return _u._f; break;
     }
-}
-
-void SerializationInfo::getValue(unsigned char& value) const
-{
-    switch (_t)
-    {
-        case t_none:    value = '\0'; break;
-        case t_string:  value = _StringPtr()->empty() ? '\0' : (*_StringPtr())[0].narrow(); break;
-        case t_string8: value = _String8Ptr()->empty() ? '\0' : (*_String8Ptr())[0]; break;
-        case t_int:     value = _u._i; break;
-        case t_uint:    value = _u._u; break;
-        case t_float:   value = _u._f; break;
-    }
+    // never reached
+    return 0;
 }
 
 SerializationInfo::LongInt SerializationInfo::_getInt() const
@@ -496,13 +511,14 @@ SerializationInfo::LongInt SerializationInfo::_getInt() const
     switch (_t)
     {
         case t_none:    return 0; break;
-        case t_string:  return convert<LongInt>(*_StringPtr()); break;
-        case t_string8: return convert<LongInt>(*_String8Ptr()); break;
+        case t_string:  return convert<LongInt>(_String()); break;
+        case t_string8: return convert<LongInt>(_String8()); break;
+        case t_char:    return _u._c - '0'; break;
         case t_int:     return _u._i; break;
         case t_uint:    return _u._u; break;
         case t_float:   return _u._f; break;
     }
-    // should be never reached
+    // never reached
     return 0;
 }
 
@@ -511,13 +527,14 @@ SerializationInfo::ULongInt SerializationInfo::_getUInt() const
     switch (_t)
     {
         case t_none:    return 0; break;
-        case t_string:  return convert<ULongInt>(*_StringPtr()); break;
-        case t_string8: return convert<ULongInt>(*_String8Ptr()); break;
+        case t_string:  return convert<ULongInt>(_String()); break;
+        case t_string8: return convert<ULongInt>(_String8()); break;
+        case t_char:    return _u._c - '0'; break;
         case t_int:     return _u._i; break;
         case t_uint:    return _u._u; break;
         case t_float:   return _u._f; break;
     }
-    // should be never reached
+    // never reached
     return 0;
 }
 
@@ -526,13 +543,14 @@ long double SerializationInfo::_getFloat() const
     switch (_t)
     {
         case t_none:    return 0; break;
-        case t_string:  return convert<long double>(*_StringPtr()); break;
-        case t_string8: return convert<long double>(*_String8Ptr()); break;
+        case t_string:  return convert<long double>(_String()); break;
+        case t_string8: return convert<long double>(_String8()); break;
+        case t_char:    return _u._c - '0'; break;
         case t_int:     return _u._i; break;
         case t_uint:    return _u._u; break;
         case t_float:   return _u._f; break;
     }
-    // should be never reached
+    // never reached
     return 0;
 }
 

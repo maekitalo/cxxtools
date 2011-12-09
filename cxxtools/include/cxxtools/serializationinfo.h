@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2005-2008 by Dr. Marc Boris Duerner
+ * Copyright (C) 2011 by Tommi Maekitalo
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -40,7 +41,8 @@
 #include <typeinfo>
 #include <cxxtools/config.h>
 
-namespace cxxtools {
+namespace cxxtools
+{
 
 /** @brief Represents arbitrary types during serialization.
 */
@@ -132,8 +134,10 @@ class CXXTOOLS_API SerializationInfo
         void setValue(const String& value)       { _setString(value); }
         void setValue(const std::string& value)  { _setString8(value); }
         void setValue(const char* value)         { _setString8(value); }
+        void setValue(Char value)                { _setString(String(1, value)); }
+        void setValue(wchar_t value)             { _setString(String(1, value)); }
         void setValue(bool value)                { _setInt(value) ; }
-        void setValue(char value)                { _setInt(value) ; }
+        void setValue(char value)                { _setChar(value) ; }
         void setValue(unsigned char value)       { _setUInt(value) ; }
         void setValue(short value)               { _setInt(value) ; }
         void setValue(unsigned short value)      { _setUInt(value) ; }
@@ -156,10 +160,12 @@ class CXXTOOLS_API SerializationInfo
         */
         void getValue(String& value) const;
         void getValue(std::string& value) const;
-        void getValue(bool& value) const;
-        void getValue(char& value) const;
-        void getValue(signed char& value) const;
-        void getValue(unsigned char& value) const;
+        void getValue(Char& value) const               { value = _getWChar(); }
+        void getValue(wchar_t& value) const            { value = _getWChar(); }
+        void getValue(bool& value) const               { value = _getBool(); }
+        void getValue(char& value) const               { value = _getChar(); }
+        void getValue(signed char& value) const        { value = _getInt(); }
+        void getValue(unsigned char& value) const      { value = _getInt(); }
         void getValue(short& value) const              { value = _getInt(); }
         void getValue(unsigned short& value) const     { value = _getUInt(); }
         void getValue(int& value) const                { value = _getInt(); }
@@ -246,6 +252,7 @@ class CXXTOOLS_API SerializationInfo
 
         bool isString() const   { return _t == t_string; }
         bool isString8() const  { return _t == t_string8; }
+        bool isChar() const     { return _t == t_char; }
         bool isInt() const      { return _t == t_int; }
         bool isUInt() const     { return _t == t_uint; }
         bool isFloat() const    { return _t == t_float; }
@@ -265,9 +272,14 @@ class CXXTOOLS_API SerializationInfo
         void _setString(const String& value);
         void _setString8(const std::string& value);
         void _setString8(const char* value);
+        void _setChar(char value);
         void _setInt(LongInt value);
         void _setUInt(ULongInt value);
         void _setFloat(long double value);
+
+        bool _getBool() const;
+        wchar_t _getWChar() const;
+        char _getChar() const;
         LongInt _getInt() const;
         ULongInt _getUInt() const;
         long double _getFloat() const;
@@ -275,21 +287,27 @@ class CXXTOOLS_API SerializationInfo
         union U
         {
             char _s[sizeof(String) >= sizeof(std::string) ? sizeof(String) : sizeof(std::string)];
+            char _c;
             LongInt _i;
             ULongInt _u;
             long double _f;
         } _u;
 
         String* _StringPtr()                    { return reinterpret_cast<String*>(_u._s); }
+        String& _String()                       { return *_StringPtr(); }
         const String* _StringPtr() const        { return reinterpret_cast<const String*>(_u._s); }
+        const String& _String() const           { return *_StringPtr(); }
         std::string* _String8Ptr()              { return reinterpret_cast<std::string*>(_u._s); }
+        std::string& _String8()                 { return *_String8Ptr(); }
         const std::string* _String8Ptr() const  { return reinterpret_cast<const std::string*>(_u._s); }
+        const std::string& _String8() const     { return *_String8Ptr(); }
 
         enum T
         {
           t_none,
           t_string,
           t_string8,
+          t_char,
           t_int,
           t_uint,
           t_float
