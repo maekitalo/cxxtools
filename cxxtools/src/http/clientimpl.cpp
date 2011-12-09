@@ -226,7 +226,7 @@ const ReplyHeader& ClientImpl::execute(const Request& request, std::size_t timeo
     }
 
     if (!_stream)
-        throw IOError( CXXTOOLS_ERROR_MSG("error sending HTTP request") );
+        throw IOError("error sending HTTP request");
 
     log_debug("read reply");
 
@@ -240,7 +240,7 @@ const ReplyHeader& ClientImpl::execute(const Request& request, std::size_t timeo
         reexecute(request);
 
         if (!_stream)
-            throw IOError( CXXTOOLS_ERROR_MSG("error sending HTTP request") );
+            throw IOError("error sending HTTP request");
 
         doparse();
     }
@@ -248,13 +248,13 @@ const ReplyHeader& ClientImpl::execute(const Request& request, std::size_t timeo
     log_debug("reply ready");
 
     if (_stream.fail())
-        throw IOError( CXXTOOLS_ERROR_MSG("failed to read HTTP reply") );
+        throw IOError("failed to read HTTP reply");
 
     if (_parser.fail())
-        throw IOError( CXXTOOLS_ERROR_MSG("invalid HTTP reply") );
+        throw IOError("invalid HTTP reply");
 
     if (!_parser.end())
-        throw IOError( CXXTOOLS_ERROR_MSG("incomplete HTTP reply header") );
+        throw IOError("incomplete HTTP reply header");
 
     return _replyHeader;
 }
@@ -278,7 +278,7 @@ void ClientImpl::readBody(std::string& s)
         log_debug("eod=" << _chunkedIStream.eod());
 
         if (!_chunkedIStream.eod())
-            throw IOError( CXXTOOLS_ERROR_MSG("error reading HTTP reply body: incomplete chunked data stream") );
+            throw IOError("error reading HTTP reply body: incomplete chunked data stream");
     }
     else
     {
@@ -293,7 +293,7 @@ void ClientImpl::readBody(std::string& s)
             s += ch;
 
         if (_stream.fail())
-            throw IOError( CXXTOOLS_ERROR_MSG("error reading HTTP reply body") );
+            throw IOError("error reading HTTP reply body");
 
         //log_debug("body read: \"" << s << '"');
     }
@@ -530,7 +530,7 @@ void ClientImpl::onInput(StreamBuffer& sb)
             sb.endRead();
 
             if (sb.device()->eof())
-                throw IOError( CXXTOOLS_ERROR_MSG("end of input") );
+                throw IOError("end of input");
 
             _reconnectOnError = false;
 
@@ -683,7 +683,7 @@ void ClientImpl::processBodyAvailable(StreamBuffer& sb)
             }
 
             if (_chunkedIStream.fail())
-                throw IOError( CXXTOOLS_ERROR_MSG("error reading HTTP reply body") );
+                throw IOError("error reading HTTP reply body");
         }
         else if( _chunkedIStream.eod() )
         {
@@ -717,7 +717,7 @@ void ClientImpl::processBodyAvailable(StreamBuffer& sb)
         }
 
         if (_stream.fail())
-            throw IOError( CXXTOOLS_ERROR_MSG("error reading HTTP reply body") );
+            throw IOError("error reading HTTP reply body");
 
         if( _contentLength <= 0 )
         {

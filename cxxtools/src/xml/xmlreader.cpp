@@ -1776,7 +1776,7 @@ const StartElement& XmlReader::nextElement()
         {
             case Node::EndDocument:
             {
-                throw std::logic_error("End of document" + CXXTOOLS_SOURCEINFO);
+                throw std::logic_error("End of document");
             }
             case Node::StartElement:
                 found = true;
@@ -1802,7 +1802,7 @@ const Node& XmlReader::nextTag()
         {
             case Node::EndDocument:
             {
-                throw std::logic_error("End of document" + CXXTOOLS_SOURCEINFO);
+                throw std::logic_error("End of document");
             }
             case Node::StartElement:
             case Node::EndElement:

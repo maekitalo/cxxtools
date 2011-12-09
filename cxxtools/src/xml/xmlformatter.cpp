@@ -64,7 +64,7 @@ XmlFormatter::~XmlFormatter()
 void XmlFormatter::attach(std::ostream& os)
 {
     if (_writer)
-        throw std::logic_error("XmlSerizalizer is already open." + CXXTOOLS_SOURCEINFO);
+        throw std::logic_error("XmlSerizalizer is already open");
 
     _deleter.reset(new XmlWriter(os));
     _writer = _deleter.get();
@@ -74,7 +74,7 @@ void XmlFormatter::attach(std::ostream& os)
 void XmlFormatter::attach(XmlWriter& writer)
 {
     if (_writer)
-        throw std::logic_error("XmlSerizalizer is already open." + CXXTOOLS_SOURCEINFO);
+        throw std::logic_error("XmlSerizalizer is already open");
 
     _deleter.reset(0);
     _writer = &writer;

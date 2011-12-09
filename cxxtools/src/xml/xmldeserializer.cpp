@@ -110,8 +110,7 @@ void XmlDeserializer::onRootElement(const cxxtools::xml::Node& node)
             const cxxtools::xml::Characters& chars = static_cast<const cxxtools::xml::Characters&>(node);
             if(cxxtools::String::npos != chars.content().find_first_not_of(L" \t\n\r") )
             {
-                /// OLD: throw std::logic_error("Invalid element" + CXXTOOLS_SOURCEINFO);
-                _composer->setValue( chars.content() ); /// NEW
+                _composer->setValue( chars.content() );
                 _processNode = &XmlDeserializer::onContent;
             }
             else

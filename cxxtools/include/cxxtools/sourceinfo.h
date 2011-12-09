@@ -55,15 +55,12 @@
 
 #define CXXTOOLS_SOURCEINFO_STR __FILE__ ":" CXXTOOLS_TOSTRING(__LINE__)
 
-/** @brief Builds a message including source information
-*/
-#define CXXTOOLS_ERROR_MSG(msg) __FILE__ ":" CXXTOOLS_TOSTRING(__LINE__) ": " #msg
-
 /** @brief Construct a SourceInfo object
 */
 #define CXXTOOLS_SOURCEINFO cxxtools::SourceInfo(__FILE__, CXXTOOLS_TOSTRING(__LINE__), CXXTOOLS_FUNCTION)
 
-namespace cxxtools {
+namespace cxxtools
+{
 
 /** @brief Source code info class
     @ingroup cxxtools
@@ -84,7 +81,8 @@ namespace cxxtools {
         std::cout << si.where() << std::endl;
     @endcode
 */
-class SourceInfo {
+class SourceInfo
+{
     public:
         /** @brief Constructor
 
