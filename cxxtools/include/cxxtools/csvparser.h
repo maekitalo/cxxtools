@@ -26,59 +26,67 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <cxxtools/csvdeserializer.h>
-#include <stdexcept>
-#include <cxxtools/log.h>
+#ifndef CXXTOOLS_CSVPARSER_H
+#define CXXTOOLS_CSVPARSER_H
 
-log_define("cxxtools.csv.composer")
+#include <cxxtools/api.h>
+#include <cxxtools/string.h>
+#include <vector>
 
 namespace cxxtools
 {
-    namespace
-    {
-        const unsigned unknownNoColumns = std::numeric_limits<unsigned>::max();
+    class IComposer;
 
-        void checkNoColumns(unsigned column, unsigned& noColumns, unsigned lineNo)
-        {
-            if (noColumns == unknownNoColumns)
+    class CXXTOOLS_API CsvParser
+    {
+        public:
+            CsvParser();
+
+            Char delimiter() const
+            { return _delimiter; }
+
+            void delimiter(Char ch)
+            { _delimiter = ch; }
+
+            bool readTitle() const
+            { return _readTitle; }
+
+            void readTitle(bool sw)
+            { _readTitle = sw; }
+
+            static const Char autoDelimiter;
+
+            void begin(IComposer& handler);
+            void advance(Char ch);
+            void finish();
+
+        private:
+            IComposer* _composer;
+
+            enum
             {
-                column = noColumns;
-            }
-            else if (column + 1 != noColumns)
-            {
-                std::ostringstream msg;
-                msg << "number of columns " << (column + 1) << " in line " << lineNo << " does not match expected number of columns " << noColumns;
-                throw std::runtime_error(msg.str());
-            }
-        }
+                state_detectDelim,
+                state_title,
+                state_cr,
+                state_rowstart,
+                state_datastart,
+                state_data0,
+                state_data,
+                state_qdata,
+                state_qdata_end,
+            } _state;
 
-    }
+            Char _delimiter;
+            bool _readTitle;
 
-    const Char CsvDeserializer::autoDelimiter = CsvParser::autoDelimiter;
-
-    CsvDeserializer::CsvDeserializer(std::istream& in, TextCodec<Char, char>* codec)
-        : _ts(new TextIStream(in, codec)),
-          _in(*_ts)
-    { }
-
-    CsvDeserializer::CsvDeserializer(TextIStream& in)
-        : _ts(0),
-          _in(in)
-    { }
-
-    CsvDeserializer::~CsvDeserializer()
-    {
-        delete _ts;
-    }
-
-    void CsvDeserializer::get(IComposer* composer)
-    {
-        Char ch;
-        Char quote;
-        _parser.begin(*composer);
-        while (_in.get(ch))
-            _parser.advance(ch);
-        _parser.finish();
-    }
-
+            typedef std::vector<std::string> rowType;
+            rowType _titles;
+            String _value;
+            rowType::size_type _column;
+            unsigned _noColumns;
+            unsigned _lineNo;
+            Char _quote;
+    };
 }
+
+#endif // CXXTOOLS_CSVPARSER_H

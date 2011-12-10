@@ -34,7 +34,7 @@
 #include <cxxtools/deserializer.h>
 #include <cxxtools/textstream.h>
 #include <cxxtools/utf8codec.h>
-#include <cxxtools/noncopyable.h>
+#include <cxxtools/csvparser.h>
 
 namespace cxxtools
 {
@@ -48,16 +48,16 @@ namespace cxxtools
             ~CsvDeserializer();
 
             Char delimiter() const
-            { return _delimiter; }
+            { return _parser.delimiter(); }
 
             void delimiter(Char ch)
-            { _delimiter = ch; }
+            { _parser.delimiter(ch); }
 
             bool readTitle() const
-            { return _readTitle; }
+            { return _parser.readTitle(); }
 
             void readTitle(bool sw)
-            { _readTitle = sw; }
+            { _parser.readTitle(sw); }
 
             static const Char autoDelimiter;
 
@@ -73,12 +73,7 @@ namespace cxxtools
 
             TextIStream* _ts;
             TextIStream& _in;
-
-            Char _delimiter;
-
-            bool _readTitle;
-
-
+            CsvParser _parser;
     };
 }
 
