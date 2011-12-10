@@ -337,7 +337,7 @@ int JsonParser::advance(Char ch)
     return 0;
 }
 
-bool JsonParser::finish()
+void JsonParser::finish()
 {
     switch (_state)
     {
@@ -358,13 +358,13 @@ bool JsonParser::finish()
             _composer->setValue(_token);
             _composer->setTypeName("int");
             _token.clear();
-            return true;
+            break;
 
         case state_float:
             _composer->setValue(_token);
             _composer->setTypeName("double");
             _token.clear();
-            return true;
+            break;
 
         case state_token:
             if (_token == "true" || _token == "false")
@@ -379,10 +379,10 @@ bool JsonParser::finish()
                 _token.clear();
             }
 
-            return true;
+            break;
 
         case state_end:
-            return true;
+            break;
     }
 }
 

@@ -65,6 +65,9 @@ class CXXTOOLS_API IComposer
         IComposer* parent()
         { return _parent; }
 
+        SerializationInfo* current()
+        { return _current; }
+
         void setCategory(SerializationInfo::Category category);
 
         void setName(const std::string& name);

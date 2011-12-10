@@ -76,7 +76,7 @@ namespace cxxtools
             }
 
             int advance(Char ch); // 1: end character detected; -1: end but char not consumed; 0: no end
-            bool finish();
+            void finish();
 
         private:
             enum
