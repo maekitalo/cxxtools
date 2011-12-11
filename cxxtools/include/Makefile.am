@@ -123,6 +123,7 @@ nobase_include_HEADERS = \
         cxxtools/serializationerror.h \
         cxxtools/serializationinfo.h \
         cxxtools/serviceprocedure.h \
+        cxxtools/serviceregistry.h \
         cxxtools/settings.h \
         cxxtools/split.h \
         cxxtools/signal.h \

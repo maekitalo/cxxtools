@@ -95,11 +95,12 @@ class ThreadTerminatedEvent : public BasicEvent<ThreadTerminatedEvent>
 };
 
 
-RpcServerImpl::RpcServerImpl(EventLoopBase& eventLoop, Signal<RpcServer::Runmode>& runmodeChanged)
+RpcServerImpl::RpcServerImpl(EventLoopBase& eventLoop, Signal<RpcServer::Runmode>& runmodeChanged, ServiceRegistry& serviceRegistry)
     : _runmode(RpcServer::Stopped),
       _runmodeChanged(runmodeChanged),
       _eventLoop(eventLoop),
       inputSlot(slot(*this, &RpcServerImpl::onInput)),
+      _serviceRegistry(serviceRegistry),
       _minThreads(5),
       _maxThreads(200)
 {
@@ -127,10 +128,6 @@ RpcServerImpl::~RpcServerImpl()
         }
     }
 
-    for (ProcedureMap::iterator it = _procedures.begin(); it != _procedures.end(); ++it)
-    {
-        delete it->second;
-    }
 }
 
 void RpcServerImpl::listen(const std::string& ip, unsigned short int port, int backlog)
@@ -140,7 +137,7 @@ void RpcServerImpl::listen(const std::string& ip, unsigned short int port, int b
     try
     {
         _listener.push_back(listener);
-        _queue.put(new Socket(*this, *listener));
+        _queue.put(new Socket(*this, _serviceRegistry, *listener));
     }
     catch (...)
     {
@@ -338,39 +335,6 @@ void RpcServerImpl::onInput(Socket& socket)
         log_debug("onInput; delete " << static_cast<void*>(&socket));
         log_info("client " << socket.getPeerAddr() << " closed connection");
         delete &socket;
-    }
-}
-
-ServiceProcedure* RpcServerImpl::getProcedure(const std::string& name)
-{
-    ProcedureMap::iterator it = _procedures.find( name );
-    if( it == _procedures.end() )
-    {
-        return 0;
-    }
-
-    return it->second->clone();
-}
-
-
-void RpcServerImpl::releaseProcedure(ServiceProcedure* proc)
-{
-    delete proc;
-}
-
-
-void RpcServerImpl::registerProcedure(const std::string& name, ServiceProcedure* proc)
-{
-    ProcedureMap::iterator it = _procedures.find(name);
-    if (it == _procedures.end())
-    {
-        std::pair<const std::string, ServiceProcedure*> p( name, proc );
-        _procedures.insert( p );
-    }
-    else
-    {
-        delete it->second;
-        it->second = proc;
     }
 }
 

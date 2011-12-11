@@ -47,7 +47,7 @@ class RpcServerImpl;
 class Socket : public net::TcpSocket, public Connectable
 {
     public:
-        Socket(RpcServerImpl& server, net::TcpServer& tcpServer);
+        Socket(RpcServerImpl& server, ServiceRegistry& _serviceRegistry, net::TcpServer& tcpServer);
         explicit Socket(Socket& socket);
 
         void accept();

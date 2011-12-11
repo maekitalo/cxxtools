@@ -61,17 +61,11 @@ namespace cxxtools
         class RpcServerImpl : private NonCopyable, public Connectable
         {
             public:
-                RpcServerImpl(EventLoopBase& eventLoop, Signal<RpcServer::Runmode>& runmodeChanged);
+                RpcServerImpl(EventLoopBase& eventLoop, Signal<RpcServer::Runmode>& runmodeChanged, ServiceRegistry& serviceRegistry);
 
                 ~RpcServerImpl();
 
                 void listen(const std::string& ip, unsigned short int port, int backlog);
-
-                ServiceProcedure* getProcedure(const std::string& name);
-
-                void releaseProcedure(ServiceProcedure* proc);
-
-                void registerProcedure(const std::string& name, ServiceProcedure* proc);
 
                 unsigned minThreads() const
                 { return _minThreads; }
@@ -119,8 +113,7 @@ namespace cxxtools
 
                 MethodSlot<void, RpcServerImpl, Socket&> inputSlot;
 
-                typedef std::map<std::string, ServiceProcedure*> ProcedureMap;
-                ProcedureMap _procedures;
+                ServiceRegistry& _serviceRegistry;
                 unsigned _minThreads;
                 unsigned _maxThreads;
 

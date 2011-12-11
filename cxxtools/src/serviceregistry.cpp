@@ -26,71 +26,52 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef CXXTOOLS_BIN_RESPONDER_H
-#define CXXTOOLS_BIN_RESPONDER_H
-
-#include <cxxtools/bin/valueparser.h>
-#include <cxxtools/deserializer.h>
-#include <cxxtools/decomposer.h>
-#include <cxxtools/iostream.h>
-#include <cxxtools/bin/formatter.h>
 #include <cxxtools/serviceregistry.h>
 
 namespace cxxtools
 {
 
-class ServiceProcedure;
-
-namespace bin
+ServiceRegistry::~ServiceRegistry()
 {
-class RpcServerImpl;
-class Socket;
+    ProcedureMap::iterator it;
+    for(it = _procedures.begin(); it != _procedures.end(); ++it)
+    {
+        delete it->second;
+    }
+}
 
-class Responder
+ServiceProcedure* ServiceRegistry::getProcedure(const std::string& name)
 {
-        friend class Socket;
+    ProcedureMap::iterator it = _procedures.find( name );
+    if( it == _procedures.end() )
+    {
+        return 0;
+    }
 
-        enum State
-        {
-            state_0,
-            state_method,
-            state_params,
-            state_params_skip,
-            state_param,
-            state_param_skip,
-        };
-
-    public:
-        explicit Responder(ServiceRegistry& serviceRegistry)
-            : _serviceRegistry(serviceRegistry),
-              _state(state_0),
-              _proc(0),
-              _args(0),
-              _result(0),
-              _failed(false)
-        { }
-
-        ~Responder();
-
-        void onInput(IOStream& ios);
-        bool advance(char ch);
-        void reply(IOStream& out);
-        void replyError(IOStream& out, const char* msg, int rc);
-
-    private:
-        ServiceRegistry& _serviceRegistry;
-        State _state;
-        std::string _methodName;
-        ValueParser _valueParser;
-
-        ServiceProcedure* _proc;
-        IComposer** _args;
-        IDecomposer* _result;
-        Formatter _formatter;
-
-        bool _failed;
-        std::string _errorMessage;
-};
+    return it->second->clone();
 }
+
+
+void ServiceRegistry::releaseProcedure(ServiceProcedure* proc)
+{
+    delete proc;
 }
-#endif // CXXTOOLS_BIN_RESPONDER_H
+
+
+void ServiceRegistry::registerProcedure(const std::string& name, ServiceProcedure* proc)
+{
+    ProcedureMap::iterator it = _procedures.find(name);
+    if (it == _procedures.end())
+    {
+        std::pair<const std::string, ServiceProcedure*> p( name, proc );
+        _procedures.insert( p );
+    }
+    else
+    {
+        delete it->second;
+        it->second = proc;
+    }
+}
+
+
+}

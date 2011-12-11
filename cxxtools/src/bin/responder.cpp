@@ -42,7 +42,7 @@ namespace bin
 Responder::~Responder()
 {
     if (_proc)
-        _server.releaseProcedure(_proc);
+        _serviceRegistry.releaseProcedure(_proc);
 }
 
 void Responder::reply(IOStream& out)
@@ -101,7 +101,7 @@ void Responder::onInput(IOStream& ios)
                 }
             }
 
-            _server.releaseProcedure(_proc);
+            _serviceRegistry.releaseProcedure(_proc);
             _proc = 0;
             _args = 0;
             _result = 0;
@@ -129,7 +129,7 @@ bool Responder::advance(char ch)
             {
                 log_info("rpc method \"" << _methodName << '"');
 
-                _proc = _server.getProcedure(_methodName);
+                _proc = _serviceRegistry.getProcedure(_methodName);
 
                 if (_proc)
                 {

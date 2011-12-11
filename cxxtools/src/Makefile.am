@@ -69,6 +69,7 @@ libcxxtools_la_SOURCES = \
 	selectorimpl.cpp \
 	semaphore.cpp \
 	semaphoreimpl.cpp \
+	serviceregistry.cpp \
 	settings.cpp \
 	settingsreader.cpp \
 	settingswriter.cpp \

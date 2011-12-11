@@ -34,11 +34,11 @@ namespace cxxtools
 namespace bin
 {
 RpcServer::RpcServer(EventLoopBase& eventLoop)
-    : _impl(new RpcServerImpl(eventLoop, runmodeChanged))
+    : _impl(new RpcServerImpl(eventLoop, runmodeChanged, *this))
 { }
 
 RpcServer::RpcServer(EventLoopBase& eventLoop, const std::string& ip, unsigned short int port, int backlog)
-    : _impl(new RpcServerImpl(eventLoop, runmodeChanged))
+    : _impl(new RpcServerImpl(eventLoop, runmodeChanged, *this))
 {
     listen(ip, port, backlog);
 }
@@ -46,21 +46,6 @@ RpcServer::RpcServer(EventLoopBase& eventLoop, const std::string& ip, unsigned s
 RpcServer::~RpcServer()
 {
     delete _impl;
-}
-
-ServiceProcedure* RpcServer::getProcedure(const std::string& name)
-{
-    return _impl->getProcedure(name);
-}
-
-void RpcServer::releaseProcedure(ServiceProcedure* proc)
-{
-    return _impl->releaseProcedure(proc);
-}
-
-void RpcServer::registerProcedure(const std::string& name, ServiceProcedure* proc)
-{
-    _impl->registerProcedure(name, proc);
 }
 
 void RpcServer::listen(const std::string& ip, unsigned short int port, int backlog)
