@@ -57,6 +57,7 @@ class SerializationInfoTest : public cxxtools::unit::TestSuite
             registerMethod("testSiCopy", *this, &SerializationInfoTest::testSiCopy);
             registerMethod("testSiSwap", *this, &SerializationInfoTest::testSiSwap);
             registerMethod("testStringToBool", *this, &SerializationInfoTest::testStringToBool);
+            registerMethod("testRangeCheck", *this, &SerializationInfoTest::testRangeCheck);
         }
 
         void testSiSet()
@@ -84,9 +85,15 @@ class SerializationInfoTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT(si.isInt());
             CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<std::string>(si), "-17");
             CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<cxxtools::String>(si), cxxtools::String(L"-17"));
-            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<unsigned>(si), -17);
             CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<short>(si), -17);
 
+            si.setValue(0.0);
+            CXXTOOLS_UNIT_ASSERT(si.isFloat());
+            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::convert<double>(siValue<std::string>(si)), 0);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::convert<double>(siValue<cxxtools::String>(si)), 0);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<unsigned>(si), 0);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<short>(si), 0);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<double>(si), 0);
         }
 
         void testString()
@@ -197,7 +204,7 @@ class SerializationInfoTest : public cxxtools::unit::TestSuite
         void testDouble()
         {
             cxxtools::SerializationInfo si;
-            si.setValue(42.0);
+            si.setValue(48.0);
 
             CXXTOOLS_UNIT_ASSERT(!si.isString());
             CXXTOOLS_UNIT_ASSERT(!si.isString8());
@@ -206,13 +213,13 @@ class SerializationInfoTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT(!si.isUInt());
             CXXTOOLS_UNIT_ASSERT(si.isFloat());
 
-            //CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<cxxtools::String>(si), L"42");
-            //CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<std::string>(si), "42");
-            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<char>(si), 42);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<unsigned char>(si), static_cast<unsigned char>(42));
+            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::convert<double>(siValue<std::string>(si)), 48);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::convert<double>(siValue<cxxtools::String>(si)), 48);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<char>(si), 48);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<unsigned char>(si), static_cast<unsigned char>(48));
             CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<bool>(si), true);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<int>(si), 42);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<double>(si), 42.0);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<int>(si), 48);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<double>(si), 48.0);
         }
 
         void testSiAssign()
@@ -245,7 +252,6 @@ class SerializationInfoTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT(si2.isInt());
             CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<std::string>(si2), "-17");
             CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<cxxtools::String>(si2), cxxtools::String(L"-17"));
-            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<unsigned>(si2), -17);
             CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<short>(si2), -17);
 
         }
@@ -286,7 +292,6 @@ class SerializationInfoTest : public cxxtools::unit::TestSuite
                 CXXTOOLS_UNIT_ASSERT(si2.isInt());
                 CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<std::string>(si2), "-17");
                 CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<cxxtools::String>(si2), cxxtools::String(L"-17"));
-                CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<unsigned>(si2), -17);
                 CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<short>(si2), -17);
             }
 
@@ -412,7 +417,6 @@ class SerializationInfoTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT(si2.isInt());
             CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<std::string>(si2), "-17");
             CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<cxxtools::String>(si2), cxxtools::String(L"-17"));
-            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<unsigned>(si2), -17);
             CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<short>(si2), -17);
         }
 
@@ -423,6 +427,20 @@ class SerializationInfoTest : public cxxtools::unit::TestSuite
             si.setValue("78");
             CXXTOOLS_UNIT_ASSERT(siValue<bool>(si));
         }
+
+        void testRangeCheck()
+        {
+            cxxtools::SerializationInfo si;
+            si.setValue(-1);
+            CXXTOOLS_UNIT_ASSERT_THROW(siValue<unsigned short>(si), std::range_error);
+            CXXTOOLS_UNIT_ASSERT_THROW(siValue<unsigned>(si), std::range_error);
+            CXXTOOLS_UNIT_ASSERT_THROW(siValue<unsigned long>(si), std::range_error);
+
+            si.setValue(static_cast<long>(std::numeric_limits<short>::max()) + 1);
+            CXXTOOLS_UNIT_ASSERT_THROW(siValue<short>(si), std::range_error);
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(siValue<long>(si));
+        }
+
 };
 
 cxxtools::unit::RegisterTest<SerializationInfoTest> register_SerializationInfoTest;

@@ -396,7 +396,7 @@ void Formatter::addValue(const std::string& name, const std::string& type,
           << name << '\0'
           << id << '\0';
 
-    printInt(*_out, value);
+    printUInt(*_out, value);
 
     *_out << '\xff';
 }

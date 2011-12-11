@@ -28,8 +28,11 @@
  */
 
 #include <cxxtools/serializationinfo.h>
+#include <stdexcept>
+#include <sstream>
 
-namespace cxxtools {
+namespace cxxtools
+{
 
 SerializationInfo::SerializationInfo()
 : _parent(0)
@@ -506,52 +509,91 @@ char SerializationInfo::_getChar() const
     return 0;
 }
 
-SerializationInfo::LongInt SerializationInfo::_getInt() const
+SerializationInfo::LongInt SerializationInfo::_getInt(const char* type, LongInt min, LongInt max) const
 {
+    LongInt ret = 0;
+
     switch (_t)
     {
-        case t_none:    return 0; break;
-        case t_string:  return convert<LongInt>(_String()); break;
-        case t_string8: return convert<LongInt>(_String8()); break;
-        case t_char:    return _u._c - '0'; break;
-        case t_int:     return _u._i; break;
-        case t_uint:    return _u._u; break;
-        case t_float:   return _u._f; break;
+        case t_none:    break;
+        case t_string:  ret = convert<LongInt>(_String()); break;
+        case t_string8: ret = convert<LongInt>(_String8()); break;
+        case t_char:    ret = _u._c - '0'; break;
+        case t_int:     ret = _u._i; break;
+        case t_uint:    if (_u._u > static_cast<ULongInt>(std::numeric_limits<LongInt>::max()))
+                        {
+                            std::ostringstream msg;
+                            msg << "value " << ret << " does not fit into " << type;
+                            throw std::range_error(msg.str());
+                        }
+                        ret = _u._u; break;
+        case t_float:   ret = _u._f; break;
     }
-    // never reached
-    return 0;
+
+    if (ret < min || ret > max)
+    {
+        std::ostringstream msg;
+        msg << "value " << ret << " does not fit into " << type;
+        throw std::range_error(msg.str());
+    }
+
+    return ret;
 }
 
-SerializationInfo::ULongInt SerializationInfo::_getUInt() const
+SerializationInfo::ULongInt SerializationInfo::_getUInt(const char* type, ULongInt max) const
 {
+    ULongInt ret = 0;
+
     switch (_t)
     {
-        case t_none:    return 0; break;
-        case t_string:  return convert<ULongInt>(_String()); break;
-        case t_string8: return convert<ULongInt>(_String8()); break;
-        case t_char:    return _u._c - '0'; break;
-        case t_int:     return _u._i; break;
-        case t_uint:    return _u._u; break;
-        case t_float:   return _u._f; break;
+        case t_none:    break;
+        case t_string:  ret = convert<ULongInt>(_String()); break;
+        case t_string8: ret = convert<ULongInt>(_String8()); break;
+        case t_char:    ret = _u._c - '0'; break;
+        case t_int:     if (_u._i < 0)
+                            throw std::range_error(std::string("negative values do not fit into ") + type);
+                        ret = _u._i;
+                        break;
+        case t_uint:    ret = _u._u; break;
+        case t_float:   ret = _u._f; break;
     }
-    // never reached
-    return 0;
+
+    if (ret > max)
+    {
+        std::ostringstream msg;
+        msg << "value " << ret << " does not fit into " << type;
+        throw std::range_error(msg.str());
+    }
+
+    return ret;
 }
 
-long double SerializationInfo::_getFloat() const
+long double SerializationInfo::_getFloat(const char* type, long double max) const
 {
+    long double ret = 0;
+
     switch (_t)
     {
-        case t_none:    return 0; break;
-        case t_string:  return convert<long double>(_String()); break;
-        case t_string8: return convert<long double>(_String8()); break;
-        case t_char:    return _u._c - '0'; break;
-        case t_int:     return _u._i; break;
-        case t_uint:    return _u._u; break;
-        case t_float:   return _u._f; break;
+        case t_none:    break;
+        case t_string:  ret = convert<long double>(_String()); break;
+        case t_string8: ret = convert<long double>(_String8()); break;
+        case t_char:    ret = _u._c - '0'; break;
+        case t_int:     ret = _u._i; break;
+        case t_uint:    ret = _u._u; break;
+        case t_float:   ret = _u._f; break;
     }
-    // never reached
-    return 0;
+
+    if (ret != std::numeric_limits<long double>::infinity()
+        && ret != -std::numeric_limits<long double>::infinity()
+        && ret == ret        // check for NaN
+        && (ret < -max || ret > max))
+    {
+        std::ostringstream msg;
+        msg << "value " << ret << " does not fit into " << type;
+        throw std::range_error(msg.str());
+    }
+
+    return ret;
 }
 
 

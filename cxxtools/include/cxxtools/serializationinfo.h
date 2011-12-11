@@ -38,6 +38,7 @@
 #include <map>
 #include <list>
 #include <deque>
+#include <limits>
 #include <typeinfo>
 #include <cxxtools/config.h>
 
@@ -164,23 +165,36 @@ class CXXTOOLS_API SerializationInfo
         void getValue(wchar_t& value) const            { value = _getWChar(); }
         void getValue(bool& value) const               { value = _getBool(); }
         void getValue(char& value) const               { value = _getChar(); }
-        void getValue(signed char& value) const        { value = _getInt(); }
-        void getValue(unsigned char& value) const      { value = _getInt(); }
-        void getValue(short& value) const              { value = _getInt(); }
-        void getValue(unsigned short& value) const     { value = _getUInt(); }
-        void getValue(int& value) const                { value = _getInt(); }
-        void getValue(unsigned int& value) const       { value = _getUInt(); }
-        void getValue(long& value) const               { value = _getInt(); }
-        void getValue(unsigned long& value) const      { value = _getUInt(); }
+        void getValue(signed char& value) const
+            { value = _getInt("signed char", std::numeric_limits<signed char>::min(), std::numeric_limits<signed char>::max()); }
+        void getValue(unsigned char& value) const
+            { value = _getUInt("unsigned char", std::numeric_limits<unsigned char>::max()); }
+        void getValue(short& value) const
+            { value = _getInt("short", std::numeric_limits<short>::min(), std::numeric_limits<short>::max()); }
+        void getValue(unsigned short& value) const
+            { value = _getUInt("unsigned short", std::numeric_limits<unsigned short>::max()); }
+        void getValue(int& value) const
+            { value = _getInt("int", std::numeric_limits<int>::min(), std::numeric_limits<int>::max()); }
+        void getValue(unsigned int& value) const
+            { value = _getUInt("unsigned int", std::numeric_limits<unsigned int>::max()); }
+        void getValue(long& value) const
+            { value = _getInt("long", std::numeric_limits<long>::min(), std::numeric_limits<long>::max()); }
+        void getValue(unsigned long& value) const
+            { value = _getUInt("unsigned long", std::numeric_limits<unsigned long>::max()); }
 #ifdef HAVE_LONG_LONG
-        void getValue(long long& value) const          { value = _getInt(); }
+        void getValue(long long& value) const
+            { value = _getInt("long long", std::numeric_limits<long long>::min(), std::numeric_limits<long long>::max()); }
 #endif
 #ifdef HAVE_UNSIGNED_LONG_LONG
-        void getValue(unsigned long long& value) const { value = _getUInt(); }
+        void getValue(unsigned long long& value) const
+            { value = _getUInt("unsigned long long", std::numeric_limits<unsigned long long>::max()); }
 #endif
-        void getValue(float& value) const              { value = _getFloat(); }
-        void getValue(double& value) const             { value = _getFloat(); }
-        void getValue(long double& value) const        { value = _getFloat(); }
+        void getValue(float& value) const
+            { value = _getFloat("float", std::numeric_limits<float>::max()); }
+        void getValue(double& value) const
+            { value = _getFloat("double", std::numeric_limits<double>::max()); }
+        void getValue(long double& value) const
+            { value = _getFloat("long double", std::numeric_limits<long double>::max()); }
 
         /** @brief Serialization of flat member data-types
         */
@@ -280,9 +294,9 @@ class CXXTOOLS_API SerializationInfo
         bool _getBool() const;
         wchar_t _getWChar() const;
         char _getChar() const;
-        LongInt _getInt() const;
-        ULongInt _getUInt() const;
-        long double _getFloat() const;
+        LongInt _getInt(const char* type, LongInt min, LongInt max) const;
+        ULongInt _getUInt(const char* type, ULongInt max) const;
+        long double _getFloat(const char* type, long double max) const;
 
         union U
         {
