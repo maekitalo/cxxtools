@@ -37,11 +37,11 @@ namespace cxxtools
 namespace bin
 {
 
-Socket::Socket(RpcServerImpl& server, ServiceRegistry& _serviceRegistry, net::TcpServer& tcpServer)
+Socket::Socket(RpcServerImpl& server, ServiceRegistry& serviceRegistry, net::TcpServer& tcpServer)
     : inputSlot(slot(*this, &Socket::onInput)),
       _tcpServer(tcpServer),
       _server(server),
-      _responder(_serviceRegistry),
+      _responder(serviceRegistry),
       _accepted(false)
 {
     _stream.attachDevice(*this);
@@ -53,7 +53,7 @@ Socket::Socket(Socket& socket)
     : inputSlot(slot(*this, &Socket::onInput)),
       _tcpServer(socket._tcpServer),
       _server(socket._server),
-      _responder(_responder._serviceRegistry),
+      _responder(socket._responder._serviceRegistry),
       _accepted(false)
 {
     _stream.attachDevice(*this);
