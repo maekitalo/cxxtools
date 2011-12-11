@@ -57,7 +57,9 @@ namespace
 const Char CsvParser::autoDelimiter = L'\0';
 
 CsvParser::CsvParser()
-    : _composer(0)
+    : _composer(0),
+      _delimiter(autoDelimiter),
+      _readTitle(true)
 { }
 
 void CsvParser::begin(IComposer& handler)
