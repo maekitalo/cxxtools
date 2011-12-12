@@ -139,6 +139,8 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
 
             serializer.serialize(value, "value");
 
+            log_debug("int: " << cxxtools::hexDump(data.str()));
+
             IntT result = 0;
             deserializer.deserialize(result);
 
@@ -224,6 +226,7 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
             intvector.push_back(4711);
             intvector.push_back(4712);
             intvector.push_back(-3);
+            intvector.push_back(-257);
 
             serializer.serialize(intvector, "intvector");
 
@@ -236,6 +239,7 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(intvector[0], intvector2[0]);
             CXXTOOLS_UNIT_ASSERT_EQUALS(intvector[1], intvector2[1]);
             CXXTOOLS_UNIT_ASSERT_EQUALS(intvector[2], intvector2[2]);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(intvector[3], intvector2[3]);
         }
 
         void testObject()

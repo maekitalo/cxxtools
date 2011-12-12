@@ -102,12 +102,7 @@ class ValueParser
         SerializationInfo::Category _category;
         std::string _token;
         unsigned _count;
-        union
-        {
-            cxxtools::int64_t s;
-            cxxtools::uint64_t u;
-            char d[8];
-        } _int;
+        cxxtools::uint64_t _int;
         IComposer* _deserializer;
         ValueParser* _next;
 };

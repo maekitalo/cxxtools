@@ -31,6 +31,9 @@
 #include <cxxtools/bin/serializer.h>
 #include <cxxtools/utf8codec.h>
 #include <sstream>
+#include <cxxtools/log.h>
+
+log_define("cxxtools.bin.valueparser")
 
 namespace cxxtools
 {
@@ -84,7 +87,7 @@ void ValueParser::begin(IComposer& handler)
 {
     _state = state_0;
     _deserializer = &handler;
-    _int.u = 0;
+    _int = 0;
     _token.clear();
 }
 
@@ -93,7 +96,7 @@ void ValueParser::beginSkip()
 {
     _state = state_0;
     _deserializer = 0;
-    _int.u = 0;
+    _int = 0;
     _token.clear();
 }
 
@@ -195,25 +198,36 @@ bool ValueParser::advance(char ch)
             break;
 
         case state_value_intsign:
-            if (ch < 0)
-                _int.s = -1l;
+            if (static_cast<signed char>(ch) < 0)
+                _int = -1;
+            else
+                _int = 0;
+
             _state = state_value_int;
             // no break
 
         case state_value_int:
         case state_value_uint:
-            _int.d[--_count] = ch;
-            if (_count == 0)
+            _int = (_int << 8) | static_cast<unsigned char>(ch);
+            if (--_count == 0)
             {
                 if (_deserializer)
                 {
                     if (_state == state_value_int)
-                        _deserializer->setValue(IComposer::LongInt(_int.s));
+                    {
+                        IComposer::LongInt value = IComposer::LongInt(_int);
+                        log_debug("int value=" << value);
+                        _deserializer->setValue(value);
+                    }
                     else
-                        _deserializer->setValue(IComposer::ULongInt(_int.u));
+                    {
+                        IComposer::ULongInt value = IComposer::ULongInt(_int);
+                        log_debug("uint value=" << value);
+                        _deserializer->setValue(value);
+                    }
                 }
 
-                _int.u = 0;
+                _int = 0;
                 _state = state_end;
             }
             break;
@@ -270,11 +284,11 @@ bool ValueParser::advance(char ch)
             break;
 
         case state_value_binary_length:
-            _int.d[--_count] = ch;
-            if (_count == 0)
+            _int = (_int << 8) | static_cast<unsigned char>(ch);
+            if (--_count == 0)
             {
-                _count = static_cast<unsigned>(_int.u);
-                _int.u = 0;
+                _count = static_cast<unsigned>(_int);
+                _int = 0;
                 if (_count == 0)
                 {
                     if (_deserializer)
