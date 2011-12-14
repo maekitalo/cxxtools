@@ -60,7 +60,7 @@ void basic_string<cxxtools::Char>::reserve(size_t n)
     {
         // since capacity is always at least shortStringCapacity, we need to use long string
         // to ensure the requested capacity if the current is not enough
-        cxxtools::Char* p = _d.allocate(n + 1);
+        cxxtools::Char* p = _data.allocate(n + 1);
         size_type l = length();
         const cxxtools::Char* oldData = privdata_ro();
         traits_type::copy(p, oldData, l);
@@ -68,12 +68,12 @@ void basic_string<cxxtools::Char>::reserve(size_t n)
         if (isShortString())
             markLongString();
         else
-            _d.deallocate(longStringData(), longStringCapacity() + 1);
+            _data.deallocate(longStringData(), longStringCapacity() + 1);
 
-        _d._u._p._begin = p;
-        _d._u._p._end = p + l;
-        _d._u._p._capacity = p + n;
-        *_d._u._p._end = cxxtools::Char::null();
+        _data.u.ptr._begin = p;
+        _data.u.ptr._end = p + l;
+        _data.u.ptr._capacity = p + n;
+        *_data.u.ptr._end = cxxtools::Char::null();
     }
 }
 
@@ -98,31 +98,31 @@ void basic_string<cxxtools::Char>::swap(basic_string& str)
     {
         if (str.isShortString())
         {
-            for (unsigned nn = 0; nn < _N; ++nn)
+            for (unsigned nn = 0; nn < _shortStringSize; ++nn)
                 std::swap(shortStringData()[nn], str.shortStringData()[nn]);
         }
         else
         {
-            Ptr p = str._d._u._p;
-            for (unsigned nn = 0; nn < _N; ++nn)
+            Ptr p = str._data.u.ptr;
+            for (unsigned nn = 0; nn < _shortStringSize; ++nn)
                 str.shortStringData()[nn] = shortStringData()[nn];
             markLongString();
-            _d._u._p = p;
+            _data.u.ptr = p;
         }
     }
     else
     {
         if (str.isShortString())
         {
-            Ptr p = _d._u._p;
-            for (unsigned nn = 0; nn < _N; ++nn)
+            Ptr p = _data.u.ptr;
+            for (unsigned nn = 0; nn < _shortStringSize; ++nn)
                 shortStringData()[nn] = str.shortStringData()[nn];
             str.markLongString();
-            str._d._u._p = p;
+            str._data.u.ptr = p;
         }
         else
         {
-            std::swap(_d._u._p, str._d._u._p);
+            std::swap(_data.u.ptr, str._data.u.ptr);
         }
     }
 }

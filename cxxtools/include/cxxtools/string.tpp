@@ -30,96 +30,96 @@
 namespace std {
 
 inline basic_string<cxxtools::Char>::basic_string(const allocator_type& a)
-: _d(a)
+: _data(a)
 {
 }
 
 
 inline basic_string<cxxtools::Char>::basic_string(const cxxtools::Char* str, const allocator_type& a)
-: _d(a)
+: _data(a)
 {
     assign(str);
 }
 
 
 inline basic_string<cxxtools::Char>::basic_string(const wchar_t* str, const allocator_type& a)
-: _d(a)
+: _data(a)
 {
     assign(str);
 }
 
 
 inline basic_string<cxxtools::Char>::basic_string(const wchar_t* str, size_type length, const allocator_type& a)
-: _d(a)
+: _data(a)
 {
     assign(str, length);
 }
 
 
 inline basic_string<cxxtools::Char>::basic_string(const std::string& str, const allocator_type& a)
-: _d(a)
+: _data(a)
 {
     assign(str);
 }
 
 
 inline basic_string<cxxtools::Char>::basic_string(const basic_string& str)
-: _d(str.get_allocator())
+: _data(str.get_allocator())
 {
     assign(str);
 }
 
 
 inline basic_string<cxxtools::Char>::basic_string(const char* str, const allocator_type& a)
-: _d(a)
+: _data(a)
 {
     assign(str);
 }
 
 
 inline basic_string<cxxtools::Char>::basic_string(const char* str, size_type length, const allocator_type& a)
-: _d(a)
+: _data(a)
 {
     assign(str, length);
 }
 
 
 inline basic_string<cxxtools::Char>::basic_string(const cxxtools::Char* str, size_type n, const allocator_type& a)
-: _d(a)
+: _data(a)
 {
     assign(str, n);
 }
 
 
 inline basic_string<cxxtools::Char>::basic_string(size_type n, cxxtools::Char c, const allocator_type& a)
-: _d(a)
+: _data(a)
 {
     assign(n, c);
 }
 
 
 inline basic_string<cxxtools::Char>::basic_string(const basic_string& str, const allocator_type& a)
-: _d(a)
+: _data(a)
 {
     assign(str);
 }
 
 inline basic_string<cxxtools::Char>::basic_string(const basic_string& str, size_type pos, const allocator_type& a)
-: _d(a)
+: _data(a)
 {
     assign(str, pos, str.length() - pos);
 }
 
 
 inline basic_string<cxxtools::Char>::basic_string(const basic_string& str, size_type pos, size_type n, const allocator_type& a)
-: _d(a)
+: _data(a)
 {
     assign(str, pos, n);
 }
 
 
 inline basic_string<cxxtools::Char>::basic_string(const cxxtools::Char* begin, const cxxtools::Char* end, const allocator_type& a)
-: _d(a)
+: _data(a)
 {
     assign(begin, end);
 }
@@ -127,7 +127,7 @@ inline basic_string<cxxtools::Char>::basic_string(const cxxtools::Char* begin, c
 
 template <typename InputIterator>
 basic_string<cxxtools::Char>::basic_string(InputIterator begin, InputIterator end, const allocator_type& a)
-: _d(a)
+: _data(a)
 {
     assign(begin, end);
 }
@@ -137,7 +137,7 @@ inline basic_string<cxxtools::Char>::~basic_string()
 {
     if (!isShortString())
     {
-        _d.deallocate(longStringData(), longStringCapacity() + 1);
+        _data.deallocate(longStringData(), longStringCapacity() + 1);
     }
 }
 
