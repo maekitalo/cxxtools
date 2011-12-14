@@ -26,5 +26,5 @@ libcxxtools_bin_la_SOURCES = \
 
 libcxxtools_bin_la_LIBADD = $(top_builddir)/src/libcxxtools.la
 
-libcxxtools_bin_la_LDFLAGS = -version-info @sonumber@ @SHARED_LIB_FLAG@
+libcxxtools_bin_la_LDFLAGS = -version-info @sonumber@
 

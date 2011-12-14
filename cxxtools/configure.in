@@ -79,16 +79,6 @@ AC_SUBST(CXXTOOLS_CXXFLAGS)
 AC_SUBST(CXXTOOLS_LDFLAGS)
 AC_SUBST(CXXTOOLS_LOGGING)
 
-case "${host_cpu}-${host_os}" in
-*-aix*)
-    SHARED_LIB_FLAG=-qmkshrobj
-    ;;
-*)  
-    SHARED_LIB_FLAG=
-    ;;
-esac
-AC_SUBST(SHARED_LIB_FLAG)
-
 #
 # checking inline assembler type for atomic operations
 #
