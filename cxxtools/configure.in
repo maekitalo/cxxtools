@@ -1,4 +1,4 @@
-AC_INIT(cxxtools, 2.0-r1311, [Tommi Maekitalo <tommi@tntnet.org>])
+AC_INIT(cxxtools, 2.0, [Tommi Maekitalo <tommi@tntnet.org>])
 AM_INIT_AUTOMAKE
 
 AC_PREREQ([2.5.9])
@@ -78,6 +78,16 @@ CXXTOOLS_LDFLAGS='-L${libdir} -lcxxtools'
 AC_SUBST(CXXTOOLS_CXXFLAGS)
 AC_SUBST(CXXTOOLS_LDFLAGS)
 AC_SUBST(CXXTOOLS_LOGGING)
+
+case "${host_cpu}-${host_os}" in
+*-aix*)
+    SHARED_LIB_FLAG=-qmkshrobj
+    ;;
+*)  
+    SHARED_LIB_FLAG=
+    ;;
+esac
+AC_SUBST(SHARED_LIB_FLAG)
 
 #
 # checking inline assembler type for atomic operations
