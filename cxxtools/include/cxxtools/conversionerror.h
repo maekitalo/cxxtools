@@ -44,6 +44,7 @@ class CXXTOOLS_API ConversionError : public std::runtime_error
         {}
 
         static void doThrow(const char* typeto, const char* typefrom);
+        static void doThrow(const char* typeto, const char* typefrom, const char* valuefrom);
 
 };
 

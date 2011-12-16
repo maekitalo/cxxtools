@@ -74,6 +74,8 @@ class ConvertTest : public cxxtools::unit::TestSuite
         {
           // test string to number
 
+          // test nan
+
           double d = cxxtools::convert<double>(std::string("NaN"));
           CXXTOOLS_UNIT_ASSERT(d != d);
 
@@ -85,6 +87,36 @@ class ConvertTest : public cxxtools::unit::TestSuite
 
           f = cxxtools::convert<float>(cxxtools::String(L"NaN"));
           CXXTOOLS_UNIT_ASSERT(f != f);
+
+          // test quiet nan
+
+          d = cxxtools::convert<double>(std::string("NaNQ"));
+          CXXTOOLS_UNIT_ASSERT(d != d);
+
+          f = cxxtools::convert<float>(std::string("NaNQ"));
+          CXXTOOLS_UNIT_ASSERT(f != f);
+
+          d = cxxtools::convert<double>(cxxtools::String(L"NaNQ"));
+          CXXTOOLS_UNIT_ASSERT(d != d);
+
+          f = cxxtools::convert<float>(cxxtools::String(L"NaNQ"));
+          CXXTOOLS_UNIT_ASSERT(f != f);
+
+          // test signaling nan
+
+          d = cxxtools::convert<double>(std::string("NaNS"));
+          CXXTOOLS_UNIT_ASSERT(d != d);
+
+          f = cxxtools::convert<float>(std::string("NaNS"));
+          CXXTOOLS_UNIT_ASSERT(f != f);
+
+          d = cxxtools::convert<double>(cxxtools::String(L"NaNS"));
+          CXXTOOLS_UNIT_ASSERT(d != d);
+
+          f = cxxtools::convert<float>(cxxtools::String(L"NaNS"));
+          CXXTOOLS_UNIT_ASSERT(f != f);
+
+          CXXTOOLS_UNIT_ASSERT_THROW(cxxtools::convert<float>(cxxtools::String(L"NaNF")), cxxtools::ConversionError);
 
           // test number to string
 

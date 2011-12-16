@@ -38,9 +38,21 @@ ConversionError::ConversionError(const std::string& msg)
 
 void ConversionError::doThrow(const char* typeto, const char* typefrom)
 {
-    std::string msg = "conversion from ";
+    std::string msg = "conversion from type ";
     msg += typefrom;
-    msg += " to ";
+    msg += " to type ";
+    msg += typeto;
+    msg += " failed";
+    throw ConversionError(msg);
+}
+
+void ConversionError::doThrow(const char* typeto, const char* typefrom, const char* valuefrom)
+{
+    std::string msg = "conversion from type ";
+    msg += typefrom;
+    msg += " (\"";
+    msg += valuefrom;
+    msg += "\") to type ";
     msg += typeto;
     msg += " failed";
     throw ConversionError(msg);

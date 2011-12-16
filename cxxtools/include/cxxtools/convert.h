@@ -118,14 +118,8 @@ inline void convert(T& t, const String& str)
     Char ch;
     is >> t;
     if (is.fail() || !(is >> ch).eof())
-        ConversionError::doThrow(typeid(T).name(), "cxxtools::String");
+        ConversionError::doThrow(typeid(T).name(), "String");
 }
-
-//
-// Conversions from const cxxtools::Char* (null-terminated)
-//
-
-CXXTOOLS_API void convert(int& n, const Char* str);
 
 //
 // Conversions to std::string
@@ -197,14 +191,36 @@ inline void convert(T& t, const std::string& str)
     char ch;
     is >> t;
     if (is.fail() || !(is >> ch).eof())
-        ConversionError::doThrow(typeid(T).name(), "std::string");
+        ConversionError::doThrow(typeid(T).name(), "string");
 }
 
 //
 // Conversions from const char* (null-terminated)
 //
 
+CXXTOOLS_API void convert(bool& n, const char* str);
+
+CXXTOOLS_API void convert(char& n, const char* str);
+CXXTOOLS_API void convert(signed char& n, const char* str);
+CXXTOOLS_API void convert(unsigned char& n, const char* str);
+
+CXXTOOLS_API void convert(short& n, const char* str);
+CXXTOOLS_API void convert(unsigned short& n, const char* str);
 CXXTOOLS_API void convert(int& n, const char* str);
+CXXTOOLS_API void convert(unsigned int& n, const char* str);
+CXXTOOLS_API void convert(long& n, const char* str);
+CXXTOOLS_API void convert(unsigned long& n, const char* str);
+#ifdef HAVE_LONG_LONG
+CXXTOOLS_API void convert(long long& n, const char* str);
+#endif
+#ifdef HAVE_UNSIGNED_LONG_LONG
+CXXTOOLS_API void convert(unsigned long long& n, const char* str);
+#endif
+
+CXXTOOLS_API void convert(float& n, const char* str);
+CXXTOOLS_API void convert(double& n, const char* str);
+CXXTOOLS_API void convert(long double& n, const char* str);
+
 
 //
 // Generic stream-based conversions
@@ -881,7 +897,26 @@ InIterT getFloat(InIterT it, InIterT end, bool& ok, T& n, const FormatT& fmt)
                 if(*it != 'n' && *it != 'N')
                     return it;
 
-                n = std::numeric_limits<T>::quiet_NaN();
+                // NaNQ, NaNS (seen on AIX/xlC)
+                {
+                    InIterT nit = it;
+                    ++nit;
+                    if (*nit == 'q' || *nit == 'Q')
+                    {
+                        n = std::numeric_limits<T>::quiet_NaN();
+                        ++it;
+                    }
+                    else if (*nit == 's' || *nit == 'S')
+                    {
+                        n = std::numeric_limits<T>::signaling_NaN();
+                        ++it;
+                    }
+                    else
+                    {
+                        n = std::numeric_limits<T>::quiet_NaN();
+                    }
+                }
+
                 ok = true;
                 return ++it;
                 break;
