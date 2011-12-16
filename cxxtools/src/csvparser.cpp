@@ -59,7 +59,9 @@ const Char CsvParser::autoDelimiter = L'\0';
 CsvParser::CsvParser()
     : _composer(0),
       _delimiter(autoDelimiter),
-      _readTitle(true)
+      _readTitle(true),
+      _noColumns(0),
+      _lineNo(0)
 { }
 
 void CsvParser::begin(IComposer& handler)
@@ -71,6 +73,8 @@ void CsvParser::begin(IComposer& handler)
     _composer = &handler;
     _titles.clear();
     _titles.push_back(std::string());
+    _noColumns = 1;
+    _lineNo = 0;
 }
 
 void CsvParser::advance(Char ch)
@@ -88,6 +92,7 @@ void CsvParser::advance(Char ch)
             else if (ch == L'\n' || ch == L'\r')
             {
                 log_debug("title=\"" << _titles.back() << '"');
+                _noColumns = 1;
                 _state = (ch == L'\r' ? state_cr : state_rowstart);
             }
             else
@@ -176,7 +181,7 @@ void CsvParser::advance(Char ch)
         case state_data:
             if (ch == L'\n' || ch == L'\r')
             {
-                log_debug("_value \"" << _value << '"');
+                log_debug("value \"" << _value << '"');
                 _composer->setValue(_value);
                 _value.clear();
                 checkNoColumns(_column, _noColumns, _lineNo);

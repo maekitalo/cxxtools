@@ -64,6 +64,7 @@ class CsvDeserializerTest : public cxxtools::unit::TestSuite
             registerMethod("testTooManyColumns", *this, &CsvDeserializerTest::testTooManyColumns);
             registerMethod("testCr", *this, &CsvDeserializerTest::testCr);
             registerMethod("testEmptyLines", *this, &CsvDeserializerTest::testEmptyLines);
+            registerMethod("testSingleColumn", *this, &CsvDeserializerTest::testSingleColumn);
         }
 
         void testVectorVector()
@@ -208,6 +209,23 @@ class CsvDeserializerTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[1][2], "");
         }
 
+        void testSingleColumn()
+        {
+            std::vector<std::vector<std::string> > data;
+            std::istringstream in(
+                "A\n"
+                "1\n"
+                "2\n"
+                "\n");
+
+            cxxtools::CsvDeserializer deserializer(in);
+            deserializer.deserialize(data);
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 3);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0].size(), 1);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[1].size(), 1);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[2].size(), 1);
+        }
 };
 
 cxxtools::unit::RegisterTest<CsvDeserializerTest> register_CsvDeserializerTest;
