@@ -40,14 +40,14 @@ class Formatter
 {
     public:
 #ifdef HAVE_LONG_LONG
-        typedef long long LongInt;
+        typedef long long int_type;
 #else
-        typedef long LongInt;
+        typedef long int_type;
 #endif
 #ifdef HAVE_UNSIGNED_LONG_LONG
-        typedef unsigned long long ULongInt;
+        typedef unsigned long long unsigned_type;
 #else
-        typedef unsigned long LongInt;
+        typedef unsigned long unsigned_type;
 #endif
 
         virtual ~Formatter()
@@ -60,10 +60,10 @@ class Formatter
                               const std::string& value, const std::string& id);
 
         virtual void addValue(const std::string& name, const std::string& type,
-                              LongInt value, const std::string& id);
+                              int_type value, const std::string& id);
 
         virtual void addValue(const std::string& name, const std::string& type,
-                              ULongInt value, const std::string& id);
+                              unsigned_type value, const std::string& id);
 
         virtual void addValue(const std::string& name, const std::string& type,
                               long double value, const std::string& id);

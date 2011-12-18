@@ -60,14 +60,14 @@ class CXXTOOLS_API SerializationInfo
         class ConstIterator;
 
 #ifdef HAVE_LONG_LONG
-        typedef long long LongInt;
+        typedef long long int_type;
 #else
-        typedef long LongInt;
+        typedef long int_type;
 #endif
 #ifdef HAVE_UNSIGNED_LONG_LONG
-        typedef unsigned long long ULongInt;
+        typedef unsigned long long unsigned_type;
 #else
-        typedef unsigned long LongInt;
+        typedef unsigned long unsigned_type;
 #endif
 
     public:
@@ -264,6 +264,7 @@ class CXXTOOLS_API SerializationInfo
 
         void swap(SerializationInfo& si);
 
+        bool isNull() const     { return _t == t_none; }
         bool isString() const   { return _t == t_string; }
         bool isString8() const  { return _t == t_string8; }
         bool isChar() const     { return _t == t_char; }
@@ -287,23 +288,23 @@ class CXXTOOLS_API SerializationInfo
         void _setString8(const std::string& value);
         void _setString8(const char* value);
         void _setChar(char value);
-        void _setInt(LongInt value);
-        void _setUInt(ULongInt value);
+        void _setInt(int_type value);
+        void _setUInt(unsigned_type value);
         void _setFloat(long double value);
 
         bool _getBool() const;
         wchar_t _getWChar() const;
         char _getChar() const;
-        LongInt _getInt(const char* type, LongInt min, LongInt max) const;
-        ULongInt _getUInt(const char* type, ULongInt max) const;
+        int_type _getInt(const char* type, int_type min, int_type max) const;
+        unsigned_type _getUInt(const char* type, unsigned_type max) const;
         long double _getFloat(const char* type, long double max) const;
 
         union U
         {
             char _s[sizeof(String) >= sizeof(std::string) ? sizeof(String) : sizeof(std::string)];
             char _c;
-            LongInt _i;
-            ULongInt _u;
+            int_type _i;
+            unsigned_type _u;
             long double _f;
         } _u;
 

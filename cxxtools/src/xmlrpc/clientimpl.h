@@ -36,11 +36,10 @@
 #include <cxxtools/xml/xmlwriter.h>
 #include <cxxtools/composer.h>
 #include <cxxtools/decomposer.h>
+#include <cxxtools/deserializer.h>
 #include <cxxtools/connectable.h>
 #include <cxxtools/textstream.h>
 #include <string>
-#include <sstream>
-#include <cstddef>
 
 namespace cxxtools
 {
@@ -112,6 +111,7 @@ class ClientImpl : public cxxtools::Connectable
         xml::XmlReader _reader;
         xml::XmlWriter _writer;
         Formatter _formatter;
+        DeserializerBase _deserializer;
         Scanner _scanner;
         IRemoteProcedure* _method;
         RemoteException _fault;

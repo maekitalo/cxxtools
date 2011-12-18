@@ -35,6 +35,7 @@
 #include <cxxtools/iostream.h>
 #include <cxxtools/string.h>
 #include <cxxtools/connectable.h>
+#include <cxxtools/deserializerbase.h>
 #include <string>
 #include "scanner.h"
 
@@ -95,6 +96,7 @@ class RpcClientImpl : public Connectable
         net::TcpSocket _socket;
         IOStream _stream;
         Scanner _scanner;
+        DeserializerBase _deserializer;
         Formatter _formatter;
 
         bool _exceptionPending;

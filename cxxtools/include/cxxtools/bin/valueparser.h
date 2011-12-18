@@ -34,8 +34,7 @@
 namespace cxxtools
 {
 
-class DeserializationContext;
-class IComposer;
+class DeserializerBase;
 
 namespace bin
 {
@@ -55,13 +54,13 @@ class ValueParser
             delete _next;
         }
 
-        void begin(IComposer& handler);
+        void begin(DeserializerBase& handler);
 
         void beginSkip();
 
         bool advance(char ch); // returns true, if number is read completely
 
-        IComposer* current()
+        DeserializerBase* current()
         { return _deserializer; }
 
     private:
@@ -103,7 +102,7 @@ class ValueParser
         std::string _token;
         unsigned _count;
         cxxtools::uint64_t _int;
-        IComposer* _deserializer;
+        DeserializerBase* _deserializer;
         ValueParser* _next;
 };
 }

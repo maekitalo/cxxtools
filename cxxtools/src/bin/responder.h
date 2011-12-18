@@ -82,6 +82,7 @@ class Responder
         State _state;
         std::string _methodName;
         ValueParser _valueParser;
+        DeserializerBase _deserializer;
 
         ServiceProcedure* _proc;
         IComposer** _args;

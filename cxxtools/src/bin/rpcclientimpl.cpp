@@ -110,7 +110,7 @@ void RpcClientImpl::beginCall(IComposer& r, IRemoteProcedure& method, IDecompose
         _socket.beginConnect(_addr, _port);
     }
 
-    _scanner.begin(&r);
+    _scanner.begin(_deserializer, r);
 }
 
 void RpcClientImpl::endCall()
@@ -137,7 +137,7 @@ void RpcClientImpl::call(IComposer& r, IRemoteProcedure& method, IDecomposer** a
     {
         _stream.flush();
 
-        _scanner.begin(&r);
+        _scanner.begin(_deserializer, r);
 
         char ch;
         while (_stream.get(ch))

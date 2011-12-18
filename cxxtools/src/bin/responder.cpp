@@ -170,7 +170,8 @@ bool Responder::advance(char ch)
                 }
                 else
                 {
-                    _valueParser.begin(**_args);
+                    _deserializer.begin();
+                    _valueParser.begin(_deserializer);
                     _valueParser.advance(ch);
                     _state = state_param;
                 }
@@ -194,7 +195,8 @@ bool Responder::advance(char ch)
             {
                 try
                 {
-                    (*_args)->fixup();
+                    (*_args)->fixup(*_deserializer.si());
+                    _deserializer.si()->clear();
                     ++_args;
                     _state = state_params;
                 }

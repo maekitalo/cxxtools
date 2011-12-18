@@ -31,19 +31,19 @@
 namespace cxxtools
 {
 
-void IDecomposer::formatEach(const cxxtools::SerializationInfo& si, Formatter& formatter)
+void IDecomposer::formatEach(const SerializationInfo& si, Formatter& formatter)
 {
     if(si.category() == SerializationInfo::Value)
     {
         if (si.isInt())
         {
-            SerializationInfo::LongInt value;
+            int_type value;
             si.getValue(value);
             formatter.addValue( si.name(), si.typeName(), value, si.id() );
         }
         else if (si.isUInt())
         {
-            SerializationInfo::ULongInt value;
+            unsigned_type value;
             si.getValue(value);
             formatter.addValue( si.name(), si.typeName(), value, si.id() );
         }
@@ -80,7 +80,7 @@ void IDecomposer::formatEach(const cxxtools::SerializationInfo& si, Formatter& f
 
         formatter.finishObject();
     }
-    else if(si.category() == cxxtools::SerializationInfo::Array)
+    else if(si.category() == SerializationInfo::Array)
     {
         formatter.beginArray( si.name(), si.typeName(), si.id() );
 

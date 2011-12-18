@@ -45,9 +45,9 @@ namespace cxxtools
         delete _ts;
     }
 
-    void JsonDeserializer::get(IComposer* composer)
+    void JsonDeserializer::doDeserialize()
     {
-        _parser.begin(*composer);
+        _parser.begin(*this);
         Char ch;
         int ret;
         while (_in.get(ch))

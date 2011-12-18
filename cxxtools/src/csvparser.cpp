@@ -27,7 +27,7 @@
  */
 
 #include <cxxtools/csvparser.h>
-#include <cxxtools/composer.h>
+#include <cxxtools/deserializerbase.h>
 #include <cxxtools/log.h>
 
 log_define("cxxtools.csv.parser")
@@ -56,21 +56,13 @@ namespace
 }
 const Char CsvParser::autoDelimiter = L'\0';
 
-CsvParser::CsvParser()
-    : _composer(0),
-      _delimiter(autoDelimiter),
-      _readTitle(true),
-      _noColumns(0),
-      _lineNo(0)
-{ }
-
-void CsvParser::begin(IComposer& handler)
+void CsvParser::begin(DeserializerBase& handler)
 {
     if (_delimiter == autoDelimiter && !_readTitle)
         throw std::runtime_error("can't read csv data with auto delimiter but without title");
 
     _state = (_readTitle ? state_detectDelim : state_rowstart);
-    _composer = &handler;
+    _deserializer = &handler;
     _titles.clear();
     _titles.push_back(std::string());
     _noColumns = 1;
@@ -134,7 +126,7 @@ void CsvParser::advance(Char ch)
         case state_rowstart:
             _column = 0;
             log_debug("new row");
-            _composer->beginMember(std::string(),
+            _deserializer->beginMember(std::string(),
                 std::string(), SerializationInfo::Array);
             _state = state_datastart;
             // no break
@@ -142,15 +134,15 @@ void CsvParser::advance(Char ch)
         case state_datastart:
             log_debug("member \""
                 << (_column < _titles.size() ? _titles[_column] : std::string()) << '"');
-            _composer->beginMember(
+            _deserializer->beginMember(
                 _column < _titles.size() ? _titles[_column] : std::string(),
                 std::string(), SerializationInfo::Value);
 
             if (ch == L'\n' || ch == L'\r')
             {
-                _composer->leaveMember();
+                _deserializer->leaveMember();
                 checkNoColumns(_column, _noColumns, _lineNo);
-                _composer->leaveMember();
+                _deserializer->leaveMember();
                 _state = (ch == L'\r' ? state_cr : state_rowstart);
             }
             else if (ch == L'"' || ch == L'\'')
@@ -161,7 +153,7 @@ void CsvParser::advance(Char ch)
             else if (ch == _delimiter)
             {
                 ++_column;
-                _composer->leaveMember();
+                _deserializer->leaveMember();
             }
             else
             {
@@ -182,23 +174,23 @@ void CsvParser::advance(Char ch)
             if (ch == L'\n' || ch == L'\r')
             {
                 log_debug("value \"" << _value << '"');
-                _composer->setValue(_value);
+                _deserializer->setValue(_value);
                 _value.clear();
                 checkNoColumns(_column, _noColumns, _lineNo);
-                _composer->leaveMember();  // leave data item
-                _composer->leaveMember();  // leave row
+                _deserializer->leaveMember();  // leave data item
+                _deserializer->leaveMember();  // leave row
                 _state = (ch == L'\r' ? state_cr : state_rowstart);
             }
             else if (ch == _delimiter)
             {
                 log_debug("value \"" << _value << '"');
-                _composer->setValue(_value);
+                _deserializer->setValue(_value);
                 _value.clear();
-                _composer->leaveMember();  // leave data item
+                _deserializer->leaveMember();  // leave data item
                 ++_column;
                 log_debug("member \""
                     << (_column < _titles.size() ? _titles[_column] : std::string()) << '"');
-                _composer->beginMember(
+                _deserializer->beginMember(
                     _column < _titles.size() ? _titles[_column] : std::string(),
                     std::string(), SerializationInfo::Value);
                 _state = state_data0;
@@ -213,9 +205,9 @@ void CsvParser::advance(Char ch)
             if (ch == _quote)
             {
                 log_debug("value \"" << _value << '"');
-                _composer->setValue(_value);
+                _deserializer->setValue(_value);
                 _value.clear();
-                _composer->leaveMember();  // leave data item
+                _deserializer->leaveMember();  // leave data item
                 _state = state_qdata_end;
             }
             else
@@ -228,7 +220,7 @@ void CsvParser::advance(Char ch)
             if (ch == L'\n' || ch == L'\r')
             {
                 checkNoColumns(_column, _noColumns, _lineNo);
-                _composer->leaveMember();  // leave row
+                _deserializer->leaveMember();  // leave row
                 _state = (ch == L'\r' ? state_cr : state_rowstart);
             }
             else if (ch == _delimiter)
@@ -236,7 +228,7 @@ void CsvParser::advance(Char ch)
                 ++_column;
                 log_debug("member \""
                     << (_column < _titles.size() ? _titles[_column] : std::string()) << '"');
-                _composer->beginMember(
+                _deserializer->beginMember(
                     _column < _titles.size() ? _titles[_column] : std::string(),
                     std::string(), SerializationInfo::Value);
                 _state = state_data0;
@@ -257,27 +249,27 @@ void CsvParser::finish()
     switch (_state)
     {
         case state_datastart:
-            _composer->leaveMember();  // leave row
+            _deserializer->leaveMember();  // leave row
             break;
 
         case state_data0:
         case state_data:
             checkNoColumns(_column, _noColumns, _lineNo);
-            _composer->setValue(_value);
-            _composer->leaveMember();  // leave data item
-            _composer->leaveMember();  // leave row
+            _deserializer->setValue(_value);
+            _deserializer->leaveMember();  // leave data item
+            _deserializer->leaveMember();  // leave row
             break;
 
         case state_qdata:
             checkNoColumns(_column, _noColumns, _lineNo);
             log_debug("value \"" << _quote.narrow() << _value << '"');
-            _composer->setValue(_quote + _value);
-            _composer->leaveMember();  // leave data item
-            _composer->leaveMember();  // leave row
+            _deserializer->setValue(_quote + _value);
+            _deserializer->leaveMember();  // leave data item
+            _deserializer->leaveMember();  // leave row
             break;
 
         case state_qdata_end:
-            _composer->leaveMember();  // leave row
+            _deserializer->leaveMember();  // leave row
             break;
 
     }

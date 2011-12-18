@@ -29,11 +29,16 @@
 #ifndef CXXTOOLS_DESERIALIZER_H
 #define CXXTOOLS_DESERIALIZER_H
 
+#include <cxxtools/deserializerbase.h>
 #include <cxxtools/composer.h>
+#include <stdexcept>
 
 namespace cxxtools
 {
-    class CXXTOOLS_API Deserializer
+    /**
+     * convert format to SerializationInfo
+     */
+    class CXXTOOLS_API Deserializer : public DeserializerBase
     {
             // make non copyable
             Deserializer(const Deserializer&)  { }
@@ -54,24 +59,37 @@ namespace cxxtools
             template <typename T>
             void deserialize(T& type)
             {
+                begin();
+                doDeserialize();
                 Composer<T> composer;
                 composer.begin(type);
-                get(&composer);
-                composer.fixup();
+                composer.fixup(*si());
             }
 
             template <typename T>
             void deserialize(T& type, const std::string& name)
             {
+                begin();
+                doDeserialize();
+
+                SerializationInfo* p = current()->findMember(name);
+                if( !p )
+                    throw std::runtime_error("member " + name + " not found");
+
                 Composer<T> composer;
                 composer.begin(type);
-                get(&composer);
-                composer.fixup(name);
+                composer.fixup(*p);
             }
 
-        protected:
-            virtual void get(IComposer* composer) = 0;
+            void deserialize()
+            {
+                doDeserialize();
+            }
+
+        private:
+            virtual void doDeserialize() = 0;
     };
+
 }
 
 #endif // CXXTOOLS_DESERIALIZER_H

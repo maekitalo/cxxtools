@@ -29,10 +29,13 @@
 #define cxxtools_xmlrpc_Scanner_h
 
 #include <cxxtools/xmlrpc/api.h>
-#include <cxxtools/composer.h>
+#include <cxxtools/string.h>
 
 namespace cxxtools
 {
+
+class DeserializerBase;
+class IComposer;
 
 namespace xml
 {
@@ -74,23 +77,21 @@ class CXXTOOLS_XMLRPC_API Scanner
     public:
         Scanner()
         : _state(OnParam)
-        , _current(0)
+        , _deserializer(0)
+        , _composer(0)
         {}
 
         ~Scanner()
         {}
 
-        void begin(IComposer& handler)
-        {
-            _state = OnParam;
-            _current = &handler;
-        }
+        void begin(DeserializerBase& handler, IComposer& composer);
 
         bool advance(const xml::Node& node);
 
     private:
         State _state;
-        IComposer* _current;
+        DeserializerBase* _deserializer;
+        IComposer* _composer;
         String _value;
         String _type;
 };

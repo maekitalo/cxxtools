@@ -34,10 +34,10 @@ namespace cxxtools
 {
 namespace bin
 {
-void Deserializer::get(IComposer* composer)
+void Deserializer::doDeserialize()
 {
     ValueParser vp;
-    vp.begin(*composer);
+    vp.begin(*this);
     char ch;
     while (_in.get(ch) && !vp.advance(ch))
         ;

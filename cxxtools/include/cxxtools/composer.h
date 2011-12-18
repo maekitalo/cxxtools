@@ -28,85 +28,24 @@
 #ifndef cxxtools_Composer_h
 #define cxxtools_Composer_h
 
-#include <cxxtools/api.h>
 #include <cxxtools/serializationinfo.h>
 
 namespace cxxtools
 {
 
-class CXXTOOLS_API IComposer
+class IComposer
 {
         IComposer(const IComposer&) { }
         IComposer& operator= (const IComposer&) { return *this; }
 
     public:
-#ifdef HAVE_LONG_LONG
-        typedef long long LongInt;
-#else
-        typedef long LongInt;
-#endif
-#ifdef HAVE_UNSIGNED_LONG_LONG
-        typedef unsigned long long ULongInt;
-#else
-        typedef unsigned long LongInt;
-#endif
-
         IComposer()
-        : _parent(0),
-          _current(&_si)
         {}
 
         virtual ~IComposer()
         {}
 
-        void setParent(IComposer* parent)
-        { _parent = parent; }
-
-        IComposer* parent()
-        { return _parent; }
-
-        SerializationInfo* current()
-        { return _current; }
-
-        void setCategory(SerializationInfo::Category category);
-
-        void setName(const std::string& name);
-
-        void setValue(const String& value);
-
-        void setValue(const std::string& value);
-
-        void setValue(const char* value);
-
-        void setValue(bool value);
-
-        void setValue(LongInt value);
-
-        void setValue(ULongInt value);
-
-        void setValue(long double value);
-
-        void setId(const std::string& id);
-
-        void setTypeName(const std::string& type);
-
-        IComposer* beginMember(const std::string& name, const std::string& type, SerializationInfo::Category category);
-
-        IComposer* leaveMember();
-
-        void fixup()
-        { do_fixup(*_current); }
-
-        void fixup(const std::string& name);
-
-    protected:
-        virtual void do_fixup(const SerializationInfo& si) = 0;
-
-        SerializationInfo _si;
-        SerializationInfo* _current;
-
-    private:
-        IComposer* _parent;
+        virtual void fixup(const SerializationInfo& si) = 0;
 };
 
 
@@ -121,12 +60,9 @@ class Composer : public IComposer
         void begin(T& type)
         {
             _type = &type;
-            _current = &_si;
-            _si.clear();
         }
 
-    protected:
-        virtual void do_fixup(const SerializationInfo& si)
+        virtual void fixup(const SerializationInfo& si)
         {
             si >>= *_type;
         }

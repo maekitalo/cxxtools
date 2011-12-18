@@ -45,14 +45,7 @@ namespace cxxtools
                       _failed(false)
                 { }
 
-                void begin(IComposer* composer)
-                {
-                    _vp.begin(*composer);
-                    _state = state_0;
-                    _failed = false;
-                    _errorCode = 0;
-                    _errorMessage.clear();
-                }
+                void begin(DeserializerBase& handler, IComposer& composer);
 
                 bool advance(char ch);
 
@@ -69,6 +62,9 @@ namespace cxxtools
                 } _state;
 
                 ValueParser _vp;
+                DeserializerBase* _deserializer;
+                IComposer* _composer;
+
                 unsigned short _count;
 
                 bool _failed;

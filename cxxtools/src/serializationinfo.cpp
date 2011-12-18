@@ -378,7 +378,7 @@ void SerializationInfo::_setChar(char value)
     _category = Value;
 }
 
-void SerializationInfo::_setInt(LongInt value)
+void SerializationInfo::_setInt(int_type value)
 {
     if (_t != t_int)
     {
@@ -391,7 +391,7 @@ void SerializationInfo::_setInt(LongInt value)
     _category = Value;
 }
 
-void SerializationInfo::_setUInt(ULongInt value)
+void SerializationInfo::_setUInt(unsigned_type value)
 {
     if (_t != t_uint)
     {
@@ -509,18 +509,18 @@ char SerializationInfo::_getChar() const
     return 0;
 }
 
-SerializationInfo::LongInt SerializationInfo::_getInt(const char* type, LongInt min, LongInt max) const
+SerializationInfo::int_type SerializationInfo::_getInt(const char* type, int_type min, int_type max) const
 {
-    LongInt ret = 0;
+    int_type ret = 0;
 
     switch (_t)
     {
         case t_none:    break;
-        case t_string:  ret = convert<LongInt>(_String()); break;
-        case t_string8: ret = convert<LongInt>(_String8()); break;
+        case t_string:  ret = convert<int_type>(_String()); break;
+        case t_string8: ret = convert<int_type>(_String8()); break;
         case t_char:    ret = _u._c - '0'; break;
         case t_int:     ret = _u._i; break;
-        case t_uint:    if (_u._u > static_cast<ULongInt>(std::numeric_limits<LongInt>::max()))
+        case t_uint:    if (_u._u > static_cast<unsigned_type>(std::numeric_limits<int_type>::max()))
                         {
                             std::ostringstream msg;
                             msg << "value " << ret << " does not fit into " << type;
@@ -540,15 +540,15 @@ SerializationInfo::LongInt SerializationInfo::_getInt(const char* type, LongInt 
     return ret;
 }
 
-SerializationInfo::ULongInt SerializationInfo::_getUInt(const char* type, ULongInt max) const
+SerializationInfo::unsigned_type SerializationInfo::_getUInt(const char* type, unsigned_type max) const
 {
-    ULongInt ret = 0;
+    unsigned_type ret = 0;
 
     switch (_t)
     {
         case t_none:    break;
-        case t_string:  ret = convert<ULongInt>(_String()); break;
-        case t_string8: ret = convert<ULongInt>(_String8()); break;
+        case t_string:  ret = convert<unsigned_type>(_String()); break;
+        case t_string8: ret = convert<unsigned_type>(_String8()); break;
         case t_char:    ret = _u._c - '0'; break;
         case t_int:     if (_u._i < 0)
                             throw std::range_error(std::string("negative values do not fit into ") + type);

@@ -69,7 +69,7 @@ namespace cxxtools
             }
 
         private:
-            void get(IComposer* d);
+            void doDeserialize();
 
             TextIStream* _ts;
             TextIStream& _in;

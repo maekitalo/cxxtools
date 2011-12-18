@@ -32,7 +32,7 @@
 namespace cxxtools
 {
 void Formatter::addValue(const std::string& name, const std::string& type,
-                         LongInt value, const std::string& id)
+                         int_type value, const std::string& id)
 {
     addValue(name, type, convert<String>(value), id);
 }
@@ -44,7 +44,7 @@ void Formatter::addValue(const std::string& name, const std::string& type,
 }
 
 void Formatter::addValue(const std::string& name, const std::string& type,
-                         ULongInt value, const std::string& id)
+                         unsigned_type value, const std::string& id)
 {
     addValue(name, type, convert<String>(value), id);
 }

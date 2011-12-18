@@ -29,8 +29,6 @@
 #include <cxxtools/bin/valueparser.h>
 #include <cxxtools/deserializer.h>
 #include <cxxtools/bin/serializer.h>
-#include <cxxtools/utf8codec.h>
-#include <sstream>
 #include <cxxtools/log.h>
 
 log_define("cxxtools.bin.valueparser")
@@ -83,7 +81,7 @@ namespace
     static const char bcdDigits[16] = "0123456789+-. e";
 }
 
-void ValueParser::begin(IComposer& handler)
+void ValueParser::begin(DeserializerBase& handler)
 {
     _state = state_0;
     _deserializer = &handler;
@@ -215,13 +213,13 @@ bool ValueParser::advance(char ch)
                 {
                     if (_state == state_value_int)
                     {
-                        IComposer::LongInt value = IComposer::LongInt(_int);
+                        DeserializerBase::int_type value = DeserializerBase::int_type(_int);
                         log_debug("int value=" << value);
                         _deserializer->setValue(value);
                     }
                     else
                     {
-                        IComposer::ULongInt value = IComposer::ULongInt(_int);
+                        DeserializerBase::unsigned_type value = DeserializerBase::unsigned_type(_int);
                         log_debug("uint value=" << value);
                         _deserializer->setValue(value);
                     }
@@ -367,7 +365,7 @@ bool ValueParser::advance(char ch)
 
                 if (_deserializer)
                 {
-                    _deserializer = _deserializer->beginMember(_token, "", SerializationInfo::Void);
+                    _deserializer->beginMember(_token, "", SerializationInfo::Void);
                     _next->begin(*_deserializer);
                 }
                 else
@@ -384,7 +382,7 @@ bool ValueParser::advance(char ch)
             if (_next->advance(ch))
             {
                 if (_deserializer)
-                    _deserializer = _deserializer->leaveMember();
+                    _deserializer->leaveMember();
                 _state = state_object_member;
             }
             break;
@@ -421,7 +419,7 @@ bool ValueParser::advance(char ch)
 
             if (_deserializer)
             {
-                _deserializer = _deserializer->beginMember("", "", SerializationInfo::Void);
+                _deserializer->beginMember("", "", SerializationInfo::Void);
                 _next->begin(*_deserializer);
             }
             else
@@ -437,7 +435,7 @@ bool ValueParser::advance(char ch)
             if (_next->advance(ch))
             {
                 if (_deserializer)
-                    _deserializer = _deserializer->leaveMember();
+                    _deserializer->leaveMember();
                 _state = state_array_member_value_next;
             }
             break;
@@ -451,7 +449,7 @@ bool ValueParser::advance(char ch)
             {
                 if (_deserializer)
                 {
-                    _deserializer = _deserializer->beginMember("", "", SerializationInfo::Void);
+                    _deserializer->beginMember("", "", SerializationInfo::Void);
                     _next->begin(*_deserializer);
                 }
                 else

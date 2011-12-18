@@ -313,7 +313,7 @@ void XmlRpcResponder::advance(const cxxtools::xml::Node& node)
                         throw std::runtime_error("too many arguments");
                 }
 
-                _scanner.begin(**_args);
+                _scanner.begin(_deserializer, **_args);
                 _state = OnParam;
                 break;
             }

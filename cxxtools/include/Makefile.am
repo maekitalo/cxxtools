@@ -39,6 +39,7 @@ nobase_include_HEADERS = \
         cxxtools/delegate.h \
         cxxtools/delegate.tpp \
         cxxtools/deserializer.h \
+        cxxtools/deserializerbase.h \
         cxxtools/dir.h \
         cxxtools/directory.h \
         cxxtools/dlloader.h \
@@ -74,6 +75,7 @@ nobase_include_HEADERS = \
         cxxtools/iostream.h \
         cxxtools/join.h \
         cxxtools/jsondeserializer.h \
+        cxxtools/jsonformatter.h \
         cxxtools/jsonparser.h \
         cxxtools/jsonserializer.h \
         cxxtools/library.h \

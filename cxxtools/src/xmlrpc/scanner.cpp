@@ -30,12 +30,15 @@
 #include <cxxtools/xml/startelement.h>
 #include <cxxtools/xml/endelement.h>
 #include <cxxtools/xml/characters.h>
-#include <cxxtools/string.h>
 #include <cxxtools/serializationinfo.h>
+#include <cxxtools/deserializerbase.h>
+#include <cxxtools/composer.h>
 
-namespace cxxtools {
+namespace cxxtools
+{
 
-namespace xmlrpc {
+namespace xmlrpc
+{
 
 namespace
 {
@@ -43,6 +46,14 @@ namespace
     {
         throw SerializationError(msg);
     }
+}
+
+void Scanner::begin(DeserializerBase& handler, IComposer& composer)
+{
+    _state = OnParam;
+    _deserializer = &handler;
+    _composer = &composer;
+    _deserializer->begin();
 }
 
 bool Scanner::advance(const cxxtools::xml::Node& node)
@@ -104,7 +115,7 @@ bool Scanner::advance(const cxxtools::xml::Node& node)
                     throwSerializationError();
 
                 // is always type string
-                _current->setValue( _value );
+                _deserializer->setValue( _value );
                 _value.clear();
 
                 _state = OnValueEnd;
@@ -125,23 +136,23 @@ bool Scanner::advance(const cxxtools::xml::Node& node)
 
                 if(ee.name() == L"member")
                 {
-                    _current = _current->leaveMember();
+                    _deserializer->leaveMember();
                     _state = OnStructBegin;
                 }
                 else if(ee.name() == L"data")
                 {
-                    _current = _current->leaveMember();
+                    _deserializer->leaveMember();
                     _state = OnDataEnd;
                 }
                 else if(ee.name() == L"param")
                 {
-                    _current->fixup();
+                    _composer->fixup(*_deserializer->si());
                     _state = OnValueEnd;
                     return true;
                 }
                 else if(ee.name() == L"fault")
                 {
-                    _current->fixup();
+                    _composer->fixup(*_deserializer->si());
                     _state = OnValueEnd;
                     return true;
                 }
@@ -155,8 +166,8 @@ bool Scanner::advance(const cxxtools::xml::Node& node)
                 const xml::StartElement& se = static_cast<const xml::StartElement&>(node);
                 if(se.name() == L"value")
                 {
-                    _current = _current->leaveMember();
-                    _current = _current->beginMember(std::string(), _type.narrow(), SerializationInfo::Value);
+                    _deserializer->leaveMember();
+                    _deserializer->beginMember(std::string(), _type.narrow(), SerializationInfo::Value);
                     _state = OnValueBegin;
                 }
                 else
@@ -231,7 +242,7 @@ bool Scanner::advance(const cxxtools::xml::Node& node)
                 const xml::Characters& chars = static_cast<const xml::Characters&>(node);
                 const std::string& name = chars.content().narrow();
 
-                _current = _current->beginMember(name, std::string(), SerializationInfo::Object);
+                _deserializer->beginMember(name, std::string(), SerializationInfo::Object);
 
                 _state = OnName;
             }
@@ -288,12 +299,12 @@ bool Scanner::advance(const cxxtools::xml::Node& node)
                 const xml::Characters& chars = static_cast<const xml::Characters&>(node);
                 _state = OnScalar;
 
-                _current->setValue( chars.content() );
+                _deserializer->setValue( chars.content() );
             }
             else if(node.type() == xml::Node::EndElement) // no content, for example empty strings
             {
                
-                _current->setValue( cxxtools::String() );
+                _deserializer->setValue( cxxtools::String() );
                 _state = OnScalarEnd;
             }
             else
@@ -360,7 +371,7 @@ bool Scanner::advance(const cxxtools::xml::Node& node)
         {
             if(node.type() == xml::Node::StartElement) // value
             {
-                _current = _current->beginMember(std::string(), std::string(), SerializationInfo::Array);
+                _deserializer->beginMember(std::string(), std::string(), SerializationInfo::Array);
                 _state = OnValueBegin;
             }
             else if(node.type() == xml::Node::EndElement) // empty array

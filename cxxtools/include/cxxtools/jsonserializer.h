@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009 Tommi Maekitalo, Marc Boris Duerner
+ * Copyright (C) 2011 Tommi Maekitalo
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -29,71 +29,15 @@
 #ifndef CXXTOOLS_JSONSERIALIZER_H
 #define CXXTOOLS_JSONSERIALIZER_H
 
-#include <cxxtools/formatter.h>
 #include <cxxtools/textstream.h>
 #include <cxxtools/decomposer.h>
 #include <cxxtools/noncopyable.h>
+#include <cxxtools/jsonformatter.h>
 #include <sstream>
 #include <stdexcept>
 
 namespace cxxtools
 {
-    class JsonFormatter : public Formatter
-    {
-        public:
-            JsonFormatter()
-                : _ts(0),
-                  _level(1),
-                  _lastLevel(0),
-                  _beautify(false)
-            {
-            }
-
-            explicit JsonFormatter(std::basic_ostream<cxxtools::Char>& ts)
-                : _ts(0),
-                  _level(1),
-                  _lastLevel(0),
-                  _beautify(false)
-            {
-                begin(ts);
-            }
-
-            void begin(std::basic_ostream<cxxtools::Char>& ts);
-
-            void finish();
-
-            virtual void addValue(const std::string& name, const std::string& type,
-                                  const cxxtools::String& value, const std::string& id);
-
-            virtual void beginArray(const std::string& name, const std::string& type,
-                                    const std::string& id);
-
-            virtual void finishArray();
-
-            virtual void beginObject(const std::string& name, const std::string& type,
-                                     const std::string& id);
-
-            virtual void beginMember(const std::string& name);
-
-            virtual void finishMember();
-
-            virtual void finishObject();
-
-            bool beautify() const     { return _beautify; }
-
-            void beautify(bool sw)    { _beautify = sw; }
-
-        private:
-            void indent();
-            void stringOut(const std::string& str);
-            void stringOut(const cxxtools::String& str);
-
-            std::basic_ostream<cxxtools::Char>* _ts;
-            unsigned _level;
-            unsigned _lastLevel;
-            bool _beautify;
-    };
-
     class JsonSerializer : private NonCopyable
     {
         public:
@@ -191,6 +135,7 @@ namespace cxxtools
             std::basic_ostream<cxxtools::Char>* _ts;
             bool _inObject;
     };
+
 }
 
 #endif // CXXTOOLS_JSONSERIALIZER_H

@@ -71,11 +71,11 @@ namespace cxxtools
         delete _ts;
     }
 
-    void CsvDeserializer::get(IComposer* composer)
+    void CsvDeserializer::doDeserialize()
     {
         Char ch;
         Char quote;
-        _parser.begin(*composer);
+        _parser.begin(*this);
         while (_in.get(ch))
             _parser.advance(ch);
         _parser.finish();

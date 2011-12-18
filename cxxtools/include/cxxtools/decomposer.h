@@ -45,6 +45,9 @@ class CXXTOOLS_API IDecomposer
         IDecomposer& operator= (const IDecomposer&) { return *this; }
 
     public:
+        typedef SerializationInfo::int_type int_type;
+        typedef SerializationInfo::unsigned_type unsigned_type;
+
         virtual ~IDecomposer()
         {}
 

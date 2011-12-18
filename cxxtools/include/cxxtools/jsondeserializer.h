@@ -47,7 +47,7 @@ namespace cxxtools
             ~JsonDeserializer();
 
         protected:
-            virtual void get(IComposer* composer);
+            virtual void doDeserialize();
 
         private:
             JsonParser _parser;

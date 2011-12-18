@@ -13,7 +13,6 @@ libcxxtools_la_SOURCES = \
 	char.cpp \
 	clock.cpp \
 	clockimpl.cpp \
-	composer.cpp \
 	condition.cpp \
 	conditionimpl.cpp \
 	connectable.cpp \
@@ -24,6 +23,7 @@ libcxxtools_la_SOURCES = \
 	date.cpp \
 	datetime.cpp \
 	decomposer.cpp \
+	deserializer.cpp \
 	directory.cpp \
 	directoryimpl.cpp \
 	error.cpp \
@@ -43,6 +43,7 @@ libcxxtools_la_SOURCES = \
 	ioerror.cpp \
 	iostream.cpp \
 	jsondeserializer.cpp \
+	jsonformatter.cpp \
 	jsonparser.cpp \
 	jsonserializer.cpp \
 	library.cpp \

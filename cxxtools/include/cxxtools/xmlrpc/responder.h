@@ -36,14 +36,18 @@
 #include <cxxtools/xml/xmlreader.h>
 #include <cxxtools/xml/xmlwriter.h>
 #include <cxxtools/http/responder.h>
-#include <cxxtools/decomposer.h>
+#include <cxxtools/deserializerbase.h>
 #include <cxxtools/textstream.h>
 
-namespace cxxtools {
+namespace cxxtools
+{
 
 class ServiceProcedure;
+class IComposer;
+class IDecomposer;
 
-namespace xmlrpc {
+namespace xmlrpc
+{
 
 class Service;
 
@@ -86,6 +90,7 @@ class CXXTOOLS_XMLRPC_API XmlRpcResponder : public http::Responder
         xml::XmlWriter _writer;
         Scanner _scanner;
         Formatter _formatter;
+        DeserializerBase _deserializer;
         Service* _service;
         ServiceProcedure* _proc;
         IComposer** _args;

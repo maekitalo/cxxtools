@@ -33,9 +33,11 @@
 #include "cxxtools/xml/xmlreader.h"
 #include <memory>
 
-namespace cxxtools {
+namespace cxxtools
+{
 
-namespace xml {
+namespace xml
+{
 
     class XmlReader;
     class Node;
@@ -78,7 +80,7 @@ namespace xml {
             }
 
         protected:
-            void get(cxxtools::IComposer* deser);
+            void doDeserialize();
 
             //! @internal
             void beginDocument(const cxxtools::xml::Node& node);
@@ -112,9 +114,6 @@ namespace xml {
             ProcessNode _processNode;
 
             size_t _startDepth;
-
-            //! @internal
-            cxxtools::IComposer* _composer;
 
             //! @internal
             cxxtools::String _nodeName;

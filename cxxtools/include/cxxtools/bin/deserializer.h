@@ -31,7 +31,6 @@
 
 #include <cxxtools/deserializer.h>
 #include <cxxtools/bin/serializer.h>
-#include <cxxtools/noncopyable.h>
 
 namespace cxxtools
 {
@@ -47,7 +46,7 @@ namespace bin
             { }
 
         protected:
-            void get(IComposer* deser);
+            void doDeserialize();
 
         private:
             std::istream& _in;

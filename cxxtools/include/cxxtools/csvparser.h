@@ -35,12 +35,18 @@
 
 namespace cxxtools
 {
-    class IComposer;
+    class DeserializerBase;
 
     class CXXTOOLS_API CsvParser
     {
         public:
-            CsvParser();
+            CsvParser()
+                : _deserializer(0),
+                  _delimiter(autoDelimiter),
+                  _readTitle(true),
+                  _noColumns(0),
+                  _lineNo(0)
+            { }
 
             Char delimiter() const
             { return _delimiter; }
@@ -56,13 +62,11 @@ namespace cxxtools
 
             static const Char autoDelimiter;
 
-            void begin(IComposer& handler);
+            void begin(DeserializerBase& handler);
             void advance(Char ch);
             void finish();
 
         private:
-            IComposer* _composer;
-
             enum
             {
                 state_detectDelim,
@@ -76,6 +80,7 @@ namespace cxxtools
                 state_qdata_end,
             } _state;
 
+            DeserializerBase* _deserializer;
             Char _delimiter;
             bool _readTitle;
 

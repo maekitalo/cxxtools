@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 by Marc Boris Duerner
+ * Copyright (C) 2011 by Tommi Maekitalo
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,91 +26,81 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "cxxtools/composer.h"
+#include "cxxtools/deserializer.h"
 #include <stdexcept>
 
 namespace cxxtools
 {
-    void IComposer::fixup(const std::string& name)
-    {
-        SerializationInfo* p = _current->findMember(name);
-        if( !p )
-            throw std::runtime_error("member " + name + " not found");
-        do_fixup(*p);
-    }
-
-    void IComposer::setCategory(SerializationInfo::Category category)
+    void DeserializerBase::setCategory(SerializationInfo::Category category)
     {
         _current->setCategory(category);
     }
 
-    void IComposer::setName(const std::string& name)
+    void DeserializerBase::setName(const std::string& name)
     {
         _current->setName(name);
     }
 
-    void IComposer::setId(const std::string& id)
+    void DeserializerBase::setId(const std::string& id)
     {
         _current->setId(id);
     }
 
-    void IComposer::setTypeName(const std::string& type)
+    void DeserializerBase::setTypeName(const std::string& type)
     {
         _current->setTypeName(type);
     }
 
-    void IComposer::setValue(const String& value)
+    void DeserializerBase::setValue(const String& value)
     {
         _current->setValue(value);
     }
 
-    void IComposer::setValue(const std::string& value)
+    void DeserializerBase::setValue(const std::string& value)
     {
         _current->setValue(value);
     }
 
-    void IComposer::setValue(const char* value)
+    void DeserializerBase::setValue(const char* value)
     {
         _current->setValue(value);
     }
 
-    void IComposer::setValue(bool value)
+    void DeserializerBase::setValue(bool value)
     {
         _current->setValue(value);
     }
 
-    void IComposer::setValue(LongInt value)
+    void DeserializerBase::setValue(int_type value)
     {
         _current->setValue(value);
     }
 
-    void IComposer::setValue(ULongInt value)
+    void DeserializerBase::setValue(unsigned_type value)
     {
         _current->setValue(value);
     }
 
-    void IComposer::setValue(long double value)
+    void DeserializerBase::setValue(long double value)
     {
         _current->setValue(value);
     }
 
-    IComposer* IComposer::beginMember(const std::string& name, const std::string& type, SerializationInfo::Category category)
+    void DeserializerBase::beginMember(const std::string& name, const std::string& type, SerializationInfo::Category category)
     {
         SerializationInfo& child = _current->addMember(name);
         child.setTypeName(type);
         child.setCategory(category);
         _current = &child;
-        return this;
     }
 
-    IComposer* IComposer::leaveMember()
+    void DeserializerBase::leaveMember()
     {
         SerializationInfo* p = _current->parent();
         if( !p )
             throw std::runtime_error("invalid member");
 
         _current = p;
-        return this;
     }
 
 } // namespace cxxtools
