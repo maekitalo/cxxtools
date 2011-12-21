@@ -85,7 +85,7 @@ void basic_string<cxxtools::Char>::privreserve(size_t n)
     {
         size_type nn = 16;
         while (nn < n)
-            nn += (nn << 1);
+            nn += (nn >> 1);
         reserve(nn);
     }
 }
@@ -156,7 +156,7 @@ basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::assign(const basic_s
         return *this;
     }
 
-    privreserve(str.capacity());
+    privreserve(str.size());
     cxxtools::Char* p = privdata_rw();
     size_type l = str.length();
     traits_type::copy(p, str.data(), l);
