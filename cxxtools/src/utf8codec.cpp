@@ -307,7 +307,7 @@ String Utf8Codec::decode(const char* data, unsigned size)
         Char* to_next = to;
 
         const char* from_next = from;
-        r = codec.in(state, from, from + size, from_next, to, &to[sizeof(to) / sizeof(Char)], to_next);
+        r = codec.in(state, from, from + size, from_next, to, to + sizeof(to), to_next);
 
         if (r == error)
             throw ConversionError("character conversion failed");
