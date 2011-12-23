@@ -54,6 +54,8 @@ namespace cxxtools
 
                 void listen(const std::string& ip, unsigned short int port, int backlog = 64);
 
+                void addService(const std::string& praefix, const ServiceRegistry& service);
+
                 unsigned minThreads() const;
                 void minThreads(unsigned m);
 

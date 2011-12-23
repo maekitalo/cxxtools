@@ -40,9 +40,9 @@ ServiceRegistry::~ServiceRegistry()
     }
 }
 
-ServiceProcedure* ServiceRegistry::getProcedure(const std::string& name)
+ServiceProcedure* ServiceRegistry::getProcedure(const std::string& name) const
 {
-    ProcedureMap::iterator it = _procedures.find( name );
+    ProcedureMap::const_iterator it = _procedures.find( name );
     if( it == _procedures.end() )
     {
         return 0;
@@ -52,9 +52,22 @@ ServiceProcedure* ServiceRegistry::getProcedure(const std::string& name)
 }
 
 
-void ServiceRegistry::releaseProcedure(ServiceProcedure* proc)
+void ServiceRegistry::releaseProcedure(ServiceProcedure* proc) const
 {
     delete proc;
+}
+
+
+std::vector<std::string> ServiceRegistry::getProcedureNames() const
+{
+    std::vector<std::string> procs;
+
+    for (ProcedureMap::const_iterator it = _procedures.begin(); it != _procedures.end(); ++it)
+    {
+        procs.push_back(it->first);
+    }
+
+    return procs;
 }
 
 

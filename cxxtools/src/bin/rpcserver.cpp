@@ -48,6 +48,16 @@ RpcServer::~RpcServer()
     delete _impl;
 }
 
+void RpcServer::addService(const std::string& praefix, const ServiceRegistry& service)
+{
+    std::vector<std::string> procs = service.getProcedureNames();
+
+    for (std::vector<std::string>::const_iterator it = procs.begin(); it != procs.end(); ++it)
+    {
+        registerProcedure(praefix + *it, service.getProcedure(*it));
+    }
+}
+
 void RpcServer::listen(const std::string& ip, unsigned short int port, int backlog)
 {
     _impl->listen(ip, port, backlog);

@@ -33,6 +33,7 @@
 #include <cxxtools/serviceprocedure.h>
 #include <cxxtools/callable.h>
 #include <string>
+#include <vector>
 #include <map>
 
 namespace cxxtools
@@ -279,13 +280,16 @@ namespace cxxtools
                 this->registerProcedure(name, proc);
             }
 
-            ServiceProcedure* getProcedure(const std::string& name);
+            ServiceProcedure* getProcedure(const std::string& name) const;
 
-            void releaseProcedure(ServiceProcedure* proc);
+            void releaseProcedure(ServiceProcedure* proc) const;
 
-        private:
+            std::vector<std::string> getProcedureNames() const;
+
+        protected:
             void registerProcedure(const std::string& name, ServiceProcedure* proc);
 
+        private:
             typedef std::map<std::string, ServiceProcedure*> ProcedureMap;
             ProcedureMap _procedures;
     };
