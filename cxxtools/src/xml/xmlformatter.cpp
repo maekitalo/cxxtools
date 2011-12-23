@@ -27,7 +27,6 @@
  */
 #include "cxxtools/xml/xmlformatter.h"
 #include "cxxtools/xml/startelement.h"
-#include "cxxtools/sourceinfo.h"
 #include <stdexcept>
 
 namespace cxxtools {

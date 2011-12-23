@@ -35,7 +35,6 @@
 #include "cxxtools/xml/xmlerror.h"
 #include "cxxtools/textstream.h"
 #include "cxxtools/utf8codec.h"
-#include "cxxtools/sourceinfo.h"
 #include "cxxtools/log.h"
 #include <stdexcept>
 #include <iostream>

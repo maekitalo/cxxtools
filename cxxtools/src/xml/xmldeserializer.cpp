@@ -30,7 +30,6 @@
 #include "cxxtools/xml/endelement.h"
 #include "cxxtools/xml/characters.h"
 #include "cxxtools/string.h"
-#include "cxxtools/sourceinfo.h"
 #include <stdexcept>
 
 namespace cxxtools {

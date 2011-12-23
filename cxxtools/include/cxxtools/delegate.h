@@ -35,7 +35,6 @@
 #include <cxxtools/method.h>
 #include <cxxtools/constmethod.h>
 #include <cxxtools/connectable.h>
-#include <cxxtools/sourceinfo.h>
 #include <stdexcept>
 
 
