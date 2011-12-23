@@ -80,6 +80,8 @@ namespace cxxtools
           arg.copy(args[argc], arg.size());
           args[argc][arg.size()] = '\0';
           args[argc + 1] = args[argc] + arg.size() + 1;
+
+          return *this;
         }
 
         // nice alias of push_back
