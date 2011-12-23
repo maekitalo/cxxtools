@@ -38,10 +38,6 @@ namespace cxxtools
   {
     /** cxxtools::posix::Exec is a wrapper around the exec?? functions of posix.
 
-        Running one of the exec-variants of a posix system is difficult and
-        error prone to do it right. This class tries to make it as easy as
-        possible.
-
         Usage is like this:
         \code
           cxxtools::posix::Exec e("ls");
@@ -73,7 +69,7 @@ namespace cxxtools
           args[1] = args[0] + cmd.size() + 1;
         }
 
-        void push_back(const std::string& arg)
+        BasicExec& push_back(const std::string& arg)
         {
           if (args[argc + 1] + arg.size() - data >= dataSize)
             throw std::out_of_range("argument list too long");
@@ -86,14 +82,19 @@ namespace cxxtools
           args[argc + 1] = args[argc] + arg.size() + 1;
         }
 
+        // nice alias of push_back
+        BasicExec& arg(const std::string& arg)
+        { return push_back(arg); }
+
         void exec()
         {
           args[argc + 1] = 0;
           ::execvp(args[0], args);
           throw SystemError("execvp");
         }
+
     };
 
-    typedef BasicExec<0xffff, 256> Exec;
+    typedef BasicExec<0x8000, 256> Exec;
   }
 }
