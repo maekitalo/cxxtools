@@ -103,6 +103,7 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             registerMethod("Multiset", *this, &XmlRpcTest::Multiset);
             registerMethod("Map", *this, &XmlRpcTest::Map);
             registerMethod("Multimap", *this, &XmlRpcTest::Multimap);
+            registerMethod("UnknownMethod", *this, &XmlRpcTest::UnknownMethod);
 
             char* PORT = getenv("UTEST_PORT");
             if (PORT)
@@ -756,6 +757,22 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             }
 
             return ret;
+        }
+
+        void UnknownMethod()
+        {
+            cxxtools::xmlrpc::HttpClient client(_loop, "", _port, "/test");
+            cxxtools::RemoteProcedure<bool, bool, bool> unknownMethod(client, "unknownMethod");
+            connect( unknownMethod.finished, *this, &XmlRpcTest::onBooleanFinished );
+
+            unknownMethod.begin(true, true);
+
+            CXXTOOLS_UNIT_ASSERT_THROW(_loop.run(), cxxtools::RemoteException);
+        }
+
+        void onUnknwonFinished(const cxxtools::RemoteResult<bool>& r)
+        {
+            _loop.exit();
         }
 
 };

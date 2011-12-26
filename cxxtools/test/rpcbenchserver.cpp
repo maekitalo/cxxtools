@@ -34,6 +34,7 @@
 #include <cxxtools/http/server.h>
 #include <cxxtools/xmlrpc/service.h>
 #include <cxxtools/bin/rpcserver.h>
+#include <cxxtools/json/rpcserver.h>
 
 std::string echo(const std::string& msg)
 {
@@ -57,6 +58,7 @@ int main(int argc, char* argv[])
     cxxtools::Arg<std::string> ip(argc, argv, 'i');
     cxxtools::Arg<unsigned short> port(argc, argv, 'p', 7002);
     cxxtools::Arg<unsigned short> bport(argc, argv, 'b', 7003);
+    cxxtools::Arg<unsigned short> jport(argc, argv, 'j', 7004);
     cxxtools::Arg<unsigned> threads(argc, argv, 't', 4);
     cxxtools::Arg<unsigned> maxThreads(argc, argv, 'T', 200);
 
@@ -65,6 +67,7 @@ int main(int argc, char* argv[])
                  "   -i ip      set interface address to listen on (default: all interfaces)\n"
                  "   -p number  set port number for xmlrpc (default: 7002)\n"
                  "   -b number  set port number run binary rpc server (default: 7003)\n"
+                 "   -j number  set port number run json rpc server (default: 7004)\n"
                  "   -t number  set minimum number of threads (default: 4)\n"
                  "   -T number  set maximum number of threads (default: 200)\n"
               << std::endl;
@@ -82,8 +85,12 @@ int main(int argc, char* argv[])
     cxxtools::bin::RpcServer binServer(loop, ip, bport);
     binServer.minThreads(threads);
     binServer.maxThreads(maxThreads);
-    binServer.registerFunction("echo", echo);
-    binServer.registerFunction("seq", seq);
+    binServer.addService("", service);
+
+    cxxtools::json::RpcServer jsonServer(loop, ip, jport);
+    jsonServer.minThreads(threads);
+    jsonServer.maxThreads(maxThreads);
+    jsonServer.addService("", service);
 
     loop.run();
   }

@@ -14,6 +14,7 @@ SUBDIRS = src \
     src/xml \
     src/xmlrpc \
     src/bin \
+    src/json \
     include \
     $(DEMO_DIR) $(UNITTEST_DIR)
 

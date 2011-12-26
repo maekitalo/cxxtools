@@ -16,6 +16,7 @@ alltests_SOURCES = \
     csvserializer-test.cpp \
     convert-test.cpp \
     jsondeserializer-test.cpp \
+    jsonrpc-test.cpp \
     jsonserializer-test.cpp \
     md5-test.cpp \
     pool-test.cpp \
@@ -32,6 +33,7 @@ alltests_SOURCES = \
 alltests_LDADD = $(top_builddir)/src/libcxxtools.la \
         $(top_builddir)/src/bin/libcxxtools-bin.la \
         $(top_builddir)/src/http/libcxxtools-http.la \
+        $(top_builddir)/src/json/libcxxtools-json.la \
         $(top_builddir)/src/unit/libcxxtools-unit.la \
         $(top_builddir)/src/xml/libcxxtools-xml.la \
         $(top_builddir)/src/xmlrpc/libcxxtools-xmlrpc.la
@@ -47,14 +49,16 @@ rpcbenchclient_SOURCES = rpcbenchclient.cpp
 rpcbenchclient_LDADD = $(top_builddir)/src/libcxxtools.la \
         $(top_builddir)/src/http/libcxxtools-http.la \
         $(top_builddir)/src/xmlrpc/libcxxtools-xmlrpc.la \
-        $(top_builddir)/src/bin/libcxxtools-bin.la
+        $(top_builddir)/src/bin/libcxxtools-bin.la \
+        $(top_builddir)/src/json/libcxxtools-json.la
 
 rpcbenchserver_SOURCES = rpcbenchserver.cpp
 
 rpcbenchserver_LDADD = $(top_builddir)/src/libcxxtools.la \
         $(top_builddir)/src/http/libcxxtools-http.la \
         $(top_builddir)/src/xmlrpc/libcxxtools-xmlrpc.la \
-        $(top_builddir)/src/bin/libcxxtools-bin.la
+        $(top_builddir)/src/bin/libcxxtools-bin.la \
+        $(top_builddir)/src/json/libcxxtools-json.la
 
 AM_CXXFLAGS = $(PTHREAD_CFLAGS) -DTESTDIR='"@TESTDIR@"'
 AM_LDFLAGS = $(PTHREAD_LIBS)
