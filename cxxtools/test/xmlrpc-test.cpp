@@ -767,7 +767,7 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
 
             unknownMethod.begin(true, true);
 
-            CXXTOOLS_UNIT_ASSERT_THROW(_loop.run(), cxxtools::RemoteException);
+            CXXTOOLS_UNIT_ASSERT_THROW(_loop.run(), std::exception);
         }
 
         void onUnknwonFinished(const cxxtools::RemoteResult<bool>& r)
