@@ -38,11 +38,22 @@ namespace cxxtools
 namespace
 {
 
-void checkTs(std::basic_ostream<Char>* _ts)
-{
-    if (_ts == 0)
-        throw std::logic_error("textstream is not set in JsonFormatter");
-}
+    void checkTs(std::basic_ostream<Char>* _ts)
+    {
+        if (_ts == 0)
+            throw std::logic_error("textstream is not set in JsonFormatter");
+
+    }
+
+    bool isFalse(Char c)
+    {
+        return c == '\0'
+            || c == '0'
+            || c == 'f'
+            || c == 'F'
+            || c == 'n'
+            || c == 'N';
+    }
 
 }
 
@@ -99,7 +110,9 @@ void JsonFormatter::addValue(const std::string& name, const std::string& type,
     if (type == "int" || type == "double" || type == "bool")
     {
         if (value == L"nan" || value == L"inf" || value == L"-inf")
-            *_ts << cxxtools::String(L"null");
+            *_ts << String(L"null");
+        else if (type == "bool")
+            *_ts << (value.empty() || isFalse(value[0]) ? String(L"false") : String(L"true"));
         else
             stringOut(value);
     }

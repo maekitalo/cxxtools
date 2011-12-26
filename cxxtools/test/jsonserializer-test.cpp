@@ -101,7 +101,7 @@ class JsonSerializerTest : public cxxtools::unit::TestSuite
                 "\"intValue\":17,"
                 "\"stringValue\":\"foobar\","
                 "\"doubleValue\":1.5,"
-                "\"boolValue\":0"
+                "\"boolValue\":false"
                 "}}");
         }
 
@@ -157,7 +157,7 @@ class JsonSerializerTest : public cxxtools::unit::TestSuite
                 "\"intValue\":17,"
                 "\"stringValue\":\"foobar\","
                 "\"doubleValue\":1.5,"
-                "\"boolValue\":0"
+                "\"boolValue\":false"
                 "}");
         }
 
