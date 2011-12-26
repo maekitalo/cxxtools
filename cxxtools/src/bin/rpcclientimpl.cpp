@@ -144,10 +144,15 @@ void RpcClientImpl::call(IComposer& r, IRemoteProcedure& method, IDecomposer** a
         {
             if (_scanner.advance(ch))
             {
+                _proc = 0;
                 _scanner.checkException();
                 break;
             }
         }
+    }
+    catch (const RemoteException&)
+    {
+        throw;
     }
     catch (const std::exception& e)
     {

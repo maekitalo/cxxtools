@@ -27,7 +27,7 @@
  */
 
 #include <cxxtools/jsonparser.h>
-#include <cxxtools/deserializer.h>
+#include <cxxtools/deserializerbase.h>
 #include <cxxtools/utf8codec.h>
 #include <cxxtools/log.h>
 
@@ -203,8 +203,6 @@ int JsonParser::advance(Char ch)
         case state_array:
             if (ch == ']')
             {
-                log_debug("leave member");
-                _deserializer->leaveMember();
                 return 1;
             }
             else if (!std::isspace(ch))

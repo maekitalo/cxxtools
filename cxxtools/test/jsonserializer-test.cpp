@@ -68,6 +68,7 @@ class JsonSerializerTest : public cxxtools::unit::TestSuite
             registerMethod("testInt", *this, &JsonSerializerTest::testInt);
             registerMethod("testObject", *this, &JsonSerializerTest::testObject);
             registerMethod("testArray", *this, &JsonSerializerTest::testArray);
+            registerMethod("testEmptyArrays", *this, &JsonSerializerTest::testEmptyArrays);
             registerMethod("testString", *this, &JsonSerializerTest::testString);
             registerMethod("testPlainInt", *this, &JsonSerializerTest::testPlainInt);
             registerMethod("testPlainObject", *this, &JsonSerializerTest::testPlainObject);
@@ -117,6 +118,18 @@ class JsonSerializerTest : public cxxtools::unit::TestSuite
             serializer.serialize(data, "array").finish();
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(out.str(), "{\"array\":[3,4,-33]}");
+        }
+
+        void testEmptyArrays()
+        {
+            std::vector< std::vector<int> > data;
+            data.resize(2);
+
+            std::ostringstream out;
+            cxxtools::JsonSerializer serializer(out);
+            serializer.serialize(data).finish();
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(out.str(), "[[],[]]");
         }
 
         void testString()

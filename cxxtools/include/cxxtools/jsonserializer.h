@@ -96,7 +96,9 @@ namespace cxxtools
                     _inObject = true;
                 }
 
+                _formatter.beginMember(name);
                 s.format(_formatter);
+                _formatter.finishMember();
                 return *this;
             }
 

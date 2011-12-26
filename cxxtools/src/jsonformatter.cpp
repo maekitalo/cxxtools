@@ -74,38 +74,7 @@ void JsonFormatter::addValue(const std::string& name, const std::string& type,
 {
     log_trace("addValue name=\"" << name << "\", type=\"" << type << "\", \" value=\"" << value.narrow() << '"');
 
-    checkTs(_ts);
-
-    if (_level == _lastLevel)
-    {
-        *_ts << Char(L',');
-        if (_beautify)
-        {
-            if (name.empty())
-                *_ts << Char(L' ');
-            else
-            {
-                *_ts << Char(L'\n');
-                indent();
-            }
-        }
-    }
-    else
-    {
-        _lastLevel = _level;
-        if (_beautify)
-            indent();
-    }
-
-    if (!name.empty())
-    {
-        *_ts << Char(L'"');
-        stringOut(name);
-        *_ts << Char(L'"')
-             << Char(L':');
-        if (_beautify)
-            *_ts << Char(L' ');
-    }
+    beginValue(name);
 
     if (type == "int" || type == "double" || type == "bool")
     {
@@ -122,6 +91,8 @@ void JsonFormatter::addValue(const std::string& name, const std::string& type,
         stringOut(value);
         *_ts << Char(L'"');
     }
+
+    finishValue();
 }
 
 void JsonFormatter::beginArray(const std::string& name, const std::string& type,
@@ -310,6 +281,49 @@ void JsonFormatter::stringOut(const cxxtools::String& str)
         else
             *_ts << *it;
     }
+}
+
+void JsonFormatter::beginValue(const std::string& name)
+{
+    checkTs(_ts);
+
+    if (_level == _lastLevel)
+    {
+        *_ts << Char(L',');
+        if (_beautify)
+        {
+            if (name.empty())
+                *_ts << Char(L' ');
+            else
+            {
+                *_ts << Char(L'\n');
+                indent();
+            }
+        }
+    }
+    else
+    {
+        _lastLevel = _level;
+        if (_beautify)
+            indent();
+    }
+
+    if (!name.empty())
+    {
+        *_ts << Char(L'"');
+        stringOut(name);
+        *_ts << Char(L'"')
+             << Char(L':');
+        if (_beautify)
+            *_ts << Char(L' ');
+    }
+
+    ++_level;
+}
+
+void JsonFormatter::finishValue()
+{
+    --_level;
 }
 
 }

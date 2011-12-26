@@ -42,7 +42,7 @@ class RemoteException : public std::exception
             : _rc(0)
         { }
 
-        RemoteException(const std::string& text, int rc)
+        explicit RemoteException(const std::string& text, int rc = 0)
             : _text(text),
               _rc(rc)
         { }

@@ -351,6 +351,8 @@ class SerializationInfo::Iterator
 
         bool operator!=(const Iterator& other) const;
 
+        bool operator==(const Iterator& other) const;
+
     private:
         SerializationInfo* _info;
 };
@@ -374,6 +376,8 @@ class SerializationInfo::ConstIterator
         const SerializationInfo* operator->() const;
 
         bool operator!=(const ConstIterator& other) const;
+
+        bool operator==(const ConstIterator& other) const;
 
     private:
         const SerializationInfo* _info;
@@ -427,6 +431,12 @@ inline bool SerializationInfo::Iterator::operator!=(const Iterator& other) const
 }
 
 
+inline bool SerializationInfo::Iterator::operator==(const Iterator& other) const
+{
+    return _info == other._info;
+}
+
+
 inline SerializationInfo::ConstIterator::ConstIterator()
 : _info(0)
 {}
@@ -471,6 +481,12 @@ inline const SerializationInfo* SerializationInfo::ConstIterator::operator->() c
 inline bool SerializationInfo::ConstIterator::operator!=(const ConstIterator& other) const
 {
     return _info != other._info;
+}
+
+
+inline bool SerializationInfo::ConstIterator::operator==(const ConstIterator& other) const
+{
+    return _info == other._info;
 }
 
 

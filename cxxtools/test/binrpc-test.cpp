@@ -102,6 +102,7 @@ class BinRpcTest : public cxxtools::unit::TestSuite
             registerMethod("Map", *this, &BinRpcTest::Map);
             registerMethod("Multimap", *this, &BinRpcTest::Multimap);
             registerMethod("CallPraefix", *this, &BinRpcTest::CallPraefix);
+            registerMethod("UnknownMethod", *this, &BinRpcTest::UnknownMethod);
 
             char* PORT = getenv("UTEST_PORT");
             if (PORT)
@@ -187,8 +188,7 @@ class BinRpcTest : public cxxtools::unit::TestSuite
         {
             try
             {
-                result.get();
-                CXXTOOLS_UNIT_ASSERT(false);
+                CXXTOOLS_UNIT_ASSERT_THROW(result.get(), cxxtools::RemoteException);
             }
             catch (const cxxtools::RemoteException& e)
             {
@@ -737,6 +737,22 @@ class BinRpcTest : public cxxtools::unit::TestSuite
             multiply.begin(2, 3);
 
             _loop.run();
+        }
+
+        void UnknownMethod()
+        {
+            cxxtools::bin::RpcClient client(_loop, "", _port);
+            cxxtools::RemoteProcedure<bool, bool, bool> unknownMethod(client, "unknownMethod");
+            connect( unknownMethod.finished, *this, &BinRpcTest::onBooleanFinished );
+
+            unknownMethod.begin(true, true);
+
+            CXXTOOLS_UNIT_ASSERT_THROW(_loop.run(), cxxtools::RemoteException);
+        }
+
+        void onUnknwonFinished(const cxxtools::RemoteResult<bool>& r)
+        {
+            _loop.exit();
         }
 
 };

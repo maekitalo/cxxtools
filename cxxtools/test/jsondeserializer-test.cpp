@@ -76,6 +76,14 @@ namespace
         ssi.getMember("s") >>= obj.structValue.s;
     }
 
+    struct EmptyObject
+    {
+    };
+
+    inline void operator>>= (const cxxtools::SerializationInfo& si, EmptyObject& obj)
+    {
+    }
+
 }
 
 class JsonDeserializerTest : public cxxtools::unit::TestSuite
@@ -86,7 +94,9 @@ class JsonDeserializerTest : public cxxtools::unit::TestSuite
         {
             registerMethod("testInt", *this, &JsonDeserializerTest::testInt);
             registerMethod("testObject", *this, &JsonDeserializerTest::testObject);
+            registerMethod("testEmptyObject", *this, &JsonDeserializerTest::testEmptyObject);
             registerMethod("testArray", *this, &JsonDeserializerTest::testArray);
+            registerMethod("testEmptyArrays", *this, &JsonDeserializerTest::testEmptyArrays);
             registerMethod("testStrings", *this, &JsonDeserializerTest::testStrings);
             registerMethod("testComplexObject", *this, &JsonDeserializerTest::testComplexObject);
         }
@@ -122,6 +132,15 @@ class JsonDeserializerTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(data.boolValue, true);
         }
 
+        void testEmptyObject()
+        {
+            EmptyObject data;
+            std::istringstream in("{}");
+
+            cxxtools::JsonDeserializer deserializer(in);
+            deserializer.deserialize(data);
+        }
+
         void testArray()
         {
             std::vector<int> data;
@@ -135,6 +154,20 @@ class JsonDeserializerTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[0], 3);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[1], 4);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[2], -3);
+        }
+
+        void testEmptyArrays()
+        {
+            std::vector<int> data;
+
+            std::istringstream in("[[],[]]");
+
+            cxxtools::JsonDeserializer deserializer(in);
+            deserializer.deserialize(data);
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 2);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0], 0);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[1], 0);
         }
 
         void testStrings()

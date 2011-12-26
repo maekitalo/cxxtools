@@ -79,6 +79,10 @@ namespace cxxtools
 
             void beautify(bool sw)    { _beautify = sw; }
 
+            void beginValue(const std::string& name);
+
+            void finishValue();
+
         private:
             void indent();
             void stringOut(const std::string& str);

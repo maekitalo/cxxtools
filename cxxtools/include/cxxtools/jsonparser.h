@@ -34,7 +34,7 @@
 
 namespace cxxtools
 {
-    class Deserializer;
+    class DeserializerBase;
 
     class CXXTOOLS_API JsonParser
     {
@@ -68,7 +68,7 @@ namespace cxxtools
         public:
             JsonParser();
 
-            void begin(Deserializer& handler)
+            void begin(DeserializerBase& handler)
             {
                 _state = state_0;
                 _token.clear();
@@ -100,7 +100,7 @@ namespace cxxtools
 
             String _token;
 
-            Deserializer* _deserializer;
+            DeserializerBase* _deserializer;
             JsonStringParser _stringParser;
             JsonParser* _next;
     };
