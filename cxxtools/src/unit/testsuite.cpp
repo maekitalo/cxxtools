@@ -44,7 +44,7 @@ TestSuite::TestSuite(const std::string& name, TestProtocol& protocol)
 
 TestSuite::~TestSuite()
 {
-    std::multimap<std::string, TestMethod*>::iterator it;
+    Tests::iterator it;
     for(it = _tests.begin(); it != _tests.end(); ++it)
     {
         delete it->second;
@@ -93,7 +93,7 @@ void TestSuite::runTest( const std::string& name, const SerializationInfo* si, s
 void TestSuite::runAll()
 {
     const SerializationInfo* si = 0;
-    std::multimap<std::string, TestMethod*>::iterator it;
+    Tests::iterator it;
     for(it = _tests.begin(); it != _tests.end(); ++it)
     {
         TestMethod* test = it->second;
@@ -105,7 +105,10 @@ void TestSuite::runAll()
 
 TestMethod* TestSuite::findTest(const std::string& name)
 {
-    std::multimap<std::string, TestMethod*>::iterator it = _tests.find(name);
+    Tests::iterator it;
+    for (it = _tests.begin(); it != _tests.end() && it->first != name; ++it)
+        ;
+
     if( it== _tests.end() )
         return 0;
 
@@ -117,7 +120,7 @@ void TestSuite::registerTest(TestMethod* test)
 {
     test->setParent(this);
     std::pair<const std::string, TestMethod*> p( test->name(), test );
-    _tests.insert( p );
+    _tests.push_back( p );
 }
 
 

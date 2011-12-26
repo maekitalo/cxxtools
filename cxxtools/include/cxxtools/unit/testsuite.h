@@ -32,7 +32,8 @@
 #include <cxxtools/unit/testfixture.h>
 #include <cxxtools/unit/testmethod.h>
 #include <cxxtools/unit/testprotocol.h>
-#include <map>
+#include <vector>
+#include <utility>
 
 namespace cxxtools {
 
@@ -211,7 +212,8 @@ namespace unit {
             */
             TestProtocol* _protocol;
 
-            std::multimap<std::string, TestMethod*> _tests;
+            typedef std::vector<std::pair<std::string, TestMethod*> > Tests;
+            Tests _tests;
 
         public:
             static TestProtocol defaultProtocol;
