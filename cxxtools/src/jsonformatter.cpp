@@ -29,6 +29,7 @@
 
 #include <cxxtools/jsonformatter.h>
 #include <cxxtools/log.h>
+#include <limits>
 
 log_define("cxxtools.jsonformatter")
 
@@ -43,16 +44,6 @@ namespace
         if (_ts == 0)
             throw std::logic_error("textstream is not set in JsonFormatter");
 
-    }
-
-    bool isFalse(Char c)
-    {
-        return c == '\0'
-            || c == '0'
-            || c == 'f'
-            || c == 'F'
-            || c == 'n'
-            || c == 'N';
     }
 
 }
@@ -70,26 +61,79 @@ void JsonFormatter::finish()
 }
 
 void JsonFormatter::addValue(const std::string& name, const std::string& type,
-                      const cxxtools::String& value, const std::string& id)
+                      const String& value, const std::string& id)
 {
-    log_trace("addValue name=\"" << name << "\", type=\"" << type << "\", \" value=\"" << value.narrow() << '"');
+    log_trace("addValue String name=\"" << name << "\", type=\"" << type << "\", \" value=\"" << value << '"');
 
     beginValue(name);
 
-    if (type == "int" || type == "double" || type == "bool")
+    *_ts << Char(L'"');
+    stringOut(value);
+    *_ts << Char(L'"');
+
+    finishValue();
+}
+
+void JsonFormatter::addValue(const std::string& name, const std::string& type,
+                      const std::string& value, const std::string& id)
+{
+    log_trace("addValue string name=\"" << name << "\", type=\"" << type << "\", \" value=\"" << value << '"');
+
+    beginValue(name);
+
+    *_ts << Char(L'"');
+    stringOut(value);
+    *_ts << Char(L'"');
+
+    finishValue();
+}
+
+void JsonFormatter::addValue(const std::string& name, const std::string& type,
+                      int_type value, const std::string& id)
+{
+    log_trace("addValue int name=\"" << name << "\", type=\"" << type << "\", \" value=\"" << value << '"');
+
+    beginValue(name);
+
+    if (type == "bool")
+        *_ts << (value ? String(L"true") : String(L"false"));
+    else
+        *_ts << value;
+
+    finishValue();
+}
+
+void JsonFormatter::addValue(const std::string& name, const std::string& type,
+                      unsigned_type value, const std::string& id)
+{
+    log_trace("addValue unsigned name=\"" << name << "\", type=\"" << type << "\", \" value=\"" << value << '"');
+
+    beginValue(name);
+
+    if (type == "bool")
+        *_ts << (value ? String(L"true") : String(L"false"));
+    else
+        *_ts << value;
+
+    finishValue();
+}
+
+void JsonFormatter::addValue(const std::string& name, const std::string& type,
+                      long double value, const std::string& id)
+{
+    log_trace("addValue float name=\"" << name << "\", type=\"" << type << "\", \" value=\"" << value << '"');
+
+    beginValue(name);
+
+    if (value != value  // check for nan
+        || value == std::numeric_limits<long double>::infinity()
+        || value == -std::numeric_limits<long double>::infinity())
     {
-        if (value == L"nan" || value == L"inf" || value == L"-inf")
-            *_ts << String(L"null");
-        else if (type == "bool")
-            *_ts << (value.empty() || isFalse(value[0]) ? String(L"false") : String(L"true"));
-        else
-            stringOut(value);
+        *_ts << String(L"null");
     }
     else
     {
-        *_ts << Char(L'"');
-        stringOut(value);
-        *_ts << Char(L'"');
+        *_ts << value;
     }
 
     finishValue();
@@ -219,6 +263,9 @@ void JsonFormatter::stringOut(const std::string& str)
         else if (*it == '\\')
             *_ts << Char(L'\\')
                 << Char(L'\\');
+        else if (*it == '/')
+            *_ts << Char(L'\\')
+                << Char(L'/');
         else if (*it == '\b')
             *_ts << Char(L'\\')
                 << Char(L'b');
@@ -234,6 +281,17 @@ void JsonFormatter::stringOut(const std::string& str)
         else if (*it == '\t')
             *_ts << Char(L'\\')
                 << Char(L't');
+        else if (static_cast<unsigned char>(*it) >= 0x80)
+        {
+            *_ts << Char(L'\\')
+                 << Char(L'u');
+            static const char hex[] = "0123456789abcdef";
+            uint32_t v = static_cast<unsigned char>(*it);
+            for (uint32_t s = 16; s > 0; s -= 4)
+            {
+                *_ts << Char(hex[(v >> (s - 4)) & 0xf]);
+            }
+        }
         else
             *_ts << Char(*it);
     }
