@@ -86,7 +86,7 @@ class JsonRpcTest : public cxxtools::unit::TestSuite
         {
             registerMethod("Fault", *this, &JsonRpcTest::Fault);
             registerMethod("Exception", *this, &JsonRpcTest::Exception);
-            //registerMethod("CallbackException", *this, &JsonRpcTest::CallbackException);
+            registerMethod("CallbackException", *this, &JsonRpcTest::CallbackException);
             registerMethod("ConnectError", *this, &JsonRpcTest::ConnectError);
             registerMethod("Nothing", *this, &JsonRpcTest::Nothing);
             registerMethod("Boolean", *this, &JsonRpcTest::Boolean);
