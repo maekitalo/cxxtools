@@ -32,6 +32,7 @@
 #include <cxxtools/xmlrpc/service.h>
 #include <cxxtools/http/server.h>
 #include <cxxtools/bin/rpcserver.h>
+#include <cxxtools/json/rpcserver.h>
 #include <cxxtools/eventloop.h>
 
 ////////////////////////////////////////////////////////////////////////
@@ -60,10 +61,12 @@ int main(int argc, char* argv[])
     cxxtools::Arg<std::string> ip(argc, argv, 'i');
     cxxtools::Arg<unsigned short> port(argc, argv, 'p', 7002);
     cxxtools::Arg<unsigned short> bport(argc, argv, 'b', 7003);
+    cxxtools::Arg<unsigned short> jport(argc, argv, 'j', 7004);
 
     std::cout << "run rpcecho server\n"
               << "xmlrpc protocol on port "<< port.getValue() << "\n"
-              << "binary protocol on port " << bport.getValue() << std::endl;
+              << "binary protocol on port " << bport.getValue() << "\n"
+              << "json protocol on port " << jport.getValue() << std::endl;
 
     // create an event loop
     cxxtools::EventLoop loop;
@@ -87,6 +90,13 @@ int main(int argc, char* argv[])
     // and register the functions in the server
     binServer.registerFunction("echo", echo);
     binServer.registerFunction("add", add);
+
+    // for the json rpc server we define a json server
+    cxxtools::json::RpcServer jsonServer(loop, ip, jport);
+
+    // and register the functions in the server
+    jsonServer.registerFunction("echo", echo);
+    jsonServer.registerFunction("add", add);
 
     // now start the server and run the event loop
     loop.run();

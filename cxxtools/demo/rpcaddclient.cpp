@@ -32,6 +32,7 @@
 #include <cxxtools/remoteprocedure.h>
 #include <cxxtools/xmlrpc/httpclient.h>
 #include <cxxtools/bin/rpcclient.h>
+#include <cxxtools/json/rpcclient.h>
 
 ////////////////////////////////////////////////////////////////////////
 // main
@@ -44,17 +45,21 @@ int main(int argc, char* argv[])
 
     cxxtools::Arg<std::string> ip(argc, argv, 'i');
     cxxtools::Arg<bool> binary(argc, argv, 'b');
-    cxxtools::Arg<unsigned short> port(argc, argv, 'p', binary ? 7003 : 7002);
+    cxxtools::Arg<bool> json(argc, argv, 'j');
+    cxxtools::Arg<unsigned short> port(argc, argv, 'p', binary ? 7003 : json ? 7004 : 7002);
 
     // define a xlmrpc client
     cxxtools::xmlrpc::HttpClient xmlrpcClient(ip, port, "/myservice");
     // and a binary rpc client
     cxxtools::bin::RpcClient binaryClient(ip, port);
+    // and a json rpc client
+    cxxtools::json::RpcClient jsonClient(ip, port);
 
     // define remote procedure with dobule return value and a double and a std::string parameter:
     // Note: We send the second parameter as a string since it is converted from the server anyway,
     cxxtools::RemoteProcedure<double, double, std::string> add(
         binary ? static_cast<cxxtools::RemoteClient&>(binaryClient) :
+        json   ? static_cast<cxxtools::RemoteClient&>(jsonClient) :
                  static_cast<cxxtools::RemoteClient&>(xmlrpcClient), "add");
 
     double sum = 0;
