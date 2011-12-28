@@ -51,13 +51,15 @@ namespace
 void JsonFormatter::begin(std::basic_ostream<Char>& ts)
 {
     _ts = &ts;
-    _level = 1;
-    _lastLevel = 0;
+    _level = 0;
+    _lastLevel = -1;
 }
 
 void JsonFormatter::finish()
 {
     log_trace("finish");
+    if (_beautify)
+        *_ts << Char(L'\n');
 }
 
 void JsonFormatter::addValue(const std::string& name, const std::string& type,
@@ -263,9 +265,6 @@ void JsonFormatter::stringOut(const std::string& str)
         else if (*it == '\\')
             *_ts << Char(L'\\')
                 << Char(L'\\');
-        else if (*it == '/')
-            *_ts << Char(L'\\')
-                << Char(L'/');
         else if (*it == '\b')
             *_ts << Char(L'\\')
                 << Char(L'b');
@@ -307,9 +306,6 @@ void JsonFormatter::stringOut(const cxxtools::String& str)
         else if (*it == Char(L'\\'))
             *_ts << Char(L'\\')
                 << Char(L'\\');
-        else if (*it == Char(L'/'))
-            *_ts << Char(L'\\')
-                << Char(L'/');
         else if (*it == Char(L'\b'))
             *_ts << Char(L'\\')
                 << Char(L'b');
