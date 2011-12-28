@@ -105,6 +105,30 @@ class XmlSerializer
         */
         void detach();
 
+        void useXmlDeclaration(bool sw)
+        { _formatter.useXmlDeclaration(sw); }
+
+        bool useXmlDeclaration() const
+        { return _formatter.useXmlDeclaration(); }
+
+        void useIndent(bool sw)
+        { _formatter.useIndent(sw); }
+
+        bool useIndent() const
+        { return _formatter.useIndent(); }
+
+        void useEndl(bool sw)
+        { _formatter.useEndl(sw); }
+
+        bool useEndl() const
+        { return _formatter.useEndl(); }
+
+        void useAttributes(bool sw)
+        { _formatter.useAttributes(sw); }
+
+        bool useAttributes() const
+        { return _formatter.useAttributes(); }
+
         /** @brief Serialize an object to XML
 
             The serializer will serialize the object \a type as

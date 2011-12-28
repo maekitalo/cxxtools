@@ -36,12 +36,14 @@ namespace xml {
 XmlFormatter::XmlFormatter()
 : _writer(0)
 , _deleter(0)
+, _useAttributes(true)
 {
 }
 
 XmlFormatter::XmlFormatter(std::ostream& os)
 : _writer( 0 )
 , _deleter( new XmlWriter(os) )
+, _useAttributes(true)
 {
     _writer = _deleter.get();
 }
@@ -106,18 +108,21 @@ void XmlFormatter::addValue(const std::string& name, const std::string& type,
     Attribute attrs[2];
     size_t countAttrs = 0;
 
-    if ( ! name.empty() && ! type.empty() )
+    if (_useAttributes)
     {
-        attrs[countAttrs].name() = L"type";
-        attrs[countAttrs].value() = type;
-        ++countAttrs;
-    }
+        if ( ! name.empty() && ! type.empty() )
+        {
+            attrs[countAttrs].name() = L"type";
+            attrs[countAttrs].value() = type;
+            ++countAttrs;
+        }
 
-    if( ! id.empty() )
-    {
-        attrs[countAttrs].name() = L"id";
-        attrs[countAttrs].value() = id;
-        ++countAttrs;
+        if( ! id.empty() )
+        {
+            attrs[countAttrs].name() = L"id";
+            attrs[countAttrs].value() = id;
+            ++countAttrs;
+        }
     }
 
     _writer->writeElement( tag, attrs, countAttrs, value );
@@ -135,25 +140,28 @@ void XmlFormatter::beginComplexElement(const std::string& name, const std::strin
     Attribute attrs[3];
     size_t countAttrs = 0;
 
-    if ( ! name.empty() && ! type.empty() )
+    if (_useAttributes)
     {
-        attrs[countAttrs].name() = L"type";
-        attrs[countAttrs].value() = type;
-        ++countAttrs;
-    }
+        if ( ! name.empty() && ! type.empty() )
+        {
+            attrs[countAttrs].name() = L"type";
+            attrs[countAttrs].value() = type;
+            ++countAttrs;
+        }
 
-    if( ! id.empty() )
-    {
-        attrs[countAttrs].name() = L"id";
-        attrs[countAttrs].value() = id;
-        ++countAttrs;
-    }
+        if( ! id.empty() )
+        {
+            attrs[countAttrs].name() = L"id";
+            attrs[countAttrs].value() = id;
+            ++countAttrs;
+        }
 
-    if ( ! category.empty() )
-    {
-        attrs[countAttrs].name().assign(L"category");
-        attrs[countAttrs].value().assign(category);
-        ++countAttrs;
+        if ( ! category.empty() )
+        {
+            attrs[countAttrs].name().assign(L"category");
+            attrs[countAttrs].value().assign(category);
+            ++countAttrs;
+        }
     }
 
     _writer->writeStartElement( tag, attrs, countAttrs );

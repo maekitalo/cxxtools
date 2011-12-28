@@ -109,6 +109,30 @@ class XmlFormatter : public cxxtools::Formatter
         //! @internal
         void flush();
 
+        void useXmlDeclaration(bool sw)
+        { _writer->useXmlDeclaration(sw); }
+
+        bool useXmlDeclaration() const
+        { return _writer->useXmlDeclaration(); }
+
+        void useIndent(bool sw)
+        { _writer->useIndent(sw); }
+
+        bool useIndent() const
+        { return _writer->useIndent(); }
+
+        void useEndl(bool sw)
+        { _writer->useEndl(sw); }
+
+        bool useEndl() const
+        { return _writer->useEndl(); }
+
+        void useAttributes(bool sw)
+        { _useAttributes = sw; }
+
+        bool useAttributes() const
+        { return _useAttributes; }
+
         void addValue(const std::string& name, const std::string& type,
                       const cxxtools::String& value, const std::string& id);
 
@@ -137,6 +161,8 @@ class XmlFormatter : public cxxtools::Formatter
 
         //! @internal
         std::auto_ptr<cxxtools::xml::XmlWriter> _deleter;
+
+        bool _useAttributes;
 };
 
 
