@@ -42,11 +42,12 @@ noinst_PROGRAMS += iconv
 iconv_SOURCES = iconv.cpp
 endif
 
-HTTP_LIBS = $(top_builddir)/src/http/libcxxtools-http.la
-XML_LIBS = $(top_builddir)/src/xml/libcxxtools-xml.la
-XMLRPC_LIBS = $(top_builddir)/src/xmlrpc/libcxxtools-xmlrpc.la
-BIN_LIBS = $(top_builddir)/src/bin/libcxxtools-bin.la
-JSON_LIBS = $(top_builddir)/src/json/libcxxtools-json.la
+BASE_LIBS = $(top_builddir)/src/libcxxtools.la
+HTTP_LIBS = $(BASE_LIBS) $(top_builddir)/src/http/libcxxtools-http.la
+XML_LIBS = $(BASE_LIBS) $(top_builddir)/src/xml/libcxxtools-xml.la
+XMLRPC_LIBS = $(XML_LIBS) $(top_builddir)/src/xmlrpc/libcxxtools-xmlrpc.la
+BIN_LIBS = $(HTTP_LIBS) $(top_builddir)/src/bin/libcxxtools-bin.la
+JSON_LIBS = $(HTTP_LIBS) $(top_builddir)/src/json/libcxxtools-json.la
 
 AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/include -I$(top_srcdir)/include
 LDADD = $(top_builddir)/src/libcxxtools.la
@@ -58,7 +59,7 @@ rpcserver_LDADD = $(XMLRPC_LIBS) $(BIN_LIBS) $(JSON_LIBS)
 rpcechoclient_LDADD = $(XMLRPC_LIBS) $(BIN_LIBS) $(JSON_LIBS)
 rpcaddclient_LDADD = $(XMLRPC_LIBS) $(BIN_LIBS) $(JSON_LIBS)
 json_LDADD = $(HTTP_LIBS)
-rpcasyncaddclient_LDADD = $(XMLRPC_LIBS) $(BIN_LIBS)
+rpcasyncaddclient_LDADD = $(XMLRPC_LIBS) $(BIN_LIBS) $(JSON_LIBS)
 
 log.properties:
 	/bin/sh $(top_builddir)/cxxtools-config --properties cxxtools >$@
