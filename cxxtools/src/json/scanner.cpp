@@ -48,12 +48,14 @@ void Scanner::begin(DeserializerBase& handler, IComposer& composer)
     _parser.begin(*_deserializer);
 }
 
-void Scanner::finalize()
+void Scanner::finalizeReply()
 {
     const SerializationInfo* s = _deserializer->si()->findMember("error");
 
     if (s && s->name() == "error")
     {
+        log_debug("category=" << s << " type=" << s->typeName());
+
         std::string msg;
         if (s->category() == SerializationInfo::Object)
         {
@@ -62,9 +64,12 @@ void Scanner::finalize()
             s->getMember("message", msg);
             throw RemoteException(msg, rc);
         }
-        else
+        else if (s->category() != SerializationInfo::Value || !s->isNull())
         {
             s->getValue(msg);
+            if (msg.empty())
+                throw RemoteException("remote exception");
+
             throw RemoteException(msg);
         }
     }

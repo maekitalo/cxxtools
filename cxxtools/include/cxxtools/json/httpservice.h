@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Tommi Maekitalo
+ * Copyright (C) 2011 by Tommi Meakitalo
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -25,40 +25,38 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
+#ifndef CXXTOOLS_JSON_SERVICE_H
+#define CXXTOOLS_JSON_SERVICE_H
 
-#ifndef CXXTOOLS_JSON_SCANNER_H
-#define CXXTOOLS_JSON_SCANNER_H
-
-#include <cxxtools/composer.h>
-#include <cxxtools/jsonparser.h>
+#include <cxxtools/http/service.h>
+#include <cxxtools/serviceregistry.h>
 #include <string>
 
 namespace cxxtools
 {
-    class DeserializerBase;
-    class IComposer;
 
-    namespace json
-    {
-        class Scanner
-        {
-            public:
-                Scanner()
-                { }
+namespace json
+{
 
-                void begin(DeserializerBase& handler, IComposer& composer);
+class HttpService : public http::Service, public ServiceRegistry
+{
+        friend class Responder;
 
-                bool advance(char ch)
-                { return _parser.advance(ch) != 0; }
+    public:
+        HttpService()
+        { }
 
-                void finalizeReply();
+        virtual ~HttpService();
 
-            private:
-                JsonParser _parser;
-                DeserializerBase* _deserializer;
-                IComposer* _composer;
-        };
-    }
+    protected:
+        virtual http::Responder* createResponder(const http::Request&);
+
+        virtual void releaseResponder(http::Responder* resp);
+
+};
+
 }
 
-#endif // CXXTOOLS_JSON_SCANNER_H
+}
+
+#endif

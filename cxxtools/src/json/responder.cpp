@@ -44,27 +44,16 @@ namespace json
 Responder::Responder(ServiceRegistry& serviceRegistry)
     : _serviceRegistry(serviceRegistry)
 {
-    _deserializer.begin();
-    _parser.begin(_deserializer);
 }
 
 Responder::~Responder()
 {
 }
 
-void Responder::onInput(IOStream& ios)
+void Responder::begin()
 {
-    while (ios.buffer().in_avail() > 0)
-    {
-        if (advance(ios.buffer().sbumpc()))
-        {
-            finalize(ios);
-            ios.buffer().beginWrite();
-            _deserializer.begin();
-            _parser.begin(_deserializer);
-        }
-    }
-
+    _deserializer.begin();
+    _parser.begin(_deserializer);
 }
 
 void Responder::finalize(std::ostream& out)
@@ -72,73 +61,79 @@ void Responder::finalize(std::ostream& out)
     log_trace("finalize");
 
     std::string methodName;
-    _deserializer.si()->getMember("method") >>= methodName;
-
-    log_debug("method = " << methodName);
-    ServiceProcedure* proc = _serviceRegistry.getProcedure(methodName);
-
-    // compose arguments
-    IComposer** args = proc->beginCall();
-
-    // process args
-    const SerializationInfo& params = _deserializer.si()->getMember("params");
-    SerializationInfo::ConstIterator it = params.begin();
-    if (args)
-    {
-        for (int a = 0; args[a]; ++a)
-        {
-            if (it == params.end())
-                throw RemoteException("argument expected");
-            args[a]->fixup(*it);
-            ++it;
-        }
-    }
-
-    if (it != params.end())
-        throw RemoteException("too many arguments");
+    ServiceProcedure* proc = 0;
 
     TextOStream ts(out, new Utf8Codec());
+    JsonFormatter formatter;
 
-    _formatter.begin(ts);
+    formatter.begin(ts);
 
-    _formatter.beginObject(std::string(), std::string(), std::string());
-
-    _formatter.addValue("id", "int", static_cast<Formatter::int_type>(0), std::string());
+    formatter.beginObject(std::string(), std::string(), std::string());
 
     try
     {
+        _deserializer.si()->getMember("method") >>= methodName;
+
+        log_debug("method = " << methodName);
+        proc = _serviceRegistry.getProcedure(methodName);
+        if( ! proc )
+            throw std::runtime_error("no such procedure \"" + methodName + '"');
+
+        // compose arguments
+        IComposer** args = proc->beginCall();
+
+        // process args
+        const SerializationInfo& params = _deserializer.si()->getMember("params");
+        SerializationInfo::ConstIterator it = params.begin();
+        if (args)
+        {
+            for (int a = 0; args[a]; ++a)
+            {
+                if (it == params.end())
+                    throw RemoteException("argument expected");
+                args[a]->fixup(*it);
+                ++it;
+            }
+        }
+
+        if (it != params.end())
+            throw RemoteException("too many arguments");
+
+        formatter.addValue("id", "int", static_cast<Formatter::int_type>(0), std::string());
+
         IDecomposer* result;
         result = proc->endCall();
 
-        _formatter.beginValue("result");
-        result->format(_formatter);
-        _formatter.finishValue();
+        formatter.beginValue("result");
+        result->format(formatter);
+        formatter.finishValue();
     }
     catch (const RemoteException& e)
     {
         log_debug("method \"" << methodName << "\" exited with RemoteException: " << e.what());
 
-        _formatter.beginObject("error", std::string(), std::string());
+        formatter.beginObject("error", std::string(), std::string());
 
-        _formatter.beginMember("code");
-        _formatter.addValue("code", "int", static_cast<Formatter::int_type>(e.rc()), std::string());
-        _formatter.finishMember();
+        formatter.beginMember("code");
+        formatter.addValue("code", "int", static_cast<Formatter::int_type>(e.rc()), std::string());
+        formatter.finishMember();
 
-        _formatter.beginMember("message");
-        _formatter.addValue("message", std::string(), String(e.what()), std::string());
-        _formatter.finishMember();
+        formatter.beginMember("message");
+        formatter.addValue("message", std::string(), String(e.what()), std::string());
+        formatter.finishMember();
 
-        _formatter.finishObject();
+        formatter.finishObject();
     }
     catch (const std::exception& e)
     {
         log_debug("method \"" << methodName << "\" exited with exception: " << e.what());
-        _formatter.addValue("error", std::string(), String(e.what()), std::string());
+        formatter.addValue("error", std::string(), String(e.what()), std::string());
     }
 
-    _formatter.finishObject();
+    formatter.finishObject();
 
-    _serviceRegistry.releaseProcedure(proc);
+    if (proc)
+        _serviceRegistry.releaseProcedure(proc);
 }
 
 bool Responder::advance(char ch)

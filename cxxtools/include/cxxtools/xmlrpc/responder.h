@@ -67,7 +67,7 @@ class CXXTOOLS_XMLRPC_API XmlRpcResponder : public http::Responder
     };
 
     public:
-        XmlRpcResponder(Service& service);
+        explicit XmlRpcResponder(Service& service);
 
         ~XmlRpcResponder();
 

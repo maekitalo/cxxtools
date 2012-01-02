@@ -47,6 +47,7 @@ Socket::Socket(RpcServerImpl& server, ServiceRegistry& serviceRegistry, net::Tcp
     _stream.attachDevice(*this);
     cxxtools::connect(IODevice::inputReady, *this, &Socket::onIODeviceInput);
     cxxtools::connect(_stream.buffer().outputReady, *this, &Socket::onOutput);
+    _responder.begin();
 }
 
 Socket::Socket(Socket& socket)
@@ -59,6 +60,7 @@ Socket::Socket(Socket& socket)
     _stream.attachDevice(*this);
     cxxtools::connect(IODevice::inputReady, *this, &Socket::onIODeviceInput);
     cxxtools::connect(_stream.buffer().outputReady, *this, &Socket::onOutput);
+    _responder.begin();
 }
 
 void Socket::accept()
@@ -67,7 +69,7 @@ void Socket::accept()
 
     _accepted = true;
 
-    _stream.buffer().beginRead();
+    buffer().beginRead();
 }
 
 void Socket::setSelector(SelectorBase* s)
@@ -98,7 +100,15 @@ void Socket::onInput(StreamBuffer& sb)
         return;
     }
 
-    _responder.onInput(_stream);
+    while (sb.in_avail() > 0)
+    {
+        if (_responder.advance(sb.sbumpc()))
+        {
+            _responder.finalize(_stream);
+            buffer().beginWrite();
+        }
+    }
+
 }
 
 bool Socket::onOutput(StreamBuffer& sb)
@@ -117,10 +127,11 @@ bool Socket::onOutput(StreamBuffer& sb)
         }
         else
         {
+            _responder.begin();
             if (sb.in_avail())
                 onInput(sb);
             else
-                _stream.buffer().beginRead();
+                buffer().beginRead();
         }
     }
     catch (const std::exception& e)

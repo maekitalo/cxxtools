@@ -3,15 +3,21 @@ AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/include -I$(top_srcdir)/incl
 lib_LTLIBRARIES = libcxxtools-json.la
 
 noinst_HEADERS = \
-	rpcclientimpl.h \
+	httpclientimpl.h \
+	httpresponder.h \
 	listener.h \
 	responder.h \
+	rpcclientimpl.h \
 	rpcserverimpl.h \
 	scanner.h \
 	socket.h \
 	worker.h
 
 libcxxtools_json_la_SOURCES = \
+	httpclient.cpp \
+	httpclientimpl.cpp \
+	httpresponder.cpp \
+	httpservice.cpp \
 	rpcclient.cpp \
 	rpcclientimpl.cpp \
 	responder.cpp \

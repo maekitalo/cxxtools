@@ -32,8 +32,6 @@
 #include <cxxtools/xmlrpc/api.h>
 #include <cxxtools/http/service.h>
 #include <cxxtools/serviceregistry.h>
-#include <string>
-#include <map>
 
 namespace cxxtools {
 

@@ -26,39 +26,56 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef CXXTOOLS_JSON_SCANNER_H
-#define CXXTOOLS_JSON_SCANNER_H
+#include "httpresponder.h"
+#include <cxxtools/http/reply.h>
+#include <cxxtools/json/httpservice.h>
+#include <cxxtools/log.h>
 
-#include <cxxtools/composer.h>
-#include <cxxtools/jsonparser.h>
-#include <string>
+log_define("cxxtools.json.httpresponder")
 
 namespace cxxtools
 {
-    class DeserializerBase;
-    class IComposer;
+namespace json
+{
 
-    namespace json
-    {
-        class Scanner
-        {
-            public:
-                Scanner()
-                { }
-
-                void begin(DeserializerBase& handler, IComposer& composer);
-
-                bool advance(char ch)
-                { return _parser.advance(ch) != 0; }
-
-                void finalizeReply();
-
-            private:
-                JsonParser _parser;
-                DeserializerBase* _deserializer;
-                IComposer* _composer;
-        };
-    }
+HttpResponder::HttpResponder(HttpService& service)
+    : Responder(service),
+      _responder(service)
+{
 }
 
-#endif // CXXTOOLS_JSON_SCANNER_H
+HttpResponder::~HttpResponder()
+{
+}
+
+void HttpResponder::beginRequest(std::istream& in, http::Request& request)
+{
+    log_debug("begin request");
+    _responder.begin();
+}
+
+std::size_t HttpResponder::readBody(std::istream& is)
+{
+    log_debug("begin request");
+    std::size_t n = 0;
+
+    char ch;
+    while (is.get(ch))
+    {
+        ++n;
+        if (_responder.advance(ch))
+            break;
+    }
+
+    log_debug(n << " bytes processed");
+    return n;
+}
+
+void HttpResponder::reply(std::ostream& os, http::Request& request, http::Reply& reply)
+{
+    reply.setHeader("Content-Type", "application/jsonrpc");
+    _responder.finalize(os);
+}
+
+}
+}

@@ -148,7 +148,7 @@ void RpcClientImpl::call(IComposer& r, IRemoteProcedure& method, IDecomposer** a
             if (_scanner.advance(ch))
             {
                 _proc = 0;
-                _scanner.finalize();
+                _scanner.finalizeReply();
                 break;
             }
         }
@@ -187,7 +187,7 @@ void RpcClientImpl::prepareRequest(const String& name, IDecomposer** argv, unsig
     _formatter.beginObject(std::string(), std::string(), std::string());
 
     _formatter.addValue("method", std::string(), String(_praefix) + name, std::string());
-    _formatter.addValue("id", "int", convert<String>(++_count), std::string());
+    _formatter.addValue("id", "int", ++_count, std::string());
 
     _formatter.beginArray("params", std::string(), std::string());
 
@@ -271,7 +271,7 @@ void RpcClientImpl::onInput(StreamBuffer& sb)
         {
             if (_scanner.advance(ch))
             {
-                _scanner.finalize();
+                _scanner.finalizeReply();
                 IRemoteProcedure* proc = _proc;
                 _proc = 0;
                 proc->onFinished();

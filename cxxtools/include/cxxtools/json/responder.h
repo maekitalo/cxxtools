@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Tommi Maekitalo
+ * Copyright (C) 2011 by Tommi Meakitalo
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -25,40 +25,59 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
+#ifndef CXXTOOLS_JSON_RESPONDER_H
+#define CXXTOOLS_JSON_RESPONDER_H
 
-#ifndef CXXTOOLS_JSON_SCANNER_H
-#define CXXTOOLS_JSON_SCANNER_H
-
-#include <cxxtools/composer.h>
-#include <cxxtools/jsonparser.h>
-#include <string>
+#include <cxxtools/remoteexception.h>
+#include <cxxtools/json/scanner.h>
+#include <cxxtools/json/formatter.h>
+#include <cxxtools/http/responder.h>
+#include <cxxtools/deserializerbase.h>
+#include <cxxtools/textstream.h>
 
 namespace cxxtools
 {
-    class DeserializerBase;
-    class IComposer;
 
-    namespace json
-    {
-        class Scanner
-        {
-            public:
-                Scanner()
-                { }
+class ServiceProcedure;
+class IComposer;
+class IDecomposer;
 
-                void begin(DeserializerBase& handler, IComposer& composer);
+namespace json
+{
 
-                bool advance(char ch)
-                { return _parser.advance(ch) != 0; }
+class ServiceRegistry;
 
-                void finalizeReply();
+class Responder : public http::Responder
+{
 
-            private:
-                JsonParser _parser;
-                DeserializerBase* _deserializer;
-                IComposer* _composer;
-        };
-    }
+    public:
+        explicit Responder(ServiceRegistry& service);
+
+        ~Responder();
+
+        void beginRequest(std::istream& in, http::Request& request);
+
+        std::size_t readBody(std::istream& is);
+
+        void replyError(std::ostream& os, http::Request& request,
+                        http::Reply& reply, const std::exception& ex);
+
+        void reply(std::ostream& os, http::Request& request, http::Reply& reply);
+
+    private:
+        ServiceRegistry& _serviceRegistry;
+
+        DeserializerBase _deserializer;
+        JsonParser _parser;
+
+        ServiceProcedure* _proc;
+        IComposer** _args;
+        IDecomposer* _result;
+        RemoteException _fault;
+};
+
 }
 
-#endif // CXXTOOLS_JSON_SCANNER_H
+}
+
+#endif

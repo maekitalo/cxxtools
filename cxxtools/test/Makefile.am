@@ -17,6 +17,7 @@ alltests_SOURCES = \
     convert-test.cpp \
     jsondeserializer-test.cpp \
     jsonrpc-test.cpp \
+    jsonrpchttp-test.cpp \
     jsonserializer-test.cpp \
     md5-test.cpp \
     pool-test.cpp \

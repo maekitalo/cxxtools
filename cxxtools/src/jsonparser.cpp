@@ -334,6 +334,10 @@ int JsonParser::advance(Char ch)
 
             break;
 
+        case state_end:
+            if (!std::isspace(ch))
+                throw std::runtime_error(std::string("unexpected character '") + ch.narrow() + "\' after end");
+            break;
     }
 
     return 0;

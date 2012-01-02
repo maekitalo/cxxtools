@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2011 Tommi Maekitalo
- * 
+ * Copyright (C) 2011 by Tommi Meakitalo
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
@@ -25,40 +25,46 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
+#include "cxxtools/json/httpservice.h"
+#include "cxxtools/http/request.h"
+#include "httpresponder.h"
+#include "cxxtools/log.h"
 
-#ifndef CXXTOOLS_JSON_SCANNER_H
-#define CXXTOOLS_JSON_SCANNER_H
-
-#include <cxxtools/composer.h>
-#include <cxxtools/jsonparser.h>
-#include <string>
+log_define("cxxtools.json.httpservice")
 
 namespace cxxtools
 {
-    class DeserializerBase;
-    class IComposer;
 
-    namespace json
-    {
-        class Scanner
-        {
-            public:
-                Scanner()
-                { }
+namespace json
+{
 
-                void begin(DeserializerBase& handler, IComposer& composer);
-
-                bool advance(char ch)
-                { return _parser.advance(ch) != 0; }
-
-                void finalizeReply();
-
-            private:
-                JsonParser _parser;
-                DeserializerBase* _deserializer;
-                IComposer* _composer;
-        };
-    }
+HttpService::~HttpService()
+{
 }
 
-#endif // CXXTOOLS_JSON_SCANNER_H
+
+http::Responder* HttpService::createResponder(const http::Request& request)
+{
+    const char* contentType = request.header().getHeader("Content-Type");
+    if (contentType != 0)
+    {
+        if (::strncasecmp(contentType, "application/json", 16) == 0)
+            return new HttpResponder(*this);
+        else
+            log_warn("invalid content type " << contentType);
+    }
+    else
+        log_warn("missing content type");
+
+    return 0;
+}
+
+
+void HttpService::releaseResponder(http::Responder* resp)
+{
+    delete resp;
+}
+
+}
+
+}

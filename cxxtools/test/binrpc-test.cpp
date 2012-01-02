@@ -84,10 +84,6 @@ class BinRpcTest : public cxxtools::unit::TestSuite
         : cxxtools::unit::TestSuite("binrpc"),
             _port(7003)
         {
-            registerMethod("Fault", *this, &BinRpcTest::Fault);
-            registerMethod("Exception", *this, &BinRpcTest::Exception);
-            registerMethod("CallbackException", *this, &BinRpcTest::CallbackException);
-            registerMethod("ConnectError", *this, &BinRpcTest::ConnectError);
             registerMethod("Nothing", *this, &BinRpcTest::Nothing);
             registerMethod("Boolean", *this, &BinRpcTest::Boolean);
             registerMethod("Integer", *this, &BinRpcTest::Integer);
@@ -103,6 +99,10 @@ class BinRpcTest : public cxxtools::unit::TestSuite
             registerMethod("Multimap", *this, &BinRpcTest::Multimap);
             registerMethod("CallPraefix", *this, &BinRpcTest::CallPraefix);
             registerMethod("UnknownMethod", *this, &BinRpcTest::UnknownMethod);
+            registerMethod("Fault", *this, &BinRpcTest::Fault);
+            registerMethod("Exception", *this, &BinRpcTest::Exception);
+            registerMethod("CallbackException", *this, &BinRpcTest::CallbackException);
+            registerMethod("ConnectError", *this, &BinRpcTest::ConnectError);
 
             char* PORT = getenv("UTEST_PORT");
             if (PORT)
@@ -130,164 +130,6 @@ class BinRpcTest : public cxxtools::unit::TestSuite
         void tearDown()
         {
             delete _server;
-        }
-
-        ////////////////////////////////////////////////////////////
-        // Fault
-        //
-        void Fault()
-        {
-            _server->registerMethod("multiply", *this, &BinRpcTest::throwFault);
-
-            cxxtools::bin::RpcClient client(_loop, "", _port);
-            cxxtools::RemoteProcedure<bool> multiply(client, "multiply");
-            connect( multiply.finished, *this, &BinRpcTest::onFault );
-            multiply.begin();
-
-            _loop.run();
-        }
-
-        void onFault(const cxxtools::RemoteResult<bool>& result)
-        {
-            try
-            {
-                result.get();
-                CXXTOOLS_UNIT_ASSERT_MSG(false, "cxxtools::RemoteException exception expected");
-            }
-            catch (const cxxtools::RemoteException& e)
-            {
-                CXXTOOLS_UNIT_ASSERT_EQUALS(e.rc(), 7);
-                CXXTOOLS_UNIT_ASSERT_EQUALS(e.text(), "Fault");
-            }
-
-            _loop.exit();
-        }
-
-        bool throwFault()
-        {
-            throw cxxtools::RemoteException("Fault", 7);
-            return false;
-        }
-
-        ////////////////////////////////////////////////////////////
-        // Exception
-        //
-        void Exception()
-        {
-            _server->registerMethod("multiply", *this, &BinRpcTest::throwException);
-
-            cxxtools::bin::RpcClient client(_loop, "", _port);
-            cxxtools::RemoteProcedure<bool> multiply(client, "multiply");
-            connect( multiply.finished, *this, &BinRpcTest::onException );
-            multiply.begin();
-
-            _loop.run();
-        }
-
-        void onException(const cxxtools::RemoteResult<bool>& result)
-        {
-            try
-            {
-                CXXTOOLS_UNIT_ASSERT_THROW(result.get(), cxxtools::RemoteException);
-            }
-            catch (const cxxtools::RemoteException& e)
-            {
-                CXXTOOLS_UNIT_ASSERT_EQUALS(e.rc(), 0);
-                CXXTOOLS_UNIT_ASSERT_EQUALS(e.text(), "Exception");
-            }
-
-            _loop.exit();
-        }
-
-        bool throwException()
-        {
-            throw std::runtime_error("Exception");
-            return false;
-        }
-
-        ////////////////////////////////////////////////////////////
-        // Nothing
-        //
-        void Nothing()
-        {
-            _server->registerMethod("multiply", *this, &BinRpcTest::multiplyNothing);
-
-            cxxtools::bin::RpcClient client(_loop, "", _port);
-            cxxtools::RemoteProcedure<bool> multiply(client, "multiply");
-            connect( multiply.finished, *this, &BinRpcTest::onNothingFinished );
-
-            multiply.begin();
-
-            _loop.run();
-        }
-
-        void onNothingFinished(const cxxtools::RemoteResult<bool>& r)
-        {
-            CXXTOOLS_UNIT_ASSERT_EQUALS(r.get(), false);
-
-            _loop.exit();
-        }
-
-        bool multiplyNothing()
-        {
-            return false;
-        }
-
-        ////////////////////////////////////////////////////////////
-        // CallbackException
-        //
-        void CallbackException()
-        {
-            _server->registerMethod("multiply", *this, &BinRpcTest::multiplyNothing);
-
-            cxxtools::bin::RpcClient client(_loop, "", _port);
-            cxxtools::RemoteProcedure<bool> multiply(client, "multiply");
-            connect( multiply.finished, *this, &BinRpcTest::onExceptionCallback );
-
-            multiply.begin();
-
-            _count = 0;
-            CXXTOOLS_UNIT_ASSERT_THROW(_loop.run(), std::runtime_error);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(_count, 1);
-        }
-
-        void onExceptionCallback(const cxxtools::RemoteResult<bool>& r)
-        {
-            log_warn("exception callback");
-            ++_count;
-            _loop.exit();
-            throw std::runtime_error("my error");
-        }
-
-        ////////////////////////////////////////////////////////////
-        // ConnectError
-        //
-        void ConnectError()
-        {
-            log_trace("ConnectError");
-
-            cxxtools::bin::RpcClient client(_loop, "", _port + 1);
-            cxxtools::RemoteProcedure<bool> multiply(client, "multiply");
-            connect( multiply.finished, *this, &BinRpcTest::onConnectErrorCallback );
-
-            multiply.begin();
-
-            try
-            {
-                _loop.run();
-            }
-            catch (const std::exception& e)
-            {
-                log_error("loop exited with exception: " << e.what());
-                CXXTOOLS_UNIT_ASSERT_MSG(false, std::string("unexpected exception ") + typeid(e).name() + ": " + e.what());
-            }
-        }
-
-        void onConnectErrorCallback(const cxxtools::RemoteResult<bool>& r)
-        {
-            log_debug("onConnectErrorCallback");
-            _loop.exit();
-            CXXTOOLS_UNIT_ASSERT_THROW(r.get(), std::exception);
         }
 
         ////////////////////////////////////////////////////////////
@@ -753,6 +595,164 @@ class BinRpcTest : public cxxtools::unit::TestSuite
         void onUnknwonFinished(const cxxtools::RemoteResult<bool>& r)
         {
             _loop.exit();
+        }
+
+        ////////////////////////////////////////////////////////////
+        // Fault
+        //
+        void Fault()
+        {
+            _server->registerMethod("multiply", *this, &BinRpcTest::throwFault);
+
+            cxxtools::bin::RpcClient client(_loop, "", _port);
+            cxxtools::RemoteProcedure<bool> multiply(client, "multiply");
+            connect( multiply.finished, *this, &BinRpcTest::onFault );
+            multiply.begin();
+
+            _loop.run();
+        }
+
+        void onFault(const cxxtools::RemoteResult<bool>& result)
+        {
+            try
+            {
+                result.get();
+                CXXTOOLS_UNIT_ASSERT_MSG(false, "cxxtools::RemoteException exception expected");
+            }
+            catch (const cxxtools::RemoteException& e)
+            {
+                CXXTOOLS_UNIT_ASSERT_EQUALS(e.rc(), 7);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(e.text(), "Fault");
+            }
+
+            _loop.exit();
+        }
+
+        bool throwFault()
+        {
+            throw cxxtools::RemoteException("Fault", 7);
+            return false;
+        }
+
+        ////////////////////////////////////////////////////////////
+        // Exception
+        //
+        void Exception()
+        {
+            _server->registerMethod("multiply", *this, &BinRpcTest::throwException);
+
+            cxxtools::bin::RpcClient client(_loop, "", _port);
+            cxxtools::RemoteProcedure<bool> multiply(client, "multiply");
+            connect( multiply.finished, *this, &BinRpcTest::onException );
+            multiply.begin();
+
+            _loop.run();
+        }
+
+        void onException(const cxxtools::RemoteResult<bool>& result)
+        {
+            try
+            {
+                CXXTOOLS_UNIT_ASSERT_THROW(result.get(), cxxtools::RemoteException);
+            }
+            catch (const cxxtools::RemoteException& e)
+            {
+                CXXTOOLS_UNIT_ASSERT_EQUALS(e.rc(), 0);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(e.text(), "Exception");
+            }
+
+            _loop.exit();
+        }
+
+        bool throwException()
+        {
+            throw std::runtime_error("Exception");
+            return false;
+        }
+
+        ////////////////////////////////////////////////////////////
+        // Nothing
+        //
+        void Nothing()
+        {
+            _server->registerMethod("multiply", *this, &BinRpcTest::multiplyNothing);
+
+            cxxtools::bin::RpcClient client(_loop, "", _port);
+            cxxtools::RemoteProcedure<bool> multiply(client, "multiply");
+            connect( multiply.finished, *this, &BinRpcTest::onNothingFinished );
+
+            multiply.begin();
+
+            _loop.run();
+        }
+
+        void onNothingFinished(const cxxtools::RemoteResult<bool>& r)
+        {
+            CXXTOOLS_UNIT_ASSERT_EQUALS(r.get(), false);
+
+            _loop.exit();
+        }
+
+        bool multiplyNothing()
+        {
+            return false;
+        }
+
+        ////////////////////////////////////////////////////////////
+        // CallbackException
+        //
+        void CallbackException()
+        {
+            _server->registerMethod("multiply", *this, &BinRpcTest::multiplyNothing);
+
+            cxxtools::bin::RpcClient client(_loop, "", _port);
+            cxxtools::RemoteProcedure<bool> multiply(client, "multiply");
+            connect( multiply.finished, *this, &BinRpcTest::onExceptionCallback );
+
+            multiply.begin();
+
+            _count = 0;
+            CXXTOOLS_UNIT_ASSERT_THROW(_loop.run(), std::runtime_error);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(_count, 1);
+        }
+
+        void onExceptionCallback(const cxxtools::RemoteResult<bool>& r)
+        {
+            log_warn("exception callback");
+            ++_count;
+            _loop.exit();
+            throw std::runtime_error("my error");
+        }
+
+        ////////////////////////////////////////////////////////////
+        // ConnectError
+        //
+        void ConnectError()
+        {
+            log_trace("ConnectError");
+
+            cxxtools::bin::RpcClient client(_loop, "", _port + 1);
+            cxxtools::RemoteProcedure<bool> multiply(client, "multiply");
+            connect( multiply.finished, *this, &BinRpcTest::onConnectErrorCallback );
+
+            multiply.begin();
+
+            try
+            {
+                _loop.run();
+            }
+            catch (const std::exception& e)
+            {
+                log_error("loop exited with exception: " << e.what());
+                CXXTOOLS_UNIT_ASSERT_MSG(false, std::string("unexpected exception ") + typeid(e).name() + ": " + e.what());
+            }
+        }
+
+        void onConnectErrorCallback(const cxxtools::RemoteResult<bool>& r)
+        {
+            log_debug("onConnectErrorCallback");
+            _loop.exit();
+            CXXTOOLS_UNIT_ASSERT_THROW(r.get(), std::exception);
         }
 
 };

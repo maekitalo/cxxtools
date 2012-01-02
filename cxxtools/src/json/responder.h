@@ -52,18 +52,15 @@ class Responder
         explicit Responder(ServiceRegistry& serviceRegistry);
         ~Responder();
 
-        void onInput(IOStream& ios);
+        void begin();
         bool advance(char ch);
-
-    private:
         void finalize(std::ostream& out);
 
+    private:
+
         ServiceRegistry& _serviceRegistry;
-        std::string _methodName;
         JsonParser _parser;
         DeserializerBase _deserializer;
-
-        JsonFormatter _formatter;
 
         bool _failed;
         std::string _errorMessage;

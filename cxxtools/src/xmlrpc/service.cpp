@@ -28,11 +28,7 @@
  */
 #include "cxxtools/xmlrpc/service.h"
 #include "cxxtools/xmlrpc/responder.h"
-#include "cxxtools/xml/startelement.h"
-#include "cxxtools/xml/characters.h"
-#include "cxxtools/xml/endelement.h"
 #include "cxxtools/http/request.h"
-#include "cxxtools/utf8codec.h"
 
 namespace cxxtools
 {

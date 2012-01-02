@@ -33,6 +33,7 @@
 #include <cxxtools/xmlrpc/httpclient.h>
 #include <cxxtools/bin/rpcclient.h>
 #include <cxxtools/json/rpcclient.h>
+#include <cxxtools/json/httpclient.h>
 #include <cxxtools/thread.h>
 #include <cxxtools/mutex.h>
 #include <cxxtools/clock.h>
@@ -150,6 +151,7 @@ int main(int argc, char* argv[])
     cxxtools::Arg<unsigned> threads(argc, argv, 't', 4);
     cxxtools::Arg<bool> binary(argc, argv, 'b');
     cxxtools::Arg<bool> json(argc, argv, 'j');
+    cxxtools::Arg<bool> jsonhttp(argc, argv, 'J');
     cxxtools::Arg<unsigned short> port(argc, argv, 'p', binary ? 7003 : json ? 7004 : 7002);
     BenchClient::numRequests(cxxtools::Arg<unsigned>(argc, argv, 'n', 10000));
     BenchClient::vectorSize(cxxtools::Arg<unsigned>(argc, argv, 'v', 0));
@@ -157,9 +159,10 @@ int main(int argc, char* argv[])
     std::cout << "execute " << BenchClient::numRequests() << " requests with " << threads.getValue() << " threads\n\n"
                  "options:\n"
                  "   -l ip      set ip address of server (default: localhost)\n"
-                 "   -p number  set port number of server (default: 7002 for xmlrpc, 7003 for binary and 7004 for json)\n"
-                 "   -b         use binary rpc protocol instead of xmlrpc\n"
-                 "   -j         use json rpc protocol instead of xmlrpc\n"
+                 "   -p number  set port number of server (default: 7002 for http, 7003 for binary and 7004 for json)\n"
+                 "   -b         use binary rpc protocol (default: xmlrpc)\n"
+                 "   -j         use json rpc protocol instead (default: xmlrpc)\n"
+                 "   -J         use json rpc over http protocol (default: xmlrpc)\n"
                  "   -t number  set number of threads (default: 4)\n"
                  "   -n number  set number of requests (default: 10000)\n"
               << std::endl;
@@ -173,8 +176,10 @@ int main(int argc, char* argv[])
         client = new cxxtools::bin::RpcClient(ip, port);
       else if (json)
         client = new cxxtools::json::RpcClient(ip, port);
+      else if (jsonhttp)
+        client = new cxxtools::json::HttpClient(ip, port, "/jsonrpc");
       else
-        client = new cxxtools::xmlrpc::HttpClient(ip, port, "/myservice");
+        client = new cxxtools::xmlrpc::HttpClient(ip, port, "/xmlrpc");
       clients.push_back(new BenchClient(client));
     }
 

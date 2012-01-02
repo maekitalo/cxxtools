@@ -82,8 +82,8 @@ std::size_t XmlRpcResponder::readBody(std::istream& is)
 {
     std::size_t n = 0;
 
-   try
-   {
+    try
+    {
         while(true)
         {
             std::streamsize m = _ts.buffer().import();

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Tommi Maekitalo
+ * Copyright (C) 2011 by Tommi Meakitalo
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -25,40 +25,40 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
+#ifndef CXXTOOLS_JSON_HTTPRESPONDER_H
+#define CXXTOOLS_JSON_HTTPRESPONDER_H
 
-#ifndef CXXTOOLS_JSON_SCANNER_H
-#define CXXTOOLS_JSON_SCANNER_H
-
-#include <cxxtools/composer.h>
-#include <cxxtools/jsonparser.h>
-#include <string>
+#include <cxxtools/http/responder.h>
+#include "responder.h"
 
 namespace cxxtools
 {
-    class DeserializerBase;
-    class IComposer;
 
-    namespace json
-    {
-        class Scanner
-        {
-            public:
-                Scanner()
-                { }
+namespace json
+{
 
-                void begin(DeserializerBase& handler, IComposer& composer);
+class HttpService;
 
-                bool advance(char ch)
-                { return _parser.advance(ch) != 0; }
+class HttpResponder : public http::Responder
+{
 
-                void finalizeReply();
+    public:
+        explicit HttpResponder(HttpService& service);
 
-            private:
-                JsonParser _parser;
-                DeserializerBase* _deserializer;
-                IComposer* _composer;
-        };
-    }
+        ~HttpResponder();
+
+        void beginRequest(std::istream& in, http::Request& request);
+
+        std::size_t readBody(std::istream& is);
+
+        void reply(std::ostream& os, http::Request& request, http::Reply& reply);
+
+    private:
+        json::Responder _responder;
+};
+
 }
 
-#endif // CXXTOOLS_JSON_SCANNER_H
+}
+
+#endif

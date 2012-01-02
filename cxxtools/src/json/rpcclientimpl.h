@@ -107,7 +107,7 @@ class RpcClientImpl : public Connectable
         unsigned short _port;
         std::string _praefix;
 
-        unsigned _count;
+        Formatter::int_type _count;
 };
 
 }

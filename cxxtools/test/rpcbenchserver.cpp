@@ -35,6 +35,7 @@
 #include <cxxtools/xmlrpc/service.h>
 #include <cxxtools/bin/rpcserver.h>
 #include <cxxtools/json/rpcserver.h>
+#include <cxxtools/json/httpservice.h>
 
 std::string echo(const std::string& msg)
 {
@@ -65,7 +66,7 @@ int main(int argc, char* argv[])
     std::cout << "rpc echo server running on port " << port.getValue() << "\n\n"
                  "options:\n\n"
                  "   -i ip      set interface address to listen on (default: all interfaces)\n"
-                 "   -p number  set port number for xmlrpc (default: 7002)\n"
+                 "   -p number  set port number for http (xmlrpc and json over http, default: 7002)\n"
                  "   -b number  set port number run binary rpc server (default: 7003)\n"
                  "   -j number  set port number run json rpc server (default: 7004)\n"
                  "   -t number  set minimum number of threads (default: 4)\n"
@@ -80,7 +81,7 @@ int main(int argc, char* argv[])
     cxxtools::xmlrpc::Service service;
     service.registerFunction("echo", echo);
     service.registerFunction("seq", seq);
-    server.addService("/myservice", service);
+    server.addService("/xmlrpc", service);
 
     cxxtools::bin::RpcServer binServer(loop, ip, bport);
     binServer.minThreads(threads);
@@ -91,6 +92,11 @@ int main(int argc, char* argv[])
     jsonServer.minThreads(threads);
     jsonServer.maxThreads(maxThreads);
     jsonServer.addService("", service);
+
+    cxxtools::json::HttpService jsonhttpService;
+    jsonhttpService.registerFunction("echo", echo);
+    jsonhttpService.registerFunction("seq", seq);
+    server.addService("/jsonrpc", jsonhttpService);
 
     loop.run();
   }

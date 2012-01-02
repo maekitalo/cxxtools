@@ -86,10 +86,6 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
         : cxxtools::unit::TestSuite("xmlrpc"),
           _port(8001)
         {
-            registerMethod("Fault", *this, &XmlRpcTest::Fault);
-            registerMethod("Exception", *this, &XmlRpcTest::Exception);
-            registerMethod("CallbackException", *this, &XmlRpcTest::CallbackException);
-            registerMethod("ConnectError", *this, &XmlRpcTest::ConnectError);
             registerMethod("Nothing", *this, &XmlRpcTest::Nothing);
             registerMethod("Boolean", *this, &XmlRpcTest::Boolean);
             registerMethod("Integer", *this, &XmlRpcTest::Integer);
@@ -104,6 +100,10 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             registerMethod("Map", *this, &XmlRpcTest::Map);
             registerMethod("Multimap", *this, &XmlRpcTest::Multimap);
             registerMethod("UnknownMethod", *this, &XmlRpcTest::UnknownMethod);
+            registerMethod("Fault", *this, &XmlRpcTest::Fault);
+            registerMethod("Exception", *this, &XmlRpcTest::Exception);
+            registerMethod("CallbackException", *this, &XmlRpcTest::CallbackException);
+            registerMethod("ConnectError", *this, &XmlRpcTest::ConnectError);
 
             char* PORT = getenv("UTEST_PORT");
             if (PORT)
@@ -132,84 +132,6 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
         void tearDown()
         {
             delete _server;
-        }
-
-        ////////////////////////////////////////////////////////////
-        // Fault
-        //
-        void Fault()
-        {
-            cxxtools::xmlrpc::Service service;
-            service.registerMethod("multiply", *this, &XmlRpcTest::throwFault);
-            _server->addService("/calc", service);
-
-            cxxtools::xmlrpc::HttpClient client(_loop, "", _port, "/calc");
-            cxxtools::RemoteProcedure<bool> multiply(client, "multiply");
-            connect( multiply.finished, *this, &XmlRpcTest::onFault );
-            multiply.begin();
-
-            _loop.run();
-        }
-
-        void onFault(const cxxtools::RemoteResult<bool>& result)
-        {
-            try
-            {
-                result.get();
-                CXXTOOLS_UNIT_ASSERT_MSG(false, "cxxtools::RemoteException exception expected");
-            }
-            catch (const cxxtools::RemoteException& e)
-            {
-                CXXTOOLS_UNIT_ASSERT_EQUALS(e.rc(), 7);
-                CXXTOOLS_UNIT_ASSERT_EQUALS(e.text(), "Fault");
-            }
-
-            _loop.exit();
-        }
-
-        bool throwFault()
-        {
-            throw cxxtools::RemoteException("Fault", 7);
-            return false;
-        }
-
-        ////////////////////////////////////////////////////////////
-        // Exception
-        //
-        void Exception()
-        {
-            cxxtools::xmlrpc::Service service;
-            service.registerMethod("multiply", *this, &XmlRpcTest::throwException);
-            _server->addService("/calc", service);
-
-            cxxtools::xmlrpc::HttpClient client(_loop, "", _port, "/calc");
-            cxxtools::RemoteProcedure<bool> multiply(client, "multiply");
-            connect( multiply.finished, *this, &XmlRpcTest::onException );
-            multiply.begin();
-
-            _loop.run();
-        }
-
-        void onException(const cxxtools::RemoteResult<bool>& result)
-        {
-            try
-            {
-                result.get();
-                CXXTOOLS_UNIT_ASSERT(false);
-            }
-            catch (const cxxtools::RemoteException& e)
-            {
-                CXXTOOLS_UNIT_ASSERT_EQUALS(e.rc(), 0);
-                CXXTOOLS_UNIT_ASSERT_EQUALS(e.text(), "Exception");
-            }
-
-            _loop.exit();
-        }
-
-        bool throwException()
-        {
-            throw std::runtime_error("Exception");
-            return false;
         }
 
         ////////////////////////////////////////////////////////////
@@ -770,9 +692,82 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_THROW(_loop.run(), std::exception);
         }
 
-        void onUnknwonFinished(const cxxtools::RemoteResult<bool>& r)
+        ////////////////////////////////////////////////////////////
+        // Fault
+        //
+        void Fault()
         {
+            cxxtools::xmlrpc::Service service;
+            service.registerMethod("multiply", *this, &XmlRpcTest::throwFault);
+            _server->addService("/calc", service);
+
+            cxxtools::xmlrpc::HttpClient client(_loop, "", _port, "/calc");
+            cxxtools::RemoteProcedure<bool> multiply(client, "multiply");
+            connect( multiply.finished, *this, &XmlRpcTest::onFault );
+            multiply.begin();
+
+            _loop.run();
+        }
+
+        void onFault(const cxxtools::RemoteResult<bool>& result)
+        {
+            try
+            {
+                result.get();
+                CXXTOOLS_UNIT_ASSERT_MSG(false, "cxxtools::RemoteException exception expected");
+            }
+            catch (const cxxtools::RemoteException& e)
+            {
+                CXXTOOLS_UNIT_ASSERT_EQUALS(e.rc(), 7);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(e.text(), "Fault");
+            }
+
             _loop.exit();
+        }
+
+        bool throwFault()
+        {
+            throw cxxtools::RemoteException("Fault", 7);
+            return false;
+        }
+
+        ////////////////////////////////////////////////////////////
+        // Exception
+        //
+        void Exception()
+        {
+            cxxtools::xmlrpc::Service service;
+            service.registerMethod("multiply", *this, &XmlRpcTest::throwException);
+            _server->addService("/calc", service);
+
+            cxxtools::xmlrpc::HttpClient client(_loop, "", _port, "/calc");
+            cxxtools::RemoteProcedure<bool> multiply(client, "multiply");
+            connect( multiply.finished, *this, &XmlRpcTest::onException );
+            multiply.begin();
+
+            _loop.run();
+        }
+
+        void onException(const cxxtools::RemoteResult<bool>& result)
+        {
+            try
+            {
+                result.get();
+                CXXTOOLS_UNIT_ASSERT(false);
+            }
+            catch (const cxxtools::RemoteException& e)
+            {
+                CXXTOOLS_UNIT_ASSERT_EQUALS(e.rc(), 0);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(e.text(), "Exception");
+            }
+
+            _loop.exit();
+        }
+
+        bool throwException()
+        {
+            throw std::runtime_error("Exception");
+            return false;
         }
 
 };
