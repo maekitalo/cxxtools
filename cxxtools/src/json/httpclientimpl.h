@@ -32,7 +32,8 @@
 #include <cxxtools/http/request.h>
 #include <cxxtools/connectable.h>
 #include <cxxtools/deserializer.h>
-#include <cxxtools/jsonformatter.h>
+#include <cxxtools/formatter.h>
+#include <string>
 #include "scanner.h"
 
 namespace cxxtools
@@ -117,15 +118,20 @@ namespace json
 
             static void verifyHeader(const http::ReplyHeader& header);
 
+            // connection
             std::size_t _timeout;
-            Formatter::int_type _count;
             http::Client _client;
+
             http::Request _request;
+
+            // serialization
             Scanner _scanner;
             DeserializerBase _deserializer;
-            JsonFormatter _formatter;
+
+            // current processing
             IRemoteProcedure* _proc;
-            bool _errorPending;
+            bool _exceptionPending;
+            Formatter::int_type _count;
     };
 
 }

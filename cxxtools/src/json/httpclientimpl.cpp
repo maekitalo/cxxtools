@@ -28,6 +28,8 @@
 
 #include "httpclientimpl.h"
 #include "cxxtools/remoteprocedure.h"
+#include "cxxtools/textstream.h"
+#include "cxxtools/jsonformatter.h"
 #include "cxxtools/http/replyheader.h"
 #include "cxxtools/selectable.h"
 #include "cxxtools/utf8codec.h"
@@ -45,7 +47,7 @@ namespace json
 HttpClientImpl::HttpClientImpl()
 : _timeout(Selectable::WaitInfinite),
   _count(0),
-  _errorPending(false)
+  _exceptionPending(false)
 {
     _request.method("POST");
     cxxtools::connect(_client.headerReceived, *this, &HttpClientImpl::onReplyHeader);
@@ -67,10 +69,10 @@ void HttpClientImpl::beginCall(IComposer& r, IRemoteProcedure& method, IDecompos
 
 void HttpClientImpl::endCall()
 {
-    log_debug("end call; errorPending=" << _errorPending);
-    if (_errorPending)
+    log_debug("end call; errorPending=" << _exceptionPending);
+    if (_exceptionPending)
     {
-        _errorPending = false;
+        _exceptionPending = false;
         throw;
     }
 
@@ -125,26 +127,27 @@ void HttpClientImpl::prepareRequest(const String& name, IDecomposer** argv, unsi
     _request.method("POST");
 
     TextOStream ts(_request.body(), new Utf8Codec());
+    JsonFormatter formatter;
 
-    _formatter.begin(ts);
+    formatter.begin(ts);
 
-    _formatter.beginObject(std::string(), std::string(), std::string());
+    formatter.beginObject(std::string(), std::string(), std::string());
 
-    _formatter.addValue("method", std::string(), name, std::string());
-    _formatter.addValue("id", "int", ++_count, std::string());
+    formatter.addValue("method", std::string(), name, std::string());
+    formatter.addValue("id", "int", ++_count, std::string());
 
-    _formatter.beginArray("params", std::string(), std::string());
+    formatter.beginArray("params", std::string(), std::string());
 
     for(unsigned n = 0; n < argc; ++n)
     {
-        argv[n]->format(_formatter);
+        argv[n]->format(formatter);
     }
 
-    _formatter.finishArray();
+    formatter.finishArray();
 
-    _formatter.finishObject();
+    formatter.finishObject();
 
-    _formatter.finish();
+    formatter.finish();
 
     ts.flush();
 }
@@ -176,7 +179,7 @@ std::size_t HttpClientImpl::onReplyBody(http::Client& client)
             catch (const std::exception&)
             {
                 log_warn("exception occured in finalizeReply");
-                _errorPending = true;
+                _exceptionPending = true;
                 _proc->onFinished();
             }
 
@@ -195,7 +198,7 @@ void HttpClientImpl::onReplyFinished(http::Client& client)
 
     try
     {
-        _errorPending = false;
+        _exceptionPending = false;
         endCall();
     }
     catch (const std::exception& e)
@@ -203,12 +206,12 @@ void HttpClientImpl::onReplyFinished(http::Client& client)
         if (!_proc)
             throw;
 
-        _errorPending = true;
+        _exceptionPending = true;
 
         IRemoteProcedure* proc = _proc;
         _proc = 0;
         proc->onFinished();
-        _errorPending = false;
+        _exceptionPending = false;
         return;
     }
 

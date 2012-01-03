@@ -35,13 +35,16 @@ namespace json
 {
 
 RpcClient::RpcClient(SelectorBase& selector, const std::string& addr, unsigned short port)
-    : _impl(new RpcClientImpl(this, selector, addr, port))
-{ 
+    : _impl(new RpcClientImpl())
+{
+    _impl->setSelector(selector);
+    _impl->connect(addr, port);
 }
 
 RpcClient::RpcClient(const std::string& addr, unsigned short port)
-    : _impl(new RpcClientImpl(this, addr, port))
+    : _impl(new RpcClientImpl())
 { 
+    _impl->connect(addr, port);
 }
 
 RpcClient::~RpcClient()

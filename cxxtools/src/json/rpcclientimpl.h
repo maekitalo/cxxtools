@@ -29,26 +29,25 @@
 #ifndef CXXTOOLS_JSON_RPCCLIENTIMPL_H
 #define CXXTOOLS_JSON_RPCCLIENTIMPL_H
 
-#include <cxxtools/remoteclient.h>
-#include <cxxtools/jsonformatter.h>
+#include <cxxtools/formatter.h>
 #include <cxxtools/net/tcpsocket.h>
 #include <cxxtools/iostream.h>
 #include <cxxtools/string.h>
 #include <cxxtools/deserializer.h>
-#include <cxxtools/textstream.h>
 #include <cxxtools/connectable.h>
+#include <cxxtools/selector.h>
 #include <string>
 #include "scanner.h"
 
 namespace cxxtools
 {
 
-class SelectorBase;
+class IRemoteProcedure;
+class IComposer;
+class IDecomposer;
 
 namespace json
 {
-
-class RpcClient;
 
 class RpcClientImpl : public Connectable
 {
@@ -56,11 +55,7 @@ class RpcClientImpl : public Connectable
         void operator= (const RpcClientImpl&);
 
     public:
-        RpcClientImpl(RpcClient* client, const std::string& addr, unsigned short port);
-
-        RpcClientImpl(RpcClient* client, SelectorBase& selector, const std::string& addr, unsigned short port);
-
-        ~RpcClientImpl();
+        RpcClientImpl();
 
         void setSelector(SelectorBase& selector)
         { selector.add(_socket); }
@@ -92,22 +87,23 @@ class RpcClientImpl : public Connectable
         void onOutput(StreamBuffer& sb);
         void onInput(StreamBuffer& sb);
 
-        RpcClient* _client;
-        IRemoteProcedure* _proc;
+        // connection state
         net::TcpSocket _socket;
         IOStream _stream;
-        TextOStream _ts;
-        Scanner _scanner;
-        DeserializerBase _deserializer;
-        JsonFormatter _formatter;
-
-        bool _exceptionPending;
 
         std::string _addr;
         unsigned short _port;
         std::string _praefix;
 
+        // serialization
+        Scanner _scanner;
+        DeserializerBase _deserializer;
+
+        // current processing
+        bool _exceptionPending;
+        IRemoteProcedure* _proc;
         Formatter::int_type _count;
+
 };
 
 }

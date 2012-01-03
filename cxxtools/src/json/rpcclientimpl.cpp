@@ -30,6 +30,7 @@
 #include <cxxtools/log.h>
 #include <cxxtools/remoteprocedure.h>
 #include <cxxtools/utf8codec.h>
+#include <cxxtools/jsonformatter.h>
 #include <stdexcept>
 
 log_define("cxxtools.json.rpcclient.impl")
@@ -39,40 +40,13 @@ namespace cxxtools
 namespace json
 {
 
-RpcClientImpl::RpcClientImpl(RpcClient* client, SelectorBase& selector, const std::string& addr, unsigned short port)
-    : _client(client),
-      _proc(0),
-      _stream(_socket, 8192, true),
-      _ts(_stream, new Utf8Codec()),
-      _formatter(_ts)
+RpcClientImpl::RpcClientImpl()
+    : _proc(0),
+      _stream(_socket, 8192, true)
 {
-    setSelector(selector);
-    connect(addr, port);
-
     cxxtools::connect(_socket.connected, *this, &RpcClientImpl::onConnect);
     cxxtools::connect(_stream.buffer().outputReady, *this, &RpcClientImpl::onOutput);
     cxxtools::connect(_stream.buffer().inputReady, *this, &RpcClientImpl::onInput);
-
-}
-
-RpcClientImpl::RpcClientImpl(RpcClient* client, const std::string& addr, unsigned short port)
-    : _client(client),
-      _proc(0),
-      _stream(_socket, 8192, true),
-      _ts(_stream, new Utf8Codec()),
-      _formatter(_ts),
-      _count(0)
-{
-    connect(addr, port);
-
-    cxxtools::connect(_socket.connected, *this, &RpcClientImpl::onConnect);
-    cxxtools::connect(_stream.buffer().outputReady, *this, &RpcClientImpl::onOutput);
-    cxxtools::connect(_stream.buffer().inputReady, *this, &RpcClientImpl::onInput);
-
-}
-
-RpcClientImpl::~RpcClientImpl()
-{
 }
 
 void RpcClientImpl::connect(const std::string& addr, unsigned short port)
@@ -182,27 +156,30 @@ void RpcClientImpl::cancel()
 
 void RpcClientImpl::prepareRequest(const String& name, IDecomposer** argv, unsigned argc)
 {
-    _formatter.begin(_ts);
+    TextOStream ts(_stream, new Utf8Codec());
+    JsonFormatter formatter;
 
-    _formatter.beginObject(std::string(), std::string(), std::string());
+    formatter.begin(ts);
 
-    _formatter.addValue("method", std::string(), String(_praefix) + name, std::string());
-    _formatter.addValue("id", "int", ++_count, std::string());
+    formatter.beginObject(std::string(), std::string(), std::string());
 
-    _formatter.beginArray("params", std::string(), std::string());
+    formatter.addValue("method", std::string(), String(_praefix) + name, std::string());
+    formatter.addValue("id", "int", ++_count, std::string());
+
+    formatter.beginArray("params", std::string(), std::string());
 
     for(unsigned n = 0; n < argc; ++n)
     {
-        argv[n]->format(_formatter);
+        argv[n]->format(formatter);
     }
 
-    _formatter.finishArray();
+    formatter.finishArray();
 
-    _formatter.finishObject();
+    formatter.finishObject();
 
-    _formatter.finish();
+    formatter.finish();
 
-    _ts.flush();
+    ts.flush();
 }
 
 void RpcClientImpl::onConnect(net::TcpSocket& socket)
