@@ -166,6 +166,7 @@ bool ValueParser::advance(char ch)
 
                 switch (ch)
                 {
+                    case Serializer::TypeEmpty:  if (_deserializer) _deserializer->setNull(); _state = state_end; break;
                     case Serializer::TypeInt8:   _count = 1; _state = state_value_intsign; break;
                     case Serializer::TypeInt16:  _count = 2; _state = state_value_intsign; break;
                     case Serializer::TypeInt32:  _count = 4; _state = state_value_intsign; break;

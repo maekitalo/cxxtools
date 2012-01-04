@@ -90,6 +90,8 @@ namespace cxxtools
 
             void setValue(long double value);
 
+            void setNull();
+
             void setId(const std::string& id);
 
             void setTypeName(const std::string& type);

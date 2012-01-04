@@ -69,9 +69,16 @@ void JsonFormatter::addValue(const std::string& name, const std::string& type,
 
     beginValue(name);
 
-    *_ts << Char(L'"');
-    stringOut(value);
-    *_ts << Char(L'"');
+    if (type == "null")
+    {
+        *_ts << String(L"null");
+    }
+    else
+    {
+        *_ts << Char(L'"');
+        stringOut(value);
+        *_ts << Char(L'"');
+    }
 
     finishValue();
 }
@@ -138,6 +145,14 @@ void JsonFormatter::addValue(const std::string& name, const std::string& type,
         *_ts << value;
     }
 
+    finishValue();
+}
+
+void JsonFormatter::addNull(const std::string& name, const std::string& type,
+                            const std::string& id)
+{
+    beginValue(name);
+    *_ts << String(L"null");
     finishValue();
 }
 

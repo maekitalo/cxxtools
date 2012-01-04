@@ -45,6 +45,8 @@ namespace
         int intValue;
         std::string stringValue;
         double doubleValue;
+        bool boolValue;
+        bool nullValue;
     };
 
     void operator>>= (const cxxtools::SerializationInfo& si, TestObject& obj)
@@ -52,6 +54,9 @@ namespace
         si.getMember("intValue") >>= obj.intValue;
         si.getMember("stringValue") >>= obj.stringValue;
         si.getMember("doubleValue") >>= obj.doubleValue;
+        si.getMember("boolValue") >>= obj.boolValue;
+        const cxxtools::SerializationInfo* p = si.findMember("nullValue");
+        obj.nullValue = p != 0 && p->isNull();
     }
 
     void operator<<= (cxxtools::SerializationInfo& si, const TestObject& obj)
@@ -59,6 +64,8 @@ namespace
         si.addMember("intValue") <<= obj.intValue;
         si.addMember("stringValue") <<= obj.stringValue;
         si.addMember("doubleValue") <<= obj.doubleValue;
+        si.addMember("boolValue") <<= obj.boolValue;
+        si.addMember("nullValue");
         si.setTypeName("TestObject");
     }
 
@@ -66,7 +73,9 @@ namespace
     {
         return obj1.intValue == obj2.intValue
             && obj1.stringValue == obj2.stringValue
-            && obj1.doubleValue == obj2.doubleValue;
+            && obj1.doubleValue == obj2.doubleValue
+            && obj1.boolValue == obj2.boolValue
+            && obj1.nullValue == obj2.nullValue;
     }
 
     struct TestObject2 : public TestObject
@@ -252,6 +261,8 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
             obj.intValue = 17;
             obj.stringValue = "foobar";
             obj.doubleValue = 3.125;
+            obj.boolValue = true;
+            obj.nullValue = true;
             serializer.serialize(obj, "obj");
 
             TestObject obj2;
@@ -260,6 +271,8 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(obj.intValue, obj2.intValue);
             CXXTOOLS_UNIT_ASSERT_EQUALS(obj.stringValue, obj2.stringValue);
             CXXTOOLS_UNIT_ASSERT_EQUALS(obj.doubleValue, obj2.doubleValue);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(obj.boolValue, obj2.boolValue);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(obj.nullValue, obj2.nullValue);
             CXXTOOLS_UNIT_ASSERT(obj == obj2);
         }
 
@@ -274,6 +287,8 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
             obj.intValue = 17;
             obj.stringValue = "foobar";
             obj.doubleValue = 3.125;
+            obj.boolValue = false;
+            obj.nullValue = true;
             obj.setValue.insert(17);
             obj.setValue.insert(23);
             obj.mapValue[45] = "fourtyfive";

@@ -326,6 +326,7 @@ int JsonParser::advance(Char ch)
                 {
                     log_debug("set null value \"" << _token << '"');
                     _deserializer->setTypeName("null");
+                    _deserializer->setNull();
                     _token.clear();
                 }
 
@@ -382,6 +383,7 @@ void JsonParser::finish()
             else if (_token == "null")
             {
                 _deserializer->setTypeName("null");
+                _deserializer->setNull();
                 _token.clear();
             }
 

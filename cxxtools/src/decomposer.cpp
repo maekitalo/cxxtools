@@ -33,7 +33,11 @@ namespace cxxtools
 
 void IDecomposer::formatEach(const SerializationInfo& si, Formatter& formatter)
 {
-    if(si.category() == SerializationInfo::Value)
+    if (si.category() == SerializationInfo::Void)
+    {
+        formatter.addNull( si.name(), si.typeName(), si.id() );
+    }
+    else if (si.category() == SerializationInfo::Value)
     {
         if (si.isInt())
         {

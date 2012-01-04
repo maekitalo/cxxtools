@@ -86,6 +86,11 @@ namespace cxxtools
         _current->setValue(value);
     }
 
+    void DeserializerBase::setNull()
+    {
+        _current->setNull();
+    }
+
     void DeserializerBase::beginMember(const std::string& name, const std::string& type, SerializationInfo::Category category)
     {
         SerializationInfo& child = _current->addMember(name);

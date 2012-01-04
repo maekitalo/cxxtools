@@ -401,6 +401,15 @@ void Formatter::addValue(const std::string& name, const std::string& type,
     *_out << '\xff';
 }
 
+void Formatter::addNull(const std::string& name, const std::string& type, const std::string& id)
+{
+    *_out << static_cast<char>(SerializationInfo::Value)
+          << name << '\0'
+          << id << '\0'
+          << static_cast<char>(Serializer::TypeEmpty)
+          << '\xff';
+}
+
 void Formatter::beginArray(const std::string& name, const std::string& type,
                            const std::string& id)
 {

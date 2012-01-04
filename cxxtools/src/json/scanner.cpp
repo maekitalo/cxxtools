@@ -52,9 +52,9 @@ void Scanner::finalizeReply()
 {
     const SerializationInfo* s = _deserializer->si()->findMember("error");
 
-    if (s && s->name() == "error")
+    if (s && !s->isNull())
     {
-        log_debug("category=" << s << " type=" << s->typeName());
+        log_debug("remote error detected category=" << s->category() << " type=" << s->typeName());
 
         std::string msg;
         if (s->category() == SerializationInfo::Object)
@@ -64,11 +64,11 @@ void Scanner::finalizeReply()
             s->getMember("message", msg);
             throw RemoteException(msg, rc);
         }
-        else if (s->category() != SerializationInfo::Value || !s->isNull())
+        else
         {
             s->getValue(msg);
             if (msg.empty())
-                throw RemoteException("remote exception");
+                msg = "remote exception";
 
             throw RemoteException(msg);
         }

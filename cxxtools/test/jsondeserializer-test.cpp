@@ -41,11 +41,13 @@ namespace
         std::string stringValue;
         double doubleValue;
         bool boolValue;
+        bool nullValue;
 
         TestObject()
             : intValue(0),
               doubleValue(0),
-              boolValue(false)
+              boolValue(false),
+              nullValue(false)
               { }
     };
 
@@ -55,6 +57,8 @@ namespace
         si.getMember("stringValue") >>= obj.stringValue;
         si.getMember("doubleValue") >>= obj.doubleValue;
         si.getMember("boolValue") >>= obj.boolValue;
+        const cxxtools::SerializationInfo* p = si.findMember("nullValue");
+        obj.nullValue = p != 0 && p->isNull();
     }
 
     struct TestObject2 : public TestObject
@@ -120,7 +124,8 @@ class JsonDeserializerTest : public cxxtools::unit::TestSuite
                 "\"intValue\": 17, "
                 "\"stringValue\":  \"foo bar\t\","
                 "\"doubleValue\": \"1000\", "
-                "\"boolValue\"  :    true"
+                "\"boolValue\"  :    true,"
+                "\"nullValue\"  :  null"
             "}");
 
             cxxtools::JsonDeserializer deserializer(in);
@@ -130,6 +135,7 @@ class JsonDeserializerTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(data.stringValue, "foo bar\t");
             CXXTOOLS_UNIT_ASSERT_EQUALS(data.doubleValue, 1000.0);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data.boolValue, true);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.nullValue, true);
         }
 
         void testEmptyObject()
@@ -197,6 +203,7 @@ class JsonDeserializerTest : public cxxtools::unit::TestSuite
                 "\"stringValue\":  \"foo bar\t\","
                 "\"doubleValue\": \"1000\", "
                 "\"boolValue\"  :    true,"
+                "\"nullValue\"  :  null,"
                 "\"setValue\":[5,7,8],"
                 "\"structValue\" : { \"n\":3,\"s\":\"sss\"}"
             "}");
@@ -208,6 +215,7 @@ class JsonDeserializerTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(data.stringValue, "foo bar\t");
             CXXTOOLS_UNIT_ASSERT_EQUALS(data.doubleValue, 1000.0);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data.boolValue, true);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.nullValue, true);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data.setValue.size(), 3);
             CXXTOOLS_UNIT_ASSERT(data.setValue.find(5) != data.setValue.end());
             CXXTOOLS_UNIT_ASSERT(data.setValue.find(7) != data.setValue.end());

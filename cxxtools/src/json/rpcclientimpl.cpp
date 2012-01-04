@@ -41,7 +41,8 @@ namespace json
 {
 
 RpcClientImpl::RpcClientImpl()
-    : _proc(0),
+    : _exceptionPending(false),
+      _proc(0),
       _stream(_socket, 8192, true)
 {
     cxxtools::connect(_socket.connected, *this, &RpcClientImpl::onConnect);

@@ -41,6 +41,7 @@ namespace
         std::string stringValue;
         double doubleValue;
         bool boolValue;
+        bool nullValue;
 
         TestObject()
             : intValue(0),
@@ -55,6 +56,7 @@ namespace
         si.addMember("stringValue") <<= obj.stringValue;
         si.addMember("doubleValue") <<= obj.doubleValue;
         si.addMember("boolValue") <<= obj.boolValue;
+        si.addMember("nullValue");
     }
 
 }
@@ -102,7 +104,8 @@ class JsonSerializerTest : public cxxtools::unit::TestSuite
                 "\"intValue\":17,"
                 "\"stringValue\":\"foobar\","
                 "\"doubleValue\":1.5,"
-                "\"boolValue\":false"
+                "\"boolValue\":false,"
+                "\"nullValue\":null"
                 "}}");
         }
 
@@ -170,7 +173,8 @@ class JsonSerializerTest : public cxxtools::unit::TestSuite
                 "\"intValue\":17,"
                 "\"stringValue\":\"foobar\","
                 "\"doubleValue\":1.5,"
-                "\"boolValue\":false"
+                "\"boolValue\":false,"
+                "\"nullValue\":null"
                 "}");
         }
 

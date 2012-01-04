@@ -104,6 +104,8 @@ void Responder::finalize(std::ostream& out)
         IDecomposer* result;
         result = proc->endCall();
 
+        formatter.addNull("error", std::string(), std::string());
+
         formatter.beginValue("result");
         result->format(formatter);
         formatter.finishValue();
@@ -114,13 +116,9 @@ void Responder::finalize(std::ostream& out)
 
         formatter.beginObject("error", std::string(), std::string());
 
-        formatter.beginMember("code");
         formatter.addValue("code", "int", static_cast<Formatter::int_type>(e.rc()), std::string());
-        formatter.finishMember();
-
-        formatter.beginMember("message");
         formatter.addValue("message", std::string(), String(e.what()), std::string());
-        formatter.finishMember();
+        formatter.addNull("result", std::string(), std::string());
 
         formatter.finishObject();
     }

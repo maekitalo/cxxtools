@@ -55,5 +55,11 @@ void Formatter::addValue(const std::string& name, const std::string& type,
     addValue(name, type, convert<String>(value), id);
 }
 
+void Formatter::addNull(const std::string& name, const std::string& type,
+                         const std::string& id)
+{
+    addValue(name, type, String(), id);
+}
+
 }
 

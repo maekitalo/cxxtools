@@ -149,6 +149,7 @@ int main(int argc, char* argv[])
 
     cxxtools::Arg<std::string> ip(argc, argv, 'i');
     cxxtools::Arg<unsigned> threads(argc, argv, 't', 4);
+    cxxtools::Arg<bool> xmlrpc(argc, argv, 'x');
     cxxtools::Arg<bool> binary(argc, argv, 'b');
     cxxtools::Arg<bool> json(argc, argv, 'j');
     cxxtools::Arg<bool> jsonhttp(argc, argv, 'J');
@@ -156,16 +157,22 @@ int main(int argc, char* argv[])
     BenchClient::numRequests(cxxtools::Arg<unsigned>(argc, argv, 'n', 10000));
     BenchClient::vectorSize(cxxtools::Arg<unsigned>(argc, argv, 'v', 0));
 
-    std::cout << "execute " << BenchClient::numRequests() << " requests with " << threads.getValue() << " threads\n\n"
-                 "options:\n"
-                 "   -l ip      set ip address of server (default: localhost)\n"
-                 "   -p number  set port number of server (default: 7002 for http, 7003 for binary and 7004 for json)\n"
-                 "   -b         use binary rpc protocol (default: xmlrpc)\n"
-                 "   -j         use json rpc protocol instead (default: xmlrpc)\n"
-                 "   -J         use json rpc over http protocol (default: xmlrpc)\n"
-                 "   -t number  set number of threads (default: 4)\n"
-                 "   -n number  set number of requests (default: 10000)\n"
-              << std::endl;
+    if (!xmlrpc && !binary && !json && !jsonhttp)
+    {
+        std::cerr << "usage: " << argv[0] << " [options]\n"
+                     "options:\n"
+                     "   -l ip      set ip address of server (default: localhost)\n"
+                     "   -p number  set port number of server (default: 7002 for http, 7003 for binary and 7004 for json)\n"
+                     "   -x         use xmlrpc protocol\n"
+                     "   -b         use binary rpc protocol\n"
+                     "   -j         use json rpc protocol\n"
+                     "   -J         use json rpc over http protocol\n"
+                     "   -t number  set number of threads (default: 4)\n"
+                     "   -n number  set number of requests (default: 10000)\n"
+                     "one protocol must be selected\n"
+                  << std::endl;
+        return -1;
+    }
 
     BenchClients clients;
 
@@ -178,8 +185,9 @@ int main(int argc, char* argv[])
         client = new cxxtools::json::RpcClient(ip, port);
       else if (jsonhttp)
         client = new cxxtools::json::HttpClient(ip, port, "/jsonrpc");
-      else
+      else if (xmlrpc)
         client = new cxxtools::xmlrpc::HttpClient(ip, port, "/xmlrpc");
+
       clients.push_back(new BenchClient(client));
     }
 

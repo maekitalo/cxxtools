@@ -36,7 +36,7 @@ namespace cxxtools
 
 SerializationInfo::SerializationInfo()
 : _parent(0)
-, _category(Value)
+, _category(Void)
 , _t(t_none)
 { }
 
@@ -95,8 +95,7 @@ void SerializationInfo::reserve(size_t n)
 
 SerializationInfo& SerializationInfo::addMember(const std::string& name)
 {
-    SerializationInfo info;
-    _nodes.push_back( info );
+    _nodes.resize(_nodes.size() + 1);
     _nodes.back().setParent(*this);
     _nodes.back().setName(name);
 
@@ -315,6 +314,13 @@ void SerializationInfo::_releaseValue()
         }
     }
     _t = t_none;
+}
+
+void SerializationInfo::setNull()
+{
+    _releaseValue();
+    _t = t_none;
+    _category = Void;
 }
 
 void SerializationInfo::_setString(const String& value)
