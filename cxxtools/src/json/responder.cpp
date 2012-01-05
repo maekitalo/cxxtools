@@ -99,7 +99,7 @@ void Responder::finalize(std::ostream& out)
         if (it != params.end())
             throw RemoteException("too many arguments");
 
-        formatter.addValue("id", "int", static_cast<Formatter::int_type>(0), std::string());
+        IDecomposer::formatEach(_deserializer.si()->getMember("id"), formatter);
 
         IDecomposer* result;
         result = proc->endCall();

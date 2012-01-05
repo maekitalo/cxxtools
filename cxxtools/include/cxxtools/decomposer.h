@@ -41,9 +41,6 @@ class Formatter;
 
 class CXXTOOLS_API IDecomposer
 {
-        IDecomposer(const IDecomposer&) { }
-        IDecomposer& operator= (const IDecomposer&) { return *this; }
-
     public:
         typedef SerializationInfo::int_type int_type;
         typedef SerializationInfo::unsigned_type unsigned_type;
@@ -57,17 +54,17 @@ class CXXTOOLS_API IDecomposer
 
         virtual void format(Formatter& formatter) = 0;
 
-    protected:
-        IDecomposer()
-        {}
-
         static void formatEach(const SerializationInfo& si, Formatter& formatter);
+
 };
 
 
 template <typename T>
 class Decomposer : public IDecomposer
 {
+        Decomposer(const Decomposer&)  { }
+        Decomposer& operator= (const Decomposer&) { return *this; }
+
     public:
         Decomposer()
         : _current(&_si)

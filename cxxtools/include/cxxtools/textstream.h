@@ -30,7 +30,6 @@
 #define cxxtools_BasicTextStream_h
 
 #include <cxxtools/api.h>
-#include <cxxtools/string.h>
 #include <cxxtools/textbuffer.h>
 #include <iostream>
 
@@ -356,6 +355,18 @@ class CXXTOOLS_API TextStream : public BasicTextStream<Char, char>
 
         ~TextStream();
 };
+
+inline std::basic_ostream<Char>& operator<< (std::basic_ostream<Char>& out, wchar_t ch)
+{
+    return out << Char(ch);
+}
+
+inline std::basic_ostream<Char>& operator<< (std::basic_ostream<Char>& out, const wchar_t* str)
+{
+    while (*str)
+        out << Char(*str++);
+    return out;
+}
 
 } // namespace cxxtools
 
