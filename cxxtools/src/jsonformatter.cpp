@@ -64,17 +64,17 @@ void JsonFormatter::finish()
 }
 
 void JsonFormatter::addValue(const std::string& name, const std::string& type,
-                      const String& value, const std::string& id)
+                      const String& value)
 {
     log_trace("addValue String name=\"" << name << "\", type=\"" << type << "\", value=\"" << value << '"');
 
     if (type == "int")
     {
-        addValue(name, type, convert<int_type>(value), id);
+        addValue(name, type, convert<int_type>(value));
     }
     else if (type == "double")
     {
-        addValue(name, type, convert<long double>(value), id);
+        addValue(name, type, convert<long double>(value));
     }
     else
     {
@@ -96,17 +96,17 @@ void JsonFormatter::addValue(const std::string& name, const std::string& type,
 }
 
 void JsonFormatter::addValue(const std::string& name, const std::string& type,
-                      const std::string& value, const std::string& id)
+                      const std::string& value)
 {
     log_trace("addValue string name=\"" << name << "\", type=\"" << type << "\", \" value=\"" << value << '"');
 
     if (type == "int")
     {
-        addValue(name, type, convert<int_type>(value), id);
+        addValue(name, type, convert<int_type>(value));
     }
     else if (type == "double")
     {
-        addValue(name, type, convert<long double>(value), id);
+        addValue(name, type, convert<long double>(value));
     }
     else
     {
@@ -128,7 +128,7 @@ void JsonFormatter::addValue(const std::string& name, const std::string& type,
 }
 
 void JsonFormatter::addValue(const std::string& name, const std::string& type,
-                      int_type value, const std::string& id)
+                      int_type value)
 {
     log_trace("addValue int name=\"" << name << "\", type=\"" << type << "\", \" value=\"" << value << '"');
 
@@ -143,7 +143,7 @@ void JsonFormatter::addValue(const std::string& name, const std::string& type,
 }
 
 void JsonFormatter::addValue(const std::string& name, const std::string& type,
-                      unsigned_type value, const std::string& id)
+                      unsigned_type value)
 {
     log_trace("addValue unsigned name=\"" << name << "\", type=\"" << type << "\", \" value=\"" << value << '"');
 
@@ -158,7 +158,7 @@ void JsonFormatter::addValue(const std::string& name, const std::string& type,
 }
 
 void JsonFormatter::addValue(const std::string& name, const std::string& type,
-                      long double value, const std::string& id)
+                      long double value)
 {
     log_trace("addValue float name=\"" << name << "\", type=\"" << type << "\", \" value=\"" << value << '"');
 
@@ -178,16 +178,14 @@ void JsonFormatter::addValue(const std::string& name, const std::string& type,
     finishValue();
 }
 
-void JsonFormatter::addNull(const std::string& name, const std::string& type,
-                            const std::string& id)
+void JsonFormatter::addNull(const std::string& name, const std::string& type)
 {
     beginValue(name);
     *_ts << L"null";
     finishValue();
 }
 
-void JsonFormatter::beginArray(const std::string& name, const std::string& type,
-                               const std::string& id)
+void JsonFormatter::beginArray(const std::string& name, const std::string& type)
 {
     checkTs(_ts);
 
@@ -234,8 +232,7 @@ void JsonFormatter::finishArray()
     *_ts << L']';
 }
 
-void JsonFormatter::beginObject(const std::string& name, const std::string& type,
-                                const std::string& id)
+void JsonFormatter::beginObject(const std::string& name, const std::string& type)
 {
     checkTs(_ts);
 

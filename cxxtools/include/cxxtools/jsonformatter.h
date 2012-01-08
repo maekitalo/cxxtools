@@ -59,30 +59,27 @@ namespace cxxtools
             void finish();
 
             virtual void addValue(const std::string& name, const std::string& type,
-                                  const String& value, const std::string& id);
+                                  const String& value);
 
             virtual void addValue(const std::string& name, const std::string& type,
-                                  const std::string& value, const std::string& id);
+                                  const std::string& value);
 
             virtual void addValue(const std::string& name, const std::string& type,
-                                  int_type value, const std::string& id);
+                                  int_type value);
 
             virtual void addValue(const std::string& name, const std::string& type,
-                                  unsigned_type value, const std::string& id);
+                                  unsigned_type value);
 
             virtual void addValue(const std::string& name, const std::string& type,
-                                  long double value, const std::string& id);
+                                  long double value);
 
-            virtual void addNull(const std::string& name, const std::string& type,
-                                 const std::string& id);
+            virtual void addNull(const std::string& name, const std::string& type);
 
-            virtual void beginArray(const std::string& name, const std::string& type,
-                                    const std::string& id);
+            virtual void beginArray(const std::string& name, const std::string& type);
 
             virtual void finishArray();
 
-            virtual void beginObject(const std::string& name, const std::string& type,
-                                     const std::string& id);
+            virtual void beginObject(const std::string& name, const std::string& type);
 
             virtual void beginMember(const std::string& name);
 

@@ -134,15 +134,13 @@ class XmlFormatter : public cxxtools::Formatter
         { return _useAttributes; }
 
         void addValue(const std::string& name, const std::string& type,
-                      const cxxtools::String& value, const std::string& id);
+                      const cxxtools::String& value);
 
-        void beginArray(const std::string& name, const std::string& type,
-                        const std::string& id);
+        void beginArray(const std::string& name, const std::string& type);
 
         void finishArray();
 
-        void beginObject(const std::string& name, const std::string& type,
-                         const std::string& id);
+        void beginObject(const std::string& name, const std::string& type);
 
         void beginMember(const std::string& name);
 
@@ -154,7 +152,7 @@ class XmlFormatter : public cxxtools::Formatter
 
     private:
         void beginComplexElement(const std::string& name, const std::string& type,
-                        const std::string& id, const String& category);
+                        const String& category);
 
         //! @internal
         cxxtools::xml::XmlWriter* _writer;

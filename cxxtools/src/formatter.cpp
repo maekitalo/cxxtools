@@ -32,33 +32,32 @@
 namespace cxxtools
 {
 void Formatter::addValue(const std::string& name, const std::string& type,
-                         int_type value, const std::string& id)
+                         int_type value)
 {
-    addValue(name, type, convert<String>(value), id);
+    addValue(name, type, convert<String>(value));
 }
 
 void Formatter::addValue(const std::string& name, const std::string& type,
-                         const std::string& value, const std::string& id)
+                         const std::string& value)
 {
-    addValue(name, type, String::widen(value), id);
+    addValue(name, type, String::widen(value));
 }
 
 void Formatter::addValue(const std::string& name, const std::string& type,
-                         unsigned_type value, const std::string& id)
+                         unsigned_type value)
 {
-    addValue(name, type, convert<String>(value), id);
+    addValue(name, type, convert<String>(value));
 }
 
 void Formatter::addValue(const std::string& name, const std::string& type,
-                         long double value, const std::string& id)
+                         long double value)
 {
-    addValue(name, type, convert<String>(value), id);
+    addValue(name, type, convert<String>(value));
 }
 
-void Formatter::addNull(const std::string& name, const std::string& type,
-                         const std::string& id)
+void Formatter::addNull(const std::string& name, const std::string& type)
 {
-    addValue(name, type, String(), id);
+    addValue(name, type, String());
 }
 
 }

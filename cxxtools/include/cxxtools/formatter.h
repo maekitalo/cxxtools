@@ -54,30 +54,27 @@ class Formatter
         { }
 
         virtual void addValue(const std::string& name, const std::string& type,
-                              const cxxtools::String& value, const std::string& id) = 0;
+                              const cxxtools::String& value) = 0;
 
         virtual void addValue(const std::string& name, const std::string& type,
-                              const std::string& value, const std::string& id);
+                              const std::string& value);
 
         virtual void addValue(const std::string& name, const std::string& type,
-                              int_type value, const std::string& id);
+                              int_type value);
 
         virtual void addValue(const std::string& name, const std::string& type,
-                              unsigned_type value, const std::string& id);
+                              unsigned_type value);
 
         virtual void addValue(const std::string& name, const std::string& type,
-                              long double value, const std::string& id);
+                              long double value);
 
-        virtual void addNull(const std::string& name, const std::string& type,
-                             const std::string& id);
+        virtual void addNull(const std::string& name, const std::string& type);
 
-        virtual void beginArray(const std::string& name, const std::string& type,
-                                const std::string& id) = 0;
+        virtual void beginArray(const std::string& name, const std::string& type) = 0;
 
         virtual void finishArray() = 0;
 
-        virtual void beginObject(const std::string& name, const std::string& type,
-                                 const std::string& id) = 0;
+        virtual void beginObject(const std::string& name, const std::string& type) = 0;
 
         virtual void beginMember(const std::string& name) = 0;
 

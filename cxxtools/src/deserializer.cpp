@@ -41,11 +41,6 @@ namespace cxxtools
         _current->setName(name);
     }
 
-    void DeserializerBase::setId(const std::string& id)
-    {
-        _current->setId(id);
-    }
-
     void DeserializerBase::setTypeName(const std::string& type)
     {
         _current->setTypeName(type);

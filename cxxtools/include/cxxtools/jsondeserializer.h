@@ -50,7 +50,6 @@ namespace cxxtools
             virtual void doDeserialize();
 
         private:
-            JsonParser _parser;
             TextIStream* _ts;
             TextIStream& _in;
     };

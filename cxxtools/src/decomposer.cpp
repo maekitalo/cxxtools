@@ -35,7 +35,7 @@ void IDecomposer::formatEach(const SerializationInfo& si, Formatter& formatter)
 {
     if (si.category() == SerializationInfo::Void)
     {
-        formatter.addNull( si.name(), si.typeName(), si.id() );
+        formatter.addNull( si.name(), si.typeName() );
     }
     else if (si.category() == SerializationInfo::Value)
     {
@@ -43,36 +43,36 @@ void IDecomposer::formatEach(const SerializationInfo& si, Formatter& formatter)
         {
             int_type value;
             si.getValue(value);
-            formatter.addValue( si.name(), si.typeName(), value, si.id() );
+            formatter.addValue( si.name(), si.typeName(), value );
         }
         else if (si.isUInt())
         {
             unsigned_type value;
             si.getValue(value);
-            formatter.addValue( si.name(), si.typeName(), value, si.id() );
+            formatter.addValue( si.name(), si.typeName(), value );
         }
         else if (si.isFloat())
         {
             long double value;
             si.getValue(value);
-            formatter.addValue( si.name(), si.typeName(), value, si.id() );
+            formatter.addValue( si.name(), si.typeName(), value );
         }
         else if (si.isString8())
         {
             std::string value;
             si.getValue(value);
-            formatter.addValue( si.name(), si.typeName(), value, si.id() );
+            formatter.addValue( si.name(), si.typeName(), value );
         }
         else
         {
             String value;
             si.getValue(value);
-            formatter.addValue( si.name(), si.typeName(), value, si.id() );
+            formatter.addValue( si.name(), si.typeName(), value );
         }
     }
     else if(si.category() == SerializationInfo::Object)
     {
-        formatter.beginObject( si.name(), si.typeName(), si.id() );
+        formatter.beginObject( si.name(), si.typeName() );
 
         SerializationInfo::ConstIterator it;
         for(it = si.begin(); it != si.end(); ++it)
@@ -86,7 +86,7 @@ void IDecomposer::formatEach(const SerializationInfo& si, Formatter& formatter)
     }
     else if(si.category() == SerializationInfo::Array)
     {
-        formatter.beginArray( si.name(), si.typeName(), si.id() );
+        formatter.beginArray( si.name(), si.typeName() );
 
         SerializationInfo::ConstIterator it;
         for(it = si.begin(); it != si.end(); ++it)

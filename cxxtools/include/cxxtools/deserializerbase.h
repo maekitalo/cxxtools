@@ -92,8 +92,6 @@ namespace cxxtools
 
             void setNull();
 
-            void setId(const std::string& id);
-
             void setTypeName(const std::string& type);
 
             void beginMember(const std::string& name, const std::string& type, SerializationInfo::Category category);

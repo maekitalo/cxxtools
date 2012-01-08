@@ -125,7 +125,7 @@ namespace cxxtools
     }
 
     void CsvFormatter::addValue(const std::string& name, const std::string& type,
-                          const String& value, const std::string& id)
+                          const String& value)
     {
         if (_memberName.empty())
         {
@@ -151,8 +151,7 @@ namespace cxxtools
         }
     }
 
-    void CsvFormatter::beginArray(const std::string& name, const std::string& type,
-                            const std::string& id)
+    void CsvFormatter::beginArray(const std::string& name, const std::string& type)
     {
         ++_level;
         log_debug("beginArray, level=" << _level);
@@ -168,8 +167,7 @@ namespace cxxtools
             dataOut();
     }
 
-    void CsvFormatter::beginObject(const std::string& name, const std::string& type,
-                             const std::string& id)
+    void CsvFormatter::beginObject(const std::string& name, const std::string& type)
     {
         ++_level;
         log_debug("beginObject, level=" << _level);

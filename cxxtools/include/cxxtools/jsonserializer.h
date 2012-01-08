@@ -92,7 +92,7 @@ namespace cxxtools
 
                 if (!_inObject)
                 {
-                    _formatter.beginObject(std::string(), std::string(), std::string());
+                    _formatter.beginObject(std::string(), std::string());
                     _inObject = true;
                 }
 

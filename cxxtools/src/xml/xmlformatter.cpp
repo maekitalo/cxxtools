@@ -101,9 +101,34 @@ void XmlFormatter::flush()
 
 
 void XmlFormatter::addValue(const std::string& name, const std::string& type,
-                             const cxxtools::String& value, const std::string& id)
+                             const cxxtools::String& value)
 {
     cxxtools::String tag(name.empty() ? type : name);
+
+    Attribute attrs[1];
+    size_t countAttrs = 0;
+
+    if (_useAttributes)
+    {
+        if ( ! name.empty() && ! type.empty() )
+        {
+            attrs[countAttrs].name() = L"type";
+            attrs[countAttrs].value() = type;
+            ++countAttrs;
+        }
+    }
+
+    _writer->writeElement( tag, attrs, countAttrs, value );
+}
+
+
+void XmlFormatter::beginComplexElement(const std::string& name, const std::string& type,
+                              const String& category)
+{
+    cxxtools::String tag(name.empty() ? type : name);
+
+    if (tag.empty())
+        throw std::logic_error("type name or element name must be set in xml formatter");
 
     Attribute attrs[2];
     size_t countAttrs = 0;
@@ -114,45 +139,6 @@ void XmlFormatter::addValue(const std::string& name, const std::string& type,
         {
             attrs[countAttrs].name() = L"type";
             attrs[countAttrs].value() = type;
-            ++countAttrs;
-        }
-
-        if( ! id.empty() )
-        {
-            attrs[countAttrs].name() = L"id";
-            attrs[countAttrs].value() = id;
-            ++countAttrs;
-        }
-    }
-
-    _writer->writeElement( tag, attrs, countAttrs, value );
-}
-
-
-void XmlFormatter::beginComplexElement(const std::string& name, const std::string& type,
-                              const std::string& id, const String& category)
-{
-    cxxtools::String tag(name.empty() ? type : name);
-
-    if (tag.empty())
-        throw std::logic_error("type name or element name must be set in xml formatter");
-
-    Attribute attrs[3];
-    size_t countAttrs = 0;
-
-    if (_useAttributes)
-    {
-        if ( ! name.empty() && ! type.empty() )
-        {
-            attrs[countAttrs].name() = L"type";
-            attrs[countAttrs].value() = type;
-            ++countAttrs;
-        }
-
-        if( ! id.empty() )
-        {
-            attrs[countAttrs].name() = L"id";
-            attrs[countAttrs].value() = id;
             ++countAttrs;
         }
 
@@ -167,10 +153,9 @@ void XmlFormatter::beginComplexElement(const std::string& name, const std::strin
     _writer->writeStartElement( tag, attrs, countAttrs );
 }
 
-void XmlFormatter::beginArray(const std::string& name, const std::string& type,
-                              const std::string& id)
+void XmlFormatter::beginArray(const std::string& name, const std::string& type)
 {
-    beginComplexElement(name, type, id, L"array");
+    beginComplexElement(name, type, L"array");
 }
 
 
@@ -180,10 +165,9 @@ void XmlFormatter::finishArray()
 }
 
 
-void XmlFormatter::beginObject(const std::string& name, const std::string& type,
-                               const std::string& id)
+void XmlFormatter::beginObject(const std::string& name, const std::string& type)
 {
-    beginComplexElement(name, type, id, L"struct");
+    beginComplexElement(name, type, L"struct");
 }
 
 

@@ -184,11 +184,12 @@ void Formatter::finish()
 }
 
 void Formatter::addValue(const std::string& name, const std::string& type,
-                      const cxxtools::String& value, const std::string& id)
+                      const cxxtools::String& value)
 {
+    log_trace("addValue(\"" << name << "\", \"" << type << "\", \"" << value << "\")");
+
     *_out << static_cast<char>(SerializationInfo::Value)
-          << name << '\0'
-          << id << '\0';
+          << name << '\0';
 
     if (type == "int")
     {
@@ -273,12 +274,12 @@ void Formatter::addValue(const std::string& name, const std::string& type,
     *_out << '\xff';
 }
 
-void Formatter::addValue(const std::string& name, const std::string& type,
-                         const std::string& value, const std::string& id)
+void Formatter::addValue(const std::string& name, const std::string& type, const std::string& value)
 {
+    log_trace("addValue(\"" << name << "\", \"" << type << "\", \"" << value << "\")");
+
     *_out << static_cast<char>(SerializationInfo::Value)
-          << name << '\0'
-          << id << '\0';
+          << name << '\0';
 
     if (type == "int")
     {
@@ -378,11 +379,10 @@ void Formatter::addValue(const std::string& name, const std::string& type,
 }
 
 void Formatter::addValue(const std::string& name, const std::string& type,
-                         int_type value, const std::string& id)
+                         int_type value)
 {
     *_out << static_cast<char>(SerializationInfo::Value)
-          << name << '\0'
-          << id << '\0';
+          << name << '\0';
 
     printInt(*_out, value);
 
@@ -390,32 +390,28 @@ void Formatter::addValue(const std::string& name, const std::string& type,
 }
 
 void Formatter::addValue(const std::string& name, const std::string& type,
-                         unsigned_type value, const std::string& id)
+                         unsigned_type value)
 {
     *_out << static_cast<char>(SerializationInfo::Value)
-          << name << '\0'
-          << id << '\0';
+          << name << '\0';
 
     printUInt(*_out, value);
 
     *_out << '\xff';
 }
 
-void Formatter::addNull(const std::string& name, const std::string& type, const std::string& id)
+void Formatter::addNull(const std::string& name, const std::string& type)
 {
     *_out << static_cast<char>(SerializationInfo::Value)
           << name << '\0'
-          << id << '\0'
           << static_cast<char>(Serializer::TypeEmpty)
           << '\xff';
 }
 
-void Formatter::beginArray(const std::string& name, const std::string& type,
-                           const std::string& id)
+void Formatter::beginArray(const std::string& name, const std::string& type)
 {
     *_out << static_cast<char>(SerializationInfo::Array)
-          << name << '\0'
-          << id << '\0';
+          << name << '\0';
     printTypeCode(*_out, type);
 }
 
@@ -424,12 +420,10 @@ void Formatter::finishArray()
     *_out << '\xff';
 }
 
-void Formatter::beginObject(const std::string& name, const std::string& type,
-                         const std::string& id)
+void Formatter::beginObject(const std::string& name, const std::string& type)
 {
     *_out << static_cast<char>(SerializationInfo::Object)
-          << name << '\0'
-          << id << '\0';
+          << name << '\0';
     printTypeCode(*_out, type);
 }
 

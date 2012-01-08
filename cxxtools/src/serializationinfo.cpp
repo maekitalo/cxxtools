@@ -46,7 +46,6 @@ SerializationInfo::SerializationInfo(const SerializationInfo& si)
 , _category(si._category)
 , _name(si._name)
 , _type(si._type)
-, _id(si._id)
 , _u(si._u)
 , _nodes(si._nodes)
 , _t(si._t)
@@ -68,7 +67,6 @@ SerializationInfo& SerializationInfo::operator=(const SerializationInfo& si)
     _parent = si._parent;
     _category = si._category;
     _name = si._name;
-    _id = si._id;
     _type = si._type;
     _nodes = si._nodes;
 
@@ -190,7 +188,6 @@ void SerializationInfo::clear()
     _category = Void;
     _name.clear();
     _type.clear();
-    _id.clear();
     _nodes.clear();
     switch (_t)
     {
@@ -209,7 +206,6 @@ void SerializationInfo::swap(SerializationInfo& si)
     std::swap(_category, si._category);
     std::swap(_name, si._name);
     std::swap(_type, si._type);
-    std::swap(_id, si._id);
 
     if (_t == t_string)
     {
@@ -297,6 +293,38 @@ void SerializationInfo::swap(SerializationInfo& si)
     }
 
     _nodes.swap(si._nodes);
+}
+
+void SerializationInfo::dump(std::ostream& out, const std::string& praefix) const
+{
+    out << praefix << "type = " << (_t == t_none ? "none" :
+                                    _t == t_string ? "string" :
+                                    _t == t_string8 ? "string8" :
+                                    _t == t_char ? "char" :
+                                    _t == t_int ? "int" :
+                                    _t == t_uint ? "uint" :
+                                    _t == t_float ? "float" : "?")
+        << praefix << "value = ";
+
+    switch (_t)
+    {
+        case t_none:    out << '-'; break;
+        case t_string:  out << '"' << _String().narrow() << '"'; break;
+        case t_string8: out << '"' << _String8() << '"'; break;
+        case t_char:    out << '\'' << _u._c << '\''; break;
+        case t_int:     out << _u._i; break;
+        case t_uint:    out << _u._u; break;
+        case t_float:   out << _u._f; break;
+    }
+
+    out << "\n"
+        << praefix << "name = " << _name << "\n"
+        << praefix << "type = " << _type << "\n"
+        << praefix << "nodes.size = " << _nodes.size() << "\n";
+
+    std::string p = praefix + '\t';
+    for (Nodes::const_iterator it = _nodes.begin(); it != _nodes.end(); ++it)
+        it->dump(out, p);
 }
 
 void SerializationInfo::_releaseValue()

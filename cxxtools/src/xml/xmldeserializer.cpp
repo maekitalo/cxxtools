@@ -81,12 +81,6 @@ void XmlDeserializer::beginDocument(const cxxtools::xml::Node& node)
             _nodeCategory = static_cast<const cxxtools::xml::StartElement&>(node).attribute(L"category");
             setName( _nodeName.narrow() );
 
-            _nodeId = static_cast<const cxxtools::xml::StartElement&>(node).attribute(L"id");
-            if( ! _nodeId.empty() )
-            {
-                setId( _nodeId.narrow() );
-            }
-
             _processNode = &XmlDeserializer::onRootElement;
             break;
         }

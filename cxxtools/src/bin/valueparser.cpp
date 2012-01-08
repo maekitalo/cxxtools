@@ -132,24 +132,8 @@ bool ValueParser::advance(char ch)
                 if (_deserializer)
                     _deserializer->setName(_token);
                 _token.clear();
-                _state = _state == state_value_name  ? state_value_id
-                       : _state == state_object_name ? state_object_id
-                       : state_array_id;
-            }
-            else
-                _token += ch;
-            break;
-
-        case state_value_id:
-        case state_object_id:
-        case state_array_id:
-            if (ch == '\0')
-            {
-                if (_deserializer)
-                    _deserializer->setId(_token);
-                _token.clear();
-                _state = _state == state_value_id  ? state_value_type
-                       : _state == state_object_id ? state_object_type
+                _state = _state == state_value_name  ? state_value_type
+                       : _state == state_object_name ? state_object_type
                        : state_array_type;
             }
             else
@@ -176,7 +160,7 @@ bool ValueParser::advance(char ch)
                     case Serializer::TypeUInt32: _count = 4; _state = state_value_uint; break;
                     case Serializer::TypeUInt64: _count = 8; _state = state_value_uint; break;
                     case Serializer::TypeBool: _state = state_value_bool; break;
-                    case Serializer::TypeBcdDouble: _state = state_value_bcd; break;
+                    case Serializer::TypeBcdDouble: _state = state_value_bcd0; break;
                     case Serializer::TypeBinary2: _count = 2; _state = state_value_binary_length; break;
                     case Serializer::TypeBinary4: _count = 4; _state = state_value_binary_length; break;
                     default: _state = state_value_value;
@@ -238,26 +222,35 @@ bool ValueParser::advance(char ch)
             _state = state_end;
             break;
 
-        case state_value_bcd:
-            if (_token.empty() && ch == '\xf0')
+        case state_value_bcd0:
+            if (ch == '\xf0')
             {
                 if (_deserializer)
                     _deserializer->setValue("nan");
                 _state = state_end;
+                break;
             }
-            else if (_token.empty() && ch == '\xf1')
+            else if (ch == '\xf1')
             {
                 if (_deserializer)
                     _deserializer->setValue("inf");
                 _state = state_end;
+                break;
             }
-            else if (_token.empty() && ch == '\xf2')
+            else if (ch == '\xf2')
             {
                 if (_deserializer)
                     _deserializer->setValue("-inf");
                 _state = state_end;
+                break;
             }
-            else if (ch == '\xff')
+
+            _state = state_value_bcd;
+
+            // no break
+
+        case state_value_bcd:
+            if (ch == '\xff')
             {
                 if (_deserializer)
                     _deserializer->setValue(_token);

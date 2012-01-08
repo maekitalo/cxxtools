@@ -59,15 +59,13 @@ namespace cxxtools
             { _lineEnding = le; }
 
             virtual void addValue(const std::string& name, const std::string& type,
-                                  const String& value, const std::string& id);
+                                  const String& value);
 
-            virtual void beginArray(const std::string& name, const std::string& type,
-                                    const std::string& id);
+            virtual void beginArray(const std::string& name, const std::string& type);
 
             virtual void finishArray();
 
-            virtual void beginObject(const std::string& name, const std::string& type,
-                                     const std::string& id);
+            virtual void beginObject(const std::string& name, const std::string& type);
 
             virtual void beginMember(const std::string& name);
 

@@ -47,17 +47,18 @@ namespace cxxtools
 
     void JsonDeserializer::doDeserialize()
     {
-        _parser.begin(*this);
+        JsonParser parser;
+        parser.begin(*this);
         Char ch;
         int ret;
         while (_in.get(ch))
         {
-            ret = _parser.advance(ch);
+            ret = parser.advance(ch);
             if (ret == -1)
                 _in.putback(ch);
             if (ret != 0)
                 return;
         }
-        _parser.finish();
+        parser.finish();
       }
 }

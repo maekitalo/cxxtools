@@ -120,16 +120,6 @@ class CXXTOOLS_API SerializationInfo
             _name = name;
         }
 
-        void setId(const std::string& id)
-        {
-            _id = id;
-        }
-
-        const std::string& id() const
-        {
-            return _id;
-        }
-
         /** @brief Serialization of flat data-types
         */
         void setValue(const String& value)       { _setString(value); }
@@ -273,6 +263,8 @@ class CXXTOOLS_API SerializationInfo
         bool isUInt() const     { return _t == t_uint; }
         bool isFloat() const    { return _t == t_float; }
 
+        void dump(std::ostream& out, const std::string& praefix = std::string()) const;
+
     protected:
         void setParent(SerializationInfo& si)
         { _parent = &si; }
@@ -282,7 +274,6 @@ class CXXTOOLS_API SerializationInfo
         Category _category;
         std::string _name;
         std::string _type;
-        std::string _id;
 
         void _releaseValue();
         void _setString(const String& value);

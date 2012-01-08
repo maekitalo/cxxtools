@@ -68,7 +68,7 @@ void Responder::finalize(std::ostream& out)
 
     formatter.begin(ts);
 
-    formatter.beginObject(std::string(), std::string(), std::string());
+    formatter.beginObject(std::string(), std::string());
 
     try
     {
@@ -104,7 +104,7 @@ void Responder::finalize(std::ostream& out)
         IDecomposer* result;
         result = proc->endCall();
 
-        formatter.addNull("error", std::string(), std::string());
+        formatter.addNull("error", std::string());
 
         formatter.beginValue("result");
         result->format(formatter);
@@ -114,18 +114,18 @@ void Responder::finalize(std::ostream& out)
     {
         log_debug("method \"" << methodName << "\" exited with RemoteException: " << e.what());
 
-        formatter.beginObject("error", std::string(), std::string());
+        formatter.beginObject("error", std::string());
 
-        formatter.addValue("code", "int", static_cast<Formatter::int_type>(e.rc()), std::string());
-        formatter.addValue("message", std::string(), String(e.what()), std::string());
-        formatter.addNull("result", std::string(), std::string());
+        formatter.addValue("code", "int", static_cast<Formatter::int_type>(e.rc()));
+        formatter.addValue("message", std::string(), String(e.what()));
+        formatter.addNull("result", std::string());
 
         formatter.finishObject();
     }
     catch (const std::exception& e)
     {
         log_debug("method \"" << methodName << "\" exited with exception: " << e.what());
-        formatter.addValue("error", std::string(), String(e.what()), std::string());
+        formatter.addValue("error", std::string(), String(e.what()));
     }
 
     formatter.finishObject();

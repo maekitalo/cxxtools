@@ -2,8 +2,6 @@ category:
     byte: 1=value, 2=object, 6=array, 8=reference 64=method name 65=response ok 66=response exception
 name:
     zero terminated string
-id:
-    zero terminated string
 type: byte
     typecodes: 0=empty
                1=bool
@@ -45,7 +43,6 @@ nodes: (when category=object|array)
 value:
     \1                       category
     foobar\0                 name
-    \0                       id
     \4                       type (4=int)
     4711\0                   value
     \xff                     eod
@@ -53,7 +50,6 @@ value:
 object:
     \2                       category
     myobject\0               name
-    \0                       id
     \xffmytype\0             type
     \1                       member1 prefix
     firstMember\0            member1 name
@@ -66,7 +62,6 @@ object:
 array:
     \6                       category
     myarray\0                name
-    \0                       id
     \x40                     type (64=0x40=array)
     \1 \0 \4 4711            element1
     \1 \0 \4 4712            element2

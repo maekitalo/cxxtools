@@ -50,8 +50,6 @@ class CXXTOOLS_API IDecomposer
 
         virtual void setName(const std::string& name) = 0;
 
-        virtual void setId(const std::string& id) = 0;
-
         virtual void format(Formatter& formatter) = 0;
 
         static void formatEach(const SerializationInfo& si, Formatter& formatter);
@@ -74,11 +72,6 @@ class Decomposer : public IDecomposer
         {
             _si.clear();
             _si <<= type;
-        }
-
-        virtual void setId(const std::string& id)
-        {
-            _si.setId(id);
         }
 
         virtual void setName(const std::string& name)

@@ -31,6 +31,8 @@
 #include <math.h>
 #include <cxxtools/xml/xmlserializer.h>
 #include <cxxtools/xml/xmldeserializer.h>
+#include <cxxtools/jsonserializer.h>
+#include <cxxtools/jsondeserializer.h>
 #include <cxxtools/bin/serializer.h>
 #include <cxxtools/bin/deserializer.h>
 #include <cxxtools/arg.h>
@@ -65,6 +67,28 @@ namespace
         si.addMember("boolValue") <<= obj.boolValue;
         si.setTypeName("TestObject");
     }
+
+    class JsonSerializer2 : public cxxtools::JsonSerializer
+    {
+        public:
+            JsonSerializer2() { }
+
+            explicit JsonSerializer2(std::basic_ostream<cxxtools::Char>& ts)
+                : cxxtools::JsonSerializer(ts)
+                { }
+
+            explicit JsonSerializer2(std::ostream& os,
+                cxxtools::TextCodec<cxxtools::Char, char>* codec = 0)
+                : cxxtools::JsonSerializer(os, codec)
+                { }
+
+            template <typename T>
+            JsonSerializer2& serialize(const T& v, const std::string& name)
+            {
+                cxxtools::JsonSerializer::serialize(v);
+                return *this;
+            }
+    };
 }
 
 template <typename T, typename Serializer, typename Deserializer>
@@ -102,6 +126,12 @@ void benchXmlSerialization(const T& d, const char* fname = 0)
 }
 
 template <typename T>
+void benchJsonSerialization(const T& d, const char* fname = 0)
+{
+    benchSerialization<T, JsonSerializer2, cxxtools::JsonDeserializer>(d, fname);
+}
+
+template <typename T>
 void benchBinSerialization(const T& d, const char* fname = 0)
 {
     benchSerialization<T, cxxtools::bin::Serializer, cxxtools::bin::Deserializer>(d, fname);
@@ -118,6 +148,9 @@ void benchVector(const char* typeName, unsigned N, bool fileoutput)
 
     std::cout << "xml:" << std::endl;
     benchXmlSerialization(v, fileoutput ? (std::string("vector-") + typeName + ".xml").c_str() : 0);
+
+    std::cout << "json:" << std::endl;
+    benchJsonSerialization(v, fileoutput ? (std::string("vector-") + typeName + ".json").c_str() : 0);
 
     std::cout << "bin:" << std::endl;
     benchBinSerialization(v, fileoutput ? (std::string("vector-") + typeName + ".bin").c_str() : 0);
@@ -162,6 +195,9 @@ int main(int argc, char* argv[])
 
             std::cout << "xml:" << std::endl;
             benchXmlSerialization(v, fileoutput ? "custobject.xml" : 0);
+
+            std::cout << "json:" << std::endl;
+            benchJsonSerialization(v, fileoutput ? "custobject.json" : 0);
 
             std::cout << "bin:" << std::endl;
             benchBinSerialization(v, fileoutput ? "custobject.bin" : 0);
