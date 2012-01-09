@@ -987,11 +987,16 @@ InIterT getFloat(InIterT it, InIterT end, bool& ok, T& n, const FormatT& fmt)
     }
 
     // integral part
+    bool withFractional = false;
     for( ; it != end; ++it)
     {
-        if( *it == fmt.point() )
+        if( *it == fmt.point() || *it == fmt.e() || *it == fmt.E() )
         {
-            ++it;
+            if( *it == fmt.point())
+            {
+                withFractional = true;
+                ++it;
+            }
             break;
         }
         
@@ -1013,41 +1018,45 @@ InIterT getFloat(InIterT it, InIterT end, bool& ok, T& n, const FormatT& fmt)
         return it;
     }
 
-    // fractional part, ignore 0 digits after dot
-    unsigned short fractDigits = 0;
-    size_t maxDigits = std::numeric_limits<unsigned short>::max() - std::numeric_limits<T>::digits10;
-    while(it != end && *it == zero)
-    {
-        if( fractDigits > maxDigits )
-            return it;
-
-        ++fractDigits;
-        ++it;
-    }
- 
-    // fractional part, parse like integer, skip insignificant digits
-    unsigned short significants = 0;
-    T fraction = 0.0;
-    for( ; it != end; ++it)
-    {
-        unsigned digit = fmt.toDigit(*it); 
-        if(digit >= fmt.base)
-            break;
-
-        if( significants <= std::numeric_limits<T>::digits10 )
-        {
-            fraction *= 10;
-            fraction += digit;
-
-            ++fractDigits;
-            ++significants;
-        }
-    }
-
-    // fractional part, scale down
     T base = 10.0;
-    fraction /= std::pow(base, T(fractDigits));
-    n += fraction;
+    if( withFractional)
+    {
+        // fractional part, ignore 0 digits after dot
+        unsigned short fractDigits = 0;
+        size_t maxDigits = std::numeric_limits<unsigned short>::max() - std::numeric_limits<T>::digits10;
+        while(it != end && *it == zero)
+        {
+            if( fractDigits > maxDigits )
+                return it;
+            
+            ++fractDigits;
+            ++it;
+        }
+ 
+        // fractional part, parse like integer, skip insignificant digits
+        unsigned short significants = 0;
+        T fraction = 0.0;
+        for( ; it != end; ++it)
+        {
+            unsigned digit = fmt.toDigit(*it); 
+            if(digit >= fmt.base)
+                break;
+            
+            if( significants <= std::numeric_limits<T>::digits10 )
+            {
+                fraction *= 10;
+                fraction += digit;
+                
+                ++fractDigits;
+                ++significants;
+            }
+        }
+    
+
+        // fractional part, scale down
+        fraction /= std::pow(base, T(fractDigits));
+        n += fraction;
+    }
 
     // exponent [e|E][+|-][0-9]*
     if(it != end && (*it == fmt.e() || *it == fmt.E()) )

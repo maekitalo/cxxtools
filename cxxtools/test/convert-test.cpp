@@ -44,6 +44,7 @@ class ConvertTest : public cxxtools::unit::TestSuite
             registerMethod("nanTest", *this, &ConvertTest::nanTest);
             registerMethod("infTest", *this, &ConvertTest::infTest);
             registerMethod("emptyTest", *this, &ConvertTest::emptyTest);
+            registerMethod("floatTest", *this, &ConvertTest::floatTest);
         }
 
         void successTest()
@@ -206,6 +207,27 @@ class ConvertTest : public cxxtools::unit::TestSuite
           CXXTOOLS_UNIT_ASSERT_THROW(cxxtools::convert<unsigned>(cxxtools::String()), cxxtools::ConversionError);
           CXXTOOLS_UNIT_ASSERT_THROW(cxxtools::convert<double>(std::string()), cxxtools::ConversionError);
           CXXTOOLS_UNIT_ASSERT_THROW(cxxtools::convert<double>(cxxtools::String()), cxxtools::ConversionError);
+        }
+
+        void floatTest()
+        {
+          double d = cxxtools::convert<double>("1.5");
+          CXXTOOLS_UNIT_ASSERT_EQUALS(d, 1.5);
+
+          d = cxxtools::convert<double>(" -345.75 ");
+          CXXTOOLS_UNIT_ASSERT_EQUALS(d, -345.75);
+
+          d = cxxtools::convert<double>("\n1e6\r");
+          CXXTOOLS_UNIT_ASSERT_EQUALS(d, 1e6);
+
+          d = cxxtools::convert<double>("7.0e4");
+          CXXTOOLS_UNIT_ASSERT_EQUALS(d, 7e4);
+
+          d = cxxtools::convert<double>("-2e-3");
+          CXXTOOLS_UNIT_ASSERT_EQUALS(d, -2e-3);
+
+          d = cxxtools::convert<double>("-3.0e-12");
+          CXXTOOLS_UNIT_ASSERT_EQUALS(d, -3e-12);
         }
 
 };
