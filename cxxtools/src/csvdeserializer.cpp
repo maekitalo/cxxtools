@@ -74,7 +74,6 @@ namespace cxxtools
     void CsvDeserializer::doDeserialize()
     {
         Char ch;
-        Char quote;
         _parser.begin(*this);
         while (_in.get(ch))
             _parser.advance(ch);
