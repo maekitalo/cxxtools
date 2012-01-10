@@ -226,8 +226,15 @@ class ConvertTest : public cxxtools::unit::TestSuite
           d = cxxtools::convert<double>("-2e-3");
           CXXTOOLS_UNIT_ASSERT_EQUALS(d, -2e-3);
 
+          d = cxxtools::convert<double>("-8E-5");
+          CXXTOOLS_UNIT_ASSERT_EQUALS(d, -8e-5);
+
           d = cxxtools::convert<double>("-3.0e-12");
           CXXTOOLS_UNIT_ASSERT_EQUALS(d, -3e-12);
+
+          d = cxxtools::convert<double>("-8.5E-23");
+          CXXTOOLS_UNIT_ASSERT_EQUALS(d, -8.5e-23);
+
         }
 
 };
