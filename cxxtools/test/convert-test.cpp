@@ -30,8 +30,11 @@
 #include "cxxtools/unit/testsuite.h"
 #include "cxxtools/unit/registertest.h"
 #include "cxxtools/string.h"
+#include "cxxtools/log.h"
 #include <limits>
 #include <string.h>
+
+log_define("cxxtools.test.convert")
 
 class ConvertTest : public cxxtools::unit::TestSuite
 {
@@ -209,9 +212,30 @@ class ConvertTest : public cxxtools::unit::TestSuite
           CXXTOOLS_UNIT_ASSERT_THROW(cxxtools::convert<double>(cxxtools::String()), cxxtools::ConversionError);
         }
 
+        void t(double d)
+        {
+          std::string s = cxxtools::convert<std::string>(d);
+          double r = cxxtools::convert<double>(s);
+          if (r == 0)
+          {
+            CXXTOOLS_UNIT_ASSERT_EQUALS(d, 0);
+          }
+          else
+          {
+            double q = d / r;
+            log_debug("d=" << d << " s=\"" << s << "\" r=" << r << " q=" << q);
+            if (q < 0.999999999999 || q > 1.0000000000001)
+            {
+              CXXTOOLS_UNIT_ASSERT_EQUALS(d, r);
+            }
+          }
+        }
+
         void floatTest()
         {
-          double d = cxxtools::convert<double>("1.5");
+          double d, r, q;
+
+          d = cxxtools::convert<double>("1.5");
           CXXTOOLS_UNIT_ASSERT_EQUALS(d, 1.5);
 
           d = cxxtools::convert<double>(" -345.75 ");
@@ -235,6 +259,18 @@ class ConvertTest : public cxxtools::unit::TestSuite
           d = cxxtools::convert<double>("-8.5E-23");
           CXXTOOLS_UNIT_ASSERT_EQUALS(d, -8.5e-23);
 
+          t(3.141592653579893);
+          t(0.314);
+          t(0.0314);
+          t(0.00123);
+          t(123456789.55555555);
+          t(0);
+          t(1);
+          t(1.4567e17);
+          t(12345);
+          t(1.4567e-17);
+          t(0.2);
+          t(12);
         }
 
 };

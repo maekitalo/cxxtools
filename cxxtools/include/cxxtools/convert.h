@@ -272,7 +272,7 @@ inline OutIterT putInt(OutIterT it, T i);
 /** @brief Formats a floating point value in a given format.
  */
 template <typename OutIterT, typename T, typename FormatT>
-OutIterT putFloat(OutIterT it, T d, const FormatT& fmt, int precision, bool scientific);
+OutIterT putFloat(OutIterT it, T d, const FormatT& fmt, int precision);
 
 /** @brief Formats a floating point value in default format.
  */
@@ -628,65 +628,8 @@ inline OutIterT putInt(OutIterT it, T i)
 }
 
 
-template <typename CharT, typename T, typename FormatT>
-inline std::size_t formatFloat(CharT* fraction, std::size_t fractSize, int& intpart, int& exp, T n,
-                               const FormatT& fmt, int precision, bool scientific)
-{
-    intpart = 0;
-    exp = 0;
-    
-    if(n == T(0.0) || n != n)
-        return 0;
-
-    const bool neg = n < 0;
-    if(n < 0)
-        n = -n;
-    
-    if( n == std::numeric_limits<T>::infinity() )
-        return 0;
-    
-    exp = static_cast<int>( std::log10(n) );
-    
-    if(exp != 0)
-        n /= std::pow(T(10.0), exp);
-
-    if( precision >= 0 && std::size_t(precision) < fractSize )
-    {
-        if( ! scientific )
-            precision += exp;
-            
-        T roundfact = std::pow(T(10.0), precision);
-        n = (std::floor((n * roundfact) + T(0.5)) + T(0.1)) / roundfact;
-    }
-
-    intpart = static_cast<int>( std::floor(n) );
-    n -= intpart;
-    if(neg)
-        intpart = -intpart;
-    
-    int digit = 0;
-    T eps = std::numeric_limits<T>::epsilon();
-    std::size_t places = 0;
-
-    while(n > eps && places < fractSize)
-    {
-        eps *= 10.0;
-        n *= 10.0;
-        digit = static_cast<int>( std::floor(n) );
-        n -= digit;
-
-        CharT c = fmt.toChar(digit);
-        *fraction++ = c;
-
-        ++places;
-    }
-
-    return places;
-}
-
-
 template <typename OutIterT, typename T, typename FormatT>
-inline OutIterT putFloat(OutIterT it, T d, const FormatT& fmt, int precision, bool scientific)
+inline OutIterT putFloat(OutIterT it, T d, const FormatT& fmt, int precision)
 {
     typedef typename FormatT::CharT CharT;
     CharT zero = fmt.toChar(0);
@@ -723,43 +666,71 @@ inline OutIterT putFloat(OutIterT it, T d, const FormatT& fmt, int precision, bo
 
         return it;
     }
-    
+
     const int bufsize = std::numeric_limits<T>::digits10;
-    CharT fract[bufsize];
-    int i = 0;
-    int e = 0;
-    int fractSize = formatFloat(fract, bufsize, i, e, num, fmt, precision, scientific);
 
-    // show only significant digits for default format
-    precision = 1;
-    if( e < fractSize )
-        precision = fractSize - e;
+    if (precision > bufsize)
+        precision = bufsize;
 
-    int n = 0;
-    if(e >= 0)
+    CharT fract[bufsize + 1];
+    fract[bufsize]='\0';
+
+    int exp = static_cast<int>(std::floor(std::log10(num))) + 1;
+
+    num *= std::pow(T(10.0), static_cast<int>(precision) - exp);
+    num += .5;
+
+    bool notZero = false;
+    for (unsigned short d = precision; d > 0; --d)
     {
-        *it++ = fmt.toChar(i);
-        for(; n < e; ++n)
-            *it++ = (n < fractSize) ? fract[n] : zero;
+        T n = num / 10.0;
+        T fl = std::floor(n) * 10.0;
+        unsigned char v = num - fl;
+        notZero |= (v != 0);
+        fract[d - 1] = notZero ? fmt.toChar(num - fl) : CharT('\0');
+        num = n;
+    }
 
-        *it++ = fmt.point();
+    if (fract[0] == CharT('\0'))
+    {
+        *it = '0'; ++it;
+        return it;
+    }
+
+    if (exp <= 0)
+    {
+        *it = '0'; ++it;
+        *it = '.'; ++it;
+
+        while (exp < 0)
+        {
+            *it = '0'; ++it;
+            ++exp;
+        }
+
+        for (int d = 0; fract[d]; ++d)
+        {
+            *it = fract[d]; ++it;
+        }
     }
     else
     {
-        *it++ = zero;
-        *it++ = fmt.point();
+        for (int d = 0; fract[d]; ++d)
+        {
+            if (exp-- == 0)
+            {
+                *it = '.';
+                ++it;
+            }
+            *it = fract[d]; ++it;
+        }
 
-        for( ;n > ++e && precision > 0; --precision)
-            *it++ = zero;
-
-        if(precision-- > 0)
-            *it++ = fmt.toChar(i);
+        while (exp-- > 0)
+        {
+            *it = '0'; ++it;
+        }
     }
 
-    for(; precision > 0; ++n, --precision)
-        *it++ = (n < fractSize) ?  fract[n] : zero; 
-
-    return it;
 }
 
 
@@ -768,7 +739,7 @@ inline OutIterT putFloat(OutIterT it, T d)
 {
     const int precision = std::numeric_limits<T>::digits10;
     FloatFormat<char> fmt;
-    return putFloat(it, d, fmt, precision, false);
+    return putFloat(it, d, fmt, precision);
 }
 
 
