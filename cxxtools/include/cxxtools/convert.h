@@ -731,6 +731,7 @@ inline OutIterT putFloat(OutIterT it, T d, const FormatT& fmt, int precision)
         }
     }
 
+    return it;
 }
 
 
