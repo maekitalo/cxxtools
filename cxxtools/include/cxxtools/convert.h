@@ -666,7 +666,7 @@ inline OutIterT putFloat(OutIterT it, T d, const FormatT& fmt, int precision)
         return it;
     }
 
-    const int bufsize = std::numeric_limits<T>::digits10;
+    const int bufsize = std::numeric_limits<T>::digits10 + 1;
 
     if (precision > bufsize)
         precision = bufsize;
@@ -737,7 +737,7 @@ inline OutIterT putFloat(OutIterT it, T d, const FormatT& fmt, int precision)
 template <typename OutIterT, typename T>
 inline OutIterT putFloat(OutIterT it, T d)
 {
-    const int precision = std::numeric_limits<T>::digits10;
+    const int precision = std::numeric_limits<T>::digits10 + 1;
     FloatFormat<char> fmt;
     return putFloat(it, d, fmt, precision);
 }
