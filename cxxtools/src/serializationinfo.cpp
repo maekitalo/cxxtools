@@ -47,8 +47,8 @@ SerializationInfo::SerializationInfo(const SerializationInfo& si)
 , _name(si._name)
 , _type(si._type)
 , _u(si._u)
-, _nodes(si._nodes)
 , _t(si._t)
+, _nodes(si._nodes)
 {
     switch (_t)
     {
@@ -520,7 +520,7 @@ wchar_t SerializationInfo::_getWChar() const
         case t_char:    return _u._c;
         case t_int:     return _u._i;
         case t_uint:    return _u._u;
-        case t_float:   return _u._f;
+        case t_float:   return static_cast<wchar_t>(_u._f);
     }
 
     // never reached
@@ -537,7 +537,7 @@ char SerializationInfo::_getChar() const
         case t_char:    return _u._c; break;
         case t_int:     return _u._i; break;
         case t_uint:    return _u._u; break;
-        case t_float:   return _u._f; break;
+        case t_float:   return static_cast<char>(_u._f); break;
     }
     // never reached
     return 0;
@@ -561,7 +561,7 @@ SerializationInfo::int_type SerializationInfo::_getInt(const char* type, int_typ
                             throw std::range_error(msg.str());
                         }
                         ret = _u._u; break;
-        case t_float:   ret = _u._f; break;
+        case t_float:   ret = static_cast<int_type>(_u._f); break;
     }
 
     if (ret < min || ret > max)
@@ -589,7 +589,7 @@ SerializationInfo::unsigned_type SerializationInfo::_getUInt(const char* type, u
                         ret = _u._i;
                         break;
         case t_uint:    ret = _u._u; break;
-        case t_float:   ret = _u._f; break;
+        case t_float:   ret = static_cast<unsigned_type>(_u._f); break;
     }
 
     if (ret > max)

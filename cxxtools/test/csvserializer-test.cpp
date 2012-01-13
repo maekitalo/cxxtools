@@ -101,7 +101,7 @@ class CsvSerializerTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(out.str(),
                 "intValue,stringValue,doubleValue\n"
                 "17,Hi,7.5\n"
-                "-2,Foo,-8.0\n");
+                "-2,Foo,-8\n");
         }
 
         void testPartialObject()

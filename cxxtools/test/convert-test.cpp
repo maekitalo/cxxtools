@@ -233,7 +233,7 @@ class ConvertTest : public cxxtools::unit::TestSuite
 
         void floatTest()
         {
-          double d, r, q;
+          double d;
 
           d = cxxtools::convert<double>("1.5");
           CXXTOOLS_UNIT_ASSERT_EQUALS(d, 1.5);

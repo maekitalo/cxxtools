@@ -632,7 +632,6 @@ template <typename OutIterT, typename T, typename FormatT>
 inline OutIterT putFloat(OutIterT it, T d, const FormatT& fmt, int precision)
 {
     typedef typename FormatT::CharT CharT;
-    CharT zero = fmt.toChar(0);
 
     // 1. Test for not-a-number with d != d
     if( d != d ) 
@@ -685,9 +684,9 @@ inline OutIterT putFloat(OutIterT it, T d, const FormatT& fmt, int precision)
     {
         T n = num / 10.0;
         T fl = std::floor(n) * 10.0;
-        unsigned char v = num - fl;
+        unsigned char v = static_cast<unsigned char>(num - fl);
         notZero |= (v != 0);
-        fract[d - 1] = notZero ? fmt.toChar(num - fl) : CharT('\0');
+        fract[d - 1] = notZero ? fmt.toChar(v) : CharT('\0');
         num = n;
     }
 

@@ -46,8 +46,8 @@ namespace json
 
 HttpClientImpl::HttpClientImpl()
 : _timeout(Selectable::WaitInfinite),
-  _count(0),
-  _exceptionPending(false)
+  _exceptionPending(false),
+  _count(0)
 {
     _request.method("POST");
     cxxtools::connect(_client.headerReceived, *this, &HttpClientImpl::onReplyHeader);
