@@ -165,10 +165,25 @@ void Application::run()
 }
 
 
+void Application::staticRegisterTest(Test& test)
+{
+    for (std::list<Test*>::iterator it = Application::tests().begin(); it != Application::tests().end(); ++it)
+    {
+        if ((*it)->name() > test.name())
+        {
+            Application::tests().insert(it, &test);
+            return;
+        }
+    }
+
+    Application::tests().push_back(&test);
+}
+
+
 void Application::registerTest(Test& test)
 {
-    Application::tests().push_back(&test);
     test.setParent(this);
+    staticRegisterTest(test);
 }
 
 
@@ -185,6 +200,6 @@ std::list<Test*>& Application::tests()
     return _allTests;
 }
 
-} //namespace unit
+} // namespace unit
 
 } // namespace cxxtools

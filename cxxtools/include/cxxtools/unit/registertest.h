@@ -62,7 +62,7 @@ namespace unit {
         RegisterTest()
         {
             static TestT test;
-            Application::tests().push_back(&test);
+            Application::staticRegisterTest(test);
         }
     };
 

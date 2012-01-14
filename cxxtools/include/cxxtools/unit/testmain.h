@@ -34,7 +34,6 @@
 #include <cxxtools/loginit.h>
 #include <fstream>
 
-// TODO: move to application class later
 namespace TestMain
 {
     static int argc = 0;
@@ -44,6 +43,8 @@ namespace TestMain
 
 int main(int argc, char** argv)
 {
+    log_init();
+
     TestMain::argc = argc;
     TestMain::argv = argv;
     cxxtools::unit::Application app;
@@ -56,12 +57,10 @@ int main(int argc, char** argv)
         std::list<cxxtools::unit::Test*>::const_iterator it;
         for( it = app.tests().begin(); it != app.tests().end(); ++it)
         {
-            std::cerr << "  - "<< (*it)->name() << std::endl;
+            std::cerr << "  - " << (*it)->name() << std::endl;
         }
         return 0;
     }
-
-    log_init();
 
     cxxtools::unit::BriefReporter consoleReporter;
     app.attachReporter(consoleReporter);
@@ -78,7 +77,8 @@ int main(int argc, char** argv)
         app.attachReporter(fileReporter);
     }
 
-    try {
+    try
+    {
         cxxtools::Arg<std::string> test(argc, argv, 't');
         std::string testName = test.getValue();
         if( testName.empty() )
@@ -88,7 +88,12 @@ int main(int argc, char** argv)
         }
         else
         {
-            app.run(testName);
+            while (!testName.empty())
+            {
+                app.run(testName);
+                testName = cxxtools::Arg<std::string>(argc, argv, 't');
+            }
+
             return app.errors();
         }
 

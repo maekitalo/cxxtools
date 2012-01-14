@@ -30,7 +30,8 @@
 
 #include <cxxtools/unit/reporter.h>
 #include <cxxtools/unit/test.h>
-#include <sstream>
+#include <list>
+#include <string>
 
 namespace cxxtools {
 
@@ -112,10 +113,18 @@ namespace unit {
             { return _errors; }
 
             /** @brief Returns a list of all registered test
-                TODO: find another way to query available tests
                 @return Reference to the registered tests.
             */
             static std::list<Test*>& tests();
+
+            /** @brief Register a test
+
+                Registers the test \a test to the application. The application
+                will not own the test and the caller has to make sure it exists
+                as long as the application object. Tests can be deregistered
+                by calling %deregisterTest.
+            */
+            static void staticRegisterTest(Test& test);
 
             /** @brief Register a test
 
