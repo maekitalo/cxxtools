@@ -61,6 +61,8 @@ void JsonFormatter::finish()
     log_trace("finish");
     if (_beautify)
         *_ts << L'\n';
+    _level = 0;
+    _lastLevel = -1;
 }
 
 void JsonFormatter::addValue(const std::string& name, const std::string& type,
@@ -172,7 +174,7 @@ void JsonFormatter::addValue(const std::string& name, const std::string& type,
     }
     else
     {
-        *_ts << value;
+        *_ts << convert<String>(value);
     }
 
     finishValue();

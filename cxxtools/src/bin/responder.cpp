@@ -29,6 +29,7 @@
 #include "responder.h"
 #include "rpcserverimpl.h"
 #include <cxxtools/bin/valueparser.h>
+#include <cxxtools/bin/serializer.h>
 #include <cxxtools/serviceprocedure.h>
 #include <cxxtools/remoteexception.h>
 #include <cxxtools/log.h>
@@ -49,7 +50,7 @@ void Responder::reply(IOStream& out)
 {
     log_info("send reply");
 
-    out << '\x41';
+    out << '\xc1';
     _formatter.begin(out);
     _result->format(_formatter);
     out << '\xff';
@@ -61,7 +62,7 @@ void Responder::replyError(IOStream& out, const char* msg, int rc)
 {
     log_info("send error \"" << msg << '"');
 
-    out << '\x42'
+    out << '\xc2'
         << static_cast<char>(static_cast<uint32_t>(rc) >> 24)
         << static_cast<char>(static_cast<uint32_t>(rc) >> 16)
         << static_cast<char>(static_cast<uint32_t>(rc) >> 8)
@@ -119,7 +120,7 @@ bool Responder::advance(char ch)
     switch (_state)
     {
         case state_0:
-            if (ch != '\x40')
+            if (ch != '\xc0')
                 throw std::runtime_error("method name expected");
             _state = state_method;
             break;

@@ -68,9 +68,8 @@ class ValueParser
         bool valueEnd();
         enum State
         {
-            state_0,
-            state_value_name,
-            state_value_type,
+            state_type,
+            state_name,
             state_value_type_other,
             state_value_intsign,
             state_value_int,
@@ -81,20 +80,21 @@ class ValueParser
             state_value_binary_length,
             state_value_binary,
             state_value_value,
-            state_object_name,
+            state_sfloat_exp,
+            state_sfloat_base,
+            state_lfloat_exp,
+            state_lfloat_base,
             state_object_type,
             state_object_type_other,
             state_object_member,
-            state_object_member_name,
             state_object_member_value,
-            state_array_name,
             state_array_type,
             state_array_type_other,
             state_array_member,
             state_array_member_value,
             state_array_member_value_next,
             state_end,
-        } _state;
+        } _state, _nextstate;
 
         SerializationInfo::Category _category;
         std::string _token;

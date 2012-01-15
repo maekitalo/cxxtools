@@ -176,9 +176,13 @@ int main(int argc, char* argv[])
                      "   -C <number>       specify number of iterations for custom object\n"
                      "   -f                write serialized output to files\n" << std::endl;
 
-        benchVector<int>("int", I, fileoutput);
-        benchVector<double>("double", D, fileoutput);
+        if (I.getValue() > 0)
+            benchVector<int>("int", I, fileoutput);
 
+        if (D.getValue() > 0)
+            benchVector<double>("double", D, fileoutput);
+
+        if (C.getValue() > 0)
         {
             std::cout << "vector of custom objects:" << std::endl;
 

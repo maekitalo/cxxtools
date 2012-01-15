@@ -55,12 +55,12 @@ bool Scanner::advance(char ch)
     switch (_state)
     {
         case state_0:
-            if (ch == '\x41')
+            if (ch == '\xc1')
             {
                 _failed = false;
                 _state = state_value;
             }
-            else if (ch == '\x42')
+            else if (ch == '\xc2')
             {
                 _failed = true;
                 _state = state_errorcode;

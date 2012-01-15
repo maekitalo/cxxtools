@@ -265,6 +265,8 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
             obj.nullValue = true;
             serializer.serialize(obj, "obj");
 
+            log_debug("bindata testobject: " << cxxtools::hexDump(data.str()));
+
             TestObject obj2;
             deserializer.deserialize(obj2);
 
@@ -300,6 +302,8 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
             v.push_back(obj);
 
             serializer.serialize(v, "v");
+
+            log_debug("bindata complex object: " << cxxtools::hexDump(data.str()));
 
             std::vector<TestObject2> v2;
             deserializer.deserialize(v2);

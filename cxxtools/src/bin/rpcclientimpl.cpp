@@ -179,7 +179,7 @@ void RpcClientImpl::cancel()
 
 void RpcClientImpl::prepareRequest(const String& name, IDecomposer** argv, unsigned argc)
 {
-    _stream << '\x40' << _praefix << name << '\0';
+    _stream << '\xc0' << _praefix << name << '\0';
 
     for(unsigned n = 0; n < argc; ++n)
     {

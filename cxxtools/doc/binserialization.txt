@@ -1,76 +1,77 @@
-category:
-    byte: 1=value, 2=object, 6=array, 8=reference 64=method name 65=response ok 66=response exception
+type/category:
+    h00-3f: types
+    h40-7f: plain types
+    h80-9f: container
+    ha0-bf: other categories
+    hc0-cf: rpc
+    basic typecodes: 0=empty
+                     1=bool
+                     2=char
+                     3=string
+                     4=int (big endian)
+                     5=short float (1 bit sign, 7 bit exponent, 16 bit mantissa)
+                     6=long float (1 bit sign, 15 bit exponent, 64 bit mantissa)
+                     7=bcd float
+                     8=binary with 2 byte big endian length field
+                     9=binary with 4 byte big endian length field
+                     h10=int8
+                     h11=int16
+                     h12=int32
+                     h13=int64
+                     h18=uint8
+                     h19=uint16
+                     h1a=uint32
+                     h1b=uint64
+                     h3f=other (+ zero terminated string)
+    plain typecodes: basic typecode + h40
+    container:       h80=pair
+                     h81=array
+                     h82=vector
+                     h83=list
+                     h84=deque
+                     h85=set
+                     h86=multiset
+                     h87=map
+                     h88=multimap
+    categories:      ha0=object
+                     ha1=array
+                     ha2=reference
+    rpc:             hc0=rpc request
+                     hc1=rpc response ok
+                     hc2=rpc response exception
+
 name:
     zero terminated string
-type: byte
-    typecodes: 0=empty
-               1=bool
-               2=char
-               3=string
-               4=int (big endian)
-               5=double
-               6=bcd double
-               7=binary with 2 byte big endian length field
-               8=binary with 4 byte big endian length field
-               16=int8
-               17=int16
-               18=int32
-               19=int64
-               24=uint8
-               25=uint16
-               26=uint32
-               27=uint64
-               32=pair
-               64=array
-               65=list
-               66=deque
-               67=set
-               68=multiset
-               69=map
-               70=multimap
-               255=other + zero terminated string
 value: (only when category=value)
     zero terminated utf-8 string
 member prefix: (only when category=object)
     \1=member  \xff=eod
-member name: (only when category=object)
-    zero terminated string
 member:
     ...
 nodes: (when category=object|array)
     category=\xff determines end of data
 
 value:
-    \1                       category
+    \3                       type (3=string)
     foobar\0                 name
-    \4                       type (4=int)
-    4711\0                   value
+    Hello world\0            value
     \xff                     eod
 
 object:
-    \2                       category
-    myobject\0               name
-    \xffmytype\0             type
-    \1                       member1 prefix
-    firstMember\0            member1 name
-    \1 \0 \4 4711            member1 value
-    \1                       member2 prefix
-    secondMember\0           member2 name
-    \1 \0 \4 4712            member2 value
-    \xff                     eod
+    \xa0                            category object
+    myobject\0                      name
+    \xffmytype\0                    type
+    \1                              member1 prefix
+    \4 firstMember\0 4711\0 \xff    member1 value
+    \1                              member2 prefix
+    \1 secondMember\0 4712\0 \xff   member2 value
+    \xff                            eod
 
 array:
-    \6                       category
+    \xa2                     category array
     myarray\0                name
-    \x40                     type (64=0x40=array)
-    \1 \0 \4 4711            element1
-    \1 \0 \4 4712            element2
-    \xff                     eod
-
-reference:
-    \8                       category
-    foo\0                    name
-    bar\0                    value
+    \x43 Hello \0 \xff       element1  (type: plain string)
+    \x43 World \0 \xff       element2
     \xff                     eod
 
 bcd double:
@@ -84,19 +85,19 @@ bcd double:
                  e: e
     \xff                     eod
 
-method name:
-    \x40                     category
+rpc request:
+    \xc0                     category
     function\0               function name
     ...                      array of parameters
     \xff                     eod
 
-response ok:
-    \x41                     category
+rpc response ok:
+    \xc1                     category
     ...                      return value
     \xff
 
-response exception:
-    \x42                     category
+rpc response exception:
+    \xc2                     category
     4 byte error code (big endian)
     error message\0          error message
     \xff                     eod

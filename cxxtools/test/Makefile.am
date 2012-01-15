@@ -15,6 +15,7 @@ alltests_SOURCES = \
     csvdeserializer-test.cpp \
     csvserializer-test.cpp \
     convert-test.cpp \
+    json-test.cpp \
     jsondeserializer-test.cpp \
     jsonrpc-test.cpp \
     jsonrpchttp-test.cpp \
