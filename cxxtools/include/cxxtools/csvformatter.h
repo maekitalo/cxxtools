@@ -49,6 +49,8 @@ namespace cxxtools
 
             void selectColumn(const std::string& title);
 
+            void selectColumn(const std::string& memberName, const std::string& title);
+
             void delimiter(Char delimiter)
             { _delimiter = delimiter; }
 
@@ -86,7 +88,16 @@ namespace cxxtools
             Char _delimiter;
             Char _quote;
             String _lineEnding;
-            std::vector<std::string> _titles;
+
+            // titles and member names
+            struct Title
+            {
+                std::string _memberName;
+                std::string _title;
+            };
+
+            std::vector<Title> _titles;
+
             std::vector<String> _data;
             std::string _memberName;
             TextOStream* _ts;

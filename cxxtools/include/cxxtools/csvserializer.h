@@ -50,6 +50,11 @@ namespace cxxtools
                 _formatter.selectColumn(title);
             }
 
+            void selectColumn(const std::string& memberName, const std::string& title)
+            {
+                _formatter.selectColumn(memberName, title);
+            }
+
             void delimiter(Char delimiter)
             {
                 _formatter.delimiter(delimiter);

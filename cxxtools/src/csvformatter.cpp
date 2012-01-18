@@ -62,7 +62,17 @@ namespace cxxtools
 
     void CsvFormatter::selectColumn(const std::string& title)
     {
-        _titles.push_back(title);
+        _titles.resize(_titles.size() + 1);
+        _titles.back()._memberName = title;
+        _titles.back()._title = title;
+        _collectTitles = false;
+    }
+
+    void CsvFormatter::selectColumn(const std::string& memberName, const std::string& title)
+    {
+        _titles.resize(_titles.size() + 1);
+        _titles.back()._memberName = memberName;
+        _titles.back()._title = title;
         _collectTitles = false;
     }
 
@@ -102,7 +112,7 @@ namespace cxxtools
                 {
                     if (n > 0)
                         _os << _delimiter;
-                    _os << String(_titles[n]);
+                    _os << String(_titles[n]._title);
                 }
 
                 _os << _lineEnding;
@@ -138,7 +148,7 @@ namespace cxxtools
             log_debug("addValue member \"" << _memberName << "\" value \"" << value << '"');
             for (unsigned n = 0; n < _titles.size(); ++n)
             {
-                if (_titles[n] == _memberName)
+                if (_titles[n]._memberName == _memberName)
                 {
                     log_debug("column " << n);
                     if (_data.size() <= n)
@@ -179,7 +189,9 @@ namespace cxxtools
         if (_collectTitles && _firstline && _level == 2)
         {
             log_debug("add title " << name);
-            _titles.push_back(name);
+            _titles.resize(_titles.size() + 1);
+            _titles.back()._title = name;
+            _titles.back()._memberName = name;
         }
 
         _memberName = name;

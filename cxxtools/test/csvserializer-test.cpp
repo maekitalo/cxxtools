@@ -61,6 +61,7 @@ class CsvSerializerTest : public cxxtools::unit::TestSuite
             registerMethod("testVectorVector", *this, &CsvSerializerTest::testVectorVector);
             registerMethod("testObjectVector", *this, &CsvSerializerTest::testObjectVector);
             registerMethod("testPartialObject", *this, &CsvSerializerTest::testPartialObject);
+            registerMethod("testCustomTitles", *this, &CsvSerializerTest::testCustomTitles);
             registerMethod("testCustomChars", *this, &CsvSerializerTest::testCustomChars);
         }
 
@@ -126,6 +127,31 @@ class CsvSerializerTest : public cxxtools::unit::TestSuite
                 "stringValue,intValue\n"
                 "Hi,17\n"
                 "Foo,-2\n");
+        }
+
+        void testCustomTitles()
+        {
+            std::vector<TestObject> data;
+
+            data.resize(2);
+            data[0].intValue = 17;
+            data[0].stringValue = "Hi";
+            data[0].doubleValue = 7.5;
+            data[1].intValue = -2;
+            data[1].stringValue = "Foo";
+            data[1].doubleValue = -8;
+
+            std::ostringstream out;
+            cxxtools::CsvSerializer serializer(out);
+            serializer.selectColumn("stringValue", "col1");
+            serializer.selectColumn("intValue", "col2");
+            serializer.selectColumn("doubleValue", "col3");
+            serializer.serialize(data);
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(out.str(),
+                "col1,col2,col3\n"
+                "Hi,17,7.5\n"
+                "Foo,-2,-8\n");
         }
 
         void testCustomChars()
