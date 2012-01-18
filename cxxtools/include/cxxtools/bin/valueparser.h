@@ -100,6 +100,8 @@ class ValueParser
         std::string _token;
         unsigned _count;
         cxxtools::uint64_t _int;
+        int _exp;
+        bool _isNeg;
         DeserializerBase* _deserializer;
         ValueParser* _next;
 };

@@ -115,6 +115,7 @@ void ValueParser::begin(DeserializerBase& handler)
     _nextstate = state_type;
     _deserializer = &handler;
     _int = 0;
+    _exp = 0;
     _token.clear();
 }
 
@@ -124,6 +125,7 @@ void ValueParser::beginSkip()
     _state = state_type;
     _deserializer = 0;
     _int = 0;
+    _exp = 0;
     _token.clear();
 }
 
@@ -551,6 +553,83 @@ bool ValueParser::advance(char ch)
             }
             else
                 _token += ch;
+            break;
+
+        case state_sfloat_exp:
+            _isNeg = (ch & '\x80') != 0;
+            _exp = ch & '\x7f';
+            _state = state_sfloat_base;
+            _count = 2;
+            break;
+
+        case state_sfloat_base:
+            _int = (_int << 8) | static_cast<unsigned char>(ch);
+            if (--_count == 0)
+            {
+                _int <<= 48;
+                long double v;
+
+                if (_exp == 0x7f)
+                {
+                    v = (_int == 0 ? _isNeg ? -std::numeric_limits<long double>::infinity()
+                                            : std::numeric_limits<long double>::infinity()
+                       : std::numeric_limits<long double>::quiet_NaN());
+                }
+                else
+                {
+                    long double ss = static_cast<long double>(_int)
+                                   / (static_cast<long double>(std::numeric_limits<uint64_t>::max()) + 1.0l)
+                                      / 2.0l + .5l;
+
+                    v = ldexp(ss, _exp - 63);
+                    if (_isNeg)
+                        v = -v;
+
+                    log_debug("short float: s=" << ss << " man=" << std::hex << _int << std::dec << " exp=" << _exp << " isNeg=" << _isNeg << " value=" << v);
+                }
+
+                if (_deserializer)
+                    _deserializer->setValue(v);
+
+                _int = 0;
+                _state = state_end;
+            }
+            break;
+
+        case state_lfloat_exp:
+            if (--_count == 1)
+            {
+                _isNeg = (ch & '\x80') != 0;
+                _exp = ch & '\x7f';
+            }
+            else
+            {
+                _exp = (_exp << 8) | static_cast<unsigned char>(ch);
+                _count = 8;
+                _state = state_lfloat_base;
+            }
+            break;
+
+        case state_lfloat_base:
+            _int = (_int << 8) | static_cast<unsigned char>(ch);
+            if (--_count == 0)
+            {
+                long double ss = static_cast<long double>(_int)
+                               / (static_cast<long double>(std::numeric_limits<uint64_t>::max()) + 1.0l)
+                                  / 2.0l + .5l;
+
+                long double v = ldexp(ss, _exp - 16383);
+                if (_isNeg)
+                    v = -v;
+
+                log_debug("long float: s=" << ss << " man=" << std::hex << _int << std::dec << " exp=" << _exp << " isNeg=" << _isNeg << " value=" << v);
+
+                if (_deserializer)
+                    _deserializer->setValue(v);
+
+                _int = 0;
+                _state = state_end;
+            }
             break;
 
         case state_object_type:

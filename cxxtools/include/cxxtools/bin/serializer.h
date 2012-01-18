@@ -47,8 +47,8 @@ namespace cxxtools
                     TypeChar = 0x02,
                     TypeString = 0x03,
                     TypeInt = 0x04,
-                    TypeShortFloat = 0x05, // 1 bit sign, 7 bit exponent, 16 bit mantissa
-                    TypeLongFloat = 0x06,  // 1 bit sign, 15 bit exponent, 64 bit mantissa
+                    TypeShortFloat = 0x05, // 1 bit sign, 7 bit exponent, 16 bit mantissa (3 byte)
+                    TypeLongFloat = 0x06,  // 1 bit sign, 15 bit exponent, 64 bit mantissa (10 byte)
                     TypeBcdFloat = 0x07,
                     TypeBinary2 = 0x08,    // followed by zero terminated, 2 byte length field + data
                     TypeBinary4 = 0x09,    // followed by zero terminated, 4 byte length field + data

@@ -449,6 +449,87 @@ void Formatter::addValue(const std::string& name, const std::string& type,
     *_out << '\xff';
 }
 
+void Formatter::addValue(const std::string& name, const std::string& type,
+                      long double value)
+{
+    log_trace("addValue(\"" << name << "\", \"" << type << "\", (long double)" << value << ')');
+
+    if (value != value)
+    {
+        // NaN
+        *_out << static_cast<char>(name.empty() ? Serializer::TypePlainShortFloat : Serializer::TypeShortFloat);
+        if (!name.empty())
+            *_out << name << '\0';
+        *_out << '\x7f' << '\x1' << '\0';
+    }
+    else if (value == std::numeric_limits<long double>::infinity())
+    {
+        *_out << static_cast<char>(name.empty() ? Serializer::TypePlainShortFloat : Serializer::TypeShortFloat);
+        if (!name.empty())
+            *_out << name << '\0';
+        *_out << '\x7f' << '\x0' << '\0';
+    }
+    else if (value == -std::numeric_limits<long double>::infinity())
+    {
+        *_out << static_cast<char>(name.empty() ? Serializer::TypePlainShortFloat : Serializer::TypeShortFloat);
+        if (!name.empty())
+            *_out << name << '\0';
+        *_out << '\xff' << '\x0' << '\0';
+    }
+    else
+    {
+        bool isNeg = value < 0;
+        int exp;
+        long double s = frexp(isNeg ? -value : value, &exp);
+        uint64_t m = (std::numeric_limits<uint64_t>::max() + 1.0l) * (s * 2.0l - 1.0l);
+        if (m < 5 && s > .9)
+        {
+            // this must be an overflow, which may happen when long double has a very high resolution
+            m = std::numeric_limits<uint64_t>::max();
+        }
+
+        log_debug("value=" << value << " s=" << s << " man=" << std::hex << m << std::dec << " exp=" << exp << " neg=" << isNeg);
+
+        if ((m & 0x0000ffffffffffff) || exp > 63 || exp < -63)
+        {
+            log_debug("output long float");
+
+            uint16_t e = exp + 16383;
+            if (isNeg)
+                e |= 0x8000;
+            *_out << static_cast<char>(name.empty() ? Serializer::TypePlainLongFloat : Serializer::TypeLongFloat);
+            if (!name.empty())
+                *_out << name << '\0';
+            *_out << static_cast<char>(e >> 8)
+                  << static_cast<char>(e)
+                  << static_cast<char>(m >> 56)
+                  << static_cast<char>(m >> 48)
+                  << static_cast<char>(m >> 40)
+                  << static_cast<char>(m >> 32)
+                  << static_cast<char>(m >> 24)
+                  << static_cast<char>(m >> 16)
+                  << static_cast<char>(m >> 8)
+                  << static_cast<char>(m);
+        }
+        else
+        {
+            log_debug("output short float");
+
+            uint8_t e = exp + 63;
+            if (isNeg)
+                e |= 0x80;
+            *_out << static_cast<char>(name.empty() ? Serializer::TypePlainShortFloat : Serializer::TypeShortFloat);
+            if (!name.empty())
+                *_out << name << '\0';
+            *_out << static_cast<char>(e)
+                  << static_cast<char>(m >> 56)
+                  << static_cast<char>(m >> 48);
+        }
+    }
+
+    *_out << '\xff';
+}
+
 void Formatter::addNull(const std::string& name, const std::string& type)
 {
     log_trace("addNull(\"" << name << "\", \"" << type << "\")");

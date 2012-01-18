@@ -59,6 +59,9 @@ namespace cxxtools
                 virtual void addValue(const std::string& name, const std::string& type,
                                       unsigned_type value);
 
+                virtual void addValue(const std::string& name, const std::string& type,
+                                      long double value);
+
                 virtual void addNull(const std::string& name, const std::string& type);
 
                 virtual void beginArray(const std::string& name, const std::string& type);

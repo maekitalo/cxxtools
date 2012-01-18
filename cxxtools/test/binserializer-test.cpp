@@ -192,7 +192,7 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
             double result = 0.0;
             deserializer.deserialize(result);
 
-            log_debug("test double value " << value << " => " << result);
+            log_debug("test double value " << value << " => " << cxxtools::hexDump(data.str()) << " => " << result);
 
             if (value != value) // check for nan
                 CXXTOOLS_UNIT_ASSERT(result != result);
@@ -200,8 +200,8 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
                 CXXTOOLS_UNIT_ASSERT_EQUALS(result, std::numeric_limits<double>::infinity());
             else if (value == -std::numeric_limits<double>::infinity())
                 CXXTOOLS_UNIT_ASSERT_EQUALS(result, -std::numeric_limits<double>::infinity());
-            else
-                CXXTOOLS_UNIT_ASSERT(value / result < 1.00001 && value / result > 0.99999);
+            else if (value / result > 1.00001 || value / result < 0.99999)
+                CXXTOOLS_UNIT_FAIL("double test failed; value " << value << " got " << result);
         }
 
         void testDouble()
