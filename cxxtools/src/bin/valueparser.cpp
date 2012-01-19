@@ -69,16 +69,18 @@ namespace
             case Serializer::TypePlainUInt32:
             case Serializer::TypeUInt64:
             case Serializer::TypePlainUInt64: return "int";
-            case Serializer::TypeShortFloat:
-            case Serializer::TypePlainShortFloat:
-            case Serializer::TypeLongFloat:
-            case Serializer::TypePlainLongFloat:
-            case Serializer::TypeBcdFloat:
-            case Serializer::TypePlainBcdFloat: return "double";
             case Serializer::TypeBinary2:
             case Serializer::TypePlainBinary2:
             case Serializer::TypeBinary4:
             case Serializer::TypePlainBinary4: return "binary";
+            case Serializer::TypeShortFloat:
+            case Serializer::TypePlainShortFloat:
+            case Serializer::TypeMediumFloat:
+            case Serializer::TypePlainMediumFloat:
+            case Serializer::TypeLongFloat:
+            case Serializer::TypePlainLongFloat:
+            case Serializer::TypeBcdFloat:
+            case Serializer::TypePlainBcdFloat: return "double";
             case Serializer::TypePair:
             case Serializer::TypePlainPair: return "pair";
             case Serializer::TypeArray:
@@ -182,23 +184,6 @@ bool ValueParser::advance(char ch)
                             _state = state_name;
                             break;
 
-                        case Serializer::TypeShortFloat:
-                            _nextstate = state_sfloat_exp;
-                            _count = 1;
-                            _state = state_name;
-                            break;
-
-                        case Serializer::TypeLongFloat:
-                            _nextstate = state_lfloat_exp;
-                            _count = 2;
-                            _state = state_name;
-                            break;
-
-                        case Serializer::TypeBcdFloat:
-                            _nextstate = state_value_bcd0;
-                            _state = state_name;
-                            break;
-
                         case Serializer::TypeBinary2:
                             _count = 2;
                             _nextstate = state_value_binary_length;
@@ -259,6 +244,29 @@ bool ValueParser::advance(char ch)
                             _state = state_name;
                             break;
 
+                        case Serializer::TypeShortFloat:
+                            _nextstate = state_sfloat_exp;
+                            _count = 1;
+                            _state = state_name;
+                            break;
+
+                        case Serializer::TypeMediumFloat:
+                            _nextstate = state_mfloat_exp;
+                            _count = 1;
+                            _state = state_name;
+                            break;
+
+                        case Serializer::TypeLongFloat:
+                            _nextstate = state_lfloat_exp;
+                            _count = 2;
+                            _state = state_name;
+                            break;
+
+                        case Serializer::TypeBcdFloat:
+                            _nextstate = state_value_bcd0;
+                            _state = state_name;
+                            break;
+
                         case Serializer::TypeArray:
                         case Serializer::TypeVector:
                         case Serializer::TypeList:
@@ -294,16 +302,6 @@ bool ValueParser::advance(char ch)
 
                         case Serializer::TypePlainBool:
                             _state = state_value_bool;
-                            break;
-
-                        case Serializer::TypePlainShortFloat:
-                            _state = state_sfloat_exp;
-                            _count = 1;
-                            break;
-
-                        case Serializer::TypePlainLongFloat:
-                            _state = state_lfloat_exp;
-                            _count = 2;
                             break;
 
                         case Serializer::TypePlainBcdFloat:
@@ -358,6 +356,21 @@ bool ValueParser::advance(char ch)
                         case Serializer::TypePlainUInt64:
                             _count = 8;
                             _state = state_value_uint;
+                            break;
+
+                        case Serializer::TypePlainShortFloat:
+                            _state = state_sfloat_exp;
+                            _count = 1;
+                            break;
+
+                        case Serializer::TypePlainMediumFloat:
+                            _state = state_mfloat_exp;
+                            _count = 1;
+                            break;
+
+                        case Serializer::TypePlainLongFloat:
+                            _state = state_lfloat_exp;
+                            _count = 2;
                             break;
 
                         case Serializer::TypePlainArray:
@@ -562,6 +575,13 @@ bool ValueParser::advance(char ch)
             _count = 2;
             break;
 
+        case state_mfloat_exp:
+            _isNeg = (ch & '\x80') != 0;
+            _exp = ch & '\x7f';
+            _state = state_mfloat_base;
+            _count = 4;
+            break;
+
         case state_sfloat_base:
             _int = (_int << 8) | static_cast<unsigned char>(ch);
             if (--_count == 0)
@@ -586,6 +606,40 @@ bool ValueParser::advance(char ch)
                         v = -v;
 
                     log_debug("short float: s=" << ss << " man=" << std::hex << _int << std::dec << " exp=" << _exp << " isNeg=" << _isNeg << " value=" << v);
+                }
+
+                if (_deserializer)
+                    _deserializer->setValue(v);
+
+                _int = 0;
+                _state = state_end;
+            }
+            break;
+
+        case state_mfloat_base:
+            _int = (_int << 8) | static_cast<unsigned char>(ch);
+            if (--_count == 0)
+            {
+                _int <<= 32;
+                long double v;
+
+                if (_exp == 0x7f)
+                {
+                    v = (_int == 0 ? _isNeg ? -std::numeric_limits<long double>::infinity()
+                                            : std::numeric_limits<long double>::infinity()
+                       : std::numeric_limits<long double>::quiet_NaN());
+                }
+                else
+                {
+                    long double ss = static_cast<long double>(_int)
+                                   / (static_cast<long double>(std::numeric_limits<uint64_t>::max()) + 1.0l)
+                                      / 2.0l + .5l;
+
+                    v = ldexp(ss, _exp - 63);
+                    if (_isNeg)
+                        v = -v;
+
+                    log_debug("medium float: s=" << ss << " man=" << std::hex << _int << std::dec << " exp=" << _exp << " isNeg=" << _isNeg << " value=" << v);
                 }
 
                 if (_deserializer)

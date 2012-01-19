@@ -82,6 +82,8 @@ class ValueParser
             state_value_value,
             state_sfloat_exp,
             state_sfloat_base,
+            state_mfloat_exp,
+            state_mfloat_base,
             state_lfloat_exp,
             state_lfloat_base,
             state_object_type,

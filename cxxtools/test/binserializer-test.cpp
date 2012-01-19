@@ -206,6 +206,12 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
 
         void testDouble()
         {
+            testDoubleValue(1234.0);   // short float
+            testDoubleValue(-1234.0);   // short float
+            testDoubleValue(12345678.0);   // medium float
+            testDoubleValue(-12345678.0);   // medium float
+            testDoubleValue(123456789123456789.0);  // long float
+            testDoubleValue(-123456789123456789.0);  // long float
             testDoubleValue(-3.877e-123);
             testDoubleValue(std::numeric_limits<double>::max());
             //testDoubleValue(std::numeric_limits<double>::min());

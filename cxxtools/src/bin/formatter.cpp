@@ -490,7 +490,7 @@ void Formatter::addValue(const std::string& name, const std::string& type,
 
         log_debug("value=" << value << " s=" << s << " man=" << std::hex << m << std::dec << " exp=" << exp << " neg=" << isNeg);
 
-        if ((m & 0x0000ffffffffffff) || exp > 63 || exp < -63)
+        if ((m & 0x00000000ffffffff) || exp > 63 || exp < -63)
         {
             log_debug("output long float");
 
@@ -510,6 +510,22 @@ void Formatter::addValue(const std::string& name, const std::string& type,
                   << static_cast<char>(m >> 16)
                   << static_cast<char>(m >> 8)
                   << static_cast<char>(m);
+        }
+        else if (m & 0x0000ffffffffffff)
+        {
+            log_debug("output medium float");
+
+            uint16_t e = exp + 63;
+            if (isNeg)
+                e |= 0x80;
+            *_out << static_cast<char>(name.empty() ? Serializer::TypePlainMediumFloat : Serializer::TypeMediumFloat);
+            if (!name.empty())
+                *_out << name << '\0';
+            *_out << static_cast<char>(e)
+                  << static_cast<char>(m >> 56)
+                  << static_cast<char>(m >> 48)
+                  << static_cast<char>(m >> 40)
+                  << static_cast<char>(m >> 32);
         }
         else
         {
