@@ -65,7 +65,7 @@ class ValueParser
 
     private:
 
-        bool valueEnd();
+        void processFloatBase(char ch, unsigned shift, unsigned expOffset);
         enum State
         {
             state_type,

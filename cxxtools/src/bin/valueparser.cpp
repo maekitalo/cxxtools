@@ -582,74 +582,6 @@ bool ValueParser::advance(char ch)
             _count = 4;
             break;
 
-        case state_sfloat_base:
-            _int = (_int << 8) | static_cast<unsigned char>(ch);
-            if (--_count == 0)
-            {
-                _int <<= 48;
-                long double v;
-
-                if (_exp == 0x7f)
-                {
-                    v = (_int == 0 ? _isNeg ? -std::numeric_limits<long double>::infinity()
-                                            : std::numeric_limits<long double>::infinity()
-                       : std::numeric_limits<long double>::quiet_NaN());
-                }
-                else
-                {
-                    long double ss = static_cast<long double>(_int)
-                                   / (static_cast<long double>(std::numeric_limits<uint64_t>::max()) + 1.0l)
-                                      / 2.0l + .5l;
-
-                    v = ldexp(ss, _exp - 63);
-                    if (_isNeg)
-                        v = -v;
-
-                    log_debug("short float: s=" << ss << " man=" << std::hex << _int << std::dec << " exp=" << _exp << " isNeg=" << _isNeg << " value=" << v);
-                }
-
-                if (_deserializer)
-                    _deserializer->setValue(v);
-
-                _int = 0;
-                _state = state_end;
-            }
-            break;
-
-        case state_mfloat_base:
-            _int = (_int << 8) | static_cast<unsigned char>(ch);
-            if (--_count == 0)
-            {
-                _int <<= 32;
-                long double v;
-
-                if (_exp == 0x7f)
-                {
-                    v = (_int == 0 ? _isNeg ? -std::numeric_limits<long double>::infinity()
-                                            : std::numeric_limits<long double>::infinity()
-                       : std::numeric_limits<long double>::quiet_NaN());
-                }
-                else
-                {
-                    long double ss = static_cast<long double>(_int)
-                                   / (static_cast<long double>(std::numeric_limits<uint64_t>::max()) + 1.0l)
-                                      / 2.0l + .5l;
-
-                    v = ldexp(ss, _exp - 63);
-                    if (_isNeg)
-                        v = -v;
-
-                    log_debug("medium float: s=" << ss << " man=" << std::hex << _int << std::dec << " exp=" << _exp << " isNeg=" << _isNeg << " value=" << v);
-                }
-
-                if (_deserializer)
-                    _deserializer->setValue(v);
-
-                _int = 0;
-                _state = state_end;
-            }
-            break;
-
         case state_lfloat_exp:
             if (--_count == 1)
             {
@@ -664,26 +596,16 @@ bool ValueParser::advance(char ch)
             }
             break;
 
+        case state_sfloat_base:
+            processFloatBase(ch, 48, 63);
+            break;
+
+        case state_mfloat_base:
+            processFloatBase(ch, 32, 63);
+            break;
+
         case state_lfloat_base:
-            _int = (_int << 8) | static_cast<unsigned char>(ch);
-            if (--_count == 0)
-            {
-                long double ss = static_cast<long double>(_int)
-                               / (static_cast<long double>(std::numeric_limits<uint64_t>::max()) + 1.0l)
-                                  / 2.0l + .5l;
-
-                long double v = ldexp(ss, _exp - 16383);
-                if (_isNeg)
-                    v = -v;
-
-                log_debug("long float: s=" << ss << " man=" << std::hex << _int << std::dec << " exp=" << _exp << " isNeg=" << _isNeg << " value=" << v);
-
-                if (_deserializer)
-                    _deserializer->setValue(v);
-
-                _int = 0;
-                _state = state_end;
-            }
+            processFloatBase(ch, 0, 16383);
             break;
 
         case state_object_type:
@@ -823,6 +745,41 @@ bool ValueParser::advance(char ch)
     }
 
     return false;
+}
+
+void ValueParser::processFloatBase(char ch, unsigned shift, unsigned expOffset)
+{
+    _int = (_int << 8) | static_cast<unsigned char>(ch);
+    if (--_count == 0)
+    {
+        _int <<= shift;
+        long double v;
+
+        if (expOffset == 63 && _exp == 0x7f)
+        {
+            v = (_int == 0 ? _isNeg ? -std::numeric_limits<long double>::infinity()
+                                    : std::numeric_limits<long double>::infinity()
+               : std::numeric_limits<long double>::quiet_NaN());
+        }
+        else
+        {
+            long double ss = static_cast<long double>(_int)
+                           / (static_cast<long double>(std::numeric_limits<uint64_t>::max()) + 1.0l)
+                              / 2.0l + .5l;
+
+            v = ldexp(ss, _exp - expOffset);
+            if (_isNeg)
+                v = -v;
+
+            log_debug("float: s=" << ss << " man=" << std::hex << _int << std::dec << " exp=" << _exp << " isNeg=" << _isNeg << " value=" << v);
+        }
+
+        if (_deserializer)
+            _deserializer->setValue(v);
+
+        _int = 0;
+        _state = state_end;
+    }
 }
 
 }
