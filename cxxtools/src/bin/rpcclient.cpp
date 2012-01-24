@@ -89,14 +89,14 @@ void RpcClient::cancel()
     _impl->cancel();
 }
 
-const std::string& RpcClient::praefix() const
+const std::string& RpcClient::prefix() const
 {
-    return _impl->praefix();
+    return _impl->prefix();
 }
 
-void RpcClient::praefix(const std::string& p)
+void RpcClient::prefix(const std::string& p)
 {
-    _impl->praefix(p);
+    _impl->prefix(p);
 }
 
 }

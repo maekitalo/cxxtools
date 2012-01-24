@@ -97,7 +97,7 @@ class BinRpcTest : public cxxtools::unit::TestSuite
             registerMethod("Multiset", *this, &BinRpcTest::Multiset);
             registerMethod("Map", *this, &BinRpcTest::Map);
             registerMethod("Multimap", *this, &BinRpcTest::Multimap);
-            registerMethod("CallPraefix", *this, &BinRpcTest::CallPraefix);
+            registerMethod("CallPrefix", *this, &BinRpcTest::CallPrefix);
             registerMethod("UnknownMethod", *this, &BinRpcTest::UnknownMethod);
             registerMethod("Fault", *this, &BinRpcTest::Fault);
             registerMethod("Exception", *this, &BinRpcTest::Exception);
@@ -565,14 +565,14 @@ class BinRpcTest : public cxxtools::unit::TestSuite
         }
 
         ////////////////////////////////////////////////////////////
-        // CallPraefix
+        // CallPrefix
         //
-        void CallPraefix()
+        void CallPrefix()
         {
-            _server->registerMethod("somePraefix.multiply", *this, &BinRpcTest::multiplyInt);
+            _server->registerMethod("somePrefix.multiply", *this, &BinRpcTest::multiplyInt);
 
             cxxtools::bin::RpcClient client(_loop, "", _port);
-            client.praefix("somePraefix.");
+            client.prefix("somePrefix.");
             cxxtools::RemoteProcedure<int, int, int> multiply(client, "multiply");
             connect( multiply.finished, *this, &BinRpcTest::onIntegerFinished );
 

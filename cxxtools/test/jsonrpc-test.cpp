@@ -98,7 +98,7 @@ class JsonRpcTest : public cxxtools::unit::TestSuite
             registerMethod("Map", *this, &JsonRpcTest::Map);
             registerMethod("Multimap", *this, &JsonRpcTest::Multimap);
             registerMethod("UnknownMethod", *this, &JsonRpcTest::UnknownMethod);
-            registerMethod("CallPraefix", *this, &JsonRpcTest::CallPraefix);
+            registerMethod("CallPrefix", *this, &JsonRpcTest::CallPrefix);
             registerMethod("Fault", *this, &JsonRpcTest::Fault);
             registerMethod("Exception", *this, &JsonRpcTest::Exception);
             registerMethod("CallbackException", *this, &JsonRpcTest::CallbackException);
@@ -650,14 +650,14 @@ class JsonRpcTest : public cxxtools::unit::TestSuite
         }
 
         ////////////////////////////////////////////////////////////
-        // CallPraefix
+        // CallPrefix
         //
-        void CallPraefix()
+        void CallPrefix()
         {
-            _server->registerMethod("somePraefix.multiply", *this, &JsonRpcTest::multiplyInt);
+            _server->registerMethod("somePrefix.multiply", *this, &JsonRpcTest::multiplyInt);
 
             cxxtools::json::RpcClient client(_loop, "", _port);
-            client.praefix("somePraefix.");
+            client.prefix("somePrefix.");
             cxxtools::RemoteProcedure<int, int, int> multiply(client, "multiply");
             connect( multiply.finished, *this, &JsonRpcTest::onIntegerFinished );
 

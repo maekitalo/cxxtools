@@ -75,11 +75,11 @@ class RpcClientImpl : public Connectable
 
         void cancel();
 
-        const std::string& praefix() const
-        { return _praefix; }
+        const std::string& prefix() const
+        { return _prefix; }
 
-        void praefix(const std::string& p)
-        { _praefix = p; }
+        void prefix(const std::string& p)
+        { _prefix = p; }
 
     private:
         void prepareRequest(const String& name, IDecomposer** argv, unsigned argc);
@@ -93,7 +93,7 @@ class RpcClientImpl : public Connectable
 
         std::string _addr;
         unsigned short _port;
-        std::string _praefix;
+        std::string _prefix;
 
         // serialization
         Scanner _scanner;
