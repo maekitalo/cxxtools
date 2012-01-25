@@ -50,9 +50,10 @@ int main(int argc, char** argv)
     cxxtools::unit::Application app;
 
     cxxtools::Arg<bool> help(argc, argv, 'h');
-    if( help )
+    cxxtools::Arg<bool> list(argc, argv, 'l');
+    if( help || list )
     {
-        std::cerr << "Usage: " << argv[0] << " [-t <testname>] [-f <logfile>]\n";
+        std::cerr << "Usage: " << argv[0] << " [-t <testname>] [-f <logfile>] { testname }\n";
         std::cerr << "Available Tests:\n";
         std::list<cxxtools::unit::Test*>::const_iterator it;
         for( it = app.tests().begin(); it != app.tests().end(); ++it)
@@ -79,22 +80,20 @@ int main(int argc, char** argv)
 
     try
     {
-        cxxtools::Arg<std::string> test(argc, argv, 't');
-        std::string testName = test.getValue();
-        if( testName.empty() )
+        if (argc <= 1)
         {
             app.run();
-            return app.errors();
         }
         else
         {
-            while (!testName.empty())
+            for (int a = 1; a < argc; ++a)
             {
-                app.run(testName);
-                testName = cxxtools::Arg<std::string>(argc, argv, 't');
-            }
+                std::string testName = argv[a];
+                if (testName == "-t")
+                    continue;   // just for compatibility
 
-            return app.errors();
+                app.run(testName);
+            }
         }
 
         return app.errors();
