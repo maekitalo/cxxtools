@@ -106,8 +106,12 @@ void Socket::onInput(StreamBuffer& sb)
         {
             _responder.finalize(_stream);
             buffer().beginWrite();
+            onOutput(sb);
+            return;
         }
     }
+
+    sb.beginRead();
 
 }
 

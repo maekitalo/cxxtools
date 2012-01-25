@@ -97,12 +97,13 @@ class BinRpcTest : public cxxtools::unit::TestSuite
             registerMethod("Multiset", *this, &BinRpcTest::Multiset);
             registerMethod("Map", *this, &BinRpcTest::Map);
             registerMethod("Multimap", *this, &BinRpcTest::Multimap);
-            registerMethod("CallPrefix", *this, &BinRpcTest::CallPrefix);
             registerMethod("UnknownMethod", *this, &BinRpcTest::UnknownMethod);
+            registerMethod("CallPrefix", *this, &BinRpcTest::CallPrefix);
             registerMethod("Fault", *this, &BinRpcTest::Fault);
             registerMethod("Exception", *this, &BinRpcTest::Exception);
             registerMethod("CallbackException", *this, &BinRpcTest::CallbackException);
             registerMethod("ConnectError", *this, &BinRpcTest::ConnectError);
+            registerMethod("BigRequest", *this, &BinRpcTest::BigRequest);
 
             char* PORT = getenv("UTEST_PORT");
             if (PORT)
@@ -133,14 +134,99 @@ class BinRpcTest : public cxxtools::unit::TestSuite
         }
 
         ////////////////////////////////////////////////////////////
+        // Nothing
+        //
+        void Nothing()
+        {
+            _server->registerMethod("multiply", *this, &BinRpcTest::multiplyNothing);
+
+            cxxtools::bin::RpcClient client(_loop, "", _port);
+            cxxtools::RemoteProcedure<bool> multiply(client, "multiply");
+            connect( multiply.finished, *this, &BinRpcTest::onNothingFinished );
+
+            multiply.begin();
+
+            _loop.run();
+        }
+
+        void onNothingFinished(const cxxtools::RemoteResult<bool>& r)
+        {
+            CXXTOOLS_UNIT_ASSERT_EQUALS(r.get(), false);
+
+            _loop.exit();
+        }
+
+        bool multiplyNothing()
+        {
+            return false;
+        }
+
+        ////////////////////////////////////////////////////////////
+        // CallbackException
+        //
+        void CallbackException()
+        {
+            _server->registerMethod("multiply", *this, &BinRpcTest::multiplyNothing);
+
+            cxxtools::bin::RpcClient client(_loop, "", _port);
+            cxxtools::RemoteProcedure<bool> multiply(client, "multiply");
+            connect( multiply.finished, *this, &BinRpcTest::onExceptionCallback );
+
+            multiply.begin();
+
+            _count = 0;
+            CXXTOOLS_UNIT_ASSERT_THROW(_loop.run(), std::runtime_error);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(_count, 1);
+        }
+
+        void onExceptionCallback(const cxxtools::RemoteResult<bool>& r)
+        {
+            log_warn("exception callback");
+            ++_count;
+            _loop.exit();
+            throw std::runtime_error("my error");
+        }
+
+        ////////////////////////////////////////////////////////////
+        // ConnectError
+        //
+        void ConnectError()
+        {
+            log_trace("ConnectError");
+
+            cxxtools::bin::RpcClient client(_loop, "", _port + 1);
+            cxxtools::RemoteProcedure<bool> multiply(client, "multiply");
+            connect( multiply.finished, *this, &BinRpcTest::onConnectErrorCallback );
+
+            multiply.begin();
+
+            try
+            {
+                _loop.run();
+            }
+            catch (const std::exception& e)
+            {
+                log_error("loop exited with exception: " << e.what());
+                CXXTOOLS_UNIT_ASSERT_MSG(false, std::string("unexpected exception ") + typeid(e).name() + ": " + e.what());
+            }
+        }
+
+        void onConnectErrorCallback(const cxxtools::RemoteResult<bool>& r)
+        {
+            log_debug("onConnectErrorCallback");
+            _loop.exit();
+            CXXTOOLS_UNIT_ASSERT_THROW(r.get(), std::exception);
+        }
+
+        ////////////////////////////////////////////////////////////
         // Boolean
         //
         void Boolean()
         {
-            _server->registerMethod("multiply", *this, &BinRpcTest::multiplyBoolean);
+            _server->registerMethod("boolean", *this, &BinRpcTest::boolean);
 
             cxxtools::bin::RpcClient client(_loop, "", _port);
-            cxxtools::RemoteProcedure<bool, bool, bool> multiply(client, "multiply");
+            cxxtools::RemoteProcedure<bool, bool, bool> multiply(client, "boolean");
             connect( multiply.finished, *this, &BinRpcTest::onBooleanFinished );
 
             multiply.begin(true, true);
@@ -155,7 +241,7 @@ class BinRpcTest : public cxxtools::unit::TestSuite
             _loop.exit();
         }
 
-        bool multiplyBoolean(bool a, bool b)
+        bool boolean(bool a, bool b)
         {
             CXXTOOLS_UNIT_ASSERT_EQUALS(a, true);
             CXXTOOLS_UNIT_ASSERT_EQUALS(b, true);
@@ -584,15 +670,15 @@ class BinRpcTest : public cxxtools::unit::TestSuite
         void UnknownMethod()
         {
             cxxtools::bin::RpcClient client(_loop, "", _port);
-            cxxtools::RemoteProcedure<bool, bool, bool> unknownMethod(client, "unknownMethod");
-            connect( unknownMethod.finished, *this, &BinRpcTest::onBooleanFinished );
+            cxxtools::RemoteProcedure<bool> unknownMethod(client, "unknownMethod");
+            connect( unknownMethod.finished, *this, &BinRpcTest::onUnknownFinished );
 
-            unknownMethod.begin(true, true);
+            unknownMethod.begin();
 
             CXXTOOLS_UNIT_ASSERT_THROW(_loop.run(), cxxtools::RemoteException);
         }
 
-        void onUnknwonFinished(const cxxtools::RemoteResult<bool>& r)
+        void onUnknownFinished(const cxxtools::RemoteResult<bool>& r)
         {
             _loop.exit();
         }
@@ -671,71 +757,22 @@ class BinRpcTest : public cxxtools::unit::TestSuite
         }
 
         ////////////////////////////////////////////////////////////
-        // Nothing
+        // BigRequest
         //
-        void Nothing()
-        {
-            _server->registerMethod("multiply", *this, &BinRpcTest::multiplyNothing);
-
-            cxxtools::bin::RpcClient client(_loop, "", _port);
-            cxxtools::RemoteProcedure<bool> multiply(client, "multiply");
-            connect( multiply.finished, *this, &BinRpcTest::onNothingFinished );
-
-            multiply.begin();
-
-            _loop.run();
-        }
-
-        void onNothingFinished(const cxxtools::RemoteResult<bool>& r)
-        {
-            CXXTOOLS_UNIT_ASSERT_EQUALS(r.get(), false);
-
-            _loop.exit();
-        }
-
-        bool multiplyNothing()
-        {
-            return false;
-        }
-
-        ////////////////////////////////////////////////////////////
-        // CallbackException
-        //
-        void CallbackException()
-        {
-            _server->registerMethod("multiply", *this, &BinRpcTest::multiplyNothing);
-
-            cxxtools::bin::RpcClient client(_loop, "", _port);
-            cxxtools::RemoteProcedure<bool> multiply(client, "multiply");
-            connect( multiply.finished, *this, &BinRpcTest::onExceptionCallback );
-
-            multiply.begin();
-
-            _count = 0;
-            CXXTOOLS_UNIT_ASSERT_THROW(_loop.run(), std::runtime_error);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(_count, 1);
-        }
-
-        void onExceptionCallback(const cxxtools::RemoteResult<bool>& r)
-        {
-            log_warn("exception callback");
-            ++_count;
-            _loop.exit();
-            throw std::runtime_error("my error");
-        }
-
-        ////////////////////////////////////////////////////////////
-        // ConnectError
-        //
-        void ConnectError()
+        void BigRequest()
         {
             log_trace("ConnectError");
 
-            cxxtools::bin::RpcClient client(_loop, "", _port + 1);
-            cxxtools::RemoteProcedure<bool> multiply(client, "multiply");
-            connect( multiply.finished, *this, &BinRpcTest::onConnectErrorCallback );
+            _server->registerMethod("countSize", *this, &BinRpcTest::countSize);
 
-            multiply.begin();
+            cxxtools::bin::RpcClient client(_loop, "", _port);
+            cxxtools::RemoteProcedure<unsigned, std::vector<int> > countSize(client, "countSize");
+            connect( countSize.finished, *this, &BinRpcTest::onCountSizeFinished );
+
+            std::vector<int> v;
+            v.resize(5000);
+
+            countSize.begin(v);
 
             try
             {
@@ -748,11 +785,15 @@ class BinRpcTest : public cxxtools::unit::TestSuite
             }
         }
 
-        void onConnectErrorCallback(const cxxtools::RemoteResult<bool>& r)
+        void onCountSizeFinished(const cxxtools::RemoteResult<unsigned>& r)
         {
-            log_debug("onConnectErrorCallback");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(r.get(), 5000);
             _loop.exit();
-            CXXTOOLS_UNIT_ASSERT_THROW(r.get(), std::exception);
+        }
+
+        unsigned countSize(const std::vector<int>& v)
+        {
+            return v.size();
         }
 
 };

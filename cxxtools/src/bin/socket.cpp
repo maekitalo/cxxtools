@@ -98,7 +98,15 @@ void Socket::onInput(StreamBuffer& sb)
         return;
     }
 
-    _responder.onInput(_stream);
+    if (_responder.onInput(_stream))
+    {
+        sb.beginWrite();
+        onOutput(sb);
+    }
+    else
+    {
+        sb.beginRead();
+    }
 }
 
 bool Socket::onOutput(StreamBuffer& sb)
@@ -120,7 +128,7 @@ bool Socket::onOutput(StreamBuffer& sb)
             if (sb.in_avail())
                 onInput(sb);
             else
-                _stream.buffer().beginRead();
+                sb.beginRead();
         }
     }
     catch (const std::exception& e)

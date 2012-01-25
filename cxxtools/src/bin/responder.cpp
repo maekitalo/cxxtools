@@ -54,8 +54,6 @@ void Responder::reply(IOStream& out)
     _formatter.begin(out);
     _result->format(_formatter);
     out << '\xff';
-
-    out.buffer().beginWrite();
 }
 
 void Responder::replyError(IOStream& out, const char* msg, int rc)
@@ -69,11 +67,9 @@ void Responder::replyError(IOStream& out, const char* msg, int rc)
         << static_cast<char>(static_cast<uint32_t>(rc))
         << msg
         << '\0' << '\xff';
-
-    out.buffer().beginWrite();
 }
 
-void Responder::onInput(IOStream& ios)
+bool Responder::onInput(IOStream& ios)
 {
     while (ios.buffer().in_avail() > 0)
     {
@@ -110,9 +106,11 @@ void Responder::onInput(IOStream& ios)
             _failed = false;
             _errorMessage.clear();
 
+            return true;
         }
     }
 
+    return false;
 }
 
 bool Responder::advance(char ch)

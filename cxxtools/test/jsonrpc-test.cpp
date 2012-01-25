@@ -103,6 +103,7 @@ class JsonRpcTest : public cxxtools::unit::TestSuite
             registerMethod("Exception", *this, &JsonRpcTest::Exception);
             registerMethod("CallbackException", *this, &JsonRpcTest::CallbackException);
             registerMethod("ConnectError", *this, &JsonRpcTest::ConnectError);
+            registerMethod("BigRequest", *this, &JsonRpcTest::BigRequest);
 
             char* PORT = getenv("UTEST_PORT");
             if (PORT)
@@ -669,12 +670,17 @@ class JsonRpcTest : public cxxtools::unit::TestSuite
         void UnknownMethod()
         {
             cxxtools::json::RpcClient client(_loop, "", _port);
-            cxxtools::RemoteProcedure<bool, bool, bool> unknownMethod(client, "unknownMethod");
-            connect( unknownMethod.finished, *this, &JsonRpcTest::onBooleanFinished );
+            cxxtools::RemoteProcedure<bool> unknownMethod(client, "unknownMethod");
+            connect( unknownMethod.finished, *this, &JsonRpcTest::onUnknownFinished );
 
-            unknownMethod.begin(true, true);
+            unknownMethod.begin();
 
-            CXXTOOLS_UNIT_ASSERT_THROW(_loop.run(), std::exception);
+            CXXTOOLS_UNIT_ASSERT_THROW(_loop.run(), cxxtools::RemoteException);
+        }
+
+        void onUnknownFinished(const cxxtools::RemoteResult<bool>& r)
+        {
+            _loop.exit();
         }
 
         ////////////////////////////////////////////////////////////
@@ -733,8 +739,7 @@ class JsonRpcTest : public cxxtools::unit::TestSuite
         {
             try
             {
-                result.get();
-                CXXTOOLS_UNIT_ASSERT(false);
+                CXXTOOLS_UNIT_ASSERT_THROW(result.get(), cxxtools::RemoteException);
             }
             catch (const cxxtools::RemoteException& e)
             {
@@ -749,6 +754,46 @@ class JsonRpcTest : public cxxtools::unit::TestSuite
         {
             throw std::runtime_error("Exception");
             return false;
+        }
+
+        ////////////////////////////////////////////////////////////
+        // BigRequest
+        //
+        void BigRequest()
+        {
+            log_trace("ConnectError");
+
+            _server->registerMethod("countSize", *this, &JsonRpcTest::countSize);
+
+            cxxtools::json::RpcClient client(_loop, "", _port);
+            cxxtools::RemoteProcedure<unsigned, std::vector<int> > countSize(client, "countSize");
+            connect( countSize.finished, *this, &JsonRpcTest::onCountSizeFinished );
+
+            std::vector<int> v;
+            v.resize(5000);
+
+            countSize.begin(v);
+
+            try
+            {
+                _loop.run();
+            }
+            catch (const std::exception& e)
+            {
+                log_error("loop exited with exception: " << e.what());
+                CXXTOOLS_UNIT_ASSERT_MSG(false, std::string("unexpected exception ") + typeid(e).name() + ": " + e.what());
+            }
+        }
+
+        void onCountSizeFinished(const cxxtools::RemoteResult<unsigned>& r)
+        {
+            CXXTOOLS_UNIT_ASSERT_EQUALS(r.get(), 5000);
+            _loop.exit();
+        }
+
+        unsigned countSize(const std::vector<int>& v)
+        {
+            return v.size();
         }
 
 };
