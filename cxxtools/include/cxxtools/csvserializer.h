@@ -38,36 +38,41 @@ namespace cxxtools
     {
         public:
             CsvSerializer(std::ostream& os, TextCodec<Char, char>* codec = new Utf8Codec())
-                : _formatter(os, codec)
+                : _formatter(new CsvFormatter(os, codec))
             { }
 
             CsvSerializer(TextOStream& os)
-                : _formatter(os)
+                : _formatter(new CsvFormatter(os))
             { }
+
+            ~CsvSerializer()
+            {
+                delete _formatter;
+            }
 
             void selectColumn(const std::string& title)
             {
-                _formatter.selectColumn(title);
+                _formatter->selectColumn(title);
             }
 
             void selectColumn(const std::string& memberName, const std::string& title)
             {
-                _formatter.selectColumn(memberName, title);
+                _formatter->selectColumn(memberName, title);
             }
 
             void delimiter(Char delimiter)
             {
-                _formatter.delimiter(delimiter);
+                _formatter->delimiter(delimiter);
             }
 
             void quote(Char quote)
             {
-                _formatter.quote(quote);
+                _formatter->quote(quote);
             }
 
             void lineEnding(const String& le)
             {
-                _formatter.lineEnding(le);
+                _formatter->lineEnding(le);
             }
 
             template <typename T>
@@ -75,12 +80,12 @@ namespace cxxtools
             {
                 Decomposer<T> decomposer;
                 decomposer.begin(type);
-                decomposer.format(_formatter);
-                _formatter.finish();
+                decomposer.format(*_formatter);
+                _formatter->finish();
             }
 
         private:
-            CsvFormatter _formatter;
+            CsvFormatter* _formatter;
     };
 }
 

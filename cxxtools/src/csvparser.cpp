@@ -61,7 +61,10 @@ void CsvParser::begin(DeserializerBase& handler)
     if (_delimiter == autoDelimiter && !_readTitle)
         throw std::runtime_error("can't read csv data with auto delimiter but without title");
 
-    _state = (_readTitle ? state_detectDelim : state_rowstart);
+    _state = (_readTitle ? _delimiter == autoDelimiter ? state_detectDelim
+                                                       : state_title
+                         : state_rowstart);
+
     _deserializer = &handler;
     _titles.clear();
     _titles.push_back(std::string());
@@ -77,7 +80,7 @@ void CsvParser::advance(Char ch)
     switch (_state)
     {
         case state_detectDelim:
-            if (isalnum(ch) || ch == L'_')
+            if (isalnum(ch) || ch == L'_' || ch == ' ' || ch == '\t')
             {
                 _titles.back() += ch.narrow();
             }

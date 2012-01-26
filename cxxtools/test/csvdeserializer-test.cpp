@@ -65,6 +65,7 @@ class CsvDeserializerTest : public cxxtools::unit::TestSuite
             registerMethod("testCr", *this, &CsvDeserializerTest::testCr);
             registerMethod("testEmptyLines", *this, &CsvDeserializerTest::testEmptyLines);
             registerMethod("testSingleColumn", *this, &CsvDeserializerTest::testSingleColumn);
+            registerMethod("testSetDelimiter", *this, &CsvDeserializerTest::testSetDelimiter);
         }
 
         void testVectorVector()
@@ -226,6 +227,30 @@ class CsvDeserializerTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[1].size(), 1);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[2].size(), 1);
         }
+
+        void testSetDelimiter()
+        {
+            std::vector<std::vector<int> > data;
+            std::istringstream in(
+                "A;|B|C\n"
+                "12|'23'|0\n"
+                "34|67|\"23\"");
+
+            cxxtools::CsvDeserializer deserializer(in);
+            deserializer.delimiter('|');
+            deserializer.deserialize(data);
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 2);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0].size(), 3);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[1].size(), 3);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0][0], 12);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0][1], 23);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0][2], 0);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[1][0], 34);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[1][1], 67);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[1][2], 23);
+        }
+
 };
 
 cxxtools::unit::RegisterTest<CsvDeserializerTest> register_CsvDeserializerTest;
