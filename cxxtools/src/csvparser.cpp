@@ -80,7 +80,7 @@ void CsvParser::advance(Char ch)
     switch (_state)
     {
         case state_detectDelim:
-            if (isalnum(ch) || ch == L'_' || ch == ' ' || ch == '\t')
+            if (isalnum(ch) || ch == L'_' || ch == ' ')
             {
                 _titles.back() += ch.narrow();
             }
