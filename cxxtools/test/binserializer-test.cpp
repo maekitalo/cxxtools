@@ -131,7 +131,7 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
             cxxtools::bin::Deserializer deserializer(data);
 
             int value = 5;
-            serializer.serialize(value, "value");
+            serializer.serialize(value);
 
             int value2 = 0;
             deserializer.deserialize(value2);
@@ -146,7 +146,7 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
             cxxtools::bin::Serializer serializer(data);
             cxxtools::bin::Deserializer deserializer(data);
 
-            serializer.serialize(value, "value");
+            serializer.serialize(value);
 
             log_debug("int: " << cxxtools::hexDump(data.str()));
 
@@ -188,7 +188,7 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
             cxxtools::bin::Serializer serializer(data);
             cxxtools::bin::Deserializer deserializer(data);
 
-            serializer.serialize(value, "value");
+            serializer.serialize(value);
             double result = 0.0;
             deserializer.deserialize(result);
 
@@ -223,7 +223,7 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
             cxxtools::bin::Serializer serializer(data);
             cxxtools::bin::Deserializer deserializer(data);
 
-            serializer.serialize(std::numeric_limits<double>::quiet_NaN(), "value");
+            serializer.serialize(std::numeric_limits<double>::quiet_NaN());
             double result = 0.0;
             deserializer.deserialize(result);
 
@@ -243,7 +243,7 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
             intvector.push_back(-3);
             intvector.push_back(-257);
 
-            serializer.serialize(intvector, "intvector");
+            serializer.serialize(intvector);
 
             log_debug("intvector: " << cxxtools::hexDump(data.str()));
 
@@ -269,7 +269,7 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
             obj.doubleValue = 3.125;
             obj.boolValue = true;
             obj.nullValue = true;
-            serializer.serialize(obj, "obj");
+            serializer.serialize(obj);
 
             log_debug("bindata testobject: " << cxxtools::hexDump(data.str()));
 
@@ -307,7 +307,7 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
             obj.setValue.insert(88);
             v.push_back(obj);
 
-            serializer.serialize(v, "v");
+            serializer.serialize(v);
 
             log_debug("bindata complex object: " << cxxtools::hexDump(data.str()));
 
@@ -327,7 +327,7 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
             for (unsigned n = 0; n < 1024; ++n)
                 v.push_back(static_cast<char>(n));
 
-            serializer.serialize(v, "v");
+            serializer.serialize(v);
             log_debug("v.data=" << cxxtools::hexDump(data.str()));
 
             std::string v2;
@@ -341,7 +341,7 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
             for (unsigned n = 0; n < 0xffff; ++n)
                 v.push_back(static_cast<char>(n));
 
-            serializer.serialize(v, "v");
+            serializer.serialize(v);
             deserializer.deserialize(v2);
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(v2.size(), 0xffff + 1024);

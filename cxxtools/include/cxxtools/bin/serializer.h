@@ -134,6 +134,15 @@ namespace cxxtools
                     return *this;
                 }
 
+                template <typename T>
+                Serializer& serialize(const T& v)
+                {
+                    Decomposer<T> s;
+                    s.begin(v);
+                    s.format(_formatter);
+                    return *this;
+                }
+
                 void finish()
                 { }
 
