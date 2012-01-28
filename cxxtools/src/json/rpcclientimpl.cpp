@@ -245,6 +245,9 @@ void RpcClientImpl::onInput(StreamBuffer& sb)
         _exceptionPending = false;
         sb.endRead();
 
+        if (sb.device()->eof())
+            throw IOError("end of input");
+
         char ch;
         while (_stream.buffer().in_avail() && _stream.get(ch))
         {
