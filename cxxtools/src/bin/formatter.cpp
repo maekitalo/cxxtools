@@ -279,6 +279,8 @@ void Formatter::addValue(const std::string& name, const std::string& type,
             if (!high)
                 *_out << static_cast<char>(ch | '\xd');
         }
+
+        *_out << '\xff';
     }
     else if (type == "bool")
     {
@@ -298,10 +300,10 @@ void Formatter::addValue(const std::string& name, const std::string& type,
 
         _ts << value;
         _ts.flush();
-        *_out << '\0';
+        *_out << '\0'
+              << '\xff';
     }
 
-    *_out << '\xff';
 }
 
 void Formatter::addValue(const std::string& name, const std::string& type, const std::string& value)
@@ -379,6 +381,9 @@ void Formatter::addValue(const std::string& name, const std::string& type, const
             if (!high)
                 *_out << static_cast<char>(ch | '\xd');
         }
+
+        *_out << '\xff';
+
     }
     else if (type == "bool")
     {
@@ -398,10 +403,6 @@ void Formatter::addValue(const std::string& name, const std::string& type, const
 
             if (!plain)
                 *_out << name << '\0';
-
-            *_out << static_cast<char>(v >> 8)
-                  << static_cast<char>(v)
-                  << value;
         }
         else
         {
@@ -411,12 +412,12 @@ void Formatter::addValue(const std::string& name, const std::string& type, const
                 *_out << name << '\0';
 
             *_out << static_cast<char>(v >> 24)
-                  << static_cast<char>(v >> 16)
-                  << static_cast<char>(v >> 8)
-                  << static_cast<char>(v)
-                  << value;
+                  << static_cast<char>(v >> 16);
         }
 
+        *_out << static_cast<char>(v >> 8)
+              << static_cast<char>(v)
+              << value;
     }
     else
     {
@@ -425,10 +426,10 @@ void Formatter::addValue(const std::string& name, const std::string& type, const
         if (!plain)
             *_out << name << '\0';
 
-        *_out << value << '\0';
+        *_out << value << '\0'
+              << '\xff';
     }
 
-    *_out << '\xff';
 }
 
 void Formatter::addValue(const std::string& name, const std::string& type,
@@ -436,8 +437,6 @@ void Formatter::addValue(const std::string& name, const std::string& type,
 {
     log_trace("addValue int(\"" << name << "\", \"" << type << "\", " << value << ')');
     printInt(*_out, value, name);
-
-    *_out << '\xff';
 }
 
 void Formatter::addValue(const std::string& name, const std::string& type,
@@ -445,8 +444,6 @@ void Formatter::addValue(const std::string& name, const std::string& type,
 {
     log_trace("addValue unsigned(\"" << name << "\", \"" << type << "\", " << value << ')');
     printUInt(*_out, value, name);
-
-    *_out << '\xff';
 }
 
 void Formatter::addValue(const std::string& name, const std::string& type,
@@ -542,8 +539,6 @@ void Formatter::addValue(const std::string& name, const std::string& type,
                   << static_cast<char>(m >> 48);
         }
     }
-
-    *_out << '\xff';
 }
 
 void Formatter::addNull(const std::string& name, const std::string& type)

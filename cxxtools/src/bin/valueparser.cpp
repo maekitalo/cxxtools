@@ -461,7 +461,7 @@ bool ValueParser::advance(char ch)
                 }
 
                 _int = 0;
-                _state = state_end;
+                return true;
             }
             break;
 
@@ -469,8 +469,7 @@ bool ValueParser::advance(char ch)
             if (_deserializer)
                 _deserializer->setValue(ch != '\0');
 
-            _state = state_end;
-            break;
+            return true;
 
         case state_value_bcd0:
             if (ch == '\xf0')
@@ -552,7 +551,7 @@ bool ValueParser::advance(char ch)
             {
                 if (_deserializer)
                     _deserializer->setValue(_token);
-                _state = state_end;
+                return true;
             }
             break;
 
@@ -597,16 +596,13 @@ bool ValueParser::advance(char ch)
             break;
 
         case state_sfloat_base:
-            processFloatBase(ch, 48, 63);
-            break;
+            return processFloatBase(ch, 48, 63);
 
         case state_mfloat_base:
-            processFloatBase(ch, 32, 63);
-            break;
+            return processFloatBase(ch, 32, 63);
 
         case state_lfloat_base:
-            processFloatBase(ch, 0, 16383);
-            break;
+            return processFloatBase(ch, 0, 16383);
 
         case state_object_type:
             if (ch == Serializer::TypePlainOther
@@ -747,7 +743,7 @@ bool ValueParser::advance(char ch)
     return false;
 }
 
-void ValueParser::processFloatBase(char ch, unsigned shift, unsigned expOffset)
+bool ValueParser::processFloatBase(char ch, unsigned shift, unsigned expOffset)
 {
     _int = (_int << 8) | static_cast<unsigned char>(ch);
     if (--_count == 0)
@@ -778,8 +774,10 @@ void ValueParser::processFloatBase(char ch, unsigned shift, unsigned expOffset)
             _deserializer->setValue(v);
 
         _int = 0;
-        _state = state_end;
+        return true;
     }
+
+    return false;
 }
 
 }
