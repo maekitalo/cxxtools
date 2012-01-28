@@ -138,13 +138,14 @@ void benchBinSerialization(const T& d, const char* fname = 0)
 }
 
 template <typename T>
-void benchVector(const char* typeName, unsigned N, bool fileoutput)
+void benchVector(const char* typeName, unsigned N, T increment, bool fileoutput)
 {
     std::cout << "vector of " << typeName << " values:" << std::endl;
 
     std::vector<T> v;
-    for (unsigned n = 0; n < N; ++n)
-        v.push_back(n);
+    T value = 0;
+    for (unsigned n = 0; n < N; ++n, value += increment)
+        v.push_back(value);
 
     std::cout << "xml:" << std::endl;
     benchXmlSerialization(v, fileoutput ? (std::string("vector-") + typeName + ".xml").c_str() : 0);
@@ -177,10 +178,10 @@ int main(int argc, char* argv[])
                      "   -f                write serialized output to files\n" << std::endl;
 
         if (I.getValue() > 0)
-            benchVector<int>("int", I, fileoutput);
+            benchVector<int>("int", I, 1, fileoutput);
 
         if (D.getValue() > 0)
-            benchVector<double>("double", D, fileoutput);
+            benchVector<double>("double", D, 0.25, fileoutput);
 
         if (C.getValue() > 0)
         {
