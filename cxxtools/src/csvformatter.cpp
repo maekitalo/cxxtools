@@ -216,6 +216,20 @@ namespace cxxtools
     void CsvFormatter::finish()
     {
         log_debug("finish");
+
+        if (_firstline && !_titles.empty())
+        {
+            log_debug("print " << _titles.size() << " titles");
+            for (unsigned n = 0; n < _titles.size(); ++n)
+            {
+                if (n > 0)
+                    _os << _delimiter;
+                _os << String(_titles[n]._title);
+            }
+
+            _os << _lineEnding;
+        }
+
         _os.flush();
     }
 }
