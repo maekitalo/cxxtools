@@ -70,7 +70,11 @@ namespace cxxtools
             enum
             {
                 state_detectDelim,
+                state_detectDelim_q,
+                state_detectDelim_postq,
                 state_title,
+                state_qtitle,
+                state_qtitlep,
                 state_cr,
                 state_rowstart,
                 state_datastart,

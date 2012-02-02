@@ -90,6 +90,45 @@ void CsvParser::advance(Char ch)
                 _noColumns = 1;
                 _state = (ch == L'\r' ? state_cr : state_rowstart);
             }
+            else if (ch == L'\'' || ch == L'"')
+            {
+                _quote = ch;
+                _state = state_detectDelim_q;
+            }
+            else
+            {
+                _delimiter = ch;
+                log_debug("delimiter=" << _delimiter.narrow());
+                log_debug("title=\"" << _titles.back() << '"');
+                _titles.push_back(std::string());
+                _state = state_title;
+            }
+            break;
+
+        case state_detectDelim_q:
+            if (ch == _quote)
+            {
+                _state = state_detectDelim_postq;
+            }
+            else
+            {
+                _titles.back() += ch.narrow();
+            }
+            break;
+
+        case state_detectDelim_postq:
+            if (isalnum(ch) || ch == L'_' || ch == L'\'' || ch == L'"' || ch == L' ')
+            {
+                std::ostringstream msg;
+                msg << "invalid character '" << ch.narrow() << "' within csv title of column " << _titles.size();
+                throw std::runtime_error(msg.str());
+            }
+            else if (ch == L'\n' || ch == L'\r')
+            {
+                log_debug("title=\"" << _titles.back() << '"');
+                _noColumns = 1;
+                _state = (ch == L'\r' ? state_cr : state_rowstart);
+            }
             else
             {
                 _delimiter = ch;
@@ -112,9 +151,55 @@ void CsvParser::advance(Char ch)
                 log_debug("title=\"" << _titles.back() << '"');
                 _titles.push_back(std::string());
             }
+            else if (ch == '\'' || ch == '\"')
+            {
+                if (_titles.back().empty())
+                {
+                    _quote = ch;
+                    _state = state_qtitle;
+                }
+                else
+                {
+                    std::ostringstream msg;
+                    msg << "unexpected quote character within csv title of column " << _titles.size();
+                    throw std::runtime_error(msg.str());
+                }
+            }
             else
             {
                 _titles.back() += ch.narrow();
+            }
+            break;
+
+        case state_qtitle:
+            if (ch == _quote)
+            {
+                _state = state_qtitlep;
+            }
+            else
+            {
+                _titles.back() += ch.narrow();
+            }
+            break;
+
+        case state_qtitlep:
+            if (ch == L'\n' || ch == L'\r')
+            {
+                log_debug("title=\"" << _titles.back() << '"');
+                _state = (ch == L'\r' ? state_cr : state_rowstart);
+                _noColumns = _titles.size();
+            }
+            else if (ch == _delimiter)
+            {
+                log_debug("title=\"" << _titles.back() << '"');
+                _titles.push_back(std::string());
+                _state = state_title;
+            }
+            else
+            {
+                std::ostringstream msg;
+                msg << "invalid character '" << ch.narrow() << "' within csv title of column " << _titles.size();
+                throw std::runtime_error(msg.str());
             }
             break;
 
