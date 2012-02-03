@@ -36,6 +36,9 @@ namespace cxxtools
 {
     class CsvSerializer
     {
+            CsvSerializer(const CsvSerializer&);
+            CsvSerializer& operator= (const CsvSerializer&);
+
         public:
             CsvSerializer(std::ostream& os, TextCodec<Char, char>* codec = new Utf8Codec())
                 : _formatter(new CsvFormatter(os, codec))
