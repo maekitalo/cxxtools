@@ -1,3 +1,349 @@
+2012-02-02 tommi@tntnet.org
+
+ - allow quoted titles in csv parser
+
+2012-01-30 tommi@tntnet.org
+
+ - print header line in csv serializer when titles are set explicitly even if no data lines are written
+
+2012-01-29 tommi@tntnet.org
+
+ - change serializer-bench to use fraction numbers also in double test
+
+2012-01-28 tommi@tntnet.org
+
+ - handle eof correctly in json and binary rpc client
+ - make name parameter optional when serializing objects into binary format
+ - remove unnecessary end of value marker in binary format
+
+2012-01-27 tommi@tntnet.org
+
+ - autodetect tab in csv files
+
+2012-01-26 tommi@tntnet.org
+
+ - fix setting of delimiter in csv parser and impl csv formatter in csv
+ serializer to help binary compatibility in the future
+
+2012-01-25 tommi@tntnet.org
+
+ - fix bug in binary rpc and json rpc server: large requests (>8192 bytes) let server to wait forever
+ - change in unittest main: take argument list as list of tests to execute
+ instead of option -t and add option -l as an alias to -h (i.e. list available tests)
+
+2012-01-25 tommi@tntnet.org
+
+ - implement cxxtools::poxix::CommandInput::wait and cxxtools::posix::CommandOutput::wait
+
+2012-01-18 tommi@tntnet.org
+
+ - make titles changable in csv serializer
+ - serialize floating point values using mantissa and exponent in binary format instead of bcd
+
+2012-01-15 tommi@tntnet.org
+
+ - optimize binary format
+
+2012-01-14 tommi@tntnet.org
+
+ - sort unit tests alphabetically
+
+2012-01-12 tommi@tntnet.org
+
+ - fix rounding error in convert
+
+2012-01-09 tommi@tntnet.org
+
+ - fix parsing floating point values in scientific notation with decimal point in cxxtools::convert (Adi)
+
+2012-01-08 tommi@tntnet.org
+
+ - remove id from SerialzationInfo
+ - add json to serializer benchmark
+
+2012-01-05 tommi@tntnet.org
+
+ - define output operators for wchar_t and const wchar_t* to text streams
+ - send right id to client in jsonrpc
+
+2012-01-05 tommi@tntnet.org
+
+ - add version string to json message to comply with json rpc 2.0
+
+2012-01-04 tommi@tntnet.org
+
+ - add support for null values in serialization and use it in json and binary serialization
+ - improve json rpc conformance (works now the perl json rpc client and server)
+
+2012-01-02 tommi@tntnet.org
+
+ - implement jsonrpc over http client and server
+
+2011-12-30 tommi@tntnet.org
+
+ - fix build on ubuntu 11.10 due to new DSO linking behaviour
+
+2011-12-28 tommi@tntnet.org
+
+ - make xml attributes in xml serialization optional
+ - improve beautification mode of json
+
+2011-12-27 tommi@tntnet.org
+
+ - add jsonrpc to demo applications
+ - enable CallbackException test for jsonrpc
+
+2011-12-26 tommi@tntnet.org
+
+ - bugfix: jsondeserializer can deserialize now empty arrays
+ - add operator== to SerializationInfo
+ - execute tests in a testsuite of unit test in the same order as registered
+ - override all formatter methods in json formatter for simplification
+ - implement json rpc over raw socket
+ - xmlrpc actually do not throw an RemoteException but returns http 404 if method is not found
+
+2011-12-26 tommi@tntnet.org
+
+ - serialize boolean value in json as "true" or "false"
+
+2011-12-23 tommi@tntnet.org
+
+ - reduce default size of arguments from 64k to 32k in cxxtools::posix::Exec to save stack
+ - implement method addService in binary rpc server to register all procedures of a service
+
+2011-12-21 tommi@tntnet.org
+
+ - fix unnecessary memory use in string class
+
+2011-12-19 tommi@tntnet.org
+
+ - move parse event methods from Composer to Deserializer
+
+2011-12-16 tommi@tntnet.org
+
+ - improve error message in cxxtools::convert and implement conversions from const char* to all number types
+ - fix parsing csv files with a single column
+
+2011-12-14 tommi@tntnet.org
+
+ - use longer variable names to prevent naming conflict (happened with _N in cxxtools::String on solaris/gcc)
+
+2011-12-11 tommi@tntnet.org
+
+ - new class ServiceRegistry for registering rpc functions
+
+2011-12-11 tommi@tntnet.org
+
+ - add range checks into serializationinfo
+
+2011-12-10 tommi@tntnet.org
+
+ - finish method of json parser does not return anything
+ - move csv parser code from CsvDeserializer into a separaten class CsvParser
+
+2011-12-09 tommi@tntnet.org
+
+ - add char type to SerializationInfo and make some fixes in type conversion in SerializationInfo
+
+2011-12-09 tommi@tntnet.org
+
+ - remove some remaining source info outputs from exceptions
+ - fix deserialization of bool from std::string
+
+2011-12-08 tommi@tntnet.org
+
+ - make composer and decomposer non copyable and fix 2 compile problems with IBM xlc
+
+2011-12-06 tommi@tntnet.org
+
+ - add procedure name into error message of xmlrpc server when procedure is not found
+ - new exception type SerializationMemberNotFound which is thrown, when a deserialization
+ operator do not find a member with the specified name
+ - check right config variable to enable IPv6
+
+2011-12-05 tommi@tntnet.org
+
+ - Remove SourceInfo since I don't want to know where a error was detected but what happened.
+ - add optional praefix for method calls in binary rpc client
+ - allow multiple objects to be serialized into a single json object in json serializer
+
+2011-12-04 tommi@tntnet.org
+
+
+2011-12-04 tommi@tntnet.org
+
+ - increase default listen backlog from 5 to 64 in http server and binary rpc server
+ - remove obsolete class SerializationContext
+
+2011-12-04 tommi@tntnet.org
+
+ - add method "JsonSerializer::serializer(const T&)" to serializer a C++ value without wrapping it into a json object
+ - use new shorter variant of json serializer in json demo
+ - do not throw exception on EINTR in accept system call but just repeat it
+
+2011-12-04 tommi@tntnet.org
+
+ - rename Serializer to Composer and Deserializer to Decomposer to distinguish them from real Serializer classes (and consistency with Pt)
+
+ - add optional name parameter to deserialize method of Deserializer to make
+ it symetric with Serializer
+
+2011-12-02 tommi@tntnet.org
+
+ - zero byte in std::string works know in binary format
+
+2011-11-30 tommi@tntnet.org
+
+ - accept character set specification in content type reply header in xmlrpc client
+
+2011-11-29 tommi@tntnet.org
+
+ - major optimzations:
+    - SerializationInfo has now a union with different types instead of just converting everyting into unicode string
+    - remove reference feature from serialization framework since there is currently no format, which actually uses it
+
+2011-11-27 tommi@tntnet.org
+
+ - add error code to binary exception response
+ - add rpc binary client
+
+2011-11-23 tommi@tntnet.org
+
+ - add checks for empty tags in xml writer and xml serializer
+ - implement json deserializer
+ - generalize rpc client in preparation for binary rpc client
+
+2011-11-21 tommi@tntnet.org
+
+ - new method cxxtools::SerializationInfo::swap
+
+2011-11-20 tommi@tntnet.org
+
+ - implementation of binary rpc server
+
+2011-11-19 tommi@tntnet.org
+
+ - add hmac (rfc 2104) implementation and unit tests for md5 and hmac (yofuh)
+
+2011-11-18 tommi@tntnet.org
+
+ - implement csv serializer
+
+2011-11-17 tommi@tntnet.org
+
+ - allow colon in attribute names of xml files
+
+2011-11-16 tommi@tntnet.org
+
+ - implement deserializer for csv
+
+2011-11-13 tommi@tntnet.org
+
+ - move binary serializer and deserializer into separate library and rewrite binary deserializer to fit better into a binary rpc server
+ - remove obsolete class ProcessImpl
+ - move ServiceProcedure from namespace cxxtools::xmlrpc to cxxtools
+
+2011-11-12 tommi@tntnet.org
+
+ - change binary serialization format for easier parsing
+
+2011-11-09 tommi@tntnet.org
+
+ - simplify use of cxxtools::net::TcpStream
+
+2011-11-08 tommi@tntnet.org
+
+ - encode bool as single byte in binary serialization
+
+2011-11-04 tommi@tntnet.org
+
+ - optimize cxxtools::String::replace methods and do some code cleanup in cxxtools::String class
+
+2011-11-01 tommi@tntnet.org
+
+ - improve rpc benchmark client and server
+ - improve serializer benchmark program
+
+2011-10-28 tommi@tntnet.org
+
+ - move private md5 interface to private header and md5 helper functions to cxxtools/md5.h header
+ - fix handling of buffer in cxxtools::Fdiostream
+
+2011-10-27 tommi@tntnet.org
+
+ - string improvements: extend string capacity by factor of 1.5 instead of 2 and define output operator to std::ostream
+ - add help page to xmlrpc benchmark programs
+
+2011-10-26 tommi@tntnet.org
+
+allow assignment of narrow string to cxxtools::String
+
+2011-10-24 tommi@tntnet.org
+
+ - optimize cxxtools::String (short string optimization, no refcounting)
+ - use atomic operation in rpcbenchclient to increment request counter
+
+2011-10-22 tommi@tntnet.org
+
+ - add unittest for cxxtools::String (copied from pt-framework)
+ - make distinction between sparc32 and sparc64 (yofuh)
+ - fix detection of 64 bit sparc in generic part
+
+2011-10-20 tommi@tntnet.org
+
+ - abstract http server implementation even more
+
+2011-10-20 tommi@tntnet.org
+
+ - do not inline everything from cxxtools::String
+
+2011-10-17 tommi@tntnet.org
+
+ - add benchmark client and server for xmlrpc
+ - make SerializationContext non copyable as it should be
+
+2011-10-16 tommi@tntnet.org
+
+ - fix reading chunked encoding in http client
+
+2011-10-07 tommi@tntnet.org
+
+ - fix cxxtools::ArgIn and cxxtools::ArgOut classes
+
+2011-10-05 tommi@tntnet.org
+
+ - make cxxtools::SerializationInfo serializable and deserializable
+
+2011-09-30 tommi@tntnet.org
+
+ - improve serializer benchmark program (passing flag -f program writes output to files)
+
+2011-09-28 tommi@tntnet.org
+
+ - add template methods registerFunction and registerCallable to xmlrpc service to even more simplify definition of xmlrpc service functions
+ - make xmlrpc::Service::createResponder protected
+
+2011-09-22 tommi@tntnet.org
+
+ - binary integers in binary serialization format
+ - unit test assertion macros are now only one statement
+ - implement bcd encoding for double values in binary serialization
+
+2011-09-21 tommi@tntnet.org
+
+ - optimized cxxtools::convert (ported from Pt-framework)
+ - another fix autoconf check since autoconf version 2.68 do not accept the current any more
+
+2011-09-20 tommi@tntnet.org
+
+ - fix problems with AIX/xlC
+ - fix autoconf check since autoconf version 2.68 do not accept the current any more
+
+2011-09-04 tommi@tntnet.org
+
+ - rename DefaultDestroyPolicy to DeletePolicy in SmartPtr since it expresses better, what is really done
+ - add memory barrier (yofuh)
+
 2011-08-30 tommi@tntnet.org
 
  - fix crash in http server when last service is removed manually
