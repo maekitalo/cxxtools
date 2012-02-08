@@ -178,6 +178,11 @@ namespace
            || s[0] == 'Y');
     }
 
+    template <typename T>
+    bool areLowerBitsSet(T v, unsigned bits)
+    {
+        return v >> bits << bits != v;
+    }
 }
 
 Formatter::Formatter()
@@ -478,7 +483,7 @@ void Formatter::addValue(const std::string& name, const std::string& type,
         bool isNeg = value < 0;
         int exp;
         long double s = frexp(isNeg ? -value : value, &exp);
-        uint64_t m = (std::numeric_limits<uint64_t>::max() + 1.0l) * (s * 2.0l - 1.0l);
+        uint64_t m = static_cast<uint64_t>((std::numeric_limits<uint64_t>::max() + 1.0l) * (s * 2.0l - 1.0l));
         if (m < 5 && s > .9)
         {
             // this must be an overflow, which may happen when long double has a very high resolution
@@ -487,7 +492,7 @@ void Formatter::addValue(const std::string& name, const std::string& type,
 
         log_debug("value=" << value << " s=" << s << " man=" << std::hex << m << std::dec << " exp=" << exp << " neg=" << isNeg);
 
-        if ((m & 0x00000000ffffffff) || exp > 63 || exp < -63)
+        if (areLowerBitsSet(m, 32) || exp > 63 || exp < -63)
         {
             log_debug("output long float");
 
@@ -508,7 +513,7 @@ void Formatter::addValue(const std::string& name, const std::string& type,
                   << static_cast<char>(m >> 8)
                   << static_cast<char>(m);
         }
-        else if (m & 0x0000ffffffffffff)
+        else if (areLowerBitsSet(m, 48))
         {
             log_debug("output medium float");
 
