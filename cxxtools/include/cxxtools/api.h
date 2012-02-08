@@ -30,7 +30,7 @@
 
 #include <cxxtools/config.h>
 
-#if defined(WIN32) || defined(_WIN32)
+#if defined(WIN32) || defined(_WIN32) || defined(__CYGWIN__)
     // suppress min/max macros from win32 headers
     #ifndef NOMINMAX
     #define NOMINMAX
