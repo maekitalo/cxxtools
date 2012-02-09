@@ -31,6 +31,8 @@
 #include <cxxtools/bin/serializer.h>
 #include <cxxtools/log.h>
 
+#include <math.h>
+
 log_define("cxxtools.bin.valueparser")
 
 namespace cxxtools

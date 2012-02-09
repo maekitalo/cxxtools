@@ -48,7 +48,7 @@ namespace cxxtools
                     {
                         state_0,
                         state_esc,
-                        state_hex,
+                        state_hex
                     } _state;
 
                 public:

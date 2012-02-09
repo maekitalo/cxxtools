@@ -108,8 +108,8 @@ namespace cxxtools
         case state_var1:
           if (std::isdigit(ch))
           {
-            unsigned s = matchbuf[ch - '0'].rm_so;
-            unsigned e = matchbuf[ch - '0'].rm_eo;
+            regoff_t s = matchbuf[ch - '0'].rm_so;
+            regoff_t e = matchbuf[ch - '0'].rm_eo;
             if (s >= 0 && e >= 0)
               ret.append(str, s, e-s);
             state = state_1;

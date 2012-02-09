@@ -33,6 +33,7 @@
 #include <cxxtools/log.h>
 #include <limits>
 #include <stdint.h>
+#include <math.h>
 
 log_define("cxxtools.bin.formatter")
 

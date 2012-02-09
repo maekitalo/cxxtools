@@ -58,7 +58,7 @@ namespace cxxtools
                     state_value,
                     state_errorcode,
                     state_errormessage,
-                    state_end,
+                    state_end
                 } _state;
 
                 ValueParser _vp;

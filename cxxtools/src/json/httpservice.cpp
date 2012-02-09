@@ -30,6 +30,8 @@
 #include "httpresponder.h"
 #include "cxxtools/log.h"
 
+#include <string.h>
+
 log_define("cxxtools.json.httpservice")
 
 namespace cxxtools

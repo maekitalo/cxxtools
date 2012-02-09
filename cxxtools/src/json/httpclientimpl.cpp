@@ -35,6 +35,7 @@
 #include "cxxtools/utf8codec.h"
 #include "cxxtools/log.h"
 
+#include <string.h>
 
 log_define("cxxtools.json.client.impl")
 

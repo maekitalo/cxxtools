@@ -106,7 +106,7 @@ namespace cxxtools
                     RpcRequest = 0xc0,
                     RpcResponse = 0xc1,
                     RpcException = 0xc2,
-                    Eod = 0xff,
+                    Eod = 0xff
                 };
 
                 Serializer()

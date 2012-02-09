@@ -92,8 +92,8 @@ void run_test(cxxtools::net::TcpSocket& conn, unsigned bs, const char* buffer, u
   {
     gettimeofday(&current, 0);
     if (current.tv_sec > end.tv_sec
-      || current.tv_sec == end.tv_sec
-        && current.tv_usec >= end.tv_usec)
+      || (current.tv_sec == end.tv_sec
+        && current.tv_usec >= end.tv_usec))
       break;
 
     count += conn.write(buffer, bs);

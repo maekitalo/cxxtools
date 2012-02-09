@@ -32,6 +32,7 @@
 #include <cxxtools/types.h>
 #include <string>
 #include <cstring>
+#include <ios>
 
 namespace cxxtools {
 

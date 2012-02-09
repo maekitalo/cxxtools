@@ -231,7 +231,7 @@ class QueryParams
       : unnamed_params(src.unnamed_params),
         named_params(src.named_params),
         parent(src.parent),
-        use_parent_values(use_parent_values)
+        use_parent_values(src.use_parent_values)
     { }
 
     /// returns the parent-object

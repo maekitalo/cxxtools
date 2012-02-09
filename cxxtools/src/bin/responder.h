@@ -57,7 +57,7 @@ class Responder
             state_params,
             state_params_skip,
             state_param,
-            state_param_skip,
+            state_param_skip
         };
 
     public:
