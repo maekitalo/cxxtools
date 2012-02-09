@@ -315,14 +315,14 @@ namespace cxxtools
         { OwnershipPolicyType::link(ptr, ptr.object); }
       ~SmartPtr()
         { if (OwnershipPolicyType::unlink(object))
-            destroy(object); }
+            DestroyPolicy<ObjectType>::destroy(object); }
 
       SmartPtr& operator= (const SmartPtr& ptr)
       {
         if (object != ptr.object)
         {
           if (OwnershipPolicyType::unlink(object))
-            destroy(object);
+            DestroyPolicy<ObjectType>::destroy(object);
 
           object = ptr.object;
 

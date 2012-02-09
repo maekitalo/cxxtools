@@ -32,17 +32,17 @@ namespace cxxtools {
 
 inline void membar_rw()
 {
-	asm volatile("lwsync \n\t" : : : "memory");
+    asm volatile("lwsync \n\t" : : : "memory");
 }
 
 inline void membar_write()
 {
-	asm volatile("lwsync \n\t" : : : "memory");
+    asm volatile("lwsync \n\t" : : : "memory");
 }
 
 inline void membar_read()
 {
-	asm volatile("lwsync \n\t" : : : "memory");
+    asm volatile("lwsync \n\t" : : : "memory");
 }
 
 } // namespace cxxtools

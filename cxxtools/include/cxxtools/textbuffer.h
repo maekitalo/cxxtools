@@ -33,8 +33,10 @@
 #include <cxxtools/textcodec.h>
 #include <cxxtools/conversionerror.h>
 #include <iostream>
+#include <utility>
 
-namespace cxxtools {
+namespace cxxtools
+{
 
 
 /** @brief Converts character sequences with different encodings.
@@ -294,9 +296,9 @@ class BasicTextBuffer : public std::basic_streambuf<CharT>
 
         std::pair<int_type, std::streamsize> do_underflow(std::streamsize size)
         {
-			typedef std::pair<int_type, std::streamsize> ret_type;
+            typedef std::pair<int_type, std::streamsize> ret_type;
 
-			std::streamsize n = 0;
+            std::streamsize n = 0;
 
             if( this->pptr() )
             {

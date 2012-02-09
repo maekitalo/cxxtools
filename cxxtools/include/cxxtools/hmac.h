@@ -42,53 +42,53 @@ namespace cxxtools
 template <typename Algo>
 void hmac_pad_key(Algo& key_hash, const std::string& key, std::string& o_key_pad, std::string& i_key_pad)
 { 
-	std::string _key(key);
+    std::string _key(key);
 
-	if(key.length() > Algo::blockSize)
-		_key = key_hash.getDigest();
-	_key.resize(Algo::blockSize);
+    if(key.length() > Algo::blockSize)
+        _key = key_hash.getDigest();
+    _key.resize(Algo::blockSize);
 
-	std::string::const_iterator key_it = _key.begin();
-	for(std::string::iterator pad_it = o_key_pad.begin();
-			pad_it != o_key_pad.end(); pad_it++)
-		*pad_it = *pad_it ^ *key_it++;
+    std::string::const_iterator key_it = _key.begin();
+    for(std::string::iterator pad_it = o_key_pad.begin();
+            pad_it != o_key_pad.end(); pad_it++)
+        *pad_it = *pad_it ^ *key_it++;
 
-	key_it = _key.begin();
-	for(std::string::iterator pad_it = i_key_pad.begin();
-			pad_it != i_key_pad.end(); pad_it++)
-		*pad_it = *pad_it ^ *key_it++;
+    key_it = _key.begin();
+    for(std::string::iterator pad_it = i_key_pad.begin();
+            pad_it != i_key_pad.end(); pad_it++)
+        *pad_it = *pad_it ^ *key_it++;
 }
 
 template <typename Algo, typename data_type>
 std::string hmac(const std::string& key, const data_type& msg)
 { 
-	Algo key_hash(key);
-	std::string o_key_pad(Algo::blockSize, 0x5c);
-	std::string i_key_pad(Algo::blockSize, 0x36);
+    Algo key_hash(key);
+    std::string o_key_pad(Algo::blockSize, 0x5c);
+    std::string i_key_pad(Algo::blockSize, 0x36);
 
-	cxxtools::hmac_pad_key(key_hash, key, o_key_pad, i_key_pad);
+    cxxtools::hmac_pad_key(key_hash, key, o_key_pad, i_key_pad);
 
-	Algo inner_hash(i_key_pad + msg);
-	Algo outer_hash(o_key_pad + inner_hash.getDigest());
-	return outer_hash.getHexDigest();
+    Algo inner_hash(i_key_pad + msg);
+    Algo outer_hash(o_key_pad + inner_hash.getDigest());
+    return outer_hash.getHexDigest();
 }
 
 template <typename Algo, typename iterator_type>
 std::string hmac(const std::string& key, 
-		iterator_type from, iterator_type to)
+        iterator_type from, iterator_type to)
 { 
-	Algo key_hash(key);
-	std::string o_key_pad(Algo::blockSize, 0x5c);
-	std::string i_key_pad(Algo::blockSize, 0x36);
-	std::stringstream is;
+    Algo key_hash(key);
+    std::string o_key_pad(Algo::blockSize, 0x5c);
+    std::string i_key_pad(Algo::blockSize, 0x36);
+    std::stringstream is;
 
-	cxxtools::hmac_pad_key(key_hash, key, o_key_pad, i_key_pad);
+    cxxtools::hmac_pad_key(key_hash, key, o_key_pad, i_key_pad);
 
-	std::copy(from, to, std::ostreambuf_iterator<char>(is));
+    std::copy(from, to, std::ostreambuf_iterator<char>(is));
 
-	Algo inner_hash(i_key_pad + is.str());
-	Algo outer_hash(o_key_pad + inner_hash.getDigest());
-	return outer_hash.getHexDigest();
+    Algo inner_hash(i_key_pad + is.str());
+    Algo outer_hash(o_key_pad + inner_hash.getDigest());
+    return outer_hash.getHexDigest();
 }
 
 }

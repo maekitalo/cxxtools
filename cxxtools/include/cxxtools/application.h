@@ -84,13 +84,13 @@ namespace cxxtools {
             static Application& instance();
 
             EventLoopBase& loop()
-			{ return *_loop; }
+            { return *_loop; }
 
             void run()
-			{ _loop->run(); }
+            { _loop->run(); }
 
             void exit()
-			{ _loop->exit(); }
+            { _loop->exit(); }
 
             bool catchSystemSignal(int sig);
 
@@ -105,7 +105,7 @@ namespace cxxtools {
             { return _argv; }
 
             ApplicationImpl& impl()
-			{ return *_impl; }
+            { return *_impl; }
 
         protected:
             void init(EventLoopBase& loop);

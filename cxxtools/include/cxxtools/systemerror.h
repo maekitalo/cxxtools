@@ -30,8 +30,10 @@
 #define CXXTOOLS_SYSTEM_ERROR_H
 
 #include <stdexcept>
+#include <string>
 
-namespace cxxtools {
+namespace cxxtools
+{
 
 /** @brief Exception class indicating a system error.
  */
@@ -65,7 +67,7 @@ class OpenLibraryFailed : public SystemError
 
         //! @brief Destructor
         ~OpenLibraryFailed() throw()
-		{}
+        {}
 
         const std::string& library() const
         { return _library; }

@@ -44,7 +44,7 @@ Thread::Thread(const Callable<void>& cb)
 , _impl(0)
 {
     _impl = new ThreadImpl();
-	_impl->init(cb);
+    _impl->init(cb);
 }
 
 
@@ -56,7 +56,7 @@ Thread::~Thread()
 
 void Thread::init(const Callable<void>& cb)
 {
-	_impl->init(cb);
+    _impl->init(cb);
 }
 
 

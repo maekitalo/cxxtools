@@ -89,7 +89,7 @@ class Library
             Returns the address of the symbol or 0 if it was not found.
          */
         void* operator[](const char* symbol) const
-		{ return this->resolve(symbol); }
+        { return this->resolve(symbol); }
 
         /** @brief Resolves the symbol \a symbol from the shared library
             Returns the address of the symbol or 0 if it was not found.

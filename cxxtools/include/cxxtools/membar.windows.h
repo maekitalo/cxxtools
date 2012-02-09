@@ -35,17 +35,17 @@ namespace cxxtools {
 
 inline void membar_rw()
 {
-	MemoryBarrier();
+    MemoryBarrier();
 }
 
 inline void membar_write()
 {
-	_WriteBarrier();
+    _WriteBarrier();
 }
 
 inline void membar_read()
 {
-	_ReadBarrier();
+    _ReadBarrier();
 }
 
 } // namespace cxxtools

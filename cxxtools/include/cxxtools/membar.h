@@ -71,7 +71,7 @@
 
     #if defined (i386) || defined(__i386) || defined (__i386__) || \
         defined(_X86_) || defined(sun386) || defined (_M_IX86) || \
-	defined(__x86_64__) || defined(__amd64__)
+        defined(__x86_64__) || defined(__amd64__)
         #include <cxxtools/membar.gcc.x86.h>
 
     #elif defined (ARM) || defined(__arm__) || defined(_M_ARM) || defined(_M_ARMT)
@@ -97,7 +97,7 @@
         #include <cxxtools/membar.gcc.sparc32.h>
     
     #else
-	#include <cxxtools/membar.gcc.h>
+    #include <cxxtools/membar.gcc.h>
 
     #endif
 

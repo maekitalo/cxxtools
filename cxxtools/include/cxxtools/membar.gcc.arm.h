@@ -32,17 +32,17 @@ namespace cxxtools {
 
 inline void membar_rw()
 {
-	asm volatile("dmb;");
+    asm volatile("dmb;");
 }
 
 inline void membar_write()
 {
-	asm volatile("dmb;");
+    asm volatile("dmb;");
 }
 
 inline void membar_read()
 {
-	asm volatile("dmb;");
+    asm volatile("dmb;");
 }
 
 } // namespace cxxtools

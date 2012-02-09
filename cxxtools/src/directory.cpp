@@ -150,8 +150,8 @@ Directory::~Directory()
 
 Directory& Directory::operator=(const Directory& dir)
 {
-	_path = dir._path;
-	return *this;
+    _path = dir._path;
+    return *this;
 }
 
 

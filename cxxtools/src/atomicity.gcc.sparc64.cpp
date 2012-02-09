@@ -34,7 +34,7 @@ namespace cxxtools {
 
 atomic_t atomicGet(volatile atomic_t& val)
 {
-    asm volatile ("membar	#LoadLoad | #LoadStore | #StoreStore | #StoreLoad" : : : "memory");
+    asm volatile ("membar    #LoadLoad | #LoadStore | #StoreStore | #StoreLoad" : : : "memory");
     return val;
 }
 
@@ -42,7 +42,7 @@ atomic_t atomicGet(volatile atomic_t& val)
 void atomicSet(volatile atomic_t& val, atomic_t n)
 {
     val = n;
-    asm volatile ("membar	#LoadLoad | #LoadStore | #StoreStore | #StoreLoad" : : : "memory");
+    asm volatile ("membar    #LoadLoad | #LoadStore | #StoreStore | #StoreLoad" : : : "memory");
 }
 
 

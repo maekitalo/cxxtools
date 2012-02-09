@@ -99,11 +99,11 @@ const std::string& DirectoryIteratorImpl::path() const
         std::string::size_type idx = _path.rfind('/');
         if(idx != std::string::npos && ++idx < _path.size() )
         {
-        	_path.replace(idx, _path.size(), _current->d_name);
+            _path.replace(idx, _path.size(), _current->d_name);
         }
         else
         {
-        	_path += _current->d_name;
+            _path += _current->d_name;
         }
     }
 
@@ -130,7 +130,7 @@ bool DirectoryIteratorImpl::advance()
     // _current == 0 means end
     _current = ::readdir( _handle );
     if(_current)
-    	_name = _current->d_name;
+        _name = _current->d_name;
 
     return _current != 0;
 }

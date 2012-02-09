@@ -73,7 +73,7 @@ namespace cxxtools
             if (OwnershipPolicyType::unlink(object))
             {
               if (pool == 0 || !pool->put(*this))
-                destroy(object);
+                DestroyPolicyType::destroy(object);
             }
           }
 

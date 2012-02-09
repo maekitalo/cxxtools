@@ -67,7 +67,7 @@ public:
   }
 
   md5_hash(typename data_type::const_iterator from, 
-		   typename data_type::const_iterator to)
+           typename data_type::const_iterator to)
   {
     unsigned char _digest[16];
     Md5stream s;

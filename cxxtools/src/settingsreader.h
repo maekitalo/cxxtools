@@ -832,14 +832,14 @@ class SettingsReader
 
     public:
         SettingsReader(std::basic_istream<cxxtools::Char>& is)
-		: state(0)
-		, _beforeComment(0)
-		, _current(0)
-		, _is(&is)
-		, _line(1)
-		, _depth(0)
-		, _isDotted(false)
-		{ }
+        : state(0)
+        , _beforeComment(0)
+        , _current(0)
+        , _is(&is)
+        , _line(1)
+        , _depth(0)
+        , _isDotted(false)
+        { }
 
         void parse(cxxtools::SerializationInfo& si);
 

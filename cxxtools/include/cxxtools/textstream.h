@@ -33,7 +33,8 @@
 #include <cxxtools/textbuffer.h>
 #include <iostream>
 
-namespace cxxtools {
+namespace cxxtools
+{
 
 /** @brief Converts character sequences using a Codec.
 
@@ -83,14 +84,14 @@ class BasicTextIStream : public std::basic_istream<CharT>
         : std::basic_istream<intern_type>(0)
         , _buffer( &is, codec )
         {
-            init(&_buffer);
+            std::basic_istream<CharT>::init(&_buffer);
         }
 
         explicit BasicTextIStream(CodecType* codec)
         : std::basic_istream<intern_type>(0)
         , _buffer( 0, codec )
         {
-            init(&_buffer);
+            std::basic_istream<CharT>init(&_buffer);
         }
 
         //! @brief Deletes to codec.
@@ -169,12 +170,12 @@ class BasicTextOStream : public std::basic_ostream<CharT>
         BasicTextOStream(StreamType& os, CodecType* codec)
         : std::basic_ostream<intern_type>(0)
         , _buffer( &os , codec )
-        { init(&_buffer); }
+        { std::basic_ostream<CharT>::init(&_buffer); }
 
         explicit BasicTextOStream(CodecType* codec)
         : std::basic_ostream<intern_type>(0)
         , _buffer( 0 , codec )
-        { init(&_buffer); }
+        { std::basic_ostream<CharT>::init(&_buffer); }
 
         //! @brief Deletes to codec.
         ~BasicTextOStream()
@@ -252,12 +253,12 @@ class BasicTextStream : public std::basic_iostream<CharT>
         BasicTextStream(StreamType& ios, CodecType* codec)
         : std::basic_iostream<intern_type>(0)
         , _buffer( &ios, codec)
-        { init(&_buffer); }
+        { std::basic_iostream<CharT>::init(&_buffer); }
 
         explicit BasicTextStream(CodecType* codec)
         : std::basic_iostream<intern_type>(0)
         , _buffer(0, codec)
-        { init(&_buffer); }
+        { std::basic_iostream<CharT>::init(&_buffer); }
 
         //! @brief Deletes the codec.
         ~BasicTextStream()

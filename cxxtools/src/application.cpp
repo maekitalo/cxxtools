@@ -37,8 +37,8 @@ namespace
 
 cxxtools::Application*& getSystemAppPtr()
 {
-	static cxxtools::Application* _app = 0;
-	return _app;
+    static cxxtools::Application* _app = 0;
+    return _app;
 }
 
 }

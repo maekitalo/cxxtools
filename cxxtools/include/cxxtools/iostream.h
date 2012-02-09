@@ -72,10 +72,10 @@ class BasicIStream : public std::basic_istream<CharT>
                 return _buffer->speekn(buffer, n);
 
             if(n > 0)
-			{
+            {
                 buffer[0] = this->peek();
-				return 1;
-			}
+                return 1;
+            }
 
             return 0;
         }
@@ -168,10 +168,10 @@ class BasicIOStream : public std::basic_iostream<CharT>
                 return _buffer->speekn(buffer, n);
 
             if(n > 0)
-			{
+            {
                 buffer[0] = this->peek();
-				return 1;
-			}
+                return 1;
+            }
 
             return 0;
         }

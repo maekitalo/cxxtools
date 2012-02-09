@@ -34,17 +34,17 @@ namespace cxxtools {
 
 inline void membar_rw()
 {
-	::membar_enter();
+    ::membar_enter();
 }
 
 inline void membar_write()
 {
-	::membar_producer();
+    ::membar_producer();
 }
 
 inline void membar_read()
 {
-	::membar_consumer();
+    ::membar_consumer();
 }
 
 } // namespace cxxtools

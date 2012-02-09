@@ -46,7 +46,7 @@ class CXXTOOLS_API InvalidTime : public std::invalid_argument
         InvalidTime();
 
         ~InvalidTime() throw()
-		{}
+        {}
 };
 
 /** @brief %Time expressed in hours, minutes, seconds and milliseconds
@@ -79,38 +79,38 @@ class Time
 
             InvalidTime is thrown if one or more of the values are out of range
         */
-		inline Time(unsigned h, unsigned m, unsigned s = 0, unsigned ms = 0)
-		{
-		    set(h, m, s, ms);
-		}
+        inline Time(unsigned h, unsigned m, unsigned s = 0, unsigned ms = 0)
+        {
+            set(h, m, s, ms);
+        }
 
         /** \brief Returns the hour-part of the Time.
         */
         unsigned hour() const
-		{
-		    return _msecs / MSecsPerHour;
-		}
+        {
+            return _msecs / MSecsPerHour;
+        }
 
         /** \brief Returns the minute-part of the Time.
         */
         unsigned minute() const
-		{
-		    return (_msecs % MSecsPerHour) / MSecsPerMinute;
-		}
+        {
+            return (_msecs % MSecsPerHour) / MSecsPerMinute;
+        }
 
         /** \brief Returns the second-part of the Time.
         */
         unsigned second() const
-		{
-		    return (_msecs / 1000) % SecondsPerMinute;
-		}
+        {
+            return (_msecs / 1000) % SecondsPerMinute;
+        }
 
         /** \brief Returns the millisecond-part of the Time.
         */
         unsigned msec() const
-		{
-		    return _msecs % 1000;
-		}
+        {
+            return _msecs % 1000;
+        }
 
         unsigned totalMSecs() const
         { return _msecs; }
@@ -124,74 +124,74 @@ class Time
             InvalidTime is thrown if one or more of the values are out of range
         */
         void set(unsigned hour, unsigned min, unsigned sec, unsigned msec = 0)
-		{
-		    if ( ! isValid(hour, min, sec , msec) )
-		    {
-		        throw InvalidTime();
-		    }
+        {
+            if ( ! isValid(hour, min, sec , msec) )
+            {
+                throw InvalidTime();
+            }
 
-		    _msecs = (hour*SecondsPerHour + min*SecondsPerMinute + sec) * 1000 + msec;
-		}
+            _msecs = (hour*SecondsPerHour + min*SecondsPerMinute + sec) * 1000 + msec;
+        }
 
         /** @brief Get the time values
 
             Gets the hour, minute, second and millisecond parts of the time.
         */
         void get(unsigned& h, unsigned& m, unsigned& s, unsigned& ms) const
-		{
-		    h = hour();
-		    m = minute();
-		    s = second();
-		    ms = msec();
-		}
+        {
+            h = hour();
+            m = minute();
+            s = second();
+            ms = msec();
+        }
 
-		/** @brief Adds seconds to the time
+        /** @brief Adds seconds to the time
 
             This method does not change the time, but returns the time
             with the seconds added.
         */
-		Time addSecs(int secs) const
-		{
-		    return addMSecs(secs * 1000);
-		}
+        Time addSecs(int secs) const
+        {
+            return addMSecs(secs * 1000);
+        }
 
         /** @brief Determines seconds until another time
         */
-		int secsTo(const Time &t) const
-		{
-		    return static_cast<int>( msecsTo(t) / 1000 );
-		}
+        int secsTo(const Time &t) const
+        {
+            return static_cast<int>( msecsTo(t) / 1000 );
+        }
 
-		/** @brief Adds milliseconds to the time
+        /** @brief Adds milliseconds to the time
 
             This method does not change the time, but returns the time
             with the milliseconds added.
         */
-		inline Time addMSecs(cxxtools::int64_t ms) const
-		{
-		    Time t;
-		    if (ms < 0)
-		    {
-		        cxxtools::int64_t negdays = (MSecsPerDay - ms) / MSecsPerDay;
-		        t._msecs = static_cast<unsigned>((_msecs + ms + negdays * MSecsPerDay) % MSecsPerDay);
-		    }
-		    else
-		    {
-		        t._msecs = static_cast<unsigned>((_msecs + ms) % MSecsPerDay);
-		    }
+        inline Time addMSecs(cxxtools::int64_t ms) const
+        {
+            Time t;
+            if (ms < 0)
+            {
+                cxxtools::int64_t negdays = (MSecsPerDay - ms) / MSecsPerDay;
+                t._msecs = static_cast<unsigned>((_msecs + ms + negdays * MSecsPerDay) % MSecsPerDay);
+            }
+            else
+            {
+                t._msecs = static_cast<unsigned>((_msecs + ms) % MSecsPerDay);
+            }
 
-		    return t;
-		}
+            return t;
+        }
 
         /** @brief Determines milliseconds until another time
         */
-		cxxtools::int64_t msecsTo(const Time &t) const
-		{
-		    if(t._msecs > _msecs)
-		        return t._msecs - _msecs;
+        cxxtools::int64_t msecsTo(const Time &t) const
+        {
+            if(t._msecs > _msecs)
+                return t._msecs - _msecs;
 
-		    return MSecsPerDay - (_msecs - t._msecs);
-		}
+            return MSecsPerDay - (_msecs - t._msecs);
+        }
 
         /** @brief Assignment operator
         */
@@ -275,12 +275,12 @@ class Time
 
         /** \brief Returns true if values are a valid time
         */
-		static bool isValid(unsigned h, unsigned m, unsigned s, unsigned ms)
-		{
-		    return h < 24 && m < 60 && s < 60 && ms < 1000;
-		}
+        static bool isValid(unsigned h, unsigned m, unsigned s, unsigned ms)
+        {
+            return h < 24 && m < 60 && s < 60 && ms < 1000;
+        }
 
-		/** \brief Convert from an ISO time string
+        /** \brief Convert from an ISO time string
 
             Interprets the passed string as a time-string in ISO-format
             (hh:mm:ss.hhh) and returns a Time-object. If the string is not

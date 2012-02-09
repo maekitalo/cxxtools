@@ -221,112 +221,112 @@ Signal<const cxxtools::Event&>::Signal()
 
 Signal<const cxxtools::Event&>::~Signal()
 {
-	if(_sentry)
-		_sentry->detach();
+    if(_sentry)
+        _sentry->detach();
 
-	while( ! _routes.empty() )
-	{
-		IEventRoute* route = _routes.begin()->second;
-		route->connection().close();
-	}
+    while( ! _routes.empty() )
+    {
+        IEventRoute* route = _routes.begin()->second;
+        route->connection().close();
+    }
 }
 
 
 void Signal<const cxxtools::Event&>::send(const cxxtools::Event& ev) const
 {
-	// The sentry will set the Signal to the sending state and
-	// reset it to not-sending upon destruction. In the sending
-	// state, removing connection will leave invalid connections
-	// in the connection list to keep the iterator valid, but mark
-	// the Signal dirty. If the Signal is dirty, all invalid
-	// connections will be removed by the Sentry when it destructs..
-	Signal::Sentry sentry(this);
+    // The sentry will set the Signal to the sending state and
+    // reset it to not-sending upon destruction. In the sending
+    // state, removing connection will leave invalid connections
+    // in the connection list to keep the iterator valid, but mark
+    // the Signal dirty. If the Signal is dirty, all invalid
+    // connections will be removed by the Sentry when it destructs..
+    Signal::Sentry sentry(this);
 
-	RouteMap::iterator it = _routes.begin();
-	while( true )
-	{
-		if( it == _routes.end() )
-			return;
+    RouteMap::iterator it = _routes.begin();
+    while( true )
+    {
+        if( it == _routes.end() )
+            return;
 
-		if(it->first != 0)
-			break;
+        if(it->first != 0)
+            break;
 
-		// The following scenarios must be considered when the
-		// slot is called:
-		// - The slot might get deleted and thus disconnected from
-		//   this signal
-		// - The slot might delete this signal and we must end
-		//   calling any slots immediately
-		// - A new Connection might get added to this Signal in
-		//   the slot
-		IEventRoute* route = it->second;
-		if( route->valid() )
-			route->route(ev);
+        // The following scenarios must be considered when the
+        // slot is called:
+        // - The slot might get deleted and thus disconnected from
+        //   this signal
+        // - The slot might delete this signal and we must end
+        //   calling any slots immediately
+        // - A new Connection might get added to this Signal in
+        //   the slot
+        IEventRoute* route = it->second;
+        if( route->valid() )
+            route->route(ev);
 
-		// if this signal gets deleted by the slot, the Sentry
-		// will be detached. In this case we bail out immediately
-		if( !sentry )
-			return;
+        // if this signal gets deleted by the slot, the Sentry
+        // will be detached. In this case we bail out immediately
+        if( !sentry )
+            return;
 
-		++it;
-	}
+        ++it;
+    }
 
-	const std::type_info& ti = ev.typeInfo();
+    const std::type_info& ti = ev.typeInfo();
 
-	it = _routes.lower_bound( &ti );
-	while(it != _routes.end() && *(it->first) == ti)
-	{
-		IEventRoute* route = it->second;
+    it = _routes.lower_bound( &ti );
+    while(it != _routes.end() && *(it->first) == ti)
+    {
+        IEventRoute* route = it->second;
 
-		if(route)
-			route->route(ev);
+        if(route)
+            route->route(ev);
 
-		++it;
+        ++it;
 
-		// if this signal gets deleted by the slot, the Sentry
-		// will be detached. In this case we bail out immediately
-		if( !sentry )
-			return;
-	}
+        // if this signal gets deleted by the slot, the Sentry
+        // will be detached. In this case we bail out immediately
+        if( !sentry )
+            return;
+    }
 }
 
 
 void Signal<const cxxtools::Event&>::onConnectionOpen(const Connection& c)
 {
-	const Connectable& sender = c.sender();
-	if(&sender != this)
-	{
-		return Connectable::onConnectionOpen(c);
-	}
+    const Connectable& sender = c.sender();
+    if(&sender != this)
+    {
+        return Connectable::onConnectionOpen(c);
+    }
 }
 
 
 void Signal<const cxxtools::Event&>::onConnectionClose(const Connection& c)
 {
-	// if the signal is currently calling its slots, do not
-	// remove the connection now, but only set the cleanup flag
-	// Any invalid connection objects will be removed after
-	// the signal has finished calling its slots by the Sentry.
-	if( _sending )
-	{
-		_dirty = true;
-	}
-	else
-	{
-		RouteMap::iterator it;
-		for(it = _routes.begin(); it != _routes.end(); ++it )
-		{
-			IEventRoute* route = it->second;
-			if(route->connection() == c )
-			{
-				delete route;
-				_routes.erase(it++);
-				return;
-			}
-		}
+    // if the signal is currently calling its slots, do not
+    // remove the connection now, but only set the cleanup flag
+    // Any invalid connection objects will be removed after
+    // the signal has finished calling its slots by the Sentry.
+    if( _sending )
+    {
+        _dirty = true;
+    }
+    else
+    {
+        RouteMap::iterator it;
+        for(it = _routes.begin(); it != _routes.end(); ++it )
+        {
+            IEventRoute* route = it->second;
+            if(route->connection() == c )
+            {
+                delete route;
+                _routes.erase(it++);
+                return;
+            }
+        }
 
-		Connectable::onConnectionClose(c);
-	}
+        Connectable::onConnectionClose(c);
+    }
 }
 
 
@@ -339,31 +339,31 @@ void Signal<const cxxtools::Event&>::addRoute(const std::type_info* ti, IEventRo
 
 void Signal<const cxxtools::Event&>::removeRoute(const Slot& slot)
 {
-	RouteMap::iterator it = _routes.begin();
-	while( it != _routes.end() && it->first == 0 )
-	{
-		IEventRoute* route = it->second;
-		if(route->connection().slot().equals(slot) )
-		{
-			route->connection().close();
-			break;
-		}
-	}
+    RouteMap::iterator it = _routes.begin();
+    while( it != _routes.end() && it->first == 0 )
+    {
+        IEventRoute* route = it->second;
+        if(route->connection().slot().equals(slot) )
+        {
+            route->connection().close();
+            break;
+        }
+    }
 }
 
 
 void Signal<const cxxtools::Event&>::removeRoute(const std::type_info* ti, const Slot& slot)
 {
-	RouteMap::iterator it = _routes.lower_bound( ti );
-	while(it != _routes.end() && *(it->first) == *ti)
-	{
-		IEventRoute* route = it->second;
-		if(route->connection().slot().equals(slot) )
-		{
-			route->connection().close();
-			break;
-		}
-	}
+    RouteMap::iterator it = _routes.lower_bound( ti );
+    while(it != _routes.end() && *(it->first) == *ti)
+    {
+        IEventRoute* route = it->second;
+        if(route->connection().slot().equals(slot) )
+        {
+            route->connection().close();
+            break;
+        }
+    }
 }
 
 }

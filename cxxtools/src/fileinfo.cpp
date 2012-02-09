@@ -61,15 +61,15 @@ FileInfo::~FileInfo()
 
 FileInfo& FileInfo::operator=(const FileInfo& fi)
 {
-	_type = fi._type;
-	_path = fi._path;
-	return *this;
+    _type = fi._type;
+    _path = fi._path;
+    return *this;
 }
 
 
 FileInfo::Type FileInfo::type() const
 {
-	return _type;
+    return _type;
 }
 
 

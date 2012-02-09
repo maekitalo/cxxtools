@@ -32,17 +32,17 @@ namespace cxxtools {
 
 inline void membar_rw()
 {
-	__sync_synchronize();
+    __sync_synchronize();
 }
 
 inline void membar_write()
 {
-	__sync_synchronize();
+    __sync_synchronize();
 }
 
 inline void membar_read()
 {
-	__sync_synchronize();
+    __sync_synchronize();
 }
 
 } // namespace cxxtools

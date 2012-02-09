@@ -122,11 +122,11 @@ bool ApplicationImpl::catchSystemSignal(int sig)
         {
             throw SystemError("sigaction failed");
         }
-		
-		return true;
+        
+        return true;
     }
 
-	return false;
+    return false;
 }
 
 
@@ -134,15 +134,15 @@ bool ApplicationImpl::raiseSystemSignal(int sig)
 {
     if (sig > 0 && sig < NSIG)
     {
-		if( 0 != ::raise(sig) )
+        if( 0 != ::raise(sig) )
         {
             throw SystemError("sigaction failed");
         }
 
-		return true;
-	}
-	
-	return false;
+        return true;
+    }
+    
+    return false;
 }
 
 } // namespace cxxtools
