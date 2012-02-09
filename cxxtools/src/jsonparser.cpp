@@ -122,7 +122,7 @@ int JsonParser::advance(Char ch)
                 _state = state_string;
                 _deserializer->setCategory(SerializationInfo::Value);
             }
-            else if (ch >= '0' && ch <= '9' || ch == '+' || ch == '-')
+            else if ((ch >= '0' && ch <= '9') || ch == '+' || ch == '-')
             {
                 _token = ch;
                 _state = state_number;

@@ -83,7 +83,7 @@ Application::Application(int argc, char** argv)
 Application::Application(EventLoopBase* loop)
 : _argc(0)
 , _argv(0)
-, _loop(0)
+, _loop(loop)
 , _owner(0)
 {
     construct();
@@ -93,7 +93,7 @@ Application::Application(EventLoopBase* loop)
 Application::Application(EventLoopBase* loop, int argc, char** argv)
 : _argc(argc)
 , _argv(argv)
-, _loop(0)
+, _loop(loop)
 , _owner(0)
 {
     construct();
