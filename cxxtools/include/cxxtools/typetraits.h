@@ -29,9 +29,12 @@
 #define cxxtools_TypeTraits_h
 
 #include <cxxtools/api.h>
+#include <cxxtools/config.h>
 #include <cstddef>
+#include <stdint.h>
 
-namespace cxxtools {
+namespace cxxtools
+{
 
     template <typename T>
     struct TypeTraitsBase {
@@ -201,20 +204,24 @@ namespace cxxtools {
     };
 
 
+#ifdef HAVE_LONG_LONG
     template <>
     struct IntTraits<long long>
     {
         typedef unsigned long long Unsigned;
         typedef signed long long Signed;
     };
+#endif
 
 
+#ifdef HAVE_UNSIGNED_LONG_LONG
     template <>
     struct IntTraits<unsigned long long>
     {
         typedef unsigned long long Unsigned;
         typedef signed long long Signed;
     };
+#endif
 
 } // !namespace cxxtools
 

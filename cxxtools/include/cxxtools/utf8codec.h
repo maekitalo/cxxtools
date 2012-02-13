@@ -30,13 +30,13 @@
 #define cxxtools_Utf8Codec_h
 
 #include <cxxtools/api.h>
-#include <cxxtools/types.h>
 #include <cxxtools/char.h>
 #include <cxxtools/textcodec.h>
 #include <cxxtools/string.h>
 #include <string>
 
-namespace cxxtools {
+namespace cxxtools
+{
 
     /**
      * @brief This Codec class is able to convert from UTF-8 to UTF-32 and from UTF-32 to UTF-8.
@@ -48,7 +48,8 @@ namespace cxxtools {
      * The method do_out() converts an array of cxxtools::Char objects (UTF-32/Unicode) into an
      * array of char which contains the same sequence of characters in UTF-8-encoding.
      */
-    class CXXTOOLS_API Utf8Codec : public TextCodec<Char, char> {
+    class CXXTOOLS_API Utf8Codec : public TextCodec<Char, char>
+    {
         public:
             /**
              * @brief Constructs a new Utf8Codec object which converts UTF-8 to UTF-32 and UTF-32 to UTF-8.

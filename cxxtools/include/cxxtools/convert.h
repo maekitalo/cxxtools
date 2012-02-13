@@ -31,6 +31,7 @@
 #define CXXTOOLS_CONVERT_H
 
 #include <cxxtools/api.h>
+#include <cxxtools/config.h>
 #include <cxxtools/string.h>
 #include <cxxtools/stringstream.h>
 #include <cxxtools/conversionerror.h>
@@ -529,6 +530,7 @@ inline unsigned long formatAbs(unsigned long i, bool& isNeg)
     return i;
 }
 
+#ifdef HAVE_LONG_LONG
 //! @internal @brief Returns the absolute value of \a i
 inline unsigned long long formatAbs(long long i, bool& isNeg)
 {
@@ -536,13 +538,16 @@ inline unsigned long long formatAbs(long long i, bool& isNeg)
     unsigned long long u = isNeg ? -i : static_cast<unsigned long long>(i);
     return u;
 }
+#endif
 
+#ifdef HAVE_UNSIGNEDLONG_LONG
 //! @internal @brief Returns the absolute value of \a i
 inline unsigned long long formatAbs(unsigned long long i, bool& isNeg)
 {
     isNeg = false;
     return i;
 }
+#endif
 
 /** @brief Formats an integer in a given format.
  */

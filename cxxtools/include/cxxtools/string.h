@@ -412,7 +412,7 @@ class CXXTOOLS_API basic_string< cxxtools::Char > {
             cxxtools::Char* _capacity;
         };
 
-        static const unsigned _minN = (sizeof(Ptr) / sizeof(cxxtools::uint32_t)) + 1;
+        static const unsigned _minN = (sizeof(Ptr) / sizeof(uint32_t)) + 1;
         static const unsigned _shortStringSize = _minN < 8 ? 8 : _minN;
 
         struct Data : public allocator_type
@@ -427,7 +427,7 @@ class CXXTOOLS_API basic_string< cxxtools::Char > {
             union
             {
                 Ptr ptr;
-                cxxtools::uint32_t shortdata[_shortStringSize];
+                uint32_t shortdata[_shortStringSize];
             } u;
 
         } _data;
@@ -444,8 +444,8 @@ class CXXTOOLS_API basic_string< cxxtools::Char > {
         void markLongString()                         { shortStringMagic() = 0xffff; }
         const cxxtools::Char* shortStringData() const { return reinterpret_cast<const cxxtools::Char*>(&_data.u.shortdata[0]); }
         cxxtools::Char* shortStringData()             { return reinterpret_cast<cxxtools::Char*>(&_data.u.shortdata[0]); }
-        cxxtools::uint32_t  shortStringMagic() const  { return _data.u.shortdata[_shortStringSize - 1]; }
-        cxxtools::uint32_t& shortStringMagic()        { return _data.u.shortdata[_shortStringSize - 1]; }
+        uint32_t  shortStringMagic() const            { return _data.u.shortdata[_shortStringSize - 1]; }
+        uint32_t& shortStringMagic()                  { return _data.u.shortdata[_shortStringSize - 1]; }
         size_type shortStringLength() const           { return _shortStringSize - 1 - shortStringMagic(); }
         size_type shortStringCapacity() const         { return _shortStringSize - 1; }
         void setShortStringLength(size_type n)        { shortStringData()[n] = cxxtools::Char(0); shortStringMagic() = _shortStringSize - n - 1; }

@@ -26,13 +26,13 @@
 #ifndef CXXTOOLS_SELECTABLE_H
 #define CXXTOOLS_SELECTABLE_H
 
-#include <cxxtools/types.h>
 #include <cxxtools/signal.h>
 #include <cxxtools/noncopyable.h>
 #include <cxxtools/api.h>
 #include <cxxtools/selector.h>
 
-namespace cxxtools {
+namespace cxxtools
+{
 
 class SelectableImpl;
 

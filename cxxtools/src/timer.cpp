@@ -27,8 +27,10 @@
 #include "cxxtools/clock.h"
 #include "cxxtools/selector.h"
 #include <limits>
+#include <stdint.h>
 
-namespace cxxtools {
+namespace cxxtools
+{
 
 class Timer::Sentry
 {
@@ -103,7 +105,7 @@ void Timer::start(std::size_t interval)
     
     _active = true;
     _interval = interval;
-    _remaining = cxxtools::int64_t(_interval) * 1000;
+    _remaining = int64_t(_interval) * 1000;
     _finished = Clock::getSystemTicks() + _remaining;
 
     if(_selector)

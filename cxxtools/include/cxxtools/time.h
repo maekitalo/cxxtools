@@ -34,6 +34,7 @@
 #include <cxxtools/timespan.h>
 #include <string>
 #include <stdexcept>
+#include <stdint.h>
 
 namespace cxxtools
 {
@@ -167,12 +168,12 @@ class Time
             This method does not change the time, but returns the time
             with the milliseconds added.
         */
-        inline Time addMSecs(cxxtools::int64_t ms) const
+        inline Time addMSecs(int64_t ms) const
         {
             Time t;
             if (ms < 0)
             {
-                cxxtools::int64_t negdays = (MSecsPerDay - ms) / MSecsPerDay;
+                int64_t negdays = (MSecsPerDay - ms) / MSecsPerDay;
                 t._msecs = static_cast<unsigned>((_msecs + ms + negdays * MSecsPerDay) % MSecsPerDay);
             }
             else
@@ -185,7 +186,7 @@ class Time
 
         /** @brief Determines milliseconds until another time
         */
-        cxxtools::int64_t msecsTo(const Time &t) const
+        int64_t msecsTo(const Time &t) const
         {
             if(t._msecs > _msecs)
                 return t._msecs - _msecs;
@@ -232,7 +233,7 @@ class Time
         */
         Time& operator+=(const Timespan& ts)
         {
-            cxxtools::int64_t msecs = ( _msecs + ts.totalMSecs() ) % MSecsPerDay;
+            int64_t msecs = ( _msecs + ts.totalMSecs() ) % MSecsPerDay;
             msecs = msecs < 0 ? MSecsPerDay + msecs : msecs;
             _msecs = static_cast<unsigned>(msecs);
             return *this;
@@ -242,7 +243,7 @@ class Time
         */
         Time& operator-=(const Timespan& ts)
         {
-            cxxtools::int64_t msecs = ( _msecs - ts.totalMSecs() ) % MSecsPerDay;
+            int64_t msecs = ( _msecs - ts.totalMSecs() ) % MSecsPerDay;
             msecs = msecs < 0 ? MSecsPerDay + msecs : msecs;
             _msecs = static_cast<unsigned>(msecs);
             return *this;

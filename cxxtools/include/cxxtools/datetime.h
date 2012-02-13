@@ -35,6 +35,7 @@
 #include <cxxtools/date.h>
 #include <string>
 #include <map>
+#include <stdint.h>
 
 namespace cxxtools
 {
@@ -83,7 +84,7 @@ class DateTime
             DateTime. And accordingly a "GMT" millisecond value will lead
             to a "GMT" DateTime.
         */
-        static inline DateTime fromMSecsSinceEpoch(const cxxtools::int64_t msecsSinceEpoch)
+        static inline DateTime fromMSecsSinceEpoch(const int64_t msecsSinceEpoch)
         {
             static const DateTime dt(1970, 1, 1);
             Timespan ts(msecsSinceEpoch*1000);
@@ -162,7 +163,7 @@ class DateTime
             millisecond value. And  accordingly calling this API on a "GMT"
             DateTime will lead to a "GMT" millisecond value.
         */
-        cxxtools::int64_t msecsSinceEpoch() const;
+        int64_t msecsSinceEpoch() const;
 
         std::string toIsoString() const;
 

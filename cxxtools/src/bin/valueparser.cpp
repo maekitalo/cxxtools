@@ -436,7 +436,7 @@ bool ValueParser::advance(char ch)
 
         case state_value_intsign:
             if (static_cast<signed char>(ch) < 0)
-                _int = -1;
+                _int = static_cast<uint64_t>(-1);  // set all bits
             else
                 _int = 0;
 

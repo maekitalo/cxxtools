@@ -121,7 +121,7 @@ bool SelectorBase::updateTimer(std::size_t& lowestTimeout)
 
         if( now < timer->finished() )
         {
-            cxxtools::int64_t remaining = (timer->finished() - now).toUSecs();
+            int64_t remaining = (timer->finished() - now).toUSecs();
             lowestTimeout = (remaining / 1000);
             if(remaining % 1000 > 0) ++lowestTimeout;
             break;

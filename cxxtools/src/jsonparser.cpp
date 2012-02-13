@@ -297,7 +297,7 @@ int JsonParser::advance(Char ch)
                 _token.clear();
                 return 1;
             }
-            else if (ch >= '0' && ch <= '9' || ch == '+' || ch == '-'
+            else if ((ch >= '0' && ch <= '9') || ch == '+' || ch == '-'
                     || ch == '.' || ch == 'e' || ch == 'E')
                 _token += ch;
             else

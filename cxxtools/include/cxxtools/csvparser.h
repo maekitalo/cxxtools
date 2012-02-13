@@ -81,7 +81,7 @@ namespace cxxtools
                 state_data0,
                 state_data,
                 state_qdata,
-                state_qdata_end,
+                state_qdata_end
             } _state;
 
             DeserializerBase* _deserializer;

@@ -27,11 +27,11 @@
 #define CXXTOOLS_CLOCK_H
 
 #include <cxxtools/api.h>
-#include <cxxtools/types.h>
 #include <cxxtools/datetime.h>
 #include <cxxtools/timespan.h>
 
-namespace cxxtools {
+namespace cxxtools
+{
 
 /** @brief Measures time intervals
 

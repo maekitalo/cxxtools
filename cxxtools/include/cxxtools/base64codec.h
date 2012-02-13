@@ -29,10 +29,10 @@
 #define cxxtools_Base64Codec_h
 
 #include <cxxtools/api.h>
-#include <cxxtools/types.h>
 #include <cxxtools/textcodec.h>
 
-namespace cxxtools {
+namespace cxxtools
+{
 
 class Base64Codec : public TextCodec<char, char>
 {
@@ -139,10 +139,10 @@ inline Base64Codec::result Base64Codec::do_in(MBState& s,
 
     while( (fromEnd - fromNext) >= 4 && (toEnd - toNext) >= 3 )
     {
-        cxxtools::uint8_t first  = fromBase64( *(fromNext++) );
-        cxxtools::uint8_t second = fromBase64( *(fromNext++) );
-        cxxtools::uint8_t third  = fromBase64( *(fromNext++) );
-        cxxtools::uint8_t fourth = fromBase64( *(fromNext++) );
+        uint8_t first  = fromBase64( *(fromNext++) );
+        uint8_t second = fromBase64( *(fromNext++) );
+        uint8_t third  = fromBase64( *(fromNext++) );
+        uint8_t fourth = fromBase64( *(fromNext++) );
 
         *(toNext++) = (first << 2) + (second >> 4);
 

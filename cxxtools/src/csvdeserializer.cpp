@@ -28,9 +28,6 @@
 
 #include <cxxtools/csvdeserializer.h>
 #include <stdexcept>
-#include <cxxtools/log.h>
-
-log_define("cxxtools.csv.composer")
 
 namespace cxxtools
 {

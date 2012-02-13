@@ -30,7 +30,6 @@
 #ifndef CXXTOOLS_IODevice_h
 #define CXXTOOLS_IODevice_h
 
-#include <cxxtools/types.h>
 #include <cxxtools/signal.h>
 #include <cxxtools/api.h>
 #include <cxxtools/ioerror.h>

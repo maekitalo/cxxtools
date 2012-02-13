@@ -27,6 +27,7 @@
 #include <cxxtools/xml/entityresolver.h>
 #include <cxxtools/stringstream.h>
 #include <stdexcept>
+#include <stdint.h>
 
 namespace cxxtools
 {
@@ -39,7 +40,7 @@ namespace
   struct Ent
   {
     const wchar_t* entity;
-    cxxtools::uint32_t charValue;
+    uint32_t charValue;
   };
 
   static const Ent ent[] = {

@@ -95,13 +95,13 @@ class ValueParser
             state_array_member,
             state_array_member_value,
             state_array_member_value_next,
-            state_end,
+            state_end
         } _state, _nextstate;
 
         SerializationInfo::Category _category;
         std::string _token;
         unsigned _count;
-        cxxtools::uint64_t _int;
+        uint64_t _int;
         int _exp;
         bool _isNeg;
         DeserializerBase* _deserializer;

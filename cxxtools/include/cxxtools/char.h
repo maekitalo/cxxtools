@@ -29,12 +29,13 @@
 #define CXXTOOLS_CHAR_H
 
 #include <cxxtools/api.h>
-#include <cxxtools/types.h>
 #include <string>
 #include <cstring>
 #include <ios>
+#include <stdint.h>
 
-namespace cxxtools {
+namespace cxxtools
+{
 
     /**
      * @brief A lightweight Character class (32 bits).
@@ -293,7 +294,7 @@ namespace cxxtools {
             { return a.value() & b; }
 
         private:
-            cxxtools::uint32_t _value;
+            uint32_t _value;
     };
 
     struct MBState
@@ -304,7 +305,7 @@ namespace cxxtools {
 
         int n;
         union {
-            cxxtools::uint32_t wchars[4];
+            uint32_t wchars[4];
             char mbytes[16];
         } value;
     };
@@ -319,7 +320,7 @@ namespace std {
     struct char_traits<cxxtools::Char>
     {
         typedef cxxtools::Char char_type;
-        typedef cxxtools::uint32_t int_type;
+        typedef uint32_t int_type;
         typedef std::streamoff off_type;
         typedef std::streampos pos_type;
         typedef cxxtools::MBState state_type;
@@ -458,7 +459,7 @@ namespace std {
 
     inline char_traits<cxxtools::Char>::int_type char_traits<cxxtools::Char>::eof()
     {
-        return static_cast<char_traits<cxxtools::Char>::int_type>( cxxtools::uint32_t(-1) );
+        return static_cast<char_traits<cxxtools::Char>::int_type>( uint32_t(-1) );
     }
 
 
