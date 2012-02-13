@@ -91,7 +91,7 @@ class BasicTextIStream : public std::basic_istream<CharT>
         : std::basic_istream<intern_type>(0)
         , _buffer( 0, codec )
         {
-            std::basic_istream<CharT>init(&_buffer);
+            std::basic_istream<CharT>::init(&_buffer);
         }
 
         //! @brief Deletes to codec.
