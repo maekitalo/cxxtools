@@ -52,7 +52,7 @@ class CXXTOOLS_XMLRPC_API Formatter : public cxxtools::Formatter
         void attach(xml::XmlWriter& writer)
         { _writer = &writer; }
 
-        void addValue(const std::string& name, const std::string& type,
+        void addValueString(const std::string& name, const std::string& type,
                       const cxxtools::String& value);
 
         void beginArray(const std::string& name, const std::string& type);

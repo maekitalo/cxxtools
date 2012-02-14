@@ -100,7 +100,7 @@ void XmlFormatter::flush()
 }
 
 
-void XmlFormatter::addValue(const std::string& name, const std::string& type,
+void XmlFormatter::addValueString(const std::string& name, const std::string& type,
                              const cxxtools::String& value)
 {
     cxxtools::String tag(name.empty() ? type : name);

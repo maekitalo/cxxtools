@@ -209,10 +209,10 @@ void Formatter::finish()
 {
 }
 
-void Formatter::addValue(const std::string& name, const std::string& type,
+void Formatter::addValueString(const std::string& name, const std::string& type,
                       const cxxtools::String& value)
 {
-    log_trace("addValue(\"" << name << "\", \"" << type << "\", \"" << value << "\")");
+    log_trace("addValueString(\"" << name << "\", \"" << type << "\", \"" << value << "\")");
 
     bool plain = name.empty();
 
@@ -312,9 +312,9 @@ void Formatter::addValue(const std::string& name, const std::string& type,
 
 }
 
-void Formatter::addValue(const std::string& name, const std::string& type, const std::string& value)
+void Formatter::addValueStdString(const std::string& name, const std::string& type, const std::string& value)
 {
-    log_trace("addValue(\"" << name << "\", \"" << type << "\", \"" << value << "\")");
+    log_trace("addValueStdString(\"" << name << "\", \"" << type << "\", \"" << value << "\")");
 
     bool plain = name.empty();
 
@@ -438,24 +438,39 @@ void Formatter::addValue(const std::string& name, const std::string& type, const
 
 }
 
-void Formatter::addValue(const std::string& name, const std::string& type,
+void Formatter::addValueBool(const std::string& name, const std::string& type,
+                         bool value)
+{
+    log_trace("addValueBool(\"" << name << "\", \"" << type << "\", " << value << ')');
+
+    bool plain = name.empty();
+
+    *_out << static_cast<char>(plain ? Serializer::TypePlainBool : Serializer::TypeBool);
+
+    if (!plain)
+        *_out << name << '\0';
+
+    *_out << (value ? '\1' : '\0');
+}
+
+void Formatter::addValueInt(const std::string& name, const std::string& type,
                          int_type value)
 {
-    log_trace("addValue int(\"" << name << "\", \"" << type << "\", " << value << ')');
+    log_trace("addValueInt(\"" << name << "\", \"" << type << "\", " << value << ')');
     printInt(*_out, value, name);
 }
 
-void Formatter::addValue(const std::string& name, const std::string& type,
+void Formatter::addValueUnsigned(const std::string& name, const std::string& type,
                          unsigned_type value)
 {
-    log_trace("addValue unsigned(\"" << name << "\", \"" << type << "\", " << value << ')');
+    log_trace("addValueUnsigned(\"" << name << "\", \"" << type << "\", " << value << ')');
     printUInt(*_out, value, name);
 }
 
-void Formatter::addValue(const std::string& name, const std::string& type,
+void Formatter::addValueFloat(const std::string& name, const std::string& type,
                       long double value)
 {
-    log_trace("addValue(\"" << name << "\", \"" << type << "\", (long double)" << value << ')');
+    log_trace("addValueFloat(\"" << name << "\", \"" << type << "\", " << value << ')');
 
     if (value != value)
     {

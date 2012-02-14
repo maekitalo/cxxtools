@@ -134,7 +134,7 @@ namespace cxxtools
         _data.clear();
     }
 
-    void CsvFormatter::addValue(const std::string& name, const std::string& type,
+    void CsvFormatter::addValueString(const std::string& name, const std::string& type,
                           const String& value)
     {
         if (_memberName.empty())

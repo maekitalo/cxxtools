@@ -35,7 +35,7 @@ namespace cxxtools
 namespace xmlrpc
 {
 
-void Formatter::addValue(const std::string& name, const std::string& type,
+void Formatter::addValueString(const std::string& name, const std::string& type,
                          const cxxtools::String& value)
 {
     _writer->writeStartElement( L"value" );

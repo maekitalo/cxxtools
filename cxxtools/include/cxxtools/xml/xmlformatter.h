@@ -133,7 +133,7 @@ class XmlFormatter : public cxxtools::Formatter
         bool useAttributes() const
         { return _useAttributes; }
 
-        void addValue(const std::string& name, const std::string& type,
+        void addValueString(const std::string& name, const std::string& type,
                       const cxxtools::String& value);
 
         void beginArray(const std::string& name, const std::string& type);

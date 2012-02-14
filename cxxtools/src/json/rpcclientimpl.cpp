@@ -164,9 +164,9 @@ void RpcClientImpl::prepareRequest(const String& name, IDecomposer** argv, unsig
 
     formatter.beginObject(std::string(), std::string());
 
-    formatter.addValue("jsonrpc", std::string(), "2.0");
-    formatter.addValue("method", std::string(), String(_prefix) + name);
-    formatter.addValue("id", "int", ++_count);
+    formatter.addValueStdString("jsonrpc", std::string(), "2.0");
+    formatter.addValueString("method", std::string(), String(_prefix) + name);
+    formatter.addValueInt("id", "int", ++_count);
 
     formatter.beginArray("params", std::string());
 

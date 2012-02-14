@@ -65,18 +65,22 @@ void JsonFormatter::finish()
     _lastLevel = -1;
 }
 
-void JsonFormatter::addValue(const std::string& name, const std::string& type,
+void JsonFormatter::addValueString(const std::string& name, const std::string& type,
                       const String& value)
 {
-    log_trace("addValue String name=\"" << name << "\", type=\"" << type << "\", value=\"" << value << '"');
+    log_trace("addValueString name=\"" << name << "\", type=\"" << type << "\", value=\"" << value << '"');
 
-    if (type == "int")
+    if (type == "bool")
     {
-        addValue(name, type, convert<int_type>(value));
+        addValueBool(name, type, convert<bool>(value));
+    }
+    else if (type == "int")
+    {
+        addValueInt(name, type, convert<int_type>(value));
     }
     else if (type == "double")
     {
-        addValue(name, type, convert<long double>(value));
+        addValueFloat(name, type, convert<long double>(value));
     }
     else
     {
@@ -97,18 +101,22 @@ void JsonFormatter::addValue(const std::string& name, const std::string& type,
     }
 }
 
-void JsonFormatter::addValue(const std::string& name, const std::string& type,
+void JsonFormatter::addValueStdString(const std::string& name, const std::string& type,
                       const std::string& value)
 {
-    log_trace("addValue string name=\"" << name << "\", type=\"" << type << "\", \" value=\"" << value << '"');
+    log_trace("addValueStdString name=\"" << name << "\", type=\"" << type << "\", \" value=\"" << value << '"');
 
-    if (type == "int")
+    if (type == "bool")
     {
-        addValue(name, type, convert<int_type>(value));
+        addValueBool(name, type, convert<bool>(value));
+    }
+    else if (type == "int")
+    {
+        addValueInt(name, type, convert<int_type>(value));
     }
     else if (type == "double")
     {
-        addValue(name, type, convert<long double>(value));
+        addValueFloat(name, type, convert<long double>(value));
     }
     else
     {
@@ -129,10 +137,22 @@ void JsonFormatter::addValue(const std::string& name, const std::string& type,
     }
 }
 
-void JsonFormatter::addValue(const std::string& name, const std::string& type,
+void JsonFormatter::addValueBool(const std::string& name, const std::string& type,
+                      bool value)
+{
+    log_trace("addValueBool name=\"" << name << "\", type=\"" << type << "\", \" value=\"" << value << '"');
+
+    beginValue(name);
+
+    *_ts << (value ? L"true" : L"false");
+
+    finishValue();
+}
+
+void JsonFormatter::addValueInt(const std::string& name, const std::string& type,
                       int_type value)
 {
-    log_trace("addValue int name=\"" << name << "\", type=\"" << type << "\", \" value=\"" << value << '"');
+    log_trace("addValueInt name=\"" << name << "\", type=\"" << type << "\", \" value=" << value);
 
     beginValue(name);
 
@@ -144,10 +164,10 @@ void JsonFormatter::addValue(const std::string& name, const std::string& type,
     finishValue();
 }
 
-void JsonFormatter::addValue(const std::string& name, const std::string& type,
+void JsonFormatter::addValueUnsigned(const std::string& name, const std::string& type,
                       unsigned_type value)
 {
-    log_trace("addValue unsigned name=\"" << name << "\", type=\"" << type << "\", \" value=\"" << value << '"');
+    log_trace("addValueUnsigned name=\"" << name << "\", type=\"" << type << "\", \" value=" << value);
 
     beginValue(name);
 
@@ -159,10 +179,10 @@ void JsonFormatter::addValue(const std::string& name, const std::string& type,
     finishValue();
 }
 
-void JsonFormatter::addValue(const std::string& name, const std::string& type,
+void JsonFormatter::addValueFloat(const std::string& name, const std::string& type,
                       long double value)
 {
-    log_trace("addValue float name=\"" << name << "\", type=\"" << type << "\", \" value=\"" << value << '"');
+    log_trace("addValueFloat name=\"" << name << "\", type=\"" << type << "\", \" value=" << value);
 
     beginValue(name);
 

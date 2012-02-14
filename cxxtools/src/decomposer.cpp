@@ -43,31 +43,37 @@ void IDecomposer::formatEach(const SerializationInfo& si, Formatter& formatter)
         {
             int_type value;
             si.getValue(value);
-            formatter.addValue( si.name(), si.typeName(), value );
+            formatter.addValueInt( si.name(), si.typeName(), value );
         }
         else if (si.isUInt())
         {
             unsigned_type value;
             si.getValue(value);
-            formatter.addValue( si.name(), si.typeName(), value );
+            formatter.addValueUnsigned( si.name(), si.typeName(), value );
+        }
+        else if (si.isBool())
+        {
+            bool value;
+            si.getValue(value);
+            formatter.addValueBool( si.name(), si.typeName(), value );
         }
         else if (si.isFloat())
         {
             long double value;
             si.getValue(value);
-            formatter.addValue( si.name(), si.typeName(), value );
+            formatter.addValueFloat( si.name(), si.typeName(), value );
         }
         else if (si.isString8())
         {
             std::string value;
             si.getValue(value);
-            formatter.addValue( si.name(), si.typeName(), value );
+            formatter.addValueStdString( si.name(), si.typeName(), value );
         }
         else
         {
             String value;
             si.getValue(value);
-            formatter.addValue( si.name(), si.typeName(), value );
+            formatter.addValueString( si.name(), si.typeName(), value );
         }
     }
     else if(si.category() == SerializationInfo::Object)

@@ -31,33 +31,39 @@
 
 namespace cxxtools
 {
-void Formatter::addValue(const std::string& name, const std::string& type,
-                         int_type value)
-{
-    addValue(name, type, convert<String>(value));
-}
-
-void Formatter::addValue(const std::string& name, const std::string& type,
+void Formatter::addValueStdString(const std::string& name, const std::string& type,
                          const std::string& value)
 {
-    addValue(name, type, String::widen(value));
+    addValueString(name, type, String::widen(value));
 }
 
-void Formatter::addValue(const std::string& name, const std::string& type,
+void Formatter::addValueBool(const std::string& name, const std::string& type,
+                         bool value)
+{
+    addValueString(name, type, convert<String>(value));
+}
+
+void Formatter::addValueInt(const std::string& name, const std::string& type,
+                         int_type value)
+{
+    addValueString(name, type, convert<String>(value));
+}
+
+void Formatter::addValueUnsigned(const std::string& name, const std::string& type,
                          unsigned_type value)
 {
-    addValue(name, type, convert<String>(value));
+    addValueString(name, type, convert<String>(value));
 }
 
-void Formatter::addValue(const std::string& name, const std::string& type,
+void Formatter::addValueFloat(const std::string& name, const std::string& type,
                          long double value)
 {
-    addValue(name, type, convert<String>(value));
+    addValueString(name, type, convert<String>(value));
 }
 
 void Formatter::addNull(const std::string& name, const std::string& type)
 {
-    addValue(name, type, String());
+    addValueString(name, type, String());
 }
 
 }

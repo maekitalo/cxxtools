@@ -60,7 +60,7 @@ namespace cxxtools
             void lineEnding(const String& le)
             { _lineEnding = le; }
 
-            virtual void addValue(const std::string& name, const std::string& type,
+            virtual void addValueString(const std::string& name, const std::string& type,
                                   const String& value);
 
             virtual void beginArray(const std::string& name, const std::string& type);

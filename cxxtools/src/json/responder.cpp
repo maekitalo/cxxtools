@@ -116,8 +116,8 @@ void Responder::finalize(std::ostream& out)
 
         formatter.beginObject("error", std::string());
 
-        formatter.addValue("code", "int", static_cast<Formatter::int_type>(e.rc()));
-        formatter.addValue("message", std::string(), String(e.what()));
+        formatter.addValueInt("code", "int", static_cast<Formatter::int_type>(e.rc()));
+        formatter.addValueStdString("message", std::string(), e.what());
         formatter.addNull("result", std::string());
 
         formatter.finishObject();
@@ -125,7 +125,7 @@ void Responder::finalize(std::ostream& out)
     catch (const std::exception& e)
     {
         log_debug("method \"" << methodName << "\" exited with exception: " << e.what());
-        formatter.addValue("error", std::string(), String(e.what()));
+        formatter.addValueStdString("error", std::string(), e.what());
     }
 
     formatter.finishObject();

@@ -301,6 +301,7 @@ void SerializationInfo::dump(std::ostream& out, const std::string& praefix) cons
                                     _t == t_string ? "string" :
                                     _t == t_string8 ? "string8" :
                                     _t == t_char ? "char" :
+                                    _t == t_bool ? "bool" :
                                     _t == t_int ? "int" :
                                     _t == t_uint ? "uint" :
                                     _t == t_float ? "float" : "?")
@@ -312,6 +313,7 @@ void SerializationInfo::dump(std::ostream& out, const std::string& praefix) cons
         case t_string:  out << '"' << _String().narrow() << '"'; break;
         case t_string8: out << '"' << _String8() << '"'; break;
         case t_char:    out << '\'' << _u._c << '\''; break;
+        case t_bool:    out << _u._b; break;
         case t_int:     out << _u._i; break;
         case t_uint:    out << _u._u; break;
         case t_float:   out << _u._f; break;
@@ -412,6 +414,19 @@ void SerializationInfo::_setChar(char value)
     _category = Value;
 }
 
+void SerializationInfo::_setBool(bool value)
+{
+    if (_t != t_bool)
+    {
+        _releaseValue();
+        _t = t_bool;
+    }
+
+    _u._b = value;
+
+    _category = Value;
+}
+
 void SerializationInfo::_setInt(int_type value)
 {
     if (_t != t_int)
@@ -460,6 +475,7 @@ void SerializationInfo::getValue(String& value) const
         case t_string:  value.assign(_String()); break;
         case t_string8: value.assign(_String8()); break;
         case t_char:    value.assign(1, _u._c); break;
+        case t_bool:    convert(value, _u._b); break;
         case t_int:     convert(value, _u._i); break;
         case t_uint:    convert(value, _u._u); break;
         case t_float:   convert(value, _u._f); break;
@@ -474,6 +490,7 @@ void SerializationInfo::getValue(std::string& value) const
         case t_string:  value = _String().narrow(); break;
         case t_string8: value.assign(_String8()); break;
         case t_char:    value.assign(1, _u._c); break;
+        case t_bool:    convert(value, _u._b); break;
         case t_int:     convert(value, _u._i); break;
         case t_uint:    convert(value, _u._u); break;
         case t_float:   convert(value, _u._f); break;
@@ -501,6 +518,7 @@ bool SerializationInfo::_getBool() const
         case t_string:  return !_String().empty() && !isFalse((_String())[0].narrow());
         case t_string8: return !_String8().empty() && !isFalse((_String8())[0]);
         case t_char:    return !isFalse(_u._c);
+        case t_bool:    return _u._b;
         case t_int:     return _u._i;
         case t_uint:    return _u._u;
         case t_float:   return _u._f;
@@ -518,6 +536,7 @@ wchar_t SerializationInfo::_getWChar() const
         case t_string:  return _String().empty() ? Char(0) : _String()[0];
         case t_string8: return _String8().empty() ? '\0' : _String8()[0];
         case t_char:    return _u._c;
+        case t_bool:    return _u._b;
         case t_int:     return _u._i;
         case t_uint:    return _u._u;
         case t_float:   return static_cast<wchar_t>(_u._f);
@@ -535,6 +554,7 @@ char SerializationInfo::_getChar() const
         case t_string:  return _String().empty() ? '\0' : (_String())[0].narrow(); break;
         case t_string8: return _String8().empty() ? '\0' : (_String8())[0]; break;
         case t_char:    return _u._c; break;
+        case t_bool:    return _u._b; break;
         case t_int:     return _u._i; break;
         case t_uint:    return _u._u; break;
         case t_float:   return static_cast<char>(_u._f); break;
@@ -553,6 +573,7 @@ SerializationInfo::int_type SerializationInfo::_getInt(const char* type, int_typ
         case t_string:  ret = convert<int_type>(_String()); break;
         case t_string8: ret = convert<int_type>(_String8()); break;
         case t_char:    ret = _u._c - '0'; break;
+        case t_bool:    ret = _u._b; break;
         case t_int:     ret = _u._i; break;
         case t_uint:    if (_u._u > static_cast<unsigned_type>(std::numeric_limits<int_type>::max()))
                         {
@@ -584,6 +605,7 @@ SerializationInfo::unsigned_type SerializationInfo::_getUInt(const char* type, u
         case t_string:  ret = convert<unsigned_type>(_String()); break;
         case t_string8: ret = convert<unsigned_type>(_String8()); break;
         case t_char:    ret = _u._c - '0'; break;
+        case t_bool:    ret = _u._b; break;
         case t_int:     if (_u._i < 0)
                             throw std::range_error(std::string("negative values do not fit into ") + type);
                         ret = _u._i;
@@ -612,6 +634,7 @@ long double SerializationInfo::_getFloat(const char* type, long double max) cons
         case t_string:  ret = convert<long double>(_String()); break;
         case t_string8: ret = convert<long double>(_String8()); break;
         case t_char:    ret = _u._c - '0'; break;
+        case t_bool:    ret = _u._b; break;
         case t_int:     ret = _u._i; break;
         case t_uint:    ret = _u._u; break;
         case t_float:   ret = _u._f; break;

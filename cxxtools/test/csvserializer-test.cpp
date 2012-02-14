@@ -40,6 +40,7 @@ namespace
         int intValue;
         std::string stringValue;
         double doubleValue;
+        bool boolValue;
     };
 
     void operator<<= (cxxtools::SerializationInfo& si, const TestObject& obj)
@@ -47,6 +48,7 @@ namespace
         si.addMember("intValue") <<= obj.intValue;
         si.addMember("stringValue") <<= obj.stringValue;
         si.addMember("doubleValue") <<= obj.doubleValue;
+        si.addMember("boolValue") <<= obj.boolValue;
         si.setTypeName("TestObject");
     }
 
@@ -92,18 +94,20 @@ class CsvSerializerTest : public cxxtools::unit::TestSuite
             data[0].intValue = 17;
             data[0].stringValue = "Hi";
             data[0].doubleValue = 7.5;
+            data[0].boolValue = true;
             data[1].intValue = -2;
             data[1].stringValue = "Foo";
             data[1].doubleValue = -8;
+            data[1].boolValue = false;
 
             std::ostringstream out;
             cxxtools::CsvSerializer serializer(out);
             serializer.serialize(data);
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(out.str(),
-                "intValue,stringValue,doubleValue\n"
-                "17,Hi,7.5\n"
-                "-2,Foo,-8\n");
+                "intValue,stringValue,doubleValue,boolValue\n"
+                "17,Hi,7.5,true\n"
+                "-2,Foo,-8,false\n");
         }
 
         void testPartialObject()
@@ -114,9 +118,11 @@ class CsvSerializerTest : public cxxtools::unit::TestSuite
             data[0].intValue = 17;
             data[0].stringValue = "Hi";
             data[0].doubleValue = 7.5;
+            data[0].boolValue = true;
             data[1].intValue = -2;
             data[1].stringValue = "Foo";
             data[1].doubleValue = -8;
+            data[1].boolValue = false;
 
             std::ostringstream out;
             cxxtools::CsvSerializer serializer(out);
@@ -138,21 +144,24 @@ class CsvSerializerTest : public cxxtools::unit::TestSuite
             data[0].intValue = 17;
             data[0].stringValue = "Hi";
             data[0].doubleValue = 7.5;
+            data[0].boolValue = true;
             data[1].intValue = -2;
             data[1].stringValue = "Foo";
             data[1].doubleValue = -8;
+            data[1].boolValue = false;
 
             std::ostringstream out;
             cxxtools::CsvSerializer serializer(out);
             serializer.selectColumn("stringValue", "col1");
             serializer.selectColumn("intValue", "col2");
             serializer.selectColumn("doubleValue", "col3");
+            serializer.selectColumn("boolValue", "col4");
             serializer.serialize(data);
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(out.str(),
-                "col1,col2,col3\n"
-                "Hi,17,7.5\n"
-                "Foo,-2,-8\n");
+                "col1,col2,col3,col4\n"
+                "Hi,17,7.5,true\n"
+                "Foo,-2,-8,false\n");
         }
 
         void testEmptyCsvWithTitles()
@@ -164,10 +173,11 @@ class CsvSerializerTest : public cxxtools::unit::TestSuite
             serializer.selectColumn("stringValue", "col1");
             serializer.selectColumn("intValue", "col2");
             serializer.selectColumn("doubleValue", "col3");
+            serializer.selectColumn("boolValue", "col4");
             serializer.serialize(data);
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(out.str(),
-                "col1,col2,col3\n");
+                "col1,col2,col3,col4\n");
         }
 
         void testCustomChars()

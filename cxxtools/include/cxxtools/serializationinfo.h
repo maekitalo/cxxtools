@@ -127,7 +127,7 @@ class CXXTOOLS_API SerializationInfo
         void setValue(const char* value)         { _setString8(value); }
         void setValue(Char value)                { _setString(String(1, value)); }
         void setValue(wchar_t value)             { _setString(String(1, value)); }
-        void setValue(bool value)                { _setInt(value) ; }
+        void setValue(bool value)                { _setBool(value) ; }
         void setValue(char value)                { _setChar(value) ; }
         void setValue(unsigned char value)       { _setUInt(value) ; }
         void setValue(short value)               { _setInt(value) ; }
@@ -259,6 +259,7 @@ class CXXTOOLS_API SerializationInfo
         bool isString() const   { return _t == t_string; }
         bool isString8() const  { return _t == t_string8; }
         bool isChar() const     { return _t == t_char; }
+        bool isBool() const     { return _t == t_bool; }
         bool isInt() const      { return _t == t_int; }
         bool isUInt() const     { return _t == t_uint; }
         bool isFloat() const    { return _t == t_float; }
@@ -280,6 +281,7 @@ class CXXTOOLS_API SerializationInfo
         void _setString8(const std::string& value);
         void _setString8(const char* value);
         void _setChar(char value);
+        void _setBool(bool value);
         void _setInt(int_type value);
         void _setUInt(unsigned_type value);
         void _setFloat(long double value);
@@ -295,6 +297,7 @@ class CXXTOOLS_API SerializationInfo
         {
             char _s[sizeof(String) >= sizeof(std::string) ? sizeof(String) : sizeof(std::string)];
             char _c;
+            bool _b;
             int_type _i;
             unsigned_type _u;
             long double _f;
@@ -315,6 +318,7 @@ class CXXTOOLS_API SerializationInfo
           t_string,
           t_string8,
           t_char,
+          t_bool,
           t_int,
           t_uint,
           t_float
