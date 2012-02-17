@@ -948,6 +948,26 @@ void log_init_cxxtools(std::istream& in)
     }
   }
 
+  switch (state)
+  {
+    case state_filename:
+      cxxtools::LoggerImpl::setFile(filename);
+      break;
+
+    case state_port:
+      if (port > 0)
+        cxxtools::LoggerImpl::setLoghost(host, port);
+      break;
+
+    case state_fsize:
+      cxxtools::LoggerImpl::setMaxFileSize(fsize);
+      break;
+
+    case state_maxbackupindex:
+      cxxtools::LoggerImpl::setMaxBackupIndex(maxbackupindex);
+      break;
+  }
+
   if (logprocess)
     cxxtools::LoggerImpl::runLoggerProcess(logprocessuser, logprocessgroup);
 
