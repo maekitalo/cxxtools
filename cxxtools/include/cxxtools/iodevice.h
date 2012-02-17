@@ -205,7 +205,7 @@ class CXXTOOLS_API IODevice : public Selectable
         /*!
             Test if the I/O device has reached eof.
 
-            \return true if the I/O device is usable, false otherwise.
+            \return true if the I/O device has reached eof, false otherwise.
         */
         bool eof() const;
 
