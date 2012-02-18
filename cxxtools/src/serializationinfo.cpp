@@ -58,6 +58,8 @@ SerializationInfo::SerializationInfo(const SerializationInfo& si)
         case t_string8: new (_String8Ptr()) std::string(si._String8());
                         break;
 
+        default:
+            ;
     }
 }
 
@@ -342,6 +344,9 @@ void SerializationInfo::_releaseValue()
             _String8().~string();
             break;
         }
+
+        default:
+            ;
     }
     _t = t_none;
 }

@@ -404,6 +404,12 @@ bool ValueParser::advance(char ch)
                             _state = state_value_type_other;
                             break;
 
+                        default:
+                            {
+                                std::ostringstream msg;
+                                msg << "invalid type code <h" << std::hex << tc << '>';
+                                throw SerializationError(msg.str());
+                            }
                     }
                 }
             }

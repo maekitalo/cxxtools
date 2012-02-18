@@ -966,6 +966,9 @@ void log_init_cxxtools(std::istream& in)
     case state_maxbackupindex:
       cxxtools::LoggerImpl::setMaxBackupIndex(maxbackupindex);
       break;
+
+    default:
+      ;
   }
 
   if (logprocess)

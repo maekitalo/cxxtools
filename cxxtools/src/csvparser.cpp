@@ -360,6 +360,8 @@ void CsvParser::finish()
             _deserializer->leaveMember();  // leave row
             break;
 
+        default:
+            ;
     }
 }
 
