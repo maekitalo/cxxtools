@@ -36,6 +36,15 @@
 
 log_define("cxxtools.test.convert")
 
+namespace
+{
+    bool nearBy(double v1, double v2, double e = 1e-6)
+    {
+        double q = v1 / v2;
+        return q > 1 - e && q < 1 + e;
+    }
+}
+
 class ConvertTest : public cxxtools::unit::TestSuite
 {
     public:
@@ -248,16 +257,16 @@ class ConvertTest : public cxxtools::unit::TestSuite
           CXXTOOLS_UNIT_ASSERT_EQUALS(d, 7e4);
 
           d = cxxtools::convert<double>("-2e-3");
-          CXXTOOLS_UNIT_ASSERT_EQUALS(d, -2e-3);
+          CXXTOOLS_UNIT_ASSERT(nearBy(d, -2e-3));
 
           d = cxxtools::convert<double>("-8E-5");
-          CXXTOOLS_UNIT_ASSERT_EQUALS(d, -8e-5);
+          CXXTOOLS_UNIT_ASSERT(nearBy(d, -8e-5));
 
           d = cxxtools::convert<double>("-3.0e-12");
-          CXXTOOLS_UNIT_ASSERT_EQUALS(d, -3e-12);
+          CXXTOOLS_UNIT_ASSERT(nearBy(d, -3e-12));
 
           d = cxxtools::convert<double>("-8.5E-23");
-          CXXTOOLS_UNIT_ASSERT_EQUALS(d, -8.5e-23);
+          CXXTOOLS_UNIT_ASSERT(nearBy(d, -8.5e-23));
 
           t(3.141592653579893);
           t(0.314);

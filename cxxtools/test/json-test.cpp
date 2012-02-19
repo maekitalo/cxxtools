@@ -35,6 +35,7 @@
 #include "cxxtools/hdstream.h"
 #include <limits>
 #include <stdint.h>
+#include <config.h>
 
 log_define("cxxtools.test.json")
 
@@ -171,20 +172,29 @@ class JsonTest : public cxxtools::unit::TestSuite
             testIntValue(-300);
             testIntValue(-100000);
 
-            testIntValue(static_cast<int64_t>(std::numeric_limits<int8_t>::max()) + 1);
-            testIntValue(static_cast<int64_t>(std::numeric_limits<int16_t>::max()) + 1);
+            testIntValue(static_cast<int16_t>(std::numeric_limits<int8_t>::max()) + 1);
+            testIntValue(static_cast<int32_t>(std::numeric_limits<int16_t>::max()) + 1);
+            testIntValue(std::numeric_limits<int32_t>::max());
+#ifdef INT64_IS_BASETYPE
             testIntValue(static_cast<int64_t>(std::numeric_limits<int32_t>::max()) + 1);
             testIntValue(std::numeric_limits<int64_t>::max());
+#endif
 
-            testIntValue(static_cast<int64_t>(std::numeric_limits<int8_t>::min()) - 1);
-            testIntValue(static_cast<int64_t>(std::numeric_limits<int16_t>::min()) - 1);
+            testIntValue(static_cast<int16_t>(std::numeric_limits<int8_t>::min()) - 1);
+            testIntValue(static_cast<int32_t>(std::numeric_limits<int16_t>::min()) - 1);
+            testIntValue(std::numeric_limits<int32_t>::min());
+#ifdef INT64_IS_BASETYPE
             testIntValue(static_cast<int64_t>(std::numeric_limits<int32_t>::min()) - 1);
             testIntValue(std::numeric_limits<int64_t>::min());
+#endif
 
-            testIntValue(static_cast<uint64_t>(std::numeric_limits<uint8_t>::max()) + 1);
-            testIntValue(static_cast<uint64_t>(std::numeric_limits<uint16_t>::max()) + 1);
+            testIntValue(static_cast<uint16_t>(std::numeric_limits<uint8_t>::max()) + 1);
+            testIntValue(static_cast<uint32_t>(std::numeric_limits<uint16_t>::max()) + 1);
+            testIntValue(std::numeric_limits<uint32_t>::max());
+#ifdef INT64_IS_BASETYPE
             testIntValue(static_cast<uint64_t>(std::numeric_limits<uint32_t>::max()) + 1);
             testIntValue(std::numeric_limits<uint64_t>::max());
+#endif
         }
 
         void testDoubleValue(double value)

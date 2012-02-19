@@ -35,6 +35,7 @@
 #include "cxxtools/hdstream.h"
 #include <limits>
 #include <stdint.h>
+#include <config.h>
 
 log_define("cxxtools.test.binserializer")
 
@@ -121,6 +122,7 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
             registerMethod("testArray", *this, &BinSerializerTest::testArray);
             registerMethod("testObject", *this, &BinSerializerTest::testObject);
             registerMethod("testComplexObject", *this, &BinSerializerTest::testComplexObject);
+            registerMethod("testObjectVector", *this, &BinSerializerTest::testObjectVector);
             registerMethod("testBinaryData", *this, &BinSerializerTest::testBinaryData);
         }
 
@@ -166,20 +168,29 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
             testIntValue(-300);
             testIntValue(-100000);
 
-            testIntValue(static_cast<int64_t>(std::numeric_limits<int8_t>::max()) + 1);
-            testIntValue(static_cast<int64_t>(std::numeric_limits<int16_t>::max()) + 1);
+            testIntValue(static_cast<int16_t>(std::numeric_limits<int8_t>::max()) + 1);
+            testIntValue(static_cast<int32_t>(std::numeric_limits<int16_t>::max()) + 1);
+            testIntValue(std::numeric_limits<int32_t>::max());
+#ifdef INT64_IS_BASETYPE
             testIntValue(static_cast<int64_t>(std::numeric_limits<int32_t>::max()) + 1);
             testIntValue(std::numeric_limits<int64_t>::max());
+#endif
 
-            testIntValue(static_cast<int64_t>(std::numeric_limits<int8_t>::min()) - 1);
-            testIntValue(static_cast<int64_t>(std::numeric_limits<int16_t>::min()) - 1);
+            testIntValue(static_cast<int16_t>(std::numeric_limits<int8_t>::min()) - 1);
+            testIntValue(static_cast<int32_t>(std::numeric_limits<int16_t>::min()) - 1);
+            testIntValue(std::numeric_limits<int32_t>::min());
+#ifdef INT64_IS_BASETYPE
             testIntValue(static_cast<int64_t>(std::numeric_limits<int32_t>::min()) - 1);
             testIntValue(std::numeric_limits<int64_t>::min());
+#endif
 
-            testIntValue(static_cast<uint64_t>(std::numeric_limits<uint8_t>::max()) + 1);
-            testIntValue(static_cast<uint64_t>(std::numeric_limits<uint16_t>::max()) + 1);
+            testIntValue(static_cast<uint16_t>(std::numeric_limits<uint8_t>::max()) + 1);
+            testIntValue(static_cast<uint32_t>(std::numeric_limits<uint16_t>::max()) + 1);
+            testIntValue(std::numeric_limits<uint32_t>::max());
+#ifdef INT64_IS_BASETYPE
             testIntValue(static_cast<uint64_t>(std::numeric_limits<uint32_t>::max()) + 1);
             testIntValue(std::numeric_limits<uint64_t>::max());
+#endif
         }
 
         void testDoubleValue(double value)
@@ -315,6 +326,44 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
             deserializer.deserialize(v2);
 
             CXXTOOLS_UNIT_ASSERT(v == v2);
+        }
+
+        void testObjectVector()
+        {
+            std::stringstream data;
+            cxxtools::bin::Serializer serializer(data);
+            cxxtools::bin::Deserializer deserializer(data);
+
+            std::vector<TestObject> obj;
+            obj.resize(2);
+            obj[0].intValue = 17;
+            obj[0].stringValue = "foobar";
+            obj[0].doubleValue = 3.125;
+            obj[0].boolValue = true;
+            obj[0].nullValue = true;
+            obj[1].intValue = 18;
+            obj[1].stringValue = "hi there";
+            obj[1].doubleValue = -17.25;
+            obj[1].boolValue = false;
+            obj[1].nullValue = true;
+
+            serializer.serialize(obj);
+
+            std::vector<TestObject> obj2;
+            deserializer.deserialize(obj2);
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(obj2.size(), 2);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(obj[0].intValue, obj2[0].intValue);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(obj[0].stringValue, obj2[0].stringValue);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(obj[0].doubleValue, obj2[0].doubleValue);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(obj[0].boolValue, obj2[0].boolValue);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(obj[0].nullValue, obj2[0].nullValue);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(obj[1].intValue, obj2[1].intValue);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(obj[1].stringValue, obj2[1].stringValue);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(obj[1].doubleValue, obj2[1].doubleValue);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(obj[1].boolValue, obj2[1].boolValue);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(obj[1].nullValue, obj2[1].nullValue);
+            CXXTOOLS_UNIT_ASSERT(obj == obj2);
         }
 
         void testBinaryData()
