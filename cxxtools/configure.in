@@ -1,4 +1,4 @@
-AC_INIT(cxxtools, 2.1rc3, [Tommi Maekitalo <tommi@tntnet.org>])
+AC_INIT(cxxtools, 2.1rc4-20120217-1, [Tommi Maekitalo <tommi@tntnet.org>])
 AM_INIT_AUTOMAKE
 
 AC_PREREQ([2.5.9])
@@ -37,10 +37,32 @@ AC_TYPE_UNSIGNED_LONG_LONG_INT
 
 if test "$ac_cv_type_long_long_int" = yes; then
     HAVE_LONG_LONG=HAVE_LONG_LONG
+
+    AC_COMPILE_IFELSE(
+      [AC_LANG_SOURCE([
+        #include <stdint.h>
+        void f(short);
+        void f(int);
+        void f(long);
+        void f(long long);
+        void f() { int64_t v = 1; f(v); }
+        ])],
+      [AC_DEFINE(INT64_IS_BASETYPE, [], [defined if int64_t is one of the base types])])
 else
     AC_MSG_WARN([long long not found]);
     HAVE_LONG_LONG=NO_LONG_LONG
+
+    AC_COMPILE_IFELSE(
+      [AC_LANG_SOURCE([
+        #include <stdint.h>
+        void f(short);
+        void f(int);
+        void f(long);
+        void f() { int64_t v = 1; f(v); }
+        ])],
+      [AC_DEFINE(INT64_IS_BASETYPE, [], [defined if int64_t is one of the base types])])
 fi
+
 AC_SUBST(HAVE_LONG_LONG, "$HAVE_LONG_LONG")
 
 if test "$ac_cv_type_unsigned_long_long_int" = yes; then
