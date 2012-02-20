@@ -62,5 +62,5 @@ rpcbenchserver_LDADD = $(top_builddir)/src/libcxxtools.la \
         $(top_builddir)/src/bin/libcxxtools-bin.la \
         $(top_builddir)/src/json/libcxxtools-json.la
 
-AM_CXXFLAGS = $(PTHREAD_CFLAGS) -DTESTDIR='"@TESTDIR@"'
+AM_CXXFLAGS = $(PTHREAD_CFLAGS)
 AM_LDFLAGS = $(PTHREAD_LIBS)
