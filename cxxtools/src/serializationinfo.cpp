@@ -575,8 +575,27 @@ SerializationInfo::int_type SerializationInfo::_getInt(const char* type, int_typ
     switch (_t)
     {
         case t_none:    break;
-        case t_string:  ret = convert<int_type>(_String()); break;
-        case t_string8: ret = convert<int_type>(_String8()); break;
+
+        case t_string:  try
+                        {
+                            ret = convert<int_type>(_String());
+                        }
+                        catch (const ConversionError&)
+                        {
+                            ConversionError::doThrow(type, "String", _String().narrow().c_str());
+                        }
+                        break;
+
+        case t_string8: try
+                        {
+                            ret = convert<int_type>(_String8());
+                        }
+                        catch (const ConversionError&)
+                        {
+                            ConversionError::doThrow(type, "string", _String8().c_str());
+                        }
+                        break;
+
         case t_char:    ret = _u._c - '0'; break;
         case t_bool:    ret = _u._b; break;
         case t_int:     ret = _u._i; break;
@@ -607,8 +626,27 @@ SerializationInfo::unsigned_type SerializationInfo::_getUInt(const char* type, u
     switch (_t)
     {
         case t_none:    break;
-        case t_string:  ret = convert<unsigned_type>(_String()); break;
-        case t_string8: ret = convert<unsigned_type>(_String8()); break;
+
+        case t_string:  try
+                        {
+                            ret = convert<unsigned_type>(_String());
+                        }
+                        catch (const ConversionError&)
+                        {
+                            ConversionError::doThrow(type, "String", _String().narrow().c_str());
+                        }
+                        break;
+
+        case t_string8: try
+                        {
+                            ret = convert<unsigned_type>(_String8());
+                        }
+                        catch (const ConversionError&)
+                        {
+                            ConversionError::doThrow(type, "string", _String8().c_str());
+                        }
+                        break;
+
         case t_char:    ret = _u._c - '0'; break;
         case t_bool:    ret = _u._b; break;
         case t_int:     if (_u._i < 0)
@@ -636,8 +674,27 @@ long double SerializationInfo::_getFloat(const char* type, long double max) cons
     switch (_t)
     {
         case t_none:    break;
-        case t_string:  ret = convert<long double>(_String()); break;
-        case t_string8: ret = convert<long double>(_String8()); break;
+
+        case t_string:  try
+                        {
+                            ret = convert<long double>(_String());
+                        }
+                        catch (const ConversionError&)
+                        {
+                            ConversionError::doThrow(type, "String", _String().narrow().c_str());
+                        }
+                        break;
+
+        case t_string8: try
+                        {
+                            ret = convert<long double>(_String8());
+                        }
+                        catch (const ConversionError&)
+                        {
+                            ConversionError::doThrow(type, "string", _String8().c_str());
+                        }
+                        break;
+
         case t_char:    ret = _u._c - '0'; break;
         case t_bool:    ret = _u._b; break;
         case t_int:     ret = _u._i; break;
