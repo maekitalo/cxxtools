@@ -67,6 +67,7 @@ class CsvDeserializerTest : public cxxtools::unit::TestSuite
             registerMethod("testSingleColumn", *this, &CsvDeserializerTest::testSingleColumn);
             registerMethod("testSetDelimiter", *this, &CsvDeserializerTest::testSetDelimiter);
             registerMethod("testQuotedTitle", *this, &CsvDeserializerTest::testQuotedTitle);
+            registerMethod("testFailDecoding", *this, &CsvDeserializerTest::testFailDecoding);
         }
 
         void testVectorVector()
@@ -270,6 +271,17 @@ class CsvDeserializerTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[1].intValue, -6);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[1].stringValue, "Foo");
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[1].doubleValue, -1000);
+        }
+
+        void testFailDecoding()
+        {
+            std::vector<std::vector<std::string> > data;
+            std::istringstream in(
+                "A\xff|B|C\n");
+            in.exceptions(std::ios::failbit|std::ios::badbit);
+
+            cxxtools::CsvDeserializer deserializer(in);
+            CXXTOOLS_UNIT_ASSERT_THROW(deserializer.deserialize(data), std::exception);
         }
 
 };

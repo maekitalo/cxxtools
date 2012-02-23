@@ -56,7 +56,9 @@ namespace cxxtools
     CsvDeserializer::CsvDeserializer(std::istream& in, TextCodec<Char, char>* codec)
         : _ts(new TextIStream(in, codec)),
           _in(*_ts)
-    { }
+    {
+        _in.exceptions(in.exceptions());
+    }
 
     CsvDeserializer::CsvDeserializer(TextIStream& in)
         : _ts(0),
