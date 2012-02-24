@@ -660,7 +660,7 @@ basic_string<cxxtools::Char>::find_first_not_of(const cxxtools::Char* tok, size_
 
 INLINE
 basic_string<cxxtools::Char>::size_type
-basic_string<cxxtools::Char>::find_first_not_of(cxxtools::Char ch, size_type pos) const
+basic_string<cxxtools::Char>::find_first_not_of(const cxxtools::Char ch, size_type pos) const
 {
     const cxxtools::Char* str = privdata_ro();
 
