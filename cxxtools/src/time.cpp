@@ -41,21 +41,24 @@ InvalidTime::InvalidTime()
 { }
 
 
-inline unsigned short getNumber2(const char* s)
+namespace
 {
-    if ( ! std::isdigit(s[0]) || ! std::isdigit(s[1]) )
-        throw ConversionError("Invalid Time format");
+    unsigned short getNumber2(const char* s)
+    {
+        if ( ! std::isdigit(s[0]) || ! std::isdigit(s[1]) )
+            throw ConversionError("Invalid Time format");
 
-    return (s[0] - '0') * 10 + (s[1] - '0');
-}
+        return (s[0] - '0') * 10 + (s[1] - '0');
+    }
 
 
-inline unsigned short getNumber3(const char* s)
-{
-    if( ! std::isdigit(s[0]) || ! std::isdigit(s[1]) || ! std::isdigit(s[2]) )
-       throw ConversionError("Invalid Time format");
+    unsigned short getNumber3(const char* s)
+    {
+        if( ! std::isdigit(s[0]) || ! std::isdigit(s[1]) || ! std::isdigit(s[2]) )
+           throw ConversionError("Invalid Time format");
 
-    return ( s[0] - '0') * 100 + (s[1] - '0') * 10 + (s[2] - '0' );
+        return ( s[0] - '0') * 100 + (s[1] - '0') * 10 + (s[2] - '0' );
+    }
 }
 
 
