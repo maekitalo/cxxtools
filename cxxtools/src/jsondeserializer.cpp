@@ -59,6 +59,10 @@ namespace cxxtools
             if (ret != 0)
                 return;
         }
+
+        if (_in.rdstate() & std::ios::badbit)
+            SerializationError::doThrow("json deserialization failed");
+
         parser.finish();
-      }
+    }
 }

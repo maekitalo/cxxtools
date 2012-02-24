@@ -37,6 +37,7 @@
 #include "cxxtools/selectable.h"
 #include "cxxtools/utf8codec.h"
 #include "cxxtools/xmlrpc/errorcodes.h"
+#include "cxxtools/serializationerror.h"
 #include "cxxtools/log.h"
 
 
@@ -271,7 +272,7 @@ void ClientImpl::advance(const cxxtools::xml::Node& node)
             {
                 const xml::StartElement& se = static_cast<const xml::StartElement&>(node);
                 if( se.name() != L"methodResponse" )
-                    throw SerializationError("invalid XML-RPC methodCall");
+                    SerializationError::doThrow("invalid XML-RPC methodCall");
 
                 _state = OnMethodResponseBegin;
             }
@@ -298,7 +299,7 @@ void ClientImpl::advance(const cxxtools::xml::Node& node)
                     break;
                 }
 
-                throw SerializationError("invalid XML-RPC methodCall");
+                SerializationError::doThrow("invalid XML-RPC methodCall");
             }
             break;
         }
@@ -321,7 +322,7 @@ void ClientImpl::advance(const cxxtools::xml::Node& node)
             {
                 const xml::EndElement& ee = static_cast<const xml::EndElement&>(node);
                 if( ee.name() != L"methodResponse" )
-                    throw SerializationError("invalid XML-RPC methodCall");
+                    SerializationError::doThrow("invalid XML-RPC methodCall");
 
                 _method->setFault(_fault.rc(), _fault.text());
 
@@ -342,7 +343,7 @@ void ClientImpl::advance(const cxxtools::xml::Node& node)
             {
                 const xml::StartElement& se = static_cast<const xml::StartElement&>(node);
                 if( se.name() != L"param" )
-                    throw SerializationError("invalid XML-RPC methodCall");
+                    SerializationError::doThrow("invalid XML-RPC methodCall");
 
                 _state = OnParam;
             }
@@ -368,7 +369,7 @@ void ClientImpl::advance(const cxxtools::xml::Node& node)
             {
                 const xml::EndElement& ee = static_cast<const xml::EndElement&>(node);
                 if( ee.name() != L"params" )
-                    throw SerializationError("invalid XML-RPC methodCall");
+                    SerializationError::doThrow("invalid XML-RPC methodCall");
 
                 _state = OnParamsEnd;
             }
@@ -381,7 +382,7 @@ void ClientImpl::advance(const cxxtools::xml::Node& node)
             {
                 const xml::EndElement& ee = static_cast<const xml::EndElement&>(node);
                 if( ee.name() != L"methodResponse" )
-                    throw SerializationError("invalid XML-RPC methodCall");
+                    SerializationError::doThrow("invalid XML-RPC methodCall");
 
                 _state = OnMethodResponseEnd;
             }

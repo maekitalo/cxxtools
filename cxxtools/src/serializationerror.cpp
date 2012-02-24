@@ -34,6 +34,11 @@ SerializationError::SerializationError(const std::string& msg)
 : std::runtime_error(msg)
 { }
 
+void SerializationError::doThrow(const std::string& msg)
+{
+    throw SerializationError(msg);
+}
+
 SerializationMemberNotFound::SerializationMemberNotFound(const std::string& member)
     : SerializationError("Missing info for '" + member + "'"),
       _member(member)

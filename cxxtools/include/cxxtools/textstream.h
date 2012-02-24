@@ -85,6 +85,7 @@ class BasicTextIStream : public std::basic_istream<CharT>
         , _buffer( &is, codec )
         {
             std::basic_istream<CharT>::init(&_buffer);
+            std::basic_istream<CharT>::exceptions(is.exceptions());
         }
 
         explicit BasicTextIStream(CodecType* codec)
@@ -102,6 +103,7 @@ class BasicTextIStream : public std::basic_istream<CharT>
         {
             _buffer.attach( is );
             this->clear();
+            std::basic_istream<CharT>::exceptions(is.exceptions());
         }
 
         void detach()
@@ -170,7 +172,10 @@ class BasicTextOStream : public std::basic_ostream<CharT>
         BasicTextOStream(StreamType& os, CodecType* codec)
         : std::basic_ostream<intern_type>(0)
         , _buffer( &os , codec )
-        { std::basic_ostream<CharT>::init(&_buffer); }
+        {
+            std::basic_ostream<CharT>::init(&_buffer);
+            std::basic_ostream<CharT>::exceptions(os.exceptions());
+        }
 
         explicit BasicTextOStream(CodecType* codec)
         : std::basic_ostream<intern_type>(0)
@@ -184,6 +189,7 @@ class BasicTextOStream : public std::basic_ostream<CharT>
         void attach(StreamType& os)
         {
             _buffer.attach( os );
+            std::basic_ostream<CharT>::exceptions(os.exceptions());
             this->clear();
         }
 
@@ -253,7 +259,10 @@ class BasicTextStream : public std::basic_iostream<CharT>
         BasicTextStream(StreamType& ios, CodecType* codec)
         : std::basic_iostream<intern_type>(0)
         , _buffer( &ios, codec)
-        { std::basic_iostream<CharT>::init(&_buffer); }
+        {
+            std::basic_iostream<CharT>::init(&_buffer);
+            std::basic_iostream<CharT>::exceptions(ios.exceptions());
+        }
 
         explicit BasicTextStream(CodecType* codec)
         : std::basic_iostream<intern_type>(0)
@@ -268,6 +277,7 @@ class BasicTextStream : public std::basic_iostream<CharT>
         {
             _buffer.attach( ios );
             this->clear();
+            std::basic_iostream<CharT>::exceptions(ios.exceptions());
         }
 
         void detach()

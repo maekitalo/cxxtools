@@ -31,6 +31,7 @@
 #include <cxxtools/xml/endelement.h>
 #include <cxxtools/xml/characters.h>
 #include <cxxtools/serializationinfo.h>
+#include <cxxtools/serializationerror.h>
 #include <cxxtools/deserializerbase.h>
 #include <cxxtools/composer.h>
 
@@ -44,7 +45,7 @@ namespace
 {
     void throwSerializationError(const char* msg = "invalid XML-RPC parameter")
     {
-        throw SerializationError(msg);
+        SerializationError::doThrow(msg);
     }
 }
 

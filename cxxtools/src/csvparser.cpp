@@ -28,7 +28,9 @@
 
 #include <cxxtools/csvparser.h>
 #include <cxxtools/deserializerbase.h>
+#include <cxxtools/serializationerror.h>
 #include <cxxtools/log.h>
+#include <stdexcept>
 
 log_define("cxxtools.csv.parser")
 
@@ -49,7 +51,7 @@ namespace
         {
             std::ostringstream msg;
             msg << "number of columns " << (column + 1) << " in line " << lineNo << " does not match expected number of columns " << noColumns;
-            throw std::runtime_error(msg.str());
+            SerializationError::doThrow(msg.str());
         }
     }
 
@@ -59,7 +61,7 @@ const Char CsvParser::autoDelimiter = L'\0';
 void CsvParser::begin(DeserializerBase& handler)
 {
     if (_delimiter == autoDelimiter && !_readTitle)
-        throw std::runtime_error("can't read csv data with auto delimiter but without title");
+        throw std::logic_error("can't read csv data with auto delimiter but without title");
 
     _state = (_readTitle ? _delimiter == autoDelimiter ? state_detectDelim
                                                        : state_title
@@ -121,7 +123,7 @@ void CsvParser::advance(Char ch)
             {
                 std::ostringstream msg;
                 msg << "invalid character '" << ch.narrow() << "' within csv title of column " << _titles.size();
-                throw std::runtime_error(msg.str());
+                SerializationError::doThrow(msg.str());
             }
             else if (ch == L'\n' || ch == L'\r')
             {
@@ -162,7 +164,7 @@ void CsvParser::advance(Char ch)
                 {
                     std::ostringstream msg;
                     msg << "unexpected quote character within csv title of column " << _titles.size();
-                    throw std::runtime_error(msg.str());
+                    SerializationError::doThrow(msg.str());
                 }
             }
             else
@@ -199,7 +201,7 @@ void CsvParser::advance(Char ch)
             {
                 std::ostringstream msg;
                 msg << "invalid character '" << ch.narrow() << "' within csv title of column " << _titles.size();
-                throw std::runtime_error(msg.str());
+                SerializationError::doThrow(msg.str());
             }
             break;
 

@@ -28,6 +28,7 @@
 
 #include <cxxtools/jsonparser.h>
 #include <cxxtools/deserializerbase.h>
+#include <cxxtools/serializationerror.h>
 #include <cxxtools/utf8codec.h>
 #include <cxxtools/log.h>
 
@@ -69,7 +70,7 @@ bool JsonParser::JsonStringParser::advance(Char ch)
                 _state = state_hex;
             }
             else
-                throw std::runtime_error(std::string("invalid character '") + ch.narrow() + "' in string");
+                SerializationError::doThrow(std::string("invalid character '") + ch.narrow() + "' in string");
             break;
 
         case state_hex:
@@ -80,7 +81,7 @@ bool JsonParser::JsonStringParser::advance(Char ch)
             else if (ch >= 'A' && ch <= 'F')
                 _value = (_value << 4) | (ch.value() - 'A' + 10);
             else
-                throw std::runtime_error(std::string("invalid character '") + ch.narrow() + "' in hex sequence");
+                SerializationError::doThrow(std::string("invalid character '") + ch.narrow() + "' in hex sequence");
 
             if (--_count == 0)
             {
@@ -144,7 +145,7 @@ int JsonParser::advance(Char ch)
             else if (ch == '}')
                 return 1;
             else if (!std::isspace(ch))
-                throw std::runtime_error(std::string("invalid character '") + ch.narrow() + '\'');
+                SerializationError::doThrow(std::string("invalid character '") + ch.narrow() + '\'');
             break;
 
         case state_object_name:
@@ -165,7 +166,7 @@ int JsonParser::advance(Char ch)
                 _state = state_object_value;
             }
             else if (!std::isspace(ch))
-                throw std::runtime_error(std::string("invalid character '") + ch.narrow() + '\'');
+                SerializationError::doThrow(std::string("invalid character '") + ch.narrow() + '\'');
             break;
 
         case state_object_value:
@@ -187,7 +188,7 @@ int JsonParser::advance(Char ch)
             else if (ch == '}')
                 return 1;
             else if (!std::isspace(ch))
-                throw std::runtime_error(std::string("invalid character '") + ch.narrow() + '\'');
+                SerializationError::doThrow(std::string("invalid character '") + ch.narrow() + '\'');
             break;
 
         case state_object_next_member:
@@ -197,7 +198,7 @@ int JsonParser::advance(Char ch)
                 _stringParser.clear();
             }
             else if (!std::isspace(ch))
-                throw std::runtime_error(std::string("invalid character '") + ch.narrow() + '\'');
+                SerializationError::doThrow(std::string("invalid character '") + ch.narrow() + '\'');
             break;
 
         case state_array:
@@ -245,7 +246,7 @@ int JsonParser::advance(Char ch)
                 _state = state_array_value;
             }
             else if (!std::isspace(ch))
-                throw std::runtime_error(std::string("invalid character '") + ch.narrow() + '\'');
+                SerializationError::doThrow(std::string("invalid character '") + ch.narrow() + '\'');
             break;
 
         case state_string:
@@ -337,7 +338,7 @@ int JsonParser::advance(Char ch)
 
         case state_end:
             if (!std::isspace(ch))
-                throw std::runtime_error(std::string("unexpected character '") + ch.narrow() + "\' after end");
+                SerializationError::doThrow(std::string("unexpected character '") + ch.narrow() + "\' after end");
             break;
     }
 
@@ -359,7 +360,7 @@ void JsonParser::finish()
         case state_array_value:
         case state_array_e:
         case state_string:
-            throw std::runtime_error("unexpected end");
+            SerializationError::doThrow("unexpected end");
 
         case state_number:
             _deserializer->setValue(_token);

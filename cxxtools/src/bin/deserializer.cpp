@@ -38,11 +38,13 @@ void Deserializer::doDeserialize()
 {
     ValueParser vp;
     vp.begin(*this);
+
     char ch;
     while (_in.get(ch) && !vp.advance(ch))
         ;
-    if (!_in)
-        throw SerializationError("binary deserialization failed");
+
+    if (_in.rdstate() & std::ios::badbit)
+        SerializationError::doThrow("binary deserialization failed");
 }
 }
 }

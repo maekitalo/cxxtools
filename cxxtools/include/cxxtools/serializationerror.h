@@ -47,6 +47,10 @@ class CXXTOOLS_API SerializationError : public std::runtime_error
         */
         explicit SerializationError(const std::string& msg);
 
+        /** @brief throws Serialization error
+         *  This saves some bytes in library size when using this function instead of throwing directly.
+         */
+        static void doThrow(const std::string& msg);
 };
 
 class CXXTOOLS_API SerializationMemberNotFound : public SerializationError

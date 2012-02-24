@@ -30,6 +30,7 @@
 #define CXXTOOLS_DESERIALIZER_H
 
 #include <cxxtools/deserializerbase.h>
+#include <cxxtools/serializationerror.h>
 #include <cxxtools/composer.h>
 #include <stdexcept>
 
@@ -74,7 +75,7 @@ namespace cxxtools
 
                 SerializationInfo* p = current()->findMember(name);
                 if( !p )
-                    throw std::runtime_error("member " + name + " not found");
+                    throw SerializationMemberNotFound(name);
 
                 Composer<T> composer;
                 composer.begin(type);

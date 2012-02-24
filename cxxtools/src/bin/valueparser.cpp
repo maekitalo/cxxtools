@@ -29,6 +29,7 @@
 #include <cxxtools/bin/valueparser.h>
 #include <cxxtools/deserializer.h>
 #include <cxxtools/bin/serializer.h>
+#include <cxxtools/serializationerror.h>
 #include <cxxtools/log.h>
 
 #include <math.h>
@@ -103,7 +104,7 @@ namespace
             {
                 std::ostringstream msg;
                 msg << "unknown serialization type code <" << std::hex << static_cast<unsigned>(static_cast<unsigned char>(typeCode)) << '>';
-                throw SerializationError(msg.str());
+                SerializationError::doThrow(msg.str());
             }
         }
         return 0;  // never reached
@@ -408,7 +409,7 @@ bool ValueParser::advance(char ch)
                             {
                                 std::ostringstream msg;
                                 msg << "invalid type code <h" << std::hex << tc << '>';
-                                throw SerializationError(msg.str());
+                                SerializationError::doThrow(msg.str());
                             }
                     }
                 }
@@ -641,7 +642,7 @@ bool ValueParser::advance(char ch)
                 return true;
 
             if (ch != '\1')
-                throw SerializationError("member expected");
+                SerializationError::doThrow("member expected");
 
             if (_next == 0)
                 _next = new ValueParser();
@@ -743,7 +744,7 @@ bool ValueParser::advance(char ch)
 
         case state_end:
             if (ch != '\xff')
-                throw SerializationError("end of value marker expected");
+                SerializationError::doThrow("end of value marker expected");
             log_debug("end of value");
             return true;
     }

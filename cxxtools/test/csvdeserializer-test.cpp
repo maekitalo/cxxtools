@@ -278,7 +278,6 @@ class CsvDeserializerTest : public cxxtools::unit::TestSuite
             std::vector<std::vector<std::string> > data;
             std::istringstream in(
                 "A\xff|B|C\n");
-            in.exceptions(std::ios::failbit|std::ios::badbit);
 
             cxxtools::CsvDeserializer deserializer(in);
             CXXTOOLS_UNIT_ASSERT_THROW(deserializer.deserialize(data), std::exception);

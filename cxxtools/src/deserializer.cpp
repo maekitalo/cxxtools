@@ -98,7 +98,7 @@ namespace cxxtools
     {
         SerializationInfo* p = _current->parent();
         if( !p )
-            throw std::runtime_error("invalid member");
+            SerializationError::doThrow("invalid member");
 
         _current = p;
     }

@@ -27,6 +27,7 @@
  */
 
 #include <cxxtools/csvdeserializer.h>
+#include <cxxtools/serializationerror.h>
 #include <stdexcept>
 
 namespace cxxtools
@@ -45,7 +46,7 @@ namespace cxxtools
             {
                 std::ostringstream msg;
                 msg << "number of columns " << (column + 1) << " in line " << lineNo << " does not match expected number of columns " << noColumns;
-                throw std::runtime_error(msg.str());
+                SerializationError::doThrow(msg.str());
             }
         }
 
@@ -57,7 +58,6 @@ namespace cxxtools
         : _ts(new TextIStream(in, codec)),
           _in(*_ts)
     {
-        _in.exceptions(in.exceptions());
     }
 
     CsvDeserializer::CsvDeserializer(TextIStream& in)
@@ -73,9 +73,14 @@ namespace cxxtools
     void CsvDeserializer::doDeserialize()
     {
         Char ch;
+
         _parser.begin(*this);
         while (_in.get(ch))
             _parser.advance(ch);
+
+        if (_in.rdstate() & std::ios::badbit)
+            SerializationError::doThrow("csv deserialization failed");
+
         _parser.finish();
     }
 
