@@ -23,9 +23,9 @@ AC_PROG_CXX
 
 AC_LANG(C++)
 
-AX_CXXFLAGS_GCC_OPTION([-Wno-long-long])
-AX_CXXFLAGS_AIX_OPTION([-qrtti])
-dnl AX_CXXFLAGS_AIX_OPTION([-qlanglvl=newexcp])
+AX_CHECK_COMPILE_FLAG([-Wno-long-long], [CXXFLAGS="$CXXFLAGS -Wno-long-long"])
+AX_CHECK_COMPILE_FLAG([-qrtti], [CXXFLAGS="$CXXFLAGS -qrtti"])
+AX_CHECK_COMPILE_FLAG([-qlanglvl=newexcp], [CXXFLAGS="$CXXFLAGS -qlanglvl=newexcp"])
 
 AC_CHECK_HEADERS(sys/filio.h)
 AC_CHECK_HEADERS(csignal)
