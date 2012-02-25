@@ -23,9 +23,10 @@ AC_PROG_CXX
 
 AC_LANG(C++)
 
+AX_COMPILER_VENDOR
+AS_IF([test "$ax_cv_cxx_compiler_vendor" = "ibm"],
+      [CXXFLAGS="$CXXFLAGS -qrtti -qlanglvl=newexcp -D__NOLOCK_ON_INPUT -D__NOLOCK_ON_OUTPUT"])
 AX_CHECK_COMPILE_FLAG([-Wno-long-long], [CXXFLAGS="$CXXFLAGS -Wno-long-long"])
-AX_CHECK_COMPILE_FLAG([-qrtti], [CXXFLAGS="$CXXFLAGS -qrtti"])
-AX_CHECK_COMPILE_FLAG([-qlanglvl=newexcp], [CXXFLAGS="$CXXFLAGS -qlanglvl=newexcp"])
 
 AC_CHECK_HEADERS(sys/filio.h)
 AC_CHECK_HEADERS(csignal)
