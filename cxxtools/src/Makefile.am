@@ -7,6 +7,7 @@ libcxxtools_la_SOURCES = \
 	addrinfoimpl.cpp \
 	application.cpp \
 	applicationimpl.cpp \
+	base64codec.cpp \
 	csvdeserializer.cpp \
 	csvformatter.cpp \
 	csvparser.cpp \

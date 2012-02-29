@@ -27,8 +27,7 @@
  */
 
 #include <iostream>
-#include "cxxtools/base64codec.h"
-#include "cxxtools/textstream.h"
+#include "cxxtools/base64stream.h"
 #include "cxxtools/unit/testsuite.h"
 #include "cxxtools/unit/registertest.h"
 
@@ -41,13 +40,14 @@ class Base64Test : public cxxtools::unit::TestSuite
             registerMethod("encodeTest0", *this, &Base64Test::encodeTest0);
             registerMethod("encodeTest1", *this, &Base64Test::encodeTest1);
             registerMethod("encodeTest2", *this, &Base64Test::encodeTest2);
+            registerMethod("encodeDecodeTest", *this, &Base64Test::encodeDecodeTest);
         }
 
         void encodeTest0()
         {
             std::ostringstream s;
             
-            cxxtools::BasicTextOStream<char, char> encoder(s, new cxxtools::Base64Codec());
+            cxxtools::Base64ostream encoder(s);
             encoder << "123456789";
             encoder.terminate();
 
@@ -58,7 +58,7 @@ class Base64Test : public cxxtools::unit::TestSuite
         {
             std::ostringstream s;
             
-            cxxtools::BasicTextOStream<char, char> encoder(s, new cxxtools::Base64Codec());
+            cxxtools::Base64ostream encoder(s);
             encoder << "1234567890";
             encoder.terminate();
 
@@ -69,13 +69,36 @@ class Base64Test : public cxxtools::unit::TestSuite
         {
             std::ostringstream s;
             
-            cxxtools::BasicTextOStream<char, char> encoder(s, new cxxtools::Base64Codec());
+            cxxtools::Base64ostream encoder(s);
             encoder << "12345678901";
             encoder.terminate();
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(s.str(), "MTIzNDU2Nzg5MDE=");
         }
 
+        void encodeDecodeTest()
+        {
+            std::string data;
+            for (unsigned n = 0; n < 100; ++n)
+            {
+                data += static_cast<char>('0' + n%10);
+                for (char c = 'A'; c <= 'Z'; ++c)
+                    data += c;
+                data += '\n';
+            }
+
+            std::stringstream s;
+            cxxtools::Base64ostream encoder(s);
+            encoder << data;
+            encoder.end();
+
+            std::ostringstream s2;
+            cxxtools::Base64istream decoder(s);
+            s2 << decoder.rdbuf();
+            std::string data2(s2.str());
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data, data2);
+        }
 };
 
 cxxtools::unit::RegisterTest<Base64Test> register_Base64Test;
