@@ -113,6 +113,14 @@ namespace cxxtools
                 return *this;
             }
 
+            void setObject()
+            {
+                _formatter.beginObject(std::string(), std::string());
+                _inObject = true;
+            }
+
+            bool object() const       { return _inObject; }
+
             bool beautify() const     { return _formatter.beautify(); }
 
             void beautify(bool sw)    { _formatter.beautify(sw); }
