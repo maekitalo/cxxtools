@@ -33,12 +33,11 @@
 #include <cxxtools/mutex.h>
 #include <iostream>
 #include <sstream>
-#include <cxxtools/api.h>
 
-#define log_xxxx_enabled(level)   \
+#define _cxxtools_log_enabled(level)   \
   (getLogger() != 0 && getLogger()->isEnabled(::cxxtools::Logger::LOG_LEVEL_ ## level))
 
-#define log_xxxx(level, expr)   \
+#define _cxxtools_log(level, expr)   \
   do { \
     ::cxxtools::Logger* _cxxtools_logger = getLogger(); \
     if (_cxxtools_logger != 0 && _cxxtools_logger->isEnabled(::cxxtools::Logger::LOG_LEVEL_ ## level)) \
@@ -49,18 +48,36 @@
     } \
   } while (false)
 
-#define log_fatal_enabled()     log_xxxx_enabled(FATAL)
-#define log_error_enabled()     log_xxxx_enabled(ERROR)
-#define log_warn_enabled()      log_xxxx_enabled(WARN)
-#define log_info_enabled()      log_xxxx_enabled(INFO)
-#define log_debug_enabled()     log_xxxx_enabled(DEBUG)
-#define log_trace_enabled()     log_xxxx_enabled(TRACE)
+#define _cxxtools_log_if(level, cond, expr)   \
+  do { \
+    ::cxxtools::Logger* _cxxtools_logger = getLogger(); \
+    if (_cxxtools_logger != 0 && _cxxtools_logger->isEnabled(::cxxtools::Logger::LOG_LEVEL_ ## level) && (cond)) \
+    { \
+      ::cxxtools::LogMessage _cxxtools_logMessage(_cxxtools_logger, #level); \
+      _cxxtools_logMessage.out() << expr; \
+      _cxxtools_logMessage.flush(); \
+    } \
+  } while (false)
 
-#define log_fatal(expr)     log_xxxx(FATAL, expr)
-#define log_error(expr)     log_xxxx(ERROR, expr)
-#define log_warn(expr)      log_xxxx(WARN, expr)
-#define log_info(expr)      log_xxxx(INFO, expr)
-#define log_debug(expr)     log_xxxx(DEBUG, expr)
+#define log_fatal_enabled()     _cxxtools_log_enabled(FATAL)
+#define log_error_enabled()     _cxxtools_log_enabled(ERROR)
+#define log_warn_enabled()      _cxxtools_log_enabled(WARN)
+#define log_info_enabled()      _cxxtools_log_enabled(INFO)
+#define log_debug_enabled()     _cxxtools_log_enabled(DEBUG)
+#define log_trace_enabled()     _cxxtools_log_enabled(TRACE)
+
+#define log_fatal(expr)     _cxxtools_log(FATAL, expr)
+#define log_error(expr)     _cxxtools_log(ERROR, expr)
+#define log_warn(expr)      _cxxtools_log(WARN, expr)
+#define log_info(expr)      _cxxtools_log(INFO, expr)
+#define log_debug(expr)     _cxxtools_log(DEBUG, expr)
+
+#define log_fatal_if(cond, expr)     _cxxtools_log_if(FATAL, cond, expr)
+#define log_error_if(cond, expr)     _cxxtools_log_if(ERROR, cond, expr)
+#define log_warn_if(cond, expr)      _cxxtools_log_if(WARN, cond, expr)
+#define log_info_if(cond, expr)      _cxxtools_log_if(INFO, cond, expr)
+#define log_debug_if(cond, expr)     _cxxtools_log_if(DEBUG, cond, expr)
+
 #define log_trace(expr)     \
   ::cxxtools::LogTracer tracer ## __LINE__ (getLogger());  \
   if (log_trace_enabled()) \
