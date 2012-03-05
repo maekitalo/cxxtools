@@ -344,7 +344,7 @@ void JsonFormatter::stringOut(const std::string& str)
         else if (*it == '\t')
             *_ts << L'\\'
                 << L't';
-        else if (static_cast<unsigned char>(*it) >= 0x80)
+        else if (static_cast<unsigned char>(*it) >= 0x80 || static_cast<unsigned char>(*it) < 0x20)
         {
             *_ts << L'\\'
                  << L'u';
@@ -385,7 +385,7 @@ void JsonFormatter::stringOut(const cxxtools::String& str)
         else if (*it == L'\t')
             *_ts << L'\\'
                 << L't';
-        else if (it->value() >= 0x80)
+        else if (it->value() >= 0x80 || it->value() < 0x20)
         {
             *_ts << L'\\'
                  << L'u';
