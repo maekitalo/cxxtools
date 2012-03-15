@@ -70,7 +70,7 @@ void CsvParser::begin(DeserializerBase& handler)
     _deserializer = &handler;
     _titles.clear();
     _titles.push_back(std::string());
-    _noColumns = 1;
+    _noColumns = unknownNoColumns;
     _lineNo = 0;
 }
 

@@ -58,6 +58,7 @@ class CsvDeserializerTest : public cxxtools::unit::TestSuite
             : cxxtools::unit::TestSuite("csvdeserializer")
         {
             registerMethod("testVectorVector", *this, &CsvDeserializerTest::testVectorVector);
+            registerMethod("testVectorVectorNoTitle", *this, &CsvDeserializerTest::testVectorVectorNoTitle);
             registerMethod("testIntVector", *this, &CsvDeserializerTest::testIntVector);
             registerMethod("testObjectVector", *this, &CsvDeserializerTest::testObjectVector);
             registerMethod("testMissigColumn", *this, &CsvDeserializerTest::testMissingColumn);
@@ -80,6 +81,33 @@ class CsvDeserializerTest : public cxxtools::unit::TestSuite
                 "col1|'col2'|col3\n");
 
             cxxtools::CsvDeserializer deserializer(in);
+            deserializer.deserialize(data);
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 3);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0].size(), 3);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[1].size(), 3);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[2].size(), 3);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0][0], "Hello");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0][1], "World");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[1][0], "34");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[1][1], "67");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[1][2], "23");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[2][0], "col1");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[2][1], "col2");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[2][2], "col3");
+        }
+
+        void testVectorVectorNoTitle()
+        {
+            std::vector<std::vector<std::string> > data;
+            std::istringstream in(
+                "Hello|World|\n"
+                "34|67|\"23\"\n"
+                "col1|'col2'|col3\n");
+
+            cxxtools::CsvDeserializer deserializer(in);
+            deserializer.readTitle(false);
+            deserializer.delimiter('|');
             deserializer.deserialize(data);
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 3);

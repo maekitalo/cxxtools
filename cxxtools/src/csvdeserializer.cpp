@@ -32,26 +32,6 @@
 
 namespace cxxtools
 {
-    namespace
-    {
-        const unsigned unknownNoColumns = std::numeric_limits<unsigned>::max();
-
-        void checkNoColumns(unsigned column, unsigned& noColumns, unsigned lineNo)
-        {
-            if (noColumns == unknownNoColumns)
-            {
-                column = noColumns;
-            }
-            else if (column + 1 != noColumns)
-            {
-                std::ostringstream msg;
-                msg << "number of columns " << (column + 1) << " in line " << lineNo << " does not match expected number of columns " << noColumns;
-                SerializationError::doThrow(msg.str());
-            }
-        }
-
-    }
-
     const Char CsvDeserializer::autoDelimiter = CsvParser::autoDelimiter;
 
     CsvDeserializer::CsvDeserializer(std::istream& in, TextCodec<Char, char>* codec)
