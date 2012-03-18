@@ -1,7 +1,4 @@
 
-/** defines, which logging library to use */
-#define @CXXTOOLS_LOGGING@
-
 /** defines, how to implement atomic operations */
 #define @CXXTOOLS_ATOMICITY@
 

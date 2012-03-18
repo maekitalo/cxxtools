@@ -29,24 +29,7 @@
 #ifndef CXXTOOLS_LOG_H
 #define CXXTOOLS_LOG_H
 
-#include <cxxtools/config.h>
-
-#if defined(CXXTOOLS_LOGGING_CXXTOOLS)
-#  include <cxxtools/log/cxxtools.h>
-#  include <cxxtools/log/cxxtools_init.h>
-
-#elif defined(CXXTOOLS_LOGGING_LOG4CXX)
-#  include <cxxtools/log/log4cxx.h>
-#  include <cxxtools/log/log4cxx_init.h>
-
-#elif defined(CXXTOOLS_LOGGING_LOG4CPLUS)
-#  include <cxxtools/log/log4cplus.h>
-#  include <cxxtools/log/log4cplus_init.h>
-#  include <cxxtools/log/disable_init.h>
-
-#else
-#  include <cxxtools/log/disable.h>
-
-#endif
+#include <cxxtools/log/cxxtools.h>
+#include <cxxtools/log/cxxtools_init.h>
 
 #endif // CXXTOOLS_LOG_H

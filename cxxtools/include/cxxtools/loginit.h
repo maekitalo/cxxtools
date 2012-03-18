@@ -29,20 +29,6 @@
 #ifndef CXXTOOLS_LOGINIT_H
 #define CXXTOOLS_LOGINIT_H
 
-#include <cxxtools/config.h>
-
-#if defined(CXXTOOLS_LOGGING_CXXTOOLS)
-#  include <cxxtools/log/cxxtools_init.h>
-
-#elif defined(CXXTOOLS_LOGGING_LOG4CXX)
-#  include <cxxtools/log/log4cxx_init.h>
-
-#elif defined(CXXTOOLS_LOGGING_LOG4CPLUS)
-#  include <cxxtools/log/log4cplus_init.h>
-
-#else
-#  include <cxxtools/log/disable_init.h>
-
-#endif
+#include <cxxtools/log/cxxtools_init.h>
 
 #endif //  CXXTOOLS_LOGINIT_H

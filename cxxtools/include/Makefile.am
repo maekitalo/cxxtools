@@ -164,12 +164,6 @@ nobase_include_HEADERS = \
         cxxtools/xmltag.h \
         cxxtools/log/cxxtools.h \
         cxxtools/log/cxxtools_init.h \
-        cxxtools/log/disable.h \
-        cxxtools/log/disable_init.h \
-        cxxtools/log/log4cplus.h \
-        cxxtools/log/log4cplus_init.h \
-        cxxtools/log/log4cxx.h \
-        cxxtools/log/log4cxx_init.h \
         cxxtools/unit/application.h \
         cxxtools/unit/assertion.h \
         cxxtools/unit/registertest.h \

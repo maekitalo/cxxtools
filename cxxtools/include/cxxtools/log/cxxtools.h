@@ -79,11 +79,11 @@
 #define log_debug_if(cond, expr)     _cxxtools_log_if(DEBUG, cond, expr)
 
 #define log_trace(expr)     \
-  ::cxxtools::LogTracer tracer ## __LINE__ (getLogger());  \
+  ::cxxtools::LogTracer _cxxtools_tracer ## __LINE__ (getLogger());  \
   if (log_trace_enabled()) \
   { \
-    tracer ## __LINE__ .logentry() << expr;  \
-    tracer ## __LINE__ .enter();  \
+    _cxxtools_tracer ## __LINE__ .logentry() << expr;  \
+    _cxxtools_tracer ## __LINE__ .enter();  \
   }
 
 #define log_define(category) \
