@@ -41,8 +41,11 @@
 #define log_init           log_init_cxxtools
 
 void log_init_cxxtools(cxxtools::Logger::log_level_type level);
-void log_init_cxxtools(std::istream& properties);
-void log_init_cxxtools(const std::string& propertyfilename);
-void log_init_cxxtools();
+bool log_init_cxxtools(std::istream& properties);
+bool log_init_cxxtools(const std::string& propertyfilename);
+bool log_init_cxxtools(int argc, char* argv[]);
+bool log_init_cxxtools(int argc, char* argv[], char optionchar);
+bool log_init_cxxtools(int argc, char* argv[], const char* option);
+bool log_init_cxxtools();
 
 #endif // CXXTOOLS_LOG_CXXTOOLS_INIT_H

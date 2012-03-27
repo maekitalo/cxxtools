@@ -34,6 +34,7 @@
 #include <cxxtools/streamcounter.h>
 #include <cxxtools/posix/pipestream.h>
 #include <cxxtools/systemerror.h>
+#include <cxxtools/arg.h>
 #include <list>
 #include <vector>
 #include <algorithm>
@@ -601,17 +602,20 @@ void log_init_cxxtools(cxxtools::Logger::log_level_type level)
   cxxtools::reinitializeLoggers();
 }
 
-void log_init_cxxtools(const std::string& propertyfilename)
+bool log_init_cxxtools(const std::string& propertyfilename)
 {
   cxxtools::Logger::setEnabled(false);
   cxxtools::getBaseLoggers().clear();
 
   std::ifstream in(propertyfilename.c_str());
-  log_init_cxxtools(in);
+  return log_init_cxxtools(in);
 }
 
-void log_init_cxxtools(std::istream& in)
+bool log_init_cxxtools(std::istream& in)
 {
+  if (!in)
+    return false;
+
   cxxtools::Logger::setEnabled(true);
 
   enum state_type {
@@ -975,20 +979,44 @@ void log_init_cxxtools(std::istream& in)
     cxxtools::LoggerImpl::runLoggerProcess(logprocessuser, logprocessgroup);
 
   cxxtools::reinitializeLoggers();
+
+  return true;
 }
 
-void log_init_cxxtools()
+bool log_init_cxxtools(int argc, char* argv[])
+{
+  return log_init_cxxtools(std::string(argv[0]) + ".properties");
+}
+
+bool log_init_cxxtools(int argc, char* argv[], char optionchar)
+{
+  cxxtools::Arg<std::string> pfile(argc, argv, optionchar);
+  if (!pfile.isSet())
+    return false;
+
+  return log_init_cxxtools(pfile);
+}
+
+bool log_init_cxxtools(int argc, char* argv[], const char* option)
+{
+  cxxtools::Arg<std::string> pfile(argc, argv, option);
+  if (!pfile.isSet())
+    return false;
+
+  return log_init_cxxtools(pfile);
+}
+
+bool log_init_cxxtools()
 {
   char* LOGPROPERTIES = ::getenv("LOGPROPERTIES");
   if (LOGPROPERTIES)
-    log_init_cxxtools(LOGPROPERTIES);
-  else
-  {
-    struct stat s;
-    if (stat("log.properties", &s) == 0)
-      log_init_cxxtools("log.properties");
-    else
-      log_init_cxxtools(cxxtools::Logger::LOG_LEVEL_ERROR);
-  }
+    return log_init_cxxtools(LOGPROPERTIES);
+
+  struct stat s;
+  if (stat("log.properties", &s) == 0)
+    return log_init_cxxtools("log.properties");
+
+  log_init_cxxtools(cxxtools::Logger::LOG_LEVEL_ERROR);
+  return false;
 }
 
