@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2008 Tommi Maekitalo
+ * Copyright (C) 2012 Tommi Maekitalo
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -29,8 +29,9 @@
 #ifndef CXXTOOLS_CACHE_H
 #define CXXTOOLS_CACHE_H
 
-#include <deque>
-#include <utility>
+#include <map>
+#include <limits>
+#include <iostream>
 
 namespace cxxtools
 {
@@ -69,72 +70,146 @@ namespace cxxtools
   template <typename Key, typename Value>
   class Cache
   {
-      typedef std::deque<std::pair<Key, Value> > DataType;
+      struct Data
+      {
+        bool winner;
+        unsigned serial;
+        Value value;
+        Data() { }
+        Data(bool winner_, unsigned serial_, const Value& value_)
+          : winner(winner_),
+            serial(serial_),
+            value(value_)
+            { }
+      };
+
+      typedef std::map<Key, Data> DataType;
       DataType data;
+
       typename DataType::size_type maxElements;
+      unsigned serial;
       unsigned hits;
       unsigned misses;
 
-      bool _push(const Key& key, const Value& value)
+      unsigned _nextSerial()
       {
-        for (typename DataType::iterator it = data.begin(); it != data.end(); ++it)
+        if (serial == std::numeric_limits<unsigned>::max())
         {
-          if (it->first == key)
-          {
-            data.erase(it);
-            data.push_front(typename DataType::value_type(key, value));
-            return true;
-          }
+          for (typename DataType::iterator it = data.begin(); it != data.end(); ++it)
+            it->second.serial = 0;
+          serial = 1;
         }
 
-        return false;
+        return serial++;
+      }
+
+      typename DataType::iterator _getOldest(bool winner)
+      {
+        typename DataType::iterator foundElement = data.begin();
+
+        typename DataType::iterator it = data.begin();
+
+        for (++it; it != data.end(); ++it)
+          if (it->second.winner == winner
+            && (foundElement->second.winner != winner || it->second.serial < foundElement->second.serial))
+              foundElement = it;
+
+        return foundElement;
+      }
+
+      typename DataType::iterator _getNewest(bool winner)
+      {
+        typename DataType::iterator foundElement = data.begin();
+
+        typename DataType::iterator it = data.begin();
+
+        for (++it; it != data.end(); ++it)
+          if (it->second.winner == winner
+            && (foundElement->second.winner != winner || it->second.serial > foundElement->second.serial))
+              foundElement = it;
+
+        return foundElement;
+      }
+
+      // drop one element
+      void _dropLooser()
+      {
+        // look for the oldest element in the list of loosers to drop it
+        data.erase(_getOldest(false));
+      }
+
+      void _makeLooser()
+      {
+        // look for the oldest element in the list of winners to make it a looser
+        typename DataType::iterator it = _getOldest(true);
+        it->second.winner = false;
+        it->second.serial = _nextSerial();
       }
 
     public:
       typedef typename DataType::size_type size_type;
-      typedef typename DataType::value_type value_type;
-      typedef typename DataType::iterator iterator;
-      typedef typename DataType::const_iterator const_iterator;
+      typedef Value value_type;
 
       explicit Cache(size_type maxElements_)
-        : maxElements(maxElements_),
+        : maxElements(maxElements_ + (maxElements_ & 1)),
+          serial(0),
           hits(0),
           misses(0)
         { }
 
       /// returns the number of elements currently in the cache
       size_type size() const        { return data.size(); }
-      /// returns a iterator to the first element in the cache
-      iterator begin()              { return data.begin(); }
-      /// returns a iterator to the last element in the cache
-      iterator end()                { return data.end(); }
-      /// returns a iterator to the first element in the cache
-      const_iterator begin() const  { return data.begin(); }
-      /// returns a iterator to the last element in the cache
-      const_iterator end() const    { return data.end(); }
 
       /// returns the maximum number of elements in the cache
-      size_type getMaxElements() const { return maxElements; }
+      size_type getMaxElements() const      { return maxElements; }
+
       void setMaxElements(size_type maxElements_)
       {
-        maxElements = maxElements_;
-        if (data.size() > maxElements)
-          data.erase(data.begin() + maxElements, data.end());
+        size_type numWinners = size() < maxElements / 2 ? size() : maxElements / 2;
+
+        maxElements_ += (maxElements_ & 1);
+
+        if (maxElements_ > maxElements)
+        {
+          maxElements = maxElements_;
+
+          while (numWinners < maxElements / 2)
+          {
+            _getNewest(false)->winner = true;
+            ++numWinners;
+          }
+        }
+        else
+        {
+          while (maxElements > maxElements_)
+          {
+            _dropLooser();
+            _dropLooser();
+            _makeLooser();
+            maxElements -= 2;
+          }
+
+          while (numWinners > maxElements / 2)
+          {
+            _getNewest(true)->winner = false;
+            --numWinners;
+          }
+        }
+
       }
 
       /// removes a element from the cache and returns true, if found
       bool erase(const Key& key)
       {
-        for (typename DataType::iterator it = data.begin(); it != data.end(); ++it)
-        {
-          if (it->first == key)
-          {
-            data.erase(it);
-            return true;
-          }
-        }
+        typename DataType::iterator it = data.find(key);
+        if (it == data.end())
+          return false;
 
-        return false;
+        if (it->second.winner)
+          _getNewest(false)->winner=true;
+
+        data.erase(it);
+        return true;
       }
 
       /// clears the cache.
@@ -150,22 +225,32 @@ namespace cxxtools
       /// list.
       void put(const Key& key, const Value& value)
       {
-        if (_push(key, value))
-          return;
-
-        // A element is normally searched first in the cache using the get
-        // method and if not found, read from the source and put into the
-        // cache. Therefore it is considered a cache miss, when a new object
-        // is put into the cache.
-        ++misses;
-
-        if (data.size() < maxElements / 2)
-          data.push_back(typename DataType::value_type(key, value));
+        typename DataType::iterator it;
+        if (data.size() < maxElements)
+        {
+          data.insert(data.begin(),
+            typename DataType::value_type(key,
+              Data(data.size() < maxElements / 2, _nextSerial(), value)));
+        }
+        else if ((it = data.find(key)) == data.end())
+        {
+          // element not found
+          _dropLooser();
+          data.insert(data.begin(),
+            typename DataType::value_type(key,
+              Data(false, _nextSerial(), value)));
+        }
         else
-          data.insert(data.begin() + maxElements / 2, typename DataType::value_type(key, value));
-
-        if (data.size() > maxElements)
-          data.pop_back();
+        {
+          // element found
+          it->second.serial = _nextSerial();
+          if (!it->second.winner)
+          {
+            // move element to the winner part
+            it->second.winner = true;
+            _makeLooser();
+          }
+        }
       }
 
       /// puts a new element on the top of the cache. If the element is already
@@ -174,15 +259,54 @@ namespace cxxtools
       /// needs a hit to get to the top of the cache.
       void put_top(const Key& key, const Value& value)
       {
-        if (_push(key, value))
-          return;
+        typename DataType::iterator it;
+        if (data.size() < maxElements)
+        {
+          if (data.size() >= maxElements / 2)
+            _makeLooser();
 
-        ++misses;
+          data.insert(data.begin(),
+            typename DataType::value_type(key,
+              Data(true, _nextSerial(), value)));
+        }
+        else if ((it = data.find(key)) == data.end())
+        {
+          // element not found
+          _dropLooser();
+          _makeLooser();
+          data.insert(data.begin(),
+            typename DataType::value_type(key,
+              Data(true, _nextSerial(), value)));
+        }
+        else
+        {
+          // element found
+          it->second.serial = _nextSerial();
+          if (!it->second.winner)
+          {
+            // move element to the winner part
+            it->second.winner = true;
+            _makeLooser();
+          }
+        }
+      }
 
-        data.push_front(typename DataType::value_type(key, value));
+      Value* getptr(const Key& key)
+      {
+        typename DataType::iterator it = data.find(key);
+        if (it == data.end())
+          return 0;
 
-        if (data.size() > maxElements)
-          data.pop_back();
+        it->second.serial = _nextSerial();
+
+        if (!it->second.winner)
+        {
+          // move element to the winner part
+          it->second.winner = true;
+          _makeLooser();
+        }
+
+        return &it->second.value;
       }
 
       /// returns a pair of values - a flag, if the value was found and the
@@ -190,19 +314,9 @@ namespace cxxtools
       /// found it is a cahce hit and pushed to the top of the list.
       std::pair<bool, Value> getx(const Key& key, Value def = Value())
       {
-        for (typename DataType::iterator it = data.begin(); it != data.end(); ++it)
-        {
-          if (it->first == key)
-          {
-            typename DataType::value_type v = *it;
-            data.erase(it);
-            data.push_front(v);
-            ++hits;
-            return std::pair<bool, Value>(true, v.second);
-          }
-        }
-
-        return std::pair<bool, Value>(false, def);
+        Value* v = getptr(key);
+        return v ? std::pair<bool, Value>(true, *v)
+                 : std::pair<bool, Value>(false, def);
       }
 
       /// returns the value to a key or the passed default value if not found.
@@ -221,6 +335,19 @@ namespace cxxtools
       double hitRatio() const     { return hits+misses > 0 ? static_cast<double>(hits)/static_cast<double>(hits+misses) : 0; }
       /// returns the ratio, between held elements and maximum elements.
       double fillfactor() const   { return static_cast<double>(data.size()) / static_cast<double>(maxElements); }
+
+/*
+      void dump(std::ostream& out) const
+      {
+        out << "cache max size=" << maxElements << " current size=" << size() << '\n';
+        for (typename DataType::const_iterator it = data.begin(); it != data.end(); ++it)
+        {
+          out << "\tkey=\"" << it->first << "\" value=\"" << it->second.value << "\" serial=" << it->second.serial << " winner=" << it->second.winner << '\n';
+        }
+        out << "--------\n";
+      }
+*/
+
   };
 
 }
