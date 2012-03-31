@@ -1,3 +1,94 @@
+2012-03-30 tommi@tntnet.org
+
+ - optimize cache template - no linear search necessary any more when searching for elements
+
+2012-03-27 tommi@tntnet.org
+
+ - arg/argv can be passed to log_init, so that the logging properties file is derived from the current binary name or optionally a option char or string is passed to log_init
+
+2012-03-18 tommi@tntnet.org
+
+ - remove support for log4cpp and log4cxx
+
+2012-03-15 tommi@tntnet.org
+
+ - fix reading csv data without title
+
+2012-03-05 tommi@tntnet.org
+
+ - use unicode escape sequence for control characters (<0x20) in json as done already for characters > 0x80
+
+2012-03-04 tommi@tntnet.org
+
+ - add log macros log_xxx_if(cond, expr)
+ - add feature to json serializer to serialize empty objects
+
+2012-02-29 tommi@tntnet.org
+
+ - fix encoding in base64codec
+
+2012-02-25 tommi@tntnet.org
+
+ - use AX_CHECK_COMPILE_FLAG instead of AX_CXXFLAGS_*_OPTION to check compile flags - this is a standard macro of autoconf and works better than the old ones
+ - set compile flags for ibm xlc correctly
+
+2012-02-24 tommi@tntnet.org
+
+ - report right type in serializationinfo when convert fails
+ - inherit exception mask from source stream in csv deserializer
+ - improve error reporting in serializer
+ - inherit exception flag from base stream in text streams
+ - fix member function in string to match exactly the declaration in the header
+ - add compiler flags -Wno-long-long for gcc and -qrtti for aix/xlc
+
+2012-02-19 tommi@tntnet.org
+
+ - do not check doubles for equality but for almost equal in unit test to work around rounding problems
+ - add configure check if int64_t can be serialized using standard types
+
+2012-02-18 tommi@tntnet.org
+
+ - fix some compiler warnings
+
+2012-02-17 tommi@tntnet.org
+
+ - add missing explicit specifier
+ - process last line of log.properties even if there is no line feed at end
+ - fix documentation of cxxtools::IODevice::eof()
+
+2012-02-15 tommi@tntnet.org
+
+ - serializer bool as "true" and "false" as before instead of 1 and 0
+ - give addValue methods of formatter unique names for easier resolution and to remove some compiler warnings
+
+2012-02-13 tommi@tntnet.org
+
+ - fix typo in textstream, which caused a crash
+ - remove cxxtools/types.h header and replace with stdint.h
+ - and clean up code again to reduce compiler warnings
+ - use the result of the long long type check where needed
+
+2012-02-09 tommi@tntnet.org
+
+ - add some missing includes
+ - change tabs to spaces
+ - increase abi number from 7 to 8
+ - add some missing headers and other minor code cleanup (yofuh)
+ - fix initalization of application class
+ - fix compiler warning in json parser
+
+2012-02-08 tommi@tntnet.org
+
+ - avoid long long constants since they are difficult to make fully portable
+
+2012-02-08 tommi@tntnet.org
+
+ - add check for cygwin platform to disable min/max macros from win32 headers
+
+2012-02-03 tommi@tntnet.org
+
+ - csvserializer is not copyable
+
 2012-02-02 tommi@tntnet.org
 
  - allow quoted titles in csv parser
