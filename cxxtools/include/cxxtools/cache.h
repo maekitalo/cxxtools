@@ -334,7 +334,6 @@ namespace cxxtools
       /// returns the ratio, between held elements and maximum elements.
       double fillfactor() const   { return static_cast<double>(data.size()) / static_cast<double>(maxElements); }
 
-#ifdef DEBUG
       unsigned winners() const
       {
         unsigned w = 0;
@@ -353,6 +352,7 @@ namespace cxxtools
         return l;
       }
 
+#ifdef DEBUG
       void dump(std::ostream& out) const
       {
         out << "cache max size=" << maxElements << " current size=" << size() << '\n';
