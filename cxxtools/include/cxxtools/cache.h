@@ -31,7 +31,10 @@
 
 #include <map>
 #include <limits>
+
+#ifdef DEBUG
 #include <iostream>
+#endif
 
 namespace cxxtools
 {
@@ -165,37 +168,32 @@ namespace cxxtools
 
       void setMaxElements(size_type maxElements_)
       {
-        size_type numWinners = size() < maxElements / 2 ? size() : maxElements / 2;
+        size_type numWinners = winners();
 
         maxElements_ += (maxElements_ & 1);
 
         if (maxElements_ > maxElements)
         {
-          maxElements = maxElements_;
-
-          while (numWinners < maxElements / 2)
+          while (numWinners < maxElements_ / 2)
           {
-            _getNewest(false)->winner = true;
+            _getNewest(false)->second.winner = true;
             ++numWinners;
           }
         }
         else
         {
-          while (maxElements > maxElements_)
-          {
+          while (size() > maxElements_)
             _dropLooser();
-            _dropLooser();
-            _makeLooser();
-            maxElements -= 2;
-          }
 
-          while (numWinners > maxElements / 2)
+          numWinners = winners();
+          while (numWinners > maxElements_ / 2)
           {
-            _getNewest(true)->winner = false;
+            _makeLooser();
             --numWinners;
           }
         }
 
+        maxElements = maxElements_;
       }
 
       /// removes a element from the cache and returns true, if found
@@ -206,7 +204,7 @@ namespace cxxtools
           return false;
 
         if (it->second.winner)
-          _getNewest(false)->winner=true;
+          _getNewest(false)->second.winner = true;
 
         data.erase(it);
         return true;
@@ -336,7 +334,25 @@ namespace cxxtools
       /// returns the ratio, between held elements and maximum elements.
       double fillfactor() const   { return static_cast<double>(data.size()) / static_cast<double>(maxElements); }
 
-/*
+#ifdef DEBUG
+      unsigned winners() const
+      {
+        unsigned w = 0;
+        for (typename DataType::const_iterator it = data.begin(); it != data.end(); ++it)
+          if (it->second.winner)
+            ++w;
+        return w;
+      }
+
+      unsigned loosers() const
+      {
+        unsigned l = 0;
+        for (typename DataType::const_iterator it = data.begin(); it != data.end(); ++it)
+          if (!it->second.winner)
+            ++l;
+        return l;
+      }
+
       void dump(std::ostream& out) const
       {
         out << "cache max size=" << maxElements << " current size=" << size() << '\n';
@@ -346,7 +362,7 @@ namespace cxxtools
         }
         out << "--------\n";
       }
-*/
+#endif
 
   };
 

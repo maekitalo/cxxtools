@@ -26,6 +26,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+#define DEBUG
 #include "cxxtools/cache.h"
 #include "cxxtools/unit/testsuite.h"
 #include "cxxtools/unit/registertest.h"
@@ -37,6 +38,8 @@ class CacheTest : public cxxtools::unit::TestSuite
         : cxxtools::unit::TestSuite("cache")
         {
             registerMethod("cacheTest", *this, &CacheTest::cacheTest);
+            registerMethod("erase", *this, &CacheTest::erase);
+            registerMethod("resize", *this, &CacheTest::resize);
         }
 
         void cacheTest()
@@ -77,6 +80,82 @@ class CacheTest : public cxxtools::unit::TestSuite
           CXXTOOLS_UNIT_ASSERT_EQUALS(result.second, 110);
         }
 
+        void erase()
+        {
+          cxxtools::Cache<int, int> cache(6);
+
+          cache.put(1, 10);
+          cache.put(2, 20);
+          cache.put(3, 30);
+          cache.put(4, 40);
+          cache.put(5, 50);
+          cache.put(6, 60);
+          cache.put(7, 70);
+          cache.put(8, 80);
+          cache.put(9, 90);
+          cache.put(10, 100);
+
+          cache.erase(2);
+          CXXTOOLS_UNIT_ASSERT_EQUALS(cache.size(), 5);
+          CXXTOOLS_UNIT_ASSERT_EQUALS(cache.winners(), 3);
+
+          cache.erase(9);
+          CXXTOOLS_UNIT_ASSERT_EQUALS(cache.size(), 4);
+          CXXTOOLS_UNIT_ASSERT_EQUALS(cache.winners(), 3);
+
+        }
+
+
+        void resize()
+        {
+          cxxtools::Cache<int, int> cache(6);
+
+          cache.put(1, 10);
+          cache.put(2, 20);
+          cache.put(3, 30);
+          cache.put(4, 40);
+          cache.put(5, 50);
+          cache.put(6, 60);
+          cache.put(7, 70);
+          cache.put(8, 80);
+          cache.put(9, 90);
+          cache.put(10, 100);
+
+          CXXTOOLS_UNIT_ASSERT_EQUALS(cache.size(), 6);
+          CXXTOOLS_UNIT_ASSERT_EQUALS(cache.winners(), 3);
+
+          cache.setMaxElements(8);
+
+          CXXTOOLS_UNIT_ASSERT_EQUALS(cache.size(), 6);
+          CXXTOOLS_UNIT_ASSERT_EQUALS(cache.winners(), 4);
+
+          cache.setMaxElements(4);
+
+          CXXTOOLS_UNIT_ASSERT_EQUALS(cache.size(), 4);
+          CXXTOOLS_UNIT_ASSERT_EQUALS(cache.winners(), 2);
+
+          cache.setMaxElements(8);
+
+          CXXTOOLS_UNIT_ASSERT_EQUALS(cache.size(), 4);
+          CXXTOOLS_UNIT_ASSERT_EQUALS(cache.winners(), 4);
+
+          cache.put(1, 10);
+          cache.put(2, 20);
+          cache.put(3, 30);
+          cache.put(4, 40);
+          cache.put(5, 50);
+          cache.put(6, 60);
+          cache.put(7, 70);
+          cache.put(8, 80);
+          cache.put(9, 90);
+          cache.put(10, 100);
+
+          cache.setMaxElements(4);
+
+          CXXTOOLS_UNIT_ASSERT_EQUALS(cache.size(), 4);
+          CXXTOOLS_UNIT_ASSERT_EQUALS(cache.winners(), 2);
+
+        }
 };
 
 cxxtools::unit::RegisterTest<CacheTest> register_CacheTest;
