@@ -217,6 +217,7 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
 
         void testDouble()
         {
+            testDoubleValue(0.0);
             testDoubleValue(1234.0);   // short float
             testDoubleValue(-1234.0);   // short float
             testDoubleValue(12345678.0);   // medium float

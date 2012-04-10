@@ -762,9 +762,15 @@ bool ValueParser::processFloatBase(char ch, unsigned shift, unsigned expOffset)
 
         if (expOffset == 63 && _exp == 0x7f)
         {
+            log_debug("float: value is special");
             v = (_int == 0 ? _isNeg ? -std::numeric_limits<long double>::infinity()
                                     : std::numeric_limits<long double>::infinity()
                : std::numeric_limits<long double>::quiet_NaN());
+        }
+        else if (_exp == 0 && _int == 0)
+        {
+            log_debug("float: value is zero");
+            v = 0.0;
         }
         else
         {

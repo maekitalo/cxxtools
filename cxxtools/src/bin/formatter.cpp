@@ -494,6 +494,14 @@ void Formatter::addValueFloat(const std::string& name, const std::string& type,
             *_out << name << '\0';
         *_out << '\xff' << '\x0' << '\0';
     }
+    else if (value == 0.0)
+    {
+        log_debug("value is zero");
+        *_out << static_cast<char>(name.empty() ? Serializer::TypePlainShortFloat : Serializer::TypeShortFloat);
+        if (!name.empty())
+            *_out << name << '\0';
+        *_out << '\0' << '\0' << '\0';
+    }
     else
     {
         bool isNeg = value < 0;
