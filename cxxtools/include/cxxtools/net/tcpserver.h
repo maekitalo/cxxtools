@@ -34,6 +34,7 @@
 #include <cxxtools/signal.h>
 #include <cxxtools/ioerror.h>
 #include <string>
+#include <exception>
 
 namespace cxxtools
 {
@@ -49,6 +50,13 @@ namespace net
         { }
 
       AddressInUse(const std::string& ipaddr, unsigned short int port);
+  };
+
+  class AcceptTerminated : public std::exception
+  {
+      public:
+          const char* what() const throw ()
+          { return "accept terminated"; }
   };
 
   class CXXTOOLS_API TcpServer : public Selectable
@@ -70,6 +78,13 @@ namespace net
 
       // inherit doc
       virtual SelectableImpl& simpl();
+
+      /** @brief Stops a blocking accept
+          The stopAccept method can be called from a thread to break a
+          blocking accept call in another thread. The call to accept
+          is terminated by a AcceptTerminated exception.
+       */
+      void terminateAccept();
 
       TcpServerImpl& impl() const;
 

@@ -99,6 +99,8 @@ class TcpSocketImpl : public IODeviceImpl
 
         void accept(const TcpServer& server, unsigned flags);
 
+        void terminateAccept();
+
         // implementation using poll
         void initWait(pollfd& pfd);
 

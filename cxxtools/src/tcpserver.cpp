@@ -90,6 +90,12 @@ void TcpServer::listen(const std::string& ipaddr, unsigned short int port, int b
 }
 
 
+void TcpServer::terminateAccept()
+{
+    _impl->terminateAccept();
+}
+
+
 SelectableImpl& TcpServer::simpl()
 {
     return *_impl;

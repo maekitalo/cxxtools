@@ -46,12 +46,16 @@ namespace cxxtools
     class EventLoopBase;
     class ServiceProcedure;
 
+    namespace net
+    {
+        class TcpServer;
+    }
+
     namespace bin
     {
         class RpcServerImpl;
         class Worker;
         class Socket;
-        class Listener;
         class IdleSocketEvent;
         class ServerStartEvent;
         class NoWaitingThreadsEvent;
@@ -117,7 +121,7 @@ namespace cxxtools
                 unsigned _minThreads;
                 unsigned _maxThreads;
 
-                std::vector<Listener*> _listener;
+                std::vector<net::TcpServer*> _listener;
                 Queue<Socket*> _queue;
 
                 typedef std::set<Socket*> IdleSocket;

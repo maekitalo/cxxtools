@@ -66,6 +66,8 @@ class TcpServerImpl : public SelectableImpl
 
         pollfd* _pfd;
 
+        int _wakePipe[2];
+
 #ifdef HAVE_TCP_DEFER_ACCEPT
         bool _deferAccept;
 #endif
@@ -75,9 +77,13 @@ class TcpServerImpl : public SelectableImpl
       public:
         TcpServerImpl(TcpServer& server);
 
+        ~TcpServerImpl();
+
         void close();
 
         void listen(const std::string& ipaddr, unsigned short int port, int backlog, unsigned flags);
+
+        void terminateAccept();
 
 #ifdef HAVE_TCP_DEFER_ACCEPT
         void deferAccept(bool sw);

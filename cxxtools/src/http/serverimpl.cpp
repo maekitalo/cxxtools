@@ -29,10 +29,10 @@
 #include "serverimpl.h"
 #include "worker.h"
 #include "socket.h"
-#include "listener.h"
 
 #include <cxxtools/eventloop.h>
 #include <cxxtools/log.h>
+#include <cxxtools/net/tcpserver.h>
 
 #include <signal.h>
 
@@ -147,7 +147,7 @@ ServerImpl::~ServerImpl()
 void ServerImpl::listen(const std::string& ip, unsigned short int port, int backlog)
 {
     log_debug("listen on " << ip << " port " << port);
-    Listener* listener = new Listener(ip, port, backlog, net::TcpServer::DEFER_ACCEPT);
+    net::TcpServer* listener = new net::TcpServer(ip, port, backlog, net::TcpServer::DEFER_ACCEPT);
     try
     {
         _listener.push_back(listener);
@@ -191,7 +191,7 @@ void ServerImpl::terminate()
     {
         log_debug("wake " << _listener.size() << " listeners");
         for (ServerImpl::ListenerType::iterator it = _listener.begin(); it != _listener.end(); ++it)
-            (*it)->wakeConnect();
+            (*it)->terminateAccept();
         _queue.put(0);
 
         log_debug("terminate " << _threads.size() << " threads");

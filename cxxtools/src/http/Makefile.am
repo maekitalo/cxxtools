@@ -24,7 +24,6 @@ libcxxtools_http_la_SOURCES = \
 noinst_HEADERS = \
     chunkedreader.h \
     clientimpl.h \
-    listener.h \
     mapper.h \
     notauthenticatedresponder.h \
     notauthenticatedservice.h \

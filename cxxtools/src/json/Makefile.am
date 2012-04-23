@@ -5,7 +5,6 @@ lib_LTLIBRARIES = libcxxtools-json.la
 noinst_HEADERS = \
 	httpclientimpl.h \
 	httpresponder.h \
-	listener.h \
 	responder.h \
 	rpcclientimpl.h \
 	rpcserverimpl.h \

@@ -41,11 +41,15 @@ namespace cxxtools
 
 class EventLoopBase;
 
+namespace net
+{
+    class TcpServer;
+}
+
 namespace http
 {
 
 class Worker;
-class Listener;
 class ServerImpl;
 class Socket;
 class IdleSocketEvent;
@@ -95,7 +99,7 @@ class ServerImpl : public ServerImplBase, public Connectable
         std::set<Socket*> _idleSockets;
 
         ////////////////////////////////////////////////////
-        typedef std::vector<Listener*> ListenerType;
+        typedef std::vector<net::TcpServer*> ListenerType;
         ListenerType _listener;
 
         ////////////////////////////////////////////////////

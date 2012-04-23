@@ -27,7 +27,6 @@
  */
 
 #include "rpcserverimpl.h"
-#include "listener.h"
 #include "socket.h"
 #include "worker.h"
 
@@ -133,7 +132,7 @@ RpcServerImpl::~RpcServerImpl()
 void RpcServerImpl::listen(const std::string& ip, unsigned short int port, int backlog)
 {
     log_debug("listen on " << ip << " port " << port);
-    Listener* listener = new Listener(ip, port, backlog, net::TcpServer::DEFER_ACCEPT);
+    net::TcpServer* listener = new net::TcpServer(ip, port, backlog, net::TcpServer::DEFER_ACCEPT);
     try
     {
         _listener.push_back(listener);
@@ -176,7 +175,7 @@ void RpcServerImpl::terminate()
     try
     {
         for (unsigned n = 0; n < _listener.size(); ++n)
-            _listener[n]->wakeConnect();
+            _listener[n]->terminateAccept();
 
         _queue.put(0);
 

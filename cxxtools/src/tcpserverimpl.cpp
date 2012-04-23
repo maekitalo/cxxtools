@@ -69,9 +69,17 @@ TcpServerImpl::TcpServerImpl(TcpServer& server)
   , _deferAccept(false)
 #endif
 {
-
+    int ret = ::pipe(_wakePipe);
+    if (ret == 1)
+        throw SystemError("pipe");
+    log_debug("wake pipe read fd=" << _wakePipe[0] << " write fd=" << _wakePipe[1]);
 }
 
+TcpServerImpl::~TcpServerImpl()
+{
+    ::close(_wakePipe[0]);
+    ::close(_wakePipe[1]);
+}
 
 int TcpServerImpl::create(int domain, int type, int protocol)
 {
@@ -207,6 +215,13 @@ void TcpServerImpl::listen(const std::string& ipaddr, unsigned short int port, i
     }
 }
 
+void TcpServerImpl::terminateAccept()
+{
+    char ch = 'A';
+    int ret = ::write(_wakePipe[1], &ch, 1);
+    if (ret == -1)
+        throw SystemError("write(wake pipe)");
+}
 
 #ifdef HAVE_TCP_DEFER_ACCEPT
 void TcpServerImpl::deferAccept(bool sw)
@@ -353,8 +368,14 @@ int TcpServerImpl::accept(int flags, struct sockaddr* sa, socklen_t& sa_len)
         else
         {
             Resetter<pollfd*> resetter(_pfd);
-            std::vector<pollfd> fds(_listeners.size());
-            initializePoll(&fds[0], fds.size());
+
+            std::vector<pollfd> fds(_listeners.size() + 1);
+
+            fds[0].fd = _wakePipe[0];
+            fds[0].revents = 0;
+            fds[0].events = POLLIN;
+
+            initializePoll(&fds[1], _listeners.size());
 
             while (true)
             {
@@ -373,11 +394,25 @@ int TcpServerImpl::accept(int flags, struct sockaddr* sa, socklen_t& sa_len)
                 }
             }
 
-            for (std::vector<pollfd>::size_type n = 0; n < fds.size(); ++n)
+            if (fds[0].revents & POLLIN)
             {
-                if (fds[n].revents & POLLIN)
+                char buffer;
+
+                log_debug("wake accept event detected");
+
+                int ret = ::read(_wakePipe[0], &buffer, 1);
+                if (ret == -1)
+                    throw SystemError("read(wake pipe)");
+
+                log_debug("accept terminated");
+                throw AcceptTerminated();
+            }
+
+            for (std::vector<pollfd>::size_type n = 0; n < _listeners.size(); ++n)
+            {
+                if (fds[n + 1].revents & POLLIN)
                 {
-                    log_debug("detected accept on fd " << fds[n].fd);
+                    log_debug("detected accept on fd " << fds[n + 1].fd);
                     _pendingAccept = n;
                     break;
                 }
@@ -398,7 +433,7 @@ int TcpServerImpl::accept(int flags, struct sockaddr* sa, socklen_t& sa_len)
 
     int listenerFd = _listeners[_pendingAccept]._fd;
 
-    log_debug( "accept " << listenerFd << ", " << flags );
+    log_debug( "accept fd=" << listenerFd << ", flags=" << flags );
 
     bool inherit = (flags & TcpSocket::INHERIT) != 0;
 

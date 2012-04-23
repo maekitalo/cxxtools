@@ -3,7 +3,6 @@ AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/include -I$(top_srcdir)/incl
 lib_LTLIBRARIES = libcxxtools-bin.la
 
 noinst_HEADERS = \
-	listener.h \
 	responder.h \
 	rpcclientimpl.h \
 	rpcserverimpl.h \
