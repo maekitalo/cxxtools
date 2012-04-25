@@ -207,6 +207,12 @@ class CXXTOOLS_API SerializationInfo
         */
         const SerializationInfo& getMember(const std::string& name) const;
 
+        /** @brief Deserialization of member data
+
+            @throws std::range_error when index is too large
+        */
+        const SerializationInfo& getMember(unsigned idx) const;
+
         /** @brief Deserialization of member data.
 
             @return true if member is found, false otherwise.

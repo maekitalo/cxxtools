@@ -160,6 +160,19 @@ const SerializationInfo& SerializationInfo::getMember(const std::string& name) c
 }
 
 
+const SerializationInfo& SerializationInfo::getMember(unsigned idx) const
+{
+    if (_nodes.size() >= idx)
+    {
+        std::ostringstream msg;
+        msg << "requested member index " << idx << " exceeds number of members " << _nodes.size();
+        throw std::range_error(msg.str());
+    }
+
+    return _nodes[idx];
+}
+
+
 const SerializationInfo* SerializationInfo::findMember(const std::string& name) const
 {
     Nodes::const_iterator it = _nodes.begin();
