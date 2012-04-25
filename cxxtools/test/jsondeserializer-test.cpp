@@ -103,6 +103,8 @@ class JsonDeserializerTest : public cxxtools::unit::TestSuite
             registerMethod("testEmptyArrays", *this, &JsonDeserializerTest::testEmptyArrays);
             registerMethod("testStrings", *this, &JsonDeserializerTest::testStrings);
             registerMethod("testComplexObject", *this, &JsonDeserializerTest::testComplexObject);
+            registerMethod("testCommentLine", *this, &JsonDeserializerTest::testCommentLine);
+            registerMethod("testCommentMultiline", *this, &JsonDeserializerTest::testCommentMultiline);
         }
 
         void testInt()
@@ -222,6 +224,60 @@ class JsonDeserializerTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT(data.setValue.find(8) != data.setValue.end());
             CXXTOOLS_UNIT_ASSERT_EQUALS(data.structValue.n, 3);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data.structValue.s, "sss");
+        }
+
+        void testCommentLine()
+        {
+            TestObject data;
+
+            std::istringstream in("// \n { //\n"
+                "\"intValue\"//\n: //\n 17 //\n, "
+                "\"stringValue\": //\n\"foo bar\t\"//\n,"
+                "\"doubleValue\": \"1000\", "
+                "\"boolValue\"  : //\n   true,"
+                "\"nullValue\"  :  null"
+            "//\n}");
+
+            cxxtools::JsonDeserializer deserializer(in);
+            deserializer.deserialize(data);
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.intValue, 17);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.stringValue, "foo bar\t");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.doubleValue, 1000.0);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.boolValue, true);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.nullValue, true);
+
+            {
+                int data = 0;
+                std::istringstream in("//\n-4711");
+
+                cxxtools::JsonDeserializer deserializer(in);
+                deserializer.deserialize(data);
+
+                CXXTOOLS_UNIT_ASSERT_EQUALS(data, -4711);
+            }
+        }
+
+        void testCommentMultiline()
+        {
+            TestObject data;
+
+            std::istringstream in("/* */ { /* */"
+                "\"intValue\"/* */: /* */ 17 /* */, "
+                "\"stringValue\": /* */\"foo bar\t\"/* */,"
+                "\"doubleValue\": \"1000\", "
+                "\"boolValue\"  : /* \n */   true,"
+                "\"nullValue\"  :  null"
+            "/* */}");
+
+            cxxtools::JsonDeserializer deserializer(in);
+            deserializer.deserialize(data);
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.intValue, 17);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.stringValue, "foo bar\t");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.doubleValue, 1000.0);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.boolValue, true);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.nullValue, true);
         }
 };
 

@@ -95,8 +95,12 @@ namespace cxxtools
                 state_number,
                 state_float,
                 state_token,
+                state_comment0,
+                state_commentline,
+                state_comment,
+                state_comment_e,
                 state_end
-            } _state;
+            } _state, _nextState;
 
             String _token;
 
