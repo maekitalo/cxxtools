@@ -41,6 +41,7 @@ class Base64Test : public cxxtools::unit::TestSuite
             registerMethod("encodeTest1", *this, &Base64Test::encodeTest1);
             registerMethod("encodeTest2", *this, &Base64Test::encodeTest2);
             registerMethod("encodeDecodeTest", *this, &Base64Test::encodeDecodeTest);
+            registerMethod("binaryTest", *this, &Base64Test::binaryTest);
         }
 
         void encodeTest0()
@@ -68,7 +69,7 @@ class Base64Test : public cxxtools::unit::TestSuite
         void encodeTest2()
         {
             std::ostringstream s;
-            
+
             cxxtools::Base64ostream encoder(s);
             encoder << "12345678901";
             encoder.terminate();
@@ -99,6 +100,24 @@ class Base64Test : public cxxtools::unit::TestSuite
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(data, data2);
         }
+
+        void binaryTest()
+        {
+            std::stringstream s;
+            std::string data("\xff\xd8\xff\xe0\x00\x10\x4a\x46\x00\x01\x01\x00\x48", 16);
+
+            cxxtools::Base64ostream encoder(s);
+            encoder << data;
+            encoder.terminate();
+
+            std::ostringstream s2;
+            cxxtools::Base64istream decoder(s);
+            s2 << decoder.rdbuf();
+            std::string data2(s2.str());
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data, data2);
+        }
+
 };
 
 cxxtools::unit::RegisterTest<Base64Test> register_Base64Test;

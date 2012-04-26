@@ -154,10 +154,10 @@ Base64Codec::result Base64Codec::do_out(cxxtools::MBState& state,
 
     while (true)
     {
-        *toNext++   = toBase64( (*first >> 2) & 0x3f );
-        *(toNext++) = toBase64( ((*first << 4) + ((*second) >> 4)) & 0x3f );
-        *(toNext++) = toBase64( ((*second << 2) + ((*third) >> 6)) & 0x3f );
-        *(toNext++) = toBase64( *third & 0x3f );
+        *toNext++   = toBase64( (static_cast<unsigned char>(*first) >> 2) & 0x3f );
+        *(toNext++) = toBase64( ((static_cast<unsigned char>(*first) << 4) + (static_cast<unsigned char>(*second) >> 4)) & 0x3f );
+        *(toNext++) = toBase64( (static_cast<unsigned char>(*second << 2) + (static_cast<unsigned char>(*third) >> 6)) & 0x3f );
+        *(toNext++) = toBase64( static_cast<unsigned char>(*third) & 0x3f );
 
         if(toEnd - toNext < 4)
         {
