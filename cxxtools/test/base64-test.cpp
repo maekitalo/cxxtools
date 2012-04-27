@@ -33,6 +33,20 @@
 
 class Base64Test : public cxxtools::unit::TestSuite
 {
+        std::string encodeDecode(const std::string& data)
+        {
+            std::stringstream s;
+
+            cxxtools::Base64ostream encoder(s);
+            encoder << data;
+            encoder.terminate();
+
+            std::ostringstream s2;
+            cxxtools::Base64istream decoder(s);
+            s2 << decoder.rdbuf();
+            return s2.str();
+        }
+
     public:
         Base64Test()
         : cxxtools::unit::TestSuite("base64")
@@ -88,33 +102,71 @@ class Base64Test : public cxxtools::unit::TestSuite
                 data += '\n';
             }
 
-            std::stringstream s;
-            cxxtools::Base64ostream encoder(s);
-            encoder << data;
-            encoder.end();
-
-            std::ostringstream s2;
-            cxxtools::Base64istream decoder(s);
-            s2 << decoder.rdbuf();
-            std::string data2(s2.str());
+            std::string data2 = encodeDecode(data);
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(data, data2);
         }
 
         void binaryTest()
         {
-            std::stringstream s;
-            std::string data("\xff\xd8\xff\xe0\x00\x10\x4a\x46\x00\x01\x01\x00\x48", 16);
+            std::string data2;
+            std::string data;
+            
+            data.assign("\xff\xd8\xff\xe0\x00\x10\x4a\x46\x00\x01\x01\x00\x48", 16);
+            data2 = encodeDecode(data);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data, data2);
 
-            cxxtools::Base64ostream encoder(s);
-            encoder << data;
-            encoder.terminate();
+            data.assign("\xef\xfe\xff\xca", 4);
+            data2 = encodeDecode(data);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data, data2);
 
-            std::ostringstream s2;
-            cxxtools::Base64istream decoder(s);
-            s2 << decoder.rdbuf();
-            std::string data2(s2.str());
+            data.assign("\xef\xfe\xff\xca\xea", 5);
+            data2 = encodeDecode(data);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data, data2);
 
+            data.assign("\xef\xfe\xff\xca\xea\xcc", 6);
+            data2 = encodeDecode(data);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data, data2);
+
+            data.assign("\xff\xd8\xff\xe0\x0\x10\x4a\x46\x49\x46"
+              "\x0\x1\x1\x1\x0\x48\x0\x48\x0\x0"
+              "\xff\xfe\x0\xd\x4c\x61\x76\x63\x35\x33"
+              "\x2e\x34\x32\x2e\x34\xff\xdb\x0\x43\x0"
+              "\x5\x3\x4\x4\x4\x3\x5\x4\x4\x4"
+              "\x5\x5\x5\x6\x7\xc\x8\x7\x7\x7"
+              "\x7\xf\xb\xb\x9\xc\x11\xf\x12\x12"
+              "\x11\xf\x11\x11\x13\x16\x1c\x17\x13\x14"
+              "\x1a\x15\x11\x11\x18\x21\x18\x1a\x1d\x1d"
+              "\x1f\x1f\x1f\x13\x17\x22\x24\x22\x1e\x24"
+              "\x1c\x1e\x1f\x1e\xff\xdb\x0\x43\x1\x5"
+              "\x5\x5\x7\x6\x7\xe\x8\x8\xe\x1e"
+              "\x14\x11\x14\x1e\x1e\x1e\x1e\x1e\x1e\x1e"
+              "\x1e\x1e\x1e\x1e\x1e\x1e\x1e\x1e\x1e\x1e"
+              "\x1e\x1e\x1e\x1e\x1e\x1e\x1e\x1e\x1e\x1e"
+              "\x1e\x1e\x1e\x1e\x1e\x1e\x1e\x1e\x1e\x1e"
+              "\x1e\x1e\x1e\x1e\x1e\x1e\x1e\x1e\x1e\x1e"
+              "\x1e\x1e\x1e\xff\xc0\x0\x11\x8\x0\x12"
+              "\x0\x17\x3\x1\x22\x0\x2\x11\x1\x3"
+              "\x11\x1\xff\xc4\x0\x18\x0\x1\x1\x1"
+              "\x1\x1\x0\x0\x0\x0\x0\x0\x0\x0"
+              "\x0\x0\x0\x0\x2\x4\x3\x7\xff\xc4"
+              "\x0\x21\x10\x0\x1\x4\x1\x3\x5\x0"
+              "\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0"
+              "\x1\x2\x3\x12\x21\x4\x11\x22\x13\x31"
+              "\x32\x42\x43\xff\xc4\x0\x17\x1\x1\x1"
+              "\x1\x1\x0\x0\x0\x0\x0\x0\x0\x0"
+              "\x0\x0\x0\x0\x0\x2\x1\x4\xff\xc4"
+              "\x0\x15\x11\x1\x1\x0\x0\x0\x0\x0"
+              "\x0\x0\x0\x0\x0\x0\x0\x0\x0\x0"
+              "\x11\xff\xda\x0\xc\x3\x1\x0\x2\x11"
+              "\x3\x11\x0\x3f\x0\xf4\x5e\xad\x79\x6d"
+              "\x9f\x53\x2b\xe5\xce\x6a\x44\xee\xcb\x50"
+              "\x9a\xdd\x76\x79\xd3\x5\x49\xa9\x8d\xa9"
+              "\xe7\xc8\x13\x2c\x51\xba\xb8\x6\xd\x33"
+              "\x22\x1c\x7e\xcc\x0\xa0\x7f\x60\x1\x23"
+              "\xff\xd9", 362);
+ 
+            data2 = encodeDecode(data);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data, data2);
         }
 

@@ -210,15 +210,15 @@ Base64Codec::result Base64Codec::do_unshift(MBState& state,
     switch(state.n)
     {
         case 2:
-            *toNext++   = toBase64( (state.value.mbytes[0] >> 2) & 0x3f );
-            *(toNext++) = toBase64( ((state.value.mbytes[0] << 4) + ((state.value.mbytes[1]) >> 4)) & 0x3f );
-            *(toNext++) = toBase64( (state.value.mbytes[1] << 2) &  0x3f );
+            *toNext++   = toBase64( (static_cast<unsigned char>(state.value.mbytes[0]) >> 2) & 0x3f );
+            *(toNext++) = toBase64( ((static_cast<unsigned char>(state.value.mbytes[0]) << 4) + (static_cast<unsigned char>(state.value.mbytes[1]) >> 4)) & 0x3f );
+            *(toNext++) = toBase64( (static_cast<unsigned char>(state.value.mbytes[1]) << 2) &  0x3f );
             *(toNext++) = '=';
             break;
 
         case 1:
-            *toNext++   = toBase64( (state.value.mbytes[0] >> 2) & 0x3f );
-            *(toNext++) = toBase64( (state.value.mbytes[0] << 4) & 0x3f );
+            *toNext++   = toBase64( (static_cast<unsigned char>(state.value.mbytes[0]) >> 2) & 0x3f );
+            *(toNext++) = toBase64( (static_cast<unsigned char>(state.value.mbytes[0]) << 4) & 0x3f );
             *(toNext++) = '=';
             *(toNext++) = '=';
             break;
