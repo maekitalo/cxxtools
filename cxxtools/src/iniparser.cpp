@@ -83,7 +83,7 @@ namespace cxxtools
           data = ch;
           state = state_key;
         }
-        else if (ch == '#')
+        else if (ch == '#' || ch == ';')
         {
           state = state_comment;
         }
