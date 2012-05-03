@@ -1,3 +1,33 @@
+2012-04-29 tommi@tntnet.org
+
+ - semicolon is a comment in ini files - fix in iniparser
+
+2012-04-27 tommi@tntnet.org
+
+ - fix base64 encoder
+
+2012-04-25 tommi@tntnet.org
+
+ - add method getMember(unsigned) to read nth member from SerializationInfo
+ - allow comments (single line with // and multiline with /* */) in json
+
+2012-04-24 tommi@tntnet.org
+
+ - new method terminateAccept in TcpServer to terminate a blocking accept from another thread
+
+2012-04-10 tommi@tntnet.org
+
+ - fix xmlrpc url and add json over http to the rpc add client (Leandro Santiago)
+ - fix formatting and parsing floating point value 0 in binary format
+
+2012-04-07 tommi@tntnet.org
+
+ - fix resizing cxxtools::Cache
+
+2012-04-02 tommi@tntnet.org
+
+ - release 2.1
+
 2012-03-30 tommi@tntnet.org
 
  - optimize cache template - no linear search necessary any more when searching for elements
