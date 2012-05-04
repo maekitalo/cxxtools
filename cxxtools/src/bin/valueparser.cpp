@@ -157,6 +157,18 @@ bool ValueParser::advance(char ch)
                     if (_deserializer)
                         _deserializer->setCategory(SerializationInfo::Array);
                 }
+                else if (tc == Serializer::TypeOther)
+                {
+                    log_debug("type other");
+                    _nextstate = state_name;
+                    _state = state_value_type_other;
+                }
+                else if (tc == Serializer::TypePlainOther)
+                {
+                    log_debug("type plain other");
+                    _nextstate = state_value_value;
+                    _state = state_value_type_other;
+                }
                 else
                 {
                     log_debug("type code " << std::hex << tc << " => type " << typeName(ch));
@@ -395,16 +407,6 @@ bool ValueParser::advance(char ch)
                                 _deserializer->setCategory(SerializationInfo::Object);
                             break;
 
-                        case Serializer::TypeOther:
-                            _nextstate = state_value_value;
-                            _state = state_value_type_other;
-                            break;
-
-                        case Serializer::TypePlainOther:
-                            _nextstate = state_name;
-                            _state = state_value_type_other;
-                            break;
-
                         default:
                             {
                                 std::ostringstream msg;
@@ -432,6 +434,7 @@ bool ValueParser::advance(char ch)
         case state_value_type_other:
             if (ch == '\0')
             {
+                log_debug("typename=" << _token);
                 if (_deserializer)
                     _deserializer->setTypeName(_token);
 
@@ -439,6 +442,8 @@ bool ValueParser::advance(char ch)
                 _state = _nextstate;
                 _nextstate = state_value_value;
             }
+            else
+                _token += ch;
             break;
 
         case state_value_intsign:
