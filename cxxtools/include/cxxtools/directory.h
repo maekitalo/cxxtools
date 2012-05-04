@@ -40,12 +40,10 @@ namespace cxxtools {
     can be used as follows:
 
     \code
-    Directory d("/usr");
-    Directory::iterator it = d.begin();
-    while (it != d.end())
+    cxxtools::Directory d("/usr");
+    for (cxxtools::DirectoryIterator it = d.begin(); it != d.end(); ++it)
     {
-        std::cout << "name : " << *it << std::endl;
-        ++it;
+        std::cout << "name: " << *it << std::endl;
     }
     \endcode
 */
@@ -57,7 +55,7 @@ class DirectoryIterator
         DirectoryIterator();
 
         //! @brief Constructs an iterator pointing at the file given by a path
-        DirectoryIterator(const std::string& path);
+        DirectoryIterator(const std::string& path, bool skipHiden = false);
 
         //! @brief Copy constructor
         DirectoryIterator(const DirectoryIterator& it);
@@ -99,12 +97,10 @@ class DirectoryIterator
 
     Iterator Example:
     \code
-    Directory d("/usr");
-    Directory::iterator it = d.begin();
-    while (it != d.end())
+    cxxtools::Directory d("/usr");
+    for (cxxtools::DirectoryIterator it = d.begin(); it != d.end(); ++it)
     {
-        std::cout << "name : " << *it << std::endl;
-        ++it;
+        std::cout << "name: " << *it << std::endl;
     }
     \endcode
 */
@@ -114,6 +110,9 @@ class Directory
         typedef DirectoryIterator const_iterator;
 
     public:
+        //! @brief Default Constructor
+        Directory();
+
         /** @brief Constructs a %Directory object from the path \a path
 
             If no directory exists at \a path, an exception of type DirectoryNotFound
@@ -175,7 +174,7 @@ class Directory
         void move(const std::string& to);
 
         //! @brief Returns an iterator to the first entry in the directory.
-        const_iterator begin() const;
+        const_iterator begin(bool skipHiden = false) const;
 
         //! @brief Returns an iterator to the end of the directory entries.
         const_iterator end() const;
@@ -217,16 +216,9 @@ class Directory
         //! @brief Returns the string representng the separator in path names
         static std::string sep();
 
-    protected:
-        //! @brief Default Constructor
-        Directory();
-
     private:
         //! @internal
         std::string _path;
-
-        //! @internal
-        class DirectoryImpl* _impl;
 };
 
 inline bool operator<(const Directory& a, const Directory& b)

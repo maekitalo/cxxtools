@@ -30,7 +30,10 @@
 
 #include <string>
 
-namespace cxxtools {
+namespace cxxtools
+{
+
+class DirectoryIterator;
 
 /** @brief Provides information about a node in the file-system.
 */
@@ -40,9 +43,13 @@ class FileInfo
         //! @brief File-node type
         enum Type
         {
-            Invalid = 0,
+            Invalid   = 0,
             Directory = 1,
-            File = 2
+            File      = 2,
+            Chardev   = 3,
+            Blockdev  = 4,
+            Fifo      = 5,
+            Symlink   = 6
         };
 
     public:
@@ -52,6 +59,8 @@ class FileInfo
         /** @brief Constructs a %FileInfo object from the path \a path
         */
         explicit FileInfo(const std::string& path);
+
+        explicit FileInfo(const DirectoryIterator& it);
 
         //! @brief Copy constructor
         FileInfo(const FileInfo& fi);
@@ -88,10 +97,16 @@ class FileInfo
         std::size_t size() const;
 
         //! @brief Returns true if the node is a directory
-        bool isDirectory() const;
+        bool isDirectory() const
+        {
+            return _type == FileInfo::Directory;
+        }
 
         //! @brief Returns true if the node is a file
-        bool isFile() const;
+        bool isFile() const
+        {
+            return _type == FileInfo::File;
+        }
 
         /** @brief Removes the file node.
 

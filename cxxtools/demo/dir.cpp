@@ -28,19 +28,46 @@
 
 #include <iostream>
 #include <cxxtools/directory.h>
-#include <algorithm>
+#include <cxxtools/fileinfo.h>
+#include <cxxtools/arg.h>
 #include <iterator>
 
 int main(int argc, char* argv[])
 {
   try
   {
+    cxxtools::Arg<bool> longdir(argc, argv, 'l');
+    cxxtools::Arg<bool> showHidden(argc, argv, 'h');
+
     for (int a = 1; a < argc; ++a)
     {
+      std::cout << "directory content of \"" << argv[a] << "\":\n";
+
       cxxtools::Directory d(argv[a]);
-      std::copy(d.begin(),
-                d.end(),
-                std::ostream_iterator<std::string>(std::cout, "\n"));
+
+      for (cxxtools::Directory::const_iterator it = d.begin(!showHidden); it != d.end(); ++it)
+      {
+        if (longdir)
+        {
+          cxxtools::FileInfo fi(it);
+          switch (fi.type())
+          {
+            case cxxtools::FileInfo::Directory: std::cout << 'D'; break;
+            case cxxtools::FileInfo::File:      std::cout << '-'; break;
+            case cxxtools::FileInfo::Chardev:   std::cout << 'C'; break;
+            case cxxtools::FileInfo::Blockdev:  std::cout << 'B'; break;
+            case cxxtools::FileInfo::Fifo:      std::cout << 'F'; break;
+            case cxxtools::FileInfo::Symlink:   std::cout << 'S'; break;
+            default:                            std::cout << '?'; break;
+          }
+
+          std::cout << '\t' << fi.size() << '\t' << fi.name() << '\n';
+        }
+        else
+        {
+          std::cout << *it << '\n';
+        }
+      }
     }
   }
   catch (const std::exception& e)

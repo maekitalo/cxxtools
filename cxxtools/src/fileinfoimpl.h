@@ -53,6 +53,22 @@ namespace cxxtools {
                 {
                     return FileInfo::Directory;
                 }
+                else if( S_ISCHR(st.st_mode) ) 
+                {
+                    return FileInfo::Chardev;
+                }
+                else if( S_ISBLK(st.st_mode) ) 
+                {
+                    return FileInfo::Blockdev;
+                }
+                else if( S_ISFIFO(st.st_mode) ) 
+                {
+                    return FileInfo::Fifo;
+                }
+                else if( S_ISSOCK(st.st_mode) ) 
+                {
+                    return FileInfo::Symlink;
+                }
 
                 return FileInfo::File;
             }

@@ -28,16 +28,17 @@
 #include "directoryimpl.h"
 #include "cxxtools/directory.h"
 
-namespace cxxtools {
+namespace cxxtools
+{
 
 DirectoryIterator::DirectoryIterator()
 : _impl(0)
 { }
 
 
-DirectoryIterator::DirectoryIterator(const std::string& path)
+DirectoryIterator::DirectoryIterator(const std::string& path, bool skipHidden)
 {
-    _impl = new DirectoryIteratorImpl( path.c_str() );
+    _impl = new DirectoryIteratorImpl( path.c_str(), skipHidden );
 }
 
 
@@ -46,14 +47,15 @@ DirectoryIterator::DirectoryIterator(const DirectoryIterator& it)
 {
     _impl = it._impl;
 
-    if(_impl)
+    if (_impl)
         _impl->ref();
 }
 
 
 DirectoryIterator::~DirectoryIterator()
 {
-    if( _impl && 0 == _impl->deref() ) {
+    if (_impl && 0 == _impl->deref())
+    {
         delete _impl;
     }
 }
@@ -61,17 +63,13 @@ DirectoryIterator::~DirectoryIterator()
 
 DirectoryIterator& DirectoryIterator::operator++()
 {
-    if( _impl && _impl->advance() )
+    if (_impl && !_impl->advance())
     {
-        return *this;
+        if (0 == _impl->deref())
+            delete _impl;
+        _impl = 0;
     }
 
-    if( _impl && 0 == _impl->deref() )
-    {
-        delete _impl;
-    }
-
-    _impl = 0;
     return *this;
 }
 
@@ -81,14 +79,14 @@ DirectoryIterator& DirectoryIterator::operator=(const DirectoryIterator& it)
     if (_impl == it._impl)
         return *this;
 
-    if( _impl && 0 == _impl->deref() )
+    if (_impl && 0 == _impl->deref())
     {
         delete _impl;
     }
 
     _impl = it._impl;
 
-    if(_impl)
+    if (_impl)
         _impl->ref();
 
     return *this;
@@ -114,25 +112,22 @@ const std::string* DirectoryIterator::operator->() const
 
 
 Directory::Directory()
-: _impl(0)
 {
 }
 
 
 Directory::Directory(const std::string& path)
 : _path(path)
-, _impl(0)
 {
-    if( ! Directory::exists( path.c_str() ) )
+    if ( ! Directory::exists( path.c_str() ) )
         throw DirectoryNotFound(path);
 }
 
 
 Directory::Directory(const FileInfo& fi)
 : _path( fi.path() )
-, _impl(0)
 {
-    if( ! fi.isDirectory() )
+    if (! fi.isDirectory())
         throw DirectoryNotFound(fi.path());
 }
 
@@ -161,9 +156,9 @@ std::size_t Directory::size() const
 }
 
 
-Directory::const_iterator Directory::begin() const
+Directory::const_iterator Directory::begin(bool skipHidden) const
 {
-    return DirectoryIterator( path().c_str() );
+    return DirectoryIterator( path().c_str(), skipHidden );
 }
 
 
@@ -186,8 +181,6 @@ void Directory::move(const std::string& to)
 }
 
 
-// TODO This is identical to File::parentPath(). Maybe this should be moved into
-// the common base class FileSystemNode.
 std::string Directory::dirName() const
 {
     // Find last slash. This separates the last path segment from the rest of the path
@@ -206,8 +199,6 @@ std::string Directory::dirName() const
 }
 
 
-// TODO This is identical to File::name(). Maybe this should be moved into
-// the common base class FileSystemNode.
 std::string Directory::name() const
 {
     std::string::size_type separatorPos = path().rfind( this->sep() );

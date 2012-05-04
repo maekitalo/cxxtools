@@ -35,7 +35,7 @@ class DirectoryIteratorImpl
     public:
         DirectoryIteratorImpl();
 
-        DirectoryIteratorImpl(const char* path);
+        DirectoryIteratorImpl(const char* path, bool skipHidden);
 
         ~DirectoryIteratorImpl();
 
@@ -56,6 +56,7 @@ class DirectoryIteratorImpl
         DIR* _handle;
         ::dirent* _current;
         bool _dirty;
+        bool _skipHidden;
 };
 
 
