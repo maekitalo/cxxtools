@@ -27,6 +27,7 @@
  */
 
 #include <cxxtools/properties.h>
+#include <cxxtools/utf8codec.h>
 #include <iostream>
 #include <fstream>
 #include <stdexcept>
@@ -96,15 +97,21 @@ namespace cxxtools
     PropertiesParser(ev).parse(in);
   }
 
-  void PropertiesParser::parse(std::istream& in)
+  void PropertiesParser::parse(std::istream& in, TextCodec<Char, char>* codec)
   {
-    char ch;
+    TextIStream ts(in, codec ? codec : new Utf8Codec());
+    parse(ts);
+  }
+
+  void PropertiesParser::parse(TextIStream& in)
+  {
+    Char ch;
     while (in.get(ch) && !parse(ch))
       ;
     end();
   }
 
-  bool PropertiesParser::parse(char ch)
+  bool PropertiesParser::parse(Char ch)
   {
     bool ret = false;
     switch (state)
@@ -115,6 +122,7 @@ namespace cxxtools
         else if (isKeyChar(ch))
         {
           key = ch;
+          keypart = ch;
           state = state_key;
         }
         else if (!isSpace(ch) && ch != '\n' && ch != '\r')
@@ -153,7 +161,6 @@ namespace cxxtools
         if (ch == '=')
         {
           state = state_value;
-          value.clear();
         }
         else if (!isSpace(ch))
           throw std::runtime_error("parse error while reading key " + key);
@@ -163,9 +170,10 @@ namespace cxxtools
         if (ch == '\n')
         {
           ret = event.onValue(value);
+          value.clear();
           state = state_0;
         }
-        if (ch == '\\')
+        else if (ch == '\\')
           state = state_value_esc;
         else if (!value.empty() || !isSpace(ch))
           value += ch;
@@ -191,6 +199,7 @@ namespace cxxtools
       case state_value:
       case state_value_esc:
         event.onValue(value);
+        value.clear();
         break;
 
       case state_0:
