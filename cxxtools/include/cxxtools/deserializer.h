@@ -32,7 +32,6 @@
 #include <cxxtools/deserializerbase.h>
 #include <cxxtools/serializationerror.h>
 #include <cxxtools/composer.h>
-#include <stdexcept>
 
 namespace cxxtools
 {
@@ -60,8 +59,12 @@ namespace cxxtools
             template <typename T>
             void deserialize(T& type)
             {
-                begin();
-                doDeserialize();
+                if (current() == 0)
+                {
+                    begin();
+                    doDeserialize();
+                }
+
                 Composer<T> composer;
                 composer.begin(type);
                 composer.fixup(*si());
@@ -70,8 +73,11 @@ namespace cxxtools
             template <typename T>
             void deserialize(T& type, const std::string& name)
             {
-                begin();
-                doDeserialize();
+                if (current() == 0)
+                {
+                    begin();
+                    doDeserialize();
+                }
 
                 SerializationInfo* p = current()->findMember(name);
                 if( !p )

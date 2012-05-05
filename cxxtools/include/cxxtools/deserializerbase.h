@@ -52,6 +52,7 @@ namespace cxxtools
 #endif
 
             DeserializerBase()
+                : _current(0)
             { }
 
             virtual ~DeserializerBase()
