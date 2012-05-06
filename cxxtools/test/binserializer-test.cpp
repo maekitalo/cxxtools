@@ -387,6 +387,7 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT(v == v2);
 
             data.str(std::string());
+            deserializer.clear();
 
             for (unsigned n = 0; n < 0xffff; ++n)
                 v.push_back(static_cast<char>(n));
@@ -394,6 +395,7 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
             serializer.serialize(v);
             deserializer.deserialize(v2);
 
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v.size(), 0xffff + 1024);
             CXXTOOLS_UNIT_ASSERT_EQUALS(v2.size(), 0xffff + 1024);
             CXXTOOLS_UNIT_ASSERT(v == v2);
 

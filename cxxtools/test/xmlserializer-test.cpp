@@ -373,6 +373,7 @@ class XmlSerializerTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT(v == v2);
 
             data.str(std::string());
+            deserializer.clear();
 
             for (unsigned n = 0; n < 0xffff; ++n)
                 v.push_back(static_cast<char>(n));

@@ -64,6 +64,12 @@ namespace cxxtools
                 _si.clear();
             }
 
+            void clear()
+            {
+                _current = 0;
+                _si.clear();
+            }
+
             SerializationInfo* si()
             { return &_si; }
 
