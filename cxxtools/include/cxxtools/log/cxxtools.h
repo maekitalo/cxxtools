@@ -30,9 +30,8 @@
 #define CXXTOOLS_LOG_CXXTOOLS_H
 
 #include <string>
-#include <cxxtools/mutex.h>
 #include <iostream>
-#include <sstream>
+#include <iosfwd>
 
 #define _cxxtools_log_enabled(level)   \
   (getLogger() != 0 && getLogger()->isEnabled(::cxxtools::Logger::LOG_LEVEL_ ## level))
@@ -147,9 +146,6 @@ namespace cxxtools
       /// prints the start of a longentry and returns the appender
       std::ostream& logentry(const char* level);
       virtual void logEnd(std::ostream& appender) = 0;
-
-      static ReadWriteMutex rwmutex;
-      static Mutex mutex;
   };
 
   class LogMessage

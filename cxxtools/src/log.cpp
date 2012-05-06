@@ -34,6 +34,7 @@
 #include <cxxtools/streamcounter.h>
 #include <cxxtools/posix/pipestream.h>
 #include <cxxtools/systemerror.h>
+#include <cxxtools/atomicity.h>
 #include <cxxtools/arg.h>
 #include <list>
 #include <vector>
@@ -271,19 +272,38 @@ namespace cxxtools
     }
   }
 
-  ReadWriteMutex Logger::rwmutex;
-  Mutex Logger::mutex;
   Logger::log_level_type Logger::std_level = LOG_LEVEL_ERROR;
   bool Logger::enabled = false;
 
   namespace
   {
+    ReadWriteMutex Logger_rwmutex;
+    Mutex Logger_mutex;
+    atomic_t mutexWaitCount = 0;
+
     class StaticDeinitializer
     {
       public:
         ~StaticDeinitializer()
         {
           Logger::setEnabled(false);
+        }
+    };
+
+    class ScopedAtomicIncrementer
+    {
+        atomic_t& count;
+
+      public:
+        explicit ScopedAtomicIncrementer(atomic_t& count_)
+          : count(count_)
+        {
+          atomicIncrement(count);
+        }
+
+        ~ScopedAtomicIncrementer()
+        {
+          atomicDecrement(count);
         }
     };
 
@@ -296,7 +316,7 @@ namespace cxxtools
       static loggers_type* baseLoggers = 0;
       if (baseLoggers == 0)
       {
-        MutexLock lock(Logger::mutex);
+        MutexLock lock(Logger_mutex);
         if (baseLoggers == 0)
           baseLoggers = new loggers_type();
       }
@@ -308,7 +328,7 @@ namespace cxxtools
       static loggers_type* cacheLoggers = 0;
       if (cacheLoggers == 0)
       {
-        MutexLock lock(Logger::mutex);
+        MutexLock lock(Logger_mutex);
         if (cacheLoggers == 0)
           cacheLoggers = new loggers_type();
       }
@@ -359,7 +379,7 @@ namespace cxxtools
       return 0;
 
     // search existing Logger
-    ReadLock rdLock(rwmutex);
+    ReadLock rdLock(Logger_rwmutex);
 
     loggers_type::iterator lower_bound_it = getCacheLoggers().begin();
     while (lower_bound_it != getCacheLoggers().end()
@@ -372,7 +392,7 @@ namespace cxxtools
 
     // Logger not in list - change to write-lock
     rdLock.unlock();
-    WriteLock wrLock(rwmutex);
+    WriteLock wrLock(Logger_rwmutex);
 
     // we have to do it again after gaining write-lock
     lower_bound_it = getCacheLoggers().begin();
@@ -394,7 +414,7 @@ namespace cxxtools
 
   Logger* Logger::setLevel(const std::string& category, log_level_type l)
   {
-    WriteLock lock(rwmutex);
+    WriteLock lock(Logger_rwmutex);
 
     // search for existing Logger
     loggers_type& baseLoggers = getBaseLoggers();
@@ -415,17 +435,6 @@ namespace cxxtools
     return *it;
   }
 
-  namespace
-  {
-    static char digits[] = "0123456789";
-
-    inline char hiDigit(int i)
-    { return digits[i / 10]; }
-
-    inline char loDigit(int i)
-    { return digits[i % 10]; }
-  }
-
   std::ostream& Logger::logentry(std::ostream& out, const char* level, const std::string& category)
   {
     struct timeval t;
@@ -440,33 +449,37 @@ namespace cxxtools
       struct tm tt;
       localtime_r(&sec, &tt);
       psec = sec;
-      date[0] = digits[(1900 + tt.tm_year) / 1000];
-      date[1] = loDigit((1900 + tt.tm_year) / 100);
-      date[2] = loDigit((1900 + tt.tm_year) / 10);
-      date[3] = loDigit(1900 + tt.tm_year);
+      int year = 1900 + tt.tm_year;
+      int mon = tt.tm_mon + 1;
+      date[0] = static_cast<char>('0' + year / 1000 % 10);
+      date[1] = static_cast<char>('0' + year / 100 % 10);
+      date[2] = static_cast<char>('0' + year / 10 % 10);
+      date[3] = static_cast<char>('0' + year % 10);
       date[4] = '-';
-      date[5] = hiDigit(tt.tm_mon + 1);
-      date[6] = loDigit(tt.tm_mon + 1);
+      date[5] = static_cast<char>('0' + mon / 10);
+      date[6] = static_cast<char>('0' + mon % 10);
       date[7] = '-';
-      date[8] = hiDigit(tt.tm_mday);
-      date[9] = loDigit(tt.tm_mday);
+      date[8] = static_cast<char>('0' + tt.tm_mday / 10);
+      date[9] = static_cast<char>('0' + tt.tm_mday % 10);
       date[10] = ' ';
-      date[11] = hiDigit(tt.tm_hour);
-      date[12] = loDigit(tt.tm_hour);
+      date[11] = static_cast<char>('0' + tt.tm_hour / 10);
+      date[12] = static_cast<char>('0' + tt.tm_hour % 10);
       date[13] = ':';
-      date[14] = hiDigit(tt.tm_min);
-      date[15] = loDigit(tt.tm_min);
+      date[14] = static_cast<char>('0' + tt.tm_min / 10);
+      date[15] = static_cast<char>('0' + tt.tm_min % 10);
       date[16] = ':';
-      date[17] = hiDigit(tt.tm_sec);
-      date[18] = loDigit(tt.tm_sec);
+      date[17] = static_cast<char>('0' + tt.tm_sec / 10);
+      date[18] = static_cast<char>('0' + tt.tm_sec % 10);
       date[19] = '.';
       date[20] = '\0';
     }
 
     out << date
-        << loDigit(t.tv_usec / 100000) << loDigit(t.tv_usec / 10000)
-        << loDigit(t.tv_usec / 1000) << loDigit(t.tv_usec / 100)
-        << loDigit(t.tv_usec / 10)
+        << static_cast<char>('0' + t.tv_usec / 100000 % 10)
+        << static_cast<char>('0' + t.tv_usec / 10000 % 10)
+        << static_cast<char>('0' + t.tv_usec / 1000 % 10)
+        << static_cast<char>('0' + t.tv_usec / 100 % 10)
+        << static_cast<char>('0' + t.tv_usec / 10 % 10)
         << " [" << getpid() << '.' << pthread_self() << "] "
         << level << ' '
         << category << " - ";
@@ -502,12 +515,14 @@ namespace cxxtools
 
         try
         {
-          MutexLock lock(Logger::mutex);
+          ScopedAtomicIncrementer inc(mutexWaitCount);
+          MutexLock lock(Logger_mutex);
 
           std::ostream& out(logger->logentry(level));
           out << msg.str() << '\n';
 
-          logger->logEnd(out);
+          if (atomicGet(mutexWaitCount) <= 1)
+            logger->logEnd(out);
         }
         catch (const std::exception&)
         {
@@ -529,7 +544,6 @@ namespace cxxtools
                             : level >= Logger::LOG_LEVEL_ERROR ? "ERROR"
                             : "FATAL"))
     { }
-
 
   void LogMessage::flush()
   {
@@ -553,9 +567,13 @@ namespace cxxtools
       {
         try
         {
-          MutexLock lock(Logger::mutex);
-          l->logentry("TRACE")
-            << "EXIT " << msg->str() << std::endl;
+          ScopedAtomicIncrementer inc(mutexWaitCount);
+          MutexLock lock(Logger_mutex);
+          std::ostream& out = l->logentry("TRACE");
+          out << "EXIT " << msg->str() << std::endl;
+
+          if (atomicGet(mutexWaitCount) <= 1)
+            l->logEnd(out);
         }
         catch (const std::exception&)
         {
@@ -580,9 +598,13 @@ namespace cxxtools
     {
       try
       {
-        MutexLock lock(Logger::mutex);
-        l->logentry("TRACE")
-          << "ENTER " << msg->str() << std::endl;
+        ScopedAtomicIncrementer inc(mutexWaitCount);
+        MutexLock lock(Logger_mutex);
+        std::ostream& out = l->logentry("TRACE");
+        out << "ENTER " << msg->str() << std::endl;
+
+        if (atomicGet(mutexWaitCount) <= 1)
+          l->logEnd(out);
       }
       catch (const std::exception&)
       {
