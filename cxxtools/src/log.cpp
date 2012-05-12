@@ -500,6 +500,8 @@ namespace cxxtools
       std::ostringstream msg;
       Logger* logger;
       const char* level;
+      static std::vector<LogMessageImpl*> pool;
+      static Mutex poolMutex;
 
     public:
       LogMessageImpl(Logger* logger_, const char* level_)
@@ -529,14 +531,50 @@ namespace cxxtools
         }
       }
 
+      static LogMessageImpl* getInstance(Logger* logger_, const char* level_);
+      static void releaseInstance(LogMessageImpl* inst);
+
   };
 
+  std::vector<LogMessage::LogMessageImpl*> LogMessage::LogMessageImpl::pool;
+  Mutex LogMessage::LogMessageImpl::poolMutex;
+
+  LogMessage::LogMessageImpl* LogMessage::LogMessageImpl::getInstance(Logger* logger_, const char* level_)
+  {
+    if (pool.empty())
+    {
+      // we don't care about locking here since it is not dangerous to get a false answer
+      return new LogMessageImpl(logger_, level_);
+    }
+    else
+    {
+      MutexLock lock(poolMutex);
+      if (pool.empty())
+        return new LogMessageImpl(logger_, level_);
+
+      LogMessageImpl* impl = pool.back();
+      pool.resize(pool.size() - 1);
+      lock.unlock();
+      impl->logger = logger_;
+      impl->level = level_;
+      return impl;
+    }
+  }
+
+  void LogMessage::LogMessageImpl::releaseInstance(LogMessageImpl* inst)
+  {
+    MutexLock lock(poolMutex);
+    inst->msg.clear();
+    inst->msg.str(std::string());
+    pool.push_back(inst);
+  }
+
   LogMessage::LogMessage(Logger* logger, const char* level)
-    : impl(new LogMessageImpl(logger, level))
+    : impl(LogMessageImpl::getInstance(logger, level))
     { }
 
   LogMessage::LogMessage(Logger* logger, Logger::log_level_type level)
-    : impl(new LogMessageImpl(logger,
+    : impl(LogMessageImpl::getInstance(logger,
                               level >= Logger::LOG_LEVEL_TRACE ? "TRACE"
                             : level >= Logger::LOG_LEVEL_DEBUG ? "DEBUG"
                             : level >= Logger::LOG_LEVEL_INFO ? "INFO"
@@ -552,7 +590,7 @@ namespace cxxtools
 
   LogMessage::~LogMessage()
   {
-    delete impl;
+    LogMessageImpl::releaseInstance(impl);
   }
 
   std::ostream& LogMessage::out()
