@@ -500,8 +500,23 @@ namespace cxxtools
       std::ostringstream msg;
       Logger* logger;
       const char* level;
-      static std::vector<LogMessageImpl*> pool;
-      static Mutex poolMutex;
+
+      class Pool
+      {
+          std::vector<LogMessageImpl*> pool;
+          Mutex poolMutex;
+
+        public:
+          ~Pool();
+
+          LogMessageImpl* getInstance(Logger* logger_, const char* level_);
+          void releaseInstance(LogMessageImpl* inst);
+      };
+
+      static Pool pool;
+
+      LogMessageImpl(const LogMessageImpl&);
+      LogMessageImpl& operator=(const LogMessageImpl&);
 
     public:
       LogMessageImpl(Logger* logger_, const char* level_)
@@ -531,42 +546,63 @@ namespace cxxtools
         }
       }
 
-      static LogMessageImpl* getInstance(Logger* logger_, const char* level_);
-      static void releaseInstance(LogMessageImpl* inst);
+      static LogMessageImpl* getInstance(Logger* logger_, const char* level_)
+      {
+        return pool.getInstance(logger_, level_);
+      }
+
+      static void releaseInstance(LogMessageImpl* inst)
+      {
+        pool.releaseInstance(inst);
+      }
 
   };
 
-  std::vector<LogMessage::LogMessageImpl*> LogMessage::LogMessageImpl::pool;
-  Mutex LogMessage::LogMessageImpl::poolMutex;
+  LogMessage::LogMessageImpl::Pool LogMessage::LogMessageImpl::pool;
 
-  LogMessage::LogMessageImpl* LogMessage::LogMessageImpl::getInstance(Logger* logger_, const char* level_)
+  LogMessage::LogMessageImpl::Pool::~Pool()
+  {
+    for (unsigned n = 0; n < pool.size(); ++n)
+      delete pool[n];
+  }
+
+  LogMessage::LogMessageImpl* LogMessage::LogMessageImpl::Pool::getInstance(Logger* logger_, const char* level_)
   {
     if (pool.empty())
     {
       // we don't care about locking here since it is not dangerous to get a false answer
       return new LogMessageImpl(logger_, level_);
     }
-    else
+
+    LogMessageImpl* impl;
+
     {
       MutexLock lock(poolMutex);
       if (pool.empty())
         return new LogMessageImpl(logger_, level_);
 
-      LogMessageImpl* impl = pool.back();
-      pool.resize(pool.size() - 1);
-      lock.unlock();
-      impl->logger = logger_;
-      impl->level = level_;
-      return impl;
+      impl = pool.back();
+      pool.pop_back();
     }
+
+    impl->logger = logger_;
+    impl->level = level_;
+    return impl;
   }
 
-  void LogMessage::LogMessageImpl::releaseInstance(LogMessageImpl* inst)
+  void LogMessage::LogMessageImpl::Pool::releaseInstance(LogMessageImpl* inst)
   {
     MutexLock lock(poolMutex);
-    inst->msg.clear();
-    inst->msg.str(std::string());
-    pool.push_back(inst);
+    if (pool.size() < 8)
+    {
+      inst->msg.clear();
+      inst->msg.str(std::string());
+      pool.push_back(inst);
+    }
+    else
+    {
+      delete inst;
+    }
   }
 
   LogMessage::LogMessage(Logger* logger, const char* level)
