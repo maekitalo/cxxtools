@@ -1,3 +1,39 @@
+2012-05-19 tommi@tntnet.org
+
+ - remove remaining parts of support of log4cxx and log4cplus
+
+2012-05-13 tommi@tntnet.org
+
+ - limit number of pooled message impl in logger to 8 and release pooled messages on end
+
+2012-05-12 tommi@tntnet.org
+
+ - optimize logging: pool of message impls
+
+2012-05-07 tommi@tntnet.org
+
+ - add clear method to deserializer and fix unit tests - they were broken with
+   the new feature, that deserializers can deserialize multiple objects without
+   rerun
+
+2012-05-06 tommi@tntnet.org
+
+ - optimize logging by delaying flush when other threads are already waiting to write next log message
+
+2012-05-06 tommi@tntnet.org
+
+ - small fix in properties parser
+ - use unicode string in properties parser
+ - allow multiple calls to deserializer without reparsing
+
+2012-05-05 tommi@tntnet.org
+
+ - fix reading custom types in binary parser
+
+2012-05-04 tommi@tntnet.org
+
+ - make some extensions to Directory and FileInfo
+
 2012-04-29 tommi@tntnet.org
 
  - semicolon is a comment in ini files - fix in iniparser
