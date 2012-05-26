@@ -39,7 +39,11 @@ Request::Auth Request::auth() const
 {
     Auth ret;
 
-    std::string s = getHeader("Authorization");
+    const char* sp = getHeader("Authorization");
+    if (!sp)
+        return ret;
+
+    std::string s = sp;
     std::string::size_type p = s.find(' ');
     if (p == std::string::npos)
         return ret;
