@@ -40,7 +40,7 @@ SystemError::SystemError(int err, const char* fn)
 : std::runtime_error( getErrnoString(err, fn) )
 , m_errno(err)
 {
-  log_debug("system error; " << what());
+  //log_debug("system error; " << what());
 }
 
 
@@ -48,7 +48,7 @@ SystemError::SystemError(const char* fn)
 : std::runtime_error( getErrnoString(fn) )
 , m_errno(errno)
 {
-  log_debug("system error; " << what());
+  //log_debug("system error; " << what());
 }
 
 
@@ -56,7 +56,7 @@ SystemError::SystemError(const char* fn, const std::string& what)
 : std::runtime_error(fn && fn[0] ? (std::string("error in function ") + fn + ": " + what) : what),
   m_errno(0)
 {
-  log_debug("system error; " << std::exception::what());
+  //log_debug("system error; " << std::exception::what());
 }
 
 

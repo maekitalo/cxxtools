@@ -86,7 +86,6 @@ nobase_include_HEADERS = \
         cxxtools/jsonserializer.h \
         cxxtools/library.h \
         cxxtools/log.h \
-        cxxtools/loginit.h \
         cxxtools/main.h \
         cxxtools/md5.h \
         cxxtools/md5stream.h \
@@ -163,7 +162,6 @@ nobase_include_HEADERS = \
         cxxtools/void.h \
         cxxtools/xmltag.h \
         cxxtools/log/cxxtools.h \
-        cxxtools/log/cxxtools_init.h \
         cxxtools/unit/application.h \
         cxxtools/unit/assertion.h \
         cxxtools/unit/registertest.h \

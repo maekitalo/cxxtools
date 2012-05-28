@@ -104,7 +104,18 @@ libcxxtools_la_SOURCES = \
 	tcpsocketimpl.cpp \
 	tcpstream.cpp \
 	udp.cpp \
-	udpstream.cpp
+	udpstream.cpp \
+	xml/characters.cpp \
+	xml/endelement.cpp \
+	xml/entityresolver.cpp \
+	xml/namespacecontext.cpp \
+	xml/startelement.cpp \
+	xml/xmldeserializer.cpp \
+	xml/xmlerror.cpp \
+	xml/xmlformatter.cpp \
+	xml/xmlreader.cpp \
+	xml/xmlserializer.cpp \
+	xml/xmlwriter.cpp
 
 noinst_HEADERS = \
 	addrinfoimpl.h \

@@ -30,6 +30,5 @@
 #define CXXTOOLS_LOG_H
 
 #include <cxxtools/log/cxxtools.h>
-#include <cxxtools/log/cxxtools_init.h>
 
 #endif // CXXTOOLS_LOG_H

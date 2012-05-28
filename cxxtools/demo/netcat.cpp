@@ -30,7 +30,7 @@
 #include <iostream>
 #include <cxxtools/net/tcpstream.h>
 #include <cxxtools/arg.h>
-#include <cxxtools/loginit.h>
+#include <cxxtools/log.h>
 
 int main(int argc, char* argv[])
 {

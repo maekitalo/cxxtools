@@ -30,7 +30,7 @@
 #include <fstream>
 #include <stdexcept>
 #include <cxxtools/mime.h>
-#include <cxxtools/loginit.h>
+#include <cxxtools/log.h>
 
 int main(int argc, char* argv[])
 {

@@ -31,7 +31,6 @@
 
 #include <string>
 #include <iostream>
-#include <iosfwd>
 
 #define _cxxtools_log_enabled(level)   \
   (getLogger() != 0 && getLogger()->isEnabled(::cxxtools::Logger::LOG_LEVEL_ ## level))
@@ -43,7 +42,7 @@
     { \
       ::cxxtools::LogMessage _cxxtools_logMessage(_cxxtools_logger, #level); \
       _cxxtools_logMessage.out() << expr; \
-      _cxxtools_logMessage.flush(); \
+      _cxxtools_logMessage.finish(); \
     } \
   } while (false)
 
@@ -54,7 +53,7 @@
     { \
       ::cxxtools::LogMessage _cxxtools_logMessage(_cxxtools_logger, #level); \
       _cxxtools_logMessage.out() << expr; \
-      _cxxtools_logMessage.flush(); \
+      _cxxtools_logMessage.finish(); \
     } \
   } while (false)
 
@@ -78,26 +77,36 @@
 #define log_debug_if(cond, expr)     _cxxtools_log_if(DEBUG, cond, expr)
 
 #define log_trace(expr)     \
-  ::cxxtools::LogTracer _cxxtools_tracer ## __LINE__ (getLogger());  \
-  if (log_trace_enabled()) \
-  { \
-    _cxxtools_tracer ## __LINE__ .logentry() << expr;  \
-    _cxxtools_tracer ## __LINE__ .enter();  \
-  }
+  ::cxxtools::LogTracer _cxxtools_tracer;  \
+  do { \
+    ::cxxtools::Logger* _cxxtools_logger = getLogger(); \
+    if (_cxxtools_logger != 0 && _cxxtools_logger->isEnabled(::cxxtools::Logger::LOG_LEVEL_TRACE)) \
+    { \
+      _cxxtools_tracer.setLogger(_cxxtools_logger); \
+      _cxxtools_tracer.out() << expr;  \
+      _cxxtools_tracer.enter();  \
+    } \
+  } while (false)
 
 #define log_define(category) \
   static ::cxxtools::Logger* getLogger()   \
   {  \
     static cxxtools::Logger* logger = 0; \
-    if (!::cxxtools::Logger::isEnabled()) \
+    if (!::cxxtools::LoggerManager::isEnabled()) \
       return 0; \
     if (logger == 0) \
-      logger = ::cxxtools::Logger::getCategoryLogger(category); \
+      logger = ::cxxtools::LoggerManager::getInstance().getLogger(category); \
     return logger; \
   }
 
+#define log_init  ::cxxtools::LoggerManager::logInit
+
 namespace cxxtools
 {
+  class SerializationInfo;
+
+  //////////////////////////////////////////////////////////////////////
+  //
   class Logger
   {
     public:
@@ -113,69 +122,138 @@ namespace cxxtools
     private:
       std::string category;
       log_level_type level;
-      static log_level_type std_level;
-      static bool enabled;
 
-    protected:
+      Logger(const Logger&);
+      Logger& operator=(const Logger&);
+
+    public:
       Logger(const std::string& c, log_level_type l)
         : category(c), level(l)
         { }
-      virtual ~Logger()  { }
-
-    public:
-      static Logger* getCategoryLogger(const std::string& category);
-      static void setRootLevel(log_level_type l)
-        { std_level = l; }
-      static log_level_type getStdLevel()
-        { return std_level; }
-      static Logger* setLevel(const std::string& category, log_level_type l);
-      static void setEnabled(bool sw = true)   { enabled = sw; }
-      static bool isEnabled()
-        { return enabled; }
 
       bool isEnabled(log_level_type l) const
-        { return level >= l && enabled; }
+        { return level >= l; }
       const std::string& getCategory() const
         { return category; }
       log_level_type getLogLevel() const
         { return level; }
-      void setLogLevel(log_level_type l)
-        { level = l; }
-      /// prints the start of a longentry into the outstream
-      static std::ostream& logentry(std::ostream& out, const char* level, const std::string& category);
-      /// prints the start of a longentry and returns the appender
-      std::ostream& logentry(const char* level);
-      virtual void logEnd(std::ostream& appender) = 0;
   };
 
+  //////////////////////////////////////////////////////////////////////
+  //
+  class LoggerManagerConfiguration
+  {
+    public:
+      class Impl;
+
+    private:
+      friend class Impl;
+      Impl* _impl;
+
+    public:
+      LoggerManagerConfiguration();
+      LoggerManagerConfiguration(const LoggerManagerConfiguration&);
+      LoggerManagerConfiguration& operator=(const LoggerManagerConfiguration&);
+
+      ~LoggerManagerConfiguration();
+
+      Impl* impl()             { return _impl; }
+      const Impl* impl() const { return _impl; }
+
+      Logger::log_level_type rootLevel() const;
+      Logger::log_level_type logLevel(const std::string& category) const;
+  };
+
+  void operator>>= (const SerializationInfo& si, LoggerManagerConfiguration& loggerManagerConfiguration);
+
+  //////////////////////////////////////////////////////////////////////
+  //
+  class LoggerManager
+  {
+    public:
+      class Impl;
+
+      friend class Impl;
+
+      Impl* _impl;
+      LoggerManager();
+      static bool _enabled;
+
+      LoggerManager(const LoggerManager&);
+      LoggerManager& operator=(const LoggerManager&);
+
+    public:
+      ~LoggerManager();
+
+      Impl* impl()              { return _impl; }
+      const Impl* impl() const  { return _impl; }
+
+      static LoggerManager& getInstance();
+      static void logInit(const std::string& fname = "log.xml");
+      static void logInit(const cxxtools::SerializationInfo& si);
+
+      void configure(const LoggerManagerConfiguration& config);
+      Logger* getLogger(const std::string& category);
+      static bool isEnabled()
+      { return _enabled; }
+
+      Logger::log_level_type rootLevel() const;
+      Logger::log_level_type logLevel(const std::string& category) const;
+  };
+
+  //////////////////////////////////////////////////////////////////////
+  //
   class LogMessage
   {
-      class LogMessageImpl;
-      LogMessageImpl* impl;
+    public:
+      class Impl;
+
+    private:
+      Impl* _impl;
+
+      LogMessage(const LogMessage&);
+      LogMessage& operator=(const LogMessage&);
 
     public:
       LogMessage(Logger* logger, const char* level);
       LogMessage(Logger* logger, Logger::log_level_type level);
       ~LogMessage();
 
+      Impl* impl()             { return _impl; }
+      const Impl* impl() const { return _impl; }
+
       std::ostream& out();
-      void flush();
+      std::string str() const;
+
+      void finish();
   };
 
+  //////////////////////////////////////////////////////////////////////
+  //
   class LogTracer
   {
-      Logger* l;
-      std::ostringstream* msg;
+    public:
+      class Impl;
+
+    private:
+      Impl* _impl;
+
+      LogTracer(const LogTracer&);
+      LogTracer& operator=(const LogTracer&);
 
     public:
-      LogTracer(Logger* l_)
-        : l(l_), msg(0)
-      { }
+      LogTracer();
       ~LogTracer();
 
-      std::ostream& logentry();
+      Impl* impl()             { return _impl; }
+      const Impl* impl() const { return _impl; }
+
+      void setLogger(Logger* l);
+      std::ostream& out();
       void enter();
+      void exit();
   };
+
 }
 
 #endif // LOG_CXXTOOLS_H

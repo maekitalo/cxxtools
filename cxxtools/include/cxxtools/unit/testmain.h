@@ -31,7 +31,7 @@
 #include <cxxtools/arg.h>
 #include <cxxtools/unit/reporter.h>
 #include <cxxtools/unit/application.h>
-#include <cxxtools/loginit.h>
+#include <cxxtools/log.h>
 #include <fstream>
 
 namespace TestMain

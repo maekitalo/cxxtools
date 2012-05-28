@@ -44,8 +44,7 @@ endif
 
 BASE_LIBS = $(top_builddir)/src/libcxxtools.la
 HTTP_LIBS = $(BASE_LIBS) $(top_builddir)/src/http/libcxxtools-http.la
-XML_LIBS = $(BASE_LIBS) $(top_builddir)/src/xml/libcxxtools-xml.la
-XMLRPC_LIBS = $(XML_LIBS) $(top_builddir)/src/xmlrpc/libcxxtools-xmlrpc.la
+XMLRPC_LIBS = $(BASE_LIBS) $(top_builddir)/src/xmlrpc/libcxxtools-xmlrpc.la
 BIN_LIBS = $(HTTP_LIBS) $(top_builddir)/src/bin/libcxxtools-bin.la
 JSON_LIBS = $(HTTP_LIBS) $(top_builddir)/src/json/libcxxtools-json.la
 

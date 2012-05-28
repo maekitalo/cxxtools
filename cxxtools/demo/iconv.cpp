@@ -28,7 +28,7 @@
 
 #include <cxxtools/arg.h>
 #include <cxxtools/iconverter.h>
-#include <cxxtools/loginit.h>
+#include <cxxtools/log.h>
 #include <iostream>
 #include <fstream>
 

@@ -206,7 +206,6 @@ AC_CONFIG_FILES([
   src/Makefile
   src/unit/Makefile
   src/http/Makefile
-  src/xml/Makefile
   src/xmlrpc/Makefile
   src/bin/Makefile
   src/json/Makefile

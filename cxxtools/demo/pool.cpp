@@ -30,7 +30,6 @@
 #include <cxxtools/thread.h>
 #include <cxxtools/pool.h>
 #include <cxxtools/log.h>
-#include <cxxtools/loginit.h>
 #include <unistd.h>
 
 log_define("pooldemo")
@@ -132,7 +131,7 @@ int main(int argc, char* argv[])
 {
   try
   {
-    log_init_info();
+    log_init();
 
     ConnectionPoolType connectionPool(3, Connector("mydb"));
 

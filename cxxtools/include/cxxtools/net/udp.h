@@ -50,9 +50,9 @@ namespace net
         : connected(false)
         { }
 
-      UdpSender(const char* ipaddr, unsigned short int port, bool bcast = false);
+      UdpSender(const std::string& ipaddr, unsigned short int port, bool bcast = false);
 
-      void connect(const char* ipaddr, unsigned short int port, bool bcast = false);
+      void connect(const std::string& ipaddr, unsigned short int port, bool bcast = false);
       bool isConnected() const   { return connected; }
 
       size_type send(const void* message, size_type length, int flags = 0) const;
@@ -70,9 +70,9 @@ namespace net
       typedef size_t size_type;
 
       UdpReceiver();
-      UdpReceiver(const char* ipaddr, unsigned short int port);
+      UdpReceiver(const std::string& ipaddr, unsigned short int port);
 
-      void bind(const char* ipaddr, unsigned short int port);
+      void bind(const std::string& ipaddr, unsigned short int port);
 
       size_type recv(void* buffer, size_type length, int flags = 0);
       std::string recv(size_type length, int flags = 0);

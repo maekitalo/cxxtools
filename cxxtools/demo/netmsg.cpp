@@ -28,7 +28,7 @@
 
 #include <cxxtools/net/udp.h>
 #include <cxxtools/arg.h>
-#include <cxxtools/loginit.h>
+#include <cxxtools/log.h>
 #include <vector>
 #include <iostream>
 
@@ -70,7 +70,7 @@ int main(int argc, char* argv[])
     if (receive)
     {
       cxxtools::Arg<unsigned> size(argc, argv, 's', 1024);
-      cxxtools::Arg<const char*> host(argc, argv, 'h');
+      cxxtools::Arg<std::string> host(argc, argv, 'h');
       cxxtools::Arg<bool> continuous(argc, argv, 'c');
 
       if (argc > 1)
@@ -103,7 +103,7 @@ int main(int argc, char* argv[])
     }
     else
     {
-      cxxtools::Arg<const char*> host(argc, argv, 'h');
+      cxxtools::Arg<std::string> host(argc, argv, 'h');
       cxxtools::Arg<bool> broadcast(argc, argv, 'b');
 
       if (argc <= 1)

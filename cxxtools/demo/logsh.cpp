@@ -27,7 +27,6 @@
  */
 
 #include <cxxtools/log.h>
-#include <cxxtools/loginit.h>
 #include <cxxtools/arg.h>
 #include <iostream>
 

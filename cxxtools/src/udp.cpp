@@ -48,13 +48,13 @@ namespace net
   //////////////////////////////////////////////////////////////////////
   // UdpSender
   //
-  UdpSender::UdpSender(const char* ipaddr, unsigned short int port, bool bcast)
+  UdpSender::UdpSender(const std::string& ipaddr, unsigned short int port, bool bcast)
     : connected(false)
   {
     connect(ipaddr, port, bcast);
   }
 
-  void UdpSender::connect(const char* ipaddr, unsigned short int port, bool bcast)
+  void UdpSender::connect(const std::string& ipaddr, unsigned short int port, bool bcast)
   {
     struct addrinfo hints;
     memset(&hints, 0, sizeof(hints));
@@ -140,13 +140,13 @@ namespace net
     memset(&peeraddr, 0, sizeof(peeraddr));
   }
 
-  UdpReceiver::UdpReceiver(const char* ipaddr, unsigned short int port)
+  UdpReceiver::UdpReceiver(const std::string& ipaddr, unsigned short int port)
   {
     memset(&peeraddr, 0, sizeof(peeraddr));
     bind(ipaddr, port);
   }
 
-  void UdpReceiver::bind(const char* ipaddr, unsigned short int port)
+  void UdpReceiver::bind(const std::string& ipaddr, unsigned short int port)
   {
     AddrInfo ai(ipaddr, port);
 

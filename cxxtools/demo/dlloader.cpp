@@ -29,7 +29,7 @@
 #include <exception>
 #include <iostream>
 #include <cxxtools/dlloader.h>
-#include <cxxtools/loginit.h>
+#include <cxxtools/log.h>
 
 typedef double (*function_type)(double);
 

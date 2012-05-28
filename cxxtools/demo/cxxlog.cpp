@@ -31,7 +31,6 @@
 #include <iterator>
 #include <cxxtools/arg.h>
 #include <cxxtools/log.h>
-#include <cxxtools/loginit.h>
 
 
 // Normally the category parameter is a constant.

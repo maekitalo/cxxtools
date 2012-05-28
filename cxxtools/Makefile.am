@@ -11,7 +11,6 @@ endif
 SUBDIRS = src \
     src/unit \
     src/http \
-    src/xml \
     src/xmlrpc \
     src/bin \
     src/json \

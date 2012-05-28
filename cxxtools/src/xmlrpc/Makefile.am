@@ -16,8 +16,7 @@ noinst_HEADERS = \
 	clientimpl.h \
 	httpclientimpl.h
 
-libcxxtools_xmlrpc_la_LIBADD = $(top_builddir)/src/http/libcxxtools-http.la \
-	$(top_builddir)/src/xml/libcxxtools-xml.la
+libcxxtools_xmlrpc_la_LIBADD = $(top_builddir)/src/libcxxtools.la $(top_builddir)/src/http/libcxxtools-http.la
 
 libcxxtools_xmlrpc_la_LDFLAGS = -version-info @sonumber@ @SHARED_LIB_FLAG@
 

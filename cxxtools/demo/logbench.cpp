@@ -27,7 +27,6 @@
  */
 
 #include <cxxtools/log.h>
-#include <cxxtools/loginit.h>
 #include <cxxtools/smartptr.h>
 #include <cxxtools/refcounted.h>
 #include <iostream>

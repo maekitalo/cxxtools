@@ -32,7 +32,6 @@
 #include <iterator>
 #include <stdexcept>
 #include <cxxtools/inifile.h>
-#include <cxxtools/loginit.h>
 #include <cxxtools/log.h>
 #include <cxxtools/arg.h>
 

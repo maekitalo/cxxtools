@@ -28,7 +28,7 @@
 
 #include <cxxtools/net/tcpstream.h>
 #include <cxxtools/arg.h>
-#include <cxxtools/loginit.h>
+#include <cxxtools/log.h>
 #include <sys/time.h>
 #include <vector>
 #include <stdlib.h>
