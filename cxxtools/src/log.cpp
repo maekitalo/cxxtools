@@ -212,7 +212,7 @@ namespace cxxtools
 
     void FdAppender::finish(bool flush)
     {
-      if (!flush || _msg.empty())
+      if (_msg.size() < 8192 && (!flush || _msg.empty()))
         return;
 
       char buffer[1024];
