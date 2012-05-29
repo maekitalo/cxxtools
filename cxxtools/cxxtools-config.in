@@ -14,8 +14,7 @@ Known values for OPTION are:
 
   --libs            print library linking information
   --cxxflags        print pre-processor and compiler flags
-  --properties app  print logging-properties-template for application "app"
-  --logfile file    set logfile to "file" in following "--properties"
+  --logxml app  print logging-xml-template for application "app"
   --help            display this help and exit
   --version         output version information
 EOF
@@ -23,68 +22,43 @@ EOF
     exit 1
 }
 
-start_template()
-{
-  cat <<EOF
-# sample logging-properties for application ++APP++
-# put this in ++APP++.properties and use:
-#   log_init("++APP++.properties");
-# in your application to initialize logging
-#
-# define categories with:
-#   log_define("some.category")
-# this defines a static function, so you must put it outside other functions.
-# you can define a category per file or a category per namespace.
-#
-# print logging-messages with:
-#   log_fatal("some fatal message");
-#   log_error("some error message");
-#   log_warn("some warn message");
-#   log_info("some info message");
-#   log_debug("some debug message");
-#
-EOF
-}
-
 CXXTOOLS_LOGGING_CXXTOOLS_template()
 {
-  start_template
-
   cat <<EOF
-rootLogger=INFO
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  sample logging-properties for application ++APP++
+  put this in ++APP++.properties and use:
+    log_init("++APP++.properties");
+  in your application to initialize logging
 
-# define logger-categories
-logger.++APP++=INFO
+  define categories with:
+    log_define("some.category")
+  this defines a static function, so you must put it outside other functions.
+  you can define a category per file or a category per namespace.
 
+  print logging-messages with:
+    log_fatal("some fatal message");
+    log_error("some error message");
+    log_warn("some warn message");
+    log_info("some info message");
+    log_debug("some debug message");
+
+-->
+<logging>
+  <rootlogger>INFO</rootlogger>
+  <loggers>
+    <logger>
+      <category>++APP++</category>
+      <level>INFO</level>
+    </logger>
+  </loggers>
+  <!-- <file>$LOGFILE</file> -->      <!--uncomment if you want to log to a file -->
+  <!-- <maxfilesize>1MB</maxfilesize> -->
+  <!-- <maxbackupindex>2</maxbackupindex> -->
+  <!-- <host>localhost:1234</host> --> <!--  # send log-messages with udp -->
+</logging>
 EOF
-
-  if [ -z "$LOGFILE_SET" ]
-  then
-    cat <<EOF
-# uncomment if you want to log to a file
-#file=$LOGFILE
-#maxfilesize=1MB
-#maxbackupindex=2
-#host=localhost:1234  # send log-messages with udp
-#disabled=1  # disable logging
-#logprocess=1  # log through separate process
-#logprocesuser=someuser  # change to user in log process
-#logprocesgroup=somegroup  # change to group in log process
-EOF
-  else
-    cat <<EOF
-file=$LOGFILE
-maxfilesize=1MB
-maxbackupindex=2
-flushdelay=100  # delay write in milliseconds
-#host=localhost:1234  # send log-messages with udp
-#disabled=1  # disable logging
-#logprocess=1  # log in separate process
-#logprocesuser=someuser  # change to user in log process
-#logprocesgroup=somegroup  # change to group in log process
-EOF
-  fi
-
 }
 
 if test $# -eq 0; then
@@ -113,21 +87,10 @@ while test $# -gt 0; do
         echo @CXXTOOLS_LDFLAGS@ 
         ;;
 
-    --properties)
+    --logxml)
         if test $# -gt 1
         then
           CXXTOOLS_LOGGING_CXXTOOLS_template | sed "s/++APP++/$2/"
-          shift
-        else
-          usage 1
-        fi
-        ;;
-
-    --logfile)
-        if test $# -gt 1
-        then
-          LOGFILE=$2
-          LOGFILE_SET=1
           shift
         else
           usage 1
