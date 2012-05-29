@@ -41,6 +41,8 @@
 #include <sstream>
 #include <unistd.h>
 #include <stdio.h>
+#include <string.h>
+#include <fcntl.h>
 #include <sys/time.h>
 
 namespace cxxtools
@@ -186,30 +188,55 @@ namespace cxxtools
     };
 
     //////////////////////////////////////////////////////////////////////
-    // OStreamAppender
+    // FdAppender - writes log to a file descriptor
     //
-    class OStreamAppender : public LogAppender
+    class FdAppender : public LogAppender
     {
-        std::ostream _out;
+      protected:
+        int _fd;
+        std::string _msg;
 
       public:
-        explicit OStreamAppender(std::ostream& out)
-          : _out(out.rdbuf())
+        explicit FdAppender(int fd)
+          : _fd(fd)
         { }
 
         virtual void putMessage(const std::string& msg);
         virtual void finish(bool flush);
     };
 
-    void OStreamAppender::putMessage(const std::string& msg)
+    void FdAppender::putMessage(const std::string& msg)
     {
-      _out << msg << '\n';
+      _msg += msg;
     }
 
-    void OStreamAppender::finish(bool flush)
+    void FdAppender::finish(bool flush)
     {
-      if (flush)
-        _out.flush();
+      if (!flush || _msg.empty())
+        return;
+
+      char buffer[1024];
+      const char* data = _msg.data();
+      ssize_t size = _msg.size();
+
+      while (size >= sizeof(buffer))
+      {
+        int ret = ::write(_fd, data, size);
+        if (ret <= 0)
+        {
+          _msg.clear();
+          return;
+        }
+
+        data += ret;
+        size -= ret;
+      }
+
+      ::memcpy(buffer, data, size);
+      buffer[size] = '\n';
+      ::write(_fd, buffer, size + 1);
+
+      _msg.clear();
     }
 
     //////////////////////////////////////////////////////////////////////
@@ -399,6 +426,7 @@ namespace cxxtools
       std::string _loghost;
       unsigned short _logport;
       bool _broadcast;
+      bool _tostdout;  // flag for console output: true=stdout, false=stderr
 
       Logger::log_level_type _rootLevel;
       LogLevels _logLevels;
@@ -418,6 +446,7 @@ namespace cxxtools
       const std::string& loghost() const        { return _loghost; }
       unsigned short logport() const            { return _logport; }
       bool broadcast() const                    { return _broadcast; }
+      bool tostdout() const                     { return _tostdout; }
 
       Logger::log_level_type rootLevel() const  { return _rootLevel; }
       Logger::log_level_type logLevel(const std::string& category) const;
@@ -523,6 +552,11 @@ namespace cxxtools
       si.getMember("loghost", impl._loghost);
       si.getMember("broadcast", impl._broadcast);
     }
+    else
+    {
+      if (!si.getMember("stdout", impl._tostdout))
+        impl._tostdout = false;
+    }
 
     std::string rootLevel;
     if (!si.getMember("rootlogger", rootLevel))
@@ -594,7 +628,7 @@ namespace cxxtools
       }
       else
       {
-        _appender = new OStreamAppender(std::cerr);
+        _appender = new FdAppender(config.impl()->tostdout() ? STDOUT_FILENO : STDERR_FILENO);
       }
     }
     else if (config.impl()->maxfilesize() == 0)
