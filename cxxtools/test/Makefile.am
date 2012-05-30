@@ -32,6 +32,11 @@ alltests_SOURCES = \
     xmlrpc-test.cpp \
     xmlserializer-test.cpp
 
+if MAKE_ICONVSTREAM
+alltests_SOURCES += \
+	iconvstream-test.cpp
+endif
+
 alltests_LDADD = $(top_builddir)/src/libcxxtools.la \
         $(top_builddir)/src/bin/libcxxtools-bin.la \
         $(top_builddir)/src/http/libcxxtools-http.la \

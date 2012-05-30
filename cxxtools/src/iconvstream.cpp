@@ -32,20 +32,56 @@
 #include "config.h"
 #include <errno.h>
 #include <stdexcept>
+#include <sstream>
 
 log_define("cxxtools.iconvstream")
 
 namespace cxxtools
 {
 
+iconv_error::iconv_error(size_t pos)
+  : std::runtime_error(std::string()), pos(pos)
+{
+}
+
+size_t iconv_error::position() const throw()
+{
+  return pos;
+}
+
+const char *iconv_error::what() const throw()
+{
+  if (msg.empty())
+  {
+    std::ostringstream ss;
+
+    ss << "iconv failed to convert character at position: " << pos;
+    msg = ss.str();
+  }
+
+  return msg.c_str();
+}
+
+iconv_error::~iconv_error() throw()
+{
+}
+
 iconvstreambuf* iconvstreambuf::open(std::ostream& sink_,
   const char* tocode, const char* fromcode)
 {
-  log_debug("iconv_open(\"" << tocode << "\", \"" << fromcode << "\")");
-  sink = &sink_;
-  cd = iconv_open(tocode, fromcode);
+  open(sink_, tocode, fromcode, iconvstreambuf::mode_default);
+}
 
-  if (cd == (iconv_t)-1)
+iconvstreambuf* iconvstreambuf::open(std::ostream& sink_,
+  const char* tocode, const char* fromcode, mode_t mode_)
+{
+  log_debug("iconv_open(\"" << tocode << "\", \"" << fromcode <<
+          "\", " << mode_ << ")");
+  mode = mode_;
+  sink = &sink_;
+  pos = 0;
+
+  if (!conv.open(tocode, fromcode))
   {
     if (errno == EINVAL)
     {
@@ -59,22 +95,19 @@ iconvstreambuf* iconvstreambuf::open(std::ostream& sink_,
     return 0;
   }
 
-  log_debug("iconv-handle=" << cd);
+  log_debug("iconv-opened");
 
-  setp(buffer, buffer + (sizeof(buffer) - 1));
   return this;
 }
 
 iconvstreambuf* iconvstreambuf::close() throw()
 {
-  if (cd != (iconv_t)-1)
+  if (conv.is_open())
   {
     sync();
-    log_debug("iconv_close(" << cd << ')');
-    int r = iconv_close(cd);
-    if (r == 0)
+    log_debug("iconv.close(...)");
+    if (conv.close())
     {
-      cd = (iconv_t)-1;
       return this;
     }
     else
@@ -124,16 +157,12 @@ iconvstreambuf::int_type iconvstreambuf::overflow(int_type c)
     char* outbufptr = outbuf;
 
     // convert as many charachters as possible
-    log_debug("iconv(" << cd << ") " << inbytesleft << " bytes");
-    size_t s = iconv(cd,
-          &inbufptr, &inbytesleft,
+    log_debug("iconv(...) " << inbytesleft << " bytes");
+    bool iconv_ret = conv.convert(&inbufptr, &inbytesleft,
           &outbufptr, &outbytesleft);
 
-    if (s == size_t(-1) && errno != 0 && errno != EINVAL && errno != E2BIG)
-    {
-      log_warn("convert failed");
-      return traits_type::eof();
-    }
+    pos += inbufptr - buffer;
+    iconv_ret = iconv_ret || errno == EINVAL || errno == E2BIG;
 
     log_debug("pass " << outbufptr - outbuf << " bytes to sink");
     sink->write(outbuf, outbufptr - outbuf);
@@ -146,6 +175,22 @@ iconvstreambuf::int_type iconvstreambuf::overflow(int_type c)
 
     log_debug("reinitialize put area");
     setp(buffer, buffer + (sizeof(buffer) - 1));
+
+    if (!iconv_ret) {
+      switch (mode) {
+        case iconvstreambuf::mode_skip:
+          log_warn("convert failed, skipping byte");
+          --inbytesleft;
+          ++inbufptr;
+          iconv_ret = true;
+        break;
+        case iconvstreambuf::mode_throw:
+          log_warn("convert failed, throwing exception");
+          throw iconv_error(pos);
+        default:
+          return traits_type::eof();
+      }
+    }
 
     // move left bytes to the start of buffer and reinitialize buffer
     if (inbytesleft > 0)
@@ -193,10 +238,60 @@ int iconvstreambuf::sync()
   }
 }
 
+std::streampos iconvstreambuf::seekoff(std::streamoff off,
+  std::ios_base::seekdir way, std::ios_base::openmode which)
+{
+  // modify off to by relative position from current position
+  switch (way) {
+    case std::ios_base::beg:
+      off -= pos;
+    case std::ios_base::cur:
+      break;
+    default:
+      return std::streampos(-1);
+  }
+
+  if (which == std::ios_base::in) {
+    char *buf_p = gptr() + off;
+    // alow seek only on valid data
+    if (buf_p < eback() || buf_p > pptr())
+        return std::streampos(-1);
+
+    gbump(off);
+    pos += off;
+    return pos;
+  }
+
+  if (which == std::ios_base::out) {
+    char *buf_p = pptr() + off;
+    // alow seek only on valid data
+    if (buf_p < pbase() || buf_p > pptr())
+        return std::streampos(-1);
+
+    pbump(off);
+    return pos + off;
+  }
+
+  return std::streampos(-1);
+}
+
+std::streampos iconvstreambuf::seekpos(std::streampos sp,
+  std::ios_base::openmode which)
+{
+  return seekoff(sp, std::ios_base::beg, which);
+}
+
 void iconvstream::open(std::ostream& sink_,
   const char* tocode, const char* fromcode)
 {
-  if (!fail() && streambuf.open(sink_, tocode, fromcode) == 0)
+  open(sink_, tocode, fromcode, iconvstreambuf::mode_default);
+}
+
+void iconvstream::open(std::ostream& sink_,
+  const char* tocode, const char* fromcode,
+  iconvstreambuf::mode_t mode)
+{
+  if (!fail() && streambuf.open(sink_, tocode, fromcode, mode) == 0)
     setstate(std::ios::failbit);
 }
 

@@ -145,6 +145,7 @@ noinst_HEADERS = \
 
 if MAKE_ICONVSTREAM
 libcxxtools_la_SOURCES += \
+	iconvwrap.cpp \
 	iconvstream.cpp
 endif
 

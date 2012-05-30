@@ -30,10 +30,24 @@
 #define CXXTOOLS_ICONVSTREAM_H
 
 #include <iostream>
-#include <iconv.h>
+#include <stdexcept>
+#include "iconvwrap.h"
 
 namespace cxxtools
 {
+
+class iconv_error : public std::runtime_error
+{
+  private:
+    mutable std::string msg;
+    size_t pos;
+
+  public:
+    explicit iconv_error(size_t pos);
+    virtual size_t position() const throw();
+    virtual const char *what() const throw();
+    virtual ~iconv_error() throw();
+};
 
 /**
   std::streambuf-Interface for iconv(3) and related.
@@ -41,20 +55,39 @@ namespace cxxtools
  */
 class iconvstreambuf : public std::streambuf
 {
+  public:
+    /** Behaviour on iconv error. */
+    typedef enum {
+      /** Old behaviour, just send EOF. */
+      mode_eof,
+      /** Throw iconv_error. */
+      mode_throw,
+      /** Skip invalid characters. */
+      mode_skip,
+      mode_default = mode_eof
+    } mode_t;
+
+  private:
     std::ostream* sink;
-    iconv_t cd;
+    iconvwrap conv;
     char buffer[256];
+    mode_t mode;
+    size_t pos;
 
   public:
     iconvstreambuf()
-      : sink(0),
-        cd((iconv_t)-1)
-      { }
+      : sink(0), mode(mode_default), pos(0)
+      {
+        setg(buffer, buffer, buffer + (sizeof(buffer) - 1));
+        setp(buffer, buffer + (sizeof(buffer) - 1));
+      }
     ~iconvstreambuf()
       { close(); }
 
     iconvstreambuf* open(std::ostream& sink_,
       const char* tocode, const char* fromcode);
+    iconvstreambuf* open(std::ostream& sink_,
+      const char* tocode, const char* fromcode, mode_t mode_);
     iconvstreambuf* close() throw();
 
     /// overloaded from std::streambuf
@@ -63,7 +96,16 @@ class iconvstreambuf : public std::streambuf
     int_type underflow();
     /// overloaded from std::streambuf
     int sync();
-
+    /** overloaded from std::streambuf, for input returned value represents
+     * number of bytes succesfully converted (does not count skipped bytes).
+     */
+    virtual std::streampos seekoff(std::streamoff off,
+      std::ios_base::seekdir way, std::ios_base::openmode which);
+    /** overloaded from std::streambuf, for input returned value represents
+     * number of bytes succesfully converted (does not count skipped bytes).
+     */
+    virtual std::streampos seekpos(std::streampos sp,
+      std::ios_base::openmode which);
 };
 
 /**
@@ -96,6 +138,14 @@ class iconvstream : public std::ostream
       init(&streambuf);
       open(sink, tocode, fromcode);
     }
+
+    iconvstream(std::ostream& sink, const char* tocode, const char* fromcode,
+      iconvstreambuf::mode_t mode)
+      : std::ostream(0)
+    {
+      init(&streambuf);
+      open(sink, tocode, fromcode, mode);
+    }
     iconvstream()
       : std::ostream(0)
     {
@@ -104,6 +154,10 @@ class iconvstream : public std::ostream
 
     void open(std::ostream& sink_,
       const char* tocode, const char* fromcode);
+    void open(std::ostream& sink_,
+      const char* tocode, const char* fromcode,
+      iconvstreambuf::mode_t mode_);
+
     void close() throw()
       { streambuf.close(); }
 };
