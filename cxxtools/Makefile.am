@@ -18,3 +18,12 @@ SUBDIRS = src \
     $(DEMO_DIR) $(UNITTEST_DIR)
 
 bin_SCRIPTS = cxxtools-config
+
+pkgconfigdir = $(libdir)/pkgconfig/
+
+pkgconfig_DATA = pkgconfig/cxxtools-bin.pc \
+	pkgconfig/cxxtools-http.pc \
+	pkgconfig/cxxtools-json.pc \
+	pkgconfig/cxxtools.pc \
+	pkgconfig/cxxtools-unit.pc \
+	pkgconfig/cxxtools-xmlrpc.pc

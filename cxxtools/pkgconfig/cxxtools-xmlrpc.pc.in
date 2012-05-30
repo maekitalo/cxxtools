@@ -1,0 +1,10 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: cxxtools-xmlrpc
+Description: A toolbox with reusable C++ components - XMLRPC package
+Version: @PACKAGE_VERSION@
+Requires: cxxtools cxxtools-http
+Libs: -L${libdir} -lcxxtools-xmlrpc

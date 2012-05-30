@@ -214,4 +214,15 @@ AC_CONFIG_FILES([
   test/Makefile
   ])
 
+AC_CONFIG_FILES([
+  pkgconfig/cxxtools-bin.pc 
+  pkgconfig/cxxtools-http.pc 
+  pkgconfig/cxxtools-json.pc 
+  pkgconfig/cxxtools.pc
+  pkgconfig/cxxtools-unit.pc
+  pkgconfig/cxxtools-xmlrpc.pc
+])
+
 AC_OUTPUT
+
+

@@ -1,0 +1,10 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: cxxtools-http
+Description: A toolbox with reusable C++ components - HTTP protocol implementation
+Version: @PACKAGE_VERSION@
+Requires: cxxtools
+Libs: -L${libdir} -lcxxtools-http

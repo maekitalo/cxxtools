@@ -1,0 +1,10 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: cxxtools-unit
+Description: A toolbox with reusable C++ components - testing library
+Version: @PACKAGE_VERSION@
+Requires: cxxtools
+Libs: -L${libdir} -lcxxtools-unit

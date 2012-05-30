@@ -1,0 +1,10 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: cxxtools
+Description: A toolbox with reusable C++ components
+Version: @PACKAGE_VERSION@
+Libs: -L${libdir} -lcxxtools
+Cflags: -I${includedir}
