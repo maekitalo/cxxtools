@@ -213,7 +213,10 @@ namespace cxxtools
     void FdAppender::finish(bool flush)
     {
       if (_msg.size() < 8192 && (!flush || _msg.empty()))
+      {
+        _msg += '\n';
         return;
+      }
 
       char buffer[1024];
       const char* data = _msg.data();
