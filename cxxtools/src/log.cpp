@@ -208,37 +208,15 @@ namespace cxxtools
     void FdAppender::putMessage(const std::string& msg)
     {
       _msg += msg;
+      _msg += '\n';
     }
 
     void FdAppender::finish(bool flush)
     {
-      if (_msg.size() < 8192 && (!flush || _msg.empty()))
-      {
-        _msg += '\n';
+      if (!flush && _msg.size() < 8192)
         return;
-      }
 
-      char buffer[1024];
-      const char* data = _msg.data();
-      ssize_t size = _msg.size();
-
-      while (size >= sizeof(buffer))
-      {
-        int ret = ::write(_fd, data, size);
-        if (ret <= 0)
-        {
-          _msg.clear();
-          return;
-        }
-
-        data += ret;
-        size -= ret;
-      }
-
-      ::memcpy(buffer, data, size);
-      buffer[size] = '\n';
-      ::write(_fd, buffer, size + 1);
-
+      ::write(_fd, _msg.data(), _msg.size());
       _msg.clear();
     }
 
