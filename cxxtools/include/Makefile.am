@@ -207,7 +207,8 @@ nobase_nodist_include_HEADERS = \
 if MAKE_ICONVSTREAM
 nobase_include_HEADERS += \
         cxxtools/iconverter.h \
-        cxxtools/iconvstream.h
+        cxxtools/iconvstream.h \
+        cxxtools/iconvwrap.h
 endif
 
 if MAKE_ATOMICITY_SUN
