@@ -60,9 +60,9 @@ rpcaddclient_LDADD = $(XMLRPC_LIBS) $(BIN_LIBS) $(JSON_LIBS)
 json_LDADD = $(HTTP_LIBS)
 rpcasyncaddclient_LDADD = $(XMLRPC_LIBS) $(BIN_LIBS) $(JSON_LIBS)
 
-log.properties:
-	/bin/sh $(top_builddir)/cxxtools-config --properties cxxtools >$@
+log.xml:
+	/bin/sh $(top_builddir)/cxxtools-config --logxml cxxtools >$@
 
-noinst_DATA = log.properties
-CLEANFILES = log.properties
+noinst_DATA = log.xml
+CLEANFILES = log.xml
 EXTRA_DIST = README
