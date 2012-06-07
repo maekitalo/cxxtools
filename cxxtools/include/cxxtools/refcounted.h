@@ -50,7 +50,7 @@ namespace cxxtools
       virtual ~SimpleRefCounted()  { }
 
       virtual unsigned addRef()  { return ++rc; }
-      virtual void release()     { if (--rc == 0) delete this; }
+      virtual unsigned release() { return --rc; }
       unsigned refs() const      { return rc; }
   };
 
@@ -70,7 +70,7 @@ namespace cxxtools
       virtual ~AtomicRefCounted()  { }
 
       virtual atomic_t addRef()  { return atomicIncrement(rc); }
-      virtual void release()     { if (atomicDecrement(rc) == 0) delete this; }
+      virtual atomic_t release() { atomic_t ret = atomicDecrement(rc); return ret; }
       atomic_t refs() const      { return rc; }
   };
 

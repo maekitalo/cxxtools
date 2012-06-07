@@ -105,8 +105,9 @@ namespace cxxtools
 
       Intrusive reference couting means that the reference count is part of the
       managed heap object. Linking and unlinking will only increase and decrease this
-      counter, but not delete it. The managed object needs to implement the functions
-      release() and addRef() and must delete itself if the counter reaches zero.
+      counter, but not delete it. The managed object needs to implement the methods
+      release() and addRef(). The release must return something, that equals 0 when
+      the last reference is released.
   */
   class InternalRefCounted
   {
@@ -114,9 +115,7 @@ namespace cxxtools
       //! \brief unlink a smart pointer from a managed object
       bool unlink(ObjectType* object)
       {
-        if (object)
-          object->release();
-        return false;
+        return object && object->release() == 0;
       }
 
       //! \brief link a smart pointer to a managed object
@@ -342,10 +341,8 @@ namespace cxxtools
       bool operator! () const { return object == 0; }
       operator bool () const  { return object != 0; }
 
-      ObjectType* getPointer()              { return object; }
-      const ObjectType* getPointer() const  { return object; }
-      operator ObjectType* ()               { return object; }
-      operator const ObjectType* () const   { return object; }
+      ObjectType* getPointer() const        { return object; }
+      operator ObjectType* () const         { return object; }
   };
 
 }
