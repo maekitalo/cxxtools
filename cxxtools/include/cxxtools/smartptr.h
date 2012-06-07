@@ -343,6 +343,7 @@ namespace cxxtools
 
       ObjectType* getPointer() const        { return object; }
       operator ObjectType* () const         { return object; }
+      operator const ObjectType* () const   { return object; }
   };
 
 }
