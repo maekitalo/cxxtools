@@ -588,6 +588,7 @@ namespace cxxtools
 
     public:
       explicit Impl(const LoggerManagerConfiguration& config);
+      ~Impl();
 
       Logger* getLogger(const std::string& category);
       LogAppender& appender()
@@ -624,6 +625,12 @@ namespace cxxtools
     _config = config;
   }
 
+  LoggerManager::Impl::~Impl()
+  {
+    for (Loggers::iterator it = _loggers.begin(); it != _loggers.end(); ++it)
+      delete it->second;
+  }
+
   bool LoggerManager::_enabled = false;
 
   LoggerManager::LoggerManager()
@@ -632,6 +639,7 @@ namespace cxxtools
 
   LoggerManager::~LoggerManager()
   {
+    delete _impl;
     _enabled = false;
   }
 

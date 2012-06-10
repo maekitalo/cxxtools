@@ -70,8 +70,8 @@ AddrInfo::AddrInfo(const AddrInfo& src)
 
 AddrInfo::~AddrInfo()
 {
-    if (_impl)
-        _impl->release();
+    if (_impl && _impl->release() == 0)
+      delete _impl;
 }
 
 AddrInfo& AddrInfo::operator= (const AddrInfo& src)
