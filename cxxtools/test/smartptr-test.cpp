@@ -49,6 +49,20 @@ class Object : public cxxtools::RefCounted
 
 std::size_t Object::objectRefs = 0;
 
+class AtomicObject : public cxxtools::AtomicRefCounted
+{
+    public:
+        AtomicObject()
+        { ++objectRefs; }
+
+        ~AtomicObject()
+        { --objectRefs; }
+
+        static std::size_t objectRefs;
+};
+
+std::size_t AtomicObject::objectRefs = 0;
+
 
 class SmartPtrTest : public cxxtools::unit::TestSuite
 {
@@ -58,6 +72,7 @@ class SmartPtrTest : public cxxtools::unit::TestSuite
         {
             registerMethod( "RefCounted", *this, &SmartPtrTest::RefCounted );
             registerMethod( "InternalRefCounted", *this, &SmartPtrTest::InternalRefCounted );
+            registerMethod( "AtomicInternalRefCounted", *this, &SmartPtrTest::AtomicInternalRefCounted );
             registerMethod( "RefLinked", *this, &SmartPtrTest::RefLinked );
         }
 
@@ -67,6 +82,7 @@ class SmartPtrTest : public cxxtools::unit::TestSuite
     protected:
         void RefCounted();
         void InternalRefCounted();
+        void AtomicInternalRefCounted();
         void RefLinked();
 };
 
@@ -76,6 +92,7 @@ cxxtools::unit::RegisterTest<SmartPtrTest> register_SmartPtrTest;
 void SmartPtrTest::setUp()
 {
     Object::objectRefs = 0;
+    AtomicObject::objectRefs = 0;
 }
 
 
@@ -126,6 +143,31 @@ void SmartPtrTest::InternalRefCounted()
     }
 
     CXXTOOLS_UNIT_ASSERT_EQUALS(Object::objectRefs, 0);
+}
+
+
+void SmartPtrTest::AtomicInternalRefCounted()
+{
+    AtomicObject* obj = new AtomicObject();
+
+    typedef cxxtools::SmartPtr<AtomicObject, cxxtools::InternalRefCounted> Ptr;
+
+    {
+        Ptr smartPtr(obj);
+        CXXTOOLS_UNIT_ASSERT_EQUALS( smartPtr->refs(), 1 );
+
+        Ptr second(smartPtr);
+        CXXTOOLS_UNIT_ASSERT_EQUALS( second->refs(), 2);
+
+        Ptr third;
+        third = second;
+        CXXTOOLS_UNIT_ASSERT_EQUALS( third->refs(), 3);
+
+        third = third;
+        CXXTOOLS_UNIT_ASSERT_EQUALS( third->refs(), 3);
+    }
+
+    CXXTOOLS_UNIT_ASSERT_EQUALS(AtomicObject::objectRefs, 0);
 }
 
 
