@@ -61,14 +61,14 @@ namespace cxxtools
 
 void ThreadImpl::detach()
 {
+    _detached = true;
+
     if( _id )
     {
         int ret = pthread_detach(_id);
         if(ret != 0)
             throw SystemError("pthread_detach");
     }
-
-    _detached = true;
 }
 
 
@@ -87,17 +87,31 @@ void ThreadImpl::start()
     pthread_attr_init(&attrs);
     //pthread_attr_setinheritsched(&attrs, PTHREAD_INHERIT_SCHED);
 
-    if(stacksize > 0)
+    if (stacksize > 0)
         pthread_attr_setstacksize(&attrs ,stacksize);
 
-    int ret = pthread_create(&_id, &attrs, thread_entry, this);
-    pthread_attr_destroy(&attrs);
-
-    if(ret != 0)
-        throw SystemError("pthread_create");
-
     if (_detached)
-        detach();
+    {
+        pthread_t id;
+        int ret = pthread_create(&id, &attrs, thread_entry, this);
+        pthread_attr_destroy(&attrs);
+
+        if (ret != 0)
+            throw SystemError("pthread_create");
+
+        ret = pthread_detach(id);
+        if (ret != 0)
+            throw SystemError("pthread_detach");
+    }
+    else
+    {
+        int ret = pthread_create(&_id, &attrs, thread_entry, this);
+        pthread_attr_destroy(&attrs);
+
+        if (ret != 0)
+            throw SystemError("pthread_create");
+    }
+
 }
 
 
@@ -106,7 +120,7 @@ void ThreadImpl::join()
     void* threadRet = 0;
     int ret = pthread_join(_id, &threadRet);
 
-    if(ret != 0)
+    if (ret != 0)
         throw SystemError("pthread_join");
 }
 
