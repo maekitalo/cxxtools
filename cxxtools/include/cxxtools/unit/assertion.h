@@ -101,7 +101,7 @@ namespace unit {
             if( ! ((value1) == (value2)) ) \
             { \
                 std::ostringstream _cxxtools_msg; \
-                _cxxtools_msg << "not equal: value1 (" #value1 ")=<" << value1 << "> value2 (" #value2 ")=<" << value2 << '>'; \
+                _cxxtools_msg << "not equal:\n\tvalue1 (" #value1 ")=\n\t\t<" << value1 << ">\n\tvalue2 (" #value2 ")=\n\t\t<" << value2 << '>'; \
                 throw cxxtools::unit::Assertion(_cxxtools_msg.str(), CXXTOOLS_SOURCEINFO); \
             } \
         } while (false)
