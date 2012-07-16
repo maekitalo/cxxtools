@@ -75,6 +75,11 @@ namespace cxxtools
             : _value( (uint32_t)((unsigned char)ch) )
             {}
 
+            //! Constructs a character using the given char as base for the character value.
+            Char(wchar_t ch)
+            : _value( (uint32_t)((unsigned char)ch) )
+            {}
+
             //! Constructs a character using the given 8-bit char as base for the character value.
             Char(signed char ch)
             : _value( (uint32_t)((unsigned char)ch) )
@@ -204,6 +209,11 @@ namespace cxxtools
             //! @brief Returns $true$ if the a and b are the same character; $false$ otherwise.
             //! @return $true$ if the a and b are the same character; $false$ otherwise.
             friend bool operator==(const Char& a, char b)
+            { return a.value() == (unsigned char)b; }
+
+            //! @brief Returns $true$ if the a and b are the same character; $false$ otherwise.
+            //! @return $true$ if the a and b are the same character; $false$ otherwise.
+            friend bool operator==(const Char& a, wchar_t b)
             { return a.value() == (unsigned char)b; }
 
             //! @brief Returns $true$ if the a and b are the same character; $false$ otherwise.
