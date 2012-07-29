@@ -346,7 +346,7 @@ class BasicTextBuffer : public std::basic_streambuf<CharT>
             {
                 // copy characters and advance fromNext and toNext
                 int n =_ebufsize > _ibufmax ? _ibufmax : _ebufsize ;
-                this->copyChars(toBegin, fromBegin, n);
+                this->copyBytes(toBegin, fromBegin, n);
                 _ebufsize -= n;
                 fromNext += n;
                 toNext += n;
@@ -380,19 +380,21 @@ class BasicTextBuffer : public std::basic_streambuf<CharT>
             return ret_type(traits_type::eof(), 0);
         }
 
-        template <typename T>
-        void copyChars(T* s1, const T* s2, size_t n)
-        {
-            std::char_traits<T>::copy(s1, s2, n);
-        }
-
-        //TODO: signature like codecvt with ptr refs
-        template <typename A, typename B>
-        void copyChars(A* s1, const B* s2, size_t n)
+        static void copyChars(extern_type* s1, const char_type* s2, size_t n)
         {
             while(n-- > 0)
             {
-                *s1 = *s2;
+                *s1 = std::char_traits<char_type>::to_int_type(*s2);
+                ++s1;
+                ++s2;
+            }
+        }
+
+        static void copyBytes(char_type* s1, const extern_type* s2, size_t n)
+        {
+            while(n-- > 0)
+            {
+                *s1 = std::char_traits<char_type>::to_char_type(*s2);
                 ++s1;
                 ++s2;
             }

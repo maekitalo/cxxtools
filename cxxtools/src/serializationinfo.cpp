@@ -551,7 +551,7 @@ wchar_t SerializationInfo::_getWChar() const
     switch (_t)
     {
         case t_none:    return L'\0';
-        case t_string:  return _String().empty() ? Char(0) : _String()[0];
+        case t_string:  return _String().empty() ? L'\0' : _String()[0].toWchar();
         case t_string8: return _String8().empty() ? '\0' : _String8()[0];
         case t_char:    return _u._c;
         case t_bool:    return _u._b;

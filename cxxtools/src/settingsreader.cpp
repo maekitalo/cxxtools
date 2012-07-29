@@ -42,7 +42,7 @@ void SettingsReader::parse(cxxtools::SerializationInfo& si)
     state = BeginStatement::instance();
     _line  = 1;
     _isDotted = false;
-    cxxtools::Char ch = 0;
+    Char ch = Char(0);
 
     while ( _is->get(ch) )
     {
@@ -59,7 +59,7 @@ void SettingsReader::parse(cxxtools::SerializationInfo& si)
     if( _is->bad() )
         return;
 
-    state->onChar( std::char_traits<char>::eof(), *this );
+    state->onEof(*this);
 }
 
 

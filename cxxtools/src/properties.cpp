@@ -31,6 +31,7 @@
 #include <iostream>
 #include <fstream>
 #include <stdexcept>
+#include <cctype>
 
 namespace cxxtools
 {
@@ -67,17 +68,12 @@ namespace cxxtools
       return false;
     }
 
-    inline bool isKeyChar(char ch)
+    inline bool isKeyChar(Char ch)
     {
       return (ch >= 'a' && ch <= 'z')
           || (ch >= 'A' && ch <= 'Z')
           || (ch >= '0' && ch <= '9')
           || ch == '_';
-    }
-
-    inline bool isSpace(char ch)
-    {
-      return ch == ' ' || ch == '\t';
     }
 
   }
@@ -121,11 +117,11 @@ namespace cxxtools
           state = state_comment;
         else if (isKeyChar(ch))
         {
-          key = ch;
-          keypart = ch;
+          key = ch.narrow();
+          keypart = ch.narrow();
           state = state_key;
         }
-        else if (!isSpace(ch) && ch != '\n' && ch != '\r')
+        else if (!std::isspace(ch.value()) && ch != '\n' && ch != '\r')
           throw std::runtime_error("format error in properties");
         break;
 
@@ -134,14 +130,14 @@ namespace cxxtools
         {
           event.onKeyPart(keypart);
           keypart.clear();
-          key += ch;
+          key += ch.narrow();
         }
         else if (isKeyChar(ch))
         {
-          keypart += ch;
-          key += ch;
+          keypart += ch.narrow();
+          key += ch.narrow();
         }
-        else if (isSpace(ch))
+        else if (std::isspace(ch.value()))
         {
           ret = event.onKeyPart(keypart)
              || event.onKey(key);
@@ -162,7 +158,7 @@ namespace cxxtools
         {
           state = state_value;
         }
-        else if (!isSpace(ch))
+        else if (!std::isspace(ch.value()))
           throw std::runtime_error("parse error while reading key " + key);
         break;
 
@@ -175,12 +171,12 @@ namespace cxxtools
         }
         else if (ch == '\\')
           state = state_value_esc;
-        else if (!value.empty() || !isSpace(ch))
-          value += ch;
+        else if (!value.empty() || !std::isspace(ch.value()))
+          value += ch.narrow();
         break;
 
       case state_value_esc:
-        value += ch;
+        value += ch.narrow();
         state = state_value;
         break;
 

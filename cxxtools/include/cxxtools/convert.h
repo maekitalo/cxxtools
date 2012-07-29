@@ -63,6 +63,8 @@ CXXTOOLS_API void convert(String& s, const std::string& value);
 CXXTOOLS_API void convert(String& s, bool value);
 
 CXXTOOLS_API void convert(String& s, char value);
+CXXTOOLS_API void convert(String& s, wchar_t value);
+CXXTOOLS_API void convert(String& s, Char value);
 CXXTOOLS_API void convert(String& s, unsigned char value);
 CXXTOOLS_API void convert(String& s, signed char value);
 
@@ -92,6 +94,8 @@ inline void convert(String& s, const T& value)
 CXXTOOLS_API void convert(bool& n, const String& str);
 
 CXXTOOLS_API void convert(char& n, const String& str);
+CXXTOOLS_API void convert(wchar_t& n, const String& str);
+CXXTOOLS_API void convert(Char& n, const String& str);
 CXXTOOLS_API void convert(unsigned char& n, const String& str);
 CXXTOOLS_API void convert(signed char& n, const String& str);
 
@@ -327,7 +331,7 @@ struct DecimalFormat : public NumberFormat<CharType>
     
     static CharT toChar(unsigned char n)
     {
-        return '0' + n; 
+        return CharT('0' + n); 
     }
     
     /** @brief Converts a character to a digit.
@@ -337,7 +341,7 @@ struct DecimalFormat : public NumberFormat<CharType>
     */
     static unsigned char toDigit(CharT ch)
     {
-        int cc = ch - 48;
+        int cc = std::char_traits<CharT>::to_int_type(ch) - 48;
         // let negatives overrun
         return static_cast<unsigned>(cc);
 
@@ -354,7 +358,7 @@ struct OctalFormat : public NumberFormat<CharType>
     
     static CharT toChar(unsigned char n)
     {
-        return '0' + n; 
+        return CharT('0' + n); 
     }
     
     /** @brief Converts a character to a digit.
@@ -365,10 +369,9 @@ struct OctalFormat : public NumberFormat<CharType>
     */
     static unsigned char toDigit(CharT ch)
     {
-        int cc = ch - 48;
+        int cc = std::char_traits<CharT>::to_int_type(ch) - 48;
         // let negatives overrun
         return static_cast<unsigned>(cc);
-
     }
 };
 
@@ -424,7 +427,7 @@ struct BinaryFormat : public NumberFormat<CharType>
     
     static CharT toChar(unsigned char n)
     {
-        return '0' + n; 
+        return CharT('0' + n); 
     }
     
     /** @brief Converts a character to a digit.
@@ -435,7 +438,7 @@ struct BinaryFormat : public NumberFormat<CharType>
     */
     static unsigned char toDigit(CharT ch)
     {
-        int cc = ch - 48;
+        int cc = std::char_traits<CharT>::to_int_type(ch) - 48;
         // let negatives overrun
         return static_cast<unsigned>(cc);
 
@@ -857,7 +860,7 @@ InIterT getFloat(InIterT it, InIterT end, bool& ok, T& n, const FormatT& fmt)
     bool done = false;
     while(it != end)
     {
-        switch(*it)
+        switch(std::char_traits<CharT>::to_int_type(*it))
         {
             case 'n':
             case 'N':

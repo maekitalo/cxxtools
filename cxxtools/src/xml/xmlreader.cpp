@@ -55,13 +55,6 @@ struct XmlReaderImpl
 
         State* onChar(cxxtools::Char c, XmlReaderImpl& reader)
         {
-            //log_debug(static_cast<void*>(this) << " onChar: " << c.narrow('_') << " state: " << typeid(*this).name());
-
-            if( c == std::char_traits<cxxtools::Char>::to_char_type( std::char_traits<cxxtools::Char>::eof() ) )
-            {
-                return this->onEof(c, reader);
-            }
-
             switch( c.value() )
             {
                     case '\n':
@@ -100,7 +93,7 @@ struct XmlReaderImpl
             }
 
             std::ostringstream msg;
-            msg << "unexpected char '" << c << '\'';
+            msg << "unexpected char '" << c.narrow() << '\'';
             syntaxError(msg.str().c_str(), reader.line());
             return 0;
         }
@@ -167,7 +160,7 @@ struct XmlReaderImpl
             return this;
         }
 
-        virtual State* onEof(cxxtools::Char c, XmlReaderImpl& reader)
+        virtual State* onEof(XmlReaderImpl& reader)
         {
             syntaxError("unexpected end of file", reader.line());
             return this;
@@ -911,10 +904,10 @@ struct XmlReaderImpl
             return OnCharacters::instance();
         }
 
-        virtual State* onEof(cxxtools::Char c, XmlReaderImpl& reader)
+        virtual State* onEof(XmlReaderImpl& reader)
         {
             if(reader.depth() > 0)
-                return State::onEof(c, reader);  // throws exception
+                return State::onEof(reader);  // throws exception
 
             reader._current = &( reader._endDoc );
             return this;
@@ -1108,7 +1101,7 @@ struct XmlReaderImpl
             return OnTag::instance();
         }
 
-        virtual State* onEof(cxxtools::Char c, XmlReaderImpl& reader)
+        virtual State* onEof(XmlReaderImpl& reader)
         {
             reader._current = &( reader._endDoc );
             return this;
@@ -1134,7 +1127,7 @@ struct XmlReaderImpl
             return OnTag::instance();
         }
 
-        virtual State* onEof(cxxtools::Char c, XmlReaderImpl& reader)
+        virtual State* onEof(XmlReaderImpl& reader)
         {
             reader._current = &( reader._endDoc );
             return this;
@@ -1585,21 +1578,25 @@ struct XmlReaderImpl
 
     const Node& next()
     {
-        const cxxtools::Char eof = std::char_traits<char>::eof();
-
         _current = 0;
-        cxxtools::Char ch = 0;
         do
         {
-            ch = _textBuffer->sbumpc();
+            int c = _textBuffer->sbumpc();
+            if (c == std::char_traits<Char>::eof())
+            {
+                _state = _state->onEof(*this);
+                break;
+            }
+
+            Char ch = std::char_traits<Char>::to_char_type(c);
             _state = _state->onChar(ch, *this);
 
-            if(ch == '\n')
+            if (ch == L'\n')
             {
                 ++_line;
             }
         }
-        while ( !_current && ch != eof);
+        while (!_current);
 
         return *_current;
     }
@@ -1607,13 +1604,12 @@ struct XmlReaderImpl
     bool advance()
     {
         _current = 0;
-        cxxtools::Char ch = 0;
         while( ! _current && _textBuffer->in_avail() > 0 )
         {
-            ch = _textBuffer->sbumpc();
+            Char ch = std::char_traits<Char>::to_char_type(_textBuffer->sbumpc());
             _state = _state->onChar(ch, *this);
 
-            if(ch == '\n')
+            if (ch == '\n')
             {
                 ++_line;
             }

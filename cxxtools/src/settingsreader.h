@@ -46,7 +46,7 @@ class SettingsReader
                 {
                     if( c == std::char_traits<cxxtools::Char>::to_char_type( std::char_traits<cxxtools::Char>::eof() ) )
                     {
-                            return this->onEof(c, reader);
+                            return this->onEof(reader);
                     }
 
                     switch( c.value() )
@@ -94,6 +94,12 @@ class SettingsReader
 
                     this->syntaxError(reader.line());
                     return 0;
+                }
+
+                virtual State* onEof(SettingsReader& reader)
+                {
+                    this->syntaxError(reader.line());
+                    return this;
                 }
 
                 virtual ~State()
@@ -172,12 +178,6 @@ class SettingsReader
                     return this;
                 }
 
-                virtual State* onEof(cxxtools::Char c, SettingsReader& reader)
-                {
-                    this->syntaxError(reader.line());
-                    return this;
-                }
-
             protected:
                 void syntaxError(unsigned line);
         };
@@ -238,7 +238,7 @@ class SettingsReader
                 return BeginType::instance();
             }
 
-            virtual State* onEof(cxxtools::Char c, SettingsReader& reader)
+            virtual State* onEof(SettingsReader& reader)
             {
                 return this;
             }
@@ -518,7 +518,7 @@ class SettingsReader
                 return BeginType::instance();
             }
 
-            virtual State* onEof(cxxtools::Char c, SettingsReader& reader)
+            virtual State* onEof(SettingsReader& reader)
             {
                 reader.leaveMember();
                 if(reader.depth() > 1)
@@ -611,7 +611,7 @@ class SettingsReader
                 return this;
             }
 
-            virtual State* onEof(cxxtools::Char c, SettingsReader& reader)
+            virtual State* onEof(SettingsReader& reader)
             {
                 reader.pushValue();
                 reader.leaveMember();
@@ -726,7 +726,7 @@ class SettingsReader
                 return BeginType::instance();
             }
 
-            virtual State* onEof(cxxtools::Char c, SettingsReader& reader)
+            virtual State* onEof(SettingsReader& reader)
             {
                 if(reader.depth() != 0)
                     this->syntaxError(reader.line());

@@ -441,7 +441,7 @@ int basic_string<cxxtools::Char>::compare(const cxxtools::Char* str, size_type o
 int basic_string<cxxtools::Char>::compare(const wchar_t* str) const
 {
     const cxxtools::Char* self = privdata_ro();
-    while(*self && *str)
+    while(self->toWchar() != L'\0' && *str != L'\0')
     {
         if( *self != *str )
             return *self < cxxtools::Char(*str) ? -1 : +1;
@@ -450,7 +450,7 @@ int basic_string<cxxtools::Char>::compare(const wchar_t* str) const
         ++str;
     }
 
-    return static_cast<int>( *self - cxxtools::Char(*str) );
+    return static_cast<int>(self->value()) - static_cast<int>(*str);
 }
 
 
@@ -465,7 +465,7 @@ int basic_string<cxxtools::Char>::compare(const wchar_t* str, size_type n) const
         ++self;
     }
 
-    return *self ? 1 : nn < n ? -1 : 0;
+    return self->value() != 0 ? 1 : nn < n ? -1 : 0;
 }
 
 

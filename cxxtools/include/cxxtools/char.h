@@ -77,42 +77,17 @@ namespace cxxtools
 
             //! Constructs a character using the given char as base for the character value.
             Char(wchar_t ch)
-            : _value( (uint32_t)((unsigned char)ch) )
+            : _value( (uint32_t)ch )
             {}
 
-            //! Constructs a character using the given 8-bit char as base for the character value.
-            Char(signed char ch)
-            : _value( (uint32_t)((unsigned char)ch) )
+            //! Constructs a character using the given int as base for the character value.
+            explicit Char(int ch)
+            : _value(ch)
             {}
 
-            //! Constructs a character using the given char as base for the character value.
-            Char(unsigned char ch)
-            : _value( (uint32_t)(ch) )
-            {}
-
-            //! Constructs a character using the given 16-bit integer as base for the character value.
-            Char(short val)
-            : _value( (uint32_t)((unsigned short)val) )
-            {}
-
-            //! Constructs a character using the given 32-bit integer as base for the character value.
-            Char(const int& val)
-            : _value( (uint32_t)(val) )
-            {}
-
-            //! Constructs a character using the given 32-bit integer as base for the character value.
-            Char(const unsigned int& val)
-            : _value(val)
-            {}
-
-            //! Constructs a character using the given long as base for the character value.
-            Char(const long value)
-            : _value( (uint32_t)((unsigned long)value) )
-            {}
-
-            //! Constructs a character using the given long as base for the character value.
-            Char(const unsigned long val)
-            : _value(val)
+            //! Constructs a character using the given unsigned 32-bit as base for the character value.
+            explicit Char(uint32_t ch)
+            : _value(ch)
             {}
 
             /**
@@ -129,18 +104,13 @@ namespace cxxtools
              */
             char narrow(char def = '?') const;
 
+            wchar_t toWchar() const
+            { return wchar_t(value()); }
+
             static Char null()
             {
                 return Char(0);
             }
-
-            /**
-             * @brief Assigns the given uint32_t as new value for this character.
-             * @param value The new 32-bit value for this character.
-             * @return A reference to this object to allow concatination of operations.
-             */
-            Char& operator=(uint32_t value)
-            { _value = value; return *this; }
 
             Char& operator=(const Char& ch)
             { _value = ch._value; return *this; }
@@ -152,94 +122,15 @@ namespace cxxtools
             uint32_t value() const
             { return _value; }
 
-            /**
-             * @brief This conversion operator converts the internal value of this character to unsigned 32 bits.
-             *
-             * As the internal value also is an unsigned 32-bit value, the internal value of this character
-             * ist returned.
-             *
-             * @return The character converted to unsigned 32-bit.
-             */
-            operator int() const
-            { return _value; }
-
-            /**
-             * @brief Substracts the numeric value of this character and the numeric value of the given character and
-             * stores the result in this chracater class.
-             *
-             * @param value This character's numeric value is subtracted from this' character numeric value.
-             * @return A reference to this character class.
-             */
-            Char& operator-=(const Char& value)
-            {
-                this->_value -= value._value;
-                return *this;
-            }
-
-            /**
-             * @brief Sums the numeric value of this character and the numeric value of the given character and
-             * stores the result in this chracater class.
-             *
-             * @param value This character's numeric value is added to this' character numeric value.
-             * @return A reference to this character class.
-             */
-            Char& operator+=(const Char& value)
-            {
-                this->_value += value._value;
-                return *this;
-            }
-
-            Char& operator>>=(const Char& value)
-            {
-                this->_value >>= value._value;
-                return *this;
-            }
-
-            Char& operator<<=(const Char& value)
-            {
-                this->_value <<= value._value;
-                return *this;
-            }
-
             //! @brief Returns $true$ if the a and b are the same character; $false$ otherwise.
             //! @return $true$ if the a and b are the same character; $false$ otherwise.
             friend bool operator==(const Char& a, const Char& b)
             { return a.value() == b.value(); }
 
-            //! @brief Returns $true$ if the a and b are the same character; $false$ otherwise.
-            //! @return $true$ if the a and b are the same character; $false$ otherwise.
-            friend bool operator==(const Char& a, char b)
-            { return a.value() == (unsigned char)b; }
-
-            //! @brief Returns $true$ if the a and b are the same character; $false$ otherwise.
-            //! @return $true$ if the a and b are the same character; $false$ otherwise.
-            friend bool operator==(const Char& a, wchar_t b)
-            { return a.value() == (unsigned char)b; }
-
-            //! @brief Returns $true$ if the a and b are the same character; $false$ otherwise.
-            //! @return $true$ if the a and b are the same character; $false$ otherwise.
-            friend bool operator==(const Char& a, int b)
-            { return a.value() == (unsigned int)b; }
-
             //! @brief Returns $true$ if the a and b are not the same character; $false$ otherwise.
             //! @return $true$ if the a and b are not the same character; $false$ otherwise.
             friend bool operator!=(const Char& a, const Char& b)
             { return a.value() != b.value(); }
-
-            //! @brief Returns $true$ if the a and b are the same character; $false$ otherwise.
-            //! @return $true$ if the a and b are the same character; $false$ otherwise.
-            friend bool operator!=(const Char& a, char b)
-            { return a.value() != (unsigned char)b; }
-
-            //! @brief Returns $true$ if the a and b are the same character; $false$ otherwise.
-            //! @return $true$ if the a and b are the same character; $false$ otherwise.
-            friend bool operator!=(const Char& a, wchar_t b)
-            { return a.value() != (unsigned int)b; }
-
-            //! @brief Returns $true$ if the a and b are the same character; $false$ otherwise.
-            //! @return $true$ if the a and b are the same character; $false$ otherwise.
-            friend bool operator!=(const Char& a, int b)
-            { return a.value() != (unsigned int)b; }
 
             //! @brief Returns $true$ if the numeric value of a is less than the numeric value of b; $false$ otherwise.
             //! @return $true$ if the numeric value of a is less than the numeric value of b; $false$ otherwise.
@@ -256,52 +147,10 @@ namespace cxxtools
             friend  bool operator<=(const Char& a, const Char& b)
             { return a.value() <= b.value(); }
 
-            friend  bool operator<=(const Char& a, int b)
-            { return a.value() <= static_cast<uint32_t>(b); }
-
             //! @brief Returns $true$ if the numeric value of a is equals or greater than the numeric value of b; $false$ otherwise.
             //! @return $true$ if the numeric value of a is equals or greater than the numeric value of b; $false$ otherwise.
             friend  bool operator>=(const Char& a, const Char& b)
             { return a.value() >= b.value(); }
-
-            friend  bool operator>=(const Char& a, int b)
-            { return a.value() >= static_cast<uint32_t>(b); }
-
-            //! @brief Sums the numeric value of a and the numeric value of b and returns the sum.
-            //! @return The sum of the numeric values of a and b.
-            friend Char operator+(const Char& a, const Char& b)
-            { return a.value() + b.value(); }
-
-            //! @brief Sums the numeric value of a and the numeric value of b and returns the sum.
-            //! @return The sum of the numeric values of a and b.
-            friend Char operator+(const Char& a, char ch)
-            { return a.value() + ch; }
-
-            friend Char operator+(const Char& a, int ch)
-            { return a.value() + ch; }
-
-            //! @brief Subtracts the numeric value of b from the numeric value of b and returns the result.
-            //! @return The substraction of the numeric values of b from a.
-            friend Char operator-(const Char& a, const Char& b)
-            { return a.value() - b.value(); }
-
-            //! @brief Subtracts the numeric value of b from the numeric value of b and returns the result.
-            //! @return The substraction of the numeric values of b from a.
-            friend Char operator-(const Char& a, char ch)
-            { return a.value() - ch; }
-
-            //! @brief Does an OR-combination of the numeric value of a and b and returns the result.
-            //! @return The OR-combination of the numeric values of a and b.
-            friend Char operator|(const Char& a, const Char& b)
-            { return a.value() | b.value(); }
-
-            //! @brief Does an AND-combination of the numeric value of a and b and returns the result.
-            //! @return The AND-combination of the numeric values of a and b.
-            friend Char operator&(const Char& a, const Char& b)
-            { return a.value() & b.value(); }
-
-            friend Char operator&(const Char& a, int b)
-            { return a.value() & b; }
 
         private:
             uint32_t _value;
@@ -319,6 +168,8 @@ namespace cxxtools
             char mbytes[16];
         } value;
     };
+
+    CXXTOOLS_API std::ostream& operator<< (std::ostream& out, Char ch);
 
 } // namespace cxxtools
 
@@ -363,7 +214,6 @@ namespace std {
 
         inline static int_type not_eof(const int_type& c);
     };
-
 
     inline void char_traits<cxxtools::Char>::assign(char_type& c1, const char_type& c2)
     {

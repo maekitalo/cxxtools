@@ -101,7 +101,7 @@ template <typename T>
 void convertInt(T& n, const String& str, const char* typeto)
 {
     bool ok = false;
-    String::const_iterator r = getInt( str.begin(), str.end(), ok, n );
+    String::const_iterator r = getInt( str.begin(), str.end(), ok, n, DecimalFormat<Char>() );
 
     if (ok)
         _skipws(r, str.end());
@@ -144,7 +144,7 @@ template <typename T>
 void convertFloat(T& n, const String& str, const char* typeto)
 {
     bool ok = false;
-    String::const_iterator r = getFloat(str.begin(), str.end(), ok, n);
+    String::const_iterator r = getFloat(str.begin(), str.end(), ok, n, FloatFormat<Char>() );
 
     if (ok)
         _skipws(r, str.end());
@@ -201,7 +201,17 @@ void convert(String& str, bool value)
 
 void convert(String& str, char value)
 {
-    str = String( 1, Char(value) );
+    str = String(1, Char(value));
+}
+
+void convert(String& str, wchar_t value)
+{
+    str = String(1, Char(value));
+}
+
+void convert(String& str, Char value)
+{
+    str = String(1, value);
 }
 
 void convert(String& str, unsigned char value)
@@ -299,8 +309,23 @@ void convert(char& c, const String& str)
     if ( str.empty() )
         ConversionError::doThrow("char", "String");
 
-    int n = str[0];
-    c = n;
+    c = str[0].narrow();
+}
+
+void convert(wchar_t& c, const String& str)
+{
+    if ( str.empty() )
+        ConversionError::doThrow("wchar_t", "String");
+
+    c = str[0].toWchar();
+}
+
+void convert(Char& c, const String& str)
+{
+    if ( str.empty() )
+        ConversionError::doThrow("char", "Char");
+
+    c = str[0];
 }
 
 void convert(unsigned char& n, const String& str)

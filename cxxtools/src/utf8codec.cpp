@@ -28,25 +28,22 @@
 #include "cxxtools/utf8codec.h"
 #include <cxxtools/conversionerror.h>
 
-#define halfShift uint32_t(10)
-#define halfBase cxxtools::Char(0x0010000)
-#define halfMask cxxtools::Char(0x3FF)
-#define byteMask cxxtools::Char(0xBF)
-#define byteMark cxxtools::Char(0x80)
+#define byteMask 0xBF
+#define byteMark 0x80
 
 namespace cxxtools {
 
-const cxxtools::Char ReplacementChar = 0x0000FFFD;
-const cxxtools::Char MaxBmp = 0x0000FFFF;
-const cxxtools::Char MaxUtf16 = 0x0010FFFF;
-const cxxtools::Char MaxUtf32 = 0x7FFFFFFF;
-const cxxtools::Char MaxLegalUtf32 = 0x0010FFFF;
-const cxxtools::Char SurHighStart = 0xD800;
-const cxxtools::Char SurHighEnd = 0xDBFF;
-const cxxtools::Char SurLowStart = 0xDC00;
-const cxxtools::Char SurLowEnd = 0xDFFF;
-const cxxtools::Char ByteOrderMark = 0xFEFF;
-const cxxtools::Char ByteOrderSwapped = 0xFFFE;
+const Char ReplacementChar = Char(0x0000FFFD);
+const Char MaxBmp = Char(0x0000FFFF);
+const Char MaxUtf16 = Char(0x0010FFFF);
+const Char MaxUtf32 = Char(0x7FFFFFFF);
+const Char MaxLegalUtf32 = Char(0x0010FFFF);
+const Char SurHighStart = Char(0xD800);
+const Char SurHighEnd = Char(0xDBFF);
+const Char SurLowStart = Char(0xDC00);
+const Char SurLowEnd = Char(0xDFFF);
+const Char ByteOrderMark = Char(0xFEFF);
+const Char ByteOrderSwapped = Char(0xFFFE);
 
 /*
  * Index into the table below with the first byte of a UTF-8 sequence to
@@ -72,13 +69,13 @@ const char trailingBytesForUTF8[256] = {
  * This table contains as many values as there might be trailing bytes
  * in a UTF-8 sequence.
  */
-const Char offsetsFromUTF8[6] = {
-    0x00000000UL,
-    0x00003080UL,
-    0x000E2080UL,
-    0x03C82080UL,
-    0xFA082080UL,
-    0x82082080UL
+const uint32_t offsetsFromUTF8[6] = {
+    0x00000000,
+    0x00003080,
+    0x000E2080,
+    0x03C82080,
+    0xFA082080,
+    0x82082080
 };
 
 
@@ -142,12 +139,12 @@ inline bool isLegalUTF8(const uint8_t *source, int length)
 
 
 Utf8Codec::Utf8Codec(size_t ref)
-: cxxtools::TextCodec<Char, char>(ref)
+: TextCodec<Char, char>(ref)
 {}
 
 
 Utf8Codec::result Utf8Codec::do_in(MBState& s, const char* fromBegin, const char* fromEnd, const char*& fromNext,
-                                   cxxtools::Char* toBegin, cxxtools::Char* toEnd, cxxtools::Char*& toNext) const
+                                   Char* toBegin, Char* toEnd, Char*& toNext) const
 {
     Utf8Codec::result retstat = ok;
     fromNext = fromBegin;
@@ -172,16 +169,16 @@ Utf8Codec::result Utf8Codec::do_in(MBState& s, const char* fromBegin, const char
             break;
         }
 
-        *toNext = 0;
+        *toNext = Char(0);
         switch (extraBytesToRead) {
-            case 5: *toNext += *fnext++; *toNext <<= 6; // We should never get this for legal UTF-8
-            case 4: *toNext += *fnext++; *toNext <<= 6; // We should never get this for legal UTF-8
-            case 3: *toNext += *fnext++; *toNext <<= 6;
-            case 2: *toNext += *fnext++; *toNext <<= 6;
-            case 1: *toNext += *fnext++; *toNext <<= 6;
-            case 0: *toNext += *fnext++;
+            case 5: *toNext = Char((toNext->value() + *fnext++) << 6); // We should never get this for legal UTF-8
+            case 4: *toNext = Char((toNext->value() + *fnext++) << 6); // We should never get this for legal UTF-8
+            case 3: *toNext = Char((toNext->value() + *fnext++) << 6);
+            case 2: *toNext = Char((toNext->value() + *fnext++) << 6);
+            case 1: *toNext = Char((toNext->value() + *fnext++) << 6);
+            case 0: *toNext = Char((toNext->value() + *fnext++));
         }
-        *toNext -= offsetsFromUTF8[extraBytesToRead];
+        *toNext = Char(toNext->value() - offsetsFromUTF8[extraBytesToRead]);
 
         // UTF-16 surrogate values are illegal in UTF-32, and anything
         // over Plane 17 (> 0x10FFFF) is illegal.
@@ -200,13 +197,13 @@ Utf8Codec::result Utf8Codec::do_in(MBState& s, const char* fromBegin, const char
 }
 
 
-Utf8Codec::result Utf8Codec::do_out(MBState& s, const cxxtools::Char* fromBegin, const cxxtools::Char* fromEnd, const cxxtools::Char*& fromNext,
+Utf8Codec::result Utf8Codec::do_out(MBState& s, const Char* fromBegin, const Char* fromEnd, const Char*& fromNext,
                                                   char* toBegin, char* toEnd, char*& toNext) const
 {
     result retstat = ok;
     fromNext  = fromBegin;
     toNext = toBegin;
-    cxxtools::Char ch;
+    Char ch;
 
     size_t bytesToWrite;
 
@@ -219,13 +216,13 @@ Utf8Codec::result Utf8Codec::do_out(MBState& s, const cxxtools::Char* fromBegin,
 
         // Figure out how many bytes the result will require. Turn any
         // illegally large UTF32 things (> Plane 17) into replacement chars.
-        if (ch < cxxtools::Char(0x80)) {
+        if (ch < Char(0x80)) {
             bytesToWrite = 1;
         }
-        else if (ch < cxxtools::Char(0x800)) {
+        else if (ch < Char(0x800)) {
             bytesToWrite = 2;
         }
-        else if (ch < cxxtools::Char(0x10000)) {
+        else if (ch < Char(0x10000)) {
             bytesToWrite = 3;
         }
         else if (ch <= MaxLegalUtf32) {
@@ -242,11 +239,12 @@ Utf8Codec::result Utf8Codec::do_out(MBState& s, const cxxtools::Char* fromBegin,
             break;
         }
 
+        uint32_t chValue = ch.value();
         switch(bytesToWrite) { // note: everything falls through...
-            case 4: *--current = (uint8_t)((ch | byteMark) & byteMask).value(); ch >>= 6;
-            case 3: *--current = (uint8_t)((ch | byteMark) & byteMask).value(); ch >>= 6;
-            case 2: *--current = (uint8_t)((ch | byteMark) & byteMask).value(); ch >>= 6;
-            case 1: *--current = (uint8_t) (ch.value() | firstByteMark[bytesToWrite]);
+            case 4: *--current = static_cast<uint8_t>((chValue | byteMark) & byteMask); chValue >>= 6;
+            case 3: *--current = static_cast<uint8_t>((chValue | byteMark) & byteMask); chValue >>= 6;
+            case 2: *--current = static_cast<uint8_t>((chValue | byteMark) & byteMask); chValue >>= 6;
+            case 1: *--current = static_cast<uint8_t> (chValue | firstByteMark[bytesToWrite]);
         }
 
         toNext += bytesToWrite;

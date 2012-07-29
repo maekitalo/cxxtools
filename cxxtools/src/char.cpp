@@ -27,7 +27,9 @@
  */
 #include "cxxtools/char.h"
 #include "cxxtools/string.h"
+#include "cxxtools/utf8codec.h"
 #include <sstream>
+#include <iostream>
 
 #ifdef CXXTOOLS_WITH_STD_LOCALE
 #include "facets.cpp"
@@ -175,6 +177,31 @@ ctype<cxxtools::Char>::do_narrow(const cxxtools::Char* begin, const cxxtools::Ch
 #endif
 
 namespace cxxtools {
+
+std::ostream& operator<< (std::ostream& out, Char ch)
+{
+    Utf8Codec codec;
+    char to[16];
+    MBState state;
+
+    Utf8Codec::result r;
+
+    const Char* from_next;
+
+    char* to_next = to;
+    r = codec.out(state, &ch, &ch + 1, from_next, to, to + sizeof(to), to_next);
+
+    if (r == Utf8Codec::error)
+    {
+        out.setstate(std::ios::failbit);
+    }
+    else
+    {
+        out.write(to, to_next - to);
+    }
+
+    return out;
+}
 
 const unsigned short ctype_lookup1[69] =
 {
@@ -748,14 +775,14 @@ const short lower_data[2085]=
 Char tolower(const cxxtools::Char& ch)
 {
     const uint32_t ucs = ch.value();
-    return ucs + lower_data[lower_lookup2[lower_lookup1[ucs>>14]+((ucs>>7)&127)]+(ucs&127)];
+    return Char(ucs + lower_data[lower_lookup2[lower_lookup1[ucs>>14]+((ucs>>7)&127)]+(ucs&127)]);
 }
 
 
 Char toupper(const Char& ch)
 {
     const uint32_t ucs = ch.value();
-    return ucs + upper_data[upper_lookup2[upper_lookup1[ucs>>14]+((ucs>>7)&127)]+(ucs&127)];
+    return Char(ucs + upper_data[upper_lookup2[upper_lookup1[ucs>>14]+((ucs>>7)&127)]+(ucs&127)]);
 }
 
 
