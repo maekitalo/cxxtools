@@ -639,6 +639,7 @@ namespace cxxtools
 
   LoggerManager::~LoggerManager()
   {
+    MutexLock lock(logMutex);
     delete _impl;
     _enabled = false;
   }
@@ -786,6 +787,9 @@ namespace cxxtools
       ScopedAtomicIncrementer inc(mutexWaitCount);
       MutexLock lock(logMutex);
 
+      if (!LoggerManager::isEnabled())
+        return;
+
       std::string msg;
       logentry(msg, _level, _logger->getCategory());
       msg += _msg.str();
@@ -887,6 +891,9 @@ namespace cxxtools
     {
       ScopedAtomicIncrementer inc(mutexWaitCount);
       MutexLock lock(logMutex);
+
+      if (!LoggerManager::isEnabled())
+        return;
 
       std::string msg;
       logentry(msg, "TRACE", _logger->getCategory());
