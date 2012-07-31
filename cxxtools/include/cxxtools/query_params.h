@@ -56,17 +56,16 @@ namespace cxxtools
  all parameter. The function can still modify the parent-object by
  using the method QueryParams::ret.
 
- The class has a parser to extract parameters from a string or from a
+ The class has a parser to extract parameters from a std::string or from a
  input-stream.
  */
 class QueryParams
 {
   public:
-    typedef std::string string;
-    typedef std::vector<string> names_type;
-    typedef std::vector<string> unnamed_params_type;
-    typedef std::multiset<string> values_set;
-    typedef std::map<string, unnamed_params_type> named_params_type;
+    typedef std::vector<std::string> names_type;
+    typedef std::vector<std::string> unnamed_params_type;
+    typedef std::multiset<std::string> values_set;
+    typedef std::map<std::string, unnamed_params_type> named_params_type;
     typedef names_type::size_type size_type;
 
     /**
@@ -210,6 +209,7 @@ class QueryParams
 
     QueryParams* parent;
     bool use_parent_values;
+    static const std::string emptyValue;
 
   public:
     /// default constructor
@@ -272,7 +272,7 @@ class QueryParams
     //
 
     /// get unnamed parameter by number (no range-check!)
-    const string& param(size_type n) const
+    const std::string& param(size_type n) const
     {
       return useParentValues() && n >= unnamed_params.size()
                ? parent->param(n - unnamed_params.size())
@@ -289,7 +289,7 @@ class QueryParams
     }
 
     /// get unnamed parameter with operator[] (no range-check!)
-    const string& operator[] (size_type n) const
+    const std::string& operator[] (size_type n) const
     { return unnamed_params[n]; }
 
     /// get all unnamed parameters
@@ -299,7 +299,7 @@ class QueryParams
 
     /// add unnamed parameter to parent or this class if no parent
     /// exists.
-    QueryParams& ret(const string& value)
+    QueryParams& ret(const std::string& value)
     {
       if (parent)
         parent->ret(value);
@@ -309,7 +309,7 @@ class QueryParams
     }
 
     /// remove unnamed parameter by value
-    void eraseUnnamed(const string& value)
+    void eraseUnnamed(const std::string& value)
     {
       unnamed_params_type::iterator i = std::find(unnamed_params.begin(),
         unnamed_params.end(), value);
@@ -321,7 +321,7 @@ class QueryParams
     }
 
     /// add unnamed parameter to this class.
-    QueryParams& add(const string& value)
+    QueryParams& add(const std::string& value)
     {
       unnamed_params.push_back(value);
       return *this;
@@ -332,39 +332,18 @@ class QueryParams
     //
 
     /// get named parameter.
-    const string& param(const string& name, size_type n = 0,
-      const string& def = std::string()) const
-    {
-      named_params_type::const_iterator i = named_params.find(name);
-      if (i != named_params.end() && n < i->second.size())
-        return i->second[n];
-      else if (!useParentValues())
-        return def;
-      else
-      {
-        if (i != named_params.end())
-          n -= i->second.size();
-        return parent->param(name, n, def);
-      }
-    }
+    const std::string& param(const std::string& name, size_type n = 0,
+      const std::string& def = emptyValue) const;
 
     /// shortcut for first named parameter
-    const string& param(const string& name, const string& def) const
+    const std::string& param(const std::string& name, const std::string& def) const
     { return param(name, 0, def); }
 
     /// get number of parameters with the given name
-    size_type paramcount(const string& name) const
-    {
-      size_type ret;
-      named_params_type::const_iterator i = named_params.find(name);
-      ret = i == named_params.end() ? 0 : i->second.size();
-      if (useParentValues())
-        ret += parent->paramcount(name);
-      return ret;
-    }
+    size_type paramcount(const std::string& name) const;
 
     /// get first named parameter with operator[]
-    string operator[] (const string& name) const
+    std::string operator[] (const std::string& name) const
     { return param(name, std::string()); }
 
     /// get all names
@@ -380,7 +359,7 @@ class QueryParams
 
     /// get all values with a given name
     template <typename output_iterator>
-    void getValues(const string& name, output_iterator o) const
+    void getValues(const std::string& name, output_iterator o) const
     {
       named_params_type::const_iterator i = named_params.find(name);
       if (i != named_params.end())
@@ -388,14 +367,14 @@ class QueryParams
     }
 
     /// checks if the named parameter exists
-    bool has(const string& name) const
+    bool has(const std::string& name) const
     {
       return named_params.find(name) != named_params.end()
           || (useParentValues() && parent->has(name));
     }
 
     /// replace named parameter in parent or this class if no parent exists
-    QueryParams& ret(const string& name, const string& value)
+    QueryParams& ret(const std::string& name, const std::string& value)
     {
       named_params.erase(name);
       if (parent)
@@ -406,7 +385,7 @@ class QueryParams
     }
 
     /// add named parameter to parent or this class if no parent exists
-    QueryParams& addret(const string& name, const string& value)
+    QueryParams& addret(const std::string& name, const std::string& value)
     {
       if (parent)
         parent->addret(name, value);
@@ -416,7 +395,7 @@ class QueryParams
     }
 
     /// remove named parameter
-    void erase(const string& name)
+    void erase(const std::string& name)
     {
       named_params.erase(name);
       if (parent && useParentValues())
@@ -424,32 +403,17 @@ class QueryParams
     }
 
     /// add named parameter to this class
-    QueryParams& add(const string& name, const string& value)
+    QueryParams& add(const std::string& name, const std::string& value)
     {
       named_params[name].push_back(value);
       return *this;
     }
 
     /// replace named parameter
-    void replace(const string& name, const string& value, bool to_parent = true)
-    {
-      if (to_parent && parent)
-        parent->replace(name, value);
-      else
-      {
-        named_params[name].clear();
-        named_params[name].push_back(value);
-      }
-    }
+    void replace(const std::string& name, const std::string& value, bool to_parent = true);
 
     /// removes all data
-    void clear()
-    {
-      unnamed_params.clear();
-      named_params.clear();
-      if (parent && use_parent_values)
-        parent->clear();
-    }
+    void clear();
 
     /// returns true, when no parameters exist (named and unnamed)
     bool empty() const
@@ -474,10 +438,10 @@ class QueryParams
     { return const_iterator(); }
 
     /// get parameters in url-syntax
-    string getUrl() const;
+    std::string getUrl() const;
 
     /// get readable parameters for debugging
-    string dump() const;
+    std::string dump() const;
 };
 
 /// output QueryParams in url-syntax

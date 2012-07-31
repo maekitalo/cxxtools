@@ -33,6 +33,55 @@
 
 namespace cxxtools
 {
+const std::string QueryParams::emptyValue;
+
+const std::string& QueryParams::param(const std::string& name, size_type n,
+  const std::string& def) const
+{
+  named_params_type::const_iterator i = named_params.find(name);
+  if (i != named_params.end() && n < i->second.size())
+    return i->second[n];
+  else if (!useParentValues())
+    return def;
+  else
+  {
+    if (i != named_params.end())
+      n -= i->second.size();
+    return parent->param(name, n, def);
+  }
+}
+
+/// get number of parameters with the given name
+QueryParams::size_type QueryParams::paramcount(const std::string& name) const
+{
+  size_type ret;
+  named_params_type::const_iterator i = named_params.find(name);
+  ret = i == named_params.end() ? 0 : i->second.size();
+  if (useParentValues())
+    ret += parent->paramcount(name);
+  return ret;
+}
+
+/// replace named parameter
+void QueryParams::replace(const std::string& name, const std::string& value, bool to_parent)
+{
+  if (to_parent && parent)
+    parent->replace(name, value);
+  else
+  {
+    named_params[name].clear();
+    named_params[name].push_back(value);
+  }
+}
+
+/// removes all data
+void QueryParams::clear()
+{
+  unnamed_params.clear();
+  named_params.clear();
+  if (parent && use_parent_values)
+    parent->clear();
+}
 
 template <class iterator_type>
 void _parse_url(

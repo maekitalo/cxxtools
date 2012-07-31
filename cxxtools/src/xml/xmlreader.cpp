@@ -46,7 +46,7 @@ namespace cxxtools {
 
 namespace xml {
 
-struct XmlReaderImpl
+class XmlReaderImpl
 {
     struct State
     {
@@ -1472,6 +1472,7 @@ struct XmlReaderImpl
     };
 
 
+  public:
     XmlReaderImpl(std::basic_istream<Char>& is, int flags)
     : _textBuffer( is.rdbuf() )
     , _buffer(0)
@@ -1581,7 +1582,7 @@ struct XmlReaderImpl
         _current = 0;
         do
         {
-            int c = _textBuffer->sbumpc();
+            std::basic_streambuf<Char>::int_type c = _textBuffer->sbumpc();
             if (c == std::char_traits<Char>::eof())
             {
                 _state = _state->onEof(*this);
@@ -1636,6 +1637,7 @@ struct XmlReaderImpl
         content += c;
     }
 
+  private:
     std::basic_streambuf<Char>* _textBuffer;
     std::basic_streambuf<Char>* _buffer;
     int _flags;
