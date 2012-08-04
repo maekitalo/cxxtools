@@ -183,11 +183,18 @@ namespace http {
         {
             return;
         }
-        else if (ch > ' ')
+        else if (ch == '/' || ch == '*')
         {
             token.reserve(32);
             token = ch;
             state = &HeaderParser::state_url;
+            return;
+        }
+        else if (std::isalpha(ch))
+        {
+            token.reserve(32);
+            token = ch;
+            state = &HeaderParser::state_uri_protocol;
             return;
         }
         else
@@ -195,6 +202,58 @@ namespace http {
             log_warn("invalid character " << chartoprint(ch) << " in url");
             state = &HeaderParser::state_error;
             return;
+        }
+    }
+
+    void HeaderParser::state_uri_protocol(char ch)
+    {
+        if (std::isalpha(ch))
+        {
+        }
+        else if (ch == ':')
+        {
+            token.clear();
+            state = &HeaderParser::state_uri_protocol_e;
+        }
+        else
+        {
+            log_warn("invalid character " << chartoprint(ch) << " in url");
+            state = &HeaderParser::state_error;
+        }
+    }
+
+    void HeaderParser::state_uri_protocol_e(char ch)
+    {
+        if (token.size() < 2 && ch == '/')
+        {
+            token += ch;
+        }
+        else if (token.size() == 2 && std::isalpha(ch))
+        {
+            token = ch;
+            state = &HeaderParser::state_uri_host;
+        }
+        else
+        {
+            log_warn("invalid character " << chartoprint(ch) << " in url");
+            state = &HeaderParser::state_error;
+        }
+    }
+
+    void HeaderParser::state_uri_host(char ch)
+    {
+        if (std::isalnum(ch) || ch == '.' || ch == ':' || ch == '[' || ch == ']')
+        {
+        }
+        else if (ch == '/')
+        {
+            token = ch;
+            state = &HeaderParser::state_url;
+        }
+        else
+        {
+            log_warn("invalid character " << chartoprint(ch) << " in url");
+            state = &HeaderParser::state_error;
         }
     }
 

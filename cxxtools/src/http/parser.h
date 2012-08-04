@@ -78,6 +78,9 @@ class CXXTOOLS_HTTP_API HeaderParser
         void state_cmd0(char ch);
         void state_cmd(char ch);
         void state_url0(char ch);
+        void state_uri_protocol(char ch);
+        void state_uri_protocol_e(char ch);
+        void state_uri_host(char ch);
         void state_url(char ch);
         void state_urlesc(char ch);
         void state_qparam(char ch);
