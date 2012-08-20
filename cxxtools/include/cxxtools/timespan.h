@@ -149,6 +149,10 @@ class Timespan
         //! @brief Returns the total number of milliseconds.
         int64_t totalMSecs() const;
 
+        //! @brief Returns the total number of microseconds.
+        int64_t totalUSecs() const
+        { return _span; }
+
         /** @brief Returns the fractions of a millisecond in microseconds (0 to 999).
         */
         int microseconds() const;

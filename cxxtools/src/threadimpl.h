@@ -28,9 +28,9 @@
 #include "cxxtools/thread.h"
 #include <pthread.h>
 #include <sched.h>
-#include <unistd.h>
 
-namespace cxxtools {
+namespace cxxtools
+{
 
 class ThreadImpl
 {
@@ -64,10 +64,7 @@ class ThreadImpl
             ::sched_yield();
         }
 
-        static void sleep(unsigned int ms)
-        {
-            usleep(ms * 1000);
-        }
+        static void sleep(unsigned int ms);
 
         const Callable<void>* cb()
         { return _cb; }

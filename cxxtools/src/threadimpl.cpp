@@ -27,6 +27,7 @@
  */
 #include "threadimpl.h"
 #include "cxxtools/systemerror.h"
+#include "cxxtools/timespan.h"
 #include <errno.h>
 #include <signal.h>
 #include <iostream>
@@ -131,5 +132,29 @@ void ThreadImpl::terminate()
     if(ret != 0)
         throw SystemError("pthread_kill");
 }
+
+void ThreadImpl::sleep(unsigned int ms)
+{
+    Timespan ts = Timespan::gettimeofday();
+
+    useconds_t us = static_cast<useconds_t>(ms) * 1000;
+
+    if (usleep(us) == -1 && errno == EINTR)
+    {
+        ts = Timespan(ts.totalUSecs() + ms * 1000);
+
+        do
+        {
+            Timespan ts2 = Timespan::gettimeofday();
+
+            if (ts2.totalUSecs() >= ts.totalUSecs())
+                break;
+
+            us = ts.totalUSecs() - ts2.totalUSecs();
+
+        } while (usleep(us) == -1 && errno == EINTR);
+    }
+}
+
 
 }
