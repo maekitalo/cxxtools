@@ -27,7 +27,8 @@
 #include <sys/time.h>
 #include <time.h>
 
-namespace cxxtools {
+namespace cxxtools
+{
 
 ClockImpl::ClockImpl()
 {}
@@ -39,16 +40,27 @@ ClockImpl::~ClockImpl()
 
 void ClockImpl::start()
 {
-   gettimeofday( &_startTime, 0 );
+#ifdef HAVE_CLOCK_GETTIME
+    clock_gettime(CLOCK_MONOTONIC, &_startTime);
+#else
+    gettimeofday( &_startTime, 0 );
+#endif
 }
 
 
 Timespan ClockImpl::stop()
 {
+#ifdef HAVE_CLOCK_GETTIME
+    clock_gettime(CLOCK_MONOTONIC, &_stopTime);
+
+    time_t secs = _stopTime.tv_sec - _startTime.tv_sec;
+    suseconds_t usecs = (_stopTime.tv_nsec - _startTime.tv_nsec) / 1000;
+#else
     gettimeofday( &_stopTime, 0 );
 
     time_t secs = _stopTime.tv_sec - _startTime.tv_sec;
     suseconds_t usecs = _stopTime.tv_usec - _startTime.tv_usec;
+#endif
 
     return Timespan(secs, usecs);
 }

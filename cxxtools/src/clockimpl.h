@@ -27,8 +27,10 @@
 #include "cxxtools/timespan.h"
 #include <sys/time.h>
 #include <time.h>
+#include "config.h"
 
-namespace cxxtools {
+namespace cxxtools
+{
 
 class ClockImpl
 {
@@ -48,9 +50,13 @@ class ClockImpl
         static Timespan getSystemTicks();
 
     private:
+#ifdef HAVE_CLOCK_GETTIME
+        struct timespec  _startTime;
+        struct timespec  _stopTime;
+#else
         struct timeval  _startTime;
         struct timeval  _stopTime;
-        struct timezone _timeZone;
+#endif
 };
 
 } // namespace cxxtools

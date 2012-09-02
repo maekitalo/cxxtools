@@ -12,6 +12,7 @@ alltests_SOURCES = \
     binrpc-test.cpp \
     binserializer-test.cpp \
     cache-test.cpp \
+    clock-test.cpp \
     csvdeserializer-test.cpp \
     csvserializer-test.cpp \
     convert-test.cpp \
