@@ -69,6 +69,7 @@ void Responder::finalize(std::ostream& out)
     formatter.begin(ts);
 
     formatter.beginObject(std::string(), std::string());
+    formatter.addValueString("jsonrpc", "string", L"2.0");
 
     try
     {
@@ -83,7 +84,13 @@ void Responder::finalize(std::ostream& out)
         IComposer** args = proc->beginCall();
 
         // process args
-        const SerializationInfo& params = _deserializer.si()->getMember("params");
+        const SerializationInfo* paramsPtr = _deserializer.si()->findMember("params");
+
+        // params may be ommited in request
+        SerializationInfo emptyParams;
+
+        const SerializationInfo& params = paramsPtr ? *paramsPtr : emptyParams;
+
         SerializationInfo::ConstIterator it = params.begin();
         if (args)
         {
@@ -104,8 +111,6 @@ void Responder::finalize(std::ostream& out)
         IDecomposer* result;
         result = proc->endCall();
 
-        formatter.addNull("error", std::string());
-
         formatter.beginValue("result");
         result->format(formatter);
         formatter.finishValue();
@@ -118,7 +123,6 @@ void Responder::finalize(std::ostream& out)
 
         formatter.addValueInt("code", "int", static_cast<Formatter::int_type>(e.rc()));
         formatter.addValueStdString("message", std::string(), e.what());
-        formatter.addNull("result", std::string());
 
         formatter.finishObject();
     }

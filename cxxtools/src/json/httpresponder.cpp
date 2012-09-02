@@ -73,7 +73,7 @@ std::size_t HttpResponder::readBody(std::istream& is)
 
 void HttpResponder::reply(std::ostream& os, http::Request& request, http::Reply& reply)
 {
-    reply.setHeader("Content-Type", "application/jsonrpc");
+    reply.setHeader("Content-Type", "application/json");
     _responder.finalize(os);
 }
 

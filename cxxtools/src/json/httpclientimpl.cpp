@@ -124,7 +124,7 @@ void HttpClientImpl::cancel()
 void HttpClientImpl::prepareRequest(const String& name, IDecomposer** argv, unsigned argc)
 {
     _request.clear();
-    _request.setHeader("Content-Type", "application/jsonrequest");
+    _request.setHeader("Content-Type", "application/json");
     _request.method("POST");
 
     TextOStream ts(_request.body(), new Utf8Codec());

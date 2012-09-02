@@ -50,10 +50,11 @@ http::Responder* HttpService::createResponder(const http::Request& request)
     const char* contentType = request.header().getHeader("Content-Type");
     if (contentType != 0)
     {
-        if (::strncasecmp(contentType, "application/json", 16) == 0)
+        if (::strncasecmp(contentType, "application/json", 16) == 0 
+             || ::strncasecmp(contentType, "application/x-www-form-urlencoded", 33) == 0)
             return new HttpResponder(*this);
-        else
-            log_warn("invalid content type " << contentType);
+
+        log_warn("invalid content type " << contentType);
     }
     else
         log_warn("missing content type");
