@@ -66,7 +66,7 @@ namespace net
 
     // TODO: exception type
     if (0 != ::getaddrinfo(host.empty() ? 0 : host.c_str(), p.str().c_str(), &hints, &_ai))
-      throw SystemError(0, ("invalid ipaddress " + host).c_str());
+      throw SystemError(0, ("invalid ipaddress \"" + host + '"').c_str());
 
     // TODO: exception type
     if (_ai == 0)

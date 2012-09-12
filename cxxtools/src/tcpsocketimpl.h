@@ -74,8 +74,8 @@ class TcpSocketImpl : public IODeviceImpl
 
         int checkConnect();
         void checkPendingError();
-        std::pair<int, const char*> tryConnect();
-        std::pair<int, const char*> _connectResult;
+        std::string tryConnect();
+        std::string _connectResult;
 
     public:
         explicit TcpSocketImpl(TcpSocket& socket);

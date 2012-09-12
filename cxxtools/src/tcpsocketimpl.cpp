@@ -48,6 +48,7 @@
 #include <string.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <sstream>
 
 log_define("cxxtools.net.tcpsocket.impl")
 
@@ -56,6 +57,18 @@ namespace cxxtools
 
 namespace net
 {
+
+namespace
+{
+    std::string connectFailedMessage(const AddrInfo& ai, int err)
+    {
+        std::ostringstream msg;
+        msg << "failed to connect to host \"" << ai.host() << "\" port " << ai.port()
+            << " with error " << err << ": " << strerror(err);
+        return msg.str();
+    }
+
+}
 
 void formatIp(const sockaddr_in& sa, std::string& str)
 {
@@ -174,24 +187,16 @@ int TcpSocketImpl::checkConnect()
 
 void TcpSocketImpl::checkPendingError()
 {
-    if (_connectResult.second)
+    if (!_connectResult.empty())
     {
-        std::pair<int, const char*> p = _connectResult;
-        _connectResult = std::pair<int, const char*>(0, 0);
-
-        if (p.first)
-        {
-            throw IOError(getErrnoString(p.first, p.second).c_str());
-        }
-        else
-        {
-            throw IOError("invalid address information");
-        }
+        std::string p = _connectResult;
+        _connectResult.clear();
+        throw IOError(p);
     }
 }
 
 
-std::pair<int, const char*> TcpSocketImpl::tryConnect()
+std::string TcpSocketImpl::tryConnect()
 {
     log_trace("tryConnect");
 
@@ -200,7 +205,9 @@ std::pair<int, const char*> TcpSocketImpl::tryConnect()
     if (_addrInfoPtr == _addrInfo.impl()->end())
     {
         log_debug("no more address informations");
-        return std::pair<int, const char*>(0, "invalid address information");
+        std::ostringstream msg;
+        msg << "invalid address information; host \"" << _addrInfo.host() << "\" port " << _addrInfo.port();
+        return msg.str();
     }
 
     while (true)
@@ -214,7 +221,13 @@ std::pair<int, const char*> TcpSocketImpl::tryConnect()
                 break;
 
             if (++_addrInfoPtr == _addrInfo.impl()->end())
-                return std::pair<int, const char*>(errno, "socket");
+            {
+                std::ostringstream msg;
+                msg << "failed to create socket for host \"" << _addrInfo.host()
+                    << "\" port " << _addrInfo.port()
+                    << " with error " << errno << ": " << strerror(errno);
+                return msg.str();
+            }
         }
 
         IODeviceImpl::open(fd, true, false);
@@ -238,10 +251,10 @@ std::pair<int, const char*> TcpSocketImpl::tryConnect()
 
         close();
         if (++_addrInfoPtr == _addrInfo.impl()->end())
-            return std::pair<int, const char*>(errno, "connect");
+            return connectFailedMessage(_addrInfo, errno);
     }
 
-    return std::pair<int, const char*>(0, 0);
+    return std::string();
 }
 
 
@@ -295,7 +308,7 @@ void TcpSocketImpl::endConnect()
                 if (++_addrInfoPtr == _addrInfo.impl()->end())
                 {
                     // no more addrInfo - propagate error
-                    throw IOError(getErrnoString(sockerr, "connect").c_str());
+                    throw IOError(connectFailedMessage(_addrInfo, sockerr));
                 }
             }
             else if (++_addrInfoPtr == _addrInfo.impl()->end())
@@ -394,7 +407,7 @@ bool TcpSocketImpl::checkPollEvent(pollfd& pfd)
             close();
             _connectResult = tryConnect();
 
-            if (_isConnected || _connectResult.second)
+            if (_isConnected || !_connectResult.empty())
             {
                 // immediate success or error
                 log_debug("connected successfully");
@@ -424,7 +437,7 @@ bool TcpSocketImpl::checkPollEvent(pollfd& pfd)
         if (++_addrInfoPtr == _addrInfo.impl()->end())
         {
             // no more addrInfo - propagate error
-            _connectResult = std::pair<int, const char*>(sockerr, "connect");
+            _connectResult = connectFailedMessage(_addrInfo, sockerr);
             _socket.connected(_socket);
             return true;
         }
