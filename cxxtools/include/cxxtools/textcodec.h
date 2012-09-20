@@ -30,6 +30,8 @@
 
 #include <cxxtools/api.h>
 #include <cxxtools/char.h>
+#include <cxxtools/conversionerror.h>
+#include <string>
 
 #ifdef CXXTOOLS_WITH_STD_LOCALE
 
@@ -327,7 +329,7 @@ class TextCodec : public std::codecvt<I, E, cxxtools::MBState>
     public:
         typedef I InternT;
         typedef E ExternT;
-    
+
     public:
         /**
          * @brief Constructs a new TextCodec object.
@@ -353,6 +355,113 @@ class TextCodec : public std::codecvt<I, E, cxxtools::MBState>
     private:
         size_t _refs;
 };
+
+/** @brief helper template function for decoding data using a codec.
+ 
+    This template function makes it easy to use a codec to convert a string with
+    one encoding to another.
+ */
+template <typename CodecType>
+std::basic_string<typename CodecType::InternT> decode(const typename CodecType::ExternT* data, unsigned size)
+{
+    CodecType codec;
+
+    typename CodecType::InternT to[64];
+    MBState state;
+    std::basic_string<typename CodecType::InternT> ret;
+    const typename CodecType::ExternT* from = data;
+
+    typename CodecType::result r;
+    do
+    {
+        typename CodecType::InternT* to_next = to;
+
+        const typename CodecType::ExternT* from_next = from;
+        r = codec.in(state, from, from + size, from_next, to, to + sizeof(to)/sizeof(typename CodecType::InternT), to_next);
+
+        if (r == CodecType::error)
+            throw ConversionError("character conversion failed");
+
+        if (r == CodecType::partial && from_next == from)
+            throw ConversionError("character conversion failed - unexpected end of input sequence");
+
+        ret.append(to, to_next);
+
+        size -= (from_next - from);
+        from = from_next;
+
+    } while (r == CodecType::partial);
+
+    return ret;
+}
+
+/** @brief helper template function for decoding strings using a codec.
+ 
+    This template function makes it easy to use a codec to convert a string with
+    one encoding to another.
+
+    @code
+      std::string utf8data = ...;
+      cxxtools::String unicodeString = cxxtools::decode<cxxtools::Utf8Codec>(utf8data);
+
+      std::string base64data = ...;
+      std::string data = cxxtools::decode<cxxtools::Base64Codec>(base64data);
+    @endcode
+ */
+template <typename CodecType>
+std::basic_string<typename CodecType::InternT> decode(const std::basic_string<typename CodecType::ExternT>& data)
+{
+    return decode<CodecType>(data.data(), data.size());
+}
+
+
+template <typename CodecType>
+std::basic_string<typename CodecType::ExternT> encode(const typename CodecType::InternT* data, unsigned size)
+{
+    CodecType codec;
+    char to[64];
+    MBState state;
+    
+    typename CodecType::result r;
+    const typename CodecType::InternT* from = data;
+    std::basic_string<typename CodecType::ExternT> ret;
+
+    do{
+        const typename CodecType::InternT* from_next;
+
+        typename CodecType::ExternT* to_next = to;
+        r = codec.out(state, from, from + size, from_next, to, to + sizeof(to), to_next);
+
+        if (r == CodecType::error)
+            throw ConversionError("character conversion failed");
+
+        ret.append(to, to_next);
+
+        size -= (from_next - from);
+        from = from_next;
+
+    } while (r == CodecType::partial);
+
+    return ret;
+}
+
+/** @brief helper template function for encoding strings using a codec.
+ 
+    This template function makes it easy to use a codec to convert a string with
+    one encoding to another.
+
+    @code
+      cxxtools::String unicodeString = ...;
+      std::string utf8data = cxxtools::encode<cxxtools::Utf8Codec>(unicodeString);
+
+      std::string base64data = cxxtools::encode<cxxtools::Base64Codec>("some data");
+    @endcode
+ */
+template <typename CodecType>
+std::basic_string<typename CodecType::ExternT> encode(const std::basic_string<typename CodecType::InternT>& data)
+{
+    return encode<CodecType>(data.data(), data.size());
+}
 
 }
 
