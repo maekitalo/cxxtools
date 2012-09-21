@@ -442,6 +442,13 @@ std::basic_string<typename CodecType::ExternT> encode(const typename CodecType::
 
     } while (r == CodecType::partial);
 
+    typename CodecType::ExternT* to_next = to;
+    r = codec.unshift(state, to, to + sizeof(to), to_next);
+    if (r == CodecType::error)
+        throw ConversionError("character conversion failed");
+
+    ret.append(to, to_next);
+
     return ret;
 }
 

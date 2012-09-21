@@ -35,16 +35,8 @@ class Base64Test : public cxxtools::unit::TestSuite
 {
         std::string encodeDecode(const std::string& data)
         {
-            std::stringstream s;
-
-            cxxtools::Base64ostream encoder(s);
-            encoder << data;
-            encoder.terminate();
-
-            std::ostringstream s2;
-            cxxtools::Base64istream decoder(s);
-            s2 << decoder.rdbuf();
-            return s2.str();
+            return cxxtools::decode<cxxtools::Base64Codec>(
+                      cxxtools::encode<cxxtools::Base64Codec>(data));
         }
 
     public:
@@ -54,11 +46,32 @@ class Base64Test : public cxxtools::unit::TestSuite
             registerMethod("encodeTest0", *this, &Base64Test::encodeTest0);
             registerMethod("encodeTest1", *this, &Base64Test::encodeTest1);
             registerMethod("encodeTest2", *this, &Base64Test::encodeTest2);
+            registerMethod("encodeStreamTest0", *this, &Base64Test::encodeStreamTest0);
+            registerMethod("encodeStreamTest1", *this, &Base64Test::encodeStreamTest1);
+            registerMethod("encodeStreamTest2", *this, &Base64Test::encodeStreamTest2);
             registerMethod("encodeDecodeTest", *this, &Base64Test::encodeDecodeTest);
             registerMethod("binaryTest", *this, &Base64Test::binaryTest);
         }
 
         void encodeTest0()
+        {
+            std::string b64 = cxxtools::encode<cxxtools::Base64Codec>("123456789");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(b64, "MTIzNDU2Nzg5");
+        }
+
+        void encodeTest1()
+        {
+            std::string b64 = cxxtools::encode<cxxtools::Base64Codec>("1234567890");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(b64, "MTIzNDU2Nzg5MA==");
+        }
+
+        void encodeTest2()
+        {
+            std::string b64 = cxxtools::encode<cxxtools::Base64Codec>("12345678901");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(b64, "MTIzNDU2Nzg5MDE=");
+        }
+
+        void encodeStreamTest0()
         {
             std::ostringstream s;
             
@@ -69,7 +82,7 @@ class Base64Test : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(s.str(), "MTIzNDU2Nzg5");
         }
 
-        void encodeTest1()
+        void encodeStreamTest1()
         {
             std::ostringstream s;
             
@@ -80,7 +93,7 @@ class Base64Test : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(s.str(), "MTIzNDU2Nzg5MA==");
         }
 
-        void encodeTest2()
+        void encodeStreamTest2()
         {
             std::ostringstream s;
 
