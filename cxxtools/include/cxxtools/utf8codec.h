@@ -92,13 +92,30 @@ namespace cxxtools
             int do_encoding() const throw()
             { return 0; }
 
-            static String decode(const char* data, unsigned size);
-            static String decode(const std::string& data)
-            { return decode(data.data(), data.size()); }
+            /** @brief shortcut for converting utf-8 encoded data to unicode string
 
-            static std::string encode(const Char* data, unsigned size);
+                Example:
+                @code
+                  std::string data = cxxtools::Utf8Codec::decode(utfdataptr, utfdatasize);
+                @endcode
+             */
+            static String decode(const char* data, unsigned size)
+            { return cxxtools::decode<Utf8Codec>(data, size); }
+
+            /** @brief shortcut for converting utf-8 encoded std::string to unicode string
+             */
+            static String decode(const std::string& data)
+            { return cxxtools::decode<Utf8Codec>(data); }
+
+            /** @brief shortcut for converting unicode data to utf-8 encoded std::string
+             */
+            static std::string encode(const Char* data, unsigned size)
+            { return cxxtools::encode<Utf8Codec>(data, size); }
+
+            /** @brief shortcut for converting unicode string to utf-8 encoded std::string
+             */
             static std::string encode(const String& data)
-            { return encode(data.data(), data.size()); }
+            { return cxxtools::encode<Utf8Codec>(data); }
     };
 
 } //namespace cxxtools

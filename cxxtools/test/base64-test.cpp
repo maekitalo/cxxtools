@@ -33,7 +33,7 @@
 
 class Base64Test : public cxxtools::unit::TestSuite
 {
-        std::string encodeDecode(const std::string& data)
+        static std::string encodeDecode(const std::string& data)
         {
             return cxxtools::decode<cxxtools::Base64Codec>(
                       cxxtools::encode<cxxtools::Base64Codec>(data));

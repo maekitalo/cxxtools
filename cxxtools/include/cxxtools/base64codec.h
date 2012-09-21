@@ -30,6 +30,7 @@
 
 #include <cxxtools/api.h>
 #include <cxxtools/textcodec.h>
+#include <cxxtools/string.h>
 
 namespace cxxtools
 {
@@ -90,6 +91,30 @@ class Base64Codec : public TextCodec<char, char>
             //worst case: XX== -> x
             return 4;
         }
+
+        /** @brief shortcut for converting base64 encoded data to std::string
+
+            Example:
+            @code
+              std::string data = cxxtools::Base64Codec::decode(base64dataptr, base64datasize);
+            @endcode
+         */
+        static std::string decode(const char* data, unsigned size)
+        { return cxxtools::decode<Base64Codec>(data, size); }
+        /** @brief shortcut for converting base64 encoded std::string to std::string
+         */
+        static std::string decode(const std::string& data)
+        { return cxxtools::decode<Base64Codec>(data); }
+
+        /** @brief shortcut for converting data to base64 encoded std::string
+         */
+        static std::string encode(const char* data, unsigned size)
+        { return cxxtools::encode<Base64Codec>(data, size); }
+
+        /** @brief shortcut for converting std::string to base64 encoded std::string
+         */
+        static std::string encode(const std::string& data)
+        { return cxxtools::encode<Base64Codec>(data); }
 };
 
 
