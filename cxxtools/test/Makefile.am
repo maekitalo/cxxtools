@@ -16,6 +16,7 @@ alltests_SOURCES = \
     csvdeserializer-test.cpp \
     csvserializer-test.cpp \
     convert-test.cpp \
+    join-test.cpp \
     json-test.cpp \
     jsondeserializer-test.cpp \
     jsonrpc-test.cpp \
@@ -25,6 +26,7 @@ alltests_SOURCES = \
     pool-test.cpp \
     serializationinfo-test.cpp \
     smartptr-test.cpp \
+    split-test.cpp \
     string-test.cpp \
     test-main.cpp \
     trim-test.cpp \
