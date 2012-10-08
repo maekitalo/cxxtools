@@ -157,35 +157,35 @@ class CXXTOOLS_API SerializationInfo
         void getValue(bool& value) const               { value = _getBool(); }
         void getValue(char& value) const               { value = _getChar(); }
         void getValue(signed char& value) const
-            { value = _getInt("signed char", std::numeric_limits<signed char>::min(), std::numeric_limits<signed char>::max()); }
+            { value = static_cast<signed char>(_getInt("signed char", std::numeric_limits<signed char>::min(), std::numeric_limits<signed char>::max())); }
         void getValue(unsigned char& value) const
-            { value = _getUInt("unsigned char", std::numeric_limits<unsigned char>::max()); }
+            { value = static_cast<signed char>(_getUInt("unsigned char", std::numeric_limits<unsigned char>::max())); }
         void getValue(short& value) const
-            { value = _getInt("short", std::numeric_limits<short>::min(), std::numeric_limits<short>::max()); }
+            { value = static_cast<short>(_getInt("short", std::numeric_limits<short>::min(), std::numeric_limits<short>::max())); }
         void getValue(unsigned short& value) const
-            { value = _getUInt("unsigned short", std::numeric_limits<unsigned short>::max()); }
+            { value = static_cast<unsigned short>(_getUInt("unsigned short", std::numeric_limits<unsigned short>::max())); }
         void getValue(int& value) const
-            { value = _getInt("int", std::numeric_limits<int>::min(), std::numeric_limits<int>::max()); }
+            { value = static_cast<int>(_getInt("int", std::numeric_limits<int>::min(), std::numeric_limits<int>::max())); }
         void getValue(unsigned int& value) const
-            { value = _getUInt("unsigned int", std::numeric_limits<unsigned int>::max()); }
+            { value = static_cast<unsigned int>(_getUInt("unsigned int", std::numeric_limits<unsigned int>::max())); }
         void getValue(long& value) const
-            { value = _getInt("long", std::numeric_limits<long>::min(), std::numeric_limits<long>::max()); }
+            { value = static_cast<long>(_getInt("long", std::numeric_limits<long>::min(), std::numeric_limits<long>::max())); }
         void getValue(unsigned long& value) const
-            { value = _getUInt("unsigned long", std::numeric_limits<unsigned long>::max()); }
+            { value = static_cast<unsigned long>(_getUInt("unsigned long", std::numeric_limits<unsigned long>::max())); }
 #ifdef HAVE_LONG_LONG
         void getValue(long long& value) const
-            { value = _getInt("long long", std::numeric_limits<long long>::min(), std::numeric_limits<long long>::max()); }
+            { value = static_cast<long long>(_getInt("long long", std::numeric_limits<long long>::min(), std::numeric_limits<long long>::max())); }
 #endif
 #ifdef HAVE_UNSIGNED_LONG_LONG
         void getValue(unsigned long long& value) const
-            { value = _getUInt("unsigned long long", std::numeric_limits<unsigned long long>::max()); }
+            { value = static_cast<unsigned long long>(_getUInt("unsigned long long", std::numeric_limits<unsigned long long>::max())); }
 #endif
         void getValue(float& value) const
-            { value = _getFloat("float", std::numeric_limits<float>::max()); }
+            { value = static_cast<float>(_getFloat("float", std::numeric_limits<float>::max())); }
         void getValue(double& value) const
-            { value = _getFloat("double", std::numeric_limits<double>::max()); }
+            { value = static_cast<double>(_getFloat("double", std::numeric_limits<double>::max())); }
         void getValue(long double& value) const
-            { value = _getFloat("long double", std::numeric_limits<long double>::max()); }
+            { value = static_cast<long double>(_getFloat("long double", std::numeric_limits<long double>::max())); }
 
         /** @brief Serialization of flat member data-types
         */
