@@ -40,7 +40,7 @@ void Formatter::addValueString(const std::string& name, const std::string& type,
 {
     _writer->writeStartElement( L"value" );
 
-    if (type == "string")
+    if (type == "string" || type.empty())
     {
         _writer->writeCharacters(value);
     }
