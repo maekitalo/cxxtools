@@ -136,6 +136,10 @@ namespace unit {
                     std::string("unexpected exception of type ") + typeid(e).name() + ": " + e.what(), \
                     CXXTOOLS_SOURCEINFO); \
             } \
+            catch(const cxxtools::unit::Assertion&) \
+            { \
+                throw; \
+            } \
             catch(...) \
             { \
                 throw cxxtools::unit::Assertion("unexpected exception." , CXXTOOLS_SOURCEINFO); \
