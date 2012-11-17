@@ -65,6 +65,7 @@ namespace cxxtools
             virtual ~Utf8Codec()
             {}
 
+        protected:
             //! @brief Decodes UTF-8 to UTF-32.
             virtual result do_in(MBState& s, const char* fromBegin,
                                             const char* fromEnd, const char*& fromNext,
@@ -92,6 +93,7 @@ namespace cxxtools
             int do_encoding() const throw()
             { return 0; }
 
+        public:
             /** @brief shortcut for converting utf-8 encoded data to unicode string
 
                 Example:

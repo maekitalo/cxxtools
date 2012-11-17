@@ -92,6 +92,7 @@ class Base64Codec : public TextCodec<char, char>
             return 4;
         }
 
+    public:
         /** @brief shortcut for converting base64 encoded data to std::string
 
             Example:
