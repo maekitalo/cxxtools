@@ -86,7 +86,7 @@ namespace cxxtools
                 reached his maximum size, the method blocks until there is
                 space available.
              */
-            void put(const_reference element);
+            void put(const_reference element, bool force = false);
 
             /// @brief Returns true, if the queue is empty.
             bool empty() const
@@ -169,12 +169,13 @@ namespace cxxtools
     }
 
     template <typename T>
-    void Queue<T>::put(typename Queue<T>::const_reference element)
+    void Queue<T>::put(typename Queue<T>::const_reference element, bool force)
     {
         MutexLock lock(_mutex);
 
-        while (_maxSize > 0 && _queue.size() >= _maxSize)
-            _notFull.wait(lock);
+        if (!force)
+            while (_maxSize > 0 && _queue.size() >= _maxSize)
+                _notFull.wait(lock);
 
         _queue.push_back(element);
         _notEmpty.signal();
