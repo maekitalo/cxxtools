@@ -51,6 +51,7 @@ nobase_include_HEADERS = \
         cxxtools/fdstream.h \
         cxxtools/formatter.h \
         cxxtools/file.h \
+        cxxtools/filedevice.h \
         cxxtools/fileinfo.h \
         cxxtools/function.h \
         cxxtools/function.tpp \

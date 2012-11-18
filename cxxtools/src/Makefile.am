@@ -33,6 +33,8 @@ libcxxtools_la_SOURCES = \
 	eventsource.cpp \
 	fdstream.cpp \
 	file.cpp \
+	filedevice.cpp \
+	filedeviceimpl.cpp \
 	fileimpl.cpp \
 	fileinfo.cpp \
 	formatter.cpp \
@@ -126,6 +128,7 @@ noinst_HEADERS = \
 	error.h \
 	facets.cpp \
 	fileimpl.h \
+	filedeviceimpl.h \
 	fileinfoimpl.h \
 	iodeviceimpl.h \
 	libraryimpl.h \
