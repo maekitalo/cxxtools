@@ -111,6 +111,12 @@ class ArgBaseT : public ArgBase
 
      */
     operator T() const   { return m_value; }
+
+    ArgBaseT<T>& operator= (const T& value)
+    {
+      m_value = value;
+      return *this;
+    }
 };
 
 template <>
@@ -138,7 +144,11 @@ class ArgBaseT<const char*> : public ArgBase
     /// class is convertible to "const char*"
     operator const char*() const   { return m_value; }
 
-
+    ArgBaseT<const char*>& operator= (const char* value)
+    {
+      m_value = value;
+      return *this;
+    }
 };
 
 template <>
@@ -166,6 +176,11 @@ class ArgBaseT<std::string> : public ArgBase
     /// class is convertible to "const std::string&"
     operator const std::string&() const   { return m_value; }
 
+    ArgBaseT<std::string>& operator= (const std::string& value)
+    {
+      m_value = value;
+      return *this;
+    }
 };
 
 /** @brief Read and extract commandline parameters from argc/argv.
@@ -199,7 +214,7 @@ class Arg : public ArgBaseT<T>
 
      \param def    initial value
      */
-    Arg(const T& def = T())
+    explicit Arg(const T& def = T())
       : ArgBaseT<T>(def)
       { }
 
