@@ -89,14 +89,14 @@ void RpcClient::cancel()
     _impl->cancel();
 }
 
-const std::string& RpcClient::prefix() const
+const std::string& RpcClient::domain() const
 {
-    return _impl->prefix();
+    return _impl->domain();
 }
 
-void RpcClient::prefix(const std::string& p)
+void RpcClient::domain(const std::string& p)
 {
-    _impl->prefix(p);
+    _impl->domain(p);
 }
 
 }

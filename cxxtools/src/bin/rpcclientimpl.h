@@ -79,11 +79,11 @@ class RpcClientImpl : public Connectable
 
         void cancel();
 
-        const std::string& prefix() const
-        { return _prefix; }
+        const std::string& domain() const
+        { return _domain; }
 
-        void prefix(const std::string& p)
-        { _prefix = p; }
+        void domain(const std::string& p)
+        { _domain = p; }
 
     private:
         void prepareRequest(const String& name, IDecomposer** argv, unsigned argc);
@@ -103,7 +103,7 @@ class RpcClientImpl : public Connectable
 
         std::string _addr;
         unsigned short _port;
-        std::string _prefix;
+        std::string _domain;
 };
 
 }

@@ -91,6 +91,13 @@ rpc request:
     ...                      array of parameters
     \xff                     eod
 
+rpc request:
+    \xc3                     category
+    domain\0                 domain
+    function\0               function name
+    ...                      array of parameters
+    \xff                     eod
+
 rpc response ok:
     \xc1                     category
     ...                      return value

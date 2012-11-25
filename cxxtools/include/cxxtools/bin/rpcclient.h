@@ -76,9 +76,9 @@ class RpcClient : public RemoteClient
 
         void cancel();
 
-        const std::string& prefix() const;
+        const std::string& domain() const;
 
-        void prefix(const std::string& p);
+        void domain(const std::string& p);
 
 };
 

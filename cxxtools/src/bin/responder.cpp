@@ -117,9 +117,22 @@ bool Responder::advance(char ch)
     switch (_state)
     {
         case state_0:
-            if (ch != '\xc0')
-                throw std::runtime_error("method name expected");
-            _state = state_method;
+            if (ch == '\xc0')
+                _state = state_method;
+            else if (ch == '\xc3')
+                _state = state_domain;
+            else
+                throw std::runtime_error("domain or method name expected");
+            break;
+
+        case state_domain:
+            if (ch == '\0')
+            {
+                log_info("rpc method domain \"" << _domain << '"');
+                _state = state_method;
+            }
+            else
+                _domain += ch;
             break;
 
         case state_method:
@@ -127,7 +140,7 @@ bool Responder::advance(char ch)
             {
                 log_info("rpc method \"" << _methodName << '"');
 
-                _proc = _serviceRegistry.getProcedure(_methodName);
+                _proc = _serviceRegistry.getProcedure(_domain.empty() ? _methodName : _domain + '\0' + _methodName);
 
                 if (_proc)
                 {
@@ -142,6 +155,7 @@ bool Responder::advance(char ch)
                 }
 
                 _methodName.clear();
+                _domain.clear();
             }
             else
                 _methodName += ch;

@@ -98,7 +98,8 @@ class BinRpcTest : public cxxtools::unit::TestSuite
             registerMethod("Map", *this, &BinRpcTest::Map);
             registerMethod("Multimap", *this, &BinRpcTest::Multimap);
             registerMethod("UnknownMethod", *this, &BinRpcTest::UnknownMethod);
-            registerMethod("CallPrefix", *this, &BinRpcTest::CallPrefix);
+            registerMethod("Domain", *this, &BinRpcTest::Domain);
+            registerMethod("WrongDomain", *this, &BinRpcTest::WrongDomain);
             registerMethod("Fault", *this, &BinRpcTest::Fault);
             registerMethod("Exception", *this, &BinRpcTest::Exception);
             registerMethod("CallbackException", *this, &BinRpcTest::CallbackException);
@@ -651,14 +652,16 @@ class BinRpcTest : public cxxtools::unit::TestSuite
         }
 
         ////////////////////////////////////////////////////////////
-        // CallPrefix
+        // Domain
         //
-        void CallPrefix()
+        void Domain()
         {
-            _server->registerMethod("somePrefix.multiply", *this, &BinRpcTest::multiplyInt);
+            cxxtools::ServiceRegistry registry;
+            registry.registerMethod("multiply", *this, &BinRpcTest::multiplyInt);
+            _server->addService("myDomain", registry);
 
             cxxtools::bin::RpcClient client(_loop, "", _port);
-            client.prefix("somePrefix.");
+            client.domain("myDomain");
             cxxtools::RemoteProcedure<int, int, int> multiply(client, "multiply");
             connect( multiply.finished, *this, &BinRpcTest::onIntegerFinished );
 
@@ -667,6 +670,28 @@ class BinRpcTest : public cxxtools::unit::TestSuite
             _loop.run();
         }
 
+        ////////////////////////////////////////////////////////////
+        // WrongDomain
+        //
+        void WrongDomain()
+        {
+            cxxtools::ServiceRegistry registry;
+            registry.registerMethod("multiply", *this, &BinRpcTest::multiplyInt);
+            _server->addService("myDomain", registry);
+
+            cxxtools::bin::RpcClient client(_loop, "", _port);
+            client.domain("unknownDomain");
+            cxxtools::RemoteProcedure<int, int, int> multiply(client, "multiply");
+            connect( multiply.finished, *this, &BinRpcTest::onIntegerFinished );
+
+            multiply.begin(2, 3);
+
+            CXXTOOLS_UNIT_ASSERT_THROW(_loop.run(), cxxtools::RemoteException);
+        }
+
+        ////////////////////////////////////////////////////////////
+        // UnknownMethod
+        //
         void UnknownMethod()
         {
             cxxtools::bin::RpcClient client(_loop, "", _port);

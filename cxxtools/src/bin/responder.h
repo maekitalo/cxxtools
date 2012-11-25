@@ -53,6 +53,7 @@ class Responder
         enum State
         {
             state_0,
+            state_domain,
             state_method,
             state_params,
             state_params_skip,
@@ -81,6 +82,7 @@ class Responder
     private:
         ServiceRegistry& _serviceRegistry;
         State _state;
+        std::string _domain;
         std::string _methodName;
         ValueParser _valueParser;
         DeserializerBase _deserializer;
