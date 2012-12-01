@@ -34,6 +34,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <vector>
 
 namespace cxxtools {
 
@@ -198,12 +199,16 @@ void DirectoryImpl::chdir(const std::string& path)
 
 std::string DirectoryImpl::cwd()
 {
-    char cwd[PATH_MAX];
+    std::vector<char> cwd(1024);
 
-    if( !getcwd(cwd, PATH_MAX) )
-        throw SystemError("getcwd");
+    while ( getcwd(&cwd[0], cwd.size()) == 0 )
+    {
+        if (errno != ERANGE)
+            throw SystemError("getcwd");
+        cwd.resize(cwd.size() * 2);
+    }
 
-    return std::string(cwd);
+    return std::string(&cwd[0]);
 }
 
 
