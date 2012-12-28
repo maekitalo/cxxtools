@@ -170,7 +170,7 @@ namespace cxxtools
       char* p = putInt(str, getpid());
       entry.append(str, p - str);
       entry += '.';
-      p = putInt(str, pthread_self());
+      p = putInt(str, (unsigned long)pthread_self());
       entry.append(str, p - str);
       entry += "] ";
       entry += level;
