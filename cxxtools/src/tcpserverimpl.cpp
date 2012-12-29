@@ -51,6 +51,11 @@
 #  include <sys/socket.h>
 #endif
 
+#ifdef HAVE_SO_NOSIGPIPE
+#  include <sys/types.h>
+#  include <sys/socket.h>
+#endif
+
 log_define("cxxtools.net.tcpserver.impl")
 
 namespace cxxtools
@@ -485,6 +490,12 @@ int TcpServerImpl::accept(int flags, struct sockaddr* sa, socklen_t& sa_len)
 
     if( clientFd < 0 )
         throw SystemError("accept");
+#endif
+
+#ifdef HAVE_SO_NOSIGPIPE
+        static const int on = 1;
+        if (::setsockopt(fd, SOL_SOCKET, SO_NOSIGPIPE, &on, sizeof(on)) < 0)
+            throw cxxtools::SystemError("setsockopt(SO_NOSIGPIPE)");
 #endif
 
     log_debug( "accepted on " << listenerFd << " => " << clientFd);

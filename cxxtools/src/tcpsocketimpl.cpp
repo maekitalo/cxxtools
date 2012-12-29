@@ -27,9 +27,13 @@
  */
 
 #include "config.h"
-#ifdef HAVE_ACCEPT4
+#if defined(HAVE_ACCEPT4) || defined(HAVE_SO_NOSIGPIPE) || defined(MSG_NOSIGNAL)
 #include <sys/types.h>
 #include <sys/socket.h>
+#endif
+
+#if !defined(MSG_MSG_NOSIGNAL)
+#include <signal.h>
 #endif
 
 #include "tcpsocketimpl.h"
@@ -229,6 +233,12 @@ std::string TcpSocketImpl::tryConnect()
                 return msg.str();
             }
         }
+
+#ifdef HAVE_SO_NOSIGPIPE
+        static const int on = 1;
+        if (::setsockopt(fd, SOL_SOCKET, SO_NOSIGPIPE, &on, sizeof(on)) < 0)
+            throw cxxtools::SystemError("setsockopt(SO_NOSIGPIPE)");
+#endif
 
         IODeviceImpl::open(fd, true, false);
 
@@ -452,6 +462,37 @@ bool TcpSocketImpl::checkPollEvent(pollfd& pfd)
 
     return false;
 }
+
+size_t TcpSocketImpl::beginWrite(const char* buffer, size_t n)
+{
+    log_debug("::send(" << _fd << ", buffer, " << n << ')');
+#ifdef HAVE_MSG_NOSIGNAL
+    ssize_t ret = ::send(_fd, (const void*)buffer, n, MSG_NOSIGNAL);
+#else
+    sigset_t set, oldset;
+    sigemptyset(&set);
+    sigaddset(&set, SIGPIPE);
+    pthread_sigmask(SIG_BLOCK, &set, &oldset);
+    ssize_t ret = ::send(_fd, (const void*)buffer, n, 0);
+    pthread_sigmask(SIG_SETMASK, &oldset, 0);
+#endif
+
+    log_debug("send returned " << ret);
+    if (ret > 0)
+        return static_cast<size_t>(ret);
+
+    if (ret == 0 || errno == ECONNRESET || errno == EPIPE)
+        throw IOError("lost connection to peer");
+
+    if(_pfd)
+    {
+        _pfd->events |= POLLOUT;
+    }
+
+    return 0;
+}
+
+
 
 } // namespace net
 

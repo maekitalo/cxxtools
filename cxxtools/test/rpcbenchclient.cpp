@@ -185,7 +185,7 @@ int main(int argc, char* argv[])
         client = new cxxtools::json::RpcClient(ip, port);
       else if (jsonhttp)
         client = new cxxtools::json::HttpClient(ip, port, "/jsonrpc");
-      else if (xmlrpc)
+      else // if (xmlrpc)
         client = new cxxtools::xmlrpc::HttpClient(ip, port, "/xmlrpc");
 
       clients.push_back(new BenchClient(client));

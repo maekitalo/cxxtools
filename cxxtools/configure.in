@@ -56,7 +56,7 @@ if test "$ac_cv_type_long_long_int" = yes; then
         void f(long long);
         void f() { int64_t v = 1; f(v); }
         ])],
-      [AC_DEFINE(INT64_IS_BASETYPE, [], [defined if int64_t is one of the base types])])
+      [AC_DEFINE(INT64_IS_BASETYPE, 1, [defined if int64_t is one of the base types])])
 else
     AC_MSG_WARN([long long not found]);
     HAVE_LONG_LONG=NO_LONG_LONG
@@ -69,7 +69,7 @@ else
         void f(long);
         void f() { int64_t v = 1; f(v); }
         ])],
-      [AC_DEFINE(INT64_IS_BASETYPE, [], [defined if int64_t is one of the base types])])
+      [AC_DEFINE(INT64_IS_BASETYPE, 1, [defined if int64_t is one of the base types])])
 fi
 
 AC_SUBST(HAVE_LONG_LONG, "$HAVE_LONG_LONG")
@@ -81,8 +81,6 @@ else
     HAVE_UNSIGNED_LONG_LONG=NO_UNSIGNED_LONG_LONG
 fi
 AC_SUBST(HAVE_UNSIGNED_LONG_LONG, "$HAVE_UNSIGNED_LONG_LONG")
-
-AC_SUBST(NETWORK_LIBS)
 
 AC_ARG_WITH([iconvstream],
     AS_HELP_STRING([--with-iconvstream=yes|no], [compile iconv stream (default: no)]),
@@ -163,27 +161,43 @@ AC_COMPILE_IFELSE(
   [AC_LANG_SOURCE([#include <netinet/tcp.h>
    int i = TCP_DEFER_ACCEPT;
   ])],
-  AC_DEFINE(HAVE_TCP_DEFER_ACCEPT, [], [defined if TCP_DEFER_ACCEPT is defined]))
+  AC_DEFINE(HAVE_TCP_DEFER_ACCEPT, 1, [defined if TCP_DEFER_ACCEPT is defined]))
 
 AC_COMPILE_IFELSE(
   [AC_LANG_SOURCE([#include <sys/socket.h>
    #include <netinet/in.h>
    int i = IPPROTO_IPV6;
   ])],
-  AC_DEFINE(HAVE_IPV6, [], [defined if IPV6 is supported]))
+  AC_DEFINE(HAVE_IPV6, 1, [defined if IPV6 is supported]))
+
+AC_COMPILE_IFELSE(
+  [AC_LANG_SOURCE([
+   #include <sys/types.h>
+   #include <sys/socket.h>
+   int i = SO_NOSIGPIPE;
+  ])],
+  AC_DEFINE(HAVE_SO_NOSIGPIPE, 1, [defined if socket option SO_NOSIGPIPE is supported]))
+
+AC_COMPILE_IFELSE(
+  [AC_LANG_SOURCE([
+   #include <sys/types.h>
+   #include <sys/socket.h>
+   int i = MSG_NOSIGNAL;
+  ])],
+  AC_DEFINE(HAVE_MSG_NOSIGNAL, 1, [defined if MSG_NOSIGNAL is defined]))
 
 AC_COMPILE_IFELSE(
   [AC_LANG_SOURCE([#include <iterator>
    std::reverse_iterator<char*> r;])],
   [HAVE_REVERSE_ITERATOR=HAVE_REVERSE_ITERATOR
-   AC_DEFINE(HAVE_REVERSE_ITERATOR, [], [defined if std::reverse_iterator<Iterator> is defined])],
+   AC_DEFINE(HAVE_REVERSE_ITERATOR, 1, [defined if std::reverse_iterator<Iterator> is defined])],
   [HAVE_REVERSE_ITERATOR=NO_REVERSE_ITERATOR])
 
 AC_COMPILE_IFELSE(
   [AC_LANG_SOURCE([#include <iterator>
    std::reverse_iterator<char*, int, char, char*, char&> r;])],
   [HAVE_REVERSE_ITERATOR_4=HAVE_REVERSE_ITERATOR_4
-   AC_DEFINE(HAVE_REVERSE_ITERATOR_4, [], [defined if std::reverse_iterator<Iterator, Difference, Value, Pointer, Reference> is defined])],
+   AC_DEFINE(HAVE_REVERSE_ITERATOR_4, 1, [defined if std::reverse_iterator<Iterator, Difference, Value, Pointer, Reference> is defined])],
   [HAVE_REVERSE_ITERATOR_4=NO_REVERSE_ITERATOR_4])
 
 AC_SUBST(HAVE_REVERSE_ITERATOR, "$HAVE_REVERSE_ITERATOR")

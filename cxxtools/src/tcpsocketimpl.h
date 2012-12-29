@@ -106,6 +106,9 @@ class TcpSocketImpl : public IODeviceImpl
 
         // implementation using poll
         bool checkPollEvent(pollfd& pfd);
+
+        // overrid beginWrite to use send(2) instead of write(2)
+        virtual size_t beginWrite(const char* buffer, size_t n);
 };
 
 } // namespace net
