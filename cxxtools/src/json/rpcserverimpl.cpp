@@ -151,9 +151,6 @@ void RpcServerImpl::start()
     log_trace("start server");
     runmode(RpcServer::Starting);
 
-    // SIGPIPE must be ignored
-    ::signal(SIGPIPE, SIG_IGN);
-
     MutexLock lock(_threadMutex);
     while (_threads.size() < minThreads())
     {

@@ -466,15 +466,36 @@ bool TcpSocketImpl::checkPollEvent(pollfd& pfd)
 size_t TcpSocketImpl::beginWrite(const char* buffer, size_t n)
 {
     log_debug("::send(" << _fd << ", buffer, " << n << ')');
+
 #ifdef HAVE_MSG_NOSIGNAL
+
     ssize_t ret = ::send(_fd, (const void*)buffer, n, MSG_NOSIGNAL);
+
 #else
-    sigset_t set, oldset;
-    sigemptyset(&set);
-    sigaddset(&set, SIGPIPE);
-    pthread_sigmask(SIG_BLOCK, &set, &oldset);
+
+    // block SIGPIPE
+    sigset_t sigpipeMask, oldSigmask;
+    sigemptyset(&sigpipeMask);
+    sigaddset(&sigpipeMask, SIGPIPE);
+    pthread_sigmask(SIG_BLOCK, &sigpipeMask, &oldSigmask);
+
+    // execute send
     ssize_t ret = ::send(_fd, (const void*)buffer, n, 0);
-    pthread_sigmask(SIG_SETMASK, &oldset, 0);
+
+    // clear possible SIGPIPE
+    sigset_t pending;
+    sigemptyset(&pending);
+    sigpending(&pending);
+    if (sigismember(&pending, SIGPIPE))
+    {
+      static const struct timespec nowait = { 0, 0 };
+      while (sigtimedwait(&sigpipeMask, 0, &nowait) == -1 && errno == EINTR)
+        ;
+    }
+
+    // unblock SIGPIPE
+    pthread_sigmask(SIG_SETMASK, &oldSigmask, 0);
+
 #endif
 
     log_debug("send returned " << ret);
