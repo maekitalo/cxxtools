@@ -494,7 +494,7 @@ int TcpServerImpl::accept(int flags, struct sockaddr* sa, socklen_t& sa_len)
 
 #ifdef HAVE_SO_NOSIGPIPE
         static const int on = 1;
-        if (::setsockopt(fd, SOL_SOCKET, SO_NOSIGPIPE, &on, sizeof(on)) < 0)
+        if (::setsockopt(clientFd, SOL_SOCKET, SO_NOSIGPIPE, &on, sizeof(on)) < 0)
             throw cxxtools::SystemError("setsockopt(SO_NOSIGPIPE)");
 #endif
 
