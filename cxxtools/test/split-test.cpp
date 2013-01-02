@@ -40,6 +40,7 @@ class SplitTest : public cxxtools::unit::TestSuite
       registerMethod("splitString", *this, &SplitTest::splitString);
       registerMethod("emptySplit", *this, &SplitTest::emptySplit);
       registerMethod("lastEmpty", *this, &SplitTest::lastEmpty);
+      registerMethod("charsetSplit", *this, &SplitTest::charsetSplit);
       registerMethod("regexSplit", *this, &SplitTest::regexSplit);
       registerMethod("regexEmptySplit", *this, &SplitTest::regexEmptySplit);
     }
@@ -73,6 +74,17 @@ class SplitTest : public cxxtools::unit::TestSuite
       CXXTOOLS_UNIT_ASSERT_EQUALS(d[0], "Hello");
       CXXTOOLS_UNIT_ASSERT_EQUALS(d[1], "World");
       CXXTOOLS_UNIT_ASSERT_EQUALS(d[2], "");
+    }
+
+    void charsetSplit()
+    {
+      std::vector<std::string> d;
+      std::string t = "Hello:World;!";
+      cxxtools::split(";:,.", t, std::back_inserter(d));
+      CXXTOOLS_UNIT_ASSERT_EQUALS(d.size(), 3);
+      CXXTOOLS_UNIT_ASSERT_EQUALS(d[0], "Hello");
+      CXXTOOLS_UNIT_ASSERT_EQUALS(d[1], "World");
+      CXXTOOLS_UNIT_ASSERT_EQUALS(d[2], "!");
     }
 
     void regexSplit()

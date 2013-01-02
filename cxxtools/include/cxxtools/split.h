@@ -37,7 +37,7 @@ namespace cxxtools
   /** @brief Splits a std::string into tokens using a delimiter character
 
       This is a little helper functions, which splits a string into tokens.
-      A delimiter character is passed as a chacter and the resulting tokens
+      A delimiter character is passed as a character and the resulting tokens
       are written to a output iterator.
 
       The most common output iterator is a std::back_inserter.
@@ -64,6 +64,74 @@ namespace cxxtools
     typename std::basic_string<characterType>::size_type pos;
 
     while ((pos = s.find(ch)) != std::basic_string<characterType>::npos)
+    {
+      *it = s.substr(0, pos);
+      ++it;
+      s.erase(0, pos + 1);
+    }
+
+    *it = s;
+    ++it;
+  }
+
+  /** @brief Splits a std::string into tokens using a set of delimiter characters
+
+      This is a little helper functions, which splits a string into tokens.
+      A set of delimiter characters is passed as a zero terminated char array and
+      the resulting tokens are written to a output iterator.
+
+      The most common output iterator is a std::back_inserter.
+
+      Example (splits a line on white space):
+      \code
+        std::string line = ...;
+        std::vector<std::string> tokens;
+        cxxtools::split("[ \t]+", line, std::back_inserter(tokens));
+      \endcode
+   
+
+   */
+  template <typename outputIterator, typename characterType>
+  void split(const characterType* chars, const std::basic_string<characterType>& line, outputIterator it)
+  {
+    std::basic_string<characterType> s(line);
+    typename std::basic_string<characterType>::size_type pos;
+
+    while ((pos = s.find_first_of(chars)) != std::basic_string<characterType>::npos)
+    {
+      *it = s.substr(0, pos);
+      ++it;
+      s.erase(0, pos + 1);
+    }
+
+    *it = s;
+    ++it;
+  }
+
+  /** @brief Splits a std::string into tokens using a set of delimiter characters
+
+      This is a little helper functions, which splits a string into tokens.
+      A set of delimiter characters is passed as a string and the resulting tokens
+      are written to a output iterator.
+
+      The most common output iterator is a std::back_inserter.
+
+      Example (splits a line on white space):
+      \code
+        std::string line = ...;
+        std::vector<std::string> tokens;
+        cxxtools::split("[ \t]+", line, std::back_inserter(tokens));
+      \endcode
+   
+
+   */
+  template <typename outputIterator, typename characterType>
+  void split(const std::basic_string<characterType>& chars, const std::basic_string<characterType>& line, outputIterator it)
+  {
+    std::basic_string<characterType> s(line);
+    typename std::basic_string<characterType>::size_type pos;
+
+    while ((pos = s.find_first_of(chars)) != std::basic_string<characterType>::npos)
     {
       *it = s.substr(0, pos);
       ++it;
