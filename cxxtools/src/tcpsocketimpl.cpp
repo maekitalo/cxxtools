@@ -467,9 +467,13 @@ size_t TcpSocketImpl::beginWrite(const char* buffer, size_t n)
 {
     log_debug("::send(" << _fd << ", buffer, " << n << ')');
 
-#ifdef HAVE_MSG_NOSIGNAL
+#if defined(HAVE_MSG_NOSIGNAL)
 
     ssize_t ret = ::send(_fd, (const void*)buffer, n, MSG_NOSIGNAL);
+
+#elif defined(HAVE_SO_NOSIGPIPE)
+
+    ssize_t ret = ::send(_fd, (const void*)buffer, n, 0);
 
 #else
 
