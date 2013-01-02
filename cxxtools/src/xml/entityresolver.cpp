@@ -40,7 +40,7 @@ namespace
   struct Ent
   {
     const wchar_t* entity;
-    uint32_t charValue;
+    Char::value_type charValue;
   };
 
   static const Ent ent[] = {
@@ -416,7 +416,7 @@ void EntityResolver::getEntity(std::basic_ostream<Char>& os, Char ch) const
     else if (ch.value() >= ' ' && ch.value() <= 0x7F)
         os << ch;
     else
-        os << Char('&') << Char('#') << ch.value() << Char(';');
+        os << Char('&') << Char('#') << static_cast<uint32_t>(ch.value()) << Char(';');
 }
 
 

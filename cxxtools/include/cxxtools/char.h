@@ -65,6 +65,8 @@ namespace cxxtools
     class Char
     {
         public:
+            typedef int32_t value_type;
+
             //! Constructs a character with a value of 0.
             Char()
             : _value(0)
@@ -72,21 +74,21 @@ namespace cxxtools
 
             //! Constructs a character using the given char as base for the character value.
             Char(char ch)
-            : _value( (uint32_t)((unsigned char)ch) )
+            : _value(value_type(static_cast<unsigned char>(ch)))
+            {}
+
+            //! Constructs a character using the given char as base for the character value.
+            Char(unsigned char ch)
+            : _value( value_type(ch) )
             {}
 
             //! Constructs a character using the given char as base for the character value.
             Char(wchar_t ch)
-            : _value( (uint32_t)ch )
-            {}
-
-            //! Constructs a character using the given int as base for the character value.
-            explicit Char(int ch)
-            : _value(ch)
+            : _value( value_type(static_cast<uint16_t>(ch)) )
             {}
 
             //! Constructs a character using the given unsigned 32-bit as base for the character value.
-            explicit Char(uint32_t ch)
+            explicit Char(value_type ch)
             : _value(ch)
             {}
 
@@ -119,41 +121,100 @@ namespace cxxtools
              * @brief Returns the internal value (unsigned 32 bits) of this character.
              * @return The 32-bit-value of this character.
              */
-            uint32_t value() const
+            value_type value() const
+            { return _value; }
+
+            /**
+             * @brief This conversion operator converts the internal value of this character to unsigned 32 bits.
+             *
+             * As the internal value also is an unsigned 32-bit value, the internal value of this character
+             * ist returned.
+             *
+             * @return The character converted to unsigned 32-bit.
+             */
+            operator value_type() const
             { return _value; }
 
             //! @brief Returns $true$ if the a and b are the same character; $false$ otherwise.
             //! @return $true$ if the a and b are the same character; $false$ otherwise.
             friend bool operator==(const Char& a, const Char& b)
             { return a.value() == b.value(); }
+            friend bool operator==(const Char& a, wchar_t b)
+            { return a.value() == b; }
+            friend bool operator==(wchar_t a, const Char& b)
+            { return a == b.value(); }
+            friend bool operator==(const Char& a, char b)
+            { return a.value() == b; }
+            friend bool operator==(char a, const Char& b)
+            { return a == b.value(); }
 
             //! @brief Returns $true$ if the a and b are not the same character; $false$ otherwise.
             //! @return $true$ if the a and b are not the same character; $false$ otherwise.
             friend bool operator!=(const Char& a, const Char& b)
             { return a.value() != b.value(); }
+            friend bool operator!=(const Char& a, wchar_t b)
+            { return a.value() != b; }
+            friend bool operator!=(wchar_t a, const Char& b)
+            { return a != b.value(); }
+            friend bool operator!=(const Char& a, char b)
+            { return a.value() != b; }
+            friend bool operator!=(char a, const Char& b)
+            { return a != b.value(); }
 
             //! @brief Returns $true$ if the numeric value of a is less than the numeric value of b; $false$ otherwise.
             //! @return $true$ if the numeric value of a is less than the numeric value of b; $false$ otherwise.
             friend bool operator<(const Char& a, const Char& b)
             { return a.value() < b.value(); }
+            friend bool operator<(const Char& a, wchar_t b)
+            { return a.value() < b; }
+            friend bool operator<(wchar_t a, const Char& b)
+            { return a < b.value(); }
+            friend bool operator<(const Char& a, char b)
+            { return a.value() < b; }
+            friend bool operator<(char a, const Char& b)
+            { return a < b.value(); }
 
             //! @brief Returns $true$ if the numeric value of a is greater than the numeric value of b; $false$ otherwise.
             //! @return $true$ if the numeric value of a is greater than the numeric value of b; $false$ otherwise.
             friend bool operator>(const Char& a, const Char& b)
             { return a.value() > b.value(); }
+            friend bool operator>(const Char& a, wchar_t b)
+            { return a.value() > b; }
+            friend bool operator>(wchar_t a, const Char& b)
+            { return a > b.value(); }
+            friend bool operator>(const Char& a, char b)
+            { return a.value() > b; }
+            friend bool operator>(char a, const Char& b)
+            { return a > b.value(); }
 
             //! @brief Returns $true$ if the numeric value of a is equal or less than the numeric value of b; $false$ otherwise.
             //! @return $true$ if the numeric value of a is equal or less than the numeric value of b; $false$ otherwise.
             friend  bool operator<=(const Char& a, const Char& b)
             { return a.value() <= b.value(); }
+            friend  bool operator<=(const Char& a, wchar_t b)
+            { return a.value() <= b; }
+            friend  bool operator<=(wchar_t a, const Char& b)
+            { return a <= b.value(); }
+            friend  bool operator<=(const Char& a, char b)
+            { return a.value() <= b; }
+            friend  bool operator<=(char a, const Char& b)
+            { return a <= b.value(); }
 
             //! @brief Returns $true$ if the numeric value of a is equals or greater than the numeric value of b; $false$ otherwise.
             //! @return $true$ if the numeric value of a is equals or greater than the numeric value of b; $false$ otherwise.
             friend  bool operator>=(const Char& a, const Char& b)
             { return a.value() >= b.value(); }
+            friend  bool operator>=(const Char& a, wchar_t b)
+            { return a.value() >= b; }
+            friend  bool operator>=(wchar_t a, const Char& b)
+            { return a >= b.value(); }
+            friend  bool operator>=(const Char& a, char b)
+            { return a.value() >= b; }
+            friend  bool operator>=(char a, const Char& b)
+            { return a >= b.value(); }
 
         private:
-            uint32_t _value;
+            value_type _value;
     };
 
     struct MBState
@@ -164,7 +225,7 @@ namespace cxxtools
 
         int n;
         union {
-            uint32_t wchars[4];
+            Char::value_type wchars[4];
             char mbytes[16];
         } value;
     };
@@ -181,7 +242,7 @@ namespace std {
     struct char_traits<cxxtools::Char>
     {
         typedef cxxtools::Char char_type;
-        typedef uint32_t int_type;
+        typedef cxxtools::Char::value_type int_type;
         typedef std::streamoff off_type;
         typedef std::streampos pos_type;
         typedef cxxtools::MBState state_type;
@@ -319,7 +380,7 @@ namespace std {
 
     inline char_traits<cxxtools::Char>::int_type char_traits<cxxtools::Char>::eof()
     {
-        return static_cast<char_traits<cxxtools::Char>::int_type>( uint32_t(-1) );
+        return static_cast<char_traits<cxxtools::Char>::int_type>( cxxtools::Char::value_type(-1) );
     }
 
 

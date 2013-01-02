@@ -448,18 +448,18 @@ class CXXTOOLS_API basic_string< cxxtools::Char > {
         uint32_t& shortStringMagic()                  { return _data.u.shortdata[_shortStringSize - 1]; }
         size_type shortStringLength() const           { return _shortStringSize - 1 - shortStringMagic(); }
         size_type shortStringCapacity() const         { return _shortStringSize - 1; }
-        void setShortStringLength(size_type n)        { shortStringData()[n] = cxxtools::Char(0); shortStringMagic() = _shortStringSize - n - 1; }
+        void setShortStringLength(size_type n)        { shortStringData()[n] = cxxtools::Char::null(); shortStringMagic() = _shortStringSize - n - 1; }
         void shortStringAssign(const cxxtools::Char* str, size_type n)
         {
             traits_type::copy(shortStringData(), str, n);
-            shortStringData()[n] = cxxtools::Char(0);
+            shortStringData()[n] = cxxtools::Char::null();
             shortStringMagic() = _shortStringSize - n - 1;
         }
         void shortStringAssign(const wchar_t* str, size_type n)
         {
             for (size_type nn = 0; nn < n; ++nn)
                 shortStringData()[nn] = str[nn];
-            shortStringData()[n] = cxxtools::Char(0);
+            shortStringData()[n] = cxxtools::Char::null();
             shortStringMagic() = _shortStringSize - n - 1;
         }
 

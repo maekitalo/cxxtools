@@ -101,7 +101,7 @@ class XmlReaderTest : public cxxtools::unit::TestSuite
         void AllEntities()
         {
             cxxtools::xml::EntityResolver resolver;
-            for (unsigned n = 0; n <= 0xFFFF; ++n)
+            for (cxxtools::Char::value_type n = 0; n <= 0xFFFF; ++n)
             {
                 cxxtools::String r = resolver.getEntity(cxxtools::Char(n));
                 if (r.size() > 2 && r[0] == '&' && r[r.size() - 1] == ';')

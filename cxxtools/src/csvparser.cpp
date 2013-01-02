@@ -82,7 +82,7 @@ void CsvParser::advance(Char ch)
     switch (_state)
     {
         case state_detectDelim:
-            if (isalnum(ch) || ch == L'_' || ch == ' ')
+            if (isalnum(ch) || ch == L'_' || ch == L' ')
             {
                 _titles.back() += ch.narrow();
             }
@@ -153,7 +153,7 @@ void CsvParser::advance(Char ch)
                 log_debug("title=\"" << _titles.back() << '"');
                 _titles.push_back(std::string());
             }
-            else if (ch == '\'' || ch == '\"')
+            else if (ch == L'\'' || ch == L'\"')
             {
                 if (_titles.back().empty())
                 {

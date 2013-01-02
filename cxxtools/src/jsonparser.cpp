@@ -86,7 +86,7 @@ bool JsonParser::JsonStringParser::advance(Char ch)
 
             if (--_count == 0)
             {
-                _str += Char(_value);
+                _str += Char(static_cast<wchar_t>(_value));
                 _state = state_0;
             }
 
@@ -349,7 +349,7 @@ int JsonParser::advance(Char ch)
 
         case state_token:
             if (std::isalpha(ch.value()))
-                _token += Char(std::tolower(ch.value()));
+                _token += Char(std::tolower(ch));
             else
             {
                 if (_token == "true" || _token == "false")

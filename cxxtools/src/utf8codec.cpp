@@ -69,13 +69,13 @@ const char trailingBytesForUTF8[256] = {
  * This table contains as many values as there might be trailing bytes
  * in a UTF-8 sequence.
  */
-const uint32_t offsetsFromUTF8[6] = {
-    0x00000000,
-    0x00003080,
-    0x000E2080,
-    0x03C82080,
-    0xFA082080,
-    0x82082080
+const Char::value_type offsetsFromUTF8[6] = {
+    Char::value_type(0x00000000),
+    Char::value_type(0x00003080),
+    Char::value_type(0x000E2080),
+    Char::value_type(0x03C82080),
+    Char::value_type(0xFA082080),
+    Char::value_type(0x82082080)
 };
 
 
@@ -239,7 +239,7 @@ Utf8Codec::result Utf8Codec::do_out(MBState& s, const Char* fromBegin, const Cha
             break;
         }
 
-        uint32_t chValue = ch.value();
+        Char::value_type chValue = ch.value();
         switch(bytesToWrite) { // note: everything falls through...
             case 4: *--current = static_cast<uint8_t>((chValue | byteMark) & byteMask); chValue >>= 6;
             case 3: *--current = static_cast<uint8_t>((chValue | byteMark) & byteMask); chValue >>= 6;

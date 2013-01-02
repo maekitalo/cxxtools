@@ -315,10 +315,10 @@ struct NumberFormat
     typedef CharType CharT;
 
     static CharT plus()
-    { return '+'; }
+    { return CharT('+'); }
 
     static CharT minus()
-    { return '-'; }
+    { return CharT('-'); }
 };
 
 
@@ -331,7 +331,7 @@ struct DecimalFormat : public NumberFormat<CharType>
     
     static CharT toChar(unsigned char n)
     {
-        return CharT('0' + n); 
+        return CharT(static_cast<char>('0' + n)); 
     }
     
     /** @brief Converts a character to a digit.
@@ -358,7 +358,7 @@ struct OctalFormat : public NumberFormat<CharType>
     
     static CharT toChar(unsigned char n)
     {
-        return CharT('0' + n); 
+        return CharT(static_cast<char>('0' + n)); 
     }
     
     /** @brief Converts a character to a digit.
@@ -427,7 +427,7 @@ struct BinaryFormat : public NumberFormat<CharType>
     
     static CharT toChar(unsigned char n)
     {
-        return CharT('0' + n); 
+        return CharT(static_cast<char>('0' + n)); 
     }
     
     /** @brief Converts a character to a digit.
@@ -452,23 +452,23 @@ struct FloatFormat : public DecimalFormat<CharType>
     typedef CharType CharT;
 
     static CharT point()
-    { return '.'; }
+    { return CharT('.'); }
 
     static CharT e()
-    { return 'e'; }
+    { return CharT('e'); }
 
     static CharT E()
-    { return 'E'; }
+    { return CharT('E'); }
 
     static const CharT* nan()
     { 
-        static const CharT nanstr[] = { 'n', 'a', 'n', 0 };
+        static const CharT nanstr[] = { CharT('n'), CharT('a'), CharT('n'), 0 };
         return nanstr; 
     }
 
     static const CharT* inf()
     { 
-        static const CharT nanstr[] = { 'i', 'n', 'f', 0 };
+        static const CharT nanstr[] = { CharT('i'), CharT('n'), CharT('f'), 0 };
         return nanstr; 
     }
 };
@@ -680,7 +680,7 @@ inline OutIterT putFloat(OutIterT it, T d, const FormatT& fmt, int precision)
         precision = bufsize;
 
     CharT fract[bufsize + 1];
-    fract[bufsize]='\0';
+    fract[bufsize] = CharT('\0');
 
     int exp = static_cast<int>(std::floor(std::log10(num))) + 1;
 
@@ -867,25 +867,25 @@ InIterT getFloat(InIterT it, InIterT end, bool& ok, T& n, const FormatT& fmt)
                 if(++it == end)
                     return it;
 
-                if(*it != 'a' && *it != 'A')
+                if(*it != CharT('a') && *it != CharT('A'))
                     return it;
 
                 if(++it == end)
                     return it;
 
-                if(*it != 'n' && *it != 'N')
+                if(*it != CharT('n') && *it != CharT('N'))
                     return it;
 
                 // NaNQ, NaNS (seen on AIX/xlC)
                 {
                     InIterT nit = it;
                     ++nit;
-                    if (*nit == 'q' || *nit == 'Q')
+                    if (*nit == CharT('q') || *nit == CharT('Q'))
                     {
                         n = std::numeric_limits<T>::quiet_NaN();
                         ++it;
                     }
-                    else if (*nit == 's' || *nit == 'S')
+                    else if (*nit == CharT('s') || *nit == CharT('S'))
                     {
                         n = std::numeric_limits<T>::signaling_NaN();
                         ++it;
@@ -905,42 +905,42 @@ InIterT getFloat(InIterT it, InIterT end, bool& ok, T& n, const FormatT& fmt)
                 if(++it == end)
                     return it;
 
-                if(*it != 'n' && *it != 'N')
+                if(*it != CharT('n') && *it != CharT('N'))
                     return it;
 
                 if(++it == end)
                     return it;
 
-                if(*it != 'f' && *it != 'F')
+                if(*it != CharT('f') && *it != CharT('F'))
                     return it;
 
                 if( ++it != end )
                 {
-                    if(*it != 'i' && *it != 'I')
+                    if(*it != CharT('i') && *it != CharT('I'))
                         return it;
 
                     if(++it == end)
                         return it;
 
-                    if(*it != 'n' && *it != 'N')
+                    if(*it != CharT('n') && *it != CharT('N'))
                         return it;
 
                     if(++it == end)
                         return it;
 
-                    if(*it != 'i' && *it != 'I')
+                    if(*it != CharT('i') && *it != CharT('I'))
                         return it;
 
                     if(++it == end)
                         return it;
 
-                    if(*it != 't' && *it != 'T')
+                    if(*it != CharT('t') && *it != CharT('T'))
                         return it;
 
                     if(++it == end)
                         return it;
 
-                    if(*it != 'y' && *it != 'Y')
+                    if(*it != CharT('y') && *it != CharT('Y'))
                         return it;
 
                     ++it;

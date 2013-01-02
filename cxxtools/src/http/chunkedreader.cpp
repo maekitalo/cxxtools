@@ -232,7 +232,7 @@ namespace cxxtools
     {
       log_trace("onData");
 
-      std::streamsize n = _ib->in_avail();
+      unsigned n = static_cast<unsigned>(_ib->in_avail());
 
       if (n > _bufsize)
         n = _bufsize;
