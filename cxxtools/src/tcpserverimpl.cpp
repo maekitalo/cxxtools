@@ -368,59 +368,54 @@ int TcpServerImpl::accept(int flags, struct sockaddr* sa, socklen_t& sa_len)
     Resetter<int> resetter(_pendingAccept);
     if (_pendingAccept == noPendingAccept)
     {
-        if (_listeners.size() == 1)
-            _pendingAccept = 0;
-        else
+        Resetter<pollfd*> resetter(_pfd);
+
+        std::vector<pollfd> fds(_listeners.size() + 1);
+
+        fds[0].fd = _wakePipe[0];
+        fds[0].revents = 0;
+        fds[0].events = POLLIN;
+
+        initializePoll(&fds[1], _listeners.size());
+
+        while (true)
         {
-            Resetter<pollfd*> resetter(_pfd);
-
-            std::vector<pollfd> fds(_listeners.size() + 1);
-
-            fds[0].fd = _wakePipe[0];
-            fds[0].revents = 0;
-            fds[0].events = POLLIN;
-
-            initializePoll(&fds[1], _listeners.size());
-
-            while (true)
+            log_debug("poll");
+            int p = ::poll(&fds[0], fds.size(), -1);
+            if (p > 0)
             {
-                log_debug("poll");
-                int p = ::poll(&fds[0], fds.size(), -1);
-                if (p > 0)
-                {
-                    break;
-                }
-                else if (p < 0)
-                {
-                    if (errno == EINTR)
-                        continue;
-                    log_error("error in poll; errno=" << errno);
-                    throw SystemError("poll");
-                }
+                break;
             }
-
-            if (fds[0].revents & POLLIN)
+            else if (p < 0)
             {
-                char buffer;
-
-                log_debug("wake accept event detected");
-
-                int ret = ::read(_wakePipe[0], &buffer, 1);
-                if (ret == -1)
-                    throw SystemError("read(wake pipe)");
-
-                log_debug("accept terminated");
-                throw AcceptTerminated();
+                if (errno == EINTR)
+                    continue;
+                log_error("error in poll; errno=" << errno);
+                throw SystemError("poll");
             }
+        }
 
-            for (std::vector<pollfd>::size_type n = 0; n < _listeners.size(); ++n)
+        if (fds[0].revents & POLLIN)
+        {
+            char buffer;
+
+            log_debug("wake accept event detected");
+
+            int ret = ::read(_wakePipe[0], &buffer, 1);
+            if (ret == -1)
+                throw SystemError("read(wake pipe)");
+
+            log_debug("accept terminated");
+            throw AcceptTerminated();
+        }
+
+        for (std::vector<pollfd>::size_type n = 0; n < _listeners.size(); ++n)
+        {
+            if (fds[n + 1].revents & POLLIN)
             {
-                if (fds[n + 1].revents & POLLIN)
-                {
-                    log_debug("detected accept on fd " << fds[n + 1].fd);
-                    _pendingAccept = n;
-                    break;
-                }
+                log_debug("detected accept on fd " << fds[n + 1].fd);
+                _pendingAccept = n;
+                break;
             }
         }
 
