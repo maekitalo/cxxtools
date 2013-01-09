@@ -26,7 +26,7 @@ libcxxtools_json_la_SOURCES = \
 	socket.cpp \
 	worker.cpp
 
-libcxxtools_json_la_LIBADD = $(top_builddir)/src/libcxxtools.la
+libcxxtools_json_la_LIBADD = $(top_builddir)/src/libcxxtools.la $(top_builddir)/src/http/libcxxtools-http.la
 
 libcxxtools_json_la_LDFLAGS = -version-info @sonumber@ @SHARED_LIB_FLAG@
 
