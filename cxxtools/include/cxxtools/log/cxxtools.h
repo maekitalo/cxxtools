@@ -189,7 +189,8 @@ namespace cxxtools
       const Impl* impl() const  { return _impl; }
 
       static LoggerManager& getInstance();
-      static void logInit(const std::string& fname = "log.xml");
+      static void logInit();
+      static void logInit(const std::string& fname);
       static void logInit(const cxxtools::SerializationInfo& si);
 
       void configure(const LoggerManagerConfiguration& config);

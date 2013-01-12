@@ -90,6 +90,7 @@ namespace cxxtools
 
             void deserialize()
             {
+                begin();
                 doDeserialize();
             }
 

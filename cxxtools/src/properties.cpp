@@ -40,29 +40,29 @@ namespace cxxtools
     class PropertiesEvent : public PropertiesParser::Event
     {
         Properties& properties;
-        std::string key;
+        String key;
 
       public:
         PropertiesEvent(Properties& properties_)
           : properties(properties_)
           { }
-        bool onKeyPart(const std::string& key);
-        bool onKey(const std::string& key);
-        bool onValue(const std::string& value);
+        bool onKeyPart(const String& key);
+        bool onKey(const String& key);
+        bool onValue(const String& value);
     };
 
-    bool PropertiesEvent::onKeyPart(const std::string& key)
+    bool PropertiesEvent::onKeyPart(const String& key)
     {
       return false;
     }
 
-    bool PropertiesEvent::onKey(const std::string& key_)
+    bool PropertiesEvent::onKey(const String& key_)
     {
       key = key_;
       return false;
     }
 
-    bool PropertiesEvent::onValue(const std::string& value)
+    bool PropertiesEvent::onValue(const String& value)
     {
       properties.setValue(key, value);
       return false;
@@ -117,8 +117,8 @@ namespace cxxtools
           state = state_comment;
         else if (isKeyChar(ch))
         {
-          key = ch.narrow();
-          keypart = ch.narrow();
+          key = ch;
+          keypart = ch;
           state = state_key;
         }
         else if (!std::isspace(ch.value()) && ch != '\n' && ch != '\r')
@@ -130,12 +130,12 @@ namespace cxxtools
         {
           event.onKeyPart(keypart);
           keypart.clear();
-          key += ch.narrow();
+          key += ch;
         }
         else if (isKeyChar(ch))
         {
-          keypart += ch.narrow();
-          key += ch.narrow();
+          keypart += ch;
+          key += ch;
         }
         else if (std::isspace(ch.value()))
         {
@@ -150,7 +150,7 @@ namespace cxxtools
           state = state_value;
         }
         else
-          throw std::runtime_error("parse error in properties while reading key " + key);
+          throw std::runtime_error("parse error in properties while reading key " + Utf8Codec::encode(key));
         break;
 
       case state_key_sp:
@@ -159,7 +159,7 @@ namespace cxxtools
           state = state_value;
         }
         else if (!std::isspace(ch.value()))
-          throw std::runtime_error("parse error while reading key " + key);
+          throw std::runtime_error("parse error while reading key " + Utf8Codec::encode(key));
         break;
 
       case state_value:
@@ -172,11 +172,11 @@ namespace cxxtools
         else if (ch == '\\')
           state = state_value_esc;
         else if (!value.empty() || !std::isspace(ch.value()))
-          value += ch.narrow();
+          value += ch;
         break;
 
       case state_value_esc:
-        value += ch.narrow();
+        value += ch;
         state = state_value;
         break;
 
@@ -204,7 +204,7 @@ namespace cxxtools
 
       case state_key:
       case state_key_sp:
-        throw std::runtime_error("parse error while reading key " + key);
+        throw std::runtime_error("parse error while reading key " + Utf8Codec::encode(key));
     }
   }
 

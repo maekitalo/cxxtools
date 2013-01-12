@@ -971,6 +971,12 @@ inline void operator <<=(SerializationInfo& si, const std::multimap<T, C, P, A>&
 }
 
 
+inline std::ostream& operator<< (std::ostream& out, const SerializationInfo& si)
+{
+    si.dump(out);
+    return out;
+}
+
 } // namespace cxxtools
 
 

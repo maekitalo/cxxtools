@@ -38,29 +38,29 @@ namespace cxxtools
 {
   class Properties
   {
-      typedef std::map<std::string, std::string> ValuesType;
+      typedef std::map<String, String> ValuesType;
       ValuesType values;
 
     public:
       explicit Properties(const std::string& filename);
       explicit Properties(std::istream& in);
 
-      void setValue(const std::string& key, const std::string& value)
+      void setValue(const String& key, const String& value)
       {
         values[key] = value;
       }
 
-      void removeValue(const std::string& key)
+      void removeValue(const String& key)
       {
         values.erase(key);
       }
 
-      bool hasValue(const std::string& key) const
+      bool hasValue(const String& key) const
       {
         return values.find(key) != values.end();
       }
 
-      std::string getValue(const std::string& key, const std::string& def = std::string()) const
+      String getValue(const String& key, const String& def = String()) const
       {
         ValuesType::const_iterator it = values.find(key);
         return it == values.end() ? def : it->second;
@@ -77,15 +77,15 @@ namespace cxxtools
       }
 
       template <typename OutputIterator>
-      void getKeys(const std::string& praefix, OutputIterator oi) const
+      void getKeys(const String& praefix, OutputIterator oi) const
       {
         for (ValuesType::const_iterator it = values.begin(); it != values.end(); ++it)
         {
-          std::string key = it->first;
+          String key = it->first;
           if (key.size() > praefix.size()
-            && key.at(praefix.size()) == '.'
+            && key.at(praefix.size()) == L'.'
             && key.compare(0, praefix.size(), praefix) == 0
-            && key.find('.', praefix.size() + 2) == std::string::npos)
+            && key.find(L'.', praefix.size() + 2) == String::npos)
           {
             *oi = key.substr(praefix.size() + 1);
             ++oi;
@@ -94,15 +94,15 @@ namespace cxxtools
       }
 
       template <typename OutputIterator>
-      void getKeysLong(const std::string& praefix, OutputIterator oi) const
+      void getKeysLong(const String& praefix, OutputIterator oi) const
       {
         for (ValuesType::const_iterator it = values.begin(); it != values.end(); ++it)
         {
-          std::string key = it->first;
+          String key = it->first;
           if (key.size() > praefix.size()
             && key.at(praefix.size()) == '.'
             && key.compare(0, praefix.size(), praefix) == 0
-            && key.find('.', praefix.size() + 2) == std::string::npos)
+            && key.find('.', praefix.size() + 2) == String::npos)
           {
             *oi = key;
             ++oi;
@@ -119,16 +119,16 @@ namespace cxxtools
       {
         public:
           // return true, if parser should stop
-          virtual bool onKeyPart(const std::string& key) = 0;
-          virtual bool onKey(const std::string& key) = 0;
-          virtual bool onValue(const std::string& value) = 0;
+          virtual bool onKeyPart(const String& key) = 0;
+          virtual bool onKey(const String& key) = 0;
+          virtual bool onValue(const String& value) = 0;
       };
 
     private:
       Event& event;
-      std::string key;
-      std::string keypart;
-      std::string value;
+      String key;
+      String keypart;
+      String value;
       enum {
         state_0,
         state_key,

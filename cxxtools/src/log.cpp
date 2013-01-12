@@ -34,7 +34,9 @@
 #include <cxxtools/atomicity.h>
 #include <cxxtools/serializationinfo.h>
 #include <cxxtools/xml/xmldeserializer.h>
+#include <cxxtools/propertiesdeserializer.h>
 #include <cxxtools/net/udp.h>
+#include <cxxtools/fileinfo.h>
 #include <vector>
 #include <map>
 #include <fstream>
@@ -567,6 +569,24 @@ namespace cxxtools
         impl._logLevels[category] = level;
       }
     }
+    else if ((psi = si.findMember("logger")) != 0)
+    {
+      for( SerializationInfo::ConstIterator it = psi->begin(); it != psi->end(); ++it)
+      {
+        std::string category = it->name();
+        std::string levelstr;
+        Logger::log_level_type level;
+
+        it->getValue(levelstr);
+
+        if (levelstr.empty())
+          level = Logger::LOG_LEVEL_FATAL;
+        else
+          level = str2loglevel(levelstr, category);
+
+        impl._logLevels[category] = level;
+      }
+    }
   }
 
   void operator>>= (const SerializationInfo& si, LoggerManagerConfiguration& loggerManagerConfiguration)
@@ -651,15 +671,48 @@ namespace cxxtools
     return loggerManager;
   }
 
+  void LoggerManager::logInit()
+  {
+    std::string logXml = "log.xml";
+
+    if (FileInfo::exists(logXml))
+    {
+      logInit(logXml);
+    }
+    else
+    {
+      std::string logProperties = "log.properties";
+      if (FileInfo::exists(logProperties))
+        logInit(logProperties);
+    }
+  }
+
   void LoggerManager::logInit(const std::string& fname)
   {
     std::ifstream in(fname.c_str());
     if (in)
     {
-      xml::XmlDeserializer d(in);
-      LoggerManagerConfiguration config;
-      d.deserialize(config);
-      getInstance().configure(config);
+      try
+      {
+        if (fname.size() >= 11 && fname.compare(fname.size() - 11, 11, ".properties") == 0)
+        {
+          PropertiesDeserializer d(in);
+          LoggerManagerConfiguration config;
+          d.deserialize(config);
+          getInstance().configure(config);
+        }
+        else
+        {
+          xml::XmlDeserializer d(in);
+          LoggerManagerConfiguration config;
+          d.deserialize(config);
+          getInstance().configure(config);
+        }
+      }
+      catch (const std::exception& e)
+      {
+        std::cerr << "failed to initialize logging: " << e.what() << std::endl;
+      }
     }
   }
 
