@@ -129,12 +129,18 @@ namespace cxxtools
       String key;
       String keypart;
       String value;
+      Char::value_type unicode;
+      unsigned unicodeCount;
+
       enum {
         state_0,
         state_key,
+        state_key_esc,
+        state_key_unicode,
         state_key_sp,
         state_value,
         state_value_esc,
+        state_unicode,
         state_comment
       } state;
 

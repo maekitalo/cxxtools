@@ -113,13 +113,21 @@ namespace cxxtools
     switch (state)
     {
       case state_0:
-        if (ch == '#')
+        if (ch == '#' || ch == '!')
           state = state_comment;
         else if (isKeyChar(ch))
         {
           key = ch;
           keypart = ch;
           state = state_key;
+        }
+        else if (ch == ' ' || ch == '\t' || ch == '\r' || ch == '\n')
+          ;
+        else if (ch == '\\')
+        {
+          key.clear();
+          keypart.clear();
+          state = state_key_esc;
         }
         else if (!std::isspace(ch.value()) && ch != '\n' && ch != '\r')
           throw std::runtime_error("format error in properties");
@@ -149,8 +157,45 @@ namespace cxxtools
              || event.onKey(key);
           state = state_value;
         }
+        else if (ch == '\\')
+        {
+          state = state_key_esc;
+        }
         else
           throw std::runtime_error("parse error in properties while reading key " + Utf8Codec::encode(key));
+        break;
+
+      case state_key_esc:
+        if (ch == 'u')
+        {
+          unicode = 0;
+          unicodeCount = 0;
+          state = state_key_unicode;
+        }
+        else if (ch == 'n')
+        {
+          keypart += '\n';
+          key += '\n';
+          state = state_key;
+        }
+        else if (ch == 'r')
+        {
+          keypart += '\r';
+          key += '\r';
+          state = state_key;
+        }
+        else if (ch == 't')
+        {
+          keypart += '\t';
+          key += '\t';
+          state = state_key;
+        }
+        else
+        {
+          keypart += ch;
+          key += ch;
+          state = state_key;
+        }
         break;
 
       case state_key_sp:
@@ -176,8 +221,85 @@ namespace cxxtools
         break;
 
       case state_value_esc:
-        value += ch;
-        state = state_value;
+        if (ch == 'u')
+        {
+          unicode = 0;
+          unicodeCount = 0;
+          state = state_unicode;
+        }
+        else if (ch == 'n')
+        {
+          value += '\n';
+          state = state_value;
+        }
+        else if (ch == 'r')
+        {
+          value += '\r';
+          state = state_value;
+        }
+        else if (ch == 't')
+        {
+          value += '\t';
+          state = state_value;
+        }
+        else
+        {
+          value += ch;
+          state = state_value;
+        }
+        break;
+
+      case state_unicode:
+      case state_key_unicode:
+        if (ch >= '0' && ch <= '9')
+        {
+          unicode = (unicode << 4) | (ch - '0');
+          ++unicodeCount;
+        }
+        else if (ch >= 'a' && ch <= 'f')
+        {
+          unicode = (unicode << 4) | (ch - 'a' + 10);
+          ++unicodeCount;
+        }
+        else if (ch >= 'A' && ch <= 'F')
+        {
+          unicode = (unicode << 4) | (ch - 'A' + 10);
+          ++unicodeCount;
+        }
+        else if (unicodeCount == 0)
+          throw std::runtime_error("invalid unicode sequence starting " + ch.narrow());
+        else
+        {
+          if (state == state_unicode)
+          {
+            state = state_value;
+            value += Char(unicode);
+          }
+          else
+          {
+            state = state_key;
+            key += Char(unicode);
+          }
+
+          return parse(ch);
+        }
+
+        if (unicodeCount >= 4)
+        {
+          if (state == state_unicode)
+          {
+            state = state_value;
+            value += Char(unicode);
+          }
+          else
+          {
+            state = state_key;
+            key += Char(unicode);
+          }
+
+          return false;
+        }
+
         break;
 
       case state_comment:
@@ -198,11 +320,22 @@ namespace cxxtools
         value.clear();
         break;
 
+      case state_unicode:
+        if (unicodeCount == 0)
+          throw std::runtime_error("invalid unicode sequence at end");
+
+        value += Char(unicode);
+        event.onValue(value);
+        value.clear();
+        break;
+
       case state_0:
       case state_comment:
         break;
 
       case state_key:
+      case state_key_esc:
+      case state_key_unicode:
       case state_key_sp:
         throw std::runtime_error("parse error while reading key " + Utf8Codec::encode(key));
     }
