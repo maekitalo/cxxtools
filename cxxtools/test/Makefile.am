@@ -24,7 +24,7 @@ alltests_SOURCES = \
     jsonserializer-test.cpp \
     md5-test.cpp \
     pool-test.cpp \
-    propertiesdeserializer-test.cpp \
+    properties-test.cpp \
     serializationinfo-test.cpp \
     smartptr-test.cpp \
     split-test.cpp \

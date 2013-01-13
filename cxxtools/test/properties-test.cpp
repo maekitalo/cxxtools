@@ -30,6 +30,7 @@
 #include "cxxtools/unit/registertest.h"
 #include "cxxtools/serializationinfo.h"
 #include "cxxtools/xml/xmlserializer.h"
+#include "cxxtools/properties.h"
 #include "cxxtools/propertiesdeserializer.h"
 
 namespace
@@ -69,17 +70,64 @@ namespace
 
 }
 
-class PropertiesDeserializerTest : public cxxtools::unit::TestSuite
+class PropertiesTest : public cxxtools::unit::TestSuite
 {
     public:
-        PropertiesDeserializerTest()
-            : cxxtools::unit::TestSuite("propertiesdeserializer")
+        PropertiesTest()
+            : cxxtools::unit::TestSuite("properties")
         {
-            registerMethod("testScalar", *this, &PropertiesDeserializerTest::testScalar);
-            registerMethod("testStruct", *this, &PropertiesDeserializerTest::testStruct);
-            registerMethod("testVector", *this, &PropertiesDeserializerTest::testVector);
-            registerMethod("testMember", *this, &PropertiesDeserializerTest::testMember);
-            registerMethod("testProperties", *this, &PropertiesDeserializerTest::testProperties);
+            registerMethod("testProperties", *this, &PropertiesTest::testProperties);
+            registerMethod("testFailProperties", *this, &PropertiesTest::testFailProperties);
+            registerMethod("testScalar", *this, &PropertiesTest::testScalar);
+            registerMethod("testStruct", *this, &PropertiesTest::testStruct);
+            registerMethod("testVector", *this, &PropertiesTest::testVector);
+            registerMethod("testMember", *this, &PropertiesTest::testMember);
+        }
+
+        void testProperties()
+        {
+            std::istringstream data(
+                "a\\ b = 42\n"
+                "b=\\u9\\r\\n\\t\n"
+                "\\ufoo =Hi there\n"
+                "l=Hi\\\n"
+                "there\n"
+                "c=\\uabCD1\\u1234");
+
+            cxxtools::PropertiesDeserializer deserializer(data);
+            deserializer.deserialize();
+            const cxxtools::SerializationInfo& si = *deserializer.si();
+
+            int v = 0;
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(si.getMember("a b") >>= v);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v, 42);
+
+            cxxtools::String b;
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(si.getMember("b") >>= b);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(b, L"\t\r\n\t");
+
+            cxxtools::String c;
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(si.getMember("c") >>= c);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(c.size(), 3);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(c[0].value(), 0xabcd);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(c[1], '1');
+            CXXTOOLS_UNIT_ASSERT_EQUALS(c[2].value(), 0x1234);
+
+            cxxtools::String l;
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(si.getMember("l") >>= l);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(l, L"Hi\nthere");
+
+            cxxtools::String f;
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(si.getMember("\x0foo") >>= f);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(f, L"Hi there");
+        }
+
+        void testFailProperties()
+        {
+            std::istringstream data(
+                "ab = \\uz42\n");
+            cxxtools::PropertiesDeserializer deserializer(data);
+            CXXTOOLS_UNIT_ASSERT_THROW(deserializer.deserialize(), cxxtools::PropertiesParserError);
         }
 
         void testScalar()
@@ -179,44 +227,6 @@ class PropertiesDeserializerTest : public cxxtools::unit::TestSuite
 
         }
 
-        void testProperties()
-        {
-            std::istringstream data(
-                "a\\ b = 42\n"
-                "b=\\u9\\r\\n\\t\n"
-                "\\ufoo =Hi there\n"
-                "l=Hi\\\n"
-                "there\n"
-                "c=\\uabCD1\\u1234");
-
-            cxxtools::PropertiesDeserializer deserializer(data);
-            deserializer.deserialize();
-            const cxxtools::SerializationInfo& si = *deserializer.si();
-
-            int v = 0;
-            CXXTOOLS_UNIT_ASSERT_NOTHROW(si.getMember("a b") >>= v);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(v, 42);
-
-            cxxtools::String b;
-            CXXTOOLS_UNIT_ASSERT_NOTHROW(si.getMember("b") >>= b);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(b, L"\t\r\n\t");
-
-            cxxtools::String c;
-            CXXTOOLS_UNIT_ASSERT_NOTHROW(si.getMember("c") >>= c);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(c.size(), 3);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(c[0].value(), 0xabcd);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(c[1], '1');
-            CXXTOOLS_UNIT_ASSERT_EQUALS(c[2].value(), 0x1234);
-
-            cxxtools::String l;
-            CXXTOOLS_UNIT_ASSERT_NOTHROW(si.getMember("l") >>= l);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(l, L"Hi\nthere");
-
-            cxxtools::String f;
-            CXXTOOLS_UNIT_ASSERT_NOTHROW(si.getMember("\x0foo") >>= f);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(f, L"Hi there");
-        }
-
 };
 
-cxxtools::unit::RegisterTest<PropertiesDeserializerTest> register_PropertiesDeserializerTest;
+cxxtools::unit::RegisterTest<PropertiesTest> register_PropertiesTest;

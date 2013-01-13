@@ -30,7 +30,7 @@
 #include <cxxtools/utf8codec.h>
 #include <iostream>
 #include <fstream>
-#include <stdexcept>
+#include <sstream>
 #include <cctype>
 
 namespace cxxtools
@@ -76,14 +76,24 @@ namespace cxxtools
           || ch == '_';
     }
 
+    std::string mkErrorMessage(const std::string& msg, unsigned lineNo)
+    {
+      std::ostringstream s;
+      s << "parsing properties failed in line " << lineNo << ": " << msg;
+      return s.str();
+    }
   }
+
+  PropertiesParserError::PropertiesParserError(const std::string& msg, unsigned lineNo)
+    : SerializationError(mkErrorMessage(msg, lineNo))
+  { }
 
   Properties::Properties(const std::string& filename)
   {
     PropertiesEvent ev(*this);
     std::ifstream in(filename.c_str());
     if (!in)
-      throw std::runtime_error("could not open file \"" + filename + '"');
+      throw PropertiesParserError("could not open properties file \"" + filename + '"');
     PropertiesParser(ev).parse(in);
   }
 
@@ -110,6 +120,10 @@ namespace cxxtools
   bool PropertiesParser::parse(Char ch)
   {
     bool ret = false;
+
+    if (ch == '\n')
+      ++lineNo;
+
     switch (state)
     {
       case state_0:
@@ -130,7 +144,7 @@ namespace cxxtools
           state = state_key_esc;
         }
         else if (!std::isspace(ch.value()) && ch != '\n' && ch != '\r')
-          throw std::runtime_error("format error in properties");
+          throw PropertiesParserError("format error", lineNo);
         break;
 
       case state_key:
@@ -162,7 +176,7 @@ namespace cxxtools
           state = state_key_esc;
         }
         else
-          throw std::runtime_error("parse error in properties while reading key " + Utf8Codec::encode(key));
+          throw PropertiesParserError("parse error in properties while reading key " + Utf8Codec::encode(key), lineNo);
         break;
 
       case state_key_esc:
@@ -204,7 +218,7 @@ namespace cxxtools
           state = state_value;
         }
         else if (!std::isspace(ch.value()))
-          throw std::runtime_error("parse error while reading key " + Utf8Codec::encode(key));
+          throw PropertiesParserError("parse error while reading key " + Utf8Codec::encode(key), lineNo);
         break;
 
       case state_value:
@@ -267,7 +281,7 @@ namespace cxxtools
           ++unicodeCount;
         }
         else if (unicodeCount == 0)
-          throw std::runtime_error("invalid unicode sequence starting " + ch.narrow());
+          throw PropertiesParserError(std::string("invalid unicode sequence \\u") + ch.narrow(), lineNo);
         else
         {
           if (state == state_unicode)
@@ -322,7 +336,7 @@ namespace cxxtools
 
       case state_unicode:
         if (unicodeCount == 0)
-          throw std::runtime_error("invalid unicode sequence at end");
+          throw PropertiesParserError("invalid unicode sequence at end", lineNo);
 
         value += Char(unicode);
         event.onValue(value);
@@ -337,7 +351,7 @@ namespace cxxtools
       case state_key_esc:
       case state_key_unicode:
       case state_key_sp:
-        throw std::runtime_error("parse error while reading key " + Utf8Codec::encode(key));
+        throw PropertiesParserError("parse error while reading key " + Utf8Codec::encode(key), lineNo);
     }
   }
 

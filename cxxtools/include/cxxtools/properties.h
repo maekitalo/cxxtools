@@ -33,6 +33,7 @@
 #include <map>
 #include <cxxtools/char.h>
 #include <cxxtools/textstream.h>
+#include <cxxtools/serializationerror.h>
 
 namespace cxxtools
 {
@@ -131,6 +132,7 @@ namespace cxxtools
       String value;
       Char::value_type unicode;
       unsigned unicodeCount;
+      unsigned lineNo;
 
       enum {
         state_0,
@@ -147,6 +149,7 @@ namespace cxxtools
     public:
       PropertiesParser(Event& event_)
         : event(event_),
+          lineNo(1),
           state(state_0)
         { }
 
@@ -156,6 +159,14 @@ namespace cxxtools
       void end();
   };
 
+  class PropertiesParserError : public SerializationError
+  {
+    public:
+      explicit PropertiesParserError(const std::string& msg)
+        : SerializationError(msg)
+        { }
+      PropertiesParserError(const std::string& msg, unsigned lineNo);
+  };
 }
 
 #endif // CXXTOOLS_PROPERTIES_H
