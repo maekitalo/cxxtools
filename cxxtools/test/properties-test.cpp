@@ -95,30 +95,33 @@ class PropertiesTest : public cxxtools::unit::TestSuite
                 "c=\\uabCD1\\u1234");
 
             cxxtools::PropertiesDeserializer deserializer(data);
-            deserializer.deserialize();
-            const cxxtools::SerializationInfo& si = *deserializer.si();
+
+            // the first call to the deserialize method will parse the input
+            // and create a SerializationInfo object
 
             int v = 0;
-            CXXTOOLS_UNIT_ASSERT_NOTHROW(si.getMember("a b") >>= v);
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(deserializer.deserialize(v, "a b"));
             CXXTOOLS_UNIT_ASSERT_EQUALS(v, 42);
 
+            CXXTOOLS_UNIT_ASSERT_THROW(deserializer.deserialize(v, "a b "), cxxtools::SerializationError);
+
             cxxtools::String b;
-            CXXTOOLS_UNIT_ASSERT_NOTHROW(si.getMember("b") >>= b);
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(deserializer.deserialize(b, "b"));
             CXXTOOLS_UNIT_ASSERT_EQUALS(b, L"\t\r\n\t");
 
             cxxtools::String c;
-            CXXTOOLS_UNIT_ASSERT_NOTHROW(si.getMember("c") >>= c);
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(deserializer.deserialize(c, "c"));
             CXXTOOLS_UNIT_ASSERT_EQUALS(c.size(), 3);
             CXXTOOLS_UNIT_ASSERT_EQUALS(c[0].value(), 0xabcd);
             CXXTOOLS_UNIT_ASSERT_EQUALS(c[1], '1');
             CXXTOOLS_UNIT_ASSERT_EQUALS(c[2].value(), 0x1234);
 
             cxxtools::String l;
-            CXXTOOLS_UNIT_ASSERT_NOTHROW(si.getMember("l") >>= l);
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(deserializer.deserialize(l, "l"));
             CXXTOOLS_UNIT_ASSERT_EQUALS(l, L"Hi\nthere");
 
             cxxtools::String f;
-            CXXTOOLS_UNIT_ASSERT_NOTHROW(si.getMember("\x0foo") >>= f);
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(deserializer.deserialize(f, "\x0foo"));
             CXXTOOLS_UNIT_ASSERT_EQUALS(f, L"Hi there");
         }
 
@@ -144,8 +147,6 @@ class PropertiesTest : public cxxtools::unit::TestSuite
             deserializer.deserialize(value, "value.a");
             CXXTOOLS_UNIT_ASSERT_EQUALS(value, 17);
 
-            data.clear();
-            data.seekg(0);
             double d = 0;
             deserializer.deserialize(d, "a.b.c");
             CXXTOOLS_UNIT_ASSERT_EQUALS(d, 3.25);
