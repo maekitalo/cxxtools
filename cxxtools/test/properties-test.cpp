@@ -92,7 +92,7 @@ class PropertiesTest : public cxxtools::unit::TestSuite
                 "\\ufoo =Hi there\n"
                 "l=Hi\\\n"
                 "there\n"
-                "c=\\uabCD1\\u1234");
+                "c=\\uabc\\5\\u0000abCD1\\u1234");
 
             cxxtools::PropertiesDeserializer deserializer(data);
 
@@ -111,10 +111,12 @@ class PropertiesTest : public cxxtools::unit::TestSuite
 
             cxxtools::String c;
             CXXTOOLS_UNIT_ASSERT_NOTHROW(deserializer.deserialize(c, "c"));
-            CXXTOOLS_UNIT_ASSERT_EQUALS(c.size(), 3);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(c[0].value(), 0xabcd);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(c[1], '1');
-            CXXTOOLS_UNIT_ASSERT_EQUALS(c[2].value(), 0x1234);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(c.size(), 5);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(c[0].value(), 0xabc);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(c[1], '5');
+            CXXTOOLS_UNIT_ASSERT_EQUALS(c[2].value(), 0xabcd);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(c[3], '1');
+            CXXTOOLS_UNIT_ASSERT_EQUALS(c[4].value(), 0x1234);
 
             cxxtools::String l;
             CXXTOOLS_UNIT_ASSERT_NOTHROW(deserializer.deserialize(l, "l"));

@@ -298,7 +298,7 @@ namespace cxxtools
           return parse(ch);
         }
 
-        if (unicodeCount >= 4)
+        if (unicodeCount >= 8)
         {
           if (state == state_unicode)
           {
