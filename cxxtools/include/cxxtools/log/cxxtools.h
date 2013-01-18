@@ -99,7 +99,8 @@
     return logger; \
   }
 
-#define log_init  ::cxxtools::LoggerManager::logInit
+#define log_init_cxxtools  ::cxxtools::LoggerManager::logInit
+#define log_init  log_init_cxxtools
 
 namespace cxxtools
 {
