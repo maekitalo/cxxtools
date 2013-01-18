@@ -107,7 +107,7 @@ class PropertiesTest : public cxxtools::unit::TestSuite
 
             cxxtools::String b;
             CXXTOOLS_UNIT_ASSERT_NOTHROW(deserializer.deserialize(b, "b"));
-            CXXTOOLS_UNIT_ASSERT_EQUALS(b, L"\t\r\n\t");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(b, "\t\r\n\t");
 
             cxxtools::String c;
             CXXTOOLS_UNIT_ASSERT_NOTHROW(deserializer.deserialize(c, "c"));
@@ -120,11 +120,11 @@ class PropertiesTest : public cxxtools::unit::TestSuite
 
             cxxtools::String l;
             CXXTOOLS_UNIT_ASSERT_NOTHROW(deserializer.deserialize(l, "l"));
-            CXXTOOLS_UNIT_ASSERT_EQUALS(l, L"Hi\nthere");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(l, "Hi\nthere");
 
             cxxtools::String f;
             CXXTOOLS_UNIT_ASSERT_NOTHROW(deserializer.deserialize(f, "\x0foo"));
-            CXXTOOLS_UNIT_ASSERT_EQUALS(f, L"Hi there");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(f, "Hi there");
         }
 
         void testFailProperties()
