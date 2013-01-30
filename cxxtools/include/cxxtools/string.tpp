@@ -376,17 +376,17 @@ basic_string<cxxtools::Char> basic_string<cxxtools::Char>::fromUtf16(InIterT fro
 
             const unsigned lo = *from;
             ch = ((ch - 0xD800) << 10) + (lo - 0xDC00) + 0x0010000U;
-            ret += cxxtools::Char(ch);
+            ret += cxxtools::Char(static_cast<cxxtools::Char::value_type>(ch));
         }
         // not a surrogate
         else if(ch < 0xDC00 || ch > 0xDFFF)
         {
-            ret += cxxtools::Char(ch);
+            ret += cxxtools::Char(static_cast<cxxtools::Char::value_type>(ch));
         }
         // not a valid unicode point
         else
         {
-            ret += cxxtools::Char(0xFFFD);
+            ret += cxxtools::Char(static_cast<cxxtools::Char::value_type>(0xFFFD));
         }
     }
 
