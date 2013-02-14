@@ -55,16 +55,16 @@ class RpcClientImpl : public Connectable
         void operator= (const RpcClientImpl&) { }
 
     public:
-        RpcClientImpl(RpcClient* client, const std::string& addr, unsigned short port);
+        RpcClientImpl(RpcClient* client, const std::string& addr, unsigned short port, const std::string& domain);
 
-        RpcClientImpl(RpcClient* client, SelectorBase& selector, const std::string& addr, unsigned short port);
+        RpcClientImpl(RpcClient* client, SelectorBase& selector, const std::string& addr, unsigned short port, const std::string& domain);
 
         ~RpcClientImpl();
 
         void setSelector(SelectorBase& selector)
         { selector.add(_socket); }
 
-        void connect(const std::string& addr, unsigned short port);
+        void connect(const std::string& addr, unsigned short port, const std::string& domain);
 
         void close();
 

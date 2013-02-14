@@ -39,14 +39,15 @@ namespace cxxtools
 namespace bin
 {
 
-RpcClientImpl::RpcClientImpl(RpcClient* client, SelectorBase& selector, const std::string& addr, unsigned short port)
+RpcClientImpl::RpcClientImpl(RpcClient* client, SelectorBase& selector, const std::string& addr, unsigned short port, const std::string& domain)
     : _client(client),
       _proc(0),
       _stream(_socket, 8192, true),
-      _formatter(_stream)
+      _formatter(_stream),
+      _domain(domain)
 {
     setSelector(selector);
-    connect(addr, port);
+    connect(addr, port, domain);
 
     cxxtools::connect(_socket.connected, *this, &RpcClientImpl::onConnect);
     cxxtools::connect(_stream.buffer().outputReady, *this, &RpcClientImpl::onOutput);
@@ -54,13 +55,14 @@ RpcClientImpl::RpcClientImpl(RpcClient* client, SelectorBase& selector, const st
 
 }
 
-RpcClientImpl::RpcClientImpl(RpcClient* client, const std::string& addr, unsigned short port)
+RpcClientImpl::RpcClientImpl(RpcClient* client, const std::string& addr, unsigned short port, const std::string& domain)
     : _client(client),
       _proc(0),
       _stream(_socket, 8192, true),
-      _formatter(_stream)
+      _formatter(_stream),
+      _domain(domain)
 {
-    connect(addr, port);
+    connect(addr, port, domain);
 
     cxxtools::connect(_socket.connected, *this, &RpcClientImpl::onConnect);
     cxxtools::connect(_stream.buffer().outputReady, *this, &RpcClientImpl::onOutput);
@@ -72,10 +74,11 @@ RpcClientImpl::~RpcClientImpl()
 {
 }
 
-void RpcClientImpl::connect(const std::string& addr, unsigned short port)
+void RpcClientImpl::connect(const std::string& addr, unsigned short port, const std::string& domain)
 {
     _addr = addr;
     _port = port;
+    _domain = domain;
 }
 
 void RpcClientImpl::close()

@@ -34,13 +34,13 @@ namespace cxxtools
 namespace bin
 {
 
-RpcClient::RpcClient(SelectorBase& selector, const std::string& addr, unsigned short port)
-    : _impl(new RpcClientImpl(this, selector, addr, port))
+RpcClient::RpcClient(SelectorBase& selector, const std::string& addr, unsigned short port, const std::string& domain)
+    : _impl(new RpcClientImpl(this, selector, addr, port, domain))
 { 
 }
 
-RpcClient::RpcClient(const std::string& addr, unsigned short port)
-    : _impl(new RpcClientImpl(this, addr, port))
+RpcClient::RpcClient(const std::string& addr, unsigned short port, const std::string& domain)
+    : _impl(new RpcClientImpl(this, addr, port, domain))
 { 
 }
 
@@ -54,9 +54,9 @@ void RpcClient::setSelector(SelectorBase& selector)
     _impl->setSelector(selector);
 }
 
-void RpcClient::connect(const std::string& addr, unsigned short port)
+void RpcClient::connect(const std::string& addr, unsigned short port, const std::string& domain)
 {
-    _impl->connect(addr, port);
+    _impl->connect(addr, port, domain);
 }
 
 void RpcClient::close()
