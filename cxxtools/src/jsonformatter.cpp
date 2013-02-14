@@ -74,19 +74,15 @@ void JsonFormatter::addValueString(const std::string& name, const std::string& t
     {
         addValueBool(name, type, convert<bool>(value));
     }
-    else if (type == "int")
-    {
-        addValueInt(name, type, convert<int_type>(value));
-    }
-    else if (type == "double")
-    {
-        addValueFloat(name, type, convert<long double>(value));
-    }
     else
     {
         beginValue(name);
 
-        if (type == "null")
+        if (type == "int" || type == "double")
+        {
+            stringOut(value);
+        }
+        else if (type == "null")
         {
             *_ts << L"null";
         }
@@ -110,19 +106,15 @@ void JsonFormatter::addValueStdString(const std::string& name, const std::string
     {
         addValueBool(name, type, convert<bool>(value));
     }
-    else if (type == "int")
-    {
-        addValueInt(name, type, convert<int_type>(value));
-    }
-    else if (type == "double")
-    {
-        addValueFloat(name, type, convert<long double>(value));
-    }
     else
     {
         beginValue(name);
 
-        if (type == "null")
+        if (type == "int" || type == "double")
+        {
+            stringOut(value);
+        }
+        else if (type == "null")
         {
             *_ts << L"null";
         }
