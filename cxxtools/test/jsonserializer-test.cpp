@@ -29,9 +29,6 @@
 #include "cxxtools/unit/testsuite.h"
 #include "cxxtools/unit/registertest.h"
 #include "cxxtools/jsonserializer.h"
-#include "cxxtools/log.h"
-
-log_define("cxxtools.test.jsonserializer")
 
 namespace
 {
