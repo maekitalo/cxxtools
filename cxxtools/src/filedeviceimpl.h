@@ -47,8 +47,6 @@ class FileDeviceImpl : public IODeviceImpl
 
         ~FileDeviceImpl();
 
-        void open(const char* path, std::ios::openmode mode, bool inherit);
-
         bool seekable() const;
 
         pos_type seek(off_type offset, std::ios::seekdir sd);

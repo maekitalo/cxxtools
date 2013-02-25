@@ -45,11 +45,11 @@ class CXXTOOLS_API FileDevice : public IODevice
     public:
         FileDevice();
 
-        FileDevice( const char* path, std::ios::openmode mode);
+        FileDevice( const std::string& path, IODevice::OpenMode mode, bool inherit = true);
 
         ~FileDevice();
 
-        void open( const char* path, std::ios::openmode mode);
+        void open( const std::string& path, IODevice::OpenMode mode, bool inherit = true);
 
         const char* path() const
         { return _path.c_str(); }
@@ -59,11 +59,11 @@ class CXXTOOLS_API FileDevice : public IODevice
     protected:
         size_t onBeginRead(char* buffer, size_t n, bool& eof);
 
-        size_t onEndRead(char* buffer, size_t n, bool& eof);
+        size_t onEndRead(bool& eof);
 
         size_t onBeginWrite(const char* buffer, size_t n);
 
-        size_t onEndWrite(const char* buffer, size_t n);
+        size_t onEndWrite();
 
         void onClose();
 

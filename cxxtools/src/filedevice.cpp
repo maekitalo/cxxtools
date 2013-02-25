@@ -38,38 +38,31 @@ FileDevice::FileDevice()
 }
 
 
-FileDevice::FileDevice(const char* path, std::ios::openmode mode)
+FileDevice::FileDevice(const std::string& path, IODevice::OpenMode mode, bool inherit)
 {
     _impl = new FileDeviceImpl(*this);
 
-    open(path, mode);
+    open(path, mode, inherit);
 }
 
 
 FileDevice::~FileDevice()
 {
-    //if( this->enabled() ) 
+    try
     {
-        try
-        {
-            close();
-        }
-        catch(...)
-        { }
+        close();
     }
+    catch(...)
+    { }
 
     delete _impl;
 }
 
 
-void FileDevice::open( const char* path, std::ios::openmode mode)
+void FileDevice::open( const std::string& path, IODevice::OpenMode mode, bool inherit)
 {
-    //if( this->enabled() ) 
-    {
-        close();
-    }
-
-    _impl->open(path, mode, true);
+    close();
+    _impl->open(path, mode, inherit);
     _path = path;
 }
 
@@ -92,7 +85,7 @@ size_t FileDevice::onBeginRead(char* buffer, size_t n, bool& eof)
 }
 
 
-size_t FileDevice::onEndRead(char* buffer, size_t n, bool& eof)
+size_t FileDevice::onEndRead(bool& eof)
 {
     return _impl->endRead(eof);
 }
@@ -104,7 +97,7 @@ size_t FileDevice::onBeginWrite(const char* buffer, size_t n)
 }
 
 
-size_t FileDevice::onEndWrite(const char* buffer, size_t n)
+size_t FileDevice::onEndWrite()
 {
     return _impl->endWrite();
 }

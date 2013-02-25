@@ -66,7 +66,7 @@ IODeviceImpl::~IODeviceImpl()
 }
 
 
-void IODeviceImpl::open(const std::string& path, IODevice::OpenMode mode)
+void IODeviceImpl::open(const std::string& path, IODevice::OpenMode mode, bool inherit)
 {
     int flags = O_RDONLY;
 
@@ -94,6 +94,16 @@ void IODeviceImpl::open(const std::string& path, IODevice::OpenMode mode)
     _fd = ::open( path.c_str(), flags );
     if(_fd == -1)
         throw AccessFailed(getErrnoString("open failed"));
+
+    if (!inherit)
+    {
+        int flags = fcntl(_fd, F_GETFD);
+        flags |= FD_CLOEXEC ;
+        int ret = fcntl(_fd, F_SETFD, flags);
+        if(-1 == ret)
+            throw IOError(getErrnoString("Could not set FD_CLOEXEC"));
+    }
+
 }
 
 

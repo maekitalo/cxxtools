@@ -47,49 +47,6 @@ FileDeviceImpl::~FileDeviceImpl()
 { }
 
 
-void FileDeviceImpl::open( const char* path, std::ios::openmode mode, bool inherit)
-{
-    int flags = O_RDONLY;
-
-    if( (mode & std::ios::in ) && (mode & std::ios::out) )
-    {
-        flags |= O_RDWR;
-        flags |= O_CREAT;
-    }
-    else if(mode & std::ios::out)
-    {
-        flags |= O_WRONLY;
-        flags |= O_CREAT;
-    }
-    else if(mode & std::ios::in)
-    {
-        flags |= O_RDONLY;
-    }
-
-    flags |= O_NONBLOCK;
-
-    if(mode & std::ios::trunc)
-        flags |= O_TRUNC;
-
-    int fd = ::open(path, flags, 0644);
-    if(fd == -1)
-    {
-        throw AccessFailed(path);
-    }
-
-    IODeviceImpl::open(fd, false, inherit);
-
-    try {
-        if(mode & std::ios::ate)
-            this->seek(0, std::ios::end);
-    }
-    catch(...) {
-        this->close();
-        throw;
-    }
-}
-
-
 bool FileDeviceImpl::seekable() const
 {
     struct stat s;

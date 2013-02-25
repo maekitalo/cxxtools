@@ -86,7 +86,7 @@ namespace cxxtools {
             std::size_t timeout() const
             { return _timeout; }
 
-            virtual void open(const std::string& path, IODevice::OpenMode mode);
+            virtual void open(const std::string& path, IODevice::OpenMode mode, bool inherit);
 
             virtual void open(int fd, bool isAsync, bool inherit);
 
