@@ -1,3 +1,192 @@
+2013-02-14 tommi@tntnet.org
+
+ - add domain parameter to connect method and constructor of binary rpc client to make it more similar to xmlrpc
+ - do not convert string values to double and back in json formatter when doubles are serialized as strings
+
+2013-01-30 tommi@tntnet.org
+
+ - make conversion explicit in cxxtools::String (clang was pinky about it and he was right)
+
+2013-01-18 tommi@tntnet.org
+
+ - improve compatibility to previous cxxtools release in log_init
+ - fix properties unit test: a wide char string cannot be printed to a std::ostream
+
+2013-01-16 tommi@tntnet.org
+
+ - allow full 32 bit unicode escapes in properties files
+
+2013-01-14 tommi@tntnet.org
+
+ - use deserializer API to extract data from properties in unit test
+
+2013-01-13 tommi@tntnet.org
+
+ - improve error handling in properties parser
+
+2013-01-12 tommi@tntnet.org
+
+ - allow unicode escape sequences in properties and comments starting with !
+ - implement PropertiesDeserializer
+ - read logging settings optionally from log.properties like before
+ - bugfix: SerializationInfo::getMember(unsigned) was just wrong
+ - use unicode strings in Properties class
+
+2013-01-09 tommi@tntnet.org
+
+ - add missing library dependency
+
+2013-01-03 tommi@tntnet.org
+
+ - fix stopping tcp server if only one listen socket is active
+ - make value of cxxtools::Char signed like other char types
+ - fixes for IBM/xlC-compiler
+
+2013-01-02 tommi@tntnet.org
+
+ - do not block SIGPIPE if MSG_NOSIGNAL is used
+ - extend cxxtools::split by passing split as set of chars
+
+2012-12-30 tommi@tntnet.org
+
+ - fix preprocessor warning about redefinition of HAVE_REVERSE_ITERATOR
+ - fix handling SIGPIPE in tcp server for BSD
+ - do not set signal handler for SIGPIPE any more in servers since it is now handled by the socket code
+ - fix setting SO_NOSIGPIPE
+
+2012-12-29 tommi@tntnet.org
+
+ - use SO_NOSIGPIPE or MSG_NOSIGNAL to suppress SIGPIPE
+ - fix compile problem on FreeBSD
+
+2012-12-01 tommi@tntnet.org
+
+ - allocate dynamically the buffer for cxxtools::Directory::cwd to be safe for all times
+
+2012-11-25 tommi@tntnet.org
+
+ - replace function praefix in binary rpc with domain and implement explicit protocol support for it
+ - allow assigning value to cxxtools::Arg
+
+2012-11-18 tommi@tntnet.org
+
+ - new file device for asynchronous file i/o (ported from Pt)
+
+2012-11-17 tommi@tntnet.org
+
+ - add force flag to cxxtools::Queue::put to override capacity limitation of queue
+ - make Base64Codec::encode/decode public as they are inteded to be and make codec methods in Utf8Codec protected instead of public
+ - add missing file - iconvwrap should have been checked in long ago
+ - compile with -Wall and -pedantic by default if compiler supports it
+
+2012-10-26 tommi@tntnet.org
+
+ - do not loose assertion message when unit tests are nested
+
+2012-10-08 tommi@tntnet.org
+
+ - format null value correctly in xmlrpc
+ - make type conversion explicit in SerializationInfo
+ - add unit tests for cxxtools::split and cxxtools::join
+
+2012-09-21 tommi@tntnet.org
+
+ - add static helper functions to codecs for encoding and decoding utf-8 and base84 data
+ - fix new cxxtools::encode and decode functions and add unit tests for them
+
+2012-09-20 tommi@tntnet.org
+
+ - implement encode and decode helper template functions
+
+2012-09-12 tommi@tntnet.org
+
+ - add host and port into error message in tcp client when connect fails
+
+2012-09-02 tommi@tntnet.org
+
+ - make json rpc conformant to JSON-RPC specification 2.0
+ - use monotonic clock function clock_gettime if available to measure times cxxtools::Clock
+
+2012-08-20 tommi@tntnet.org
+
+ - make cxxtools::Thread::sleep(ms) signal safe
+
+2012-08-04 tommi@tntnet.org
+
+ - allow absolute uris in http request header as the standard demands
+
+2012-07-31 tommi@tntnet.org
+
+ - fix problems detected by clang 3.1 (yofuh)
+
+2012-07-29 tommi@tntnet.org
+
+ - make cxxtools::Char more restrictive (like removing automatic conversion to int or removing shift operators)
+ - make of logging deinitialization more robust
+
+2012-07-16 tommi@tntnet.org
+
+ - comparing Char against wchar_t
+
+2012-06-25 tommi@tntnet.org
+
+ - better formatting of failed message in unittest macro CXXTOOLS_UNIT_ASSERT_EQUALS
+
+2012-06-11 tommi@tntnet.org
+
+ - fix race condition when creating deteached threads
+
+2012-06-10 tommi@tntnet.org
+
+ - fix 2 small memory leaks
+ - add test for smart pointer with atomic counter
+
+2012-06-07 tommi@tntnet.org
+
+ - make smart pointer implicit convertable to const ObjectType* again
+ - move responsibility in destroying object from refcounted to smartptr class, so that smartptr can use its destroy poliy
+
+2012-06-02 tommi@tntnet.org
+
+ - simplify writing log to stderr or stdout since this complicated optimization do not help at all
+ - fix optimized writing to console in logger (log messages were not completed with a line feed when delayed)
+ - do not create log.properties but new log.xml when building demos
+ - add new cxxtools/iconvwrap.h to dist package
+
+2012-05-30 tommi@tntnet.org
+
+ - add pkg-config support (Leandro Santiago)
+ - improve iconv support (Jiří Pinkava)
+
+2012-05-29 tommi@tntnet.org
+
+ - update cxxtools-config to generate new configuration file log.xml file instead of log.properties for logging
+ - limit size of buffered log messages to stderr or stdout to about 8k
+ - do not use std::cerr to write log message since it is a global resource may be used by another thread
+ - add setting "stdout" to print log output to stdout instead of stderr
+
+2012-05-28 tommi@tntnet.org
+
+ - optimize printing cxxtools::String to std::ostream by using codec directly instead of instantiation of TextStream
+ - fix buffer overflow in Utf8Codec::decode
+   - rewrite logging
+   - configure logging using xml (or serializationinfo) instead of properties
+   - remove cxxtools/loginit.h - it was obsolete for long time already
+   - move xml support from libcxxtools-xml into core library libcxxtools and remove libcxxtools-xml
+ - do not use all html entities in xml but only the few, which are defined in xml
+
+2012-05-26 tommi@tntnet.org
+
+ - fix reading authentication data from http request
+
+2012-05-19 tommi@tntnet.org
+
+ - remove remaining parts of support of log4cxx and log4cplus
+
+2012-05-13 tommi@tntnet.org
+
+ - limit number of pooled message impl in logger to 8 and release pooled messages on end
+
 2012-05-19 tommi@tntnet.org
 
  - remove remaining parts of support of log4cxx and log4cplus
