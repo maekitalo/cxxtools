@@ -33,305 +33,348 @@
 
 namespace cxxtools
 {
-const std::string QueryParams::emptyValue;
-
-const std::string& QueryParams::param(const std::string& name, size_type n,
-  const std::string& def) const
+namespace
 {
-  named_params_type::const_iterator i = named_params.find(name);
-  if (i != named_params.end() && n < i->second.size())
-    return i->second[n];
-  else if (!useParentValues())
-    return def;
-  else
+  class UrlParser
   {
-    if (i != named_params.end())
-      n -= i->second.size();
-    return parent->param(name, n, def);
+      QueryParams& _q;
+      enum {
+        state_0,
+        state_key,
+        state_value,
+        state_keyesc,
+        state_valueesc
+      } _state;
+
+      std::string _key;
+      std::string _value;
+      unsigned _cnt;
+      unsigned _v;
+
+    public:
+      explicit UrlParser(QueryParams& q)
+        : _q(q),
+          _state(state_0),
+          _cnt(0),
+          _v(0)
+      { }
+
+      void parse(char ch);
+      void finish();
+  };
+
+  void UrlParser::parse(char ch)
+  {
+    switch(_state)
+    {
+      case state_0:
+        if (ch == '=')
+          _state = state_value;
+        else if (ch == '&')
+          ;
+        else if (ch == '%')
+          _state = state_keyesc;
+        else
+        {
+          _key = ch;
+          _state = state_key;
+        }
+        break;
+
+      case state_key:
+        if (ch == '=')
+          _state = state_value;
+        else if (ch == '&')
+        {
+          _q.add(_key);
+          _key.clear();
+          _state = state_0;
+        }
+        else if (ch == '%')
+          _state = state_keyesc;
+        else
+          _key += ch;
+        break;
+
+      case state_value:
+        if (ch == '%')
+          _state = state_valueesc;
+        else if (ch == '&')
+        {
+          _q.add(_key, _value);
+          _key.clear();
+          _value.clear();
+          _state = state_0;
+        }
+        else if (ch == '+')
+          _value += ' ';
+        else
+          _value += ch;
+        break;
+
+      case state_keyesc:
+      case state_valueesc:
+        if (ch >= '0' && ch <= '9')
+        {
+          ++_cnt;
+          _v = (_v << 4) + (ch - '0');
+        }
+        else if (ch >= 'a' && ch <= 'f')
+        {
+          ++_cnt;
+          _v = (_v << 4) + (ch - 'a' + 10);
+        }
+        else if (ch >= 'A' && ch <= 'F')
+        {
+          ++_cnt;
+          _v = (_v << 4) + (ch - 'A' + 10);
+        }
+        else
+        {
+          if (_cnt == 0)
+          {
+            if (_state == state_keyesc)
+              _state = state_key;
+            else
+              _state = state_value;
+            parse('%');
+          }
+          else
+          {
+            if (_state == state_keyesc)
+            {
+              _key += static_cast<char>(_v);
+              _state = state_key;
+            }
+            else
+            {
+              _value += static_cast<char>(_v);
+              _state = state_value;
+            }
+
+            _cnt = 0;
+            _v = 0;
+          }
+
+          parse(ch);
+          break;
+        }
+
+        if (_cnt >= 2)
+        {
+          if (_state == state_keyesc)
+          {
+            _key += static_cast<char>(_v);
+            _state = state_key;
+          }
+          else
+          {
+            _value += static_cast<char>(_v);
+            _state = state_value;
+          }
+          _cnt = 0;
+          _v = 0;
+        }
+
+        break;
+
+    }
+
   }
+
+  void UrlParser::finish()
+  {
+    switch(_state)
+    {
+      case state_0:
+        break;
+
+      case state_key:
+        if (!_key.empty())
+        {
+          _q.add(_key);
+          _key.clear();
+        }
+        break;
+
+      case state_value:
+        _q.add(_key, _value);
+        _key.clear();
+        _value.clear();
+        break;
+
+      case state_keyesc:
+      case state_valueesc:
+        if (_cnt == 0)
+        {
+          if (_state == state_keyesc)
+          {
+            _key += '%';
+            _q.add(_key);
+          }
+          else
+          {
+            _value += '%';
+            _q.add(_key, _value);
+          }
+        }
+        else
+        {
+          if (_state == state_keyesc)
+          {
+            _key += static_cast<char>(_v);
+            _q.add(_key);
+          }
+          else
+          {
+            _value += static_cast<char>(_v);
+            _q.add(_key, _value);
+          }
+        }
+
+        _value.clear();
+        _key.clear();
+        _cnt = 0;
+        _v = 0;
+        break;
+    }
+
+  }
+
+  void appendUrl(std::string& url, char ch)
+  {
+    static const char hex[] = "0123456789ABCDEF";
+    if (ch > 32 && ch < 127 && ch != '%' && ch != '+' && ch != '=' && ch != '&')
+      url += ch;
+    else if (ch == ' ')
+      url += '+';
+    else
+    {
+      url += '%';
+      char hi = (ch >> 4) & 0x0f;
+      char lo = ch & 0x0f;
+      url += hex[static_cast<int>(hi)];
+      url += hex[static_cast<int>(lo)];
+    }
+  }
+
+  void appendUrl(std::string& url, const std::string& str)
+  {
+    for (std::string::const_iterator i = str.begin();
+         i != str.end(); ++i)
+      appendUrl(url, *i);
+  }
+
+}
+
+void QueryParams::parse_url(const std::string& url)
+{
+  UrlParser p(*this);
+
+  for (std::string::const_iterator it = url.begin(); it != url.end(); ++it)
+    p.parse(*it);
+
+  p.finish();
+}
+
+void QueryParams::parse_url(const char* url)
+{
+  UrlParser p(*this);
+
+  while (*url)
+  {
+    p.parse(*url);
+    ++url;
+  }
+
+  p.finish();
+}
+
+void QueryParams::parse_url(std::istream& url_stream)
+{
+  UrlParser p(*this);
+
+  char ch;
+  while (url_stream.get(ch))
+    p.parse(ch);
+
+  p.finish();
+}
+
+/// get nth named parameter.
+const std::string& QueryParams::param(const std::string& name, size_type n) const
+{
+  for (size_type nn = 0; nn < _values.size(); ++nn)
+  {
+    if (_values[nn].name == name)
+    {
+      if (n == 0)
+        return _values[nn].value;
+      --n;
+    }
+  }
+
+  static std::string emptyValue;
+  return emptyValue;
+}
+
+/// get nth named parameter with default value.
+std::string QueryParams::param(const std::string& name, size_type n, const std::string& def) const
+{
+  for (size_type nn = 0; nn < _values.size(); ++nn)
+  {
+    if (_values[nn].name == name)
+    {
+      if (n == 0)
+        return _values[nn].value;
+      --n;
+    }
+  }
+
+  return def;
 }
 
 /// get number of parameters with the given name
 QueryParams::size_type QueryParams::paramcount(const std::string& name) const
 {
-  size_type ret;
-  named_params_type::const_iterator i = named_params.find(name);
-  ret = i == named_params.end() ? 0 : i->second.size();
-  if (useParentValues())
-    ret += parent->paramcount(name);
-  return ret;
+  size_type count = 0;
+
+  for (size_type nn = 0; nn < _values.size(); ++nn)
+    if (_values[nn].name == name)
+      ++count;
+
+  return count;
 }
 
-/// replace named parameter
-void QueryParams::replace(const std::string& name, const std::string& value, bool to_parent)
+/// checks if the named parameter exists
+bool QueryParams::has(const std::string& name) const
 {
-  if (to_parent && parent)
-    parent->replace(name, value);
-  else
-  {
-    named_params[name].clear();
-    named_params[name].push_back(value);
-  }
+  for (size_type nn = 0; nn < _values.size(); ++nn)
+    if (_values[nn].name == name)
+      return true;
+
+  return false;
 }
 
-/// removes all data
-void QueryParams::clear()
-{
-  unnamed_params.clear();
-  named_params.clear();
-  if (parent && use_parent_values)
-    parent->clear();
-}
-
-template <class iterator_type>
-void _parse_url(
-  iterator_type begin,
-  iterator_type end,
-  QueryParams::unnamed_params_type& unnamed_params,
-  QueryParams::named_params_type& named_params)
-{
-  enum state_type {
-    state_key,
-    state_value,
-    state_keyesc,
-    state_valueesc,
-    state_end
-  };
-
-  state_type state = state_key;
-  std::string s1, s2;
-  int cnt = -1;
-  int v = 0;
-
-  for(iterator_type charp = begin;
-      state != state_end && charp != end;
-      ++charp)
-  {
-    char ch = *charp;
-    switch(state)
-    {
-      case state_key:
-        switch(ch)
-        {
-          case '=':
-            state = state_value;
-            break;
-
-          case '&':
-            unnamed_params.push_back(s1);
-            s1.clear();
-            break;
-
-          case '%':
-            cnt = 0;
-            v = 0;
-            state = state_keyesc;
-            break;
-
-          case ' ':
-          case '\t':
-            state = state_end;
-            break;
-
-          default:
-            s1.push_back(ch);
-        }
-        break;
-
-      case state_value:
-        switch(ch)
-        {
-          case '%':
-            cnt = 0;
-            v = 0;
-            state = state_valueesc;
-            break;
-
-          case '&':
-            named_params[s1].push_back(s2);
-            s1.clear();
-            s2.clear();
-            state = state_key;
-            break;
-
-          case '+':
-            s2.push_back(' ');
-            break;
-
-          default:
-            s2.push_back(ch);
-        }
-        break;
-
-      case state_keyesc:
-      case state_valueesc:
-        v = (v << 4)
-          + ((ch >= 'a' && ch <= 'f') ? (ch - 'a' + 10)
-           : (ch >= 'A' && ch <= 'F') ? (ch - 'A' + 10)
-           : (ch - '0'));
-        if (++cnt >= 2)
-        {
-          switch(state)
-          {
-            case state_keyesc:
-              s1.push_back((char)v);
-              state = state_key;
-              break;
-
-            case state_valueesc:
-              s2.push_back((char)v);
-              state = state_value;
-              break;
-
-            default:
-              break;
-          }
-          cnt = -1;
-        }
-        break;
-
-      case state_end:
-        break;
-    }
-  }
-
-  switch(state)
-  {
-    case state_key:
-    case state_keyesc:
-      if (!s1.empty())
-        unnamed_params.push_back(s1);
-      break;
-
-    case state_value:
-    case state_valueesc:
-      named_params[s1].push_back(s2);
-      break;
-
-    case state_end:
-      break;
-  }
-}
-
-void QueryParams::parse_url(const std::string& url)
-{
-  _parse_url(url.begin(), url.end(), unnamed_params, named_params);
-}
-
-void QueryParams::parse_url(const char* url)
-{
-  const char* end = url;
-  while (*end)
-    ++end;
-  _parse_url(url, end, unnamed_params, named_params);
-}
-
-void QueryParams::parse_url(std::istream& url_stream)
-{
-  _parse_url(
-    std::istream_iterator<char>(url_stream),
-    std::istream_iterator<char>(),
-    unnamed_params, named_params);
-}
-
-static void appendUrl(std::string& url, char ch)
-{
-  static char hex[] = "0123456789ABCDEF";
-  if (ch > 32 && ch < 127 && ch != '%' && ch != '+' && ch != '=' && ch != '&')
-    url += ch;
-  else if (ch == ' ')
-    url += '+';
-  else
-  {
-    url += '%';
-    char hi = (ch >> 4) & 0x0f;
-    char lo = ch & 0x0f;
-    url += hex[static_cast<int>(hi)];
-    url += hex[static_cast<int>(lo)];
-  }
-}
-
-static void appendUrl(std::string& url, const std::string& str)
-{
-  for (std::string::const_iterator i = str.begin();
-       i != str.end(); ++i)
-    appendUrl(url, *i);
-}
-
+/// get parameters as url
 std::string QueryParams::getUrl() const
 {
-  std::string ret;
-
-  if (useParentValues())
+  std::string url;
+  for (size_type nn = 0; nn < _values.size(); ++nn)
   {
-    ret = parent->getUrl();
-    if (!ret.empty())
-      ret += '&';
-  }
+    if (nn > 0)
+      url += '&';
 
-  for (unnamed_params_type::const_iterator u = unnamed_params.begin();
-       u != unnamed_params.end(); ++u)
-  {
-    appendUrl(ret, *u);
-    ret += '&';
-  }
-
-  for (named_params_type::const_iterator n = named_params.begin();
-       n != named_params.end(); ++n)
-  {
-    for (unnamed_params_type::const_iterator u = n->second.begin();
-         u != n->second.end(); ++u)
+    if (!_values[nn].name.empty())
     {
-      ret += n->first;
-      ret += '=';
-      appendUrl(ret, *u);
-      ret += '&';
+      appendUrl(url, _values[nn].name);
+      url += '=';
     }
+
+    appendUrl(url, _values[nn].value);
   }
 
-  if (!ret.empty())
-    ret.erase(ret.end() - 1);
-
-  return ret;
-}
-
-std::string QueryParams::dump() const
-{
-  std::string ret;
-
-  for (unnamed_params_type::const_iterator u = unnamed_params.begin();
-       u != unnamed_params.end(); ++u)
-  {
-    ret += '"';
-    ret += *u;
-    ret += "\" ";
-  }
-
-  for (named_params_type::const_iterator n = named_params.begin();
-       n != named_params.end(); ++n)
-  {
-    for (unnamed_params_type::const_iterator u = n->second.begin();
-         u != n->second.end(); ++u)
-    {
-      ret += n->first;
-      ret += "=\"";
-      ret += *u;
-      ret += "\" ";
-    }
-  }
-
-  if (parent)
-  {
-    ret += "{ ";
-    if (!use_parent_values)
-      ret += '(';
-    ret += parent->dump();
-    if (!use_parent_values)
-      ret += ')';
-    ret += " }";
-  }
-
-  return ret;
+  return url;
 }
 
 }

@@ -25,6 +25,7 @@ alltests_SOURCES = \
     md5-test.cpp \
     pool-test.cpp \
     properties-test.cpp \
+    query_params-test.cpp \
     serializationinfo-test.cpp \
     smartptr-test.cpp \
     split-test.cpp \
