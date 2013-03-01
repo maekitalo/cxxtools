@@ -76,6 +76,7 @@ RpcClientImpl::~RpcClientImpl()
 
 void RpcClientImpl::connect(const std::string& addr, unsigned short port, const std::string& domain)
 {
+    _socket.close();
     _addr = addr;
     _port = port;
     _domain = domain;
