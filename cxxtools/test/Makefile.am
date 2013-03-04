@@ -26,6 +26,7 @@ alltests_SOURCES = \
     pool-test.cpp \
     properties-test.cpp \
     query_params-test.cpp \
+    regex-test.cpp \
     serializationinfo-test.cpp \
     smartptr-test.cpp \
     split-test.cpp \

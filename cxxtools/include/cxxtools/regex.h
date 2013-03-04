@@ -65,15 +65,23 @@ namespace cxxtools
       { }
 
       explicit Regex(const char* ex, int cflags = REG_EXTENDED)
-        : expr(new regex_t())
+        : expr(0)
       {
-        checkerr(::regcomp(expr.getPointer(), ex, cflags));
+        if (ex && ex[0])
+        {
+          expr = new regex_t();
+          checkerr(::regcomp(expr.getPointer(), ex, cflags));
+        }
       }
 
       explicit Regex(const std::string& ex, int cflags = REG_EXTENDED)
-        : expr(new regex_t())
+        : expr(0)
       {
-        checkerr(::regcomp(expr.getPointer(), ex.c_str(), cflags));
+        if (!ex.empty())
+        {
+          expr = new regex_t();
+          checkerr(::regcomp(expr.getPointer(), ex.c_str(), cflags));
+        }
       }
 
       bool match(const std::string& str_, RegexSMatch& smatch, int eflags = 0) const;
@@ -92,6 +100,11 @@ namespace cxxtools
       regmatch_t matchbuf[10];
 
     public:
+      RegexSMatch()
+      {
+        matchbuf[0].rm_so = 0;
+      }
+
       /// returns the number of expressions, which were found
       unsigned size() const;
       /// returns the start position of the n-th expression

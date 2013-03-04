@@ -162,6 +162,12 @@ namespace cxxtools
 
   bool Regex::match(const std::string& str_, RegexSMatch& smatch, int eflags) const
   {
+    if (expr.getPointer() == 0)
+    {
+      smatch.matchbuf[0].rm_so = 0;
+      return true;
+    }
+
     smatch.str = str_;
     int ret = regexec(expr.getPointer(), str_.c_str(),
         sizeof(smatch.matchbuf) / sizeof(regmatch_t), smatch.matchbuf, eflags);
