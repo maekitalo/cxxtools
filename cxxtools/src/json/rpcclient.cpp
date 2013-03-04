@@ -54,17 +54,24 @@ RpcClient::~RpcClient()
 
 void RpcClient::setSelector(SelectorBase& selector)
 {
+    if (!_impl)
+        _impl = new RpcClientImpl();
+
     _impl->setSelector(selector);
 }
 
 void RpcClient::connect(const std::string& addr, unsigned short port)
 {
+    if (!_impl)
+        _impl = new RpcClientImpl();
+
     _impl->connect(addr, port);
 }
 
 void RpcClient::close()
 {
-    _impl->close();
+    if (_impl)
+        _impl->close();
 }
 
 void RpcClient::beginCall(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc)

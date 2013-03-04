@@ -60,7 +60,8 @@ void RpcClient::connect(const std::string& addr, unsigned short port, const std:
 {
     if (!_impl)
         _impl = new RpcClientImpl(this, addr, port, domain);
-    _impl->connect(addr, port, domain);
+    else
+        _impl->connect(addr, port, domain);
 }
 
 void RpcClient::close()

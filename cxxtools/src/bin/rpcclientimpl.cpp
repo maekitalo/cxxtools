@@ -44,6 +44,7 @@ RpcClientImpl::RpcClientImpl(RpcClient* client, SelectorBase& selector, const st
       _proc(0),
       _stream(_socket, 8192, true),
       _formatter(_stream),
+      _exceptionPending(false),
       _domain(domain)
 {
     setSelector(selector);
@@ -60,6 +61,7 @@ RpcClientImpl::RpcClientImpl(RpcClient* client, const std::string& addr, unsigne
       _proc(0),
       _stream(_socket, 8192, true),
       _formatter(_stream),
+      _exceptionPending(false),
       _domain(domain)
 {
     connect(addr, port, domain);
@@ -76,9 +78,13 @@ RpcClientImpl::~RpcClientImpl()
 
 void RpcClientImpl::connect(const std::string& addr, unsigned short port, const std::string& domain)
 {
-    _socket.close();
-    _addr = addr;
-    _port = port;
+    if (_addr != addr || _port != port)
+    {
+        _socket.close();
+        _addr = addr;
+        _port = port;
+    }
+
     _domain = domain;
 }
 
