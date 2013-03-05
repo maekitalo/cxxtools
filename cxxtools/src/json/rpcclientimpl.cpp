@@ -52,7 +52,7 @@ RpcClientImpl::RpcClientImpl()
 
 void RpcClientImpl::connect(const std::string& addr, unsigned short port)
 {
-    if (_addr != _addr || _port != _port)
+    if (_addr != addr || _port != port)
     {
         _socket.close();
         _addr = addr;

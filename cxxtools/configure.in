@@ -1,9 +1,9 @@
-AC_INIT(cxxtools, 2.1-20120602-1, [Tommi Maekitalo <tommi@tntnet.org>])
+AC_INIT(cxxtools, 2.2rc1, [Tommi Maekitalo <tommi@tntnet.org>])
 AM_INIT_AUTOMAKE
 
 AC_PREREQ([2.5.9])
 
-abi_current=8
+abi_current=9
 abi_revision=0
 abi_age=0
 sonumber=${abi_current}:${abi_revision}:${abi_age}
