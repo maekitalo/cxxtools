@@ -312,6 +312,10 @@ namespace cxxtools
       SmartPtr(const SmartPtr& ptr)
         : object(ptr.object)
         { OwnershipPolicyType::link(ptr, ptr.object); }
+      template <typename T>
+      SmartPtr(const SmartPtr<T>& ptr)
+        : object(ptr.object)
+        { OwnershipPolicyType::link(ptr, ptr.object); }
       ~SmartPtr()
         { if (OwnershipPolicyType::unlink(object))
             DestroyPolicy<ObjectType>::destroy(object); }
@@ -330,21 +334,69 @@ namespace cxxtools
         return *this;
       }
 
+      template <typename T>
+      SmartPtr& operator= (const SmartPtr<T>& ptr)
+      {
+        if (object != ptr.object)
+        {
+          if (OwnershipPolicyType::unlink(object))
+            DestroyPolicy<ObjectType>::destroy(object);
+
+          object = ptr.object;
+
+          OwnershipPolicyType::link(ptr, object);
+        }
+        return *this;
+      }
+
+      SmartPtr& operator= (ObjectType* ptr)
+      {
+        if (object != ptr)
+        {
+          if (OwnershipPolicyType::unlink(object))
+            DestroyPolicy<ObjectType>::destroy(object);
+
+          object = ptr;
+
+          OwnershipPolicyType::link(*this, ptr);
+        }
+        return *this;
+      }
+
       /// The object can be dereferenced like the held object
       ObjectType* operator->() const              { return object; }
       /// The object can be dereferenced like the held object
       ObjectType& operator*() const               { return *object; }
 
-      bool operator== (const ObjectType* p) const { return object == p; }
-      bool operator!= (const ObjectType* p) const { return object != p; }
-      bool operator< (const ObjectType* p) const  { return object < p; }
       bool operator! () const { return object == 0; }
       operator bool () const  { return object != 0; }
 
       ObjectType* getPointer() const        { return object; }
-      operator ObjectType* () const         { return object; }
-      operator const ObjectType* () const   { return object; }
   };
+
+  template <typename T1, typename T2>
+  bool operator== (const SmartPtr<T1>& p1, const T2* p2)
+  { return p1.getPointer() == p2; }
+
+  template <typename T1, typename T2>
+  bool operator== (const T1* p1, const SmartPtr<T2>& p2)
+  { return p1 == p2.getPointer(); }
+
+  template <typename T1, typename T2>
+  bool operator== (const SmartPtr<T1>& p1, const SmartPtr<T2>& p2)
+  { return p1.getPointer() == p2.getPointer(); }
+
+  template <typename T1, typename T2>
+  bool operator!= (const SmartPtr<T1>& p1, const T2* p2)
+  { return p1.getPointer() != p2; }
+
+  template <typename T1, typename T2>
+  bool operator!= (const T1* p1, const SmartPtr<T2>& p2)
+  { return p1 != p2.getPointer(); }
+
+  template <typename T1, typename T2>
+  bool operator!= (const SmartPtr<T1>& p1, const SmartPtr<T2>& p2)
+  { return p1.getPointer() != p2.getPointer(); }
 
 }
 
