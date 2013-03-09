@@ -99,7 +99,7 @@ namespace cxxtools
         case state_1:
           if (ch == '$')
             state = state_var1;
-          else if (state == '\\')
+          else if (ch == '\\')
             state = state_esc;
           else
             ret += ch;
