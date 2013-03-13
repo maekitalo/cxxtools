@@ -55,9 +55,9 @@ class RpcClientImpl : public Connectable
         void operator= (const RpcClientImpl&) { }
 
     public:
-        RpcClientImpl(RpcClient* client, const std::string& addr, unsigned short port, const std::string& domain);
+        RpcClientImpl(const std::string& addr, unsigned short port, const std::string& domain);
 
-        RpcClientImpl(RpcClient* client, SelectorBase& selector, const std::string& addr, unsigned short port, const std::string& domain);
+        RpcClientImpl(SelectorBase& selector, const std::string& addr, unsigned short port, const std::string& domain);
 
         ~RpcClientImpl();
 
@@ -91,7 +91,6 @@ class RpcClientImpl : public Connectable
         void onOutput(StreamBuffer& sb);
         void onInput(StreamBuffer& sb);
 
-        RpcClient* _client;
         IRemoteProcedure* _proc;
         net::TcpSocket _socket;
         IOStream _stream;

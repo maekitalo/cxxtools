@@ -35,12 +35,12 @@ namespace bin
 {
 
 RpcClient::RpcClient(SelectorBase& selector, const std::string& addr, unsigned short port, const std::string& domain)
-    : _impl(new RpcClientImpl(this, selector, addr, port, domain))
+    : _impl(new RpcClientImpl(selector, addr, port, domain))
 { 
 }
 
 RpcClient::RpcClient(const std::string& addr, unsigned short port, const std::string& domain)
-    : _impl(new RpcClientImpl(this, addr, port, domain))
+    : _impl(new RpcClientImpl(addr, port, domain))
 { 
 }
 
@@ -52,14 +52,14 @@ RpcClient::~RpcClient()
 void RpcClient::setSelector(SelectorBase& selector)
 {
     if (!_impl)
-        _impl = new RpcClientImpl(this, std::string(), 0, std::string());
+        _impl = new RpcClientImpl(std::string(), 0, std::string());
     _impl->setSelector(selector);
 }
 
 void RpcClient::connect(const std::string& addr, unsigned short port, const std::string& domain)
 {
     if (!_impl)
-        _impl = new RpcClientImpl(this, addr, port, domain);
+        _impl = new RpcClientImpl(addr, port, domain);
     else
         _impl->connect(addr, port, domain);
 }

@@ -134,9 +134,6 @@ class FileInfo
 
         //! @internal
         std::string _path;
-
-        //! @internal
-        void* _reserved;
 };
 
 inline bool operator<(const FileInfo& a, const FileInfo& b)

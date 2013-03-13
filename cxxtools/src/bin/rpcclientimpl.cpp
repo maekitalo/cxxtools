@@ -39,9 +39,8 @@ namespace cxxtools
 namespace bin
 {
 
-RpcClientImpl::RpcClientImpl(RpcClient* client, SelectorBase& selector, const std::string& addr, unsigned short port, const std::string& domain)
-    : _client(client),
-      _proc(0),
+RpcClientImpl::RpcClientImpl(SelectorBase& selector, const std::string& addr, unsigned short port, const std::string& domain)
+    : _proc(0),
       _stream(_socket, 8192, true),
       _formatter(_stream),
       _exceptionPending(false),
@@ -56,9 +55,8 @@ RpcClientImpl::RpcClientImpl(RpcClient* client, SelectorBase& selector, const st
 
 }
 
-RpcClientImpl::RpcClientImpl(RpcClient* client, const std::string& addr, unsigned short port, const std::string& domain)
-    : _client(client),
-      _proc(0),
+RpcClientImpl::RpcClientImpl(const std::string& addr, unsigned short port, const std::string& domain)
+    : _proc(0),
       _stream(_socket, 8192, true),
       _formatter(_stream),
       _exceptionPending(false),

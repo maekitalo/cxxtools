@@ -98,7 +98,6 @@ class ValueParser
             state_end
         } _state, _nextstate;
 
-        SerializationInfo::Category _category;
         std::string _token;
         unsigned _count;
         uint64_t _int;

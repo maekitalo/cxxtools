@@ -32,14 +32,12 @@
 namespace cxxtools {
 
 File::File()
-: _impl(0)
 {
 }
 
 
 File::File(const std::string& path)
 : _path(path)
-, _impl(0)
 {
     if( ! File::exists( path.c_str() ) )
         throw FileNotFound(path);
@@ -48,7 +46,6 @@ File::File(const std::string& path)
 
 File::File(const FileInfo& fi)
 : _path( fi.path() )
-, _impl(0)
 {
     if( ! fi.isFile() )
         throw FileNotFound(fi.path());
@@ -57,7 +54,6 @@ File::File(const FileInfo& fi)
 
 File::File(const File& file)
 : _path( file.path() )
-, _impl(0)
 {
 }
 

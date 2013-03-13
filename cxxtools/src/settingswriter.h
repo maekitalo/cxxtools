@@ -39,7 +39,6 @@ class SettingsWriter
     public:
         SettingsWriter( std::basic_ostream<cxxtools::Char>& os)
         : _os(&os)
-        , _indent(0)
         { }
 
         ~SettingsWriter()
@@ -58,7 +57,6 @@ class SettingsWriter
 
     private:
         std::basic_ostream<cxxtools::Char>* _os;
-        size_t _indent;
 };
 
 }

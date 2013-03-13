@@ -36,13 +36,11 @@ namespace cxxtools
 
 FileInfo::FileInfo()
 : _type(FileInfo::Invalid)
-, _reserved(0)
 {}
 
 
 FileInfo::FileInfo(const std::string& path)
 : _path(path)
-, _reserved(0)
 {
     _type = FileInfoImpl::getType( path.c_str() );
 }
@@ -50,7 +48,6 @@ FileInfo::FileInfo(const std::string& path)
 
 FileInfo::FileInfo(const DirectoryIterator& it)
 : _path(it.path())
-, _reserved(0)
 {
     _type = FileInfoImpl::getType( _path.c_str() );
 }
@@ -59,7 +56,6 @@ FileInfo::FileInfo(const DirectoryIterator& it)
 FileInfo::FileInfo(const FileInfo& fi)
 : _type(fi._type)
 , _path(fi._path)
-, _reserved(0)
 {
 }
 

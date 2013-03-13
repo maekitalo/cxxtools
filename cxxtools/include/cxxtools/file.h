@@ -127,9 +127,6 @@ class File
     private:
         //! @internal
         std::string _path;
-
-        //! @internal
-        class FileImpl* _impl;
 };
 
 inline bool operator<(const File& a, const File& b)

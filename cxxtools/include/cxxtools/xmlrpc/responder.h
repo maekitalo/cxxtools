@@ -94,7 +94,6 @@ class CXXTOOLS_XMLRPC_API XmlRpcResponder : public http::Responder
         Service* _service;
         ServiceProcedure* _proc;
         IComposer** _args;
-        IDecomposer* _result;
         RemoteException _fault;
 };
 
