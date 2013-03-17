@@ -619,8 +619,8 @@ bool ValueParser::advance(char ch)
             return processFloatBase(ch, 0, 16383);
 
         case state_object_type:
-            if (ch == Serializer::TypePlainOther
-                || ch == Serializer::TypeOther)
+            if (static_cast<Serializer::TypeCode>(ch) == Serializer::TypePlainOther
+                || static_cast<Serializer::TypeCode>(ch) == Serializer::TypeOther)
                 _state = state_object_type_other;
             else
             {

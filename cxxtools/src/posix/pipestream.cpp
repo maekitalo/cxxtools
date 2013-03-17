@@ -91,7 +91,7 @@ namespace posix
       else
       {
         log_debug(ret << " bytes written to fd " << getWriteFd());
-        if (ret < bufsize)
+        if (static_cast<unsigned>(ret) < bufsize)
           std::memmove(obuffer, obuffer + ret, bufsize - ret);
         setp(obuffer, obuffer + bufsize);
         pbump(bufsize - ret);

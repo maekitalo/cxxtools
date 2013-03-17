@@ -485,6 +485,16 @@ int TcpServerImpl::accept(int flags, struct sockaddr* sa, socklen_t& sa_len)
 
     if( clientFd < 0 )
         throw SystemError("accept");
+
+    if (!inherit)
+    {
+        int flags = ::fcntl(clientFd, F_GETFD);
+        flags |= FD_CLOEXEC ;
+        fn = "fcntl";
+        int ret = ::fcntl(clientFd, F_SETFD, flags);
+        if (ret == -1)
+            throw IOError(getErrnoString("Could not set FD_CLOEXEC"));
+    }
 #endif
 
 #ifdef HAVE_SO_NOSIGPIPE

@@ -71,7 +71,7 @@ namespace cxxtools
 
         BasicExec& push_back(const std::string& arg)
         {
-          if (args[argc + 1] + arg.size() - data >= dataSize)
+          if (static_cast<unsigned>(args[argc + 1] + arg.size() - data) >= dataSize)
             throw std::out_of_range("argument list too long");
           if (argc >= maxArgs)
             throw std::out_of_range("too many arguments");

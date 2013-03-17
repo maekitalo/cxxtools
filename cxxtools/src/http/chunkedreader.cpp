@@ -42,7 +42,7 @@ namespace cxxtools
       std::string charToPrint(char ch)
       {
         std::ostringstream s;
-        if (ch >= 32 && ch <= 127)
+        if (ch >= 32 && ch < 127)
           s << '<' << ch << '>';
 
         s << '(' << static_cast<unsigned>(static_cast<unsigned char>(ch)) << ')';
@@ -53,7 +53,7 @@ namespace cxxtools
       {
         std::ostringstream s;
         s << "invalid character ";
-        if (ch >= 32 && ch <= 127)
+        if (ch >= 32 && ch < 127)
           s << '<' << ch << '>';
 
         s << '(' << static_cast<unsigned>(static_cast<unsigned char>(ch)) << ") in chunked encoding";
