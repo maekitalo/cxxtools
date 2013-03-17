@@ -44,6 +44,9 @@ class Request;
 
 class Authenticator
 {
+    protected:
+        virtual ~Authenticator()
+        { }
     public:
         virtual bool checkAuth(const Request&) const = 0;
 };

@@ -119,6 +119,7 @@ namespace cxxtools
       class Event
       {
         public:
+          virtual ~Event()  { }
           // return true, if parser should stop
           virtual bool onKeyPart(const String& key) = 0;
           virtual bool onKey(const String& key) = 0;

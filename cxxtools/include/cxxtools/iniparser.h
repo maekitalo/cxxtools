@@ -39,6 +39,9 @@ namespace cxxtools
     public:
       class Event
       {
+        protected:
+          virtual ~Event()  { }
+
         public:
           // events return true, if parsing should be stopped
           virtual bool onSection(const std::string& section);

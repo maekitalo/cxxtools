@@ -53,7 +53,7 @@ void JsonFormatter::begin(std::basic_ostream<Char>& ts)
 {
     _ts = &ts;
     _level = 0;
-    _lastLevel = -1;
+    _lastLevel = std::numeric_limits<unsigned>::max();
 }
 
 void JsonFormatter::finish()
@@ -62,7 +62,7 @@ void JsonFormatter::finish()
     if (_beautify)
         *_ts << L'\n';
     _level = 0;
-    _lastLevel = -1;
+    _lastLevel = std::numeric_limits<unsigned>::max();
 }
 
 void JsonFormatter::addValueString(const std::string& name, const std::string& type,
