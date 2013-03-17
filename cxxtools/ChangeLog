@@ -1,3 +1,37 @@
+2013-03-16 tommi@tntnet.org
+
+ - release candidate 2.2rc2
+
+2013-03-13 tommi@tntnet.org
+
+ - remove some unused members
+
+2013-03-09 tommi@tntnet.org
+
+ - remove implicit conversion from cxxtools::SmartPtr to raw pointer and make different SmartPtr types compatible as long as the pointees are compatible
+ - fix handling of escape character in format method of cxxtools::RegexSMatch
+
+2013-03-05 tommi@tntnet.org
+
+ - fix jsonrpc client connect method: last optimization was silly wrong
+ - release candidate 2.2rc1
+
+2013-03-04 tommi@tntnet.org
+
+ - handle empty regular expression explicitly since at least OSX complains about it
+ - fix crash in binary rpc client when reusing client
+ - close existing connection in json rpc client when connection parameters are changed in connect
+ - close existing connection in binary rpc client only if connection parameters are changed in connect
+
+2013-03-01 tommi@tntnet.org
+
+ - binary rpc client crashed when connect method was called on a default constructed instance
+
+2013-02-27 tommi@tntnet.org
+
+ - simplify cxxtools::QueryParams and remove the unused parent feature
+ - update ChangeLog
+
 2013-02-14 tommi@tntnet.org
 
  - add domain parameter to connect method and constructor of binary rpc client to make it more similar to xmlrpc
