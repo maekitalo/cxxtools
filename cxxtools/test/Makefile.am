@@ -22,6 +22,7 @@ alltests_SOURCES = \
     jsonrpc-test.cpp \
     jsonrpchttp-test.cpp \
     jsonserializer-test.cpp \
+    lrucache-test.cpp \
     md5-test.cpp \
     pool-test.cpp \
     properties-test.cpp \

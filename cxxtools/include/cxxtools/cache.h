@@ -318,7 +318,7 @@ namespace cxxtools
 
       /// returns a pair of values - a flag, if the value was found and the
       /// value if found or the passed default otherwise. If the value is
-      /// found it is a cahce hit and pushed to the top of the list.
+      /// found it is a cache hit and pushed to the top of the list.
       std::pair<bool, Value> getx(const Key& key, Value def = Value())
       {
         Value* v = getptr(key);
