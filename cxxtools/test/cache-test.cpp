@@ -40,6 +40,7 @@ class CacheTest : public cxxtools::unit::TestSuite
             registerMethod("cacheTest", *this, &CacheTest::cacheTest);
             registerMethod("erase", *this, &CacheTest::erase);
             registerMethod("resize", *this, &CacheTest::resize);
+            registerMethod("stats", *this, &CacheTest::stats);
         }
 
         void cacheTest()
@@ -156,6 +157,25 @@ class CacheTest : public cxxtools::unit::TestSuite
           CXXTOOLS_UNIT_ASSERT_EQUALS(cache.winners(), 2);
 
         }
+
+        void stats()
+        {
+          cxxtools::Cache<int, int> cache(6);
+
+          cache.put(1, 10);
+          cache.put(2, 20);
+          cache.put(3, 30);
+          cache.put(4, 40);
+          cache.put(5, 50);
+
+          cache.getx(1);
+          cache.getx(2);
+          cache.getx(8);
+
+          CXXTOOLS_UNIT_ASSERT_EQUALS(cache.getHits(), 2);
+          CXXTOOLS_UNIT_ASSERT_EQUALS(cache.getMisses(), 1);
+        }
+
 };
 
 cxxtools::unit::RegisterTest<CacheTest> register_CacheTest;
