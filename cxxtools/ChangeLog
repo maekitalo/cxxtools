@@ -1,3 +1,19 @@
+2013-03-22 tommi@tntnet.org
+
+ - release candidate 2.2rc3
+
+2013-03-20 tommi@tntnet.org
+
+ - implement lru cache
+ - fix collecting cache stats
+ - return reference to new value in put method of cache
+
+2013-03-17 tommi@tntnet.org
+
+ - set preprocesor flags in CPPFLAGS instead of CXXFLAGS
+ - fix some compiler warnings
+ - use INHERIT flag on non-linux systems in cxxtools::net::TcpServer::accept also
+
 2013-03-16 tommi@tntnet.org
 
  - release candidate 2.2rc2
