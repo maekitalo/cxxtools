@@ -60,13 +60,15 @@ int main(int argc, char* argv[])
     // and a http json rpc client
     cxxtools::json::HttpClient httpJsonClient(ip, port,"/jsonrpc");
 
-    // define remote procedure with dobule return value and a double and a std::string parameter:
-    // Note: We send the second parameter as a string since it is converted from the server anyway,
-    cxxtools::RemoteProcedure<double, double, std::string> add(
+    cxxtools::RemoteClient& theClient =
         binary   ? static_cast<cxxtools::RemoteClient&>(binaryClient) :
         json     ? static_cast<cxxtools::RemoteClient&>(jsonClient) :
         jsonhttp ? static_cast<cxxtools::RemoteClient&>(httpJsonClient) :
-                   static_cast<cxxtools::RemoteClient&>(xmlrpcClient), "add");
+                   static_cast<cxxtools::RemoteClient&>(xmlrpcClient);
+
+    // define remote procedure with dobule return value and a double and a std::string parameter:
+    // Note: We send the second parameter as a string since it is converted from the server anyway,
+    cxxtools::RemoteProcedure<double, double, std::string> add(theClient, "add");
 
     double sum = 0;
     for (int a = 1; a < argc; ++a)
