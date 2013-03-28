@@ -72,14 +72,15 @@ int main(int argc, char* argv[])
 
     // define a xlmrpc client
     cxxtools::xmlrpc::HttpClient xmlrpcClient(loop, ip, port, "/xmlrpc");
+
     // and a binary rpc client
     cxxtools::bin::RpcClient binaryClient(loop, ip, port);
 
     // and a tcp json rpc client
-    cxxtools::json::RpcClient jsonClient(ip, port);
+    cxxtools::json::RpcClient jsonClient(loop, ip, port);
 
     // and a http json rpc client
-    cxxtools::json::HttpClient httpJsonClient(ip, port,"/jsonrpc");
+    cxxtools::json::HttpClient httpJsonClient(loop, ip, port,"/jsonrpc");
 
     // define remote procedure with dobule return value and two double parameter:
     cxxtools::RemoteProcedure<double, double, double> add(
