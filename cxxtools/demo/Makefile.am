@@ -50,7 +50,6 @@ JSON_LIBS = $(HTTP_LIBS) $(top_builddir)/src/json/libcxxtools-json.la
 
 AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/include -I$(top_srcdir)/include
 LDADD = $(top_builddir)/src/libcxxtools.la
-AM_CXXFLAGS = $(PTHREAD_CFLAGS)
 
 httpserver_LDADD =  $(HTTP_LIBS)
 httprequest_LDADD = $(HTTP_LIBS)

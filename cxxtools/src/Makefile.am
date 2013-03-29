@@ -214,5 +214,4 @@ libcxxtools_la_SOURCES += \
 endif
 
 libcxxtools_la_LIBADD = $(LIBICONV)
-libcxxtools_la_CXXFLAGS = $(PTHREAD_CFLAGS)
-libcxxtools_la_LDFLAGS = -version-info @sonumber@ $(PTHREAD_LIBS) @SHARED_LIB_FLAG@
+libcxxtools_la_LDFLAGS = -version-info @sonumber@ @SHARED_LIB_FLAG@
