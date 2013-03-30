@@ -366,9 +366,15 @@ void ClientImpl::endExecute()
 }
 
 
-void ClientImpl::wait(std::size_t msecs)
+bool ClientImpl::wait(std::size_t msecs)
 {
-    _socket.wait(msecs);
+    return _socket.wait(msecs);
+}
+
+
+SelectorBase* ClientImpl::selector()
+{
+    return _socket.selector();
 }
 
 

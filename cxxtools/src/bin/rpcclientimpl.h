@@ -77,6 +77,8 @@ class RpcClientImpl : public Connectable
         const IRemoteProcedure* activeProcedure() const
         { return _proc; }
 
+        void wait(std::size_t msecs);
+
         void cancel();
 
         const std::string& domain() const

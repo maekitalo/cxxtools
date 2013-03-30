@@ -90,6 +90,11 @@ const IRemoteProcedure* RpcClient::activeProcedure() const
     return _impl->activeProcedure();
 }
 
+void RpcClient::wait(std::size_t msecs)
+{
+    _impl->wait(msecs);
+}
+
 void RpcClient::cancel()
 {
     _impl->cancel();

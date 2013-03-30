@@ -76,6 +76,8 @@ class RpcClient : public RemoteClient
 
         void cancel();
 
+        void wait(std::size_t msecs = WaitInfinite);
+
         const std::string& prefix() const;
 
         void prefix(const std::string& p);

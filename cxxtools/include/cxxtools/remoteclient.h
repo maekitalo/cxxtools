@@ -29,6 +29,8 @@
 #ifndef CXXTOOLS_REMOTECLIENT_H
 #define CXXTOOLS_REMOTECLIENT_H
 
+#include <cstddef>
+
 namespace cxxtools
 {
     class IComposer;
@@ -38,6 +40,8 @@ namespace cxxtools
     class RemoteClient
     {
         public:
+            static const std::size_t WaitInfinite = static_cast<std::size_t>(-1);
+
             virtual ~RemoteClient()
             { }
 
@@ -50,6 +54,8 @@ namespace cxxtools
             virtual const IRemoteProcedure* activeProcedure() const = 0;
 
             virtual void cancel() = 0;
+
+            virtual void wait(std::size_t msecs = WaitInfinite) = 0;
 
     };
 }

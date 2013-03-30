@@ -93,6 +93,8 @@ class RemoteResult : public IRemoteResult
             return _result;
         }
 
+        RemoteClient& client()   { return _client; }
+
     private:
         RemoteClient& _client;
         R _result;

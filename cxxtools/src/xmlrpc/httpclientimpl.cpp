@@ -29,6 +29,9 @@
 #include "httpclientimpl.h"
 #include "cxxtools/log.h"
 #include "cxxtools/http/replyheader.h"
+#include "cxxtools/ioerror.h"
+#include "cxxtools/remoteclient.h"
+#include "cxxtools/clock.h"
 #include <string.h>
 
 log_define("cxxtools.xmlrpc.httpclient.impl")
@@ -147,6 +150,30 @@ void HttpClientImpl::cancel()
 {
     _client.cancel();
     ClientImpl::cancel();
+}
+
+void HttpClientImpl::wait(std::size_t msecs)
+{
+    if (!_client.selector())
+        throw std::logic_error("cannot run async rpc request without a selector");
+
+    Clock clock;
+    if (msecs != RemoteClient::WaitInfinite)
+        clock.start();
+
+    std::size_t remaining = msecs;
+
+    while (activeProcedure() != 0)
+    {
+        if (_client.selector()->wait(remaining) == false)
+            throw IOTimeout();
+
+        if (msecs != RemoteClient::WaitInfinite)
+        {
+            std::size_t diff = static_cast<std::size_t>(clock.stop().totalMSecs());
+            remaining = diff >= msecs ? 0 : msecs - diff;
+        }
+    }
 }
 
 void HttpClientImpl::verifyHeader(const http::ReplyHeader& header)

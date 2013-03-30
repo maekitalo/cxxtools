@@ -115,6 +115,11 @@ void HttpClient::setSelector(SelectorBase& selector)
     _impl->setSelector(selector);
 }
 
+void HttpClient::wait(std::size_t msecs)
+{
+    _impl->wait(msecs);
+}
+
 }
 
 }

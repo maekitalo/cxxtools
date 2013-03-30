@@ -39,6 +39,7 @@
 #include "cxxtools/xmlrpc/errorcodes.h"
 #include "cxxtools/serializationerror.h"
 #include "cxxtools/log.h"
+#include <stdexcept>
 
 
 log_define("cxxtools.xmlrpc.client.impl")
@@ -96,6 +97,9 @@ ClientImpl::~ClientImpl()
 
 void ClientImpl::beginCall(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc)
 {
+    if (_method)
+        throw std::logic_error("asyncronous request already running");
+
     _method = &method;
     _state = OnBegin;
 

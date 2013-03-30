@@ -96,6 +96,8 @@ namespace json
 
             void cancel();
 
+            void wait(std::size_t msecs = WaitInfinite);
+
         private:
             HttpClientImpl* _impl;
     };

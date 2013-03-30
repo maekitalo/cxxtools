@@ -30,6 +30,8 @@
 #include <cxxtools/log.h>
 #include <cxxtools/remoteprocedure.h>
 #include <cxxtools/bin/rpcclient.h>
+#include <cxxtools/selector.h>
+#include <cxxtools/clock.h>
 #include <stdexcept>
 
 log_define("cxxtools.bin.rpcclient.impl")
@@ -95,6 +97,9 @@ void RpcClientImpl::beginCall(IComposer& r, IRemoteProcedure& method, IDecompose
 {
     if (_socket.selector() == 0)
         throw std::logic_error("cannot run async rpc request without a selector");
+
+    if (_proc)
+        throw std::logic_error("asyncronous request already running");
 
     _proc = &method;
 
@@ -174,6 +179,30 @@ void RpcClientImpl::call(IComposer& r, IRemoteProcedure& method, IDecomposer** a
     {
         cancel();
         throw std::runtime_error("reading result failed");
+    }
+}
+
+void RpcClientImpl::wait(std::size_t msecs)
+{
+    if (!_socket.selector())
+        throw std::logic_error("cannot run async rpc request without a selector");
+
+    Clock clock;
+    if (msecs != RemoteClient::WaitInfinite)
+        clock.start();
+
+    std::size_t remaining = msecs;
+
+    while (activeProcedure() != 0)
+    {
+        if (_socket.selector()->wait(remaining) == false)
+            throw IOTimeout();
+
+        if (msecs != RemoteClient::WaitInfinite)
+        {
+            std::size_t diff = static_cast<std::size_t>(clock.stop().totalMSecs());
+            remaining = diff >= msecs ? 0 : msecs - diff;
+        }
     }
 }
 

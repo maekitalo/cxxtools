@@ -69,6 +69,7 @@ libcxxtools_la_SOURCES = \
 	query_params.cpp \
 	quotedprintablestream.cpp \
 	regex.cpp \
+	remoteclient.cpp \
 	selectable.cpp \
 	selector.cpp \
 	selectorimpl.cpp \

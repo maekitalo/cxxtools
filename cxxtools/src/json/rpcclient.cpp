@@ -99,6 +99,11 @@ void RpcClient::cancel()
     _impl->cancel();
 }
 
+void RpcClient::wait(std::size_t msecs)
+{
+    _impl->wait(msecs);
+}
+
 const std::string& RpcClient::prefix() const
 {
     return _impl->prefix();

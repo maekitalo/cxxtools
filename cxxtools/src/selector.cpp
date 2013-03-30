@@ -30,6 +30,8 @@
 
 namespace cxxtools {
 
+const std::size_t SelectorBase::WaitInfinite;
+
 SelectorBase::~SelectorBase()
 {
     while( _timers.size() )

@@ -26,6 +26,27 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+/*
+
+  Cxxtools implements a rpc framework, which can run with 4 protocols.
+
+  Xmlrpc is a simple xml based standard protocol. The spec can be found at
+  http://www.xmlrpc.org/.
+
+  Json rpc is a json based standard protocol. The sepc can be found at
+  http://json-rpc.org. Json is less verbose than xml and therefore jsonrpc is a
+  little faster than xmlrpc.
+
+  Json rpc comes in cxxtools in 2 flavours: raw and http.
+
+  And last but not least cxxtools has a own non standard binary protocol. It is
+  faster than xmlrpc or jsonrpc but works only with cxxtools.
+
+  This demo program implements a server, which runs all 4 flavours in a single
+  event loop.
+
+ */
+
 #include <iostream>
 #include <cxxtools/arg.h>
 #include <cxxtools/log.h>
@@ -39,6 +60,13 @@
 ////////////////////////////////////////////////////////////////////////
 // This defines functions, which we want to be called remotely.
 //
+
+// Parameters and return values of the functions, which can be exported must be
+// serializable and deserializable with the cxxtools serialization framework.
+// For all standard types including container classes in the standard library
+// proper operators are defined in cxxtools.
+//
+
 std::string echo(const std::string& message)
 {
   std::cout << message << std::endl;
@@ -57,11 +85,26 @@ int main(int argc, char* argv[])
 {
   try
   {
+    // initialize logging - this reads the file log.xml from the current directory
     log_init();
 
+    // read the command line options
+
+    // option -i <ip-address> defines the ip address of the interface, where the
+    // server waits for connections. Default is empty, which tells the server to
+    // listen on all local interfaces
     cxxtools::Arg<std::string> ip(argc, argv, 'i');
+
+    // option -p <number> specifies the port, where http requests are expected.
+    // This port is valid for xmlrpc and json over http. It defaults to 7002.
     cxxtools::Arg<unsigned short> port(argc, argv, 'p', 7002);
+
+    // option -b <number> specifies the port, where the binary server waits for
+    // requests. It defaults to port 7003.
     cxxtools::Arg<unsigned short> bport(argc, argv, 'b', 7003);
+
+    // option -j <number> specifies the port, where the json server wait for
+    // requests. It defaults to port 7004.
     cxxtools::Arg<unsigned short> jport(argc, argv, 'j', 7004);
 
     std::cout << "run rpcecho server\n"
@@ -73,17 +116,24 @@ int main(int argc, char* argv[])
     cxxtools::EventLoop loop;
 
     // the http server is instantiated with an ip address and a port number
+    // It will be used for xmlrpc and json over http on different urls.
     cxxtools::http::Server httpServer(loop, ip, port);
 
+    ////////////////////////////////////////////////////////////////////////
+    // Xmlrpc
+
     // we create an instance of the service class
-    cxxtools::xmlrpc::Service service;
+    cxxtools::xmlrpc::Service xmlrpcService;
 
     // we register our functions
-    service.registerFunction("echo", echo);
-    service.registerFunction("add", add);
+    xmlrpcService.registerFunction("echo", echo);
+    xmlrpcService.registerFunction("add", add);
 
     // ... and register the service under a url
-    httpServer.addService("/xmlrpc", service);
+    httpServer.addService("/xmlrpc", xmlrpcService);
+
+    ////////////////////////////////////////////////////////////////////////
+    // Binary rpc
 
     // for the binary rpc server we define a binary server
     cxxtools::bin::RpcServer binServer(loop, ip, bport);
@@ -92,6 +142,9 @@ int main(int argc, char* argv[])
     binServer.registerFunction("echo", echo);
     binServer.registerFunction("add", add);
 
+    ////////////////////////////////////////////////////////////////////////
+    // Json rpc
+
     // for the json rpc server we define a json server
     cxxtools::json::RpcServer jsonServer(loop, ip, jport);
 
@@ -99,12 +152,22 @@ int main(int argc, char* argv[])
     jsonServer.registerFunction("echo", echo);
     jsonServer.registerFunction("add", add);
 
+    ////////////////////////////////////////////////////////////////////////
+    // Json rpc over http
+
+    // for json over http we need a service object
     cxxtools::json::HttpService jsonhttpService;
+
+    // we register our functions
     jsonhttpService.registerFunction("echo", echo);
     jsonhttpService.registerFunction("add", add);
+    // ... and register the service under a url
     httpServer.addService("/jsonrpc", jsonhttpService);
 
-    // now start the server and run the event loop
+    ////////////////////////////////////////////////////////////////////////
+    // Run
+
+    // now start the servers by running the event loop
     loop.run();
   }
   catch (const std::exception& e)

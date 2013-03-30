@@ -33,8 +33,11 @@
 #include "cxxtools/http/replyheader.h"
 #include "cxxtools/selectable.h"
 #include "cxxtools/utf8codec.h"
+#include "cxxtools/ioerror.h"
+#include "cxxtools/clock.h"
 #include "cxxtools/log.h"
 
+#include <stdexcept>
 #include <string.h>
 
 log_define("cxxtools.json.client.impl")
@@ -47,6 +50,7 @@ namespace json
 
 HttpClientImpl::HttpClientImpl()
 : _timeout(Selectable::WaitInfinite),
+  _proc(0),
   _exceptionPending(false),
   _count(0)
 {
@@ -58,6 +62,12 @@ HttpClientImpl::HttpClientImpl()
 
 void HttpClientImpl::beginCall(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc)
 {
+    if (_client.selector() == 0)
+        throw std::logic_error("cannot run async rpc request without a selector");
+
+    if (_proc)
+        throw std::logic_error("asyncronous request already running");
+
     _proc = &method;
 
     prepareRequest(method.name(), argv, argc);
@@ -220,6 +230,30 @@ void HttpClientImpl::onReplyFinished(http::Client& client)
     IRemoteProcedure* proc = _proc;
     _proc = 0;
     proc->onFinished();
+}
+
+void HttpClientImpl::wait(std::size_t msecs)
+{
+    if (!_client.selector())
+        throw std::logic_error("cannot run async rpc request without a selector");
+
+    Clock clock;
+    if (msecs != RemoteClient::WaitInfinite)
+        clock.start();
+
+    std::size_t remaining = msecs;
+
+    while (activeProcedure() != 0)
+    {
+        if (_client.selector()->wait(remaining) == false)
+            throw IOTimeout();
+
+        if (msecs != RemoteClient::WaitInfinite)
+        {
+            std::size_t diff = static_cast<std::size_t>(clock.stop().totalMSecs());
+            remaining = diff >= msecs ? 0 : msecs - diff;
+        }
+    }
 }
 
 void HttpClientImpl::verifyHeader(const http::ReplyHeader& header)

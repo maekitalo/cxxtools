@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Tommi Maekitalo
+ * Copyright (C) 2013 Tommi Maekitalo
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,66 +26,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef CXXTOOLS_BIN_CLIENT_H
-#define CXXTOOLS_BIN_CLIENT_H
-
 #include <cxxtools/remoteclient.h>
-#include <string>
 
 namespace cxxtools
 {
-
-class SelectorBase;
-
-namespace bin
-{
-
-class RpcClientImpl;
-
-class RpcClient : public RemoteClient
-{
-        RpcClientImpl* _impl;
-
-        RpcClient(RpcClient&) { }
-        void operator= (const RpcClient&) { }
-
-    public:
-        RpcClient()
-        : _impl(0)
-        { }
-
-        RpcClient(SelectorBase& selector, const std::string& addr, unsigned short port, const std::string& domain = std::string());
-
-        RpcClient(const std::string& addr, unsigned short port, const std::string& domain = std::string());
-
-        virtual ~RpcClient();
-
-        void setSelector(SelectorBase& selector);
-
-        void connect(const std::string& addr, unsigned short port, const std::string& domain = std::string());
-
-        void close();
-
-        void beginCall(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc);
-
-        void endCall();
-
-        void call(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc);
-
-        const IRemoteProcedure* activeProcedure() const;
-
-        void wait(std::size_t msecs = WaitInfinite);
-
-        void cancel();
-
-        const std::string& domain() const;
-
-        void domain(const std::string& p);
-
-};
-
+    const std::size_t RemoteClient::WaitInfinite;
 }
-
-}
-
-#endif // CXXTOOLS_BIN_CLIENT_H

@@ -88,6 +88,8 @@ class HttpClientImpl : public ClientImpl
 
         std::string url() const;
 
+        virtual void wait(std::size_t msecs);
+
     protected:
         void onReplyHeader(http::Client& client);
 

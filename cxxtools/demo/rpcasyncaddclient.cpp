@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Tommi Maekitalo
+ * Copyright (C) 2011,2013 Tommi Maekitalo
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,6 +26,13 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+/*
+
+This demo program shows how to run multiple remote rpc calls asncronously so
+that they run in parallel.
+
+ */
+
 #include <iostream>
 #include <cxxtools/arg.h>
 #include <cxxtools/log.h>
@@ -36,71 +43,88 @@
 #include <cxxtools/remoteprocedure.h>
 #include <cxxtools/eventloop.h>
 
-cxxtools::EventLoop loop;
-
-void onFinished(const cxxtools::RemoteResult<double>& result)
-{
-  try
-  {
-    double r = result.get(); // This may throw an exception, which may have
-                             // happened on the server method, but also local
-                             // errors like "connection refused" are reported
-                             // here.
-
-    std::cout << "result=" << r << std::endl;
-  }
-  catch (const std::exception& e)
-  {
-    std::cout << "failed with error: " << e.what() << std::endl;
-  }
-
-  // exit the main event loop
-  loop.exit();
-}
-
 int main(int argc, char* argv[])
 {
   try
   {
+    // initialize logging - this reads the file log.xml from the current directory
     log_init();
 
-    cxxtools::Arg<std::string> ip(argc, argv, 'i');
+    // read the command line options
+    cxxtools::Arg<std::string> ip(argc, argv, 'i');  // option -i <ip-addres> defines the address where to find the server
     cxxtools::Arg<bool> binary(argc, argv, 'b');
     cxxtools::Arg<bool> json(argc, argv, 'j');
     cxxtools::Arg<bool> jsonhttp(argc, argv, 'J');
+    cxxtools::Arg<std::size_t> timeout(argc, argv, 't', cxxtools::RemoteClient::WaitInfinite);
     cxxtools::Arg<unsigned short> port(argc, argv, 'p', binary ? 7003 : json ? 7004 : 7002);
 
+    // we need a event loop, which controls the network activity
+    cxxtools::EventLoop loop;
+
+    // Normally we would define just one rpc client for the protocol we use but
+    // here we want to demonstrate, that it is just up to the client, which protocol
+    // is used for the remote call.
+
+    // One client can run just one request at a time. To run parallel requests
+    // we need 2 clients. So we define 2 clients for each protocol.
+
     // define a xlmrpc client
-    cxxtools::xmlrpc::HttpClient xmlrpcClient(loop, ip, port, "/xmlrpc");
+    cxxtools::xmlrpc::HttpClient xmlrpcClient1(loop, ip, port, "/xmlrpc");
+    cxxtools::xmlrpc::HttpClient xmlrpcClient2(loop, ip, port, "/xmlrpc");
 
     // and a binary rpc client
-    cxxtools::bin::RpcClient binaryClient(loop, ip, port);
+    cxxtools::bin::RpcClient binaryClient1(loop, ip, port);
+    cxxtools::bin::RpcClient binaryClient2(loop, ip, port);
 
     // and a tcp json rpc client
-    cxxtools::json::RpcClient jsonClient(loop, ip, port);
+    cxxtools::json::RpcClient jsonClient1(loop, ip, port);
+    cxxtools::json::RpcClient jsonClient2(loop, ip, port);
 
     // and a http json rpc client
-    cxxtools::json::HttpClient httpJsonClient(loop, ip, port,"/jsonrpc");
+    cxxtools::json::HttpClient httpJsonClient1(loop, ip, port, "/jsonrpc");
+    cxxtools::json::HttpClient httpJsonClient2(loop, ip, port, "/jsonrpc");
 
-    // define remote procedure with dobule return value and two double parameter:
-    cxxtools::RemoteProcedure<double, double, double> add(
-        binary   ? static_cast<cxxtools::RemoteClient&>(binaryClient) :
-        json     ? static_cast<cxxtools::RemoteClient&>(jsonClient) :
-        jsonhttp ? static_cast<cxxtools::RemoteClient&>(httpJsonClient) :
-                   static_cast<cxxtools::RemoteClient&>(xmlrpcClient), "add");
+    // now se welect the client depending on the command line flags
 
-    // connect the callback method to our method
-    cxxtools::connect(add.finished, onFinished);
+    cxxtools::RemoteClient& client1(
+        binary   ? static_cast<cxxtools::RemoteClient&>(binaryClient1) :
+        json     ? static_cast<cxxtools::RemoteClient&>(jsonClient1) :
+        jsonhttp ? static_cast<cxxtools::RemoteClient&>(httpJsonClient1) :
+                   static_cast<cxxtools::RemoteClient&>(xmlrpcClient1));
 
-    // request the execution of our method
-    add.begin(5, 6);
+    cxxtools::RemoteClient& client2(
+        binary   ? static_cast<cxxtools::RemoteClient&>(binaryClient2) :
+        json     ? static_cast<cxxtools::RemoteClient&>(jsonClient2) :
+        jsonhttp ? static_cast<cxxtools::RemoteClient&>(httpJsonClient2) :
+                   static_cast<cxxtools::RemoteClient&>(xmlrpcClient2));
 
-    // Run the loop, which sends the request to the server and receives the answer.
-    // After receiving the answer, the callback onFinished is called.
-    //
-    // Note that you may have multiple rpc clients running on the loop on the same time
-    // as well as other async stuff, like a rpc server.
-    loop.run();
+    // define remote procedure with dobule return value and two double parameters
+    cxxtools::RemoteProcedure<double, double, double> add1(client1, "add");
+    cxxtools::RemoteProcedure<double, double, double> add2(client2, "add");
+
+    // initiate the execution of our method
+    add1.begin(5, 6);
+    add2.begin(1, 2);
+
+    // Calling RemoteProcedure::end will run the underlying event loop until
+    // the remote procedure is finished and return the result.
+    // In case of a error, an exception is thrown.
+
+    // Note that waiting for the end of one remote procedure will also start
+    // and maybe finish the second remote procedure.
+
+    double result1 = add1.end(timeout);
+
+    std::cout << "result1=" << result1 << std::endl;
+
+    // Here we run the loop again until the second procedure is finished. It
+    // may well be, that the procedure is already finished and we get the
+    // result immediately.
+
+    double result2 = add2.end(timeout);
+
+    std::cout << "result2=" << result2 << std::endl;
+
   }
   catch (const std::exception& e)
   {

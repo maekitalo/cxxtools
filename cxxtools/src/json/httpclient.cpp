@@ -156,6 +156,11 @@ void HttpClient::cancel()
     _impl->cancel();
 }
 
+void HttpClient::wait(std::size_t msecs)
+{
+    _impl->wait(msecs);
+}
+
 }
 
 }

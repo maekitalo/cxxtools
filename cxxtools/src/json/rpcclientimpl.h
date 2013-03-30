@@ -75,6 +75,8 @@ class RpcClientImpl : public Connectable
 
         void cancel();
 
+        void wait(std::size_t msecs);
+
         const std::string& prefix() const
         { return _prefix; }
 

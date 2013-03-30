@@ -145,18 +145,9 @@ class JsonRpcHttpTest : public cxxtools::unit::TestSuite
 
             cxxtools::json::HttpClient client(_loop, "", _port, "/calc");
             cxxtools::RemoteProcedure<bool> multiply(client, "multiply");
-            connect( multiply.finished, *this, &JsonRpcHttpTest::onNothingFinished );
 
             multiply.begin();
-
-            _loop.run();
-        }
-
-        void onNothingFinished(const cxxtools::RemoteResult<bool>& r)
-        {
-            CXXTOOLS_UNIT_ASSERT_EQUALS(r.get(), false);
-
-            _loop.exit();
+            CXXTOOLS_UNIT_ASSERT_EQUALS(multiply.end(2000), false);
         }
 
         bool multiplyNothing()
@@ -234,18 +225,9 @@ class JsonRpcHttpTest : public cxxtools::unit::TestSuite
 
             cxxtools::json::HttpClient client(_loop, "", _port, "/calc");
             cxxtools::RemoteProcedure<bool, bool, bool> multiply(client, "multiply");
-            connect( multiply.finished, *this, &JsonRpcHttpTest::onBooleanFinished );
-
             multiply.begin(true, true);
-
-            _loop.run();
-        }
-
-        void onBooleanFinished(const cxxtools::RemoteResult<bool>& r)
-        {
-            CXXTOOLS_UNIT_ASSERT_EQUALS(r.get(), true);
-
-            _loop.exit();
+            bool r = multiply.end(2000);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(r, true);
         }
 
         bool multiplyBoolean(bool a, bool b)
@@ -266,18 +248,9 @@ class JsonRpcHttpTest : public cxxtools::unit::TestSuite
 
             cxxtools::json::HttpClient client(_loop, "", _port, "/calc");
             cxxtools::RemoteProcedure<int, int, int> multiply(client, "multiply");
-            connect( multiply.finished, *this, &JsonRpcHttpTest::onIntegerFinished );
 
             multiply.begin(2, 3);
-
-            _loop.run();
-        }
-
-        void onIntegerFinished(const cxxtools::RemoteResult<int>& r)
-        {
-            CXXTOOLS_UNIT_ASSERT_EQUALS(r.get(), 6);
-
-            _loop.exit();
+            CXXTOOLS_UNIT_ASSERT_EQUALS(multiply.end(2000), 6);
         }
 
         int multiplyInt(int a, int b)
@@ -296,18 +269,9 @@ class JsonRpcHttpTest : public cxxtools::unit::TestSuite
 
             cxxtools::json::HttpClient client(_loop, "", _port, "/calc");
             cxxtools::RemoteProcedure<double, double, double> multiply(client, "multiply");
-            connect( multiply.finished, *this, &JsonRpcHttpTest::onDoubleFinished );
 
             multiply.begin(2.0, 3.0);
-
-            _loop.run();
-        }
-
-        void onDoubleFinished(const cxxtools::RemoteResult<double>& r)
-        {
-            CXXTOOLS_UNIT_ASSERT_EQUALS(r.get(), 6.0);
-
-            _loop.exit();
+            CXXTOOLS_UNIT_ASSERT_EQUALS(multiply.end(2000), 6.0);
         }
 
         double multiplyDouble(double a, double b)
@@ -326,18 +290,9 @@ class JsonRpcHttpTest : public cxxtools::unit::TestSuite
 
             cxxtools::json::HttpClient client(_loop, "", _port, "/foo");
             cxxtools::RemoteProcedure<std::string, std::string> echo(client, "echoString");
-            connect( echo.finished, *this, &JsonRpcHttpTest::onStringEchoFinished );
 
             echo.begin("\xc3\xaf\xc2\xbb\xc2\xbf'\"&<> foo?");
-
-            _loop.run();
-        }
-
-        void onStringEchoFinished(const cxxtools::RemoteResult<std::string>& r)
-        {
-            CXXTOOLS_UNIT_ASSERT_EQUALS(r.get(), "\xc3\xaf\xc2\xbb\xc2\xbf'\"&<> foo?");
-
-            _loop.exit();
+            CXXTOOLS_UNIT_ASSERT_EQUALS(echo.end(2000), "\xc3\xaf\xc2\xbb\xc2\xbf'\"&<> foo?");
         }
 
         std::string echoString(std::string a)
@@ -356,17 +311,9 @@ class JsonRpcHttpTest : public cxxtools::unit::TestSuite
 
             cxxtools::json::HttpClient client(_loop, "", _port, "/calc");
             cxxtools::RemoteProcedure<std::string, std::string, std::string> multiply(client, "multiply");
-            connect( multiply.finished, *this, &JsonRpcHttpTest::onEmptyFinished );
 
             multiply.begin("", "");
-
-            _loop.run();
-        }
-
-        void onEmptyFinished(const cxxtools::RemoteResult<std::string>& r)
-        {
-            CXXTOOLS_UNIT_ASSERT_EQUALS(r.get(), "4");
-            _loop.exit();
+            CXXTOOLS_UNIT_ASSERT_EQUALS(multiply.end(2000), "4");
         }
 
         std::string multiplyEmpty(std::string a, std::string b)
@@ -387,15 +334,16 @@ class JsonRpcHttpTest : public cxxtools::unit::TestSuite
 
             cxxtools::json::HttpClient client(_loop, "", _port, "/calc");
             cxxtools::RemoteProcedure< std::vector<int>, std::vector<int>, std::vector<int> > multiply(client, "multiply");
-            connect( multiply.finished, *this, &JsonRpcHttpTest::onArrayFinished );
 
             std::vector<int> vec;
             vec.push_back(10);
             vec.push_back(20);
 
             multiply.begin(vec, vec);
-
-            _loop.run();
+            std::vector<int> r = multiply.end(2000);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(r.size(), 2);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(r.at(0), 100);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(r.at(1), 400);
         }
 
         std::vector<int> multiplyVector(const std::vector<int>& a, const std::vector<int>& b)
@@ -410,15 +358,6 @@ class JsonRpcHttpTest : public cxxtools::unit::TestSuite
             return r;
         }
 
-        void onArrayFinished(const cxxtools::RemoteResult<std::vector<int> >& r)
-        {
-            CXXTOOLS_UNIT_ASSERT_EQUALS(r.get().size(), 2);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(r.get().at(0), 100);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(r.get().at(1), 400);
-
-            _loop.exit();
-        }
-
         ////////////////////////////////////////////////////////////
         // EmptyArray
         //
@@ -430,19 +369,10 @@ class JsonRpcHttpTest : public cxxtools::unit::TestSuite
 
             cxxtools::json::HttpClient client(_loop, "", _port, "/calc");
             cxxtools::RemoteProcedure< std::vector<int>, std::vector<int>, std::vector<int> > multiply(client, "multiply");
-            connect( multiply.finished, *this, &JsonRpcHttpTest::onEmptyArrayFinished );
 
             std::vector<int> vec;
             multiply.begin(vec, vec);
-
-            _loop.run();
-        }
-
-        void onEmptyArrayFinished(const cxxtools::RemoteResult<std::vector<int> >& r)
-        {
-            CXXTOOLS_UNIT_ASSERT_EQUALS(r.get().size(), 0);
-
-            _loop.exit();
+            CXXTOOLS_UNIT_ASSERT_EQUALS(multiply.end(2000).size(), 0);
         }
 
         ////////////////////////////////////////////////////////////
@@ -456,7 +386,6 @@ class JsonRpcHttpTest : public cxxtools::unit::TestSuite
 
             cxxtools::json::HttpClient client(_loop, "", _port, "/calc");
             cxxtools::RemoteProcedure< Color, Color, Color > multiply(client, "multiply");
-            connect( multiply.finished, *this, &JsonRpcHttpTest::onStuctFinished );
 
             Color a;
             a.red = 2;
@@ -469,17 +398,10 @@ class JsonRpcHttpTest : public cxxtools::unit::TestSuite
             b.blue = 5;
 
             multiply.begin(a, b);
-
-            _loop.run();
-        }
-
-        void onStuctFinished(const cxxtools::RemoteResult<Color>& color)
-        {
-            CXXTOOLS_UNIT_ASSERT_EQUALS(color.get().red, 6);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(color.get().green, 12);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(color.get().blue, 20);
-
-            _loop.exit();
+            Color r = multiply.end(2000);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(r.red, 6);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(r.green, 12);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(r.blue, 20);
         }
 
         Color multiplyColor(const Color& a, const Color& b)
@@ -502,7 +424,6 @@ class JsonRpcHttpTest : public cxxtools::unit::TestSuite
 
             cxxtools::json::HttpClient client(_loop, "", _port, "/test");
             cxxtools::RemoteProcedure<IntSet, IntSet, int> multiply(client, "multiplyset");
-            connect( multiply.finished, *this, &JsonRpcHttpTest::onSetFinished );
 
             IntSet myset;
             myset.insert(4);
@@ -511,19 +432,11 @@ class JsonRpcHttpTest : public cxxtools::unit::TestSuite
             myset.insert(5);
 
             multiply.begin(myset, 2);
-
-            _loop.run();
-        }
-
-        void onSetFinished(const cxxtools::RemoteResult<IntSet>& result)
-        {
-            const IntSet& v = result.get();
+            const IntSet& v = multiply.end(2000);
             CXXTOOLS_UNIT_ASSERT_EQUALS(v.size(), 3);
             CXXTOOLS_UNIT_ASSERT(v.find(8) != v.end());
             CXXTOOLS_UNIT_ASSERT(v.find(10) != v.end());
             CXXTOOLS_UNIT_ASSERT(v.find(22) != v.end());
-
-            _loop.exit();
         }
 
         IntSet multiplySet(const IntSet& s, int f)
@@ -545,7 +458,6 @@ class JsonRpcHttpTest : public cxxtools::unit::TestSuite
 
             cxxtools::json::HttpClient client(_loop, "", _port, "/test");
             cxxtools::RemoteProcedure<IntMultiset, IntMultiset, int> multiply(client, "multiplyset");
-            connect( multiply.finished, *this, &JsonRpcHttpTest::onMultisetFinished );
 
             IntMultiset myset;
             myset.insert(4);
@@ -554,19 +466,11 @@ class JsonRpcHttpTest : public cxxtools::unit::TestSuite
             myset.insert(5);
 
             multiply.begin(myset, 2);
-
-            _loop.run();
-        }
-
-        void onMultisetFinished(const cxxtools::RemoteResult<IntMultiset>& result)
-        {
-            const IntMultiset& v = result.get();
+            const IntMultiset& v = multiply.end(2000);
             CXXTOOLS_UNIT_ASSERT_EQUALS(v.size(), 4);
             CXXTOOLS_UNIT_ASSERT_EQUALS(v.count(8), 1);
             CXXTOOLS_UNIT_ASSERT_EQUALS(v.count(10), 2);
             CXXTOOLS_UNIT_ASSERT_EQUALS(v.count(22), 1);
-
-            _loop.exit();
         }
 
         IntMultiset multiplyMultiset(const IntMultiset& s, int f)
@@ -589,7 +493,6 @@ class JsonRpcHttpTest : public cxxtools::unit::TestSuite
 
             cxxtools::json::HttpClient client(_loop, "", _port, "/test");
             cxxtools::RemoteProcedure<IntMap, IntMap, int> multiply(client, "multiplymap");
-            connect( multiply.finished, *this, &JsonRpcHttpTest::onMultiplyMapFinished );
 
             IntMap mymap;
             mymap[2] = 4;
@@ -597,13 +500,8 @@ class JsonRpcHttpTest : public cxxtools::unit::TestSuite
             mymap[1] = -1;
 
             multiply.begin(mymap, 2);
+            const IntMap& v = multiply.end(2000);
 
-            _loop.run();
-        }
-
-        void onMultiplyMapFinished(const cxxtools::RemoteResult<IntMap>& result)
-        {
-            const IntMap& v = result.get();
             CXXTOOLS_UNIT_ASSERT_EQUALS(v.size(), 3);
             CXXTOOLS_UNIT_ASSERT(v.find(2) != v.end());
             CXXTOOLS_UNIT_ASSERT_EQUALS(v.find(2)->second, 8);
@@ -611,8 +509,6 @@ class JsonRpcHttpTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(v.find(7)->second, 14);
             CXXTOOLS_UNIT_ASSERT(v.find(1) != v.end());
             CXXTOOLS_UNIT_ASSERT_EQUALS(v.find(1)->second, -2);
-
-            _loop.exit();
         }
 
         IntMap multiplyMap(const IntMap& m, int f)
@@ -638,7 +534,6 @@ class JsonRpcHttpTest : public cxxtools::unit::TestSuite
 
             cxxtools::json::HttpClient client(_loop, "", _port, "/test");
             cxxtools::RemoteProcedure<IntMultimap, IntMultimap, int> multiply(client, "multiplymultimap");
-            connect( multiply.finished, *this, &JsonRpcHttpTest::onMultiplyMultimapFinished );
 
             IntMultimap mymap;
             mymap.insert(IntMultimap::value_type(2, 4));
@@ -647,13 +542,8 @@ class JsonRpcHttpTest : public cxxtools::unit::TestSuite
             mymap.insert(IntMultimap::value_type(1, -1));
 
             multiply.begin(mymap, 2);
+            const IntMultimap& v = multiply.end(200);
 
-            _loop.run();
-        }
-
-        void onMultiplyMultimapFinished(const cxxtools::RemoteResult<IntMultimap>& result)
-        {
-            const IntMultimap& v = result.get();
             CXXTOOLS_UNIT_ASSERT_EQUALS(v.size(), 4);
             CXXTOOLS_UNIT_ASSERT(v.lower_bound(2) != v.end());
             CXXTOOLS_UNIT_ASSERT_EQUALS(v.lower_bound(2)->second, 8);
@@ -666,8 +556,6 @@ class JsonRpcHttpTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(it->second, 16);
             CXXTOOLS_UNIT_ASSERT(v.lower_bound(1) != v.end());
             CXXTOOLS_UNIT_ASSERT_EQUALS(v.lower_bound(1)->second, -2);
-
-            _loop.exit();
         }
 
         IntMultimap multiplyMultimap(const IntMultimap& m, int f)
@@ -681,15 +569,17 @@ class JsonRpcHttpTest : public cxxtools::unit::TestSuite
             return ret;
         }
 
+        ////////////////////////////////////////////////////////////
+        // UnknownMethod
+        //
         void UnknownMethod()
         {
             cxxtools::json::HttpClient client(_loop, "", _port, "/test");
+            cxxtools::json::HttpService service;
+            _server->addService("/test", service);
             cxxtools::RemoteProcedure<bool, bool, bool> unknownMethod(client, "unknownMethod");
-            connect( unknownMethod.finished, *this, &JsonRpcHttpTest::onBooleanFinished );
-
             unknownMethod.begin(true, true);
-
-            CXXTOOLS_UNIT_ASSERT_THROW(_loop.run(), std::exception);
+            CXXTOOLS_UNIT_ASSERT_THROW(unknownMethod.end(2000), cxxtools::RemoteException);
         }
 
         ////////////////////////////////////////////////////////////
@@ -703,17 +593,11 @@ class JsonRpcHttpTest : public cxxtools::unit::TestSuite
 
             cxxtools::json::HttpClient client(_loop, "", _port, "/calc");
             cxxtools::RemoteProcedure<bool> multiply(client, "multiply");
-            connect( multiply.finished, *this, &JsonRpcHttpTest::onFault );
             multiply.begin();
 
-            _loop.run();
-        }
-
-        void onFault(const cxxtools::RemoteResult<bool>& result)
-        {
             try
             {
-                result.get();
+                multiply.end(2000);
                 CXXTOOLS_UNIT_ASSERT_MSG(false, "cxxtools::RemoteException exception expected");
             }
             catch (const cxxtools::RemoteException& e)
@@ -721,8 +605,6 @@ class JsonRpcHttpTest : public cxxtools::unit::TestSuite
                 CXXTOOLS_UNIT_ASSERT_EQUALS(e.rc(), 7);
                 CXXTOOLS_UNIT_ASSERT_EQUALS(e.text(), "Fault");
             }
-
-            _loop.exit();
         }
 
         bool throwFault()
@@ -742,17 +624,12 @@ class JsonRpcHttpTest : public cxxtools::unit::TestSuite
 
             cxxtools::json::HttpClient client(_loop, "", _port, "/calc");
             cxxtools::RemoteProcedure<bool> multiply(client, "multiply");
-            connect( multiply.finished, *this, &JsonRpcHttpTest::onException );
+
             multiply.begin();
 
-            _loop.run();
-        }
-
-        void onException(const cxxtools::RemoteResult<bool>& result)
-        {
             try
             {
-                result.get();
+                multiply.end(2000);
                 CXXTOOLS_UNIT_ASSERT(false);
             }
             catch (const cxxtools::RemoteException& e)
@@ -760,8 +637,6 @@ class JsonRpcHttpTest : public cxxtools::unit::TestSuite
                 CXXTOOLS_UNIT_ASSERT_EQUALS(e.rc(), 0);
                 CXXTOOLS_UNIT_ASSERT_EQUALS(e.text(), "Exception");
             }
-
-            _loop.exit();
         }
 
         bool throwException()

@@ -107,6 +107,8 @@ namespace json
 
             void cancel();
 
+            void wait(std::size_t msecs);
+
         private:
             void prepareRequest(const String& name, IDecomposer** argv, unsigned argc);
 

@@ -76,6 +76,8 @@ class CXXTOOLS_XMLRPC_API HttpClient : public Client
 
         void setSelector(SelectorBase& selector);
 
+        void wait(std::size_t msecs = WaitInfinite);
+
     private:
         HttpClientImpl* _impl;
 };

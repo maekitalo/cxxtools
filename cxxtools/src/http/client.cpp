@@ -128,9 +128,14 @@ void Client::setSelector(SelectorBase& selector)
     _impl->setSelector(selector);
 }
 
-void Client::wait(std::size_t msecs)
+SelectorBase* Client::selector()
 {
-    _impl->wait(msecs);
+    return _impl->selector();
+}
+
+bool Client::wait(std::size_t msecs)
+{
+    return _impl->wait(msecs);
 }
 
 std::istream& Client::in()
