@@ -135,15 +135,15 @@ void Md5streambuf::getDigest(unsigned char digest_[16])
 //
 const char* Md5stream::getHexDigest()
 {
-  static const char hex[] = "0123456789abcdef";
+  static const char hexDigits[] = "0123456789abcdef";
   unsigned char md5[16];
   getDigest(md5);
   int i;
   char* p = hexdigest;
   for (i = 0; i < 16; ++i)
   {
-    *p++ = hex[md5[i] >> 4];
-    *p++ = hex[md5[i] & 0xf];
+    *p++ = hexDigits[md5[i] >> 4];
+    *p++ = hexDigits[md5[i] & 0xf];
   }
   *p = '\0';
   log_debug("md5: " << hexdigest);

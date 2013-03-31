@@ -51,7 +51,7 @@ namespace cxxtools
         bool onValue(const String& value);
     };
 
-    bool PropertiesEvent::onKeyPart(const String& key)
+    bool PropertiesEvent::onKeyPart(const String&)
     {
       return false;
     }
