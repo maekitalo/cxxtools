@@ -125,7 +125,7 @@ class JsonRpcHttpTest : public cxxtools::unit::TestSuite
 
         void setUp()
         {
-            _server = new cxxtools::http::Server(_loop, "", _port);
+            _server = new cxxtools::http::Server(_loop, _port);
             _server->minThreads(1);
         }
 

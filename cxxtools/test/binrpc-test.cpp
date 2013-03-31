@@ -125,7 +125,7 @@ class BinRpcTest : public cxxtools::unit::TestSuite
             connect(_loop.timeout, *this, &BinRpcTest::failTest);
             connect(_loop.timeout, _loop, &cxxtools::EventLoop::exit);
 
-            _server = new cxxtools::bin::RpcServer(_loop, "", _port);
+            _server = new cxxtools::bin::RpcServer(_loop, _port);
             _server->minThreads(1);
         }
 

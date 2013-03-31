@@ -50,9 +50,11 @@ namespace cxxtools
             public:
                 RpcServer(EventLoopBase& eventLoop);
                 RpcServer(EventLoopBase& eventLoop, const std::string& ip, unsigned short int port, int backlog = 64);
+                RpcServer(EventLoopBase& eventLoop, unsigned short int port, int backlog = 64);
                 ~RpcServer();
 
                 void listen(const std::string& ip, unsigned short int port, int backlog = 64);
+                void listen(unsigned short int port, int backlog = 64);
 
                 void addService(const ServiceRegistry& service);
                 void addService(const std::string& domain, const ServiceRegistry& service);
