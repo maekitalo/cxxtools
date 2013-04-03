@@ -33,37 +33,31 @@
 
 namespace cxxtools
 {
-  inline std::string ltrim(const std::string& s, const std::string& ws = " \t\r\n")
+  template <typename StringType>
+  StringType ltrim(const StringType& s, const StringType& ws = StringType(" \t\r\n"))
   {
-    std::string::size_type p = 0;
-    std::string::size_type pp;
-    while (p < s.size() && (pp = ws.find(s[p])) != std::string::npos)
-      ++p;
-    return s.substr(p);
+    typename StringType::size_type p = s.find_first_not_of(ws);
+    return p == StringType::npos ? StringType() : s.substr(p);
   }
 
-  inline std::string rtrim(const std::string& s, const std::string& ws = " \t\r\n")
+  template <typename StringType>
+  StringType rtrim(const StringType& s, const StringType& ws = StringType(" \t\r\n"))
   {
-    std::string::size_type p = s.size();
-    while (p > 0 && ws.find(s[p - 1]) != std::string::npos)
-      --p;
-    return s.substr(0, p);
+    typename StringType::size_type p = s.find_last_not_of(ws);
+    return p == StringType::npos ? StringType() : s.substr(0, p + 1);
   }
 
-  inline std::string trim(const std::string& s, const std::string& ws = " \t\r\n")
+  template <typename StringType>
+  StringType trim(const StringType& s, const StringType& ws = StringType(" \t\r\n"))
   {
-    std::string::size_type pl = 0;
-    while (pl < s.size() && ws.find(s[pl]) != std::string::npos)
-      ++pl;
+    typename StringType::size_type pl = s.find_first_not_of(ws);
 
-    if (pl == s.size())
-      return std::string();
+    if (pl == StringType::npos)
+      return StringType();
 
-    std::string::size_type pr = s.size();
-    while (pr > 0 && ws.find(s[pr - 1]) != std::string::npos)
-      --pr;
+    typename StringType::size_type pr = s.find_last_not_of(ws);
 
-    return s.substr(pl, pr - pl);
+    return s.substr(pl, pr - pl + 1);
   }
 
 }
