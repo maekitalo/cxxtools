@@ -63,14 +63,24 @@ SystemError::SystemError(const char* fn, const std::string& what)
 SystemError::~SystemError() throw()
 { }
 
+void throwSystemError(const char* msg)
+{
+    throw SystemError(msg);
+}
+
+void throwSystemError(int errnum, const char* msg)
+{
+    throw SystemError(errnum, msg);
+}
+
 OpenLibraryFailed::OpenLibraryFailed(const std::string& msg)
-: SystemError("", msg)
+: SystemError(0, msg)
 {
   log_debug("open library failed; " << what());
 }
 
 SymbolNotFound::SymbolNotFound(const std::string& sym)
-: SystemError("", "symbol not found: " + sym)
+: SystemError(0, "symbol not found: " + sym)
 , _symbol(sym)
 {
   log_debug("symbol " << sym << " not found; " << what());

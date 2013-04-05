@@ -49,7 +49,6 @@
 #include <cstring>
 #include <cassert>
 #include <fcntl.h>
-#include <string.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sstream>
@@ -68,7 +67,7 @@ namespace
     {
         std::ostringstream msg;
         msg << "failed to connect to host \"" << ai.host() << "\" port " << ai.port()
-            << " with error " << err << ": " << strerror(err);
+            << ": " << getErrnoString(err);
         return msg.str();
     }
 
@@ -229,7 +228,7 @@ std::string TcpSocketImpl::tryConnect()
                 std::ostringstream msg;
                 msg << "failed to create socket for host \"" << _addrInfo.host()
                     << "\" port " << _addrInfo.port()
-                    << " with error " << errno << ": " << strerror(errno);
+                    << ": " << getErrnoString();
                 return msg.str();
             }
         }

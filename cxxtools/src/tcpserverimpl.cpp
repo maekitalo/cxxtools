@@ -30,6 +30,7 @@
 #include "tcpserverimpl.h"
 #include "tcpsocketimpl.h"
 #include "addrinfoimpl.h"
+#include "error.h"
 #include <cxxtools/net/tcpserver.h>
 #include <cxxtools/net/tcpsocket.h>
 #include <cxxtools/net/net.h>
@@ -76,7 +77,7 @@ TcpServerImpl::TcpServerImpl(TcpServer& server)
 {
     int ret = ::pipe(_wakePipe);
     if (ret == 1)
-        throw SystemError("pipe");
+        throwSystemError("pipe");
     log_debug("wake pipe read fd=" << _wakePipe[0] << " write fd=" << _wakePipe[1]);
 }
 
@@ -91,7 +92,7 @@ int TcpServerImpl::create(int domain, int type, int protocol)
     log_debug("create socket");
     int fd = ::socket(domain, type, protocol);
     if (fd < 0)
-        throw SystemError("socket");
+        throwSystemError("socket");
     return fd;
 }
 
@@ -143,7 +144,7 @@ void TcpServerImpl::listen(const std::string& ipaddr, unsigned short int port, i
             }
             catch (const SystemError&)
             {
-                log_debug("could not create socket; errno=" << errno << ": " << std::strerror(errno));
+                log_debug("could not create socket: " << getErrnoString());
                 continue;
             }
 
@@ -151,7 +152,7 @@ void TcpServerImpl::listen(const std::string& ipaddr, unsigned short int port, i
             fn = "setsockopt";
             if (::setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)) < 0)
             {
-                log_debug("could not set socket option SO_REUSEADDR " << fd << "; errno=" << errno << ": " << std::strerror(errno));
+                log_debug("could not set socket option SO_REUSEADDR " << fd << ": " << getErrnoString());
                 ::close(fd);
                 continue;
             }
@@ -161,7 +162,7 @@ void TcpServerImpl::listen(const std::string& ipaddr, unsigned short int port, i
             {
               if (::setsockopt(fd, IPPROTO_IPV6, IPV6_V6ONLY, &on, sizeof(on)) < 0)
               {
-                  log_debug("could not set socket option IPV6_V6ONLY " << fd << "; errno=" << errno << ": " << std::strerror(errno));
+                  log_debug("could not set socket option IPV6_V6ONLY " << fd << ": " << getErrnoString());
                   ::close(fd);
                   continue;
               }
@@ -172,7 +173,7 @@ void TcpServerImpl::listen(const std::string& ipaddr, unsigned short int port, i
             fn = "bind";
             if (::bind(fd, it->ai_addr, it->ai_addrlen) != 0)
             {
-                log_debug("could not bind " << fd << "; errno=" << errno << ": " << std::strerror(errno));
+                log_debug("could not bind " << fd << ": " << getErrnoString());
                 ::close(fd);
                 continue;
             }
@@ -216,7 +217,7 @@ void TcpServerImpl::listen(const std::string& ipaddr, unsigned short int port, i
         if (errno == EADDRINUSE)
             throw AddressInUse(ipaddr, port);
         else
-            throw SystemError(fn);
+            throwSystemError(fn);
     }
 }
 
@@ -225,7 +226,7 @@ void TcpServerImpl::terminateAccept()
     char ch = 'A';
     int ret = ::write(_wakePipe[1], &ch, 1);
     if (ret == -1)
-        throw SystemError("write(wake pipe)");
+        throwSystemError("write(wake pipe)");
 }
 
 #ifdef HAVE_TCP_DEFER_ACCEPT
@@ -291,7 +292,7 @@ bool TcpServerImpl::wait(std::size_t msecs)
             if (errno == EINTR)
                 continue;
             log_error("error in poll; errno=" << errno);
-            throw SystemError("poll");
+            throwSystemError("poll");
         }
         else if (p == 0)
         {
@@ -391,7 +392,7 @@ int TcpServerImpl::accept(int flags, struct sockaddr* sa, socklen_t& sa_len)
                 if (errno == EINTR)
                     continue;
                 log_error("error in poll; errno=" << errno);
-                throw SystemError("poll");
+                throwSystemError("poll");
             }
         }
 
@@ -403,7 +404,7 @@ int TcpServerImpl::accept(int flags, struct sockaddr* sa, socklen_t& sa_len)
 
             int ret = ::read(_wakePipe[0], &buffer, 1);
             if (ret == -1)
-                throw SystemError("read(wake pipe)");
+                throwSystemError("read(wake pipe)");
 
             log_debug("accept terminated");
             throw AcceptTerminated();
@@ -462,7 +463,7 @@ int TcpServerImpl::accept(int flags, struct sockaddr* sa, socklen_t& sa_len)
                 useAccept4 = false;
             }
             else
-                throw SystemError("accept4");
+                throwSystemError("accept4");
         }
     }
 
@@ -474,7 +475,7 @@ int TcpServerImpl::accept(int flags, struct sockaddr* sa, socklen_t& sa_len)
         } while (clientFd < 0 && errno == EINTR);
 
         if( clientFd < 0 )
-            throw SystemError("accept");
+            throwSystemError("accept");
     }
 #else
     int clientFd;
@@ -484,7 +485,7 @@ int TcpServerImpl::accept(int flags, struct sockaddr* sa, socklen_t& sa_len)
     } while (clientFd < 0 && errno == EINTR);
 
     if( clientFd < 0 )
-        throw SystemError("accept");
+        throwSystemError("accept");
 
     if (!inherit)
     {

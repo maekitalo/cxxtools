@@ -47,14 +47,6 @@ namespace cxxtools
 
 const short SelectorImpl::POLL_ERROR_MASK= POLLERR | POLLHUP | POLLNVAL;
 
-namespace
-{
-    void throwSystemError(const char* fn)
-    {
-        throw SystemError(fn);
-    }
-}
-
 SelectorImpl::SelectorImpl()
 : _isDirty(true)
 {

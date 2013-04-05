@@ -29,17 +29,75 @@
 
 #include "error.h"
 #include <sstream>
+#include <vector>
 #include <string.h>
 
 namespace cxxtools
 {
 
-std::string getErrnoString(int err, const char* fn)
+namespace
 {
-    if (err != 0)
+    // XSI compliant strerror_r
+    inline void errorOut(int (*errfn)(int, char*, size_t), std::ostream& out, int errnum)
+    {
+        std::vector<char> buffer(512);
+        while (errfn(errnum, &buffer[0], buffer.size()) != 0)
+        {
+            if (errno != ERANGE)
+            {
+                out << "Unknown error " << errnum;
+                return;
+            }
+
+            buffer.resize(buffer.size() * 2);
+        }
+
+        out << &buffer[0];
+    }
+
+    // GNU specific strerror_r
+    inline void errorOut(char* (*errfn)(int, char*, size_t), std::ostream& out, int errnum)
+    {
+        std::vector<char> buffer(512);
+        while (true)
+        {
+            char* f = errfn(errnum, &buffer[0], buffer.size());
+            if (f != &buffer[0])
+            {
+                out << f;
+                return;
+            }
+
+            if (strlen(&buffer[0]) < buffer.size() - 1)
+                break;
+
+            buffer.resize(buffer.size() * 2);
+        }
+
+        out << &buffer[0];
+    }
+
+    inline void errorOut(std::ostream& out, int errnum)
+    {
+      errorOut(strerror_r, out, errnum);
+    }
+}
+
+std::string getErrnoString(int errnum)
+{
+    std::ostringstream msg;
+    msg << "errno " << errnum << ": ";
+    errorOut(msg, errnum);
+    return msg.str();
+}
+
+std::string getErrnoString(int errnum, const char* fn)
+{
+    if (errnum != 0)
     {
         std::ostringstream msg;
-        msg << fn << ": errno " << err << ": " << strerror(err);
+        msg << fn << ": errno " << errnum << ": ";
+        errorOut(msg, errnum);
         return msg.str();
     }
     else

@@ -55,6 +55,14 @@ class SystemError : public std::runtime_error
         int m_errno;
 };
 
+void throwSystemError(const char* msg);
+inline void throwSystemError(const std::string& msg)
+{
+  throwSystemError(msg.c_str());
+}
+
+void throwSystemError(int errnum, const char* msg);
+
 /** @brief Thrown, when a shared library could not be loaded
 */
 class OpenLibraryFailed : public SystemError

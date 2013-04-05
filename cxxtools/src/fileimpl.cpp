@@ -26,6 +26,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 #include "fileimpl.h"
+#include "error.h"
 #include "cxxtools/ioerror.h"
 #include "cxxtools/systemerror.h"
 #include <string>
@@ -34,7 +35,6 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <errno.h>
-#include <string.h>
 #include <stdio.h>
 
 namespace cxxtools {
@@ -69,7 +69,7 @@ void throwErrno(const char* fn, const std::string& path)
         case EMLINK:
         case ENOTEMPTY:
         case EXDEV:
-            throw IOError( strerror(errno));
+            throw IOError(getErrnoString(errno));
 
         case EACCES:
         case EPERM:
@@ -91,7 +91,7 @@ void throwErrno(const char* fn, const std::string& path)
            throw std::bad_alloc();
 
         default: // EFAULT EMFILE EOVERFLOW
-            throw SystemError(fn, strerror(errno));
+            throw SystemError(fn);
     }
 }
 
