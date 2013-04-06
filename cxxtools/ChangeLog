@@ -1,3 +1,33 @@
+2013-04-06 tommi@tntnet.org
+
+ - fix build on FreeBSD
+
+2013-04-05 tommi@tntnet.org
+
+ - replace use of strerror with thread safe strerror_r
+
+2013-04-03 tommi@tntnet.org
+
+ - make string type a template parameter in ltrim, rtrim and trim so that it works with cxxtools::String (unicode string) also
+
+2013-03-31 tommi@tntnet.org
+
+ - make passing listen ip address optional for http and rpc servers, which means to listen on all interfaces
+ - fix compiler warnings
+
+2013-03-30 tommi@tntnet.org
+
+ - implement a new much simpler api for asynchronous rpc calls (see demo/rpcasyncaddclient.cpp for a example)
+
+2013-03-29 tommi@tntnet.org
+
+ - set pthread flags and select threaded compiler globally in configure script
+ - forgot to pass event loop to json rpc client demo
+
+2013-03-26 tommi@tntnet.org
+
+ - make selecting remote client a little more readable in demo
+
 2013-03-22 tommi@tntnet.org
 
  - release candidate 2.2rc3
@@ -10,7 +40,7 @@
 
 2013-03-17 tommi@tntnet.org
 
- - set preprocesor flags in CPPFLAGS instead of CXXFLAGS
+ - set preprocessor flags in CPPFLAGS instead of CXXFLAGS
  - fix some compiler warnings
  - use INHERIT flag on non-linux systems in cxxtools::net::TcpServer::accept also
 
