@@ -1,4 +1,4 @@
-AC_INIT(cxxtools, 2.2rc3, [Tommi Maekitalo <tommi@tntnet.org>])
+AC_INIT(cxxtools, 2.2rc3-1617, [Tommi Maekitalo <tommi@tntnet.org>])
 AM_INIT_AUTOMAKE
 
 AC_PREREQ([2.5.9])
@@ -102,6 +102,7 @@ CC="$PTHREAD_CC"
 CXX="$PTHREAD_CXX"
 CFLAGS="$CFLAGS $PTHREAD_CFLAGS"
 CXXFLAGS="$CXXFLAGS $PTHREAD_CXXFLAGS"
+LIBS="$LIBS $PTHREAD_LIBS"
 
 AC_PROG_LIBTOOL
 

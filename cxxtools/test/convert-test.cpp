@@ -75,11 +75,10 @@ class ConvertTest : public cxxtools::unit::TestSuite
         void failTest()
         {
           std::string s(" -15 a");
-          int n = 0;
-          CXXTOOLS_UNIT_ASSERT_THROW(n = cxxtools::convert<int>(s), cxxtools::ConversionError);
+          CXXTOOLS_UNIT_ASSERT_THROW(cxxtools::convert<int>(s), cxxtools::ConversionError);
 
           cxxtools::String S(L" -42 a");
-          CXXTOOLS_UNIT_ASSERT_THROW(n = cxxtools::convert<int>(S), cxxtools::ConversionError);
+          CXXTOOLS_UNIT_ASSERT_THROW(cxxtools::convert<int>(S), cxxtools::ConversionError);
 
         }
 

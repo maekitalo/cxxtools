@@ -72,10 +72,10 @@ class TrimTest : public cxxtools::unit::TestSuite
 
         void trimTestU()
         {
-          CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::trim(cxxtools::String(" \t foo bar ")), L"foo bar");
-          CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::trim(cxxtools::String(" \t\n foo bar \n ")), L"foo bar");
-          CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::trim(cxxtools::String(" \t\n foo bar \n "), wsu), L"\n foo bar \n");
-          CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::trim(cxxtools::String(" \t ")), L"");
+          CXXTOOLS_UNIT_ASSERT(cxxtools::trim(cxxtools::String(" \t foo bar ")) == L"foo bar");
+          CXXTOOLS_UNIT_ASSERT(cxxtools::trim(cxxtools::String(" \t\n foo bar \n ")) == L"foo bar");
+          CXXTOOLS_UNIT_ASSERT(cxxtools::trim(cxxtools::String(" \t\n foo bar \n "), wsu) == L"\n foo bar \n");
+          CXXTOOLS_UNIT_ASSERT(cxxtools::trim(cxxtools::String(" \t ")) == L"");
         }
 
 };
