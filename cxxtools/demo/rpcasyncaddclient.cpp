@@ -41,7 +41,7 @@ that they run in parallel.
 #include <cxxtools/json/rpcclient.h>
 #include <cxxtools/json/httpclient.h>
 #include <cxxtools/remoteprocedure.h>
-#include <cxxtools/eventloop.h>
+#include <cxxtools/selector.h>
 
 int main(int argc, char* argv[])
 {
@@ -58,8 +58,8 @@ int main(int argc, char* argv[])
     cxxtools::Arg<std::size_t> timeout(argc, argv, 't', cxxtools::RemoteClient::WaitInfinite);
     cxxtools::Arg<unsigned short> port(argc, argv, 'p', binary ? 7003 : json ? 7004 : 7002);
 
-    // we need a event loop, which controls the network activity
-    cxxtools::EventLoop loop;
+    // we need a selector, which controls the network activity
+    cxxtools::Selector selector;
 
     // Normally we would define just one rpc client for the protocol we use but
     // here we want to demonstrate, that it is just up to the client, which protocol
@@ -69,20 +69,20 @@ int main(int argc, char* argv[])
     // we need 2 clients. So we define 2 clients for each protocol.
 
     // define a xlmrpc client
-    cxxtools::xmlrpc::HttpClient xmlrpcClient1(loop, ip, port, "/xmlrpc");
-    cxxtools::xmlrpc::HttpClient xmlrpcClient2(loop, ip, port, "/xmlrpc");
+    cxxtools::xmlrpc::HttpClient xmlrpcClient1(selector, ip, port, "/xmlrpc");
+    cxxtools::xmlrpc::HttpClient xmlrpcClient2(selector, ip, port, "/xmlrpc");
 
     // and a binary rpc client
-    cxxtools::bin::RpcClient binaryClient1(loop, ip, port);
-    cxxtools::bin::RpcClient binaryClient2(loop, ip, port);
+    cxxtools::bin::RpcClient binaryClient1(selector, ip, port);
+    cxxtools::bin::RpcClient binaryClient2(selector, ip, port);
 
     // and a tcp json rpc client
-    cxxtools::json::RpcClient jsonClient1(loop, ip, port);
-    cxxtools::json::RpcClient jsonClient2(loop, ip, port);
+    cxxtools::json::RpcClient jsonClient1(selector, ip, port);
+    cxxtools::json::RpcClient jsonClient2(selector, ip, port);
 
     // and a http json rpc client
-    cxxtools::json::HttpClient httpJsonClient1(loop, ip, port, "/jsonrpc");
-    cxxtools::json::HttpClient httpJsonClient2(loop, ip, port, "/jsonrpc");
+    cxxtools::json::HttpClient httpJsonClient1(selector, ip, port, "/jsonrpc");
+    cxxtools::json::HttpClient httpJsonClient2(selector, ip, port, "/jsonrpc");
 
     // now se welect the client depending on the command line flags
 
