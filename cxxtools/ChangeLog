@@ -267,14 +267,6 @@
 
  - limit number of pooled message impl in logger to 8 and release pooled messages on end
 
-2012-05-19 tommi@tntnet.org
-
- - remove remaining parts of support of log4cxx and log4cplus
-
-2012-05-13 tommi@tntnet.org
-
- - limit number of pooled message impl in logger to 8 and release pooled messages on end
-
 2012-05-12 tommi@tntnet.org
 
  - optimize logging: pool of message impls
