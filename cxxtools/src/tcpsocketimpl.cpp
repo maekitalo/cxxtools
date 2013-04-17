@@ -429,7 +429,7 @@ bool TcpSocketImpl::checkPollEvent(pollfd& pfd)
                 initializePoll(&pfd, 1);
             }
 
-            return _isConnected;
+            return true;
         }
     }
     else if( pfd.revents & POLLOUT )

@@ -223,7 +223,11 @@ void HttpClientImpl::onReplyFinished(http::Client& client)
         IRemoteProcedure* proc = _proc;
         _proc = 0;
         proc->onFinished();
-        _exceptionPending = false;
+        if (_exceptionPending)
+        {
+            _exceptionPending = false;
+            throw;
+        }
         return;
     }
 

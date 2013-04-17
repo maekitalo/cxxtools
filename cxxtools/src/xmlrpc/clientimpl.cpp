@@ -236,7 +236,11 @@ void ClientImpl::onReplyFinished()
         IRemoteProcedure* method = _method;
         _method = 0;
         method->onFinished();
-        _errorPending = false;
+        if (_errorPending)
+        {
+            _errorPending = false;
+            throw;
+        }
         return;
     }
 
