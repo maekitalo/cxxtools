@@ -37,6 +37,7 @@ alltests_SOURCES = \
     uri-test.cpp \
     xmlreader-test.cpp \
     xmlrpc-test.cpp \
+    xmlrpccallback-test.cpp \
     xmlserializer-test.cpp
 
 if MAKE_ICONVSTREAM
