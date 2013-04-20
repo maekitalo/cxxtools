@@ -84,7 +84,7 @@ int main(int argc, char* argv[])
     cxxtools::json::HttpClient httpJsonClient1(selector, ip, port, "/jsonrpc");
     cxxtools::json::HttpClient httpJsonClient2(selector, ip, port, "/jsonrpc");
 
-    // now se welect the client depending on the command line flags
+    // now se select the client depending on the command line flags
 
     cxxtools::RemoteClient& client1(
         binary   ? static_cast<cxxtools::RemoteClient&>(binaryClient1) :
