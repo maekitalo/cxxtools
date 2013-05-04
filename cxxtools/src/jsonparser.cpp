@@ -155,8 +155,38 @@ int JsonParser::advance(Char ch)
                 _nextState = _state;
                 _state = state_comment0;
             }
+            else if (std::isalpha(ch.value()))
+            {
+                _token = ch;
+                _state = state_object_plainname;
+            }
             else if (!std::isspace(ch.value()))
                 SerializationError::doThrow(std::string("invalid character '") + ch.narrow() + '\'');
+            break;
+
+        case state_object_plainname:
+            if (std::isalnum(ch.value()))
+                _token += ch;
+            else if (std::isspace(ch.value()))
+            {
+                _stringParser.str(_token);
+                _state = state_object_after_name;
+            }
+            else if (ch == ':')
+            {
+                _stringParser.str(_token);
+                if (_next == 0)
+                    _next = new JsonParser();
+                log_debug("begin object member " << _stringParser.str());
+                _deserializer->beginMember(Utf8Codec::encode(_stringParser.str()),
+                        std::string(), SerializationInfo::Void);
+                _next->begin(*_deserializer);
+                _stringParser.clear();
+                _state = state_object_value;
+            }
+            else
+                SerializationError::doThrow(std::string("invalid character '") + ch.narrow() + '\'');
+
             break;
 
         case state_object_name:
@@ -222,6 +252,11 @@ int JsonParser::advance(Char ch)
             {
                 _nextState = _state;
                 _state = state_comment0;
+            }
+            else if (std::isalpha(ch.value()))
+            {
+                _token = ch;
+                _state = state_object_plainname;
             }
             else if (!std::isspace(ch.value()))
                 SerializationError::doThrow(std::string("invalid character '") + ch.narrow() + '\'');
@@ -421,6 +456,7 @@ void JsonParser::finish()
     {
         case state_0:
         case state_object:
+        case state_object_plainname:
         case state_object_name:
         case state_object_after_name:
         case state_object_value:

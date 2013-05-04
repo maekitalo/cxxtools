@@ -35,6 +35,7 @@
 #include <cxxtools/serializationinfo.h>
 #include <cxxtools/xml/xmldeserializer.h>
 #include <cxxtools/propertiesdeserializer.h>
+#include <cxxtools/jsondeserializer.h>
 #include <cxxtools/net/udp.h>
 #include <cxxtools/fileinfo.h>
 #include <vector>
@@ -684,6 +685,13 @@ namespace cxxtools
       std::string logProperties = "log.properties";
       if (FileInfo::exists(logProperties))
         logInit(logProperties);
+
+      else
+      {
+        std::string logJson = "log.json";
+      if (FileInfo::exists(logJson))
+        logInit(logJson);
+      }
     }
   }
 
@@ -697,6 +705,13 @@ namespace cxxtools
         if (fname.size() >= 11 && fname.compare(fname.size() - 11, 11, ".properties") == 0)
         {
           PropertiesDeserializer d(in);
+          LoggerManagerConfiguration config;
+          d.deserialize(config);
+          getInstance().configure(config);
+        }
+        else if (fname.size() >= 5 && fname.compare(fname.size() - 5, 5, ".json") == 0)
+        {
+          JsonDeserializer d(in);
           LoggerManagerConfiguration config;
           d.deserialize(config);
           getInstance().configure(config);
