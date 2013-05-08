@@ -98,6 +98,7 @@ class JsonDeserializerTest : public cxxtools::unit::TestSuite
         {
             registerMethod("testInt", *this, &JsonDeserializerTest::testInt);
             registerMethod("testObject", *this, &JsonDeserializerTest::testObject);
+            registerMethod("testObjectPlainKeys", *this, &JsonDeserializerTest::testObjectPlainKeys);
             registerMethod("testEmptyObject", *this, &JsonDeserializerTest::testEmptyObject);
             registerMethod("testArray", *this, &JsonDeserializerTest::testArray);
             registerMethod("testEmptyArrays", *this, &JsonDeserializerTest::testEmptyArrays);
@@ -128,6 +129,28 @@ class JsonDeserializerTest : public cxxtools::unit::TestSuite
                 "\"doubleValue\": \"1000\", "
                 "\"boolValue\"  :    true,"
                 "\"nullValue\"  :  null"
+            "}");
+
+            cxxtools::JsonDeserializer deserializer(in);
+            deserializer.deserialize(data);
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.intValue, 17);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.stringValue, "foo bar\t");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.doubleValue, 1000.0);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.boolValue, true);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.nullValue, true);
+        }
+
+        void testObjectPlainKeys()
+        {
+            TestObject data;
+
+            std::istringstream in(" {"
+                "intValue: 17, "
+                "stringValue:  \"foo bar\t\","
+                "doubleValue: \"1000\", "
+                "boolValue  :    true,"
+                "nullValue  :  null"
             "}");
 
             cxxtools::JsonDeserializer deserializer(in);

@@ -63,6 +63,9 @@ namespace cxxtools
 
                     const String& str() const
                     { return _str; }
+
+                    void str(const String& s)
+                    { _str = s; }
             };
 
         public:
@@ -83,6 +86,7 @@ namespace cxxtools
             {
                 state_0,
                 state_object,
+                state_object_plainname,
                 state_object_name,
                 state_object_after_name,
                 state_object_value,
