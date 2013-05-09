@@ -689,8 +689,8 @@ namespace cxxtools
       else
       {
         std::string logJson = "log.json";
-      if (FileInfo::exists(logJson))
-        logInit(logJson);
+        if (FileInfo::exists(logJson))
+          logInit(logJson);
       }
     }
   }
