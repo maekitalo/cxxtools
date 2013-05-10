@@ -24,7 +24,7 @@ They are:
 All share a common cxxtools api and it is easy to switch to start with one
 protocol and switch another protocol later.
 
-But lets start with one first and come back to the diffenrent protocol later. We
+But lets start with one first and come back to the different protocol later. We
 start with xmlrpc since it is most standard and was also the first, which was
 supported in cxxtools.
 
@@ -279,7 +279,7 @@ there is a optional return code. This is also preserved. So if you really throw
 a `cxxtools::RemoteException` on the server side with a error code, you can see
 the error code on the client side.
 
-Note that an exception is also thrown on techical errors, e.g. when the client
+Note that an exception is also thrown on technical errors, e.g. when the client
 could not connect to the server.
 
 Serialization
@@ -307,7 +307,7 @@ Luckily this is already done for all built in types including standard library
 containers. That's why our examples above worked out of the box.
 
 So what needs to be done for custom data? We need to define 2 operators. We go
-staight away to a example:
+straight away to a example:
 
     struct MyStruct
     {
@@ -357,7 +357,7 @@ Now we can define a function e.g.:
 
 and make them available as a XML-RPC service just like our previous myAdd,
 mySub, myMul and myDiv functions. We do not show a full example here, since it
-duplicates most of the code from the above example hence can be easyly derived
+duplicates most of the code from the above example hence can be easily derived
 from the first example.
 
 Of course you have to make sure both client and server know about the structure
@@ -457,7 +457,7 @@ definition of our client to:
     cxxtools::json::HttpClient client("", 7001, "/jsonrpc");
 
 That is all we have to do. We do not show the full example here since it is so
-trivial and a good excercise.
+trivial and a good exercise.
 
 ### jsonrpc raw
 
@@ -600,12 +600,12 @@ the next request. It is even more true, if the requests are sent to different
 servers.
 
 One solution is to start separate threads on the client side and execute the
-calls in parallel. The application needs to implement some syncronization to
+calls in parallel. The application needs to implement some synchronization to
 know, when all requests are finished. Not really hard to implement but also a
 little more than trivial. Not what we are used so far regarding rpc with
 cxxtools.
 
-Of course there is a better solution for this in cxxtools. Otherwise I wouln't
+Of course there is a better solution for this in cxxtools. Otherwise I wouldn't
 have mentioned it. We can run multiple requests in parallel. For that we need 2
 clients and a `cxxtools::Selector`, which monitors the I/O activity needed to
 execute the requests and receive the results. Lets look at a example:
@@ -624,10 +624,10 @@ execute the requests and receive the results. Lets look at a example:
     std::cout << "4 + 6 = " << add1.end() << std::endl;
     std::cout << "5 + 7 = " << add2.end() << std::endl;
 
-What happens here? We have 2 clients, which is instatiated with the same
-selector. The selector is needed for asyncronous calls, which is actually done
+What happens here? We have 2 clients, which is instantiated with the same
+selector. The selector is needed for asynchronous calls, which is actually done
 here. For each client we instantiate a separate remote procedure call object.
-Instead of using the `operator()`, which executes a syncronous rpc call we use
+Instead of using the `operator()`, which executes a synchronous rpc call we use
 the `begin` method, which takes the same parameters but do not yet execute the
 call and do not return anything yet. It tells procedure, which rpc call to
 execute.

@@ -1,7 +1,7 @@
 Argument parsing with cxxtools
 ==============================
 
-Frequenty when we write programs, we need to pass some command line arguments to
+Frequently when we write programs, we need to pass some command line arguments to
 the process. It is very common to use command line switches, which start with a
 minus sign followed by a character and optionally a parameter.
 
@@ -27,7 +27,7 @@ The constructor of the template class takes the type of the expected parameter
 type as a type parameter.
 
 The first parameter is a reference to the `argc` parameter of `main` and the
-second a the `argv` parameter. Since `argv` is a pointer anyway it do not need
+second the `argv` parameter. Since `argv` is a pointer anyway it do not need
 to be passed as a reference - it is already one.
 
 The third parameter is either a character or a string. The character specifies
@@ -86,7 +86,7 @@ Note that the 'v' is removed from the group.
 
 ### long boolean switch
 
-If you like longer arguments you may pass a string as noted alreads:
+If you like longer arguments you may pass a string as noted already:
 
     int main(int argc, char* argv[])
     {
@@ -97,7 +97,7 @@ If you like longer arguments you may pass a string as noted alreads:
         std::cout << "argv[" << a << "]=" << argv[a] << std::endl;
     }
 
-Now you need to pass excactly this _--verbose_ as a separate parameter to enable
+Now you need to pass exactly this _--verbose_ as a separate parameter to enable
 verbosity.
 
 ### other types
