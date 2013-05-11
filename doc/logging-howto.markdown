@@ -25,7 +25,7 @@ The features are:
  * each log statement has a level and a category
  * for each category it is possible to configure the log level, which specifies
    up to which log level the logging is printed
- * categories are organized hierachically
+ * categories are organized hierarchically
  * formatting log messages is easy, since a std::ostream is used automatically
 
 Category
@@ -38,7 +38,7 @@ Typically a category is defined per namespace.
 
 For example lets say we have a project, where the classes are defined in the
 namespace `myapp`. The top level category should be this `myapp`. The second
-level category is typcally the class or file name, which is often the same. When
+level category is typically the class or file name, which is often the same. When
 we have a class `TheCar` in the namespace `myapp`, the category should be
 _myapp.TheCar_. Of course you are free to define a different naming scheme.
 
@@ -50,13 +50,13 @@ Logging
 -------
 
 Each log statement has a level. The levels are in descending severity _fatal_,
-_error_, _warn_, _info_ and _debug_. Addititionally there is a special level
-_trace_, which is even below _debug_ and works a little different. But lets look
-first, how we can produce log output.
+_error_, _warn_, _info_ and _debug_. Additionally there is a special level
+_trace_, which is even below _debug_ and works a little different. But lets
+look first, how we can produce log output.
 
 Lets say we want to output the number of wheels of our car as a
 debug information. And the number of wheels are held in a variable
-`numberOfWheels`. We produce a debug ouput by putting this into our source:
+`numberOfWheels`. We produce a debug output by putting this into our source:
 
     log_debug("the number of wheels is " << numberOfWheels);
 
@@ -66,7 +66,7 @@ output into our log target.
 Note that you can output anything, which has a proper output operator for
 std::ostream defined.
 
-The other levels are produced similary using the macros `log_fatal`,
+The other levels are produced similarly using the macros `log_fatal`,
 `log_error`, `log_warn` or `log_info`.
 
 Tracing is a little different. The macro `log_trace` instantiates a class on the
@@ -82,7 +82,7 @@ Configuration
 -------------
 
 Configuration, which categories are logged with which level and where to log is
-normally done using a configration file. The easiest way to initialize logging
+normally done using a configuration file. The easiest way to initialize logging
 in a application is to call the macro `log_init()`. Typically this is done as
 the first statement in the `main` function of a application.
 
@@ -131,13 +131,13 @@ specified explicitly. In this case log output for levels _fatal_, _error_,
 _warn_ and _info_ is enabled.
 
 Then there is a list of loggers entries. Each entry has a category and a level.
-They define the levels for each categrory and all its subcategories. So in this
+They define the levels for each category and all its subcategories. So in this
 case you will get all levels up to debug for the specified categories. You will
 see debug output also for categories _cxxtools.csv.parser_ and
 _cxxtools.csv.formatter_.
 
 The level may be _FATAL_, _ERROR_, _WARN_, _INFO_, _DEBUG_ or _TRACE_. Actually
-only the first character is significant and even that is not case sesitive, so
+only the first character is significant and even that is not case sensitive, so
 you can write as well `<level>d</level>` to define _debug_ level.
 
 The _file_ entry enabled logging to a file. I guess you guessed it already.
@@ -189,7 +189,7 @@ Here is the same configuration as above in properties format:
     maxfilesize = 1MB
     maxbackupindex = 2
 
-This is straigth forward. It is more or less a assignment of values to
+This is straight forward. It is more or less a assignment of values to
 variables. The meaning is exactly the same as in xml format. Also logging via
 udp can be configured by specifying a variable `host` with a host and port
 number separated by ':' as in xml.
