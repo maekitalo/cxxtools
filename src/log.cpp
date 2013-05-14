@@ -47,6 +47,8 @@
 #include <string.h>
 #include <fcntl.h>
 #include <sys/time.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <pthread.h>
 
 namespace cxxtools
@@ -227,39 +229,45 @@ namespace cxxtools
     //////////////////////////////////////////////////////////////////////
     // FileAppender
     //
-    class FileAppender : public LogAppender
+    class FileAppender : public FdAppender
     {
-      protected:
         std::string _fname;
-        std::ofstream _ofile;
 
       public:
         explicit FileAppender(const std::string& fname);
         virtual void putMessage(const std::string& msg);
-        virtual void finish(bool flush);
+
+        const std::string& fname() const  { return _fname; }
+        void closeFile();
+        void openFile();
     };
 
     FileAppender::FileAppender(const std::string& fname)
-      : _fname(fname),
-        _ofile(fname.c_str(), std::ios::out | std::ios::app)
+      : FdAppender(-1),
+        _fname(fname)
     {
+    }
+
+    void FileAppender::openFile()
+    {
+      _fd = ::open( _fname.c_str(), O_WRONLY | O_APPEND | O_CLOEXEC | O_CREAT, 0666);
+    }
+
+    void FileAppender::closeFile()
+    {
+      if (_fd != -1)
+      {
+        ::close(_fd);
+        _fd = -1;
+      }
     }
 
     void FileAppender::putMessage(const std::string& msg)
     {
-      if (!_ofile.is_open())
-      {
-        _ofile.clear();
-        _ofile.open(_fname.c_str(), std::ios::out | std::ios::app);
-      }
+      if (_fd == -1)
+        openFile();
 
-      _ofile << msg << '\n';
-    }
-
-    void FileAppender::finish(bool flush)
-    {
-      if (flush)
-        _ofile.flush();
+      FdAppender::putMessage(msg);
     }
 
     //////////////////////////////////////////////////////////////////////
@@ -284,14 +292,20 @@ namespace cxxtools
       : FileAppender(fname),
         _maxfilesize(maxfilesize),
         _maxbackupindex(maxbackupindex),
-        _fsize(_ofile.tellp())
+        _fsize(0)
     {
+      try
+      {
+        _fsize = FileInfo(fname).size();
+      }
+      catch (const std::exception&)
+      {
+      }
     }
 
     void RollingFileAppender::doRotate()
     {
-      _ofile.clear();
-      _ofile.close();
+      closeFile();
 
       // ignore unlink- and rename-errors. In case of failure the
       // original file is reopened
@@ -305,18 +319,18 @@ namespace cxxtools
         newfilename = oldfilename;
       }
 
-      ::rename(_fname.c_str(), newfilename.c_str());
+      ::rename(fname().c_str(), newfilename.c_str());
 
-      _ofile.open(_fname.c_str(), std::ios::out | std::ios::app);
+      openFile();
       _fsize = 0;
     }
 
     std::string RollingFileAppender::mkfilename(unsigned idx) const
     {
-      std::string fname(_fname);
-      fname += '.';
-      fname += convert<std::string>(idx);
-      return fname;
+      std::string newfname(fname());
+      newfname += '.';
+      newfname += convert<std::string>(idx);
+      return newfname;
     }
 
     void RollingFileAppender::putMessage(const std::string& msg)
@@ -689,8 +703,8 @@ namespace cxxtools
       else
       {
         std::string logJson = "log.json";
-      if (FileInfo::exists(logJson))
-        logInit(logJson);
+        if (FileInfo::exists(logJson))
+          logInit(logJson);
       }
     }
   }
