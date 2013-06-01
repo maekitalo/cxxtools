@@ -251,6 +251,7 @@ namespace cxxtools
             it->second.winner = true;
             _makeLooser();
           }
+          it->second.value = value;
         }
 
         return it->second.value;
