@@ -402,13 +402,8 @@ void JsonFormatter::beginValue(const std::string& name)
         *_ts << L',';
         if (_beautify)
         {
-            if (name.empty())
-                *_ts << L' ';
-            else
-            {
-                *_ts << L'\n';
-                indent();
-            }
+            *_ts << L'\n';
+            indent();
         }
     }
     else
