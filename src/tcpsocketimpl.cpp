@@ -73,17 +73,36 @@ namespace
 
 }
 
-void formatIp(const sockaddr_in& sa, std::string& str)
+void formatIp(const Sockaddr& sa, std::string& str)
 {
 #ifdef HAVE_INET_NTOP
+#ifdef HAVE_IPV6
       char strbuf[INET6_ADDRSTRLEN + 1];
-      const char* p = inet_ntop(sa.sin_family, &sa.sin_addr, strbuf, sizeof(strbuf));
+#else
+      char strbuf[INET_ADDRSTRLEN + 1];
+#endif
+
+      const char* p = 0;
+ 
+      switch(sa.sa_in.sin_family)
+      {
+            case AF_INET:
+                  p = inet_ntop(AF_INET, &sa.sa_in.sin_addr, strbuf, sizeof(strbuf));
+                  break;
+#ifdef HAVE_IPV6
+            case AF_INET6:
+                  p = inet_ntop(AF_INET6, &sa.sa_in6.sin6_addr,
+                        strbuf, sizeof(strbuf));
+                  break;
+#endif
+      }
+
       str = (p == 0 ? "-" : strbuf);
 #else
       static cxxtools::Mutex monitor;
       cxxtools::MutexLock lock(monitor);
 
-      const char* p = inet_ntoa(sa.sin_addr);
+      const char* p = inet_ntoa(sa.sa_in.sin_addr);
       if (p)
         str = p;
       else
@@ -93,21 +112,14 @@ void formatIp(const sockaddr_in& sa, std::string& str)
 
 std::string getSockAddr(int fd)
 {
-    union
-    {
-      struct sockaddr_storage storage;
-      struct sockaddr         sa;
-      struct sockaddr_in      sa_in;
-      struct sockaddr_in6     sa_in6;
-      struct in_addr          addr;
-    } addr;
+    Sockaddr addr;
 
     socklen_t slen = sizeof(addr);
     if (::getsockname(fd, &addr.sa, &slen) < 0)
         throw SystemError("getsockname");
 
     std::string ret;
-    formatIp(addr.sa_in, ret);
+    formatIp(addr, ret);
     return ret;
 }
 
@@ -138,19 +150,12 @@ std::string TcpSocketImpl::getSockAddr() const
 
 std::string TcpSocketImpl::getPeerAddr() const
 {
-    union
-    {
-      struct sockaddr_storage storage;
-      struct sockaddr         sa;
-      struct sockaddr_in      sa_in;
-      struct sockaddr_in6     sa_in6;
-      struct in_addr          addr;
-    } addr;
+    Sockaddr addr;
 
     addr.storage = _peeraddr;
 
     std::string ret;
-    formatIp(addr.sa_in, ret);
+    formatIp(addr, ret);
     return ret;
 }
 

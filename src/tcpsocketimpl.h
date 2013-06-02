@@ -33,6 +33,7 @@
 #include "iodeviceimpl.h"
 #include "cxxtools/net/addrinfo.h"
 #include "addrinfoimpl.h"
+#include "config.h"
 #include <string>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -52,9 +53,19 @@ namespace net
 class TcpServer;
 class TcpSocket;
 
-void formatIp(const sockaddr_in& addr, std::string& str);
+union Sockaddr
+{
+    struct sockaddr_storage storage;
+    struct sockaddr         sa;
+    struct sockaddr_in      sa_in;
+#ifdef HAVE_IPV6
+    struct sockaddr_in6     sa_in6;
+#endif
+};
 
-inline std::string formatIp(const sockaddr_in& addr)
+void formatIp(const Sockaddr& addr, std::string& str);
+
+inline std::string formatIp(const Sockaddr& addr)
 {
     std::string ret;
     formatIp(addr, ret);

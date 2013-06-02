@@ -169,7 +169,7 @@ void TcpServerImpl::listen(const std::string& ipaddr, unsigned short int port, i
             }
 #endif
 
-            log_debug("bind " << formatIp(*reinterpret_cast<const sockaddr_in*>(it->ai_addr)));
+            log_debug("bind " << formatIp(*reinterpret_cast<const Sockaddr*>(it->ai_addr)));
             fn = "bind";
             if (::bind(fd, it->ai_addr, it->ai_addrlen) != 0)
             {
