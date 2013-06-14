@@ -120,7 +120,7 @@ std::string FileInfo::dirName() const
 
 std::size_t FileInfo::size() const
 {
-    if(_type == FileInfo::File)
+    if(_type == FileInfo::File || _type == FileInfo::Symlink)
     {
         return FileImpl::size( _path.c_str() );
     }

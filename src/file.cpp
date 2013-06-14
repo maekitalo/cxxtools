@@ -39,7 +39,7 @@ File::File()
 File::File(const std::string& path)
 : _path(path)
 {
-    if( ! File::exists( path.c_str() ) )
+    if( ! File::exists( path ) )
         throw FileNotFound(path);
 }
 
@@ -72,36 +72,41 @@ File& File::operator=(const File& file)
 
 std::size_t File::size() const
 {
-    return FileImpl::size( path().c_str() );
+    return FileImpl::size( path() );
 }
 
 
 void File::resize(std::size_t newSize)
 {
-    FileImpl::resize(path().c_str(), newSize);
+    FileImpl::resize(path(), newSize);
 }
 
 
 void File::remove()
 {
-    FileImpl::remove( path().c_str() );
+    FileImpl::remove( path() );
 }
 
 
 void File::move(const std::string& to)
 {
-    FileImpl::move(path().c_str(), to.c_str());
+    FileImpl::move(path(), to);
     _path = to;
 }
 
 void File::link(const std::string& to)
 {
-    FileImpl::link(path().c_str(), to.c_str());
+    FileImpl::link(path(), to);
 }
 
 void File::symlink(const std::string& to)
 {
-    FileImpl::symlink(path().c_str(), to.c_str());
+    FileImpl::symlink(path(), to);
+}
+
+void File::copy(const std::string& to)
+{
+    FileImpl::copy(path(), to);
 }
 
 // TODO This should be done on a file system basis. If we'd have a relative file here,
@@ -179,14 +184,15 @@ std::string File::extension() const
 
 File File::create(const std::string& path)
 {
-    FileImpl::create( path.c_str() );
+    FileImpl::create( path );
     return File(path);
 }
 
 
 bool File::exists(const std::string& path)
 {
-    return FileInfo::getType( path.c_str() ) == FileInfo::File;
+    return FileInfo::getType( path ) == FileInfo::File
+        || FileInfo::getType( path ) == FileInfo::Symlink;
 }
 
 } // namespace cxxtools

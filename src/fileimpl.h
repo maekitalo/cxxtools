@@ -48,6 +48,8 @@ class FileImpl
 
         static void symlink(const std::string& path, const std::string& to);
 
+        static void copy(const std::string& path, const std::string& to);
+
         static void create(const std::string& path);
 };
 

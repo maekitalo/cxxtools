@@ -49,7 +49,8 @@ class FileInfo
             Chardev   = 3,
             Blockdev  = 4,
             Fifo      = 5,
-            Symlink   = 6
+            Symlink   = 6,
+            Socket    = 7
         };
 
     public:

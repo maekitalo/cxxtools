@@ -37,6 +37,12 @@
 #include <errno.h>
 #include <stdio.h>
 
+#include "config.h"
+
+#ifdef HAVE_SENDFILE
+#include <sys/sendfile.h>
+#endif
+
 namespace cxxtools {
 
 namespace {
@@ -169,9 +175,82 @@ void FileImpl::symlink(const std::string& path, const std::string& to)
 }
 
 
+void FileImpl::copy(const std::string& path, const std::string& to)
+{
+    int srcFd = -1;
+    int dstFd = -1;
+
+    try
+    {
+        srcFd = ::open(path.c_str(), O_RDWR|O_EXCL, 0777);
+        if( srcFd < 0 )
+            throwFileErrno("open", path);
+
+        dstFd = ::open(to.c_str(), O_WRONLY|O_EXCL|O_CREAT, 0777);
+        if( dstFd < 0 )
+            throwFileErrno("open", to);
+
+#ifdef HAVE_SENDFILE
+        struct stat buff;
+        if( fstat(srcFd, &buff) != 0 )
+            throwFileErrno("stat", path);
+
+        while (::sendfile(dstFd, srcFd, 0, buff.st_size) == -1)
+        {
+            if (errno != EINTR)
+                throwFileErrno("sendfile", path);
+        }
+
+#else
+        char buffer[8192];
+
+        while (true)
+        {
+            size_t n = ::read(srcFd, buffer, sizeof(buffer));
+            if (n < 0)
+            {
+                if (errno == EINTR)
+                    continue;
+
+                throwFileErrno("read", path);
+            }
+
+            const char* p = buffer;
+            do
+            {
+                size_t nn = ::write(dstFd, p, n);
+                if (nn < 0)
+                {
+                    if (errno == EINTR)
+                        continue;
+
+                    throwFileErrno("write", to);
+                }
+
+                p += nn;
+                n -= nn;
+            } while (n > 0);
+        }
+
+#endif
+
+        ::close(srcFd);
+        ::close(dstFd);
+    }
+    catch (...)
+    {
+        if (srcFd != -1)
+            ::close(srcFd);
+        if (dstFd != -1)
+            ::close(dstFd);
+        throw;
+    }
+}
+
+
 void FileImpl::create(const std::string& path)
 {
-    int fd = open(path.c_str(), O_RDWR|O_EXCL|O_CREAT, 0777);
+    int fd = ::open(path.c_str(), O_RDWR|O_EXCL|O_CREAT, 0777);
     if( fd < 0 )
         throwFileErrno("open", path);
 

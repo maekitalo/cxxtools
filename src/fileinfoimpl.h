@@ -40,16 +40,12 @@ namespace cxxtools {
             static FileInfo::Type getType(const std::string& path)
             {
                 struct stat st;
-                if( 0 != ::stat(path.c_str(), &st) )
+                if( 0 != ::lstat(path.c_str(), &st) )
                 {
                     return FileInfo::Invalid;
                 }
 
-                if( S_ISREG(st.st_mode) )
-                {
-                    return FileInfo::File;
-                }
-                else if( S_ISDIR(st.st_mode) ) 
+                if( S_ISDIR(st.st_mode) ) 
                 {
                     return FileInfo::Directory;
                 }
@@ -65,9 +61,13 @@ namespace cxxtools {
                 {
                     return FileInfo::Fifo;
                 }
-                else if( S_ISSOCK(st.st_mode) ) 
+                else if( S_ISLNK(st.st_mode) ) 
                 {
                     return FileInfo::Symlink;
+                }
+                else if( S_ISSOCK(st.st_mode) ) 
+                {
+                    return FileInfo::Socket;
                 }
 
                 return FileInfo::File;
