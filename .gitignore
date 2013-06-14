@@ -24,3 +24,4 @@ stamp-h1
 *.l[ao]
 *.o
 .libs
+*.swp
