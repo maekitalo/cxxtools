@@ -70,6 +70,7 @@ iconvstreambuf* iconvstreambuf::open(std::ostream& sink_,
   const char* tocode, const char* fromcode)
 {
   open(sink_, tocode, fromcode, iconvstreambuf::mode_default);
+  return this;
 }
 
 iconvstreambuf* iconvstreambuf::open(std::ostream& sink_,
