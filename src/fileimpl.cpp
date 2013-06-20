@@ -39,7 +39,7 @@
 
 #include "config.h"
 
-#ifdef HAVE_SENDFILE
+#if defined(HAVE_SENDFILE) && defined(HAVE_SYS_SENDFILE_H)
 #include <sys/sendfile.h>
 #endif
 
@@ -190,7 +190,7 @@ void FileImpl::copy(const std::string& path, const std::string& to)
         if( dstFd < 0 )
             throwFileErrno("open", to);
 
-#ifdef HAVE_SENDFILE
+#if defined(HAVE_SENDFILE) && defined(HAVE_SYS_SENDFILE_H)
         struct stat buff;
         if( fstat(srcFd, &buff) != 0 )
             throwFileErrno("stat", path);

@@ -32,6 +32,7 @@ AS_IF([test "$ax_cv_cxx_compiler_vendor" = "ibm"],
 
 AC_CHECK_HEADERS(sys/filio.h)
 AC_CHECK_HEADERS(csignal)
+AC_CHECK_HEADERS([sys/sendfile.h])
 
 AC_CHECK_LIB(nsl, setsockopt)
 AC_CHECK_LIB(socket, accept)
