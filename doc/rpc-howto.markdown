@@ -1,4 +1,4 @@
-﻿RPC with cxxtools
+RPC with cxxtools
 =================
 
 Introduction
