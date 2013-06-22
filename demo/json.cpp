@@ -30,7 +30,7 @@
 #include <fstream>
 #include <cxxtools/log.h>
 #include <cxxtools/arg.h>
-#include <cxxtools/jsonserializer.h>
+#include <cxxtools/json.h>
 #include <cxxtools/serializationinfo.h>
 #include <cxxtools/thread.h>
 #include <cxxtools/http/server.h>
@@ -214,9 +214,7 @@ void StatResponder::reply(std::ostream& out, cxxtools::http::Request& request, c
 {
   cxxtools::MutexLock lock(statMutex);
   reply.addHeader("Content-Type", "application/json");
-  cxxtools::JsonSerializer serializer(out);
-  serializer.serialize(currentStat);
-  serializer.finish();
+  out << cxxtools::Json(currentStat);
 }
 
 typedef cxxtools::http::CachedService<StatResponder> StatService;
@@ -227,14 +225,19 @@ int main(int argc, char* argv[])
   try
   {
     log_init();
+
     cxxtools::Arg<std::string> listenIp(argc, argv, 'l');
     cxxtools::Arg<unsigned short int> listenPort(argc, argv, 'p', 8001);
+
     cxxtools::EventLoop loop;
     cxxtools::http::Server server(loop, listenIp, listenPort);
+
     MainService mainService;
     StatService statService;
     server.addService("/", mainService);
     server.addService("/stat", statService);
+
+    std::cout << "http server running on port " << listenPort.getValue() << std::endl;
 
     cxxtools::AttachedThread thread(cxxtools::callable(statThread));
     thread.start();

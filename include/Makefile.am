@@ -19,6 +19,7 @@ nobase_include_HEADERS = \
         cxxtools/callable.h \
         cxxtools/callable.tpp \
         cxxtools/composer.h \
+        cxxtools/csv.h \
         cxxtools/csvdeserializer.h \
         cxxtools/csvformatter.h \
         cxxtools/csvparser.h \
@@ -75,6 +76,7 @@ nobase_include_HEADERS = \
         cxxtools/iodevice.h \
         cxxtools/iostream.h \
         cxxtools/join.h \
+        cxxtools/json.h \
         cxxtools/json/httpclient.h \
         cxxtools/json/httpservice.h \
         cxxtools/json/request.h \
@@ -189,6 +191,7 @@ nobase_include_HEADERS = \
         cxxtools/xml/node.h \
         cxxtools/xml/processinginstruction.h \
         cxxtools/xml/startelement.h \
+        cxxtools/xml/xml.h \
         cxxtools/xml/xmlerror.h \
         cxxtools/xml/xmlformatter.h \
         cxxtools/xml/xmldeserializer.h \
