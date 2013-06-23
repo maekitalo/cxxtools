@@ -26,56 +26,60 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef CXXTOOLS_PROPERTIES_H
-#define CXXTOOLS_PROPERTIES_H
-
-#include <cxxtools/propertiesdeserializer.h>
-#include <iostream>
+#include <cxxtools/propertiesfile.h>
+#include <cxxtools/propertiesparser.h>
+#include <fstream>
 
 namespace cxxtools
 {
-    /**
-       Wrapper object to easyly read properties from a input stream and convert them to serializable objects.
-
-     */
-    template <typename ObjectType>
-    class PropertiesIObject
+  namespace
+  {
+    class PropertiesEvent : public PropertiesParser::Event
     {
-        ObjectType& _object;
-        std::string _name;
+        PropertiesFile& properties;
+        String key;
 
       public:
-        /// Constructor. Needs the wrapped object.
-        explicit PropertiesIObject(ObjectType& object, const std::string& name = std::string())
-          : _object(object),
-            _name(name)
-        { }
-
-        ObjectType& object()
-        { return _object; }
-
-        const std::string& name() const
-        { return _name; }
+        PropertiesEvent(PropertiesFile& properties_)
+          : properties(properties_)
+          { }
+        bool onKeyPart(const String& key);
+        bool onKey(const String& key);
+        bool onValue(const String& value);
     };
 
-    /// The input operator for PropertiesIObject. It does the actual work.
-    template <typename CharType, typename ObjectType>
-    std::basic_istream<CharType>& operator>> (std::basic_istream<CharType>& in, PropertiesIObject<ObjectType> object)
+    bool PropertiesEvent::onKeyPart(const String&)
     {
-      PropertiesDeserializer deserializer(in);
-      if (object.name().empty())
-        deserializer.deserialize(object.object());
-      else
-        deserializer.deserialize(object.object(), object.name());
-      return in;
+      return false;
     }
 
-    template <typename ObjectType>
-    PropertiesIObject<ObjectType> Properties(ObjectType& object, const std::string& name = std::string())
+    bool PropertiesEvent::onKey(const String& key_)
     {
-      return PropertiesIObject<ObjectType>(object, name);
+      key = key_;
+      return false;
     }
+
+    bool PropertiesEvent::onValue(const String& value)
+    {
+      properties.setValue(key, value);
+      return false;
+    }
+
+  }
+
+  PropertiesFile::PropertiesFile(const std::string& filename)
+  {
+    PropertiesEvent ev(*this);
+    std::ifstream in(filename.c_str());
+    if (!in)
+      throw PropertiesParserError("could not open properties file \"" + filename + '"');
+    PropertiesParser(ev).parse(in);
+  }
+
+  PropertiesFile::PropertiesFile(std::istream& in)
+  {
+    PropertiesEvent ev(*this);
+    PropertiesParser(ev).parse(in);
+  }
 
 }
-
-#endif // CXXTOOLS_PROPERTIES_H

@@ -28,7 +28,7 @@
 
 #include <cxxtools/propertiesdeserializer.h>
 #include <cxxtools/utf8codec.h>
-#include <cxxtools/properties.h>
+#include <cxxtools/propertiesparser.h>
 #include <cxxtools/log.h>
 
 log_define("cxxtools.propertiesdeserializer")

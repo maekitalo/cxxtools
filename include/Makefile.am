@@ -120,6 +120,8 @@ nobase_include_HEADERS = \
         cxxtools/posix/pipestream.h \
         cxxtools/properties.h \
         cxxtools/propertiesdeserializer.h \
+        cxxtools/propertiesfile.h \
+        cxxtools/propertiesparser.h \
         cxxtools/query_params.h \
         cxxtools/queue.h \
         cxxtools/quotedprintablestream.h \

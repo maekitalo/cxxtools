@@ -30,8 +30,9 @@
 #include "cxxtools/unit/registertest.h"
 #include "cxxtools/serializationinfo.h"
 #include "cxxtools/xml/xmlserializer.h"
-#include "cxxtools/properties.h"
 #include "cxxtools/propertiesdeserializer.h"
+#include "cxxtools/propertiesparser.h"
+#include "cxxtools/properties.h"
 
 namespace
 {
@@ -82,6 +83,7 @@ class PropertiesTest : public cxxtools::unit::TestSuite
             registerMethod("testStruct", *this, &PropertiesTest::testStruct);
             registerMethod("testVector", *this, &PropertiesTest::testVector);
             registerMethod("testMember", *this, &PropertiesTest::testMember);
+            registerMethod("testIStream", *this, &PropertiesTest::testIStream);
         }
 
         void testProperties()
@@ -230,6 +232,23 @@ class PropertiesTest : public cxxtools::unit::TestSuite
 
         }
 
+        void testIStream()
+        {
+            std::istringstream data(
+                "s.foo.intValue=5\n"
+                "s.foo.stringValue=Hi there\n"
+                "s.foo.doubleValue=45.5\n"
+                "s.foo.boolValue=true\n"
+            );
+
+            TestObject obj;
+            data >> cxxtools::Properties(obj, "s.foo");
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(obj.intValue, 5);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(obj.stringValue, "Hi there");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(obj.doubleValue, 45.5);
+            CXXTOOLS_UNIT_ASSERT(obj.boolValue);
+        }
 };
 
 cxxtools::unit::RegisterTest<PropertiesTest> register_PropertiesTest;

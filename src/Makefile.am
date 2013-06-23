@@ -64,7 +64,8 @@ libcxxtools_la_SOURCES = \
 	posix/commandoutput.cpp \
 	posix/pipestream.cpp \
 	posix/posixpipe.cpp \
-	properties.cpp \
+	propertiesfile.cpp \
+	propertiesparser.cpp \
 	propertiesdeserializer.cpp \
 	query_params.cpp \
 	quotedprintablestream.cpp \
