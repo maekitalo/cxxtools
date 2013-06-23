@@ -29,6 +29,7 @@
 #include "cxxtools/unit/testsuite.h"
 #include "cxxtools/unit/registertest.h"
 #include "cxxtools/csvserializer.h"
+#include "cxxtools/csv.h"
 #include "cxxtools/log.h"
 
 //log_define("cxxtools.test.csvserializer")
@@ -66,6 +67,7 @@ class CsvSerializerTest : public cxxtools::unit::TestSuite
             registerMethod("testCustomTitles", *this, &CsvSerializerTest::testCustomTitles);
             registerMethod("testEmptyCsvWithTitles", *this, &CsvSerializerTest::testEmptyCsvWithTitles);
             registerMethod("testCustomChars", *this, &CsvSerializerTest::testCustomChars);
+            registerMethod("testOStream", *this, &CsvSerializerTest::testOStream);
         }
 
         void testVectorVector()
@@ -201,6 +203,21 @@ class CsvSerializerTest : public cxxtools::unit::TestSuite
                 "34l67Tab");
         }
 
+        void testOStream()
+        {
+            std::vector<std::vector<std::string> > data(2);
+            data[0].push_back("Hello");
+            data[0].push_back("World");
+            data[1].push_back("34");
+            data[1].push_back("67");
+
+            std::ostringstream out;
+            out << cxxtools::Csv(data);
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(out.str(),
+                "Hello,World\n"
+                "34,67\n");
+        }
 };
 
 cxxtools::unit::RegisterTest<CsvSerializerTest> register_CsvSerializerTest;

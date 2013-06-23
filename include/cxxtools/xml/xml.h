@@ -30,6 +30,7 @@
 #define CXXTOOLS_XML_XML_H
 
 #include <cxxtools/xml/xmlserializer.h>
+#include <cxxtools/xml/xmldeserializer.h>
 #include <iostream>
 
 namespace cxxtools
@@ -37,10 +38,10 @@ namespace cxxtools
 namespace xml
 {
     /**
-       Wrapper object to easyly print serializable objets as json to a output stream.
+       Wrapper object to easyly print serializable objects as json to a output stream.
 
-       XmlObject is a little wrapper which makes it easy to output serializable
-       objects into s ostream. For this the XmlObject expects a reference to the
+       XmlOObject is a little wrapper which makes it easy to output serializable
+       objects into s ostream. For this the XmlOObject expects a reference to the
        wrapped object and has a output operator for a std::ostream, or actually
        a std::basic_ostream, which prints the object in json format.
 
@@ -54,7 +55,7 @@ namespace xml
        \endcode
      */
     template <typename ObjectType>
-    class XmlObject
+    class XmlOObject
     {
         const ObjectType& _object;
         std::string _name;
@@ -64,20 +65,20 @@ namespace xml
       public:
         /// Constructor. Needs the wrapped object. Optionally a flag can be
         /// passed whether the json should be nicely formatted.
-        XmlObject(const ObjectType& object, const std::string& name)
+        XmlOObject(const ObjectType& object, const std::string& name)
           : _object(object),
             _name(name),
             _beautify(false),
             _useAttributes(true)
         { }
 
-        XmlObject& beautify(bool sw)
+        XmlOObject& beautify(bool sw)
         { _beautify = sw; return *this; }
 
         bool beautify() const
         { return _beautify; }
 
-        XmlObject& useAttributes(bool sw)
+        XmlOObject& useAttributes(bool sw)
         { _useAttributes = sw; return *this; }
 
         bool useAttributes() const
@@ -90,9 +91,9 @@ namespace xml
         { return _name; }
     };
 
-    /// The output operator for XmlObject. It does the actual work.
+    /// The output operator for XmlOObject. It does the actual work.
     template <typename CharType, typename ObjectType>
-    std::basic_ostream<CharType>& operator<< (std::basic_ostream<CharType>& out, const XmlObject<ObjectType>& object)
+    std::basic_ostream<CharType>& operator<< (std::basic_ostream<CharType>& out, const XmlOObject<ObjectType>& object)
     {
       XmlSerializer serializer(out);
 
@@ -105,14 +106,44 @@ namespace xml
       return out;
     }
 
-    /// Function, which creates a XmlObject.
-    /// This makes the syntactic sugar perfect. See the example at XmlObject
+    /// Function, which creates a XmlOObject.
+    /// This makes the syntactic sugar perfect. See the example at XmlOObject
     /// for its use.
     template <typename ObjectType>
-    XmlObject<ObjectType> Xml(const ObjectType& object, const std::string& name)
+    XmlOObject<ObjectType> Xml(const ObjectType& object, const std::string& name)
     {
-      return XmlObject<ObjectType>(object, name);
+      return XmlOObject<ObjectType>(object, name);
     }
+
+    template <typename ObjectType>
+    class XmlIObject
+    {
+        ObjectType& _object;
+
+      public:
+        explicit XmlIObject(ObjectType& object)
+          : _object(object)
+        { }
+
+        ObjectType& object()
+        { return _object; }
+    };
+
+    /// The input operator for XmlIObject. It does the actual work.
+    template <typename CharType, typename ObjectType>
+    std::basic_istream<CharType>& operator>> (std::basic_istream<CharType>& in, XmlIObject<ObjectType> object)
+    {
+      XmlDeserializer deserializer(in);
+      deserializer.deserialize(object.object());
+      return in;
+    }
+
+    template <typename ObjectType>
+    XmlIObject<ObjectType> Xml(ObjectType& object)
+    {
+      return XmlIObject<ObjectType>(object);
+    }
+
 }
 }
 

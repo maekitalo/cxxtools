@@ -30,15 +30,16 @@
 #define CXXTOOLS_JSON_H
 
 #include <cxxtools/jsonserializer.h>
+#include <cxxtools/jsondeserializer.h>
 #include <iostream>
 
 namespace cxxtools
 {
     /**
-       Wrapper object to easyly print serializable objets as json to a output stream.
+       Wrapper object to easyly print serializable objects as json to a output stream.
 
-       JsonObject is a little wrapper which makes it easy to output serializable
-       objects into s ostream. For this the JsonObject expects a reference to the
+       JsonOObject is a little wrapper which makes it easy to output serializable
+       objects into s ostream. For this the JsonOObject expects a reference to the
        wrapped object and has a output operator for a std::ostream, or actually
        a std::basic_ostream, which prints the object in json format.
 
@@ -52,35 +53,35 @@ namespace cxxtools
        \endcode
      */
     template <typename ObjectType>
-    class JsonObject
+    class JsonOObject
     {
-        const ObjectType& _object;
+        const ObjectType& _constObject;
         bool _beautify;
 
       public:
         /// Constructor. Needs the wrapped object. Optionally a flag can be
         /// passed whether the json should be nicely formatted.
-        explicit JsonObject(const ObjectType& object, bool beautify = false)
-          : _object(object),
+        explicit JsonOObject(const ObjectType& object, bool beautify = false)
+          : _constObject(object),
             _beautify(beautify)
         { }
 
         /// Sets the formatting for json. If the passed flag is true, enables
         /// nice formatting, otherwise disables it. The json is printed then
         /// without whitespace
-        JsonObject& beautify(bool sw)
+        JsonOObject& beautify(bool sw)
         { _beautify = sw; return *this; }
 
         bool beautify() const
         { return _beautify; }
 
         const ObjectType& object() const
-        { return _object; }
+        { return _constObject; }
     };
 
-    /// The output operator for JsonObject. It does the actual work.
+    /// The output operator for JsonOObject. It does the actual work.
     template <typename CharType, typename ObjectType>
-    std::basic_ostream<CharType>& operator<< (std::basic_ostream<CharType>& out, const JsonObject<ObjectType>& object)
+    std::basic_ostream<CharType>& operator<< (std::basic_ostream<CharType>& out, const JsonOObject<ObjectType>& object)
     {
       JsonSerializer serializer(out);
       serializer.beautify(object.beautify());
@@ -89,14 +90,45 @@ namespace cxxtools
       return out;
     }
 
-    /// Function, which creates a JsonObject.
-    /// This makes the syntactic sugar perfect. See the example at JsonObject
+    /// Function, which creates a JsonOObject.
+    /// This makes the syntactic sugar perfect. See the example at JsonOObject
     /// for its use.
     template <typename ObjectType>
-    JsonObject<ObjectType> Json(const ObjectType& object)
+    JsonOObject<ObjectType> Json(const ObjectType& object)
     {
-      return JsonObject<ObjectType>(object);
+      return JsonOObject<ObjectType>(object);
     }
+
+    template <typename ObjectType>
+    class JsonIOObject : public JsonOObject<ObjectType>
+    {
+        ObjectType& _object;
+
+      public:
+        explicit JsonIOObject(ObjectType& object)
+          : JsonOObject<ObjectType>(object),
+            _object(object)
+        { }
+
+        ObjectType& object()
+        { return _object; }
+    };
+
+    /// The input operator for JsonIOObject. It does the actual work.
+    template <typename CharType, typename ObjectType>
+    std::basic_istream<CharType>& operator>> (std::basic_istream<CharType>& in, JsonIOObject<ObjectType> object)
+    {
+      JsonDeserializer deserializer(in);
+      deserializer.deserialize(object.object());
+      return in;
+    }
+
+    template <typename ObjectType>
+    JsonIOObject<ObjectType> Json(ObjectType& object)
+    {
+      return JsonIOObject<ObjectType>(object);
+    }
+
 }
 
 #endif // CXXTOOLS_JSON_H

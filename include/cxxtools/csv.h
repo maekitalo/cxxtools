@@ -30,15 +30,16 @@
 #define CXXTOOLS_CSV_H
 
 #include <cxxtools/csvserializer.h>
+#include <cxxtools/csvdeserializer.h>
 #include <iostream>
 
 namespace cxxtools
 {
     /**
-       Wrapper object to easyly print serializable objets as csv to a output stream.
+       Wrapper object to easyly print serializable objects as csv to a output stream.
 
-       CsvObject is a little wrapper which makes it easy to output serializable
-       objects into s ostream. For this the CsvObject expects a reference to the
+       CsvOObject is a little wrapper which makes it easy to output serializable
+       objects into s ostream. For this the CsvOObject expects a reference to the
        wrapped object and has a output operator for a std::ostream, or actually
        a std::basic_ostream, which prints the object in json format.
 
@@ -55,37 +56,99 @@ namespace cxxtools
        \endcode
      */
     template <typename ObjectType>
-    class CsvObject
+    class CsvOObject
     {
         const ObjectType& _object;
+        Char _delimiter;
+        Char _quote;
+        String _lineEnding;
 
       public:
         /// Constructor. Needs the wrapped object.
-        explicit CsvObject(const ObjectType& object)
-          : _object(object)
+        explicit CsvOObject(const ObjectType& object)
+          : _object(object),
+            _delimiter(0),
+            _quote(0)
         { }
+
+        CsvOObject& delimiter(Char delimiter)
+        { _delimiter = delimiter; return *this; }
+
+        CsvOObject& quote(Char quote)
+        { _quote = quote; return *this; }
+
+        CsvOObject& lineEnding(String lineEnding)
+        { _lineEnding = lineEnding; return *this; }
+
+        Char delimiter() const
+        { return _delimiter; }
+
+        Char quote() const
+        { return _quote; }
+
+        const String& lineEnding() const
+        { return _lineEnding; }
 
         const ObjectType& object() const
         { return _object; }
     };
 
-    /// The output operator for CsvObject. It does the actual work.
+    /// The output operator for CsvOObject. It does the actual work.
     template <typename CharType, typename ObjectType>
-    std::basic_ostream<CharType>& operator<< (std::basic_ostream<CharType>& out, const CsvObject<ObjectType>& object)
+    std::basic_ostream<CharType>& operator<< (std::basic_ostream<CharType>& out, const CsvOObject<ObjectType>& object)
     {
       CsvSerializer serializer(out);
+
+      if (object.delimiter() != Char(0))
+        serializer.delimiter(object.delimiter());
+      if (object.quote() != Char(0))
+        serializer.quote(object.quote());
+      if (!object.lineEnding().empty())
+        serializer.lineEnding(object.lineEnding());
+
       serializer.serialize(object.object());
       return out;
     }
 
-    /// Function, which creates a CsvObject.
-    /// This makes the syntactic sugar perfect. See the example at CsvObject
+    /// Function, which creates a CsvOObject.
+    /// This makes the syntactic sugar perfect. See the example at CsvOObject
     /// for its use.
     template <typename ObjectType>
-    CsvObject<ObjectType> Csv(const ObjectType& object)
+    CsvOObject<ObjectType> Csv(const ObjectType& object)
     {
-      return CsvObject<ObjectType>(object);
+      return CsvOObject<ObjectType>(object);
     }
+
+    template <typename ObjectType>
+    class CsvIOObject : public CsvOObject<ObjectType>
+    {
+        ObjectType& _object;
+
+      public:
+        explicit CsvIOObject(ObjectType& object)
+          : CsvOObject<ObjectType>(object),
+            _object(object)
+        { }
+
+        ObjectType& object()
+        { return _object; }
+    };
+
+    /// The input operator for CsvIOObject. It does the actual work.
+    template <typename CharType, typename ObjectType>
+    std::basic_istream<CharType>& operator>> (std::basic_istream<CharType>& in, CsvIOObject<ObjectType> object)
+    {
+      CsvDeserializer deserializer(in);
+      deserializer.deserialize(object.object());
+      return in;
+    }
+
+    template <typename ObjectType>
+    CsvIOObject<ObjectType> Csv(ObjectType& object)
+    {
+      return CsvIOObject<ObjectType>(object);
+    }
+
 }
 
 #endif // CXXTOOLS_CSV_H

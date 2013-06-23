@@ -29,6 +29,7 @@
 #include "cxxtools/unit/testsuite.h"
 #include "cxxtools/unit/registertest.h"
 #include "cxxtools/csvdeserializer.h"
+#include "cxxtools/csv.h"
 #include "cxxtools/log.h"
 
 //log_define("cxxtools.test.csvdeserializer")
@@ -69,6 +70,7 @@ class CsvDeserializerTest : public cxxtools::unit::TestSuite
             registerMethod("testSetDelimiter", *this, &CsvDeserializerTest::testSetDelimiter);
             registerMethod("testQuotedTitle", *this, &CsvDeserializerTest::testQuotedTitle);
             registerMethod("testFailDecoding", *this, &CsvDeserializerTest::testFailDecoding);
+            registerMethod("testIStream", *this, &CsvDeserializerTest::testIStream);
         }
 
         void testVectorVector()
@@ -309,6 +311,21 @@ class CsvDeserializerTest : public cxxtools::unit::TestSuite
 
             cxxtools::CsvDeserializer deserializer(in);
             CXXTOOLS_UNIT_ASSERT_THROW(deserializer.deserialize(data), std::exception);
+        }
+
+        void testIStream()
+        {
+            std::istringstream in(
+                "A|B\n"
+                "Hello|World\n");
+
+            std::vector<std::vector<std::string> > data;
+            in >> cxxtools::Csv(data);
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 1);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0].size(), 2);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0][0], "Hello");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0][1], "World");
         }
 
 };
