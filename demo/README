@@ -4,57 +4,44 @@ The examples are as minimal as possible to demonstrate simple usage-patterns.
 
 arg
 ===
-Demonstration of template cxxtools::Arg
-
-getini
-======
-Read value from ini-file.
-
-Try "./getini test.ini sec1 value"
-
-hdstream
-========
-Just a little hexdumper. To print a hexdump of a file use "./hexdump filename"
-
-md5sum
-======
-Calculate md5sum of files. Try "./md5sum file1 file2"
-
-multifstream
-============
-Concatenate multipe files to stdout. Try "./multiifstream file1 file2".
-
-cgi
-===
-Cgi-program. Copy binary to a webserver into the directory cgi-bin and try it.
-
-With "cgi -t" it just prints a html-file to stdout.
-
-log
-===
-Demonstration of cxxtools-meta-logging-library.
-
-It uses a configurationfile to determine the amount of logging. The name
-of this file depends on the library, you configure cxxtools for.
+Demonstration of template `cxxtools::Arg`.
 
 dir
 ===
-Print contents of a directory. Try "./dir .".
-
-pipestream
-==========
-This demo shows, how to create a child-process, use a pipe to signal
-from child to parent and another pipe to send a datastream.
-
-pool
-====
-Demonstration of template pool. Example connectionpool. Useful for
-multithreaded applications.
+Print contents of a directory. Try `./dir .`.
 
 dlloader
 ========
 Load shared library and call a function. Useful to create plugins in your
 applications.
+
+getini
+======
+Read value from ini-file.
+
+Try `./getini test.ini sec1 value`
+
+hdstream
+========
+Just a little hexdumper. To print a hexdump of a file use `./hexdump filename`
+
+log
+===
+Demonstration of cxxtools-logging-library.
+
+It uses a configurationfile log.xml or log.properties to determine the amount of
+logging.
+
+A sample configuration file log.xml can be created with the command
+`cxxtools-config --logxml cxxtools >log.xml`.
+
+md5sum
+======
+Calculate md5sum of files. Try `./md5sum file1 file2`
+
+multifstream
+============
+Concatenate multipe files to stdout. Try `./multiifstream file1 file2`.
 
 netcat/netecho
 ==============
@@ -64,10 +51,10 @@ Netcat listens to a port (default 1234) and prints all input to stdout.
 
 Netecho connects to netcat and copies stdin to netcat.
 
-To try out enter "./netcat" in one terminal and then "./netcat <netcat.cpp"
+To try out enter `./netcat` in one terminal and then `./netcat <netcat.cpp`
 in another. Netcat prints the sourcecode of netcat.cpp. If netcat runs
 on another machine, you need to tell netcat the ip-address of the netcat-server
-with "./netcat -i host".
+with `./netcat -i host`.
 
 netio
 =====
@@ -82,3 +69,37 @@ the server and computes the network-througput. It starts with 256 bytes and
 doubles until 64k. Each package-size is sent for 1 second (adjustable with -t).
 With -B you can specify a single fixed block-size.
 
+pipestream
+==========
+This demo shows, how to create a child-process, use a pipe to signal
+from child to parent and another pipe to send a datastream.
+
+pool
+====
+Demonstration of template pool. Example connectionpool. Useful for
+multithreaded applications.
+
+serialization/deseriaization
+============================
+Show how to convert C++ objects to json, xml or csv and back.
+
+`serialization` creates a vector of 2 C++ objects and depending on the command
+line option prints them as json, xml or csv.
+
+If called with option -x, the output is xml. Giving option -c prints csv.
+Without those, json is printed.
+
+The option -b formats the output nicely. It has no effect on csv.
+
+`deserialization` reads formatted input from stdin and converts them to C++. It
+expects the same list of objects as the `serialization` demo program prints. The
+formatting options `-x` and `-c` are also valid for `deserialization` to tell
+the process, what format it should read.
+
+To try the programs out, you can call:
+
+    ./serialization|./deserialization
+
+    ./serialization -x|./deserialization -x
+
+    ./serialization -c|./deserialization -c
