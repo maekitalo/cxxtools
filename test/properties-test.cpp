@@ -86,6 +86,7 @@ class PropertiesTest : public cxxtools::unit::TestSuite
             registerMethod("testIStream", *this, &PropertiesTest::testIStream);
             registerMethod("testStrangeKeys", *this, &PropertiesTest::testStrangeKeys);
             registerMethod("testMultilineValues", *this, &PropertiesTest::testMultilineValues);
+            registerMethod("testEmptyValue", *this, &PropertiesTest::testEmptyValue);
         }
 
         void testProperties()
@@ -298,6 +299,31 @@ class PropertiesTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(v, "apple, banana, pear, cantaloupe, watermelon, kiwi, mango");
         }
 
+        void testEmptyValue()
+        {
+            std::istringstream data("apple\n"
+                "banana \n"
+                "pear : \n"
+                "cantaloupe");
+
+            cxxtools::PropertiesDeserializer deserializer(data);
+            deserializer.deserialize();
+            const cxxtools::SerializationInfo& si = *deserializer.si();
+
+            std::string v;
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(si.getMember("apple") >>= v);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v, "");
+
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(si.getMember("banana") >>= v);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v, "");
+
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(si.getMember("pear") >>= v);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v, "");
+
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(si.getMember("cantaloupe") >>= v);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v, "");
+
+        }
 };
 
 cxxtools::unit::RegisterTest<PropertiesTest> register_PropertiesTest;

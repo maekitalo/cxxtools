@@ -97,6 +97,14 @@ namespace cxxtools
           keypart.clear();
           key += ch;
         }
+        else if (ch == '\r' || ch == '\n')
+        {
+          ret = event.onKeyPart(keypart)
+             || event.onKey(key)
+             || event.onValue(String());
+          keypart.clear();
+          key.clear();
+        }
         else if (std::isspace(ch.value()))
         {
           ret = event.onKeyPart(keypart)
@@ -113,8 +121,6 @@ namespace cxxtools
         {
           state = state_key_esc;
         }
-        else if (ch == '\r' || ch == '\n')
-          throw PropertiesParserError("parse error in properties while reading key " + Utf8Codec::encode(key), lineNo);
         else
         {
           keypart += ch;
@@ -161,7 +167,12 @@ namespace cxxtools
           state = state_value;
         }
         else if (ch == '\r' || ch == '\n')
-          throw PropertiesParserError("parse error while reading key " + Utf8Codec::encode(key), lineNo);
+        {
+          ret = event.onValue(String());
+          keypart.clear();
+          key.clear();
+          state = state_key;
+        }
         else if (!std::isspace(ch.value()))
         {
           value = ch;
@@ -299,9 +310,16 @@ namespace cxxtools
       case state_value:
       case state_value_cont:
       case state_value_esc:
+      case state_key_sp:
         event.onValue(value);
         value.clear();
         break;
+
+      case state_key:
+          event.onKeyPart(keypart)
+             || event.onKey(key)
+             || event.onValue(String());
+          break;
 
       case state_unicode:
         if (unicodeCount == 0)
@@ -316,10 +334,8 @@ namespace cxxtools
       case state_comment:
         break;
 
-      case state_key:
       case state_key_esc:
       case state_key_unicode:
-      case state_key_sp:
         throw PropertiesParserError("parse error while reading key " + Utf8Codec::encode(key), lineNo);
     }
   }
