@@ -36,15 +36,6 @@ namespace cxxtools
 {
   namespace
   {
-    inline bool isKeyChar(Char ch)
-    {
-      return (ch >= 'a' && ch <= 'z')
-          || (ch >= 'A' && ch <= 'Z')
-          || (ch >= '0' && ch <= '9')
-          || ch == '_'
-          || ch == '-';
-    }
-
     std::string mkErrorMessage(const std::string& msg, unsigned lineNo)
     {
       std::ostringstream s;
@@ -83,12 +74,6 @@ namespace cxxtools
       case state_0:
         if (ch == '#' || ch == '!')
           state = state_comment;
-        else if (isKeyChar(ch))
-        {
-          key = ch;
-          keypart = ch;
-          state = state_key;
-        }
         else if (ch == ' ' || ch == '\t' || ch == '\r' || ch == '\n')
           ;
         else if (ch == '\\')
@@ -97,8 +82,12 @@ namespace cxxtools
           keypart.clear();
           state = state_key_esc;
         }
-        else if (!std::isspace(ch.value()) && ch != '\n' && ch != '\r')
-          throw PropertiesParserError("format error", lineNo);
+        else
+        {
+          key = ch;
+          keypart = ch;
+          state = state_key;
+        }
         break;
 
       case state_key:
@@ -108,18 +97,13 @@ namespace cxxtools
           keypart.clear();
           key += ch;
         }
-        else if (isKeyChar(ch))
-        {
-          keypart += ch;
-          key += ch;
-        }
         else if (std::isspace(ch.value()))
         {
           ret = event.onKeyPart(keypart)
              || event.onKey(key);
           state = state_key_sp;
         }
-        else if (ch == '=')
+        else if (ch == '=' || ch == ':')
         {
           ret = event.onKeyPart(keypart)
              || event.onKey(key);
@@ -129,8 +113,13 @@ namespace cxxtools
         {
           state = state_key_esc;
         }
-        else
+        else if (ch == '\r' || ch == '\n')
           throw PropertiesParserError("parse error in properties while reading key " + Utf8Codec::encode(key), lineNo);
+        else
+        {
+          keypart += ch;
+          key += ch;
+        }
         break;
 
       case state_key_esc:
@@ -167,12 +156,17 @@ namespace cxxtools
         break;
 
       case state_key_sp:
-        if (ch == '=')
+        if (ch == '=' || ch == ':')
         {
           state = state_value;
         }
-        else if (!std::isspace(ch.value()))
+        else if (ch == '\r' || ch == '\n')
           throw PropertiesParserError("parse error while reading key " + Utf8Codec::encode(key), lineNo);
+        else if (!std::isspace(ch.value()))
+        {
+          value = ch;
+          state = state_value;
+        }
         break;
 
       case state_value:
@@ -210,7 +204,27 @@ namespace cxxtools
           value += '\t';
           state = state_value;
         }
+        else if (ch == '\r' || ch == '\n')
+        {
+          state = state_value_cont;
+        }
         else
+        {
+          value += ch;
+          state = state_value;
+        }
+        break;
+
+      case state_value_cont:
+        if (ch == '\n')
+        {
+          ret = event.onValue(value);
+          value.clear();
+          state = state_0;
+        }
+        else if (ch == '\\')
+          state = state_value_esc;
+        else if (!std::isspace(ch.value()))
         {
           value += ch;
           state = state_value;
@@ -283,6 +297,7 @@ namespace cxxtools
     switch (state)
     {
       case state_value:
+      case state_value_cont:
       case state_value_esc:
         event.onValue(value);
         value.clear();

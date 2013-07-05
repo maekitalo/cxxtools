@@ -66,6 +66,7 @@ namespace cxxtools
         state_key_sp,
         state_value,
         state_value_esc,
+        state_value_cont,
         state_unicode,
         state_comment
       } state;

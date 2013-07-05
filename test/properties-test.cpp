@@ -84,6 +84,8 @@ class PropertiesTest : public cxxtools::unit::TestSuite
             registerMethod("testVector", *this, &PropertiesTest::testVector);
             registerMethod("testMember", *this, &PropertiesTest::testMember);
             registerMethod("testIStream", *this, &PropertiesTest::testIStream);
+            registerMethod("testStrangeKeys", *this, &PropertiesTest::testStrangeKeys);
+            registerMethod("testMultilineValues", *this, &PropertiesTest::testMultilineValues);
         }
 
         void testProperties()
@@ -92,7 +94,7 @@ class PropertiesTest : public cxxtools::unit::TestSuite
                 "a\\ b = 42\n"
                 "b=\\u9\\r\\n\\t\n"
                 "\\ufoo =Hi there\n"
-                "l=Hi\\\n"
+                "l:Hi \\\n"
                 "there\n"
                 "c=\\uabc\\5\\u0000abCD1\\u1234");
 
@@ -113,16 +115,27 @@ class PropertiesTest : public cxxtools::unit::TestSuite
 
             cxxtools::String c;
             CXXTOOLS_UNIT_ASSERT_NOTHROW(deserializer.deserialize(c, "c"));
-            CXXTOOLS_UNIT_ASSERT_EQUALS(c.size(), 5);
+
+            CXXTOOLS_UNIT_ASSERT(c.size() >= 1);
             CXXTOOLS_UNIT_ASSERT_EQUALS(c[0].value(), 0xabc);
+
+            CXXTOOLS_UNIT_ASSERT(c.size() >= 2);
             CXXTOOLS_UNIT_ASSERT_EQUALS(c[1], '5');
+
+            CXXTOOLS_UNIT_ASSERT(c.size() >= 3);
             CXXTOOLS_UNIT_ASSERT_EQUALS(c[2].value(), 0xabcd);
+
+            CXXTOOLS_UNIT_ASSERT(c.size() >= 4);
             CXXTOOLS_UNIT_ASSERT_EQUALS(c[3], '1');
+
+            CXXTOOLS_UNIT_ASSERT(c.size() >= 5);
             CXXTOOLS_UNIT_ASSERT_EQUALS(c[4].value(), 0x1234);
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(c.size(), 5);
 
             cxxtools::String l;
             CXXTOOLS_UNIT_ASSERT_NOTHROW(deserializer.deserialize(l, "l"));
-            CXXTOOLS_UNIT_ASSERT_EQUALS(l, "Hi\nthere");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(l, "Hi there");
 
             cxxtools::String f;
             CXXTOOLS_UNIT_ASSERT_NOTHROW(deserializer.deserialize(f, "\x0foo"));
@@ -249,6 +262,42 @@ class PropertiesTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(obj.doubleValue, 45.5);
             CXXTOOLS_UNIT_ASSERT(obj.boolValue);
         }
+
+        void testStrangeKeys()
+        {
+            std::istringstream data(
+                "a-b*+\\==5\n"
+                "\\:\\::7\n");
+
+            cxxtools::PropertiesDeserializer deserializer(data);
+            deserializer.deserialize();
+            const cxxtools::SerializationInfo& si = *deserializer.si();
+
+            int v = 0;
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(si.getMember("a-b*+=") >>= v);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v, 5);
+
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(si.getMember("::") >>= v);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v, 7);
+
+        }
+
+        void testMultilineValues()
+        {
+            std::istringstream data(
+                "fruits                           apple, banana, pear, \\\n"
+                "                  cantaloupe, watermelon, \\\n"
+                "                  kiwi, mango");
+
+            cxxtools::PropertiesDeserializer deserializer(data);
+            deserializer.deserialize();
+            const cxxtools::SerializationInfo& si = *deserializer.si();
+
+            std::string v;
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(si.getMember("fruits") >>= v);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v, "apple, banana, pear, cantaloupe, watermelon, kiwi, mango");
+        }
+
 };
 
 cxxtools::unit::RegisterTest<PropertiesTest> register_PropertiesTest;
