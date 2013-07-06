@@ -40,9 +40,11 @@
 
 namespace cxxtools
 {
+  /// helper class to change the byte order
   template <typename T, unsigned sizeofT>
   class Reverser;
 
+  /// @cond internal
   template <typename T>
   class Reverser<T, 2>
   {
@@ -83,7 +85,9 @@ namespace cxxtools
              | value << 56 & 0xff00000000000000ll;
       }
   };
+  /// @endcond internal
 
+  /// Returns the value in reversed byte order.
   template <typename T>
   T reverse(T value)
   {

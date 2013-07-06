@@ -61,8 +61,6 @@ namespace cxxtools {
 
         int main()
         {
-            using cxxtools::System;
-
             Timer timer;
             timer.start(1000);
             connect(timer.timeout, ontimer);

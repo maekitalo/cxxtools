@@ -33,6 +33,7 @@
 
 namespace cxxtools
 {
+    /// @deprecated
     namespace dl
     {
         using cxxtools::Library;

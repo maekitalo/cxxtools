@@ -217,6 +217,7 @@ namespace cxxtools
             value_type _value;
     };
 
+    /// @cond internal
     struct MBState
     {
         MBState()
@@ -229,6 +230,7 @@ namespace cxxtools
             char mbytes[16];
         } value;
     };
+    /// @endcond internal
 
     CXXTOOLS_API std::ostream& operator<< (std::ostream& out, Char ch);
 
@@ -237,7 +239,7 @@ namespace cxxtools
 
 namespace std {
 
-    /// @cond INTERNAL
+    /// @cond internal
     template<>
     struct char_traits<cxxtools::Char>
     {
@@ -275,7 +277,7 @@ namespace std {
 
         inline static int_type not_eof(const int_type& c);
     };
-    /// @endcond
+    /// @endcond internal
 
     inline void char_traits<cxxtools::Char>::assign(char_type& c1, const char_type& c2)
     {

@@ -35,6 +35,7 @@
 namespace cxxtools
 {
 
+/// @cond internal
 class ArgBase
 {
   protected:
@@ -182,6 +183,7 @@ class ArgBaseT<std::string> : public ArgBase
       return *this;
     }
 };
+/// @endcond internal
 
 /** @brief Read and extract commandline parameters from argc/argv.
 
@@ -545,6 +547,7 @@ class Arg<bool> : public ArgBase
     bool m_value;
 };
 
+/// Output operator for a argument.
 template <typename T>
 std::ostream& operator<< (std::ostream& out, const ArgBaseT<T> arg)
 {
