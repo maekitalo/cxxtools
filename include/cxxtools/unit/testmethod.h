@@ -55,6 +55,8 @@ namespace unit {
     };
 
 
+    //! @cond internal
+
     template < class C,
                typename A1 = cxxtools::Void,
                typename A2 = cxxtools::Void,
@@ -117,6 +119,8 @@ namespace unit {
             virtual void run()
             {}
     };
+
+    //! @endcond internal
 
 } // namespace unit
 

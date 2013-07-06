@@ -54,6 +54,8 @@ class ServiceProcedure
         virtual IDecomposer* endCall() = 0;
 };
 
+//! @cond internal
+
 // BasicServiceProcedure with 10 arguments
 template <typename R,
           typename A1 = Void,
@@ -965,6 +967,8 @@ class BasicServiceProcedure<R,
         IComposer* _args[1];
         Decomposer<RV> _r;
 };
+
+//! @endcond internal
 
 }
 

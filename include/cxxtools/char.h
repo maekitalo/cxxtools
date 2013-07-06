@@ -275,6 +275,7 @@ namespace std {
 
         inline static int_type not_eof(const int_type& c);
     };
+    /// @endcond
 
     inline void char_traits<cxxtools::Char>::assign(char_type& c1, const char_type& c2)
     {

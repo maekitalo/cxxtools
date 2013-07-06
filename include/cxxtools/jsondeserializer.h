@@ -39,8 +39,11 @@ namespace cxxtools
 {
 
     /**
-     * Here is a small example to use this class.
-     * @code{.cpp}
+     * This class converts json format to cxxtools::SerializationInfo.
+     *
+     * Here is a usage example:
+     *
+     * @code
      *
      * #include <iostream>
      * #include <cxxtools/jsondeserializer.h>

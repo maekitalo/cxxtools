@@ -78,6 +78,8 @@ class IRemoteProcedure
 };
 
 
+//! @cond internal
+
 template <typename R>
 class RemoteProcedureBase : public IRemoteProcedure
 {
@@ -118,6 +120,10 @@ class RemoteProcedureBase : public IRemoteProcedure
         Composer<R> _r;
 };
 
+
+//! @endcond internal
+
+/// Template for calling a remote procedure.
 
 template <typename R,
           typename A1 = cxxtools::Void,
@@ -201,6 +207,7 @@ class RemoteProcedure : public RemoteProcedureBase<R>
         Decomposer<A10> _a10;
 };
 
+//! @cond internal
 
 template <typename R,
           typename A1,
@@ -863,6 +870,7 @@ class RemoteProcedure<R,
         }
 };
 
+//! @endcond internal
 
 }
 
