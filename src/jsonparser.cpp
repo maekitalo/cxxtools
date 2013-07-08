@@ -37,6 +37,36 @@ log_define("cxxtools.json.parser")
 
 namespace cxxtools
 {
+
+const char* JsonParserError::what() const throw()
+{
+  if (_msg.empty())
+  {
+      try
+      {
+          std::ostringstream s;
+          s << "parsing json failed in line " << _lineNo << ": " << SerializationError::what();
+          _msg = s.str();
+      }
+      catch (...)
+      {
+          return SerializationError::what();
+      }
+  }
+
+  return _msg.c_str();
+}
+
+void JsonParser::doThrow(const std::string& msg)
+{
+    throw JsonParserError(msg, _lineNo);
+}
+
+void JsonParser::throwInvalidCharacter(Char ch)
+{
+  doThrow((std::string("invalid character '") + ch.narrow() + '\''));
+}
+
 bool JsonParser::JsonStringParser::advance(Char ch)
 {
     switch (_state)
@@ -71,7 +101,7 @@ bool JsonParser::JsonStringParser::advance(Char ch)
                 _state = state_hex;
             }
             else
-                SerializationError::doThrow(std::string("invalid character '") + ch.narrow() + "' in string");
+                _jsonParser->doThrow(std::string("invalid character '") + ch.narrow() + "' in string");
             break;
 
         case state_hex:
@@ -82,7 +112,7 @@ bool JsonParser::JsonStringParser::advance(Char ch)
             else if (ch >= 'A' && ch <= 'F')
                 _value = (_value << 4) | (ch.value() - 'A' + 10);
             else
-                SerializationError::doThrow(std::string("invalid character '") + ch.narrow() + "' in hex sequence");
+                _jsonParser->doThrow(std::string("invalid character '") + ch.narrow() + "' in hex sequence");
 
             if (--_count == 0)
             {
@@ -99,349 +129,362 @@ bool JsonParser::JsonStringParser::advance(Char ch)
 
 JsonParser::JsonParser()
     : _deserializer(0),
-      _next(0)
+      _stringParser(this),
+      _next(0),
+      _lineNo(1)
 { }
 
 int JsonParser::advance(Char ch)
 {
     int ret;
 
-    switch (_state)
+    if (ch == '\n')
+      ++_lineNo;
+
+    try
     {
-        case state_0:
-            if (ch == '{')
-            {
-                _state = state_object;
-                _deserializer->setCategory(SerializationInfo::Object);
-            }
-            else if (ch == '[')
-            {
-                _state = state_array;
-                _deserializer->setCategory(SerializationInfo::Array);
-            }
-            else if (ch == '"')
-            {
-                _state = state_string;
-                _deserializer->setCategory(SerializationInfo::Value);
-            }
-            else if ((ch >= '0' && ch <= '9') || ch == '+' || ch == '-')
-            {
-                _token = ch;
-                _state = state_number;
-                _deserializer->setCategory(SerializationInfo::Value);
-            }
-            else if (ch == '/')
-            {
-                _nextState = _state;
-                _state = state_comment0;
-            }
-            else if (!std::isspace(ch.value()))
-            {
-                _token = ch;
-                _state = state_token;
-            }
-            break;
-
-        case state_object:
-            if (ch == '"')
-            {
-                _state = state_object_name;
-                _stringParser.clear();
-            }
-            else if (ch == '}')
-                return 1;
-            else if (ch == '/')
-            {
-                _nextState = _state;
-                _state = state_comment0;
-            }
-            else if (std::isalpha(ch.value()))
-            {
-                _token = ch;
-                _state = state_object_plainname;
-            }
-            else if (!std::isspace(ch.value()))
-                SerializationError::doThrow(std::string("invalid character '") + ch.narrow() + '\'');
-            break;
-
-        case state_object_plainname:
-            if (std::isalnum(ch.value()))
-                _token += ch;
-            else if (std::isspace(ch.value()))
-            {
-                _stringParser.str(_token);
-                _state = state_object_after_name;
-            }
-            else if (ch == ':')
-            {
-                _stringParser.str(_token);
-                if (_next == 0)
-                    _next = new JsonParser();
-                log_debug("begin object member " << _stringParser.str());
-                _deserializer->beginMember(Utf8Codec::encode(_stringParser.str()),
-                        std::string(), SerializationInfo::Void);
-                _next->begin(*_deserializer);
-                _stringParser.clear();
-                _state = state_object_value;
-            }
-            else
-                SerializationError::doThrow(std::string("invalid character '") + ch.narrow() + '\'');
-
-            break;
-
-        case state_object_name:
-            if (_stringParser.advance(ch))
-                _state = state_object_after_name;
-            break;
-
-        case state_object_after_name:
-            if (ch == ':')
-            {
-                if (_next == 0)
-                    _next = new JsonParser();
-                log_debug("begin object member " << _stringParser.str());
-                _deserializer->beginMember(Utf8Codec::encode(_stringParser.str()),
-                        std::string(), SerializationInfo::Void);
-                _next->begin(*_deserializer);
-                _stringParser.clear();
-                _state = state_object_value;
-            }
-            else if (ch == '/')
-            {
-                _nextState = _state;
-                _state = state_comment0;
-            }
-            else if (!std::isspace(ch.value()))
-                SerializationError::doThrow(std::string("invalid character '") + ch.narrow() + '\'');
-            break;
-
-        case state_object_value:
-            ret = _next->advance(ch);
-
-            if (ret != 0)
-            {
-                log_debug("leave member");
-                _deserializer->leaveMember();
-                _state = state_object_e;
-            }
-
-            if (ret != -1)
-                break;
-
-        case state_object_e:
-            if (ch == ',')
-                _state = state_object_next_member;
-            else if (ch == '}')
-                return 1;
-            else if (ch == '/')
-            {
-                _nextState = _state;
-                _state = state_comment0;
-            }
-            else if (!std::isspace(ch.value()))
-                SerializationError::doThrow(std::string("invalid character '") + ch.narrow() + '\'');
-            break;
-
-        case state_object_next_member:
-            if (ch == '"')
-            {
-                _state = state_object_name;
-                _stringParser.clear();
-            }
-            else if (ch == '/')
-            {
-                _nextState = _state;
-                _state = state_comment0;
-            }
-            else if (std::isalpha(ch.value()))
-            {
-                _token = ch;
-                _state = state_object_plainname;
-            }
-            else if (!std::isspace(ch.value()))
-                SerializationError::doThrow(std::string("invalid character '") + ch.narrow() + '\'');
-            break;
-
-        case state_array:
-            if (ch == ']')
-            {
-                return 1;
-            }
-            else if (ch == '/')
-            {
-                _nextState = _state;
-                _state = state_comment0;
-            }
-            else if (!std::isspace(ch.value()))
-            {
-                if (_next == 0)
-                    _next = new JsonParser();
-
-                log_debug("begin array member");
-                _deserializer->beginMember(std::string(),
-                        std::string(), SerializationInfo::Void);
-                _next->begin(*_deserializer);
-                _next->advance(ch);
-                _state = state_array_value;
-            }
-            break;
-
-        case state_array_value:
-            ret = _next->advance(ch);
-            if (ret != 0)
-                _state = state_array_e;
-            if (ret != -1)
-                break;
-
-        case state_array_e:
-            if (ch == ']')
-            {
-                log_debug("leave member");
-                _deserializer->leaveMember();
-                return 1;
-            }
-            else if (ch == ',')
-            {
-                log_debug("leave member");
-                _deserializer->leaveMember();
-
-                log_debug("begin array member");
-                _deserializer->beginMember(std::string(),
-                        std::string(), SerializationInfo::Void);
-                _next->begin(*_deserializer);
-                _state = state_array_value;
-            }
-            else if (ch == '/')
-            {
-                _nextState = _state;
-                _state = state_comment0;
-            }
-            else if (!std::isspace(ch.value()))
-                SerializationError::doThrow(std::string("invalid character '") + ch.narrow() + '\'');
-            break;
-
-        case state_string:
-            if (_stringParser.advance(ch))
-            {
-                log_debug("set string value \"" << _stringParser.str() << '"');
-                _deserializer->setValue(_stringParser.str());
-                _deserializer->setTypeName("string");
-                _stringParser.clear();
-                _state = state_end;
-                return 1;
-            }
-            break;
-
-        case state_number:
-            if (std::isspace(ch.value()))
-            {
-                log_debug("set int value \"" << _token << '"');
-                _deserializer->setValue(_token);
-                _deserializer->setTypeName("int");
-                _token.clear();
-                return 1;
-            }
-            else if (ch == '.' || ch == 'e' || ch == 'E')
-            {
-                _token += ch;
-                _state = state_float;
-            }
-            else if (ch >= '0' && ch <= '9')
-            {
-                _token += ch;
-            }
-            else
-            {
-                log_debug("set int value \"" << _token << '"');
-                _deserializer->setValue(_token);
-                _deserializer->setTypeName("int");
-                _token.clear();
-                return -1;
-            }
-            break;
-
-        case state_float:
-            if (std::isspace(ch.value()))
-            {
-                log_debug("set double value \"" << _token << '"');
-                _deserializer->setValue(_token);
-                _deserializer->setTypeName("double");
-                _token.clear();
-                return 1;
-            }
-            else if ((ch >= '0' && ch <= '9') || ch == '+' || ch == '-'
-                    || ch == '.' || ch == 'e' || ch == 'E')
-                _token += ch;
-            else
-            {
-                log_debug("set double value \"" << _token << '"');
-                _deserializer->setValue(_token);
-                _deserializer->setTypeName("double");
-                _token.clear();
-                return -1;
-            }
-            break;
-
-        case state_token:
-            if (std::isalpha(ch.value()))
-                _token += Char(std::tolower(ch));
-            else
-            {
-                if (_token == "true" || _token == "false")
+        switch (_state)
+        {
+            case state_0:
+                if (ch == '{')
                 {
-                    log_debug("set bool value \"" << _token << '"');
+                    _state = state_object;
+                    _deserializer->setCategory(SerializationInfo::Object);
+                }
+                else if (ch == '[')
+                {
+                    _state = state_array;
+                    _deserializer->setCategory(SerializationInfo::Array);
+                }
+                else if (ch == '"')
+                {
+                    _state = state_string;
+                    _deserializer->setCategory(SerializationInfo::Value);
+                }
+                else if ((ch >= '0' && ch <= '9') || ch == '+' || ch == '-')
+                {
+                    _token = ch;
+                    _state = state_number;
+                    _deserializer->setCategory(SerializationInfo::Value);
+                }
+                else if (ch == '/')
+                {
+                    _nextState = _state;
+                    _state = state_comment0;
+                }
+                else if (!std::isspace(ch.value()))
+                {
+                    _token = ch;
+                    _state = state_token;
+                }
+                break;
+
+            case state_object:
+                if (ch == '"')
+                {
+                    _state = state_object_name;
+                    _stringParser.clear();
+                }
+                else if (ch == '}')
+                    return 1;
+                else if (ch == '/')
+                {
+                    _nextState = _state;
+                    _state = state_comment0;
+                }
+                else if (std::isalpha(ch.value()))
+                {
+                    _token = ch;
+                    _state = state_object_plainname;
+                }
+                else if (!std::isspace(ch.value()))
+                    throwInvalidCharacter(ch);
+                break;
+
+            case state_object_plainname:
+                if (std::isalnum(ch.value()))
+                    _token += ch;
+                else if (std::isspace(ch.value()))
+                {
+                    _stringParser.str(_token);
+                    _state = state_object_after_name;
+                }
+                else if (ch == ':')
+                {
+                    _stringParser.str(_token);
+                    if (_next == 0)
+                        _next = new JsonParser();
+                    log_debug("begin object member " << _stringParser.str());
+                    _deserializer->beginMember(Utf8Codec::encode(_stringParser.str()),
+                            std::string(), SerializationInfo::Void);
+                    _next->begin(*_deserializer);
+                    _stringParser.clear();
+                    _state = state_object_value;
+                }
+                else
+                    throwInvalidCharacter(ch);
+
+                break;
+
+            case state_object_name:
+                if (_stringParser.advance(ch))
+                    _state = state_object_after_name;
+                break;
+
+            case state_object_after_name:
+                if (ch == ':')
+                {
+                    if (_next == 0)
+                        _next = new JsonParser();
+                    log_debug("begin object member " << _stringParser.str());
+                    _deserializer->beginMember(Utf8Codec::encode(_stringParser.str()),
+                            std::string(), SerializationInfo::Void);
+                    _next->begin(*_deserializer);
+                    _stringParser.clear();
+                    _state = state_object_value;
+                }
+                else if (ch == '/')
+                {
+                    _nextState = _state;
+                    _state = state_comment0;
+                }
+                else if (!std::isspace(ch.value()))
+                    throwInvalidCharacter(ch);
+                break;
+
+            case state_object_value:
+                ret = _next->advance(ch);
+
+                if (ret != 0)
+                {
+                    log_debug("leave member");
+                    _deserializer->leaveMember();
+                    _state = state_object_e;
+                }
+
+                if (ret != -1)
+                    break;
+
+            case state_object_e:
+                if (ch == ',')
+                    _state = state_object_next_member;
+                else if (ch == '}')
+                    return 1;
+                else if (ch == '/')
+                {
+                    _nextState = _state;
+                    _state = state_comment0;
+                }
+                else if (!std::isspace(ch.value()))
+                    throwInvalidCharacter(ch);
+                break;
+
+            case state_object_next_member:
+                if (ch == '"')
+                {
+                    _state = state_object_name;
+                    _stringParser.clear();
+                }
+                else if (ch == '/')
+                {
+                    _nextState = _state;
+                    _state = state_comment0;
+                }
+                else if (std::isalpha(ch.value()))
+                {
+                    _token = ch;
+                    _state = state_object_plainname;
+                }
+                else if (!std::isspace(ch.value()))
+                    throwInvalidCharacter(ch);
+                break;
+
+            case state_array:
+                if (ch == ']')
+                {
+                    return 1;
+                }
+                else if (ch == '/')
+                {
+                    _nextState = _state;
+                    _state = state_comment0;
+                }
+                else if (!std::isspace(ch.value()))
+                {
+                    if (_next == 0)
+                        _next = new JsonParser();
+
+                    log_debug("begin array member");
+                    _deserializer->beginMember(std::string(),
+                            std::string(), SerializationInfo::Void);
+                    _next->begin(*_deserializer);
+                    _next->advance(ch);
+                    _state = state_array_value;
+                }
+                break;
+
+            case state_array_value:
+                ret = _next->advance(ch);
+                if (ret != 0)
+                    _state = state_array_e;
+                if (ret != -1)
+                    break;
+
+            case state_array_e:
+                if (ch == ']')
+                {
+                    log_debug("leave member");
+                    _deserializer->leaveMember();
+                    return 1;
+                }
+                else if (ch == ',')
+                {
+                    log_debug("leave member");
+                    _deserializer->leaveMember();
+
+                    log_debug("begin array member");
+                    _deserializer->beginMember(std::string(),
+                            std::string(), SerializationInfo::Void);
+                    _next->begin(*_deserializer);
+                    _state = state_array_value;
+                }
+                else if (ch == '/')
+                {
+                    _nextState = _state;
+                    _state = state_comment0;
+                }
+                else if (!std::isspace(ch.value()))
+                    throwInvalidCharacter(ch);
+                break;
+
+            case state_string:
+                if (_stringParser.advance(ch))
+                {
+                    log_debug("set string value \"" << _stringParser.str() << '"');
+                    _deserializer->setValue(_stringParser.str());
+                    _deserializer->setTypeName("string");
+                    _stringParser.clear();
+                    _state = state_end;
+                    return 1;
+                }
+                break;
+
+            case state_number:
+                if (std::isspace(ch.value()))
+                {
+                    log_debug("set int value \"" << _token << '"');
                     _deserializer->setValue(_token);
-                    _deserializer->setTypeName("bool");
+                    _deserializer->setTypeName("int");
                     _token.clear();
+                    return 1;
                 }
-                else if (_token == "null")
+                else if (ch == '.' || ch == 'e' || ch == 'E')
                 {
-                    log_debug("set null value \"" << _token << '"');
-                    _deserializer->setTypeName("null");
-                    _deserializer->setNull();
+                    _token += ch;
+                    _state = state_float;
+                }
+                else if (ch >= '0' && ch <= '9')
+                {
+                    _token += ch;
+                }
+                else
+                {
+                    log_debug("set int value \"" << _token << '"');
+                    _deserializer->setValue(_token);
+                    _deserializer->setTypeName("int");
                     _token.clear();
+                    return -1;
+                }
+                break;
+
+            case state_float:
+                if (std::isspace(ch.value()))
+                {
+                    log_debug("set double value \"" << _token << '"');
+                    _deserializer->setValue(_token);
+                    _deserializer->setTypeName("double");
+                    _token.clear();
+                    return 1;
+                }
+                else if ((ch >= '0' && ch <= '9') || ch == '+' || ch == '-'
+                        || ch == '.' || ch == 'e' || ch == 'E')
+                    _token += ch;
+                else
+                {
+                    log_debug("set double value \"" << _token << '"');
+                    _deserializer->setValue(_token);
+                    _deserializer->setTypeName("double");
+                    _token.clear();
+                    return -1;
+                }
+                break;
+
+            case state_token:
+                if (std::isalpha(ch.value()))
+                    _token += Char(std::tolower(ch));
+                else
+                {
+                    if (_token == "true" || _token == "false")
+                    {
+                        log_debug("set bool value \"" << _token << '"');
+                        _deserializer->setValue(_token);
+                        _deserializer->setTypeName("bool");
+                        _token.clear();
+                    }
+                    else if (_token == "null")
+                    {
+                        log_debug("set null value \"" << _token << '"');
+                        _deserializer->setTypeName("null");
+                        _deserializer->setNull();
+                        _token.clear();
+                    }
+
+                    return -1;
                 }
 
-                return -1;
-            }
+                break;
 
-            break;
+            case state_comment0:
+                if (ch == '/')
+                    _state = state_commentline;
+                else if (ch == '*')
+                    _state = state_comment;
+                else
+                    throwInvalidCharacter(ch);
+                break;
 
-        case state_comment0:
-            if (ch == '/')
-                _state = state_commentline;
-            else if (ch == '*')
-                _state = state_comment;
-            else
-                SerializationError::doThrow(std::string("invalid character '") + ch.narrow() + '\'');
-            break;
+            case state_commentline:
+                if (ch == '\n')
+                    _state = _nextState;
+                break;
 
-        case state_commentline:
-            if (ch == '\n')
-                _state = _nextState;
-            break;
+            case state_comment:
+                if (ch == '*')
+                    _state = state_comment_e;
+                break;
 
-        case state_comment:
-            if (ch == '*')
-                _state = state_comment_e;
-            break;
+            case state_comment_e:
+                if (ch == '/')
+                    _state = _nextState;
+                else if (ch != '*')
+                    _state = state_comment;
+                break;
 
-        case state_comment_e:
-            if (ch == '/')
-                _state = _nextState;
-            else if (ch != '*')
-                _state = state_comment;
-            break;
-
-        case state_end:
-            if (ch == '/')
-            {
-                _nextState = _state;
-                _state = state_comment0;
-            }
-            else if (!std::isspace(ch.value()))
-                SerializationError::doThrow(std::string("unexpected character '") + ch.narrow() + "\' after end");
-            break;
+            case state_end:
+                if (ch == '/')
+                {
+                    _nextState = _state;
+                    _state = state_comment0;
+                }
+                else if (!std::isspace(ch.value()))
+                    doThrow(std::string("unexpected character '") + ch.narrow() + "\' after end");
+                break;
+        }
+    }
+    catch (JsonParserError& e)
+    {
+        e._lineNo = _lineNo;
+        throw;
     }
 
     return 0;

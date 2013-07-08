@@ -31,15 +31,35 @@
 
 #include <cxxtools/api.h>
 #include <cxxtools/string.h>
+#include <cxxtools/serializationerror.h>
 
 namespace cxxtools
 {
     class DeserializerBase;
 
+    class CXXTOOLS_API JsonParserError : public SerializationError
+    {
+            friend class JsonParser;
+            unsigned _lineNo;
+            mutable std::string _msg;
+
+        public:
+            JsonParserError(const std::string& msg, unsigned lineNo)
+                : SerializationError(msg),
+                  _lineNo(lineNo)
+            { }
+
+            ~JsonParserError() throw()
+            { }
+
+            const char* what() const throw();
+    };
+
     class CXXTOOLS_API JsonParser
     {
             class JsonStringParser
             {
+                    JsonParser* _jsonParser;
                     String _str;
                     unsigned _count;
                     unsigned short _value;
@@ -52,8 +72,9 @@ namespace cxxtools
                     } _state;
 
                 public:
-                    JsonStringParser()
-                        : _state(state_0)
+                    explicit JsonStringParser(JsonParser* jsonParser)
+                        : _jsonParser(jsonParser),
+                          _state(state_0)
                         { }
 
                     bool advance(Char ch);
@@ -111,6 +132,10 @@ namespace cxxtools
             DeserializerBase* _deserializer;
             JsonStringParser _stringParser;
             JsonParser* _next;
+            unsigned _lineNo;
+
+            void doThrow(const std::string& msg);
+            void throwInvalidCharacter(Char ch);
     };
 }
 
