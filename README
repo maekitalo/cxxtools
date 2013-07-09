@@ -6,13 +6,11 @@ cxxtools is my toolbox with reusable c++-components
 see INSTALL for installation-instructions
 
 
-Installation from SVN
+Installation from GIT
 =====================
 
-In the SVN-repository there is no configure-script, but configure.in,
+In the GIT-repository there is no configure-script, but configure.ac,
 which is the source for configure. You need autoconf and automake to
-create configure.  There is a shellscript autogen.sh included, which
-calls the desired programs.
+create configure. 
 
-I used automake 1.9.4 and autoconf 2.5.9 for development.
-
+Run `autoscan -i` to generate a configure script.
