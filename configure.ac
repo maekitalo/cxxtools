@@ -1,5 +1,6 @@
 AC_INIT(cxxtools, 2.2rc4, [Tommi Maekitalo <tommi@tntnet.org>])
 AM_INIT_AUTOMAKE
+LT_INIT([disable-static])
 
 AC_PREREQ([2.5.9])
 
@@ -8,8 +9,6 @@ abi_revision=0
 abi_age=0
 sonumber=${abi_current}:${abi_revision}:${abi_age}
 AC_SUBST(sonumber)
-
-unset CDPATH
 
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_HEADERS([src/config.h ])
@@ -46,7 +45,8 @@ AC_CHECK_FUNCS(sendfile)
 AC_TYPE_LONG_LONG_INT
 AC_TYPE_UNSIGNED_LONG_LONG_INT
 
-if test "$ac_cv_type_long_long_int" = yes; then
+AS_IF([test "$ac_cv_type_long_long_int" = yes],
+[
     HAVE_LONG_LONG=HAVE_LONG_LONG
 
     AC_COMPILE_IFELSE(
@@ -59,7 +59,7 @@ if test "$ac_cv_type_long_long_int" = yes; then
         void f() { int64_t v = 1; f(v); }
         ])],
       [AC_DEFINE(INT64_IS_BASETYPE, 1, [defined if int64_t is one of the base types])])
-else
+], [
     AC_MSG_WARN([long long not found]);
     HAVE_LONG_LONG=NO_LONG_LONG
 
@@ -72,16 +72,18 @@ else
         void f() { int64_t v = 1; f(v); }
         ])],
       [AC_DEFINE(INT64_IS_BASETYPE, 1, [defined if int64_t is one of the base types])])
-fi
+])
 
 AC_SUBST(HAVE_LONG_LONG, "$HAVE_LONG_LONG")
 
-if test "$ac_cv_type_unsigned_long_long_int" = yes; then
+AS_IF([test "$ac_cv_type_unsigned_long_long_int" = yes],
+[
     HAVE_UNSIGNED_LONG_LONG=HAVE_UNSIGNED_LONG_LONG
-else
+], [
     AC_MSG_WARN([unsigned long long not found ($ac_cv_type_unsigned_long_long_int)]);
     HAVE_UNSIGNED_LONG_LONG=NO_UNSIGNED_LONG_LONG
-fi
+])
+
 AC_SUBST(HAVE_UNSIGNED_LONG_LONG, "$HAVE_UNSIGNED_LONG_LONG")
 
 AC_ARG_WITH([iconvstream],
@@ -89,12 +91,12 @@ AC_ARG_WITH([iconvstream],
     [with_iconvstream=$withval],
     [with_iconvstream=no])
 
-if test "$with_iconvstream" = yes; then
+AS_IF([test "$with_iconvstream" = yes],
+[
   AM_ICONV
-  if test "$am_cv_func_iconv" !=  yes; then
-    AC_MSG_ERROR(iconv not found);
-  fi
-fi
+  AS_IF([test "$am_cv_func_iconv" !=  yes],
+    AC_MSG_ERROR(iconv not found))
+])
 
 AM_CONDITIONAL(MAKE_ICONVSTREAM, test $with_iconvstream = yes)
 
