@@ -128,7 +128,7 @@ I used this command to compile it:
 
 To read the JSON structure back into C++ we use this little program:
 
-    #include <cxxtools/jsonserializer.h>
+    #include <cxxtools/jsondeserializer.h>
     #include <cxxtools/serializationinfo.h>
     #include "configuration.h"
 
