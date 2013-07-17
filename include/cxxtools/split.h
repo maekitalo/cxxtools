@@ -86,7 +86,7 @@ namespace cxxtools
       \code
         std::string line = ...;
         std::vector<std::string> tokens;
-        cxxtools::split("[ \t]+", line, std::back_inserter(tokens));
+        cxxtools::split(" \t", line, std::back_inserter(tokens));
       \endcode
    
 

@@ -241,7 +241,7 @@ class Arg : public ArgBaseT<T>
     }
 
     /**
-     GNU defines long options starting with "--". This (and more) is
+     GNU defines long options starting with `--`. This (and more) is
      supported here. Instead of giving a single option-character, you
      specify a string.
 
