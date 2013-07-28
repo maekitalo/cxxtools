@@ -42,8 +42,7 @@ namespace cxxtools
 
       The most common output iterator is a std::back_inserter.
 
-      Example (prints username and uid on a unix system:
-
+      Example (print username and uid on a unix system):
       \code
         std::ifstream passwd("/etc/passwd");
         std::string line;
