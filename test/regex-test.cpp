@@ -39,6 +39,8 @@ class RegexTest : public cxxtools::unit::TestSuite
             registerMethod("testRegex", *this, &RegexTest::testRegex);
             registerMethod("testSubexpression", *this, &RegexTest::testSubexpression);
             registerMethod("testEmptyRegex", *this, &RegexTest::testEmptyRegex);
+            registerMethod("testFormat", *this, &RegexTest::testFormat);
+            registerMethod("testSubst", *this, &RegexTest::testSubst);
         }
 
         void testRegex()
@@ -68,6 +70,31 @@ class RegexTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT(r.match(" hello world"));
             CXXTOOLS_UNIT_ASSERT(r.match("hellllo world"));
             CXXTOOLS_UNIT_ASSERT(r.match("heo world"));
+        }
+
+        void testFormat()
+        {
+            cxxtools::Regex r("[ \t]*([,;])[ \t]*");
+            std::string a = "a , b ; c";
+
+            cxxtools::RegexSMatch m;
+            r.match(a, m);
+            std::string b = m.format("blah=<$1>"); // => ,
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(b, "blah=<,>");
+        }
+
+        void testSubst()
+        {
+            cxxtools::Regex r("[ \t]*([,;])[ \t]*");
+            std::string a = "a , b ; c";
+
+            std::string b = r.subst(a, "$1"); // => a,b;c
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(b, "a,b;c");
+
+            std::string c = r.subst(a, "|");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(c, "a|b|c");
         }
 
 };

@@ -28,9 +28,12 @@
 
 
 #include "cxxtools/regex.h"
+#include "cxxtools/log.h"
 #include <stdexcept>
 #include <locale>
 #include <cctype>
+
+log_define("cxxtools.regex")
 
 namespace cxxtools
 {
@@ -86,10 +89,10 @@ namespace cxxtools
           if (std::isdigit(ch))
           {
             ret = std::string(s.begin(), it - 1);
-            regoff_t s = matchbuf[ch - '0'].rm_so;
+            regoff_t b = matchbuf[ch - '0'].rm_so;
             regoff_t e = matchbuf[ch - '0'].rm_eo;
-            if (s >= 0 && e >= 0)
-              ret.append(str, s, e-s);
+            if (b >= 0 && e >= 0)
+              ret.append(str, b, e-b);
             state = state_1;
           }
           else
@@ -108,10 +111,10 @@ namespace cxxtools
         case state_var1:
           if (std::isdigit(ch))
           {
-            regoff_t s = matchbuf[ch - '0'].rm_so;
+            regoff_t b = matchbuf[ch - '0'].rm_so;
             regoff_t e = matchbuf[ch - '0'].rm_eo;
-            if (s >= 0 && e >= 0)
-              ret.append(str, s, e-s);
+            if (b >= 0 && e >= 0)
+              ret.append(str, b, e-b);
             state = state_1;
           }
           else if (ch == '$')
@@ -122,6 +125,7 @@ namespace cxxtools
             ret += ch;
           }
           break;
+
       }
     }
 
@@ -154,13 +158,13 @@ namespace cxxtools
     }
   }
 
-  bool Regex::match(const std::string& str_, int eflags) const
+  bool Regex::matchp(const std::string& str_, std::string::size_type p, int eflags) const
   {
     RegexSMatch smatch;
-    return match(str_, smatch, eflags);
+    return matchp(str_, p, smatch, eflags);
   }
 
-  bool Regex::match(const std::string& str_, RegexSMatch& smatch, int eflags) const
+  bool Regex::matchp(const std::string& str_, std::string::size_type p, RegexSMatch& smatch, int eflags) const
   {
     if (expr.getPointer() == 0)
     {
@@ -169,14 +173,53 @@ namespace cxxtools
     }
 
     smatch.str = str_;
-    int ret = regexec(expr.getPointer(), str_.c_str(),
+    int ret = regexec(expr.getPointer(), str_.c_str() + p,
         sizeof(smatch.matchbuf) / sizeof(regmatch_t), smatch.matchbuf, eflags);
 
-    if (ret ==REG_NOMATCH)
+    if (ret == REG_NOMATCH)
       return false;
 
     checkerr(ret);
+
+    if (p > 0)
+    {
+      for (unsigned n = 0; n < 10 && smatch.matchbuf[n].rm_so >= 0; ++n)
+      {
+        smatch.matchbuf[n].rm_so += p;
+        smatch.matchbuf[n].rm_eo += p;
+      }
+    }
+
     return true;
+  }
+
+  std::string Regex::subst(const std::string& str, const std::string& expr, bool all)
+  {
+    RegexSMatch m;
+    std::string ret = str;
+    std::string::size_type p = 0;
+
+    log_debug("str=" << str);
+
+    while (matchp(ret, p, m))
+    {
+      // match at m.matchbuf[0]
+      log_debug("matched: <" << ret.substr(m.offsetBegin(0), m.size(0)) << '>');
+      std::string r = m.format(expr);
+      log_debug("replace <" << r << '>');
+      ret.erase(m.offsetBegin(0), m.size(0));
+      log_debug("removed <" << ret << '>');
+      ret.insert(m.offsetBegin(0), r);
+      log_debug("inserted <" << ret << '>');
+      if (!all)
+        break;
+      p = m.offsetBegin(0) + r.size();
+      log_debug("pos=" << p);
+    }
+
+    log_debug("ret=<" << ret << '>');
+
+    return ret;
   }
 
 }
