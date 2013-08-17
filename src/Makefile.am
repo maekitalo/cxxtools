@@ -21,6 +21,7 @@ libcxxtools_la_SOURCES = \
 	cgi.cpp \
 	conversionerror.cpp \
 	convert.cpp \
+	daemonize.cpp \
 	date.cpp \
 	datetime.cpp \
 	decomposer.cpp \
