@@ -308,6 +308,13 @@ namespace http {
             if (token.size() >= 2 && token[token.size() - 2] == '%')
             {
                 unsigned v = (valueOfHexDigit(token[token.size() - 1]) << 4) | valueOfHexDigit(ch);
+                if (v == 0)
+                {
+                    log_warn("%00 not allowed in url");
+                    state = &HeaderParser::state_error;
+                    return;
+                }
+
                 token[token.size() - 2] = static_cast<char>(v);
                 token.resize(token.size() - 1);
                 state = &HeaderParser::state_url;

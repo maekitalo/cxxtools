@@ -66,7 +66,12 @@ namespace cxxtools
         std::vector<T*> pool;
         Mutex mutex;
 
+        LPool(const LPool&);
+        LPool& operator=(const LPool&);
+
       public:
+        LPool() { }
+
         ~LPool()
         {
           for (unsigned n = 0; n < pool.size(); ++n)
@@ -382,17 +387,17 @@ namespace cxxtools
       switch (l)
       {
         case 'f':
-        case 'F': return Logger::LOG_LEVEL_FATAL;
+        case 'F': return Logger::FATAL;
         case 'e':
-        case 'E': return Logger::LOG_LEVEL_ERROR;
+        case 'E': return Logger::ERROR;
         case 'w':
-        case 'W': return Logger::LOG_LEVEL_WARN;
+        case 'W': return Logger::WARN;
         case 'i':
-        case 'I': return Logger::LOG_LEVEL_INFO;
+        case 'I': return Logger::INFO;
         case 'd':
-        case 'D': return Logger::LOG_LEVEL_DEBUG;
+        case 'D': return Logger::DEBUG;
         case 't':
-        case 'T': return Logger::LOG_LEVEL_TRACE;
+        case 'T': return Logger::TRACE;
         default:
                   {
                     std::string msg = "unknown log level \"" + level + '\"';
@@ -409,16 +414,16 @@ namespace cxxtools
   //
 
   //////////////////////////////////////////////////////////////////////
-  // LoggerManagerConfiguration
+  // LogConfiguration::Impl
   //
 
-  class LoggerManagerConfiguration::Impl
+  class LogConfiguration::Impl
   {
     public:
       typedef std::map<std::string, Logger::log_level_type> LogLevels;
 
     private:
-      friend void operator>>= (const SerializationInfo& si, LoggerManagerConfiguration::Impl& loggerManagerConfigurationImpl);
+      friend void operator>>= (const SerializationInfo& si, LogConfiguration::Impl& loggerManagerConfigurationImpl);
       std::string _fname;
       unsigned _maxfilesize;
       unsigned _maxbackupindex;
@@ -431,12 +436,14 @@ namespace cxxtools
       LogLevels _logLevels;
 
     public:
+      typedef Logger::log_level_type log_level_type;
+
       Impl()
         : _maxfilesize(0),
           _maxbackupindex(0),
           _logport(0),
           _broadcast(true),
-          _rootLevel(Logger::LOG_LEVEL_FATAL)
+          _rootLevel(Logger::FATAL)
       { }
 
       const std::string& fname() const          { return _fname; }
@@ -450,42 +457,54 @@ namespace cxxtools
       Logger::log_level_type rootLevel() const  { return _rootLevel; }
       Logger::log_level_type logLevel(const std::string& category) const;
       const LogLevels& logLevels() const        { return _logLevels; }
+
+      void setRootLevel(log_level_type level)
+      { _rootLevel = level; }
+
+      void setLogLevel(const std::string& category, log_level_type level)
+      {
+        _logLevels[category] = level;
+      }
+
+      void setFile(const std::string& fname)
+      {
+        _fname = fname;
+        _maxfilesize = 0;
+        _maxbackupindex = 0;
+      }
+
+      void setFile(const std::string& fname, unsigned maxfilesize, unsigned maxbackupindex)
+      {
+        _fname = fname;
+        _maxfilesize = maxfilesize;
+        _maxbackupindex = maxbackupindex;
+      }
+
+      void setLoghost(const std::string& host, unsigned short port, bool broadcast)
+      {
+        _fname.clear();
+        _loghost = host;
+        _logport = port;
+        _broadcast = broadcast;
+      }
+
+      void setStdout()
+      {
+        _loghost.clear();
+        _logport = 0;
+        _tostdout = true;
+      }
+
+      void setStderr()
+      {
+        _loghost.clear();
+        _logport = 0;
+        _tostdout = false;
+      }
+
   };
 
-  LoggerManagerConfiguration::LoggerManagerConfiguration()
-    : _impl(new LoggerManagerConfiguration::Impl())
-  {
-  }
-
-  LoggerManagerConfiguration::LoggerManagerConfiguration(const LoggerManagerConfiguration& c)
-    : _impl(new Impl(*c._impl))
-  {
-  }
-
-  LoggerManagerConfiguration& LoggerManagerConfiguration::operator=(const LoggerManagerConfiguration& c)
-  {
-    delete _impl;
-    _impl = 0;
-    _impl = new Impl(*c._impl);
-    return *this;
-  }
-
-  LoggerManagerConfiguration::~LoggerManagerConfiguration()
-  {
-    delete _impl;
-  }
-
-  Logger::log_level_type LoggerManagerConfiguration::rootLevel() const
-  {
-    return _impl->rootLevel();
-  }
-
-  Logger::log_level_type LoggerManagerConfiguration::logLevel(const std::string& category) const
-  {
-    return _impl->logLevel(category);
-  }
-
-  Logger::log_level_type LoggerManagerConfiguration::Impl::logLevel(const std::string& category) const
+  Logger::log_level_type LogConfiguration::Impl::logLevel(const std::string& category) const
   {
     // check for exact match of category in log level settings
     LogLevels::const_iterator lit = _logLevels.find(category);
@@ -511,7 +530,7 @@ namespace cxxtools
     return best_level;
   }
 
-  void operator>>= (const SerializationInfo& si, LoggerManagerConfiguration::Impl& impl)
+  void operator>>= (const SerializationInfo& si, LogConfiguration::Impl& impl)
   {
     if (si.getMember("file", impl._fname))
     {
@@ -559,7 +578,7 @@ namespace cxxtools
 
     std::string rootLevel;
     if (!si.getMember("rootlogger", rootLevel))
-      impl._rootLevel = Logger::LOG_LEVEL_FATAL;
+      impl._rootLevel = Logger::FATAL;
     else
       impl._rootLevel = str2loglevel(rootLevel);
 
@@ -577,14 +596,15 @@ namespace cxxtools
 
         it->getMember("level") >>= levelstr;
         if (levelstr.empty())
-          level = Logger::LOG_LEVEL_FATAL;
+          level = Logger::FATAL;
         else
           level = str2loglevel(levelstr, category);
 
         impl._logLevels[category] = level;
       }
     }
-    else if ((psi = si.findMember("logger")) != 0)
+
+    if ((psi = si.findMember("logger")) != 0)
     {
       for( SerializationInfo::ConstIterator it = psi->begin(); it != psi->end(); ++it)
       {
@@ -595,7 +615,7 @@ namespace cxxtools
         it->getValue(levelstr);
 
         if (levelstr.empty())
-          level = Logger::LOG_LEVEL_FATAL;
+          level = Logger::FATAL;
         else
           level = str2loglevel(levelstr, category);
 
@@ -604,18 +624,91 @@ namespace cxxtools
     }
   }
 
-  void operator>>= (const SerializationInfo& si, LoggerManagerConfiguration& loggerManagerConfiguration)
+  //////////////////////////////////////////////////////////////////////
+  // LogConfiguration
+  //
+
+  LogConfiguration::LogConfiguration()
+    : _impl(new LogConfiguration::Impl())
   {
-    si >>= *loggerManagerConfiguration.impl();
+  }
+
+  LogConfiguration::LogConfiguration(const LogConfiguration& c)
+    : _impl(new Impl(*c._impl))
+  {
+  }
+
+  LogConfiguration& LogConfiguration::operator=(const LogConfiguration& c)
+  {
+    delete _impl;
+    _impl = 0;
+    _impl = new Impl(*c._impl);
+    return *this;
+  }
+
+  LogConfiguration::~LogConfiguration()
+  {
+    delete _impl;
+  }
+
+  Logger::log_level_type LogConfiguration::rootLevel() const
+  {
+    return _impl->rootLevel();
+  }
+
+  Logger::log_level_type LogConfiguration::logLevel(const std::string& category) const
+  {
+    return _impl->logLevel(category);
+  }
+
+  void LogConfiguration::setRootLevel(log_level_type level)
+  {
+    _impl->setRootLevel(level);
+  }
+
+  void LogConfiguration::setLogLevel(const std::string& category, log_level_type level)
+  {
+    _impl->setLogLevel(category, level);
+  }
+
+  void LogConfiguration::setFile(const std::string& fname)
+  {
+    _impl->setFile(fname);
+  }
+
+  void LogConfiguration::setFile(const std::string& fname, unsigned maxfilesize, unsigned maxbackupindex)
+  {
+    _impl->setFile(fname, maxfilesize, maxbackupindex);
+  }
+
+  void LogConfiguration::setLoghost(const std::string& host, unsigned short port, bool broadcast)
+  {
+    _impl->setLoghost(host, port, broadcast);
+  }
+
+  void LogConfiguration::setStdout()
+  {
+    _impl->setStdout();
+  }
+
+  void LogConfiguration::setStderr()
+  {
+    _impl->setStderr();
+  }
+
+  void operator>>= (const SerializationInfo& si, LogConfiguration& logConfiguration)
+  {
+    si >>= *logConfiguration.impl();
   }
 
   //////////////////////////////////////////////////////////////////////
-  // LoggerManager
+  // LogManager::Impl
   //
-  class LoggerManager::Impl
+
+  class LogManager::Impl
   {
       SmartPtr<LogAppender> _appender;
-      LoggerManagerConfiguration _config;
+      LogConfiguration _config;
       typedef std::map<std::string, Logger*> Loggers;  // map category => logger
       Loggers _loggers;
 
@@ -623,8 +716,12 @@ namespace cxxtools
       Impl& operator=(const Impl&);
 
     public:
-      explicit Impl(const LoggerManagerConfiguration& config);
+      explicit Impl(const LogConfiguration& config);
       ~Impl();
+
+      void configure(const LogConfiguration& config);
+      const LogConfiguration& getLogConfiguration() const
+      { return _config; }
 
       Logger* getLogger(const std::string& category);
       LogAppender& appender()
@@ -632,11 +729,12 @@ namespace cxxtools
     
       Logger::log_level_type rootLevel() const
       { return _config.rootLevel(); }
+
       Logger::log_level_type logLevel(const std::string& category) const
       { return _config.logLevel(category); }
   };
 
-  LoggerManager::Impl::Impl(const LoggerManagerConfiguration& config)
+  LogManager::Impl::Impl(const LogConfiguration& config)
   {
     if (config.impl()->fname().empty())
     {
@@ -661,32 +759,65 @@ namespace cxxtools
     _config = config;
   }
 
-  LoggerManager::Impl::~Impl()
+  void LogManager::Impl::configure(const LogConfiguration& config)
+  {
+    if (config.impl()->fname().empty())
+    {
+      if (config.impl()->logport() != 0)
+      {
+        _appender = new UdpAppender(config.impl()->loghost(), config.impl()->logport(), config.impl()->broadcast());
+      }
+      else
+      {
+        _appender = new FdAppender(config.impl()->tostdout() ? STDOUT_FILENO : STDERR_FILENO);
+      }
+    }
+    else if (config.impl()->maxfilesize() == 0)
+    {
+      _appender = new FileAppender(config.impl()->fname());
+    }
+    else
+    {
+      _appender = new RollingFileAppender(config.impl()->fname(), config.impl()->maxfilesize(), config.impl()->maxbackupindex());
+    }
+
+    _config = config;
+
+    for (Loggers::iterator it = _loggers.begin(); it != _loggers.end(); ++it)
+      it->second->setLogLevel(logLevel(it->second->getCategory()));
+  }
+
+  LogManager::Impl::~Impl()
   {
     for (Loggers::iterator it = _loggers.begin(); it != _loggers.end(); ++it)
       delete it->second;
   }
 
-  bool LoggerManager::_enabled = false;
+  //////////////////////////////////////////////////////////////////////
+  // LogManager
+  //
 
-  LoggerManager::LoggerManager()
+  bool LogManager::_enabled = false;
+
+  LogManager::LogManager()
+    : _impl(0)
   {
   }
 
-  LoggerManager::~LoggerManager()
+  LogManager::~LogManager()
   {
     MutexLock lock(logMutex);
     delete _impl;
     _enabled = false;
   }
 
-  LoggerManager& LoggerManager::getInstance()
+  LogManager& LogManager::getInstance()
   {
-    static LoggerManager loggerManager;
+    static LogManager loggerManager;
     return loggerManager;
   }
 
-  void LoggerManager::logInit()
+  void LogManager::logInit()
   {
     std::string logXml = "log.xml";
 
@@ -709,7 +840,7 @@ namespace cxxtools
     }
   }
 
-  void LoggerManager::logInit(const std::string& fname)
+  void LogManager::logInit(const std::string& fname)
   {
     std::ifstream in(fname.c_str());
     if (in)
@@ -719,21 +850,21 @@ namespace cxxtools
         if (fname.size() >= 11 && fname.compare(fname.size() - 11, 11, ".properties") == 0)
         {
           PropertiesDeserializer d(in);
-          LoggerManagerConfiguration config;
+          LogConfiguration config;
           d.deserialize(config);
           getInstance().configure(config);
         }
         else if (fname.size() >= 5 && fname.compare(fname.size() - 5, 5, ".json") == 0)
         {
           JsonDeserializer d(in);
-          LoggerManagerConfiguration config;
+          LogConfiguration config;
           d.deserialize(config);
           getInstance().configure(config);
         }
         else
         {
           xml::XmlDeserializer d(in);
-          LoggerManagerConfiguration config;
+          LogConfiguration config;
           d.deserialize(config);
           getInstance().configure(config);
         }
@@ -745,39 +876,55 @@ namespace cxxtools
     }
   }
 
-  void LoggerManager::logInit(const cxxtools::SerializationInfo& si)
+  void LogManager::logInit(const SerializationInfo& si)
   {
-    LoggerManagerConfiguration config;
+    LogConfiguration config;
     si >>= config;
     getInstance().configure(config);
   }
 
-  void LoggerManager::configure(const LoggerManagerConfiguration& config)
+  void LogManager::logInit(const LogConfiguration& config)
   {
-    Impl* p = new Impl(config);
-    delete _impl;
-    _impl = p;
+    getInstance().configure(config);
+  }
+
+  void LogManager::configure(const LogConfiguration& config)
+  {
+    MutexLock lock(logMutex);
+
+    _enabled = false;
+
+    if (_impl == 0)
+      _impl = new Impl(config);
+    else
+      _impl->configure(config);
+
     _enabled = true;
   }
 
-  Logger::log_level_type LoggerManager::rootLevel() const
+  LogConfiguration LogManager::getLogConfiguration() const
+  {
+    return _impl ? _impl->getLogConfiguration() : LogConfiguration();
+  }
+
+  Logger::log_level_type LogManager::rootLevel() const
   {
     return _impl->rootLevel();
   }
 
-  Logger::log_level_type LoggerManager::logLevel(const std::string& category) const
+  Logger::log_level_type LogManager::logLevel(const std::string& category) const
   {
     return _impl->logLevel(category);
   }
 
-  Logger* LoggerManager::getLogger(const std::string& category)
+  Logger* LogManager::getLogger(const std::string& category)
   {
     if (_impl == 0)
       return 0;
     return _impl->getLogger(category);
   }
 
-  Logger* LoggerManager::Impl::getLogger(const std::string& category)
+  Logger* LogManager::Impl::getLogger(const std::string& category)
   {
     MutexLock lock(loggersMutex);
 
@@ -839,11 +986,11 @@ namespace cxxtools
     : _impl(logMessageImplPool.getInstance())
   {
     _impl->setLogger(logger);
-    _impl->setLevel(level >= Logger::LOG_LEVEL_TRACE ? "TRACE"
-                  : level >= Logger::LOG_LEVEL_DEBUG ? "DEBUG"
-                  : level >= Logger::LOG_LEVEL_INFO  ? "INFO"
-                  : level >= Logger::LOG_LEVEL_WARN  ? "WARN"
-                  : level >= Logger::LOG_LEVEL_ERROR ? "ERROR"
+    _impl->setLevel(level >= Logger::TRACE ? "TRACE"
+                  : level >= Logger::DEBUG ? "DEBUG"
+                  : level >= Logger::INFO  ? "INFO"
+                  : level >= Logger::WARN  ? "WARN"
+                  : level >= Logger::ERROR ? "ERROR"
                   : "FATAL");
   }
 
@@ -870,14 +1017,14 @@ namespace cxxtools
       ScopedAtomicIncrementer inc(mutexWaitCount);
       MutexLock lock(logMutex);
 
-      if (!LoggerManager::isEnabled())
+      if (!LogManager::isEnabled())
         return;
 
       std::string msg;
       logentry(msg, _level, _logger->getCategory());
       msg += _msg.str();
 
-      LogAppender& appender = LoggerManager::getInstance().impl()->appender();
+      LogAppender& appender = LogManager::getInstance().impl()->appender();
       appender.putMessage(msg);
       appender.finish((atomicGet(mutexWaitCount) <= 1));
     }
@@ -975,7 +1122,7 @@ namespace cxxtools
       ScopedAtomicIncrementer inc(mutexWaitCount);
       MutexLock lock(logMutex);
 
-      if (!LoggerManager::isEnabled())
+      if (!LogManager::isEnabled())
         return;
 
       std::string msg;
@@ -983,7 +1130,7 @@ namespace cxxtools
       msg += state;
       msg += _msg.str();
 
-      LogAppender& appender = LoggerManager::getInstance().impl()->appender();
+      LogAppender& appender = LogManager::getInstance().impl()->appender();
       appender.putMessage(msg);
       appender.finish((atomicGet(mutexWaitCount) <= 1));
     }
