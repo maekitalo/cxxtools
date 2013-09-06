@@ -35,9 +35,6 @@ namespace cxxtools
 
 class IComposer
 {
-        IComposer(const IComposer&) { }
-        IComposer& operator= (const IComposer&) { return *this; }
-
     public:
         IComposer()
         {}

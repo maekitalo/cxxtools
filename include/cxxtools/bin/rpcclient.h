@@ -46,9 +46,6 @@ class RpcClient : public RemoteClient
 {
         RpcClientImpl* _impl;
 
-        RpcClient(RpcClient&) { }
-        void operator= (const RpcClient&) { }
-
     public:
         RpcClient()
         : _impl(0)
@@ -57,6 +54,9 @@ class RpcClient : public RemoteClient
         RpcClient(SelectorBase& selector, const std::string& addr, unsigned short port, const std::string& domain = std::string());
 
         RpcClient(const std::string& addr, unsigned short port, const std::string& domain = std::string());
+
+        RpcClient(RpcClient&);
+        RpcClient& operator= (const RpcClient&);
 
         virtual ~RpcClient();
 

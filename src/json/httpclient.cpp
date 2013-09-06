@@ -46,6 +46,7 @@ HttpClient::HttpClient(SelectorBase& selector, const std::string& server,
                              unsigned short port, const std::string& url)
 : _impl(new HttpClientImpl())
 {
+    _impl->addRef();
     _impl->setSelector(selector);
     _impl->connect(server, port, url);
 }
@@ -54,6 +55,7 @@ HttpClient::HttpClient(SelectorBase& selector, const std::string& server,
 HttpClient::HttpClient(SelectorBase& selector, const net::Uri& uri)
 : _impl(new HttpClientImpl())
 {
+    _impl->addRef();
     _impl->setSelector(selector);
     _impl->connect(uri.host(), uri.port(), uri.path());
     auth(uri.user(), uri.password());
@@ -63,6 +65,7 @@ HttpClient::HttpClient(SelectorBase& selector, const net::Uri& uri)
 HttpClient::HttpClient(const std::string& server, unsigned short port, const std::string& url)
 : _impl(new HttpClientImpl())
 {
+    _impl->addRef();
     _impl->connect(server, port, url);
 }
 
@@ -70,14 +73,36 @@ HttpClient::HttpClient(const std::string& server, unsigned short port, const std
 HttpClient::HttpClient(const net::Uri& uri)
 : _impl(new HttpClientImpl())
 {
+    _impl->addRef();
     _impl->connect(uri.host(), uri.port(), uri.path());
     auth(uri.user(), uri.password());
 }
 
 
+HttpClient::HttpClient(HttpClient& other)
+: _impl(other._impl)
+{
+    if (_impl)
+        _impl->addRef();
+}
+
+HttpClient& HttpClient::operator= (const HttpClient& other)
+{
+    if (_impl && _impl->release() <= 0)
+        delete _impl;
+
+    _impl = other._impl;
+
+    if (_impl)
+        _impl->addRef();
+
+    return *this;
+}
+
 HttpClient::~HttpClient()
 {
-    delete _impl;
+    if (_impl && _impl->release() <= 0)
+        delete _impl;
 }
 
 void HttpClient::connect(const net::AddrInfo& addrinfo, const std::string& url)

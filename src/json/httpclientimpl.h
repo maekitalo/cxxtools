@@ -33,6 +33,7 @@
 #include <cxxtools/connectable.h>
 #include <cxxtools/deserializer.h>
 #include <cxxtools/formatter.h>
+#include <cxxtools/refcounted.h>
 #include <string>
 #include "scanner.h"
 
@@ -50,7 +51,7 @@ namespace net
 
 namespace json
 {
-    class HttpClientImpl : public Connectable
+    class HttpClientImpl : public RefCounted, public Connectable
     {
         public:
             HttpClientImpl();

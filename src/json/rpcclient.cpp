@@ -37,6 +37,7 @@ namespace json
 RpcClient::RpcClient(SelectorBase& selector, const std::string& addr, unsigned short port)
     : _impl(new RpcClientImpl())
 {
+    _impl->addRef();
     _impl->setSelector(selector);
     _impl->connect(addr, port);
 }
@@ -44,12 +45,34 @@ RpcClient::RpcClient(SelectorBase& selector, const std::string& addr, unsigned s
 RpcClient::RpcClient(const std::string& addr, unsigned short port)
     : _impl(new RpcClientImpl())
 { 
+    _impl->addRef();
     _impl->connect(addr, port);
+}
+
+RpcClient::RpcClient(RpcClient& other)
+: _impl(other._impl)
+{
+    if (_impl)
+        _impl->addRef();
+}
+
+RpcClient& RpcClient::operator= (const RpcClient& other)
+{
+    if (_impl && _impl->release() <= 0)
+        delete _impl;
+
+    _impl = other._impl;
+
+    if (_impl)
+        _impl->addRef();
+
+    return *this;
 }
 
 RpcClient::~RpcClient()
 {
-    delete _impl;
+    if (_impl && _impl->release() <= 0)
+        delete _impl;
 }
 
 void RpcClient::setSelector(SelectorBase& selector)
