@@ -179,6 +179,7 @@ namespace cxxtools
   };
 
   void operator>>= (const SerializationInfo& si, LogConfiguration& logConfiguration);
+  void operator<<= (SerializationInfo& si, const LogConfiguration& logConfiguration);
 
   //////////////////////////////////////////////////////////////////////
   //
