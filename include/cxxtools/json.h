@@ -49,7 +49,7 @@ namespace cxxtools
         v.push_back(4);
         v.push_back(17);
         v.push_back(12);
-        std::cout << cxxtools::Json(v).beautify() << std::endl;
+        std::cout << cxxtools::Json(v).beautify(true) << std::endl;
        \endcode
      */
     template <typename ObjectType>
