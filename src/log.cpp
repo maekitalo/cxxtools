@@ -641,6 +641,7 @@ namespace cxxtools
     for (LogConfiguration::Impl::LogLevels::const_iterator it = impl._logLevels.begin(); it != impl._logLevels.end(); ++it)
     {
       cxxtools::SerializationInfo& llsi = lsi.addMember();
+      llsi.setTypeName("logger");
       llsi.addMember("category") <<= it->first;
       llsi.addMember("level") <<= (it->second == Logger::TRACE ? "TRACE"
                                  : it->second == Logger::DEBUG ? "DEBUG"
