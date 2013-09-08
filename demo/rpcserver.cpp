@@ -56,6 +56,7 @@
 #include <cxxtools/json/rpcserver.h>
 #include <cxxtools/json/httpservice.h>
 #include <cxxtools/eventloop.h>
+#include <cxxtools/posix/daemonize.h>
 
 ////////////////////////////////////////////////////////////////////////
 // This defines functions, which we want to be called remotely.
@@ -106,6 +107,9 @@ int main(int argc, char* argv[])
     // option -j <number> specifies the port, where the json server wait for
     // requests. It defaults to port 7004.
     cxxtools::Arg<unsigned short> jport(argc, argv, 'j', 7004);
+
+    cxxtools::Arg<bool> daemonize(argc, argv, 'd');
+    cxxtools::Arg<std::string> pidfile(argc, argv, "--pidfile");
 
     std::cout << "run rpcecho server\n"
               << "http protocol on port "<< port.getValue() << "\n"
@@ -163,6 +167,10 @@ int main(int argc, char* argv[])
     jsonhttpService.registerFunction("add", add);
     // ... and register the service under a url
     httpServer.addService("/jsonrpc", jsonhttpService);
+
+    // go to the background if requested
+    if (daemonize)
+      cxxtools::posix::daemonize(pidfile);
 
     ////////////////////////////////////////////////////////////////////////
     // Run

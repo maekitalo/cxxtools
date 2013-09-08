@@ -114,6 +114,7 @@ nobase_include_HEADERS = \
         cxxtools/pool.h \
         cxxtools/posix/commandinput.h \
         cxxtools/posix/commandoutput.h \
+        cxxtools/posix/daemonize.h\
         cxxtools/posix/exec.h \
         cxxtools/posix/fork.h \
         cxxtools/posix/pipe.h \

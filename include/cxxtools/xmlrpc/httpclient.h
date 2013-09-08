@@ -60,6 +60,9 @@ class CXXTOOLS_XMLRPC_API HttpClient : public Client
 
         explicit HttpClient(const net::Uri& uri);
 
+        HttpClient(HttpClient&);
+        HttpClient& operator= (const HttpClient&);
+
         virtual ~HttpClient();
 
         void connect(const net::AddrInfo& addrinfo, const std::string& url);

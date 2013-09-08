@@ -36,6 +36,7 @@
 #include <cxxtools/string.h>
 #include <cxxtools/connectable.h>
 #include <cxxtools/deserializerbase.h>
+#include <cxxtools/refcounted.h>
 #include <string>
 #include "scanner.h"
 
@@ -49,7 +50,7 @@ namespace bin
 
 class RpcClient;
 
-class RpcClientImpl : public Connectable
+class RpcClientImpl : public RefCounted, public Connectable
 {
         RpcClientImpl(RpcClientImpl&) { }
         void operator= (const RpcClientImpl&) { }

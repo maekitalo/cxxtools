@@ -60,9 +60,6 @@ class CXXTOOLS_API IDecomposer
 template <typename T>
 class Decomposer : public IDecomposer
 {
-        Decomposer(const Decomposer&)  { }
-        Decomposer& operator= (const Decomposer&) { return *this; }
-
     public:
         Decomposer()
         : _current(&_si)

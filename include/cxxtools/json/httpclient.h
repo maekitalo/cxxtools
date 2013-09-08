@@ -49,9 +49,6 @@ namespace json
 
     class HttpClient : public RemoteClient
     {
-            HttpClient(HttpClient&);
-            void operator= (const HttpClient&);
-
         public:
             HttpClient();
 
@@ -63,6 +60,9 @@ namespace json
             HttpClient(const std::string& addr, unsigned short port, const std::string& url);
 
             explicit HttpClient(const net::Uri& uri);
+
+            HttpClient(HttpClient&);
+            HttpClient& operator= (const HttpClient&);
 
             virtual ~HttpClient();
 

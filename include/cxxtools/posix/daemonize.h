@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2011 Tommi Maekitalo
- * 
+ * Copyright (C) 2013 Tommi Maekitalo
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
@@ -26,66 +26,19 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef CXXTOOLS_JSON_RPCCLIENT_H
-#define CXXTOOLS_JSON_RPCCLIENT_H
-
-#include <cxxtools/remoteclient.h>
 #include <string>
 
 namespace cxxtools
 {
-
-class SelectorBase;
-
-namespace json
-{
-
-class RpcClientImpl;
-
-class RpcClient : public RemoteClient
-{
-        RpcClientImpl* _impl;
-
-    public:
-        RpcClient()
-        : _impl(0)
-        { }
-
-        RpcClient(SelectorBase& selector, const std::string& addr, unsigned short port);
-
-        RpcClient(const std::string& addr, unsigned short port);
-
-        RpcClient(RpcClient&);
-        RpcClient& operator= (const RpcClient&);
-
-        virtual ~RpcClient();
-
-        void setSelector(SelectorBase& selector);
-
-        void connect(const std::string& addr, unsigned short port);
-
-        void close();
-
-        void beginCall(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc);
-
-        void endCall();
-
-        void call(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc);
-
-        const IRemoteProcedure* activeProcedure() const;
-
-        void cancel();
-
-        void wait(std::size_t msecs = WaitInfinite);
-
-        const std::string& prefix() const;
-
-        void prefix(const std::string& p);
-
-};
-
+  namespace posix
+  {
+    /// This function makes a background daemon process out of the current
+    /// process. The current process is forked twice and the 2 parents are exited,
+    /// so that only the single child is kept. The standard input, standard output
+    /// and standard error output are redirected to /dev/null.
+    /// When a pidfile is passed, the pid of the child is written to that file
+    /// and a signal handler is installed, which removes the file, when the process
+    /// is terminated unsing SIGTERM.
+    void daemonize(const std::string& pidfile = std::string());
+  }
 }
-
-}
-
-#endif // CXXTOOLS_JSON_RPCCLIENT_H

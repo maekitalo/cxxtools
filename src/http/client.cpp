@@ -37,42 +37,70 @@ namespace http {
 Client::Client()
 : _impl(new ClientImpl(this))
 {
+    _impl->addRef();
 }
 
 Client::Client(const net::AddrInfo& addrinfo)
 : _impl(new ClientImpl(this, addrinfo))
 {
+    _impl->addRef();
 }
 
 Client::Client(const net::Uri& uri)
 : _impl(new ClientImpl(this, uri))
 {
+    _impl->addRef();
 }
 
 Client::Client(const std::string& host, unsigned short int port)
 : _impl(new ClientImpl(this, net::AddrInfo(host, port)))
 {
+    _impl->addRef();
 }
 
 
 Client::Client(SelectorBase& selector, const std::string& host, unsigned short int port)
 : _impl(new ClientImpl(this, selector, net::AddrInfo(host, port)))
 {
+    _impl->addRef();
 }
 
 Client::Client(SelectorBase& selector, const net::AddrInfo& addrinfo)
 : _impl(new ClientImpl(this, selector, addrinfo))
 {
+    _impl->addRef();
 }
 
 Client::Client(SelectorBase& selector, const net::Uri& uri)
 : _impl(new ClientImpl(this, selector, uri))
 {
+    _impl->addRef();
+}
+
+Client::Client(const Client& other)
+: _impl(other._impl)
+{
+    if (_impl)
+        _impl->addRef();
+}
+
+Client& Client::operator= (const Client& other)
+{
+    if (_impl && _impl->release() <= 0)
+        delete _impl;
+
+    _impl = other._impl;
+
+    if (_impl)
+        _impl->addRef();
+
+    return *this;
 }
 
 Client::~Client()
 {
-    delete _impl;
+    if (_impl && _impl->release() <= 0)
+        delete _impl;
 }
 
 void Client::connect(const net::AddrInfo& addrinfo)

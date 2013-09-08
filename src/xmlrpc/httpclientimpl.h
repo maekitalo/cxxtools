@@ -30,6 +30,7 @@
 
 #include <cxxtools/http/client.h>
 #include <cxxtools/http/request.h>
+#include <cxxtools/refcounted.h>
 #include "clientimpl.h"
 
 namespace cxxtools
@@ -43,7 +44,7 @@ namespace net
 namespace xmlrpc
 {
 
-class HttpClientImpl : public ClientImpl
+class HttpClientImpl : public RefCounted, public ClientImpl
 {
     public:
         HttpClientImpl();

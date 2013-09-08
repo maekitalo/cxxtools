@@ -37,16 +37,39 @@ namespace bin
 RpcClient::RpcClient(SelectorBase& selector, const std::string& addr, unsigned short port, const std::string& domain)
     : _impl(new RpcClientImpl(selector, addr, port, domain))
 { 
+    _impl->addRef();
 }
 
 RpcClient::RpcClient(const std::string& addr, unsigned short port, const std::string& domain)
     : _impl(new RpcClientImpl(addr, port, domain))
 { 
+    _impl->addRef();
+}
+
+RpcClient::RpcClient(RpcClient& other)
+: _impl(other._impl)
+{
+    if (_impl)
+        _impl->addRef();
+}
+
+RpcClient& RpcClient::operator= (const RpcClient& other)
+{
+    if (_impl && _impl->release() <= 0)
+        delete _impl;
+
+    _impl = other._impl;
+
+    if (_impl)
+        _impl->addRef();
+
+    return *this;
 }
 
 RpcClient::~RpcClient()
 {
-    delete _impl;
+    if (_impl && _impl->release() <= 0)
+        delete _impl;
 }
 
 void RpcClient::setSelector(SelectorBase& selector)

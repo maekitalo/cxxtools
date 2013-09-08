@@ -33,12 +33,12 @@
 #include <iostream>
 
 #define _cxxtools_log_enabled(level)   \
-  (getLogger() != 0 && getLogger()->isEnabled(::cxxtools::Logger::LOG_LEVEL_ ## level))
+  (getLogger() != 0 && getLogger()->isEnabled(::cxxtools::Logger::level))
 
 #define _cxxtools_log(level, expr)   \
   do { \
     ::cxxtools::Logger* _cxxtools_logger = getLogger(); \
-    if (_cxxtools_logger != 0 && _cxxtools_logger->isEnabled(::cxxtools::Logger::LOG_LEVEL_ ## level)) \
+    if (_cxxtools_logger != 0 && _cxxtools_logger->isEnabled(::cxxtools::Logger::level)) \
     { \
       ::cxxtools::LogMessage _cxxtools_logMessage(_cxxtools_logger, #level); \
       _cxxtools_logMessage.out() << expr; \
@@ -49,7 +49,7 @@
 #define _cxxtools_log_if(level, cond, expr)   \
   do { \
     ::cxxtools::Logger* _cxxtools_logger = getLogger(); \
-    if (_cxxtools_logger != 0 && _cxxtools_logger->isEnabled(::cxxtools::Logger::LOG_LEVEL_ ## level) && (cond)) \
+    if (_cxxtools_logger != 0 && _cxxtools_logger->isEnabled(::cxxtools::Logger::level) && (cond)) \
     { \
       ::cxxtools::LogMessage _cxxtools_logMessage(_cxxtools_logger, #level); \
       _cxxtools_logMessage.out() << expr; \
@@ -80,7 +80,7 @@
   ::cxxtools::LogTracer _cxxtools_tracer;  \
   do { \
     ::cxxtools::Logger* _cxxtools_logger = getLogger(); \
-    if (_cxxtools_logger != 0 && _cxxtools_logger->isEnabled(::cxxtools::Logger::LOG_LEVEL_TRACE)) \
+    if (_cxxtools_logger != 0 && _cxxtools_logger->isEnabled(::cxxtools::Logger::TRACE)) \
     { \
       _cxxtools_tracer.setLogger(_cxxtools_logger); \
       _cxxtools_tracer.out() << expr;  \
@@ -92,14 +92,14 @@
   static ::cxxtools::Logger* getLogger()   \
   {  \
     static cxxtools::Logger* logger = 0; \
-    if (!::cxxtools::LoggerManager::isEnabled()) \
+    if (!::cxxtools::LogManager::isEnabled()) \
       return 0; \
     if (logger == 0) \
-      logger = ::cxxtools::LoggerManager::getInstance().getLogger(category); \
+      logger = ::cxxtools::LogManager::getInstance().getLogger(category); \
     return logger; \
   }
 
-#define log_init_cxxtools  ::cxxtools::LoggerManager::logInit
+#define log_init_cxxtools  ::cxxtools::LogManager::logInit
 #define log_init  log_init_cxxtools
 
 namespace cxxtools
@@ -112,12 +112,12 @@ namespace cxxtools
   {
     public:
       typedef enum {
-        LOG_LEVEL_FATAL = 0,
-        LOG_LEVEL_ERROR = 100,
-        LOG_LEVEL_WARN  = 200,
-        LOG_LEVEL_INFO  = 300,
-        LOG_LEVEL_DEBUG = 400,
-        LOG_LEVEL_TRACE = 500
+        FATAL = 0,
+        ERROR = 100,
+        WARN  = 200,
+        INFO  = 300,
+        DEBUG = 400,
+        TRACE = 500
       } log_level_type;
 
     private:
@@ -138,11 +138,13 @@ namespace cxxtools
         { return category; }
       log_level_type getLogLevel() const
         { return level; }
+      void setLogLevel(log_level_type level_)
+        { level = level_; }
   };
 
   //////////////////////////////////////////////////////////////////////
   //
-  class LoggerManagerConfiguration
+  class LogConfiguration
   {
     public:
       class Impl;
@@ -152,24 +154,35 @@ namespace cxxtools
       Impl* _impl;
 
     public:
-      LoggerManagerConfiguration();
-      LoggerManagerConfiguration(const LoggerManagerConfiguration&);
-      LoggerManagerConfiguration& operator=(const LoggerManagerConfiguration&);
+      typedef Logger::log_level_type log_level_type;
 
-      ~LoggerManagerConfiguration();
+      LogConfiguration();
+      LogConfiguration(const LogConfiguration&);
+      LogConfiguration& operator=(const LogConfiguration&);
+
+      ~LogConfiguration();
 
       Impl* impl()             { return _impl; }
       const Impl* impl() const { return _impl; }
 
-      Logger::log_level_type rootLevel() const;
-      Logger::log_level_type logLevel(const std::string& category) const;
+      log_level_type rootLevel() const;
+      log_level_type logLevel(const std::string& category) const;
+
+      // setter
+      void setRootLevel(log_level_type level);
+      void setLogLevel(const std::string& category, log_level_type level);
+      void setFile(const std::string& fname);
+      void setFile(const std::string& fname, unsigned maxfilesize, unsigned maxbackupindex);
+      void setLoghost(const std::string& host, unsigned short port, bool broadcast = false);
+      void setStdout();
+      void setStderr();
   };
 
-  void operator>>= (const SerializationInfo& si, LoggerManagerConfiguration& loggerManagerConfiguration);
+  void operator>>= (const SerializationInfo& si, LogConfiguration& logConfiguration);
 
   //////////////////////////////////////////////////////////////////////
   //
-  class LoggerManager
+  class LogManager
   {
     public:
       class Impl;
@@ -177,24 +190,27 @@ namespace cxxtools
       friend class Impl;
 
       Impl* _impl;
-      LoggerManager();
+      LogManager();
       static bool _enabled;
 
-      LoggerManager(const LoggerManager&);
-      LoggerManager& operator=(const LoggerManager&);
+      LogManager(const LogManager&);
+      LogManager& operator=(const LogManager&);
 
     public:
-      ~LoggerManager();
+      ~LogManager();
 
       Impl* impl()              { return _impl; }
       const Impl* impl() const  { return _impl; }
 
-      static LoggerManager& getInstance();
+      static LogManager& getInstance();
       static void logInit();
       static void logInit(const std::string& fname);
-      static void logInit(const cxxtools::SerializationInfo& si);
+      static void logInit(const SerializationInfo& si);
+      static void logInit(const LogConfiguration& config);
 
-      void configure(const LoggerManagerConfiguration& config);
+      void configure(const LogConfiguration& config);
+      LogConfiguration getLogConfiguration() const;
+
       Logger* getLogger(const std::string& category);
       static bool isEnabled()
       { return _enabled; }
