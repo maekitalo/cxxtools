@@ -38,7 +38,7 @@ namespace cxxtools
 namespace xml
 {
     /**
-       Wrapper object to easyly print serializable objects as json to a output stream.
+       Wrapper object to easily print serializable objects as json to a output stream.
 
        XmlOObject is a little wrapper which makes it easy to output serializable
        objects into s ostream. For this the XmlOObject expects a reference to the

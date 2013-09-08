@@ -36,7 +36,7 @@
 namespace cxxtools
 {
     /**
-       Wrapper object to easyly print serializable objects as csv to a output stream.
+       Wrapper object to easily print serializable objects as csv to a output stream.
 
        CsvOObject is a little wrapper which makes it easy to output serializable
        objects into s ostream. For this the CsvOObject expects a reference to the

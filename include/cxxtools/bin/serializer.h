@@ -31,14 +31,17 @@
 
 #include <cxxtools/bin/formatter.h>
 #include <cxxtools/decomposer.h>
-#include <cxxtools/noncopyable.h>
 
 namespace cxxtools
 {
     namespace bin
     {
-        class Serializer : private NonCopyable
+        class Serializer
         {
+                // make non copyable
+                Serializer(const Serializer&) { }
+                Serializer& operator=(const Serializer&) { return *this; }
+
             public:
                 enum TypeCode
                 {

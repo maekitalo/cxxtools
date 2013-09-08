@@ -31,7 +31,6 @@
 
 #include <cxxtools/textstream.h>
 #include <cxxtools/decomposer.h>
-#include <cxxtools/noncopyable.h>
 #include <cxxtools/jsonformatter.h>
 #include <sstream>
 #include <stdexcept>
@@ -99,8 +98,12 @@ namespace cxxtools
      * }
      * @endcode
      */
-    class JsonSerializer : private NonCopyable
+    class JsonSerializer
     {
+            // make non copyable
+            JsonSerializer(const JsonSerializer&) { }
+            JsonSerializer& operator=(const JsonSerializer&) { return *this; }
+
         public:
             JsonSerializer()
                 : _ts(0),

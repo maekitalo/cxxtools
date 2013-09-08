@@ -35,7 +35,7 @@
 namespace cxxtools
 {
     /**
-       Wrapper object to easyly read properties from a input stream and convert them to serializable objects.
+       Wrapper object to easily read properties from a input stream and convert them to serializable objects.
 
      */
     template <typename ObjectType>
