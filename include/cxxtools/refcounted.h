@@ -29,12 +29,11 @@
 #ifndef CXXTOOLS_REFCOUNTED_H
 #define CXXTOOLS_REFCOUNTED_H
 
-#include <cxxtools/noncopyable.h>
 #include <cxxtools/atomicity.h>
 
 namespace cxxtools
 {
-  class SimpleRefCounted : private NonCopyable
+  class SimpleRefCounted
   {
       unsigned rc;
 
@@ -54,7 +53,7 @@ namespace cxxtools
       unsigned refs() const      { return rc; }
   };
 
-  class AtomicRefCounted : private NonCopyable
+  class AtomicRefCounted
   {
       mutable volatile atomic_t rc;
 
