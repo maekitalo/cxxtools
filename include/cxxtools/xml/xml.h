@@ -110,9 +110,11 @@ namespace xml
     /// This makes the syntactic sugar perfect. See the example at XmlOObject
     /// for its use.
     template <typename ObjectType>
-    XmlOObject<ObjectType> Xml(const ObjectType& object, const std::string& name)
+    XmlOObject<ObjectType> Xml(const ObjectType& object, const std::string& name, bool beautify = false, bool useAttributes = true)
     {
-      return XmlOObject<ObjectType>(object, name);
+      return XmlOObject<ObjectType>(object, name)
+                .beautify(beautify)
+                .useAttributes(useAttributes);
     }
 
     template <typename ObjectType>

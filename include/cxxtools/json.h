@@ -94,9 +94,9 @@ namespace cxxtools
     /// This makes the syntactic sugar perfect. See the example at JsonOObject
     /// for its use.
     template <typename ObjectType>
-    JsonOObject<ObjectType> Json(const ObjectType& object)
+    JsonOObject<ObjectType> Json(const ObjectType& object, bool beautify = false)
     {
-      return JsonOObject<ObjectType>(object);
+      return JsonOObject<ObjectType>(object, beautify);
     }
 
     template <typename ObjectType>
