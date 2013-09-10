@@ -39,7 +39,8 @@ namespace xmlrpc
 HttpClient::HttpClient()
 : _impl(new HttpClientImpl())
 {
-  impl(_impl);
+    _impl->addRef();
+    impl(_impl);
 }
 
 
@@ -47,6 +48,7 @@ HttpClient::HttpClient(SelectorBase& selector, const std::string& server,
                              unsigned short port, const std::string& url)
 : _impl(new HttpClientImpl(selector, server, port, url))
 {
+    _impl->addRef();
     impl(_impl);
 }
 
@@ -54,6 +56,7 @@ HttpClient::HttpClient(SelectorBase& selector, const std::string& server,
 HttpClient::HttpClient(SelectorBase& selector, const net::Uri& uri)
 : _impl(new HttpClientImpl(selector, uri.host(), uri.port(), uri.path()))
 {
+    _impl->addRef();
     impl(_impl);
     auth(uri.user(), uri.password());
 }
@@ -62,6 +65,7 @@ HttpClient::HttpClient(SelectorBase& selector, const net::Uri& uri)
 HttpClient::HttpClient(const std::string& server, unsigned short port, const std::string& url)
 : _impl(new HttpClientImpl(server, port, url))
 {
+    _impl->addRef();
     impl(_impl);
 }
 
@@ -69,14 +73,35 @@ HttpClient::HttpClient(const std::string& server, unsigned short port, const std
 HttpClient::HttpClient(const net::Uri& uri)
 : _impl(new HttpClientImpl(uri.host(), uri.port(), uri.path()))
 {
+    _impl->addRef();
     impl(_impl);
     auth(uri.user(), uri.password());
 }
 
+HttpClient::HttpClient(HttpClient& other)
+: _impl(other._impl)
+{
+    if (_impl)
+        _impl->addRef();
+}
+
+HttpClient& HttpClient::operator= (const HttpClient& other)
+{
+    if (_impl && _impl->release() <= 0)
+        delete _impl;
+
+    _impl = other._impl;
+
+    if (_impl)
+        _impl->addRef();
+
+    return *this;
+}
 
 HttpClient::~HttpClient()
 {
-    delete _impl;
+    if (_impl && _impl->release() <= 0)
+        delete _impl;
 }
 
 void HttpClient::connect(const net::AddrInfo& addrinfo, const std::string& url)

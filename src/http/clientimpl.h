@@ -39,6 +39,7 @@
 #include <cxxtools/timer.h>
 #include <cxxtools/connectable.h>
 #include <cxxtools/delegate.h>
+#include <cxxtools/refcounted.h>
 #include <string>
 #include <sstream>
 #include <cstddef>
@@ -57,7 +58,7 @@ namespace http
 
 class Client;
 
-class ClientImpl : public Connectable
+class ClientImpl : public RefCounted, public Connectable
 {
         friend class ParseEvent;
 
@@ -102,6 +103,10 @@ class ClientImpl : public Connectable
         void reexecute(const Request& request);
         void reexecuteBegin(const Request& request);
         void doparse();
+
+        // make non copyable
+        ClientImpl(const ClientImpl& client);
+        ClientImpl& operator=(const ClientImpl& client);
 
     protected:
         void onConnect(net::TcpSocket& socket);

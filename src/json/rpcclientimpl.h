@@ -36,6 +36,7 @@
 #include <cxxtools/deserializer.h>
 #include <cxxtools/connectable.h>
 #include <cxxtools/selector.h>
+#include <cxxtools/refcounted.h>
 #include <string>
 #include "scanner.h"
 
@@ -49,7 +50,7 @@ class IDecomposer;
 namespace json
 {
 
-class RpcClientImpl : public Connectable
+class RpcClientImpl : public RefCounted, public Connectable
 {
         RpcClientImpl(RpcClientImpl&);
         void operator= (const RpcClientImpl&);

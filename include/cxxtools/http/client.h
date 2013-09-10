@@ -33,7 +33,6 @@
 #include <cxxtools/selectable.h>
 #include <cxxtools/signal.h>
 #include <cxxtools/delegate.h>
-#include <cxxtools/noncopyable.h>
 #include <string>
 
 namespace cxxtools
@@ -69,6 +68,9 @@ class CXXTOOLS_HTTP_API Client : private NonCopyable
         Client(SelectorBase& selector, const std::string& host, unsigned short int port);
         Client(SelectorBase& selector, const net::AddrInfo& addrinfo);
         Client(SelectorBase& selector, const net::Uri& uri);
+
+        Client(const Client& other);
+        Client& operator= (const Client& other);
 
         ~Client();
 

@@ -42,10 +42,10 @@ class CXXTOOLS_XMLRPC_API Client : public RemoteClient
 {
         ClientImpl* _impl;
 
-        Client(Client&) { }
-        void operator= (const Client&) { }
-
     protected:
+        Client(Client&) { }
+        Client& operator= (const Client&) { return *this; }
+
         void impl(ClientImpl* i) { _impl = i; }
 
     public:
