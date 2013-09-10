@@ -35,6 +35,7 @@ alltests_SOURCES = \
     string-test.cpp \
     test-main.cpp \
     trim-test.cpp \
+    utf8-test.cpp \
     uri-test.cpp \
     xmlreader-test.cpp \
     xmlrpc-test.cpp \

@@ -150,6 +150,17 @@ Utf8Codec::result Utf8Codec::do_in(MBState& s, const char* fromBegin, const char
     fromNext = fromBegin;
     toNext = toBegin;
 
+    // check for incomplete byte order mark:
+    if (fromEnd - fromBegin < 3 && fromBegin[0] == '\xef')
+        return ok;
+
+    // skip byte order mark
+    if (fromEnd - fromBegin >= 3
+            && fromBegin[0] == '\xef' && fromBegin[1] == '\xbb' && fromBegin[2] == '\xbf')
+    {
+        fromNext += 3;
+    }
+
     while(fromNext < fromEnd) {
         uint8_t* fnext = (uint8_t *)(fromNext);
 
