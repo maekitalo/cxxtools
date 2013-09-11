@@ -68,6 +68,7 @@ class CsvSerializerTest : public cxxtools::unit::TestSuite
             registerMethod("testEmptyCsvWithTitles", *this, &CsvSerializerTest::testEmptyCsvWithTitles);
             registerMethod("testCustomChars", *this, &CsvSerializerTest::testCustomChars);
             registerMethod("testOStream", *this, &CsvSerializerTest::testOStream);
+            registerMethod("testLinefeeddata", *this, &CsvSerializerTest::testLinefeeddata);
         }
 
         void testVectorVector()
@@ -218,6 +219,24 @@ class CsvSerializerTest : public cxxtools::unit::TestSuite
                 "Hello,World\n"
                 "34,67\n");
         }
+
+        void testLinefeeddata()
+        {
+            std::vector<std::vector<std::string> > data(2);
+            data[0].push_back("Hello");
+            data[0].push_back("World");
+            data[1].push_back("foo\nbar");
+            data[1].push_back("blub");
+
+            std::ostringstream out;
+            cxxtools::CsvSerializer serializer(out);
+            serializer.serialize(data);
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(out.str(),
+                "Hello,World\n"
+                "\"foo\nbar\",blub\n");
+        }
+
 };
 
 cxxtools::unit::RegisterTest<CsvSerializerTest> register_CsvSerializerTest;
