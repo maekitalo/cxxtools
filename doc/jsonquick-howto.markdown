@@ -1,8 +1,8 @@
 JSON quick howto
 ================
 
-Note: This HOWTO do not work with cxxtools <= 2.2. With 2.2 it is slightly more
-complicated. See the last section here, how to do it with version 2.2.
+Note: This HOWTO does not work with cxxtools <= 2.2. With 2.2 it is slightly
+more complicated. See the last section here, how to do it with version 2.2.
 
 Introduction
 ------------
