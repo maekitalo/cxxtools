@@ -1,5 +1,5 @@
-XML RPC quick howto
-===================
+XML RPC howto
+=============
 
 This document is derived from the json rpc howto.
 

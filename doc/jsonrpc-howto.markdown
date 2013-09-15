@@ -1,5 +1,5 @@
-JSON RPC quick howto
-===================
+JSON RPC howto
+==============
 
 Introduction
 ------------

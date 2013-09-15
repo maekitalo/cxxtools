@@ -1,5 +1,5 @@
-BINARY RPC quick howto
-===================
+BINARY RPC howto
+================
 
 This document is derived from the json rpc howto.
 
