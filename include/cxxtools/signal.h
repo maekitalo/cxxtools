@@ -90,69 +90,72 @@ struct CompareEventTypeInfo
 
 template <>
 class Signal<const cxxtools::Event&> : public Connectable
-                                      , protected NonCopyable
 {
-    struct Sentry
-    {
-        Sentry(const Signal* signal);
+        struct Sentry
+        {
+            Sentry(const Signal* signal);
 
-        ~Sentry();
+            ~Sentry();
 
-        void detach();
+            void detach();
 
-        bool operator!() const
-        { return _signal == 0; }
+            bool operator!() const
+            { return _signal == 0; }
 
-        const Signal* _signal;
-    };
+            const Signal* _signal;
+        };
 
-    class IEventRoute
-    {
-        public:
-            IEventRoute(Connection& target)
-            : _target(target)
-            { }
+        class IEventRoute
+        {
+            public:
+                IEventRoute(Connection& target)
+                : _target(target)
+                { }
 
-            virtual ~IEventRoute() {}
+                virtual ~IEventRoute() {}
 
-            virtual void route(const cxxtools::Event& ev)
-            {
-                typedef Invokable<const cxxtools::Event&> InvokableT;
-                const InvokableT* invokable = static_cast<const InvokableT*>( _target.slot().callable() );
-                invokable->invoke(ev);
-            }
+                virtual void route(const cxxtools::Event& ev)
+                {
+                    typedef Invokable<const cxxtools::Event&> InvokableT;
+                    const InvokableT* invokable = static_cast<const InvokableT*>( _target.slot().callable() );
+                    invokable->invoke(ev);
+                }
 
-            Connection& connection()
-            { return _target; }
+                Connection& connection()
+                { return _target; }
 
-            bool valid() const
-            { return _target.valid(); }
+                bool valid() const
+                { return _target.valid(); }
 
-        private:
-            Connection _target;
-    };
+            private:
+                Connection _target;
+        };
 
-    template <typename EventT>
-    class EventRoute : public IEventRoute
-    {
-        public:
-            EventRoute(Connection& target)
-            : IEventRoute(target)
-            { }
+        template <typename EventT>
+        class EventRoute : public IEventRoute
+        {
+            public:
+                EventRoute(Connection& target)
+                : IEventRoute(target)
+                { }
 
-            virtual void route(const cxxtools::Event& ev)
-            {
-                typedef Invokable<const cxxtools::Event&> InvokableT;
-                const InvokableT* invokable = static_cast<const InvokableT*>( connection().slot().callable() );
+                virtual void route(const cxxtools::Event& ev)
+                {
+                    typedef Invokable<const cxxtools::Event&> InvokableT;
+                    const InvokableT* invokable = static_cast<const InvokableT*>( connection().slot().callable() );
 
-                const EventT& event = static_cast<const EventT&>(ev);
-                invokable->invoke(event);
-            }
-    };
+                    const EventT& event = static_cast<const EventT&>(ev);
+                    invokable->invoke(event);
+                }
+        };
 
-    typedef std::multimap< const std::type_info*,
-                           IEventRoute*,
-                           CompareEventTypeInfo > RouteMap;
+        typedef std::multimap< const std::type_info*,
+                               IEventRoute*,
+                               CompareEventTypeInfo > RouteMap;
+
+        // make non copyable
+        Signal(const Signal&) { }
+        Signal& operator=(const Signal&) { return *this; }
 
     public:
         Signal();

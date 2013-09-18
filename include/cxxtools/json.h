@@ -36,7 +36,7 @@
 namespace cxxtools
 {
     /**
-       Wrapper object to easyly print serializable objects as json to a output stream.
+       Wrapper object to easily print serializable objects as json to a output stream.
 
        JsonOObject is a little wrapper which makes it easy to output serializable
        objects into s ostream. For this the JsonOObject expects a reference to the
@@ -49,7 +49,7 @@ namespace cxxtools
         v.push_back(4);
         v.push_back(17);
         v.push_back(12);
-        std::cout << cxxtools::Json(v).beautify() << std::endl;
+        std::cout << cxxtools::Json(v).beautify(true) << std::endl;
        \endcode
      */
     template <typename ObjectType>
@@ -94,9 +94,9 @@ namespace cxxtools
     /// This makes the syntactic sugar perfect. See the example at JsonOObject
     /// for its use.
     template <typename ObjectType>
-    JsonOObject<ObjectType> Json(const ObjectType& object)
+    JsonOObject<ObjectType> Json(const ObjectType& object, bool beautify = false)
     {
-      return JsonOObject<ObjectType>(object);
+      return JsonOObject<ObjectType>(object, beautify);
     }
 
     template <typename ObjectType>

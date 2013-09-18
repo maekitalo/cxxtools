@@ -424,6 +424,7 @@ namespace cxxtools
 
     private:
       friend void operator>>= (const SerializationInfo& si, LogConfiguration::Impl& loggerManagerConfigurationImpl);
+      friend void operator<<= (SerializationInfo& si, const LogConfiguration::Impl& loggerManagerConfigurationImpl);
       std::string _fname;
       unsigned _maxfilesize;
       unsigned _maxbackupindex;
@@ -624,6 +625,55 @@ namespace cxxtools
     }
   }
 
+  void operator<<= (SerializationInfo& si, const LogConfiguration::Impl& impl)
+  {
+    si.setTypeName("LogConfiguration");
+
+    si.addMember("rootlogger") <<= (impl._rootLevel == Logger::TRACE ? "TRACE"
+                                  : impl._rootLevel == Logger::DEBUG ? "DEBUG"
+                                  : impl._rootLevel == Logger::INFO  ? "INFO"
+                                  : impl._rootLevel == Logger::WARN  ? "WARN"
+                                  : impl._rootLevel == Logger::ERROR ? "ERROR"
+                                  : "FATAL");
+
+    cxxtools::SerializationInfo& lsi = si.addMember("loggers");
+    lsi.setCategory(SerializationInfo::Array);
+    for (LogConfiguration::Impl::LogLevels::const_iterator it = impl._logLevels.begin(); it != impl._logLevels.end(); ++it)
+    {
+      cxxtools::SerializationInfo& llsi = lsi.addMember();
+      llsi.setTypeName("logger");
+      llsi.addMember("category") <<= it->first;
+      llsi.addMember("level") <<= (it->second == Logger::TRACE ? "TRACE"
+                                 : it->second == Logger::DEBUG ? "DEBUG"
+                                 : it->second == Logger::INFO ? "INFO"
+                                 : it->second == Logger::WARN ? "WARN"
+                                 : it->second == Logger::ERROR ? "ERROR"
+                                 : "FATAL");
+    }
+
+    if (!impl._fname.empty())
+    {
+      si.addMember("file") <<= impl._fname;
+      if (impl._maxfilesize != 0)
+      {
+        si.addMember("maxfilesize") <<= impl._maxfilesize;
+        si.addMember("maxbackupindex") <<= impl._maxbackupindex;
+      }
+    }
+
+    if (impl._logport != 0)
+    {
+      si.addMember("loghost") <<= impl._loghost;
+      si.addMember("logport") <<= impl._logport;
+      if (impl._broadcast)
+        si.addMember("broadcast") <<= true;
+    }
+
+    if (impl._tostdout)
+      si.addMember("tostdout") <<= true;
+
+  }
+
   //////////////////////////////////////////////////////////////////////
   // LogConfiguration
   //
@@ -699,6 +749,11 @@ namespace cxxtools
   void operator>>= (const SerializationInfo& si, LogConfiguration& logConfiguration)
   {
     si >>= *logConfiguration.impl();
+  }
+
+  void operator<<= (SerializationInfo& si, const LogConfiguration& logConfiguration)
+  {
+    si <<= *logConfiguration.impl();
   }
 
   //////////////////////////////////////////////////////////////////////

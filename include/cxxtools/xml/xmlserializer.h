@@ -45,6 +45,10 @@ namespace xml
 */
 class XmlSerializer
 {
+        // make non copyable
+        XmlSerializer(const XmlSerializer&) { }
+        XmlSerializer& operator=(const XmlSerializer&) { return *this; }
+
     public:
         /** @brief Construct a serializer without initializing the
                     serializer for writing.

@@ -38,7 +38,7 @@ namespace cxxtools
 namespace xml
 {
     /**
-       Wrapper object to easyly print serializable objects as json to a output stream.
+       Wrapper object to easily print serializable objects as json to a output stream.
 
        XmlOObject is a little wrapper which makes it easy to output serializable
        objects into s ostream. For this the XmlOObject expects a reference to the
@@ -110,9 +110,11 @@ namespace xml
     /// This makes the syntactic sugar perfect. See the example at XmlOObject
     /// for its use.
     template <typename ObjectType>
-    XmlOObject<ObjectType> Xml(const ObjectType& object, const std::string& name)
+    XmlOObject<ObjectType> Xml(const ObjectType& object, const std::string& name, bool beautify = false, bool useAttributes = true)
     {
-      return XmlOObject<ObjectType>(object, name);
+      return XmlOObject<ObjectType>(object, name)
+                .beautify(beautify)
+                .useAttributes(useAttributes);
     }
 
     template <typename ObjectType>

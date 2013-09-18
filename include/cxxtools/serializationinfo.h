@@ -199,7 +199,7 @@ class CXXTOOLS_API SerializationInfo
 
         /** @brief Serialization of member data
         */
-        SerializationInfo& addMember(const std::string& name);
+        SerializationInfo& addMember(const std::string& name = std::string());
 
         /** @brief Deserialization of member data
 
@@ -748,7 +748,7 @@ inline void operator <<=(SerializationInfo& si, const std::vector<T, A>& vec)
     si.reserve(vec.size());
     for(it = vec.begin(); it != vec.end(); ++it)
     {
-        SerializationInfo& newSi = si.addMember(std::string());
+        SerializationInfo& newSi = si.addMember();
         newSi <<= *it;
     }
 
@@ -773,7 +773,7 @@ inline void operator <<=(SerializationInfo& si, const std::vector<int>& vec)
 
     for(it = vec.begin(); it != vec.end(); ++it)
     {
-        SerializationInfo& newSi = si.addMember(std::string());
+        SerializationInfo& newSi = si.addMember();
         newSi <<= *it;
     }
 
@@ -801,7 +801,7 @@ inline void operator <<=(SerializationInfo& si, const std::list<T, A>& list)
 
     for(it = list.begin(); it != list.end(); ++it)
     {
-        SerializationInfo& newSi = si.addMember(std::string());
+        SerializationInfo& newSi = si.addMember();
         newSi <<= *it;
     }
 
@@ -829,7 +829,7 @@ inline void operator <<=(SerializationInfo& si, const std::deque<T, A>& deque)
 
     for(it = deque.begin(); it != deque.end(); ++it)
     {
-        SerializationInfo& newSi = si.addMember(std::string());
+        SerializationInfo& newSi = si.addMember();
         newSi <<= *it;
     }
 
@@ -858,7 +858,7 @@ inline void operator <<=(SerializationInfo& si, const std::set<T, C, A>& set)
 
     for(it = set.begin(); it != set.end(); ++it)
     {
-        SerializationInfo& newSi = si.addMember(std::string());
+        SerializationInfo& newSi = si.addMember();
         newSi <<= *it;
     }
 
@@ -887,7 +887,7 @@ inline void operator <<=(SerializationInfo& si, const std::multiset<T, C, A>& mu
 
     for(it = multiset.begin(); it != multiset.end(); ++it)
     {
-        SerializationInfo& newSi = si.addMember(std::string());
+        SerializationInfo& newSi = si.addMember();
         newSi <<= *it;
     }
 
@@ -933,7 +933,7 @@ inline void operator <<=(SerializationInfo& si, const std::map<K, V, P, A>& map)
 
     for(it = map.begin(); it != map.end(); ++it)
     {
-        SerializationInfo& newSi = si.addMember(std::string());
+        SerializationInfo& newSi = si.addMember();
         newSi <<= *it;
     }
 
@@ -962,7 +962,7 @@ inline void operator <<=(SerializationInfo& si, const std::multimap<T, C, P, A>&
 
     for(it = multimap.begin(); it != multimap.end(); ++it)
     {
-        SerializationInfo& newSi = si.addMember(std::string());
+        SerializationInfo& newSi = si.addMember();
         newSi <<= *it;
     }
 

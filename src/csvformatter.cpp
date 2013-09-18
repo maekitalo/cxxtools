@@ -79,7 +79,8 @@ namespace cxxtools
     void CsvFormatter::toCsvData(String& ret, const std::string& type, const String& value)
     {
         if (value.find(Char(_quote)) == String::npos
-                && value.find(Char(_delimiter)) == String::npos)
+                && value.find(Char(_delimiter)) == String::npos
+                && value.find(_lineEnding) == String::npos)
         {
             ret = value;
         }
