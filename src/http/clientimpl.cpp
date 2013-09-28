@@ -199,13 +199,16 @@ void ClientImpl::doparse()
 
 }
 
-const ReplyHeader& ClientImpl::execute(const Request& request, std::size_t timeout)
+const ReplyHeader& ClientImpl::execute(const Request& request, std::size_t timeout, std::size_t connectTimeout)
 {
     log_trace("execute request " << request.url());
 
+    if (connectTimeout == Selectable::WaitInfinite)
+        connectTimeout = timeout;
+
     _replyHeader.clear();
 
-    _socket.setTimeout(timeout);
+    _socket.setTimeout(connectTimeout);
 
     bool shouldReconnect = _socket.isConnected();
     if (!shouldReconnect)
@@ -213,6 +216,8 @@ const ReplyHeader& ClientImpl::execute(const Request& request, std::size_t timeo
         log_debug("connect");
         _socket.connect(_addrInfo);
     }
+
+    _socket.setTimeout(timeout);
 
     log_debug("send request");
     sendRequest(request);
@@ -310,10 +315,10 @@ void ClientImpl::readBody(std::string& s)
 }
 
 
-std::string ClientImpl::get(const std::string& url, std::size_t timeout)
+std::string ClientImpl::get(const std::string& url, std::size_t timeout, std::size_t connectTimeout)
 {
     Request request(url);
-    execute(request, timeout);
+    execute(request, timeout, connectTimeout);
     return readBody();
 }
 

@@ -113,11 +113,11 @@ void Client::connect(const std::string& host, unsigned short int port)
     _impl->connect(net::AddrInfo(host, port));
 }
 
-const ReplyHeader& Client::execute(const Request& request, std::size_t timeout)
+const ReplyHeader& Client::execute(const Request& request, std::size_t timeout, std::size_t connectTimeout)
 {
     try
     {
-        return _impl->execute(request, timeout);
+        return _impl->execute(request, timeout, connectTimeout);
     }
     catch (...)
     {
@@ -136,9 +136,9 @@ void Client::readBody(std::string& s)
     _impl->readBody(s);
 }
 
-std::string Client::get(const std::string& url, std::size_t timeout)
+std::string Client::get(const std::string& url, std::size_t timeout, std::size_t connectTimeout)
 {
-    return _impl->get(url, timeout);
+    return _impl->get(url, timeout, connectTimeout);
 }
 
 void Client::beginExecute(const Request& request)

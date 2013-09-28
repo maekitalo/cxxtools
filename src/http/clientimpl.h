@@ -131,7 +131,7 @@ class ClientImpl : public RefCounted, public Connectable
         // The body must be read with readBody.
         // This method blocks or times out until the body is parsed.
         const ReplyHeader& execute(const Request& request,
-            std::size_t timeout = Selectable::WaitInfinite);
+            std::size_t timeout, std::size_t connectTimeout);
 
         const ReplyHeader& header()
         { return _replyHeader; }
@@ -152,7 +152,8 @@ class ClientImpl : public RefCounted, public Connectable
         // Combines the execute and readBody methods in one call.
         // This method blocks until the reply is recieved.
         std::string get(const std::string& url,
-            std::size_t timeout = Selectable::WaitInfinite);
+            std::size_t timeout,
+            std::size_t connectTimeout);
 
         // Starts a new request.
         // This method does not block. To actually process the request, the

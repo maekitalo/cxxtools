@@ -55,7 +55,7 @@ class ClientImpl;
 class ReplyHeader;
 class Request;
 
-class CXXTOOLS_HTTP_API Client : private NonCopyable
+class CXXTOOLS_HTTP_API Client
 {
         ClientImpl* _impl;
 
@@ -81,8 +81,11 @@ class CXXTOOLS_HTTP_API Client : private NonCopyable
         // Sends the passed request to the server and parses the headers.
         // The body must be read with readBody.
         // This method blocks or times out until the body is parsed.
+        // When connectTimeout is set to WaitInfinite but timeout is set to
+        // something else, the connectTimeout is set to timeout as well.
         const ReplyHeader& execute(const Request& request,
-            std::size_t timeout = Selectable::WaitInfinite);
+            std::size_t timeout = Selectable::WaitInfinite,
+            std::size_t connectTimeout = Selectable::WaitInfinite);
 
         const ReplyHeader& header();
 
@@ -101,8 +104,11 @@ class CXXTOOLS_HTTP_API Client : private NonCopyable
 
         // Combines the execute and readBody methods in one call.
         // This method blocks until the reply is recieved.
+        // When connectTimeout is set to WaitInfinite but timeout is set to
+        // something else, the connectTimeout is set to timeout as well.
         std::string get(const std::string& url,
-            std::size_t timeout = Selectable::WaitInfinite);
+            std::size_t timeout = Selectable::WaitInfinite,
+            std::size_t connectTimeout = Selectable::WaitInfinite);
 
         // Starts a new request.
         // This method does not block. To actually process the request, the
