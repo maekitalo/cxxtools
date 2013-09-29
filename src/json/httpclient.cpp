@@ -166,6 +166,16 @@ void HttpClient::timeout(std::size_t t)
     _impl->timeout(t);
 }
 
+std::size_t HttpClient::connectTimeout() const
+{
+    return _impl->connectTimeout();
+}
+
+void HttpClient::connectTimeout(std::size_t t)
+{
+    _impl->connectTimeout(t);
+}
+
 const std::string& HttpClient::url() const
 {
     return _impl->url();

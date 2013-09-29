@@ -63,6 +63,16 @@ void Client::timeout(std::size_t t)
     _impl->timeout(t);
 }
 
+std::size_t Client::connectTimeout() const
+{
+    return _impl->connectTimeout();
+}
+
+void Client::connectTimeout(std::size_t t)
+{
+    _impl->connectTimeout(t);
+}
+
 std::string Client::url() const
 {
     return _impl->url();

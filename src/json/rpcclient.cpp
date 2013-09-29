@@ -112,6 +112,26 @@ void RpcClient::call(IComposer& r, IRemoteProcedure& method, IDecomposer** argv,
     _impl->call(r, method, argv, argc);
 }
 
+std::size_t RpcClient::timeout() const
+{
+    return _impl->timeout();
+}
+
+void RpcClient::timeout(std::size_t t)
+{
+    _impl->timeout(t);
+}
+
+std::size_t RpcClient::connectTimeout() const
+{
+    return _impl->connectTimeout();
+}
+
+void RpcClient::connectTimeout(std::size_t t)
+{
+    _impl->connectTimeout(t);
+}
+
 const IRemoteProcedure* RpcClient::activeProcedure() const
 {
     return _impl->activeProcedure();

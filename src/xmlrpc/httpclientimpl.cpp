@@ -119,7 +119,7 @@ void HttpClientImpl::endExecute()
 
 std::string HttpClientImpl::execute()
 {
-    _client.execute(_request, timeout());
+    _client.execute(_request, timeout(), connectTimeout());
 
     std::string body;
 

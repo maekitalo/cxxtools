@@ -101,8 +101,10 @@ namespace json
             void call(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc);
 
             std::size_t timeout() const  { return _timeout; }
+            void timeout(std::size_t t)  { _timeout = t; if (!_connectTimeoutSet) _connectTimeout = t; }
 
-            void timeout(std::size_t t)  { _timeout = t; }
+            std::size_t connectTimeout() const  { return _connectTimeout; }
+            void connectTimeout(std::size_t t)  { _connectTimeout = t; _connectTimeoutSet = true; }
 
             const IRemoteProcedure* activeProcedure() const;
 
@@ -123,6 +125,8 @@ namespace json
 
             // connection
             std::size_t _timeout;
+            bool _connectTimeoutSet;
+            std::size_t _connectTimeout;
             http::Client _client;
 
             http::Request _request;

@@ -144,7 +144,12 @@ void RpcClientImpl::call(IComposer& r, IRemoteProcedure& method, IDecomposer** a
     prepareRequest(_proc->name(), argv, argc);
 
     if (!_socket.isConnected())
+    {
+        _socket.setTimeout(_connectTimeout);
         _socket.connect(_addr, _port);
+    }
+
+    _socket.setTimeout(timeout());
 
     try
     {

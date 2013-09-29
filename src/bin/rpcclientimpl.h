@@ -75,6 +75,12 @@ class RpcClientImpl : public RefCounted, public Connectable
 
         void call(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc);
 
+        std::size_t timeout() const  { return _timeout; }
+        void timeout(std::size_t t)  { _timeout = t; if (!_connectTimeoutSet) _connectTimeout = t; }
+
+        std::size_t connectTimeout() const  { return _connectTimeout; }
+        void connectTimeout(std::size_t t)  { _connectTimeout = t; _connectTimeoutSet = true; }
+
         const IRemoteProcedure* activeProcedure() const
         { return _proc; }
 
@@ -106,6 +112,11 @@ class RpcClientImpl : public RefCounted, public Connectable
         std::string _addr;
         unsigned short _port;
         std::string _domain;
+
+        std::size_t _timeout;
+        bool _connectTimeoutSet;  // indicates if connectTimeout is explicitely set
+                                  // when not, it follows the setting of _timeout
+        std::size_t _connectTimeout;
 };
 
 }
