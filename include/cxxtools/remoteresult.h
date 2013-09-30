@@ -76,8 +76,12 @@ template <typename R>
 class RemoteResult : public IRemoteResult
 {
     public:
+        RemoteResult()
+            : _client(0)
+            { }
+
         explicit RemoteResult(RemoteClient& client)
-            : _client(client)
+            : _client(&client)
         {
         }
 
@@ -88,15 +92,15 @@ class RemoteResult : public IRemoteResult
 
         const R& get() const
         {
-            _client.endCall();
+            _client->endCall();
             checkFault();
             return _result;
         }
 
-        RemoteClient& client()   { return _client; }
+        RemoteClient& client()   { return *_client; }
 
     private:
-        RemoteClient& _client;
+        RemoteClient* _client;
         R _result;
 };
 
