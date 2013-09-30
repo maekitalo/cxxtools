@@ -61,7 +61,7 @@ class RpcClientImpl : public RefCounted, public Connectable
         void setSelector(SelectorBase& selector)
         { selector.add(_socket); }
 
-        void connect(const std::string& addr, unsigned short port);
+        void connect(const std::string& addr, unsigned short port, bool realConnect);
 
         void close();
 

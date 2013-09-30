@@ -41,7 +41,7 @@ namespace cxxtools
 namespace bin
 {
 
-RpcClientImpl::RpcClientImpl(SelectorBase& selector, const std::string& addr, unsigned short port, const std::string& domain)
+RpcClientImpl::RpcClientImpl(SelectorBase& selector, const std::string& addr, unsigned short port, const std::string& domain, bool realConnect)
     : _proc(0),
       _stream(_socket, 8192, true),
       _formatter(_stream),
@@ -49,7 +49,7 @@ RpcClientImpl::RpcClientImpl(SelectorBase& selector, const std::string& addr, un
       _domain(domain)
 {
     setSelector(selector);
-    connect(addr, port, domain);
+    connect(addr, port, domain, realConnect);
 
     cxxtools::connect(_socket.connected, *this, &RpcClientImpl::onConnect);
     cxxtools::connect(_stream.buffer().outputReady, *this, &RpcClientImpl::onOutput);
@@ -57,14 +57,14 @@ RpcClientImpl::RpcClientImpl(SelectorBase& selector, const std::string& addr, un
 
 }
 
-RpcClientImpl::RpcClientImpl(const std::string& addr, unsigned short port, const std::string& domain)
+RpcClientImpl::RpcClientImpl(const std::string& addr, unsigned short port, const std::string& domain, bool realConnect)
     : _proc(0),
       _stream(_socket, 8192, true),
       _formatter(_stream),
       _exceptionPending(false),
       _domain(domain)
 {
-    connect(addr, port, domain);
+    connect(addr, port, domain, realConnect);
 
     cxxtools::connect(_socket.connected, *this, &RpcClientImpl::onConnect);
     cxxtools::connect(_stream.buffer().outputReady, *this, &RpcClientImpl::onOutput);
@@ -76,7 +76,7 @@ RpcClientImpl::~RpcClientImpl()
 {
 }
 
-void RpcClientImpl::connect(const std::string& addr, unsigned short port, const std::string& domain)
+void RpcClientImpl::connect(const std::string& addr, unsigned short port, const std::string& domain, bool realConnect)
 {
     if (_addr != addr || _port != port)
     {
@@ -86,6 +86,12 @@ void RpcClientImpl::connect(const std::string& addr, unsigned short port, const 
     }
 
     _domain = domain;
+
+    if (realConnect)
+    {
+        _socket.setTimeout(_connectTimeout);
+        _socket.connect(_addr, _port);
+    }
 }
 
 void RpcClientImpl::close()

@@ -34,19 +34,19 @@ namespace cxxtools
 namespace json
 {
 
-RpcClient::RpcClient(SelectorBase& selector, const std::string& addr, unsigned short port)
+RpcClient::RpcClient(SelectorBase& selector, const std::string& addr, unsigned short port, bool realConnect)
     : _impl(new RpcClientImpl())
 {
     _impl->addRef();
     _impl->setSelector(selector);
-    _impl->connect(addr, port);
+    _impl->connect(addr, port, realConnect);
 }
 
-RpcClient::RpcClient(const std::string& addr, unsigned short port)
+RpcClient::RpcClient(const std::string& addr, unsigned short port, bool realConnect)
     : _impl(new RpcClientImpl())
 { 
     _impl->addRef();
-    _impl->connect(addr, port);
+    _impl->connect(addr, port, realConnect);
 }
 
 RpcClient::RpcClient(RpcClient& other)
@@ -83,12 +83,12 @@ void RpcClient::setSelector(SelectorBase& selector)
     _impl->setSelector(selector);
 }
 
-void RpcClient::connect(const std::string& addr, unsigned short port)
+void RpcClient::connect(const std::string& addr, unsigned short port, bool realConnect)
 {
     if (!_impl)
         _impl = new RpcClientImpl();
 
-    _impl->connect(addr, port);
+    _impl->connect(addr, port, realConnect);
 }
 
 void RpcClient::close()

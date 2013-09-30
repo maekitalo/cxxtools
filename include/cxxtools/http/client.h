@@ -61,22 +61,22 @@ class CXXTOOLS_HTTP_API Client
 
     public:
         Client();
-        Client(const std::string& host, unsigned short int port);
-        explicit Client(const net::AddrInfo& addr);
-        explicit Client(const net::Uri& uri);
+        Client(const std::string& host, unsigned short int port, bool realConnect = false);
+        explicit Client(const net::AddrInfo& addr, bool realConnect = false);
+        explicit Client(const net::Uri& uri, bool realConnect = false);
 
-        Client(SelectorBase& selector, const std::string& host, unsigned short int port);
-        Client(SelectorBase& selector, const net::AddrInfo& addrinfo);
-        Client(SelectorBase& selector, const net::Uri& uri);
+        Client(SelectorBase& selector, const std::string& host, unsigned short int port, bool realConnect = false);
+        Client(SelectorBase& selector, const net::AddrInfo& addrinfo, bool realConnect = false);
+        Client(SelectorBase& selector, const net::Uri& uri, bool realConnect = false);
 
         Client(const Client& other);
         Client& operator= (const Client& other);
 
         ~Client();
 
-        // Sets the host and port. No actual network connect is done.
-        void connect(const net::AddrInfo& addrinfo);
-        void connect(const std::string& host, unsigned short int port);
+        // Sets the host and port. No actual network connect is done unless realConnect is set.
+        void connect(const net::AddrInfo& addrinfo, bool realConnect = false);
+        void connect(const std::string& host, unsigned short int port, bool realConnect = false);
 
         // Sends the passed request to the server and parses the headers.
         // The body must be read with readBody.

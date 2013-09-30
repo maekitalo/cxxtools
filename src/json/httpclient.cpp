@@ -43,38 +43,38 @@ HttpClient::HttpClient()
 
 
 HttpClient::HttpClient(SelectorBase& selector, const std::string& server,
-                             unsigned short port, const std::string& url)
+                             unsigned short port, const std::string& url, bool realConnect)
 : _impl(new HttpClientImpl())
 {
     _impl->addRef();
     _impl->setSelector(selector);
-    _impl->connect(server, port, url);
+    _impl->connect(server, port, url, realConnect);
 }
 
 
-HttpClient::HttpClient(SelectorBase& selector, const net::Uri& uri)
+HttpClient::HttpClient(SelectorBase& selector, const net::Uri& uri, bool realConnect)
 : _impl(new HttpClientImpl())
 {
     _impl->addRef();
     _impl->setSelector(selector);
-    _impl->connect(uri.host(), uri.port(), uri.path());
+    _impl->connect(uri.host(), uri.port(), uri.path(), realConnect);
     auth(uri.user(), uri.password());
 }
 
 
-HttpClient::HttpClient(const std::string& server, unsigned short port, const std::string& url)
+HttpClient::HttpClient(const std::string& server, unsigned short port, const std::string& url, bool realConnect)
 : _impl(new HttpClientImpl())
 {
     _impl->addRef();
-    _impl->connect(server, port, url);
+    _impl->connect(server, port, url, realConnect);
 }
 
 
-HttpClient::HttpClient(const net::Uri& uri)
+HttpClient::HttpClient(const net::Uri& uri, bool realConnect)
 : _impl(new HttpClientImpl())
 {
     _impl->addRef();
-    _impl->connect(uri.host(), uri.port(), uri.path());
+    _impl->connect(uri.host(), uri.port(), uri.path(), realConnect);
     auth(uri.user(), uri.password());
 }
 
@@ -105,20 +105,20 @@ HttpClient::~HttpClient()
         delete _impl;
 }
 
-void HttpClient::connect(const net::AddrInfo& addrinfo, const std::string& url)
+void HttpClient::connect(const net::AddrInfo& addrinfo, const std::string& url, bool realConnect)
 {
-    _impl->connect(addrinfo, url);
+    _impl->connect(addrinfo, url, realConnect);
 }
 
-void HttpClient::connect(const net::Uri& uri)
+void HttpClient::connect(const net::Uri& uri, bool realConnect)
 {
-    _impl->connect(uri.host(), uri.port(), uri.path());
+    _impl->connect(uri.host(), uri.port(), uri.path(), realConnect);
     auth(uri.user(), uri.password());
 }
 
-void HttpClient::connect(const std::string& addr, unsigned short port, const std::string& url)
+void HttpClient::connect(const std::string& addr, unsigned short port, const std::string& url, bool realConnect)
 {
-    _impl->connect(addr, port, url);
+    _impl->connect(addr, port, url, realConnect);
 }
 
 void HttpClient::url(const std::string& url)

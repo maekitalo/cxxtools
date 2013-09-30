@@ -51,9 +51,9 @@ class RpcClient : public RemoteClient
         : _impl(0)
         { }
 
-        RpcClient(SelectorBase& selector, const std::string& addr, unsigned short port);
+        RpcClient(SelectorBase& selector, const std::string& addr, unsigned short port, bool realConnect = false);
 
-        RpcClient(const std::string& addr, unsigned short port);
+        RpcClient(const std::string& addr, unsigned short port, bool realConnect = false);
 
         RpcClient(RpcClient&);
         RpcClient& operator= (const RpcClient&);
@@ -62,7 +62,7 @@ class RpcClient : public RemoteClient
 
         void setSelector(SelectorBase& selector);
 
-        void connect(const std::string& addr, unsigned short port);
+        void connect(const std::string& addr, unsigned short port, bool realConnect = false);
 
         void close();
 

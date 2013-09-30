@@ -115,16 +115,18 @@ class ClientImpl : public RefCounted, public Connectable
 
     public:
         ClientImpl(Client* client);
-        ClientImpl(Client* client, const net::AddrInfo& addrinfo);
-        ClientImpl(Client* client, const net::Uri& uri);
-        ClientImpl(Client* client, SelectorBase& selector, const net::AddrInfo& addrinfo);
-        ClientImpl(Client* client, SelectorBase& selector, const net::Uri& uri);
+        ClientImpl(Client* client, const net::AddrInfo& addrinfo, bool realConnect);
+        ClientImpl(Client* client, const net::Uri& uri, bool realConnect);
+        ClientImpl(Client* client, SelectorBase& selector, const net::AddrInfo& addrinfo, bool realConnect);
+        ClientImpl(Client* client, SelectorBase& selector, const net::Uri& uri, bool realConnect);
 
-        // Sets the server and port. No actual network connect is done.
-        void connect(const net::AddrInfo& addrinfo)
+        // Sets the server and port. No actual network connect is done unless realConnect is set.
+        void connect(const net::AddrInfo& addrinfo, bool realConnect)
         {
             _addrInfo = addrinfo;
             _socket.close();
+            if (realConnect)
+                _socket.connect(_addrInfo);
         }
 
         // Sends the passed request to the server and parses the headers.

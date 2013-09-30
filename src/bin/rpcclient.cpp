@@ -34,14 +34,26 @@ namespace cxxtools
 namespace bin
 {
 
-RpcClient::RpcClient(SelectorBase& selector, const std::string& addr, unsigned short port, const std::string& domain)
-    : _impl(new RpcClientImpl(selector, addr, port, domain))
+RpcClient::RpcClient(SelectorBase& selector, const std::string& addr, unsigned short port, const std::string& domain, bool realConnect)
+    : _impl(new RpcClientImpl(selector, addr, port, domain, realConnect))
 { 
     _impl->addRef();
 }
 
-RpcClient::RpcClient(const std::string& addr, unsigned short port, const std::string& domain)
-    : _impl(new RpcClientImpl(addr, port, domain))
+RpcClient::RpcClient(SelectorBase& selector, const std::string& addr, unsigned short port, bool realConnect)
+    : _impl(new RpcClientImpl(selector, addr, port, std::string(), realConnect))
+{ 
+    _impl->addRef();
+}
+
+RpcClient::RpcClient(const std::string& addr, unsigned short port, const std::string& domain, bool realConnect)
+    : _impl(new RpcClientImpl(addr, port, domain, realConnect))
+{ 
+    _impl->addRef();
+}
+
+RpcClient::RpcClient(const std::string& addr, unsigned short port, bool realConnect)
+    : _impl(new RpcClientImpl(addr, port, std::string(), realConnect))
 { 
     _impl->addRef();
 }
@@ -75,16 +87,16 @@ RpcClient::~RpcClient()
 void RpcClient::setSelector(SelectorBase& selector)
 {
     if (!_impl)
-        _impl = new RpcClientImpl(std::string(), 0, std::string());
+        _impl = new RpcClientImpl(std::string(), 0, std::string(), false);
     _impl->setSelector(selector);
 }
 
-void RpcClient::connect(const std::string& addr, unsigned short port, const std::string& domain)
+void RpcClient::connect(const std::string& addr, unsigned short port, const std::string& domain, bool realConnect)
 {
     if (!_impl)
-        _impl = new RpcClientImpl(addr, port, domain);
+        _impl = new RpcClientImpl(addr, port, domain, realConnect);
     else
-        _impl->connect(addr, port, domain);
+        _impl->connect(addr, port, domain, realConnect);
 }
 
 void RpcClient::close()

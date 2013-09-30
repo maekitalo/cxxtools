@@ -56,16 +56,16 @@ class RpcClientImpl : public RefCounted, public Connectable
         void operator= (const RpcClientImpl&) { }
 
     public:
-        RpcClientImpl(const std::string& addr, unsigned short port, const std::string& domain);
+        RpcClientImpl(const std::string& addr, unsigned short port, const std::string& domain, bool realConnect);
 
-        RpcClientImpl(SelectorBase& selector, const std::string& addr, unsigned short port, const std::string& domain);
+        RpcClientImpl(SelectorBase& selector, const std::string& addr, unsigned short port, const std::string& domain, bool realConnect);
 
         ~RpcClientImpl();
 
         void setSelector(SelectorBase& selector)
         { selector.add(_socket); }
 
-        void connect(const std::string& addr, unsigned short port, const std::string& domain);
+        void connect(const std::string& addr, unsigned short port, const std::string& domain, bool realConnect);
 
         void close();
 

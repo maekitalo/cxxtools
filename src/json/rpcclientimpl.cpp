@@ -55,13 +55,19 @@ RpcClientImpl::RpcClientImpl()
     cxxtools::connect(_stream.buffer().inputReady, *this, &RpcClientImpl::onInput);
 }
 
-void RpcClientImpl::connect(const std::string& addr, unsigned short port)
+void RpcClientImpl::connect(const std::string& addr, unsigned short port, bool realConnect)
 {
     if (_addr != addr || _port != port)
     {
         _socket.close();
         _addr = addr;
         _port = port;
+    }
+
+    if (realConnect)
+    {
+        _socket.setTimeout(_connectTimeout);
+        _socket.connect(_addr, _port);
     }
 }
 

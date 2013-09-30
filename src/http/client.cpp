@@ -40,39 +40,39 @@ Client::Client()
     _impl->addRef();
 }
 
-Client::Client(const net::AddrInfo& addrinfo)
-: _impl(new ClientImpl(this, addrinfo))
+Client::Client(const net::AddrInfo& addrinfo, bool realConnect)
+: _impl(new ClientImpl(this, addrinfo, realConnect))
 {
     _impl->addRef();
 }
 
-Client::Client(const net::Uri& uri)
-: _impl(new ClientImpl(this, uri))
+Client::Client(const net::Uri& uri, bool realConnect)
+: _impl(new ClientImpl(this, uri, realConnect))
 {
     _impl->addRef();
 }
 
-Client::Client(const std::string& host, unsigned short int port)
-: _impl(new ClientImpl(this, net::AddrInfo(host, port)))
+Client::Client(const std::string& host, unsigned short int port, bool realConnect)
+: _impl(new ClientImpl(this, net::AddrInfo(host, port), realConnect))
 {
     _impl->addRef();
 }
 
 
-Client::Client(SelectorBase& selector, const std::string& host, unsigned short int port)
-: _impl(new ClientImpl(this, selector, net::AddrInfo(host, port)))
+Client::Client(SelectorBase& selector, const std::string& host, unsigned short int port, bool realConnect)
+: _impl(new ClientImpl(this, selector, net::AddrInfo(host, port), realConnect))
 {
     _impl->addRef();
 }
 
-Client::Client(SelectorBase& selector, const net::AddrInfo& addrinfo)
-: _impl(new ClientImpl(this, selector, addrinfo))
+Client::Client(SelectorBase& selector, const net::AddrInfo& addrinfo, bool realConnect)
+: _impl(new ClientImpl(this, selector, addrinfo, realConnect))
 {
     _impl->addRef();
 }
 
-Client::Client(SelectorBase& selector, const net::Uri& uri)
-: _impl(new ClientImpl(this, selector, uri))
+Client::Client(SelectorBase& selector, const net::Uri& uri, bool realConnect)
+: _impl(new ClientImpl(this, selector, uri, realConnect))
 {
     _impl->addRef();
 }
@@ -103,14 +103,14 @@ Client::~Client()
         delete _impl;
 }
 
-void Client::connect(const net::AddrInfo& addrinfo)
+void Client::connect(const net::AddrInfo& addrinfo, bool realConnect)
 {
-    _impl->connect(addrinfo);
+    _impl->connect(addrinfo, realConnect);
 }
 
-void Client::connect(const std::string& host, unsigned short int port)
+void Client::connect(const std::string& host, unsigned short int port, bool realConnect)
 {
-    _impl->connect(net::AddrInfo(host, port));
+    _impl->connect(net::AddrInfo(host, port), realConnect);
 }
 
 const ReplyHeader& Client::execute(const Request& request, std::size_t timeout, std::size_t connectTimeout)

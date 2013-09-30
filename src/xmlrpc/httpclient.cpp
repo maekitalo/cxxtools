@@ -104,20 +104,20 @@ HttpClient::~HttpClient()
         delete _impl;
 }
 
-void HttpClient::connect(const net::AddrInfo& addrinfo, const std::string& url)
+void HttpClient::connect(const net::AddrInfo& addrinfo, const std::string& url, bool realConnect)
 {
-    _impl->connect(addrinfo, url);
+    _impl->connect(addrinfo, url, realConnect);
 }
 
-void HttpClient::connect(const net::Uri& uri)
+void HttpClient::connect(const net::Uri& uri, bool realConnect)
 {
-    _impl->connect(uri.host(), uri.port(), uri.path());
+    _impl->connect(uri.host(), uri.port(), uri.path(), realConnect);
     auth(uri.user(), uri.password());
 }
 
-void HttpClient::connect(const std::string& addr, unsigned short port, const std::string& url)
+void HttpClient::connect(const std::string& addr, unsigned short port, const std::string& url, bool realConnect)
 {
-    _impl->connect(addr, port, url);
+    _impl->connect(addr, port, url, realConnect);
 }
 
 void HttpClient::url(const std::string& url)

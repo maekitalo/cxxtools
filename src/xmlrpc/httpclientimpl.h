@@ -54,16 +54,16 @@ class HttpClientImpl : public RefCounted, public ClientImpl
 
         HttpClientImpl(const std::string& addr, unsigned short port, const std::string& url);
 
-        void connect(const net::AddrInfo& addrinfo, const std::string& url)
+        void connect(const net::AddrInfo& addrinfo, const std::string& url, bool realConnect)
         {
-            _client.connect(addrinfo);
+            _client.connect(addrinfo, realConnect);
             _request.url(url);
         }
 
         void connect(const std::string& addr, unsigned short port,
-                     const std::string& url)
+                     const std::string& url, bool realConnect)
         {
-            _client.connect(addr, port);
+            _client.connect(addr, port, realConnect);
             _request.url(url);
         }
 
