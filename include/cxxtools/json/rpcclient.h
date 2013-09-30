@@ -55,7 +55,7 @@ class RpcClient : public RemoteClient
 
         RpcClient(const std::string& addr, unsigned short port, bool realConnect = false);
 
-        RpcClient(RpcClient&);
+        RpcClient(const RpcClient&);
         RpcClient& operator= (const RpcClient&);
 
         virtual ~RpcClient();

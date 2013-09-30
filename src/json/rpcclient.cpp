@@ -49,7 +49,7 @@ RpcClient::RpcClient(const std::string& addr, unsigned short port, bool realConn
     _impl->connect(addr, port, realConnect);
 }
 
-RpcClient::RpcClient(RpcClient& other)
+RpcClient::RpcClient(const RpcClient& other)
 : _impl(other._impl)
 {
     if (_impl)

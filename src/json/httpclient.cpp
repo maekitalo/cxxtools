@@ -79,7 +79,7 @@ HttpClient::HttpClient(const net::Uri& uri, bool realConnect)
 }
 
 
-HttpClient::HttpClient(HttpClient& other)
+HttpClient::HttpClient(const HttpClient& other)
 : _impl(other._impl)
 {
     if (_impl)

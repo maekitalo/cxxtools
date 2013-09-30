@@ -78,7 +78,7 @@ HttpClient::HttpClient(const net::Uri& uri)
     auth(uri.user(), uri.password());
 }
 
-HttpClient::HttpClient(HttpClient& other)
+HttpClient::HttpClient(const HttpClient& other)
 : _impl(other._impl)
 {
     if (_impl)

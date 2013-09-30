@@ -61,7 +61,7 @@ namespace json
 
             explicit HttpClient(const net::Uri& uri, bool realConnect = false);
 
-            HttpClient(HttpClient&);
+            HttpClient(const HttpClient&);
             HttpClient& operator= (const HttpClient&);
 
             virtual ~HttpClient();
