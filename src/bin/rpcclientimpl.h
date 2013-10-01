@@ -26,8 +26,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef CXXTOOLS_BIN_CLIENTIMPL_H
-#define CXXTOOLS_BIN_CLIENTIMPL_H
+#ifndef CXXTOOLS_BIN_RPCCLIENTIMPL_H
+#define CXXTOOLS_BIN_RPCCLIENTIMPL_H
 
 #include <cxxtools/remoteclient.h>
 #include <cxxtools/bin/formatter.h>
@@ -59,8 +59,6 @@ class RpcClientImpl : public RefCounted, public Connectable
         RpcClientImpl(const std::string& addr, unsigned short port, const std::string& domain, bool realConnect);
 
         RpcClientImpl(SelectorBase& selector, const std::string& addr, unsigned short port, const std::string& domain, bool realConnect);
-
-        ~RpcClientImpl();
 
         void setSelector(SelectorBase& selector)
         { selector.add(_socket); }
@@ -123,4 +121,4 @@ class RpcClientImpl : public RefCounted, public Connectable
 
 }
 
-#endif // CXXTOOLS_BIN_CLIENTIMPL_H
+#endif // CXXTOOLS_BIN_RPCCLIENTIMPL_H

@@ -46,7 +46,10 @@ RpcClientImpl::RpcClientImpl(SelectorBase& selector, const std::string& addr, un
       _stream(_socket, 8192, true),
       _formatter(_stream),
       _exceptionPending(false),
-      _domain(domain)
+      _domain(domain),
+      _timeout(Selectable::WaitInfinite),
+      _connectTimeoutSet(false),
+      _connectTimeout(Selectable::WaitInfinite)
 {
     setSelector(selector);
     connect(addr, port, domain, realConnect);
@@ -62,7 +65,10 @@ RpcClientImpl::RpcClientImpl(const std::string& addr, unsigned short port, const
       _stream(_socket, 8192, true),
       _formatter(_stream),
       _exceptionPending(false),
-      _domain(domain)
+      _domain(domain),
+      _timeout(Selectable::WaitInfinite),
+      _connectTimeoutSet(false),
+      _connectTimeout(Selectable::WaitInfinite)
 {
     connect(addr, port, domain, realConnect);
 
@@ -70,10 +76,6 @@ RpcClientImpl::RpcClientImpl(const std::string& addr, unsigned short port, const
     cxxtools::connect(_stream.buffer().outputReady, *this, &RpcClientImpl::onOutput);
     cxxtools::connect(_stream.buffer().inputReady, *this, &RpcClientImpl::onInput);
 
-}
-
-RpcClientImpl::~RpcClientImpl()
-{
 }
 
 void RpcClientImpl::connect(const std::string& addr, unsigned short port, const std::string& domain, bool realConnect)
