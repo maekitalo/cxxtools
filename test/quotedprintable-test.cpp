@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007 Tommi Maekitalo
+ * Copyright (C) 2013 Tommi Maekitalo
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,57 +26,33 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+#include "cxxtools/unit/testsuite.h"
+#include "cxxtools/unit/registertest.h"
 #include "cxxtools/quotedprintablestream.h"
 
-namespace cxxtools
+class QuotedPrintableTest : public cxxtools::unit::TestSuite
 {
+    public:
+        QuotedPrintableTest()
+            : cxxtools::unit::TestSuite("quotedprintable")
+        {
+            registerMethod("testQuotedPrintable", *this, &QuotedPrintableTest::testQuotedPrintable);
+        }
 
-std::streambuf::int_type QuotedPrintable_streambuf::overflow(std::streambuf::int_type ch)
-{
-  if (ch >= 32 && ch < 128 && ch != '=')
-  {
-    if (++col > 75)
-    {
-      sinksource->sputc('=');
-      sinksource->sputc('\n');
-      col = 0;
-    }
+        void testQuotedPrintable()
+        {
+            std::ostringstream s;
+            cxxtools::QuotedPrintable_ostream q(s);
+            q << "H\xe4tten H\xfcte ein \xdf im Namen, w\xe4ren sie m\xf6glicherweise keine H\xfcte mehr,\nsondern H\xfc\xdf" "e.";
 
-    sinksource->sputc(ch);
-  }
-  else if (ch == '\n')
-  {
-    sinksource->sputc('\n');
-    col = 0;
-  }
-  else
-  {
-    if (col > 73)
-    {
-      sinksource->sputc('=');
-      sinksource->sputc('\n');
-      col = 3;
-    }
-    else
-      col += 3;
+            std::string qq = s.str();
 
-    static const char hex[] = "0123456789ABCDEF";
-    sinksource->sputc('=');
-    sinksource->sputc(hex[(ch >> 4) & 0xf]);
-    sinksource->sputc(hex[ch & 0xf]);
-  }
+            CXXTOOLS_UNIT_ASSERT_EQUALS(qq,
+                "H=E4tten H=FCte ein =DF im Namen, w=E4ren sie m=F6glicherweise keine H=FCte=\n"
+                " mehr,\n"
+                "sondern H=FC=DFe.");
+        }
 
-  return 0;
-}
+};
 
-std::streambuf::int_type QuotedPrintable_streambuf::underflow()
-{
-  return traits_type::eof();
-}
-
-int QuotedPrintable_streambuf::sync()
-{
-  return sinksource->pubsync();
-}
-
-}
+cxxtools::unit::RegisterTest<QuotedPrintableTest> register_QuotedPrintableTest;
