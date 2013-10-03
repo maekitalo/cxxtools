@@ -28,6 +28,7 @@
 
 #include <cxxtools/http/client.h>
 #include <cxxtools/net/addrinfo.h>
+#include <cxxtools/net/uri.h>
 #include "clientimpl.h"
 
 namespace cxxtools {
@@ -111,6 +112,13 @@ void Client::connect(const net::AddrInfo& addrinfo, bool realConnect)
 void Client::connect(const std::string& host, unsigned short int port, bool realConnect)
 {
     _impl->connect(net::AddrInfo(host, port), realConnect);
+}
+
+void Client::connect(const net::Uri& uri, bool realConnect)
+{
+    if (uri.protocol() != "http")
+        throw std::runtime_error("only http is supported by http client");
+    _impl->connect(net::AddrInfo(uri.host(), uri.port()), realConnect);
 }
 
 const ReplyHeader& Client::execute(const Request& request, std::size_t timeout, std::size_t connectTimeout)
