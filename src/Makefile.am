@@ -46,6 +46,8 @@ libcxxtools_la_SOURCES = \
 	iodeviceimpl.cpp \
 	ioerror.cpp \
 	iostream.cpp \
+	iso8859_1codec.cpp \
+	iso8859_15codec.cpp \
 	jsondeserializer.cpp \
 	jsonformatter.cpp \
 	jsonparser.cpp \

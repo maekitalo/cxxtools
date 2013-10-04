@@ -17,6 +17,8 @@ alltests_SOURCES = \
     csvserializer-test.cpp \
     convert-test.cpp \
     file-test.cpp \
+    iso8859_1-test.cpp \
+    iso8859_15-test.cpp \
     join-test.cpp \
     json-test.cpp \
     jsondeserializer-test.cpp \
