@@ -35,7 +35,7 @@ namespace cxxtools
           _in(*_ts)
     { }
 
-    JsonDeserializer::JsonDeserializer(TextIStream& in)
+    JsonDeserializer::JsonDeserializer(std::basic_istream<Char>& in)
         : _ts(0),
           _in(in)
     { }

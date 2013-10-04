@@ -40,7 +40,7 @@ namespace cxxtools
     {
     }
 
-    CsvDeserializer::CsvDeserializer(TextIStream& in)
+    CsvDeserializer::CsvDeserializer(std::basic_istream<Char>& in)
         : _ts(0),
           _in(in)
     { }
