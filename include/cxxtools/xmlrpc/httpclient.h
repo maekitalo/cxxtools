@@ -52,13 +52,13 @@ class CXXTOOLS_XMLRPC_API HttpClient : public Client
         HttpClient();
 
         HttpClient(SelectorBase& selector, const std::string& addr,
-               unsigned short port, const std::string& url);
+               unsigned short port, const std::string& url, bool realConnect = false);
 
-        HttpClient(SelectorBase& selector, const net::Uri& uri);
+        HttpClient(SelectorBase& selector, const net::Uri& uri, bool realConnect = false);
 
-        HttpClient(const std::string& addr, unsigned short port, const std::string& url);
+        HttpClient(const std::string& addr, unsigned short port, const std::string& url, bool realConnect = false);
 
-        explicit HttpClient(const net::Uri& uri);
+        explicit HttpClient(const net::Uri& uri, bool realConnect = false);
 
         HttpClient(const HttpClient&);
         HttpClient& operator= (const HttpClient&);

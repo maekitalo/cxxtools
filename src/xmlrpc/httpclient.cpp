@@ -45,16 +45,16 @@ HttpClient::HttpClient()
 
 
 HttpClient::HttpClient(SelectorBase& selector, const std::string& server,
-                             unsigned short port, const std::string& url)
-: _impl(new HttpClientImpl(selector, server, port, url))
+                             unsigned short port, const std::string& url, bool realConnect)
+: _impl(new HttpClientImpl(selector, server, port, url, realConnect))
 {
     _impl->addRef();
     impl(_impl);
 }
 
 
-HttpClient::HttpClient(SelectorBase& selector, const net::Uri& uri)
-: _impl(new HttpClientImpl(selector, uri.host(), uri.port(), uri.path()))
+HttpClient::HttpClient(SelectorBase& selector, const net::Uri& uri, bool realConnect)
+: _impl(new HttpClientImpl(selector, uri.host(), uri.port(), uri.path(), realConnect))
 {
     _impl->addRef();
     impl(_impl);
@@ -62,16 +62,16 @@ HttpClient::HttpClient(SelectorBase& selector, const net::Uri& uri)
 }
 
 
-HttpClient::HttpClient(const std::string& server, unsigned short port, const std::string& url)
-: _impl(new HttpClientImpl(server, port, url))
+HttpClient::HttpClient(const std::string& server, unsigned short port, const std::string& url, bool realConnect)
+: _impl(new HttpClientImpl(server, port, url, realConnect))
 {
     _impl->addRef();
     impl(_impl);
 }
 
 
-HttpClient::HttpClient(const net::Uri& uri)
-: _impl(new HttpClientImpl(uri.host(), uri.port(), uri.path()))
+HttpClient::HttpClient(const net::Uri& uri, bool realConnect)
+: _impl(new HttpClientImpl(uri.host(), uri.port(), uri.path(), realConnect))
 {
     _impl->addRef();
     impl(_impl);

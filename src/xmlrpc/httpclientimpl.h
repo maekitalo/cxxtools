@@ -50,9 +50,9 @@ class HttpClientImpl : public RefCounted, public ClientImpl
         HttpClientImpl();
 
         HttpClientImpl(SelectorBase& selector, const std::string& addr,
-               unsigned short port, const std::string& url);
+               unsigned short port, const std::string& url, bool realConnect);
 
-        HttpClientImpl(const std::string& addr, unsigned short port, const std::string& url);
+        HttpClientImpl(const std::string& addr, unsigned short port, const std::string& url, bool realConnect);
 
         void connect(const net::AddrInfo& addrinfo, const std::string& url, bool realConnect)
         {
