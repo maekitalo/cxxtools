@@ -1,6 +1,8 @@
 AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/include -I$(top_srcdir)/include
 
 lib_LTLIBRARIES = libcxxtools.la
+include_HEADERS = \
+	dateutils.h
 
 libcxxtools_la_SOURCES = \
 	addrinfo.cpp \
@@ -24,6 +26,7 @@ libcxxtools_la_SOURCES = \
 	daemonize.cpp \
 	date.cpp \
 	datetime.cpp \
+	dateutils.cpp \
 	decomposer.cpp \
 	deserializer.cpp \
 	directory.cpp \

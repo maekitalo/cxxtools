@@ -76,11 +76,25 @@ class Time
         : _msecs(0)
         {}
 
+        /** \brief create Time from string using format
+
+            Valid format codes are:
+
+              %H   hours (0-23)
+              %I   hours (0-11)
+              %M   minutes
+              %S   seconds
+              %j   milliseconds (1-3 digits, optionally leading '.')
+              %J   milliseconds (1-3 digits, with leading '.')
+              %p   AM/PM
+         */
+        explicit Time(const std::string& d, const std::string& fmt = "%H:%M:%S%j");
+
         /** \brief Creates a Time from given values.
 
             InvalidTime is thrown if one or more of the values are out of range
         */
-        inline Time(unsigned h, unsigned m, unsigned s = 0, unsigned ms = 0)
+        Time(unsigned h, unsigned m, unsigned s = 0, unsigned ms = 0)
         {
             set(h, m, s, ms);
         }
@@ -146,6 +160,21 @@ class Time
             ms = msec();
         }
 
+        /** \brief format Time into a string using a format string
+
+            Valid format codes are:
+
+              %H   hours (0-23)
+              %H   hours (0-11)
+              %M   minutes
+              %S   seconds
+              %j   milliseconds (1-3 digits, optionally leading '.')
+              %J   milliseconds (1-3 digits, with leading '.')
+              %p   am/pm
+              %P   AM/PM
+         */
+        std::string toString(const std::string& fmt = "%H:%M:%S%j") const;
+
         /** @brief Adds seconds to the time
 
             This method does not change the time, but returns the time
@@ -168,7 +197,7 @@ class Time
             This method does not change the time, but returns the time
             with the milliseconds added.
         */
-        inline Time addMSecs(int64_t ms) const
+        Time addMSecs(int64_t ms) const
         {
             Time t;
             if (ms < 0)
@@ -272,7 +301,8 @@ class Time
 
         /** \brief Returns the time in ISO-format (hh:mm:ss.hhh)
         */
-        std::string toIsoString() const;
+        std::string toIsoString() const
+        { return toString(); }
 
         /** \brief Returns true if values are a valid time
         */
@@ -287,7 +317,8 @@ class Time
             (hh:mm:ss.hhh) and returns a Time-object. If the string is not
             in ISO-format, InvalidTime is thrown.
         */
-        static Time fromIsoString(const std::string& s);
+        static Time fromIsoString(const std::string& s)
+        { return Time(s); }
 
     private:
         //! @internal
@@ -298,23 +329,6 @@ class Time
 
     CXXTOOLS_API void operator <<=(SerializationInfo& si, const Time& time);
 
-    CXXTOOLS_API void convert(std::string& str, const cxxtools::Time& time);
-
-    CXXTOOLS_API void convert(cxxtools::Time& time, const std::string& s);
-
-    inline std::string Time::toIsoString() const
-    {
-        std::string str;
-        convert(str, *this);
-        return str;
-    }
-
-    inline Time Time::fromIsoString(const std::string& s)
-    {
-        Time time;
-        convert(time, s);
-        return time;
-    }
 }
 
 #endif // CXXTOOLS_TIME_H
