@@ -40,6 +40,12 @@ RpcClient::RpcClient(SelectorBase& selector, const std::string& addr, unsigned s
     _impl->addRef();
 }
 
+RpcClient::RpcClient(SelectorBase& selector, const std::string& addr, unsigned short port, const char* domain, bool realConnect)
+    : _impl(new RpcClientImpl(selector, addr, port, domain, realConnect))
+{ 
+    _impl->addRef();
+}
+
 RpcClient::RpcClient(SelectorBase& selector, const std::string& addr, unsigned short port, bool realConnect)
     : _impl(new RpcClientImpl(selector, addr, port, std::string(), realConnect))
 { 
@@ -47,6 +53,12 @@ RpcClient::RpcClient(SelectorBase& selector, const std::string& addr, unsigned s
 }
 
 RpcClient::RpcClient(const std::string& addr, unsigned short port, const std::string& domain, bool realConnect)
+    : _impl(new RpcClientImpl(addr, port, domain, realConnect))
+{ 
+    _impl->addRef();
+}
+
+RpcClient::RpcClient(const std::string& addr, unsigned short port, const char* domain, bool realConnect)
     : _impl(new RpcClientImpl(addr, port, domain, realConnect))
 { 
     _impl->addRef();
