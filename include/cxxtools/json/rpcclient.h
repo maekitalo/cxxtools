@@ -51,18 +51,18 @@ class RpcClient : public RemoteClient
         : _impl(0)
         { }
 
-        RpcClient(SelectorBase& selector, const std::string& addr, unsigned short port);
+        RpcClient(SelectorBase& selector, const std::string& addr, unsigned short port, bool realConnect = false);
 
-        RpcClient(const std::string& addr, unsigned short port);
+        RpcClient(const std::string& addr, unsigned short port, bool realConnect = false);
 
-        RpcClient(RpcClient&);
+        RpcClient(const RpcClient&);
         RpcClient& operator= (const RpcClient&);
 
         virtual ~RpcClient();
 
         void setSelector(SelectorBase& selector);
 
-        void connect(const std::string& addr, unsigned short port);
+        void connect(const std::string& addr, unsigned short port, bool realConnect = false);
 
         void close();
 
@@ -71,6 +71,12 @@ class RpcClient : public RemoteClient
         void endCall();
 
         void call(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc);
+
+        std::size_t timeout() const;
+        void timeout(std::size_t t);
+
+        std::size_t connectTimeout() const;
+        void connectTimeout(std::size_t t);
 
         const IRemoteProcedure* activeProcedure() const;
 

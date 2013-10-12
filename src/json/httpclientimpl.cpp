@@ -50,6 +50,8 @@ namespace json
 
 HttpClientImpl::HttpClientImpl()
 : _timeout(Selectable::WaitInfinite),
+  _connectTimeoutSet(false),
+  _connectTimeout(Selectable::WaitInfinite),
   _proc(0),
   _exceptionPending(false),
   _count(0)
@@ -97,7 +99,7 @@ void HttpClientImpl::call(IComposer& r, IRemoteProcedure& method, IDecomposer** 
 
     prepareRequest(method.name(), argv, argc);
 
-    _client.execute(_request);
+    _client.execute(_request, timeout(), connectTimeout());
 
     _scanner.begin(_deserializer, r);
 

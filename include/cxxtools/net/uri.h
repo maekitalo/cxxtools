@@ -33,6 +33,42 @@ namespace cxxtools
 {
 namespace net
 {
+  /** The Uri class represents a uniform resource identifier.
+
+      A Uri is used to identify a web resource.
+      
+      This class can parse a string to split a uri into his parts or build a
+      string from parts of the uri.
+
+      The syntax of a uri is:
+
+      \verbatim
+        <scheme name> : <hierarchical part> [ ? <query> ] [ # <fragment> ]
+      \endverbatim
+
+      A example is here:
+
+      \verbatim
+        foo://username:password@example.com:8042/over/there/index.dtb?type=animal&name=narwhal#nose
+        \_/   \______/ \______/ \_________/ \__/ \__________________/ \______________________/ \__/
+         |       |                   |       |          |                      |                |
+         |     user     password  hostname  port       path                  query          fragment
+         |
+         schema/protocol
+      \endverbatim
+
+      Example use:
+
+      \code
+
+        cxxtools::Uri u("http://www.tntnet.org/index.html");
+        std::cout << "host=" << u.host() << std::endl;   // prints www.tntnet.org
+
+        u.path("cxxtools.html");
+        std::cout << "new uri " << u.str() << std::endl;   // prints http://www.tntnet.org/cxxtools.html
+
+      \endcode
+   */
 
   class CXXTOOLS_API Uri
   {
@@ -47,58 +83,79 @@ namespace net
       std::string _fragment;
 
     public:
+      /// Creates a empty Uri.
       Uri()  { }
 
+      /// Parses the string str and set the elements of the Uri.
       Uri(const std::string& str);
 
+      /// Sets the protocol part of the Uri.
       void protocol(const std::string& protocol)
         { _protocol = protocol; }
 
+      /// Returns the protocol part of the Uri.
       const std::string& protocol() const
         { return _protocol; }
 
+      /// Sets the user part of the Uri.
       void user(const std::string& user)
         { _user = user; }
 
+      /// Returns the user part of the Uri.
       const std::string& user() const
         { return _user; }
 
+      /// Sets the password part of the Uri.
       void password(const std::string& password)
         { _password = password; }
 
+      /// Returns the password part of the Uri.
       const std::string& password() const
         { return _password; }
 
+      /// Sets the host part of the Uri.
       void host(const std::string& host)
         { _host = host; }
 
+      /// Returns the host part of the Uri.
       const std::string& host() const
         { return _host; }
 
+      /// Sets the port part of the Uri.
       void port(unsigned short int p)
         { _port = p; }
 
+      /// Returns the port part of the Uri.
       unsigned short int port() const
         { return _port; }
 
+      /// Sets the path part of the Uri.
       void path(const std::string& path)
         { _path = path; }
 
+      /// Returns the path part of the Uri.
       const std::string& path() const
         { return _path; }
 
+      /// Sets the query part of the Uri.
       void query(const std::string& query)
         { _query = query; }
 
+      /// Returns the query part of the Uri.
       const std::string& query() const
         { return _query; }
 
+      /// Sets the fragment part of the Uri.
       void fragment(const std::string& fragment)
         { _fragment = fragment; }
 
+      /// Returns the fragment part of the Uri.
       const std::string& fragment() const
         { return _fragment; }
 
+      /// Returns the Uri as a string.
+      ///
+      /// All optional parts are left out. The standard ports of http (80), https (443) and ftp (21) are also omitted.
       std::string str() const;
   };
 }

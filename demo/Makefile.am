@@ -2,7 +2,7 @@ noinst_PROGRAMS = arg arg-set cgi dir dlloader getini hd \
 	httprequest httpserver log logbench logsh md5sum mime multifstream netcat \
 	netio netmsg pipestream pool signals thread threadpool uuencode cxxlog \
 	rpcserver rpcechoclient rpcaddclient splitter json regex execLs rpcasyncaddclient \
-	deserialization serialization
+	deserialization serialization rpcparallelecho
 
 arg_SOURCES = arg.cpp
 arg_set_SOURCES = arg-set.cpp
@@ -39,6 +39,7 @@ json_SOURCES = json.cpp
 regex_SOURCES = regex.cpp
 execLs_SOURCES = execLs.cpp
 rpcasyncaddclient_SOURCES = rpcasyncaddclient.cpp
+rpcparallelecho_SOURCES = rpcparallelecho.cpp
 
 if MAKE_ICONVSTREAM
 noinst_PROGRAMS += iconv
@@ -61,6 +62,7 @@ rpcechoclient_LDADD = $(XMLRPC_LIBS) $(BIN_LIBS) $(JSON_LIBS)
 rpcaddclient_LDADD = $(XMLRPC_LIBS) $(BIN_LIBS) $(JSON_LIBS)
 json_LDADD = $(HTTP_LIBS)
 rpcasyncaddclient_LDADD = $(XMLRPC_LIBS) $(BIN_LIBS) $(JSON_LIBS)
+rpcparallelecho_LDADD = $(BIN_LIBS)
 
 log.xml:
 	/bin/sh $(top_builddir)/cxxtools-config --logxml cxxtools >$@

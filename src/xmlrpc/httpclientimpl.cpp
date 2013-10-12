@@ -49,8 +49,8 @@ HttpClientImpl::HttpClientImpl()
 }
 
 HttpClientImpl::HttpClientImpl(SelectorBase& selector, const std::string& addr,
-       unsigned short port, const std::string& url)
-: _client(selector, addr, port)
+       unsigned short port, const std::string& url, bool realConnect)
+: _client(selector, addr, port, realConnect)
 , _request(url)
 {
     _request.method("POST");
@@ -59,8 +59,8 @@ HttpClientImpl::HttpClientImpl(SelectorBase& selector, const std::string& addr,
     cxxtools::connect(_client.replyFinished, *this, &HttpClientImpl::onReplyFinished);
 }
 
-HttpClientImpl::HttpClientImpl(const std::string& addr, unsigned short port, const std::string& url)
-: _client(addr, port)
+HttpClientImpl::HttpClientImpl(const std::string& addr, unsigned short port, const std::string& url, bool realConnect)
+: _client(addr, port, realConnect)
 , _request(url)
 {
     _request.method("POST");
@@ -119,7 +119,7 @@ void HttpClientImpl::endExecute()
 
 std::string HttpClientImpl::execute()
 {
-    _client.execute(_request, timeout());
+    _client.execute(_request, timeout(), connectTimeout());
 
     std::string body;
 

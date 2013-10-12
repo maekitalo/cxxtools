@@ -107,7 +107,7 @@ namespace cxxtools
         public:
             JsonDeserializer(std::istream& in, TextCodec<Char, char>* codec = new Utf8Codec());
 
-            JsonDeserializer(TextIStream& in);
+            JsonDeserializer(std::basic_istream<Char>& in);
 
             ~JsonDeserializer();
 
@@ -116,7 +116,7 @@ namespace cxxtools
 
         private:
             TextIStream* _ts;
-            TextIStream& _in;
+            std::basic_istream<Char>& _in;
     };
 }
 

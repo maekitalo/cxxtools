@@ -69,7 +69,7 @@ ClientImpl::ClientImpl(Client* client)
 }
 
 
-ClientImpl::ClientImpl(Client* client, const net::AddrInfo& addrinfo)
+ClientImpl::ClientImpl(Client* client, const net::AddrInfo& addrinfo, bool realConnect)
 : _client(client)
 , _parseEvent(_replyHeader)
 , _parser(_parseEvent, true)
@@ -87,9 +87,12 @@ ClientImpl::ClientImpl(Client* client, const net::AddrInfo& addrinfo)
     cxxtools::connect(_socket.connected, *this, &ClientImpl::onConnect);
     cxxtools::connect(_stream.buffer().outputReady, *this, &ClientImpl::onOutput);
     cxxtools::connect(_stream.buffer().inputReady, *this, &ClientImpl::onInput);
+
+    if (realConnect)
+        _socket.connect(_addrInfo);
 }
 
-ClientImpl::ClientImpl(Client* client, const net::Uri& uri)
+ClientImpl::ClientImpl(Client* client, const net::Uri& uri, bool realConnect)
 : _client(client)
 , _parseEvent(_replyHeader)
 , _parser(_parseEvent, true)
@@ -112,9 +115,12 @@ ClientImpl::ClientImpl(Client* client, const net::Uri& uri)
     cxxtools::connect(_socket.connected, *this, &ClientImpl::onConnect);
     cxxtools::connect(_stream.buffer().outputReady, *this, &ClientImpl::onOutput);
     cxxtools::connect(_stream.buffer().inputReady, *this, &ClientImpl::onInput);
+
+    if (realConnect)
+        _socket.connect(_addrInfo);
 }
 
-ClientImpl::ClientImpl(Client* client, SelectorBase& selector, const net::AddrInfo& addrinfo)
+ClientImpl::ClientImpl(Client* client, SelectorBase& selector, const net::AddrInfo& addrinfo, bool realConnect)
 : _client(client)
 , _parseEvent(_replyHeader)
 , _parser(_parseEvent, true)
@@ -133,10 +139,13 @@ ClientImpl::ClientImpl(Client* client, SelectorBase& selector, const net::AddrIn
     cxxtools::connect(_stream.buffer().outputReady, *this, &ClientImpl::onOutput);
     cxxtools::connect(_stream.buffer().inputReady, *this, &ClientImpl::onInput);
     setSelector(selector);
+
+    if (realConnect)
+        _socket.connect(_addrInfo);
 }
 
 
-ClientImpl::ClientImpl(Client* client, SelectorBase& selector, const net::Uri& uri)
+ClientImpl::ClientImpl(Client* client, SelectorBase& selector, const net::Uri& uri, bool realConnect)
 : _client(client)
 , _parseEvent(_replyHeader)
 , _parser(_parseEvent, true)
@@ -158,6 +167,9 @@ ClientImpl::ClientImpl(Client* client, SelectorBase& selector, const net::Uri& u
     cxxtools::connect(_stream.buffer().outputReady, *this, &ClientImpl::onOutput);
     cxxtools::connect(_stream.buffer().inputReady, *this, &ClientImpl::onInput);
     setSelector(selector);
+
+    if (realConnect)
+        _socket.connect(_addrInfo);
 }
 
 
@@ -199,13 +211,16 @@ void ClientImpl::doparse()
 
 }
 
-const ReplyHeader& ClientImpl::execute(const Request& request, std::size_t timeout)
+const ReplyHeader& ClientImpl::execute(const Request& request, std::size_t timeout, std::size_t connectTimeout)
 {
     log_trace("execute request " << request.url());
 
+    if (connectTimeout == Selectable::WaitInfinite)
+        connectTimeout = timeout;
+
     _replyHeader.clear();
 
-    _socket.setTimeout(timeout);
+    _socket.setTimeout(connectTimeout);
 
     bool shouldReconnect = _socket.isConnected();
     if (!shouldReconnect)
@@ -213,6 +228,8 @@ const ReplyHeader& ClientImpl::execute(const Request& request, std::size_t timeo
         log_debug("connect");
         _socket.connect(_addrInfo);
     }
+
+    _socket.setTimeout(timeout);
 
     log_debug("send request");
     sendRequest(request);
@@ -310,10 +327,10 @@ void ClientImpl::readBody(std::string& s)
 }
 
 
-std::string ClientImpl::get(const std::string& url, std::size_t timeout)
+std::string ClientImpl::get(const std::string& url, std::size_t timeout, std::size_t connectTimeout)
 {
     Request request(url);
-    execute(request, timeout);
+    execute(request, timeout, connectTimeout);
     return readBody();
 }
 

@@ -34,19 +34,43 @@ namespace cxxtools
 namespace bin
 {
 
-RpcClient::RpcClient(SelectorBase& selector, const std::string& addr, unsigned short port, const std::string& domain)
-    : _impl(new RpcClientImpl(selector, addr, port, domain))
+RpcClient::RpcClient(SelectorBase& selector, const std::string& addr, unsigned short port, const std::string& domain, bool realConnect)
+    : _impl(new RpcClientImpl(selector, addr, port, domain, realConnect))
 { 
     _impl->addRef();
 }
 
-RpcClient::RpcClient(const std::string& addr, unsigned short port, const std::string& domain)
-    : _impl(new RpcClientImpl(addr, port, domain))
+RpcClient::RpcClient(SelectorBase& selector, const std::string& addr, unsigned short port, const char* domain, bool realConnect)
+    : _impl(new RpcClientImpl(selector, addr, port, domain, realConnect))
 { 
     _impl->addRef();
 }
 
-RpcClient::RpcClient(RpcClient& other)
+RpcClient::RpcClient(SelectorBase& selector, const std::string& addr, unsigned short port, bool realConnect)
+    : _impl(new RpcClientImpl(selector, addr, port, std::string(), realConnect))
+{ 
+    _impl->addRef();
+}
+
+RpcClient::RpcClient(const std::string& addr, unsigned short port, const std::string& domain, bool realConnect)
+    : _impl(new RpcClientImpl(addr, port, domain, realConnect))
+{ 
+    _impl->addRef();
+}
+
+RpcClient::RpcClient(const std::string& addr, unsigned short port, const char* domain, bool realConnect)
+    : _impl(new RpcClientImpl(addr, port, domain, realConnect))
+{ 
+    _impl->addRef();
+}
+
+RpcClient::RpcClient(const std::string& addr, unsigned short port, bool realConnect)
+    : _impl(new RpcClientImpl(addr, port, std::string(), realConnect))
+{ 
+    _impl->addRef();
+}
+
+RpcClient::RpcClient(const RpcClient& other)
 : _impl(other._impl)
 {
     if (_impl)
@@ -75,16 +99,16 @@ RpcClient::~RpcClient()
 void RpcClient::setSelector(SelectorBase& selector)
 {
     if (!_impl)
-        _impl = new RpcClientImpl(std::string(), 0, std::string());
+        _impl = new RpcClientImpl(std::string(), 0, std::string(), false);
     _impl->setSelector(selector);
 }
 
-void RpcClient::connect(const std::string& addr, unsigned short port, const std::string& domain)
+void RpcClient::connect(const std::string& addr, unsigned short port, const std::string& domain, bool realConnect)
 {
     if (!_impl)
-        _impl = new RpcClientImpl(addr, port, domain);
+        _impl = new RpcClientImpl(addr, port, domain, realConnect);
     else
-        _impl->connect(addr, port, domain);
+        _impl->connect(addr, port, domain, realConnect);
 }
 
 void RpcClient::close()
@@ -106,6 +130,26 @@ void RpcClient::endCall()
 void RpcClient::call(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc)
 {
     _impl->call(r, method, argv, argc);
+}
+
+std::size_t RpcClient::timeout() const
+{
+    return _impl->timeout();
+}
+
+void RpcClient::timeout(std::size_t t)
+{
+    _impl->timeout(t);
+}
+
+std::size_t RpcClient::connectTimeout() const
+{
+    return _impl->connectTimeout();
+}
+
+void RpcClient::connectTimeout(std::size_t t)
+{
+    _impl->connectTimeout(t);
 }
 
 const IRemoteProcedure* RpcClient::activeProcedure() const

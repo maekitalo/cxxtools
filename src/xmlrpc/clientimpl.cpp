@@ -82,6 +82,8 @@ ClientImpl::ClientImpl()
 , _formatter(_writer)
 , _method(0)
 , _timeout(Selectable::WaitInfinite)
+, _connectTimeoutSet(false)
+, _connectTimeout(Selectable::WaitInfinite)
 , _errorPending(false)
 {
     _writer.useIndent(false);

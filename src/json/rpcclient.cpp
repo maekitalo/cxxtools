@@ -34,22 +34,22 @@ namespace cxxtools
 namespace json
 {
 
-RpcClient::RpcClient(SelectorBase& selector, const std::string& addr, unsigned short port)
+RpcClient::RpcClient(SelectorBase& selector, const std::string& addr, unsigned short port, bool realConnect)
     : _impl(new RpcClientImpl())
 {
     _impl->addRef();
     _impl->setSelector(selector);
-    _impl->connect(addr, port);
+    _impl->connect(addr, port, realConnect);
 }
 
-RpcClient::RpcClient(const std::string& addr, unsigned short port)
+RpcClient::RpcClient(const std::string& addr, unsigned short port, bool realConnect)
     : _impl(new RpcClientImpl())
 { 
     _impl->addRef();
-    _impl->connect(addr, port);
+    _impl->connect(addr, port, realConnect);
 }
 
-RpcClient::RpcClient(RpcClient& other)
+RpcClient::RpcClient(const RpcClient& other)
 : _impl(other._impl)
 {
     if (_impl)
@@ -83,12 +83,12 @@ void RpcClient::setSelector(SelectorBase& selector)
     _impl->setSelector(selector);
 }
 
-void RpcClient::connect(const std::string& addr, unsigned short port)
+void RpcClient::connect(const std::string& addr, unsigned short port, bool realConnect)
 {
     if (!_impl)
         _impl = new RpcClientImpl();
 
-    _impl->connect(addr, port);
+    _impl->connect(addr, port, realConnect);
 }
 
 void RpcClient::close()
@@ -110,6 +110,26 @@ void RpcClient::endCall()
 void RpcClient::call(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc)
 {
     _impl->call(r, method, argv, argc);
+}
+
+std::size_t RpcClient::timeout() const
+{
+    return _impl->timeout();
+}
+
+void RpcClient::timeout(std::size_t t)
+{
+    _impl->timeout(t);
+}
+
+std::size_t RpcClient::connectTimeout() const
+{
+    return _impl->connectTimeout();
+}
+
+void RpcClient::connectTimeout(std::size_t t)
+{
+    _impl->connectTimeout(t);
 }
 
 const IRemoteProcedure* RpcClient::activeProcedure() const

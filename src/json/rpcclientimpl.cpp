@@ -45,20 +45,29 @@ namespace json
 RpcClientImpl::RpcClientImpl()
     : _stream(_socket, 8192, true),
       _exceptionPending(false),
-      _proc(0)
+      _proc(0),
+      _timeout(Selectable::WaitInfinite),
+      _connectTimeoutSet(false),
+      _connectTimeout(Selectable::WaitInfinite)
 {
     cxxtools::connect(_socket.connected, *this, &RpcClientImpl::onConnect);
     cxxtools::connect(_stream.buffer().outputReady, *this, &RpcClientImpl::onOutput);
     cxxtools::connect(_stream.buffer().inputReady, *this, &RpcClientImpl::onInput);
 }
 
-void RpcClientImpl::connect(const std::string& addr, unsigned short port)
+void RpcClientImpl::connect(const std::string& addr, unsigned short port, bool realConnect)
 {
     if (_addr != addr || _port != port)
     {
         _socket.close();
         _addr = addr;
         _port = port;
+    }
+
+    if (realConnect)
+    {
+        _socket.setTimeout(_connectTimeout);
+        _socket.connect(_addr, _port);
     }
 }
 
@@ -118,7 +127,12 @@ void RpcClientImpl::call(IComposer& r, IRemoteProcedure& method, IDecomposer** a
     prepareRequest(_proc->name(), argv, argc);
 
     if (!_socket.isConnected())
+    {
+        _socket.setTimeout(_connectTimeout);
         _socket.connect(_addr, _port);
+    }
+
+    _socket.setTimeout(timeout());
 
     try
     {

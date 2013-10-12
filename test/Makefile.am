@@ -16,7 +16,11 @@ alltests_SOURCES = \
     csvdeserializer-test.cpp \
     csvserializer-test.cpp \
     convert-test.cpp \
+    date-test.cpp \
+    datetime-test.cpp \
     file-test.cpp \
+    iso8859_1-test.cpp \
+    iso8859_15-test.cpp \
     join-test.cpp \
     json-test.cpp \
     jsondeserializer-test.cpp \
@@ -28,12 +32,14 @@ alltests_SOURCES = \
     pool-test.cpp \
     properties-test.cpp \
     query_params-test.cpp \
+    quotedprintable-test.cpp \
     regex-test.cpp \
     serializationinfo-test.cpp \
     smartptr-test.cpp \
     split-test.cpp \
     string-test.cpp \
     test-main.cpp \
+    time-test.cpp \
     trim-test.cpp \
     utf8-test.cpp \
     uri-test.cpp \

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007 Tommi Maekitalo
+ * Copyright (C) 2013 Tommi Maekitalo
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,57 +26,36 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "cxxtools/quotedprintablestream.h"
+#include "cxxtools/iso8859_15codec.h"
+#include "cxxtools/unit/testsuite.h"
+#include "cxxtools/unit/registertest.h"
+#include "cxxtools/string.h"
 
-namespace cxxtools
+class Iso8859_15Test : public cxxtools::unit::TestSuite
 {
 
-std::streambuf::int_type QuotedPrintable_streambuf::overflow(std::streambuf::int_type ch)
-{
-  if (ch >= 32 && ch < 128 && ch != '=')
-  {
-    if (++col > 75)
+  public:
+    Iso8859_15Test()
+    : cxxtools::unit::TestSuite("iso8859_15")
     {
-      sinksource->sputc('=');
-      sinksource->sputc('\n');
-      col = 0;
+      registerMethod("encode", *this, &Iso8859_15Test::encodeTest);
+      registerMethod("decode", *this, &Iso8859_15Test::decodeTest);
     }
 
-    sinksource->sputc(ch);
-  }
-  else if (ch == '\n')
-  {
-    sinksource->sputc('\n');
-    col = 0;
-  }
-  else
-  {
-    if (col > 73)
+    void encodeTest()
     {
-      sinksource->sputc('=');
-      sinksource->sputc('\n');
-      col = 3;
+      cxxtools::String ustr(L"Hi \xe4 there, 5 \x20ac");
+      std::string bstr = cxxtools::Iso8859_15Codec::encode(ustr);
+      CXXTOOLS_UNIT_ASSERT_EQUALS(bstr, "Hi \xe4 there, 5 \xa4");
     }
-    else
-      col += 3;
 
-    static const char hex[] = "0123456789ABCDEF";
-    sinksource->sputc('=');
-    sinksource->sputc(hex[(ch >> 4) & 0xf]);
-    sinksource->sputc(hex[ch & 0xf]);
-  }
+    void decodeTest()
+    {
+      std::string bstr("Hi \xe4 there");
+      cxxtools::String ustr = cxxtools::Iso8859_15Codec::decode(bstr);
+      CXXTOOLS_UNIT_ASSERT(ustr == L"Hi \xe4 there");
+    }
 
-  return 0;
-}
+};
 
-std::streambuf::int_type QuotedPrintable_streambuf::underflow()
-{
-  return traits_type::eof();
-}
-
-int QuotedPrintable_streambuf::sync()
-{
-  return sinksource->pubsync();
-}
-
-}
+cxxtools::unit::RegisterTest<Iso8859_15Test> register_Iso8859_15Test;

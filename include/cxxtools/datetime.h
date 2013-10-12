@@ -34,8 +34,6 @@
 #include <cxxtools/time.h>
 #include <cxxtools/date.h>
 #include <string>
-#include <map>
-#include <stdint.h>
 
 namespace cxxtools
 {
@@ -51,22 +49,30 @@ class DateTime
         DateTime()
         { }
 
+        /** \brief create DateTime from string using format
+
+            Valid format codes are:
+
+              %Y   4 digit year
+              %y   2 digit year
+              %m   month (1-12)
+              %d   day (1-31)
+              %H   hours (0-23)
+              %I   hours (0-11)
+              %M   minutes
+              %S   seconds
+              %j   milliseconds (1-3 digits, optionally leading '.')
+              %J   milliseconds (1-3 digits, with leading '.')
+              %p   AM/PM
+         */
+        explicit DateTime(const std::string& d, const std::string& fmt = "%Y-%m-%d %H:%M:%S%j");
+
         DateTime(int year, unsigned month, unsigned day,
-                           unsigned hour = 0, unsigned minute = 0, 
-                           unsigned second = 0, unsigned msec = 0)
+                 unsigned hour, unsigned minute, 
+                 unsigned second, unsigned msec = 0)
         : _date(year, month, day)
         , _time(hour, minute, second, msec)
         { }
-
-        DateTime(const DateTime& dateTime)
-        : _date( dateTime.date() )
-        , _time( dateTime.time() )
-        { }
-
-        DateTime& operator=(const DateTime& dateTime);
-
-        ~DateTime()
-        {}
 
         static DateTime fromJulianDays(unsigned julianDays)
         {
@@ -86,17 +92,15 @@ class DateTime
         */
         static inline DateTime fromMSecsSinceEpoch(const int64_t msecsSinceEpoch)
         {
-            static const DateTime dt(1970, 1, 1);
+            static const DateTime dt(1970, 1, 1, 0, 0, 0);
             Timespan ts(msecsSinceEpoch*1000);
             return dt + ts;
         }
 
-        //DateTime& operator=(const DateTime& dateTime);
-
         DateTime& operator=(unsigned julianDay);
 
         void set(int year, unsigned month, unsigned day,
-                 unsigned hour = 0, unsigned min = 0, unsigned sec = 0, unsigned msec = 0);
+                 unsigned hour, unsigned min, unsigned sec, unsigned msec = 0);
 
         void get(int& year, unsigned& month, unsigned& day,
                  unsigned& hour, unsigned& min, unsigned& sec, unsigned& msec) const;
@@ -104,16 +108,10 @@ class DateTime
         const Date& date() const
         { return _date; }
 
-        const Date& date()
-        { return _date; }
-
         DateTime& setDate(const Date& date)
         { _date = date; return *this; }
 
         const Time& time() const
-        { return _time; }
-
-        const Time& time()
         { return _time; }
 
         DateTime& setTime(const Time& time)
@@ -133,6 +131,11 @@ class DateTime
         */
         int year() const
         { return date().year(); }
+
+        /** @brief Return day of the week, starting with sunday (=0)
+        */
+        unsigned dayOfWeek() const
+        { return date().dayOfWeek(); }
 
         /** \brief Returns the hour-part of the Time.
         */
@@ -165,12 +168,35 @@ class DateTime
         */
         int64_t msecsSinceEpoch() const;
 
-        std::string toIsoString() const;
+        /** \brief format Date into a string using a format string
 
-        static DateTime fromIsoString(const std::string& s);
+            Valid format codes are:
+
+              %d   day (1-31)
+              %m   month (1-12)
+              %Y   4 digit year
+              %y   2 digit year
+              %w   day of week (0-6 sunday=6)
+              %W   day of week (1-7 sunday=7)
+              %H   hours (0-23)
+              %H   hours (0-11)
+              %M   minutes
+              %S   seconds
+              %j   milliseconds (1-3 digits, optionally leading '.')
+              %J   milliseconds (1-3 digits, with leading '.')
+              %p   am/pm
+              %P   AM/PM
+         */
+        std::string toString(const std::string& fmt = "%Y-%m-%d %H:%M:%S%j") const;
+
+        std::string toIsoString() const
+        { return toString(); }
+
+        static DateTime fromIsoString(const std::string& s)
+        { return DateTime(s); }
 
         static bool isValid(int year, unsigned month, unsigned day,
-                            unsigned hour, unsigned minute, unsigned second, unsigned msec);
+                            unsigned hour, unsigned minute, unsigned second, unsigned msec = 0);
 
 
         bool operator==(const DateTime& rhs) const
@@ -238,35 +264,6 @@ class DateTime
 CXXTOOLS_API void operator >>=(const SerializationInfo& si, DateTime& dt);
 
 CXXTOOLS_API void operator <<=(SerializationInfo& si, const DateTime& dt);
-
-CXXTOOLS_API void convert(DateTime& dt, const std::string& s);
-
-CXXTOOLS_API void convert(std::string& str, const DateTime& dt);
-
-
-inline DateTime DateTime::fromIsoString(const std::string& s)
-{
-    DateTime dt;
-    convert(dt, s);
-    return dt;
-}
-
-
-inline std::string DateTime::toIsoString() const
-{
-    std::string str;
-    convert(str, *this);
-    return str;
-}
-
-
-inline DateTime& DateTime::operator=(const DateTime& dateTime)
-{
-    _date = dateTime.date();
-    _time = dateTime.time();
-    return *this;
-}
-
 
 inline DateTime& DateTime::operator=(unsigned julianDay)
 {

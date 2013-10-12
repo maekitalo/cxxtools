@@ -76,6 +76,8 @@ nobase_include_HEADERS = \
         cxxtools/ioerror.h \
         cxxtools/iodevice.h \
         cxxtools/iostream.h \
+        cxxtools/iso8859_1codec.h \
+        cxxtools/iso8859_15codec.h \
         cxxtools/join.h \
         cxxtools/json.h \
         cxxtools/json/httpclient.h \

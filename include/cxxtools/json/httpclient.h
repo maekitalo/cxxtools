@@ -53,25 +53,25 @@ namespace json
             HttpClient();
 
             HttpClient(SelectorBase& selector, const std::string& addr,
-                   unsigned short port, const std::string& url);
+                   unsigned short port, const std::string& url, bool realConnect = false);
 
-            HttpClient(SelectorBase& selector, const net::Uri& uri);
+            HttpClient(SelectorBase& selector, const net::Uri& uri, bool realConnect = false);
 
-            HttpClient(const std::string& addr, unsigned short port, const std::string& url);
+            HttpClient(const std::string& addr, unsigned short port, const std::string& url, bool realConnect = false);
 
-            explicit HttpClient(const net::Uri& uri);
+            explicit HttpClient(const net::Uri& uri, bool realConnect = false);
 
-            HttpClient(HttpClient&);
+            HttpClient(const HttpClient&);
             HttpClient& operator= (const HttpClient&);
 
             virtual ~HttpClient();
 
-            void connect(const net::AddrInfo& addrinfo, const std::string& url);
+            void connect(const net::AddrInfo& addrinfo, const std::string& url, bool realConnect = false);
 
-            void connect(const net::Uri& uri);
+            void connect(const net::Uri& uri, bool realConnect = false);
 
             void connect(const std::string& addr, unsigned short port,
-                         const std::string& url);
+                         const std::string& url, bool realConnect = false);
 
             void url(const std::string& url);
             void auth(const std::string& username, const std::string& password);
@@ -87,8 +87,10 @@ namespace json
             void call(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc);
 
             std::size_t timeout() const;
-
             void timeout(std::size_t t);
+
+            std::size_t connectTimeout() const;
+            void connectTimeout(std::size_t t);
 
             const std::string& url() const;
 

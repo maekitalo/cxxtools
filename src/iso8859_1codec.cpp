@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007 Tommi Maekitalo
+ * Copyright (C) 2013 Tommi Maekitalo
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,57 +26,59 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "cxxtools/quotedprintablestream.h"
+#include "cxxtools/iso8859_1codec.h"
 
 namespace cxxtools
 {
 
-std::streambuf::int_type QuotedPrintable_streambuf::overflow(std::streambuf::int_type ch)
+Iso8859_1Codec::result Iso8859_1Codec::do_in(MBState& s, const char* fromBegin, const char* fromEnd, const char*& fromNext,
+                                   Char* toBegin, Char* toEnd, Char*& toNext) const
 {
-  if (ch >= 32 && ch < 128 && ch != '=')
-  {
-    if (++col > 75)
+    fromNext  = fromBegin;
+    toNext = toBegin;
+    while (fromNext < fromEnd && toNext < toEnd)
     {
-      sinksource->sputc('=');
-      sinksource->sputc('\n');
-      col = 0;
+        *toNext = Char(*fromNext);
+        ++fromNext;
+        ++toNext;
     }
 
-    sinksource->sputc(ch);
-  }
-  else if (ch == '\n')
-  {
-    sinksource->sputc('\n');
-    col = 0;
-  }
-  else
-  {
-    if (col > 73)
+    return ok;
+}
+
+
+Iso8859_1Codec::result Iso8859_1Codec::do_out(MBState& s, const Char* fromBegin, const Char* fromEnd, const Char*& fromNext,
+                                                  char* toBegin, char* toEnd, char*& toNext) const
+{
+    fromNext  = fromBegin;
+    toNext = toBegin;
+    while (fromNext < fromEnd && toNext < toEnd)
     {
-      sinksource->sputc('=');
-      sinksource->sputc('\n');
-      col = 3;
+        *toNext = fromNext->narrow();
+        ++fromNext;
+        ++toNext;
     }
-    else
-      col += 3;
 
-    static const char hex[] = "0123456789ABCDEF";
-    sinksource->sputc('=');
-    sinksource->sputc(hex[(ch >> 4) & 0xf]);
-    sinksource->sputc(hex[ch & 0xf]);
-  }
-
-  return 0;
+    return ok;
 }
 
-std::streambuf::int_type QuotedPrintable_streambuf::underflow()
+
+int Iso8859_1Codec::do_length(MBState& s, const char* fromBegin, const char* fromEnd, size_t max) const
 {
-  return traits_type::eof();
+    return max;
 }
 
-int QuotedPrintable_streambuf::sync()
+
+int Iso8859_1Codec::do_max_length() const throw()
 {
-  return sinksource->pubsync();
+    return 1;
 }
 
+
+bool Iso8859_1Codec::do_always_noconv() const throw()
+{
+    return false;
 }
+
+
+} // namespace cxxtools
