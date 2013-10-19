@@ -34,6 +34,9 @@
 #include "cxxtools/http/server.h"
 #include "cxxtools/eventloop.h"
 #include "cxxtools/log.h"
+#include "cxxtools/ioerror.h"
+#include "cxxtools/net/uri.h"
+#include "cxxtools/net/addrinfo.h"
 #include <stdlib.h>
 #include <sstream>
 
@@ -104,6 +107,9 @@ class JsonRpcHttpTest : public cxxtools::unit::TestSuite
             registerMethod("Exception", *this, &JsonRpcHttpTest::Exception);
             registerMethod("CallbackException", *this, &JsonRpcHttpTest::CallbackException);
             registerMethod("ConnectError", *this, &JsonRpcHttpTest::ConnectError);
+            registerMethod("BigRequest", *this, &JsonRpcHttpTest::BigRequest);
+            registerMethod("PrepareConnect", *this, &JsonRpcHttpTest::PrepareConnect);
+            registerMethod("Connect", *this, &JsonRpcHttpTest::Connect);
 
             char* PORT = getenv("UTEST_PORT");
             if (PORT)
@@ -220,17 +226,17 @@ class JsonRpcHttpTest : public cxxtools::unit::TestSuite
         void Boolean()
         {
             cxxtools::json::HttpService service;
-            service.registerMethod("multiply", *this, &JsonRpcHttpTest::multiplyBoolean);
+            service.registerMethod("boolean", *this, &JsonRpcHttpTest::boolean);
             _server->addService("/calc", service);
 
             cxxtools::json::HttpClient client(_loop, "", _port, "/calc");
-            cxxtools::RemoteProcedure<bool, bool, bool> multiply(client, "multiply");
-            multiply.begin(true, true);
-            bool r = multiply.end(2000);
+            cxxtools::RemoteProcedure<bool, bool, bool> boolean(client, "boolean");
+            boolean.begin(true, true);
+            bool r = boolean.end(2000);
             CXXTOOLS_UNIT_ASSERT_EQUALS(r, true);
         }
 
-        bool multiplyBoolean(bool a, bool b)
+        bool boolean(bool a, bool b)
         {
             CXXTOOLS_UNIT_ASSERT_EQUALS(a, true);
             CXXTOOLS_UNIT_ASSERT_EQUALS(b, true);
@@ -643,6 +649,156 @@ class JsonRpcHttpTest : public cxxtools::unit::TestSuite
         {
             throw std::runtime_error("Exception");
             return false;
+        }
+
+        ////////////////////////////////////////////////////////////
+        // BigRequest
+        //
+        void BigRequest()
+        {
+            log_trace("ConnectError");
+
+            cxxtools::json::HttpService service;
+            service.registerMethod("countSize", *this, &JsonRpcHttpTest::countSize);
+            _server->addService("/rpc", service);
+
+            cxxtools::json::HttpClient client(_loop, "", _port, "/rpc");
+            cxxtools::RemoteProcedure<unsigned, std::vector<int> > countSize(client, "countSize");
+
+            std::vector<int> v;
+            v.resize(5000);
+
+            countSize.begin(v);
+
+            try
+            {
+                CXXTOOLS_UNIT_ASSERT_EQUALS(countSize.end(2000), 5000);
+            }
+            catch (const std::exception& e)
+            {
+                log_error("loop exited with exception: " << e.what());
+                CXXTOOLS_UNIT_ASSERT_MSG(false, std::string("unexpected exception ") + typeid(e).name() + ": " + e.what());
+            }
+        }
+
+        unsigned countSize(const std::vector<int>& v)
+        {
+            return v.size();
+        }
+
+        ////////////////////////////////////////////////////////////
+        // PrepareConnect
+        //
+        void PrepareConnect()
+        {
+            log_trace("PrepareConnect");
+
+            cxxtools::json::HttpService service;
+            service.registerMethod("boolean", *this, &JsonRpcHttpTest::boolean);
+            _server->addService("/rpc", service);
+
+            // test connect using cxxtools::net::AddrInfo
+            {
+                cxxtools::json::HttpClient client(_loop);
+                cxxtools::RemoteProcedure<bool, bool, bool> boolean(client, "boolean");
+
+                client.prepareConnect(cxxtools::net::AddrInfo("", _port), "/rpc");
+                boolean.begin(true, true);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(boolean.end(2000), true);
+            }
+
+            // test connect using host and port
+            {
+                cxxtools::json::HttpClient client(_loop);
+                cxxtools::RemoteProcedure<bool, bool, bool> boolean(client, "boolean");
+
+                client.prepareConnect("", _port, "/rpc");
+                boolean.begin(true, true);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(boolean.end(2000), true);
+            }
+
+            // test connect using uri
+            {
+                cxxtools::json::HttpClient client(_loop);
+                cxxtools::RemoteProcedure<bool, bool, bool> boolean(client, "boolean");
+
+                std::ostringstream uri;
+                uri << "http://localhost:" << _port << "/rpc";
+                client.prepareConnect(cxxtools::net::Uri(uri.str()));
+                boolean.begin(true, true);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(boolean.end(2000), true);
+            }
+
+            // test failing connect in connect
+            {
+                cxxtools::json::HttpClient client(_loop);
+                cxxtools::RemoteProcedure<bool, bool, bool> boolean(client, "boolean");
+
+                CXXTOOLS_UNIT_ASSERT_NOTHROW(client.prepareConnect("", _port + 1, "/rpc"));
+                CXXTOOLS_UNIT_ASSERT_THROW(client.connect(), cxxtools::IOError);
+            }
+
+            // test failing connect when calling function
+            {
+                cxxtools::json::HttpClient client(_loop);
+                cxxtools::RemoteProcedure<bool, bool, bool> boolean(client, "boolean");
+                CXXTOOLS_UNIT_ASSERT_NOTHROW(client.prepareConnect("", _port + 1, "/rpc"));
+
+                boolean.begin(true, true);
+                CXXTOOLS_UNIT_ASSERT_THROW(boolean.end(2000), cxxtools::IOError);
+            }
+
+        }
+
+        ////////////////////////////////////////////////////////////
+        // Connect
+        //
+        void Connect()
+        {
+            cxxtools::json::HttpService service;
+            service.registerMethod("boolean", *this, &JsonRpcHttpTest::boolean);
+            _server->addService("/rpc", service);
+
+            // test connect using cxxtools::net::AddrInfo
+            {
+                cxxtools::json::HttpClient client(_loop);
+                cxxtools::RemoteProcedure<bool, bool, bool> boolean(client, "boolean");
+
+                client.connect(cxxtools::net::AddrInfo("", _port), "/rpc");
+                boolean.begin(true, true);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(boolean.end(2000), true);
+            }
+
+            // test connect using host and port
+            {
+                cxxtools::json::HttpClient client(_loop);
+                cxxtools::RemoteProcedure<bool, bool, bool> boolean(client, "boolean");
+
+                client.connect("", _port, "/rpc");
+                boolean.begin(true, true);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(boolean.end(2000), true);
+            }
+
+            // test connect using uri
+            {
+                cxxtools::json::HttpClient client(_loop);
+                cxxtools::RemoteProcedure<bool, bool, bool> boolean(client, "boolean");
+
+                std::ostringstream uri;
+                uri << "http://localhost:" << _port << "/rpc";
+                client.connect(cxxtools::net::Uri(uri.str()));
+                boolean.begin(true, true);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(boolean.end(2000), true);
+            }
+
+            // test failing connect
+            {
+                cxxtools::json::HttpClient client(_loop);
+                cxxtools::RemoteProcedure<bool, bool, bool> boolean(client, "boolean");
+
+                CXXTOOLS_UNIT_ASSERT_THROW(client.connect("", _port + 1, "/rpc"), cxxtools::IOError);
+            }
+
         }
 
 };
