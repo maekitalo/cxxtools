@@ -41,59 +41,25 @@ namespace cxxtools
 namespace bin
 {
 
-RpcClientImpl::RpcClientImpl(SelectorBase& selector, const std::string& addr, unsigned short port, const std::string& domain, bool realConnect)
-    : _proc(0),
-      _stream(_socket, 8192, true),
+RpcClientImpl::RpcClientImpl()
+    : _stream(_socket, 8192, true),
       _formatter(_stream),
       _exceptionPending(false),
-      _domain(domain),
+      _proc(0),
       _timeout(Selectable::WaitInfinite),
       _connectTimeoutSet(false),
       _connectTimeout(Selectable::WaitInfinite)
 {
-    setSelector(selector);
-    connect(addr, port, domain, realConnect);
-
     cxxtools::connect(_socket.connected, *this, &RpcClientImpl::onConnect);
     cxxtools::connect(_stream.buffer().outputReady, *this, &RpcClientImpl::onOutput);
     cxxtools::connect(_stream.buffer().inputReady, *this, &RpcClientImpl::onInput);
-
 }
 
-RpcClientImpl::RpcClientImpl(const std::string& addr, unsigned short port, const std::string& domain, bool realConnect)
-    : _proc(0),
-      _stream(_socket, 8192, true),
-      _formatter(_stream),
-      _exceptionPending(false),
-      _domain(domain),
-      _timeout(Selectable::WaitInfinite),
-      _connectTimeoutSet(false),
-      _connectTimeout(Selectable::WaitInfinite)
+void RpcClientImpl::connect()
 {
-    connect(addr, port, domain, realConnect);
-
-    cxxtools::connect(_socket.connected, *this, &RpcClientImpl::onConnect);
-    cxxtools::connect(_stream.buffer().outputReady, *this, &RpcClientImpl::onOutput);
-    cxxtools::connect(_stream.buffer().inputReady, *this, &RpcClientImpl::onInput);
-
-}
-
-void RpcClientImpl::connect(const std::string& addr, unsigned short port, const std::string& domain, bool realConnect)
-{
-    if (_addr != addr || _port != port)
-    {
-        _socket.close();
-        _addr = addr;
-        _port = port;
-    }
-
-    _domain = domain;
-
-    if (realConnect)
-    {
-        _socket.setTimeout(_connectTimeout);
-        _socket.connect(_addr, _port);
-    }
+    _socket.setTimeout(_connectTimeout);
+    _socket.close();
+    _socket.connect(_addrInfo);
 }
 
 void RpcClientImpl::close()
@@ -122,13 +88,13 @@ void RpcClientImpl::beginCall(IComposer& r, IRemoteProcedure& method, IDecompose
         catch (const IOError&)
         {
             log_debug("write failed, connection is not active any more");
-            _socket.beginConnect(_addr, _port);
+            _socket.beginConnect(_addrInfo);
         }
     }
     else
     {
         log_debug("not yet connected - do it now");
-        _socket.beginConnect(_addr, _port);
+        _socket.beginConnect(_addrInfo);
     }
 
     _scanner.begin(_deserializer, r);
@@ -154,7 +120,7 @@ void RpcClientImpl::call(IComposer& r, IRemoteProcedure& method, IDecomposer** a
     if (!_socket.isConnected())
     {
         _socket.setTimeout(_connectTimeout);
-        _socket.connect(_addr, _port);
+        _socket.connect(_addrInfo);
     }
 
     _socket.setTimeout(timeout());
@@ -195,9 +161,17 @@ void RpcClientImpl::call(IComposer& r, IRemoteProcedure& method, IDecomposer** a
     }
 }
 
+void RpcClientImpl::cancel()
+{
+    _socket.close();
+    _stream.clear();
+    _stream.buffer().discard();
+    _proc = 0;
+}
+
 void RpcClientImpl::wait(std::size_t msecs)
 {
-    if (!_socket.selector())
+    if (_socket.selector() == 0)
         throw std::logic_error("cannot run async rpc request without a selector");
 
     Clock clock;
@@ -217,14 +191,6 @@ void RpcClientImpl::wait(std::size_t msecs)
             remaining = diff >= msecs ? 0 : msecs - diff;
         }
     }
-}
-
-void RpcClientImpl::cancel()
-{
-    _socket.close();
-    _stream.clear();
-    _stream.buffer().discard();
-    _proc = 0;
 }
 
 void RpcClientImpl::prepareRequest(const String& name, IDecomposer** argv, unsigned argc)

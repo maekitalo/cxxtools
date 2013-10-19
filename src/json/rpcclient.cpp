@@ -27,6 +27,8 @@
  */
 
 #include <cxxtools/json/rpcclient.h>
+#include <cxxtools/net/addrinfo.h>
+#include <cxxtools/net/uri.h>
 #include "rpcclientimpl.h"
 
 namespace cxxtools
@@ -34,19 +36,54 @@ namespace cxxtools
 namespace json
 {
 
-RpcClient::RpcClient(SelectorBase& selector, const std::string& addr, unsigned short port, bool realConnect)
-    : _impl(new RpcClientImpl())
+RpcClientImpl* RpcClient::getImpl()
 {
-    _impl->addRef();
-    _impl->setSelector(selector);
-    _impl->connect(addr, port, realConnect);
+    if (_impl == 0)
+    {
+        _impl = new RpcClientImpl();
+        _impl->addRef();
+    }
+
+    return _impl;
 }
 
-RpcClient::RpcClient(const std::string& addr, unsigned short port, bool realConnect)
-    : _impl(new RpcClientImpl())
-{ 
-    _impl->addRef();
-    _impl->connect(addr, port, realConnect);
+RpcClient::RpcClient(const net::AddrInfo& addr)
+    : _impl(0)
+{
+    prepareConnect(addr);
+}
+
+RpcClient::RpcClient(const std::string& addr, unsigned short port)
+    : _impl(0)
+{
+    prepareConnect(addr, port);
+}
+
+RpcClient::RpcClient(const net::Uri& uri)
+    : _impl(0)
+{
+    prepareConnect(uri);
+}
+
+RpcClient::RpcClient(SelectorBase& selector, const net::AddrInfo& addr)
+    : _impl(0)
+{
+    prepareConnect(addr);
+    setSelector(selector);
+}
+
+RpcClient::RpcClient(SelectorBase& selector, const std::string& addr, unsigned short port)
+    : _impl(0)
+{
+    prepareConnect(addr, port);
+    setSelector(selector);
+}
+
+RpcClient::RpcClient(SelectorBase& selector, const net::Uri& uri)
+    : _impl(0)
+{
+    prepareConnect(uri);
+    setSelector(selector);
 }
 
 RpcClient::RpcClient(const RpcClient& other)
@@ -75,26 +112,37 @@ RpcClient::~RpcClient()
         delete _impl;
 }
 
-void RpcClient::setSelector(SelectorBase& selector)
+void RpcClient::prepareConnect(const net::AddrInfo& addrinfo)
 {
-    if (!_impl)
-        _impl = new RpcClientImpl();
-
-    _impl->setSelector(selector);
+    getImpl()->prepareConnect(addrinfo);
 }
 
-void RpcClient::connect(const std::string& addr, unsigned short port, bool realConnect)
+void RpcClient::prepareConnect(const std::string& host, unsigned short int port)
 {
-    if (!_impl)
-        _impl = new RpcClientImpl();
+    prepareConnect(net::AddrInfo(host, port));
+}
 
-    _impl->connect(addr, port, realConnect);
+void RpcClient::prepareConnect(const net::Uri& uri)
+{
+    if (uri.protocol() != "http")
+        throw std::runtime_error("only http is supported by http client");
+    prepareConnect(net::AddrInfo(uri.host(), uri.port()));
+}
+
+void RpcClient::connect()
+{
+    getImpl()->connect();
 }
 
 void RpcClient::close()
 {
     if (_impl)
         _impl->close();
+}
+
+void RpcClient::setSelector(SelectorBase& selector)
+{
+    getImpl()->setSelector(selector);
 }
 
 void RpcClient::beginCall(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc)
@@ -114,32 +162,33 @@ void RpcClient::call(IComposer& r, IRemoteProcedure& method, IDecomposer** argv,
 
 std::size_t RpcClient::timeout() const
 {
-    return _impl->timeout();
+    return getImpl()->timeout();
 }
 
 void RpcClient::timeout(std::size_t t)
 {
-    _impl->timeout(t);
+    getImpl()->timeout(t);
 }
 
 std::size_t RpcClient::connectTimeout() const
 {
-    return _impl->connectTimeout();
+    return getImpl()->connectTimeout();
 }
 
 void RpcClient::connectTimeout(std::size_t t)
 {
-    _impl->connectTimeout(t);
+    getImpl()->connectTimeout(t);
 }
 
 const IRemoteProcedure* RpcClient::activeProcedure() const
 {
-    return _impl->activeProcedure();
+    return _impl == 0 ? 0 : _impl->activeProcedure();
 }
 
 void RpcClient::cancel()
 {
-    _impl->cancel();
+    if (_impl)
+        _impl->cancel();
 }
 
 void RpcClient::wait(std::size_t msecs)
@@ -149,12 +198,12 @@ void RpcClient::wait(std::size_t msecs)
 
 const std::string& RpcClient::prefix() const
 {
-    return _impl->prefix();
+    return getImpl()->prefix();
 }
 
 void RpcClient::prefix(const std::string& p)
 {
-    _impl->prefix(p);
+    getImpl()->prefix(p);
 }
 
 }

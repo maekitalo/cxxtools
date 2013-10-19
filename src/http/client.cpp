@@ -35,47 +35,55 @@ namespace cxxtools {
 
 namespace http {
 
-Client::Client()
-: _impl(new ClientImpl(this))
+ClientImpl* Client::getImpl()
 {
-    _impl->addRef();
+    if (!_impl)
+    {
+        _impl = new ClientImpl(this);
+        _impl->addRef();
+    }
+
+    return _impl;
 }
 
-Client::Client(const net::AddrInfo& addrinfo, bool realConnect)
-: _impl(new ClientImpl(this, addrinfo, realConnect))
+Client::Client(const net::AddrInfo& addrinfo)
+: _impl(0)
 {
-    _impl->addRef();
+    prepareConnect(addrinfo);
 }
 
-Client::Client(const net::Uri& uri, bool realConnect)
-: _impl(new ClientImpl(this, uri, realConnect))
+Client::Client(const net::Uri& uri)
+: _impl(0)
 {
-    _impl->addRef();
+    prepareConnect(uri);
 }
 
-Client::Client(const std::string& host, unsigned short int port, bool realConnect)
-: _impl(new ClientImpl(this, net::AddrInfo(host, port), realConnect))
+Client::Client(const std::string& host, unsigned short int port)
+: _impl(0)
 {
-    _impl->addRef();
+    prepareConnect(host, port);
 }
 
 
-Client::Client(SelectorBase& selector, const std::string& host, unsigned short int port, bool realConnect)
-: _impl(new ClientImpl(this, selector, net::AddrInfo(host, port), realConnect))
+Client::Client(SelectorBase& selector, const std::string& host, unsigned short int port)
+: _impl(0)
 {
-    _impl->addRef();
+    prepareConnect(host, port);
+    setSelector(selector);
 }
 
-Client::Client(SelectorBase& selector, const net::AddrInfo& addrinfo, bool realConnect)
-: _impl(new ClientImpl(this, selector, addrinfo, realConnect))
+Client::Client(SelectorBase& selector, const net::AddrInfo& addrinfo)
+: _impl(0)
 {
-    _impl->addRef();
+    prepareConnect(addrinfo);
+    setSelector(selector);
 }
 
-Client::Client(SelectorBase& selector, const net::Uri& uri, bool realConnect)
-: _impl(new ClientImpl(this, selector, uri, realConnect))
+Client::Client(SelectorBase& selector, const net::Uri& uri)
+: _impl(0)
 {
-    _impl->addRef();
+    prepareConnect(uri);
+    setSelector(selector);
 }
 
 Client::Client(const Client& other)
@@ -104,21 +112,32 @@ Client::~Client()
         delete _impl;
 }
 
-void Client::connect(const net::AddrInfo& addrinfo, bool realConnect)
+void Client::prepareConnect(const net::AddrInfo& addrinfo)
 {
-    _impl->connect(addrinfo, realConnect);
+    getImpl()->prepareConnect(addrinfo);
 }
 
-void Client::connect(const std::string& host, unsigned short int port, bool realConnect)
+void Client::prepareConnect(const std::string& host, unsigned short int port)
 {
-    _impl->connect(net::AddrInfo(host, port), realConnect);
+    prepareConnect(net::AddrInfo(host, port));
 }
 
-void Client::connect(const net::Uri& uri, bool realConnect)
+void Client::prepareConnect(const net::Uri& uri)
 {
     if (uri.protocol() != "http")
         throw std::runtime_error("only http is supported by http client");
-    _impl->connect(net::AddrInfo(uri.host(), uri.port()), realConnect);
+    prepareConnect(net::AddrInfo(uri.host(), uri.port()));
+}
+
+void Client::connect()
+{
+    getImpl()->connect();
+}
+
+void Client::close()
+{
+    if (_impl)
+        _impl->close();
 }
 
 const ReplyHeader& Client::execute(const Request& request, std::size_t timeout, std::size_t connectTimeout)
@@ -146,7 +165,7 @@ void Client::readBody(std::string& s)
 
 std::string Client::get(const std::string& url, std::size_t timeout, std::size_t connectTimeout)
 {
-    return _impl->get(url, timeout, connectTimeout);
+    return getImpl()->get(url, timeout, connectTimeout);
 }
 
 void Client::beginExecute(const Request& request)
@@ -161,12 +180,12 @@ void Client::endExecute()
 
 void Client::setSelector(SelectorBase& selector)
 {
-    _impl->setSelector(selector);
+    getImpl()->setSelector(selector);
 }
 
 SelectorBase* Client::selector()
 {
-    return _impl->selector();
+    return _impl ? _impl->selector() : 0;
 }
 
 bool Client::wait(std::size_t msecs)
@@ -181,27 +200,28 @@ std::istream& Client::in()
 
 const std::string& Client::host() const
 {
-    return _impl->host();
+    return getImpl()->host();
 }
 
 unsigned short int Client::port() const
 {
-    return _impl->port();
+    return getImpl()->port();
 }
 
 void Client::auth(const std::string& username, const std::string& password)
 {
-    _impl->auth(username, password);
+    getImpl()->auth(username, password);
 }
 
 void Client::clearAuth()
 {
-    _impl->clearAuth();
+    getImpl()->clearAuth();
 }
 
 void Client::cancel()
 {
-    _impl->cancel();
+    if (_impl)
+        _impl->cancel();
 }
 
 } // namespace http

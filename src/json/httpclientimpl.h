@@ -56,17 +56,15 @@ namespace json
         public:
             HttpClientImpl();
 
-            void connect(const net::AddrInfo& addrinfo, const std::string& url, bool realConnect = false)
+            void prepareConnect(const net::AddrInfo& addrinfo, const std::string& url)
             {
-                _client.connect(addrinfo, realConnect);
+                _client.prepareConnect(addrinfo);
                 _request.url(url);
             }
 
-            void connect(const std::string& addr, unsigned short port,
-                         const std::string& url, bool realConnect = false)
+            void connect()
             {
-                _client.connect(addr, port, realConnect);
-                _request.url(url);
+                _client.connect();
             }
 
             void url(const std::string& url)

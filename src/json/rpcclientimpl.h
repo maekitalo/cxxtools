@@ -61,7 +61,13 @@ class RpcClientImpl : public RefCounted, public Connectable
         void setSelector(SelectorBase& selector)
         { selector.add(_socket); }
 
-        void connect(const std::string& addr, unsigned short port, bool realConnect);
+        void prepareConnect(const net::AddrInfo& addrinfo)
+        {
+            _addrInfo = addrinfo;
+            _socket.close();
+        }
+
+        void connect();
 
         void close();
 
@@ -100,8 +106,7 @@ class RpcClientImpl : public RefCounted, public Connectable
         net::TcpSocket _socket;
         IOStream _stream;
 
-        std::string _addr;
-        unsigned short _port;
+        net::AddrInfo _addrInfo;
         std::string _prefix;
 
         // serialization

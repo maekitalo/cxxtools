@@ -28,7 +28,9 @@
 
 #include "cxxtools/json/httpclient.h"
 #include "cxxtools/net/uri.h"
+#include "cxxtools/net/addrinfo.h"
 #include "httpclientimpl.h"
+#include <stdexcept>
 
 namespace cxxtools
 {
@@ -36,45 +38,62 @@ namespace cxxtools
 namespace json
 {
 
-HttpClient::HttpClient()
-: _impl(new HttpClientImpl())
+HttpClientImpl* HttpClient::getImpl()
 {
-}
+    if (_impl == 0)
+    {
+        _impl = new HttpClientImpl();
+        _impl->addRef();
+    }
 
+    return _impl;
+}
 
 HttpClient::HttpClient(SelectorBase& selector, const std::string& server,
-                             unsigned short port, const std::string& url, bool realConnect)
-: _impl(new HttpClientImpl())
+                       unsigned short port, const std::string& url)
+: _impl(0)
 {
-    _impl->addRef();
-    _impl->setSelector(selector);
-    _impl->connect(server, port, url, realConnect);
+    prepareConnect(net::AddrInfo(server, port), url);
+    setSelector(selector);
 }
 
 
-HttpClient::HttpClient(SelectorBase& selector, const net::Uri& uri, bool realConnect)
-: _impl(new HttpClientImpl())
+HttpClient::HttpClient(SelectorBase& selector, const net::AddrInfo& addrinfo,
+                       const std::string& url)
+: _impl(0)
 {
-    _impl->addRef();
-    _impl->setSelector(selector);
-    _impl->connect(uri.host(), uri.port(), uri.path(), realConnect);
+    setSelector(selector);
+    prepareConnect(addrinfo, url);
+}
+
+
+HttpClient::HttpClient(SelectorBase& selector, const net::Uri& uri)
+: _impl(0)
+{
+    setSelector(selector);
+    prepareConnect(net::AddrInfo(uri.host(), uri.port()), uri.path());
     auth(uri.user(), uri.password());
 }
 
 
-HttpClient::HttpClient(const std::string& server, unsigned short port, const std::string& url, bool realConnect)
-: _impl(new HttpClientImpl())
+HttpClient::HttpClient(const std::string& server, unsigned short port, const std::string& url)
+: _impl(0)
 {
-    _impl->addRef();
-    _impl->connect(server, port, url, realConnect);
+    prepareConnect(net::AddrInfo(server, port), url);
 }
 
 
-HttpClient::HttpClient(const net::Uri& uri, bool realConnect)
-: _impl(new HttpClientImpl())
+HttpClient::HttpClient(const net::AddrInfo& addrinfo, const std::string& url)
+: _impl(0)
 {
-    _impl->addRef();
-    _impl->connect(uri.host(), uri.port(), uri.path(), realConnect);
+    prepareConnect(addrinfo, url);
+}
+
+
+HttpClient::HttpClient(const net::Uri& uri)
+: _impl(0)
+{
+    prepareConnect(net::AddrInfo(uri.host(), uri.port()), uri.path());
     auth(uri.user(), uri.password());
 }
 
@@ -105,40 +124,42 @@ HttpClient::~HttpClient()
         delete _impl;
 }
 
-void HttpClient::connect(const net::AddrInfo& addrinfo, const std::string& url, bool realConnect)
+void HttpClient::prepareConnect(const net::AddrInfo& addrinfo, const std::string& url)
 {
-    _impl->connect(addrinfo, url, realConnect);
+    getImpl()->prepareConnect(addrinfo, url);
 }
 
-void HttpClient::connect(const net::Uri& uri, bool realConnect)
+void HttpClient::prepareConnect(const net::Uri& uri)
 {
-    _impl->connect(uri.host(), uri.port(), uri.path(), realConnect);
+    if (uri.protocol() != "http")
+        throw std::runtime_error("only http is supported by http client");
+    prepareConnect(net::AddrInfo(uri.host(), uri.port()), uri.path());
     auth(uri.user(), uri.password());
 }
 
-void HttpClient::connect(const std::string& addr, unsigned short port, const std::string& url, bool realConnect)
+void HttpClient::prepareConnect(const std::string& addr, unsigned short port, const std::string& url)
 {
-    _impl->connect(addr, port, url, realConnect);
+    prepareConnect(net::AddrInfo(addr, port), url);
 }
 
 void HttpClient::url(const std::string& url)
 {
-    _impl->url(url);
+    getImpl()->url(url);
 }
 
 void HttpClient::auth(const std::string& username, const std::string& password)
 {
-    _impl->auth(username, password);
+    getImpl()->auth(username, password);
 }
 
 void HttpClient::clearAuth()
 {
-    _impl->clearAuth();
+    getImpl()->clearAuth();
 }
 
 void HttpClient::setSelector(SelectorBase& selector)
 {
-    _impl->setSelector(selector);
+    getImpl()->setSelector(selector);
 }
 
 void HttpClient::beginCall(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc)
@@ -158,27 +179,27 @@ void HttpClient::call(IComposer& r, IRemoteProcedure& method, IDecomposer** argv
 
 std::size_t HttpClient::timeout() const
 {
-    return _impl->timeout();
+    return getImpl()->timeout();
 }
 
 void HttpClient::timeout(std::size_t t)
 {
-    _impl->timeout(t);
+    getImpl()->timeout(t);
 }
 
 std::size_t HttpClient::connectTimeout() const
 {
-    return _impl->connectTimeout();
+    return getImpl()->connectTimeout();
 }
 
 void HttpClient::connectTimeout(std::size_t t)
 {
-    _impl->connectTimeout(t);
+    getImpl()->connectTimeout(t);
 }
 
 const std::string& HttpClient::url() const
 {
-    return _impl->url();
+    return getImpl()->url();
 }
 
 const IRemoteProcedure* HttpClient::activeProcedure() const
@@ -188,7 +209,8 @@ const IRemoteProcedure* HttpClient::activeProcedure() const
 
 void HttpClient::cancel()
 {
-    _impl->cancel();
+    if (_impl)
+        _impl->cancel();
 }
 
 void HttpClient::wait(std::size_t msecs)

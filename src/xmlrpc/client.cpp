@@ -85,7 +85,8 @@ const IRemoteProcedure* Client::activeProcedure() const
 
 void Client::cancel()
 {
-    _impl->cancel();
+    if (_impl)
+        _impl->cancel();
 }
 
 }

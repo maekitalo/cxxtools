@@ -37,6 +37,14 @@ namespace cxxtools
 
 class SelectorBase;
 
+namespace net
+{
+
+class AddrInfo;
+class Uri;
+
+}
+
 namespace json
 {
 
@@ -45,26 +53,46 @@ class RpcClientImpl;
 class RpcClient : public RemoteClient
 {
         RpcClientImpl* _impl;
+        RpcClientImpl* getImpl();
+        const RpcClientImpl* getImpl() const
+        { return const_cast<RpcClient*>(this)->getImpl(); }
 
     public:
         RpcClient()
         : _impl(0)
         { }
 
-        RpcClient(SelectorBase& selector, const std::string& addr, unsigned short port, bool realConnect = false);
+        RpcClient(const net::AddrInfo& addr);
+        RpcClient(const std::string& addr, unsigned short port);
+        explicit RpcClient(const net::Uri& uri);
 
-        RpcClient(const std::string& addr, unsigned short port, bool realConnect = false);
+        RpcClient(SelectorBase& selector, const net::AddrInfo& addr);
+        RpcClient(SelectorBase& selector, const std::string& addr, unsigned short port);
+        explicit RpcClient(SelectorBase& selector, const net::Uri& uri);
 
         RpcClient(const RpcClient&);
         RpcClient& operator= (const RpcClient&);
 
         virtual ~RpcClient();
 
-        void setSelector(SelectorBase& selector);
+        void prepareConnect(const net::AddrInfo& addr);
+        void prepareConnect(const std::string& addr, unsigned short port);
+        void prepareConnect(const net::Uri& uri);
 
-        void connect(const std::string& addr, unsigned short port, bool realConnect = false);
+        void connect(const net::AddrInfo& addrinfo)
+        { prepareConnect(addrinfo); connect(); }
+
+        void connect(const std::string& host, unsigned short int port)
+        { prepareConnect(host, port); connect(); }
+
+        void connect(const net::Uri& uri)
+        { prepareConnect(uri); connect(); }
+
+        void connect();
 
         void close();
+
+        void setSelector(SelectorBase& selector);
 
         void beginCall(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc);
 

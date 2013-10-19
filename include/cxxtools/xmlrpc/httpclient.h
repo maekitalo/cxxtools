@@ -49,28 +49,42 @@ class HttpClientImpl;
 class CXXTOOLS_XMLRPC_API HttpClient : public Client
 {
     public:
-        HttpClient();
+        HttpClient()
+            : _impl(0)
+        { }
 
         HttpClient(SelectorBase& selector, const std::string& addr,
-               unsigned short port, const std::string& url, bool realConnect = false);
+               unsigned short port, const std::string& url);
 
-        HttpClient(SelectorBase& selector, const net::Uri& uri, bool realConnect = false);
+        HttpClient(SelectorBase& selector, const net::Uri& uri);
 
-        HttpClient(const std::string& addr, unsigned short port, const std::string& url, bool realConnect = false);
+        HttpClient(const std::string& addr, unsigned short port, const std::string& url);
 
-        explicit HttpClient(const net::Uri& uri, bool realConnect = false);
+        explicit HttpClient(const net::Uri& uri);
 
         HttpClient(const HttpClient&);
         HttpClient& operator= (const HttpClient&);
 
         virtual ~HttpClient();
 
-        void connect(const net::AddrInfo& addrinfo, const std::string& url, bool realConnect = false);
+        void prepareConnect(const net::AddrInfo& addrinfo, const std::string& url);
 
-        void connect(const net::Uri& uri, bool realConnect = false);
+        void prepareConnect(const net::Uri& uri);
 
-        void connect(const std::string& addr, unsigned short port,
-                     const std::string& url, bool realConnect = false);
+        void prepareConnect(const std::string& addr, unsigned short port,
+                     const std::string& url);
+
+        void connect();
+
+        void connect(const net::AddrInfo& addrinfo, const std::string& url)
+        { prepareConnect(addrinfo, url); connect(); }
+
+        void connect(const net::Uri& uri)
+        { prepareConnect(uri); connect(); }
+
+        void connect(const std::string& host, unsigned short port,
+                     const std::string& url)
+        { prepareConnect(host, port, url); connect(); }
 
         void url(const std::string& url);
         void auth(const std::string& username, const std::string& password);
@@ -83,6 +97,7 @@ class CXXTOOLS_XMLRPC_API HttpClient : public Client
 
     private:
         HttpClientImpl* _impl;
+        HttpClientImpl* getImpl();
 };
 
 }

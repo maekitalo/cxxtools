@@ -48,22 +48,24 @@ class SelectorBase;
 namespace bin
 {
 
-class RpcClient;
-
 class RpcClientImpl : public RefCounted, public Connectable
 {
-        RpcClientImpl(RpcClientImpl&) { }
-        void operator= (const RpcClientImpl&) { }
+        RpcClientImpl(RpcClientImpl&);
+        void operator= (const RpcClientImpl&);
 
     public:
-        RpcClientImpl(const std::string& addr, unsigned short port, const std::string& domain, bool realConnect);
-
-        RpcClientImpl(SelectorBase& selector, const std::string& addr, unsigned short port, const std::string& domain, bool realConnect);
+        RpcClientImpl();
 
         void setSelector(SelectorBase& selector)
         { selector.add(_socket); }
 
-        void connect(const std::string& addr, unsigned short port, const std::string& domain, bool realConnect);
+        void prepareConnect(const net::AddrInfo& addrinfo)
+        {
+            _addrInfo = addrinfo;
+            _socket.close();
+        }
+
+        void connect();
 
         void close();
 
@@ -82,9 +84,9 @@ class RpcClientImpl : public RefCounted, public Connectable
         const IRemoteProcedure* activeProcedure() const
         { return _proc; }
 
-        void wait(std::size_t msecs);
-
         void cancel();
+
+        void wait(std::size_t msecs);
 
         const std::string& domain() const
         { return _domain; }
@@ -98,18 +100,20 @@ class RpcClientImpl : public RefCounted, public Connectable
         void onOutput(StreamBuffer& sb);
         void onInput(StreamBuffer& sb);
 
-        IRemoteProcedure* _proc;
+        // connection state
         net::TcpSocket _socket;
         IOStream _stream;
+
+        net::AddrInfo _addrInfo;
+        std::string _domain;
+
+        // serialization
         Scanner _scanner;
         DeserializerBase _deserializer;
         Formatter _formatter;
 
         bool _exceptionPending;
-
-        std::string _addr;
-        unsigned short _port;
-        std::string _domain;
+        IRemoteProcedure* _proc;
 
         std::size_t _timeout;
         bool _connectTimeoutSet;  // indicates if connectTimeout is explicitely set

@@ -55,20 +55,11 @@ RpcClientImpl::RpcClientImpl()
     cxxtools::connect(_stream.buffer().inputReady, *this, &RpcClientImpl::onInput);
 }
 
-void RpcClientImpl::connect(const std::string& addr, unsigned short port, bool realConnect)
+void RpcClientImpl::connect()
 {
-    if (_addr != addr || _port != port)
-    {
-        _socket.close();
-        _addr = addr;
-        _port = port;
-    }
-
-    if (realConnect)
-    {
-        _socket.setTimeout(_connectTimeout);
-        _socket.connect(_addr, _port);
-    }
+    _socket.setTimeout(_connectTimeout);
+    _socket.close();
+    _socket.connect(_addrInfo);
 }
 
 void RpcClientImpl::close()
@@ -97,13 +88,13 @@ void RpcClientImpl::beginCall(IComposer& r, IRemoteProcedure& method, IDecompose
         catch (const IOError&)
         {
             log_debug("write failed, connection is not active any more");
-            _socket.beginConnect(_addr, _port);
+            _socket.beginConnect(_addrInfo);
         }
     }
     else
     {
         log_debug("not yet connected - do it now");
-        _socket.beginConnect(_addr, _port);
+        _socket.beginConnect(_addrInfo);
     }
 
     _scanner.begin(_deserializer, r);
@@ -129,7 +120,7 @@ void RpcClientImpl::call(IComposer& r, IRemoteProcedure& method, IDecomposer** a
     if (!_socket.isConnected())
     {
         _socket.setTimeout(_connectTimeout);
-        _socket.connect(_addr, _port);
+        _socket.connect(_addrInfo);
     }
 
     _socket.setTimeout(timeout());

@@ -75,15 +75,20 @@ class Request;
 class CXXTOOLS_HTTP_API Client
 {
         ClientImpl* _impl;
+        ClientImpl* getImpl();
+        const ClientImpl* getImpl() const
+        { return const_cast<Client*>(this)->getImpl(); }
 
     public:
         /// default constructor.
-        Client();
+        Client()
+            : _impl(0)
+        { }
 
         ///@{
         /// constructors which set the connection parameters and optionally connect to the server.
-        Client(const std::string& host, unsigned short int port, bool realConnect = false);
-        explicit Client(const net::AddrInfo& addr, bool realConnect = false);
+        explicit Client(const net::AddrInfo& addr);
+        Client(const std::string& host, unsigned short int port);
         ///@}
 
         /** constructor with cxxtools::net::Uri.
@@ -97,14 +102,14 @@ class CXXTOOLS_HTTP_API Client
               cxxtools::http::Client client("http://localhost:8000/");
             \endcode
          */
-        explicit Client(const net::Uri& uri, bool realConnect = false);
+        explicit Client(const net::Uri& uri);
 
         ///@{
         /// constructors which set the selector for asyncronous request processing and the connection parameters.
 
-        Client(SelectorBase& selector, const std::string& host, unsigned short int port, bool realConnect = false);
-        Client(SelectorBase& selector, const net::AddrInfo& addrinfo, bool realConnect = false);
-        Client(SelectorBase& selector, const net::Uri& uri, bool realConnect = false);
+        Client(SelectorBase& selector, const std::string& host, unsigned short int port);
+        Client(SelectorBase& selector, const net::AddrInfo& addrinfo);
+        Client(SelectorBase& selector, const net::Uri& uri);
 
         ///@}
 
@@ -118,16 +123,27 @@ class CXXTOOLS_HTTP_API Client
 
         ~Client();
 
-        /** The connect methods set the host and port of the server for this http client.
+        /** The prepareConnect methods set the host and port of the server for this http client.
 
-           No actual network connect is done unless realConnect is set.
+           No actual network connect is done.
 
            \see
              \ref connection
          */
-        void connect(const net::AddrInfo& addrinfo, bool realConnect = false);
-        void connect(const std::string& host, unsigned short int port, bool realConnect = false);
-        void connect(const net::Uri& uri, bool realConnect = false);
+        void prepareConnect(const net::AddrInfo& addrinfo);
+        void prepareConnect(const std::string& host, unsigned short int port);
+        void prepareConnect(const net::Uri& uri);
+        void connect();
+        void close();
+
+        void connect(const net::AddrInfo& addrinfo)
+        { prepareConnect(addrinfo); connect(); }
+
+        void connect(const std::string& host, unsigned short int port)
+        { prepareConnect(host, port); connect(); }
+
+        void connect(const net::Uri& uri)
+        { prepareConnect(uri); connect(); }
 
         /** Sends the passed request to the server and parses the headers.
 
