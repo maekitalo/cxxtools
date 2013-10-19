@@ -91,6 +91,10 @@ class CXXTOOLS_HTTP_API Client
         Client(const std::string& host, unsigned short int port);
         ///@}
 
+        explicit Client(SelectorBase& selector)
+            : _impl(0)
+        { setSelector(selector); }
+
         /** constructor with cxxtools::net::Uri.
             Note that the Uri class has a non explicit constructor from std::string.
             The protocol of the uri must be http. The url part of the uri is ignored.

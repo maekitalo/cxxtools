@@ -59,8 +59,12 @@ class RpcClient : public RemoteClient
 
     public:
         RpcClient()
-        : _impl(0)
+            : _impl(0)
         { }
+
+        explicit RpcClient(SelectorBase& selector)
+            : _impl(0)
+        { setSelector(selector); }
 
         RpcClient(const net::AddrInfo& addr, const std::string& domain = std::string());
         RpcClient(const std::string& addr, unsigned short port, const std::string& domain = std::string());

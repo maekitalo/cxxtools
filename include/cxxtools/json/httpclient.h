@@ -54,6 +54,10 @@ namespace json
                 : _impl(0)
             { }
 
+            explicit HttpClient(SelectorBase& selector)
+                : _impl(0)
+            { setSelector(selector); }
+
             HttpClient(SelectorBase& selector, const std::string& addr,
                    unsigned short port, const std::string& url);
 
