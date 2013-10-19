@@ -142,6 +142,11 @@ void HttpClient::prepareConnect(const std::string& addr, unsigned short port, co
     prepareConnect(net::AddrInfo(addr, port), url);
 }
 
+void HttpClient::connect()
+{
+    getImpl()->connect();
+}
+
 void HttpClient::url(const std::string& url)
 {
     getImpl()->url(url);
