@@ -633,8 +633,6 @@ class JsonRpcTest : public cxxtools::unit::TestSuite
         //
         void BigRequest()
         {
-            log_trace("ConnectError");
-
             _server->registerMethod("countSize", *this, &JsonRpcTest::countSize);
 
             cxxtools::json::RpcClient client(_loop, "", _port);

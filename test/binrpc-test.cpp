@@ -654,8 +654,6 @@ class BinRpcTest : public cxxtools::unit::TestSuite
         //
         void BigRequest()
         {
-            log_trace("ConnectError");
-
             _server->registerMethod("countSize", *this, &BinRpcTest::countSize);
 
             cxxtools::bin::RpcClient client(_loop, "", _port);

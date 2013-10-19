@@ -657,8 +657,6 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
         //
         void BigRequest()
         {
-            log_trace("ConnectError");
-
             cxxtools::xmlrpc::Service service;
             service.registerMethod("countSize", *this, &XmlRpcTest::countSize);
             _server->addService("/rpc", service);

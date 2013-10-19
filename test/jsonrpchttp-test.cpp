@@ -657,8 +657,6 @@ class JsonRpcHttpTest : public cxxtools::unit::TestSuite
         //
         void BigRequest()
         {
-            log_trace("ConnectError");
-
             cxxtools::json::HttpService service;
             service.registerMethod("countSize", *this, &JsonRpcHttpTest::countSize);
             _server->addService("/rpc", service);
