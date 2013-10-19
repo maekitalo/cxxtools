@@ -110,6 +110,7 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             registerMethod("BigRequest", *this, &XmlRpcTest::BigRequest);
             registerMethod("PrepareConnect", *this, &XmlRpcTest::PrepareConnect);
             registerMethod("Connect", *this, &XmlRpcTest::Connect);
+            registerMethod("Multiple", *this, &XmlRpcTest::Multiple);
 
             char* PORT = getenv("UTEST_PORT");
             if (PORT)
@@ -797,6 +798,37 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
                 cxxtools::RemoteProcedure<bool, bool, bool> boolean(client, "boolean");
 
                 CXXTOOLS_UNIT_ASSERT_THROW(client.connect("", _port + 1, "/rpc"), cxxtools::IOError);
+            }
+
+        }
+
+        ////////////////////////////////////////////////////////////
+        // Multiple calls
+        //
+        void Multiple()
+        {
+            cxxtools::xmlrpc::Service service;
+            service.registerMethod("multiply", *this, &XmlRpcTest::multiplyDouble);
+            _server->addService("/rpc", service);
+
+            typedef cxxtools::RemoteProcedure<double, double, double> Multiply;
+
+            std::vector<cxxtools::xmlrpc::HttpClient> clients;
+            std::vector<Multiply> procs;
+
+            clients.reserve(16);
+            procs.reserve(16);
+
+            for (unsigned i = 0; i < 16; ++i)
+            {
+                clients.push_back(cxxtools::xmlrpc::HttpClient(_loop, "", _port, "/rpc"));
+                procs.push_back(Multiply(clients.back(), "multiply"));
+                procs.back().begin(i, i);
+            }
+
+            for (unsigned i = 0; i < 16; ++i)
+            {
+                CXXTOOLS_UNIT_ASSERT_EQUALS(procs[i].end(2000), i*i);
             }
 
         }

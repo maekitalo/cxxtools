@@ -110,6 +110,7 @@ class BinRpcTest : public cxxtools::unit::TestSuite
             registerMethod("BigRequest", *this, &BinRpcTest::BigRequest);
             registerMethod("PrepareConnect", *this, &BinRpcTest::PrepareConnect);
             registerMethod("Connect", *this, &BinRpcTest::Connect);
+            registerMethod("Multiple", *this, &BinRpcTest::Multiple);
 
             char* PORT = getenv("UTEST_PORT");
             if (PORT)
@@ -788,6 +789,35 @@ class BinRpcTest : public cxxtools::unit::TestSuite
                 cxxtools::RemoteProcedure<bool, bool, bool> boolean(client, "boolean");
 
                 CXXTOOLS_UNIT_ASSERT_THROW(client.connect("", _port + 1), cxxtools::IOError);
+            }
+
+        }
+
+        ////////////////////////////////////////////////////////////
+        // Multiple calls
+        //
+        void Multiple()
+        {
+            _server->registerMethod("multiply", *this, &BinRpcTest::multiplyDouble);
+
+            typedef cxxtools::RemoteProcedure<double, double, double> Multiply;
+
+            std::vector<cxxtools::bin::RpcClient> clients;
+            std::vector<Multiply> procs;
+
+            clients.reserve(16);
+            procs.reserve(16);
+
+            for (unsigned i = 0; i < 16; ++i)
+            {
+                clients.push_back(cxxtools::bin::RpcClient(_loop, "", _port));
+                procs.push_back(Multiply(clients.back(), "multiply"));
+                procs.back().begin(i, i);
+            }
+
+            for (unsigned i = 0; i < 16; ++i)
+            {
+                CXXTOOLS_UNIT_ASSERT_EQUALS(procs[i].end(2000), i*i);
             }
 
         }

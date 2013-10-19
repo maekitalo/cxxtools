@@ -109,6 +109,7 @@ class JsonRpcTest : public cxxtools::unit::TestSuite
             registerMethod("BigRequest", *this, &JsonRpcTest::BigRequest);
             registerMethod("PrepareConnect", *this, &JsonRpcTest::PrepareConnect);
             registerMethod("Connect", *this, &JsonRpcTest::Connect);
+            registerMethod("Multiple", *this, &JsonRpcTest::Multiple);
 
             char* PORT = getenv("UTEST_PORT");
             if (PORT)
@@ -767,6 +768,35 @@ class JsonRpcTest : public cxxtools::unit::TestSuite
                 cxxtools::RemoteProcedure<bool, bool, bool> boolean(client, "boolean");
 
                 CXXTOOLS_UNIT_ASSERT_THROW(client.connect("", _port + 1), cxxtools::IOError);
+            }
+
+        }
+
+        ////////////////////////////////////////////////////////////
+        // Multiple calls
+        //
+        void Multiple()
+        {
+            _server->registerMethod("multiply", *this, &JsonRpcTest::multiplyDouble);
+
+            typedef cxxtools::RemoteProcedure<double, double, double> Multiply;
+
+            std::vector<cxxtools::json::RpcClient> clients;
+            std::vector<Multiply> procs;
+
+            clients.reserve(16);
+            procs.reserve(16);
+
+            for (unsigned i = 0; i < 16; ++i)
+            {
+                clients.push_back(cxxtools::json::RpcClient(_loop, "", _port));
+                procs.push_back(Multiply(clients.back(), "multiply"));
+                procs.back().begin(i, i);
+            }
+
+            for (unsigned i = 0; i < 16; ++i)
+            {
+                CXXTOOLS_UNIT_ASSERT_EQUALS(procs[i].end(2000), i*i);
             }
 
         }
