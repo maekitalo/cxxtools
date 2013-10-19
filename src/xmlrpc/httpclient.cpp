@@ -86,7 +86,10 @@ HttpClient::HttpClient(const HttpClient& other)
 : _impl(other._impl)
 {
     if (_impl)
+    {
         _impl->addRef();
+        impl(_impl);
+    }
 }
 
 HttpClient& HttpClient::operator= (const HttpClient& other)
@@ -98,6 +101,8 @@ HttpClient& HttpClient::operator= (const HttpClient& other)
 
     if (_impl)
         _impl->addRef();
+
+    impl(_impl);
 
     return *this;
 }
