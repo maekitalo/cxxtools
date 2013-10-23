@@ -54,11 +54,10 @@ namespace cxxtools {
 
         int main()
         {
-            cxxtools::Timer timer;
-            connect(timer.timeout, onTimer);
-
             cxxtools::EventLoop loop;
-            loop.add(timer);
+
+            cxxtools::Timer timer(&loop);
+            connect(timer.timeout, onTimer);
             timer.start(1000);
 
             loop.run();
@@ -77,9 +76,10 @@ namespace cxxtools {
         public:
             /** @brief Default constructor
 
-                Constructs an inactive timer.
+                Constructs an inactive timer and optionally sets the selector,
+                which must be done anyway to run the timer.
             */
-            Timer();
+            explicit Timer(SelectorBase* selector = 0);
 
             /** @brief Destructor
 

@@ -63,12 +63,15 @@ class Timer::Sentry
 };
 
 
-Timer::Timer()
+Timer::Timer(SelectorBase* selector)
 : _sentry(0)
 , _selector(0)
 , _active(false)
 , _finished(0)
-{ }
+{
+    if (selector)
+        setSelector(selector);
+}
 
 
 Timer::~Timer()
