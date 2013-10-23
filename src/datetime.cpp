@@ -285,7 +285,7 @@ Timespan operator-(const DateTime& first, const DateTime& second)
 
     int64_t result = (dayDiff * Time::MSecsPerDay + milliSecDiff) * 1000;
 
-    return result;
+    return Timespan(result);
 }
 
 DateTime operator+(const DateTime& dt, const Timespan& ts)

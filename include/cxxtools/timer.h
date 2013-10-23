@@ -34,6 +34,7 @@
 
 namespace cxxtools {
 
+    class DateTime;
     class SelectorBase;
 
     /** @brief Notifies clients in constant intervals
@@ -64,6 +65,10 @@ namespace cxxtools {
             return 0;
         }
         @endcode
+
+        Note that a timer can process just one interval at once. When one of
+        the methods is called while the timer is active, the previous interval
+        will be stopped.
     */
     class CXXTOOLS_API Timer
     {
@@ -95,7 +100,17 @@ namespace cxxtools {
 
                 Returns the current interval of the timer in milliseconds.
             */
-            std::size_t interval() const;
+            const Timespan& interval() const;
+
+            /** @brief Starts the timer
+
+                Start a timer from the moment this method is called. The
+                Timer needs to be registered with a Selector or event loop,
+                otherwise the timeout signal will not be sent.
+
+                @param interval Timeout interval as cxxtools::Timespan
+            */
+            void start(const Timespan& interval);
 
             /** @brief Starts the timer
 
@@ -105,7 +120,72 @@ namespace cxxtools {
 
                 @param interval Timeout interval in milliseconds
             */
-            void start(std::size_t interval);
+            void start(unsigned msecs)
+            { start(Timespan(msecs * 1000)); }
+
+            /** @brief Starts the timer
+
+                Start a timer. The start time is passed as a cxxtools::DateTime.
+                If the start time is in the past, the timer starts on the next
+                cycle. Past timer ticks are not catched up.
+                
+                The Timer needs to be registered with a Selector or event loop,
+                otherwise the timeout signal will not be sent.
+
+                @param interval Timeout interval as a cxxtools::Timespan
+            */
+            void start(const DateTime& startTime, const Timespan& interval);
+
+            /** @brief Starts the timer
+
+                Start a timer. The start time is passed as a cxxtools::DateTime.
+                If the start time is in the past, the timer starts on the next
+                cycle. Past timer ticks are not catched up.
+
+                If the start time is in the future, the timer will wait until
+                the time is reached.
+
+                The Timer needs to be registered with a Selector or event loop,
+                otherwise the timeout signal will not be sent.
+
+                @param interval Timeout interval in milliseconds
+            */
+            void start(const DateTime& startTime, unsigned msecs)
+            { start(startTime, Timespan(msecs * 1000)); }
+
+            /** @brief Starts the timer
+
+                Start a timer. The timer will tick once after the specified
+                time span.
+
+                The Timer needs to be registered with a Selector or event loop,
+                otherwise the timeout signal will not be sent.
+
+                @param interval Timeout interval as a cxxtools::Timespan
+            */
+            void after(const Timespan& interval);
+
+            /** @brief Starts the timer
+
+                Start a timer. The timer will tick once after the specified
+                time span.
+
+                The Timer needs to be registered with a Selector or event loop,
+                otherwise the timeout signal will not be sent.
+
+                @param interval Timeout interval in milliseconds
+            */
+            void after(unsigned msecs)
+            { after(Timespan(msecs * 1000)); }
+
+            /** @brief Starts the timer
+
+                Start a timer. The timer will tick once at the specified point
+                in time.
+
+                @param tickTime The time, when the timer should tick.
+            */
+            void at(const DateTime& tickTime);
 
             /** @brief Stops the timer
 
@@ -138,9 +218,9 @@ namespace cxxtools {
             Sentry* _sentry;
             SelectorBase* _selector;
             bool          _active;
-            std::size_t   _interval;
-            Timespan      _remaining;
+            Timespan      _interval;
             Timespan      _finished;
+            bool          _once;
     };
 
 }

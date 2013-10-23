@@ -37,8 +37,37 @@ class TimeTest : public cxxtools::unit::TestSuite
         TimeTest()
         : cxxtools::unit::TestSuite("time")
         {
+            registerMethod("diff", *this, &TimeTest::diff);
             registerMethod("fromString", *this, &TimeTest::fromString);
             registerMethod("toString", *this, &TimeTest::toString);
+        }
+
+        void diff()
+        {
+            cxxtools::Time dt1 = cxxtools::Time("17:01:14.342");
+            cxxtools::Time dt2 = cxxtools::Time("18:01:14.342");
+            cxxtools::Timespan dt = dt2 - dt1;
+            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.hours(), 1);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.totalHours(), 1);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.minutes(), 0);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.totalMinutes(), 60);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.seconds(), 0);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.msecs(), 0);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.microseconds(), 0);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.useconds(), 0);
+
+            dt1 = cxxtools::Time("17:01:14.000");
+            dt2 = cxxtools::Time("17:01:14.342");
+            dt = dt2 - dt1;
+            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.days(), 0);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.hours(), 0);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.totalHours(), 0);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.totalMinutes(), 0);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.minutes(), 0);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.seconds(), 0);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.msecs(), 342);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.microseconds(), 0);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.useconds(), 342000);
         }
 
         void fromString()

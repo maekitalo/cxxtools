@@ -296,7 +296,7 @@ class Time
         */
         friend Timespan operator-(const Time& a, const Time& b)
         {
-            return b.msecsTo(a) * 1000;
+            return Timespan(b.msecsTo(a) * 1000);
         }
 
         /** \brief Returns the time in ISO-format (hh:mm:ss.hhh)

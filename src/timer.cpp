@@ -26,6 +26,7 @@
 #include "cxxtools/timer.h"
 #include "cxxtools/clock.h"
 #include "cxxtools/selector.h"
+#include "cxxtools/datetime.h"
 #include <limits>
 #include <stdint.h>
 
@@ -66,8 +67,6 @@ Timer::Timer()
 : _sentry(0)
 , _selector(0)
 , _active(false)
-, _interval(0)
-, _remaining(0)
 , _finished(0)
 { }
 
@@ -92,32 +91,85 @@ bool Timer::active() const
 }
 
 
-std::size_t Timer::interval() const
+const Timespan& Timer::interval() const
 {
     return _interval;
 }
 
 
-void Timer::start(std::size_t interval)
+void Timer::start(const Timespan& interval)
 {
-    if( _active)
+    if (_active)
         stop();
     
     _active = true;
     _interval = interval;
-    _remaining = int64_t(_interval) * 1000;
-    _finished = Clock::getSystemTicks() + _remaining;
+    _once = false;
 
-    if(_selector)
+    _finished = Clock::getSystemTicks() + _interval;
+
+    if (_selector)
         _selector->onTimerChanged(*this);
+}
+
+
+void Timer::start(const DateTime& startTime, const Timespan& interval)
+{
+    if (_active)
+        stop();
+    
+    _active = true;
+    _interval = interval;
+    _once = false;
+
+    DateTime now = Clock::getLocalTime();
+    if (startTime > now)
+    {
+        _finished = Clock::getSystemTicks() + (startTime - now);
+    }
+    else
+    {
+        // startTime =< now
+        Timespan elapsed = now - startTime;
+        unsigned ticksElapsed = elapsed.totalMSecs() / interval.totalMSecs();
+        DateTime tickTime = startTime + (ticksElapsed + 1) * interval;
+        _finished = Clock::getSystemTicks() + (tickTime - now);
+    }
+
+    if (_selector)
+        _selector->onTimerChanged(*this);
+}
+
+void Timer::after(const Timespan& interval)
+{
+    start(interval);
+    _once = true;
+}
+
+
+void Timer::at(const DateTime& tickTime)
+{
+    if (_active)
+        stop();
+    
+    _once = true;
+
+    DateTime now = Clock::getLocalTime();
+    if (tickTime >= now)
+    {
+        _active = true;
+        _finished = Clock::getSystemTicks() + (tickTime - now);
+
+        if (_selector)
+            _selector->onTimerChanged(*this);
+    }
 }
 
 
 void Timer::stop()
 {
     _active = false;
-    _remaining = 0;
-    _finished = 0;
+    _finished = Timespan(0);
 
     if(_selector)
         _selector->onTimerChanged(*this);
@@ -145,15 +197,17 @@ bool Timer::update(const Timespan& now)
 
     while( _active && now >= _finished )
     {
-        _finished += (_interval * 1000);
+        _finished += _interval;
 
         if( ! sentry )
             return hasElapsed;
 
         timeout.send();
+
+        if (_once)
+            stop();
     }
 
-    _remaining = _finished - now;
     return hasElapsed;
 }
 
