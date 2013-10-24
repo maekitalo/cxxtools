@@ -41,7 +41,7 @@ class ClockImpl
 
         void start ();
 
-        Timespan stop();
+        Timespan stop() const;
 
         static DateTime getSystemTime();
 
@@ -52,10 +52,8 @@ class ClockImpl
     private:
 #ifdef HAVE_CLOCK_GETTIME
         struct timespec  _startTime;
-        struct timespec  _stopTime;
 #else
         struct timeval  _startTime;
-        struct timeval  _stopTime;
 #endif
 };
 
