@@ -32,6 +32,8 @@
 
 namespace cxxtools {
 
+class SerializationInfo;
+
 /** @brief  Represents time spans up to microsecond resolution.
     @ingroup DateTime
 */
@@ -369,6 +371,10 @@ inline Timespan operator * (unsigned fac, const Timespan& d)
 }
 
 std::ostream& operator<< (std::ostream& out, const Timespan& ht);
+
+void operator >>=(const SerializationInfo& si, Timespan& timespan);
+
+void operator <<=(SerializationInfo& si, const Timespan& timespan);
 
 } // namespace cxxtools
 
