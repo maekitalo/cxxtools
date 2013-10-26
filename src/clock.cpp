@@ -43,7 +43,7 @@ void Clock::start()
     _impl->start();
 }
 
-Timespan Clock::stop()
+Timespan Clock::stop() const
 {
     return _impl->stop();
 }

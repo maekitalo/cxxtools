@@ -48,18 +48,22 @@ void ClockImpl::start()
 }
 
 
-Timespan ClockImpl::stop()
+Timespan ClockImpl::stop() const
 {
 #ifdef HAVE_CLOCK_GETTIME
-    clock_gettime(CLOCK_MONOTONIC, &_stopTime);
+    struct timespec stopTime;
 
-    time_t secs = _stopTime.tv_sec - _startTime.tv_sec;
-    suseconds_t usecs = (_stopTime.tv_nsec - _startTime.tv_nsec) / 1000;
+    clock_gettime(CLOCK_MONOTONIC, &stopTime);
+
+    time_t secs = stopTime.tv_sec - _startTime.tv_sec;
+    suseconds_t usecs = (stopTime.tv_nsec - _startTime.tv_nsec) / 1000;
 #else
-    gettimeofday( &_stopTime, 0 );
+    struct timeval stopTime;
 
-    time_t secs = _stopTime.tv_sec - _startTime.tv_sec;
-    suseconds_t usecs = _stopTime.tv_usec - _startTime.tv_usec;
+    gettimeofday( &stopTime, 0 );
+
+    time_t secs = stopTime.tv_sec - _startTime.tv_sec;
+    suseconds_t usecs = stopTime.tv_usec - _startTime.tv_usec;
 #endif
 
     return Timespan(secs, usecs);
