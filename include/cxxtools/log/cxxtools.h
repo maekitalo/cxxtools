@@ -109,8 +109,8 @@
 
 #define log_trace(expr)     log_trace_to(_default, expr)
 
-#define log_define_impl(impl, category) \
-  static ::cxxtools::Logger* getLogger ## impl()   \
+#define log_define_instance(instance, category) \
+  static ::cxxtools::Logger* getLogger ## instance()   \
   {  \
     static cxxtools::Logger* logger = 0; \
     if (!::cxxtools::LogManager::isEnabled()) \
@@ -120,7 +120,7 @@
     return logger; \
   }
 
-#define log_define(category) log_define_impl(_default, category)
+#define log_define(category) log_define_instance(_default, category)
 
 #define log_init_cxxtools  ::cxxtools::LogManager::logInit
 #define log_init  log_init_cxxtools
