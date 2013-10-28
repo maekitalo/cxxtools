@@ -99,7 +99,26 @@ To make the example complete we need the headers:
     #include <cxxtools/remoteprocedure.h>
     #include <cxxtools/json/rpcclient.h>
 
-make JSON RPC client asynchronous
+Handling exceptions
+-------------------
+
+There were 2 types of exceptions, which can happen here. Either purely technical
+exceptions like I/O errors when the server is not reachable or exceptions thrown
+by the procedure on the server side.
+
+Technical exceptions are handled like always in `cxxtools`. They are just
+thrown. There is nothing special here.
+
+Exceptions thrown by the server procedure are sent to the client. The client
+then throws the exception when the result is requested. So it behaves like
+a local function call. The only difference is, that the actual exception type is
+lost. The exception is always derived from `cxxtools::RemoteException`.
+
+Note that all exceptions thrown in cxxtools are derived from `std::exception`.
+So as shown in the example it is sufficient to catch just `std::exception` to
+catch all exceptions of the remote procedure.
+
+Make JSON RPC client asynchronous
 ---------------------------------
 
 The call to the `add` procedure is done synchronous, that means, that the call
@@ -157,6 +176,30 @@ We need additionally the header:
 
 The remote procedures may be located also on different servers. Also any number
 of clients can be executed in parallel.
+
+There is a event shorter way to write that in `cxxtools`. Each remote procedure
+has a method `end()` which executes the selector until the remote procedure
+finishes and returns the result of the procedure. So calling `add.end()` will
+block until the `add` procedure is finished.
+
+Note that since `add.end()` just processes the I/O events by calling wait on the
+selector it runs actually the `sub` procedure also. It may well be, that `sub`
+is finished before `add` and hence fully executed by `add.end()`. Calling
+`sub.end()` later will then just return the result.
+
+So instead of the while loop and fetching the result with the `result` method we
+can just write:
+
+    add.begin(17, 4);
+    sub.begin(17, 4);
+
+    std::cout << "add returns " << add.end() << std::endl;
+    std::cout << "sub returns " << sub.end() << std::endl;
+
+Note that even when `add.end()` executes `sub` also, exceptions thrown by the
+`sub` procedure on the server side are thrown always when calling `sub.end()`.
+What may still happen is, that `add.end()` throws I/O errors which were caused
+by `sub`.
 
 JSON RPC over http server
 -------------------------
