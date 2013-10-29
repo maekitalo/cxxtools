@@ -177,7 +177,7 @@ We need additionally the header:
 The remote procedures may be located also on different servers. Also any number
 of clients can be executed in parallel.
 
-There is a event shorter way to write that in `cxxtools`. Each remote procedure
+There is a even shorter way to write that in `cxxtools`. Each remote procedure
 has a method `end()` which executes the selector until the remote procedure
 finishes and returns the result of the procedure. So calling `add.end()` will
 block until the `add` procedure is finished.
