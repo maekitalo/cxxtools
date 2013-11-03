@@ -38,7 +38,7 @@ Iso8859_1Codec::result Iso8859_1Codec::do_in(MBState& s, const char* fromBegin, 
     toNext = toBegin;
     while (fromNext < fromEnd && toNext < toEnd)
     {
-        *toNext = Char(*fromNext);
+        *toNext = Char(static_cast<unsigned char>(*fromNext));
         ++fromNext;
         ++toNext;
     }

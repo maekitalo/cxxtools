@@ -38,7 +38,7 @@ Iso8859_15Codec::result Iso8859_15Codec::do_in(MBState& s, const char* fromBegin
     toNext = toBegin;
     while (fromNext < fromEnd && toNext < toEnd)
     {
-        *toNext = *fromNext == '\xa4' ? Char(0x20ac) : Char(*fromNext);
+        *toNext = *fromNext == '\xa4' ? Char(0x20ac) : Char(static_cast<unsigned char>(*fromNext));
         ++fromNext;
         ++toNext;
     }
