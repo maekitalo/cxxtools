@@ -90,7 +90,7 @@ even simpler than the server:
 
     // Define the remote procedure with 3 template parameters. The first is
     // always the return type and the rest are the types of the parameters.
-    cxxtools::RemoteProcedure<double, double, std::string> add(client, "add");
+    cxxtools::RemoteProcedure<double, double, double> add(client, "add");
 
     // and call the procedure:
     double result = add(17, 4);
@@ -152,8 +152,8 @@ until the procedures return.
     cxxtools::bin::RpcClient binClientSub(selector, "", 7077);
 
     // We also need remote procedures for both methods:
-    cxxtools::RemoteProcedure<double, double, std::string> add(binClientAdd, "add");
-    cxxtools::RemoteProcedure<double, double, std::string> sub(binClientSub, "sub");
+    cxxtools::RemoteProcedure<double, double, double> add(binClientAdd, "add");
+    cxxtools::RemoteProcedure<double, double, double> sub(binClientSub, "sub");
 
     // Initiate the calls; note that the calls are not sent to the server until
     // we start the selector:

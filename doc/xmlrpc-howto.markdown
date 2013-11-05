@@ -90,11 +90,11 @@ Next we want to implement a client, which calls our methods on the server. It is
 even simpler than the server:
 
     // Define client class with a empty IP, which means localhost and a port
-    cxxtools::xmlrpc::HttpClient client("", 8077, "/xmlrpc);
+    cxxtools::xmlrpc::HttpClient client("", 8077, "/xmlrpc");
 
     // Define the remote procedure with 3 template parameters. The first is
     // always the return type and the rest are the types of the parameters.
-    cxxtools::RemoteProcedure<double, double, std::string> add(client, "add");
+    cxxtools::RemoteProcedure<double, double, double> add(client, "add");
 
     // and call the procedure:
     double result = add(17, 4);

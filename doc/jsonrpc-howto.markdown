@@ -85,7 +85,7 @@ even simpler than the server:
 
     // Define the remote procedure with 3 template parameters. The first is
     // always the return type and the rest are the types of the parameters.
-    cxxtools::RemoteProcedure<double, double, std::string> add(client, "add");
+    cxxtools::RemoteProcedure<double, double, double> add(client, "add");
 
     // and call the procedure:
     double result = add(17, 4);
@@ -147,8 +147,8 @@ until the procedures return.
     cxxtools::json::RpcClient jsonClientSub(selector, "", 7077);
 
     // We also need remote procedures for both methods:
-    cxxtools::RemoteProcedure<double, double, std::string> add(jsonClientAdd, "add");
-    cxxtools::RemoteProcedure<double, double, std::string> sub(jsonClientSub, "sub");
+    cxxtools::RemoteProcedure<double, double, double> add(jsonClientAdd, "add");
+    cxxtools::RemoteProcedure<double, double, double> sub(jsonClientSub, "sub");
 
     // Initiate the calls; note that the calls are not sent to the server until
     // we start the selector:
@@ -252,7 +252,7 @@ well. Here is the example:
     cxxtools::json::HttpClient client("", 7077, "/jsonrpc");
 
     // The remote procedure class is defined like before.
-    cxxtools::RemoteProcedure<double, double, std::string> add(client, "add");
+    cxxtools::RemoteProcedure<double, double, double> add(client, "add");
 
     // and neither the call has changed in any way:
     double result = add(17, 4);
