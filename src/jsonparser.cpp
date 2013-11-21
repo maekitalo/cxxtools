@@ -134,6 +134,11 @@ JsonParser::JsonParser()
       _lineNo(1)
 { }
 
+JsonParser::~JsonParser()
+{
+    delete _next;
+}
+
 int JsonParser::advance(Char ch)
 {
     int ret;

@@ -89,8 +89,13 @@ namespace cxxtools
                     { _str = s; }
             };
 
+            // make non copyable:
+            JsonParser(const JsonParser&);
+            JsonParser& operator=(const JsonParser&);
+
         public:
             JsonParser();
+            ~JsonParser();
 
             void begin(DeserializerBase& handler)
             {
