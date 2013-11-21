@@ -113,12 +113,14 @@ namespace cxxtools
         {
           log_debug("onKey(" << data << ')');
           ret = event.onKey(data);
+          data.clear();
           state = state_value0;
         }
         else if (std::isspace(ch))
         {
           log_debug("onKey(" << data << ')');
           ret = event.onKey(data);
+          data.clear();
           state = state_key_sp;
         }
         else
