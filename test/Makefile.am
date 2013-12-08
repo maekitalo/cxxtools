@@ -41,6 +41,7 @@ alltests_SOURCES = \
     string-test.cpp \
     test-main.cpp \
     time-test.cpp \
+    timespan-test.cpp \
     trim-test.cpp \
     utf8-test.cpp \
     uri-test.cpp \
