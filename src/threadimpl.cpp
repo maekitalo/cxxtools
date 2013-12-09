@@ -134,26 +134,24 @@ void ThreadImpl::terminate()
         throw SystemError("pthread_kill");
 }
 
-void ThreadImpl::sleep(unsigned int ms)
+void ThreadImpl::sleep(const Timespan& t)
 {
     Timespan ts = Timespan::gettimeofday();
 
-    useconds_t us = static_cast<useconds_t>(ms) * 1000;
-
-    if (usleep(us) == -1 && errno == EINTR)
+    if (usleep(t.totalUSecs()) == -1 && errno == EINTR)
     {
-        ts = Timespan(ts.totalUSecs() + ms * 1000);
+        ts += t;
+
+        Timespan ts2;
 
         do
         {
-            Timespan ts2 = Timespan::gettimeofday();
+            ts2 = Timespan::gettimeofday();
 
-            if (ts2.totalUSecs() >= ts.totalUSecs())
+            if (ts2 >= ts)
                 break;
 
-            us = ts.totalUSecs() - ts2.totalUSecs();
-
-        } while (usleep(us) == -1 && errno == EINTR);
+        } while (usleep((ts - ts2).totalUSecs()) == -1 && errno == EINTR);
     }
 }
 
