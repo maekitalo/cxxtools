@@ -50,28 +50,50 @@ namespace json
     class HttpClient : public RemoteClient
     {
         public:
-            HttpClient();
+            HttpClient()
+                : _impl(0)
+            { }
+
+            explicit HttpClient(SelectorBase& selector)
+                : _impl(0)
+            { setSelector(selector); }
 
             HttpClient(SelectorBase& selector, const std::string& addr,
                    unsigned short port, const std::string& url);
+
+            HttpClient(SelectorBase& selector, const net::AddrInfo& addrinfo,
+                   const std::string& url);
 
             HttpClient(SelectorBase& selector, const net::Uri& uri);
 
             HttpClient(const std::string& addr, unsigned short port, const std::string& url);
 
+            HttpClient(const net::AddrInfo& addrinfo, const std::string& url);
+
             explicit HttpClient(const net::Uri& uri);
 
-            HttpClient(HttpClient&);
+            HttpClient(const HttpClient&);
             HttpClient& operator= (const HttpClient&);
 
             virtual ~HttpClient();
 
-            void connect(const net::AddrInfo& addrinfo, const std::string& url);
+            void prepareConnect(const net::AddrInfo& addrinfo, const std::string& url);
 
-            void connect(const net::Uri& uri);
+            void prepareConnect(const net::Uri& uri);
 
-            void connect(const std::string& addr, unsigned short port,
-                         const std::string& url);
+            void prepareConnect(const std::string& addr, unsigned short port,
+                                const std::string& url);
+
+            void connect();
+
+            void connect(const net::AddrInfo& addrinfo, const std::string& url)
+            { prepareConnect(addrinfo, url); connect(); }
+
+            void connect(const net::Uri& uri)
+            { prepareConnect(uri); connect(); }
+
+            void connect(const std::string& addr, unsigned short port, const std::string& url)
+            { prepareConnect(addr, port, url); connect(); }
 
             void url(const std::string& url);
             void auth(const std::string& username, const std::string& password);
@@ -87,8 +109,10 @@ namespace json
             void call(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc);
 
             std::size_t timeout() const;
-
             void timeout(std::size_t t);
+
+            std::size_t connectTimeout() const;
+            void connectTimeout(std::size_t t);
 
             const std::string& url() const;
 
@@ -100,6 +124,9 @@ namespace json
 
         private:
             HttpClientImpl* _impl;
+            HttpClientImpl* getImpl();
+            const HttpClientImpl* getImpl() const
+            { return const_cast<HttpClient*>(this)->getImpl(); }
     };
 
 }

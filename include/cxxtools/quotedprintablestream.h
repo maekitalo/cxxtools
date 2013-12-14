@@ -34,6 +34,24 @@
 namespace cxxtools
 {
 
+/**
+   The QuotedPrintable_streambuf and QuotedPrintable_ostream implements a
+   encoder for Quoted-printable encoding.
+
+   Quoted-printable encoding is used sometimes in E-Mails to reduce the
+   character set to 7 bit.
+
+   Usage example:
+   \code
+
+      std::ostringstream s;
+      cxxtools::QuotedPrintable_ostream q(s);
+      q << "H\xe4tten H\xfcte ein \xdf im Namen, w\xe4ren sie m\xf6glicherweise keine H\xfcte mehr,\nsondern H\xfc\xdf" "e.";
+
+      std::string quotedprintabletext = s.str();
+
+   \endcode
+ */
 class QuotedPrintable_streambuf : public std::streambuf
 {
     std::streambuf* sinksource;

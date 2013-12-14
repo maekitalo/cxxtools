@@ -32,6 +32,8 @@
 namespace cxxtools
 {
 
+class Timespan;
+
 class ThreadImpl
 {
     public:
@@ -64,7 +66,7 @@ class ThreadImpl
             ::sched_yield();
         }
 
-        static void sleep(unsigned int ms);
+        static void sleep(const Timespan& ts);
 
         const Callable<void>* cb()
         { return _cb; }

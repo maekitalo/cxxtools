@@ -45,21 +45,21 @@ namespace json
 RpcClientImpl::RpcClientImpl()
     : _stream(_socket, 8192, true),
       _exceptionPending(false),
-      _proc(0)
+      _proc(0),
+      _timeout(Selectable::WaitInfinite),
+      _connectTimeoutSet(false),
+      _connectTimeout(Selectable::WaitInfinite)
 {
     cxxtools::connect(_socket.connected, *this, &RpcClientImpl::onConnect);
     cxxtools::connect(_stream.buffer().outputReady, *this, &RpcClientImpl::onOutput);
     cxxtools::connect(_stream.buffer().inputReady, *this, &RpcClientImpl::onInput);
 }
 
-void RpcClientImpl::connect(const std::string& addr, unsigned short port)
+void RpcClientImpl::connect()
 {
-    if (_addr != addr || _port != port)
-    {
-        _socket.close();
-        _addr = addr;
-        _port = port;
-    }
+    _socket.setTimeout(_connectTimeout);
+    _socket.close();
+    _socket.connect(_addrInfo);
 }
 
 void RpcClientImpl::close()
@@ -88,13 +88,13 @@ void RpcClientImpl::beginCall(IComposer& r, IRemoteProcedure& method, IDecompose
         catch (const IOError&)
         {
             log_debug("write failed, connection is not active any more");
-            _socket.beginConnect(_addr, _port);
+            _socket.beginConnect(_addrInfo);
         }
     }
     else
     {
         log_debug("not yet connected - do it now");
-        _socket.beginConnect(_addr, _port);
+        _socket.beginConnect(_addrInfo);
     }
 
     _scanner.begin(_deserializer, r);
@@ -118,7 +118,12 @@ void RpcClientImpl::call(IComposer& r, IRemoteProcedure& method, IDecomposer** a
     prepareRequest(_proc->name(), argv, argc);
 
     if (!_socket.isConnected())
-        _socket.connect(_addr, _port);
+    {
+        _socket.setTimeout(_connectTimeout);
+        _socket.connect(_addrInfo);
+    }
+
+    _socket.setTimeout(timeout());
 
     try
     {

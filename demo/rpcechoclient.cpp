@@ -52,7 +52,11 @@ int main(int argc, char* argv[])
                                                       : json   ? 7004
                                                       :          7002);
 
-    // define a xlmrpc client
+    // optionally read -t <timeout> or -T <connectTimeout> (in ms)
+    cxxtools::Arg<std::size_t> timeout(argc, argv, 't');
+    cxxtools::Arg<std::size_t> connectTimeout(argc, argv, 'T');
+
+    // define a xmlrpc client
     cxxtools::xmlrpc::HttpClient xmlrpcClient(ip, port, "/xmlrpc");
     // and a binary rpc client
     cxxtools::bin::RpcClient binaryClient(ip, port);
@@ -61,13 +65,20 @@ int main(int argc, char* argv[])
     // and a json rpc http client
     cxxtools::json::HttpClient jsonHttpClient(ip, port, "/jsonrpc");
 
-    // define remote procedure with std::string return value and a std::string parameter,
-    // which uses one of the clients
-    cxxtools::RemoteProcedure<std::string, std::string> echo(
+    cxxtools::RemoteClient& client = 
         binary   ? static_cast<cxxtools::RemoteClient&>(binaryClient) :
         json     ? static_cast<cxxtools::RemoteClient&>(jsonClient) :
         jsonhttp ? static_cast<cxxtools::RemoteClient&>(jsonHttpClient) :
-                   static_cast<cxxtools::RemoteClient&>(xmlrpcClient), "echo");
+                   static_cast<cxxtools::RemoteClient&>(xmlrpcClient);
+
+    if (connectTimeout.isSet())
+      client.connectTimeout(connectTimeout);
+    if (timeout.isSet())
+      client.timeout(timeout);
+
+    // define remote procedure with std::string return value and a std::string parameter,
+    // which uses one of the clients
+    cxxtools::RemoteProcedure<std::string, std::string> echo(client, "echo");
 
     for (int a = 1; a < argc; ++a)
     {

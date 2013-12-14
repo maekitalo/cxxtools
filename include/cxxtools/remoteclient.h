@@ -37,6 +37,7 @@ namespace cxxtools
     class IDecomposer;
     class IRemoteProcedure;
 
+    /// Base class for rpc client.
     class RemoteClient
     {
         public:
@@ -56,6 +57,12 @@ namespace cxxtools
             virtual void cancel() = 0;
 
             virtual void wait(std::size_t msecs = WaitInfinite) = 0;
+
+            virtual std::size_t timeout() const = 0;
+            virtual void timeout(std::size_t t) = 0;
+
+            virtual std::size_t connectTimeout() const = 0;
+            virtual void connectTimeout(std::size_t t) = 0;
 
     };
 }

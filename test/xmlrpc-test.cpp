@@ -34,6 +34,9 @@
 #include "cxxtools/http/server.h"
 #include "cxxtools/eventloop.h"
 #include "cxxtools/log.h"
+#include "cxxtools/ioerror.h"
+#include "cxxtools/net/uri.h"
+#include "cxxtools/net/addrinfo.h"
 #include <stdlib.h>
 #include <sstream>
 
@@ -105,6 +108,9 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             registerMethod("CallbackException", *this, &XmlRpcTest::CallbackException);
             registerMethod("ConnectError", *this, &XmlRpcTest::ConnectError);
             registerMethod("BigRequest", *this, &XmlRpcTest::BigRequest);
+            registerMethod("PrepareConnect", *this, &XmlRpcTest::PrepareConnect);
+            registerMethod("Connect", *this, &XmlRpcTest::Connect);
+            registerMethod("Multiple", *this, &XmlRpcTest::Multiple);
 
             char* PORT = getenv("UTEST_PORT");
             if (PORT)
@@ -221,7 +227,7 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
         void Boolean()
         {
             cxxtools::xmlrpc::Service service;
-            service.registerMethod("multiply", *this, &XmlRpcTest::multiplyBoolean);
+            service.registerMethod("multiply", *this, &XmlRpcTest::boolean);
             _server->addService("/rpc", service);
 
             cxxtools::xmlrpc::HttpClient client(_loop, "", _port, "/rpc");
@@ -231,7 +237,7 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(r, true);
         }
 
-        bool multiplyBoolean(bool a, bool b)
+        bool boolean(bool a, bool b)
         {
             CXXTOOLS_UNIT_ASSERT_EQUALS(a, true);
             CXXTOOLS_UNIT_ASSERT_EQUALS(b, true);
@@ -651,8 +657,6 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
         //
         void BigRequest()
         {
-            log_trace("ConnectError");
-
             cxxtools::xmlrpc::Service service;
             service.registerMethod("countSize", *this, &XmlRpcTest::countSize);
             _server->addService("/rpc", service);
@@ -679,6 +683,152 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
         unsigned countSize(const std::vector<int>& v)
         {
             return v.size();
+        }
+
+        ////////////////////////////////////////////////////////////
+        // PrepareConnect
+        //
+        void PrepareConnect()
+        {
+            log_trace("PrepareConnect");
+
+            cxxtools::xmlrpc::Service service;
+            service.registerMethod("boolean", *this, &XmlRpcTest::boolean);
+            _server->addService("/rpc", service);
+
+            // test connect using cxxtools::net::AddrInfo
+            {
+                cxxtools::xmlrpc::HttpClient client(_loop);
+                cxxtools::RemoteProcedure<bool, bool, bool> boolean(client, "boolean");
+
+                client.prepareConnect(cxxtools::net::AddrInfo("", _port), "/rpc");
+                boolean.begin(true, true);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(boolean.end(2000), true);
+            }
+
+            // test connect using host and port
+            {
+                cxxtools::xmlrpc::HttpClient client(_loop);
+                cxxtools::RemoteProcedure<bool, bool, bool> boolean(client, "boolean");
+
+                client.prepareConnect("", _port, "/rpc");
+                boolean.begin(true, true);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(boolean.end(2000), true);
+            }
+
+            // test connect using uri
+            {
+                cxxtools::xmlrpc::HttpClient client(_loop);
+                cxxtools::RemoteProcedure<bool, bool, bool> boolean(client, "boolean");
+
+                std::ostringstream uri;
+                uri << "http://localhost:" << _port << "/rpc";
+                client.prepareConnect(cxxtools::net::Uri(uri.str()));
+                boolean.begin(true, true);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(boolean.end(2000), true);
+            }
+
+            // test failing connect in connect
+            {
+                cxxtools::xmlrpc::HttpClient client(_loop);
+                cxxtools::RemoteProcedure<bool, bool, bool> boolean(client, "boolean");
+
+                CXXTOOLS_UNIT_ASSERT_NOTHROW(client.prepareConnect("", _port + 1, "/rpc"));
+                CXXTOOLS_UNIT_ASSERT_THROW(client.connect(), cxxtools::IOError);
+            }
+
+            // test failing connect when calling function
+            {
+                cxxtools::xmlrpc::HttpClient client(_loop);
+                cxxtools::RemoteProcedure<bool, bool, bool> boolean(client, "boolean");
+                CXXTOOLS_UNIT_ASSERT_NOTHROW(client.prepareConnect("", _port + 1, "/rpc"));
+
+                boolean.begin(true, true);
+                CXXTOOLS_UNIT_ASSERT_THROW(boolean.end(2000), cxxtools::IOError);
+            }
+
+        }
+
+        ////////////////////////////////////////////////////////////
+        // Connect
+        //
+        void Connect()
+        {
+            cxxtools::xmlrpc::Service service;
+            service.registerMethod("boolean", *this, &XmlRpcTest::boolean);
+            _server->addService("/rpc", service);
+
+            // test connect using cxxtools::net::AddrInfo
+            {
+                cxxtools::xmlrpc::HttpClient client(_loop);
+                cxxtools::RemoteProcedure<bool, bool, bool> boolean(client, "boolean");
+
+                client.connect(cxxtools::net::AddrInfo("", _port), "/rpc");
+                boolean.begin(true, true);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(boolean.end(2000), true);
+            }
+
+            // test connect using host and port
+            {
+                cxxtools::xmlrpc::HttpClient client(_loop);
+                cxxtools::RemoteProcedure<bool, bool, bool> boolean(client, "boolean");
+
+                client.connect("", _port, "/rpc");
+                boolean.begin(true, true);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(boolean.end(2000), true);
+            }
+
+            // test connect using uri
+            {
+                cxxtools::xmlrpc::HttpClient client(_loop);
+                cxxtools::RemoteProcedure<bool, bool, bool> boolean(client, "boolean");
+
+                std::ostringstream uri;
+                uri << "http://localhost:" << _port << "/rpc";
+                client.connect(cxxtools::net::Uri(uri.str()));
+                boolean.begin(true, true);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(boolean.end(2000), true);
+            }
+
+            // test failing connect
+            {
+                cxxtools::xmlrpc::HttpClient client(_loop);
+                cxxtools::RemoteProcedure<bool, bool, bool> boolean(client, "boolean");
+
+                CXXTOOLS_UNIT_ASSERT_THROW(client.connect("", _port + 1, "/rpc"), cxxtools::IOError);
+            }
+
+        }
+
+        ////////////////////////////////////////////////////////////
+        // Multiple calls
+        //
+        void Multiple()
+        {
+            cxxtools::xmlrpc::Service service;
+            service.registerMethod("multiply", *this, &XmlRpcTest::multiplyDouble);
+            _server->addService("/rpc", service);
+
+            typedef cxxtools::RemoteProcedure<double, double, double> Multiply;
+
+            std::vector<cxxtools::xmlrpc::HttpClient> clients;
+            std::vector<Multiply> procs;
+
+            clients.reserve(16);
+            procs.reserve(16);
+
+            for (unsigned i = 0; i < 16; ++i)
+            {
+                clients.push_back(cxxtools::xmlrpc::HttpClient(_loop, "", _port, "/rpc"));
+                procs.push_back(Multiply(clients.back(), "multiply"));
+                procs.back().begin(i, i);
+            }
+
+            for (unsigned i = 0; i < 16; ++i)
+            {
+                CXXTOOLS_UNIT_ASSERT_EQUALS(procs[i].end(2000), i*i);
+            }
+
         }
 
 };

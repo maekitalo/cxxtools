@@ -90,11 +90,11 @@ Next we want to implement a client, which calls our methods on the server. It is
 even simpler than the server:
 
     // Define client class with a empty IP, which means localhost and a port
-    cxxtools::xmlrpc::HttpClient client("", 8077, "/xmlrpc);
+    cxxtools::xmlrpc::HttpClient client("", 8077, "/xmlrpc");
 
     // Define the remote procedure with 3 template parameters. The first is
     // always the return type and the rest are the types of the parameters.
-    cxxtools::RemoteProcedure<double, double, std::string> add(client, "add");
+    cxxtools::RemoteProcedure<double, double, double> add(client, "add");
 
     // and call the procedure:
     double result = add(17, 4);
@@ -107,6 +107,25 @@ To make the example complete we need the headers:
 
 Very simple. Again `cxxtools` uses template magic in `cxxtools::RemoteProcedure`
 to generate all the serialization and deserialization stuff we need.
+Handling exceptions
+-------------------
+
+There were 2 types of exceptions, which can happen here. Either purely technical
+exceptions like I/O errors when the server is not reachable or exceptions thrown
+by the procedure on the server side.
+
+Technical exceptions are handled like always in `cxxtools`. They are just
+thrown. There is nothing special here.
+
+Exceptions thrown by the server procedure are sent to the client. The client
+then throws the exception when the result is requested. So it behaves like
+a local function call. The only difference is, that the actual exception type is
+lost. The exception is always derived from `cxxtools::RemoteException`.
+
+Note that all exceptions thrown in cxxtools are derived from `std::exception`.
+So as shown in the example it is sufficient to catch just `std::exception` to
+catch all exceptions of the remote procedure.
+
 
 Using complex structures in XML RPC
 ------------------------------------
@@ -139,6 +158,10 @@ We need 2 operators:
         si.getMember("aFlag") >>= myData.aFlag;
         si.getMember("moreValues") >>= myData.moreValues;
     }
+
+To define the operators a header is needed:
+
+    #include <cxxtools/serializationinfo.h>
 
 And we are done. Now we can use the structure just like any other type.
 

@@ -28,6 +28,7 @@
 #include "cxxtools/date.h"
 #include "cxxtools/convert.h"
 #include "cxxtools/serializationinfo.h"
+#include "dateutils.h"
 #include <cctype>
 
 namespace cxxtools
@@ -66,76 +67,121 @@ void jul2greg(unsigned jd, int& y, int& m, int& d)
 }
 
 
-namespace
+
+Date::Date(const std::string& str, const std::string& fmt)
 {
-    unsigned short getNumber2(const char* s)
+  unsigned year = 0;
+  unsigned month = 0;
+  unsigned day = 0;
+
+  enum {
+    state_0,
+    state_fmt
+  } state = state_0;
+
+  std::string::const_iterator dit = str.begin();
+  std::string::const_iterator it;
+  for (it = fmt.begin(); it != fmt.end() && dit != str.end(); ++it)
+  {
+    char ch = *it;
+    switch (state)
     {
-        if (!std::isdigit(s[0]) || !std::isdigit(s[1]))
+      case state_0:
+        if (ch == '%')
+          state = state_fmt;
+        else
         {
-            throw ConversionError("Invalid date format");
+          if (*dit != ch)
+            throw std::runtime_error("string <" + str + "> does not match date format <" + fmt + '>');
+          ++dit;
+        }
+        break;
+
+      case state_fmt:
+        switch (ch)
+        {
+          case 'Y':
+            year = getInt(dit, str.end(), 4);
+            break;
+
+          case 'y':
+            year = getInt(dit, str.end(), 4);
+            year += (year < 50 ? 2000 : 1900);
+            break;
+
+          case 'm':
+            month = getUnsigned(dit, str.end(), 2);
+            break;
+
+          case 'd':
+            day = getUnsigned(dit, str.end(), 2);
+            break;
+
+          default:
+            throw std::runtime_error("invalid date format <" + fmt + '>');
         }
 
-        return (s[0] - '0') * 10
-             + (s[1] - '0');
+        state = state_0;
+        break;
     }
+  }
 
+  if (it != fmt.end() || dit != str.end())
+    throw std::runtime_error("string <" + str + "> does not match date format <" + fmt + '>');
 
-    unsigned short getNumber4(const char* s)
+  set(year, month, day);
+}
+
+std::string Date::toString(const std::string& fmt) const
+{
+  int year;
+  unsigned month;
+  unsigned day;
+
+  get(year, month, day);
+
+  std::string str;
+
+  enum {
+    state_0,
+    state_fmt
+  } state = state_0;
+
+  for (std::string::const_iterator it = fmt.begin(); it != fmt.end(); ++it)
+  {
+    switch (state)
     {
-        if ( ! std::isdigit(s[0]) || !std::isdigit(s[1])
-            || !std::isdigit(s[2])  || !std::isdigit(s[3]))
+      case state_0:
+        if (*it == '%')
+          state = state_fmt;
+        else
+          str += *it;
+        break;
+
+      case state_fmt:
+        switch (*it)
         {
-            throw ConversionError("Invalid date format");
+          case 'Y': appendD4(str, year); break;
+          case 'y': appendD2(str, year % 100); break;
+          case 'm': appendD2(str, month); break;
+          case 'd': appendD2(str, day); break;
+          case 'w': appendD1(str, dayOfWeek()); break;
+          case 'W': { int dow = dayOfWeek(); appendD1(str, dow == 0 ? 7 : dow); } break;
+          default:
+            str += '%';
         }
 
-        return (s[0] - '0') * 1000
-             + (s[1] - '0') * 100
-             + (s[2] - '0') * 10
-             + (s[3] - '0');
+        if (*it != '%')
+          state = state_0;
+        break;
     }
+  }
+
+  if (state == state_fmt)
+    str += '%';
+
+  return str;
 }
-
-
-void convert(std::string& str, const Date& date)
-{
-    // format YYYY-MM-DD
-    //        0....+....1
-
-    int year, month, day;
-    jul2greg(date.julian(), year, month, day);
-
-    char ret[10];
-    unsigned short n = year;
-
-    ret[3] = '0' + n % 10;
-    n /= 10;
-    ret[2] = '0' + n % 10;
-    n /= 10;
-    ret[1] = '0' + n % 10;
-    n /= 10;
-    ret[0] = '0' + n % 10;
-    ret[4] = '-';
-    ret[5] = '0' + month / 10;
-    ret[6] = '0' + month % 10;
-    ret[7] = '-';
-    ret[8] = '0' + day / 10;
-    ret[9] = '0' + day % 10;
-
-    str.assign(ret, 10);
-}
-
-
-void convert(Date& date, const std::string& s)
-{
-    if (s.size() < 10 || s.at(4) != '-' || s.at(7) != '-')
-    {
-        throw ConversionError("Illegal date format");
-    }
-
-    const char* d = s.data();
-    date = Date(getNumber4(d), getNumber2(d + 5), getNumber2(d + 8));
-}
-
 
 void operator>>=(const SerializationInfo& si, Date& date)
 {
@@ -151,17 +197,14 @@ void operator>>=(const SerializationInfo& si, Date& date)
     {
         std::string s;
         si.getValue(s);
-        convert(date, s);
+        date = Date(s);
     }
 }
 
 void operator<<=(SerializationInfo& si, const Date& date)
 {
-    std::string s;
-    convert(s, date);
-    si.setValue(s);
+    si.setValue(date.toString());
     si.setTypeName("Date");
 }
 
 }
-

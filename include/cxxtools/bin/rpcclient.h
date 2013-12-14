@@ -37,6 +37,14 @@ namespace cxxtools
 
 class SelectorBase;
 
+namespace net
+{
+
+class AddrInfo;
+class Uri;
+
+}
+
 namespace bin
 {
 
@@ -45,26 +53,50 @@ class RpcClientImpl;
 class RpcClient : public RemoteClient
 {
         RpcClientImpl* _impl;
+        RpcClientImpl* getImpl();
+        const RpcClientImpl* getImpl() const
+        { return const_cast<RpcClient*>(this)->getImpl(); }
 
     public:
         RpcClient()
-        : _impl(0)
+            : _impl(0)
         { }
 
-        RpcClient(SelectorBase& selector, const std::string& addr, unsigned short port, const std::string& domain = std::string());
+        explicit RpcClient(SelectorBase& selector)
+            : _impl(0)
+        { setSelector(selector); }
 
+        RpcClient(const net::AddrInfo& addr, const std::string& domain = std::string());
         RpcClient(const std::string& addr, unsigned short port, const std::string& domain = std::string());
+        explicit RpcClient(const net::Uri& uri, const std::string& domain = std::string());
 
-        RpcClient(RpcClient&);
+        RpcClient(SelectorBase& selector, const net::AddrInfo& addr, const std::string& domain = std::string());
+        RpcClient(SelectorBase& selector, const std::string& addr, unsigned short port, const std::string& domain = std::string());
+        explicit RpcClient(SelectorBase& selector, const net::Uri& uri, const std::string& domain = std::string());
+
+        RpcClient(const RpcClient&);
         RpcClient& operator= (const RpcClient&);
 
         virtual ~RpcClient();
 
-        void setSelector(SelectorBase& selector);
+        void prepareConnect(const net::AddrInfo& addr, const std::string& domain = std::string());
+        void prepareConnect(const std::string& addr, unsigned short port, const std::string& domain = std::string());
+        void prepareConnect(const net::Uri& uri, const std::string& domain = std::string());
 
-        void connect(const std::string& addr, unsigned short port, const std::string& domain = std::string());
+        void connect(const net::AddrInfo& addrinfo, const std::string& domain = std::string())
+        { prepareConnect(addrinfo, domain); connect(); }
+
+        void connect(const std::string& host, unsigned short int port, const std::string& domain = std::string())
+        { prepareConnect(host, port, domain); connect(); }
+
+        void connect(const net::Uri& uri, const std::string& domain = std::string())
+        { prepareConnect(uri, domain); connect(); }
+
+        void connect();
 
         void close();
+
+        void setSelector(SelectorBase& selector);
 
         void beginCall(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc);
 
@@ -72,11 +104,17 @@ class RpcClient : public RemoteClient
 
         void call(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc);
 
+        std::size_t timeout() const;
+        void timeout(std::size_t t);
+
+        std::size_t connectTimeout() const;
+        void connectTimeout(std::size_t t);
+
         const IRemoteProcedure* activeProcedure() const;
 
-        void wait(std::size_t msecs = WaitInfinite);
-
         void cancel();
+
+        void wait(std::size_t msecs = WaitInfinite);
 
         const std::string& domain() const;
 

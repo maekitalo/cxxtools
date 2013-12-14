@@ -61,7 +61,13 @@ class RpcClientImpl : public RefCounted, public Connectable
         void setSelector(SelectorBase& selector)
         { selector.add(_socket); }
 
-        void connect(const std::string& addr, unsigned short port);
+        void prepareConnect(const net::AddrInfo& addrinfo)
+        {
+            _addrInfo = addrinfo;
+            _socket.close();
+        }
+
+        void connect();
 
         void close();
 
@@ -70,6 +76,12 @@ class RpcClientImpl : public RefCounted, public Connectable
         void endCall();
 
         void call(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc);
+
+        std::size_t timeout() const  { return _timeout; }
+        void timeout(std::size_t t)  { _timeout = t; if (!_connectTimeoutSet) _connectTimeout = t; }
+
+        std::size_t connectTimeout() const  { return _connectTimeout; }
+        void connectTimeout(std::size_t t)  { _connectTimeout = t; _connectTimeoutSet = true; }
 
         const IRemoteProcedure* activeProcedure() const
         { return _proc; }
@@ -94,8 +106,7 @@ class RpcClientImpl : public RefCounted, public Connectable
         net::TcpSocket _socket;
         IOStream _stream;
 
-        std::string _addr;
-        unsigned short _port;
+        net::AddrInfo _addrInfo;
         std::string _prefix;
 
         // serialization
@@ -107,6 +118,10 @@ class RpcClientImpl : public RefCounted, public Connectable
         IRemoteProcedure* _proc;
         Formatter::int_type _count;
 
+        std::size_t _timeout;
+        bool _connectTimeoutSet;  // indicates if connectTimeout is explicitely set
+                                  // when not, it follows the setting of _timeout
+        std::size_t _connectTimeout;
 };
 
 }

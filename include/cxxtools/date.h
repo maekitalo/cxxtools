@@ -156,11 +156,16 @@ class Date
         : _julian(0)
         {}
 
-        /** \brief Copy constructor.
-        */
-        Date(const Date& date)
-        : _julian(date._julian)
-        {}
+        /** \brief create Date from string using format
+
+            Valid format codes are:
+
+              %Y   4 digit year
+              %y   2 digit year
+              %m   month (1-12)
+              %d   day (1-31)
+         */
+        explicit Date(const std::string& d, const std::string& fmt = "%Y-%m-%d");
 
         /** \brief Constructs a Date from given values
 
@@ -214,7 +219,7 @@ class Date
         */
         int year() const;
 
-        /** @brief Return day of the week, starting with sunday
+        /** @brief Return day of the week, starting with sunday (=0)
         */
         unsigned dayOfWeek() const;
 
@@ -297,13 +302,27 @@ class Date
 
         friend inline int operator-(const Date& a, const Date& b);
 
+        /** \brief format Date into a string using a format string
+
+            Valid format codes are:
+
+              %d day (1-31)
+              %m month (1-12)
+              %Y 4 digit year
+              %y 2 digit year
+              %w day of week (0-6 sunday=6)
+              %W day of week (1-7 sunday=7)
+         */
+        std::string toString(const std::string& fmt = "%Y-%m-%d") const;
+
         /** \brief Returns the date in ISO-format
 
             Converts the date in ISO-format (yyyy-mm-dd).
 
             \return Date as iso formated string.
         */
-        std::string toIsoString() const;
+        std::string toIsoString() const
+        { return toString("%Y-%m-%d"); }
 
         /** \brief Interprets a string as a date-string in ISO-format
 
@@ -315,7 +334,8 @@ class Date
             \return Date result
             \throw IllegalArgument
         */
-        static Date fromIsoString(const std::string& s);
+        static Date fromIsoString(const std::string& s)
+        { return Date(s, "%Y-%m-%d"); }
 
     public:
         /** \brief Returns true if values describe a valid date
@@ -334,11 +354,6 @@ class Date
 CXXTOOLS_API void operator >>=(const SerializationInfo& si, Date& date);
 
 CXXTOOLS_API void operator <<=(SerializationInfo& si, const Date& date);
-
-CXXTOOLS_API void convert(std::string& str, const Date& date);
-
-CXXTOOLS_API void convert(Date& date, const std::string& s);
-
 
 inline void Date::get(int& y, unsigned& m, unsigned& d) const
 {
@@ -429,22 +444,6 @@ inline bool Date::isValid(int y, int m, int d)
     }
 
     return true;
-}
-
-
-inline std::string Date::toIsoString() const
-{
-    std::string str;
-    convert(str, *this);
-    return str;
-}
-
-
-inline Date Date::fromIsoString(const std::string& s)
-{
-    Date date;
-    convert(date, s);
-    return date;
 }
 
 

@@ -2,6 +2,7 @@ arg
 arg-set
 cgi
 cxxlog
+deserialization
 dir
 dlloader
 execLs
@@ -25,8 +26,10 @@ pool
 regex
 rpcaddclient
 rpcasyncaddclient
+rpcparallelecho
 rpcechoclient
 rpcserver
+serialization
 signals
 splitter
 thread

@@ -32,6 +32,8 @@
 
 namespace cxxtools {
 
+class SerializationInfo;
+
 /** @brief  Represents time spans up to microsecond resolution.
     @ingroup DateTime
 */
@@ -44,7 +46,7 @@ class Timespan
         {}
 
         //! @brief Creates a Timespan.
-        Timespan(int64_t microseconds)
+        explicit Timespan(int64_t microseconds)
         : _span(microseconds)
         { }
 
@@ -67,9 +69,6 @@ class Timespan
 
         //! @brief Assignment operator.
         Timespan& operator=(const Timespan& timespan);
-
-        //! @brief Assignment operator.
-        Timespan& operator=(int64_t microseconds);
 
         //! @brief Assigns a new span.
         Timespan& set(int days, int hours, int minutes, int seconds, int microseconds);
@@ -94,18 +93,6 @@ class Timespan
 
         bool operator<=(const Timespan& ts) const;
 
-        bool operator==(int64_t microseconds) const;
-
-        bool operator!=(int64_t microseconds) const;
-
-        bool operator>(int64_t microseconds) const;
-
-        bool operator>=(int64_t microseconds) const;
-
-        bool operator<(int64_t microseconds) const;
-
-        bool operator<=(int64_t microseconds) const;
-
         Timespan operator+(const Timespan& d) const;
 
         Timespan operator-(const Timespan& d) const;
@@ -113,14 +100,6 @@ class Timespan
         Timespan& operator+=(const Timespan& d);
 
         Timespan& operator-=(const Timespan& d);
-
-        Timespan operator+(int64_t microseconds) const;
-
-        Timespan operator-(int64_t microseconds) const;
-
-        Timespan& operator+=(int64_t microseconds);
-
-        Timespan& operator-=(int64_t microseconds);
 
         //! @brief Returns the number of days.
         int days() const;
@@ -301,42 +280,6 @@ inline bool Timespan::operator <= (const Timespan& ts) const
 }
 
 
-inline bool Timespan::operator == (int64_t microseconds) const
-{
-    return _span == microseconds;
-}
-
-
-inline bool Timespan::operator != (int64_t microseconds) const
-{
-    return _span != microseconds;
-}
-
-
-inline bool Timespan::operator >  (int64_t microseconds) const
-{
-    return _span > microseconds;
-}
-
-
-inline bool Timespan::operator >= (int64_t microseconds) const
-{
-    return _span >= microseconds;
-}
-
-
-inline bool Timespan::operator <  (int64_t microseconds) const
-{
-    return _span < microseconds;
-}
-
-
-inline bool Timespan::operator <= (int64_t microseconds) const
-{
-    return _span <= microseconds;
-}
-
-
 inline void swap(Timespan& s1, Timespan& s2)
 {
     s1.swap(s2);
@@ -362,13 +305,6 @@ inline Timespan::Timespan(const Timespan& timespan)
 inline Timespan& Timespan::operator=(const Timespan& timespan)
 {
     _span = timespan._span;
-    return *this;
-}
-
-
-inline Timespan& Timespan::operator=(int64_t microseconds)
-{
-    _span = microseconds;
     return *this;
 }
 
@@ -423,32 +359,40 @@ inline Timespan& Timespan::operator -= (const Timespan& d)
 }
 
 
-inline Timespan Timespan::operator + (int64_t microseconds) const
+inline Timespan operator * (const Timespan& d, double fac)
 {
-    return Timespan(_span + microseconds);
+    return Timespan(d.totalUSecs() * fac);
 }
 
 
-inline Timespan Timespan::operator - (int64_t microseconds) const
+inline Timespan operator * (double fac, const Timespan& d)
 {
-    return Timespan(_span - microseconds);
-}
-
-
-inline Timespan& Timespan::operator += (int64_t microseconds)
-{
-    _span += microseconds;
-    return *this;
-}
-
-
-inline Timespan& Timespan::operator -= (int64_t microseconds)
-{
-    _span -= microseconds;
-    return *this;
+    return Timespan(d.totalUSecs() * fac);
 }
 
 std::ostream& operator<< (std::ostream& out, const Timespan& ht);
+
+void operator >>=(const SerializationInfo& si, Timespan& timespan);
+
+void operator <<=(SerializationInfo& si, const Timespan& timespan);
+
+inline Timespan microseconds(int64_t us)
+{ return Timespan(us); }
+
+inline Timespan milliseconds(double ms)
+{ return Timespan(ms * 1000); }
+
+inline Timespan seconds(double t)
+{ return Timespan(static_cast<int64_t>(t * 1e6)); }
+
+inline Timespan minutes(double t)
+{ return Timespan(static_cast<int64_t>(t * 60 * 1e6)); }
+
+inline Timespan hours(double t)
+{ return Timespan(static_cast<int64_t>(t * 60 * 60 * 1e6)); }
+
+inline Timespan days(double t)
+{ return Timespan(static_cast<int64_t>(t * 24 * 60 * 60 * 1e6)); }
 
 } // namespace cxxtools
 

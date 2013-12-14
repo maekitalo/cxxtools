@@ -62,7 +62,7 @@ int main(int argc, char* argv[])
     cxxtools::json::RpcClient jsonClient(ip, port);
 
     // and a http json rpc client
-    cxxtools::json::HttpClient httpJsonClient(ip, port,"/jsonrpc");
+    cxxtools::json::HttpClient httpJsonClient(ip, port, "/jsonrpc");
 
     // now se welect the client depending on the command line flags
     cxxtools::RemoteClient& theClient =

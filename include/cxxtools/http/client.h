@@ -55,43 +55,123 @@ class ClientImpl;
 class ReplyHeader;
 class Request;
 
-class CXXTOOLS_HTTP_API Client : private NonCopyable
+/**
+ This class implements a http client.
+
+ The class supports syncronous and asyncronous requests.
+
+ For connection handling see \ref connection.
+
+ For asyncronous I/O see \ref asyncronousIO.
+
+ Example for a syncronous call:
+
+ \code
+   cxxtools::http::Client client("www.tntnet.org", 80);
+   std::string indexPage = client.get("/");
+ \endcode
+
+ */
+class CXXTOOLS_HTTP_API Client
 {
         ClientImpl* _impl;
+        ClientImpl* getImpl();
+        const ClientImpl* getImpl() const
+        { return const_cast<Client*>(this)->getImpl(); }
 
     public:
-        Client();
-        Client(const std::string& host, unsigned short int port);
+        /// default constructor.
+        Client()
+            : _impl(0)
+        { }
+
+        ///@{
+        /// constructors which set the connection parameters and optionally connect to the server.
         explicit Client(const net::AddrInfo& addr);
+        Client(const std::string& host, unsigned short int port);
+        ///@}
+
+        explicit Client(SelectorBase& selector)
+            : _impl(0)
+        { setSelector(selector); }
+
+        /** constructor with cxxtools::net::Uri.
+            Note that the Uri class has a non explicit constructor from std::string.
+            The protocol of the uri must be http. The url part of the uri is ignored.
+
+            This makes using uris natural.
+
+            example:
+            \code
+              cxxtools::http::Client client("http://localhost:8000/");
+            \endcode
+         */
         explicit Client(const net::Uri& uri);
+
+        ///@{
+        /// constructors which set the selector for asyncronous request processing and the connection parameters.
 
         Client(SelectorBase& selector, const std::string& host, unsigned short int port);
         Client(SelectorBase& selector, const net::AddrInfo& addrinfo);
         Client(SelectorBase& selector, const net::Uri& uri);
+
+        ///@}
+
+        /** copy and assignment.
+            When the class is copied, the copy points to the same implementation.
+            Hence it is not a real copy.
+         */
 
         Client(const Client& other);
         Client& operator= (const Client& other);
 
         ~Client();
 
-        // Sets the host and port. No actual network connect is done.
-        void connect(const net::AddrInfo& addrinfo);
-        void connect(const std::string& host, unsigned short int port);
+        /** The prepareConnect methods set the host and port of the server for this http client.
 
-        // Sends the passed request to the server and parses the headers.
-        // The body must be read with readBody.
-        // This method blocks or times out until the body is parsed.
+           No actual network connect is done.
+
+           \see
+             \ref connection
+         */
+        void prepareConnect(const net::AddrInfo& addrinfo);
+        void prepareConnect(const std::string& host, unsigned short int port);
+        void prepareConnect(const net::Uri& uri);
+        void connect();
+        void close();
+
+        void connect(const net::AddrInfo& addrinfo)
+        { prepareConnect(addrinfo); connect(); }
+
+        void connect(const std::string& host, unsigned short int port)
+        { prepareConnect(host, port); connect(); }
+
+        void connect(const net::Uri& uri)
+        { prepareConnect(uri); connect(); }
+
+        /** Sends the passed request to the server and parses the headers.
+
+            The body must be read with readBody.
+            This method blocks or times out until the body is parsed.
+            When connectTimeout is set to WaitInfinite but timeout is set to
+            something else, the connectTimeout is set to timeout as well.
+        */
         const ReplyHeader& execute(const Request& request,
-            std::size_t timeout = Selectable::WaitInfinite);
+            std::size_t timeout = Selectable::WaitInfinite,
+            std::size_t connectTimeout = Selectable::WaitInfinite);
 
         const ReplyHeader& header();
 
-        // Reads the http body after header read with execute.
-        // This method blocks until the body is received.
+        /** Reads the http body after header read with execute.
+
+            This method blocks until the body is received.
+         */
         void readBody(std::string& s);
 
-        // Reads the http body after header read with execute.
-        // This method blocks until the body is received.
+        /** Reads the http body after header read with execute.
+         *
+            This method blocks until the body is received.
+         */
         std::string readBody()
         {
             std::string ret;
@@ -99,54 +179,75 @@ class CXXTOOLS_HTTP_API Client : private NonCopyable
             return ret;
         }
 
-        // Combines the execute and readBody methods in one call.
-        // This method blocks until the reply is recieved.
-        std::string get(const std::string& url,
-            std::size_t timeout = Selectable::WaitInfinite);
+        /** Combines the execute and readBody methods in one call.
 
-        // Starts a new request.
-        // This method does not block. To actually process the request, the
-        // event loop must be executed. The state of the request is signaled
-        // with the corresponding signals and delegates.
-        // The delegate "bodyAvailable" must be connected, if a body is
-        // received.
+            This method blocks until the reply is recieved.
+            When connectTimeout is set to WaitInfinite but timeout is set to
+            something else, the connectTimeout is set to timeout as well.
+          */
+        std::string get(const std::string& url,
+            std::size_t timeout = Selectable::WaitInfinite,
+            std::size_t connectTimeout = Selectable::WaitInfinite);
+
+        /** Starts a new request.
+
+            This method does not block. To actually process the request, the
+            event loop must be executed. The state of the request is signaled
+            with the corresponding signals and delegates.
+            The delegate "bodyAvailable" must be connected, if a body is
+            received.
+         */
         void beginExecute(const Request& request);
 
+        /** Finishes the request.
+
+            When the signal replyFinished is issued, the user has to call
+            endExecute. This may throw an exception when something went wrong.
+         */
         void endExecute();
 
+        /// Sets the selector for asyncronous event processing.
         void setSelector(SelectorBase& selector);
 
+        /// Returns the selector for asyncronous event processing.
         SelectorBase* selector();
 
-        // Executes the underlying selector until a event occures or the
-        // specified timeout is reached.
+        /** Executes the underlying selector until a event occurs or the
+            specified timeout is reached.
+         */
         bool wait(std::size_t msecs);
 
-        // Returns the underlying stream, where the reply may be read from.
+        /** Returns the underlying stream, where the reply is be read from.
+         */
         std::istream& in();
 
         const std::string& host() const;
 
         unsigned short int port() const;
 
-        // Sets the username and password for all subsequent requests.
+        /** Sets the username and password for all subsequent requests.
+
+            Basic authorization is used always.
+         */
         void auth(const std::string& username, const std::string& password);
 
+        /** Clears the username and password for all subsequent requests.
+         */
         void clearAuth();
 
         void cancel();
 
-        // Signals that the request is sent to the server.
+        /// Signals that the request is sent to the server.
         Signal<Client&> requestSent;
 
-        // Signals that the header is received.
+        /// Signals that the header is received.
         Signal<Client&> headerReceived;
 
-        // This delegate is called, when data is arrived while reading the
-        // body. The connected functor must return the number of bytes read.
+        /// This delegate is called, when data is arrived while reading the
+        /// body. The connected functor must return the number of bytes read.
         cxxtools::Delegate<std::size_t, Client&> bodyAvailable;
 
-        // Signals that the reply is completely processed.
+        /// Signals that the reply is completely processed.
         Signal<Client&> replyFinished;
 };
 

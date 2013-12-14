@@ -27,6 +27,7 @@
  */
 
 #include <cxxtools/timespan.h>
+#include <cxxtools/serializationinfo.h>
 #include <sys/time.h>
 #include <time.h>
 #include <iostream>
@@ -45,4 +46,21 @@ namespace cxxtools
         out << static_cast<double>(ht.toUSecs()) / 1e6;
         return out;
     }
+
+    void operator >>=(const SerializationInfo& si, Timespan& timespan)
+    {
+        double s;
+        si >>= s;
+        if (s >= 0)
+            timespan = Timespan(static_cast<int64_t>(s * 1e6 + .5));
+        else
+            timespan = Timespan(static_cast<int64_t>(s * 1e6 - .5));
+    }
+
+    void operator <<=(SerializationInfo& si, const Timespan& timespan)
+    {
+        si.setTypeName("seconds");
+        si <<= (timespan.totalUSecs() / 1e6);
+    }
+
 }

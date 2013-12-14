@@ -33,6 +33,7 @@
 #include <cxxtools/callable.h>
 #include <cxxtools/function.h>
 #include <cxxtools/method.h>
+#include <cxxtools/timespan.h>
 
 namespace cxxtools {
 
@@ -132,10 +133,16 @@ namespace cxxtools {
 
             /** @brief Sleep for some time
 
-                The calling thread sleeps for \a ms milliseconds. Throws a
-                SystemError on failure.
+                The calling thread sleeps for a specified timespan.
             */
-            static void sleep(unsigned int ms);
+            static void sleep(const Timespan& ts);
+
+            /** @brief Sleep for some time
+
+                The calling thread sleeps for \a ms milliseconds.
+            */
+            static void sleep(unsigned int ms)
+            { sleep(milliseconds(ms)); }
 
         protected:
             //! @brief Detaches the thread

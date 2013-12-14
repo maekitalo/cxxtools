@@ -43,7 +43,7 @@ namespace cxxtools
         public:
             CsvDeserializer(std::istream& in, TextCodec<Char, char>* codec = new Utf8Codec());
 
-            CsvDeserializer(TextIStream& in);
+            CsvDeserializer(std::basic_istream<Char>& in);
 
             ~CsvDeserializer();
 
@@ -72,7 +72,7 @@ namespace cxxtools
             void doDeserialize();
 
             TextIStream* _ts;
-            TextIStream& _in;
+            std::basic_istream<Char>& _in;
             CsvParser _parser;
     };
 }

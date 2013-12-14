@@ -28,58 +28,212 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 #include "cxxtools/datetime.h"
-#include "cxxtools/convert.h"
 #include "cxxtools/serializationinfo.h"
-#include <algorithm>
-#include <sstream>
+#include "dateutils.h"
 #include <stdexcept>
 #include <cctype>
-#include <cmath>
-#include <cassert>
 
 namespace cxxtools
 {
 
-namespace
+DateTime::DateTime(const std::string& str, const std::string& fmt)
 {
+  unsigned year = 0;
+  unsigned month = 0;
+  unsigned day = 0;
+  unsigned hours = 0;
+  unsigned minutes = 0;
+  unsigned seconds = 0;
+  unsigned mseconds = 0;
+  bool am = true;
 
-unsigned short getNumber2(const char* s)
-{
-    if( ! std::isdigit(s[0]) || !std::isdigit(s[1]) )
-        throw ConversionError("Invalid DateTime format");
+  enum {
+    state_0,
+    state_fmt
+  } state = state_0;
 
-    return (s[0] - '0') * 10 + (s[1] - '0');
-}
+  std::string::const_iterator dit = str.begin();
+  std::string::const_iterator it;
+  for (it = fmt.begin(); it != fmt.end(); ++it)
+  {
+    char ch = *it;
+    switch (state)
+    {
+      case state_0:
+        if (ch == '%')
+          state = state_fmt;
+        else
+        {
+          if (dit == str.end() || *dit != ch)
+            throw std::runtime_error("string <" + str + "> does not match datetime format <" + fmt + '>');
+          ++dit;
+        }
+        break;
 
-unsigned short getNumber3(const char* s)
-{
-    if (!std::isdigit(s[0]) || !std::isdigit(s[1]) || !std::isdigit(s[2]))
-        throw ConversionError("Invalid DateTime format");
+      case state_fmt:
+        switch (ch)
+        {
+          case 'Y':
+            year = getInt(dit, str.end(), 4);
+            break;
 
-    return (s[0] - '0') * 100
-        + (s[1] - '0') * 10
-        + (s[2] - '0');
-}
+          case 'y':
+            year = getInt(dit, str.end(), 4);
+            year += (year < 50 ? 2000 : 1900);
+            break;
 
-unsigned short getNumber4(const char* s)
-{
-    if( ! std::isdigit(s[0]) || ! std::isdigit(s[1]) ||
-        ! std::isdigit(s[2]) || ! std::isdigit(s[3]) )
-        throw ConversionError("Invalid DateTime format");
+          case 'm':
+            month = getUnsigned(dit, str.end(), 2);
+            break;
 
-    return (s[0] - '0') * 1000
-        + (s[1] - '0') * 100
-        + (s[2] - '0') * 10
-        + (s[3] - '0');
-}
+          case 'd':
+            day = getUnsigned(dit, str.end(), 2);
+            break;
 
+          case 'H':
+          case 'I':
+            hours = getUnsigned(dit, str.end(), 2);
+            break;
+
+          case 'M':
+            minutes = getUnsigned(dit, str.end(), 2);
+            break;
+
+          case 'S':
+            seconds = getUnsigned(dit, str.end(), 2);
+            break;
+
+          case 'j':
+            if (dit != str.end() && *dit == '.')
+              ++dit;
+            mseconds = getMilliseconds(dit, str.end());
+            break;
+
+          case 'J':
+            if (dit != str.end() && *dit == '.')
+            {
+              ++dit;
+              mseconds = getMilliseconds(dit, str.end());
+            }
+            break;
+
+          case 'p':
+            if (dit == str.end()
+              || dit + 1 == str.end()
+              || ((*dit != 'A'
+                && *dit != 'a'
+                && *dit != 'P'
+                && *dit != 'p')
+              || (*(dit + 1) != 'M'
+                &&  *(dit + 1) != 'm')))
+            {
+                throw std::runtime_error("string <" + str + "> does not match datetime format <" + fmt + '>');
+            }
+
+            am = (*dit == 'A' || *dit == 'a');
+            dit += 2;
+            break;
+
+          default:
+            throw std::runtime_error("invalid datetime format <" + fmt + '>');
+        }
+
+        state = state_0;
+        break;
+    }
+  }
+
+  if (it != fmt.end() || dit != str.end())
+    throw std::runtime_error("string <" + str + "> does not match datetime format <" + fmt + '>');
+
+  set(year, month, day, am ? hours : hours + 12, minutes, seconds, mseconds);
 }
 
 int64_t DateTime::msecsSinceEpoch() const
 {
-    static const DateTime dt(1970, 1, 1);
+    static const DateTime dt(1970, 1, 1, 0, 0, 0);
     return (*this - dt).totalMSecs();
 }
+
+std::string DateTime::toString(const std::string& fmt) const
+{
+  int year;
+  unsigned month, day, hours, minutes, seconds, mseconds;
+
+  get(year, month, day, hours, minutes, seconds, mseconds);
+
+  std::string str;
+
+  enum {
+    state_0,
+    state_fmt
+  } state = state_0;
+
+  for (std::string::const_iterator it = fmt.begin(); it != fmt.end(); ++it)
+  {
+    switch (state)
+    {
+      case state_0:
+        if (*it == '%')
+          state = state_fmt;
+        else
+          str += *it;
+        break;
+
+      case state_fmt:
+        switch (*it)
+        {
+          case 'Y': appendD4(str, year); break;
+          case 'y': appendD2(str, year % 100); break;
+          case 'm': appendD2(str, month); break;
+          case 'd': appendD2(str, day); break;
+          case 'w': appendD1(str, dayOfWeek()); break;
+          case 'W': { int dow = dayOfWeek(); appendD1(str, dow == 0 ? 7 : dow); } break;
+          case 'H': appendD2(str, hours); break;
+          case 'I': appendD2(str, hours % 12); break;
+          case 'M': appendD2(str, minutes); break;
+          case 'S': appendD2(str, seconds); break;
+          case 'j': if (mseconds != 0)
+                    {
+                      str += '.';
+                      str += (mseconds / 100 + '0');
+                      if (mseconds % 100 != 0)
+                      {
+                        str += (mseconds / 10 % 10 + '0');
+                        if (mseconds % 10 != 0)
+                          str += (mseconds % 10 + '0');
+                      }
+                    }
+                    break;
+
+          case 'J': str += '.';
+                    str += (mseconds / 100 + '0');
+                    if (mseconds % 100 != 0)
+                    {
+                      str += (mseconds / 10 % 10 + '0');
+                      if (mseconds % 10 != 0)
+                        str += (mseconds % 10 + '0');
+                    }
+                    break;
+
+          case 'p': str += (hours < 12 ? "am" : "pm"); break;
+          case 'P': str += (hours < 12 ? "AM" : "PM"); break;
+          default:
+            str += '%';
+        }
+
+        if (*it != '%')
+          state = state_0;
+        break;
+    }
+  }
+
+  if (state == state_fmt)
+    str += '%';
+
+  return str;
+}
+
 
 DateTime& DateTime::operator+=(const Timespan& ts)
 {
@@ -131,7 +285,7 @@ Timespan operator-(const DateTime& first, const DateTime& second)
 
     int64_t result = (dayDiff * Time::MSecsPerDay + milliSecDiff) * 1000;
 
-    return result;
+    return Timespan(result);
 }
 
 DateTime operator+(const DateTime& dt, const Timespan& ts)
@@ -146,68 +300,6 @@ DateTime operator-(const DateTime& dt, const Timespan& ts)
     DateTime tmp = dt;
     tmp -= ts;
     return tmp;
-}
-
-void convert(DateTime& dt, const std::string& s)
-{
-    if (s.size() < 23
-        || s.at(4) != '-'
-        || s.at(7) != '-'
-        || s.at(10) != ' '
-        || s.at(13) != ':'
-        || s.at(16) != ':'
-        || s.at(19) != '.')
-        throw ConversionError("Invalid DateTime format");
-
-    const char* d = s.data();
-
-    dt= DateTime( getNumber4(d),
-                  getNumber2(d + 5),
-                  getNumber2(d + 8),
-                  getNumber2(d + 11),
-                  getNumber2(d + 14),
-                  getNumber2(d + 17),
-                  getNumber3(d + 20) );
-}
-
-
-void convert(std::string& str, const DateTime& dt)
-{
-    // format YYYY-MM-DD hh:mm:ss.sss
-    //        0....+....1....+....2....+
-    char ret[24];
-    unsigned short n = dt.date().year();
-    ret[3] = '0' + n % 10;
-    n /= 10;
-    ret[2] = '0' + n % 10;
-    n /= 10;
-    ret[1] = '0' + n % 10;
-    n /= 10;
-    ret[0] = '0' + n % 10;
-    ret[4] = '-';
-    ret[5] = '0' + dt.date().month() / 10;
-    ret[6] = '0' + dt.date().month() % 10;
-    ret[7] = '-';
-    ret[8] = '0' + dt.date().day() / 10;
-    ret[9] = '0' + dt.date().day() % 10;
-    ret[10] = ' ';
-    ret[11] = '0' + dt.time().hour() / 10;
-    ret[12] = '0' + dt.time().hour() % 10;
-    ret[13] = ':';
-    ret[14] = '0' + dt.time().minute() / 10;
-    ret[15] = '0' + dt.time().minute() % 10;
-    ret[16] = ':';
-    ret[17] = '0' + dt.time().second() / 10;
-    ret[18] = '0' + dt.time().second() % 10;
-    ret[19] = '.';
-    n = dt.time().msec();
-    ret[22] = '0' + n % 10;
-    n /= 10;
-    ret[21] = '0' + n % 10;
-    n /= 10;
-    ret[20] = '0' + n % 10;
-
-    str.assign(ret, 23);
 }
 
 void operator >>=(const SerializationInfo& si, DateTime& datetime)
@@ -244,16 +336,15 @@ void operator >>=(const SerializationInfo& si, DateTime& datetime)
     {
         std::string s;
         si.getValue(s);
-        convert(datetime, s);
+        datetime = DateTime(s);
     }
 }
 
-void operator <<=(SerializationInfo& si, const DateTime& datetime)
+void operator <<=(SerializationInfo& si, const DateTime& dt)
 {
-    std::string s;
-    convert(s, datetime);
-    si.setValue(s);
-    si.setTypeName( "DateTime");
+    si.setValue(dt.toString());
+    si.setTypeName("DateTime");
 }
+
 
 }

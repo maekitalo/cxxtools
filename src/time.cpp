@@ -28,9 +28,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 #include "cxxtools/time.h"
-#include "cxxtools/convert.h"
 #include "cxxtools/serializationinfo.h"
-#include <sstream>
+#include "dateutils.h"
+#include <stdexcept>
 #include <cctype>
 
 namespace cxxtools
@@ -40,71 +40,172 @@ InvalidTime::InvalidTime()
 : std::invalid_argument("Invalid time")
 { }
 
-
-namespace
+Time::Time(const std::string& str, const std::string& fmt)
+: _msecs(0)
 {
-    unsigned short getNumber2(const char* s)
+  unsigned hours = 0;
+  unsigned minutes = 0;
+  unsigned seconds = 0;
+  unsigned mseconds = 0;
+  bool am = true;
+
+  enum {
+    state_0,
+    state_fmt
+  } state = state_0;
+
+  std::string::const_iterator dit = str.begin();
+  std::string::const_iterator it;
+  for (it = fmt.begin(); it != fmt.end(); ++it)
+  {
+    char ch = *it;
+    switch (state)
     {
-        if ( ! std::isdigit(s[0]) || ! std::isdigit(s[1]) )
-            throw ConversionError("Invalid Time format");
+      case state_0:
+        if (ch == '%')
+          state = state_fmt;
+        else
+        {
+          if (dit == str.end() || *dit != ch)
+            throw std::runtime_error("string <" + str + "> does not match time format <" + fmt + '>');
+          ++dit;
+        }
+        break;
 
-        return (s[0] - '0') * 10 + (s[1] - '0');
+      case state_fmt:
+        switch (ch)
+        {
+          case 'H':
+          case 'I':
+            hours = getUnsigned(dit, str.end(), 2);
+            break;
+
+          case 'M':
+            minutes = getUnsigned(dit, str.end(), 2);
+            break;
+
+          case 'S':
+            seconds = getUnsigned(dit, str.end(), 2);
+            break;
+
+          case 'j':
+            if (dit != str.end() && *dit == '.')
+              ++dit;
+            mseconds = getMilliseconds(dit, str.end());
+            break;
+
+          case 'J':
+            if (dit != str.end() && *dit == '.')
+            {
+              ++dit;
+              mseconds = getMilliseconds(dit, str.end());
+            }
+            break;
+
+          case 'p':
+            if (dit == str.end()
+              || dit + 1 == str.end()
+              || ((*dit != 'A'
+                && *dit != 'a'
+                && *dit != 'P'
+                && *dit != 'p')
+              || (*(dit + 1) != 'M'
+                &&  *(dit + 1) != 'm')))
+            {
+                throw std::runtime_error("string <" + str + "> does not match time format <" + fmt + '>');
+            }
+
+            am = (*dit == 'A' || *dit == 'a');
+            dit += 2;
+            break;
+
+          default:
+            throw std::runtime_error("invalid time format <" + fmt + '>');
+        }
+
+        state = state_0;
+        break;
     }
+  }
 
+  if (it != fmt.end() || dit != str.end())
+    throw std::runtime_error("string <" + str + "> does not match time format <" + fmt + '>');
 
-    unsigned short getNumber3(const char* s)
+  set(am ? hours : hours + 12, minutes, seconds, mseconds);
+}
+
+std::string Time::toString(const std::string& fmt) const
+{
+  unsigned hours, minutes, seconds, mseconds;
+
+  get(hours, minutes, seconds, mseconds);
+
+  std::string str;
+
+  enum {
+    state_0,
+    state_fmt
+  } state = state_0;
+
+  for (std::string::const_iterator it = fmt.begin(); it != fmt.end(); ++it)
+  {
+    switch (state)
     {
-        if( ! std::isdigit(s[0]) || ! std::isdigit(s[1]) || ! std::isdigit(s[2]) )
-           throw ConversionError("Invalid Time format");
+      case state_0:
+        if (*it == '%')
+          state = state_fmt;
+        else
+          str += *it;
+        break;
 
-        return ( s[0] - '0') * 100 + (s[1] - '0') * 10 + (s[2] - '0' );
+      case state_fmt:
+        switch (*it)
+        {
+          case 'H': appendD2(str, hours); break;
+          case 'I': appendD2(str, hours % 12); break;
+          case 'M': appendD2(str, minutes); break;
+          case 'S': appendD2(str, seconds); break;
+          case 'j': if (mseconds != 0)
+                    {
+                      str += '.';
+                      str += (mseconds / 100 + '0');
+                      if (mseconds % 100 != 0)
+                      {
+                        str += (mseconds / 10 % 10 + '0');
+                        if (mseconds % 10 != 0)
+                          str += (mseconds % 10 + '0');
+                      }
+                    }
+                    break;
+
+          case 'J': str += '.';
+                    str += (mseconds / 100 + '0');
+                    if (mseconds % 100 != 0)
+                    {
+                      str += (mseconds / 10 % 10 + '0');
+                      if (mseconds % 10 != 0)
+                        str += (mseconds % 10 + '0');
+                    }
+                    break;
+
+          case 'p': str += (hours < 12 ? "am" : "pm"); break;
+          case 'P': str += (hours < 12 ? "AM" : "PM"); break;
+          default:
+            str += '%';
+        }
+
+        if (*it != '%')
+          state = state_0;
+        break;
     }
+  }
+
+  if (state == state_fmt)
+    str += '%';
+
+  return str;
 }
 
-
-void convert(Time& time, const std::string& s)
-{
-    unsigned hour = 0, min = 0, sec = 0, msec = 0;
-
-    if( s.size() < 11 || s.at(2) != ':' || s.at(5) != ':' || s.at(8) != '.')
-        throw ConversionError("Invalid Time format");
-
-    const char* d = s.data();
-    hour = getNumber2(d);
-    min = getNumber2(d + 3);
-    sec = getNumber2(d + 6);
-    msec = getNumber3(d + 9);
-
-    time.set(hour, min, sec, msec);
-}
-
-
-void convert(std::string& str, const Time& time)
-{
-    unsigned hour = 0, minute = 0, second = 0, msec = 0;
-    time.get(hour, minute, second, msec);
-
-    // format hh:mm:ss.sssss
-    //        0....+....1....+
-    char ret[14];
-    ret[0] = '0' + hour / 10;
-    ret[1] = '0' + hour % 10;
-    ret[2] = ':';
-    ret[3] = '0' + minute / 10;
-    ret[4] = '0' + minute % 10;
-    ret[5] = ':';
-    ret[6] = '0' + second / 10;
-    ret[7] = '0' + second % 10;
-    ret[8] = '.';
-    unsigned short n = msec;
-    ret[11] = '0' + n % 10;
-    n /= 10;
-    ret[10] = '0' + n % 10;
-    n /= 10;
-    ret[9] = '0' + n % 10;
-
-    str.assign(ret, 12);
-}
 
 void operator >>=(const SerializationInfo& si, Time& time)
 {
@@ -138,17 +239,14 @@ void operator >>=(const SerializationInfo& si, Time& time)
     {
         std::string s;
         si.getValue(s);
-        convert(time, s);
+        time = Time(s);
     }
 }
 
-
 void operator <<=(SerializationInfo& si, const Time& time)
 {
-    std::string s;
-    convert(s, time);
-    si.setValue(s);
-    si.setTypeName("Date");
+    si.setValue(time.toString());
+    si.setTypeName("Time");
 }
 
 } // namespace cxxtools

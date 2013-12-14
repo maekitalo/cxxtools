@@ -48,27 +48,6 @@ HttpClientImpl::HttpClientImpl()
     cxxtools::connect(_client.replyFinished, *this, &HttpClientImpl::onReplyFinished);
 }
 
-HttpClientImpl::HttpClientImpl(SelectorBase& selector, const std::string& addr,
-       unsigned short port, const std::string& url)
-: _client(selector, addr, port)
-, _request(url)
-{
-    _request.method("POST");
-    cxxtools::connect(_client.headerReceived, *this, &HttpClientImpl::onReplyHeader);
-    cxxtools::connect(_client.bodyAvailable, *this, &HttpClientImpl::onReplyBody);
-    cxxtools::connect(_client.replyFinished, *this, &HttpClientImpl::onReplyFinished);
-}
-
-HttpClientImpl::HttpClientImpl(const std::string& addr, unsigned short port, const std::string& url)
-: _client(addr, port)
-, _request(url)
-{
-    _request.method("POST");
-    cxxtools::connect(_client.headerReceived, *this, &HttpClientImpl::onReplyHeader);
-    cxxtools::connect(_client.bodyAvailable, *this, &HttpClientImpl::onReplyBody);
-    cxxtools::connect(_client.replyFinished, *this, &HttpClientImpl::onReplyFinished);
-}
-
 std::string HttpClientImpl::url() const
 {
     std::ostringstream s;
@@ -119,7 +98,7 @@ void HttpClientImpl::endExecute()
 
 std::string HttpClientImpl::execute()
 {
-    _client.execute(_request, timeout());
+    _client.execute(_request, timeout(), connectTimeout());
 
     std::string body;
 

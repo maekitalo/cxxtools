@@ -115,15 +115,22 @@ class ClientImpl : public RefCounted, public Connectable
 
     public:
         ClientImpl(Client* client);
-        ClientImpl(Client* client, const net::AddrInfo& addrinfo);
-        ClientImpl(Client* client, const net::Uri& uri);
-        ClientImpl(Client* client, SelectorBase& selector, const net::AddrInfo& addrinfo);
-        ClientImpl(Client* client, SelectorBase& selector, const net::Uri& uri);
 
         // Sets the server and port. No actual network connect is done.
-        void connect(const net::AddrInfo& addrinfo)
+        void prepareConnect(const net::AddrInfo& addrinfo)
         {
             _addrInfo = addrinfo;
+            _socket.close();
+        }
+
+        void connect()
+        {
+            _socket.close();
+            _socket.connect(_addrInfo);
+        }
+
+        void close()
+        {
             _socket.close();
         }
 
@@ -131,7 +138,7 @@ class ClientImpl : public RefCounted, public Connectable
         // The body must be read with readBody.
         // This method blocks or times out until the body is parsed.
         const ReplyHeader& execute(const Request& request,
-            std::size_t timeout = Selectable::WaitInfinite);
+            std::size_t timeout, std::size_t connectTimeout);
 
         const ReplyHeader& header()
         { return _replyHeader; }
@@ -152,7 +159,8 @@ class ClientImpl : public RefCounted, public Connectable
         // Combines the execute and readBody methods in one call.
         // This method blocks until the reply is recieved.
         std::string get(const std::string& url,
-            std::size_t timeout = Selectable::WaitInfinite);
+            std::size_t timeout,
+            std::size_t connectTimeout);
 
         // Starts a new request.
         // This method does not block. To actually process the request, the

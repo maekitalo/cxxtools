@@ -33,24 +33,16 @@ namespace cxxtools
 
 std::streambuf::int_type QuotedPrintable_streambuf::overflow(std::streambuf::int_type ch)
 {
-  if (ch > 32 && ch < 128)
+  if (ch >= 32 && ch < 128 && ch != '=')
   {
-    sinksource->sputc(ch);
-    if (++col > 76)
-    {
-      sinksource->sputc('\n');
-      col = 0;
-    }
-  }
-  else if (ch == 32)
-  {
-    sinksource->sputc(ch);
-    if (++col > 70)
+    if (++col > 75)
     {
       sinksource->sputc('=');
       sinksource->sputc('\n');
       col = 0;
     }
+
+    sinksource->sputc(ch);
   }
   else if (ch == '\n')
   {
@@ -63,20 +55,15 @@ std::streambuf::int_type QuotedPrintable_streambuf::overflow(std::streambuf::int
     {
       sinksource->sputc('=');
       sinksource->sputc('\n');
-      col = 0;
+      col = 3;
     }
+    else
+      col += 3;
 
     static const char hex[] = "0123456789ABCDEF";
     sinksource->sputc('=');
     sinksource->sputc(hex[(ch >> 4) & 0xf]);
     sinksource->sputc(hex[ch & 0xf]);
-
-    if (++col > 73)
-    {
-      sinksource->sputc('=');
-      sinksource->sputc('\n');
-      col = 0;
-    }
   }
 
   return 0;

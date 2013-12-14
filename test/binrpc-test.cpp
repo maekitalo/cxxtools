@@ -33,6 +33,9 @@
 #include "cxxtools/remoteprocedure.h"
 #include "cxxtools/eventloop.h"
 #include "cxxtools/log.h"
+#include "cxxtools/ioerror.h"
+#include "cxxtools/net/uri.h"
+#include "cxxtools/net/addrinfo.h"
 #include <stdlib.h>
 #include <sstream>
 
@@ -105,6 +108,9 @@ class BinRpcTest : public cxxtools::unit::TestSuite
             registerMethod("CallbackException", *this, &BinRpcTest::CallbackException);
             registerMethod("ConnectError", *this, &BinRpcTest::ConnectError);
             registerMethod("BigRequest", *this, &BinRpcTest::BigRequest);
+            registerMethod("PrepareConnect", *this, &BinRpcTest::PrepareConnect);
+            registerMethod("Connect", *this, &BinRpcTest::Connect);
+            registerMethod("Multiple", *this, &BinRpcTest::Multiple);
 
             char* PORT = getenv("UTEST_PORT");
             if (PORT)
@@ -648,8 +654,6 @@ class BinRpcTest : public cxxtools::unit::TestSuite
         //
         void BigRequest()
         {
-            log_trace("ConnectError");
-
             _server->registerMethod("countSize", *this, &BinRpcTest::countSize);
 
             cxxtools::bin::RpcClient client(_loop, "", _port);
@@ -674,6 +678,146 @@ class BinRpcTest : public cxxtools::unit::TestSuite
         unsigned countSize(const std::vector<int>& v)
         {
             return v.size();
+        }
+
+        ////////////////////////////////////////////////////////////
+        // PrepareConnect
+        //
+        void PrepareConnect()
+        {
+            log_trace("PrepareConnect");
+
+            _server->registerMethod("boolean", *this, &BinRpcTest::boolean);
+
+            // test connect using cxxtools::net::AddrInfo
+            {
+                cxxtools::bin::RpcClient client(_loop);
+                cxxtools::RemoteProcedure<bool, bool, bool> boolean(client, "boolean");
+
+                client.prepareConnect(cxxtools::net::AddrInfo("", _port));
+                boolean.begin(true, true);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(boolean.end(2000), true);
+            }
+
+            // test connect using host and port
+            {
+                cxxtools::bin::RpcClient client(_loop);
+                cxxtools::RemoteProcedure<bool, bool, bool> boolean(client, "boolean");
+
+                client.prepareConnect("", _port);
+                boolean.begin(true, true);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(boolean.end(2000), true);
+            }
+
+            // test connect using uri
+            {
+                cxxtools::bin::RpcClient client(_loop);
+                cxxtools::RemoteProcedure<bool, bool, bool> boolean(client, "boolean");
+
+                std::ostringstream uri;
+                uri << "http://localhost:" << _port << '/';
+                client.prepareConnect(cxxtools::net::Uri(uri.str()));
+                boolean.begin(true, true);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(boolean.end(2000), true);
+            }
+
+            // test failing connect in connect
+            {
+                cxxtools::bin::RpcClient client(_loop);
+                cxxtools::RemoteProcedure<bool, bool, bool> boolean(client, "boolean");
+
+                CXXTOOLS_UNIT_ASSERT_NOTHROW(client.prepareConnect("", _port + 1));
+                CXXTOOLS_UNIT_ASSERT_THROW(client.connect(), cxxtools::IOError);
+            }
+
+            // test failing connect when calling function
+            {
+                cxxtools::bin::RpcClient client(_loop);
+                cxxtools::RemoteProcedure<bool, bool, bool> boolean(client, "boolean");
+                CXXTOOLS_UNIT_ASSERT_NOTHROW(client.prepareConnect("", _port + 1));
+
+                boolean.begin(true, true);
+                CXXTOOLS_UNIT_ASSERT_THROW(boolean.end(2000), cxxtools::IOError);
+            }
+
+        }
+
+        ////////////////////////////////////////////////////////////
+        // Connect
+        //
+        void Connect()
+        {
+            _server->registerMethod("boolean", *this, &BinRpcTest::boolean);
+
+            // test connect using cxxtools::net::AddrInfo
+            {
+                cxxtools::bin::RpcClient client(_loop);
+                cxxtools::RemoteProcedure<bool, bool, bool> boolean(client, "boolean");
+
+                client.connect(cxxtools::net::AddrInfo("", _port));
+                boolean.begin(true, true);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(boolean.end(2000), true);
+            }
+
+            // test connect using host and port
+            {
+                cxxtools::bin::RpcClient client(_loop);
+                cxxtools::RemoteProcedure<bool, bool, bool> boolean(client, "boolean");
+
+                client.connect("", _port);
+                boolean.begin(true, true);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(boolean.end(2000), true);
+            }
+
+            // test connect using uri
+            {
+                cxxtools::bin::RpcClient client(_loop);
+                cxxtools::RemoteProcedure<bool, bool, bool> boolean(client, "boolean");
+
+                std::ostringstream uri;
+                uri << "http://localhost:" << _port << '/';
+                client.connect(cxxtools::net::Uri(uri.str()));
+                boolean.begin(true, true);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(boolean.end(2000), true);
+            }
+
+            // test failing connect
+            {
+                cxxtools::bin::RpcClient client(_loop);
+                cxxtools::RemoteProcedure<bool, bool, bool> boolean(client, "boolean");
+
+                CXXTOOLS_UNIT_ASSERT_THROW(client.connect("", _port + 1), cxxtools::IOError);
+            }
+
+        }
+
+        ////////////////////////////////////////////////////////////
+        // Multiple calls
+        //
+        void Multiple()
+        {
+            _server->registerMethod("multiply", *this, &BinRpcTest::multiplyDouble);
+
+            typedef cxxtools::RemoteProcedure<double, double, double> Multiply;
+
+            std::vector<cxxtools::bin::RpcClient> clients;
+            std::vector<Multiply> procs;
+
+            clients.reserve(16);
+            procs.reserve(16);
+
+            for (unsigned i = 0; i < 16; ++i)
+            {
+                clients.push_back(cxxtools::bin::RpcClient(_loop, "", _port));
+                procs.push_back(Multiply(clients.back(), "multiply"));
+                procs.back().begin(i, i);
+            }
+
+            for (unsigned i = 0; i < 16; ++i)
+            {
+                CXXTOOLS_UNIT_ASSERT_EQUALS(procs[i].end(2000), i*i);
+            }
+
         }
 
 };

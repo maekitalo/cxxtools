@@ -47,17 +47,19 @@ class CXXTOOLS_API Clock
 
         /** @brief Destructor
         */
-        ~Clock();
+        virtual ~Clock();
 
         /** @brief Start the clock
         */
         void start();
 
-        /** @brief Stop the clock
+        /** @brief Stop the clock. Can be called several times.
 
-            Returns the elapsed time since start was called.
+            Returns the elapsed time since start was called. Since stop does not
+            change the start time it can be called several times in order to get
+            the elapsed time.
         */
-        Timespan stop();
+        Timespan stop() const;
 
         /** @brief Returns the system time
         */
