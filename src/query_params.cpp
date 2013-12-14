@@ -134,10 +134,15 @@ namespace
           if (_cnt == 0)
           {
             if (_state == state_keyesc)
+            {
+              _key += '%';
               _state = state_key;
+            }
             else
+            {
+              _value += '%';
               _state = state_value;
-            parse('%');
+            }
           }
           else
           {

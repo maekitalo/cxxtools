@@ -40,6 +40,7 @@ class QueryParamsTest : public cxxtools::unit::TestSuite
             registerMethod("testCopy", *this, &QueryParamsTest::testCopy);
             registerMethod("testParseUrl", *this, &QueryParamsTest::testParseUrl);
             registerMethod("testParseUrlSpecialChar", *this, &QueryParamsTest::testParseUrlSpecialChar);
+            registerMethod("testParseDoublePercent", *this, &QueryParamsTest::testParseDoublePercent);
             registerMethod("testCount", *this, &QueryParamsTest::testCount);
             registerMethod("testCombine", *this, &QueryParamsTest::testCombine);
             registerMethod("testIterator", *this, &QueryParamsTest::testIterator);
@@ -95,6 +96,14 @@ class QueryParamsTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT(q.has("m\xa4kitalo"));
             CXXTOOLS_UNIT_ASSERT_EQUALS(q["p1"], "value with spaces");
             CXXTOOLS_UNIT_ASSERT_EQUALS(q["m\xa4kitalo"], "tommi ");
+        }
+
+        void testParseDoublePercent()
+        {
+            cxxtools::QueryParams q;
+            q.parse_url("%%=%%%");
+            CXXTOOLS_UNIT_ASSERT(q.has("%%"));
+            CXXTOOLS_UNIT_ASSERT_EQUALS(q["%%"], "%%%");
         }
 
         void testCount()
