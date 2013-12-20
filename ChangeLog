@@ -1,3 +1,19 @@
+2013-12-?? tommi@tntnet.org
+
+ - release version 2.2.1
+
+2013-12-14 tommi@tntnet.org
+
+ - fix parsing double % in query parameters
+
+2013-04-21 tommi@tntnet.org
+
+ - release version 2.2
+
+2013-04-17 tommi@tntnet.org
+
+ - fix exception handling in xmlrpc and json over http - exceptions were lost when executed just via the event loop
+
 2013-04-06 tommi@tntnet.org
 
  - fix build on FreeBSD
