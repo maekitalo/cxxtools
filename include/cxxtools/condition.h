@@ -78,7 +78,7 @@ namespace cxxtools {
             bool wait( Mutex& mtx, const Timespan& ts);
 
             bool wait( Mutex& mtx, unsigned int ms)
-            { wait(mtx, milliseconds(ms)); }
+            { return wait(mtx, milliseconds(ms)); }
 
             bool wait( MutexLock& m, const Timespan ts)
             { return this->wait( m.mutex(), ts ); }
