@@ -31,6 +31,8 @@
 
 namespace cxxtools {
 
+    class Timespan;
+
     class ConditionImpl
     {
         public:
@@ -40,7 +42,7 @@ namespace cxxtools {
 
             void wait(Mutex& mtx);
 
-            bool wait(Mutex& mtx, unsigned int ms);
+            bool wait(Mutex& mtx, const Timespan& ts);
 
             void signal();
 

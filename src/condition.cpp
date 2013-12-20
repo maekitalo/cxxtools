@@ -49,9 +49,9 @@ void Condition::wait(Mutex& mtx)
 }
 
 
-bool Condition::wait(Mutex& mtx, unsigned int ms)
+bool Condition::wait(Mutex& mtx, const Timespan& ts)
 {
-    return _impl->wait(mtx, ms);
+    return _impl->wait(mtx, ts);
 }
 
 

@@ -29,6 +29,7 @@
 #include "conditionimpl.h"
 #include "muteximpl.h"
 #include "cxxtools/systemerror.h"
+#include "cxxtools/timespan.h"
 #include <sys/time.h>
 #include <unistd.h>
 #include <errno.h>
@@ -57,21 +58,20 @@ void ConditionImpl::wait(Mutex& mtx)
 }
 
 
-bool ConditionImpl::wait(Mutex& mtx, unsigned int ms)
+bool ConditionImpl::wait(Mutex& mtx, const Timespan& ts)
 {
     int result;
 
-    struct timeval tv;
-    ::gettimeofday(&tv, NULL);
+    Timespan tt = Timespan::gettimeofday() + ts;
 
-    struct timespec ts;
-    ts.tv_nsec = ((ms%1000) * 1000 + tv.tv_usec) * 1000;
-    ts.tv_sec = (ms/1000) + (ts.tv_nsec/1000000000) + tv.tv_sec;
-    ts.tv_nsec = ts.tv_nsec % 1000000000;
+    struct timespec tv;
+
+    tv.tv_sec = ts.toUSecs() / 1000000;
+    tv.tv_nsec = ts.toUSecs() % 1000000;
 
     do
     {
-        result = pthread_cond_timedwait(&_cond, mtx.impl().handle(), &ts);
+        result = pthread_cond_timedwait(&_cond, mtx.impl().handle(), &tv);
     }
     while(result == EINTR);
 

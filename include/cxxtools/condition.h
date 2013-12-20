@@ -31,6 +31,7 @@
 #include <cxxtools/api.h>
 #include <cxxtools/noncopyable.h>
 #include <cxxtools/mutex.h>
+#include <cxxtools/timespan.h>
 #include <cstddef>
 
 namespace cxxtools {
@@ -70,11 +71,17 @@ namespace cxxtools {
             /** @brief Wait until condition becomes signalled.
 
                 Causes the caller to be suspended until the condition will be
-                signaled. The given mutex will be unlocked before the caller
-                is suspended. The suspension takes at maximum ms milliseconds.
-                Returns true if successful, false if a timeout occurred.
+                signaled. The given mutex will be unlocked before the caller is
+                suspended. The suspension takes at maximum the time specified
+                by ts. Returns true if successful, false if a timeout occurred.
             */
-            bool wait( Mutex& mtx, unsigned int ms);
+            bool wait( Mutex& mtx, const Timespan& ts);
+
+            bool wait( Mutex& mtx, unsigned int ms)
+            { wait(mtx, milliseconds(ms)); }
+
+            bool wait( MutexLock& m, const Timespan ts)
+            { return this->wait( m.mutex(), ts ); }
 
             bool wait( MutexLock& m, unsigned int ms)
             { return this->wait( m.mutex(), ms ); }

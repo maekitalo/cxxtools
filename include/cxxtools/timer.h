@@ -121,7 +121,7 @@ namespace cxxtools {
                 @param interval Timeout interval in milliseconds
             */
             void start(unsigned msecs)
-            { start(Timespan(msecs * 1000)); }
+            { start(milliseconds(msecs)); }
 
             /** @brief Starts the timer
 
@@ -151,7 +151,7 @@ namespace cxxtools {
                 @param interval Timeout interval in milliseconds
             */
             void start(const DateTime& startTime, unsigned msecs)
-            { start(startTime, Timespan(msecs * 1000)); }
+            { start(startTime, milliseconds(msecs)); }
 
             /** @brief Starts the timer
 
@@ -176,7 +176,7 @@ namespace cxxtools {
                 @param interval Timeout interval in milliseconds
             */
             void after(unsigned msecs)
-            { after(Timespan(msecs * 1000)); }
+            { after(milliseconds(msecs)); }
 
             /** @brief Starts the timer
 
