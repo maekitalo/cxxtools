@@ -379,21 +379,39 @@ void operator <<=(SerializationInfo& si, const Timespan& timespan);
 inline Timespan microseconds(int64_t us)
 { return Timespan(us); }
 
+inline int64_t microseconds(const Timespan& ts)
+{ return ts.totalUSecs(); }
+
 inline Timespan milliseconds(double ms)
 { return Timespan(ms * 1000); }
+
+inline double milliseconds(const Timespan& ts)
+{ return ts.totalUSecs() / 1e3; }
 
 inline Timespan seconds(double t)
 { return Timespan(static_cast<int64_t>(t * 1e6)); }
 
+inline double seconds(const Timespan& ts)
+{ return ts.totalUSecs() / 1e6; }
+
 inline Timespan minutes(double t)
 { return Timespan(static_cast<int64_t>(t * 60 * 1e6)); }
+
+inline double minutes(const Timespan& ts)
+{ return ts.totalUSecs() / (60 * 1e6); }
 
 inline Timespan hours(double t)
 { return Timespan(static_cast<int64_t>(t * 60 * 60 * 1e6)); }
 
+inline double hours(const Timespan& ts)
+{ return ts.totalUSecs() / (60 * 60 * 1e6); }
+
 inline Timespan days(double t)
 { return Timespan(static_cast<int64_t>(t * 24 * 60 * 60 * 1e6)); }
 
+inline double days(const Timespan& ts)
+{ return ts.totalUSecs() / (24 * 60 * 60 * 1e6); }
+
 } // namespace cxxtools
 
-#endif 
+#endif

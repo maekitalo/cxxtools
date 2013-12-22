@@ -104,6 +104,7 @@ class TimespanTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(t.totalUSecs(), 1234567);
             CXXTOOLS_UNIT_ASSERT_EQUALS(t.totalMSecs(), 1234);
             CXXTOOLS_UNIT_ASSERT_EQUALS(t.totalSeconds(), 1);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::microseconds(t), 1234567);
         }
 
         void milliseconds()
@@ -112,6 +113,7 @@ class TimespanTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(t.totalUSecs(), 1234567000);
             CXXTOOLS_UNIT_ASSERT_EQUALS(t.totalMSecs(), 1234567);
             CXXTOOLS_UNIT_ASSERT_EQUALS(t.totalSeconds(), 1234);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::milliseconds(t), 1234567);
         }
 
         void seconds()
@@ -120,6 +122,7 @@ class TimespanTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(t.totalUSecs(), 1234000000);
             CXXTOOLS_UNIT_ASSERT_EQUALS(t.totalMSecs(), 1234000);
             CXXTOOLS_UNIT_ASSERT_EQUALS(t.totalSeconds(), 1234);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::seconds(t), 1234);
         }
 
         void minutes()
@@ -128,18 +131,21 @@ class TimespanTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(t.totalUSecs(), (17*60+30)*1000000);
             CXXTOOLS_UNIT_ASSERT_EQUALS(t.totalMSecs(), (17*60+30)*1000);
             CXXTOOLS_UNIT_ASSERT_EQUALS(t.totalSeconds(), 17*60+30);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::minutes(t), 17.5);
         }
 
         void hours()
         {
             cxxtools::Timespan t = cxxtools::hours(17.5);
             CXXTOOLS_UNIT_ASSERT_EQUALS(t.totalSeconds(), 17*3600+1800);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::hours(t), 17.5);
         }
 
         void days()
         {
             cxxtools::Timespan t = cxxtools::days(17.5);
             CXXTOOLS_UNIT_ASSERT_EQUALS(t.totalSeconds(), (17*3600+1800)*24);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::days(t), 17.5);
         }
 
         void serialize()
