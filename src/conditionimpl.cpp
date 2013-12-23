@@ -66,8 +66,8 @@ bool ConditionImpl::wait(Mutex& mtx, const Timespan& ts)
 
     struct timespec tv;
 
-    tv.tv_sec = ts.toUSecs() / 1000000;
-    tv.tv_nsec = ts.toUSecs() % 1000000;
+    tv.tv_sec = tt.totalUSecs() / 1000000;
+    tv.tv_nsec = tt.totalUSecs() % 1000000;
 
     do
     {
