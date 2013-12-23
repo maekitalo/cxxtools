@@ -43,7 +43,7 @@ namespace cxxtools
 
     std::ostream& operator<< (std::ostream& out, const Timespan& ht)
     {
-        out << static_cast<double>(ht.toUSecs()) / 1e6;
+        out << static_cast<double>(ht.totalUSecs()) / 1e6;
         return out;
     }
 

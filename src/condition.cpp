@@ -49,7 +49,7 @@ void Condition::wait(Mutex& mtx)
 }
 
 
-bool Condition::wait(Mutex& mtx, const Timespan& ts)
+bool Condition::wait(Mutex& mtx, const Milliseconds& ts)
 {
     return _impl->wait(mtx, ts);
 }

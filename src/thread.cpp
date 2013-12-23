@@ -82,7 +82,7 @@ void Thread::yield()
 }
 
 
-void Thread::sleep(const cxxtools::Timespan& ts)
+void Thread::sleep(const Milliseconds& ts)
 {
     ThreadImpl::sleep(ts);
 }

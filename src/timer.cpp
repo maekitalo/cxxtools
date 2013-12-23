@@ -100,7 +100,7 @@ const Timespan& Timer::interval() const
 }
 
 
-void Timer::start(const Timespan& interval)
+void Timer::start(const Milliseconds& interval)
 {
     if (_active)
         stop();
@@ -116,7 +116,7 @@ void Timer::start(const Timespan& interval)
 }
 
 
-void Timer::start(const DateTime& startTime, const Timespan& interval)
+void Timer::start(const DateTime& startTime, const Milliseconds& interval)
 {
     if (_active)
         stop();
@@ -135,7 +135,7 @@ void Timer::start(const DateTime& startTime, const Timespan& interval)
         // startTime =< now
         Timespan elapsed = now - startTime;
         unsigned ticksElapsed = elapsed.totalMSecs() / interval.totalMSecs();
-        DateTime tickTime = startTime + (ticksElapsed + 1) * interval;
+        DateTime tickTime = startTime + (ticksElapsed + 1) * Timespan(interval);
         _finished = Clock::getSystemTicks() + (tickTime - now);
     }
 
@@ -143,7 +143,7 @@ void Timer::start(const DateTime& startTime, const Timespan& interval)
         _selector->onTimerChanged(*this);
 }
 
-void Timer::after(const Timespan& interval)
+void Timer::after(const Milliseconds& interval)
 {
     start(interval);
     _once = true;
@@ -189,7 +189,7 @@ bool Timer::update()
 }
 
 
-bool Timer::update(const Timespan& now)
+bool Timer::update(const Milliseconds& now)
 {
     if(_active == false)
         return false;

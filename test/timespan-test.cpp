@@ -100,52 +100,50 @@ class TimespanTest : public cxxtools::unit::TestSuite
 
         void microseconds()
         {
-            cxxtools::Timespan t = cxxtools::microseconds(1234567);
+            cxxtools::Timespan t = cxxtools::Microseconds(1234567);
             CXXTOOLS_UNIT_ASSERT_EQUALS(t.totalUSecs(), 1234567);
             CXXTOOLS_UNIT_ASSERT_EQUALS(t.totalMSecs(), 1234);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(t.totalSeconds(), 1);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::microseconds(t), 1234567);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::Microseconds(t), 1234567);
         }
 
         void milliseconds()
         {
-            cxxtools::Timespan t = cxxtools::milliseconds(1234567);
+            cxxtools::Timespan t = cxxtools::Milliseconds(1234567);
             CXXTOOLS_UNIT_ASSERT_EQUALS(t.totalUSecs(), 1234567000);
             CXXTOOLS_UNIT_ASSERT_EQUALS(t.totalMSecs(), 1234567);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(t.totalSeconds(), 1234);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::milliseconds(t), 1234567);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::Milliseconds(t), 1234567);
         }
 
         void seconds()
         {
-            cxxtools::Timespan t = cxxtools::seconds(1234);
+            cxxtools::Timespan t = cxxtools::Seconds(1234);
             CXXTOOLS_UNIT_ASSERT_EQUALS(t.totalUSecs(), 1234000000);
             CXXTOOLS_UNIT_ASSERT_EQUALS(t.totalMSecs(), 1234000);
             CXXTOOLS_UNIT_ASSERT_EQUALS(t.totalSeconds(), 1234);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::seconds(t), 1234);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::Seconds(t), 1234);
         }
 
         void minutes()
         {
-            cxxtools::Timespan t = cxxtools::minutes(17.5);
+            cxxtools::Timespan t = cxxtools::Minutes(17.5);
             CXXTOOLS_UNIT_ASSERT_EQUALS(t.totalUSecs(), (17*60+30)*1000000);
             CXXTOOLS_UNIT_ASSERT_EQUALS(t.totalMSecs(), (17*60+30)*1000);
             CXXTOOLS_UNIT_ASSERT_EQUALS(t.totalSeconds(), 17*60+30);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::minutes(t), 17.5);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::Minutes(t), 17.5);
         }
 
         void hours()
         {
-            cxxtools::Timespan t = cxxtools::hours(17.5);
+            cxxtools::Timespan t = cxxtools::Hours(17.5);
             CXXTOOLS_UNIT_ASSERT_EQUALS(t.totalSeconds(), 17*3600+1800);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::hours(t), 17.5);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::Hours(t), 17.5);
         }
 
         void days()
         {
-            cxxtools::Timespan t = cxxtools::days(17.5);
+            cxxtools::Timespan t = cxxtools::Days(17.5);
             CXXTOOLS_UNIT_ASSERT_EQUALS(t.totalSeconds(), (17*3600+1800)*24);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::days(t), 17.5);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::Days(t), 17.5);
         }
 
         void serialize()

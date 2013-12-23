@@ -110,18 +110,7 @@ namespace cxxtools {
 
                 @param interval Timeout interval as cxxtools::Timespan
             */
-            void start(const Timespan& interval);
-
-            /** @brief Starts the timer
-
-                Start a timer from the moment this method is called. The
-                Timer needs to be registered with a Selector or event loop,
-                otherwise the timeout signal will not be sent.
-
-                @param interval Timeout interval in milliseconds
-            */
-            void start(unsigned msecs)
-            { start(milliseconds(msecs)); }
+            void start(const Milliseconds& interval);
 
             /** @brief Starts the timer
 
@@ -134,24 +123,7 @@ namespace cxxtools {
 
                 @param interval Timeout interval as a cxxtools::Timespan
             */
-            void start(const DateTime& startTime, const Timespan& interval);
-
-            /** @brief Starts the timer
-
-                Start a timer. The start time is passed as a cxxtools::DateTime.
-                If the start time is in the past, the timer starts on the next
-                cycle. Past timer ticks are not catched up.
-
-                If the start time is in the future, the timer will wait until
-                the time is reached.
-
-                The Timer needs to be registered with a Selector or event loop,
-                otherwise the timeout signal will not be sent.
-
-                @param interval Timeout interval in milliseconds
-            */
-            void start(const DateTime& startTime, unsigned msecs)
-            { start(startTime, milliseconds(msecs)); }
+            void start(const DateTime& startTime, const Milliseconds& interval);
 
             /** @brief Starts the timer
 
@@ -163,20 +135,7 @@ namespace cxxtools {
 
                 @param interval Timeout interval as a cxxtools::Timespan
             */
-            void after(const Timespan& interval);
-
-            /** @brief Starts the timer
-
-                Start a timer. The timer will tick once after the specified
-                time span.
-
-                The Timer needs to be registered with a Selector or event loop,
-                otherwise the timeout signal will not be sent.
-
-                @param interval Timeout interval in milliseconds
-            */
-            void after(unsigned msecs)
-            { after(milliseconds(msecs)); }
+            void after(const Milliseconds& interval);
 
             /** @brief Starts the timer
 
@@ -203,7 +162,7 @@ namespace cxxtools {
             */
             bool update();
 
-            bool update(const Timespan& now);
+            bool update(const Milliseconds& now);
 
             /** @brief Notifies about interval timeouts
 
@@ -211,7 +170,7 @@ namespace cxxtools {
             */
             Signal<> timeout;
 
-            const Timespan& finished() const
+            Milliseconds finished() const
             { return _finished; }
 
         private:

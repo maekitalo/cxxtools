@@ -262,7 +262,7 @@ class Time
         */
         Time& operator+=(const Timespan& ts)
         {
-            int64_t msecs = ( _msecs + ts.totalMSecs() ) % MSecsPerDay;
+            int64_t msecs = ( _msecs + ts.totalUSecs() / 1000) % MSecsPerDay;
             msecs = msecs < 0 ? MSecsPerDay + msecs : msecs;
             _msecs = static_cast<unsigned>(msecs);
             return *this;
@@ -272,7 +272,7 @@ class Time
         */
         Time& operator-=(const Timespan& ts)
         {
-            int64_t msecs = ( _msecs - ts.totalMSecs() ) % MSecsPerDay;
+            int64_t msecs = ( _msecs - ts.totalUSecs() / 1000) % MSecsPerDay;
             msecs = msecs < 0 ? MSecsPerDay + msecs : msecs;
             _msecs = static_cast<unsigned>(msecs);
             return *this;
@@ -282,7 +282,7 @@ class Time
         */
         friend Time operator+(const Time& time, const Timespan& ts)
         {
-            return time.addMSecs( ts.totalMSecs() );
+            return time.addMSecs( ts.totalUSecs() / 1000 );
         }
 
         /** @brief Substraction operator

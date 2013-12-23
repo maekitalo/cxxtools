@@ -114,8 +114,8 @@ void benchSerialization(const T& d, const char* fname = 0)
     deserializer.deserialize(v2);
     cxxtools::Timespan td = clock.stop();
 
-    std::cout << "\tserialization: " << ts.toUSecs() / 1e6 << " sec\n"
-                 "\tdeserialization: " << td.toUSecs() / 1e6 << " sec\n"
+    std::cout << "\tserialization: " << ts << " sec\n"
+                 "\tdeserialization: " << td << " sec\n"
                  "\tsize: " << data.str().size() << " bytes" << std::endl;
 }
 

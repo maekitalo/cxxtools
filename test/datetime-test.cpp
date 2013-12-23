@@ -47,26 +47,17 @@ class DateTimeTest : public cxxtools::unit::TestSuite
             cxxtools::DateTime dt1 = cxxtools::DateTime("2013-05-03 17:01:14.342");
             cxxtools::DateTime dt2 = cxxtools::DateTime("2013-05-04 17:01:14.342");
             cxxtools::Timespan dt = dt2 - dt1;
-            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.days(), 1);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.hours(), 0);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.totalHours(), 24);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.minutes(), 0);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.seconds(), 0);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.msecs(), 0);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.microseconds(), 0);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.useconds(), 0);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.totalDays(), 1.0);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.totalHours(), 24.0);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.totalMinutes(), 24.0 * 60.0);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.totalSeconds(), 24.0 * 60.0 * 60.0);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.totalMSecs(), 24.0 * 60.0 * 60.0 * 1000);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.totalUSecs(), 24.0 * 60.0 * 60.0 * 1000 * 1000);
 
             dt1 = cxxtools::DateTime("2013-05-03 17:01:14.000");
             dt2 = cxxtools::DateTime("2013-05-03 17:01:14.342");
             dt = dt2 - dt1;
-            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.days(), 0);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.hours(), 0);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.totalHours(), 0);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.minutes(), 0);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.seconds(), 0);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.msecs(), 342);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.microseconds(), 0);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.useconds(), 342000);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.totalUSecs(), 342000);
         }
 
         void fromString()

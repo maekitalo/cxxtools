@@ -27,7 +27,6 @@
 #define cxxtools_Timespan_h
 
 #include <stdint.h>
-#include <algorithm>
 #include <iosfwd>
 
 namespace cxxtools {
@@ -40,13 +39,8 @@ class SerializationInfo;
 class Timespan
 {
     public:
-        //! @brief Creates a zero Timespan.
-        Timespan()
-        : _span(0)
-        {}
-
         //! @brief Creates a Timespan.
-        explicit Timespan(int64_t microseconds)
+        explicit Timespan(int64_t microseconds = 0)
         : _span(microseconds)
         { }
 
@@ -54,115 +48,72 @@ class Timespan
             Useful for creating a Timespan from a struct timeval.
         */
         Timespan(long seconds, long microseconds)
-        : _span(int64_t(seconds)*Seconds + microseconds)
+        : _span(int64_t(seconds)*1000*1000 + microseconds)
         {
         }
         //! @brief Creates a Timespan.
-        Timespan(int days, int hours, int minutes, int seconds, int microseconds);
+        Timespan(int days, int hours, int minutes, int seconds, int microseconds)
+        : _span( int64_t(microseconds) +
+                 int64_t(seconds)*1000*1000 +
+                 int64_t(minutes)*1000*1000*60 +
+                 int64_t(hours)*1000*1000*60*60 +
+                 int64_t(days)*1000*1000*60*60*24 )
+        {
+        }
 
-        //! @brief Creates a Timespan from another one.
-        Timespan(const Timespan& timespan);
+        bool operator==(const Timespan& ts) const
+        { return _span == ts._span; }
 
-        //! @brief Destroys the Timespan.
-        ~Timespan()
-        {}
+        bool operator!=(const Timespan& ts) const
+        { return _span != ts._span; }
 
-        //! @brief Assignment operator.
-        Timespan& operator=(const Timespan& timespan);
+        bool operator>(const Timespan& ts) const
+        { return _span > ts._span; }
 
-        //! @brief Assigns a new span.
-        Timespan& set(int days, int hours, int minutes, int seconds, int microseconds);
+        bool operator>=(const Timespan& ts) const
+        { return _span >= ts._span; }
 
-        /** @brief Assigns a new span.
-            Useful for assigning from a struct timeval.
-        */
-        Timespan& set(long seconds, long microseconds);
+        bool operator<(const Timespan& ts) const
+        { return _span < ts._span; }
 
-        //! @brief Swaps the Timespan with another one.
-        void swap(Timespan& timespan);
+        bool operator<=(const Timespan& ts) const
+        { return _span <= ts._span; }
 
-        bool operator==(const Timespan& ts) const;
+        Timespan operator+(const Timespan& d) const
+        { return Timespan(_span + d._span); }
 
-        bool operator!=(const Timespan& ts) const;
+        Timespan operator-(const Timespan& d) const
+        { return Timespan(_span - d._span); }
 
-        bool operator>(const Timespan& ts) const;
+        Timespan& operator+=(const Timespan& d)
+        { _span += d._span; return *this; }
 
-        bool operator>=(const Timespan& ts) const;
-
-        bool operator<(const Timespan& ts) const;
-
-        bool operator<=(const Timespan& ts) const;
-
-        Timespan operator+(const Timespan& d) const;
-
-        Timespan operator-(const Timespan& d) const;
-
-        Timespan& operator+=(const Timespan& d);
-
-        Timespan& operator-=(const Timespan& d);
-
-        //! @brief Returns the number of days.
-        int days() const;
-
-        //! @brief Returns the number of hours (0 to 23).
-        int hours() const;
+        Timespan& operator-=(const Timespan& d)
+        { _span -= d._span; return *this; }
 
         //! @brief Returns the total number of hours.
-        int totalHours() const;
+        double totalDays() const
+        { return double(_span) / 1000 / 1000 / 60 / 60 / 24; }
 
-        //! @brief Returns the number of minutes (0 to 59).
-        int minutes() const;
+        //! @brief Returns the total number of hours.
+        double totalHours() const
+        { return double(_span) / 1000 / 1000 / 60 / 60; }
 
         //! @brief Returns the total number of minutes.
-        int totalMinutes() const;
-
-        //! @brief Returns the number of seconds (0 to 59).
-        int seconds() const;
+        double totalMinutes() const
+        { return double(_span) / 1000 / 1000 / 60; }
 
         //! @brief Returns the total number of seconds.
-        int totalSeconds() const;
-
-        //! @brief Returns the number of milliseconds (0 to 999).
-        int msecs() const;
+        double totalSeconds() const
+        { return double(_span) / 1000 / 1000; }
 
         //! @brief Returns the total number of milliseconds.
-        int64_t totalMSecs() const;
+        double totalMSecs() const
+        { return double(_span) / 1000; }
 
         //! @brief Returns the total number of microseconds.
         int64_t totalUSecs() const
         { return _span; }
-
-        /** @brief Returns the fractions of a millisecond in microseconds (0 to 999).
-        */
-        int microseconds() const;
-
-        /** @brief Returns the fractions of a second in microseconds (0 to 999).
-        */
-        int useconds() const;
-
-        //! @brief Returns the total number of microseconds.
-        int64_t toUSecs() const;
-
-        //! @brief The number of microseconds in a millisecond.
-        //static const int64_t Milliseconds;
-
-        //! @brief The number of microseconds in a second.
-        //static const int64_t Seconds;
-
-        //! @brief The number of microseconds in a minute.
-        //static const int64_t Minutes;
-
-        //! @brief The number of microseconds in a hour.
-        //static const int64_t Hours;
-
-        //! @brief The number of microseconds in a day.
-        //static const int64_t Days;
-
-        static const int64_t Milliseconds = 1000;
-        static const int64_t Seconds      = 1000 * Timespan::Milliseconds;
-        static const int64_t Minutes      =   60 * Timespan::Seconds;
-        static const int64_t Hours        =   60 * Timespan::Minutes;
-        static const int64_t Days         =   24 * Timespan::Hours;
 
         //! @brief returns the current time as a timespan value.
         static Timespan gettimeofday();
@@ -171,199 +122,89 @@ class Timespan
         int64_t _span;
 };
 
+/** @brief A WeakTimespan extends a Timespan with a implicit conversion to and from number.
 
-inline int Timespan::days() const
+    The template parameter specifies, which unit is returned. It is the devisor
+    needed to convert a number of microseconds to the requested unit.
+ */
+template <uint64_t Resolution>
+class WeakTimespan : public Timespan
 {
-    return int(_span/Days);
-}
+    public:
+        WeakTimespan(double units = 0)
+            : Timespan(units * Resolution)
+        { }
 
+        WeakTimespan(const Timespan& ts)
+            : Timespan(ts)
+        { }
 
-inline int Timespan::hours() const
+        WeakTimespan(long seconds, long microseconds)
+            : Timespan(seconds, microseconds)
+        { }
+
+        WeakTimespan(int days, int hours, int minutes, int seconds, int microseconds)
+            : Timespan(days, hours, minutes, seconds, microseconds)
+        { }
+
+        operator double() const
+        { return totalUSecs() / static_cast<double>(Resolution); }
+
+};
+
+/** @brief A WeakTimespan<1> specializes a WeakTimespan for microseconds.
+
+    Since the Timespan holds the total number of microseconds, it can be returned
+    as a int64_t instead of double to prevent conversion.
+ */
+template <>
+class WeakTimespan<1> : public Timespan
 {
-    return int((_span/Hours) % 24);
-}
+    public:
+        WeakTimespan(int64_t microseconds = 0)
+            : Timespan(microseconds)
+        { }
 
+        WeakTimespan(const Timespan& ts)
+            : Timespan(ts)
+        { }
 
-inline int Timespan::totalHours() const
-{
-    return int(_span/Hours);
-}
+        operator uint64_t() const
+        { return totalUSecs(); }
 
+};
 
-inline int Timespan::minutes() const
-{
-    return int((_span/Minutes) % 60);
-}
+/**
+    The typedefs makes specifying a timespan easy and readable.
 
+    Examples:
+    @code
+      // specify 5 milliseconds:
+      cxxtools::Timespan t = Milliseconds(5);
 
-inline int Timespan::totalMinutes() const
-{
-    return int(_span/Minutes);
-}
+      // specify half second:
+      cxxtools::Timespan halfSecond = Seconds(0.5);
 
+      // get a timespan value in seconds:
+      cxxtools::Timespan someTimespan = foo();
+      double numberOfSeconds = Seconds(someTimespan);
 
-inline int Timespan::seconds() const
-{
-    return int((_span/Seconds) % 60);
-}
-
-
-inline int Timespan::totalSeconds() const
-{
-    return int(_span/Seconds);
-}
-
-
-inline int Timespan::msecs() const
-{
-    return int((_span/Milliseconds) % 1000);
-}
-
-
-inline int64_t Timespan::totalMSecs() const
-{
-    return _span/Milliseconds;
-}
-
-
-inline int Timespan::microseconds() const
-{
-    return int(_span % 1000);
-}
-
-
-inline int Timespan::useconds() const
-{
-    return int(_span % 1000000);
-}
-
-
-inline int64_t Timespan::toUSecs() const
-{
-    return _span;
-}
-
-
-inline bool Timespan::operator == (const Timespan& ts) const
-{
-    return _span == ts._span;
-}
-
-
-inline bool Timespan::operator != (const Timespan& ts) const
-{
-    return _span != ts._span;
-}
-
-
-inline bool Timespan::operator >  (const Timespan& ts) const
-{
-    return _span > ts._span;
-}
-
-
-inline bool Timespan::operator >= (const Timespan& ts) const
-{
-    return _span >= ts._span;
-}
-
-
-inline bool Timespan::operator <  (const Timespan& ts) const
-{
-    return _span < ts._span;
-}
-
-
-inline bool Timespan::operator <= (const Timespan& ts) const
-{
-    return _span <= ts._span;
-}
-
-
-inline void swap(Timespan& s1, Timespan& s2)
-{
-    s1.swap(s2);
-}
-
-
-inline Timespan::Timespan(int days, int hours, int minutes, int seconds, int microseconds)
-: _span( int64_t(microseconds) +
-         int64_t(seconds)*Seconds +
-         int64_t(minutes)*Minutes +
-         int64_t(hours)*Hours +
-         int64_t(days)*Days )
-{
-}
-
-
-inline Timespan::Timespan(const Timespan& timespan)
-: _span(timespan._span)
-{
-}
-
-
-inline Timespan& Timespan::operator=(const Timespan& timespan)
-{
-    _span = timespan._span;
-    return *this;
-}
-
-
-inline Timespan& Timespan::set(int days, int hours, int minutes, int seconds, int microseconds)
-{
-    _span = int64_t(microseconds) +
-            int64_t(seconds)*Seconds +
-            int64_t(minutes)*Minutes +
-            int64_t(hours)*Hours +
-            int64_t(days)*Days;
-    return *this;
-}
-
-
-inline Timespan& Timespan::set(long seconds, long microseconds)
-{
-    _span = int64_t(seconds)*Seconds + int64_t(microseconds);
-    return *this;
-}
-
-
-inline void Timespan::swap(Timespan& timespan)
-{
-    std::swap(_span, timespan._span);
-}
-
-
-inline Timespan Timespan::operator + (const Timespan& d) const
-{
-    return Timespan(_span + d._span);
-}
-
-
-inline Timespan Timespan::operator - (const Timespan& d) const
-{
-    return Timespan(_span - d._span);
-}
-
-
-inline Timespan& Timespan::operator += (const Timespan& d)
-{
-    _span += d._span;
-    return *this;
-}
-
-
-inline Timespan& Timespan::operator -= (const Timespan& d)
-{
-    _span -= d._span;
-    return *this;
-}
-
+      // get a timespan value in whole milliseconds:
+      cxxtools::Timespan someTimespan = foo();
+      int numberOfMilliseconds = Millieconds(someTimespan);
+    @endcode
+ */
+typedef WeakTimespan<1>                             Microseconds;
+typedef WeakTimespan<uint64_t(1000)>                Milliseconds;
+typedef WeakTimespan<uint64_t(1000)*1000>           Seconds;
+typedef WeakTimespan<uint64_t(1000)*1000*60>        Minutes;
+typedef WeakTimespan<uint64_t(1000)*1000*60*60>     Hours;
+typedef WeakTimespan<uint64_t(1000)*1000*60*60*24>  Days;
 
 inline Timespan operator * (const Timespan& d, double fac)
 {
     return Timespan(d.totalUSecs() * fac);
 }
-
 
 inline Timespan operator * (double fac, const Timespan& d)
 {
@@ -375,42 +216,6 @@ std::ostream& operator<< (std::ostream& out, const Timespan& ht);
 void operator >>=(const SerializationInfo& si, Timespan& timespan);
 
 void operator <<=(SerializationInfo& si, const Timespan& timespan);
-
-inline Timespan microseconds(int64_t us)
-{ return Timespan(us); }
-
-inline int64_t microseconds(const Timespan& ts)
-{ return ts.totalUSecs(); }
-
-inline Timespan milliseconds(double ms)
-{ return Timespan(ms * 1000); }
-
-inline double milliseconds(const Timespan& ts)
-{ return ts.totalUSecs() / 1e3; }
-
-inline Timespan seconds(double t)
-{ return Timespan(static_cast<int64_t>(t * 1e6)); }
-
-inline double seconds(const Timespan& ts)
-{ return ts.totalUSecs() / 1e6; }
-
-inline Timespan minutes(double t)
-{ return Timespan(static_cast<int64_t>(t * 60 * 1e6)); }
-
-inline double minutes(const Timespan& ts)
-{ return ts.totalUSecs() / (60 * 1e6); }
-
-inline Timespan hours(double t)
-{ return Timespan(static_cast<int64_t>(t * 60 * 60 * 1e6)); }
-
-inline double hours(const Timespan& ts)
-{ return ts.totalUSecs() / (60 * 60 * 1e6); }
-
-inline Timespan days(double t)
-{ return Timespan(static_cast<int64_t>(t * 24 * 60 * 60 * 1e6)); }
-
-inline double days(const Timespan& ts)
-{ return ts.totalUSecs() / (24 * 60 * 60 * 1e6); }
 
 } // namespace cxxtools
 
