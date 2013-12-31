@@ -102,7 +102,7 @@ class TimespanTest : public cxxtools::unit::TestSuite
         {
             cxxtools::Timespan t = cxxtools::Microseconds(1234567);
             CXXTOOLS_UNIT_ASSERT_EQUALS(t.totalUSecs(), 1234567);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(t.totalMSecs(), 1234);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(t.totalMSecs(), 1234.567);
             CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::Microseconds(t), 1234567);
         }
 
