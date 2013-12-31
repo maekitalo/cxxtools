@@ -55,7 +55,7 @@ int main(int argc, char* argv[])
     cxxtools::Arg<bool> binary(argc, argv, 'b');
     cxxtools::Arg<bool> json(argc, argv, 'j');
     cxxtools::Arg<bool> jsonhttp(argc, argv, 'J');
-    cxxtools::Arg<std::size_t> timeout(argc, argv, 't', cxxtools::RemoteClient::WaitInfinite);
+    cxxtools::Arg<cxxtools::Milliseconds> timeout(argc, argv, 't', cxxtools::RemoteClient::WaitInfinite);
     cxxtools::Arg<unsigned short> port(argc, argv, 'p', binary ? 7003 : json ? 7004 : 7002);
 
     // we need a selector, which controls the network activity

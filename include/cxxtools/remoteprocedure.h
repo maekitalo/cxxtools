@@ -106,7 +106,7 @@ class RemoteProcedureBase : public IRemoteProcedure
 
         Signal< const RemoteResult<R> & > finished;
 
-        const R& end(std::size_t msecs = RemoteClient::WaitInfinite)
+        const R& end(Milliseconds msecs = RemoteClient::WaitInfinite)
         {
             _result.client().wait(msecs);
             return _result.get();
