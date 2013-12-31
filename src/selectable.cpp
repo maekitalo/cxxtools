@@ -80,7 +80,7 @@ void Selectable::close()
     }
 }
 
-bool Selectable::wait(std::size_t msecs)
+bool Selectable::wait(Milliseconds msecs)
 {
     return this->onWait(msecs); 
 }

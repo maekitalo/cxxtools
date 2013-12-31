@@ -30,6 +30,7 @@
 #include <cxxtools/noncopyable.h>
 #include <cxxtools/api.h>
 #include <cxxtools/selector.h>
+#include <cxxtools/timespan.h>
 
 namespace cxxtools
 {
@@ -65,7 +66,7 @@ class CXXTOOLS_API Selectable : protected NonCopyable
         */
         void close();
 
-        bool wait(std::size_t msecs = WaitInfinite);
+        bool wait(Milliseconds msecs = WaitInfinite);
 
         //! @brief Test if the I/O device object is enabled
         /*!

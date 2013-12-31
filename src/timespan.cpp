@@ -41,10 +41,30 @@ namespace cxxtools
         return Timespan(tv.tv_sec, tv.tv_usec);
     }
 
-    std::ostream& operator<< (std::ostream& out, const Timespan& ht)
+    std::ostream& operator<< (std::ostream& out, const Timespan& ts)
     {
-        out << static_cast<double>(ht.totalUSecs()) / 1e6;
+        out << static_cast<double>(ts.totalUSecs()) / 1e6;
         return out;
+    }
+
+    std::istream& operator>> (std::istream& in, Timespan& ts)
+    {
+        uint64_t usecs;
+        in >> usecs;
+        if (in)
+            ts = Timespan(usecs);
+        return in;
+    }
+
+    namespace tshelper
+    {
+        void get(std::istream& in, Timespan& ts, uint64_t res)
+        {
+            double usecs;
+            in >> usecs;
+            if (in)
+                ts = Timespan(usecs * res);
+        }
     }
 
     void operator >>=(const SerializationInfo& si, Timespan& timespan)

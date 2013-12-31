@@ -104,17 +104,17 @@ class RpcClient : public RemoteClient
 
         void call(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc);
 
-        std::size_t timeout() const;
-        void timeout(std::size_t t);
+        Milliseconds timeout() const;
+        void timeout(Milliseconds t);
 
-        std::size_t connectTimeout() const;
-        void connectTimeout(std::size_t t);
+        Milliseconds connectTimeout() const;
+        void connectTimeout(Milliseconds t);
 
         const IRemoteProcedure* activeProcedure() const;
 
         void cancel();
 
-        void wait(std::size_t msecs = WaitInfinite);
+        void wait(Milliseconds msecs = WaitInfinite);
 
         const std::string& prefix() const;
 

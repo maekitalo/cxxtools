@@ -53,8 +53,8 @@ int main(int argc, char* argv[])
                                                       :          7002);
 
     // optionally read -t <timeout> or -T <connectTimeout> (in ms)
-    cxxtools::Arg<std::size_t> timeout(argc, argv, 't');
-    cxxtools::Arg<std::size_t> connectTimeout(argc, argv, 'T');
+    cxxtools::Arg<cxxtools::Milliseconds> timeout(argc, argv, 't');
+    cxxtools::Arg<cxxtools::Milliseconds> connectTimeout(argc, argv, 'T');
 
     // define a xmlrpc client
     cxxtools::xmlrpc::HttpClient xmlrpcClient(ip, port, "/xmlrpc");

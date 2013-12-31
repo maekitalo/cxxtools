@@ -30,6 +30,7 @@
 #define CXXTOOLS_REMOTECLIENT_H
 
 #include <cstddef>
+#include <cxxtools/timespan.h>
 
 namespace cxxtools
 {
@@ -56,13 +57,13 @@ namespace cxxtools
 
             virtual void cancel() = 0;
 
-            virtual void wait(std::size_t msecs = WaitInfinite) = 0;
+            virtual void wait(Milliseconds msecs = WaitInfinite) = 0;
 
-            virtual std::size_t timeout() const = 0;
-            virtual void timeout(std::size_t t) = 0;
+            virtual Milliseconds timeout() const = 0;
+            virtual void timeout(Milliseconds t) = 0;
 
-            virtual std::size_t connectTimeout() const = 0;
-            virtual void connectTimeout(std::size_t t) = 0;
+            virtual Milliseconds connectTimeout() const = 0;
+            virtual void connectTimeout(Milliseconds t) = 0;
 
     };
 }

@@ -53,22 +53,22 @@ void Client::call(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, un
     _impl->call(r, method, argv, argc);
 }
 
-std::size_t Client::timeout() const
+Milliseconds Client::timeout() const
 {
     return _impl->timeout();
 }
 
-void Client::timeout(std::size_t t)
+void Client::timeout(Milliseconds t)
 {
     _impl->timeout(t);
 }
 
-std::size_t Client::connectTimeout() const
+Milliseconds Client::connectTimeout() const
 {
     return _impl->connectTimeout();
 }
 
-void Client::connectTimeout(std::size_t t)
+void Client::connectTimeout(Milliseconds t)
 {
     _impl->connectTimeout(t);
 }

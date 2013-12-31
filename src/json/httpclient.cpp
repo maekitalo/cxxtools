@@ -182,22 +182,22 @@ void HttpClient::call(IComposer& r, IRemoteProcedure& method, IDecomposer** argv
     _impl->call(r, method, argv, argc);
 }
 
-std::size_t HttpClient::timeout() const
+Milliseconds HttpClient::timeout() const
 {
     return getImpl()->timeout();
 }
 
-void HttpClient::timeout(std::size_t t)
+void HttpClient::timeout(Milliseconds t)
 {
     getImpl()->timeout(t);
 }
 
-std::size_t HttpClient::connectTimeout() const
+Milliseconds HttpClient::connectTimeout() const
 {
     return getImpl()->connectTimeout();
 }
 
-void HttpClient::connectTimeout(std::size_t t)
+void HttpClient::connectTimeout(Milliseconds t)
 {
     getImpl()->connectTimeout(t);
 }
@@ -218,7 +218,7 @@ void HttpClient::cancel()
         _impl->cancel();
 }
 
-void HttpClient::wait(std::size_t msecs)
+void HttpClient::wait(Milliseconds msecs)
 {
     _impl->wait(msecs);
 }

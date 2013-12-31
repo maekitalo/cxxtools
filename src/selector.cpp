@@ -145,7 +145,7 @@ bool SelectorBase::updateTimer(std::size_t& lowestTimeout)
 }
 
 
-bool SelectorBase::wait(std::size_t msecs)
+bool SelectorBase::wait(Milliseconds msecs)
 {
     size_t timerTimeout = Selector::WaitInfinite;
 
@@ -160,7 +160,7 @@ bool SelectorBase::wait(std::size_t msecs)
     // This handles the case when no timer will become
     // active in the given timeout. The result of the
     // wait call indicates activity
-    if(timerTimeout > msecs || timerTimeout == Selector::WaitInfinite)
+    if(timerTimeout > msecs.totalMSecs() || timerTimeout == Selector::WaitInfinite)
     {
         return this->onWait(msecs);
     }

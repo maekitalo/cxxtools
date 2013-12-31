@@ -28,6 +28,7 @@
 
 #include <stdint.h>
 #include <iosfwd>
+#include <cxxtools/config.h>
 
 namespace cxxtools {
 
@@ -131,7 +132,55 @@ template <uint64_t Resolution>
 class WeakTimespan : public Timespan
 {
     public:
-        WeakTimespan(double units = 0)
+        WeakTimespan()
+            : Timespan()
+        { }
+
+        WeakTimespan(short units)
+            : Timespan(units * Resolution)
+        { }
+
+        WeakTimespan(unsigned short units)
+            : Timespan(units * Resolution)
+        { }
+
+        WeakTimespan(int units)
+            : Timespan(units * Resolution)
+        { }
+
+        WeakTimespan(unsigned int units)
+            : Timespan(units * Resolution)
+        { }
+
+        WeakTimespan(long units)
+            : Timespan(units * Resolution)
+        { }
+
+        WeakTimespan(unsigned long units)
+            : Timespan(units * Resolution)
+        { }
+
+#ifdef HAVE_LONG_LONG
+        WeakTimespan(long long units)
+            : Timespan(units * Resolution)
+        { }
+#endif
+
+#ifdef HAVE_UNSIGNED_LONG_LONG
+        WeakTimespan(unsigned long long units)
+            : Timespan(units * Resolution)
+        { }
+#endif
+
+        WeakTimespan(float units)
+            : Timespan(units * Resolution)
+        { }
+
+        WeakTimespan(double units)
+            : Timespan(units * Resolution)
+        { }
+
+        WeakTimespan(long double units)
             : Timespan(units * Resolution)
         { }
 
@@ -161,8 +210,56 @@ template <>
 class WeakTimespan<1> : public Timespan
 {
     public:
-        WeakTimespan(int64_t microseconds = 0)
-            : Timespan(microseconds)
+        WeakTimespan()
+            : Timespan()
+        { }
+
+        WeakTimespan(short units)
+            : Timespan(units)
+        { }
+
+        WeakTimespan(unsigned short units)
+            : Timespan(units)
+        { }
+
+        WeakTimespan(int units)
+            : Timespan(units)
+        { }
+
+        WeakTimespan(unsigned int units)
+            : Timespan(units)
+        { }
+
+        WeakTimespan(long units)
+            : Timespan(units)
+        { }
+
+        WeakTimespan(unsigned long units)
+            : Timespan(units)
+        { }
+
+#ifdef HAVE_LONG_LONG
+        WeakTimespan(long long units)
+            : Timespan(units)
+        { }
+#endif
+
+#ifdef HAVE_UNSIGNED_LONG_LONG
+        WeakTimespan(unsigned long long units)
+            : Timespan(units)
+        { }
+#endif
+
+        WeakTimespan(float units)
+            : Timespan(units)
+        { }
+
+        WeakTimespan(double units)
+            : Timespan(units)
+        { }
+
+        WeakTimespan(long double units)
+            : Timespan(units)
         { }
 
         WeakTimespan(const Timespan& ts)
@@ -173,6 +270,13 @@ class WeakTimespan<1> : public Timespan
         { return totalUSecs(); }
 
 };
+
+namespace tshelper
+{
+    /// @private
+
+    void get(std::istream& in, Timespan& ts, uint64_t res);
+}
 
 /**
     The typedefs makes specifying a timespan easy and readable.
@@ -211,7 +315,16 @@ inline Timespan operator * (double fac, const Timespan& d)
     return Timespan(d.totalUSecs() * fac);
 }
 
-std::ostream& operator<< (std::ostream& out, const Timespan& ht);
+std::ostream& operator<< (std::ostream& out, const Timespan& ts);
+
+std::istream& operator>> (std::istream& in, Timespan& ts);
+
+template <uint64_t Resolution>
+std::istream& operator>> (std::istream& in, WeakTimespan<Resolution>& ts)
+{
+    tshelper::get(in, ts, Resolution);
+    return in;
+}
 
 void operator >>=(const SerializationInfo& si, Timespan& timespan);
 

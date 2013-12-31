@@ -61,11 +61,11 @@ class CXXTOOLS_XMLRPC_API Client : public RemoteClient
 
         void call(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc);
 
-        std::size_t timeout() const;
-        void timeout(std::size_t t);
+        Milliseconds timeout() const;
+        void timeout(Milliseconds t);
 
-        std::size_t connectTimeout() const;
-        void connectTimeout(std::size_t t);
+        Milliseconds connectTimeout() const;
+        void connectTimeout(Milliseconds t);
 
         std::string url() const;
 

@@ -124,7 +124,7 @@ namespace cxxtools {
                 @param msecs timeout in miliseconds
                 @return true on timeout
             */
-            bool wait(std::size_t msecs = WaitInfinite);
+            bool wait(Milliseconds msecs = WaitInfinite);
 
             /** @brief Wakes the selctor from waiting
 

@@ -36,6 +36,7 @@
 #include <cxxtools/mutex.h>
 #include <cxxtools/selector.h>
 #include <cxxtools/eventsink.h>
+#include <cxxtools/timespan.h>
 #include <deque>
 
 namespace cxxtools {
@@ -70,12 +71,12 @@ namespace cxxtools {
 
             /** @brief Sets the idle timeout
             */
-            void setIdleTimeout(size_t msecs)
+            void setIdleTimeout(Milliseconds msecs)
             { _timeout = msecs; }
 
             /** @brief Returns the idle timeout
             */
-            unsigned int idleTimeout() const
+            Milliseconds idleTimeout() const
             { return _timeout; }
 
             /** @brief Notifies about wait timeouts
@@ -107,7 +108,7 @@ namespace cxxtools {
             virtual void onProcessEvents() = 0;
 
         private:
-            size_t _timeout;
+            Milliseconds _timeout;
     };
 
     /** @brief Thread-safe event loop supporting I/O multiplexing and Timers.
