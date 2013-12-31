@@ -283,6 +283,10 @@ namespace tshelper
 
     Examples:
     @code
+      // for this example we assume these functions:
+      void foo(Milliseconds t);  // a function expecting a timespan - default unit is milliseconds
+      Milliseconds foo();        // a function returning a timespan - default is to return milliseconds
+
       // specify 5 milliseconds:
       cxxtools::Timespan t = Milliseconds(5);
 
@@ -293,9 +297,21 @@ namespace tshelper
       cxxtools::Timespan someTimespan = foo();
       double numberOfSeconds = Seconds(someTimespan);
 
-      // get a timespan value in whole milliseconds:
+      // or shorter:
+      double numberOfSeconds(Seconds(foo());
+
+      // pass a timespan to a function:
+      foo(500);                     // since foo expects a cxxtools::Milliseconds, the default is
+                                    // to convert a number to milliseconds timespan
+      foo(cxxtools::Seconds(0.5));  // Seconds is a Timespan, which can be converted to Milliseconds
+                                    // so that foo is here called with 500 milliseconds
+
+      // get the number of milliseconds or some other unit in a timespan:
       cxxtools::Timespan someTimespan = foo();
-      int numberOfMilliseconds = Millieconds(someTimespan);
+      double numberOfMilliseconds = cxxtools::Milliseconds(someTimespan);
+      double numberOfSeconds = cxxtools::Seconds(someTimespan);
+      double numberOfDays = cxxtools::Days(someTimespan);
+
     @endcode
  */
 typedef WeakTimespan<1>                             Microseconds;
