@@ -125,8 +125,9 @@ class Timespan
 
 /** @brief A WeakTimespan extends a Timespan with a implicit conversion to and from number.
 
-    The template parameter specifies, which unit is returned. It is the devisor
+    The template parameter specifies, which unit is returned. It is the divisor
     needed to convert a number of microseconds to the requested unit.
+
  */
 template <uint64_t Resolution>
 class WeakTimespan : public Timespan
