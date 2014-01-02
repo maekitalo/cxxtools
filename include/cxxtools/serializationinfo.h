@@ -46,7 +46,59 @@ namespace cxxtools
 {
 
 /** @brief Represents arbitrary types during serialization.
-*/
+
+    A SerializationInfo represent arbitrary types during serialization. It is
+    a flexible structure, which can hold all informations to reconstruct a
+    object.
+
+    The types of informations are:
+
+     - a category (Void, Value, Object or Array)
+     - a scalar value
+     - a name of the type
+     - a ordered list of SerializationInfo objects
+
+    Those informations are filled when objects are serialized using a
+    serialization operator and a serializer can use those to create a
+    serialized representation of a object.
+
+    A deserializer is used to convert a serialized representation into a
+    SerializationInfo and a deserialization operator is used to convert the
+    SerializationInfo back to the desired object.
+
+    To serialize and deserialize a object, those operators are needed.
+    For all standard types there are predefined operators. For user types
+    like own classes a operator can easily be written. The signature is
+    always the same.
+
+    Serialization operator is defined as:
+
+        void operator <<= (cxxtools::SerializationInfo& si, const YourType& object);
+
+    It must collect all informations from `YourType` and put them to the
+    cxxtools::SerializationInfo.
+
+    The Deserialization operator is defined as:
+
+        void operator >>= (const cxxtools::SerializationInfo& si, YourType& object);
+
+    It must fetch the informations from SerializationInfo and fill the passed object
+    to reconstruct it.
+
+    With those 2 operators a serializer is able to to convert the object to
+    some format and the deserializers to convert it back to the object.
+
+    Since for standard container types operators are defined using templates,
+    The operators above are also able to serializer and deserialize e.g. a
+    `std::vector<YourType>`.
+
+    The scalar value may have several types. When accessing the value it is
+    typically converted implicitly when possible. So when e.g. the
+    SerializationInfo is set to a numeric value and a string value is read, you
+    get a string representation of the numeric value.
+
+ */
+
 class CXXTOOLS_API SerializationInfo
 {
     typedef std::vector<SerializationInfo> Nodes;
@@ -56,8 +108,15 @@ class CXXTOOLS_API SerializationInfo
             Void = 0, Value = 1, Object = 2, Array = 6
         };
 
-        class Iterator;
-        class ConstIterator;
+        /// iterator over subnodes.
+        typedef Nodes::iterator Iterator;
+        /// const iterator over subnodes.
+        typedef Nodes::const_iterator ConstIterator;
+
+        /// iterator over subnodes, std style name.
+        typedef Nodes::iterator iterator;
+        /// const iterator over subnodes, std style name.
+        typedef Nodes::const_iterator const_iterator;
 
 #ifdef HAVE_LONG_LONG
         typedef long long int_type;
@@ -247,13 +306,25 @@ class CXXTOOLS_API SerializationInfo
             return _nodes.size();
         }
 
-        Iterator begin();
+        Iterator begin()
+        {
+            return _nodes.begin();
+        }
 
-        Iterator end();
+        Iterator end()
+        {
+            return _nodes.end();
+        }
 
-        ConstIterator begin() const;
+        ConstIterator begin() const
+        {
+            return _nodes.begin();
+        }
 
-        ConstIterator end() const;
+        ConstIterator end() const
+        {
+            return _nodes.end();
+        }
 
         SerializationInfo& operator =(const SerializationInfo& si);
 
@@ -332,164 +403,6 @@ class CXXTOOLS_API SerializationInfo
 
         Nodes _nodes;             // objects/arrays
 };
-
-
-class SerializationInfo::Iterator
-{
-    public:
-        Iterator();
-
-        Iterator(const Iterator& other);
-
-        Iterator(SerializationInfo* info);
-
-        Iterator& operator=(const Iterator& other);
-
-        Iterator& operator++();
-
-        SerializationInfo& operator*();
-
-        SerializationInfo* operator->();
-
-        bool operator!=(const Iterator& other) const;
-
-        bool operator==(const Iterator& other) const;
-
-    private:
-        SerializationInfo* _info;
-};
-
-
-class SerializationInfo::ConstIterator
-{
-    public:
-        ConstIterator();
-
-        ConstIterator(const ConstIterator& other);
-
-        ConstIterator(const SerializationInfo* info);
-
-        ConstIterator& operator=(const ConstIterator& other);
-
-        ConstIterator& operator++();
-
-        const SerializationInfo& operator*() const;
-
-        const SerializationInfo* operator->() const;
-
-        bool operator!=(const ConstIterator& other) const;
-
-        bool operator==(const ConstIterator& other) const;
-
-    private:
-        const SerializationInfo* _info;
-};
-
-
-inline SerializationInfo::Iterator::Iterator()
-: _info(0)
-{}
-
-
-inline SerializationInfo::Iterator::Iterator(const Iterator& other)
-: _info(other._info)
-{}
-
-
-inline SerializationInfo::Iterator::Iterator(SerializationInfo* info)
-: _info(info)
-{}
-
-
-inline SerializationInfo::Iterator& SerializationInfo::Iterator::operator=(const Iterator& other)
-{
-    _info = other._info;
-    return *this;
-}
-
-
-inline SerializationInfo::Iterator& SerializationInfo::Iterator::operator++()
-{
-    ++_info;
-    return *this;
-}
-
-
-inline SerializationInfo& SerializationInfo::Iterator::operator*()
-{
-    return *_info;
-}
-
-
-inline SerializationInfo* SerializationInfo::Iterator::operator->()
-{
-    return _info;
-}
-
-
-inline bool SerializationInfo::Iterator::operator!=(const Iterator& other) const
-{
-    return _info != other._info;
-}
-
-
-inline bool SerializationInfo::Iterator::operator==(const Iterator& other) const
-{
-    return _info == other._info;
-}
-
-
-inline SerializationInfo::ConstIterator::ConstIterator()
-: _info(0)
-{}
-
-
-inline SerializationInfo::ConstIterator::ConstIterator(const ConstIterator& other)
-: _info(other._info)
-{}
-
-
-inline SerializationInfo::ConstIterator::ConstIterator(const SerializationInfo* info)
-: _info(info)
-{}
-
-
-inline SerializationInfo::ConstIterator& SerializationInfo::ConstIterator::operator=(const ConstIterator& other)
-{
-    _info = other._info;
-    return *this;
-}
-
-
-inline SerializationInfo::ConstIterator& SerializationInfo::ConstIterator::operator++()
-{
-    ++_info;
-    return *this;
-}
-
-
-inline const SerializationInfo& SerializationInfo::ConstIterator::operator*() const
-{
-    return *_info;
-}
-
-
-inline const SerializationInfo* SerializationInfo::ConstIterator::operator->() const
-{
-    return _info;
-}
-
-
-inline bool SerializationInfo::ConstIterator::operator!=(const ConstIterator& other) const
-{
-    return _info != other._info;
-}
-
-
-inline bool SerializationInfo::ConstIterator::operator==(const ConstIterator& other) const
-{
-    return _info == other._info;
-}
 
 
 inline void operator >>=(const SerializationInfo& si, SerializationInfo& ssi)

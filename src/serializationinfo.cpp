@@ -111,42 +111,6 @@ SerializationInfo& SerializationInfo::addMember(const std::string& name)
 }
 
 
-SerializationInfo::Iterator SerializationInfo::begin()
-{
-    if(_nodes.size() == 0)
-        return 0;
-
-    return &( _nodes[0] );
-}
-
-
-SerializationInfo::Iterator SerializationInfo::end()
-{
-    if(_nodes.size() == 0)
-        return 0;
-
-    return &_nodes[0] + _nodes.size();
-}
-
-
-SerializationInfo::ConstIterator SerializationInfo::begin() const
-{
-    if(_nodes.size() == 0)
-        return 0;
-
-    return &( _nodes[0] );
-}
-
-
-SerializationInfo::ConstIterator SerializationInfo::end() const
-{
-    if(_nodes.size() == 0)
-        return 0;
-
-    return &_nodes[0] + _nodes.size();
-}
-
-
 const SerializationInfo& SerializationInfo::getMember(const std::string& name) const
 {
     Nodes::const_iterator it = _nodes.begin();
