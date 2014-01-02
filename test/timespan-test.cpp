@@ -102,7 +102,8 @@ class TimespanTest : public cxxtools::unit::TestSuite
         {
             cxxtools::Timespan t = cxxtools::Microseconds(1234567);
             CXXTOOLS_UNIT_ASSERT_EQUALS(t.totalUSecs(), 1234567);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(t.totalMSecs(), 1234.567);
+            // due to rounding errors msecs are just nearly equal:
+            CXXTOOLS_UNIT_ASSERT(t.totalMSecs()/1234.567 > 0.999999 && t.totalMSecs()/1234.567 < 1.000001);
             CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::Microseconds(t), 1234567);
         }
 
