@@ -126,7 +126,10 @@ class Timespan
 /** @brief A WeakTimespan extends a Timespan with a implicit conversion to and from number.
 
     The template parameter specifies, which unit is returned. It is the divisor
-    needed to convert a number of microseconds to the requested unit.
+    needed to convert a number of microseconds to the requested unit. The
+    template class is normally not used directly but the typedefs
+    cxxtools::Microseconds, cxxtools::Milliseconds, cxxtools::Seconds,
+    cxxtools::Minutes, cxxtools::Hours and cxxtools::Days are used.
 
  */
 template <uint64_t Resolution>
@@ -272,12 +275,12 @@ class WeakTimespan<1> : public Timespan
 
 };
 
+/// @cond internal
 namespace tshelper
 {
-    /// @private
-
     void get(std::istream& in, Timespan& ts, uint64_t res);
 }
+/// @endcond
 
 /**
     The typedefs makes specifying a timespan easy and readable.
