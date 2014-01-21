@@ -78,7 +78,7 @@ namespace cxxtools
     It must collect all informations from `YourType` and put them to the
     cxxtools::SerializationInfo.
 
-    The Deserialization operator is defined as:
+    The deserialization operator is defined as:
 
         void operator >>= (const cxxtools::SerializationInfo& si, YourType& object);
 

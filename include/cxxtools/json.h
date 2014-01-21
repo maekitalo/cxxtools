@@ -39,7 +39,7 @@ namespace cxxtools
        Wrapper object to easily print serializable objects as json to a output stream.
 
        JsonOObject is a little wrapper which makes it easy to output serializable
-       objects into s ostream. For this the JsonOObject expects a reference to the
+       objects into a ostream. For this the JsonOObject expects a reference to the
        wrapped object and has a output operator for a std::ostream, or actually
        a std::basic_ostream, which prints the object in json format.
 
@@ -99,6 +99,28 @@ namespace cxxtools
       return JsonOObject<ObjectType>(object, beautify);
     }
 
+    /**
+       Wrapper object to easily read objects as json from a input stream.
+
+       JsonIObject is a little wrapper which makes it easy to read objects
+       from a istream. For this the JsonIObject expects a reference to the
+       wrapped object and has a input operator for a std::istream, or actually
+       a std::basic_istream, which reads the object from json format.
+
+       Example:
+       \code
+
+        std::vector<unsigned> v;
+
+        std::istringstream in("[ 45, 23 ]");
+
+        in >> cxxtools::Json(v);
+
+        for (unsigned n = 0; n < v.size(); ++n)
+          std::cout << v[n] << '\n';               // prints 45 and 23
+
+       \endcode
+     */
     template <typename ObjectType>
     class JsonIOObject : public JsonOObject<ObjectType>
     {
@@ -123,6 +145,8 @@ namespace cxxtools
       return in;
     }
 
+    /// Creates a JsonIObject with a reference to a deserializable object.
+    /// See JsonIObject for a usage example.
     template <typename ObjectType>
     JsonIOObject<ObjectType> Json(ObjectType& object)
     {

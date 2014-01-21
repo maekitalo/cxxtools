@@ -38,12 +38,12 @@ namespace cxxtools
 namespace xml
 {
     /**
-       Wrapper object to easily print serializable objects as json to a output stream.
+       Wrapper object to easily print serializable objects as xml to a output stream.
 
        XmlOObject is a little wrapper which makes it easy to output serializable
-       objects into s ostream. For this the XmlOObject expects a reference to the
+       objects into a ostream. For this the XmlOObject expects a reference to the
        wrapped object and has a output operator for a std::ostream, or actually
-       a std::basic_ostream, which prints the object in json format.
+       a std::basic_ostream, which prints the object in xml format.
 
        Example:
        \code
@@ -51,7 +51,7 @@ namespace xml
         v.push_back(4);
         v.push_back(17);
         v.push_back(12);
-        std::cout << cxxtools::xml::Xml(v) << std::endl;
+        std::cout << cxxtools::xml::Xml(v, "rootnode") << std::endl;
        \endcode
      */
     template <typename ObjectType>
@@ -64,7 +64,7 @@ namespace xml
 
       public:
         /// Constructor. Needs the wrapped object. Optionally a flag can be
-        /// passed whether the json should be nicely formatted.
+        /// passed whether the xml should be nicely formatted.
         XmlOObject(const ObjectType& object, const std::string& name)
           : _object(object),
             _name(name),
@@ -117,6 +117,29 @@ namespace xml
                 .useAttributes(useAttributes);
     }
 
+    /**
+       Wrapper object to easily read objects as xml from a input stream.
+
+       XmlIObject is a little wrapper which makes it easy to read objects
+       from a istream. For this the XmlIObject expects a reference to the
+       wrapped object and has a input operator for a std::istream, or actually
+       a std::basic_istream, which reads the object from xml format.
+
+       Example:
+       \code
+
+        std::vector<unsigned> v;
+
+        std::istringstream in(
+          \"<?xml version=\"1.0\" encoding=\"UTF-8\"?><rootnode><a>45</a><a>23</a></rootnode>");
+
+        in >> cxxtools::xml::Xml(v);
+
+        for (unsigned n = 0; n < v.size(); ++n)
+          std::cout << v[n] << '\n';               // prints 45 and 23
+
+       \endcode
+     */
     template <typename ObjectType>
     class XmlIObject
     {
@@ -132,6 +155,7 @@ namespace xml
     };
 
     /// The input operator for XmlIObject. It does the actual work.
+    /// See XmlIObject for a usage example.
     template <typename CharType, typename ObjectType>
     std::basic_istream<CharType>& operator>> (std::basic_istream<CharType>& in, XmlIObject<ObjectType> object)
     {
@@ -140,6 +164,8 @@ namespace xml
       return in;
     }
 
+    /// Creates a XmlIObject with a reference to a deserializable object.
+    /// See XmlIObject for a usage example.
     template <typename ObjectType>
     XmlIObject<ObjectType> Xml(ObjectType& object)
     {
