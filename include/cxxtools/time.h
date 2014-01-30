@@ -86,6 +86,7 @@ class Time
               %S   seconds
               %j   milliseconds (1-3 digits, optionally leading '.')
               %J   milliseconds (1-3 digits, with leading '.')
+              %K   milliseconds (3 digits, with leading '.')
               %p   AM/PM
          */
         explicit Time(const std::string& d, const std::string& fmt = "%H:%M:%S%j");
