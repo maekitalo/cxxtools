@@ -112,7 +112,7 @@ class TimeTest : public cxxtools::unit::TestSuite
           dt = cxxtools::Time(17, 1, 14);
 
           str = dt.toString("%H %M %S%J");
-          CXXTOOLS_UNIT_ASSERT_EQUALS(str, "17 01 14.0");
+          CXXTOOLS_UNIT_ASSERT_EQUALS(str, "17 01 14.000");
 
           str = dt.toString("%H %M %S%j");
           CXXTOOLS_UNIT_ASSERT_EQUALS(str, "17 01 14");

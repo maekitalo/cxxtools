@@ -179,13 +179,7 @@ std::string Time::toString(const std::string& fmt) const
                     break;
 
           case 'J': str += '.';
-                    str += (mseconds / 100 + '0');
-                    if (mseconds % 100 != 0)
-                    {
-                      str += (mseconds / 10 % 10 + '0');
-                      if (mseconds % 10 != 0)
-                        str += (mseconds % 10 + '0');
-                    }
+                    appendD3(str, mseconds);
                     break;
 
           case 'p': str += (hours < 12 ? "am" : "pm"); break;
