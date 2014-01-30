@@ -171,6 +171,7 @@ class Time
               %S   seconds
               %j   milliseconds (1-3 digits, optionally leading '.')
               %J   milliseconds (1-3 digits, with leading '.')
+              %K   milliseconds (3 digits, with leading '.')
               %p   am/pm
               %P   AM/PM
          */

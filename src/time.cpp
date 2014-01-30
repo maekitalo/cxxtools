@@ -95,6 +95,7 @@ Time::Time(const std::string& str, const std::string& fmt)
             break;
 
           case 'J':
+          case 'K':
             if (dit != str.end() && *dit == '.')
             {
               ++dit;
