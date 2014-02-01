@@ -131,6 +131,9 @@ class DateTimeTest : public cxxtools::unit::TestSuite
           str = dt.toString("%Y %m %d %H %M %S%K");
           CXXTOOLS_UNIT_ASSERT_EQUALS(str, "2013 05 03 17 01 14.000");
 
+          str = dt.toString("%Y %m %d %H %M %S %k");
+          CXXTOOLS_UNIT_ASSERT_EQUALS(str, "2013 05 03 17 01 14 000");
+
           str = dt.toString("%Y %m %d %H %M %S%j");
           CXXTOOLS_UNIT_ASSERT_EQUALS(str, "2013 05 03 17 01 14");
 

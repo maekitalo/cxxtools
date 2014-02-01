@@ -118,6 +118,10 @@ DateTime::DateTime(const std::string& str, const std::string& fmt)
             }
             break;
 
+          case 'k':
+            mseconds = getMilliseconds(dit, str.end());
+            break;
+
           case 'p':
             if (dit == str.end()
               || dit + 1 == str.end()
@@ -215,6 +219,9 @@ std::string DateTime::toString(const std::string& fmt) const
                       if (mseconds % 10 != 0)
                         str += (mseconds % 10 + '0');
                     }
+                    break;
+
+          case 'k': appendD3(str, mseconds);
                     break;
 
           case 'K': str += '.';
