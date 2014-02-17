@@ -1,5 +1,5 @@
-CSV howto
-=========
+Reading and writing CSV with cxxtools serialization
+===================================================
 
 CSV is a simple format, which can be used to store and read tabular data. The
 cxxtools serialization framework supports reading and writing CSV files. The CSV
