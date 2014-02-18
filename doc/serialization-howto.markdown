@@ -13,11 +13,11 @@ There are many situations where serialization can be useful like:
  * transfer data structures over a network or pipe
  * pass objects to other applications using a standard format
 
-C++ do not support serialization directly since the philosophy is, that you do
+C++ does not support serialization directly, since the philosophy is, that you do
 not pay for what you do not use. After compilation objects are just some
 collection of bytes without any type information. It is not possible to ask for
 the type or the properties of a type at runtime. Hence a generic serialization
-framework need some help to convert generic objects into a byte stream and back.
+framework needs some help to convert generic objects into a byte stream and back.
 
 Anatomy of cxxtools::SerializationInfo
 --------------------------------------
@@ -29,7 +29,7 @@ it are:
  * a type name
  * a category
  * a value
- * a ordered list of name value pairs
+ * an ordered list of name value pairs
 
 The type name is a string, which should be filled in the serialization operator.
 Typically the type name is not used in the deserialization operator. But in some
@@ -40,34 +40,35 @@ The category is `Void`, `Value`, `Object` or `Array`.
 A `Value` is just a scalar. The value of the scalar is held in the value
 attribute of the `cxxtools::SerializationInfo`.
 
-A `Object` is typically a representation of a `struct` or `class`. The value of
-the `cxxtools::SerializationInfo` is not used but the attributes of the object
-is stored in the ordered list with the member names as keys.
+An `Object` is typically a representation of a `struct` or `class`. The value of
+the `cxxtools::SerializationInfo` is not used, but the attributes of the object
+are stored in an ordered list with the member names as keys.
 
-A `Array` is just a list of unnamed values. Here the elements are held again in
-the list of name value pairs but with empty names.
+An `Array` is just a list of unnamed values. As for an `Object` the elements are held in
+a list of name value pairs but with empty names.
 
 The value field holds a scalar value. The value may be a byte string, unicode
 string (using `cxxtools::String`), a char, bool, integer or floating point
-value. The actual type is transparent. When the value is requested automatic
-conversion takes place whenever needed. It is not possible to ask, which value
-is currently held in the instance and actually never needed.
+value. The actual type is transparent. When the value is requested, automatic
+conversion takes place whenever needed. During the process of (de-)serialization
+it is not possible to query which value is currently held in the instance of
+`cxxtools::SerializationInfo` and this should actually never be needed.
 
 The ordered list of name value pairs makes a `cxxtools::SerializationInfo`
 hierarchical. The name is just a `std::string`. The value is another
-`cxxtools::SerializationInfo`, which can held also any type.
+`cxxtools::SerializationInfo`, which can hold any type.
 
-The members can be accessed by name, index or using a iterator. The actual name
+The members can be accessed by name, index or using an iterator. The actual name
 of the member is also held in the value to make it easy to identify the object.
 
 Making C++ data structures serializable
 ---------------------------------------
 
-To make a C++ data structure serializable and deserializable 2 operators must be
-defined. One stores the data from the data structure to a object of type
+To make a C++ data structure serializable and deserializable, 2 operators must be
+defined. One stores the data from the data structure to an object of type
 `cxxtools::SerializationInfo` and the other reconstructs the object back.
 
-The signature for the operator is always the same. Lets look at a example:
+The signature for the operator is always the same. Lets look at an example:
 
     struct Foo
     {
@@ -94,14 +95,14 @@ The signature for the operator is always the same. Lets look at a example:
 The `operator<<=` is the serialization operator and takes a non const reference
 to a `cxxtools::SerializationInfo` and a const reference to the object to be
 serialized. The operator must store all attributes, needed do restore the object
-into the `cxxtools::SerializationInfo`. Since all built in types including the
-standard container classes have such a serialization operator, we can use it to
+into the `cxxtools::SerializationInfo`. Since all built in types, including the
+standard container classes, have such a serialization operator, we can use it to
 serialize the members.
 
 The `operator>>=` is the deserialization operator and must reconstruct the
 object from the passed `cxxtools::SerializationInfo`. The
 `cxxtools::SerializationInfo` is a const reference here since it must not be
-changed. The object is passed as a non const reference and must be filled from
+changed. The object foo is passed as a non const reference and must be filled from
 the first parameter.
 
 When those operators are defined, not only `Foo` can be serialized and
@@ -109,7 +110,7 @@ deserialized but also complex structures, which has a `Foo` member like e.g. a
 `std::vector<Foo>`.
 
 The member names in the `cxxtools::SerializationInfo` typically match the member
-names of the C++ structure but they do not need to. Also not every member need
+names of the C++ structure but they do not need to. Also, not every member needs
 to be serialized when not needed for deserialization. It is just necessary, that
 the serialization operator and deserialization operator use the same structure.
 It is perfectly OK to define the operators like that:
@@ -161,14 +162,14 @@ and a null pointer otherwise. So more efficient is to use:
         *p >>= foo.stringMember;
 
 But since it is so common to have optional parameters, another variant of
-`getMember` is available. It expects a non const reference to a object as a
-second argument, which is filled and returns a boolean value, which indicates if
+`getMember` is available. It expects a non const reference to an object as a
+second argument, which is filled and it returns a boolean value, which indicates if
 it has found the value. So the above string member can be deserialized using:
 
     si.getMember("stringMember", foo.stringMember);
 
 In case the member is not found, the `foo.stringMember` is not touched at all.
-If you need to do something, when the member is not found, it is easy also:
+If you need to do something, when the member is not found, this can be easily achieved:
 
     if (!si.getMember("stringMember", foo.stringMember))
     {
@@ -180,11 +181,11 @@ Common patterns for defining serialization and deserialization operators
 
 There are 2 aspects, which have to be taken care of when defining operators.
 
-As always we have to make sure, that the operators are defined only once. A
+As always, we have to make sure that the operators are defined only once. A
 common pattern is to define the operators inline in the header file, where the
 object is defined. Another possibility is to just declare the operators in the
 header and define them in the source file. In the latter case it is perfectly OK
-to forward declare the `cxxtools::SerializationInfo` object instead if including
+to forward declare the `cxxtools::SerializationInfo` object instead of including
 `cxxtools/serialzationinfo.h`. Forward declaration can be done like that:
 
     namespace cxxtools
@@ -193,7 +194,7 @@ to forward declare the `cxxtools::SerializationInfo` object instead if including
     }
 
 The advantages of forward declaration are less dependencies and faster compile
-times. We do not go into detail about that here since it is described in any
+times. We do not go into detail about that here, since it is described in any
 good C++ book.
 
 The other aspect is accessibility of members. Above we saw a simple `struct`.
@@ -233,11 +234,11 @@ Lets change our `Foo` to a `class` with private members:
         { return values[idx]; }
     };
 
-The nice thing about that class is, that we make sure, that all members are
-initialized in the constructor. And we have better control, what can be done
+The nice thing about the above class is, that we make sure, that all members are
+initialized in the constructor. And we have better control about what can be done
 with the data.
 
-When we try to write our operators we run into problems. We can't just access
+When we try to write our operators, we run into problems. We can't just access
 the private member data as above since the operators are not members of our
 class.
 
@@ -315,7 +316,7 @@ need to be serialized. This makes serialization and deserialization much more
 complex.
 
 Many serialization libraries support such things and cxxtools had also some
-support for it but since it was never perfect, slows down deserialization
+support for it, but since it was never perfect, slows down deserialization
 significantly and is rarely needed, the developers of cxxtools have
 decided to drop the support for it.
 
@@ -360,10 +361,10 @@ wrapper `cxxtools::Xml`, which makes it even easier:
         out << cxxtools::Xml(timeSeries, "timeSeries");
     }
 
-With those few lines we create a xml file with the data.
+With those few lines, we create a xml file with the data.
 
 We omit error handling of `std::ofstream` here. The xml serializer will throw
-exceptions when any problem occur.
+exceptions if any problem occurs.
 
 Note that the serializers do not include unnecessary white space. If you want to
 make the file readable, you should enable beautification. In cxxtools 2.3 add a
@@ -399,7 +400,7 @@ Again with cxxtools version 2.3 it become easier:
 If you prefer not to use xml since it is so verbose or for other reasons, it is
 as easy to use json or a cxxtools specific binary format, which is very compact.
 
-Further reading or what can be done with cxxtools serialization
+Further reading on what can be done with cxxtools serialization
 ---------------------------------------------------------------
 
 Other use cases for serialization is:
