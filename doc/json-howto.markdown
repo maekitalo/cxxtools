@@ -1,5 +1,5 @@
-JSON Howto
-==========
+JSON serialization Howto
+========================
 
 Introduction
 ------------
