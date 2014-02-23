@@ -198,10 +198,10 @@ For beautification a attribute must be set:
     serializer.beautify(true);
     output.serialize(si);
 
-Again our overloaded opertor `<<=` can be used also:
+Again our overloaded operator `<<=` can be used also:
 
     cxxtools::JsonSeriailzer serializer(output);
     output.serialize(configuration);
 
-For reading we need the header `<cxxtools/jsondeseriailzer.h>` and for writing
-`<cxxtools/jsonseriailzer.h>`.
+For reading we need the header `<cxxtools/jsondeserializer.h>` and for writing
+`<cxxtools/jsonserializer.h>`.
