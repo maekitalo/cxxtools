@@ -66,7 +66,6 @@ namespace net
       state_fragment
     } state = state_0;
 
-    std::string token;
     bool hasPort = false;
 
     for (std::string::const_iterator it = uri.begin(); it != uri.end(); ++it)

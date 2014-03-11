@@ -183,7 +183,6 @@ iconvstreambuf::int_type iconvstreambuf::overflow(int_type c)
           log_warn("convert failed, skipping byte");
           --inbytesleft;
           ++inbufptr;
-          iconv_ret = true;
         break;
         case iconvstreambuf::mode_throw:
           log_warn("convert failed, throwing exception");

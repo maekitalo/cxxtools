@@ -100,7 +100,7 @@ void FileDeviceImpl::resize(off_type size)
 }
 
 
-size_t FileDeviceImpl::size()
+size_t FileDeviceImpl::size() const
 {
     struct stat buff;
     int ret = fstat(fd(), &buff);
