@@ -52,6 +52,9 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sstream>
+#ifndef HAVE_INET_NTOP
+#include "cxxtools/mutex.h"
+#endif
 
 log_define("cxxtools.net.tcpsocket.impl")
 
