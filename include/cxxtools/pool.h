@@ -33,9 +33,7 @@
 
 namespace cxxtools
 {
-  /**
-   This class is a factory for objects wich are default constructable.
-   */
+  /// This class is a factory for objects wich are default constructable.
   template <class T>
   class DefaultCreator
   {
@@ -44,14 +42,13 @@ namespace cxxtools
       { return new T(); }
   };
 
-  /**
-   A Pool is a container for pooled objects.
+  /** A Pool is a container for pooled objects
 
-   It maintains a list of object instances, which are not in use. If a
-   program needs a instance, it can request one with the get-method. The
-   pool returns a smart pointer to an instance. When the pointer is released,
-   the instance is put back into the pool or dropped, if the pool has already
-   a maximum number of instances.
+      It maintains a list of object instances which are not in use. If a
+      program needs an instance, it can request one with the get-method. The
+      pool returns a smart pointer to an instance. When the pointer is released,
+      the instance is put back into the pool or dropped if the pool already has 
+      the maximum number of instances.
    */
   template <typename ObjectType,
             typename CreatorType = DefaultCreator<ObjectType>,
@@ -79,10 +76,12 @@ namespace cxxtools
 
         public:
           Ptr()
-            : object(0)
+            : object(0),
+              pool(0)
             {}
           Ptr(ObjectType* ptr)
-            : object(ptr)
+            : object(ptr),
+              pool(0)
             { OwnershipPolicyType::link(*this, ptr); }
           Ptr(const Ptr& ptr)
             : object(ptr.object),
