@@ -79,11 +79,12 @@ namespace
 void formatIp(const Sockaddr& sa, std::string& str)
 {
 #ifdef HAVE_INET_NTOP
-#ifdef HAVE_IPV6
+
+#  ifdef HAVE_IPV6
       char strbuf[INET6_ADDRSTRLEN + 1];
-#else
+#  else
       char strbuf[INET_ADDRSTRLEN + 1];
-#endif
+#  endif
 
       const char* p = 0;
  
@@ -92,16 +93,18 @@ void formatIp(const Sockaddr& sa, std::string& str)
             case AF_INET:
                   p = inet_ntop(AF_INET, &sa.sa_in.sin_addr, strbuf, sizeof(strbuf));
                   break;
-#ifdef HAVE_IPV6
+#  ifdef HAVE_IPV6
             case AF_INET6:
                   p = inet_ntop(AF_INET6, &sa.sa_in6.sin6_addr,
                         strbuf, sizeof(strbuf));
                   break;
-#endif
+#  endif
       }
 
       str = (p == 0 ? "-" : strbuf);
-#else
+
+#else // HAVE_INET_NTOP
+
       static cxxtools::Mutex monitor;
       cxxtools::MutexLock lock(monitor);
 
@@ -110,6 +113,7 @@ void formatIp(const Sockaddr& sa, std::string& str)
         str = p;
       else
         str.clear();
+
 #endif
 }
 
