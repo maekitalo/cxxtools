@@ -41,8 +41,15 @@ namespace cxxtools
 {
 namespace json
 {
+const int Responder::ParseError;
+const int Responder::InvalidRequest;
+const int Responder::MethodNotFound;
+const int Responder::InvalidParams;
+const int Responder::InternalError;
+
 Responder::Responder(ServiceRegistry& serviceRegistry)
-    : _serviceRegistry(serviceRegistry)
+    : _serviceRegistry(serviceRegistry),
+      _failed(false)
 {
 }
 
@@ -54,6 +61,7 @@ void Responder::begin()
 {
     _deserializer.begin();
     _parser.begin(_deserializer);
+    _failed = false;
 }
 
 void Responder::finalize(std::ostream& out)
@@ -71,65 +79,86 @@ void Responder::finalize(std::ostream& out)
     formatter.beginObject(std::string(), std::string());
     formatter.addValueString("jsonrpc", "string", L"2.0");
 
-    try
+    if (_failed)
     {
-        _deserializer.si()->getMember("method") >>= methodName;
-
-        log_debug("method = " << methodName);
-        proc = _serviceRegistry.getProcedure(methodName);
-        if( ! proc )
-            throw std::runtime_error("no such procedure \"" + methodName + '"');
-
-        // compose arguments
-        IComposer** args = proc->beginCall();
-
-        // process args
-        const SerializationInfo* paramsPtr = _deserializer.si()->findMember("params");
-
-        // params may be ommited in request
-        SerializationInfo emptyParams;
-
-        const SerializationInfo& params = paramsPtr ? *paramsPtr : emptyParams;
-
-        SerializationInfo::ConstIterator it = params.begin();
-        if (args)
-        {
-            for (int a = 0; args[a]; ++a)
-            {
-                if (it == params.end())
-                    throw RemoteException("argument expected");
-                args[a]->fixup(*it);
-                ++it;
-            }
-        }
-
-        if (it != params.end())
-            throw RemoteException("too many arguments");
-
-        IDecomposer::formatEach(_deserializer.si()->getMember("id"), formatter);
-
-        IDecomposer* result;
-        result = proc->endCall();
-
-        formatter.beginValue("result");
-        result->format(formatter);
-        formatter.finishValue();
-    }
-    catch (const RemoteException& e)
-    {
-        log_debug("method \"" << methodName << "\" exited with RemoteException: " << e.what());
-
         formatter.beginObject("error", std::string());
-
-        formatter.addValueInt("code", "int", static_cast<Formatter::int_type>(e.rc()));
-        formatter.addValueStdString("message", std::string(), e.what());
-
-        formatter.finishObject();
+        formatter.addValueInt("code", "int", _errorCode);
+        formatter.addValueStdString("error", std::string(), _errorMessage);
     }
-    catch (const std::exception& e)
+    else
     {
-        log_debug("method \"" << methodName << "\" exited with exception: " << e.what());
-        formatter.addValueStdString("error", std::string(), e.what());
+
+        try
+        {
+            _deserializer.si()->getMember("method") >>= methodName;
+
+            log_debug("method = " << methodName);
+            proc = _serviceRegistry.getProcedure(methodName);
+            if( ! proc )
+                throw RemoteException("Method \"" + methodName + "\" not found", MethodNotFound);
+
+            // compose arguments
+            IComposer** args = proc->beginCall();
+
+            // process args
+            const SerializationInfo* paramsPtr = _deserializer.si()->findMember("params");
+
+            // params may be ommited in request
+            SerializationInfo emptyParams;
+
+            const SerializationInfo& params = paramsPtr ? *paramsPtr : emptyParams;
+
+            SerializationInfo::ConstIterator it = params.begin();
+            if (args)
+            {
+                for (int a = 0; args[a]; ++a)
+                {
+                    if (it == params.end())
+                        throw RemoteException("missing parameters", InvalidParams);
+                    args[a]->fixup(*it);
+                    ++it;
+                }
+            }
+
+            if (it != params.end())
+                throw RemoteException("too many parameters", InvalidParams);
+
+            IDecomposer::formatEach(_deserializer.si()->getMember("id"), formatter);
+
+            IDecomposer* result;
+            result = proc->endCall();
+
+            formatter.beginValue("result");
+            result->format(formatter);
+            formatter.finishValue();
+        }
+        catch (const RemoteException& e)
+        {
+            log_debug("method \"" << methodName << "\" exited with RemoteException: " << e.what());
+
+            formatter.beginObject("error", std::string());
+
+            formatter.addValueInt("code", "int", static_cast<Formatter::int_type>(e.rc()));
+            formatter.addValueStdString("message", std::string(), e.what());
+        }
+        catch (const SerializationError& e)
+        {
+            log_debug("serialization error");
+
+            formatter.beginObject("error", std::string());
+
+            formatter.addValueInt("code", "int", InvalidRequest);
+            formatter.addValueStdString("message", std::string(), e.what());
+        }
+        catch (const std::exception& e)
+        {
+            log_debug("method \"" << methodName << "\" exited with exception: " << e.what());
+
+            formatter.beginObject("error", std::string());
+
+            formatter.addValueInt("code", "int", InternalError);
+            formatter.addValueStdString("error", std::string(), e.what());
+        }
     }
 
     formatter.finishObject();
@@ -140,7 +169,17 @@ void Responder::finalize(std::ostream& out)
 
 bool Responder::advance(char ch)
 {
-    return _parser.advance(ch) != 0;
+    try
+    {
+        return _parser.advance(ch) != 0;
+    }
+    catch (const JsonParserError& e)
+    {
+        _failed = true;
+        _errorCode = ParseError;
+        _errorMessage = e.what();
+        return true;
+    }
 }
 
 }

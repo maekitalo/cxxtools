@@ -49,20 +49,28 @@ class Responder
         friend class Socket;
 
     public:
+        static const int ParseError = -32700;
+        static const int InvalidRequest = -32600;
+        static const int MethodNotFound = -32601;
+        static const int InvalidParams = -32602;
+        static const int InternalError = -32603;
+
         explicit Responder(ServiceRegistry& serviceRegistry);
         ~Responder();
 
         void begin();
         bool advance(char ch);
         void finalize(std::ostream& out);
+        bool failed() const
+        { return _failed; }
 
     private:
-
         ServiceRegistry& _serviceRegistry;
         JsonParser _parser;
         DeserializerBase _deserializer;
 
         bool _failed;
+        int _errorCode;
         std::string _errorMessage;
 };
 }

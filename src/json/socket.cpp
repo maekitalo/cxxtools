@@ -129,6 +129,11 @@ bool Socket::onOutput(StreamBuffer& sb)
         {
             sb.beginWrite();
         }
+        else if (_responder.failed())
+        {
+            close();
+            return false;
+        }
         else
         {
             _responder.begin();
