@@ -627,16 +627,29 @@ inline void operator <<=(SerializationInfo& si, const char* n)
 }
 
 
-inline void operator >>=(const SerializationInfo& si, cxxtools::String& n)
+inline void operator >>=(const SerializationInfo& si, String& n)
 {
     si.getValue(n);
 }
 
 
-inline void operator <<=(SerializationInfo& si, const cxxtools::String& n)
+inline void operator <<=(SerializationInfo& si, const String& n)
 {
     si.setValue(n);
     si.setTypeName("string");
+}
+
+
+inline void operator >>=(const SerializationInfo& si, Char& n)
+{
+    si.getValue(n);
+}
+
+
+inline void operator <<=(SerializationInfo& si, const Char& n)
+{
+    si.setValue(n);
+    si.setTypeName("char");
 }
 
 
