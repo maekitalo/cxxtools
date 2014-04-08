@@ -27,6 +27,7 @@
  */
 
 #include "cxxtools/utf8codec.h"
+#include "cxxtools/utf8.h"
 #include "cxxtools/unit/testsuite.h"
 #include "cxxtools/unit/registertest.h"
 #include "cxxtools/string.h"
@@ -49,6 +50,9 @@ class Utf8Test : public cxxtools::unit::TestSuite
       cxxtools::String ustr(L"Hi \xe4 there");
       std::string bstr = cxxtools::Utf8Codec::encode(ustr);
       CXXTOOLS_UNIT_ASSERT_EQUALS(bstr, "Hi \xc3\xa4 there");
+
+      std::string bstr2 = cxxtools::Utf8(ustr);
+      CXXTOOLS_UNIT_ASSERT_EQUALS(bstr2, "Hi \xc3\xa4 there");
     }
 
     void decodeTest()
