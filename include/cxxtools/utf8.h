@@ -71,6 +71,9 @@ namespace cxxtools
         String ustr() const
         { return decode<Utf8Codec>(_str); }
 
+        operator String() const
+        { return decode<Utf8Codec>(_str); }
+
     };
 
     /// Function, which creates a Utf8OString.
