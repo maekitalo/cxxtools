@@ -56,6 +56,20 @@ namespace
         si.addMember("nullValue");
     }
 
+    struct JsonData
+    {
+        int a;
+        std::string jsonData;
+    };
+
+    void operator<<= (cxxtools::SerializationInfo& si, const JsonData& j)
+    {
+      si.addMember("a") <<= j.a;
+      cxxtools::SerializationInfo& jsi = si.addMember("jsonData");
+      jsi <<= j.jsonData;
+      jsi.setTypeName("json");
+    }
+
 }
 
 class JsonSerializerTest : public cxxtools::unit::TestSuite
@@ -76,6 +90,7 @@ class JsonSerializerTest : public cxxtools::unit::TestSuite
             registerMethod("testMultipleObjects", *this, &JsonSerializerTest::testMultipleObjects);
             registerMethod("testPlainEmpty", *this, &JsonSerializerTest::testPlainEmpty);
             registerMethod("testEmptyObject", *this, &JsonSerializerTest::testEmptyObject);
+            registerMethod("testDirect", *this, &JsonSerializerTest::testDirect);
         }
 
         void testInt()
@@ -234,6 +249,19 @@ class JsonSerializerTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(out.str(), "{}");
         }
 
+        void testDirect()
+        {
+            JsonData j;
+            j.a = 42;
+            j.jsonData = "{ b: 17; c: \"Hi there\" }";
+
+            std::ostringstream out;
+            cxxtools::JsonSerializer serializer(out);
+            serializer.serialize(j).finish();
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(out.str(), "{\"a\":42,\"jsonData\":{ b: 17; c: \"Hi there\" }}");
+
+        }
 };
 
 cxxtools::unit::RegisterTest<JsonSerializerTest> register_JsonSerializerTest;

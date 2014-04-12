@@ -82,6 +82,10 @@ void JsonFormatter::addValueString(const std::string& name, const std::string& t
         {
             stringOut(value);
         }
+        else if (type == "json")
+        {
+            *_ts << value;
+        }
         else if (type == "null")
         {
             *_ts << L"null";
@@ -113,6 +117,10 @@ void JsonFormatter::addValueStdString(const std::string& name, const std::string
         if (type == "int" || type == "double")
         {
             stringOut(value);
+        }
+        else if (type == "json")
+        {
+            *_ts << String(value);
         }
         else if (type == "null")
         {
