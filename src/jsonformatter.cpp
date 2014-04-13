@@ -120,7 +120,8 @@ void JsonFormatter::addValueStdString(const std::string& name, const std::string
         }
         else if (type == "json")
         {
-            *_ts << String(value);
+            for (std::string::const_iterator it = value.begin(); it != value.end(); ++it)
+                *_ts << Char(*it);
         }
         else if (type == "null")
         {
