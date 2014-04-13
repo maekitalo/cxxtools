@@ -86,7 +86,7 @@ int main(int argc, char* argv[])
     cxxtools::bin::RpcServer binServer(loop, ip, bport);
     binServer.minThreads(threads);
     binServer.maxThreads(maxThreads);
-    binServer.addService("", service);
+    binServer.addService(service);
 
     cxxtools::json::RpcServer jsonServer(loop, ip, jport);
     jsonServer.minThreads(threads);
