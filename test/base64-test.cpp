@@ -30,13 +30,17 @@
 #include "cxxtools/base64stream.h"
 #include "cxxtools/unit/testsuite.h"
 #include "cxxtools/unit/registertest.h"
+#include "cxxtools/log.h"
+
+log_define("cxxtools.test.base64")
 
 class Base64Test : public cxxtools::unit::TestSuite
 {
         static std::string encodeDecode(const std::string& data)
         {
-            return cxxtools::decode<cxxtools::Base64Codec>(
-                      cxxtools::encode<cxxtools::Base64Codec>(data));
+            std::string b = cxxtools::encode<cxxtools::Base64Codec>(data);
+            log_debug("data.size=" << data.size() << " data=\"" << data << "\" base64.size=" << b.size() << " base64=" << b);
+            return cxxtools::decode<cxxtools::Base64Codec>(b);
         }
 
     public:
@@ -51,6 +55,7 @@ class Base64Test : public cxxtools::unit::TestSuite
             registerMethod("encodeStreamTest2", *this, &Base64Test::encodeStreamTest2);
             registerMethod("encodeDecodeTest", *this, &Base64Test::encodeDecodeTest);
             registerMethod("binaryTest", *this, &Base64Test::binaryTest);
+            registerMethod("artemTest", *this, &Base64Test::artemTest);
         }
 
         void encodeTest0()
@@ -183,6 +188,15 @@ class Base64Test : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(data, data2);
         }
 
+        void artemTest()
+        {
+            for (unsigned n = 0; n < 256; ++n)
+            {
+                std::string data(n, 'a');
+                std::string data2 = encodeDecode(data);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(data, data2);
+            }
+        }
 };
 
 cxxtools::unit::RegisterTest<Base64Test> register_Base64Test;

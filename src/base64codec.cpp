@@ -80,7 +80,7 @@ Base64Codec::result Base64Codec::do_in(MBState& s,
     fromNext = fromBegin;
     toNext = toBegin;
 
-    while( (fromEnd - fromNext) >= 4 && (toEnd - toNext) >= 3 )
+    while ( (fromEnd - fromNext) >= 4 && (toEnd - toNext) >= 3 )
     {
         uint8_t first  = fromBase64( *(fromNext++) );
         uint8_t second = fromBase64( *(fromNext++) );
@@ -89,14 +89,14 @@ Base64Codec::result Base64Codec::do_in(MBState& s,
 
         *(toNext++) = (first << 2) + (second >> 4);
 
-        if(third != 64)
+        if (third != 64)
             *(toNext++) = (second << 4) + (third >> 2);
 
-        if(fourth != 64)
+        if (fourth != 64)
             *(toNext++) = (third << 6) + (fourth);
     }
 
-    if( fromEnd == fromNext )
+    if ( fromEnd == fromNext )
         return std::codecvt_base::ok;
 
     return std::codecvt_base::partial;
@@ -114,81 +114,23 @@ Base64Codec::result Base64Codec::do_out(cxxtools::MBState& state,
     fromNext = fromBegin;
     toNext = toBegin;
 
-    const char* first = 0;
-    const char* second = 0;
-    const char* third = 0;
-
-    if(fromEnd - fromNext < 1)
-        return std::codecvt_base::partial;
-
-    if(toEnd - toNext < 4)
-        return std::codecvt_base::partial;
-
-    switch( state.n )
+    while (fromEnd - fromNext > 0)
     {
-        case 2:
-            first  = &state.value.mbytes[0];
-            second = &state.value.mbytes[1];
-            third  = fromNext++;
-            break;
-
-        case 1:
-            if(fromEnd - fromNext < 2)
-            {
-                state.value.mbytes[1] = *fromNext++;
-                state.n = 2;
-                return std::codecvt_base::partial;
-            }
-
-            first  = &state.value.mbytes[0];
-            second = fromNext++;
-            third  = fromNext++;
-            break;
-
-        default:
-            first  = fromNext++;
-            second = fromNext++;
-            third  = fromNext++;
-            break;
-    }
-
-    while (true)
-    {
-        *toNext++   = toBase64( (static_cast<unsigned char>(*first) >> 2) & 0x3f );
-        *(toNext++) = toBase64( ((static_cast<unsigned char>(*first) << 4) + (static_cast<unsigned char>(*second) >> 4)) & 0x3f );
-        *(toNext++) = toBase64( (static_cast<unsigned char>(*second << 2) + (static_cast<unsigned char>(*third) >> 6)) & 0x3f );
-        *(toNext++) = toBase64( static_cast<unsigned char>(*third) & 0x3f );
-
-        if(toEnd - toNext < 4)
+        if (state.n == 3)
         {
-            state = MBState();
-            return std::codecvt_base::partial;
+            if (toEnd - toNext < 4)
+                return std::codecvt_base::partial;
+
+            *toNext++   = toBase64( (static_cast<unsigned char>(state.value.mbytes[0]) >> 2) & 0x3f );
+            *(toNext++) = toBase64( ((static_cast<unsigned char>(state.value.mbytes[0]) << 4)
+                                        + (static_cast<unsigned char>(state.value.mbytes[1]) >> 4)) & 0x3f );
+            *(toNext++) = toBase64( (static_cast<unsigned char>(state.value.mbytes[1] << 2)
+                                        + (static_cast<unsigned char>(state.value.mbytes[2]) >> 6)) & 0x3f );
+            *(toNext++) = toBase64( static_cast<unsigned char>(state.value.mbytes[2]) & 0x3f );
+            state.n = 0;
         }
 
-        if( fromEnd - fromNext < 3 )
-            break;
-
-        first =  fromNext++;
-        second = fromNext++;
-        third =  fromNext++;
-    }
-
-    switch( fromEnd - fromNext )
-    {
-        case 2:
-            state.value.mbytes[0] = *fromNext++;
-            state.value.mbytes[1] = *fromNext++;
-            state.n = 2;
-            break;
-
-        case 1:
-            state.value.mbytes[0] = *fromNext++;
-            state.n = 1;
-            break;
-
-        default:
-            state = MBState();
-            break;
+        state.value.mbytes[state.n++] = *fromNext++;
     }
 
     return std::codecvt_base::ok;
@@ -202,16 +144,24 @@ Base64Codec::result Base64Codec::do_unshift(MBState& state,
 {
     toNext = toBegin;
 
-    if(toEnd - toBegin < 4)
-    {
+    if (toEnd - toBegin < 4)
         return std::codecvt_base::partial;
-    }
 
     switch(state.n)
     {
+        case 3:
+            *toNext++   = toBase64( (static_cast<unsigned char>(state.value.mbytes[0]) >> 2) & 0x3f );
+            *(toNext++) = toBase64( ((static_cast<unsigned char>(state.value.mbytes[0]) << 4)
+                                        + (static_cast<unsigned char>(state.value.mbytes[1]) >> 4)) & 0x3f );
+            *(toNext++) = toBase64( (static_cast<unsigned char>(state.value.mbytes[1] << 2)
+                                        + (static_cast<unsigned char>(state.value.mbytes[2]) >> 6)) & 0x3f );
+            *(toNext++) = toBase64( static_cast<unsigned char>(state.value.mbytes[2]) & 0x3f );
+            break;
+
         case 2:
             *toNext++   = toBase64( (static_cast<unsigned char>(state.value.mbytes[0]) >> 2) & 0x3f );
-            *(toNext++) = toBase64( ((static_cast<unsigned char>(state.value.mbytes[0]) << 4) + (static_cast<unsigned char>(state.value.mbytes[1]) >> 4)) & 0x3f );
+            *(toNext++) = toBase64( ((static_cast<unsigned char>(state.value.mbytes[0]) << 4)
+                                        + (static_cast<unsigned char>(state.value.mbytes[1]) >> 4)) & 0x3f );
             *(toNext++) = toBase64( (static_cast<unsigned char>(state.value.mbytes[1]) << 2) &  0x3f );
             *(toNext++) = '=';
             break;
