@@ -255,7 +255,17 @@ namespace cxxtools
 
     void FileAppender::openFile()
     {
+#ifdef O_CLOEXEC 
       _fd = ::open( _fname.c_str(), O_WRONLY | O_APPEND | O_CLOEXEC | O_CREAT, 0666);
+#else
+      _fd = ::open( _fname.c_str(), O_WRONLY | O_APPEND | O_CREAT, 0666);
+      if (_fd >= 0)
+      {
+        int flags = ::fcntl(_fd, F_GETFD);
+        flags |= FD_CLOEXEC ;
+        ::fcntl(_fd, F_SETFD, flags);
+      }
+#endif
     }
 
     void FileAppender::closeFile()
