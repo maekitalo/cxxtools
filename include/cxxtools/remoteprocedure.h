@@ -94,7 +94,12 @@ class RemoteProcedureBase : public IRemoteProcedure
             _result.setFault(rc, msg);
         }
 
-        const R& result()
+        R& result()
+        {
+            return _result.get();
+        }
+
+        const R& result() const
         {
             return _result.get();
         }
@@ -104,9 +109,9 @@ class RemoteProcedureBase : public IRemoteProcedure
             return _result.failed();
         }
 
-        Signal< const RemoteResult<R> & > finished;
+        Signal< RemoteResult<R> & > finished;
 
-        const R& end(Milliseconds msecs = RemoteClient::WaitInfinite)
+        R& end(Milliseconds msecs = RemoteClient::WaitInfinite)
         {
             _result.client().wait(msecs);
             return _result.get();
@@ -168,7 +173,7 @@ class RemoteProcedure : public RemoteProcedureBase<R>
             this->client().beginCall(this->_r, *this, argv, 10);
         }
 
-        const R& call(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7, const A8& a8, const A9& a9, const A10& a10)
+        R& call(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7, const A8& a8, const A9& a9, const A10& a10)
         {
             this->_result.clearFault();
 
@@ -189,7 +194,7 @@ class RemoteProcedure : public RemoteProcedureBase<R>
             return this->_result.get();
         }
 
-        const R& operator()(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7, const A8& a8, const A9& a9, const A10& a10)
+        R& operator()(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7, const A8& a8, const A9& a9, const A10& a10)
         {
             return this->call(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10);
         }
@@ -251,7 +256,7 @@ class RemoteProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8, A9,
             this->client().beginCall(this->_r, *this, argv, 9);
         }
 
-        const R& call(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7, const A8& a8, const A9& a9)
+        R& call(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7, const A8& a8, const A9& a9)
         {
             this->_result.clearFault();
 
@@ -271,7 +276,7 @@ class RemoteProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8, A9,
             return this->_result.get();
         }
 
-        const R& operator()(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7, const A8& a8, const A9& a9)
+        R& operator()(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7, const A8& a8, const A9& a9)
         {
             return this->call(a1, a2, a3, a4, a5, a6, a7, a8, a9);
         }
@@ -330,7 +335,7 @@ class RemoteProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8,
             this->client().beginCall(this->_r, *this, argv, 8);
         }
 
-        const R& call(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7, const A8& a8)
+        R& call(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7, const A8& a8)
         {
             this->_result.clearFault();
 
@@ -349,7 +354,7 @@ class RemoteProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8,
             return this->_result.get();
         }
 
-        const R& operator()(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7, const A8& a8)
+        R& operator()(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7, const A8& a8)
         {
             return this->call(a1, a2, a3, a4, a5, a6, a7, a8);
         }
@@ -406,7 +411,7 @@ class RemoteProcedure<R, A1, A2, A3, A4, A5, A6, A7,
             this->client().beginCall(this->_r, *this, argv, 7);
         }
 
-        const R& call(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7)
+        R& call(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7)
         {
             this->_result.clearFault();
 
@@ -424,7 +429,7 @@ class RemoteProcedure<R, A1, A2, A3, A4, A5, A6, A7,
             return this->_result.get();
         }
 
-        const R& operator()(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7)
+        R& operator()(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7)
         {
             return this->call(a1, a2, a3, a4, a5, a6, a7);
         }
@@ -479,7 +484,7 @@ class RemoteProcedure<R, A1, A2, A3, A4, A5, A6,
             this->client().beginCall(this->_r, *this, argv, 6);
         }
 
-        const R& call(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6)
+        R& call(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6)
         {
             this->_result.clearFault();
 
@@ -496,7 +501,7 @@ class RemoteProcedure<R, A1, A2, A3, A4, A5, A6,
             return this->_result.get();
         }
 
-        const R& operator()(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6)
+        R& operator()(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6)
         {
             return this->call(a1, a2, a3, a4, a5, a6);
         }
@@ -549,7 +554,7 @@ class RemoteProcedure<R, A1, A2, A3, A4, A5,
             this->client().beginCall(this->_r, *this, argv, 5);
         }
 
-        const R& call(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5)
+        R& call(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5)
         {
             this->_result.clearFault();
 
@@ -565,7 +570,7 @@ class RemoteProcedure<R, A1, A2, A3, A4, A5,
             return this->_result.get();
         }
 
-        const R& operator()(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5)
+        R& operator()(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5)
         {
             return this->call(a1, a2, a3, a4, a5);
         }
@@ -616,7 +621,7 @@ class RemoteProcedure<R, A1, A2, A3, A4,
             this->client().beginCall(this->_r, *this, argv, 4);
         }
 
-        const R& call(const A1& a1, const A2& a2, const A3& a3, const A4& a4)
+        R& call(const A1& a1, const A2& a2, const A3& a3, const A4& a4)
         {
             this->_result.clearFault();
 
@@ -631,7 +636,7 @@ class RemoteProcedure<R, A1, A2, A3, A4,
             return this->_result.get();
         }
 
-        const R& operator()(const A1& a1, const A2& a2, const A3& a3, const A4& a4)
+        R& operator()(const A1& a1, const A2& a2, const A3& a3, const A4& a4)
         {
             return this->call(a1, a2, a3, a4);
         }
@@ -680,7 +685,7 @@ class RemoteProcedure<R, A1, A2, A3,
             this->client().beginCall(this->_r, *this, argv, 3);
         }
 
-        const R& call(const A1& a1, const A2& a2, const A3& a3)
+        R& call(const A1& a1, const A2& a2, const A3& a3)
         {
             this->_result.clearFault();
 
@@ -694,7 +699,7 @@ class RemoteProcedure<R, A1, A2, A3,
             return this->_result.get();
         }
 
-        const R& operator()(const A1& a1, const A2& a2, const A3& a3)
+        R& operator()(const A1& a1, const A2& a2, const A3& a3)
         {
             return this->call(a1, a2, a3);
         }
@@ -741,7 +746,7 @@ class RemoteProcedure<R, A1, A2,
             this->client().beginCall(this->_r, *this, argv, 2);
         }
 
-        const R& call(const A1& a1, const A2& a2)
+        R& call(const A1& a1, const A2& a2)
         {
             this->_result.clearFault();
 
@@ -754,7 +759,7 @@ class RemoteProcedure<R, A1, A2,
             return this->_result.get();
         }
 
-        const R& operator()(const A1& a1, const A2& a2)
+        R& operator()(const A1& a1, const A2& a2)
         {
             return this->call(a1, a2);
         }
@@ -799,7 +804,7 @@ class RemoteProcedure<R, A1,
             this->client().beginCall(this->_r, *this, argv, 1);
         }
 
-        const R& call(const A1& a1)
+        R& call(const A1& a1)
         {
             this->_result.clearFault();
 
@@ -811,7 +816,7 @@ class RemoteProcedure<R, A1,
             return this->_result.get();
         }
 
-        const R& operator()(const A1& a1)
+        R& operator()(const A1& a1)
         {
             return this->call(a1);
         }
@@ -853,7 +858,7 @@ class RemoteProcedure<R,
             this->client().beginCall(this->_r, *this, argv, 0);
         }
 
-        const R& call()
+        R& call()
         {
             this->_result.clearFault();
 
@@ -864,7 +869,7 @@ class RemoteProcedure<R,
             return this->_result.get();
         }
 
-        const R& operator()()
+        R& operator()()
         {
             return this->call();
         }

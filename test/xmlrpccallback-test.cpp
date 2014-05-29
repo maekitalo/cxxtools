@@ -152,7 +152,7 @@ class XmlRpcCallbackTest : public cxxtools::unit::TestSuite
             _loop.run();
         }
 
-        void onNothingFinished(const cxxtools::RemoteResult<bool>& r)
+        void onNothingFinished(cxxtools::RemoteResult<bool>& r)
         {
             CXXTOOLS_UNIT_ASSERT_EQUALS(r.get(), false);
 
@@ -184,7 +184,7 @@ class XmlRpcCallbackTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(_count, 1);
         }
 
-        void onExceptionCallback(const cxxtools::RemoteResult<bool>& r)
+        void onExceptionCallback(cxxtools::RemoteResult<bool>& r)
         {
             log_warn("exception callback");
             ++_count;
@@ -216,7 +216,7 @@ class XmlRpcCallbackTest : public cxxtools::unit::TestSuite
             }
         }
 
-        void onConnectErrorCallback(const cxxtools::RemoteResult<bool>& r)
+        void onConnectErrorCallback(cxxtools::RemoteResult<bool>& r)
         {
             log_debug("onConnectErrorCallback");
             _loop.exit();
@@ -241,7 +241,7 @@ class XmlRpcCallbackTest : public cxxtools::unit::TestSuite
             _loop.run();
         }
 
-        void onBooleanFinished(const cxxtools::RemoteResult<bool>& r)
+        void onBooleanFinished(cxxtools::RemoteResult<bool>& r)
         {
             CXXTOOLS_UNIT_ASSERT_EQUALS(r.get(), true);
 
@@ -273,7 +273,7 @@ class XmlRpcCallbackTest : public cxxtools::unit::TestSuite
             _loop.run();
         }
 
-        void onIntegerFinished(const cxxtools::RemoteResult<int>& r)
+        void onIntegerFinished(cxxtools::RemoteResult<int>& r)
         {
             CXXTOOLS_UNIT_ASSERT_EQUALS(r.get(), 6);
 
@@ -303,7 +303,7 @@ class XmlRpcCallbackTest : public cxxtools::unit::TestSuite
             _loop.run();
         }
 
-        void onDoubleFinished(const cxxtools::RemoteResult<double>& r)
+        void onDoubleFinished(cxxtools::RemoteResult<double>& r)
         {
             CXXTOOLS_UNIT_ASSERT_EQUALS(r.get(), 6.0);
 
@@ -333,7 +333,7 @@ class XmlRpcCallbackTest : public cxxtools::unit::TestSuite
             _loop.run();
         }
 
-        void onStringEchoFinished(const cxxtools::RemoteResult<std::string>& r)
+        void onStringEchoFinished(cxxtools::RemoteResult<std::string>& r)
         {
             CXXTOOLS_UNIT_ASSERT_EQUALS(r.get(), "\xc3\xaf\xc2\xbb\xc2\xbf'\"&<> foo?");
 
@@ -363,7 +363,7 @@ class XmlRpcCallbackTest : public cxxtools::unit::TestSuite
             _loop.run();
         }
 
-        void onEmptyFinished(const cxxtools::RemoteResult<std::string>& r)
+        void onEmptyFinished(cxxtools::RemoteResult<std::string>& r)
         {
             CXXTOOLS_UNIT_ASSERT_EQUALS(r.get(), "4");
             _loop.exit();
@@ -410,7 +410,7 @@ class XmlRpcCallbackTest : public cxxtools::unit::TestSuite
             return r;
         }
 
-        void onArrayFinished(const cxxtools::RemoteResult<std::vector<int> >& r)
+        void onArrayFinished(cxxtools::RemoteResult<std::vector<int> >& r)
         {
             CXXTOOLS_UNIT_ASSERT_EQUALS(r.get().size(), 2);
             CXXTOOLS_UNIT_ASSERT_EQUALS(r.get().at(0), 100);
@@ -438,7 +438,7 @@ class XmlRpcCallbackTest : public cxxtools::unit::TestSuite
             _loop.run();
         }
 
-        void onEmptyArrayFinished(const cxxtools::RemoteResult<std::vector<int> >& r)
+        void onEmptyArrayFinished(cxxtools::RemoteResult<std::vector<int> >& r)
         {
             CXXTOOLS_UNIT_ASSERT_EQUALS(r.get().size(), 0);
 
@@ -473,7 +473,7 @@ class XmlRpcCallbackTest : public cxxtools::unit::TestSuite
             _loop.run();
         }
 
-        void onStuctFinished(const cxxtools::RemoteResult<Color>& color)
+        void onStuctFinished(cxxtools::RemoteResult<Color>& color)
         {
             CXXTOOLS_UNIT_ASSERT_EQUALS(color.get().red, 6);
             CXXTOOLS_UNIT_ASSERT_EQUALS(color.get().green, 12);
@@ -515,7 +515,7 @@ class XmlRpcCallbackTest : public cxxtools::unit::TestSuite
             _loop.run();
         }
 
-        void onSetFinished(const cxxtools::RemoteResult<IntSet>& result)
+        void onSetFinished(cxxtools::RemoteResult<IntSet>& result)
         {
             const IntSet& v = result.get();
             CXXTOOLS_UNIT_ASSERT_EQUALS(v.size(), 3);
@@ -558,7 +558,7 @@ class XmlRpcCallbackTest : public cxxtools::unit::TestSuite
             _loop.run();
         }
 
-        void onMultisetFinished(const cxxtools::RemoteResult<IntMultiset>& result)
+        void onMultisetFinished(cxxtools::RemoteResult<IntMultiset>& result)
         {
             const IntMultiset& v = result.get();
             CXXTOOLS_UNIT_ASSERT_EQUALS(v.size(), 4);
@@ -601,7 +601,7 @@ class XmlRpcCallbackTest : public cxxtools::unit::TestSuite
             _loop.run();
         }
 
-        void onMultiplyMapFinished(const cxxtools::RemoteResult<IntMap>& result)
+        void onMultiplyMapFinished(cxxtools::RemoteResult<IntMap>& result)
         {
             const IntMap& v = result.get();
             CXXTOOLS_UNIT_ASSERT_EQUALS(v.size(), 3);
@@ -651,7 +651,7 @@ class XmlRpcCallbackTest : public cxxtools::unit::TestSuite
             _loop.run();
         }
 
-        void onMultiplyMultimapFinished(const cxxtools::RemoteResult<IntMultimap>& result)
+        void onMultiplyMultimapFinished(cxxtools::RemoteResult<IntMultimap>& result)
         {
             const IntMultimap& v = result.get();
             CXXTOOLS_UNIT_ASSERT_EQUALS(v.size(), 4);
@@ -709,7 +709,7 @@ class XmlRpcCallbackTest : public cxxtools::unit::TestSuite
             _loop.run();
         }
 
-        void onFault(const cxxtools::RemoteResult<bool>& result)
+        void onFault(cxxtools::RemoteResult<bool>& result)
         {
             try
             {
@@ -748,7 +748,7 @@ class XmlRpcCallbackTest : public cxxtools::unit::TestSuite
             _loop.run();
         }
 
-        void onException(const cxxtools::RemoteResult<bool>& result)
+        void onException(cxxtools::RemoteResult<bool>& result)
         {
             try
             {
@@ -799,7 +799,7 @@ class XmlRpcCallbackTest : public cxxtools::unit::TestSuite
             }
         }
 
-        void onCountSizeFinished(const cxxtools::RemoteResult<unsigned>& r)
+        void onCountSizeFinished(cxxtools::RemoteResult<unsigned>& r)
         {
             CXXTOOLS_UNIT_ASSERT_EQUALS(r.get(), 5000);
             _loop.exit();

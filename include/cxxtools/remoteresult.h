@@ -90,6 +90,13 @@ class RemoteResult : public IRemoteResult
             return _result;
         }
 
+        R& get()
+        {
+            _client->endCall();
+            checkFault();
+            return _result;
+        }
+
         const R& get() const
         {
             _client->endCall();
