@@ -641,7 +641,6 @@ class JsonRpcHttpTest : public cxxtools::unit::TestSuite
             }
             catch (const cxxtools::RemoteException& e)
             {
-                CXXTOOLS_UNIT_ASSERT_EQUALS(e.rc(), 0);
                 CXXTOOLS_UNIT_ASSERT_EQUALS(e.text(), "Exception");
             }
         }

@@ -54,6 +54,7 @@ class Responder
         static const int MethodNotFound = -32601;
         static const int InvalidParams = -32602;
         static const int InternalError = -32603;
+        static const int ApplicationError = -32500;
 
         explicit Responder(ServiceRegistry& serviceRegistry);
         ~Responder();

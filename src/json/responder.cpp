@@ -140,6 +140,7 @@ void Responder::finalize(std::ostream& out)
 
             formatter.addValueInt("code", "int", static_cast<Formatter::int_type>(e.rc()));
             formatter.addValueStdString("message", std::string(), e.what());
+            formatter.finishObject();
         }
         catch (const SerializationError& e)
         {
@@ -149,6 +150,7 @@ void Responder::finalize(std::ostream& out)
 
             formatter.addValueInt("code", "int", InvalidRequest);
             formatter.addValueStdString("message", std::string(), e.what());
+            formatter.finishObject();
         }
         catch (const std::exception& e)
         {
@@ -156,8 +158,9 @@ void Responder::finalize(std::ostream& out)
 
             formatter.beginObject("error", std::string());
 
-            formatter.addValueInt("code", "int", InternalError);
-            formatter.addValueStdString("error", std::string(), e.what());
+            formatter.addValueInt("code", "int", ApplicationError);
+            formatter.addValueStdString("message", std::string(), e.what());
+            formatter.finishObject();
         }
     }
 
