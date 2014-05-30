@@ -71,8 +71,8 @@ int main(int argc, char* argv[])
   try
   {
     cxxtools::LogConfiguration logConfiguration;
-    logConfiguration.setRootLevel(cxxtools::Logger::INFO);
-    logConfiguration.setLogLevel("cxxtools.timer", cxxtools::Logger::DEBUG);
+    logConfiguration.setRootLevel(cxxtools::Logger::info);
+    logConfiguration.setLogLevel("cxxtools.timer", cxxtools::Logger::debug);
     log_init(logConfiguration);
 
     cxxtools::EventLoop loop;
