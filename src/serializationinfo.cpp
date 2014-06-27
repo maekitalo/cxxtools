@@ -95,11 +95,27 @@ void SerializationInfo::reserve(size_t n)
 
 SerializationInfo& SerializationInfo::addMember(const std::string& name)
 {
+    if (_nodes.empty())
+    {
+        _nodes.reserve(16);
+    }
+    else if (_nodes.size() == _nodes.capacity())
+    {
+        // we use swap here to prevent copying subnodes
+        Nodes nodes;
+        nodes.reserve(_nodes.size() + _nodes.size() / 2);
+        nodes.resize(_nodes.size());
+        for (unsigned n = 0; n < _nodes.size(); ++n)
+            _nodes[n].swap(nodes[n]);
+        _nodes.swap(nodes);
+    }
+
     _nodes.resize(_nodes.size() + 1);
+
     _nodes.back().setParent(*this);
     _nodes.back().setName(name);
 
-    // category Array overrides Object (is this a hack?)
+    // category Array overrides Object
     // This is needed for xmldeserialization. In the xml file the root node of a array
     // has a category attribute. When the serializationinfo of the array is created
     // it is known, that it is of category Array. When the members of the array are read,
