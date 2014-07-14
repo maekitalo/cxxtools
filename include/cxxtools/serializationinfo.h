@@ -149,16 +149,6 @@ class CXXTOOLS_API SerializationInfo
             _category = cat;
         }
 
-        SerializationInfo* parent()
-        {
-            return _parent;
-        }
-
-        const SerializationInfo* parent() const
-        {
-            return _parent;
-        }
-
         const std::string& typeName() const
         {
             return _type;
@@ -343,12 +333,7 @@ class CXXTOOLS_API SerializationInfo
 
         void dump(std::ostream& out, const std::string& praefix = std::string()) const;
 
-    protected:
-        void setParent(SerializationInfo& si)
-        { _parent = &si; }
-
     private:
-        SerializationInfo* _parent;
         Category _category;
         std::string _name;
         std::string _type;

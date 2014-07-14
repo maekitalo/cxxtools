@@ -38,7 +38,10 @@ void SettingsReader::State::syntaxError(unsigned line)
 
 void SettingsReader::parse(cxxtools::SerializationInfo& si)
 {
-    _current = &si;
+    while (!_current.empty())
+        _current.pop();
+
+    _current.push(&si);
     state = BeginStatement::instance();
     _line  = 1;
     _isDotted = false;
@@ -92,11 +95,11 @@ void SettingsReader::enterMember()
         if(pos != std::string::npos)
         {
             std::string root = name.substr( 0, pos );
-            cxxtools::SerializationInfo* current = _current->findMember( root );
-            if(current == 0)
-                current = &( _current->addMember( root ) );
+            cxxtools::SerializationInfo* c = current()->findMember( root );
+            if(c == 0)
+                c = &( current()->addMember( root ) );
 
-            _current = current;
+            _current.push(c);
             ++_depth;
 
             _isDotted = true; // remember that we have to leave twice later
@@ -107,15 +110,15 @@ void SettingsReader::enterMember()
         // Add a node for the actual value if not present. In this
         // example c is a parent of a.b
         //
-        cxxtools::SerializationInfo* current = _current->findMember( name );
-        if(current == 0)
-            current = &( _current->addMember( name ) );
+        cxxtools::SerializationInfo* c = current()->findMember( name );
+        if(c == 0)
+            c = &( current()->addMember( name ) );
 
-        _current = current;
+        _current.push(c);
     }
     else
     {
-        _current = &( _current->addMember( _token.narrow() ) );
+        _current.push( &( current()->addMember( _token.narrow() ) ) );
     }
 
     ++_depth;
@@ -127,16 +130,16 @@ void SettingsReader::leaveMember()
 {
     //std::cerr << "@" << std::endl;
 
-    if(0 == _current->parent() )
+    if (_current.empty())
         throw SettingsError("too many closing braces", _line);
 
-    _current = _current->parent();
+    _current.pop();
     --_depth;
 
     if(_depth == 1 && _isDotted)
     {
         // leaving a dotted entry
-        _current = _current->parent();
+        _current.pop();
         _isDotted = false;
         --_depth;
     }
@@ -145,21 +148,21 @@ void SettingsReader::leaveMember()
 
 void SettingsReader::pushValue()
 {
-    _current->setValue(_token);
+    current()->setValue(_token);
     _token.clear();
 }
 
 
 void SettingsReader::pushTypeName()
 {
-    _current->setTypeName( _token.narrow() );
+    current()->setTypeName( _token.narrow() );
     _token.clear();
 }
 
 
 void SettingsReader::pushName()
 {
-    _current->setName( _token.narrow() );
+    current()->setName( _token.narrow() );
     _token.clear();
 }
 

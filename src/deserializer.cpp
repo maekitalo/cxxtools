@@ -33,74 +33,74 @@ namespace cxxtools
 {
     void DeserializerBase::setCategory(SerializationInfo::Category category)
     {
-        _current->setCategory(category);
+        current()->setCategory(category);
     }
 
     void DeserializerBase::setName(const std::string& name)
     {
-        _current->setName(name);
+        current()->setName(name);
     }
 
     void DeserializerBase::setTypeName(const std::string& type)
     {
-        _current->setTypeName(type);
+        current()->setTypeName(type);
     }
 
     void DeserializerBase::setValue(const String& value)
     {
-        _current->setValue(value);
+        current()->setValue(value);
     }
 
     void DeserializerBase::setValue(const std::string& value)
     {
-        _current->setValue(value);
+        current()->setValue(value);
     }
 
     void DeserializerBase::setValue(const char* value)
     {
-        _current->setValue(value);
+        current()->setValue(value);
     }
 
     void DeserializerBase::setValue(bool value)
     {
-        _current->setValue(value);
+        current()->setValue(value);
     }
 
     void DeserializerBase::setValue(int_type value)
     {
-        _current->setValue(value);
+        current()->setValue(value);
     }
 
     void DeserializerBase::setValue(unsigned_type value)
     {
-        _current->setValue(value);
+        current()->setValue(value);
     }
 
     void DeserializerBase::setValue(long double value)
     {
-        _current->setValue(value);
+        current()->setValue(value);
     }
 
     void DeserializerBase::setNull()
     {
-        _current->setNull();
+        current()->setNull();
     }
 
     void DeserializerBase::beginMember(const std::string& name, const std::string& type, SerializationInfo::Category category)
     {
-        SerializationInfo& child = _current->addMember(name);
+        SerializationInfo& child = current()->addMember(name);
         child.setTypeName(type);
         child.setCategory(category);
-        _current = &child;
+        _current.push(&child);
     }
 
     void DeserializerBase::leaveMember()
     {
-        SerializationInfo* p = _current->parent();
+        SerializationInfo* p = _current.top();
         if( !p )
             SerializationError::doThrow("invalid member");
 
-        _current = p;
+        _current.pop();
     }
 
 } // namespace cxxtools

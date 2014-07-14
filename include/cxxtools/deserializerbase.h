@@ -31,6 +31,7 @@
 
 #include <cxxtools/serializationinfo.h>
 #include <cxxtools/api.h>
+#include <stack>
 
 namespace cxxtools
 {
@@ -52,7 +53,6 @@ namespace cxxtools
 #endif
 
             DeserializerBase()
-                : _current(0)
             { }
 
             virtual ~DeserializerBase()
@@ -60,13 +60,14 @@ namespace cxxtools
 
             void begin()
             {
-                _current = &_si;
+                _current.push(&_si);
                 _si.clear();
             }
 
             void clear()
             {
-                _current = 0;
+                while (!_current.empty())
+                    _current.pop();
                 _si.clear();
             }
 
@@ -77,7 +78,7 @@ namespace cxxtools
             { return &_si; }
 
             SerializationInfo* current()
-            { return _current; }
+            { return _current.empty() ? 0 : _current.top(); }
 
             void setCategory(SerializationInfo::Category category);
 
@@ -107,7 +108,7 @@ namespace cxxtools
 
         private:
             SerializationInfo _si;
-            SerializationInfo* _current;
+            std::stack<SerializationInfo*> _current;
     };
 
 }

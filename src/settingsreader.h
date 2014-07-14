@@ -33,6 +33,7 @@
 #include "cxxtools/serializationinfo.h"
 #include <iostream>
 #include <cctype>
+#include <stack>
 
 namespace cxxtools {
 
@@ -834,7 +835,6 @@ class SettingsReader
         SettingsReader(std::basic_istream<cxxtools::Char>& is)
         : state(0)
         , _beforeComment(0)
-        , _current(0)
         , _is(&is)
         , _line(1)
         , _depth(0)
@@ -878,11 +878,14 @@ class SettingsReader
         cxxtools::Char getEscaped();
 
     private:
+        SerializationInfo* current()
+        { return _current.top(); }
+
         State* state;
 
         State* _beforeComment;
 
-        cxxtools::SerializationInfo* _current;
+        std::stack<cxxtools::SerializationInfo*> _current;
 
         std::basic_istream<cxxtools::Char>* _is;
 

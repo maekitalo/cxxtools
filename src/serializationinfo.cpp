@@ -28,28 +28,30 @@
  */
 
 #include <cxxtools/serializationinfo.h>
+#include <cxxtools/log.h>
 #include <stdexcept>
 #include <sstream>
+
+log_define("cxxtools.serializationinfo")
 
 namespace cxxtools
 {
 
 SerializationInfo::SerializationInfo()
-: _parent(0)
-, _category(Void)
+: _category(Void)
 , _t(t_none)
 { }
 
 
 SerializationInfo::SerializationInfo(const SerializationInfo& si)
-: _parent(si._parent)
-, _category(si._category)
+: _category(si._category)
 , _name(si._name)
 , _type(si._type)
 , _u(si._u)
 , _t(si._t)
 , _nodes(si._nodes)
 {
+    log_debug("copy");
     switch (_t)
     {
         case t_string:  new (_StringPtr()) String(si._String());
@@ -66,7 +68,7 @@ SerializationInfo::SerializationInfo(const SerializationInfo& si)
 
 SerializationInfo& SerializationInfo::operator=(const SerializationInfo& si)
 {
-    _parent = si._parent;
+    log_debug("assign");
     _category = si._category;
     _name = si._name;
     _type = si._type;
@@ -87,9 +89,18 @@ SerializationInfo& SerializationInfo::operator=(const SerializationInfo& si)
 }
 
 
+inline void doReserve(std::vector<SerializationInfo>& c, unsigned n)
+{
+  c.reserve(n);
+}
+
+inline void doReserve(std::deque<SerializationInfo>& c, unsigned n)
+{
+}
+
 void SerializationInfo::reserve(size_t n)
 {
-    _nodes.reserve(n);
+    doReserve(_nodes, n);
 }
 
 
@@ -97,13 +108,13 @@ SerializationInfo& SerializationInfo::addMember(const std::string& name)
 {
     if (_nodes.empty())
     {
-        _nodes.reserve(16);
+        doReserve(_nodes, 16);
     }
     else if (_nodes.size() == _nodes.capacity())
     {
         // we use swap here to prevent copying subnodes
         Nodes nodes;
-        nodes.reserve(_nodes.size() + _nodes.size() / 2);
+        doReserve(nodes, _nodes.size() + _nodes.size() / 2);
         nodes.resize(_nodes.size());
         for (unsigned n = 0; n < _nodes.size(); ++n)
             _nodes[n].swap(nodes[n]);
@@ -112,7 +123,6 @@ SerializationInfo& SerializationInfo::addMember(const std::string& name)
 
     _nodes.resize(_nodes.size() + 1);
 
-    _nodes.back().setParent(*this);
     _nodes.back().setName(name);
 
     // category Array overrides Object
@@ -197,7 +207,6 @@ void SerializationInfo::swap(SerializationInfo& si)
     if (this == &si)
         return;
 
-    std::swap(_parent, si._parent);
     std::swap(_category, si._category);
     std::swap(_name, si._name);
     std::swap(_type, si._type);
