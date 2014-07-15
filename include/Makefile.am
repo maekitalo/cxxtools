@@ -1,5 +1,4 @@
 nobase_include_HEADERS = \
-        cxxtools/allocator.h \
         cxxtools/application.h \
         cxxtools/arg.h \
         cxxtools/argin.h \
