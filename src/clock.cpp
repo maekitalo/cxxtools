@@ -31,11 +31,36 @@ namespace cxxtools {
 Clock::Clock()
 {
     _impl = new ClockImpl();
+    _impl->addRef();
+}
+
+Clock::Clock(const Clock& cl)
+    : _impl(cl._impl)
+{
+    if (_impl)
+        _impl->addRef();
+}
+
+const Clock& Clock::operator=(const Clock& cl)
+{
+    if (_impl != cl._impl)
+    {
+        if (_impl && _impl->release() == 0)
+            delete _impl;
+
+        _impl = cl._impl;
+
+        if (_impl)
+            _impl->addRef();
+    }
+
+    return *this;
 }
 
 Clock::~Clock()
 {
-    delete _impl;
+    if (_impl && _impl->release() == 0)
+        delete _impl;
 }
 
 void Clock::start()

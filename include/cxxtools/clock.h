@@ -45,6 +45,10 @@ class CXXTOOLS_API Clock
         */
         Clock();
 
+        Clock(const Clock& cl);
+
+        const Clock& operator=(const Clock& cl);
+
         /** @brief Destructor
         */
         ~Clock();

@@ -25,6 +25,7 @@
  */
 #include "cxxtools/datetime.h"
 #include "cxxtools/timespan.h"
+#include "cxxtools/refcounted.h"
 #include <sys/time.h>
 #include <time.h>
 #include "config.h"
@@ -32,7 +33,7 @@
 namespace cxxtools
 {
 
-class ClockImpl
+class ClockImpl : public RefCounted
 {
     public:
         ClockImpl();
