@@ -177,7 +177,7 @@ namespace cxxtools {
 
                 @param timeout interval to next expiring timer
             */
-            bool updateTimer(size_t& timeout);
+            bool updateTimer(Timespan& timeout);
 
             //! @internal
             typedef std::multimap<Timespan, Timer*> TimerMap;

@@ -26,7 +26,10 @@
 #include "selectorimpl.h"
 #include "cxxtools/selector.h"
 #include "cxxtools/timer.h"
-#include "cxxtools/clock.h"
+#include "cxxtools/timespan.h"
+#include "cxxtools/log.h"
+
+log_define("cxxtools.selector")
 
 namespace cxxtools {
 
@@ -108,12 +111,12 @@ void SelectorBase::onTimerChanged(Timer& timer)
 }
 
 
-bool SelectorBase::updateTimer(std::size_t& lowestTimeout)
+bool SelectorBase::updateTimer(Timespan& lowestTimeout)
 {
     if( _timers.empty() )
         return false;
 
-    Timespan now = Clock::getSystemTicks();
+    Timespan now = Timespan::gettimeofday();
     Timer* timer = _timers.begin()->second;
     bool timerActive = now >= timer->finished();
 
@@ -121,11 +124,15 @@ bool SelectorBase::updateTimer(std::size_t& lowestTimeout)
     {
         timer = _timers.begin()->second;
 
-        if( now < timer->finished() )
+        if ( now < timer->finished() )
         {
-            int64_t remaining = (timer->finished() - now).totalUSecs();
-            lowestTimeout = (remaining / 1000);
-            if(remaining % 1000 > 0) ++lowestTimeout;
+            Timespan remaining = (timer->finished() - now);
+            lowestTimeout = remaining;
+            if (lowestTimeout < Milliseconds(1))
+            {
+                lowestTimeout = Milliseconds(1);
+            }
+            log_debug("remaining=" << remaining << " lowestTimeout => " << lowestTimeout);
             break;
         }
 
@@ -147,7 +154,9 @@ bool SelectorBase::updateTimer(std::size_t& lowestTimeout)
 
 bool SelectorBase::wait(Milliseconds msecs)
 {
-    size_t timerTimeout = Selector::WaitInfinite;
+    log_debug("wait(" << msecs << ')');
+
+    Timespan timerTimeout = Timespan(Selector::WaitInfinite);
 
     // If a timer is immediately ready, still check for an
     // active selectable to avoid timer preemption
@@ -157,10 +166,12 @@ bool SelectorBase::wait(Milliseconds msecs)
         return true;
     }
 
+    log_debug("msecs=" << msecs << " timerTimeout=" << timerTimeout);
+
     // This handles the case when no timer will become
     // active in the given timeout. The result of the
     // wait call indicates activity
-    if(timerTimeout > msecs.totalMSecs() || timerTimeout == Selector::WaitInfinite)
+    if (msecs >= Timespan(0) && timerTimeout >= Timespan(0) && timerTimeout > msecs)
     {
         return this->onWait(msecs);
     }
@@ -168,10 +179,15 @@ bool SelectorBase::wait(Milliseconds msecs)
     // A timer will become active before the timeout expires
     while(true)
     {
-        if( this->onWait(timerTimeout) )
+        log_debug("wait(" << timerTimeout << ')');
+
+        std::size_t waittime = Milliseconds(timerTimeout);
+        if (waittime == 0)
+            waittime = 1;
+        if (this->onWait(waittime))
             return true;
 
-        if( updateTimer(timerTimeout) )
+        if (updateTimer(timerTimeout))
             return true;
     }
 
