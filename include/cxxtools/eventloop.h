@@ -31,7 +31,6 @@
 
 #include <cxxtools/event.h>
 #include <cxxtools/signal.h>
-#include <cxxtools/allocator.h>
 #include <cxxtools/api.h>
 #include <cxxtools/mutex.h>
 #include <cxxtools/selector.h>
@@ -172,7 +171,6 @@ namespace cxxtools {
         private:
             bool _exitLoop;
             SelectorImpl* _selector;
-            Allocator _allocator;
             std::deque<Event* > _eventQueue;
             RecursiveMutex _queueMutex;
     };

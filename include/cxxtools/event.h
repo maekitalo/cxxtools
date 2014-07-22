@@ -30,7 +30,6 @@
 #define cxxtools_EVENT_H
 
 #include <typeinfo>
-#include <cxxtools/allocator.h>
 
 namespace cxxtools
 {
@@ -50,9 +49,9 @@ namespace cxxtools
             virtual ~Event()
             {}
 
-            virtual Event& clone(Allocator& allocator) const = 0;
+            virtual Event& clone() const = 0;
 
-            virtual void destroy(Allocator& allocator) = 0;
+            virtual void destroy() = 0;
 
             virtual const std::type_info& typeInfo() const = 0;
     };
@@ -74,16 +73,14 @@ namespace cxxtools
                 return typeid(T);
             }
 
-            virtual Event& clone(Allocator& allocator) const
+            virtual Event& clone() const
             {
-                void* pEvent = allocator.allocate(sizeof(T));
-                return *(new (pEvent)T(*static_cast<const T*>(this)));
+                return *(new T(*static_cast<const T*>(this)));
             }
 
-            virtual void destroy(Allocator& allocator)
+            virtual void destroy()
             {
-                this->~BasicEvent();
-                allocator.deallocate(this, sizeof(T));
+                delete this;
             }
     };
 
