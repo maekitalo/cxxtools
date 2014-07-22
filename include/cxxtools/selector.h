@@ -31,7 +31,6 @@
 #define CXXTOOLS_SYSTEM_SELECTOR_H
 
 #include <cxxtools/timespan.h>
-#include <cxxtools/noncopyable.h>
 #include <cxxtools/connectable.h>
 #include <cxxtools/api.h>
 #include <map>
@@ -78,10 +77,12 @@ namespace cxxtools {
         as the Selector itself.
     */
     class CXXTOOLS_API SelectorBase : public Connectable
-                                     , protected NonCopyable
     {
-        friend class Selectable;
-        friend class Timer;
+            friend class Selectable;
+            friend class Timer;
+
+            SelectorBase(SelectorBase&) { }
+            SelectorBase& operator=(SelectorBase&) { return *this; }
 
         public:
             static const std::size_t WaitInfinite = static_cast<const std::size_t>(-1);
