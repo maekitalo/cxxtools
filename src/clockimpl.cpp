@@ -72,21 +72,10 @@ Timespan ClockImpl::stop() const
 
 DateTime ClockImpl::getSystemTime()
 {
-    struct ::tm tim;
     struct timeval tod;
-
     gettimeofday(&tod, NULL);
 
-    time_t sec = tod.tv_sec;
-    gmtime_r(&sec, &tim);
-
-    return DateTime( tim.tm_year + 1900,
-                     tim.tm_mon + 1,
-                     tim.tm_mday,
-                     tim.tm_hour,
-                     tim.tm_min,
-                     tim.tm_sec,
-                     tod.tv_usec / 1000 );
+    return DateTime::fromMSecsSinceEpoch(static_cast<int64_t>(tod.tv_sec) * 1000 + tod.tv_usec / 1000);
 }
 
 

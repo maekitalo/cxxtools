@@ -76,6 +76,11 @@ class DateTime
         , _time(hour, minute, second, msec)
         { }
 
+        DateTime(const Date& date, const Time& time)
+        : _date(date),
+          _time(time)
+        { }
+
         static DateTime fromJulianDays(unsigned julianDays)
         {
             return DateTime(julianDays);
