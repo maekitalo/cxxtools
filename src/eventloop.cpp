@@ -148,17 +148,15 @@ void EventLoop::onCommitEvent(const Event& ev)
     {
         RecursiveLock lock( _queueMutex );
 
-        // TODO: use a continuous block of memory to store events
-        // this avoids new/delete
-        Event& clonedEvent = ev.clone();
+        Event* clonedEvent = ev.clone();
 
         try
         {
-            _eventQueue.push_back(&clonedEvent);
+            _eventQueue.push_back(clonedEvent);
         }
         catch(...)
         {
-            clonedEvent.destroy();
+            clonedEvent->destroy();
             throw;
         }
     }

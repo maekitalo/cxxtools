@@ -49,7 +49,7 @@ namespace cxxtools
             virtual ~Event()
             {}
 
-            virtual Event& clone() const = 0;
+            virtual Event* clone() const = 0;
 
             virtual void destroy() = 0;
 
@@ -73,9 +73,9 @@ namespace cxxtools
                 return typeid(T);
             }
 
-            virtual Event& clone() const
+            virtual Event* clone() const
             {
-                return *(new T(*static_cast<const T*>(this)));
+                return new T(*static_cast<const T*>(this));
             }
 
             virtual void destroy()
