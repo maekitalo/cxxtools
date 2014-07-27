@@ -31,6 +31,7 @@
 
 #include <cxxtools/noncopyable.h>
 #include <cxxtools/http/server.h>
+#include <cxxtools/timespan.h>
 #include "mapper.h"
 
 namespace cxxtools
@@ -46,9 +47,9 @@ class ServerImplBase : private NonCopyable
     public:
         ServerImplBase(EventLoopBase& eventLoop, Signal<Server::Runmode>& runmodeChanged)
             : _eventLoop(eventLoop),
-              _readTimeout(20000),
-              _writeTimeout(20000),
-              _keepAliveTimeout(30000),
+              _readTimeout(Seconds(20)),
+              _writeTimeout(Seconds(20)),
+              _keepAliveTimeout(Seconds(30)),
               _minThreads(5),
               _maxThreads(200),
               _runmodeChanged(runmodeChanged),
@@ -71,13 +72,13 @@ class ServerImplBase : private NonCopyable
         Responder* getDefaultResponder(const Request& request)
             { return _mapper.getDefaultResponder(request); }
 
-        std::size_t readTimeout() const       { return _readTimeout; }
-        std::size_t writeTimeout() const      { return _writeTimeout; }
-        std::size_t keepAliveTimeout() const  { return _keepAliveTimeout; }
+        Milliseconds readTimeout() const       { return _readTimeout; }
+        Milliseconds writeTimeout() const      { return _writeTimeout; }
+        Milliseconds keepAliveTimeout() const  { return _keepAliveTimeout; }
 
-        void readTimeout(std::size_t ms)      { _readTimeout = ms; }
-        void writeTimeout(std::size_t ms)     { _writeTimeout = ms; }
-        void keepAliveTimeout(std::size_t ms) { _keepAliveTimeout = ms; }
+        void readTimeout(Milliseconds ms)      { _readTimeout = ms; }
+        void writeTimeout(Milliseconds ms)     { _writeTimeout = ms; }
+        void keepAliveTimeout(Milliseconds ms) { _keepAliveTimeout = ms; }
 
         unsigned minThreads() const           { return _minThreads; }
         void minThreads(unsigned m)           { _minThreads = m; }
@@ -99,9 +100,9 @@ class ServerImplBase : private NonCopyable
         EventLoopBase& _eventLoop;
 
     private:
-        std::size_t _readTimeout;
-        std::size_t _writeTimeout;
-        std::size_t _keepAliveTimeout;
+        Milliseconds _readTimeout;
+        Milliseconds _writeTimeout;
+        Milliseconds _keepAliveTimeout;
 
         unsigned _minThreads;
         unsigned _maxThreads;

@@ -344,7 +344,7 @@ void IODeviceImpl::detach(SelectorBase& s)
 }
 
 
-bool IODeviceImpl::wait(std::size_t msecs)
+bool IODeviceImpl::wait(Timespan timeout)
 {
     if (_device.wavail() > 0)
     {
@@ -354,22 +354,16 @@ bool IODeviceImpl::wait(std::size_t msecs)
 
     pollfd pfd;
     this->initWait(pfd);
-    this->wait(msecs, pfd);
+    this->wait(timeout, pfd);
     return this->checkPollEvent(pfd);
 }
 
 
-bool IODeviceImpl::wait(std::size_t umsecs, pollfd& pfd)
+bool IODeviceImpl::wait(Timespan timeout, pollfd& pfd)
 {
-    int msecs = static_cast<int>(umsecs);
-
-    if( umsecs > static_cast<std::size_t>(std::numeric_limits<int>::max()) )
-    {
-        if(umsecs == SelectorBase::WaitInfinite)
-            msecs = -1;
-        else
-            msecs = std::numeric_limits<int>::max();
-    }
+    int msecs = Milliseconds(timeout) > std::numeric_limits<int>::max()
+                    ? std::numeric_limits<int>::max()
+                    : int(Milliseconds(timeout).ceil());
 
     int ret = -1;
     do

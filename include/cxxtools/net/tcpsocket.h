@@ -64,11 +64,11 @@ class CXXTOOLS_API TcpSocket : public IODevice
 
         std::string getPeerAddr() const;
 
-        void setTimeout(std::size_t msecs);
+        void setTimeout(Milliseconds timeout);
 
-        std::size_t timeout() const;
+        Milliseconds timeout() const;
 
-        std::size_t getTimeout() const
+        Milliseconds getTimeout() const
         { return timeout(); }
 
         void accept(const TcpServer& server, unsigned flags = 0);
@@ -106,7 +106,7 @@ class CXXTOOLS_API TcpSocket : public IODevice
         virtual void onClose();
 
         // inherit doc
-        virtual bool onWait(std::size_t msecs);
+        virtual bool onWait(Timespan timeout);
 
         // inherit doc
         virtual void onAttach(SelectorBase&);

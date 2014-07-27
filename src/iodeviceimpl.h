@@ -31,6 +31,7 @@
 
 #include "selectableimpl.h"
 #include <cxxtools/iodevice.h>
+#include <cxxtools/timespan.h>
 #include <string>
 #include <iostream>
 
@@ -80,10 +81,10 @@ namespace cxxtools {
             int fd() const
             { return _fd; }
 
-            void setTimeout(std::size_t msecs)
-            { _timeout = msecs; }
+            void setTimeout(Timespan timeout)
+            { _timeout = timeout; }
 
-            std::size_t timeout() const
+            Timespan timeout() const
             { return _timeout; }
 
             virtual void open(const std::string& path, IODevice::OpenMode mode, bool inherit);
@@ -114,9 +115,9 @@ namespace cxxtools {
 
             void detach(SelectorBase& s);
 
-            virtual bool wait(std::size_t msecs);
+            virtual bool wait(Timespan timeout);
 
-            virtual bool wait(std::size_t msecs, pollfd& pfd);
+            virtual bool wait(Timespan timeout, pollfd& pfd);
 
             virtual void initWait(pollfd& pfd);
 
@@ -132,7 +133,7 @@ namespace cxxtools {
         protected:
             IODevice& _device;
             int _fd;
-            std::size_t _timeout;
+            Timespan _timeout;
             pollfd* _pfd;
             DestructionSentry* _sentry;
             bool _errorPending;

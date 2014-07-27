@@ -95,7 +95,7 @@ namespace net
       virtual void onClose();
 
       // inherit doc
-      virtual bool onWait(std::size_t msecs);
+      virtual bool onWait(Timespan timeout);
 
       // inherit doc
       virtual void onAttach(SelectorBase&);

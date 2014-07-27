@@ -111,13 +111,13 @@ std::string TcpSocket::getPeerAddr() const
 }
 
 
-void TcpSocket::setTimeout(std::size_t msecs)
+void TcpSocket::setTimeout(Milliseconds timeout)
 {
-    _impl->setTimeout(msecs);
+    _impl->setTimeout(timeout);
 }
 
 
-std::size_t TcpSocket::timeout() const
+Milliseconds TcpSocket::timeout() const
 {
     return _impl->timeout();
 }
@@ -196,9 +196,9 @@ void TcpSocket::onClose()
 }
 
 
-bool TcpSocket::onWait(std::size_t msecs)
+bool TcpSocket::onWait(Timespan timeout)
 {
-    return _impl->wait(msecs);
+    return _impl->wait(timeout);
 }
 
 
@@ -284,9 +284,11 @@ short TcpSocket::poll(short events) const
     fds.fd = _impl->fd();
     fds.events = events;
 
-    log_debug("poll timeout " << getTimeout());
+    int timeout = getTimeout().ceil();
 
-    int p = ::poll(&fds, 1, getTimeout());
+    log_debug("poll timeout " << timeout);
+
+    int p = ::poll(&fds, 1, timeout);
 
     log_debug("poll returns " << p << " revents " << fds.revents);
 
@@ -297,7 +299,7 @@ short TcpSocket::poll(short events) const
     }
     else if (p == 0)
     {
-      log_debug("poll timeout (" << getTimeout() << ')');
+      log_debug("poll timeout (" << timeout << ')');
       throw IOTimeout();
     }
 

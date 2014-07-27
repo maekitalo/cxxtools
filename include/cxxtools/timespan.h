@@ -132,7 +132,7 @@ class Timespan
     cxxtools::Minutes, cxxtools::Hours and cxxtools::Days are used.
 
  */
-template <uint64_t Resolution>
+template <int64_t Resolution>
 class WeakTimespan : public Timespan
 {
     public:
@@ -203,6 +203,12 @@ class WeakTimespan : public Timespan
         operator double() const
         { return totalUSecs() / static_cast<double>(Resolution); }
 
+        int64_t ceil() const
+        {
+          int64_t r = totalUSecs();
+          return r % Resolution == 0 || r < 0 ? r / Resolution
+                                              : r / Resolution + 1;
+        }
 };
 
 /** @brief A WeakTimespan<1> specializes a WeakTimespan for microseconds.
@@ -270,7 +276,7 @@ class WeakTimespan<1> : public Timespan
             : Timespan(ts)
         { }
 
-        operator uint64_t() const
+        operator int64_t() const
         { return totalUSecs(); }
 
 };
@@ -318,12 +324,12 @@ namespace tshelper
 
     @endcode
  */
-typedef WeakTimespan<1>                             Microseconds;
-typedef WeakTimespan<uint64_t(1000)>                Milliseconds;
-typedef WeakTimespan<uint64_t(1000)*1000>           Seconds;
-typedef WeakTimespan<uint64_t(1000)*1000*60>        Minutes;
-typedef WeakTimespan<uint64_t(1000)*1000*60*60>     Hours;
-typedef WeakTimespan<uint64_t(1000)*1000*60*60*24>  Days;
+typedef WeakTimespan<1>                            Microseconds;
+typedef WeakTimespan<int64_t(1000)>                Milliseconds;
+typedef WeakTimespan<int64_t(1000)*1000>           Seconds;
+typedef WeakTimespan<int64_t(1000)*1000*60>        Minutes;
+typedef WeakTimespan<int64_t(1000)*1000*60*60>     Hours;
+typedef WeakTimespan<int64_t(1000)*1000*60*60*24>  Days;
 
 inline Timespan operator * (const Timespan& d, double fac)
 {
@@ -333,6 +339,11 @@ inline Timespan operator * (const Timespan& d, double fac)
 inline Timespan operator * (double fac, const Timespan& d)
 {
     return Timespan(d.totalUSecs() * fac);
+}
+
+inline Timespan operator / (const Timespan& d, double fac)
+{
+    return Timespan(d.totalUSecs() / fac);
 }
 
 std::ostream& operator<< (std::ostream& out, const Timespan& ts);

@@ -47,6 +47,7 @@ class TimespanTest : public cxxtools::unit::TestSuite
             registerMethod("hours", *this, &TimespanTest::hours);
             registerMethod("days", *this, &TimespanTest::days);
             registerMethod("serialize", *this, &TimespanTest::serialize);
+            registerMethod("ceil", *this, &TimespanTest::ceil);
         }
 
         void compare()
@@ -155,6 +156,16 @@ class TimespanTest : public cxxtools::unit::TestSuite
             cxxtools::Timespan t2;
             si >>= t2;
             CXXTOOLS_UNIT_ASSERT_EQUALS(t, t2);
+        }
+
+        void ceil()
+        {
+            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::Milliseconds(4).ceil(), 4);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::Milliseconds(4.1).ceil(), 5);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::Milliseconds(-1).ceil(), -1);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::Milliseconds(-.9).ceil(), 0);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::Milliseconds(-9).ceil(), -9);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::Milliseconds(-11.1).ceil(), -11);
         }
 
 };

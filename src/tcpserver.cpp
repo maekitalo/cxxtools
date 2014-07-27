@@ -114,9 +114,9 @@ void TcpServer::onClose()
 }
 
 
-bool TcpServer::onWait(std::size_t msecs)
+bool TcpServer::onWait(Timespan timeout)
 {
-    return _impl->wait(msecs);
+    return _impl->wait(timeout);
 }
 
 

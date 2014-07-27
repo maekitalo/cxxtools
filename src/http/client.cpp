@@ -140,7 +140,7 @@ void Client::close()
         _impl->close();
 }
 
-const ReplyHeader& Client::execute(const Request& request, std::size_t timeout, std::size_t connectTimeout)
+const ReplyHeader& Client::execute(const Request& request, Milliseconds timeout, Milliseconds connectTimeout)
 {
     try
     {
@@ -163,7 +163,7 @@ void Client::readBody(std::string& s)
     _impl->readBody(s);
 }
 
-std::string Client::get(const std::string& url, std::size_t timeout, std::size_t connectTimeout)
+std::string Client::get(const std::string& url, Milliseconds timeout, Milliseconds connectTimeout)
 {
     return getImpl()->get(url, timeout, connectTimeout);
 }
@@ -188,7 +188,7 @@ SelectorBase* Client::selector()
     return _impl ? _impl->selector() : 0;
 }
 
-bool Client::wait(std::size_t msecs)
+bool Client::wait(Milliseconds msecs)
 {
     return _impl->wait(msecs);
 }

@@ -157,8 +157,8 @@ class CXXTOOLS_HTTP_API Client
             something else, the connectTimeout is set to timeout as well.
         */
         const ReplyHeader& execute(const Request& request,
-            std::size_t timeout = Selectable::WaitInfinite,
-            std::size_t connectTimeout = Selectable::WaitInfinite);
+            Milliseconds timeout = Selectable::WaitInfinite,
+            Milliseconds connectTimeout = Selectable::WaitInfinite);
 
         const ReplyHeader& header();
 
@@ -186,8 +186,8 @@ class CXXTOOLS_HTTP_API Client
             something else, the connectTimeout is set to timeout as well.
           */
         std::string get(const std::string& url,
-            std::size_t timeout = Selectable::WaitInfinite,
-            std::size_t connectTimeout = Selectable::WaitInfinite);
+            Milliseconds timeout = Selectable::WaitInfinite,
+            Milliseconds connectTimeout = Selectable::WaitInfinite);
 
         /** Starts a new request.
 
@@ -215,7 +215,7 @@ class CXXTOOLS_HTTP_API Client
         /** Executes the underlying selector until a event occurs or the
             specified timeout is reached.
          */
-        bool wait(std::size_t msecs);
+        bool wait(Milliseconds msecs);
 
         /** Returns the underlying stream, where the reply is be read from.
          */

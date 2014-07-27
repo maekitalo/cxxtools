@@ -270,8 +270,12 @@ class Resetter
         }
 };
 
-bool TcpServerImpl::wait(std::size_t msecs)
+bool TcpServerImpl::wait(Timespan timeout)
 {
+    int msecs = timeout < Timespan(0) ? -1
+              : timeout.totalMSecs() > std::numeric_limits<int>::max() ? std::numeric_limits<int>::max()
+              : int(Milliseconds(timeout).ceil());
+
     log_debug("wait " << msecs);
 
     Resetter<pollfd*> resetter(_pfd);

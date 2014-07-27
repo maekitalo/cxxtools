@@ -67,7 +67,7 @@ class CXXTOOLS_API FileDevice : public IODevice
 
         void onClose();
 
-        void onSetTimeout(size_t timeout);
+        void onSetTimeout(Timespan timeout);
 
         bool onSeekable() const
         { return true; }

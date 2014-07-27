@@ -107,11 +107,11 @@ void ClientImpl::doparse()
 
 }
 
-const ReplyHeader& ClientImpl::execute(const Request& request, std::size_t timeout, std::size_t connectTimeout)
+const ReplyHeader& ClientImpl::execute(const Request& request, Timespan timeout, Timespan connectTimeout)
 {
     log_trace("execute request " << request.url());
 
-    if (connectTimeout == Selectable::WaitInfinite)
+    if (connectTimeout < Timespan(0))
         connectTimeout = timeout;
 
     _replyHeader.clear();
@@ -223,7 +223,7 @@ void ClientImpl::readBody(std::string& s)
 }
 
 
-std::string ClientImpl::get(const std::string& url, std::size_t timeout, std::size_t connectTimeout)
+std::string ClientImpl::get(const std::string& url, Timespan timeout, Timespan connectTimeout)
 {
     Request request(url);
     execute(request, timeout, connectTimeout);

@@ -57,7 +57,7 @@ class PipeIODevice : public IODevice
         void onClose()
         { cancel(); _impl.close(); }
 
-        bool onWait(std::size_t msecs);
+        bool onWait(Timespan timeout);
 
         size_t onBeginRead(char* buffer, size_t n, bool& eof);
 

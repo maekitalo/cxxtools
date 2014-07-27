@@ -76,11 +76,11 @@ class ClientImpl : public cxxtools::Connectable
 
         void call(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc);
 
-        std::size_t timeout() const  { return _timeout; }
-        void timeout(std::size_t t)  { _timeout = t; if (!_connectTimeoutSet) _connectTimeout = t; }
+        Milliseconds timeout() const  { return _timeout; }
+        void timeout(Milliseconds t)  { _timeout = t; if (!_connectTimeoutSet) _connectTimeout = t; }
 
-        std::size_t connectTimeout() const  { return _connectTimeout; }
-        void connectTimeout(std::size_t t)  { _connectTimeout = t; _connectTimeoutSet = true; }
+        Milliseconds connectTimeout() const  { return _connectTimeout; }
+        void connectTimeout(Milliseconds t)  { _connectTimeout = t; _connectTimeoutSet = true; }
 
         virtual std::string url() const = 0;
 
@@ -118,10 +118,10 @@ class ClientImpl : public cxxtools::Connectable
         IRemoteProcedure* _method;
         RemoteException _fault;
         Composer<RemoteException> _fh;
-        std::size_t _timeout;
+        Milliseconds _timeout;
         bool _connectTimeoutSet;  // indicates if connectTimeout is explicitely set
                                   // when not, it follows the setting of _timeout
-        std::size_t _connectTimeout;
+        Milliseconds _connectTimeout;
         bool _errorPending;
 };
 

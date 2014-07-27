@@ -31,7 +31,6 @@
 
 #include <string>
 #include <cxxtools/signal.h>
-#include <cxxtools/callable.h>
 #include <cxxtools/serviceregistry.h>
 
 namespace cxxtools
@@ -63,11 +62,6 @@ namespace cxxtools
 
                 unsigned maxThreads() const;
                 void maxThreads(unsigned m);
-
-                // idleTimeout is the time in milliseconds of inactivity after
-                // which a socket is moved from a worker thread to the main event loop.
-                std::size_t idleTimeout() const;
-                void idleTimeout(std::size_t ms);
 
                 enum Runmode {
                   Stopped,

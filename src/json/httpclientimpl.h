@@ -34,6 +34,7 @@
 #include <cxxtools/deserializer.h>
 #include <cxxtools/formatter.h>
 #include <cxxtools/refcounted.h>
+#include <cxxtools/timespan.h>
 #include <string>
 #include "scanner.h"
 
@@ -98,17 +99,17 @@ namespace json
 
             void call(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc);
 
-            std::size_t timeout() const  { return _timeout; }
-            void timeout(std::size_t t)  { _timeout = t; if (!_connectTimeoutSet) _connectTimeout = t; }
+            Timespan timeout() const  { return _timeout; }
+            void timeout(Timespan t)  { _timeout = t; if (!_connectTimeoutSet) _connectTimeout = t; }
 
-            std::size_t connectTimeout() const  { return _connectTimeout; }
-            void connectTimeout(std::size_t t)  { _connectTimeout = t; _connectTimeoutSet = true; }
+            Timespan connectTimeout() const  { return _connectTimeout; }
+            void connectTimeout(Timespan t)  { _connectTimeout = t; _connectTimeoutSet = true; }
 
             const IRemoteProcedure* activeProcedure() const;
 
             void cancel();
 
-            void wait(std::size_t msecs);
+            void wait(Timespan msecs);
 
         private:
             void prepareRequest(const String& name, IDecomposer** argv, unsigned argc);
@@ -122,9 +123,9 @@ namespace json
             static void verifyHeader(const http::ReplyHeader& header);
 
             // connection
-            std::size_t _timeout;
+            Timespan _timeout;
             bool _connectTimeoutSet;
-            std::size_t _connectTimeout;
+            Timespan _connectTimeout;
             http::Client _client;
 
             http::Request _request;

@@ -31,9 +31,8 @@
 
 #include <cxxtools/http/api.h>
 #include <cxxtools/signal.h>
-#include <cxxtools/noncopyable.h>
+#include <cxxtools/timespan.h>
 #include <string>
-#include <cstddef>
 
 namespace cxxtools
 {
@@ -48,8 +47,11 @@ class Request;
 class Service;
 class ServerImplBase;
 
-class CXXTOOLS_HTTP_API Server : private cxxtools::NonCopyable
+class CXXTOOLS_HTTP_API Server
 {
+        Server(const Server& server) { }
+        Server& operator=(const Server& server) { return *this; }
+
     public:
         explicit Server(EventLoopBase& eventLoop);
         Server(EventLoopBase& eventLoop, const std::string& ip, unsigned short int port, int backlog = 64);
@@ -63,13 +65,13 @@ class CXXTOOLS_HTTP_API Server : private cxxtools::NonCopyable
         void addService(const Regex& url, Service& service);
         void removeService(Service& service);
 
-        std::size_t readTimeout() const;
-        std::size_t writeTimeout() const;
-        std::size_t keepAliveTimeout() const;
+        Milliseconds readTimeout() const;
+        Milliseconds writeTimeout() const;
+        Milliseconds keepAliveTimeout() const;
 
-        void readTimeout(std::size_t ms);
-        void writeTimeout(std::size_t ms);
-        void keepAliveTimeout(std::size_t ms);
+        void readTimeout(Milliseconds ms);
+        void writeTimeout(Milliseconds ms);
+        void keepAliveTimeout(Milliseconds ms);
 
         unsigned minThreads() const;
         void minThreads(unsigned m);

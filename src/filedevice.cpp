@@ -73,7 +73,7 @@ void FileDevice::onClose()
 }
 
 
-void FileDevice::onSetTimeout(size_t timeout)
+void FileDevice::onSetTimeout(Timespan timeout)
 {
     _impl->setTimeout(timeout);
 }

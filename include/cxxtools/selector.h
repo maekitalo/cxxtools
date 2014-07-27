@@ -85,7 +85,7 @@ namespace cxxtools {
             SelectorBase& operator=(SelectorBase&) { return *this; }
 
         public:
-            static const std::size_t WaitInfinite = static_cast<const std::size_t>(-1);
+            static const int WaitInfinite = -1;
 
             //! @brief Destructor
             virtual ~SelectorBase();
@@ -169,7 +169,7 @@ namespace cxxtools {
             */
             virtual void onChanged(Selectable& s) = 0;
 
-            virtual bool onWait(std::size_t msecs) = 0;
+            virtual bool onWait(Timespan timeout) = 0;
 
             virtual void onWake() = 0;
 
@@ -207,7 +207,7 @@ namespace cxxtools {
 
             void onChanged(Selectable&);
 
-            bool onWait(std::size_t msecs = WaitInfinite);
+            bool onWait(Timespan timeout);
 
             void onWake();
 

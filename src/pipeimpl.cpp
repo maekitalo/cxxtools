@@ -74,9 +74,9 @@ void PipeIODevice::open(int fd, bool isAsync)
 }
 
 
-bool PipeIODevice::onWait(std::size_t msecs)
+bool PipeIODevice::onWait(Timespan timeout)
 {
-    return _impl.wait(msecs);
+    return _impl.wait(timeout);
 }
 
 

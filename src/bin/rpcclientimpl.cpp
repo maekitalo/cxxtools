@@ -170,26 +170,27 @@ void RpcClientImpl::cancel()
     _proc = 0;
 }
 
-void RpcClientImpl::wait(std::size_t msecs)
+void RpcClientImpl::wait(Timespan timeout)
 {
     if (_socket.selector() == 0)
         throw std::logic_error("cannot run async rpc request without a selector");
 
     Clock clock;
-    if (msecs != RemoteClient::WaitInfinite)
+    if (timeout >= Timespan(0))
         clock.start();
 
-    std::size_t remaining = msecs;
+    Timespan remaining = timeout;
 
     while (activeProcedure() != 0)
     {
         if (_socket.selector()->wait(remaining) == false)
             throw IOTimeout();
 
-        if (msecs != RemoteClient::WaitInfinite)
+        if (timeout >= Timespan(0))
         {
-            std::size_t diff = static_cast<std::size_t>(clock.stop().totalMSecs());
-            remaining = diff >= msecs ? 0 : msecs - diff;
+            remaining = timeout - clock.stop();
+            if (remaining < Timespan(0))
+                remaining = Timespan(0);
         }
     }
 }

@@ -89,7 +89,7 @@ class TcpServerImpl : public SelectableImpl
         void deferAccept(bool sw);
 #endif
 
-        bool wait(std::size_t msecs);
+        bool wait(Timespan timeout);
 
         void attach(SelectorBase& s);
 

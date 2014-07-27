@@ -31,6 +31,7 @@
 
 #include <cxxtools/api.h>
 #include <cxxtools/selectable.h>
+#include <cxxtools/timespan.h>
 #include <cxxtools/clock.h>
 #include <sys/poll.h>
 #include <vector>
@@ -51,7 +52,7 @@ class SelectorImpl
 
         void changed( Selectable& dev );
 
-        bool wait(std::size_t msecs);
+        bool wait(Timespan timeout);
 
         void wake();
 

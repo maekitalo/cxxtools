@@ -27,7 +27,6 @@
 #define CXXTOOLS_SELECTABLE_H
 
 #include <cxxtools/signal.h>
-#include <cxxtools/noncopyable.h>
 #include <cxxtools/api.h>
 #include <cxxtools/selector.h>
 #include <cxxtools/timespan.h>
@@ -37,8 +36,11 @@ namespace cxxtools
 
 class SelectableImpl;
 
-class CXXTOOLS_API Selectable : protected NonCopyable
+class CXXTOOLS_API Selectable
 {
+        Selectable(const Selectable&) { }
+        Selectable& operator=(const Selectable&) { return *this; }
+
     public:
         static const std::size_t WaitInfinite = Selector::WaitInfinite;
 
@@ -100,7 +102,7 @@ class CXXTOOLS_API Selectable : protected NonCopyable
         //! @brief Closes the Selector
         virtual void onClose() = 0;
 
-        virtual bool onWait(std::size_t msecs) = 0;
+        virtual bool onWait(Timespan timeout) = 0;
 
         virtual void onAttach(SelectorBase&) = 0;
 

@@ -33,14 +33,14 @@ log_define("cxxtools.selector")
 
 namespace cxxtools {
 
-const std::size_t SelectorBase::WaitInfinite;
+const int SelectorBase::WaitInfinite;
 
 SelectorBase::~SelectorBase()
 {
     while( _timers.size() )
     {
        Timer* timer = _timers.begin()->second;
-        timer->setSelector(0);
+       timer->setSelector(0);
     }
 }
 
@@ -128,10 +128,6 @@ bool SelectorBase::updateTimer(Timespan& lowestTimeout)
         {
             Timespan remaining = (timer->finished() - now);
             lowestTimeout = remaining;
-            if (lowestTimeout < Milliseconds(1))
-            {
-                lowestTimeout = Milliseconds(1);
-            }
             log_debug("remaining=" << remaining << " lowestTimeout => " << lowestTimeout);
             break;
         }
@@ -162,18 +158,16 @@ bool SelectorBase::wait(Milliseconds msecs)
     // active selectable to avoid timer preemption
     if ( updateTimer(timerTimeout) )
     {
-        this->onWait(0);
+        onWait(Timespan(0));
         return true;
     }
-
-    log_debug("msecs=" << msecs << " timerTimeout=" << timerTimeout);
 
     // This handles the case when no timer will become
     // active in the given timeout. The result of the
     // wait call indicates activity
-    if (msecs >= Timespan(0) && timerTimeout >= Timespan(0) && timerTimeout > msecs)
+    if (timerTimeout < Timespan(0) || (msecs >= Timespan(0) && msecs < timerTimeout))
     {
-        return this->onWait(msecs);
+        return onWait(msecs);
     }
 
     // A timer will become active before the timeout expires
@@ -181,10 +175,7 @@ bool SelectorBase::wait(Milliseconds msecs)
     {
         log_debug("wait(" << timerTimeout << ')');
 
-        std::size_t waittime = Milliseconds(timerTimeout);
-        if (waittime == 0)
-            waittime = 1;
-        if (this->onWait(waittime))
+        if (onWait(timerTimeout))
             return true;
 
         if (updateTimer(timerTimeout))
@@ -197,7 +188,7 @@ bool SelectorBase::wait(Milliseconds msecs)
 
 void SelectorBase::wake()
 { 
-    this->onWake();
+    onWake();
 }
 
 
@@ -241,9 +232,9 @@ void Selector::onReinit(Selectable& s)
 }
 
 
-bool Selector::onWait(std::size_t msecs)
+bool Selector::onWait(Timespan timeout)
 {
-    return _impl->wait(msecs);
+    return _impl->wait(timeout);
 }
 
 

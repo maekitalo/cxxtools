@@ -135,18 +135,12 @@ void SelectorImpl::changed( Selectable& s )
 }
 
 
-bool SelectorImpl::wait(std::size_t umsecs)
+bool SelectorImpl::wait(Timespan timeout)
 {
     _clock.start();
 
-    umsecs = _avail.size() ? 0 : umsecs;
-
-    int msecs = umsecs;
-    if (umsecs != SelectorBase::WaitInfinite &&
-        umsecs > static_cast<std::size_t>(std::numeric_limits<int>::max()))
-    {
-        msecs = std::numeric_limits<int>::max();
-    }
+    if (_avail.size() > 0)
+        timeout = Timespan(0);
 
     if (_isDirty)
     {
@@ -193,21 +187,18 @@ bool SelectorImpl::wait(std::size_t umsecs)
     }
 
     int ret = -1;
-    while( true )
+    int msecs = -1;
+    while (true)
     {
-        if(umsecs != SelectorBase::WaitInfinite)
+        if (timeout >= Timespan(0))
         {
-            int64_t diff = _clock.stop().totalMSecs();
-            _clock.start();
+            Milliseconds remaining = timeout - _clock.stop();
+            if (remaining < Timespan(0))
+                remaining = Timespan(0);
+            else if (remaining > std::numeric_limits<int>::max())
+                remaining = std::numeric_limits<int>::max();
 
-            if (diff < msecs)
-            {
-                msecs -= int(diff);
-            }
-            else
-            {
-                msecs = 0;
-            }
+            msecs = remaining.ceil();
         }
 
         log_debug("poll with " << _pollfds.size() << " fds, timeout=" << msecs << "ms");

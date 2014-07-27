@@ -30,6 +30,7 @@
 #define CXXTOOLS_SYSTEM_SELECTABLEIMPL_H
 
 #include <cstddef>
+#include <cxxtools/timespan.h>
 
 struct pollfd;
 
@@ -41,11 +42,11 @@ class SelectorImpl;
     class SelectableImpl
     {
         public:
-            virtual ~SelectableImpl() {};
+            virtual ~SelectableImpl() {}
 
             virtual void close() = 0;
 
-            virtual bool wait(std::size_t msecs)= 0;
+            virtual bool wait(Timespan timeout)= 0;
 
             virtual std::size_t pollSize() const = 0;
 

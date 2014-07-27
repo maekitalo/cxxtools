@@ -92,32 +92,32 @@ void Server::removeService(Service& service)
     _impl->removeService(service);
 }
 
-std::size_t Server::readTimeout() const
+Milliseconds Server::readTimeout() const
 {
     return _impl->readTimeout();
 }
 
-std::size_t Server::writeTimeout() const
+Milliseconds Server::writeTimeout() const
 {
     return _impl->writeTimeout();
 }
 
-std::size_t Server::keepAliveTimeout() const
+Milliseconds Server::keepAliveTimeout() const
 {
     return _impl->keepAliveTimeout();
 }
 
-void Server::readTimeout(std::size_t ms)
+void Server::readTimeout(Milliseconds ms)
 {
     _impl->readTimeout(ms);
 }
 
-void Server::writeTimeout(std::size_t ms)
+void Server::writeTimeout(Milliseconds ms)
 {
     _impl->writeTimeout(ms);
 }
 
-void Server::keepAliveTimeout(std::size_t ms)
+void Server::keepAliveTimeout(Milliseconds ms)
 {
     _impl->keepAliveTimeout(ms);
 }

@@ -107,7 +107,7 @@ namespace cxxtools {
             virtual void onProcessEvents() = 0;
 
         private:
-            Milliseconds _timeout;
+            Timespan _timeout;
     };
 
     /** @brief Thread-safe event loop supporting I/O multiplexing and Timers.
@@ -158,7 +158,7 @@ namespace cxxtools {
 
             virtual void onRun();
 
-            virtual bool onWait(std::size_t msecs);
+            virtual bool onWait(Timespan timeout);
 
             virtual void onWake();
 
