@@ -14,6 +14,7 @@ AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_HEADERS([src/config.h ])
 AC_CONFIG_FILES([include/cxxtools/config.h])
 AC_CONFIG_SRCDIR([src/log.cpp])
+AC_USE_SYSTEM_EXTENSIONS
 
 AC_HEADER_DIRENT
 
@@ -42,6 +43,7 @@ AC_SEARCH_LIBS(clock_gettime, rt)
 AC_CHECK_FUNCS(inet_ntop accept4)
 AC_CHECK_FUNCS(clock_gettime)
 AC_CHECK_FUNCS(sendfile)
+AC_CHECK_FUNCS(ppoll)
 AC_TYPE_LONG_LONG_INT
 AC_TYPE_UNSIGNED_LONG_LONG_INT
 

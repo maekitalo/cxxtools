@@ -39,6 +39,7 @@
 #include <cassert>
 #include <iostream>
 #include <limits>
+#include "config.h"
 
 log_define("cxxtools.selector.impl")
 
@@ -166,7 +167,7 @@ bool SelectorImpl::wait(Timespan timeout)
         // Eintraege einfuegen
         pollfd* pCurr= &_pollfds[0];
 
-        // Event Pipe einfuegen TODO cxxtools::Pipe verwenden
+        // Event Pipe einfuegen
         pCurr->fd = _wakePipe[0];
         pCurr->events = POLLIN;
 
@@ -187,7 +188,14 @@ bool SelectorImpl::wait(Timespan timeout)
     }
 
     int ret = -1;
-    int msecs = -1;
+#ifdef HAVE_PPOLL
+    struct timespec pollTimeout;
+    struct timespec* pollTimeoutP = 0;
+    if (timeout >= Timespan(0))
+        pollTimeoutP = &pollTimeout;
+#else
+    int pollTimeout = -1;
+#endif
     while (true)
     {
         if (timeout >= Timespan(0))
@@ -198,12 +206,26 @@ bool SelectorImpl::wait(Timespan timeout)
             else if (remaining > std::numeric_limits<int>::max())
                 remaining = std::numeric_limits<int>::max();
 
-            msecs = remaining.ceil();
+#ifdef HAVE_PPOLL
+            pollTimeout.tv_sec = remaining.totalUSecs() / 1000000;
+            pollTimeout.tv_nsec = (remaining.totalUSecs() % 1000000) * 1000;
+#else
+            pollTimeout = remaining.ceil();
+#endif
+            log_debug("remaining " << remaining);
         }
+        else
+            log_debug("no timeout");
 
-        log_debug("poll with " << _pollfds.size() << " fds, timeout=" << msecs << "ms");
-        ret = ::poll(&_pollfds[0], _pollfds.size(), msecs);
+#ifdef HAVE_PPOLL
+        log_debug("ppoll with " << _pollfds.size() << " fds");
+        ret = ::ppoll(&_pollfds[0], _pollfds.size(), pollTimeoutP, 0);
+        log_debug("ppoll returns " << ret);
+#else
+        log_debug("poll with " << _pollfds.size() << " fds");
+        ret = ::poll(&_pollfds[0], _pollfds.size(), pollTimeout);
         log_debug("poll returns " << ret);
+#endif
         if( ret != -1 )
             break;
 

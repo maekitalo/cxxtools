@@ -22,6 +22,7 @@
 #include <cxxtools/timer.h>
 #include <cxxtools/timespan.h>
 #include <cxxtools/clock.h>
+#include <cxxtools/arg.h>
 #include <cxxtools/log.h>
 
 log_define("timertest")
@@ -70,9 +71,12 @@ int main(int argc, char* argv[])
 {
   try
   {
+    cxxtools::Arg<bool> debug(argc, argv, 'd');
     cxxtools::LogConfiguration logConfiguration;
     logConfiguration.setRootLevel(cxxtools::Logger::INFO);
     logConfiguration.setLogLevel("cxxtools.timer", cxxtools::Logger::DEBUG);
+    if (debug)
+      logConfiguration.setLogLevel("cxxtools.selector.impl", cxxtools::Logger::DEBUG);
     log_init(logConfiguration);
 
     cxxtools::EventLoop loop;
