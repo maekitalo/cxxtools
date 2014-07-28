@@ -439,6 +439,23 @@ class SerializationInfoTest : public cxxtools::unit::TestSuite
             si.setValue(static_cast<long>(std::numeric_limits<short>::max()) + 1);
             CXXTOOLS_UNIT_ASSERT_THROW(siValue<short>(si), std::range_error);
             CXXTOOLS_UNIT_ASSERT_NOTHROW(siValue<long>(si));
+
+            si.setValue(static_cast<long double>(std::numeric_limits<double>::max()) * 1.00000000001);
+            CXXTOOLS_UNIT_ASSERT_THROW(siValue<double>(si), std::range_error);
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(siValue<long double>(si));
+
+            si.setValue(static_cast<long double>(std::numeric_limits<float>::max()) * 1.00000000001);
+            CXXTOOLS_UNIT_ASSERT_THROW(siValue<float>(si), std::range_error);
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(siValue<double>(si));
+
+            si.setValue(static_cast<long double>(-std::numeric_limits<double>::max()) * 1.00000000001);
+            CXXTOOLS_UNIT_ASSERT_THROW(siValue<double>(si), std::range_error);
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(siValue<long double>(si));
+
+            si.setValue(static_cast<long double>(-std::numeric_limits<float>::max()) * 1.00000000001);
+            CXXTOOLS_UNIT_ASSERT_THROW(siValue<float>(si), std::range_error);
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(siValue<double>(si));
+
         }
 
 };

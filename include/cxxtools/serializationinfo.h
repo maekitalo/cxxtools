@@ -230,9 +230,9 @@ class CXXTOOLS_API SerializationInfo
             { value = static_cast<unsigned long long>(_getUInt("unsigned long long", std::numeric_limits<unsigned long long>::max())); }
 #endif
         void getValue(float& value) const
-            { value = static_cast<float>(_getFloat("float", std::numeric_limits<float>::max())); }
+            { value = static_cast<float>(_getFloat("float", static_cast<long double>(std::numeric_limits<float>::max())*1.0000000000001)); }
         void getValue(double& value) const
-            { value = static_cast<double>(_getFloat("double", std::numeric_limits<double>::max())); }
+            { value = static_cast<double>(_getFloat("double", static_cast<long double>(std::numeric_limits<double>::max())*1.0000000000001)); }
         void getValue(long double& value) const
             { value = static_cast<long double>(_getFloat("long double", std::numeric_limits<long double>::max())); }
 
