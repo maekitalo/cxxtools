@@ -52,7 +52,7 @@ class SelectorImpl
 
         void changed( Selectable& dev );
 
-        bool wait(Timespan timeout);
+        bool waitUntil(Timespan timeout);
 
         void wake();
 
@@ -64,7 +64,6 @@ class SelectorImpl
         std::set<Selectable*>::iterator _current;
         std::set<Selectable*> _devices;
         std::set<Selectable*> _avail;
-        Clock _clock;
 };
 
 }//namespace xpr

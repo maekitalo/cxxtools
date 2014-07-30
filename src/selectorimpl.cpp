@@ -136,12 +136,10 @@ void SelectorImpl::changed( Selectable& s )
 }
 
 
-bool SelectorImpl::wait(Timespan timeout)
+bool SelectorImpl::waitUntil(Timespan until)
 {
-    _clock.start();
-
     if (_avail.size() > 0)
-        timeout = Timespan(0);
+        until = Timespan(0);
 
     if (_isDirty)
     {
@@ -187,42 +185,45 @@ bool SelectorImpl::wait(Timespan timeout)
         _isDirty= false;
     }
 
-    int ret = -1;
 #ifdef HAVE_PPOLL
-    struct timespec pollTimeout;
+    struct timespec pollTimeout = { 0, 0 };
     struct timespec* pollTimeoutP = 0;
-    if (timeout >= Timespan(0))
+    if (until >= Timespan(0))
         pollTimeoutP = &pollTimeout;
 #else
-    int pollTimeout = -1;
+    int pollTimeout = until == Timespan(0) ? 0 : -1;
 #endif
+
+    int ret = -1;
     while (true)
     {
-        if (timeout >= Timespan(0))
+        if (until > Timespan(0))
         {
-            Milliseconds remaining = timeout - _clock.stop();
+            Timespan remaining = until - Timespan::gettimeofday();
             if (remaining < Timespan(0))
                 remaining = Timespan(0);
-            else if (remaining > std::numeric_limits<int>::max())
-                remaining = std::numeric_limits<int>::max();
 
 #ifdef HAVE_PPOLL
             pollTimeout.tv_sec = remaining.totalUSecs() / 1000000;
             pollTimeout.tv_nsec = (remaining.totalUSecs() % 1000000) * 1000;
 #else
-            pollTimeout = remaining.ceil();
+            if (Milliseconds(remaining) >= std::numeric_limits<int>::max())
+                pollTimeout = std::numeric_limits<int>::max();
+            else
+                pollTimeout = Milliseconds(remaining).ceil();
 #endif
+
             log_debug("remaining " << remaining);
         }
         else
             log_debug("no timeout");
 
 #ifdef HAVE_PPOLL
-        log_debug("ppoll with " << _pollfds.size() << " fds");
+        log_debug("ppoll with " << _pollfds.size() << " fds, timeout=" << pollTimeout.tv_sec << "s " << pollTimeout.tv_nsec << "ns");
         ret = ::ppoll(&_pollfds[0], _pollfds.size(), pollTimeoutP, 0);
         log_debug("ppoll returns " << ret);
 #else
-        log_debug("poll with " << _pollfds.size() << " fds");
+        log_debug("poll with " << _pollfds.size() << " fds, timeout=" << pollTimeout << "ms");
         ret = ::poll(&_pollfds[0], _pollfds.size(), pollTimeout);
         log_debug("poll returns " << ret);
 #endif

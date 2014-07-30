@@ -126,9 +126,8 @@ bool SelectorBase::updateTimer(Timespan& lowestTimeout)
 
         if ( now < timer->finished() )
         {
-            Timespan remaining = (timer->finished() - now);
-            lowestTimeout = remaining;
-            log_debug("remaining=" << remaining << " lowestTimeout => " << lowestTimeout);
+            lowestTimeout = timer->finished();
+            log_debug("lowestTimeout => " << lowestTimeout);
             break;
         }
 
@@ -150,7 +149,15 @@ bool SelectorBase::updateTimer(Timespan& lowestTimeout)
 
 bool SelectorBase::wait(Milliseconds msecs)
 {
-    log_debug("wait(" << msecs << ')');
+    if (msecs <= Timespan(0))
+        return waitUntil(msecs);
+    else
+        return waitUntil(Timespan::gettimeofday() + msecs);
+}
+
+bool SelectorBase::waitUntil(Timespan t)
+{
+    log_debug("wait(" << t << ')');
 
     Timespan timerTimeout = Timespan(Selector::WaitInfinite);
 
@@ -158,16 +165,16 @@ bool SelectorBase::wait(Milliseconds msecs)
     // active selectable to avoid timer preemption
     if ( updateTimer(timerTimeout) )
     {
-        onWait(Timespan(0));
+        onWaitUntil(Timespan(0));
         return true;
     }
 
     // This handles the case when no timer will become
     // active in the given timeout. The result of the
     // wait call indicates activity
-    if (timerTimeout < Timespan(0) || (msecs >= Timespan(0) && msecs < timerTimeout))
+    if (timerTimeout < Timespan(0) || (t >= Timespan(0) && t < timerTimeout))
     {
-        return onWait(msecs);
+        return onWaitUntil(t);
     }
 
     // A timer will become active before the timeout expires
@@ -175,7 +182,7 @@ bool SelectorBase::wait(Milliseconds msecs)
     {
         log_debug("wait(" << timerTimeout << ')');
 
-        if (onWait(timerTimeout))
+        if (onWaitUntil(timerTimeout))
             return true;
 
         if (updateTimer(timerTimeout))
@@ -232,9 +239,9 @@ void Selector::onReinit(Selectable& s)
 }
 
 
-bool Selector::onWait(Timespan timeout)
+bool Selector::onWaitUntil(Timespan timeout)
 {
-    return _impl->wait(timeout);
+    return _impl->waitUntil(timeout);
 }
 
 

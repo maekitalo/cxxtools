@@ -158,7 +158,7 @@ namespace cxxtools {
 
             virtual void onRun();
 
-            virtual bool onWait(Timespan timeout);
+            virtual bool onWaitUntil(Timespan timeout);
 
             virtual void onWake();
 

@@ -126,6 +126,7 @@ namespace cxxtools {
                 @return true on timeout
             */
             bool wait(Milliseconds msecs = WaitInfinite);
+            bool waitUntil(Timespan t);
 
             /** @brief Wakes the selctor from waiting
 
@@ -169,7 +170,7 @@ namespace cxxtools {
             */
             virtual void onChanged(Selectable& s) = 0;
 
-            virtual bool onWait(Timespan timeout) = 0;
+            virtual bool onWaitUntil(Timespan timeout) = 0;
 
             virtual void onWake() = 0;
 
@@ -207,7 +208,7 @@ namespace cxxtools {
 
             void onChanged(Selectable&);
 
-            bool onWait(Timespan timeout);
+            bool onWaitUntil(Timespan timeout);
 
             void onWake();
 

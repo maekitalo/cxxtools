@@ -108,9 +108,9 @@ void EventLoop::onRun()
 }
 
 
-bool EventLoop::onWait(Timespan timeout)
+bool EventLoop::onWaitUntil(Timespan timeout)
 {
-    if( _selector->wait(timeout) )
+    if( _selector->waitUntil(timeout) )
     {
         RecursiveLock lock(_queueMutex);
 
