@@ -51,21 +51,27 @@ namespace
         bool boolValue;
     };
 
+    static const std::string intValue = "intValue";
+    static const std::string stringValue = "stringValue";
+    static const std::string doubleValue = "doubleValue";
+    static const std::string boolValue = "boolValue";
+    static const std::string typeName = "TestObject";
+
     void operator>>= (const cxxtools::SerializationInfo& si, TestObject& obj)
     {
-        si.getMember("intValue") >>= obj.intValue;
-        si.getMember("stringValue") >>= obj.stringValue;
-        si.getMember("doubleValue") >>= obj.doubleValue;
-        si.getMember("boolValue") >>= obj.boolValue;
+        si.getMember(intValue) >>= obj.intValue;
+        si.getMember(stringValue) >>= obj.stringValue;
+        si.getMember(doubleValue) >>= obj.doubleValue;
+        si.getMember(boolValue) >>= obj.boolValue;
     }
 
     void operator<<= (cxxtools::SerializationInfo& si, const TestObject& obj)
     {
-        si.addMember("intValue") <<= obj.intValue;
-        si.addMember("stringValue") <<= obj.stringValue;
-        si.addMember("doubleValue") <<= obj.doubleValue;
-        si.addMember("boolValue") <<= obj.boolValue;
-        si.setTypeName("TestObject");
+        si.addMember(intValue) <<= obj.intValue;
+        si.addMember(stringValue) <<= obj.stringValue;
+        si.addMember(doubleValue) <<= obj.doubleValue;
+        si.addMember(boolValue) <<= obj.boolValue;
+        si.setTypeName(typeName);
     }
 
     class JsonSerializer2 : public cxxtools::JsonSerializer
