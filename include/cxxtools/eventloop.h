@@ -85,7 +85,6 @@ namespace cxxtools {
             Signal<> timeout;
 
             /** @brief Reports all events
-                TODO: rename to eventReady
             */
             Signal<const Event&> event;
 

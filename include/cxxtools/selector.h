@@ -119,13 +119,38 @@ namespace cxxtools {
             /** @brief Wait for activity
 
                 This method will wait for activity on the registered
-                Selectables and Timers. Use Selector::WaitInfinite to
-                wait without timeout.
+                Selectables and Timers and execute the registered callbacks.
+                It will return when either the timeout has expired or at least
+                one event has occured.
 
-                @param msecs timeout in miliseconds
+                When the timeout is 0, then just active events are triggered.
+
+                When the timeout is negative, it will wait until the next event
+                without timeout. Use Selector::WaitInfinite to wait without
+                timeout.
+
+                Note that the class Milliseconds has a implicit constructor
+                which accepts a double value, so that you can pass just a
+                number to the method to get a timeout in milliseconds.
+
+                @param msecs timeout
                 @return true on timeout
             */
             bool wait(Milliseconds msecs = WaitInfinite);
+
+            /** @brief Wait for activity
+
+                This method is like wait but the timeout is specified as a
+                timestamp. The method will wait until the specified time.
+
+                When the timespan is negative, the method will wait until the
+                next event without timeout.
+
+                When the timespan is smaller or equal the current time, it will
+                just check for active events and execute them.
+
+                @param t timeout as a timespan since 1970-01-01 00:00:00
+             */
             bool waitUntil(Timespan t);
 
             /** @brief Wakes the selctor from waiting

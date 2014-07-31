@@ -71,17 +71,37 @@ int main(int argc, char* argv[])
 {
   try
   {
+    // the command line switch -d enables debug log for the selector
     cxxtools::Arg<bool> debug(argc, argv, 'd');
-    cxxtools::LogConfiguration logConfiguration;
-    logConfiguration.setRootLevel(cxxtools::Logger::INFO);
-    logConfiguration.setLogLevel("cxxtools.timer", cxxtools::Logger::DEBUG);
-    if (debug)
-      logConfiguration.setLogLevel("cxxtools.selector.impl", cxxtools::Logger::DEBUG);
-    log_init(logConfiguration);
 
+    // with -l <filename> we may pass a own logging configuration
+    // the configuration may be xml or properties format
+    cxxtools::Arg<std::string> logfile(argc, argv, 'l');
+
+    // initialize logging
+    if (logfile.isSet())
+    {
+      log_init(logfile);
+    }
+    else
+    {
+      // when no logfile is passed, we configure the logging without it
+      cxxtools::LogConfiguration logConfiguration;
+      logConfiguration.setRootLevel(cxxtools::Logger::INFO);
+      logConfiguration.setLogLevel("cxxtools.timer", cxxtools::Logger::DEBUG);
+      if (debug)
+        logConfiguration.setLogLevel("cxxtools.selector.impl", cxxtools::Logger::DEBUG);
+      log_init(logConfiguration);
+    }
+
+    // we need a event loop which controls the timers
     cxxtools::EventLoop loop;
 
+    // timer to tick just once after 1500 ms
     cxxtools::Timer oneShotTimer(&loop);
+    oneShotTimer.after(1500);
+    cxxtools::connect(oneShotTimer.timeout, onOneShot);
+
 
     // timer tick once per second
     cxxtools::Timer intervalTimer(&loop);
@@ -110,15 +130,13 @@ int main(int argc, char* argv[])
     intervalFutureFullSecondTimer.start(dt, 1000);
     cxxtools::connect(intervalFutureFullSecondTimer.timeout, onIntervalFutureFullSecond);
 
-    // timer, which was started in the past
+    // timer, which was started in the past - it just starts ticking immediately
     cxxtools::Timer intervalPastTimer(&loop);
     intervalPastTimer.start(cxxtools::DateTime(1990, 1, 1, 8, 0, 0), 1000);
     cxxtools::connect(intervalPastTimer.timeout, onIntervalPast);
 
-    // tick just once after 1500 ms
-    oneShotTimer.after(1500);
-    cxxtools::connect(oneShotTimer.timeout, onOneShot);
-
+    // now we start the event loop to execute the timers
+    // this will loop forever and call the timer callback functions at suitable times
     log_info("start event loop");
     loop.run();
   }
