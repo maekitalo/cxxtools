@@ -43,6 +43,7 @@ AC_SEARCH_LIBS(inet_ntop, nsl socket resolv)
 AC_SEARCH_LIBS(clock_gettime, rt)
 AC_CHECK_FUNCS(inet_ntop accept4)
 AC_CHECK_FUNCS(clock_gettime)
+AC_CHECK_FUNCS(nanosleep)
 AC_CHECK_FUNCS(sendfile)
 AC_CHECK_FUNCS(ppoll)
 AC_TYPE_LONG_LONG_INT

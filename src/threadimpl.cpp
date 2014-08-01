@@ -28,6 +28,7 @@
 #include "threadimpl.h"
 #include "cxxtools/systemerror.h"
 #include "cxxtools/timespan.h"
+#include "config.h"
 #include <errno.h>
 #include <signal.h>
 #include <unistd.h>
@@ -134,25 +135,36 @@ void ThreadImpl::terminate()
         throw SystemError("pthread_kill");
 }
 
+
 void ThreadImpl::sleep(const Timespan& t)
 {
-    Timespan ts = Timespan::gettimeofday();
+#ifdef HAVE_NANOSLEEP
 
-    if (usleep(t.totalUSecs()) == -1 && errno == EINTR)
+    struct timespec ts;
+    ts.tv_sec = t.totalUSecs() / 1000000l;
+    ts.tv_nsec = t.totalUSecs() % 1000000l * 1000;
+
+    while (::nanosleep(&ts, &ts) == -1 && errno == EINTR)
+        ;
+
+#else
+
+    Timespan eow = Timespan::gettimeofday() + t;
+
+    Timespan remaining;
+
+    while ((remaining = eow - Timespan::gettimeofday()).totalUSecs() >= 1000000)
     {
-        ts += t;
-
-        Timespan ts2;
-
-        do
-        {
-            ts2 = Timespan::gettimeofday();
-
-            if (ts2 >= ts)
-                break;
-
-        } while (usleep((ts - ts2).totalUSecs()) == -1 && errno == EINTR);
+        ::sleep(remaining.totalUSecs() / 1000000);
     }
+
+    while (remaining.totalUSecs() > 0)
+    {
+        ::usleep(remaining.totalUSecs());
+        remaining = eow - Timespan::gettimeofday();
+    }
+
+#endif
 }
 
 
