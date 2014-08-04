@@ -115,17 +115,26 @@ namespace cxxtools
     class ScopedAtomicIncrementer
     {
         atomic_t& count;
+        bool decremented;
 
       public:
         explicit ScopedAtomicIncrementer(atomic_t& count_)
-          : count(count_)
+          : count(count_),
+            decremented(false)
         {
           atomicIncrement(count);
         }
 
         ~ScopedAtomicIncrementer()
         {
-          atomicDecrement(count);
+          if (!decremented)
+            atomicDecrement(count);
+        }
+
+        atomic_t decrement()
+        {
+          decremented = true;
+          return atomicDecrement(count);
         }
     };
 
@@ -1079,11 +1088,11 @@ namespace cxxtools
   {
     try
     {
-      ScopedAtomicIncrementer inc(mutexWaitCount);
-      MutexLock lock(logMutex);
-
       if (!LogManager::isEnabled())
         return;
+
+      ScopedAtomicIncrementer inc(mutexWaitCount);
+      MutexLock lock(logMutex);
 
       std::string msg;
       logentry(msg, _level, _logger->getCategory());
@@ -1091,7 +1100,7 @@ namespace cxxtools
 
       LogAppender& appender = LogManager::getInstance().impl()->appender();
       appender.putMessage(msg);
-      appender.finish((atomicGet(mutexWaitCount) <= 1));
+      appender.finish(inc.decrement() == 0);
     }
     catch (const std::exception&)
     {
@@ -1184,11 +1193,11 @@ namespace cxxtools
   {
     try
     {
-      ScopedAtomicIncrementer inc(mutexWaitCount);
-      MutexLock lock(logMutex);
-
       if (!LogManager::isEnabled())
         return;
+
+      ScopedAtomicIncrementer inc(mutexWaitCount);
+      MutexLock lock(logMutex);
 
       std::string msg;
       logentry(msg, "TRACE", _logger->getCategory());
@@ -1197,7 +1206,7 @@ namespace cxxtools
 
       LogAppender& appender = LogManager::getInstance().impl()->appender();
       appender.putMessage(msg);
-      appender.finish((atomicGet(mutexWaitCount) <= 1));
+      appender.finish(inc.decrement() == 0);
     }
     catch (const std::exception&)
     {
