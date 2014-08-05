@@ -77,10 +77,10 @@ namespace bench
     {
       if (enabled)
         for (unsigned long i = 0; i < count; ++i)
-          log_fatal("fatal message");
+          log_info("info message");
       else
         for (unsigned long i = 0; i < count; ++i)
-          log_debug("info message");
+          log_debug("debug message");
     }
   }
 }
@@ -89,15 +89,50 @@ int main(int argc, char* argv[])
 {
   try
   {
-    cxxtools::Arg<bool> enable(argc, argv, 'e');
     cxxtools::Arg<double> total(argc, argv, 'T', 5.0); // minimum runtime
     cxxtools::Arg<long> loops(argc, argv, 'l', 1000);
     cxxtools::Arg<unsigned> numthreads(argc, argv, 't', 1);
 
+    cxxtools::Arg<bool> enable(argc, argv, 'e');
+    cxxtools::Arg<bool> consolelog(argc, argv, 'c');
+    cxxtools::Arg<unsigned short> udpport(argc, argv, 'u');
+    cxxtools::Arg<std::string> logfile(argc, argv, 'f', "/dev/null");
+    cxxtools::Arg<bool> norollingfile(argc, argv, 'r');
+
+    cxxtools::LogConfiguration logConfiguration;
+    logConfiguration.setRootLevel(cxxtools::Logger::INFO);
+
+    unsigned settingCount = 0;
+    if (consolelog)
+      ++settingCount;
+
+    if (logfile.isSet())
+      ++settingCount;
+
+    if (udpport.isSet())
+    {
+      ++settingCount;
+      logConfiguration.setLoghost("", udpport);
+    }
+
+    if (settingCount > 1)
+    {
+      std::cerr << "only one of -c, -u or -f must be specified" << std::endl;
+      return -1;
+    }
+
+    if (logfile.isSet() || settingCount == 0)
+    {
+      if (norollingfile || !logfile.isSet())
+        logConfiguration.setFile(logfile);
+      else
+        logConfiguration.setFile(logfile, 1024*1024, 0);
+    }
+
+    log_init(logConfiguration);
+
     unsigned long count = 1;
     double T;
-
-    log_init();
 
     typedef std::vector<cxxtools::SmartPtr<bench::Logtester> > Threads;
     Threads threads;

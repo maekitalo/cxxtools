@@ -1,5 +1,5 @@
 noinst_PROGRAMS = arg arg-set cgi dir dlloader getini hd \
-	httprequest httpserver log logbench logsh md5sum mime multifstream netcat \
+	httprequest httpserver log logsh md5sum mime multifstream netcat \
 	netio netmsg pipestream pool signals thread threadpool uuencode cxxlog \
 	rpcserver rpcechoclient rpcaddclient splitter json regex execLs rpcasyncaddclient \
 	deserialization serialization rpcparallelecho timer
@@ -14,7 +14,6 @@ hd_SOURCES = hd.cpp
 httprequest_SOURCES = httprequest.cpp
 httpserver_SOURCES = httpserver.cpp
 log_SOURCES = log.cpp
-logbench_SOURCES = logbench.cpp
 logsh_SOURCES = logsh.cpp
 md5sum_SOURCES = md5sum.cpp
 mime_SOURCES = mime.cpp

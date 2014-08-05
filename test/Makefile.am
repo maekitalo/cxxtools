@@ -1,5 +1,6 @@
 noinst_PROGRAMS = \
     alltests \
+    logbench \
     serializer-bench \
     rpcbenchclient \
     rpcbenchserver
@@ -54,6 +55,10 @@ if MAKE_ICONVSTREAM
 alltests_SOURCES += \
 	iconvstream-test.cpp
 endif
+
+logbench_SOURCES = logbench.cpp
+
+logbench_LDADD = $(top_builddir)/src/libcxxtools.la
 
 alltests_LDADD = $(top_builddir)/src/libcxxtools.la \
         $(top_builddir)/src/bin/libcxxtools-bin.la \
