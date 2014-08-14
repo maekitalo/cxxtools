@@ -30,39 +30,40 @@
 
 namespace cxxtools
 {
-    JsonDeserializer::JsonDeserializer(std::istream& in, TextCodec<Char, char>* codec)
-        : _ts(new TextIStream(in, codec)),
-          _in(*_ts)
-    { }
+JsonDeserializer::JsonDeserializer(std::istream& in, TextCodec<Char, char>* codec)
+{
+  TextIStream s(in, codec);
+  doDeserialize(s);
+}
 
-    JsonDeserializer::JsonDeserializer(std::basic_istream<Char>& in)
-        : _ts(0),
-          _in(in)
-    { }
+JsonDeserializer::JsonDeserializer(std::basic_istream<Char>& in)
+{
+  doDeserialize(in);
+}
 
-    JsonDeserializer::~JsonDeserializer()
+void JsonDeserializer::begin()
+{
+    Deserializer::begin();
+    _parser.begin(*this);
+}
+
+void JsonDeserializer::doDeserialize(std::basic_istream<Char>& in)
+{
+    begin();
+    Char ch;
+    int ret;
+    while (in.get(ch))
     {
-        delete _ts;
+        ret = advance(ch);
+        if (ret == -1)
+            in.putback(ch);
+        if (ret != 0)
+            return;
     }
 
-    void JsonDeserializer::doDeserialize()
-    {
-        JsonParser parser;
-        parser.begin(*this);
-        Char ch;
-        int ret;
-        while (_in.get(ch))
-        {
-            ret = parser.advance(ch);
-            if (ret == -1)
-                _in.putback(ch);
-            if (ret != 0)
-                return;
-        }
+    if (in.rdstate() & std::ios::badbit)
+        SerializationError::doThrow("json deserialization failed");
 
-        if (_in.rdstate() & std::ios::badbit)
-            SerializationError::doThrow("json deserialization failed");
-
-        parser.finish();
-    }
+    finish();
+}
 }

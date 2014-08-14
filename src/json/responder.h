@@ -29,7 +29,7 @@
 #ifndef CXXTOOLS_JSON_RESPONDER_H
 #define CXXTOOLS_JSON_RESPONDER_H
 
-#include <cxxtools/deserializer.h>
+#include <cxxtools/jsondeserializer.h>
 #include <cxxtools/decomposer.h>
 #include <cxxtools/iostream.h>
 #include <cxxtools/jsonparser.h>
@@ -67,8 +67,7 @@ class Responder
 
     private:
         ServiceRegistry& _serviceRegistry;
-        JsonParser _parser;
-        DeserializerBase _deserializer;
+        JsonDeserializer _deserializer;
 
         bool _failed;
         int _errorCode;

@@ -41,11 +41,8 @@ namespace cxxtools
     class CXXTOOLS_API CsvDeserializer : public Deserializer
     {
         public:
-            CsvDeserializer(std::istream& in, TextCodec<Char, char>* codec = new Utf8Codec());
-
-            CsvDeserializer(std::basic_istream<Char>& in);
-
-            ~CsvDeserializer();
+            CsvDeserializer()
+            { }
 
             Char delimiter() const
             { return _parser.delimiter(); }
@@ -68,11 +65,20 @@ namespace cxxtools
                 d.deserialize(type);
             }
 
-        private:
-            void doDeserialize();
+            void begin();
 
-            TextIStream* _ts;
-            std::basic_istream<Char>& _in;
+            void advance(char ch)
+            { _parser.advance(ch); }
+
+            void finish()
+            { _parser.finish(); }
+
+            void read(std::istream& in, TextCodec<Char, char>* codec = new Utf8Codec());
+            void read(std::basic_istream<Char>& in);
+
+        private:
+            void doDeserialize(std::basic_istream<Char>& in);
+
             CsvParser _parser;
     };
 }

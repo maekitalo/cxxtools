@@ -50,9 +50,9 @@ namespace xml
     class XmlDeserializer : public Deserializer
     {
         public:
-            XmlDeserializer(cxxtools::xml::XmlReader& reader);
+            explicit XmlDeserializer(cxxtools::xml::XmlReader& reader);
 
-            XmlDeserializer(std::istream& is);
+            explicit XmlDeserializer(std::istream& is);
 
             cxxtools::xml::XmlReader& reader()
             { return *_reader; }

@@ -34,17 +34,32 @@ namespace cxxtools
 {
 namespace bin
 {
-void Deserializer::doDeserialize()
+
+Deserializer::Deserializer(std::istream& in)
 {
+    doDeserialize(in);
+}
+
+void Deserializer::begin()
+{
+    cxxtools::Deserializer::begin();
+    _parser.begin(*this);
+}
+
+void Deserializer::doDeserialize(std::istream& in)
+{
+    begin();
     ValueParser vp;
     vp.begin(*this);
 
     char ch;
-    while (_in.get(ch) && !vp.advance(ch))
+    while (in.get(ch) && !vp.advance(ch))
         ;
 
-    if (_in.rdstate() & std::ios::badbit)
+    if (in.rdstate() & std::ios::badbit)
         SerializationError::doThrow("binary deserialization failed");
 }
+
 }
 }
+

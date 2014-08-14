@@ -78,9 +78,9 @@ namespace cxxtools
           state(state_0)
         { }
 
-      void parse(TextIStream& in);
+      void parse(std::basic_istream<Char>& in);
       void parse(std::istream& in, TextCodec<Char, char>* codec = 0);
-      bool parse(Char ch);
+      bool advance(Char ch);
       void end();
   };
 

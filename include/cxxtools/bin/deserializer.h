@@ -31,6 +31,7 @@
 
 #include <cxxtools/deserializer.h>
 #include <cxxtools/bin/serializer.h>
+#include <cxxtools/bin/valueparser.h>
 
 namespace cxxtools
 {
@@ -41,15 +42,22 @@ namespace bin
         public:
             typedef bin::Serializer::TypeCode TypeCode;
 
-            Deserializer(std::istream& in)
-                : _in(in)
+            explicit Deserializer(std::istream& in);
+
+            Deserializer()
             { }
 
-        protected:
-            void doDeserialize();
+            void begin();
+
+            int advance(char ch)
+            { return _parser.advance(ch); }
+
+            ValueParser& parser()
+            { return _parser; }
 
         private:
-            std::istream& _in;
+            void doDeserialize(std::istream& in);
+            ValueParser _parser;
     };
 }
 }

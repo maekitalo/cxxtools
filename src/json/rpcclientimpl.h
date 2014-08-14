@@ -34,6 +34,7 @@
 #include <cxxtools/iostream.h>
 #include <cxxtools/string.h>
 #include <cxxtools/deserializer.h>
+#include <cxxtools/jsondeserializer.h>
 #include <cxxtools/connectable.h>
 #include <cxxtools/selector.h>
 #include <cxxtools/refcounted.h>
@@ -111,7 +112,7 @@ class RpcClientImpl : public RefCounted, public Connectable
 
         // serialization
         Scanner _scanner;
-        DeserializerBase _deserializer;
+        JsonDeserializer _deserializer;
 
         // current processing
         bool _exceptionPending;

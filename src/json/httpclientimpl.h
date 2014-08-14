@@ -32,6 +32,7 @@
 #include <cxxtools/http/request.h>
 #include <cxxtools/connectable.h>
 #include <cxxtools/deserializer.h>
+#include <cxxtools/jsondeserializer.h>
 #include <cxxtools/formatter.h>
 #include <cxxtools/refcounted.h>
 #include <cxxtools/timespan.h>
@@ -132,7 +133,7 @@ namespace json
 
             // serialization
             Scanner _scanner;
-            DeserializerBase _deserializer;
+            JsonDeserializer _deserializer;
 
             // current processing
             IRemoteProcedure* _proc;

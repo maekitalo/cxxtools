@@ -339,24 +339,24 @@ class BasicTextBuffer : public std::basic_streambuf<CharT>
             char_type* toNext            = toBegin;
 
             typename CodecType::result r = CodecType::noconv;
-            if(_codec)
+            if (_codec)
+            {
                 r = _codec->in(_state, fromBegin, fromEnd, fromNext, toBegin, toEnd, toNext);
-
-            if(r == CodecType::noconv)
+                std::streamsize consumed = fromNext - fromBegin;
+                if(consumed)
+                {
+                    std::char_traits<extern_type>::move( _ebuf, _ebuf + consumed, _ebufsize );
+                    _ebufsize -= consumed;
+                }
+            }
+            else
             {
                 // copy characters and advance fromNext and toNext
-                int n =_ebufsize > _ibufmax ? _ibufmax : _ebufsize ;
+                int n = _ebufsize > _ibufmax ? _ibufmax : _ebufsize;
                 this->copyBytes(toBegin, fromBegin, n);
                 _ebufsize -= n;
                 fromNext += n;
                 toNext += n;
-            }
-
-            std::streamsize consumed = fromNext - fromBegin;
-            if(consumed)
-            {
-                std::char_traits<extern_type>::move( _ebuf, _ebuf + consumed, _ebufsize );
-                _ebufsize -= consumed;
             }
 
             std::streamsize generated = toNext - toBegin;

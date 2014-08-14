@@ -29,7 +29,7 @@
 #include "scanner.h"
 #include <cxxtools/log.h>
 #include <cxxtools/remoteexception.h>
-#include <cxxtools/deserializerbase.h>
+#include <cxxtools/bin/deserializer.h>
 
 log_define("cxxtools.bin.scanner")
 
@@ -38,7 +38,7 @@ namespace cxxtools
 namespace bin
 {
 
-void Scanner::begin(DeserializerBase& handler, IComposer& composer)
+void Scanner::begin(Deserializer& handler, IComposer& composer)
 {
     _vp.begin(handler);
     _deserializer = &handler;
@@ -73,8 +73,8 @@ bool Scanner::advance(char ch)
         case state_value:
             if (_vp.advance(ch))
             {
-                _composer->fixup(*_deserializer->si());
-                _deserializer->si()->clear();
+                _composer->fixup(_deserializer->si());
+                _deserializer->clear();
                 _state = state_end;
             }
             break;

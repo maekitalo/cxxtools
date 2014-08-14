@@ -147,8 +147,7 @@ class PropertiesTest : public cxxtools::unit::TestSuite
         {
             std::istringstream data(
                 "ab = \\uz42\n");
-            cxxtools::PropertiesDeserializer deserializer(data);
-            CXXTOOLS_UNIT_ASSERT_THROW(deserializer.deserialize(), cxxtools::PropertiesParserError);
+            CXXTOOLS_UNIT_ASSERT_THROW(cxxtools::PropertiesDeserializer deserializer(data), cxxtools::PropertiesParserError);
         }
 
         void testScalar()
@@ -217,8 +216,7 @@ class PropertiesTest : public cxxtools::unit::TestSuite
                 "a.e.f.g=7\n");
 
             cxxtools::PropertiesDeserializer deserializer(data);
-            deserializer.deserialize();
-            const cxxtools::SerializationInfo& si = *deserializer.si();
+            const cxxtools::SerializationInfo& si = deserializer.si();
 
             int v = 0;
             CXXTOOLS_UNIT_ASSERT_NOTHROW(si.getMember("a").getMember("b.c.d") >>= v);
@@ -271,8 +269,7 @@ class PropertiesTest : public cxxtools::unit::TestSuite
                 "\\:\\::7\n");
 
             cxxtools::PropertiesDeserializer deserializer(data);
-            deserializer.deserialize();
-            const cxxtools::SerializationInfo& si = *deserializer.si();
+            const cxxtools::SerializationInfo& si = deserializer.si();
 
             int v = 0;
             CXXTOOLS_UNIT_ASSERT_NOTHROW(si.getMember("a-b*+=") >>= v);
@@ -291,8 +288,7 @@ class PropertiesTest : public cxxtools::unit::TestSuite
                 "                  kiwi, mango");
 
             cxxtools::PropertiesDeserializer deserializer(data);
-            deserializer.deserialize();
-            const cxxtools::SerializationInfo& si = *deserializer.si();
+            const cxxtools::SerializationInfo& si = deserializer.si();
 
             std::string v;
             CXXTOOLS_UNIT_ASSERT_NOTHROW(si.getMember("fruits") >>= v);
@@ -307,8 +303,7 @@ class PropertiesTest : public cxxtools::unit::TestSuite
                 "cantaloupe");
 
             cxxtools::PropertiesDeserializer deserializer(data);
-            deserializer.deserialize();
-            const cxxtools::SerializationInfo& si = *deserializer.si();
+            const cxxtools::SerializationInfo& si = deserializer.si();
 
             std::string v;
             CXXTOOLS_UNIT_ASSERT_NOTHROW(si.getMember("apple") >>= v);

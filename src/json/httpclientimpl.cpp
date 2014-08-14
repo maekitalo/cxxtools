@@ -107,7 +107,7 @@ void HttpClientImpl::call(IComposer& r, IRemoteProcedure& method, IDecomposer** 
     std::istream& is = _client.in();
     while (is.get(ch))
     {
-        if (_scanner.advance(ch))
+        if (_deserializer.advance(ch) != 0)
         {
             log_debug("scanner finished");
             _proc = 0;
@@ -179,7 +179,7 @@ std::size_t HttpClientImpl::onReplyBody(http::Client& client)
     while (is.rdbuf()->in_avail() && is.get(ch))
     {
         ++count;
-        if (_scanner.advance(ch))
+        if (_deserializer.advance(ch))
         {
             log_debug("scanner finished");
             try

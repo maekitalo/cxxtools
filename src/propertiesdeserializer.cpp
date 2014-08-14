@@ -31,23 +31,19 @@
 #include <cxxtools/propertiesparser.h>
 #include <cxxtools/log.h>
 
-log_define("cxxtools.propertiesdeserializer")
+log_define("cxxtools.properties.deserializer")
 
 namespace cxxtools
 {
     PropertiesDeserializer::PropertiesDeserializer(std::istream& in, TextCodec<Char, char>* codec)
-        : _ts(new TextIStream(in, codec ? codec : new Utf8Codec())),
-          _in(*_ts)
-    { }
-
-    PropertiesDeserializer::PropertiesDeserializer(TextIStream& in)
-        : _ts(0),
-          _in(in)
-    { }
-
-    PropertiesDeserializer::~PropertiesDeserializer()
     {
-        delete _ts;
+        TextIStream s(in, codec);
+        doDeserialize(s);
+    }
+
+    PropertiesDeserializer::PropertiesDeserializer(std::basic_istream<Char>& in)
+    {
+        doDeserialize(in);
     }
 
     class PropertiesDeserializer::Ev : public PropertiesParser::Event
@@ -112,18 +108,14 @@ namespace cxxtools
         return false;
     }
 
-    void PropertiesDeserializer::doDeserialize()
+    void PropertiesDeserializer::doDeserialize(std::basic_istream<Char>& in)
     {
+        begin();
         Ev ev(*this);
         PropertiesParser parser(ev);
-        Char ch;
-        while (_in.get(ch))
-            parser.parse(ch);
+        parser.parse(in);
 
-        if (_in.rdstate() & std::ios::badbit)
+        if (in.rdstate() & std::ios::badbit)
             SerializationError::doThrow("propertiesdeserialization failed");
-
-        parser.end();
-        log_debug(*current());
     }
 }

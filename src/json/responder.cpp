@@ -60,7 +60,6 @@ Responder::~Responder()
 void Responder::begin()
 {
     _deserializer.begin();
-    _parser.begin(_deserializer);
     _failed = false;
 }
 
@@ -90,7 +89,7 @@ void Responder::finalize(std::ostream& out)
 
         try
         {
-            _deserializer.si()->getMember("method") >>= methodName;
+            _deserializer.si().getMember("method") >>= methodName;
 
             log_debug("method = " << methodName);
             proc = _serviceRegistry.getProcedure(methodName);
@@ -101,7 +100,7 @@ void Responder::finalize(std::ostream& out)
             IComposer** args = proc->beginCall();
 
             // process args
-            const SerializationInfo* paramsPtr = _deserializer.si()->findMember("params");
+            const SerializationInfo* paramsPtr = _deserializer.si().findMember("params");
 
             // params may be ommited in request
             SerializationInfo emptyParams;
@@ -123,7 +122,7 @@ void Responder::finalize(std::ostream& out)
             if (it != params.end())
                 throw RemoteException("too many parameters", InvalidParams);
 
-            IDecomposer::formatEach(_deserializer.si()->getMember("id"), formatter);
+            IDecomposer::formatEach(_deserializer.si().getMember("id"), formatter);
 
             IDecomposer* result;
             result = proc->endCall();
@@ -174,7 +173,7 @@ bool Responder::advance(char ch)
 {
     try
     {
-        return _parser.advance(ch) != 0;
+        return _deserializer.advance(ch) != 0;
     }
     catch (const JsonParserError& e)
     {

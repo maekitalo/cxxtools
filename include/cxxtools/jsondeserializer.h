@@ -29,15 +29,14 @@
 #ifndef CXXTOOLS_JSONDESERIALIZER_H
 #define CXXTOOLS_JSONDESERIALIZER_H
 
-#include <cxxtools/jsonparser.h>
 #include <cxxtools/api.h>
 #include <cxxtools/deserializer.h>
+#include <cxxtools/jsonparser.h>
 #include <cxxtools/textstream.h>
 #include <cxxtools/utf8codec.h>
 
 namespace cxxtools
 {
-
     /**
      * This class converts json format to cxxtools::SerializationInfo.
      *
@@ -105,18 +104,25 @@ namespace cxxtools
     class CXXTOOLS_API JsonDeserializer : public Deserializer
     {
         public:
-            JsonDeserializer(std::istream& in, TextCodec<Char, char>* codec = new Utf8Codec());
+            explicit JsonDeserializer(std::istream& in, TextCodec<Char, char>* codec = new Utf8Codec());
 
-            JsonDeserializer(std::basic_istream<Char>& in);
+            explicit JsonDeserializer(std::basic_istream<Char>& in);
 
-            ~JsonDeserializer();
+            JsonDeserializer()
+            { }
 
-        protected:
-            virtual void doDeserialize();
+            void begin();
+
+            int advance(Char ch) // 1: end character detected; -1: end but char not consumed; 0: no end
+            { return _parser.advance(ch); }
+
+            void finish()
+            { return _parser.finish(); }
 
         private:
-            TextIStream* _ts;
-            std::basic_istream<Char>& _in;
+            void doDeserialize(std::basic_istream<Char>& in);
+
+            JsonParser _parser;
     };
 }
 

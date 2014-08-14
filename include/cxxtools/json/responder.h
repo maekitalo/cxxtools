@@ -32,7 +32,6 @@
 #include <cxxtools/json/scanner.h>
 #include <cxxtools/json/formatter.h>
 #include <cxxtools/http/responder.h>
-#include <cxxtools/deserializerbase.h>
 #include <cxxtools/textstream.h>
 
 namespace cxxtools
@@ -67,8 +66,7 @@ class Responder : public http::Responder
     private:
         ServiceRegistry& _serviceRegistry;
 
-        DeserializerBase _deserializer;
-        JsonParser _parser;
+        JsonDeserializer _deserializer;
 
         ServiceProcedure* _proc;
         IComposer** _args;

@@ -99,7 +99,7 @@ namespace cxxtools
     {
       CsvSerializer serializer(out);
 
-      if (object.delimiter() != Char(0))
+      if (object.delimiter() != CsvParser::autoDelimiter)
         serializer.delimiter(object.delimiter());
       if (object.quote() != Char(0))
         serializer.quote(object.quote());
@@ -123,12 +123,26 @@ namespace cxxtools
     class CsvIOObject : public CsvOObject<ObjectType>
     {
         ObjectType& _object;
+        bool _readTitle;
 
       public:
         explicit CsvIOObject(ObjectType& object)
           : CsvOObject<ObjectType>(object),
-            _object(object)
+            _object(object),
+            _readTitle(true)
         { }
+
+        CsvIOObject& delimiter(Char delimiter)
+        { CsvOObject<ObjectType>::delimiter(delimiter); return *this; }
+
+        CsvIOObject& readTitle(bool sw)
+        { _readTitle = sw; return *this; }
+
+        Char delimiter() const
+        { return CsvOObject<ObjectType>::delimiter(); }
+
+        bool readTitle() const
+        { return _readTitle; }
 
         ObjectType& object()
         { return _object; }
@@ -138,7 +152,13 @@ namespace cxxtools
     template <typename CharType, typename ObjectType>
     std::basic_istream<CharType>& operator>> (std::basic_istream<CharType>& in, CsvIOObject<ObjectType> object)
     {
-      CsvDeserializer deserializer(in);
+      CsvDeserializer deserializer;
+      if (object.delimiter() != CsvParser::autoDelimiter)
+        deserializer.delimiter(object.delimiter());
+      deserializer.readTitle(object.readTitle());
+
+      deserializer.read(in);
+
       deserializer.deserialize(object.object());
       return in;
     }

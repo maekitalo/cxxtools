@@ -29,9 +29,6 @@
 #ifndef CXXTOOLS_PROPERTIESDESERIALIZER_H
 #define CXXTOOLS_PROPERTIESDESERIALIZER_H
 
-#include <cxxtools/composer.h>
-#include <cxxtools/serializationinfo.h>
-#include <cxxtools/serializationerror.h>
 #include <cxxtools/deserializer.h>
 #include <cxxtools/textstream.h>
 
@@ -45,15 +42,12 @@ namespace cxxtools
     public:
         PropertiesDeserializer(std::istream& in, TextCodec<Char, char>* codec = 0);
 
-        PropertiesDeserializer(TextIStream& in);
+        PropertiesDeserializer(std::basic_istream<Char>& in);
 
-        ~PropertiesDeserializer();
+        PropertiesDeserializer();
 
     private:
-        void doDeserialize();
-
-        TextIStream* _ts;
-        TextIStream& _in;
+        void doDeserialize(std::basic_istream<Char>& in);
     };
 }
 

@@ -32,7 +32,7 @@
 #include <cxxtools/xml/characters.h>
 #include <cxxtools/serializationinfo.h>
 #include <cxxtools/serializationerror.h>
-#include <cxxtools/deserializerbase.h>
+#include <cxxtools/deserializer.h>
 #include <cxxtools/composer.h>
 
 namespace cxxtools
@@ -49,7 +49,7 @@ namespace
     }
 }
 
-void Scanner::begin(DeserializerBase& handler, IComposer& composer)
+void Scanner::begin(Deserializer& handler, IComposer& composer)
 {
     _state = OnParam;
     _deserializer = &handler;
@@ -145,15 +145,10 @@ bool Scanner::advance(const cxxtools::xml::Node& node)
                     _deserializer->leaveMember();
                     _state = OnDataEnd;
                 }
-                else if(ee.name() == L"param")
+                else if(ee.name() == L"param"
+                     || ee.name() == L"fault")
                 {
-                    _composer->fixup(*_deserializer->si());
-                    _state = OnValueEnd;
-                    return true;
-                }
-                else if(ee.name() == L"fault")
-                {
-                    _composer->fixup(*_deserializer->si());
+                    _composer->fixup(_deserializer->si());
                     _state = OnValueEnd;
                     return true;
                 }

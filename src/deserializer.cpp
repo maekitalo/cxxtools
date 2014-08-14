@@ -31,62 +31,20 @@
 
 namespace cxxtools
 {
-    void DeserializerBase::setCategory(SerializationInfo::Category category)
+    void Deserializer::begin()
     {
-        current()->setCategory(category);
+        clear();
+        _current.push(&_si);
     }
 
-    void DeserializerBase::setName(const std::string& name)
+    void Deserializer::clear()
     {
-        current()->setName(name);
+        while (!_current.empty())
+            _current.pop();
+        _si.clear();
     }
 
-    void DeserializerBase::setTypeName(const std::string& type)
-    {
-        current()->setTypeName(type);
-    }
-
-    void DeserializerBase::setValue(const String& value)
-    {
-        current()->setValue(value);
-    }
-
-    void DeserializerBase::setValue(const std::string& value)
-    {
-        current()->setValue(value);
-    }
-
-    void DeserializerBase::setValue(const char* value)
-    {
-        current()->setValue(value);
-    }
-
-    void DeserializerBase::setValue(bool value)
-    {
-        current()->setValue(value);
-    }
-
-    void DeserializerBase::setValue(int_type value)
-    {
-        current()->setValue(value);
-    }
-
-    void DeserializerBase::setValue(unsigned_type value)
-    {
-        current()->setValue(value);
-    }
-
-    void DeserializerBase::setValue(long double value)
-    {
-        current()->setValue(value);
-    }
-
-    void DeserializerBase::setNull()
-    {
-        current()->setNull();
-    }
-
-    void DeserializerBase::beginMember(const std::string& name, const std::string& type, SerializationInfo::Category category)
+    void Deserializer::beginMember(const std::string& name, const std::string& type, SerializationInfo::Category category)
     {
         SerializationInfo& child = current()->addMember(name);
         child.setTypeName(type);
@@ -94,7 +52,7 @@ namespace cxxtools
         _current.push(&child);
     }
 
-    void DeserializerBase::leaveMember()
+    void Deserializer::leaveMember()
     {
         SerializationInfo* p = _current.top();
         if( !p )

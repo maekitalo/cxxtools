@@ -27,7 +27,7 @@
  */
 
 #include <cxxtools/jsonparser.h>
-#include <cxxtools/deserializerbase.h>
+#include <cxxtools/jsondeserializer.h>
 #include <cxxtools/serializationerror.h>
 #include <cxxtools/utf8codec.h>
 #include <cxxtools/log.h>

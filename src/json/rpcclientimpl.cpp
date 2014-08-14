@@ -143,7 +143,7 @@ void RpcClientImpl::call(IComposer& r, IRemoteProcedure& method, IDecomposer** a
                 throw std::runtime_error("reading result failed");
             }
 
-            if (_scanner.advance(ch))
+            if (_deserializer.advance(ch))
             {
                 _proc = 0;
                 _scanner.finalizeReply();
@@ -291,7 +291,7 @@ void RpcClientImpl::onInput(StreamBuffer& sb)
         while (_stream.buffer().in_avail())
         {
             char ch = StreamBuffer::traits_type::to_char_type(_stream.buffer().sbumpc());
-            if (_scanner.advance(ch))
+            if (_deserializer.advance(ch))
             {
                 _scanner.finalizeReply();
                 IRemoteProcedure* proc = _proc;

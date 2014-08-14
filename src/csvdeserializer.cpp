@@ -32,36 +32,38 @@
 
 namespace cxxtools
 {
-    const Char CsvDeserializer::autoDelimiter = CsvParser::autoDelimiter;
+const Char CsvDeserializer::autoDelimiter = CsvParser::autoDelimiter;
 
-    CsvDeserializer::CsvDeserializer(std::istream& in, TextCodec<Char, char>* codec)
-        : _ts(new TextIStream(in, codec)),
-          _in(*_ts)
-    {
-    }
+void CsvDeserializer::read(std::istream& in, TextCodec<Char, char>* codec)
+{
+    TextIStream s(in, codec);
+    doDeserialize(s);
+}
 
-    CsvDeserializer::CsvDeserializer(std::basic_istream<Char>& in)
-        : _ts(0),
-          _in(in)
-    { }
+void CsvDeserializer::read(std::basic_istream<Char>& in)
+{
+    doDeserialize(in);
+}
 
-    CsvDeserializer::~CsvDeserializer()
-    {
-        delete _ts;
-    }
+void CsvDeserializer::begin()
+{
+    cxxtools::Deserializer::begin();
+    _parser.begin(*this);
+}
 
-    void CsvDeserializer::doDeserialize()
-    {
-        Char ch;
+void CsvDeserializer::doDeserialize(std::basic_istream<Char>& in)
+{
+    begin();
 
-        _parser.begin(*this);
-        while (_in.get(ch))
-            _parser.advance(ch);
+    Char ch;
 
-        if (_in.rdstate() & std::ios::badbit)
-            SerializationError::doThrow("csv deserialization failed");
+    while (in.get(ch))
+        advance(ch);
 
-        _parser.finish();
-    }
+    if (in.rdstate() & std::ios::badbit)
+        SerializationError::doThrow("csv deserialization failed");
+
+    finish();
+}
 
 }

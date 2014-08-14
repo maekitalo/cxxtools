@@ -113,7 +113,7 @@ class ClientImpl : public cxxtools::Connectable
         xml::XmlReader _reader;
         xml::XmlWriter _writer;
         Formatter _formatter;
-        DeserializerBase _deserializer;
+        Deserializer _deserializer;
         Scanner _scanner;
         IRemoteProcedure* _method;
         RemoteException _fault;

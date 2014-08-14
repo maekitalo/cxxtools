@@ -27,8 +27,8 @@
  */
 
 #include <cxxtools/bin/valueparser.h>
-#include <cxxtools/deserializer.h>
 #include <cxxtools/bin/serializer.h>
+#include <cxxtools/bin/deserializer.h>
 #include <cxxtools/serializationerror.h>
 #include <cxxtools/log.h>
 
@@ -113,15 +113,17 @@ namespace
     static const char bcdDigits[16] = "0123456789+-. e";
 }
 
-void ValueParser::begin(DeserializerBase& handler)
+void ValueParser::begin(Deserializer& handler)
 {
     log_debug(static_cast<void*>(this) << " begin");
+    _deserializer = &handler;
     _state = state_type;
     _nextstate = state_type;
-    _deserializer = &handler;
     _int = 0;
     _exp = 0;
     _token.clear();
+    delete _next;
+    _next = 0;
 }
 
 
@@ -464,12 +466,12 @@ bool ValueParser::advance(char ch)
                 {
                     if (_state == state_value_int)
                     {
-                        DeserializerBase::int_type value = DeserializerBase::int_type(_int);
+                        Deserializer::int_type value = Deserializer::int_type(_int);
                         _deserializer->setValue(value);
                     }
                     else
                     {
-                        DeserializerBase::unsigned_type value = DeserializerBase::unsigned_type(_int);
+                        Deserializer::unsigned_type value = Deserializer::unsigned_type(_int);
                         _deserializer->setValue(value);
                     }
                 }

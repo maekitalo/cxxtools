@@ -35,7 +35,7 @@
 
 namespace cxxtools
 {
-    class DeserializerBase;
+    class JsonDeserializer;
 
     class CXXTOOLS_API JsonParserError : public SerializationError
     {
@@ -97,7 +97,7 @@ namespace cxxtools
             JsonParser();
             ~JsonParser();
 
-            void begin(DeserializerBase& handler)
+            void begin(JsonDeserializer& handler)
             {
                 _state = state_0;
                 _token.clear();
@@ -134,7 +134,7 @@ namespace cxxtools
 
             String _token;
 
-            DeserializerBase* _deserializer;
+            JsonDeserializer* _deserializer;
             JsonStringParser _stringParser;
             JsonParser* _next;
             unsigned _lineNo;

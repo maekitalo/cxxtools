@@ -29,22 +29,30 @@
 #ifndef CXXTOOLS_DESERIALIZER_H
 #define CXXTOOLS_DESERIALIZER_H
 
-#include <cxxtools/deserializerbase.h>
 #include <cxxtools/serializationerror.h>
 #include <cxxtools/composer.h>
+#include <cxxtools/config.h>
+#include <stack>
 
 namespace cxxtools
 {
     /**
      * convert format to SerializationInfo
      */
-    class CXXTOOLS_API Deserializer : public DeserializerBase
+    class CXXTOOLS_API Deserializer
     {
-            // make non copyable
-            Deserializer(const Deserializer&)  { }
-            Deserializer& operator= (const Deserializer&) { return *this; }
-
         public:
+#ifdef HAVE_LONG_LONG
+            typedef long long int_type;
+#else
+            typedef long int_type;
+#endif
+#ifdef HAVE_UNSIGNED_LONG_LONG
+            typedef unsigned long long unsigned_type;
+#else
+            typedef unsigned long unsigned_type;
+#endif
+
             Deserializer()
             { }
 
@@ -60,42 +68,75 @@ namespace cxxtools
             void deserialize(T& type)
             {
                 if (current() == 0)
-                {
-                    begin();
-                    doDeserialize();
-                }
+                    throw SerializationError("no data was processed");
 
-                Composer<T> composer;
-                composer.begin(type);
-                composer.fixup(*si());
+                *current() >>= type;
             }
 
             template <typename T>
             void deserialize(T& type, const std::string& name)
             {
-                if (current() == 0)
-                {
-                    begin();
-                    doDeserialize();
-                }
+                SerializationInfo* p;
 
-                SerializationInfo* p = current()->findMember(name);
-                if( !p )
+                if (current() == 0 || (p = current()->findMember(name)) == 0)
                     throw SerializationMemberNotFound(name);
 
-                Composer<T> composer;
-                composer.begin(type);
-                composer.fixup(*p);
+                *p >>= type;
             }
 
-            void deserialize()
-            {
-                begin();
-                doDeserialize();
-            }
+            SerializationInfo& si()
+            { return _si; }
+
+            const SerializationInfo& si() const
+            { return _si; }
+
+            void begin();
+
+            void clear();
+
+            SerializationInfo* current()
+            { return _current.empty() ? 0 : _current.top(); }
+
+            void setCategory(SerializationInfo::Category category)
+            { current()->setCategory(category); }
+
+            void setName(const std::string& name)
+            { current()->setName(name); }
+
+            void setTypeName(const std::string& type)
+            { current()->setTypeName(type); }
+
+            void setValue(const String& value)
+            { current()->setValue(value); }
+
+            void setValue(const std::string& value)
+            { current()->setValue(value); }
+
+            void setValue(const char* value)
+            { current()->setValue(value); }
+
+            void setValue(bool value)
+            { current()->setValue(value); }
+
+            void setValue(int_type value)
+            { current()->setValue(value); }
+
+            void setValue(unsigned_type value)
+            { current()->setValue(value); }
+
+            void setValue(long double value)
+            { current()->setValue(value); }
+
+            void setNull()
+            { current()->setNull(); }
+
+            void beginMember(const std::string& name, const std::string& type, SerializationInfo::Category category);
+
+            void leaveMember();
 
         private:
-            virtual void doDeserialize() = 0;
+            SerializationInfo _si;
+            std::stack<SerializationInfo*> _current;
     };
 
 }

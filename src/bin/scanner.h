@@ -37,6 +37,8 @@ namespace cxxtools
 {
     namespace bin
     {
+        class Deserializer;
+
         class Scanner
         {
             public:
@@ -45,7 +47,7 @@ namespace cxxtools
                       _failed(false)
                 { }
 
-                void begin(DeserializerBase& handler, IComposer& composer);
+                void begin(Deserializer& handler, IComposer& composer);
 
                 bool advance(char ch);
 
@@ -62,7 +64,7 @@ namespace cxxtools
                 } _state;
 
                 ValueParser _vp;
-                DeserializerBase* _deserializer;
+                Deserializer* _deserializer;
                 IComposer* _composer;
 
                 unsigned short _count;

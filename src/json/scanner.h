@@ -35,7 +35,7 @@
 
 namespace cxxtools
 {
-    class DeserializerBase;
+    class JsonDeserializer;
     class IComposer;
 
     namespace json
@@ -46,16 +46,15 @@ namespace cxxtools
                 Scanner()
                 { }
 
-                void begin(DeserializerBase& handler, IComposer& composer);
+                void begin(JsonDeserializer& handler, IComposer& composer);
 
-                bool advance(char ch)
-                { return _parser.advance(ch) != 0; }
+                JsonDeserializer* deserializer()
+                { return _deserializer; }
 
                 void finalizeReply();
 
             private:
-                JsonParser _parser;
-                DeserializerBase* _deserializer;
+                JsonDeserializer* _deserializer;
                 IComposer* _composer;
         };
     }

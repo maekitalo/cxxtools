@@ -34,10 +34,10 @@
 namespace cxxtools
 {
 
-class DeserializerBase;
-
 namespace bin
 {
+
+class Deserializer;
 
 class ValueParser
 {
@@ -54,14 +54,11 @@ class ValueParser
             delete _next;
         }
 
-        void begin(DeserializerBase& handler);
+        void begin(Deserializer& handler);
 
         void beginSkip();
 
         bool advance(char ch); // returns true, if number is read completely
-
-        DeserializerBase* current()
-        { return _deserializer; }
 
     private:
 
@@ -103,7 +100,7 @@ class ValueParser
         uint64_t _int;
         int _exp;
         bool _isNeg;
-        DeserializerBase* _deserializer;
+        Deserializer* _deserializer;
         ValueParser* _next;
 };
 }

@@ -35,7 +35,7 @@
 
 namespace cxxtools
 {
-    class DeserializerBase;
+    class CsvDeserializer;
 
     class CXXTOOLS_API CsvParser
     {
@@ -62,7 +62,7 @@ namespace cxxtools
 
             static const Char autoDelimiter;
 
-            void begin(DeserializerBase& handler);
+            void begin(CsvDeserializer& handler);
             void advance(Char ch);
             void finish();
 
@@ -84,7 +84,7 @@ namespace cxxtools
                 state_qdata_end
             } _state;
 
-            DeserializerBase* _deserializer;
+            CsvDeserializer* _deserializer;
             Char _delimiter;
             bool _readTitle;
 

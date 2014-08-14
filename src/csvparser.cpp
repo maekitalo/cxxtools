@@ -27,7 +27,7 @@
  */
 
 #include <cxxtools/csvparser.h>
-#include <cxxtools/deserializerbase.h>
+#include <cxxtools/csvdeserializer.h>
 #include <cxxtools/serializationerror.h>
 #include <cxxtools/log.h>
 #include <stdexcept>
@@ -58,7 +58,7 @@ namespace
 }
 const Char CsvParser::autoDelimiter = L'\0';
 
-void CsvParser::begin(DeserializerBase& handler)
+void CsvParser::begin(CsvDeserializer& handler)
 {
     if (_delimiter == autoDelimiter && !_readTitle)
         throw std::logic_error("can't read csv data with auto delimiter but without title");
@@ -331,7 +331,6 @@ void CsvParser::advance(Char ch)
             break;
     }
 
-    //log_debug("ch=" << ch.narrow() << " _state=" << _state);
 }
 
 void CsvParser::finish()

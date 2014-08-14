@@ -183,8 +183,7 @@ bool Responder::advance(char ch)
                 else
                 {
                     _deserializer.begin();
-                    _valueParser.begin(_deserializer);
-                    _valueParser.advance(ch);
+                    _deserializer.advance(ch);
                     _state = state_param;
                 }
             }
@@ -195,20 +194,20 @@ bool Responder::advance(char ch)
                 return true;
             else
             {
-                _valueParser.beginSkip();
-                _valueParser.advance(ch);
+                _deserializer.parser().beginSkip();
+                _deserializer.advance(ch);
                 _state = state_param_skip;
             }
 
             break;
 
         case state_param:
-            if (_valueParser.advance(ch))
+            if (_deserializer.advance(ch))
             {
                 try
                 {
-                    (*_args)->fixup(*_deserializer.si());
-                    _deserializer.si()->clear();
+                    (*_args)->fixup(_deserializer.si());
+                    _deserializer.begin();
                     ++_args;
                     _state = state_params;
                 }
@@ -222,7 +221,7 @@ bool Responder::advance(char ch)
             break;
 
         case state_param_skip:
-            if (_valueParser.advance(ch))
+            if (_deserializer.advance(ch))
                 _state = state_params_skip;
 
             break;

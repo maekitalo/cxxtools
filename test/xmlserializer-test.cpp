@@ -31,6 +31,7 @@
 #include "cxxtools/serializationinfo.h"
 #include "cxxtools/xml/xmlserializer.h"
 #include "cxxtools/xml/xmldeserializer.h"
+#include "cxxtools/xml/xml.h"
 #include "cxxtools/log.h"
 #include "cxxtools/hdstream.h"
 #include <limits>
@@ -124,15 +125,12 @@ class XmlSerializerTest : public cxxtools::unit::TestSuite
         void testScalar()
         {
             std::stringstream data;
-            cxxtools::xml::XmlSerializer serializer(data);
-            cxxtools::xml::XmlDeserializer deserializer(data);
 
             int value = 5;
-            serializer.serialize(value, "value");
-            serializer.finish();
+            data << cxxtools::xml::Xml(value, "value");
 
             int value2 = 0;
-            deserializer.deserialize(value2);
+            data >> cxxtools::xml::Xml(value2);
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(value, value2);
         }
@@ -141,14 +139,11 @@ class XmlSerializerTest : public cxxtools::unit::TestSuite
         void testIntValue(IntT value)
         {
             std::stringstream data;
-            cxxtools::xml::XmlSerializer serializer(data);
-            cxxtools::xml::XmlDeserializer deserializer(data);
 
-            serializer.serialize(value, "value");
-            serializer.finish();
+            data << cxxtools::xml::Xml(value, "value");
 
             IntT result = 0;
-            deserializer.deserialize(result);
+            data >> cxxtools::xml::Xml(result);
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(value, result);
         }
@@ -191,14 +186,11 @@ class XmlSerializerTest : public cxxtools::unit::TestSuite
         void testDoubleValue(double value)
         {
             std::stringstream data;
-            cxxtools::xml::XmlSerializer serializer(data);
-            cxxtools::xml::XmlDeserializer deserializer(data);
 
-            serializer.serialize(value, "value");
-            serializer.finish();
+            data << cxxtools::xml::Xml(value, "value");
 
             double result = 0.0;
-            deserializer.deserialize(result);
+            data >> cxxtools::xml::Xml(result);
 
             log_debug("test double value " << value << " => " << result);
 
@@ -222,13 +214,11 @@ class XmlSerializerTest : public cxxtools::unit::TestSuite
             testDoubleValue(std::numeric_limits<double>::quiet_NaN());
 
             std::stringstream data;
-            cxxtools::xml::XmlSerializer serializer(data);
-            cxxtools::xml::XmlDeserializer deserializer(data);
 
-            serializer.serialize(std::numeric_limits<double>::quiet_NaN(), "value");
-            serializer.finish();
+            data << cxxtools::xml::Xml(std::numeric_limits<double>::quiet_NaN(), "value");
+
             double result = 0.0;
-            deserializer.deserialize(result);
+            data >> cxxtools::xml::Xml(result);
 
             CXXTOOLS_UNIT_ASSERT(result != result); 
 
@@ -237,8 +227,6 @@ class XmlSerializerTest : public cxxtools::unit::TestSuite
         void testArray()
         {
             std::stringstream data;
-            cxxtools::xml::XmlSerializer serializer(data);
-            cxxtools::xml::XmlDeserializer deserializer(data);
 
             std::vector<int> intvector;
             intvector.push_back(4711);
@@ -246,13 +234,12 @@ class XmlSerializerTest : public cxxtools::unit::TestSuite
             intvector.push_back(-3);
             intvector.push_back(-257);
 
-            serializer.serialize(intvector, "intvector");
-            serializer.finish();
+            data << cxxtools::xml::Xml(intvector, "intvector");
 
-            log_debug("intvector: " << cxxtools::hexDump(data.str()));
+            log_debug("intvector: " << data.str());
 
             std::vector<int> intvector2;
-            deserializer.deserialize(intvector2);
+            data >> cxxtools::xml::Xml(intvector2);
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(intvector.size(), intvector2.size());
             CXXTOOLS_UNIT_ASSERT_EQUALS(intvector[0], intvector2[0]);
@@ -264,19 +251,17 @@ class XmlSerializerTest : public cxxtools::unit::TestSuite
         void testObject()
         {
             std::stringstream data;
-            cxxtools::xml::XmlSerializer serializer(data);
-            cxxtools::xml::XmlDeserializer deserializer(data);
 
             TestObject obj;
             obj.intValue = 17;
             obj.stringValue = "foobar";
             obj.doubleValue = 3.125;
             obj.boolValue = true;
-            serializer.serialize(obj, "obj");
-            serializer.finish();
+
+            data << cxxtools::xml::Xml(obj, "obj");
 
             TestObject obj2;
-            deserializer.deserialize(obj2);
+            data >> cxxtools::xml::Xml(obj2);
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(obj.intValue, obj2.intValue);
             CXXTOOLS_UNIT_ASSERT_EQUALS(obj.stringValue, obj2.stringValue);
@@ -288,8 +273,6 @@ class XmlSerializerTest : public cxxtools::unit::TestSuite
         void testComplexObject()
         {
             std::stringstream data;
-            cxxtools::xml::XmlSerializer serializer(data);
-            cxxtools::xml::XmlDeserializer deserializer(data);
 
             std::vector<TestObject2> v;
             TestObject2 obj;
@@ -307,11 +290,10 @@ class XmlSerializerTest : public cxxtools::unit::TestSuite
             obj.setValue.insert(88);
             v.push_back(obj);
 
-            serializer.serialize(v, "v");
-            serializer.finish();
+            data << cxxtools::xml::Xml(v, "v");
 
             std::vector<TestObject2> v2;
-            deserializer.deserialize(v2);
+            data >> cxxtools::xml::Xml(v2);
 
             CXXTOOLS_UNIT_ASSERT(v == v2);
         }
@@ -319,8 +301,6 @@ class XmlSerializerTest : public cxxtools::unit::TestSuite
         void testObjectVector()
         {
             std::stringstream data;
-            cxxtools::xml::XmlSerializer serializer(data);
-            cxxtools::xml::XmlDeserializer deserializer(data);
 
             std::vector<TestObject> obj;
             obj.resize(2);
@@ -333,11 +313,10 @@ class XmlSerializerTest : public cxxtools::unit::TestSuite
             obj[1].doubleValue = -17.25;
             obj[1].boolValue = false;
 
-            serializer.serialize(obj, "v");
-            serializer.finish();
+            data << cxxtools::xml::Xml(obj, "v");
 
             std::vector<TestObject> obj2;
-            deserializer.deserialize(obj2);
+            data >> cxxtools::xml::Xml(obj2);
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(obj2.size(), 2);
             CXXTOOLS_UNIT_ASSERT_EQUALS(obj[0].intValue, obj2[0].intValue);
@@ -354,33 +333,28 @@ class XmlSerializerTest : public cxxtools::unit::TestSuite
         void testBinaryData()
         {
             std::stringstream data;
-            cxxtools::xml::XmlSerializer serializer(data);
-            cxxtools::xml::XmlDeserializer deserializer(data);
 
             std::string v;
             for (unsigned n = 0; n < 1024; ++n)
                 v.push_back(static_cast<char>(n));
 
-            serializer.serialize(v, "v");
-            serializer.finish();
+            data << cxxtools::xml::Xml(v, "v");
 
             log_debug("v.data=" << cxxtools::hexDump(data.str()));
 
             std::string v2;
-            deserializer.deserialize(v2);
+            data >> cxxtools::xml::Xml(v2);
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(v2.size(), 1024);
             CXXTOOLS_UNIT_ASSERT(v == v2);
 
             data.str(std::string());
-            deserializer.clear();
 
             for (unsigned n = 0; n < 0xffff; ++n)
                 v.push_back(static_cast<char>(n));
 
-            serializer.serialize(v, "v");
-            serializer.finish();
-            deserializer.deserialize(v2);
+            data << cxxtools::xml::Xml(v, "v");
+            data >> cxxtools::xml::Xml(v2);
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(v2.size(), 0xffff + 1024);
             CXXTOOLS_UNIT_ASSERT(v == v2);

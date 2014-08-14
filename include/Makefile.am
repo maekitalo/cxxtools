@@ -40,7 +40,6 @@ nobase_include_HEADERS = \
         cxxtools/delegate.h \
         cxxtools/delegate.tpp \
         cxxtools/deserializer.h \
-        cxxtools/deserializerbase.h \
         cxxtools/dir.h \
         cxxtools/directory.h \
         cxxtools/dlloader.h \

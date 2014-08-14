@@ -35,7 +35,7 @@
 #include <cxxtools/iostream.h>
 #include <cxxtools/string.h>
 #include <cxxtools/connectable.h>
-#include <cxxtools/deserializerbase.h>
+#include <cxxtools/bin/deserializer.h>
 #include <cxxtools/refcounted.h>
 #include <cxxtools/timespan.h>
 #include <string>
@@ -110,7 +110,7 @@ class RpcClientImpl : public RefCounted, public Connectable
 
         // serialization
         Scanner _scanner;
-        DeserializerBase _deserializer;
+        Deserializer _deserializer;
         Formatter _formatter;
 
         bool _exceptionPending;

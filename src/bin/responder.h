@@ -29,9 +29,7 @@
 #ifndef CXXTOOLS_BIN_RESPONDER_H
 #define CXXTOOLS_BIN_RESPONDER_H
 
-#include <cxxtools/bin/valueparser.h>
-#include <cxxtools/deserializer.h>
-#include <cxxtools/decomposer.h>
+#include <cxxtools/bin/deserializer.h>
 #include <cxxtools/iostream.h>
 #include <cxxtools/bin/formatter.h>
 #include <cxxtools/serviceregistry.h>
@@ -40,6 +38,8 @@ namespace cxxtools
 {
 
 class ServiceProcedure;
+class IComposer;
+class IDecomposer;
 
 namespace bin
 {
@@ -84,8 +84,7 @@ class Responder
         State _state;
         std::string _domain;
         std::string _methodName;
-        ValueParser _valueParser;
-        DeserializerBase _deserializer;
+        Deserializer _deserializer;
 
         ServiceProcedure* _proc;
         IComposer** _args;

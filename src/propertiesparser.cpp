@@ -54,15 +54,15 @@ namespace cxxtools
     parse(ts);
   }
 
-  void PropertiesParser::parse(TextIStream& in)
+  void PropertiesParser::parse(std::basic_istream<Char>& in)
   {
     Char ch;
-    while (in.get(ch) && !parse(ch))
+    while (in.get(ch) && !advance(ch))
       ;
     end();
   }
 
-  bool PropertiesParser::parse(Char ch)
+  bool PropertiesParser::advance(Char ch)
   {
     bool ret = false;
 
@@ -274,7 +274,7 @@ namespace cxxtools
             key += Char(unicode);
           }
 
-          return parse(ch);
+          return advance(ch);
         }
 
         if (unicodeCount >= 8)
@@ -300,6 +300,7 @@ namespace cxxtools
           state = state_0;
         break;
     }
+
     return ret;
   }
 

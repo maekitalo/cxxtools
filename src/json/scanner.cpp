@@ -30,6 +30,7 @@
 #include <cxxtools/log.h>
 #include <cxxtools/remoteexception.h>
 #include <cxxtools/deserializer.h>
+#include <cxxtools/jsondeserializer.h>
 #include <cxxtools/composer.h>
 
 log_define("cxxtools.json.scanner")
@@ -40,17 +41,16 @@ namespace cxxtools
 namespace json
 {
 
-void Scanner::begin(DeserializerBase& handler, IComposer& composer)
+void Scanner::begin(JsonDeserializer& handler, IComposer& composer)
 {
     _deserializer = &handler;
     _deserializer->begin();
     _composer = &composer;
-    _parser.begin(*_deserializer);
 }
 
 void Scanner::finalizeReply()
 {
-    const SerializationInfo* s = _deserializer->si()->findMember("error");
+    const SerializationInfo* s = _deserializer->si().findMember("error");
 
     if (s && !s->isNull())
     {
@@ -75,7 +75,7 @@ void Scanner::finalizeReply()
     }
 
     _composer->fixup(
-        _deserializer->si()->getMember("result"));
+        _deserializer->si().getMember("result"));
 }
 
 }

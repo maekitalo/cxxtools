@@ -39,6 +39,7 @@ namespace xml {
 XmlDeserializer::XmlDeserializer(cxxtools::xml::XmlReader& reader)
 : _reader(&reader)
 {
+    doDeserialize();
 }
 
 
@@ -47,11 +48,14 @@ XmlDeserializer::XmlDeserializer(std::istream& is)
 , _deleter( new cxxtools::xml::XmlReader(is) )
 {
     _reader = _deleter.get();
+    doDeserialize();
 }
 
 
 void XmlDeserializer::doDeserialize()
 {
+    begin();
+
     if(_reader->get().type() != cxxtools::xml::Node::StartElement)
         _reader->nextElement();
 

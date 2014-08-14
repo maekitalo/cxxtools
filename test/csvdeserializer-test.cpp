@@ -30,6 +30,7 @@
 #include "cxxtools/unit/registertest.h"
 #include "cxxtools/csvdeserializer.h"
 #include "cxxtools/csv.h"
+#include "cxxtools/csv.h"
 #include "cxxtools/log.h"
 
 //log_define("cxxtools.test.csvdeserializer")
@@ -70,7 +71,6 @@ class CsvDeserializerTest : public cxxtools::unit::TestSuite
             registerMethod("testSetDelimiter", *this, &CsvDeserializerTest::testSetDelimiter);
             registerMethod("testQuotedTitle", *this, &CsvDeserializerTest::testQuotedTitle);
             registerMethod("testFailDecoding", *this, &CsvDeserializerTest::testFailDecoding);
-            registerMethod("testIStream", *this, &CsvDeserializerTest::testIStream);
             registerMethod("testLinefeed", *this, &CsvDeserializerTest::testLinefeed);
         }
 
@@ -83,8 +83,7 @@ class CsvDeserializerTest : public cxxtools::unit::TestSuite
                 "34|67|\"23\"\n"
                 "col1|'col2'|col3\n");
 
-            cxxtools::CsvDeserializer deserializer(in);
-            deserializer.deserialize(data);
+            in >> cxxtools::Csv(data);
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 3);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[0].size(), 3);
@@ -108,10 +107,7 @@ class CsvDeserializerTest : public cxxtools::unit::TestSuite
                 "34|67|\"23\"\n"
                 "col1|'col2'|col3\n");
 
-            cxxtools::CsvDeserializer deserializer(in);
-            deserializer.readTitle(false);
-            deserializer.delimiter('|');
-            deserializer.deserialize(data);
+            in >> cxxtools::Csv(data).readTitle(false).delimiter('|');
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 3);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[0].size(), 3);
@@ -135,7 +131,8 @@ class CsvDeserializerTest : public cxxtools::unit::TestSuite
                 "12|'23'|0\n"
                 "34|67|\"23\"");
 
-            cxxtools::CsvDeserializer deserializer(in);
+            cxxtools::CsvDeserializer deserializer;
+            deserializer.read(in);
             deserializer.deserialize(data);
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 2);
@@ -157,7 +154,8 @@ class CsvDeserializerTest : public cxxtools::unit::TestSuite
                 "17\t'Hi'\t2.5\n"
                 "-6\tFoo\t-1000");
 
-            cxxtools::CsvDeserializer deserializer(in);
+            cxxtools::CsvDeserializer deserializer;
+            deserializer.read(in);
             deserializer.deserialize(data);
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 2);
@@ -171,28 +169,26 @@ class CsvDeserializerTest : public cxxtools::unit::TestSuite
 
         void testMissingColumn()
         {
-            std::vector<std::vector<std::string> > data;
             std::istringstream in(
                 "A|B|C\n"
                 "Hello|World\n"
                 "34|67|\"23\"|someValue\n"
                 "col1|'col2'|col3\n");
 
-            cxxtools::CsvDeserializer deserializer(in);
-            CXXTOOLS_UNIT_ASSERT_THROW(deserializer.deserialize(data), std::exception);
+            cxxtools::CsvDeserializer deserializer;
+            CXXTOOLS_UNIT_ASSERT_THROW(deserializer.read(in), std::exception);
         }
 
         void testTooManyColumns()
         {
-            std::vector<std::vector<std::string> > data;
             std::istringstream in(
                 "A|B|C\n"
                 "Hello|World|blah\n"
                 "34|67|\"23\"|someValue\n"
                 "col1|'col2'|col3|col4");
 
-            cxxtools::CsvDeserializer deserializer(in);
-            CXXTOOLS_UNIT_ASSERT_THROW(deserializer.deserialize(data), std::exception);
+            cxxtools::CsvDeserializer deserializer;
+            CXXTOOLS_UNIT_ASSERT_THROW(deserializer.read(in), std::exception);
         }
 
         void testCr()
@@ -204,7 +200,8 @@ class CsvDeserializerTest : public cxxtools::unit::TestSuite
                 "34|67|\"23\"\n"
                 "col1|'col2'|col3\r\n");
 
-            cxxtools::CsvDeserializer deserializer(in);
+            cxxtools::CsvDeserializer deserializer;
+            deserializer.read(in);
             deserializer.deserialize(data);
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 3);
@@ -229,7 +226,8 @@ class CsvDeserializerTest : public cxxtools::unit::TestSuite
                 ";;\n"
                 ";;\n");
 
-            cxxtools::CsvDeserializer deserializer(in);
+            cxxtools::CsvDeserializer deserializer;
+            deserializer.read(in);
             deserializer.deserialize(data);
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 2);
@@ -252,7 +250,8 @@ class CsvDeserializerTest : public cxxtools::unit::TestSuite
                 "2\n"
                 "\n");
 
-            cxxtools::CsvDeserializer deserializer(in);
+            cxxtools::CsvDeserializer deserializer;
+            deserializer.read(in);
             deserializer.deserialize(data);
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 3);
@@ -269,8 +268,9 @@ class CsvDeserializerTest : public cxxtools::unit::TestSuite
                 "12|'23'|0\n"
                 "34|67|\"23\"");
 
-            cxxtools::CsvDeserializer deserializer(in);
+            cxxtools::CsvDeserializer deserializer;
             deserializer.delimiter('|');
+            deserializer.read(in);
             deserializer.deserialize(data);
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 2);
@@ -292,7 +292,8 @@ class CsvDeserializerTest : public cxxtools::unit::TestSuite
                 "17,'Hi',2.5\n"
                 "-6,Foo,-1000");
 
-            cxxtools::CsvDeserializer deserializer(in);
+            cxxtools::CsvDeserializer deserializer;
+            deserializer.read(in);
             deserializer.deserialize(data);
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 2);
@@ -306,27 +307,11 @@ class CsvDeserializerTest : public cxxtools::unit::TestSuite
 
         void testFailDecoding()
         {
-            std::vector<std::vector<std::string> > data;
             std::istringstream in(
                 "A\xff|B|C\n");
 
-            cxxtools::CsvDeserializer deserializer(in);
-            CXXTOOLS_UNIT_ASSERT_THROW(deserializer.deserialize(data), std::exception);
-        }
-
-        void testIStream()
-        {
-            std::istringstream in(
-                "A|B\n"
-                "Hello|World\n");
-
-            std::vector<std::vector<std::string> > data;
-            in >> cxxtools::Csv(data);
-
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 1);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0].size(), 2);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0][0], "Hello");
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0][1], "World");
+            cxxtools::CsvDeserializer deserializer;
+            CXXTOOLS_UNIT_ASSERT_THROW(deserializer.read(in), std::exception);
         }
 
         void testLinefeed()
@@ -336,9 +321,10 @@ class CsvDeserializerTest : public cxxtools::unit::TestSuite
                 "Hello,World\n"
                 "\"foo\nbar\",blub\n");
 
-            cxxtools::CsvDeserializer deserializer(in);
+            cxxtools::CsvDeserializer deserializer;
             deserializer.readTitle(false);
             deserializer.delimiter(',');
+            deserializer.read(in);
             deserializer.deserialize(data);
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 2);

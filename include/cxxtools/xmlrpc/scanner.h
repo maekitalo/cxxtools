@@ -34,7 +34,7 @@
 namespace cxxtools
 {
 
-class DeserializerBase;
+class Deserializer;
 class IComposer;
 
 namespace xml
@@ -84,13 +84,13 @@ class CXXTOOLS_XMLRPC_API Scanner
         ~Scanner()
         {}
 
-        void begin(DeserializerBase& handler, IComposer& composer);
+        void begin(Deserializer& handler, IComposer& composer);
 
         bool advance(const xml::Node& node);
 
     private:
         State _state;
-        DeserializerBase* _deserializer;
+        Deserializer* _deserializer;
         IComposer* _composer;
         String _value;
         String _type;
