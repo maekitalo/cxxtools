@@ -200,7 +200,7 @@ char* MessageHeader::htdateCurrent(char* buffer)
     static const char* wday[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
     static const char* monthn[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun",
                                    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
-    sprintf(buffer, "%s, %02d %s %d %02d:%02d:%02d GMT",
+    sprintf(buffer, "%s, %02u %s %d %02u:%02u:%02u GMT",
                     wday[dayOfWeek], day, monthn[month-1], year, hour, min, sec);
 
     return buffer;

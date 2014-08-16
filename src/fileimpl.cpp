@@ -206,7 +206,7 @@ void FileImpl::copy(const std::string& path, const std::string& to)
 
         while (true)
         {
-            size_t n = ::read(srcFd, buffer, sizeof(buffer));
+            ssize_t n = ::read(srcFd, buffer, sizeof(buffer));
             if (n < 0)
             {
                 if (errno == EINTR)
@@ -218,7 +218,7 @@ void FileImpl::copy(const std::string& path, const std::string& to)
             const char* p = buffer;
             do
             {
-                size_t nn = ::write(dstFd, p, n);
+                ssize_t nn = ::write(dstFd, p, n);
                 if (nn < 0)
                 {
                     if (errno == EINTR)
