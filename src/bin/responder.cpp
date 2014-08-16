@@ -28,7 +28,7 @@
 
 #include "responder.h"
 #include "rpcserverimpl.h"
-#include <cxxtools/bin/valueparser.h>
+#include <cxxtools/bin/parser.h>
 #include <cxxtools/serviceprocedure.h>
 #include <cxxtools/remoteexception.h>
 #include <cxxtools/log.h>

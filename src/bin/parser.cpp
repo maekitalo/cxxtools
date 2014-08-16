@@ -26,7 +26,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <cxxtools/bin/valueparser.h>
+#include <cxxtools/bin/parser.h>
 #include <cxxtools/bin/serializer.h>
 #include <cxxtools/bin/deserializer.h>
 #include <cxxtools/serializationerror.h>
@@ -34,7 +34,7 @@
 
 #include <math.h>
 
-log_define("cxxtools.bin.valueparser")
+log_define("cxxtools.bin.parser")
 
 namespace cxxtools
 {
@@ -113,7 +113,7 @@ namespace
     static const char bcdDigits[16] = "0123456789+-. e";
 }
 
-void ValueParser::begin(Deserializer& handler)
+void Parser::begin(Deserializer& handler)
 {
     log_debug(static_cast<void*>(this) << " begin");
     _deserializer = &handler;
@@ -127,7 +127,7 @@ void ValueParser::begin(Deserializer& handler)
 }
 
 
-void ValueParser::beginSkip()
+void Parser::beginSkip()
 {
     _state = state_type;
     _deserializer = 0;
@@ -137,7 +137,7 @@ void ValueParser::beginSkip()
 }
 
 
-bool ValueParser::advance(char ch)
+bool Parser::advance(char ch)
 {
     //log_debug(static_cast<void*>(this) << " advance " << std::hex << static_cast<unsigned>(static_cast<unsigned char>(ch)) << std::dec << " state " << _state << " nextstate " << _nextstate);
     switch (_state)
@@ -652,7 +652,7 @@ bool ValueParser::advance(char ch)
                 SerializationError::doThrow("member expected");
 
             if (_next == 0)
-                _next = new ValueParser();
+                _next = new Parser();
 
             if (_deserializer)
             {
@@ -702,7 +702,7 @@ bool ValueParser::advance(char ch)
                 return true;
 
             if (_next == 0)
-                _next = new ValueParser();
+                _next = new Parser();
 
             if (_deserializer)
             {
@@ -759,7 +759,7 @@ bool ValueParser::advance(char ch)
     return false;
 }
 
-bool ValueParser::processFloatBase(char ch, unsigned shift, unsigned expOffset)
+bool Parser::processFloatBase(char ch, unsigned shift, unsigned expOffset)
 {
     _int = (_int << 8) | static_cast<unsigned char>(ch);
     if (--_count == 0)

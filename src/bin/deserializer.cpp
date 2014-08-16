@@ -27,7 +27,7 @@
  */
 
 #include <cxxtools/bin/deserializer.h>
-#include <cxxtools/bin/valueparser.h>
+#include <cxxtools/bin/parser.h>
 #include <cxxtools/serializationerror.h>
 
 namespace cxxtools
@@ -49,11 +49,10 @@ void Deserializer::begin()
 void Deserializer::doDeserialize(std::istream& in)
 {
     begin();
-    ValueParser vp;
-    vp.begin(*this);
+    _parser.begin(*this);
 
     char ch;
-    while (in.get(ch) && !vp.advance(ch))
+    while (in.get(ch) && !_parser.advance(ch))
         ;
 
     if (in.rdstate() & std::ios::badbit)

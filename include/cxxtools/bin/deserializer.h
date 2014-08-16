@@ -31,7 +31,7 @@
 
 #include <cxxtools/deserializer.h>
 #include <cxxtools/bin/serializer.h>
-#include <cxxtools/bin/valueparser.h>
+#include <cxxtools/bin/parser.h>
 
 namespace cxxtools
 {
@@ -52,12 +52,12 @@ namespace bin
             int advance(char ch)
             { return _parser.advance(ch); }
 
-            ValueParser& parser()
+            Parser& parser()
             { return _parser; }
 
         private:
             void doDeserialize(std::istream& in);
-            ValueParser _parser;
+            Parser _parser;
     };
 }
 }

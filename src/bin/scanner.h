@@ -30,7 +30,7 @@
 #define CXXTOOLS_BIN_SCANNER_H
 
 #include <cxxtools/composer.h>
-#include <cxxtools/bin/valueparser.h>
+#include <cxxtools/bin/parser.h>
 #include <string>
 
 namespace cxxtools
@@ -63,7 +63,7 @@ namespace cxxtools
                     state_end
                 } _state;
 
-                ValueParser _vp;
+                Parser _vp;
                 Deserializer* _deserializer;
                 IComposer* _composer;
 

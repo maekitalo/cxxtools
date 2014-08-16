@@ -26,8 +26,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef CXXTOOLS_BIN_VALUEPARSER_H
-#define CXXTOOLS_BIN_VALUEPARSER_H
+#ifndef CXXTOOLS_BIN_PARSER_H
+#define CXXTOOLS_BIN_PARSER_H
 
 #include <cxxtools/serializationinfo.h>
 
@@ -39,17 +39,17 @@ namespace bin
 
 class Deserializer;
 
-class ValueParser
+class Parser
 {
-        ValueParser(const ValueParser&) { }
-        ValueParser& operator= (const ValueParser&) { return *this; }
+        Parser(const Parser&) { }
+        Parser& operator= (const Parser&) { return *this; }
 
     public:
-        ValueParser()
+        Parser()
             : _next(0)
         { }
 
-        ~ValueParser() 
+        ~Parser() 
         {
             delete _next;
         }
@@ -101,10 +101,10 @@ class ValueParser
         int _exp;
         bool _isNeg;
         Deserializer* _deserializer;
-        ValueParser* _next;
+        Parser* _next;
 };
 }
 }
 
-#endif // CXXTOOLS_BIN_VALUEPARSER_H
+#endif // CXXTOOLS_BIN_PARSER_H
 

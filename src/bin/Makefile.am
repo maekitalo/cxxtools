@@ -20,7 +20,7 @@ libcxxtools_bin_la_SOURCES = \
 	rpcserver.cpp \
 	rpcserverimpl.cpp \
 	scanner.cpp \
-	valueparser.cpp \
+	parser.cpp \
 	worker.cpp
 
 libcxxtools_bin_la_LIBADD = $(top_builddir)/src/libcxxtools.la
