@@ -194,7 +194,7 @@ bool Responder::advance(char ch)
                 return true;
             else
             {
-                _deserializer.parser().beginSkip();
+                _deserializer.skip();
                 _deserializer.advance(ch);
                 _state = state_param_skip;
             }

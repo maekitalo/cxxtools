@@ -42,18 +42,28 @@ namespace bin
         public:
             typedef bin::Serializer::TypeCode TypeCode;
 
-            explicit Deserializer(std::istream& in);
-
+            /// Default construct binary deserializer.
             Deserializer()
             { }
 
+            /// Creates a binary deserializer and processes all input from passed stream.
+            explicit Deserializer(std::istream& in)
+            { read(in); }
+
+            /// Processes all input from passed stream.
+            void read(std::istream& in);
+
+            /// Initialize the binary deserializer to receive data.
             void begin();
 
-            int advance(char ch)
+            /// Process one more character.
+            /// Returns  true, if the characters indicates the end of data.
+            bool advance(char ch)
             { return _parser.advance(ch); }
 
-            Parser& parser()
-            { return _parser; }
+            /// Rest of input is parsed but do not process any data.
+            void skip()
+            { _parser.skip(); }
 
         private:
             void doDeserialize(std::istream& in);

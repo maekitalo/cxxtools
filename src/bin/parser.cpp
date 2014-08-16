@@ -127,7 +127,7 @@ void Parser::begin(Deserializer& handler)
 }
 
 
-void Parser::beginSkip()
+void Parser::skip()
 {
     _state = state_type;
     _deserializer = 0;
@@ -660,7 +660,7 @@ bool Parser::advance(char ch)
                 _next->begin(*_deserializer);
             }
             else
-                _next->beginSkip();
+                _next->skip();
 
             _state = state_object_member_value;
             break;
@@ -711,7 +711,7 @@ bool Parser::advance(char ch)
             }
             else
             {
-                _next->beginSkip();
+                _next->skip();
             }
 
             _next->advance(ch);
@@ -741,7 +741,7 @@ bool Parser::advance(char ch)
                 }
                 else
                 {
-                    _next->beginSkip();
+                    _next->skip();
                 }
 
                 _next->advance(ch);
