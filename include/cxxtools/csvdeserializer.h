@@ -58,13 +58,6 @@ namespace cxxtools
 
             static const Char autoDelimiter;
 
-            template <typename T>
-            static void toObject(std::istream& in, T& type)
-            {
-                CsvDeserializer d(in);
-                d.deserialize(type);
-            }
-
             void begin();
 
             void advance(char ch)
@@ -75,6 +68,14 @@ namespace cxxtools
 
             void read(std::istream& in, TextCodec<Char, char>* codec = new Utf8Codec());
             void read(std::basic_istream<Char>& in);
+
+            template <typename T>
+            static void toObject(std::istream& in, T& type)
+            {
+                CsvDeserializer d;
+                d.read(in);
+                d.deserialize(type);
+            }
 
         private:
             void doDeserialize(std::basic_istream<Char>& in);
