@@ -102,7 +102,6 @@ void benchSerialization(const T& d, const char* fname = 0)
 {
     std::stringstream data;
     Serializer serializer(data);
-    Deserializer deserializer(data);
 
     cxxtools::Clock clock;
     clock.start();
@@ -117,6 +116,7 @@ void benchSerialization(const T& d, const char* fname = 0)
 
     T v2;
     clock.start();
+    Deserializer deserializer(data);
     deserializer.deserialize(v2);
     cxxtools::Timespan td = clock.stop();
 
