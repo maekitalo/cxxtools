@@ -31,6 +31,7 @@
 
 #include <cxxtools/formatter.h>
 #include <cxxtools/textstream.h>
+#include <vector>
 
 namespace cxxtools
 {
@@ -80,8 +81,14 @@ namespace cxxtools
                 virtual void finishObject();
 
             private:
+                void printUInt(uint64_t v, const std::string& name);
+                void printInt(int64_t v, const std::string& name);
+                void printTypeCode(const std::string& type, bool plain);
+                void outputString(const std::string& value);
+
                 std::ostream* _out;
                 TextOStream _ts;
+                std::vector<std::string> _dictionary;
         };
 
     }

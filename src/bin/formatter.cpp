@@ -44,130 +44,6 @@ namespace bin
 
 namespace
 {
-    void printTypeCode(std::ostream& out, const std::string& type, bool plain)
-    {
-        if (type.empty())
-            out << static_cast<char>(plain ? Serializer::TypePlainEmpty : Serializer::TypeEmpty);
-        else if (type == "bool")
-            out << static_cast<char>(plain ? Serializer::TypePlainBool : Serializer::TypeBool);
-        else if (type == "char")
-            out << static_cast<char>(plain ? Serializer::TypePlainChar : Serializer::TypeChar);
-        else if (type == "string")
-            out << static_cast<char>(plain ? Serializer::TypePlainString : Serializer::TypeString);
-        else if (type == "int")
-            out << static_cast<char>(plain ? Serializer::TypePlainInt : Serializer::TypeInt);
-        else if (type == "double")
-            out << static_cast<char>(plain ? Serializer::TypePlainBcdFloat : Serializer::TypeBcdFloat);
-        else if (type == "pair")
-            out << static_cast<char>(plain ? Serializer::TypePlainPair : Serializer::TypePair);
-        else if (type == "array")
-            out << static_cast<char>(plain ? Serializer::TypePlainArray : Serializer::TypeArray);
-        else if (type == "list")
-            out << static_cast<char>(plain ? Serializer::TypePlainList : Serializer::TypeList);
-        else if (type == "deque")
-            out << static_cast<char>(plain ? Serializer::TypePlainDeque : Serializer::TypeDeque);
-        else if (type == "set")
-            out << static_cast<char>(plain ? Serializer::TypePlainSet : Serializer::TypeSet);
-        else if (type == "multiset")
-            out << static_cast<char>(plain ? Serializer::TypePlainMultiset : Serializer::TypeMultiset);
-        else if (type == "map")
-            out << static_cast<char>(plain ? Serializer::TypePlainMap : Serializer::TypeMap);
-        else if (type == "multimap")
-            out << static_cast<char>(plain ? Serializer::TypePlainMultimap : Serializer::TypeMultimap);
-        else
-            out << static_cast<char>(plain ? Serializer::TypePlainOther : Serializer::TypeOther) << type << '\0';
-    }
-
-    void printUInt(std::ostream& out, uint64_t v, const std::string& name)
-    {
-        if (v <= std::numeric_limits<uint8_t>::max())
-        {
-            out << static_cast<char>(name.empty() ? Serializer::TypePlainUInt8 : Serializer::TypeUInt8);
-            if (!name.empty())
-                out << name << '\0';
-            out << static_cast<char>(v);
-        }
-        else if (v <= std::numeric_limits<uint16_t>::max())
-        {
-            out << static_cast<char>(name.empty() ? Serializer::TypePlainUInt16 : Serializer::TypeUInt16);
-            if (!name.empty())
-                out << name << '\0';
-            out << static_cast<char>(v >> 8)
-                << static_cast<char>(v);
-        }
-        else if (v <= std::numeric_limits<uint32_t>::max())
-        {
-            out << static_cast<char>(name.empty() ? Serializer::TypePlainUInt32 : Serializer::TypeUInt32);
-            if (!name.empty())
-                out << name << '\0';
-            out << static_cast<char>(v >> 24)
-                << static_cast<char>(v >> 16)
-                << static_cast<char>(v >> 8)
-                << static_cast<char>(v);
-        }
-        else
-        {
-            out << static_cast<char>(name.empty() ? Serializer::TypePlainUInt64 : Serializer::TypeUInt64);
-            if (!name.empty())
-                out << name << '\0';
-            out << static_cast<char>(v >> 56)
-                << static_cast<char>(v >> 48)
-                << static_cast<char>(v >> 40)
-                << static_cast<char>(v >> 32)
-                << static_cast<char>(v >> 24)
-                << static_cast<char>(v >> 16)
-                << static_cast<char>(v >> 8)
-                << static_cast<char>(v);
-        }
-    }
-
-    void printInt(std::ostream& out, int64_t v, const std::string& name)
-    {
-        if (v >= 0)
-        {
-            printUInt(out, v, name);
-        }
-        else if (v >= std::numeric_limits<int8_t>::min() && v <= std::numeric_limits<int8_t>::max())
-        {
-            out << static_cast<char>(name.empty() ? Serializer::TypePlainInt8 : Serializer::TypeInt8);
-            if (!name.empty())
-                out << name << '\0';
-            out << static_cast<char>(v);
-        }
-        else if (v >= std::numeric_limits<int16_t>::min() && v <= std::numeric_limits<int16_t>::max())
-        {
-            out << static_cast<char>(name.empty() ? Serializer::TypePlainInt16 : Serializer::TypeInt16);
-            if (!name.empty())
-                out << name << '\0';
-            out << static_cast<char>(v >> 8)
-                << static_cast<char>(v);
-        }
-        else if (v >= std::numeric_limits<int32_t>::min() && v <= std::numeric_limits<int32_t>::max())
-        {
-            out << static_cast<char>(name.empty() ? Serializer::TypePlainInt32 : Serializer::TypeInt32);
-            if (!name.empty())
-                out << name << '\0';
-            out << static_cast<char>(v >> 24)
-                << static_cast<char>(v >> 16)
-                << static_cast<char>(v >> 8)
-                << static_cast<char>(v);
-        }
-        else
-        {
-            out << static_cast<char>(name.empty() ? Serializer::TypePlainInt64 : Serializer::TypeInt64);
-            if (!name.empty())
-                out << name << '\0';
-            out << static_cast<char>(v >> 56)
-                << static_cast<char>(v >> 48)
-                << static_cast<char>(v >> 40)
-                << static_cast<char>(v >> 32)
-                << static_cast<char>(v >> 24)
-                << static_cast<char>(v >> 16)
-                << static_cast<char>(v >> 8)
-                << static_cast<char>(v);
-        }
-    }
-
     template <typename StringT>
     bool isTrue(const StringT& s)
     {
@@ -203,6 +79,7 @@ void Formatter::begin(std::ostream& out)
 {
     _out = &out;
     _ts.attach(out);
+    _dictionary.clear();
 }
 
 void Formatter::finish()
@@ -221,12 +98,12 @@ void Formatter::addValueString(const std::string& name, const std::string& type,
         if (value.size() > 0 && (value[0] == L'-' || value[0] == L'+'))
         {
             int64_t v = convert<int64_t>(value);
-            printInt(*_out, v, name);
+            printInt(v, name);
         }
         else
         {
             uint64_t v = convert<uint64_t>(value);
-            printUInt(*_out, v, name);
+            printUInt(v, name);
         }
     }
     else if (type == "double")
@@ -251,7 +128,7 @@ void Formatter::addValueString(const std::string& name, const std::string& type,
         *_out << static_cast<char>(plain ? Serializer::TypePlainBcdFloat : Serializer::TypeBcdFloat);
 
         if (!plain)
-            *_out << name << '\0';
+            outputString(name);
 
         if (value == L"nan")
         {
@@ -293,16 +170,16 @@ void Formatter::addValueString(const std::string& name, const std::string& type,
         *_out << static_cast<char>(plain ? Serializer::TypePlainBool : Serializer::TypeBool);
 
         if (!plain)
-            *_out << name << '\0';
+            outputString(name);
 
         *_out << (isTrue(value) ? '\1' : '\0');
     }
     else
     {
-        printTypeCode(*_out, type, plain);
+        printTypeCode(type, plain);
 
         if (!plain)
-            *_out << name << '\0';
+            outputString(name);
 
         _ts << value;
         _ts.flush();
@@ -323,12 +200,12 @@ void Formatter::addValueStdString(const std::string& name, const std::string& ty
         if (value.size() > 0 && (value[0] == L'-' || value[0] == L'+'))
         {
             int64_t v = convert<int64_t>(value);
-            printInt(*_out, v, name);
+            printInt(v, name);
         }
         else
         {
             uint64_t v = convert<uint64_t>(value);
-            printUInt(*_out, v, name);
+            printUInt(v, name);
         }
     }
     else if (type == "double")
@@ -353,7 +230,7 @@ void Formatter::addValueStdString(const std::string& name, const std::string& ty
         *_out << static_cast<char>(plain ? Serializer::TypePlainBcdFloat : Serializer::TypeBcdFloat);
 
         if (!plain)
-            *_out << name << '\0';
+            outputString(name);
 
         if (value == "nan")
         {
@@ -396,7 +273,7 @@ void Formatter::addValueStdString(const std::string& name, const std::string& ty
         *_out << static_cast<char>(plain ? Serializer::TypePlainBool : Serializer::TypeBool);
 
         if (!plain)
-            *_out << name << '\0';
+            outputString(name);
 
         *_out << (isTrue(value) ? '\1' : '\0');
     }
@@ -408,14 +285,14 @@ void Formatter::addValueStdString(const std::string& name, const std::string& ty
             *_out << static_cast<char>(plain ? Serializer::TypePlainBinary2 : Serializer::TypeBinary2);
 
             if (!plain)
-                *_out << name << '\0';
+                outputString(name);
         }
         else
         {
             *_out << static_cast<char>(plain ? Serializer::TypePlainBinary4 : Serializer::TypeBinary4);
 
             if (!plain)
-                *_out << name << '\0';
+                outputString(name);
 
             *_out << static_cast<char>(v >> 24)
                   << static_cast<char>(v >> 16);
@@ -427,10 +304,10 @@ void Formatter::addValueStdString(const std::string& name, const std::string& ty
     }
     else
     {
-        printTypeCode(*_out, type, plain);
+        printTypeCode(type, plain);
 
         if (!plain)
-            *_out << name << '\0';
+            outputString(name);
 
         *_out << value << '\0'
               << '\xff';
@@ -448,7 +325,7 @@ void Formatter::addValueBool(const std::string& name, const std::string& type,
     *_out << static_cast<char>(plain ? Serializer::TypePlainBool : Serializer::TypeBool);
 
     if (!plain)
-        *_out << name << '\0';
+        outputString(name);
 
     *_out << (value ? '\1' : '\0');
 }
@@ -457,14 +334,14 @@ void Formatter::addValueInt(const std::string& name, const std::string& type,
                          int_type value)
 {
     log_trace("addValueInt(\"" << name << "\", \"" << type << "\", " << value << ')');
-    printInt(*_out, value, name);
+    printInt(value, name);
 }
 
 void Formatter::addValueUnsigned(const std::string& name, const std::string& type,
                          unsigned_type value)
 {
     log_trace("addValueUnsigned(\"" << name << "\", \"" << type << "\", " << value << ')');
-    printUInt(*_out, value, name);
+    printUInt(value, name);
 }
 
 void Formatter::addValueFloat(const std::string& name, const std::string& type,
@@ -477,21 +354,21 @@ void Formatter::addValueFloat(const std::string& name, const std::string& type,
         // NaN
         *_out << static_cast<char>(name.empty() ? Serializer::TypePlainShortFloat : Serializer::TypeShortFloat);
         if (!name.empty())
-            *_out << name << '\0';
+            outputString(name);
         *_out << '\x7f' << '\x1' << '\0';
     }
     else if (value == std::numeric_limits<long double>::infinity())
     {
         *_out << static_cast<char>(name.empty() ? Serializer::TypePlainShortFloat : Serializer::TypeShortFloat);
         if (!name.empty())
-            *_out << name << '\0';
+            outputString(name);
         *_out << '\x7f' << '\x0' << '\0';
     }
     else if (value == -std::numeric_limits<long double>::infinity())
     {
         *_out << static_cast<char>(name.empty() ? Serializer::TypePlainShortFloat : Serializer::TypeShortFloat);
         if (!name.empty())
-            *_out << name << '\0';
+            outputString(name);
         *_out << '\xff' << '\x0' << '\0';
     }
     else if (value == 0.0)
@@ -499,7 +376,7 @@ void Formatter::addValueFloat(const std::string& name, const std::string& type,
         log_debug("value is zero");
         *_out << static_cast<char>(name.empty() ? Serializer::TypePlainShortFloat : Serializer::TypeShortFloat);
         if (!name.empty())
-            *_out << name << '\0';
+            outputString(name);
         *_out << '\0' << '\0' << '\0';
     }
     else
@@ -525,7 +402,7 @@ void Formatter::addValueFloat(const std::string& name, const std::string& type,
                 e |= 0x8000;
             *_out << static_cast<char>(name.empty() ? Serializer::TypePlainLongFloat : Serializer::TypeLongFloat);
             if (!name.empty())
-                *_out << name << '\0';
+                outputString(name);
             *_out << static_cast<char>(e >> 8)
                   << static_cast<char>(e)
                   << static_cast<char>(m >> 56)
@@ -546,7 +423,7 @@ void Formatter::addValueFloat(const std::string& name, const std::string& type,
                 e |= 0x80;
             *_out << static_cast<char>(name.empty() ? Serializer::TypePlainMediumFloat : Serializer::TypeMediumFloat);
             if (!name.empty())
-                *_out << name << '\0';
+                outputString(name);
             *_out << static_cast<char>(e)
                   << static_cast<char>(m >> 56)
                   << static_cast<char>(m >> 48)
@@ -562,7 +439,7 @@ void Formatter::addValueFloat(const std::string& name, const std::string& type,
                 e |= 0x80;
             *_out << static_cast<char>(name.empty() ? Serializer::TypePlainShortFloat : Serializer::TypeShortFloat);
             if (!name.empty())
-                *_out << name << '\0';
+                outputString(name);
             *_out << static_cast<char>(e)
                   << static_cast<char>(m >> 56)
                   << static_cast<char>(m >> 48);
@@ -576,7 +453,7 @@ void Formatter::addNull(const std::string& name, const std::string& type)
     *_out << static_cast<char>(name.empty() ? Serializer::TypePlainEmpty : Serializer::TypeEmpty);
 
     if (!name.empty())
-        *_out << name << '\0';
+        outputString(name);
 
     *_out << '\xff';
 }
@@ -584,9 +461,9 @@ void Formatter::addNull(const std::string& name, const std::string& type)
 void Formatter::beginArray(const std::string& name, const std::string& type)
 {
     log_trace("beginArray(\"" << name << "\", \"" << type << ')');
-    *_out << static_cast<char>(Serializer::CategoryArray)
-          << name << '\0';
-    printTypeCode(*_out, type, name.empty());
+    *_out << static_cast<char>(Serializer::CategoryArray);
+    outputString(name);
+    printTypeCode(type, name.empty());
 }
 
 void Formatter::finishArray()
@@ -598,9 +475,9 @@ void Formatter::finishArray()
 void Formatter::beginObject(const std::string& name, const std::string& type)
 {
     log_trace("beginObject(\"" << name << "\", \"" << type << ')');
-    *_out << static_cast<char>(Serializer::CategoryObject)
-          << name << '\0';
-    printTypeCode(*_out, type, false);
+    *_out << static_cast<char>(Serializer::CategoryObject);
+    outputString(name);
+    printTypeCode(type, false);
 }
 
 void Formatter::beginMember(const std::string& name)
@@ -618,6 +495,161 @@ void Formatter::finishObject()
 {
     log_trace("finishObject()");
     *_out << '\xff';
+}
+
+void Formatter::printTypeCode(const std::string& type, bool plain)
+{
+    if (type.empty())
+        *_out << static_cast<char>(plain ? Serializer::TypePlainEmpty : Serializer::TypeEmpty);
+    else if (type == "bool")
+        *_out << static_cast<char>(plain ? Serializer::TypePlainBool : Serializer::TypeBool);
+    else if (type == "char")
+        *_out << static_cast<char>(plain ? Serializer::TypePlainChar : Serializer::TypeChar);
+    else if (type == "string")
+        *_out << static_cast<char>(plain ? Serializer::TypePlainString : Serializer::TypeString);
+    else if (type == "int")
+        *_out << static_cast<char>(plain ? Serializer::TypePlainInt : Serializer::TypeInt);
+    else if (type == "double")
+        *_out << static_cast<char>(plain ? Serializer::TypePlainBcdFloat : Serializer::TypeBcdFloat);
+    else if (type == "pair")
+        *_out << static_cast<char>(plain ? Serializer::TypePlainPair : Serializer::TypePair);
+    else if (type == "array")
+        *_out << static_cast<char>(plain ? Serializer::TypePlainArray : Serializer::TypeArray);
+    else if (type == "list")
+        *_out << static_cast<char>(plain ? Serializer::TypePlainList : Serializer::TypeList);
+    else if (type == "deque")
+        *_out << static_cast<char>(plain ? Serializer::TypePlainDeque : Serializer::TypeDeque);
+    else if (type == "set")
+        *_out << static_cast<char>(plain ? Serializer::TypePlainSet : Serializer::TypeSet);
+    else if (type == "multiset")
+        *_out << static_cast<char>(plain ? Serializer::TypePlainMultiset : Serializer::TypeMultiset);
+    else if (type == "map")
+        *_out << static_cast<char>(plain ? Serializer::TypePlainMap : Serializer::TypeMap);
+    else if (type == "multimap")
+        *_out << static_cast<char>(plain ? Serializer::TypePlainMultimap : Serializer::TypeMultimap);
+    else
+    {
+        *_out << static_cast<char>(plain ? Serializer::TypePlainOther : Serializer::TypeOther);
+        outputString(type);
+    }
+}
+
+void Formatter::printUInt(uint64_t v, const std::string& name)
+{
+    if (v <= std::numeric_limits<uint8_t>::max())
+    {
+        *_out << static_cast<char>(name.empty() ? Serializer::TypePlainUInt8 : Serializer::TypeUInt8);
+        if (!name.empty())
+            outputString(name);
+        *_out << static_cast<char>(v);
+    }
+    else if (v <= std::numeric_limits<uint16_t>::max())
+    {
+        *_out << static_cast<char>(name.empty() ? Serializer::TypePlainUInt16 : Serializer::TypeUInt16);
+        if (!name.empty())
+            outputString(name);
+        *_out << static_cast<char>(v >> 8)
+            << static_cast<char>(v);
+    }
+    else if (v <= std::numeric_limits<uint32_t>::max())
+    {
+        *_out << static_cast<char>(name.empty() ? Serializer::TypePlainUInt32 : Serializer::TypeUInt32);
+        if (!name.empty())
+            outputString(name);
+        *_out << static_cast<char>(v >> 24)
+            << static_cast<char>(v >> 16)
+            << static_cast<char>(v >> 8)
+            << static_cast<char>(v);
+    }
+    else
+    {
+        *_out << static_cast<char>(name.empty() ? Serializer::TypePlainUInt64 : Serializer::TypeUInt64);
+        if (!name.empty())
+            outputString(name);
+        *_out << static_cast<char>(v >> 56)
+            << static_cast<char>(v >> 48)
+            << static_cast<char>(v >> 40)
+            << static_cast<char>(v >> 32)
+            << static_cast<char>(v >> 24)
+            << static_cast<char>(v >> 16)
+            << static_cast<char>(v >> 8)
+            << static_cast<char>(v);
+    }
+}
+
+void Formatter::printInt(int64_t v, const std::string& name)
+{
+    if (v >= 0)
+    {
+        printUInt(v, name);
+    }
+    else if (v >= std::numeric_limits<int8_t>::min() && v <= std::numeric_limits<int8_t>::max())
+    {
+        *_out << static_cast<char>(name.empty() ? Serializer::TypePlainInt8 : Serializer::TypeInt8);
+        if (!name.empty())
+            outputString(name);
+        *_out << static_cast<char>(v);
+    }
+    else if (v >= std::numeric_limits<int16_t>::min() && v <= std::numeric_limits<int16_t>::max())
+    {
+        *_out << static_cast<char>(name.empty() ? Serializer::TypePlainInt16 : Serializer::TypeInt16);
+        if (!name.empty())
+            outputString(name);
+        *_out << static_cast<char>(v >> 8)
+            << static_cast<char>(v);
+    }
+    else if (v >= std::numeric_limits<int32_t>::min() && v <= std::numeric_limits<int32_t>::max())
+    {
+        *_out << static_cast<char>(name.empty() ? Serializer::TypePlainInt32 : Serializer::TypeInt32);
+        if (!name.empty())
+            outputString(name);
+        *_out << static_cast<char>(v >> 24)
+            << static_cast<char>(v >> 16)
+            << static_cast<char>(v >> 8)
+            << static_cast<char>(v);
+    }
+    else
+    {
+        *_out << static_cast<char>(name.empty() ? Serializer::TypePlainInt64 : Serializer::TypeInt64);
+        if (!name.empty())
+            outputString(name);
+        *_out << static_cast<char>(v >> 56)
+            << static_cast<char>(v >> 48)
+            << static_cast<char>(v >> 40)
+            << static_cast<char>(v >> 32)
+            << static_cast<char>(v >> 24)
+            << static_cast<char>(v >> 16)
+            << static_cast<char>(v >> 8)
+            << static_cast<char>(v);
+    }
+}
+
+void Formatter::outputString(const std::string& value)
+{
+    if (value.empty())
+    {
+        *_out << '\0';
+        return;
+    }
+
+    unsigned idx;
+    for (idx = 0; idx < _dictionary.size(); ++idx)
+    {
+        if (_dictionary[idx] == value)
+        {
+            *_out << '\1' << static_cast<char>(idx >> 8) << static_cast<char>(idx);
+            return;
+        }
+    }
+
+    if (_dictionary.size() <= 0xffff)
+    {
+        log_debug("add dictionary value \"" << value << "\" idx=" << _dictionary.size());
+        _dictionary.push_back(value);
+    }
+
+    *_out << value
+          << '\0';
 }
 
 }

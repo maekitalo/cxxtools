@@ -30,6 +30,7 @@
 #define CXXTOOLS_BIN_PARSER_H
 
 #include <cxxtools/serializationinfo.h>
+#include <vector>
 
 namespace cxxtools
 {
@@ -44,9 +45,15 @@ class Parser
         Parser(const Parser&) { }
         Parser& operator= (const Parser&) { return *this; }
 
+        explicit Parser(std::vector<std::string>* dictionary)
+            : _next(0),
+              _dictionary(dictionary)
+        { }
+
     public:
         Parser()
-            : _next(0)
+            : _next(0),
+              _dictionary(&_mydictionary)
         { }
 
         ~Parser() 
@@ -63,11 +70,17 @@ class Parser
     private:
 
         bool processFloatBase(char ch, unsigned shift, unsigned expOffset);
+        void dict(const std::string& s);
+
         enum State
         {
             state_type,
             state_name,
+            state_name_idx0,
+            state_name_idx1,
             state_value_type_other,
+            state_value_type_other_idx0,
+            state_value_type_other_idx1,
             state_value_intsign,
             state_value_int,
             state_value_uint,
@@ -85,10 +98,14 @@ class Parser
             state_lfloat_base,
             state_object_type,
             state_object_type_other,
+            state_object_type_other_idx0,
+            state_object_type_other_idx1,
             state_object_member,
             state_object_member_value,
             state_array_type,
             state_array_type_other,
+            state_array_type_other_idx0,
+            state_array_type_other_idx1,
             state_array_member,
             state_array_member_value,
             state_array_member_value_next,
@@ -100,8 +117,11 @@ class Parser
         uint64_t _int;
         int _exp;
         bool _isNeg;
+        unsigned _dictidx;
         Deserializer* _deserializer;
         Parser* _next;
+        std::vector<std::string> _mydictionary;
+        std::vector<std::string>* _dictionary;
 };
 }
 }

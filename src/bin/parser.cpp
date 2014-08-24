@@ -426,11 +426,34 @@ bool Parser::advance(char ch)
                 log_debug("name=" << _token);
                 if (_deserializer)
                     _deserializer->setName(_token);
+
+                dict(_token);
                 _token.clear();
                 _state = _nextstate;
             }
+            else if (_token.empty() && ch == '\1')
+                _state = state_name_idx0;
             else
                 _token += ch;
+            break;
+
+        case state_name_idx0:
+            _dictidx = static_cast<unsigned>(ch) << 8;
+            _state = state_name_idx1;
+            break;
+
+        case state_name_idx1:
+            _dictidx |= static_cast<unsigned>(ch);
+            if (_dictidx >= _dictionary->size())
+            {
+                log_error("invalid dictionary index " << _dictidx);
+                SerializationError::doThrow("invalid dictionary index");
+            }
+
+            log_debug("dictidx=" << _dictidx << " name=" << (*_dictionary)[_dictidx]);
+            if (_deserializer)
+                _deserializer->setName((*_dictionary)[_dictidx]);
+            _state = _nextstate;
             break;
 
         case state_value_type_other:
@@ -440,12 +463,36 @@ bool Parser::advance(char ch)
                 if (_deserializer)
                     _deserializer->setTypeName(_token);
 
+                dict(_token);
                 _token.clear();
                 _state = _nextstate;
                 _nextstate = state_value_value;
             }
+            else if (_token.empty() && ch == '\1')
+                _state = state_value_type_other_idx0;
             else
                 _token += ch;
+            break;
+
+        case state_value_type_other_idx0:
+            _dictidx = static_cast<unsigned>(ch) << 8;
+            _state = state_value_type_other_idx1;
+            break;
+
+        case state_value_type_other_idx1:
+            _dictidx |= static_cast<unsigned>(ch);
+            if (_dictidx >= _dictionary->size())
+            {
+                log_error("invalid dictionary index " << _dictidx);
+                SerializationError::doThrow("invalid dictionary index");
+            }
+
+            log_debug("dictidx=" << _dictidx << " typename=" << (*_dictionary)[_dictidx]);
+            if (_deserializer)
+                _deserializer->setTypeName((*_dictionary)[_dictidx]);
+
+            _state = _nextstate;
+            _nextstate = state_value_value;
             break;
 
         case state_value_intsign:
@@ -637,11 +684,35 @@ bool Parser::advance(char ch)
             {
                 if (_deserializer)
                     _deserializer->setTypeName(_token);
+                dict(_token);
                 _token.clear();
                 _state = state_object_member;
             }
+            else if (_token.empty() && ch == '\1')
+                _state = state_object_type_other_idx0;
             else
                 _token += ch;
+            break;
+
+        case state_object_type_other_idx0:
+            _dictidx = static_cast<unsigned>(ch) << 8;
+            _state = state_object_type_other_idx1;
+            break;
+
+        case state_object_type_other_idx1:
+            _dictidx |= static_cast<unsigned>(ch);
+            if (_dictidx >= _dictionary->size())
+            {
+                log_error("invalid dictionary index " << _dictidx);
+                SerializationError::doThrow("invalid dictionary index");
+            }
+
+            log_debug("dictidx=" << _dictidx << " typename=" << (*_dictionary)[_dictidx]);
+            if (_deserializer)
+                _deserializer->setTypeName((*_dictionary)[_dictidx]);
+
+            _token.clear();
+            _state = state_object_member;
             break;
 
         case state_object_member:
@@ -649,10 +720,13 @@ bool Parser::advance(char ch)
                 return true;
 
             if (ch != '\1')
+            {
+                log_error("serialization error: member code expected; got " << static_cast<int>(ch));
                 SerializationError::doThrow("member expected");
+            }
 
             if (_next == 0)
-                _next = new Parser();
+                _next = new Parser(_dictionary);
 
             if (_deserializer)
             {
@@ -690,11 +764,34 @@ bool Parser::advance(char ch)
             {
                 if (_deserializer)
                     _deserializer->setTypeName(_token);
+                dict(_token);
                 _token.clear();
                 _state = state_array_member;
             }
+            else if (_token.empty() && ch == '\1')
+                _state = state_array_type_other_idx0;
             else
                 _token += ch;
+            break;
+
+        case state_array_type_other_idx0:
+            _dictidx = static_cast<unsigned>(ch) << 8;
+            _state = state_array_type_other_idx1;
+            break;
+
+        case state_array_type_other_idx1:
+            _dictidx |= static_cast<unsigned>(ch);
+            if (_dictidx >= _dictionary->size())
+            {
+                log_error("invalid dictionary index " << _dictidx);
+                SerializationError::doThrow("invalid dictionary index");
+            }
+
+            log_debug("dictidx=" << _dictidx << " typename=" << (*_dictionary)[_dictidx]);
+            if (_deserializer)
+                _deserializer->setTypeName((*_dictionary)[_dictidx]);
+
+            _state = state_array_member;
             break;
 
         case state_array_member:
@@ -702,7 +799,7 @@ bool Parser::advance(char ch)
                 return true;
 
             if (_next == 0)
-                _next = new Parser();
+                _next = new Parser(_dictionary);
 
             if (_deserializer)
             {
@@ -800,6 +897,21 @@ bool Parser::processFloatBase(char ch, unsigned shift, unsigned expOffset)
     }
 
     return false;
+}
+
+void Parser::dict(const std::string& value)
+{
+    if (value.empty())
+        return;
+
+    for (unsigned idx = 0; idx < _dictionary->size(); ++idx)
+    {
+        if ((*_dictionary)[idx] == value)
+            return;
+    }
+
+    log_debug("add dictionary value \"" << value << "\" idx=" << _dictionary->size());
+    _dictionary->push_back(value);
 }
 
 }

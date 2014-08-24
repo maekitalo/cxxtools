@@ -109,3 +109,7 @@ rpc response exception:
     error message\0          error message
     \xff                     eod
 
+Dictionary
+==========
+Each unique name or type name gets a entry in a dictionary. When the same string
+is found it may be serialized by a \1 prefix and a 16 bit index into the dictionary.
