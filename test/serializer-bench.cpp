@@ -74,50 +74,55 @@ namespace
         si.setTypeName(typeName);
     }
 
-    class JsonSerializer2 : public cxxtools::JsonSerializer
-    {
-        public:
-            JsonSerializer2() { }
-
-            explicit JsonSerializer2(std::basic_ostream<cxxtools::Char>& ts)
-                : cxxtools::JsonSerializer(ts)
-                { }
-
-            explicit JsonSerializer2(std::ostream& os,
-                cxxtools::TextCodec<cxxtools::Char, char>* codec = 0)
-                : cxxtools::JsonSerializer(os, codec)
-                { }
-
-            template <typename T>
-            JsonSerializer2& serialize(const T& v, const std::string& name)
-            {
-                cxxtools::JsonSerializer::serialize(v);
-                return *this;
-            }
-    };
 }
 
+// Function, which calls the serializer.
+//
+// Since the json serializer do not have a root node name we create a function
+// and specialize it for the json serializer then.
+template <typename T, typename Serializer>
+void serialize(Serializer& serializer, const T& data)
+{
+    serializer.serialize(data, "d");
+}
+
+// This is the specialization for json.
+template <typename T>
+void serialize(cxxtools::JsonSerializer& serializer, const T& data)
+{
+    serializer.serialize(data);
+}
+
+// Measure the duration to serialize and deserialize a object and output the result.
 template <typename T, typename Serializer, typename Deserializer>
 void benchSerialization(const T& d, const char* fname = 0)
 {
     std::stringstream data;
     Serializer serializer(data);
 
+    // serialize
     cxxtools::Clock clock;
     clock.start();
-    serializer.serialize(d, "d");
+
+    serialize(serializer, d);
     serializer.finish();
+
     cxxtools::Timespan ts = clock.stop();
+
+    // optionally output serialized data to file
     if (fname)
     {
         std::ofstream f(fname);
         f << data.str();
     }
 
+    // deserialization
     T v2;
     clock.start();
+
     Deserializer deserializer(data);
     deserializer.deserialize(v2);
+
     cxxtools::Timespan td = clock.stop();
 
     std::cout << "\tserialization: " << ts << "\n"
@@ -134,7 +139,7 @@ void benchXmlSerialization(const T& d, const char* fname = 0)
 template <typename T>
 void benchJsonSerialization(const T& d, const char* fname = 0)
 {
-    benchSerialization<T, JsonSerializer2, cxxtools::JsonDeserializer>(d, fname);
+    benchSerialization<T, cxxtools::JsonSerializer, cxxtools::JsonDeserializer>(d, fname);
 }
 
 template <typename T>
@@ -170,9 +175,11 @@ int main(int argc, char* argv[])
         log_init();
 
         cxxtools::Arg<unsigned> nn(argc, argv, 'n', 100000);
+
         cxxtools::Arg<unsigned> I(argc, argv, 'I', nn);
         cxxtools::Arg<unsigned> D(argc, argv, 'D', nn);
         cxxtools::Arg<unsigned> C(argc, argv, 'C', nn);
+
         cxxtools::Arg<bool> fileoutput(argc, argv, 'f');
 
         std::cout << "benchmark serializer with " << I.getValue() << " int vector " << D.getValue() << " double vector and " << C.getValue() << " custom vector iterations\n\n"
