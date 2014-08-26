@@ -316,7 +316,7 @@ void TcpSocketImpl::endConnect()
             pfd.revents = 0;
             pfd.events = POLLOUT;
 
-            log_debug("wait " << timeout() << " ms");
+            log_debug("wait " << timeout());
             bool avail = this->wait(this->timeout(), pfd);
 
             if (avail)
