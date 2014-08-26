@@ -40,12 +40,13 @@ void Deserializer::read(std::istream& in)
     begin();
     _parser.begin(*this);
 
-    char ch;
-    while (in.get(ch) && _parser.advance(ch) == false)
-        ;
+    std::streambuf::int_type ch;
+    while ((ch = in.rdbuf()->sbumpc()) != std::streambuf::traits_type::eof())
+        if (_parser.advance(ch) == true)
+            return;
 
-    if (in.rdstate() & std::ios::badbit)
-        SerializationError::doThrow("binary deserialization failed");
+    in.setstate(std::ios::eofbit);
+    SerializationError::doThrow("binary deserialization failed");
 }
 
 void Deserializer::begin()
