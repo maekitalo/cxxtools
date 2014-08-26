@@ -1021,8 +1021,13 @@ namespace cxxtools
       Logger* _logger;
       const char* _level;
       std::ostringstream _msg;
+      std::ios_base::fmtflags _fmtflags;
 
     public:
+      Impl()
+        : _fmtflags(_msg.flags())
+      { }
+
       void setLogger(Logger* logger)
       { _logger = logger; }
 
@@ -1041,6 +1046,7 @@ namespace cxxtools
       {
         _msg.clear();
         _msg.str(std::string());
+        _msg.flags(_fmtflags);
       }
   };
 
