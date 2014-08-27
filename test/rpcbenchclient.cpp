@@ -40,6 +40,9 @@
 #include <cxxtools/timespan.h>
 #include <cxxtools/atomicity.h>
 
+#include "color.h"
+
+
 class BenchClient
 {
     void exec();
@@ -49,6 +52,7 @@ class BenchClient
 
     static unsigned _numRequests;
     static unsigned _vectorSize;
+    static unsigned _objectsSize;
     static cxxtools::atomic_t _requestsStarted;
     static cxxtools::atomic_t _requestsFinished;
     static cxxtools::atomic_t _requestsFailed;
@@ -74,6 +78,12 @@ class BenchClient
     static void vectorSize(unsigned n)
     { _vectorSize = n; }
 
+    static unsigned objectsSize()
+    { return _objectsSize; }
+
+    static void objectsSize(unsigned n)
+    { _objectsSize = n; }
+
     static unsigned requestsStarted()
     { return static_cast<unsigned>(cxxtools::atomicGet(_requestsStarted)); }
 
@@ -95,6 +105,7 @@ cxxtools::atomic_t BenchClient::_requestsFinished(0);
 cxxtools::atomic_t BenchClient::_requestsFailed(0);
 unsigned BenchClient::_numRequests = 0;
 unsigned BenchClient::_vectorSize = 0;
+unsigned BenchClient::_objectsSize = 0;
 typedef std::vector<BenchClient*> BenchClients;
 
 static cxxtools::Mutex mutex;
@@ -103,6 +114,7 @@ void BenchClient::exec()
 {
   cxxtools::RemoteProcedure<std::string, std::string> echo(*client, "echo");
   cxxtools::RemoteProcedure<std::vector<int>, int, int> seq(*client, "seq");
+  cxxtools::RemoteProcedure<std::vector<Color>, unsigned> objects(*client, "objects");
 
   while (static_cast<unsigned>(cxxtools::atomicIncrement(_requestsStarted)) <= _numRequests)
   {
@@ -113,6 +125,16 @@ void BenchClient::exec()
         std::vector<int> ret = seq(1, _vectorSize);
         cxxtools::atomicIncrement(_requestsFinished);
         if (ret.size() != _vectorSize)
+        {
+          std::cerr << "wrong response result size " << ret.size() << std::endl;
+          cxxtools::atomicIncrement(_requestsFailed);
+        }
+      }
+      else if (_objectsSize > 0)
+      {
+        std::vector<Color> ret = objects(_objectsSize);
+        cxxtools::atomicIncrement(_requestsFinished);
+        if (ret.size() != _objectsSize)
         {
           std::cerr << "wrong response result size " << ret.size() << std::endl;
           cxxtools::atomicIncrement(_requestsFailed);
@@ -156,6 +178,7 @@ int main(int argc, char* argv[])
     cxxtools::Arg<unsigned short> port(argc, argv, 'p', binary ? 7003 : json ? 7004 : 7002);
     BenchClient::numRequests(cxxtools::Arg<unsigned>(argc, argv, 'n', 10000));
     BenchClient::vectorSize(cxxtools::Arg<unsigned>(argc, argv, 'v', 0));
+    BenchClient::objectsSize(cxxtools::Arg<unsigned>(argc, argv, 'o', 0));
 
     if (!xmlrpc && !binary && !json && !jsonhttp)
     {

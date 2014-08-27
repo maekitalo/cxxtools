@@ -44,8 +44,8 @@ name:
     zero terminated string
 value: (only when category=value)
     zero terminated utf-8 string
-member prefix: (only when category=object)
-    \1=member  \xff=eod
+member: (only when category=object)
+    \xff=eod
 member:
     ...
 nodes: (when category=object|array)
@@ -61,10 +61,8 @@ object:
     \xa0                            category object
     myobject\0                      name
     \xffmytype\0                    type
-    \1                              member1 prefix
     \4 firstMember\0 4711\0 \xff    member1 value
-    \1                              member2 prefix
-    \1 secondMember\0 4712\0 \xff   member2 value
+    \4 secondMember\0 4712\0 \xff   member2 value
     \xff                            eod
 
 array:

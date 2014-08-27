@@ -37,6 +37,9 @@
 #include <cxxtools/json/rpcserver.h>
 #include <cxxtools/json/httpservice.h>
 
+#include "color.h"
+
+
 std::string echo(const std::string& msg)
 {
   return msg;
@@ -47,6 +50,19 @@ std::vector<int> seq(int from, int to)
     std::vector<int> ret;
     for (int n = from; n <= to; ++n)
         ret.push_back(n);
+    return ret;
+}
+
+std::vector<Color> objects(unsigned count)
+{
+    std::vector<Color> ret(count);
+    for (unsigned n = 0; n < count; ++n)
+    {
+        ret[n].red = n;
+        ret[n].green = n + 1;
+        ret[n].blue = n + 2;
+    }
+
     return ret;
 }
 
@@ -81,6 +97,7 @@ int main(int argc, char* argv[])
     cxxtools::xmlrpc::Service service;
     service.registerFunction("echo", echo);
     service.registerFunction("seq", seq);
+    service.registerFunction("objects", objects);
     server.addService("/xmlrpc", service);
 
     cxxtools::bin::RpcServer binServer(loop, ip, bport);
@@ -96,6 +113,7 @@ int main(int argc, char* argv[])
     cxxtools::json::HttpService jsonhttpService;
     jsonhttpService.registerFunction("echo", echo);
     jsonhttpService.registerFunction("seq", seq);
+    jsonhttpService.registerFunction("objects", objects);
     server.addService("/jsonrpc", jsonhttpService);
 
     loop.run();

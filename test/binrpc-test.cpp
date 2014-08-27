@@ -39,39 +39,16 @@
 #include <stdlib.h>
 #include <sstream>
 
+#include "color.h"
+
 log_define("cxxtools.test.binrpc")
 
 namespace
 {
-    struct Color
-    {
-        int red;
-        int green;
-        int blue;
-    };
-
-
     typedef std::set<int> IntSet;
     typedef std::multiset<int> IntMultiset;
     typedef std::map<int, int> IntMap;
     typedef std::multimap<int, int> IntMultimap;
-
-
-    void operator >>=(const cxxtools::SerializationInfo& si, Color& color)
-    {
-        si.getMember("red") >>= color.red;
-        si.getMember("green") >>= color.green;
-        si.getMember("blue") >>= color.blue;
-    }
-
-
-    void operator <<=(cxxtools::SerializationInfo& si, const Color& color)
-    {
-        si.addMember("red") <<= color.red;
-        si.addMember("green") <<= color.green;
-        si.addMember("blue") <<= color.blue;
-    }
-
 }
 
 class BinRpcTest : public cxxtools::unit::TestSuite

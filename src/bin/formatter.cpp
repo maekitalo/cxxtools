@@ -499,10 +499,6 @@ void Formatter::beginObject(const std::string& name, const std::string& type)
 void Formatter::beginMember(const std::string& name)
 {
     log_trace("beginMember(\"" << name << ')');
-
-    std::streambuf* sb = _out->rdbuf();
-
-    sb->sputc('\1');
 }
 
 void Formatter::finishMember()

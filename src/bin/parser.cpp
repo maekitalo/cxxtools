@@ -719,12 +719,6 @@ bool Parser::advance(char ch)
             if (ch == '\xff')
                 return true;
 
-            if (ch != '\1')
-            {
-                log_error("serialization error: member code expected; got " << static_cast<int>(ch));
-                SerializationError::doThrow("member expected");
-            }
-
             if (_next == 0)
                 _next = new Parser(_dictionary);
 
@@ -735,6 +729,12 @@ bool Parser::advance(char ch)
             }
             else
                 _next->skip();
+
+            if (_next->advance(ch))
+            {
+                log_error("serialization error: member code expected; got " << static_cast<int>(ch));
+                SerializationError::doThrow("member expected");
+            }
 
             _state = state_object_member_value;
             break;
