@@ -218,7 +218,7 @@ size_t IODeviceImpl::read( char* buffer, size_t count, bool& eof )
         bool ret = this->wait(_timeout, pfd);
         if(false == ret)
         {
-            log_debug("timeout");
+            log_debug("timeout (" << _timeout << ')');
             throw IOTimeout();
         }
     }
@@ -361,10 +361,12 @@ bool IODeviceImpl::wait(Timespan timeout)
 
 bool IODeviceImpl::wait(Timespan timeout, pollfd& pfd)
 {
-    int msecs = Milliseconds(timeout) > std::numeric_limits<int>::max()
-                    ? std::numeric_limits<int>::max()
-                    : int(Milliseconds(timeout).ceil());
+    int msecs = timeout < Timespan(0) ? -1
+              : Milliseconds(timeout) > std::numeric_limits<int>::max()
+                            ? std::numeric_limits<int>::max()
+              : int(Milliseconds(timeout).ceil());
 
+    log_debug("wait " << msecs << "ms");
     int ret = -1;
     do
     {
