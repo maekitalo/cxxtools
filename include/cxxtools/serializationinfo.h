@@ -137,7 +137,8 @@ class CXXTOOLS_API SerializationInfo
         ~SerializationInfo()
         { _releaseValue(); }
 
-        void reserve(size_t n);
+        void reserve(size_t n)
+        { _nodes.reserve(n); }
 
         Category category() const
         {
@@ -388,6 +389,56 @@ class CXXTOOLS_API SerializationInfo
 
         Nodes _nodes;             // objects/arrays
 };
+
+
+inline SerializationInfo::SerializationInfo()
+: _category(Void)
+, _t(t_none)
+{ }
+
+
+inline SerializationInfo::SerializationInfo(const SerializationInfo& si)
+: _category(si._category)
+, _name(si._name)
+, _type(si._type)
+, _u(si._u)
+, _t(si._t)
+, _nodes(si._nodes)
+{
+    switch (_t)
+    {
+        case t_string:  new (_StringPtr()) String(si._String());
+                        break;
+
+        case t_string8: new (_String8Ptr()) std::string(si._String8());
+                        break;
+
+        default:
+            ;
+    }
+}
+
+
+inline SerializationInfo& SerializationInfo::operator=(const SerializationInfo& si)
+{
+    _category = si._category;
+    _name = si._name;
+    _type = si._type;
+    _nodes = si._nodes;
+
+    if (si._t == t_string)
+        _setString( si._String() );
+    else if (si._t == t_string8)
+        _setString8( si._String8() );
+    else
+    {
+        _releaseValue();
+        _u = si._u;
+        _t = si._t;
+    }
+
+    return *this;
+}
 
 
 inline void operator >>=(const SerializationInfo& si, SerializationInfo& ssi)
