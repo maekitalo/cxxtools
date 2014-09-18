@@ -38,7 +38,7 @@
 #include "cxxtools/log.h"
 
 #include <stdexcept>
-#include <string.h>
+#include <strings.h>
 
 log_define("cxxtools.json.client.impl")
 
