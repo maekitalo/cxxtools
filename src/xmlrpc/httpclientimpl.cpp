@@ -32,7 +32,7 @@
 #include "cxxtools/ioerror.h"
 #include "cxxtools/remoteclient.h"
 #include "cxxtools/clock.h"
-#include <string.h>
+#include <strings.h>
 
 log_define("cxxtools.xmlrpc.httpclient.impl")
 
