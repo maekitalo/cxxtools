@@ -30,16 +30,6 @@
 
 namespace cxxtools {
 
-Connectable::Connectable()
-{}
-
-
-Connectable::Connectable(const Connectable& c)
-{ 
-    this->operator=(c); 
-}
-
-
 Connectable::~Connectable()
 {
     this->clear();
@@ -48,17 +38,11 @@ Connectable::~Connectable()
 
 void Connectable::clear()
 {
-    while( !_connections.empty() ) 
+    while( !_connections.empty() )
     {
         Connection connection = _connections.front();
         connection.close();
     }
-}
-
-
-Connectable& Connectable::operator=(const Connectable& other)
-{
-    return (*this);
 }
 
 

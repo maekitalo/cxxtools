@@ -52,24 +52,22 @@ Connection::Connection(Connectable& sender, Slot* slot)
 Connection::Connection(const Connection& connection)
 {
     _data = connection._data;
-    _data->ref();
+    if (_data)
+        _data->addRef();
 }
 
 
 Connection::~Connection()
 {
-    if( _data->unref() > 0) {
+    if( !_data || _data->release() > 0) {
         return;
     }
 
     // close the connection if its still valid
-    if( this->valid() ) {
-        this->close();
-    }
+    this->close();
 
     // delete the shared data
     delete _data;
-    _data = 0;
 }
 
 
@@ -79,10 +77,10 @@ void Connection::close()
         return;
 
     _data->slot().onDisconnect( *this );
-    // We set the valid flag here to false since the call above may 
+    // We set the valid flag here to false since the call above may
     // fail for any reason. If setting the valid flag before, a
-    // connection may pretend to be closed but it is not and it 
-    // may reside e.g. in the list of connections of the 
+    // connection may pretend to be closed but it is not and it
+    // may reside e.g. in the list of connections of the
     // Connectable class and then provoke an infinite loop.
     _data->setValid(false);
     _data->sender().onConnectionClose( *this );
@@ -91,23 +89,19 @@ void Connection::close()
 
 Connection& Connection::operator=(const Connection& connection)
 {
-    if( 0 == _data->unref()) 
+    if( _data && _data->release() == 0)
     {
-        this->close();        
-        delete _data;   
+        close();
+        delete _data;
     }
-    
+
     _data = connection._data;
-    _data->ref();
+    if (_data)
+        _data->addRef();
+
     return (*this);
 }
 
-
-bool Connection::operator==(const Connection& connection) const
-{
-    // compare pointers or callable?
-    return _data == connection._data;
-}
 
 } //namespace cxxtools
 

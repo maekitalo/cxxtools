@@ -41,14 +41,14 @@ namespace cxxtools {
     class ConnectionData : public RefCounted {
         public:
             ConnectionData()
-            : _refs(1)
+            : RefCounted(1)
             , _valid(false)
             , _slot(0)
             , _sender(0)
             { }
 
             ConnectionData(Connectable& sender, Slot* slot)
-            : _refs(1)
+            : RefCounted(1)
             , _valid(true)
             , _slot(slot)
             , _sender(&sender)
@@ -56,15 +56,6 @@ namespace cxxtools {
 
             ~ConnectionData()
             { delete _slot; }
-
-            unsigned ref()
-            { return ++_refs; }
-
-            unsigned unref()
-            { return --_refs; }
-
-            unsigned refs() const
-            { return _refs; }
 
             bool valid() const
             { return _valid; }
@@ -85,7 +76,6 @@ namespace cxxtools {
             { return *_slot; }
 
         private:
-            unsigned _refs;
             bool _valid;
             Slot* _slot;
             Connectable* _sender;
@@ -103,10 +93,12 @@ namespace cxxtools {
 
             Connection(const Connection& connection);
 
+            Connection& operator=(const Connection& connection);
+
             ~Connection();
 
             bool valid() const
-            { return _data->valid(); }
+            { return _data && _data->valid(); }
 
             const Connectable& sender() const
             { return _data->sender(); }
@@ -115,13 +107,12 @@ namespace cxxtools {
             { return _data->slot(); }
 
             bool operator!() const
-            { return this->valid() == false; }
+            { return !valid(); }
 
             void close();
 
-            Connection& operator=(const Connection& connection);
-
-            bool operator==(const Connection& connection) const;
+            bool operator==(const Connection& connection) const
+            { return _data == connection._data; }
 
         private:
             ConnectionData* _data;
