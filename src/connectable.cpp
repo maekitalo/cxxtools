@@ -39,10 +39,7 @@ Connectable::~Connectable()
 void Connectable::clear()
 {
     while( !_connections.empty() )
-    {
-        Connection connection = _connections.front();
-        connection.close();
-    }
+        _connections.front().close();
 }
 
 
