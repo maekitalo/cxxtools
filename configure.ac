@@ -23,6 +23,7 @@ AC_PROG_CC
 AC_PROG_CXX
 
 AC_LANG(C++)
+AX_CXX_COMPILE_STDCXX_11(noext, optional)
 
 AX_COMPILER_VENDOR
 AS_IF([test "$ax_cv_cxx_compiler_vendor" = "ibm"],
