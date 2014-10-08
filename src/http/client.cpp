@@ -27,6 +27,7 @@
  */
 
 #include <cxxtools/http/client.h>
+#include <cxxtools/http/request.h>
 #include <cxxtools/net/addrinfo.h>
 #include <cxxtools/net/uri.h>
 #include "clientimpl.h"
@@ -163,9 +164,23 @@ void Client::readBody(std::string& s)
     _impl->readBody(s);
 }
 
-std::string Client::get(const std::string& url, Milliseconds timeout, Milliseconds connectTimeout)
+std::string Client::get(const std::string& url, const QueryParams& qparams, Milliseconds timeout, Milliseconds connectTimeout)
 {
-    return getImpl()->get(url, timeout, connectTimeout);
+    Request request(url);
+    request.method("GET");
+    request.qparams(qparams.getUrl());
+    execute(request, timeout, connectTimeout);
+    return readBody();
+}
+
+std::string Client::post(const std::string& url, const QueryParams& qparams, Milliseconds timeout, Milliseconds connectTimeout)
+{
+    Request request(url);
+    request.method("POST");
+    request.body() << qparams.getUrl();
+    request.addHeader("Content-Type", "application/x-www-form-urlencoded");
+    execute(request, timeout, connectTimeout);
+    return readBody();
 }
 
 void Client::beginExecute(const Request& request)

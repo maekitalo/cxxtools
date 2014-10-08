@@ -34,6 +34,7 @@
 #include <cxxtools/textstream.h>
 #include <cxxtools/base64codec.h>
 #include <sstream>
+#include <algorithm>
 #include "config.h"
 
 #include <cxxtools/log.h>
@@ -235,14 +236,6 @@ void ClientImpl::readBody(std::string& s)
 }
 
 
-std::string ClientImpl::get(const std::string& url, Timespan timeout, Timespan connectTimeout)
-{
-    Request request(url);
-    execute(request, timeout, connectTimeout);
-    return readBody();
-}
-
-
 void ClientImpl::beginExecute(const Request& request)
 {
     if (_socket.selector() == 0)
@@ -315,7 +308,12 @@ void ClientImpl::sendRequest(const Request& request)
     static const char* userAgent = "User-Agent";
 
     _stream << request.method() << ' '
-            << request.url() << " HTTP/"
+            << request.url();
+
+    if (!request.qparams().empty() && request.method() == "GET")
+        _stream << '?' << request.qparams();
+
+    _stream << " HTTP/"
             << request.header().httpVersionMajor() << '.'
             << request.header().httpVersionMinor() << "\r\n";
 
@@ -325,7 +323,7 @@ void ClientImpl::sendRequest(const Request& request)
         _stream << it->first << ": " << it->second << "\r\n";
     }
 
-   if (!request.header().hasHeader(contentLength))
+    if (!request.header().hasHeader(contentLength))
     {
         _stream << "Content-Length: " << request.bodySize() << "\r\n";
     }

@@ -156,12 +156,6 @@ class ClientImpl : public RefCounted, public Connectable
             return ret;
         }
 
-        // Combines the execute and readBody methods in one call.
-        // This method blocks until the reply is recieved.
-        std::string get(const std::string& url,
-            Timespan timeout,
-            Timespan connectTimeout);
-
         // Starts a new request.
         // This method does not block. To actually process the request, the
         // event loop must be executed. The state of the request is signaled
