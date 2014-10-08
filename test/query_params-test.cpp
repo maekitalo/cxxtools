@@ -43,6 +43,7 @@ class QueryParamsTest : public cxxtools::unit::TestSuite
             registerMethod("testParseDoublePercent", *this, &QueryParamsTest::testParseDoublePercent);
             registerMethod("testCount", *this, &QueryParamsTest::testCount);
             registerMethod("testCombine", *this, &QueryParamsTest::testCombine);
+            registerMethod("testSet", *this, &QueryParamsTest::testSet);
             registerMethod("testIterator", *this, &QueryParamsTest::testIterator);
             registerMethod("testGetUrl", *this, &QueryParamsTest::testGetUrl);
         }
@@ -127,6 +128,33 @@ class QueryParamsTest : public cxxtools::unit::TestSuite
             q2.add("p2", "value2");
             q2.add("value3");
             q.add(q2);
+        }
+
+        void testSet()
+        {
+            cxxtools::QueryParams q;
+
+            q.set("a", "Hi");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(q.getUrl(), "a=Hi");
+
+            q.set("b", "foo");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(q.getUrl(), "a=Hi&b=foo");
+
+            q.set("a", "There");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(q.getUrl(), "b=foo&a=There");
+
+            q.clear();
+            CXXTOOLS_UNIT_ASSERT_EQUALS(q.getUrl(), "");
+
+            q.add("a", "Hi");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(q.getUrl(), "a=Hi");
+
+            q.add("b", "foo");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(q.getUrl(), "a=Hi&b=foo");
+
+            q.add("a", "There");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(q.getUrl(), "a=Hi&b=foo&a=There");
+
         }
 
         void testIterator()

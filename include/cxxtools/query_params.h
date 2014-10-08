@@ -215,6 +215,19 @@ class QueryParams
       return *this;
     }
 
+    /// remove unnamed parameter
+    QueryParams& remove()
+    { remove(std::string()); return *this; }
+
+    /// set unnamed parameter
+    QueryParams& set(const std::string& value)
+    {
+      remove();
+      add(value);
+      return *this;
+    }
+
+
     //
     // named parameter
     //
@@ -244,6 +257,17 @@ class QueryParams
     QueryParams& add(const std::string& name, const std::string& value)
     {
       _values.push_back(value_type(name, value));
+      return *this;
+    }
+
+    /// remove named parameter
+    QueryParams& remove(const std::string& name);
+
+    /// sets named parameter
+    QueryParams& set(const std::string& name, const std::string& value)
+    {
+      remove(name);
+      add(name, value);
       return *this;
     }
 
@@ -279,6 +303,7 @@ class QueryParams
     std::string getUrl() const;
 
 };
+
 
 /// output QueryParams in url-syntax
 inline std::ostream& operator<< (std::ostream& out, const QueryParams& p)

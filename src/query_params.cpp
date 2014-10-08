@@ -306,6 +306,19 @@ void QueryParams::parse_url(std::istream& url_stream)
   p.finish();
 }
 
+QueryParams& QueryParams::remove(const std::string& name)
+{
+  for (size_type nn = 0; nn < _values.size(); )
+  {
+    if (_values[nn].name == name)
+      _values.erase(_values.begin() + nn);
+    else
+      ++nn;
+  }
+
+  return *this;
+}
+
 /// get nth named parameter.
 const std::string& QueryParams::param(const std::string& name, size_type n) const
 {
