@@ -184,14 +184,15 @@ void ClientImpl::readBody(std::string& s)
     {
         log_debug("read body with chunked encoding");
 
-        char ch;
-        while (_chunkedIStream.get(ch))
-            s += ch;
-
-        log_debug("eod=" << _chunkedIStream.eod());
+        std::streambuf::int_type ch;
+        while ((ch = _chunkedIStream.rdbuf()->sbumpc()) != std::streambuf::traits_type::eof())
+            s += std::streambuf::traits_type::to_char_type(ch);
 
         if (!_chunkedIStream.eod())
+        {
+            _chunkedIStream.setstate(std::ios::failbit);
             throw IOError("error reading HTTP reply body: incomplete chunked data stream");
+        }
     }
     else
     {
@@ -201,12 +202,23 @@ void ClientImpl::readBody(std::string& s)
 
         s.reserve(n);
 
-        char ch;
-        while (n-- && _stream.get(ch))
-            s += ch;
+        char buffer[512];
+        std::streamsize nn;
+        while ( n > 0
+            && (nn = _stream.rdbuf()->sgetn(
+                            buffer,
+                            std::min(n, static_cast<unsigned>(sizeof(buffer))))) > 0)
+        {
+            s.append(buffer, nn);
+            n -= nn;
+            log_debug("got " << nn << " bytes; " << n << " to read");
+        }
 
-        if (_stream.fail())
+        if (n > 0)
+        {
+            _stream.setstate(std::ios::failbit);
             throw IOError("error reading HTTP reply body");
+        }
 
         //log_debug("body read: \"" << s << '"');
     }
