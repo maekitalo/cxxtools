@@ -74,6 +74,9 @@ namespace
         si.setTypeName(typeName);
     }
 
+    bool runXml = true;
+    bool runJson = true;
+    bool runBin = true;
 }
 
 // Function, which calls the serializer.
@@ -158,14 +161,23 @@ void benchVector(const char* typeName, unsigned N, T increment, bool fileoutput)
     for (unsigned n = 0; n < N; ++n, value += increment)
         v.push_back(value);
 
-    std::cout << "xml:" << std::endl;
-    benchXmlSerialization(v, fileoutput ? (std::string("vector-") + typeName + ".xml").c_str() : 0);
+    if (runXml)
+    {
+        std::cout << "xml:" << std::endl;
+        benchXmlSerialization(v, fileoutput ? (std::string("vector-") + typeName + ".xml").c_str() : 0);
+    }
 
-    std::cout << "json:" << std::endl;
-    benchJsonSerialization(v, fileoutput ? (std::string("vector-") + typeName + ".json").c_str() : 0);
+    if (runJson)
+    {
+        std::cout << "json:" << std::endl;
+        benchJsonSerialization(v, fileoutput ? (std::string("vector-") + typeName + ".json").c_str() : 0);
+    }
 
-    std::cout << "bin:" << std::endl;
-    benchBinSerialization(v, fileoutput ? (std::string("vector-") + typeName + ".bin").c_str() : 0);
+    if (runBin)
+    {
+        std::cout << "bin:" << std::endl;
+        benchBinSerialization(v, fileoutput ? (std::string("vector-") + typeName + ".bin").c_str() : 0);
+    }
 }
 
 int main(int argc, char* argv[])
@@ -181,6 +193,15 @@ int main(int argc, char* argv[])
         cxxtools::Arg<unsigned> C(argc, argv, 'C', nn);
 
         cxxtools::Arg<bool> fileoutput(argc, argv, 'f');
+
+        runXml  = cxxtools::Arg<bool>(argc, argv, 'x');
+        runJson = cxxtools::Arg<bool>(argc, argv, 'j');
+        runBin  = cxxtools::Arg<bool>(argc, argv, 'b');
+
+        if (!runXml && !runJson && !runBin)
+        {
+            runXml  = runJson = runBin  = true;
+        }
 
         std::cout << "benchmark serializer with " << I.getValue() << " int vector " << D.getValue() << " double vector and " << C.getValue() << " custom vector iterations\n\n"
                      "options:\n"
@@ -211,14 +232,23 @@ int main(int argc, char* argv[])
                 v.push_back(obj);
             }
 
-            std::cout << "xml:" << std::endl;
-            benchXmlSerialization(v, fileoutput ? "custobject.xml" : 0);
+            if (runXml)
+            {
+                std::cout << "xml:" << std::endl;
+                benchXmlSerialization(v, fileoutput ? "custobject.xml" : 0);
+            }
 
-            std::cout << "json:" << std::endl;
-            benchJsonSerialization(v, fileoutput ? "custobject.json" : 0);
+            if (runJson)
+            {
+                std::cout << "json:" << std::endl;
+                benchJsonSerialization(v, fileoutput ? "custobject.json" : 0);
+            }
 
-            std::cout << "bin:" << std::endl;
-            benchBinSerialization(v, fileoutput ? "custobject.bin" : 0);
+            if (runBin)
+            {
+                std::cout << "bin:" << std::endl;
+                benchBinSerialization(v, fileoutput ? "custobject.bin" : 0);
+            }
         }
 
     }
