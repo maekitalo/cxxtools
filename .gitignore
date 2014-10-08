@@ -74,6 +74,7 @@ cxxtools-config
 **/demo/timer
 **/demo/uuencode
 **/test/alltests
+**/test/logbench
 **/test/rpcbenchclient
 **/test/rpcbenchserver
 **/test/serializer-bench
