@@ -1,5 +1,5 @@
 noinst_PROGRAMS = arg arg-set cgi dir dlloader getini hd \
-	httprequest httpserver log logsh md5sum mime multifstream netcat \
+	httpclient httprequest httpserver log logsh md5sum mime multifstream netcat \
 	netio netmsg pipestream pool signals thread threadpool uuencode cxxlog \
 	rpcserver rpcechoclient rpcaddclient splitter json regex execLs rpcasyncaddclient \
 	deserialization serialization rpcparallelecho timer
@@ -11,6 +11,7 @@ dir_SOURCES = dir.cpp
 dlloader_SOURCES = dlloader.cpp
 getini_SOURCES = getini.cpp
 hd_SOURCES = hd.cpp
+httpclient_SOURCES = httpclient.cpp
 httprequest_SOURCES = httprequest.cpp
 httpserver_SOURCES = httpserver.cpp
 log_SOURCES = log.cpp
@@ -55,8 +56,9 @@ JSON_LIBS = $(HTTP_LIBS) $(top_builddir)/src/json/libcxxtools-json.la
 AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/include -I$(top_srcdir)/include
 LDADD = $(top_builddir)/src/libcxxtools.la
 
-httpserver_LDADD =  $(HTTP_LIBS)
+httpclient_LDADD =  $(HTTP_LIBS)
 httprequest_LDADD = $(HTTP_LIBS)
+httpserver_LDADD =  $(HTTP_LIBS)
 rpcserver_LDADD = $(XMLRPC_LIBS) $(BIN_LIBS) $(JSON_LIBS)
 rpcechoclient_LDADD = $(XMLRPC_LIBS) $(BIN_LIBS) $(JSON_LIBS)
 rpcaddclient_LDADD = $(XMLRPC_LIBS) $(BIN_LIBS) $(JSON_LIBS)

@@ -63,6 +63,19 @@ namespace net
             AddrInfoImpl* _impl;
     };
 
+    inline bool operator== (const AddrInfo& a1, const AddrInfo& a2)
+    {
+        return a1.impl() == a2.impl()
+            || (a1.impl() != 0 && a2.impl() != 0
+                && a1.host() == a2.host()
+                && a2.port() == a2.port());
+    }
+
+    inline bool operator!= (const AddrInfo& a1, const AddrInfo& a2)
+    {
+        return !(a1 == a2);
+    }
+
 } // namespace net
 
 } // namespace cxxtools

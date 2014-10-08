@@ -119,8 +119,11 @@ class ClientImpl : public RefCounted, public Connectable
         // Sets the server and port. No actual network connect is done.
         void prepareConnect(const net::AddrInfo& addrinfo)
         {
-            _addrInfo = addrinfo;
-            _socket.close();
+            if (addrinfo != _addrInfo)
+            {
+                _addrInfo = addrinfo;
+                _socket.close();
+            }
         }
 
         void connect()

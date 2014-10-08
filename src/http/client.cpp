@@ -128,6 +128,7 @@ void Client::prepareConnect(const net::Uri& uri)
     if (uri.protocol() != "http")
         throw std::runtime_error("only http is supported by http client");
     prepareConnect(net::AddrInfo(uri.host(), uri.port()));
+    auth(uri.user(), uri.password());
 }
 
 void Client::connect()
