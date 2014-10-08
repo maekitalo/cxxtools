@@ -31,7 +31,6 @@
 #include <cxxtools/string.h>
 #include <cxxtools/deserializer.h>
 #include "cxxtools/xml/xmlreader.h"
-#include <memory>
 
 namespace cxxtools
 {
@@ -40,7 +39,6 @@ namespace xml
 {
 
     class XmlReader;
-    class Node;
 
     /** @brief Deserialize objects or object data to XML
 
@@ -50,12 +48,9 @@ namespace xml
     class XmlDeserializer : public Deserializer
     {
         public:
-            explicit XmlDeserializer(cxxtools::xml::XmlReader& reader);
+            explicit XmlDeserializer(XmlReader& reader);
 
             explicit XmlDeserializer(std::istream& is);
-
-            cxxtools::xml::XmlReader& reader()
-            { return *_reader; }
 
             template <typename T>
             static void toObject(const std::string& str, T& type)
@@ -80,35 +75,29 @@ namespace xml
             }
 
         protected:
-            void doDeserialize();
+            void doDeserialize(XmlReader& reader);
 
             //! @internal
-            void beginDocument(const cxxtools::xml::Node& node);
+            void beginDocument(XmlReader& reader);
 
             //! @internal
-            void onRootElement(const cxxtools::xml::Node& node);
+            void onRootElement(XmlReader& reader);
 
             //! @internal
-            void onStartElement(const cxxtools::xml::Node& node);
+            void onStartElement(XmlReader& reader);
 
             //! @internal
-            void onWhitespace(const cxxtools::xml::Node& node);
+            void onWhitespace(XmlReader& reader);
 
             //! @internal
-            void onContent(const cxxtools::xml::Node& node);
+            void onContent(XmlReader& reader);
 
             //! @internal
-            void onEndElement(const cxxtools::xml::Node& node);
+            void onEndElement(XmlReader& reader);
 
         private:
             //! @internal
-            cxxtools::xml::XmlReader* _reader;
-
-            //! @internal
-            std::auto_ptr<cxxtools::xml::XmlReader> _deleter;
-
-            //! @internal
-            typedef void (XmlDeserializer::*ProcessNode)(const cxxtools::xml::Node&);
+            typedef void (XmlDeserializer::*ProcessNode)(XmlReader&);
 
             //! @internal
             ProcessNode _processNode;

@@ -42,45 +42,53 @@ namespace cxxtools {
 namespace net {
 
 TcpSocket::TcpSocket()
-: _impl(0)
+: _impl(new TcpSocketImpl(*this))
 {
-    _impl = new TcpSocketImpl(*this);
 }
 
 
 TcpSocket::TcpSocket(const TcpServer& server, unsigned flags)
-: _impl(0)
+: _impl(new TcpSocketImpl(*this))
 {
-    _impl = new TcpSocketImpl(*this);
-    std::auto_ptr<TcpSocketImpl> impl(_impl);
-
-    this->accept(server, flags);
-
-    impl.release();
+    try
+    {
+        accept(server, flags);
+    }
+    catch (...)
+    {
+        delete _impl;
+        throw;
+    }
 }
 
 
 TcpSocket::TcpSocket(const std::string& ipaddr, unsigned short int port)
-: _impl(0)
+: _impl(new TcpSocketImpl(*this))
 {
-    _impl = new TcpSocketImpl(*this);
-    std::auto_ptr<TcpSocketImpl> impl(_impl);
-
-    this->connect(ipaddr, port);
-
-    impl.release();
+    try
+    {
+        connect(ipaddr, port);
+    }
+    catch (...)
+    {
+        delete _impl;
+        throw;
+    }
 }
 
 
 TcpSocket::TcpSocket(const AddrInfo& addrinfo)
-: _impl(0)
+: _impl(new TcpSocketImpl(*this))
 {
-    _impl = new TcpSocketImpl(*this);
-    std::auto_ptr<TcpSocketImpl> impl(_impl);
-
-    this->connect(addrinfo);
-
-    impl.release();
+    try
+    {
+        connect(addrinfo);
+    }
+    catch (...)
+    {
+        delete _impl;
+        throw;
+    }
 }
 
 
@@ -88,7 +96,7 @@ TcpSocket::~TcpSocket()
 {
     try
     {
-        this->close();
+        close();
     }
     catch(const std::exception& e)
     {
@@ -125,21 +133,21 @@ Milliseconds TcpSocket::timeout() const
 
 void TcpSocket::connect(const AddrInfo& addrinfo)
 {
-    this->close();
+    close();
     _impl->connect(addrinfo);
-    this->setEnabled(true);
-    this->setAsync(true);
-    this->setEof(false);
+    setEnabled(true);
+    setAsync(true);
+    setEof(false);
 }
 
 
 bool TcpSocket::beginConnect(const AddrInfo& addrinfo)
 {
-    this->close();
+    close();
     bool ret = _impl->beginConnect(addrinfo);
-    this->setEnabled(true);
-    this->setAsync(true);
-    this->setEof(false);
+    setEnabled(true);
+    setAsync(true);
+    setEof(false);
 
     if(ret)
         connected(*this);
@@ -175,11 +183,11 @@ int TcpSocket::getFd() const
 
 void TcpSocket::accept(const TcpServer& server, unsigned flags)
 {
-    this->close();
+    close();
     _impl->accept(server, flags);
-    this->setEnabled(true);
-    this->setAsync(true);
-    this->setEof(false);
+    setEnabled(true);
+    setAsync(true);
+    setEof(false);
 }
 
 

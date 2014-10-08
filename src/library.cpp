@@ -32,26 +32,28 @@
 #include "cxxtools/directory.h"
 #include "cxxtools/log.h"
 #include <string>
-#include <memory>
 
 log_define("cxxtools.library")
 
 namespace cxxtools {
 
 Library::Library()
-: _impl(0)
-{
-    _impl = new LibraryImpl();
-}
+: _impl(new LibraryImpl())
+{ }
 
 
 Library::Library(const std::string& path)
-: _impl(0)
+: _impl(new LibraryImpl())
 {
-    std::auto_ptr<LibraryImpl> impl( new LibraryImpl() );
-    _impl = impl.get();
-    open(path);
-    impl.release();
+    try
+    {
+        open(path);
+    }
+    catch (...)
+    {
+        delete _impl;
+        throw;
+    }
 }
 
 
@@ -59,7 +61,7 @@ Library::Library(const Library& other)
 {
     _path = other._path;
     _impl = other._impl;
-    _impl->ref();
+    _impl->addRef();
 }
 
 
@@ -70,9 +72,9 @@ Library& Library::operator=(const Library& other)
 
     _path = other._path;
 
-    other._impl->ref();
+    other._impl->addRef();
 
-    if( ! _impl->unref() )
+    if( ! _impl->release() )
         delete _impl;
 
     _impl = other._impl;
@@ -83,7 +85,7 @@ Library& Library::operator=(const Library& other)
 
 Library::~Library()
 {
-    if ( ! _impl->unref() )
+    if ( ! _impl->release() )
         delete _impl;
 }
 
@@ -98,7 +100,7 @@ void Library::detach()
     LibraryImpl* x = _impl;
     _impl = new LibraryImpl();
 
-    if( ! x->unref() )
+    if( ! x->release() )
         delete x;
 }
 

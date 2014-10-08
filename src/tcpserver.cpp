@@ -61,11 +61,16 @@ TcpServer::TcpServer(const std::string& ipaddr, unsigned short int port, int bac
 : _impl(0)
 {
     _impl = new TcpServerImpl(*this);
-    std::auto_ptr<TcpServerImpl> impl(_impl);
 
-    this->listen(ipaddr, port, backlog, flags);
-
-    impl.release();
+    try
+    {
+        listen(ipaddr, port, backlog, flags);
+    }
+    catch (...)
+    {
+        delete _impl;
+        throw;
+    }
 }
 
 

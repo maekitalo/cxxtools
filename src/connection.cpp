@@ -26,7 +26,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 #include "cxxtools/connectable.h"
-#include <memory>
 
 namespace cxxtools {
 
@@ -38,14 +37,21 @@ Connection::Connection()
 
 Connection::Connection(Connectable& sender, Slot* slot)
 {
-    std::auto_ptr<ConnectionData> data( new ConnectionData(sender, slot) );
-    _data = data.get();
-    _data->setValid(false);
+    _data = new ConnectionData(sender, slot);
 
-    sender.onConnectionOpen(*this);
-    slot->onConnect(*this);
-   _data->setValid(true);
-    data.release();
+    try
+    {
+        _data->setValid(false);
+
+        sender.onConnectionOpen(*this);
+        slot->onConnect(*this);
+       _data->setValid(true);
+    }
+    catch (...)
+    {
+        delete _data;
+        throw;
+    }
 }
 
 

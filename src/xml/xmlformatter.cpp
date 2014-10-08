@@ -35,23 +35,20 @@ namespace xml {
 
 XmlFormatter::XmlFormatter()
 : _writer(0)
-, _deleter(0)
 , _useAttributes(true)
 {
 }
 
 XmlFormatter::XmlFormatter(std::ostream& os)
-: _writer( 0 )
-, _deleter( new XmlWriter(os) )
+: _writer( new XmlWriter(os) )
+, _deleter( _writer )
 , _useAttributes(true)
 {
-    _writer = _deleter.get();
 }
 
 
 XmlFormatter::XmlFormatter(XmlWriter* writer)
 : _writer(writer)
-, _deleter(0)
 {
 }
 
@@ -67,8 +64,7 @@ void XmlFormatter::attach(std::ostream& os)
     if (_writer)
         throw std::logic_error("XmlSerizalizer is already open");
 
-    _deleter.reset(new XmlWriter(os));
-    _writer = _deleter.get();
+    _deleter = _writer = new XmlWriter(os);
 }
 
 
@@ -77,7 +73,7 @@ void XmlFormatter::attach(XmlWriter& writer)
     if (_writer)
         throw std::logic_error("XmlSerizalizer is already open");
 
-    _deleter.reset(0);
+    _deleter = 0;
     _writer = &writer;
 }
 
@@ -87,7 +83,7 @@ void XmlFormatter::detach()
     if (_writer)
     {
         this->flush();
-        _deleter.reset(0);
+        _deleter = 0;
         _writer = 0;
     }
 }

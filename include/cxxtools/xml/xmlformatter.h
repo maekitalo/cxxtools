@@ -30,7 +30,7 @@
 
 #include <cxxtools/formatter.h>
 #include <cxxtools/xml/xmlwriter.h>
-#include <memory>
+#include <cxxtools/smartptr.h>
 
 namespace cxxtools
 {
@@ -68,7 +68,7 @@ class XmlFormatter : public cxxtools::Formatter
             This class will not free the given XmlWriter object. The caller is
             responsible to free it if needed.
         */
-        XmlFormatter(cxxtools::xml::XmlWriter* writer);
+        XmlFormatter(XmlWriter* writer);
 
         //! @brief Destructor
         ~XmlFormatter();
@@ -97,7 +97,7 @@ class XmlFormatter : public cxxtools::Formatter
             This class will not free the given XmlWriter object. The caller is
             responsible to free it if needed.
         */
-        void attach(cxxtools::xml::XmlWriter& writer);
+        void attach(XmlWriter& writer);
 
         /** @brief Detaches the currently set writer from this object.
 
@@ -155,10 +155,10 @@ class XmlFormatter : public cxxtools::Formatter
                         const String& category);
 
         //! @internal
-        cxxtools::xml::XmlWriter* _writer;
+        XmlWriter* _writer;
 
         //! @internal
-        std::auto_ptr<cxxtools::xml::XmlWriter> _deleter;
+        cxxtools::SmartPtr<XmlWriter, cxxtools::ExternalRefCounted> _deleter;
 
         bool _useAttributes;
 };

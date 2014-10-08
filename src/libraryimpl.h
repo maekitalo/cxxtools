@@ -29,21 +29,22 @@
 #define CXXTOOLS_LIBRARYIMPL_H
 
 #include "cxxtools/systemerror.h"
+#include "cxxtools/refcounted.h"
 #include <string>
 #include <dlfcn.h>
 
 namespace cxxtools {
 
-class LibraryImpl
+class LibraryImpl : public RefCounted
 {
     public:
         LibraryImpl()
-        : _refs(1)
+        : RefCounted(1)
         , _handle(0)
         { }
 
         LibraryImpl(const std::string& path)
-        : _refs(1)
+        : RefCounted(1)
         , _handle(0)
         {
             this->open(path);
@@ -53,21 +54,6 @@ class LibraryImpl
         {
             if(_handle)
                 ::dlclose(_handle);
-        }
-
-        unsigned refs() const
-        {
-            return _refs;
-        }
-
-        unsigned ref()
-        {
-            return ++_refs;
-        }
-
-        unsigned unref()
-        {
-            return --_refs;
         }
 
         void open(const std::string& path);
@@ -90,7 +76,6 @@ class LibraryImpl
         }
 
     private:
-        unsigned _refs;
         void* _handle;
 };
 

@@ -36,37 +36,34 @@ namespace cxxtools {
 
 namespace xml {
 
-XmlDeserializer::XmlDeserializer(cxxtools::xml::XmlReader& reader)
-: _reader(&reader)
+XmlDeserializer::XmlDeserializer(XmlReader& reader)
 {
-    doDeserialize();
+    doDeserialize(reader);
 }
 
 
 XmlDeserializer::XmlDeserializer(std::istream& is)
-: _reader( 0 )
-, _deleter( new cxxtools::xml::XmlReader(is) )
 {
-    _reader = _deleter.get();
-    doDeserialize();
+    XmlReader reader(is);
+    doDeserialize(reader);
 }
 
 
-void XmlDeserializer::doDeserialize()
+void XmlDeserializer::doDeserialize(XmlReader& reader)
 {
     begin();
 
-    if(_reader->get().type() != cxxtools::xml::Node::StartElement)
-        _reader->nextElement();
+    if(reader.get().type() != Node::StartElement)
+        reader.nextElement();
 
     _processNode = &XmlDeserializer::beginDocument;
 
-    _startDepth = _reader->depth();
-    for(cxxtools::xml::XmlReader::Iterator it = _reader->current(); it != _reader->end(); ++it)
+    _startDepth = reader.depth();
+    for(XmlReader::Iterator it = reader.current(); it != reader.end(); ++it)
     {
-        (this->*_processNode)(*it);
+        (this->*_processNode)(reader);
 
-        if( (it->type() == cxxtools::xml::Node::EndElement) && (_reader->depth() < _startDepth) )
+        if( (it->type() == Node::EndElement) && (reader.depth() < _startDepth) )
         {
             break;
         }
@@ -74,15 +71,16 @@ void XmlDeserializer::doDeserialize()
 }
 
 
-void XmlDeserializer::beginDocument(const cxxtools::xml::Node& node)
+void XmlDeserializer::beginDocument(XmlReader& reader)
 {
+    const Node& node = *reader.current();
     switch( node.type() )
     {
-        case cxxtools::xml::Node::StartElement:
+        case Node::StartElement:
         {
-            _nodeName = static_cast<const cxxtools::xml::StartElement&>(node).name();
-            _nodeType = static_cast<const cxxtools::xml::StartElement&>(node).attribute(L"type");
-            _nodeCategory = static_cast<const cxxtools::xml::StartElement&>(node).attribute(L"category");
+            _nodeName = static_cast<const StartElement&>(node).name();
+            _nodeType = static_cast<const StartElement&>(node).attribute(L"type");
+            _nodeCategory = static_cast<const StartElement&>(node).attribute(L"category");
             setName( _nodeName.narrow() );
 
             _processNode = &XmlDeserializer::onRootElement;
@@ -94,13 +92,14 @@ void XmlDeserializer::beginDocument(const cxxtools::xml::Node& node)
 }
 
 
-void XmlDeserializer::onRootElement(const cxxtools::xml::Node& node)
+void XmlDeserializer::onRootElement(XmlReader& reader)
 {
+    const Node& node = *reader.current();
     switch( node.type() )
     {
-        case cxxtools::xml::Node::Characters:
+        case Node::Characters:
         {
-            const cxxtools::xml::Characters& chars = static_cast<const cxxtools::xml::Characters&>(node);
+            const Characters& chars = static_cast<const cxxtools::xml::Characters&>(node);
             if(cxxtools::String::npos != chars.content().find_first_not_of(L" \t\n\r") )
             {
                 setValue( chars.content() );
@@ -113,11 +112,11 @@ void XmlDeserializer::onRootElement(const cxxtools::xml::Node& node)
 
             break;
         }
-        case cxxtools::xml::Node::StartElement:
+        case Node::StartElement:
         {
-            _nodeName = static_cast<const cxxtools::xml::StartElement&>(node).name();
-            _nodeType = static_cast<const cxxtools::xml::StartElement&>(node).attribute(L"type");
-            _nodeCategory = static_cast<const cxxtools::xml::StartElement&>(node).attribute(L"category");
+            _nodeName = static_cast<const StartElement&>(node).name();
+            _nodeType = static_cast<const StartElement&>(node).attribute(L"type");
+            _nodeCategory = static_cast<const StartElement&>(node).attribute(L"category");
 
             _processNode = &XmlDeserializer::onStartElement;
             break;
@@ -129,13 +128,14 @@ void XmlDeserializer::onRootElement(const cxxtools::xml::Node& node)
 }
 
 
-void XmlDeserializer::onStartElement(const cxxtools::xml::Node& node)
+void XmlDeserializer::onStartElement(XmlReader& reader)
 {
+    const Node& node = *reader.current();
     switch( node.type() )
     {
-        case cxxtools::xml::Node::Characters:
+        case Node::Characters:
         {
-            const cxxtools::xml::Characters& chars = static_cast<const cxxtools::xml::Characters&>(node);
+            const Characters& chars = static_cast<const cxxtools::xml::Characters&>(node);
             if(cxxtools::String::npos != chars.content().find_first_not_of(L" \t\n\r") )
             {
                 std::string nodeName = _nodeName.narrow();
@@ -158,7 +158,7 @@ void XmlDeserializer::onStartElement(const cxxtools::xml::Node& node)
 
             break;
         }
-        case cxxtools::xml::Node::StartElement:
+        case Node::StartElement:
         {
             std::string nodeName = _nodeName.narrow();
             std::string nodeType = _nodeType.empty() ? nodeName : _nodeType.narrow();
@@ -166,14 +166,14 @@ void XmlDeserializer::onStartElement(const cxxtools::xml::Node& node)
             //SerializationInfo& added = _current->addMember( _nodeName.narrow() );
             //_current = &added;
 
-            _nodeName = static_cast<const cxxtools::xml::StartElement&>(node).name();
-            _nodeType = static_cast<const cxxtools::xml::StartElement&>(node).attribute(L"type");
-            _nodeCategory = static_cast<const cxxtools::xml::StartElement&>(node).attribute(L"category");
+            _nodeName = static_cast<const StartElement&>(node).name();
+            _nodeType = static_cast<const StartElement&>(node).attribute(L"type");
+            _nodeCategory = static_cast<const StartElement&>(node).attribute(L"category");
             break;
         }
-        case cxxtools::xml::Node::EndElement:
+        case Node::EndElement:
         {
-            if( _nodeName != static_cast<const cxxtools::xml::EndElement&>(node).name() )
+            if( _nodeName != static_cast<const EndElement&>(node).name() )
                 throw std::logic_error("Invalid element");
 
             std::string nodeName = _nodeName.narrow();
@@ -192,23 +192,24 @@ void XmlDeserializer::onStartElement(const cxxtools::xml::Node& node)
 }
 
 
-void XmlDeserializer::onWhitespace(const cxxtools::xml::Node& node)
+void XmlDeserializer::onWhitespace(XmlReader& reader)
 {
+    const Node& node = *reader.current();
     switch( node.type() )
     {
-        case cxxtools::xml::Node::StartElement:
+        case Node::StartElement:
         {
-            _nodeName = static_cast<const cxxtools::xml::StartElement&>(node).name();
-            _nodeType = static_cast<const cxxtools::xml::StartElement&>(node).attribute(L"type");
-            _nodeCategory = static_cast<const cxxtools::xml::StartElement&>(node).attribute(L"category");
+            _nodeName = static_cast<const StartElement&>(node).name();
+            _nodeType = static_cast<const StartElement&>(node).attribute(L"type");
+            _nodeCategory = static_cast<const StartElement&>(node).attribute(L"category");
             _processNode = &XmlDeserializer::onStartElement;
             break;
         }
-        case cxxtools::xml::Node::EndElement:
+        case Node::EndElement:
         {
-            _nodeName = static_cast<const cxxtools::xml::EndElement&>(node).name();
+            _nodeName = static_cast<const EndElement&>(node).name();
 
-            if(_reader->depth() >= _startDepth)
+            if(reader.depth() >= _startDepth)
                 leaveMember();
 
             _processNode = &XmlDeserializer::onEndElement;
@@ -220,11 +221,12 @@ void XmlDeserializer::onWhitespace(const cxxtools::xml::Node& node)
 }
 
 
-void XmlDeserializer::onContent(const cxxtools::xml::Node& node)
+void XmlDeserializer::onContent(XmlReader& reader)
 {
+    const Node& node = *reader.current();
     switch( node.type() )
     {
-        case cxxtools::xml::Node::EndElement:
+        case Node::EndElement:
         {
             _processNode = &XmlDeserializer::onEndElement;
             break;
@@ -235,33 +237,34 @@ void XmlDeserializer::onContent(const cxxtools::xml::Node& node)
 }
 
 
-void XmlDeserializer::onEndElement(const cxxtools::xml::Node& node)
+void XmlDeserializer::onEndElement(XmlReader& reader)
 {
+    const Node& node = *reader.current();
     switch( node.type() )
     {
-        case cxxtools::xml::Node::Characters:
+        case Node::Characters:
         {
             _processNode = &XmlDeserializer::onWhitespace;
             break;
         }
-        case cxxtools::xml::Node::StartElement:
+        case Node::StartElement:
         {
-            _nodeName = static_cast<const cxxtools::xml::StartElement&>(node).name();
-            _nodeType = static_cast<const cxxtools::xml::StartElement&>(node).attribute(L"type");
-            _nodeCategory = static_cast<const cxxtools::xml::StartElement&>(node).attribute(L"category");
+            _nodeName = static_cast<const StartElement&>(node).name();
+            _nodeType = static_cast<const StartElement&>(node).attribute(L"type");
+            _nodeCategory = static_cast<const StartElement&>(node).attribute(L"category");
             _processNode = &XmlDeserializer::onStartElement;
             break;
         }
-        case cxxtools::xml::Node::EndElement:
+        case Node::EndElement:
         {
-            _nodeName = static_cast<const cxxtools::xml::EndElement&>(node).name();
+            _nodeName = static_cast<const EndElement&>(node).name();
 
-            if(_reader->depth() >= _startDepth)
+            if(reader.depth() >= _startDepth)
                 leaveMember();
 
             break;
         }
-        case cxxtools::xml::Node::EndDocument:
+        case Node::EndDocument:
         {
             break;
         }
