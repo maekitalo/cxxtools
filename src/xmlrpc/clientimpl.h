@@ -99,7 +99,7 @@ class ClientImpl : public cxxtools::Connectable
 
         virtual void endExecute() = 0;
 
-        virtual std::string execute() = 0;
+        virtual std::istream& execute() = 0;
 
         virtual std::ostream& prepareRequest() = 0;
 

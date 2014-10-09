@@ -52,9 +52,9 @@ void ClientImpl::ParseEvent::onHttpReturn(unsigned ret, const std::string& text)
 
 ClientImpl::ClientImpl(Client* client)
 : _client(client)
-, _parseEvent(_replyHeader)
-, _parser(_parseEvent, true)
 , _request(0)
+, _parseEvent(_reply.header())
+, _parser(_parseEvent, true)
 , _stream(8192, true)
 , _chunkedIStream(_stream.rdbuf())
 , _contentLength(0)
@@ -115,7 +115,7 @@ const ReplyHeader& ClientImpl::execute(const Request& request, Timespan timeout,
     if (connectTimeout < Timespan(0))
         connectTimeout = timeout;
 
-    _replyHeader.clear();
+    _reply.clear();
 
     _socket.setTimeout(connectTimeout);
 
@@ -170,24 +170,20 @@ const ReplyHeader& ClientImpl::execute(const Request& request, Timespan timeout,
     if (!_parser.end())
         throw IOError("incomplete HTTP reply header");
 
-    return _replyHeader;
+    return _reply.header();
 }
 
 
-void ClientImpl::readBody(std::string& s)
+void ClientImpl::readBody()
 {
-    s.clear();
-
-    _chunkedEncoding = _replyHeader.chunkedTransferEncoding();
+    _chunkedEncoding = _reply.header().chunkedTransferEncoding();
     _chunkedIStream.reset();
 
     if (_chunkedEncoding)
     {
         log_debug("read body with chunked encoding");
 
-        std::streambuf::int_type ch;
-        while ((ch = _chunkedIStream.rdbuf()->sbumpc()) != std::streambuf::traits_type::eof())
-            s += std::streambuf::traits_type::to_char_type(ch);
+        _reply.bodyStream() << _chunkedIStream.rdbuf();
 
         if (!_chunkedIStream.eod())
         {
@@ -197,11 +193,9 @@ void ClientImpl::readBody(std::string& s)
     }
     else
     {
-        unsigned n = _replyHeader.contentLength();
+        unsigned n = _reply.header().contentLength();
 
         log_debug("read body; content-size: " << n);
-
-        s.reserve(n);
 
         char buffer[512];
         std::streamsize nn;
@@ -210,21 +204,22 @@ void ClientImpl::readBody(std::string& s)
                             buffer,
                             std::min(n, static_cast<unsigned>(sizeof(buffer))))) > 0)
         {
-            s.append(buffer, nn);
             n -= nn;
             log_debug("got " << nn << " bytes; " << n << " to read");
+
+            if (_reply.bodyStream().write(buffer, nn))
+                break;
         }
 
-        if (n > 0)
+        if (n > 0 || !_reply.bodyStream())
         {
             _stream.setstate(std::ios::failbit);
             throw IOError("error reading HTTP reply body");
         }
 
-        //log_debug("body read: \"" << s << '"');
     }
 
-    if (!_replyHeader.keepAlive())
+    if (!_reply.header().keepAlive())
     {
         log_debug("close socket - no keep alive");
         _socket.close();
@@ -245,7 +240,7 @@ void ClientImpl::beginExecute(const Request& request)
 
     _errorPending = false;
     _request = &request;
-    _replyHeader.clear();
+    _reply.clear();
     if (_socket.isConnected())
     {
         log_debug("we are connected already");
@@ -508,7 +503,7 @@ void ClientImpl::processHeaderAvailable(StreamBuffer& sb)
 
     if( _parser.end() )
     {
-        _chunkedEncoding = _replyHeader.chunkedTransferEncoding();
+        _chunkedEncoding = _reply.header().chunkedTransferEncoding();
 
         _client->headerReceived(*_client);
         _readHeader = false;
@@ -530,7 +525,7 @@ void ClientImpl::processHeaderAvailable(StreamBuffer& sb)
         }
         else
         {
-            _contentLength = _replyHeader.contentLength();
+            _contentLength = _reply.header().contentLength();
             log_debug("header received - content-length=" << _contentLength);
 
             if (_contentLength > 0)
@@ -546,7 +541,7 @@ void ClientImpl::processHeaderAvailable(StreamBuffer& sb)
             }
             else
             {
-                if (!_replyHeader.keepAlive())
+                if (!_reply.header().keepAlive())
                 {
                     log_debug("close socket - no keep alive");
                     _socket.close();
@@ -601,7 +596,7 @@ void ClientImpl::processBodyAvailable(StreamBuffer& sb)
                 {
                     log_debug("reply finished");
 
-                    if (!_replyHeader.keepAlive())
+                    if (!_reply.header().keepAlive())
                     {
                         log_debug("close socket - no keep alive");
                         _socket.close();
@@ -616,7 +611,7 @@ void ClientImpl::processBodyAvailable(StreamBuffer& sb)
         }
         else if( _chunkedIStream.eod() )
         {
-            if( _replyHeader.hasHeader("Trailer") )
+            if( _reply.header().hasHeader("Trailer") )
                 _parser.readHeader();
             else
                 _client->replyFinished(*_client);
@@ -652,7 +647,7 @@ void ClientImpl::processBodyAvailable(StreamBuffer& sb)
         {
             log_debug("reply finished");
 
-            if (!_replyHeader.keepAlive())
+            if (!_reply.header().keepAlive())
             {
                 log_debug("close socket - no keep alive");
                 _socket.close();

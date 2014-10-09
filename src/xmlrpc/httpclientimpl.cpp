@@ -96,24 +96,21 @@ void HttpClientImpl::endExecute()
     _client.endExecute();
 }
 
-std::string HttpClientImpl::execute()
+std::istream& HttpClientImpl::execute()
 {
     _client.execute(_request, timeout(), connectTimeout());
-
-    std::string body;
 
     try
     {
         verifyHeader(_client.header());
-        _client.readBody(body);
+        _client.readBody();
+        return _client.reply().bodyStream();
     }
     catch (...)
     {
         _client.cancel();
         throw;
     }
-
-    return body;
 }
 
 std::ostream& HttpClientImpl::prepareRequest()

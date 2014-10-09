@@ -148,7 +148,7 @@ int main(int argc, char* argv[])
         if (wait > 0 && a > 1)
           cxxtools::Thread::sleep(wait * 1000);
 
-        std::cout << client.get(argv[a]);
+        std::cout << client.get(argv[a]).body();
       }
     }
   }

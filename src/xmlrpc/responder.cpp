@@ -198,7 +198,7 @@ void XmlRpcResponder::reply(std::ostream& os, http::Request& request, http::Repl
     {
         _fault.rc(fault.rc());
         _fault.text(fault.text());
-        replyError(reply.body(), request, reply, fault);
+        replyError(reply.bodyStream(), request, reply, fault);
     }
     catch (...)
     {

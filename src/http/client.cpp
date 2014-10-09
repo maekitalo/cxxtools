@@ -155,33 +155,41 @@ const ReplyHeader& Client::execute(const Request& request, Milliseconds timeout,
     }
 }
 
-const ReplyHeader& Client::header()
+const Reply& Client::reply() const
 {
-    return _impl->header();
+    return _impl->reply();
 }
 
-void Client::readBody(std::string& s)
+Reply& Client::reply()
 {
-    _impl->readBody(s);
+    return _impl->reply();
 }
 
-std::string Client::get(const std::string& url, const QueryParams& qparams, Milliseconds timeout, Milliseconds connectTimeout)
+const Reply& Client::readBody()
+{
+    _impl->readBody();
+    return reply();
+}
+
+const Reply& Client::get(const std::string& url, const QueryParams& qparams, Milliseconds timeout, Milliseconds connectTimeout)
 {
     Request request(url);
     request.method("GET");
     request.qparams(qparams.getUrl());
     execute(request, timeout, connectTimeout);
-    return readBody();
+    readBody();
+    return _impl->reply();
 }
 
-std::string Client::post(const std::string& url, const QueryParams& qparams, Milliseconds timeout, Milliseconds connectTimeout)
+const Reply& Client::post(const std::string& url, const QueryParams& qparams, Milliseconds timeout, Milliseconds connectTimeout)
 {
     Request request(url);
     request.method("POST");
     request.body() << qparams.getUrl();
     request.addHeader("Content-Type", "application/x-www-form-urlencoded");
     execute(request, timeout, connectTimeout);
-    return readBody();
+    readBody();
+    return _impl->reply();
 }
 
 void Client::beginExecute(const Request& request)

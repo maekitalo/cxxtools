@@ -77,11 +77,11 @@ class ClientImpl : public RefCounted, public Connectable
                 void onHttpReturn(unsigned ret, const std::string& text);
         };
 
+        const Request* _request;
+        Reply _reply;
+
         ParseEvent _parseEvent;
         HeaderParser _parser;
-
-        const Request* _request;
-        ReplyHeader _replyHeader;
 
         net::AddrInfo _addrInfo;
         net::TcpSocket _socket;
@@ -143,21 +143,18 @@ class ClientImpl : public RefCounted, public Connectable
         const ReplyHeader& execute(const Request& request,
             Timespan timeout, Timespan connectTimeout);
 
-        const ReplyHeader& header()
-        { return _replyHeader; }
-
         // Reads the http body after header read with execute.
         // This method blocks until the body is received.
-        void readBody(std::string& s);
+        void readBody();
 
-        // Reads the http body after header read with execute.
-        // This method blocks until the body is received.
-        std::string readBody()
-        {
-            std::string ret;
-            readBody(ret);
-            return ret;
-        }
+        std::string body() const
+        { return _reply.body(); }
+
+        const Reply& reply() const
+        { return _reply; }
+
+        Reply& reply()
+        { return _reply; }
 
         // Starts a new request.
         // This method does not block. To actually process the request, the

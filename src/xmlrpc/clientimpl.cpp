@@ -127,7 +127,7 @@ void ClientImpl::call(IComposer& r, IRemoteProcedure& method, IDecomposer** argv
 
     prepareRequest(method.name(), argv, argc);
 
-    std::istringstream is(execute());
+    std::istream& is = execute();
     _ts.attach(is);
     _reader.reset(_ts);
     _deserializer.begin();

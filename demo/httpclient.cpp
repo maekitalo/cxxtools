@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
       client.prepareConnect(uri);
 
       // Fetch the content from the web server and print out.
-      std::cout << client.get(uri.path(), cxxtools::QueryParams(uri.query()));
+      std::cout << client.get(uri.path(), cxxtools::QueryParams(uri.query())).body();
     }
   }
   catch (const std::exception& e)

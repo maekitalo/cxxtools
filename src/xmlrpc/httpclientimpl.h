@@ -95,7 +95,7 @@ class HttpClientImpl : public RefCounted, public ClientImpl
 
         virtual void endExecute();
 
-        virtual std::string execute();
+        virtual std::istream& execute();
 
         virtual std::ostream& prepareRequest();
 

@@ -140,7 +140,7 @@ void Socket::onInput(StreamBuffer& sb)
         if (_parser.fail())
         {
             _responder = _server.getDefaultResponder(_request);
-            _responder->replyError(_reply.body(), _request, _reply,
+            _responder->replyError(_reply.bodyStream(), _request, _reply,
                 std::runtime_error("invalid http header"));
             _responder->release();
             _responder = 0;
@@ -163,7 +163,7 @@ void Socket::onInput(StreamBuffer& sb)
             catch (const std::exception& e)
             {
                 _reply.setHeader("Connection", "close");
-                _responder->replyError(_reply.body(), _request, _reply, e);
+                _responder->replyError(_reply.bodyStream(), _request, _reply, e);
                 _responder->release();
                 _responder = 0;
                 sendReply();
@@ -201,7 +201,7 @@ void Socket::onInput(StreamBuffer& sb)
             catch (const std::exception& e)
             {
                 _reply.setHeader("Connection", "close");
-                _responder->replyError(_reply.body(), _request, _reply, e);
+                _responder->replyError(_reply.bodyStream(), _request, _reply, e);
                 _responder->release();
                 _responder = 0;
                 sendReply();
@@ -228,13 +228,13 @@ bool Socket::doReply()
     log_trace("http::Socket::doReply");
     try
     {
-        _responder->reply(_reply.body(), _request, _reply);
+        _responder->reply(_reply.bodyStream(), _request, _reply);
     }
     catch (const std::exception& e)
     {
         log_warn("responder reported error: " << e.what());
         _reply.clear();
-        _responder->replyError(_reply.body(), _request, _reply, e);
+        _responder->replyError(_reply.bodyStream(), _request, _reply, e);
     }
 
     _responder->release();

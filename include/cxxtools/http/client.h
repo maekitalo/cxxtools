@@ -30,6 +30,7 @@
 #define cxxtools_Http_Client_h
 
 #include <cxxtools/http/api.h>
+#include <cxxtools/http/reply.h>
 #include <cxxtools/query_params.h>
 #include <cxxtools/selectable.h>
 #include <cxxtools/signal.h>
@@ -161,24 +162,30 @@ class CXXTOOLS_HTTP_API Client
             Milliseconds timeout = Selectable::WaitInfinite,
             Milliseconds connectTimeout = Selectable::WaitInfinite);
 
-        const ReplyHeader& header();
-
         /** Reads the http body after header read with execute.
 
             This method blocks until the body is received.
          */
-        void readBody(std::string& s);
+        const Reply& readBody();
 
-        /** Reads the http body after header read with execute.
-         *
-            This method blocks until the body is received.
+        /** Returns the last executed reply.
          */
-        std::string readBody()
-        {
-            std::string ret;
-            readBody(ret);
-            return ret;
-        }
+        const Reply& reply() const;
+        Reply& reply();
+
+        /** Returns the headers of the last executed reply.
+
+            The headers can be read after calling execute().
+         */
+        const ReplyHeader& header() const
+        { return reply().header(); }
+
+        /** Returns the body of the last executed reply.
+
+            The body can be read after calling readBody().
+         */
+        std::string body() const
+        { return reply().body(); }
 
         /** Executes a GET request with query parameters.
 
@@ -186,7 +193,7 @@ class CXXTOOLS_HTTP_API Client
             When connectTimeout is set to WaitInfinite but timeout is set to
             something else, the connectTimeout is set to timeout as well.
           */
-        std::string get(const std::string& url,
+        const Reply& get(const std::string& url,
             const QueryParams& qparams,
             Milliseconds timeout = Selectable::WaitInfinite,
             Milliseconds connectTimeout = Selectable::WaitInfinite);
@@ -197,7 +204,7 @@ class CXXTOOLS_HTTP_API Client
             When connectTimeout is set to WaitInfinite but timeout is set to
             something else, the connectTimeout is set to timeout as well.
           */
-        std::string get(const std::string& url,
+        const Reply& get(const std::string& url,
             Milliseconds timeout = Selectable::WaitInfinite,
             Milliseconds connectTimeout = Selectable::WaitInfinite)
         { return get(url, QueryParams(), timeout, connectTimeout); }
@@ -208,7 +215,7 @@ class CXXTOOLS_HTTP_API Client
             When connectTimeout is set to WaitInfinite but timeout is set to
             something else, the connectTimeout is set to timeout as well.
           */
-        std::string post(const std::string& url,
+        const Reply& post(const std::string& url,
             const QueryParams& qparams,
             Milliseconds timeout = Selectable::WaitInfinite,
             Milliseconds connectTimeout = Selectable::WaitInfinite);
@@ -219,7 +226,7 @@ class CXXTOOLS_HTTP_API Client
             When connectTimeout is set to WaitInfinite but timeout is set to
             something else, the connectTimeout is set to timeout as well.
           */
-        std::string post(const std::string& url,
+        const Reply& post(const std::string& url,
             Milliseconds timeout = Selectable::WaitInfinite,
             Milliseconds connectTimeout = Selectable::WaitInfinite)
         { return post(url, QueryParams(), timeout, connectTimeout); }

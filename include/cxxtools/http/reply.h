@@ -43,7 +43,7 @@ class Request;
 class Reply
 {
         ReplyHeader _header;
-        std::ostringstream _body;
+        std::stringstream _body;
 
     public:
         Reply()
@@ -96,10 +96,10 @@ class Reply
         void httpReturn(unsigned c, const std::string& t)
         { _header.httpReturn(c, t); }
 
-        std::string bodyStr() const
+        std::string body() const
         { return _body.str(); }
 
-        std::ostream& body()
+        std::stringstream& bodyStream()
         { return _body; }
 
         std::size_t bodySize() const
@@ -107,6 +107,9 @@ class Reply
 
         void sendBody(std::ostream& out) const
         { out << _body.str(); }
+
+        operator std::string() const
+        { return _body.str(); }
 
 };
 
