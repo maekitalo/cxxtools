@@ -29,7 +29,6 @@
 #include "tcpsocketimpl.h"
 #include "cxxtools/net/tcpsocket.h"
 #include <stdexcept>
-#include <memory>
 #include "cxxtools/log.h"
 #include <errno.h>
 #include <cxxtools/systemerror.h>

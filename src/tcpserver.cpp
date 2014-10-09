@@ -28,7 +28,6 @@
 
 #include "tcpserverimpl.h"
 #include <cxxtools/net/tcpserver.h>
-#include <memory>
 #include <sstream>
 
 namespace cxxtools {

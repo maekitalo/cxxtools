@@ -29,8 +29,6 @@
  */
 #include "pipeimpl.h"
 #include "cxxtools/systemerror.h"
-#include <memory>
-#include <cerrno>
 #include <unistd.h>
 #include <fcntl.h>
 
