@@ -19,16 +19,26 @@ use Getopt::Std;
 
 my %opt;
 
-getopts('n:N:', \%opt);
+getopts('n:N:pr', \%opt);
 
 my $N = $opt{n} || 10;
-my $ns = $opt{N} || 'cxxtools';
+my $serviceprocedure = $opt{p};
+my $serviceregistry = $opt{r};
+
+if (!$serviceprocedure && !$serviceregistry)
+{
+  print STDERR "please specify either -p for serviceprocedure or -r for serviceregistry\n";
+  exit(1);
+}
 
 sub mklist {
   my ($praefix, $n, $postfix) = @_;
   $postfix = '' unless defined($postfix);
   join ', ', map { "$praefix$_$postfix" } (1..$n);
 }
+
+if ($serviceprocedure)
+{
 
 ########################################################################
 ## first
@@ -49,7 +59,7 @@ for (my $nn = $N; $nn >= 0; --$nn)
     for (my $n = 1; $n <= $N; ++$n)
     {
       print ",
-          typename A$n = cxxtools::Void";
+          typename A$n = Void";
     }
 
     print <<EOF;
@@ -66,7 +76,7 @@ EOF
           typename A$n";
     }
 
-    my @v = ("${ns}::Void") x ($N - $nn);
+    my @v = ("Void") x ($N - $nn);
     my $voids = join (',
                             ', @v);
     print <<EOF;
@@ -110,7 +120,7 @@ EOF
             return new BasicServiceProcedure(*_cb);
         }
 
-        IDeserializer** beginCall()
+        IComposer** beginCall()
         {
 EOF
   for ($n = 1; $n <= $nn; ++$n)
@@ -125,7 +135,7 @@ EOF
             return _args;
         }
 
-        ISerializer* endCall()
+        IDecomposer* endCall()
         {
             _rv = _cb->call($varList);
             _r.begin(_rv);
@@ -159,34 +169,39 @@ EOF
   my $nn1 = $nn + 1;
   print <<EOF;
 
-        IDeserializer* _args[$nn1];
+        IComposer* _args[$nn1];
 EOF
 
   for ($n = 1; $n <= $nn; ++$n)
   {
     print <<EOF;
-        Deserializer<V$n> _a$n;
+        Composer<V$n> _a$n;
 EOF
   }
 
   print <<EOF;
-        Serializer<RV> _r;
+        Decomposer<RV> _r;
 };
 
 
 EOF
 }
+}
+
+if ($serviceregistry)
+{
 
 print <<EOF;
-class CXXTOOLS_XMLRPC_API Service : public http::Service
-{
-        friend class XmlRpcResponder;
+    class CXXTOOLS_API ServiceRegistry
+    {
+            ServiceRegistry(const ServiceRegistry&) { }
+            ServiceRegistry& operator=(const ServiceRegistry&) { return *this; }
 
-    public:
-        Service()
-        { }
+        public:
+            ServiceRegistry()
+            { }
 
-        virtual ~Service();
+            ~ServiceRegistry();
 
 EOF
 
@@ -197,12 +212,12 @@ for (my $n = 0; $n <= $N; ++$n)
   my $typeList0 = join ('', map { ", A$_" } (1..$n));
 
 print <<EOF;
-        template <typename R$typenameList>
-        void registerFunction(const std::string& name, R (*fn)($typeList))
-        {
-            ServiceProcedure* proc = new BasicServiceProcedure<R$typeList0>(cxxtools::callable(fn));
-            this->registerProcedure(name, proc);
-        }
+            template <typename R$typenameList>
+            void registerFunction(const std::string& name, R (*fn)($typeList))
+            {
+                ServiceProcedure* proc = new BasicServiceProcedure<R$typeList0>(callable(fn));
+                this->registerProcedure(name, proc);
+            }
 
 EOF
 }
@@ -214,12 +229,12 @@ for (my $n = 0; $n <= $N; ++$n)
   my $typeList0 = join ('', map { ", A$_" } (1..$n));
 
 print <<EOF;
-        template <typename R$typenameList>
-        void registerCallable(const std::string& name, const Callable<R$typeList0>& cb)
-        {
-            ServiceProcedure* proc = new BasicServiceProcedure<R$typeList0>(cb);
-            this->registerProcedure(name, proc);
-        }
+            template <typename R$typenameList>
+            void registerCallable(const std::string& name, const Callable<R$typeList0>& cb)
+            {
+                ServiceProcedure* proc = new BasicServiceProcedure<R$typeList0>(cb);
+                this->registerProcedure(name, proc);
+            }
 
 EOF
 }
@@ -231,31 +246,31 @@ for (my $n = 0; $n <= $N; ++$n)
   my $typeList0 = join ('', map { ", A$_" } (1..$n));
 
 print <<EOF;
-        template <typename R, class C$typenameList>
-        void registerMethod(const std::string& name, C& obj, R (C::*method)($typeList) )
-        {
-            ServiceProcedure* proc = new BasicServiceProcedure<R$typeList0>( callable(obj, method) );
-            this->registerProcedure(name, proc);
-        }
+            template <typename R, class C$typenameList>
+            void registerMethod(const std::string& name, C& obj, R (C::*method)($typeList) )
+            {
+                ServiceProcedure* proc = new BasicServiceProcedure<R$typeList0>( callable(obj, method) );
+                this->registerProcedure(name, proc);
+            }
 
 EOF
 }
 
 print <<EOF;
-    protected:
-        virtual http::Responder* createResponder(const http::Request&);
+            ServiceProcedure* getProcedure(const std::string& name) const;
 
-        virtual void releaseResponder(http::Responder* resp);
+            void releaseProcedure(ServiceProcedure* proc) const;
 
-        ServiceProcedure* getProcedure(const std::string& name);
+            std::vector<std::string> getProcedureNames() const;
 
-        void releaseProcedure(ServiceProcedure* proc);
+        protected:
+            void registerProcedure(const std::string& name, ServiceProcedure* proc);
 
-        void registerProcedure(const std::string& name, ServiceProcedure* proc);
-
-    private:
-        typedef std::map<std::string, ServiceProcedure*> ProcedureMap;
-        ProcedureMap _procedures;
-};
+        private:
+            typedef std::map<std::string, ServiceProcedure*> ProcedureMap;
+            ProcedureMap _procedures;
+    };
 
 EOF
+
+}
