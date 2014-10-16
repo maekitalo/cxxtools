@@ -125,7 +125,7 @@ namespace cxxtools
         public:
             /// Initialize a limiting input stream using a underlying input stream
             /// and the number of characters to read.
-            BasicLimitIStream(std::basic_istream<char_type>& source, unsigned count)
+            explicit BasicLimitIStream(std::basic_istream<char_type>& source, unsigned count = 0)
                 : std::basic_istream<char_type>(0),
                  _streambuf(source.rdbuf(), count, 0)
             {
@@ -134,9 +134,9 @@ namespace cxxtools
 
             /// Initialize a limiting input stream using a underlying stream buffer
             /// and the number of characters to read.
-            BasicLimitIStream(std::basic_streambuf<char_type>& source, unsigned count)
+            BasicLimitIStream(std::basic_streambuf<char_type>* source, unsigned count = 0)
                 : std::basic_istream<char_type>(0),
-                 _streambuf(&source, count, 0)
+                 _streambuf(source, count, 0)
             {
                 std::basic_istream<char_type>::init(&_streambuf);
             }
@@ -172,7 +172,7 @@ namespace cxxtools
         public:
             /// Initialize a limiting output stream using a underlying output stream
             /// and the number of characters to write.
-            BasicLimitOStream(std::basic_ostream<char_type>& sink, unsigned count)
+            explicit BasicLimitOStream(std::basic_ostream<char_type>& sink, unsigned count = 0)
                 : std::basic_ostream<char_type>(0),
                  _streambuf(sink.rdbuf(), 0, count)
             {
@@ -181,9 +181,9 @@ namespace cxxtools
 
             /// Initialize a limiting output stream using a underlying stream buffer
             /// and the number of characters to write.
-            BasicLimitOStream(std::basic_streambuf<char_type>& sink, unsigned count)
+            explicit BasicLimitOStream(std::basic_streambuf<char_type>* sink, unsigned count = 0)
                 : std::basic_ostream<char_type>(0),
-                 _streambuf(&sink, 0, count)
+                 _streambuf(sink, 0, count)
             {
                 std::basic_ostream<char_type>::init(&_streambuf);
             }
@@ -224,11 +224,29 @@ namespace cxxtools
                 std::basic_iostream<char_type>::init(&_streambuf);
             }
 
+            /// Initialize a limiting I/O stream using a underlying output stream.
+            /// The number of characters to read and the number of characters to write are initialized to 0.
+            BasicLimitIOStream(std::basic_iostream<char_type>& sinksource)
+                : std::basic_iostream<char_type>(0),
+                 _streambuf(sinksource.rdbuf(), 0, 0)
+            {
+                std::basic_iostream<char_type>::init(&_streambuf);
+            }
+
             /// Initialize a limiting I/O stream using a underlying stream buffer,
             /// the number of characters to read and the number of characters to write.
-            BasicLimitIOStream(std::basic_streambuf<char_type>& sinksource, unsigned icount, unsigned ocount)
+            BasicLimitIOStream(std::basic_streambuf<char_type>* sinksource, unsigned icount, unsigned ocount)
                 : std::basic_iostream<char_type>(0),
-                 _streambuf(&sinksource, icount, ocount)
+                 _streambuf(sinksource, icount, ocount)
+            {
+                std::basic_iostream<char_type>::init(&_streambuf);
+            }
+
+            /// Initialize a limiting I/O stream using a underlying stream buffer.
+            /// The number of characters to read and the number of characters to write are initialized to 0.
+            BasicLimitIOStream(std::basic_streambuf<char_type>* sinksource)
+                : std::basic_iostream<char_type>(0),
+                 _streambuf(sinksource, 0, 0)
             {
                 std::basic_iostream<char_type>::init(&_streambuf);
             }
