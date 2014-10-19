@@ -25,7 +25,7 @@ namespace cxxtools
     template <typename char_type>
     class BasicLimitStreambuf : public std::basic_streambuf<char_type>
     {
-            std::basic_streambuf<char_type>* _sb; 
+            std::basic_streambuf<char_type>* _sb;
             unsigned _icount;
             unsigned _ocount;
             unsigned _ibufsize;
@@ -48,11 +48,14 @@ namespace cxxtools
             ~BasicLimitStreambuf()
             { delete _ibuffer; }
 
-            /// returns the number of remaining characters to read.
+            /// returns the number of remaining characters to read including characters in the buffer.
             unsigned icount() const
-            { return _icount; }
+            { return _icount + (this->egptr() - this->gptr()); }
 
             /// sets the number of remaining characters to read.
+            /// When there are characters in the buffer already, they are not counted
+            /// i.e. when there are 10 bytes in the buffer the call to icount(20)
+            /// leads to actually 30 bytes to read.
             void icount(unsigned c)
             { _icount = c; }
 
@@ -73,6 +76,31 @@ namespace cxxtools
             { _sb = s; }
 
         protected:
+            char* ibuffer()
+            {
+                if (_ibuffer == 0)
+                    _ibuffer = new char_type[_ibufsize];
+                return _ibuffer;
+            }
+
+            std::streamsize showmanyc()
+            {
+                if (this->gptr() == this->egptr() && _icount > 0)
+                {
+                    std::streamsize n = _sb->in_avail();
+
+                    if (n > 0)
+                    {
+                        n = _sb->sgetn(ibuffer(), std::min(static_cast<std::streamsize>(_icount), n));
+                        this->setg(_ibuffer, _ibuffer, _ibuffer + n);
+
+                        _icount -= n;
+                    }
+                }
+
+                return this->egptr() - this->gptr();
+            }
+
             int_type overflow(int_type ch)
             {
                 if (ch != traits_type::eof() && _ocount > 0)
@@ -92,18 +120,15 @@ namespace cxxtools
                 if (_icount == 0)
                     return traits_type::eof();
 
-                if (_ibuffer == 0)
-                    _ibuffer = new char_type[_ibufsize];
-
-                std::streamsize c = _sb->sgetn(_ibuffer, std::min(_icount, _ibufsize));
+                std::streamsize c = _sb->sgetn(ibuffer(), std::min(_icount, _ibufsize));
                 if (c == 0)
                     return traits_type::eof();
 
                 _icount -= c;
 
-                std::basic_streambuf<char_type>::setg(_ibuffer, _ibuffer, _ibuffer + c);
+                this->setg(_ibuffer, _ibuffer, _ibuffer + c);
 
-                return std::basic_streambuf<char_type>::sgetc();
+                return this->sgetc();
             }
 
             int sync()

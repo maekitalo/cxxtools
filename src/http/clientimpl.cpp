@@ -57,7 +57,7 @@ ClientImpl::ClientImpl(Client* client)
 , _parser(_parseEvent, true)
 , _stream(8192, true)
 , _chunkedIStream(_stream.rdbuf())
-, _contentLength(0)
+, _bodyStream(_stream.rdbuf())
 , _readHeader(true)
 , _chunkedEncoding(false)
 , _reconnectOnError(false)
@@ -177,11 +177,12 @@ const ReplyHeader& ClientImpl::execute(const Request& request, Timespan timeout,
 void ClientImpl::readBody()
 {
     _chunkedEncoding = _reply.header().chunkedTransferEncoding();
-    _chunkedIStream.reset();
 
     if (_chunkedEncoding)
     {
         log_debug("read body with chunked encoding");
+
+        _chunkedIStream.reset();
 
         _reply.bodyStream() << _chunkedIStream.rdbuf();
 
@@ -193,25 +194,16 @@ void ClientImpl::readBody()
     }
     else
     {
-        unsigned n = _reply.header().contentLength();
+        std::size_t n = _reply.header().contentLength();
 
         log_debug("read body; content-size: " << n);
 
-        char buffer[512];
-        std::streamsize nn;
-        while ( n > 0
-            && (nn = _stream.rdbuf()->sgetn(
-                            buffer,
-                            std::min(n, static_cast<unsigned>(sizeof(buffer))))) > 0)
-        {
-            n -= nn;
-            log_debug("got " << nn << " bytes; " << n << " to read");
+        _bodyStream.clear();
+        _bodyStream.icount(n);
 
-            if (_reply.bodyStream().write(buffer, nn))
-                break;
-        }
+        _reply.bodyStream() << _bodyStream.rdbuf();
 
-        if (n > 0 || !_reply.bodyStream())
+        if (_bodyStream.icount() > 0 || !_reply.bodyStream())
         {
             _stream.setstate(std::ios::failbit);
             throw IOError("error reading HTTP reply body");
@@ -525,10 +517,12 @@ void ClientImpl::processHeaderAvailable(StreamBuffer& sb)
         }
         else
         {
-            _contentLength = _reply.header().contentLength();
-            log_debug("header received - content-length=" << _contentLength);
+            _bodyStream.clear();
+            _bodyStream.icount(_reply.header().contentLength());
 
-            if (_contentLength > 0)
+            log_debug("header received - content-length=" << _bodyStream.icount());
+
+            if (_bodyStream.icount() > 0)
             {
                 if( sb.in_avail() > 0 )
                 {
@@ -632,18 +626,18 @@ void ClientImpl::processBodyAvailable(StreamBuffer& sb)
     }
     else
     {
-        log_debug("content-length(pre)=" << _contentLength);
+        log_debug("content-length(pre)=" << _bodyStream.icount());
 
-        while (_stream.good() && _contentLength > 0 && sb.in_avail() > 0)
+        while (_stream.good() && _bodyStream.good() && _bodyStream.rdbuf()->in_avail() > 0)
         {
-            _contentLength -= _client->bodyAvailable(*_client); // TODO: may throw exception
-            log_debug("content-length(post)=" << _contentLength);
+            _client->bodyAvailable(*_client); // TODO: may throw exception
+            log_debug("content-length(post)=" << _bodyStream.icount());
         }
 
-        if (_stream.fail())
+        if (_stream.fail() || _bodyStream.fail())
             throw IOError("error reading HTTP reply body");
 
-        if( _contentLength <= 0 )
+        if( _bodyStream.icount() <= 0 )
         {
             log_debug("reply finished");
 

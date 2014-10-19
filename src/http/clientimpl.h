@@ -36,6 +36,7 @@
 #include <cxxtools/http/reply.h>
 #include <cxxtools/selectable.h>
 #include <cxxtools/iostream.h>
+#include <cxxtools/limitstream.h>
 #include <cxxtools/timer.h>
 #include <cxxtools/connectable.h>
 #include <cxxtools/delegate.h>
@@ -87,10 +88,10 @@ class ClientImpl : public RefCounted, public Connectable
         net::TcpSocket _socket;
         IOStream _stream;
         ChunkedIStream _chunkedIStream;
+        LimitIStream _bodyStream;
         std::string _username;
         std::string _password;
 
-        long _contentLength;
         bool _readHeader;
         bool _chunkedEncoding;
         bool _reconnectOnError;
@@ -178,7 +179,7 @@ class ClientImpl : public RefCounted, public Connectable
         std::istream& in()
         {
             return _chunkedEncoding ? static_cast<std::istream&>(_chunkedIStream)
-                                    : static_cast<std::istream&>(_stream);
+                                    : static_cast<std::istream&>(_bodyStream);
         }
 
         const std::string& host() const
