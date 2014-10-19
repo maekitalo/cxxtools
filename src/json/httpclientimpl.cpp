@@ -40,7 +40,7 @@
 #include <stdexcept>
 #include <strings.h>
 
-log_define("cxxtools.json.client.impl")
+log_define("cxxtools.json.httpclient.impl")
 
 namespace cxxtools
 {
