@@ -32,6 +32,8 @@
 #include <cxxtools/http/api.h>
 #include <cxxtools/http/reply.h>
 #include <cxxtools/query_params.h>
+#include <cxxtools/net/uri.h>
+#include <cxxtools/net/addrinfo.h>
 #include <cxxtools/selectable.h>
 #include <cxxtools/signal.h>
 #include <cxxtools/delegate.h>
@@ -41,14 +43,6 @@ namespace cxxtools
 {
 
 class SelectorBase;
-
-namespace net
-{
-
-class AddrInfo;
-class Uri;
-
-}
 
 namespace http
 {

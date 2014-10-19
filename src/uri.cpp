@@ -43,9 +43,7 @@ namespace net
     }
   }
 
-  Uri::Uri(const std::string& uri)
-    : _ipv6(false),
-      _port(0)
+  void Uri::parse(const char* uri)
   {
     enum {
       state_0,
@@ -68,9 +66,9 @@ namespace net
 
     bool hasPort = false;
 
-    for (std::string::const_iterator it = uri.begin(); it != uri.end(); ++it)
+    for (const char* p = uri; *p; ++p)
     {
-      char ch = *it;
+      char ch = *p;
       switch (state)
       {
         case state_0:

@@ -26,6 +26,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+#ifndef CXXTOOLS_NET_URI_H
+#define CXXTOOLS_NET_URI_H
+
 #include <cxxtools/api.h>
 #include <string>
 
@@ -82,12 +85,22 @@ namespace net
       std::string _query;
       std::string _fragment;
 
+      void parse(const char* str);
+
     public:
       /// Creates a empty Uri.
       Uri()  { }
 
       /// Parses the string str and set the elements of the Uri.
-      Uri(const std::string& str);
+      Uri(const std::string& str)
+        : _ipv6(false),
+          _port(0)
+      { parse(str.c_str()); }
+
+      Uri(const char* str)
+        : _ipv6(false),
+          _port(0)
+      { parse(str); }
 
       /// Sets the protocol part of the Uri.
       void protocol(const std::string& protocol)
@@ -160,3 +173,5 @@ namespace net
   };
 }
 }
+
+#endif
