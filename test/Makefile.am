@@ -3,6 +3,7 @@ noinst_PROGRAMS = \
     logbench \
     serializer-bench \
     rpcbenchclient \
+    rpcbenchasyncclient \
     rpcbenchserver
 
 AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/include -I$(top_srcdir)/include
@@ -74,8 +75,15 @@ serializer_bench_LDADD = $(top_builddir)/src/libcxxtools.la \
         $(top_builddir)/src/bin/libcxxtools-bin.la
 
 rpcbenchclient_SOURCES = rpcbenchclient.cpp
+rpcbenchasyncclient_SOURCES = rpcbenchasyncclient.cpp
 
 rpcbenchclient_LDADD = $(top_builddir)/src/libcxxtools.la \
+        $(top_builddir)/src/http/libcxxtools-http.la \
+        $(top_builddir)/src/xmlrpc/libcxxtools-xmlrpc.la \
+        $(top_builddir)/src/bin/libcxxtools-bin.la \
+        $(top_builddir)/src/json/libcxxtools-json.la
+
+rpcbenchasyncclient_LDADD = $(top_builddir)/src/libcxxtools.la \
         $(top_builddir)/src/http/libcxxtools-http.la \
         $(top_builddir)/src/xmlrpc/libcxxtools-xmlrpc.la \
         $(top_builddir)/src/bin/libcxxtools-bin.la \
