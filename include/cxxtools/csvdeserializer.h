@@ -29,7 +29,6 @@
 #ifndef CXXTOOLS_CSVDESERIALIZER_H
 #define CXXTOOLS_CSVDESERIALIZER_H
 
-#include <cxxtools/api.h>
 #include <cxxtools/char.h>
 #include <cxxtools/deserializer.h>
 #include <cxxtools/textstream.h>
@@ -38,7 +37,7 @@
 
 namespace cxxtools
 {
-    class CXXTOOLS_API CsvDeserializer : public Deserializer
+    class CsvDeserializer : public Deserializer
     {
         public:
             CsvDeserializer()

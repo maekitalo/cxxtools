@@ -30,7 +30,6 @@
 
 #include <ios>
 #include <streambuf>
-#include <cxxtools/api.h>
 #include <cxxtools/iodevice.h>
 
 namespace cxxtools {
@@ -65,8 +64,8 @@ class BasicStreamBuffer : public std::basic_streambuf<CharT>
 };
 
 //! @brief A stream buffer for IODevices with linear buffer area
-class CXXTOOLS_API StreamBuffer : public BasicStreamBuffer<char>
-                                 , public Connectable
+class StreamBuffer : public BasicStreamBuffer<char>,
+                     public Connectable
 {
     public:
         //! @brief Constructs an IOBuffer for an IODevice

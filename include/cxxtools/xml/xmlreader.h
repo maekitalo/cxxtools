@@ -30,7 +30,6 @@
 
 #include <cxxtools/string.h>
 #include <cxxtools/textstream.h>
-#include <cxxtools/xml/api.h>
 #include <cxxtools/xml/node.h>
 #include <cxxtools/xml/enddocument.h>
 #include <iosfwd>
@@ -78,7 +77,7 @@ namespace xml {
 
      @see Node
 */
-class CXXTOOLS_XML_API XmlReader
+class XmlReader
 {
     public:
         class Iterator

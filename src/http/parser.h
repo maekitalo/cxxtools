@@ -29,7 +29,6 @@
 #ifndef cxxtools_Http_Parser_h
 #define cxxtools_Http_Parser_h
 
-#include <cxxtools/http/api.h>
 #include <cxxtools/http/messageheader.h>
 #include <string>
 #include <iostream>
@@ -40,10 +39,10 @@ namespace cxxtools
 namespace http
 {
 
-class CXXTOOLS_HTTP_API HeaderParser
+class HeaderParser
 {
     public:
-        class CXXTOOLS_HTTP_API Event
+        class Event
         {
             public:
                 virtual ~Event() {}
@@ -57,7 +56,7 @@ class CXXTOOLS_HTTP_API HeaderParser
                 virtual void onEnd();
         };
 
-        class CXXTOOLS_HTTP_API MessageHeaderEvent : public Event
+        class MessageHeaderEvent : public Event
         {
                 MessageHeader& _header;
                 char _key[MessageHeader::MAXHEADERSIZE];

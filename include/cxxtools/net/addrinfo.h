@@ -29,7 +29,6 @@
 #ifndef CXXTOOLS_NET_ADDRINFO_H
 #define CXXTOOLS_NET_ADDRINFO_H
 
-#include <cxxtools/api.h>
 #include <string>
 
 namespace cxxtools
@@ -40,7 +39,7 @@ namespace net
 
     class AddrInfoImpl;
 
-    class CXXTOOLS_API AddrInfo
+    class AddrInfo
     {
         public:
             AddrInfo()

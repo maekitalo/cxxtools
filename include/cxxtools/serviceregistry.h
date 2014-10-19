@@ -29,7 +29,6 @@
 #ifndef CXXTOOLS_SERVICEREGISTRY_H
 #define CXXTOOLS_SERVICEREGISTRY_H
 
-#include <cxxtools/api.h>
 #include <cxxtools/serviceprocedure.h>
 #include <cxxtools/callable.h>
 #include <string>
@@ -38,7 +37,7 @@
 
 namespace cxxtools
 {
-    class CXXTOOLS_API ServiceRegistry
+    class ServiceRegistry
     {
             ServiceRegistry(const ServiceRegistry&) { }
             ServiceRegistry& operator=(const ServiceRegistry&) { return *this; }

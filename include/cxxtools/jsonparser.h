@@ -29,7 +29,6 @@
 #ifndef CXXTOOLS_JSONPARSER_H
 #define CXXTOOLS_JSONPARSER_H
 
-#include <cxxtools/api.h>
 #include <cxxtools/string.h>
 #include <cxxtools/serializationerror.h>
 
@@ -37,7 +36,7 @@ namespace cxxtools
 {
     class JsonDeserializer;
 
-    class CXXTOOLS_API JsonParserError : public SerializationError
+    class JsonParserError : public SerializationError
     {
             friend class JsonParser;
             unsigned _lineNo;
@@ -55,7 +54,7 @@ namespace cxxtools
             const char* what() const throw();
     };
 
-    class CXXTOOLS_API JsonParser
+    class JsonParser
     {
             class JsonStringParser
             {

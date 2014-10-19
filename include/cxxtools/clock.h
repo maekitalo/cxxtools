@@ -26,7 +26,6 @@
 #ifndef CXXTOOLS_CLOCK_H
 #define CXXTOOLS_CLOCK_H
 
-#include <cxxtools/api.h>
 #include <cxxtools/datetime.h>
 #include <cxxtools/timespan.h>
 
@@ -38,7 +37,7 @@ namespace cxxtools
     The clock class can be used like a stop-watch by calling Clock::start()
     and Clock::stop(). The latter method returns the elapsed time.
 */
-class CXXTOOLS_API Clock
+class Clock
 {
     public:
         /** @brief Constructs a Clock

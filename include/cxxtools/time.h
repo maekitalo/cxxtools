@@ -30,7 +30,6 @@
 #ifndef CXXTOOLS_TIME_H
 #define CXXTOOLS_TIME_H
 
-#include <cxxtools/api.h>
 #include <cxxtools/timespan.h>
 #include <string>
 #include <stdexcept>
@@ -41,7 +40,7 @@ namespace cxxtools
 
 class SerializationInfo;
 
-class CXXTOOLS_API InvalidTime : public std::invalid_argument
+class InvalidTime : public std::invalid_argument
 {
     public:
         InvalidTime();
@@ -329,9 +328,9 @@ class Time
         unsigned _msecs;
     };
 
-    CXXTOOLS_API void operator >>=(const SerializationInfo& si, Time& time);
+    void operator >>=(const SerializationInfo& si, Time& time);
 
-    CXXTOOLS_API void operator <<=(SerializationInfo& si, const Time& time);
+    void operator <<=(SerializationInfo& si, const Time& time);
 
 }
 

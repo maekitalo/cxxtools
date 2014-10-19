@@ -28,14 +28,13 @@
 #ifndef CXXTOOLS_STRINGSTREAM_H
 #define CXXTOOLS_STRINGSTREAM_H
 
-#include <cxxtools/api.h>
 #include <cxxtools/char.h>
 #include <cxxtools/string.h>
 #include <sstream>
 
 namespace cxxtools {
 
-class CXXTOOLS_API StringStreamBuffer : public std::basic_stringbuf<cxxtools::Char>
+class StringStreamBuffer : public std::basic_stringbuf<cxxtools::Char>
 {
     public:
         explicit StringStreamBuffer(std::ios::openmode mode = std::ios::in | std::ios::out);
@@ -49,7 +48,7 @@ class CXXTOOLS_API StringStreamBuffer : public std::basic_stringbuf<cxxtools::Ch
 namespace std {
 
 template<>
-class CXXTOOLS_API basic_stringstream<cxxtools::Char> : public basic_iostream<cxxtools::Char>
+class basic_stringstream<cxxtools::Char> : public basic_iostream<cxxtools::Char>
 {
     public:
         typedef cxxtools::Char char_type;

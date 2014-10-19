@@ -32,7 +32,6 @@
 
 #include <cxxtools/timespan.h>
 #include <cxxtools/connectable.h>
-#include <cxxtools/api.h>
 #include <map>
 
 namespace cxxtools {
@@ -76,7 +75,7 @@ namespace cxxtools {
         continously. The %EventLoop and %Application classes provide the same API
         as the Selector itself.
     */
-    class CXXTOOLS_API SelectorBase : public Connectable
+    class SelectorBase : public Connectable
     {
             friend class Selectable;
             friend class Timer;
@@ -215,7 +214,7 @@ namespace cxxtools {
             void* _reserved;
     };
 
-    class CXXTOOLS_API Selector : public SelectorBase
+    class Selector : public SelectorBase
     {
         public:
             Selector();

@@ -29,7 +29,6 @@
 #ifndef cxxtools_Http_Reply_h
 #define cxxtools_Http_Reply_h
 
-#include <cxxtools/http/api.h>
 #include <cxxtools/http/replyheader.h>
 #include <string>
 #include <sstream>

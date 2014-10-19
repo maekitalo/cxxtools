@@ -28,7 +28,6 @@
 #ifndef cxxtools_xmlrpc_Scanner_h
 #define cxxtools_xmlrpc_Scanner_h
 
-#include <cxxtools/xmlrpc/api.h>
 #include <cxxtools/string.h>
 
 namespace cxxtools
@@ -47,7 +46,7 @@ class Node;
 namespace xmlrpc
 {
 
-class CXXTOOLS_XMLRPC_API Scanner
+class Scanner
 {
     enum State
     {

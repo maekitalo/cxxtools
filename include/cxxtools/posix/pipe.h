@@ -36,7 +36,7 @@ namespace cxxtools
 namespace posix
 {
 
-class CXXTOOLS_API Pipe : public cxxtools::Pipe
+class Pipe : public cxxtools::Pipe
 {
     public:
         /** @brief Creates the pipe with two IODevices

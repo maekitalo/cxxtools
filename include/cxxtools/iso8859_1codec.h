@@ -28,7 +28,6 @@
 #ifndef CXXTOOLS_ISO8859_1CODEC_H
 #define CXXTOOLS_ISO8859_1CODEC_H
 
-#include <cxxtools/api.h>
 #include <cxxtools/char.h>
 #include <cxxtools/textcodec.h>
 #include <cxxtools/string.h>
@@ -36,7 +35,7 @@
 namespace cxxtools
 {
 
-class CXXTOOLS_API Iso8859_1Codec : public TextCodec<Char, char>
+class Iso8859_1Codec : public TextCodec<Char, char>
 {
     public:
         explicit Iso8859_1Codec(size_t ref = 0)

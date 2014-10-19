@@ -29,7 +29,6 @@
 #ifndef CXXTOOLS_CSVPARSER_H
 #define CXXTOOLS_CSVPARSER_H
 
-#include <cxxtools/api.h>
 #include <cxxtools/string.h>
 #include <vector>
 
@@ -37,7 +36,7 @@ namespace cxxtools
 {
     class CsvDeserializer;
 
-    class CXXTOOLS_API CsvParser
+    class CsvParser
     {
         public:
             CsvParser()

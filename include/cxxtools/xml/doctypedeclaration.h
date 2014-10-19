@@ -26,7 +26,6 @@
 #ifndef cxxtools_xml_DocTypeDeclaration_h
 #define cxxtools_xml_DocTypeDeclaration_h
 
-#include <cxxtools/xml/api.h>
 #include <cxxtools/xml/node.h>
 #include <cxxtools/string.h>
 
@@ -45,7 +44,7 @@ namespace xml {
      *
      * @see Node
      */
-    class CXXTOOLS_XML_API DocTypeDeclaration : public Node
+    class DocTypeDeclaration : public Node
     {
         public:
             /**

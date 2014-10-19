@@ -26,7 +26,6 @@
 #ifndef cxxtools_xml_NamespaceContext_h
 #define cxxtools_xml_NamespaceContext_h
 
-#include <cxxtools/xml/api.h>
 #include <cxxtools/xml/namespace.h>
 #include <cxxtools/string.h>
 #include <map>
@@ -46,7 +45,7 @@ namespace xml {
      *
      * @see Namespace
      */
-    class CXXTOOLS_XML_API NamespaceContext {
+    class NamespaceContext {
         public:
             //! Creates a new NamespaceContext object which manages the namespaces of an XML document.
             NamespaceContext()

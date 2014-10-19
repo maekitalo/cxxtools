@@ -26,7 +26,6 @@
 #ifndef CXXTOOLS_xml_ProcessingInstruction_h
 #define CXXTOOLS_xml_ProcessingInstruction_h
 
-#include <cxxtools/xml/api.h>
 #include <cxxtools/xml/node.h>
 #include <cxxtools/string.h>
 
@@ -47,7 +46,7 @@ namespace cxxtools {
          *
          * @see Node
          */
-        class CXXTOOLS_XML_API ProcessingInstruction : public Node {
+        class ProcessingInstruction : public Node {
             public:
                 //! Constructs a new ProcessingInstruction.
                 ProcessingInstruction()

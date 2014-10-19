@@ -4,7 +4,6 @@ nobase_include_HEADERS = \
         cxxtools/argin.h \
         cxxtools/argout.h \
         cxxtools/atomicity.h \
-        cxxtools/api.h \
         cxxtools/base64codec.h \
         cxxtools/base64stream.h \
         cxxtools/bin/bin.h \
@@ -57,7 +56,6 @@ nobase_include_HEADERS = \
         cxxtools/function.tpp \
         cxxtools/hdstream.h \
         cxxtools/hmac.h \
-        cxxtools/http/api.h \
         cxxtools/http/client.h \
         cxxtools/http/messageheader.h \
         cxxtools/http/reply.h \
@@ -185,7 +183,6 @@ nobase_include_HEADERS = \
         cxxtools/unit/testmethod.h \
         cxxtools/unit/testprotocol.h \
         cxxtools/unit/testsuite.h \
-        cxxtools/xml/api.h \
         cxxtools/xml/characters.h \
         cxxtools/xml/comment.h \
         cxxtools/xml/doctypedeclaration.h \
@@ -204,7 +201,6 @@ nobase_include_HEADERS = \
         cxxtools/xml/xmlreader.h \
         cxxtools/xml/xmlserializer.h \
         cxxtools/xml/xmlwriter.h \
-        cxxtools/xmlrpc/api.h \
         cxxtools/xmlrpc/client.h \
         cxxtools/xmlrpc/errorcodes.h \
         cxxtools/xmlrpc/httpclient.h \

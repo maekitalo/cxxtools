@@ -29,7 +29,6 @@
 #ifndef cxxtools_xmlrpc_Service_h
 #define cxxtools_xmlrpc_Service_h
 
-#include <cxxtools/xmlrpc/api.h>
 #include <cxxtools/http/service.h>
 #include <cxxtools/serviceregistry.h>
 
@@ -38,7 +37,7 @@ namespace cxxtools {
 namespace xmlrpc
 {
 
-class CXXTOOLS_XMLRPC_API Service : public http::Service, public ServiceRegistry
+class Service : public http::Service, public ServiceRegistry
 {
         friend class XmlRpcResponder;
 

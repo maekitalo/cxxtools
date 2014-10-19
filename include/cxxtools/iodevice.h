@@ -31,7 +31,6 @@
 #define CXXTOOLS_IODevice_h
 
 #include <cxxtools/signal.h>
-#include <cxxtools/api.h>
 #include <cxxtools/ioerror.h>
 #include <cxxtools/selectable.h>
 #include <limits>
@@ -87,7 +86,7 @@ class IODeviceImpl;
     %IODevice, which will send the %Signal inputReady or outputReady of the
     %IODevice that is ready to perform I/O.
 */
-class CXXTOOLS_API IODevice : public Selectable
+class IODevice : public Selectable
 {
     public:
         typedef std::char_traits<char>::pos_type pos_type;

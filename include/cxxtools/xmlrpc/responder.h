@@ -29,7 +29,6 @@
 #ifndef cxxtools_xmlrpc_Responder_h
 #define cxxtools_xmlrpc_Responder_h
 
-#include <cxxtools/xmlrpc/api.h>
 #include <cxxtools/remoteexception.h>
 #include <cxxtools/xmlrpc/scanner.h>
 #include <cxxtools/xmlrpc/formatter.h>
@@ -51,7 +50,7 @@ namespace xmlrpc
 
 class Service;
 
-class CXXTOOLS_XMLRPC_API XmlRpcResponder : public http::Responder
+class XmlRpcResponder : public http::Responder
 {
     enum State
     {

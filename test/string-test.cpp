@@ -27,7 +27,6 @@
  */
 #undef CXXTOOLS_API_EXPORT
 
-#include "cxxtools/api.h"
 #include "cxxtools/unit/testsuite.h"
 #include "cxxtools/unit/registertest.h"
 #include "cxxtools/string.h"

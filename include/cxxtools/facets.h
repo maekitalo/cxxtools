@@ -28,7 +28,6 @@
 #ifndef CXXTOOLS_FACETS_H
 #define CXXTOOLS_FACETS_H
 
-#include <cxxtools/api.h>
 #include <cxxtools/string.h>
 #include <iosfwd>
 
@@ -38,7 +37,7 @@ namespace std {
     @ingroup Unicode
 */
 template <>
-class CXXTOOLS_API numpunct<cxxtools::Char> : public locale::facet {
+class numpunct<cxxtools::Char> : public locale::facet {
     public:
         typedef cxxtools::Char char_type;
         typedef basic_string<cxxtools::Char> string_type;
@@ -84,7 +83,7 @@ namespace cxxtools {
 
 static std::ios_base::Init cxxtools_stream_init;
 
-static struct CXXTOOLS_API InitLocale
+static struct InitLocale
 {
     InitLocale()
     {

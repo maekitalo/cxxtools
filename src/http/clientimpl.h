@@ -65,7 +65,7 @@ class ClientImpl : public RefCounted, public Connectable
 
         Client* _client;
 
-        class CXXTOOLS_HTTP_API ParseEvent : public HeaderParser::MessageHeaderEvent
+        class ParseEvent : public HeaderParser::MessageHeaderEvent
         {
                 ReplyHeader& _replyHeader;
 

@@ -29,7 +29,6 @@
 #ifndef cxxtools_Http_Server_h
 #define cxxtools_Http_Server_h
 
-#include <cxxtools/http/api.h>
 #include <cxxtools/signal.h>
 #include <cxxtools/timespan.h>
 #include <string>
@@ -47,7 +46,7 @@ class Request;
 class Service;
 class ServerImplBase;
 
-class CXXTOOLS_HTTP_API Server
+class Server
 {
         Server(const Server& server) { }
         Server& operator=(const Server& server) { return *this; }

@@ -28,7 +28,6 @@
 #ifndef cxxtools_Decomposer_h
 #define cxxtools_Decomposer_h
 
-#include <cxxtools/api.h>
 #include <cxxtools/convert.h>
 #include <cxxtools/serializationinfo.h>
 #include <cxxtools/noncopyable.h>
@@ -39,7 +38,7 @@ namespace cxxtools {
 
 class Formatter;
 
-class CXXTOOLS_API IDecomposer
+class IDecomposer
 {
     public:
         typedef SerializationInfo::int_type int_type;

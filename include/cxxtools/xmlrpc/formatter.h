@@ -28,7 +28,6 @@
 #ifndef cxxtools_xmlrpc_Formatter_h
 #define cxxtools_xmlrpc_Formatter_h
 
-#include <cxxtools/xmlrpc/api.h>
 #include <cxxtools/xml/xmlwriter.h>
 #include <cxxtools/formatter.h>
 #include <cxxtools/string.h>
@@ -39,7 +38,7 @@ namespace cxxtools {
 
 namespace xmlrpc {
 
-class CXXTOOLS_XMLRPC_API Formatter : public cxxtools::Formatter
+class Formatter : public cxxtools::Formatter
 {
     public:
         Formatter(xml::XmlWriter& writer)

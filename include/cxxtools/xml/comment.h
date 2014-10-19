@@ -26,7 +26,6 @@
 #ifndef CXXTOOLS_Xml_Comment_h
 #define CXXTOOLS_Xml_Comment_h
 
-#include <cxxtools/xml/api.h>
 #include <cxxtools/xml/node.h>
 #include <cxxtools/string.h>
 
@@ -48,7 +47,7 @@ namespace cxxtools {
          *
          * @see Node
          */
-        class CXXTOOLS_XML_API Comment : public Node {
+        class Comment : public Node {
             public:
                 /**
                  * @brief Constructs a new Comment object with the given string as content/Text.

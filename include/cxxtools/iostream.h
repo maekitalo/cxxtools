@@ -28,7 +28,6 @@
 #ifndef cxxtools_System_IOStream_h
 #define cxxtools_System_IOStream_h
 
-#include <cxxtools/api.h>
 #include <cxxtools/streambuffer.h>
 #include <iostream>
 #include <algorithm>
@@ -197,7 +196,7 @@ class BasicIOStream : public std::basic_iostream<CharT>
 };
 
 
-class CXXTOOLS_API IStream : public BasicIStream<char>
+class IStream : public BasicIStream<char>
 {
     public:
         explicit IStream(size_t bufferSize = 8192, bool extend = false);
@@ -217,7 +216,7 @@ class CXXTOOLS_API IStream : public BasicIStream<char>
 };
 
 
-class CXXTOOLS_API OStream : public BasicOStream<char>
+class OStream : public BasicOStream<char>
 {
     public:
         explicit OStream(size_t bufferSize = 8192, bool extend = false);
@@ -237,7 +236,7 @@ class CXXTOOLS_API OStream : public BasicOStream<char>
 };
 
 
-class CXXTOOLS_API IOStream : public BasicIOStream<char>
+class IOStream : public BasicIOStream<char>
 {
     public:
         explicit IOStream(size_t bufferSize = 8192, bool extend = false);

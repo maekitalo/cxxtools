@@ -26,7 +26,6 @@
 #ifndef cxxtools_xml_Characters_h
 #define cxxtools_xml_Characters_h
 
-#include <cxxtools/xml/api.h>
 #include <cxxtools/xml/node.h>
 #include <cxxtools/string.h>
 
@@ -48,7 +47,7 @@ namespace cxxtools {
          *
          * @see Node
          */
-        class CXXTOOLS_XML_API Characters : public Node
+        class Characters : public Node
         {
             public:
                 /**

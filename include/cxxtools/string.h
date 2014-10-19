@@ -30,7 +30,6 @@
 #ifndef CXXTOOLS_STRING_H
 #define CXXTOOLS_STRING_H
 
-#include <cxxtools/api.h>
 #include <cxxtools/char.h>
 
 #include <string>
@@ -46,7 +45,7 @@ namespace std {
     @ingroup Unicode
 */
 template <>
-class CXXTOOLS_API basic_string< cxxtools::Char > {
+class basic_string< cxxtools::Char > {
     public:
         typedef cxxtools::Char value_type;
         typedef size_t size_type;
@@ -565,7 +564,7 @@ class CXXTOOLS_API basic_string< cxxtools::Char > {
     inline bool operator>(const basic_string<cxxtools::Char>& a, const wchar_t* b)
     { return a.compare(b) > 0; }
 
-    CXXTOOLS_API ostream& operator<< (ostream& out, const basic_string<cxxtools::Char>& str);
+    ostream& operator<< (ostream& out, const basic_string<cxxtools::Char>& str);
 
 } // namespace std
 

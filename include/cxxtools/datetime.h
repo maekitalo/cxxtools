@@ -30,7 +30,6 @@
 #ifndef CXXTOOLS_DATETIME_H
 #define CXXTOOLS_DATETIME_H
 
-#include <cxxtools/api.h>
 #include <cxxtools/time.h>
 #include <cxxtools/date.h>
 #include <string>
@@ -270,9 +269,9 @@ class DateTime
         Time _time;
 };
 
-CXXTOOLS_API void operator >>=(const SerializationInfo& si, DateTime& dt);
+void operator >>=(const SerializationInfo& si, DateTime& dt);
 
-CXXTOOLS_API void operator <<=(SerializationInfo& si, const DateTime& dt);
+void operator <<=(SerializationInfo& si, const DateTime& dt);
 
 inline DateTime& DateTime::operator=(unsigned julianDay)
 {

@@ -37,7 +37,7 @@ namespace cxxtools
 {
 namespace bin
 {
-    class CXXTOOLS_API Deserializer : public cxxtools::Deserializer
+    class Deserializer : public cxxtools::Deserializer
     {
         public:
             typedef bin::Serializer::TypeCode TypeCode;

@@ -28,7 +28,6 @@
 #ifndef cxxtools_xmlrpc_ClientImpl_h
 #define cxxtools_xmlrpc_ClientImpl_h
 
-#include <cxxtools/xmlrpc/api.h>
 #include <cxxtools/remoteexception.h>
 #include <cxxtools/xmlrpc/formatter.h>
 #include <cxxtools/xmlrpc/scanner.h>

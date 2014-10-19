@@ -31,7 +31,6 @@
 #define Cxxtools_posix_PipeImpl_h
 
 #include "iodeviceimpl.h"
-#include <cxxtools/api.h>
 #include <cxxtools/iodevice.h>
 #include <unistd.h>
 

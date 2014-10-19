@@ -30,12 +30,11 @@
 #define cxxtools_System_FileDevice_h
 
 #include <cxxtools/iodevice.h>
-#include <cxxtools/api.h>
 
 namespace cxxtools
 {
 
-class CXXTOOLS_API FileDevice : public IODevice 
+class FileDevice : public IODevice 
 {
     friend class FileDeviceImpl;
 

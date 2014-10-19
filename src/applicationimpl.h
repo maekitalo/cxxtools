@@ -26,8 +26,6 @@
 #ifndef CXXTOOLS_APPLICATION_IMPL_H
 #define CXXTOOLS_APPLICATION_IMPL_H
 
-#include <cxxtools/api.h>
-
 namespace cxxtools {
 
 class SelectorBase;

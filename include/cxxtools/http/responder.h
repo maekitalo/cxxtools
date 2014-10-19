@@ -29,7 +29,6 @@
 #ifndef cxxtools_Http_Responder_h
 #define cxxtools_Http_Responder_h
 
-#include <cxxtools/http/api.h>
 #include <cxxtools/http/service.h>
 #include <iosfwd>
 #include <exception>
@@ -42,7 +41,7 @@ namespace http
 class Request;
 class Reply;
 
-class CXXTOOLS_HTTP_API Responder
+class Responder
 {
     public:
         explicit Responder(Service& service)

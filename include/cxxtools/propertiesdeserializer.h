@@ -34,7 +34,7 @@
 
 namespace cxxtools
 {
-    class CXXTOOLS_API PropertiesDeserializer : public Deserializer
+    class PropertiesDeserializer : public Deserializer
     {
         class Ev;
         friend class Ev;

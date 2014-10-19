@@ -31,7 +31,6 @@
 
 #include <cxxtools/event.h>
 #include <cxxtools/signal.h>
-#include <cxxtools/api.h>
 #include <cxxtools/mutex.h>
 #include <cxxtools/eventsink.h>
 #include <map>
@@ -50,7 +49,7 @@ class EventSink;
     slot.
     Construction and destruction must always occur in isolation.
 */
-class CXXTOOLS_API EventSource : protected NonCopyable
+class EventSource : protected NonCopyable
 {
     friend class EventSink;
 

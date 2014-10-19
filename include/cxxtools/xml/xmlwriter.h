@@ -26,7 +26,6 @@
 #ifndef cxxtools_Xml_XmlWriter_h
 #define cxxtools_Xml_XmlWriter_h
 
-#include <cxxtools/xml/api.h>
 #include <cxxtools/string.h>
 #include <cxxtools/textstream.h>
 #include <stack>
@@ -37,7 +36,7 @@ namespace xml {
 
     class Attribute;
 
-    class CXXTOOLS_XML_API XmlWriter
+    class XmlWriter
     {
         public:
             XmlWriter();

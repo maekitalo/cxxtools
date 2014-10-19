@@ -26,7 +26,6 @@
 #ifndef cxxtools_Xml_Namespace_h
 #define cxxtools_Xml_Namespace_h
 
-#include <cxxtools/xml/api.h>
 #include <cxxtools/string.h>
 
 #include <iosfwd>
@@ -47,7 +46,7 @@ namespace xml {
      * @see Node
      * @see NamespaceContext
      */
-    class CXXTOOLS_XML_API Namespace {
+    class Namespace {
         public:
             /**
              * @brief Constructs a new Namespace object with the given namespace URI and prefix.

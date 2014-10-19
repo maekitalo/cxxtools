@@ -28,7 +28,6 @@
 #ifndef CXXTOOLS_UNIT_REGISTERTEST_H
 #define CXXTOOLS_UNIT_REGISTERTEST_H
 
-#include <cxxtools/api.h>
 #include <cxxtools/unit/application.h>
 
 

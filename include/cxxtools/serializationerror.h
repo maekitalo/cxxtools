@@ -28,7 +28,6 @@
 #ifndef cxxtools_SerializationError_h
 #define cxxtools_SerializationError_h
 
-#include <cxxtools/api.h>
 #include <string>
 #include <stdexcept>
 
@@ -40,7 +39,7 @@ namespace cxxtools
     This Exception indicates a error during serialization caused by
     missing or invalid object attributes.
 */
-class CXXTOOLS_API SerializationError : public std::runtime_error
+class SerializationError : public std::runtime_error
 {
     public:
         /** @brief Construct with a message
@@ -53,7 +52,7 @@ class CXXTOOLS_API SerializationError : public std::runtime_error
         static void doThrow(const std::string& msg);
 };
 
-class CXXTOOLS_API SerializationMemberNotFound : public SerializationError
+class SerializationMemberNotFound : public SerializationError
 {
         std::string _member;
 

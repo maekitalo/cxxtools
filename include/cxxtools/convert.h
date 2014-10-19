@@ -30,7 +30,6 @@
 #ifndef CXXTOOLS_CONVERT_H
 #define CXXTOOLS_CONVERT_H
 
-#include <cxxtools/api.h>
 #include <cxxtools/config.h>
 #include <cxxtools/string.h>
 #include <cxxtools/stringstream.h>
@@ -58,26 +57,26 @@ inline void convert(String& s, const String& str)
     s = str;
 }
 
-CXXTOOLS_API void convert(String& s, const std::string& value);
+void convert(String& s, const std::string& value);
 
-CXXTOOLS_API void convert(String& s, bool value);
+void convert(String& s, bool value);
 
-CXXTOOLS_API void convert(String& s, char value);
-CXXTOOLS_API void convert(String& s, wchar_t value);
-CXXTOOLS_API void convert(String& s, Char value);
-CXXTOOLS_API void convert(String& s, unsigned char value);
-CXXTOOLS_API void convert(String& s, signed char value);
+void convert(String& s, char value);
+void convert(String& s, wchar_t value);
+void convert(String& s, Char value);
+void convert(String& s, unsigned char value);
+void convert(String& s, signed char value);
 
-CXXTOOLS_API void convert(String& s, short value);
-CXXTOOLS_API void convert(String& s, unsigned short value);
-CXXTOOLS_API void convert(String& s, int value);
-CXXTOOLS_API void convert(String& s, unsigned int value);
-CXXTOOLS_API void convert(String& s, long value);
-CXXTOOLS_API void convert(String& s, unsigned long value);
+void convert(String& s, short value);
+void convert(String& s, unsigned short value);
+void convert(String& s, int value);
+void convert(String& s, unsigned int value);
+void convert(String& s, long value);
+void convert(String& s, unsigned long value);
 
-CXXTOOLS_API void convert(String& s, float value);
-CXXTOOLS_API void convert(String& s, double value);
-CXXTOOLS_API void convert(String& s, long double value);
+void convert(String& s, float value);
+void convert(String& s, double value);
+void convert(String& s, long double value);
 
 template <typename T>
 inline void convert(String& s, const T& value)
@@ -91,30 +90,30 @@ inline void convert(String& s, const T& value)
 // Conversions from cxxtools::String
 //
 
-CXXTOOLS_API void convert(bool& n, const String& str);
+void convert(bool& n, const String& str);
 
-CXXTOOLS_API void convert(char& n, const String& str);
-CXXTOOLS_API void convert(wchar_t& n, const String& str);
-CXXTOOLS_API void convert(Char& n, const String& str);
-CXXTOOLS_API void convert(unsigned char& n, const String& str);
-CXXTOOLS_API void convert(signed char& n, const String& str);
+void convert(char& n, const String& str);
+void convert(wchar_t& n, const String& str);
+void convert(Char& n, const String& str);
+void convert(unsigned char& n, const String& str);
+void convert(signed char& n, const String& str);
 
-CXXTOOLS_API void convert(short& n, const String& str);
-CXXTOOLS_API void convert(unsigned short& n, const String& str);
-CXXTOOLS_API void convert(int& n, const String& str);
-CXXTOOLS_API void convert(unsigned int& n, const String& str);
-CXXTOOLS_API void convert(long& n, const String& str);
-CXXTOOLS_API void convert(unsigned long& n, const String& str);
+void convert(short& n, const String& str);
+void convert(unsigned short& n, const String& str);
+void convert(int& n, const String& str);
+void convert(unsigned int& n, const String& str);
+void convert(long& n, const String& str);
+void convert(unsigned long& n, const String& str);
 #ifdef HAVE_LONG_LONG
-CXXTOOLS_API void convert(long long& n, const String& str);
+void convert(long long& n, const String& str);
 #endif
 #ifdef HAVE_UNSIGNED_LONG_LONG
-CXXTOOLS_API void convert(unsigned long long& n, const String& str);
+void convert(unsigned long long& n, const String& str);
 #endif
 
-CXXTOOLS_API void convert(float& n, const String& str);
-CXXTOOLS_API void convert(double& n, const String& str);
-CXXTOOLS_API void convert(long double& n, const String& str);
+void convert(float& n, const String& str);
+void convert(double& n, const String& str);
+void convert(long double& n, const String& str);
 
 template <typename T>
 inline void convert(T& t, const String& str)
@@ -135,24 +134,24 @@ inline void convert(std::string& s, const std::string& str)
     s = str;
 }
 
-CXXTOOLS_API void convert(std::string& s, const String& str);
+void convert(std::string& s, const String& str);
 
-CXXTOOLS_API void convert(std::string& s, bool value);
+void convert(std::string& s, bool value);
 
-CXXTOOLS_API void convert(std::string& s, char value);
-CXXTOOLS_API void convert(std::string& s, signed char value);
-CXXTOOLS_API void convert(std::string& s, unsigned char value);
+void convert(std::string& s, char value);
+void convert(std::string& s, signed char value);
+void convert(std::string& s, unsigned char value);
 
-CXXTOOLS_API void convert(std::string& s, short value);
-CXXTOOLS_API void convert(std::string& s, unsigned short value);
-CXXTOOLS_API void convert(std::string& s, int value);
-CXXTOOLS_API void convert(std::string& s, unsigned int value);
-CXXTOOLS_API void convert(std::string& s, long value);
-CXXTOOLS_API void convert(std::string& s, unsigned long value);
+void convert(std::string& s, short value);
+void convert(std::string& s, unsigned short value);
+void convert(std::string& s, int value);
+void convert(std::string& s, unsigned int value);
+void convert(std::string& s, long value);
+void convert(std::string& s, unsigned long value);
 
-CXXTOOLS_API void convert(std::string& s, float value);
-CXXTOOLS_API void convert(std::string& s, double value);
-CXXTOOLS_API void convert(std::string& s, long double value);
+void convert(std::string& s, float value);
+void convert(std::string& s, double value);
+void convert(std::string& s, long double value);
 
 template <typename T>
 inline void convert(std::string& s, const T& value)
@@ -166,28 +165,28 @@ inline void convert(std::string& s, const T& value)
 // Conversions from std::string
 //
 
-CXXTOOLS_API void convert(bool& n, const std::string& str);
+void convert(bool& n, const std::string& str);
 
-CXXTOOLS_API void convert(char& n, const std::string& str);
-CXXTOOLS_API void convert(signed char& n, const std::string& str);
-CXXTOOLS_API void convert(unsigned char& n, const std::string& str);
+void convert(char& n, const std::string& str);
+void convert(signed char& n, const std::string& str);
+void convert(unsigned char& n, const std::string& str);
 
-CXXTOOLS_API void convert(short& n, const std::string& str);
-CXXTOOLS_API void convert(unsigned short& n, const std::string& str);
-CXXTOOLS_API void convert(int& n, const std::string& str);
-CXXTOOLS_API void convert(unsigned int& n, const std::string& str);
-CXXTOOLS_API void convert(long& n, const std::string& str);
-CXXTOOLS_API void convert(unsigned long& n, const std::string& str);
+void convert(short& n, const std::string& str);
+void convert(unsigned short& n, const std::string& str);
+void convert(int& n, const std::string& str);
+void convert(unsigned int& n, const std::string& str);
+void convert(long& n, const std::string& str);
+void convert(unsigned long& n, const std::string& str);
 #ifdef HAVE_LONG_LONG
-CXXTOOLS_API void convert(long long& n, const std::string& str);
+void convert(long long& n, const std::string& str);
 #endif
 #ifdef HAVE_UNSIGNED_LONG_LONG
-CXXTOOLS_API void convert(unsigned long long& n, const std::string& str);
+void convert(unsigned long long& n, const std::string& str);
 #endif
 
-CXXTOOLS_API void convert(float& n, const std::string& str);
-CXXTOOLS_API void convert(double& n, const std::string& str);
-CXXTOOLS_API void convert(long double& n, const std::string& str);
+void convert(float& n, const std::string& str);
+void convert(double& n, const std::string& str);
+void convert(long double& n, const std::string& str);
 
 template <typename T>
 inline void convert(T& t, const std::string& str)
@@ -203,28 +202,28 @@ inline void convert(T& t, const std::string& str)
 // Conversions from const char* (null-terminated)
 //
 
-CXXTOOLS_API void convert(bool& n, const char* str);
+void convert(bool& n, const char* str);
 
-CXXTOOLS_API void convert(char& n, const char* str);
-CXXTOOLS_API void convert(signed char& n, const char* str);
-CXXTOOLS_API void convert(unsigned char& n, const char* str);
+void convert(char& n, const char* str);
+void convert(signed char& n, const char* str);
+void convert(unsigned char& n, const char* str);
 
-CXXTOOLS_API void convert(short& n, const char* str);
-CXXTOOLS_API void convert(unsigned short& n, const char* str);
-CXXTOOLS_API void convert(int& n, const char* str);
-CXXTOOLS_API void convert(unsigned int& n, const char* str);
-CXXTOOLS_API void convert(long& n, const char* str);
-CXXTOOLS_API void convert(unsigned long& n, const char* str);
+void convert(short& n, const char* str);
+void convert(unsigned short& n, const char* str);
+void convert(int& n, const char* str);
+void convert(unsigned int& n, const char* str);
+void convert(long& n, const char* str);
+void convert(unsigned long& n, const char* str);
 #ifdef HAVE_LONG_LONG
-CXXTOOLS_API void convert(long long& n, const char* str);
+void convert(long long& n, const char* str);
 #endif
 #ifdef HAVE_UNSIGNED_LONG_LONG
-CXXTOOLS_API void convert(unsigned long long& n, const char* str);
+void convert(unsigned long long& n, const char* str);
 #endif
 
-CXXTOOLS_API void convert(float& n, const char* str);
-CXXTOOLS_API void convert(double& n, const char* str);
-CXXTOOLS_API void convert(long double& n, const char* str);
+void convert(float& n, const char* str);
+void convert(double& n, const char* str);
+void convert(long double& n, const char* str);
 
 
 //

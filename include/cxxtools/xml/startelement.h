@@ -26,7 +26,6 @@
 #ifndef cxxtools_xml_StartElement_h
 #define cxxtools_xml_StartElement_h
 
-#include <cxxtools/xml/api.h>
 #include <cxxtools/xml/node.h>
 #include <cxxtools/xml/namespace.h>
 #include <cxxtools/xml/namespacecontext.h>
@@ -48,7 +47,7 @@ namespace xml {
      * is parsed. The attributes are stored in a StartElement object from where they
      * can be retrieved.
      */
-    class CXXTOOLS_XML_API Attribute
+    class Attribute
     {
         public:
             //! Constructs a new Attribute object with an empty name and value.
@@ -130,7 +129,7 @@ namespace xml {
      * @see Node
      * @see Attribute
      */
-    class CXXTOOLS_XML_API StartElement : public Node
+    class StartElement : public Node
     {
         public:
             //! Constructs a new StartElement object with no name and an empty attribute list.

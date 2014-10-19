@@ -26,7 +26,6 @@
 #ifndef cxxtools_xml_EntityResolver_h
 #define cxxtools_xml_EntityResolver_h
 
-#include <cxxtools/xml/api.h>
 #include <cxxtools/string.h>
 #include <map>
 
@@ -43,7 +42,7 @@ namespace xml
  * the entity and the resolved entity value. To resolve the resolves value for an entity
  * the method resolveEntity() can be used.
  */
-class CXXTOOLS_XML_API EntityResolver
+class EntityResolver
 {
 
     public:

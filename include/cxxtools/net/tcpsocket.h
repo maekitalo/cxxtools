@@ -29,7 +29,6 @@
 #ifndef CXXTOOLS_net_TcpSocket_h
 #define CXXTOOLS_net_TcpSocket_h
 
-#include <cxxtools/api.h>
 #include <cxxtools/iodevice.h>
 #include <cxxtools/net/addrinfo.h>
 #include <cxxtools/signal.h>
@@ -42,7 +41,7 @@ namespace net {
 class TcpServer;
 class AddrInfo;
 
-class CXXTOOLS_API TcpSocket : public IODevice
+class TcpSocket : public IODevice
 {
         class TcpSocketImpl* _impl;
 

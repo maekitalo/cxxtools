@@ -36,7 +36,7 @@ namespace cxxtools
 namespace http
 {
 
-class CXXTOOLS_HTTP_API NotFoundResponder : public Responder
+class NotFoundResponder : public Responder
 {
     public:
         explicit NotFoundResponder(Service& service)

@@ -26,8 +26,6 @@
 #ifndef cxxtools_Xml_Node_h
 #define cxxtools_Xml_Node_h
 
-#include <cxxtools/xml/api.h>
-
 namespace cxxtools {
 
     namespace xml {
@@ -50,7 +48,7 @@ namespace cxxtools {
          *
          * @see Type
          */
-        class CXXTOOLS_XML_API Node {
+        class Node {
             public:
                 enum Type {
                     //! Unknown Node type (may not currently be supported)

@@ -28,7 +28,6 @@
 #ifndef cxxtools_TypeTraits_h
 #define cxxtools_TypeTraits_h
 
-#include <cxxtools/api.h>
 #include <cxxtools/config.h>
 #include <cstddef>
 #include <stdint.h>

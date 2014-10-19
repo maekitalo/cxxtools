@@ -29,7 +29,6 @@
 #ifndef cxxtools_Http_Client_h
 #define cxxtools_Http_Client_h
 
-#include <cxxtools/http/api.h>
 #include <cxxtools/http/reply.h>
 #include <cxxtools/query_params.h>
 #include <cxxtools/net/uri.h>
@@ -68,7 +67,7 @@ class Request;
  \endcode
 
  */
-class CXXTOOLS_HTTP_API Client
+class Client
 {
         ClientImpl* _impl;
         ClientImpl* getImpl();

@@ -28,7 +28,6 @@
 #ifndef CXXTOOLS_APPLICATION_H
 #define CXXTOOLS_APPLICATION_H
 
-#include <cxxtools/api.h>
 #include <cxxtools/eventloop.h>
 #include <cxxtools/application.h>
 #include <cxxtools/connectable.h>
@@ -66,7 +65,7 @@ namespace cxxtools {
      * to EventLoop::processEvents() without making it necessary to first obtain the
      * event loop manually.
      */
-    class CXXTOOLS_API Application : public Connectable
+    class Application : public Connectable
     {
             void construct();
 

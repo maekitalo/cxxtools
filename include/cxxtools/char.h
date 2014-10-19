@@ -28,7 +28,7 @@
 #ifndef CXXTOOLS_CHAR_H
 #define CXXTOOLS_CHAR_H
 
-#include <cxxtools/api.h>
+#include <cxxtools/config.h>
 #include <string>
 #include <cstring>
 #include <ios>
@@ -217,7 +217,7 @@ namespace cxxtools
     };
     /// @endcond internal
 
-    CXXTOOLS_API std::ostream& operator<< (std::ostream& out, Char ch);
+    std::ostream& operator<< (std::ostream& out, Char ch);
 
 } // namespace cxxtools
 
@@ -409,14 +409,14 @@ namespace std {
         @ingroup Unicode
     */
     template <>
-    class CXXTOOLS_API ctype< cxxtools::Char > : public ctype_base {
+    class ctype< cxxtools::Char > : public ctype_base {
 
 #else
     /** @brief Ctype localization facet
         @ingroup Unicode
     */
     template <>
-    class CXXTOOLS_API ctype<cxxtools::Char> : public ctype_base, public locale::facet {
+    class ctype<cxxtools::Char> : public ctype_base, public locale::facet {
 
 #endif
 
@@ -534,7 +534,7 @@ class ctype_base
 
 namespace cxxtools {
 
-CXXTOOLS_API std::ctype_base::mask ctypeMask(const Char& ch);
+std::ctype_base::mask ctypeMask(const Char& ch);
 
 inline int isalpha(const Char& ch)
 {
@@ -591,9 +591,9 @@ inline int isspace(const Char& ch)
     return ctypeMask(ch) & std::ctype_base::space;
 }
 
-CXXTOOLS_API Char tolower(const Char& ch);
+Char tolower(const Char& ch);
 
-CXXTOOLS_API Char toupper(const Char& ch);
+Char toupper(const Char& ch);
 
 } // namespace cxxtools
 

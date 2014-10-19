@@ -28,14 +28,13 @@
 #ifndef CXXTOOLS_CONVERSINERROR_H
 #define CXXTOOLS_CONVERSINERROR_H
 
-#include <cxxtools/api.h>
 #include <stdexcept>
 #include <string>
 
 namespace cxxtools
 {
 
-class CXXTOOLS_API ConversionError : public std::runtime_error
+class ConversionError : public std::runtime_error
 {
     public:
         explicit ConversionError(const std::string& msg);

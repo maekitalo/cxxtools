@@ -30,7 +30,6 @@
 #define CXXTOOLS_EVENTSINK_H
 
 #include <cxxtools/event.h>
-#include <cxxtools/api.h>
 #include <cxxtools/mutex.h>
 #include <list>
 
@@ -38,7 +37,7 @@ namespace cxxtools {
 
     class EventSource;
 
-    class CXXTOOLS_API EventSink : protected NonCopyable
+    class EventSink : protected NonCopyable
     {
         friend class EventSource;
 

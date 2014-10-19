@@ -26,7 +26,6 @@
 #ifndef cxxtools_Xml_EndDocument_h
 #define cxxtools_Xml_EndDocument_h
 
-#include <cxxtools/xml/api.h>
 #include <cxxtools/xml/node.h>
 
 
@@ -43,7 +42,7 @@ namespace cxxtools {
          *
          * @see Node
          */
-        class CXXTOOLS_XML_API EndDocument : public Node
+        class EndDocument : public Node
         {
             public:
                 //! Creates an EndDocument object.

@@ -46,7 +46,7 @@ namespace xmlrpc
 
 class HttpClientImpl;
 
-class CXXTOOLS_XMLRPC_API HttpClient : public Client
+class HttpClient : public Client
 {
     public:
         HttpClient()

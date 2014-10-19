@@ -29,7 +29,6 @@
 #ifndef CXXTOOLS_JSONDESERIALIZER_H
 #define CXXTOOLS_JSONDESERIALIZER_H
 
-#include <cxxtools/api.h>
 #include <cxxtools/deserializer.h>
 #include <cxxtools/jsonparser.h>
 #include <cxxtools/textstream.h>
@@ -101,7 +100,7 @@ namespace cxxtools
      * }
      * @endcode
      */
-    class CXXTOOLS_API JsonDeserializer : public Deserializer
+    class JsonDeserializer : public Deserializer
     {
         public:
             explicit JsonDeserializer(std::istream& in, TextCodec<Char, char>* codec = new Utf8Codec());

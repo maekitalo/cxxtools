@@ -28,13 +28,12 @@
 #ifndef CXXTOOLS_ISO8859_15CODEC_H
 #define CXXTOOLS_ISO8859_15CODEC_H
 
-#include <cxxtools/api.h>
 #include <cxxtools/iso8859_1codec.h>
 
 namespace cxxtools
 {
 
-class CXXTOOLS_API Iso8859_15Codec : public Iso8859_1Codec
+class Iso8859_15Codec : public Iso8859_1Codec
 {
     public:
         explicit Iso8859_15Codec(size_t ref = 0)

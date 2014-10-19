@@ -29,7 +29,6 @@
 #ifndef cxxtools_BasicTextStream_h
 #define cxxtools_BasicTextStream_h
 
-#include <cxxtools/api.h>
 #include <cxxtools/textbuffer.h>
 #include <iostream>
 
@@ -301,7 +300,7 @@ class BasicTextStream : public std::basic_iostream<CharT>
 
 /** @brief Text Input Stream for Character conversion
 */
-class CXXTOOLS_API TextIStream : public BasicTextIStream<Char, char>
+class TextIStream : public BasicTextIStream<Char, char>
 {
     public:
         typedef TextCodec<cxxtools::Char, char> Codec;
@@ -324,7 +323,7 @@ class CXXTOOLS_API TextIStream : public BasicTextIStream<Char, char>
 
 /** @brief Text Output Stream for Character conversion
 */
-class CXXTOOLS_API TextOStream : public BasicTextOStream<Char, char>
+class TextOStream : public BasicTextOStream<Char, char>
 {
     public:
         typedef TextCodec<cxxtools::Char, char> Codec;
@@ -347,7 +346,7 @@ class CXXTOOLS_API TextOStream : public BasicTextOStream<Char, char>
 
 /** @brief Text Stream for Character conversion
 */
-class CXXTOOLS_API TextStream : public BasicTextStream<Char, char>
+class TextStream : public BasicTextStream<Char, char>
 {
     public:
         typedef TextCodec<cxxtools::Char, char> Codec;

@@ -29,7 +29,6 @@
 #ifndef CXXTOOLS_SYSTEM_POSIX_SELECTORIMPL_H
 #define CXXTOOLS_SYSTEM_POSIX_SELECTORIMPL_H
 
-#include <cxxtools/api.h>
 #include <cxxtools/selectable.h>
 #include <cxxtools/timespan.h>
 #include <cxxtools/clock.h>

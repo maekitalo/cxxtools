@@ -28,7 +28,6 @@
 
 #include <cxxtools/signal.h>
 #include <cxxtools/timespan.h>
-#include <cxxtools/api.h>
 #include <vector>
 #include <cstddef>
 
@@ -69,7 +68,7 @@ namespace cxxtools {
         the methods is called while the timer is active, the previous interval
         will be stopped.
     */
-    class CXXTOOLS_API Timer
+    class Timer
     {
         class Sentry;
 

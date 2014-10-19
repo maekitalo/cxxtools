@@ -28,12 +28,11 @@
 #ifndef cxxtools_Semaphore_h
 #define cxxtools_Semaphore_h
 
-#include <cxxtools/api.h>
 #include <cxxtools/noncopyable.h>
 
 namespace cxxtools {
 
-class CXXTOOLS_API Semaphore : private NonCopyable
+class Semaphore : private NonCopyable
 {
     friend class SemaphoreImpl;
 

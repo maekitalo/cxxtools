@@ -29,7 +29,6 @@
 #ifndef cxxtools_Http_RequestHeader_h
 #define cxxtools_Http_RequestHeader_h
 
-#include <cxxtools/http/api.h>
 #include <cxxtools/http/messageheader.h>
 #include <string>
 

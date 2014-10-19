@@ -27,7 +27,6 @@
 #define CXXTOOLS_SELECTABLE_H
 
 #include <cxxtools/signal.h>
-#include <cxxtools/api.h>
 #include <cxxtools/selector.h>
 #include <cxxtools/timespan.h>
 
@@ -36,7 +35,7 @@ namespace cxxtools
 
 class SelectableImpl;
 
-class CXXTOOLS_API Selectable
+class Selectable
 {
         Selectable(const Selectable&) { }
         Selectable& operator=(const Selectable&) { return *this; }

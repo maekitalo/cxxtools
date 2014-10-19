@@ -28,7 +28,6 @@
 #ifndef cxxtools_SemaphoreImpl_h
 #define cxxtools_SemaphoreImpl_h
 
-#include <cxxtools/api.h>
 #include <semaphore.h>
 
 namespace cxxtools {

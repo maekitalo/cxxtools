@@ -28,7 +28,6 @@
 #ifndef CXXTOOLS_DATE_H
 #define CXXTOOLS_DATE_H
 
-#include <cxxtools/api.h>
 #include <string>
 #include <stdexcept>
 
@@ -37,7 +36,7 @@ namespace cxxtools
 
 class SerializationInfo;
 
-class CXXTOOLS_API InvalidDate : public std::invalid_argument
+class InvalidDate : public std::invalid_argument
 {
     public:
         InvalidDate();
@@ -46,9 +45,9 @@ class CXXTOOLS_API InvalidDate : public std::invalid_argument
         {}
 };
 
-CXXTOOLS_API void greg2jul(unsigned& jd, int y, int m, int d);
+void greg2jul(unsigned& jd, int y, int m, int d);
 
-CXXTOOLS_API void jul2greg(unsigned jd, int& y, int& m, int& d);
+void jul2greg(unsigned jd, int& y, int& m, int& d);
 
 /*
   Notes:
@@ -351,9 +350,9 @@ class Date
         unsigned _julian;
 };
 
-CXXTOOLS_API void operator >>=(const SerializationInfo& si, Date& date);
+void operator >>=(const SerializationInfo& si, Date& date);
 
-CXXTOOLS_API void operator <<=(SerializationInfo& si, const Date& date);
+void operator <<=(SerializationInfo& si, const Date& date);
 
 inline void Date::get(int& y, unsigned& m, unsigned& d) const
 {

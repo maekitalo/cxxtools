@@ -29,7 +29,6 @@
 #ifndef CXXTOOLS_NET_URI_H
 #define CXXTOOLS_NET_URI_H
 
-#include <cxxtools/api.h>
 #include <string>
 
 namespace cxxtools
@@ -73,7 +72,7 @@ namespace net
       \endcode
    */
 
-  class CXXTOOLS_API Uri
+  class Uri
   {
       bool _ipv6;
       std::string _protocol;

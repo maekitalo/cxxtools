@@ -30,7 +30,6 @@
 #define CXXTOOLS_PIPE_H
 
 #include <cxxtools/noncopyable.h>
-#include <cxxtools/api.h>
 #include <cxxtools/iodevice.h>
 #include <unistd.h>
 
@@ -38,7 +37,7 @@ namespace cxxtools
 {
     class PipeImpl;
 
-class CXXTOOLS_API Pipe : private NonCopyable
+class Pipe : private NonCopyable
 {
     private:
         class PipeImpl* _impl;

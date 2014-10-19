@@ -28,7 +28,6 @@
 #ifndef cxxtools_xmlrpc_Client_h
 #define cxxtools_xmlrpc_Client_h
 
-#include <cxxtools/xmlrpc/api.h>
 #include <cxxtools/remoteclient.h>
 #include <string>
 
@@ -38,7 +37,7 @@ namespace xmlrpc {
 
 class ClientImpl;
 
-class CXXTOOLS_XMLRPC_API Client : public RemoteClient
+class Client : public RemoteClient
 {
         ClientImpl* _impl;
 

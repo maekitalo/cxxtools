@@ -29,7 +29,6 @@
 #ifndef cxxtools_SerializationInfo_h
 #define cxxtools_SerializationInfo_h
 
-#include <cxxtools/api.h>
 #include <cxxtools/string.h>
 #include <cxxtools/convert.h>
 #include <cxxtools/serializationerror.h>
@@ -99,7 +98,7 @@ namespace cxxtools
 
  */
 
-class CXXTOOLS_API SerializationInfo
+class SerializationInfo
 {
     typedef std::vector<SerializationInfo> Nodes;
 

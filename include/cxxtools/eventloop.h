@@ -31,7 +31,6 @@
 
 #include <cxxtools/event.h>
 #include <cxxtools/signal.h>
-#include <cxxtools/api.h>
 #include <cxxtools/mutex.h>
 #include <cxxtools/selector.h>
 #include <cxxtools/eventsink.h>
@@ -135,7 +134,7 @@ namespace cxxtools {
         Since the %EventLoop is a Runnable, it can be easily assigned to a Thread
         to give it its own event loop.
      */
-    class CXXTOOLS_API EventLoop : public EventLoopBase
+    class EventLoop : public EventLoopBase
     {
         public:
             /** @brief Constructs the EventLoop

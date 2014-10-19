@@ -29,7 +29,6 @@
 #ifndef CXXTOOLS_NET_TcpServer_H
 #define CXXTOOLS_NET_TcpServer_H
 
-#include <cxxtools/api.h>
 #include <cxxtools/selectable.h>
 #include <cxxtools/signal.h>
 #include <cxxtools/ioerror.h>
@@ -59,7 +58,7 @@ namespace net
           { return "accept terminated"; }
   };
 
-  class CXXTOOLS_API TcpServer : public Selectable
+  class TcpServer : public Selectable
   {
     class TcpServerImpl* _impl;
 

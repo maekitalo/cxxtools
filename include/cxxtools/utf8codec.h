@@ -29,7 +29,6 @@
 #ifndef cxxtools_Utf8Codec_h
 #define cxxtools_Utf8Codec_h
 
-#include <cxxtools/api.h>
 #include <cxxtools/char.h>
 #include <cxxtools/textcodec.h>
 #include <cxxtools/string.h>
@@ -48,7 +47,7 @@ namespace cxxtools
      * The method do_out() converts an array of cxxtools::Char objects (UTF-32/Unicode) into an
      * array of char which contains the same sequence of characters in UTF-8-encoding.
      */
-    class CXXTOOLS_API Utf8Codec : public TextCodec<Char, char>
+    class Utf8Codec : public TextCodec<Char, char>
     {
         public:
             /**

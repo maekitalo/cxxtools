@@ -28,7 +28,6 @@
 #ifndef cxxtools_TextBuffer_h
 #define cxxtools_TextBuffer_h
 
-#include <cxxtools/api.h>
 #include <cxxtools/char.h>
 #include <cxxtools/textcodec.h>
 #include <cxxtools/conversionerror.h>
@@ -407,7 +406,7 @@ class BasicTextBuffer : public std::basic_streambuf<CharT>
     The internal type is cxxtools::Char. The external type is $char$.
     See BasicTextBuffer for a more detailed description.
 */
-class CXXTOOLS_API TextBuffer : public BasicTextBuffer<cxxtools::Char, char>
+class TextBuffer : public BasicTextBuffer<cxxtools::Char, char>
 {
     public:
         typedef TextCodec<cxxtools::Char, char> Codec;

@@ -28,7 +28,6 @@
 #ifndef cxxtools_TextCodec_h
 #define cxxtools_TextCodec_h
 
-#include <cxxtools/api.h>
 #include <cxxtools/char.h>
 #include <cxxtools/conversionerror.h>
 #include <string>
@@ -38,7 +37,7 @@
 namespace std {
 
 template<>
-class CXXTOOLS_API codecvt<cxxtools::Char, char, cxxtools::MBState> : public codecvt_base, public locale::facet
+class codecvt<cxxtools::Char, char, cxxtools::MBState> : public codecvt_base, public locale::facet
 {
     public:
         static locale::id id;
@@ -122,7 +121,7 @@ class CXXTOOLS_API codecvt<cxxtools::Char, char, cxxtools::MBState> : public cod
 
 
 template<>
-class CXXTOOLS_API codecvt<char, char, cxxtools::MBState> : public codecvt_base, public locale::facet
+class codecvt<char, char, cxxtools::MBState> : public codecvt_base, public locale::facet
 {
     public:
         static locale::id id;

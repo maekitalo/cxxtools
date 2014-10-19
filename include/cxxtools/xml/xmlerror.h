@@ -26,7 +26,6 @@
 #ifndef cxxtools_Xml_XmlError_h
 #define cxxtools_Xml_XmlError_h
 
-#include <cxxtools/xml/api.h>
 #include <stdexcept>
 
 namespace cxxtools {
@@ -34,7 +33,7 @@ namespace cxxtools {
 namespace xml {
 
 //! Exception that is thrown when a parse error occured.
-class CXXTOOLS_XML_API XmlError : public std::runtime_error
+class XmlError : public std::runtime_error
 {
     public:
         /**

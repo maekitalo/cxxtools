@@ -28,7 +28,6 @@
 #ifndef cxxtools_Mutex_h
 #define cxxtools_Mutex_h
 
-#include <cxxtools/api.h>
 #include <cxxtools/atomicity.h>
 #include <cxxtools/noncopyable.h>
 #include <cxxtools/thread.h>
@@ -42,7 +41,7 @@ namespace cxxtools {
     process at the same time. Mutexes are not recursive, that is the
     same thread can not lock a mutex multiple times without deadlocking.
 */
-class CXXTOOLS_API Mutex : private NonCopyable
+class Mutex : private NonCopyable
 {
     private:
         class MutexImpl* _impl;
@@ -174,7 +173,7 @@ class MutexLock : private NonCopyable
 
 /** @brief Recursive mutual exclusion device
 */
-class CXXTOOLS_API RecursiveMutex : private NonCopyable
+class RecursiveMutex : private NonCopyable
 {
     private:
         class MutexImpl* _impl;
@@ -263,7 +262,7 @@ class RecursiveLock : private NonCopyable
     A %ReadWriteMutex allows multiple concurrent readers or one exclusive writer to
     access a resource.
 */
-class CXXTOOLS_API ReadWriteMutex : private NonCopyable
+class ReadWriteMutex : private NonCopyable
 {
     public:
         //! @brief Creates the Reader/Writer lock.

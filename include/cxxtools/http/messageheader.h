@@ -29,7 +29,6 @@
 #ifndef cxxtools_Http_MessageHeader_h
 #define cxxtools_Http_MessageHeader_h
 
-#include <cxxtools/http/api.h>
 #include <string>
 #include <cstring>
 #include <utility>
@@ -40,7 +39,7 @@ namespace cxxtools
 namespace http
 {
 
-class CXXTOOLS_HTTP_API MessageHeader
+class MessageHeader
 {
     public:
         static const unsigned MAXHEADERSIZE = 4096;

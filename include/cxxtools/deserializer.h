@@ -39,7 +39,7 @@ namespace cxxtools
     /**
      * convert format to SerializationInfo
      */
-    class CXXTOOLS_API Deserializer
+    class Deserializer
     {
         public:
 #ifdef HAVE_LONG_LONG

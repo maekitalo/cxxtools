@@ -28,7 +28,6 @@
 #ifndef cxxtools_Formatter_h
 #define cxxtools_Formatter_h
 
-#include <cxxtools/api.h>
 #include <cxxtools/string.h>
 #include <string>
 #include <cxxtools/config.h>
