@@ -37,7 +37,7 @@ const unsigned Hdstreambuf::BUFFERSIZE;
 
 std::streambuf::int_type Hdstreambuf::overflow(std::streambuf::int_type ch)
 {
-  static char hexdigit[] = "0123456789abcdef";
+  static const char hexdigit[] = "0123456789abcdef";
 
   std::ostream out(Dest);
   size_t count = pptr() - pbase();
