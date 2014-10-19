@@ -45,6 +45,7 @@ cxxtools-config
 **/demo/execLs
 **/demo/getini
 **/demo/hd
+**/demo/httpclient
 **/demo/httprequest
 **/demo/httpserver
 **/demo/json
