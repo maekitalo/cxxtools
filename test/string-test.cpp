@@ -148,9 +148,8 @@ void StringTest::testConstructor()
     cxxtools::String s16(s11, 1, 3);
     CXXTOOLS_UNIT_ASSERT(s16 == c16);
 
-//  TODO API not implemented yet.
-//    cxxtools::String s20(s2.begin(), s2.end());
-//    CXXTOOLS_UNIT_ASSERT(s20 == L"abcde");
+    cxxtools::String s20(s2.begin(), s2.end());
+    CXXTOOLS_UNIT_ASSERT(s20 == L"abcde");
 }
 
 void StringTest::testCompare()
@@ -244,12 +243,11 @@ void StringTest::testAssign()
     s.assign(t, 1, 3);
     CXXTOOLS_UNIT_ASSERT(s == L"bcd");
 
-/*  TODO API not implemented yet.
     s.assign(v.begin(), v.end());
     CXXTOOLS_UNIT_ASSERT(s == L"abcde");
-*/
+
     s = s;
-    CXXTOOLS_UNIT_ASSERT(s == L"bcd");
+    CXXTOOLS_UNIT_ASSERT(s == L"abcde");
     s.assign(t);
     s = s.c_str();
     CXXTOOLS_UNIT_ASSERT(s == L"abcde");
@@ -281,11 +279,10 @@ void StringTest::testAppend()
     s.append(t, 1, 3);
     CXXTOOLS_UNIT_ASSERT(s == L"ABCbcd");
 
-/*  TODO API not implemented yet.
     s = L"ABC";
     s.append(v.begin(), v.end());
     CXXTOOLS_UNIT_ASSERT(s == L"ABCabcde");
-*/
+
     // operator +=
     s = L"ABC";
     s += z;
@@ -663,7 +660,6 @@ void StringTest::testReserveEmpty()
 {
     cxxtools::String s;
     s.reserve(0);
-    CXXTOOLS_UNIT_ASSERT( s.capacity() >= 0 );
     CXXTOOLS_UNIT_ASSERT_EQUALS( s.size() , 0 );
 }
 
