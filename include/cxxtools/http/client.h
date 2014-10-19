@@ -101,7 +101,7 @@ class CXXTOOLS_HTTP_API Client
             Note that the Uri class has a non explicit constructor from std::string.
             The protocol of the uri must be http. The url part of the uri is ignored.
 
-            This makes using uris natural.
+            This makes using uris easy.
 
             example:
             \code
@@ -139,9 +139,23 @@ class CXXTOOLS_HTTP_API Client
         void prepareConnect(const net::AddrInfo& addrinfo);
         void prepareConnect(const std::string& host, unsigned short int port);
         void prepareConnect(const net::Uri& uri);
+
+        /** Connects to the client specified by prepareConnect or passed by teh constructor.
+
+            This happens actually automatically when needed. It just helps checking whether
+            the server is reachable, since setting the connection paramters do not check it.
+         */
         void connect();
+
+        /** Closes the network connection if connected.
+
+            The network connection is automaticalle initiated on the next request.
+            The method do not discard the current connection parameters.
+         */
         void close();
 
+        /** Sets the network parameters and connects the socket.
+         */
         void connect(const net::AddrInfo& addrinfo)
         { prepareConnect(addrinfo); connect(); }
 
@@ -168,7 +182,7 @@ class CXXTOOLS_HTTP_API Client
          */
         const Reply& readBody();
 
-        /** Returns the last executed reply.
+        /** Returns the reply of the last executed request.
          */
         const Reply& reply() const;
         Reply& reply();
@@ -180,9 +194,9 @@ class CXXTOOLS_HTTP_API Client
         const ReplyHeader& header() const
         { return reply().header(); }
 
-        /** Returns the body of the last executed reply.
+        /** Returns the body of the last executed request.
 
-            The body can be read after calling readBody().
+            The readBody() method must be called before the body is available.
          */
         std::string body() const
         { return reply().body(); }
