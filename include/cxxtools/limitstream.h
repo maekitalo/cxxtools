@@ -76,7 +76,7 @@ namespace cxxtools
             { _sb = s; }
 
         protected:
-            char* ibuffer()
+            char_type* ibuffer()
             {
                 if (_ibuffer == 0)
                     _ibuffer = new char_type[_ibufsize];
