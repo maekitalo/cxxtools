@@ -170,19 +170,30 @@ const ReplyHeader& ClientImpl::execute(const Request& request, Timespan timeout,
     if (!_parser.end())
         throw IOError("incomplete HTTP reply header");
 
+    _chunkedEncoding = _reply.header().chunkedTransferEncoding();
+
+    if (_chunkedEncoding)
+    {
+        _chunkedIStream.reset();
+    }
+    else
+    {
+        std::size_t n = _reply.header().contentLength();
+        _bodyStream.clear();
+        _bodyStream.icount(n);
+
+    }
+
+
     return _reply.header();
 }
 
 
 void ClientImpl::readBody()
 {
-    _chunkedEncoding = _reply.header().chunkedTransferEncoding();
-
     if (_chunkedEncoding)
     {
         log_debug("read body with chunked encoding");
-
-        _chunkedIStream.reset();
 
         _reply.bodyStream() << _chunkedIStream.rdbuf();
 
@@ -194,13 +205,6 @@ void ClientImpl::readBody()
     }
     else
     {
-        std::size_t n = _reply.header().contentLength();
-
-        log_debug("read body; content-size: " << n);
-
-        _bodyStream.clear();
-        _bodyStream.icount(n);
-
         _reply.bodyStream() << _bodyStream.rdbuf();
 
         if (_bodyStream.icount() > 0 || !_reply.bodyStream())
