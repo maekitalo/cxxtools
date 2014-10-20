@@ -112,6 +112,17 @@ const ReplyHeader& ClientImpl::execute(const Request& request, Timespan timeout,
 {
     log_trace("execute request " << request.url());
 
+    if (_chunkedEncoding)
+    {
+        while (_chunkedIStream)
+            _chunkedIStream.get();
+    }
+    else
+    {
+        while (_bodyStream)
+            _bodyStream.get();
+    }
+
     if (connectTimeout < Timespan(0))
         connectTimeout = timeout;
 
@@ -183,7 +194,6 @@ const ReplyHeader& ClientImpl::execute(const Request& request, Timespan timeout,
         _bodyStream.icount(n);
 
     }
-
 
     return _reply.header();
 }
