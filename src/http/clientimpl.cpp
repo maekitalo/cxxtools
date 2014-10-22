@@ -182,6 +182,8 @@ const ReplyHeader& ClientImpl::execute(const Request& request, Timespan timeout,
         _bodyStream.clear();
         _bodyStream.icount(n);
 
+        log_debug("content length " << n);
+
     }
 
 
@@ -203,7 +205,7 @@ void ClientImpl::readBody()
             throw IOError("error reading HTTP reply body: incomplete chunked data stream");
         }
     }
-    else
+    else if (_bodyStream.icount() > 0)
     {
         _reply.bodyStream() << _bodyStream.rdbuf();
 
