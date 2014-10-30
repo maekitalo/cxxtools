@@ -1,7 +1,7 @@
 noinst_PROGRAMS = arg arg-set cgi dir dlloader getini hd \
 	httpclient httprequest httpserver log logsh md5sum mime multifstream netcat \
 	netio netmsg pipestream pool signals thread threadpool uuencode cxxlog \
-	rpcserver rpcechoclient rpcaddclient splitter json regex execLs rpcasyncaddclient \
+	rpcserver rpcechoclient rpcaddclient splitter json jsonbeautify regex execLs rpcasyncaddclient \
 	deserialization serialization rpcparallelecho timer
 
 arg_SOURCES = arg.cpp
@@ -36,6 +36,7 @@ deserialization_SOURCES = deserialization.cpp
 serialization_SOURCES = serialization.cpp
 splitter_SOURCES = splitter.cpp
 json_SOURCES = json.cpp
+jsonbeautify_SOURCES = jsonbeautify.cpp
 regex_SOURCES = regex.cpp
 execLs_SOURCES = execLs.cpp
 rpcasyncaddclient_SOURCES = rpcasyncaddclient.cpp
@@ -63,6 +64,7 @@ rpcserver_LDADD = $(XMLRPC_LIBS) $(BIN_LIBS) $(JSON_LIBS)
 rpcechoclient_LDADD = $(XMLRPC_LIBS) $(BIN_LIBS) $(JSON_LIBS)
 rpcaddclient_LDADD = $(XMLRPC_LIBS) $(BIN_LIBS) $(JSON_LIBS)
 json_LDADD = $(HTTP_LIBS)
+jsonbeautify_LDADD = $(HTTP_LIBS)
 rpcasyncaddclient_LDADD = $(XMLRPC_LIBS) $(BIN_LIBS) $(JSON_LIBS)
 rpcparallelecho_LDADD = $(BIN_LIBS)
 
