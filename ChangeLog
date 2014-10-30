@@ -1,3 +1,512 @@
+
+2014-10-30 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - add demo programm which formats a json structure using cxxtools
+
+2014-10-28 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - add macro for checking C++11 compiler flag to list of local macros
+
+2014-10-22 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - fix reading httpreply with empty body in http client - was broken after introduction of limit stream in http client
+
+2014-10-20 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - discard previous http reply on execute if not fully read in http client
+ - initialize reading body in http client as soon as possible
+ - fix data type in limitstream
+
+2014-10-19 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - enable more unit tests for string class
+ - remove those CXXTOOLS.*_API macros - they were never used anyway
+ - fix construction of net::Uri class
+ - update documentation of http client class
+ - fix logging category in json http client
+ - add rpc benchmark client which uses asyncronous requests
+ - use limit stream in http client when reading body with chunked encoding
+ - minor fix: make hex digits const in hdstream
+
+2014-10-18 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - make disconnection signal slot connections more robust
+
+2014-10-16 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - new (std::)streams which limit the number of characters to read or write
+
+2014-10-09 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - improve http client: return http reply object in get and post methods to make accessing headers and others easier
+ - remove some unused includes
+
+2014-10-08 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - remove use of std::auto_ptr
+ - improve http client: use username and password from uri; make AddrInfo comparable; add httpclient demo
+ - improve serialization benchmark: add flags to select different formats
+ - improve cxxtools::QueryParams: add methods set and remove
+ - use c++ 11 mode of compiler if supported for better optimization
+ - extend get method and new post method in http client class
+ - optimize reading http body in http client in sync mode
+
+2014-09-28 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - cleanup connectable stuff
+
+2014-09-18 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - fix include - strncasecmp is defined in strings.h, not in string.h
+
+2014-08-28 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - inline copy and assignment of SerializationInfo
+
+2014-08-27 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - incompatible change in binary serialization format: save one byte for each member of a object
+ - fix inifinite wait - was broken after replacing timeouts with cxxtools::Timespan
+
+2014-08-26 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - optimize binary serializer and deserializer: it is faster to read and write from streambuf instead of istream
+ - fix debug output
+ - reset format flags in logger when reusing ostringstream
+
+2014-08-24 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - optimization in binary format: add dictionary feature to shorten multiple occurencies of names or type names
+
+2014-08-21 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - fix serialization benchmark program; was broken after api change in deserializers
+
+2014-08-18 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - fix cxxtools::CsvDeserializer::toObject; was broken after api change in deseriailzers
+
+2014-08-16 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - cleanup api of binary deserializer
+ - rename cxxtools::bin::ValueParser to cxxtools::bin::Parser
+
+2014-03-15 Jonas Platte <jonasplatte@myopera.com>
+
+ - Code style update for pool.h
+
+2014-03-11 Jonas Platte <jonasplatte@myopera.com>
+
+ - Fixed some simple issues found by cppcheck
+
+2014-03-10 Jonas Platte <mail@jonasplatte.de>
+
+ - Explicitly enabled subdir-objects option (to remove warnings)
+
+2014-08-14 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - refactor deserializers to ease writing e.g. non blocking network servers or clients
+
+2014-08-05 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - fix output of serializer-bench (unit is output from cxxtools::Timespan already)
+ - move logbench from demo to test directory and configure logging in logbench using api instead of a configurationfile for better control
+
+2014-08-04 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - fix race condition in logger
+
+2014-08-01 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - Thread::sleep improvement: use nanosleep when available for higher resolution and be aware that usleep is not able to sleep longer than one second
+
+2014-07-31 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - add some documentation in timer and selector classes
+ - optimize serializer benchmark process by preallocating member names in serialization operators
+
+2014-07-30 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - add waitUntil method to selector to get higher precision timer
+
+2014-07-28 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - accept slightly larger values than fits into float or double in serialization to workaround range errors due to rounding errors
+
+2014-07-27 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - reorder configure.ac to remove autoconf warning
+ - use ppoll when available for waiting to get a more accurate timer
+ - change datatype for timeouts from size_t to cxxtools::Timespan
+
+2014-07-22 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - change cxxtools::Event::clone method to return a pointer instead of a reference
+ - don't use cxxtools::NonCopyable in cxxtools::SelectorBase (I don't like cxxtools::NonCopyable any more)
+ - optimize cxxtools::Clock::getSystemTime()
+ - remove allocator stuff from cxxtools::Event; cxxtools::Allocator was removed already
+
+2014-07-21 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - fix timer (was broken on 64 bit systems)
+
+2014-07-15 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - fix double free corruption when cxxtools::Clock is copied or assigned
+ - remove unused class cxxtools::Allocator
+
+2014-07-14 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - remove parent attribute from serializationinfo
+
+2014-07-10 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - make log level constants uppercase again since changing it changed the output format
+
+2014-06-28 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - optimize serialization of hierarchical structures by using swap when resizing subnodes vector
+
+2014-05-30 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - make log level constants (fatal, error, warn,...) lowercase since all uppercase is reserved for macros
+
+2014-05-29 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - optimization of json and binary rpc clients
+ - make result of rpc client call modifiable, so that it can be moved or swapped away
+ - fix json rpc error reply
+
+2014-05-28 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - not all platforms have a O_CLOEXEC flag for open(2)
+
+2014-05-07 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - fix base64 encoder
+
+2014-04-13 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - fix registering service with empty domain in binary rpc server
+ - optimization in copying preformatted json data in json serializer
+
+2014-04-12 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - add feature to put preformatted json data into a object formatted by json serializer
+
+2014-04-09 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - make conversion from utf-8 to unicode string cxxtools::String implicit in utf-8 helper
+ - add easier interface to utf-8 conversions
+
+2014-04-08 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - add serialization and deserialization operators for cxxtools::Char (unicode char)
+
+2014-03-21 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - fix error reporting in json rpc
+
+2014-03-11 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - add missing include for os without inet_ntop like haiku
+
+2014-02-18 mikg0 <michael.gius@gmail.com>
+
+ - Update serialization-howto.markdown
+
+   some grammar fixes.
+
+2014-02-17 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - write csv howto
+
+2014-02-16 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - add serialization howto document
+
+2014-02-07 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - fix netcat demo program: omitting ip switch -i must not lead to a crash
+
+2014-02-01 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - add format sepcifier 'k' for fixed 3 digit milliseconds to cxxtools::Time and cxxtools::Datetime
+
+2014-01-30 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - add %K format specifier to datetime and time parser as in formatter
+
+2014-01-04 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - improve documentation of cxxtools::Timespan
+
+2014-01-02 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - simplyfy iterator of cxxtools::SerializationInfo and add some documentation
+ - fix rounding problem in timespan unit test
+
+2013-12-31 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - add documentation to cxxtools::Timespan
+ - use timespan in cxxtools::Remoteprocedure::end to specify timeout also
+ - fix timespan unittest
+ - use cxxtools::Timespan to specify timeout in remote client and selector
+
+2013-12-23 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - rework cxxtools::Timespan object and create WeakTimespan objects with implicit conversions
+ - fix timeout handling of cxxtools::Condition::wait
+
+2013-12-22 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - add converter functions from cxxtools::Timespan to microseconds, milliseconds, seconds, minutes hours and days
+
+2013-12-20 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - add missing return in Condition::wait
+ - use cxxtools::Timespan for specifiying timespans in timer and timed wait in condition
+
+2013-12-14 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - fix parsing double % in query parameters
+
+2013-12-09 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - use cxxtools::Timespan to specify the time to sleep in cxxtools::Thread::sleep
+ - add helper functions to make creating cxxtools::Timespan more easy and more readable
+
+2013-11-29 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - update installation hints
+
+2013-11-21 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - fix iniparser and add unit test for it
+
+2013-11-13 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - fix memory leak in json deserializer
+
+2013-11-03 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - remove ambiguity when trying to convert a int to cxxtools::Char
+
+2013-10-31 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - use memmove instead of memcpy when removing message header since the areas may overlap
+
+2013-10-29 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - add documentation about exceptions and a simpler way to execute remote procedures asyncronously into jsonrpc howto
+
+2013-10-26 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - rename log_define_impl to log_define_instance
+
+2013-10-25 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - implement log macros log_define_impl and log_..._to
+
+2013-10-24 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - add serialization operators to cxxtools::Timespan
+
+2013-10-24 Andreas Welchlin <andreas@welchlin.de>
+
+ - fix cxxtools::Clock
+
+2013-10-23 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - add optional selector parameter to constructor of cxxtools::Timer and add demo for timer
+ - extend cxxtools::Timer with fixed start time and one shot timers
+
+2013-10-19 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - implement unittest for multiple parallel rpc calls
+ - fix copy and assignment of xmlrpc client
+ - add tests for prepareConnect and connect methods to xmlrpc, jsonrpc and jsonhttprpc unit tests also
+ - add missing connect method to json rpc http client
+ - add tests for prepareConnect and connect functions to binary rpc unit test
+ - add constructors just with a selector to http client and rpc clients
+ - split connect method of rpc clients into prepareConnect and connect and delay instantation of impl classes
+
+2013-10-09 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - add realConnect parameter to constructor of cxxtools::xmlrpc::HttpClient
+ - passing domain to rpc client was broken with the new realConnect parameter - fixed
+ - add conversion and formatting methods to Date, Time and DateTime classes
+
+2013-10-04 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - generalize input stream of csv and json deserializer
+ - implement codecs for ISO-8859-1 and ISO-8859-15
+
+2013-10-03 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - add documentation for cxxtools::Uri
+ - add documentation for http client
+ - autoscan.sh is obsolete - use "autoreconf -i" instead
+
+2013-10-02 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - add new demo program for parallel rpc call using cxxtools::Selector
+ - fix quoted printable encoder, add unit test and comments
+ - timeout must be initialized in binary rpc client
+
+2013-09-30 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - make cxxtools::RemoteResult copyable which makes RemoteProcedure copyable
+ - reference must be const in copy constructor of rpc client classes
+ - add realConnect parameter to connect methods in http and rpc client classes
+
+2013-09-29 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - add timeout and connect timeout to remote client class
+ - implement separate connectTimeout in http client
+
+2013-09-15 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - new howtos: binaryrpc, jsonrpc, xmlrpc
+
+2013-09-13 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - add properties quick howto
+ - new jsonquick-howto
+
+2013-09-10 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - process byte order mark in utf-8 codec
+
+2013-09-08 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - add cxxtools::bin::Bin serialization helper
+ - minor changes in serializer classes
+ - make cxxtools::RefCounted and cxxtools::AtomicRefCounted copyable
+ - set typename in serialization operator of log configuration
+ - add beautify flag to cxxtools::Json and cxxtools::xml::Xml serialization helper
+
+2013-09-07 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - add serialization operator for log configuration
+ - set empty string as default for member name of SeriailzationInfo
+
+2013-09-06 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - make cxxtools::RemoteClient and derived and cxxtools::RemoteProcedure copyable
+
+2013-09-01 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - make log configuration easily settable to create an api for setting log configuration and allow resetting log configuration multiple times
+ - do not allow zero char in url of http request
+
+2013-08-29 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - fix handling of line ending in csv formatter
+
+2013-08-17 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - new function cxxtools::posix::daemonize to send the current process to the background
+
+2013-08-10 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - add subst method to cxxtools::Regex for substituting regular expressions with something
+
+2013-07-10 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - disable static build by default and other small cleanups in the build system
+
+2013-07-09 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - update build; autoconf wants configure.ac instead of configure.in
+
+2013-07-08 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - report line number in exception when parsing json
+
+2013-07-05 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - extend properties parser:
+   * allow all non white space characters in the key
+   * accept ':' as separator between key and value
+   * accept just white space as separator between key and value
+   * a backspace as the last character in a line will continue the value and ignore leading white space
+   * allow just keys in property files, which defines a empty value
+
+2013-07-04 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - allow minus sign in keys of property files
+
+2013-06-26 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - add serialization and deserialization demo program
+
+2013-06-24 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - add helper function cxxtools::Properties for easy reading of properties files from istream
+   rename old cxxtools::Properties to cxxtools::PropertiesFile
+ - add istream operator for csv, json and xml deserialization helpers
+
+2013-06-22 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - add helper classes which makes it easier to write json, csv or xml data to a output stream
+
+2013-06-21 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - remove utf-8 byte order mark from rpc to fix ordering
+
+2013-06-20 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - improve autoconf test for sendfile so that mac osx fails as it should since it has a different interface
+
+2013-06-14 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - implement cxxtools::File::copy, fixes to cxxtools::File and implement unittests
+
+2013-06-02 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - fix formatting IPv6 addresses when converting to string
+ - new json howto document
+ - format arrays in json like other json formatters - one element per line
+ - allow changing value in cache in put method
+
+2013-06-01 Olaf Radicke <briefkasten@olaf-radicke.de>
+
+ - I add the very helpful example from Tommi as Doxygen commt.
+
+2013-05-11 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - use raw file I/O instead of fstream in logger to improve performance and set O_CLOEXEC (prevent inheritage of log file to child process)
+
+2013-05-10 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - add 2 new howtos
+
+2013-05-04 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - allow plain keys in json deserializer
+   initialization of logging optionally with json
+
+2013-04-20 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - restore old xmlrpc unit test as xmlrpccallback to test the callback functionality
+
+2013-04-17 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - fix exception handling in xmlrpc and json over http - exceptions were lost when executed just via the event loop
+
+2013-04-07 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - rpc howto is finished
+
+2013-04-07 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - a cxxtools::Selector is sufficient in async rpc calls on the client side
+
+2013-04-06 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - fix build on FreeBSD and 2 minor style changes
+
 2013-04-06 tommi@tntnet.org
 
  - fix build on FreeBSD
