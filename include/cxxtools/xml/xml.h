@@ -155,8 +155,8 @@ namespace xml
         ObjectType& object()
         { return _object; }
 
-        void readAttributes(bool sw)
-        { _readAttributes = sw; }
+        XmlIObject& readAttributes(bool sw)
+        { _readAttributes = sw; return *this; }
 
         bool readAttributes()
         { return _readAttributes; }

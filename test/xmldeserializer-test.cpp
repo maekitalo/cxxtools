@@ -29,7 +29,6 @@
 #include "cxxtools/unit/testsuite.h"
 #include "cxxtools/unit/registertest.h"
 #include "cxxtools/xml/xmldeserializer.h"
-#include "cxxtools/log.h"
 #include <sstream>
 
 namespace
