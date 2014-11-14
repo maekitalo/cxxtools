@@ -27,6 +27,8 @@
  */
 
 #include <iostream>
+#include "cxxtools/xml/xmlreader.h"
+#include "cxxtools/xml/startelement.h"
 #include "cxxtools/xml/entityresolver.h"
 #include "cxxtools/unit/testsuite.h"
 #include "cxxtools/unit/registertest.h"
@@ -37,6 +39,10 @@ class XmlReaderTest : public cxxtools::unit::TestSuite
         XmlReaderTest()
         : cxxtools::unit::TestSuite("xmlreader")
         {
+            registerMethod("XmlReadXml", *this, &XmlReaderTest::XmlReadXml);
+            registerMethod("XmlReadEmptyXml", *this, &XmlReaderTest::XmlReadEmptyXml);
+            registerMethod("XmlReadAttributes", *this, &XmlReaderTest::XmlReadAttributes);
+            registerMethod("XmlReadAttributesFromEmptyXml", *this, &XmlReaderTest::XmlReadAttributesFromEmptyXml);
             registerMethod("XmlEntity", *this, &XmlReaderTest::XmlEntity);
             registerMethod("ReverseEntity", *this, &XmlReaderTest::ReverseEntity);
             registerMethod("AllEntities", *this, &XmlReaderTest::AllEntities);
@@ -48,6 +54,70 @@ class XmlReaderTest : public cxxtools::unit::TestSuite
 
         void tearDown()
         {
+        }
+
+        void XmlReadXml()
+        {
+            std::istringstream in(
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                "<root><foo></foo></root>");
+            cxxtools::xml::XmlReader xr(in);
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(xr.documentVersion().narrow(), "1.0");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(xr.documentEncoding().narrow(), "UTF-8");
+
+            cxxtools::xml::StartElement root = xr.nextElement();
+            cxxtools::xml::StartElement foo = xr.nextElement();
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(root.name().narrow(), "root");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(foo.name().narrow(), "foo");
+        }
+
+        void XmlReadEmptyXml()
+        {
+            std::istringstream in(
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                "<root/>");
+            cxxtools::xml::XmlReader xr(in);
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(xr.documentVersion().narrow(), "1.0");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(xr.documentEncoding().narrow(), "UTF-8");
+
+            cxxtools::xml::StartElement root = xr.nextElement();
+            CXXTOOLS_UNIT_ASSERT_EQUALS(root.name().narrow(), "root");
+        }
+
+        void XmlReadAttributes()
+        {
+            std::istringstream in(
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+                "<root attr1=\"one\" attr2=\"two\" ><foo fooattr=\"bar\"/></root>");
+            cxxtools::xml::XmlReader xr(in);
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(xr.documentVersion().narrow(), "1.0");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(xr.documentEncoding().narrow(), "UTF-8");
+
+            cxxtools::xml::StartElement root = xr.nextElement();
+            cxxtools::xml::StartElement foo = xr.nextElement();
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(root.attributes().size(), 2);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(root.attribute(L"attr1").narrow(), "one");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(root.attribute(L"attr2").narrow(), "two");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(foo.attributes().size(), 1);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(foo.attribute(L"fooattr").narrow(), "bar");
+        }
+
+        void XmlReadAttributesFromEmptyXml()
+        {
+            std::istringstream in(
+                "<root attr1=\"one\" attr2=\"two\"/>");
+            cxxtools::xml::XmlReader xr(in);
+
+            cxxtools::xml::StartElement root = xr.nextElement();
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(root.attributes().size(), 2);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(root.attribute(L"attr1").narrow(), "one");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(root.attribute(L"attr2").narrow(), "two");
         }
 
         void XmlEntity()

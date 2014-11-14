@@ -30,7 +30,7 @@
 #include <cxxtools/xml/namespace.h>
 #include <cxxtools/xml/namespacecontext.h>
 #include <cxxtools/string.h>
-#include <list>
+#include <vector>
 
 namespace cxxtools {
 
@@ -110,6 +110,7 @@ namespace xml {
             String _value;
     };
 
+    typedef std::vector<Attribute> Attributes;
 
     /**
      * @brief A start element (Node) which represents an opening tag of an XML document.
@@ -213,8 +214,8 @@ namespace xml {
              *
              * @return A list containing all attributes of the tag this StartElement represents.
              */
-            const std::list<Attribute>& attributes() const
-            {return _attributes;}
+            const Attributes& attributes() const
+            { return _attributes; }
 
             /**
              * @brief Returns the value of the attribute with the given name.
@@ -289,7 +290,7 @@ namespace xml {
             String _name;
 
             //! The list which contains all attributes of the underlying tag.
-            std::list<Attribute> _attributes;
+            Attributes _attributes;
 
             //! The namespace conText of this StartElement.
             NamespaceContext _namespaceContext;

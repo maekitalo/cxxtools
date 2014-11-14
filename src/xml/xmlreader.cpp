@@ -39,6 +39,7 @@
 #include <stdexcept>
 #include <iostream>
 #include <sstream>
+#include <typeinfo>
 
 log_define("cxxtools.xml.reader")
 
@@ -1471,6 +1472,28 @@ class XmlReaderImpl
         }
     };
 
+    void readProlog()
+    {
+        while (_state != OnStartElement::instance()
+            && _state != OnProlog::instance())
+        {
+            std::basic_streambuf<Char>::int_type c = _textBuffer->sbumpc();
+            if (c == std::char_traits<Char>::eof())
+            {
+                _state = _state->onEof(*this);
+                break;
+            }
+
+            Char ch = std::char_traits<Char>::to_char_type(c);
+            _state = _state->onChar(ch, *this);
+
+            if (ch == L'\n')
+            {
+                ++_line;
+            }
+        }
+    }
+
 
   public:
     XmlReaderImpl(std::basic_istream<Char>& is, int flags)
@@ -1539,13 +1562,25 @@ class XmlReaderImpl
     }
 
     const cxxtools::String& version() const
-    { return _version; }
+    {
+        if (_state == XmlReaderImpl::OnDocumentBegin::instance())
+            const_cast<XmlReaderImpl*>(this)->readProlog();
+        return _version;
+    }
 
     const cxxtools::String& encoding() const
-    { return _encoding; }
+    {
+        if (_state == XmlReaderImpl::OnDocumentBegin::instance())
+            const_cast<XmlReaderImpl*>(this)->readProlog();
+        return _encoding;
+    }
 
     bool standalone() const
-    { return _standalone; }
+    {
+        if (_state == XmlReaderImpl::OnDocumentBegin::instance())
+            const_cast<XmlReaderImpl*>(this)->readProlog();
+        return _standalone;
+    }
 
     EntityResolver& entityResolver()
     {

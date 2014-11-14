@@ -31,6 +31,7 @@
 #include <cxxtools/string.h>
 #include <cxxtools/deserializer.h>
 #include "cxxtools/xml/xmlreader.h"
+#include "cxxtools/xml/startelement.h"
 
 namespace cxxtools
 {
@@ -48,34 +49,70 @@ namespace xml
     class XmlDeserializer : public Deserializer
     {
         public:
-            explicit XmlDeserializer(XmlReader& reader);
+            /** Initializes a deserializer.
 
-            explicit XmlDeserializer(std::istream& is);
+                To read a xml structure, the parse method has to be called.
+             */
+            explicit XmlDeserializer(bool readAttributes = false)
+                : _readAttributes(readAttributes)
+            { }
+
+            /** Initializes a deserializer and reads a xml structure into the underlying SerializationInfo.
+             */
+            explicit XmlDeserializer(XmlReader& reader, bool readAttributes = false);
+
+            /** Initializes a deserializer and reads a xml structure into the underlying SerializationInfo.
+             */
+            explicit XmlDeserializer(std::istream& is, bool readAttributes = false);
+
+            /** Reads a xml structure into the underlying SerializationInfo.
+             */
+            void parse(XmlReader& reader);
+
+            /** Reads a xml structure into the underlying SerializationInfo.
+             */
+            void parse(std::istream& is);
+
+            /** Reads a xml structure into the underlying SerializationInfo.
+             */
+            void parse(std::basic_istream<Char>& is);
+
+            /** Specifies whether xml attributes should be read into members.
+
+                By default attributes are ignored. When the flag is set,
+                attributes are added as scalar members.
+             */
+            void readAttributes(bool readAttributes)
+            { _readAttributes = readAttributes; }
+
+            /** Returns true, when the readAttribute flag is set.
+             */
+            bool readAttributes() const
+            { return _readAttributes; }
 
             template <typename T>
-            static void toObject(const std::string& str, T& type)
+            static void toObject(const std::string& str, T& type, bool readAttributes = false)
             {
                std::istringstream in(str);
-               XmlDeserializer d(in);
+               XmlDeserializer d(in, readAttributes);
                d.deserialize(type);
             }
 
             template <typename T>
-            static void toObject(XmlReader& in, T& type)
+            static void toObject(XmlReader& in, T& type, bool readAttributes = false)
             {
-               XmlDeserializer d(in);
+               XmlDeserializer d(in, readAttributes);
                d.deserialize(type);
             }
 
             template <typename T>
-            static void toObject(std::istream& in, T& type)
+            static void toObject(std::istream& in, T& type, bool readAttributes = false)
             {
-               XmlDeserializer d(in);
+               XmlDeserializer d(in, readAttributes);
                d.deserialize(type);
             }
 
-        protected:
-            void doDeserialize(XmlReader& reader);
+        private:
 
             //! @internal
             void beginDocument(XmlReader& reader);
@@ -95,7 +132,6 @@ namespace xml
             //! @internal
             void onEndElement(XmlReader& reader);
 
-        private:
             //! @internal
             typedef void (XmlDeserializer::*ProcessNode)(XmlReader&);
 
@@ -103,6 +139,8 @@ namespace xml
             ProcessNode _processNode;
 
             size_t _startDepth;
+
+            bool _readAttributes;
 
             //! @internal
             cxxtools::String _nodeName;
@@ -113,7 +151,11 @@ namespace xml
 
             cxxtools::String _nodeCategory;
 
+            Attributes _attributes;
+
             SerializationInfo::Category nodeCategory() const;
+
+            void processAttributes(const Attributes& attributes);
 
     };
 

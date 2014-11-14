@@ -144,14 +144,23 @@ namespace xml
     class XmlIObject
     {
         ObjectType& _object;
+        bool _readAttributes;
 
       public:
         explicit XmlIObject(ObjectType& object)
-          : _object(object)
+          : _object(object),
+            _readAttributes(false)
         { }
 
         ObjectType& object()
         { return _object; }
+
+        void readAttributes(bool sw)
+        { _readAttributes = sw; }
+
+        bool readAttributes()
+        { return _readAttributes; }
+
     };
 
     /// The input operator for XmlIObject. It does the actual work.
@@ -159,7 +168,9 @@ namespace xml
     template <typename CharType, typename ObjectType>
     std::basic_istream<CharType>& operator>> (std::basic_istream<CharType>& in, XmlIObject<ObjectType> object)
     {
-      XmlDeserializer deserializer(in);
+      XmlDeserializer deserializer;
+      deserializer.readAttributes(object.readAttributes());
+      deserializer.parse(in);
       deserializer.deserialize(object.object());
       return in;
     }
