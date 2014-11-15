@@ -937,7 +937,7 @@ namespace cxxtools
         }
         else
         {
-          xml::XmlDeserializer d(in);
+          xml::XmlDeserializer d(in, true);
           LogConfiguration config;
           d.deserialize(config);
           getInstance().configure(config);
