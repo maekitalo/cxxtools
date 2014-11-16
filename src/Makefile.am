@@ -24,7 +24,6 @@ libcxxtools_la_SOURCES = \
 	cgi.cpp \
 	conversionerror.cpp \
 	convert.cpp \
-	daemonize.cpp \
 	date.cpp \
 	datetime.cpp \
 	dateutils.cpp \
@@ -69,6 +68,7 @@ libcxxtools_la_SOURCES = \
 	pipeimpl.cpp \
 	posix/commandinput.cpp \
 	posix/commandoutput.cpp \
+	posix/daemonize.cpp \
 	posix/pipestream.cpp \
 	posix/posixpipe.cpp \
 	propertiesfile.cpp \
