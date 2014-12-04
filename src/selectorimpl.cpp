@@ -40,6 +40,7 @@
 #include <iostream>
 #include <limits>
 #include "config.h"
+#include "poll.h"
 
 log_define("cxxtools.selector.impl")
 

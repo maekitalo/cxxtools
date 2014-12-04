@@ -119,7 +119,7 @@ TestMethod* TestSuite::findTest(const std::string& name)
 void TestSuite::registerTest(TestMethod* test)
 {
     test->setParent(this);
-    std::pair<const std::string, TestMethod*> p( test->name(), test );
+    Tests::value_type p( test->name(), test );
     _tests.push_back( p );
 }
 

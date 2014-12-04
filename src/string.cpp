@@ -53,7 +53,7 @@ void basic_string<cxxtools::Char>::reserve(size_t n)
     {
         // since capacity is always at least shortStringCapacity, we need to use long string
         // to ensure the requested capacity if the current is not enough
-        cxxtools::Char* p = _data.allocate(n + 1);
+        cxxtools::Char* p = reinterpret_cast<cxxtools::Char*>(_data.allocate(n + 1));
         size_type l = length();
         const cxxtools::Char* oldData = privdata_ro();
         traits_type::copy(p, oldData, l);

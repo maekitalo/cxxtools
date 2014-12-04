@@ -882,7 +882,8 @@ inline void operator >>=(const SerializationInfo& si, std::map<K, V, P, A>& map)
     {
         typename std::pair<K, V> v;
         *it >>= v;
-        map.insert(v);
+        typename std::map<K, V, P, A>::value_type vv(v.first, v.second);
+        map.insert(vv);
     }
 }
 
@@ -911,7 +912,8 @@ inline void operator >>=(const SerializationInfo& si, std::multimap<K, V, P, A>&
     {
         typename std::pair<K, V> v;
         *it >>= v;
-        multimap.insert(v);
+        typename std::multimap<K, V, P, A>::value_type vv(v.first, v.second);
+        multimap.insert(vv);
     }
 }
 

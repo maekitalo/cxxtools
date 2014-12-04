@@ -31,6 +31,7 @@
 
 #include <string>
 #include <cxxtools/char.h>
+#include <cxxtools/string.h>
 #include <cxxtools/textstream.h>
 #include <cxxtools/serializationerror.h>
 

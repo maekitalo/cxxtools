@@ -34,6 +34,7 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <fstream>
+#include <signal.h>
 
 namespace cxxtools
 {
