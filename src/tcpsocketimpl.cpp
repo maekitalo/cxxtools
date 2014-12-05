@@ -463,6 +463,7 @@ bool TcpSocketImpl::checkPollEvent(pollfd& pfd)
             return true;
         }
 
+        close();
         _connectResult = tryConnect();
         if (_isConnected)
         {
