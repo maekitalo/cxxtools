@@ -32,6 +32,7 @@
 #include <queue>
 #include <cxxtools/mutex.h>
 #include <cxxtools/condition.h>
+#include <cxxtools/timespan.h>
 
 namespace cxxtools
 {
@@ -72,6 +73,23 @@ namespace cxxtools
                 the thread will be locked until a element is available.
              */
             value_type get();
+
+            /** @brief Returns the next element if the queue is not empty.
+
+                This method returns the next element. If the queue is empty,
+                the thread will wait up to timeout milliseconds until a element
+                is available.
+
+                If the queue was empty after the timeout, a pair of a default
+                constructed value_type and the value false are returned.
+                Otherwise the next element is removed and returned together
+                with a true value.
+
+                Spurious wakeups are ignored so that when that happens, the
+                method might return before the timeout is over even when the
+                queue is empty.
+             */
+            std::pair<value_type, bool> get(const Milliseconds& timeout);
 
             /** @brief Returns the next element if the queue is not empty.
 
@@ -133,6 +151,33 @@ namespace cxxtools
         ++_numWaiting;
         while (_queue.empty())
             _notEmpty.wait(lock);
+        --_numWaiting;
+
+        value_type element = _queue.front();
+        _queue.pop_front();
+
+        if (!_queue.empty())
+            _notEmpty.signal();
+
+        _notFull.signal();
+
+        return element;
+    }
+
+    template <typename T>
+    std::pair<typename Queue<T>::value_type, bool> Queue<T>::get(const Milliseconds& timeout)
+    {
+        MutexLock lock(_mutex);
+
+        ++_numWaiting;
+        if (_queue.empty())
+        {
+            if (_notEmpty.wait(lock, timeout) == false)
+            {
+                --_numWaiting;
+                return return_type(value_type(), false);
+            }
+        }
         --_numWaiting;
 
         value_type element = _queue.front();
