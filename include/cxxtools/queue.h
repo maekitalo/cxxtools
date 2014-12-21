@@ -33,6 +33,7 @@
 #include <cxxtools/mutex.h>
 #include <cxxtools/condition.h>
 #include <cxxtools/timespan.h>
+#include <cxxtools/scopedincrement.h>
 
 namespace cxxtools
 {
@@ -148,10 +149,9 @@ namespace cxxtools
     {
         MutexLock lock(_mutex);
 
-        ++_numWaiting;
+        ScopedIncrement<size_type> inc(_numWaiting);
         while (_queue.empty())
             _notEmpty.wait(lock);
-        --_numWaiting;
 
         value_type element = _queue.front();
         _queue.pop_front();
@@ -167,18 +167,19 @@ namespace cxxtools
     template <typename T>
     std::pair<typename Queue<T>::value_type, bool> Queue<T>::get(const Milliseconds& timeout)
     {
+        typedef typename Queue<T>::value_type value_type;
+        typedef typename std::pair<value_type, bool> return_type;
+
         MutexLock lock(_mutex);
 
-        ++_numWaiting;
+        ScopedIncrement<size_type> inc(_numWaiting);
         if (_queue.empty())
         {
             if (_notEmpty.wait(lock, timeout) == false)
             {
-                --_numWaiting;
                 return return_type(value_type(), false);
             }
         }
-        --_numWaiting;
 
         value_type element = _queue.front();
         _queue.pop_front();
@@ -188,7 +189,7 @@ namespace cxxtools
 
         _notFull.signal();
 
-        return element;
+        return return_type(element, true);
     }
 
     template <typename T>

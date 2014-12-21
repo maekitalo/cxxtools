@@ -38,6 +38,7 @@ alltests_SOURCES = \
     query_params-test.cpp \
     quotedprintable-test.cpp \
     regex-test.cpp \
+    scopedincrement-test.cpp \
     serializationinfo-test.cpp \
     smartptr-test.cpp \
     split-test.cpp \
