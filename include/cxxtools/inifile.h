@@ -31,13 +31,14 @@
 
 #include <iostream>
 #include <string>
-#include <sstream>
+#include <cxxtools/convert.h>
 #include <map>
 
 namespace cxxtools
 {
   class IniFile
   {
+      friend std::istream& operator >> (std::istream& in, IniFile& ini);
       friend std::ostream& operator << (std::ostream& out, const IniFile& ini);
 
       typedef std::map<std::string, std::map<std::string, std::string> > MapType;
@@ -101,13 +102,14 @@ namespace cxxtools
 
           if (token_it != si->second.end())
           {
-            // extract value with stream
-            T value;
-            std::istringstream s(token_it->second);
-            s >> value;
-
-            if (s)
-              return value;
+            try
+            {
+              return convert<T>(token_it->second);
+            }
+            catch (const cxxtools::ConversionError&)
+            {
+              // conversion error leads to returning of default value
+            }
           }
         }
 
@@ -126,9 +128,7 @@ namespace cxxtools
       void setValueT(const std::string& section, const std::string& key,
         const T& value)
       {
-        std::ostringstream v;
-        v << value;
-        data[section][key] = v.str();
+        data[section][key] = convert<std::string>(value);
       }
 
       /**
@@ -180,7 +180,10 @@ namespace cxxtools
 
   };
 
-  /// Outputs ini-file to a output-stream
+  /// Reads ini file from an output stream
+  std::istream& operator >> (std::istream& in, IniFile& ini);
+
+  /// Outputs ini file to an output stream
   std::ostream& operator << (std::ostream& out, const IniFile& ini);
 
 }

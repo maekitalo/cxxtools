@@ -94,6 +94,14 @@ namespace cxxtools
     IniParser(ev).parse(in);
   }
 
+  std::istream& operator >> (std::istream& in, IniFile& ini)
+  {
+    ini.data.clear();
+    IniFileEvent ev(ini);
+    IniParser(ev).parse(in);
+    return in;
+  }
+
   std::ostream& operator << (std::ostream& out, const IniFile& ini)
   {
     for (IniFile::MapType::const_iterator si = ini.data.begin();
