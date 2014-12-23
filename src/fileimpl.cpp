@@ -207,6 +207,9 @@ void FileImpl::copy(const std::string& path, const std::string& to)
         while (true)
         {
             ssize_t n = ::read(srcFd, buffer, sizeof(buffer));
+            if (n == 0)
+                break;
+
             if (n < 0)
             {
                 if (errno == EINTR)
