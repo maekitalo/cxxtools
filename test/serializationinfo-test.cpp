@@ -26,7 +26,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <iostream>
 #include "cxxtools/serializationinfo.h"
 #include "cxxtools/unit/testsuite.h"
 #include "cxxtools/unit/registertest.h"
@@ -58,6 +57,7 @@ class SerializationInfoTest : public cxxtools::unit::TestSuite
             registerMethod("testSiSwap", *this, &SerializationInfoTest::testSiSwap);
             registerMethod("testStringToBool", *this, &SerializationInfoTest::testStringToBool);
             registerMethod("testRangeCheck", *this, &SerializationInfoTest::testRangeCheck);
+            registerMethod("testMember", *this, &SerializationInfoTest::testMember);
         }
 
         void testSiSet()
@@ -458,6 +458,22 @@ class SerializationInfoTest : public cxxtools::unit::TestSuite
 
         }
 
+        void testMember()
+        {
+            cxxtools::SerializationInfo si;
+            si.addMember("foo");
+            si.addMember("bar");
+            si.addMember("baz");
+            si.addMember("foo");
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(si.memberCount(), 4);
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(si.getMember("foo"));
+            CXXTOOLS_UNIT_ASSERT_THROW(si.getMember("fooo"), cxxtools::SerializationError);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(si.getMember(0).name(), "foo");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(si.getMember(1).name(), "bar");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(si.getMember(2).name(), "baz");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(si.getMember(3).name(), "foo");
+        }
 };
 
 cxxtools::unit::RegisterTest<SerializationInfoTest> register_SerializationInfoTest;

@@ -41,6 +41,14 @@
 #include <typeinfo>
 #include <cxxtools/config.h>
 
+#if __cplusplus >= 201103L
+
+#include <forward_list>
+#include <unordered_set>
+#include <unordered_map>
+
+#endif
+
 namespace cxxtools
 {
 
@@ -718,31 +726,6 @@ inline void operator <<=(SerializationInfo& si, const std::vector<T, A>& vec)
 }
 
 
-inline void operator >>=(const SerializationInfo& si, std::vector<int>& vec)
-{
-    vec.clear();
-    for(SerializationInfo::ConstIterator it = si.begin(); it != si.end(); ++it)
-    {
-        vec.resize( vec.size() + 1 );
-        *it >>= vec.back();
-    }
-}
-
-inline void operator <<=(SerializationInfo& si, const std::vector<int>& vec)
-{
-    std::vector<int>::const_iterator it;
-
-    for(it = vec.begin(); it != vec.end(); ++it)
-    {
-        SerializationInfo& newSi = si.addMember();
-        newSi <<= *it;
-    }
-
-    si.setTypeName("array");
-    si.setCategory(SerializationInfo::Array);
-}
-
-
 template <typename T, typename A>
 inline void operator >>=(const SerializationInfo& si, std::list<T, A>& list)
 {
@@ -933,6 +916,127 @@ inline void operator <<=(SerializationInfo& si, const std::multimap<T, C, P, A>&
     si.setCategory(SerializationInfo::Array);
 }
 
+#if __cplusplus >= 201103L
+
+template <typename T, typename H, typename P, typename A>
+inline void operator >>=(const SerializationInfo& si, std::unordered_set<T, H, P, A>& unordered_set)
+{
+    unordered_set.clear();
+    for(SerializationInfo::ConstIterator it = si.begin(); it != si.end(); ++it)
+    {
+        T t;
+        *it >>= t;
+        unordered_set.insert(t);
+    }
+}
+
+
+template <typename T, typename H, typename P, typename A>
+inline void operator <<=(SerializationInfo& si, const std::unordered_set<T, H, P, A>& unordered_set)
+{
+    typename std::unordered_set<T, H, P, A>::const_iterator it;
+
+    for(it = unordered_set.begin(); it != unordered_set.end(); ++it)
+    {
+        SerializationInfo& newSi = si.addMember();
+        newSi <<= *it;
+    }
+
+    si.setTypeName("set");
+    si.setCategory(SerializationInfo::Array);
+}
+
+
+template <typename T, typename H, typename P, typename A>
+inline void operator >>=(const SerializationInfo& si, std::unordered_multiset<T, H, P, A>& unordered_multiset)
+{
+    unordered_multiset.clear();
+    for(SerializationInfo::ConstIterator it = si.begin(); it != si.end(); ++it)
+    {
+        T t;
+        *it >>= t;
+        unordered_multiset.insert(t);
+    }
+}
+
+
+template <typename T, typename H, typename P, typename A>
+inline void operator <<=(SerializationInfo& si, const std::unordered_multiset<T, H, P, A>& unordered_multiset)
+{
+    typename std::unordered_multiset<T, H, P, A>::const_iterator it;
+
+    for(it = unordered_multiset.begin(); it != unordered_multiset.end(); ++it)
+    {
+        SerializationInfo& newSi = si.addMember();
+        newSi <<= *it;
+    }
+
+    si.setTypeName("set");
+    si.setCategory(SerializationInfo::Array);
+}
+
+
+template <typename K, typename V, typename H, typename P, typename A>
+inline void operator >>=(const SerializationInfo& si, std::unordered_map<K, V, H, P, A>& unordered_map)
+{
+    unordered_map.clear();
+    for(SerializationInfo::ConstIterator it = si.begin(); it != si.end(); ++it)
+    {
+        typename std::pair<K, V> v;
+        *it >>= v;
+        typename std::unordered_map<K, V, H, P, A>::value_type vv(v.first, v.second);
+        unordered_map.insert(vv);
+    }
+}
+
+
+template <typename K, typename V, typename H, typename P, typename A>
+inline void operator <<=(SerializationInfo& si, const std::unordered_map<K, V, H, P, A>& unordered_map)
+{
+    typename std::unordered_map<K, V, H, P, A>::const_iterator it;
+
+    for(it = unordered_map.begin(); it != unordered_map.end(); ++it)
+    {
+        SerializationInfo& newSi = si.addMember();
+        newSi <<= *it;
+    }
+
+    si.setTypeName("map");
+    si.setCategory(SerializationInfo::Array);
+}
+
+
+template <typename K, typename V, typename H, typename P, typename A>
+inline void operator >>=(const SerializationInfo& si, std::unordered_multimap<K, V, H, P, A>& unordered_multimap)
+{
+    unordered_multimap.clear();
+    for(SerializationInfo::ConstIterator it = si.begin(); it != si.end(); ++it)
+    {
+        typename std::pair<K, V> v;
+        *it >>= v;
+        typename std::unordered_multimap<K, V, H, P, A>::value_type vv(v.first, v.second);
+        unordered_multimap.insert(vv);
+    }
+}
+
+
+template <typename K, typename V, typename H, typename P, typename A>
+inline void operator <<=(SerializationInfo& si, const std::unordered_multimap<K, V, H, P, A>& unordered_multimap)
+{
+    typename std::unordered_multimap<K, V, H, P, A>::const_iterator it;
+
+    for(it = unordered_multimap.begin(); it != unordered_multimap.end(); ++it)
+    {
+        SerializationInfo& newSi = si.addMember();
+        newSi <<= *it;
+    }
+
+    si.setTypeName("map");
+    si.setCategory(SerializationInfo::Array);
+}
+
+
+#endif // __cplusplus >= 201103L
 
 inline std::ostream& operator<< (std::ostream& out, const SerializationInfo& si)
 {

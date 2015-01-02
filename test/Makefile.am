@@ -40,6 +40,7 @@ alltests_SOURCES = \
     quotedprintable-test.cpp \
     regex-test.cpp \
     scopedincrement-test.cpp \
+    serialization-test.cpp \
     serializationinfo-test.cpp \
     smartptr-test.cpp \
     split-test.cpp \
