@@ -918,6 +918,34 @@ inline void operator <<=(SerializationInfo& si, const std::multimap<T, C, P, A>&
 
 #if __cplusplus >= 201103L
 
+template <typename T, typename A>
+inline void operator >>=(const SerializationInfo& si, std::forward_list<T, A>& list)
+{
+    list.clear();
+    for (size_t n = si.memberCount(); n > 0; --n)
+    {
+        list.push_front(T());
+        si.getMember(n-1) >>= list.front();
+    }
+}
+
+
+template <typename T, typename A>
+inline void operator <<=(SerializationInfo& si, const std::forward_list<T, A>& list)
+{
+    typename std::forward_list<T, A>::const_iterator it;
+
+    for(it = list.begin(); it != list.end(); ++it)
+    {
+        SerializationInfo& newSi = si.addMember();
+        newSi <<= *it;
+    }
+
+    si.setTypeName("list");
+    si.setCategory(SerializationInfo::Array);
+}
+
+
 template <typename T, typename H, typename P, typename A>
 inline void operator >>=(const SerializationInfo& si, std::unordered_set<T, H, P, A>& unordered_set)
 {

@@ -60,6 +60,7 @@ class SerializationTest : public cxxtools::unit::TestSuite
             registerMethod("testMap", *this, &SerializationTest::testMap);
             registerMethod("testMultimap", *this, &SerializationTest::testMultimap);
 #if __cplusplus >= 201103L
+            registerMethod("testForwardList", *this, &SerializationTest::testForwardList);
             registerMethod("testUnorderedSet", *this, &SerializationTest::testUnorderedSet);
             registerMethod("testUnorderedMultiset", *this, &SerializationTest::testUnorderedMultiset);
             registerMethod("testUnorderedMap", *this, &SerializationTest::testUnorderedMap);
@@ -369,6 +370,21 @@ class SerializationTest : public cxxtools::unit::TestSuite
         }
 
 #if __cplusplus >= 201103L
+
+        void testForwardList()
+        {
+            cxxtools::SerializationInfo si;
+
+            std::forward_list<std::string> v;
+            v.push_front("Hello");
+            v.push_front("World");
+
+            std::forward_list<std::string> vv;
+
+            si <<= v;
+            si >>= vv;
+            CXXTOOLS_UNIT_ASSERT(vv == v);
+        }
 
         void testUnorderedSet()
         {
