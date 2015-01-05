@@ -73,6 +73,12 @@ void convert(String& s, int value);
 void convert(String& s, unsigned int value);
 void convert(String& s, long value);
 void convert(String& s, unsigned long value);
+#ifdef HAVE_LONG_LONG
+void convert(String& s, long long value);
+#endif
+#ifdef HAVE_UNSIGNED_LONG_LONG
+void convert(String& s, unsigned long long value);
+#endif
 
 void convert(String& s, float value);
 void convert(String& s, double value);
@@ -148,6 +154,12 @@ void convert(std::string& s, int value);
 void convert(std::string& s, unsigned int value);
 void convert(std::string& s, long value);
 void convert(std::string& s, unsigned long value);
+#ifdef HAVE_LONG_LONG
+void convert(std::string& s, long value);
+#endif
+#ifdef HAVE_UNSIGNED_LONG_LONG
+void convert(std::string& s, unsigned long value);
+#endif
 
 void convert(std::string& s, float value);
 void convert(std::string& s, double value);
@@ -542,7 +554,7 @@ inline unsigned long long formatAbs(long long i, bool& isNeg)
 }
 #endif
 
-#ifdef HAVE_UNSIGNEDLONG_LONG
+#ifdef HAVE_UNSIGNED_LONG_LONG
 //! @internal @brief Returns the absolute value of \a i
 inline unsigned long long formatAbs(unsigned long long i, bool& isNeg)
 {

@@ -270,6 +270,22 @@ void convert(String& str, unsigned long value)
 }
 
 
+#ifdef HAVE_LONG_LONG
+void convert(String& str, long long value)
+{
+    str.clear();
+    putInt(std::back_inserter(str), value);
+}
+#endif
+
+#ifdef HAVE_UNSIGNED_LONG_LONG
+void convert(String& str, unsigned long long value)
+{
+    str.clear();
+    putInt(std::back_inserter(str), value);
+}
+#endif
+
 void convert(String& str, float value)
 {
     str.clear();
@@ -489,6 +505,22 @@ void convert(std::string& str, unsigned long value)
     putInt(std::back_inserter(str), value);
 }
 
+
+#ifdef HAVE_LONG_LONG
+void convert(std::string& str, long long value)
+{
+    str.clear();
+    putInt(std::back_inserter(str), value);
+}
+#endif
+
+#ifdef HAVE_UNSIGNED_LONG_LONG
+void convert(std::string& str, unsigned long long value)
+{
+    str.clear();
+    putInt(std::back_inserter(str), value);
+}
+#endif
 
 void convert(std::string& str, float value)
 {
