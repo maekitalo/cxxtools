@@ -373,13 +373,13 @@ class SerializationInfo
             long double _f;
         } _u;
 
-        String* _StringPtr()                    { return reinterpret_cast<String*>(_u._s); }
+        String* _StringPtr()                    { return reinterpret_cast<String*>(&_u); }
         String& _String()                       { return *_StringPtr(); }
-        const String* _StringPtr() const        { return reinterpret_cast<const String*>(_u._s); }
+        const String* _StringPtr() const        { return reinterpret_cast<const String*>(&_u); }
         const String& _String() const           { return *_StringPtr(); }
-        std::string* _String8Ptr()              { return reinterpret_cast<std::string*>(_u._s); }
+        std::string* _String8Ptr()              { return reinterpret_cast<std::string*>(&_u); }
         std::string& _String8()                 { return *_String8Ptr(); }
-        const std::string* _String8Ptr() const  { return reinterpret_cast<const std::string*>(_u._s); }
+        const std::string* _String8Ptr() const  { return reinterpret_cast<const std::string*>(&_u); }
         const std::string& _String8() const     { return *_String8Ptr(); }
 
         enum T

@@ -431,7 +431,7 @@ int basic_string<cxxtools::Char>::compare(const cxxtools::Char* str, size_type o
 
     // unlike real life, size only matters when the quality is equal
     if (result == 0) {
-        return static_cast<int>(size - osize);
+        return size > osize ? 1 : size < osize ? -1 : 0;
     }
 
     return result;
@@ -441,16 +441,17 @@ int basic_string<cxxtools::Char>::compare(const cxxtools::Char* str, size_type o
 int basic_string<cxxtools::Char>::compare(const wchar_t* str) const
 {
     const cxxtools::Char* self = privdata_ro();
-    while(self->toWchar() != L'\0' && *str != L'\0')
+    size_type size = this->size();
+    size_type n;
+    for (n = 0; n < size && str[n] != L'\0'; ++n)
     {
-        if( *self != *str )
-            return *self < cxxtools::Char(*str) ? -1 : +1;
-
-        ++self;
-        ++str;
+        if ( self[n] != str[n] )
+            return traits_type::lt(self[n], cxxtools::Char(str[n])) ? -1 : 1;
     }
 
-    return static_cast<int>(self->value()) - static_cast<int>(*str);
+    return n < size        ? 1
+         : str[n] != L'\0' ? -1
+         : 0;
 }
 
 
@@ -458,14 +459,14 @@ int basic_string<cxxtools::Char>::compare(const wchar_t* str, size_type n) const
 {
     const cxxtools::Char* self = privdata_ro();
     size_type nn;
-    for (nn = 0; nn < n; ++nn)
+    size_type size = this->size();
+    for (nn = 0; nn < size && nn < n; ++nn)
     {
-        if(*self != str[nn])
-            return *self < cxxtools::Char(str[nn]) ? -1 : +1;
-        ++self;
+        if (self[nn] != str[nn])
+            return traits_type::lt(self[nn], cxxtools::Char(str[nn])) ? -1 : 1;
     }
 
-    return self->value() != 0 ? 1 : nn < n ? -1 : 0;
+    return size < n ? -1 : 0;
 }
 
 
@@ -481,7 +482,7 @@ int basic_string<cxxtools::Char>::compare(size_type pos, size_type n, const cxxt
 
     // unlike real life, size only matters when the quality is equal
     if (result == 0) {
-        return static_cast<int>(size - osize);
+        return size < osize ? -1 : size > osize ? 1 : 0;
     }
 
     return result;

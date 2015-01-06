@@ -180,6 +180,19 @@ void StringTest::testCompare()
     CXXTOOLS_UNIT_ASSERT(y1 == y2);
     CXXTOOLS_UNIT_ASSERT(y1 == empty);
     CXXTOOLS_UNIT_ASSERT(y2 == empty);
+
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.compare(L"abcd"), 0);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.compare(L"abc"), 1);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.compare(L"abcde"), -1);
+
+    cxxtools::String zz(L"abcd\0ef", 7);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(zz.compare(L"abcd"), 1);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(zz.compare(L"abcde"), -1);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(zz.compare(L"abcd\0ef", 7), 0);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(zz.compare(L"abcd\0ee", 7), 1);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(zz.compare(L"abcd\0eg", 7), -1);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(zz.compare(L"abcd\0eff", 9), -1);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(zz.compare(L"abcd\0eff", 5), 0);
 }
 
 void StringTest::testCompareShort()
