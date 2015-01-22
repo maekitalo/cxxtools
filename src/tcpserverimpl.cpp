@@ -137,24 +137,19 @@ void TcpServerImpl::listen(const std::string& ipaddr, unsigned short int port, i
         for (AddrInfoImpl::const_iterator it = ai.impl()->begin(); it != ai.impl()->end(); ++it)
         {
             int fd;
-            try
-            {
-                fn = "create";
-                fd = create(it->ai_family, SOCK_STREAM, 0);
-            }
-            catch (const SystemError&)
-            {
-                log_debug("could not create socket: " << getErrnoString());
-                continue;
-            }
+            fd = create(it->ai_family, SOCK_STREAM, 0);
 
-            log_debug("setsockopt SO_REUSEADDR");
-            fn = "setsockopt";
-            if (::setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)) < 0)
+            _listeners.push_back(Listener());
+            _listeners.back()._fd = fd;
+
+            if (flags & TcpServer::REUSEADDR)
             {
-                log_debug("could not set socket option SO_REUSEADDR " << fd << ": " << getErrnoString());
-                ::close(fd);
-                continue;
+                log_debug("setsockopt SO_REUSEADDR");
+                if (::setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)) < 0)
+                {
+                    log_debug("could not set socket option SO_REUSEADDR " << fd << ": " << getErrnoString());
+                    throwSystemError("setsockopt");
+                }
             }
 
 #ifdef HAVE_IPV6
@@ -163,32 +158,26 @@ void TcpServerImpl::listen(const std::string& ipaddr, unsigned short int port, i
               if (::setsockopt(fd, IPPROTO_IPV6, IPV6_V6ONLY, &on, sizeof(on)) < 0)
               {
                   log_debug("could not set socket option IPV6_V6ONLY " << fd << ": " << getErrnoString());
-                  ::close(fd);
-                  continue;
+                  throwSystemError("setsockopt");
               }
             }
 #endif
 
             log_debug("bind " << formatIp(*reinterpret_cast<const Sockaddr*>(it->ai_addr)));
-            fn = "bind";
             if (::bind(fd, it->ai_addr, it->ai_addrlen) != 0)
             {
                 log_debug("could not bind " << fd << ": " << getErrnoString());
-                ::close(fd);
-                continue;
+                if (errno == EADDRINUSE)
+                    throw AddressInUse(ipaddr, port);
+                else
+                    throwSystemError("bind");
             }
 
             log_debug("listen");
-            fn = "listen";
             if ( ::listen(fd, backlog) < 0 )
-            {
-                close();
-                continue;
-            }
+                throwSystemError("listen");
 
             // save our information
-            _listeners.push_back(Listener());
-            _listeners.back()._fd = fd;
             std::memmove(&_listeners.back()._servaddr, it->ai_addr, it->ai_addrlen);
 
             if (!inherit)
@@ -198,19 +187,20 @@ void TcpServerImpl::listen(const std::string& ipaddr, unsigned short int port, i
                 fn = "fcntl";
                 int ret = ::fcntl(fd, F_SETFD, flags);
                 if (ret == -1)
-                    throw IOError(getErrnoString("Could not set FD_CLOEXEC"));
+                    throwSystemError("fcntl(FD_CLOEXEC)");
             }
         }
+
+#ifdef HAVE_TCP_DEFER_ACCEPT
+        deferAccept(flags & TcpServer::DEFER_ACCEPT);
+#endif
+
     }
     catch (const std::exception& e)
     {
         close();
         throw;
     }
-
-#ifdef HAVE_TCP_DEFER_ACCEPT
-    deferAccept(flags & TcpServer::DEFER_ACCEPT);
-#endif
 
     if (_listeners.empty())
     {
@@ -244,7 +234,9 @@ void TcpServerImpl::deferAccept(bool sw)
     {
         if (::setsockopt(it->_fd, SOL_TCP, TCP_DEFER_ACCEPT,
             &deferSecs, sizeof(deferSecs)) < 0)
-            throw cxxtools::SystemError("setsockopt(TCP_DEFER_ACCEPT)");
+        {
+            throwSystemError("setsockopt(TCP_DEFER_ACCEPT)");
+        }
     }
 }
 #endif
@@ -441,10 +433,6 @@ int TcpServerImpl::accept(int flags, struct sockaddr* sa, socklen_t& sa_len)
     log_debug( "accept fd=" << listenerFd << ", flags=" << flags );
 
     bool inherit = (flags & TcpSocket::INHERIT) != 0;
-
-#ifdef HAVE_TCP_DEFER_ACCEPT
-    deferAccept(flags & TcpSocket::DEFER_ACCEPT);
-#endif
 
 #ifdef HAVE_ACCEPT4
     int clientFd;

@@ -63,7 +63,7 @@ Socket::Socket(Socket& socket)
 
 void Socket::accept()
 {
-    net::TcpSocket::accept(_tcpServer, net::TcpSocket::DEFER_ACCEPT);
+    net::TcpSocket::accept(_tcpServer);
 
     _accepted = true;
 
