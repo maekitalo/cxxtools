@@ -66,6 +66,5 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/lib*.a
 %{_includedir}/cxxtools/*.h
 %{_includedir}/cxxtools/log/*.h
-%{_bindir}/cxxtools-config
 
 %changelog
