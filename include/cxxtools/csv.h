@@ -97,16 +97,24 @@ namespace cxxtools
     template <typename CharType, typename ObjectType>
     std::basic_ostream<CharType>& operator<< (std::basic_ostream<CharType>& out, const CsvOObject<ObjectType>& object)
     {
-      CsvSerializer serializer(out);
+      try
+      {
+        CsvSerializer serializer(out);
 
-      if (object.delimiter() != CsvParser::autoDelimiter)
-        serializer.delimiter(object.delimiter());
-      if (object.quote() != Char(0))
-        serializer.quote(object.quote());
-      if (!object.lineEnding().empty())
-        serializer.lineEnding(object.lineEnding());
+        if (object.delimiter() != CsvParser::autoDelimiter)
+          serializer.delimiter(object.delimiter());
+        if (object.quote() != Char(0))
+          serializer.quote(object.quote());
+        if (!object.lineEnding().empty())
+          serializer.lineEnding(object.lineEnding());
 
-      serializer.serialize(object.object());
+        serializer.serialize(object.object());
+      }
+      catch (const std::exception&)
+      {
+        out.setstate(std::ios::failbit);
+      }
+
       return out;
     }
 
@@ -152,14 +160,22 @@ namespace cxxtools
     template <typename CharType, typename ObjectType>
     std::basic_istream<CharType>& operator>> (std::basic_istream<CharType>& in, CsvIOObject<ObjectType> object)
     {
-      CsvDeserializer deserializer;
-      if (object.delimiter() != CsvParser::autoDelimiter)
-        deserializer.delimiter(object.delimiter());
-      deserializer.readTitle(object.readTitle());
+      try
+      {
+        CsvDeserializer deserializer;
+        if (object.delimiter() != CsvParser::autoDelimiter)
+          deserializer.delimiter(object.delimiter());
+        deserializer.readTitle(object.readTitle());
 
-      deserializer.read(in);
+        deserializer.read(in);
 
-      deserializer.deserialize(object.object());
+        deserializer.deserialize(object.object());
+      }
+      catch (const std::exception&)
+      {
+        in.setstate(std::ios::failbit);
+      }
+
       return in;
     }
 

@@ -74,9 +74,17 @@ namespace cxxtools
         template <typename CharType, typename ObjectType>
         std::basic_ostream<CharType>& operator<< (std::basic_ostream<CharType>& out, const BinOObject<ObjectType>& object)
         {
-          Serializer serializer(out);
-          serializer.serialize(object.object())
-                    .finish();
+          try
+          {
+            Serializer serializer(out);
+            serializer.serialize(object.object())
+                      .finish();
+          }
+          catch (const std::exception&)
+          {
+            out.setstate(std::ios::failbit);
+          }
+
           return out;
         }
 
@@ -108,8 +116,15 @@ namespace cxxtools
         template <typename CharType, typename ObjectType>
         std::basic_istream<CharType>& operator>> (std::basic_istream<CharType>& in, BinIOObject<ObjectType> object)
         {
-          Deserializer deserializer(in);
-          deserializer.deserialize(object.object());
+          try
+          {
+            Deserializer deserializer(in);
+            deserializer.deserialize(object.object());
+          }
+          catch (const std::exception&)
+          {
+            in.setstate(std::ios::failbit);
+          }
           return in;
         }
 
