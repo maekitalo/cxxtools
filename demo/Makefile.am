@@ -1,8 +1,12 @@
+nobase_include_HEADERS = \
+	msg.h
+
 noinst_PROGRAMS = arg arg-set cgi dir dlloader getini hd \
 	httpclient httprequest httpserver log logsh md5sum mime multifstream netcat \
 	netio netmsg pipestream pool signals thread threadpool uuencode cxxlog \
 	rpcserver rpcechoclient rpcaddclient splitter json jsonbeautify regex execLs rpcasyncaddclient \
-	deserialization serialization rpcparallelecho timer xmlreader
+	deserialization serialization rpcparallelecho timer xmlreader \
+	msgclient msgserver
 
 arg_SOURCES = arg.cpp
 arg_set_SOURCES = arg-set.cpp
@@ -43,6 +47,8 @@ rpcasyncaddclient_SOURCES = rpcasyncaddclient.cpp
 rpcparallelecho_SOURCES = rpcparallelecho.cpp
 timer_SOURCES = timer.cpp
 xmlreader_SOURCES = xmlreader.cpp
+msgclient_SOURCES = msgclient.cpp
+msgserver_SOURCES = msgserver.cpp
 
 if MAKE_ICONVSTREAM
 noinst_PROGRAMS += iconv
@@ -68,6 +74,8 @@ json_LDADD = $(HTTP_LIBS)
 jsonbeautify_LDADD = $(HTTP_LIBS)
 rpcasyncaddclient_LDADD = $(XMLRPC_LIBS) $(BIN_LIBS) $(JSON_LIBS)
 rpcparallelecho_LDADD = $(BIN_LIBS)
+msgclient_LDADD = $(BIN_LIBS)
+msgserver_LDADD = $(BIN_LIBS)
 
 log.xml:
 	/bin/sh $(top_builddir)/cxxtools-config --logxml cxxtools >$@

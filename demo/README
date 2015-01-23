@@ -103,3 +103,18 @@ To try the programs out, you can call:
     ./serialization -x|./deserialization -x
 
     ./serialization -c|./deserialization -c
+
+msgclient/msgserver
+===================
+This shows a little messaging client and server.
+
+The server starts and waits for a incoming connection. When a connection
+arrives it sends 2 messages to the client.
+
+The client connects on startup to the server and reads messages until the
+socket is closed.
+
+The messages are serialized using binary serialization. It is easy to send and
+receive more complex messages over a socket. It is easy to change the
+serialization format to xml or json using the suitable serializer and
+deserializer.
