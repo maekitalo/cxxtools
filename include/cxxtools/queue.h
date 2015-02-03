@@ -55,8 +55,8 @@ namespace cxxtools
 
         private:
             mutable Mutex _mutex;
-            Condition _notEmpty;
-            Condition _notFull;
+            mutable Condition _notEmpty;
+            mutable Condition _notFull;
             std::deque<value_type> _queue;
             size_type _maxSize;
             size_type _numWaiting;
@@ -107,11 +107,41 @@ namespace cxxtools
              */
             void put(const_reference element, bool force = false);
 
+            /** @brief Removes one specific element.
+
+                This method removes one specific element from the queue.
+                It returns true, when the element was found and removed.
+             */
+            bool remove(const_reference element);
+
             /// @brief Returns true, if the queue is empty.
             bool empty() const
             {
                 MutexLock lock(_mutex);
                 return _queue.empty();
+            }
+
+            /// @brief Waits until timeout or queue empty.
+            /// Waits until timeout or queue empty. Returns true
+            /// when queue is not empty.
+            bool waitEmpty(Milliseconds timeout = -1) const
+            {
+                MutexLock lock(_mutex);
+                if (timeout >= Milliseconds(0))
+                {
+                    Timespan until = Timespan::gettimeofday() + timeout;
+                    Timespan remaining;
+                    while (!_queue.empty()
+                      && (remaining = until - Timespan::gettimeofday()) > Timespan(0))
+                        _notEmpty.wait(_mutex, remaining);
+                }
+                else
+                {
+                    while (!_queue.empty())
+                        _notEmpty.wait(lock);
+                }
+
+                return !_queue.empty();
             }
 
             /// @brief Returns the number of elements currently in queue.
@@ -228,6 +258,16 @@ namespace cxxtools
 
         if (_maxSize > 0 && _queue.size() < _maxSize)
             _notFull.signal();
+    }
+
+    template <typename T>
+    bool Queue<T>::remove(const_reference element)
+    {
+        MutexLock lock(_mutex);
+        for (typename std::deque<T>::iterator it = _queue.begin(); it != _queue.end(); ++it)
+            if (*it == element)
+                return true;
+        return false;
     }
 
     template <typename T>

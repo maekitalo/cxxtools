@@ -34,6 +34,37 @@ log_define("cxxtools.threadpool.impl")
 
 namespace cxxtools
 {
+    bool ThreadPool::Future::FutureImpl::wait(Timespan timeout) const
+    {
+        MutexLock lock(_mutex);
+
+        if (timeout > Timespan(0))
+        {
+            Timespan until = Timespan::gettimeofday() + timeout;
+            Timespan remaining;
+
+            while (_state != Finished && _state != Failed
+              && (remaining = until - Timespan::gettimeofday()) > Timespan(0))
+            {
+                _stateChanged.wait(_mutex, remaining);
+            }
+        }
+        else
+        {
+            while (_state != Finished && _state != Failed)
+                _stateChanged.wait(_mutex);
+        }
+
+        return _state == Finished || _state == Failed;
+    }
+
+    void ThreadPool::Future::FutureImpl::setState(State state)
+    {
+        MutexLock lock(_mutex);
+        _state = state;
+        _stateChanged.broadcast();
+    }
+
     ThreadPoolImpl::~ThreadPoolImpl()
     {
         log_debug("delete " << _threads.size() << " threads");
@@ -42,7 +73,7 @@ namespace cxxtools
 
         log_debug("delete " << _queue.size() << " left tasks");
         while (!_queue.empty())
-            delete _queue.get();
+            _queue.get()._impl->setCanceled();
     }
 
     void ThreadPoolImpl::start()
@@ -74,9 +105,9 @@ namespace cxxtools
 
         if (cancel)
         {
-            std::pair<Callable<void>*, bool> c;
-            while ((c = _queue.tryGet()).second)
-                delete c.first;
+            std::pair<ThreadPool::Future, bool> p;
+            while ((p = _queue.tryGet()).second)
+                p.first._impl->setCanceled();
         }
 
         for (ThreadsType::iterator it = _threads.begin(); it != _threads.end(); ++it)
@@ -94,32 +125,35 @@ namespace cxxtools
         _state = Stopped;
     }
 
-    void ThreadPoolImpl::schedule(const Callable<void>& cb)
+    ThreadPool::Future ThreadPoolImpl::schedule(const Callable<void>& cb)
     {
-        Callable<void>* c = cb.clone();
-        log_debug("queue new task " << static_cast<void*>(c));
-        _queue.put(c);
+        ThreadPool::Future future(new ThreadPool::Future::FutureImpl(cb));
+
+        log_debug("queue new task " << static_cast<void*>(future._impl->_callable));
+        _queue.put(future);
         log_debug("queue size " << _queue.size());
+
+        return future;
     }
 
     void ThreadPoolImpl::threadFunc()
     {
-        Callable<void>* c = 0;
-        while ((c = _queue.get()) != 0)
+        ThreadPool::Future future;
+        while ((future = _queue.get()), future._impl != 0)
         {
-            log_debug("new task " << static_cast<void*>(c) << " received " << _queue.size() << " tasks left");
+            log_debug("new task " << static_cast<void*>(future._impl->_callable) << " received " << _queue.size() << " tasks left");
 
             try
             {
-                (*c)();
-                delete c;
+                (*future._impl->_callable)();
+                future._impl->setFinished();
             }
             catch (...)
             {
-                delete c;
+                future._impl->setFailed();
             }
 
-            log_debug("task " << static_cast<void*>(c) << " finished");
+            log_debug("task " << static_cast<void*>(future._impl->_callable) << " finished");
         }
 
         log_debug("end thread");

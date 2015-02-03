@@ -55,9 +55,9 @@ namespace cxxtools
         _impl->stop(cancel);
     }
 
-    void ThreadPool::schedule(const Callable<void>& cb)
+    ThreadPool::Future ThreadPool::schedule(const Callable<void>& cb)
     {
-        _impl->schedule(cb);
+        return _impl->schedule(cb);
     }
 
     bool ThreadPool::running() const
@@ -68,6 +68,75 @@ namespace cxxtools
     bool ThreadPool::stopped() const
     {
         return _impl->stopped();
+    }
+
+    ThreadPool::Future::Future(FutureImpl* impl)
+        : _impl(impl)
+    {
+        if (impl)
+            _impl->addRef();
+    }
+
+    ThreadPool::Future::Future(const Future& f)
+        : _impl(f._impl)
+    {
+        if (_impl)
+            _impl->addRef();
+    }
+
+    ThreadPool::Future& ThreadPool::Future::operator=(const Future& f)
+    {
+        if (_impl != f._impl)
+        {
+            if (_impl && _impl->release() == 0)
+                delete _impl;
+
+            _impl = f._impl;
+
+            if (_impl)
+                _impl->addRef();
+        }
+
+        return *this;
+    }
+
+    ThreadPool::Future::~Future()
+    {
+        if (_impl && _impl->release() == 0)
+            delete _impl;
+    }
+
+    bool ThreadPool::Future::wait(Seconds timeout) const
+    {
+        return _impl->wait(timeout);
+    }
+
+    bool ThreadPool::Future::isWaiting() const
+    {
+        return _impl->state() == ThreadPool::Future::FutureImpl::Waiting;
+    }
+
+    bool ThreadPool::Future::isRunning() const
+    {
+        return _impl->state() == ThreadPool::Future::FutureImpl::Running;
+    }
+
+    bool ThreadPool::Future::isFinished() const
+    {
+        ThreadPool::Future::FutureImpl::State state = _impl->state();
+        return state == ThreadPool::Future::FutureImpl::Finished
+            || state == ThreadPool::Future::FutureImpl::Failed
+            || state == ThreadPool::Future::FutureImpl::Canceled;
+    }
+
+    bool ThreadPool::Future::isCanceled() const
+    {
+        return _impl->state() == ThreadPool::Future::FutureImpl::Canceled;
+    }
+
+    bool ThreadPool::Future::isFailed() const
+    {
+        return _impl->state() == ThreadPool::Future::FutureImpl::Failed;
     }
 
 }

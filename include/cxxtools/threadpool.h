@@ -30,6 +30,7 @@
 #define CXXTOOLS_THREADPOOL_H
 
 #include <cxxtools/callable.h>
+#include <cxxtools/timespan.h>
 
 namespace cxxtools
 {
@@ -38,6 +39,67 @@ namespace cxxtools
     class ThreadPool
     {
         public:
+            /**
+                The Future class monitors the state of a job, which runs in the thread pool.
+
+                When a job is run on the thread pool, a future is returned. The
+                user can wait for the future to be finished. Futures can be
+                copied, in which case all instances point to the same instance.
+             */
+            class Future
+            {
+                    friend class ThreadPoolImpl;
+
+                    class FutureImpl;
+                    FutureImpl* _impl;
+                    Future(FutureImpl* impl);
+
+                public:
+                    /// A Future is default constructable.
+                    Future()
+                        : _impl(0)
+                    { }
+
+                    /// A Future is copyable.
+                    Future(const Future& f);
+
+                    /// A Future is assignable.
+                    Future& operator=(const Future& f);
+
+                    ~Future();
+
+                    /** Wait up to timeout seconds for termination.
+
+                        Wait up to timeout seconds for termination.
+                        Return true when job was finished before timeout.
+                     */
+                    bool wait(Seconds timeout = -1) const;
+
+                    /// Returns true, when the job is waiting to be run on a thread.
+                    bool isWaiting() const;
+
+                    /// Returns true, when the job is currently running on a thread.
+                    bool isRunning() const;
+
+                    /** Returns true, when the job is finished.
+
+                        Finished may be either successfully finished, finished by exception
+                        or canceled because the thread pool is stopped before the job started
+                        to run.
+                     */
+                    bool isFinished() const;
+
+                    /** Returns true, when the job is canceled.
+                        Canceled means, that the thread pool is stopped before the job
+                        started.
+                     */
+                    bool isCanceled() const;
+
+                    /// Returns true, when the job was finished with exceptoin.
+                    bool isFailed() const;
+
+            };
+
             /** @brief Creates a thread pool structure.
 
                 When the argument \a doStart is set to true (which is the
@@ -68,7 +130,7 @@ namespace cxxtools
 
                 The task is processed by the next available thread.
              */
-            void schedule(const Callable<void>& cb);
+            Future schedule(const Callable<void>& cb);
 
             /** @brief Returns true, if the threadpool is in running state.
              */

@@ -30,11 +30,62 @@
 #define CXXTOOLS_THREADPOOLIMPL_H
 
 #include <cxxtools/queue.h>
-#include <cxxtools/thread.h>
+#include <cxxtools/threadpool.h>
+#include <cxxtools/refcounted.h>
 #include <vector>
 
 namespace cxxtools
 {
+    class ThreadPool::Future::FutureImpl : public AtomicRefCounted
+    {
+            friend class ThreadPoolImpl;
+
+        public:
+            enum State {
+                Waiting,
+                Running,
+                Finished,
+                Canceled,
+                Failed
+            };
+
+        private:
+            Callable<void>* _callable;
+            State _state;
+            mutable Condition _stateChanged;
+            mutable Mutex _mutex;
+
+            FutureImpl(FutureImpl&);
+            FutureImpl& operator=(FutureImpl&);
+
+        public:
+            explicit FutureImpl(const Callable<void>& callable)
+                : _callable(callable.clone()),
+                  _state(Waiting)
+                  { }
+            ~FutureImpl()
+            { delete _callable; }
+
+            State state() const
+            {
+                MutexLock lock(_mutex);
+                return _state;
+            }
+
+            bool wait(Timespan timeout) const;
+
+            void setState(State state);
+
+            void setFinished()
+            { setState(Finished); }
+
+            void setCanceled()
+            { setState(Canceled); }
+
+            void setFailed()
+            { setState(Failed); }
+    };
+
     class ThreadPoolImpl
     {
         public:
@@ -49,7 +100,7 @@ namespace cxxtools
 
             void stop(bool cancel);
 
-            void schedule(const Callable<void>& cb);
+            ThreadPool::Future schedule(const Callable<void>& cb);
 
             bool running() const
             { return _state == Running; }
@@ -67,11 +118,12 @@ namespace cxxtools
                 Stopping
             } _state;
 
-            Queue<Callable<void>*> _queue;
+            Queue<ThreadPool::Future> _queue;
             typedef std::vector<AttachedThread*> ThreadsType;
             ThreadsType _threads;
             unsigned _size;
     };
+
 }
 
 #endif // CXXTOOLS_THREADPOOLIMPL_H
