@@ -130,7 +130,7 @@ class Base64Test : public cxxtools::unit::TestSuite
             std::string data2;
             std::string data;
             
-            data.assign("\xff\xd8\xff\xe0\x00\x10\x4a\x46\x00\x01\x01\x00\x48", 16);
+            data.assign("\xff\xd8\xff\xe0\x00\x10\x4a\x46\x00\x01\x01\x00\x48", 13);
             data2 = encodeDecode(data);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data, data2);
 
