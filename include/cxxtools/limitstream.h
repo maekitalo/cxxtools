@@ -69,7 +69,7 @@ namespace cxxtools
             { }
 
             ~BasicLimitStreambuf()
-            { delete _ibuffer; }
+            { delete[] _ibuffer; }
 
             /// returns the number of remaining characters to read including characters in the buffer.
             unsigned icount() const
