@@ -47,7 +47,7 @@ void Connectable::clear()
         c->close();
         if (&_connections.front() == c)
         {
-            // this should not really happen bug just in case we do not want to loop endlessly
+            // this should not really happen but just in case we do not want to loop endlessly
             log_fatal("connection " << static_cast<void*>(c) << " was not removed from " << static_cast<void*>(this));
             _connections.pop_front();
         }

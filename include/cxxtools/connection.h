@@ -86,6 +86,13 @@ namespace cxxtools {
     */
     class Connection
     {
+            Connection(ConnectionData* data)
+                : _data(data)
+            {
+                if (_data)
+                    _data->addRef();
+            }
+
         public:
             Connection();
 
