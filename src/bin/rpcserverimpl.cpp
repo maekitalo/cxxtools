@@ -167,6 +167,8 @@ void RpcServerImpl::start()
 
 void RpcServerImpl::terminate()
 {
+    _eventLoop.processEvents();
+
     MutexLock lock(_threadMutex);
 
     runmode(RpcServer::Terminating);

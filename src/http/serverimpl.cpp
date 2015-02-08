@@ -182,6 +182,8 @@ void ServerImpl::terminate()
 {
     log_trace("terminate");
 
+    _eventLoop.processEvents();
+
     MutexLock lock(_threadMutex);
 
     runmode(Server::Terminating);
