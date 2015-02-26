@@ -46,6 +46,7 @@ RpcClientImpl::RpcClientImpl()
     : _stream(_socket, 8192, true),
       _exceptionPending(false),
       _proc(0),
+      _count(0),
       _timeout(Selectable::WaitInfinite),
       _connectTimeoutSet(false),
       _connectTimeout(Selectable::WaitInfinite)
