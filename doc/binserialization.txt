@@ -1,6 +1,6 @@
 type/category:
     h00-3f: types
-    h40-7f: plain types
+    h40-7f: plain types (no name field, name is empty)
     h80-9f: container
     ha0-bf: other categories
     hc0-cf: rpc
@@ -9,9 +9,8 @@ type/category:
                      2=char
                      3=string
                      4=int (big endian)
-                     5=short float (1 bit sign, 7 bit exponent, 16 bit mantissa)
-                     6=long float (1 bit sign, 15 bit exponent, 64 bit mantissa)
-                     7=bcd float
+                     6=short binary  (followed by zero terminated, 2 byte length field + data)
+                     7=long binary  (followed by zero terminated, 4 byte length field + data)
                      8=binary with 2 byte big endian length field
                      9=binary with 4 byte big endian length field
                      h10=int8
@@ -22,6 +21,19 @@ type/category:
                      h19=uint16
                      h1a=uint32
                      h1b=uint64
+                     h20=bcdfloat
+                     h21=short float (1 bit sign, 7 bit exponent, 16 bit mantissa)
+                     h22=medium float (1 bit sign, 7 bit exponent, 32 bit mantissa)
+                     h23=long float (1 bit sign, 15 bit exponent, 64 bit mantissa)
+                     h30=pair,
+                     h31=array
+                     h32=vector
+                     h33=list
+                     h34=deque
+                     h35=set
+                     h36=map
+                     h37=map
+                     h38=multimap
                      h3f=other (+ zero terminated string)
     plain typecodes: basic typecode + h40
     container:       h80=pair
@@ -66,7 +78,7 @@ object:
     \xff                            eod
 
 array:
-    \xa2                     category array
+    \xa1                     category array
     myarray\0                name
     \x43 Hello \0 \xff       element1  (type: plain string)
     \x43 World \0 \xff       element2

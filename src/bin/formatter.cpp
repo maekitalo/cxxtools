@@ -467,7 +467,7 @@ void Formatter::addNull(const std::string& name, const std::string& type)
 
 void Formatter::beginArray(const std::string& name, const std::string& type)
 {
-    log_trace("beginArray(\"" << name << "\", \"" << type << ')');
+    log_trace("beginArray(\"" << name << "\", \"" << type << "\")");
 
     std::streambuf* sb = _out->rdbuf();
 

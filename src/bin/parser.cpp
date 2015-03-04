@@ -749,13 +749,23 @@ bool Parser::advance(char ch)
             break;
 
         case state_array_type:
-            if (ch == '\xff')
-                _state = state_array_type_other;
-            else
             {
-                if (_deserializer)
-                    _deserializer->setTypeName(typeName(ch));
-                _state = state_array_member;
+                Serializer::TypeCode tc = static_cast<Serializer::TypeCode>(static_cast<unsigned char>(ch));
+                if (tc == Serializer::TypeOther)
+                {
+                    _state = state_name;
+                    _nextstate = state_array_type_other;
+                }
+                else if (tc == Serializer::TypePlainOther)
+                {
+                    _state = state_array_type_other;
+                }
+                else
+                {
+                    if (_deserializer)
+                        _deserializer->setTypeName(typeName(ch));
+                    _state = state_array_member;
+                }
             }
             break;
 
