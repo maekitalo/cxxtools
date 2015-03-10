@@ -107,6 +107,9 @@ HttpClient::HttpClient(const HttpClient& other)
 
 HttpClient& HttpClient::operator= (const HttpClient& other)
 {
+    if (_impl == other._impl)
+        return *this;
+
     if (_impl && _impl->release() <= 0)
         delete _impl;
 

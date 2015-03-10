@@ -49,7 +49,7 @@ namespace cxxtools {
             { }
 
             DelegateBase(const DelegateBase& rhs)
-            { DelegateBase::operator=(rhs); }
+            { operator=(rhs); }
 
             DelegateBase& operator=(const DelegateBase& other)
             {

@@ -17,7 +17,7 @@
             /** Deeply copies rhs. */
             Signal(const Signal& rhs)
             {
-                Signal::operator=(rhs);
+                operator=(rhs);
             }
 
             /**
@@ -232,7 +232,7 @@
             /** Deeply copies rhs. */
             Signal(const Signal& rhs)
             {
-                Signal::operator=(rhs);
+                operator=(rhs);
             }
 
             /**
@@ -377,7 +377,7 @@
             /** Deeply copies rhs. */
             Signal(const Signal& rhs)
             {
-                Signal::operator=(rhs);
+                operator=(rhs);
             }
 
             /**
@@ -522,7 +522,7 @@
             /** Deeply copies rhs. */
             Signal(const Signal& rhs)
             {
-                Signal::operator=(rhs);
+                operator=(rhs);
             }
 
             /**
@@ -667,7 +667,7 @@
             /** Deeply copies rhs. */
             Signal(const Signal& rhs)
             {
-                Signal::operator=(rhs);
+                operator=(rhs);
             }
 
             /**
@@ -812,7 +812,7 @@
             /** Deeply copies rhs. */
             Signal(const Signal& rhs)
             {
-                Signal::operator=(rhs);
+                operator=(rhs);
             }
 
             /**
@@ -957,7 +957,7 @@
             /** Deeply copies rhs. */
             Signal(const Signal& rhs)
             {
-                Signal::operator=(rhs);
+                operator=(rhs);
             }
 
             /**
@@ -1102,7 +1102,7 @@
             /** Deeply copies rhs. */
             Signal(const Signal& rhs)
             {
-                Signal::operator=(rhs);
+                operator=(rhs);
             }
 
             /**
@@ -1247,7 +1247,7 @@
             /** Deeply copies rhs. */
             Signal(const Signal& rhs)
             {
-                Signal::operator=(rhs);
+                operator=(rhs);
             }
 
             /**
@@ -1392,7 +1392,7 @@
             /** Deeply copies rhs. */
             Signal(const Signal& rhs)
             {
-                Signal::operator=(rhs);
+                operator=(rhs);
             }
 
             /**
@@ -1537,7 +1537,7 @@
             /** Deeply copies rhs. */
             Signal(const Signal& rhs)
             {
-                Signal::operator=(rhs);
+                operator=(rhs);
             }
 
             /**

@@ -49,6 +49,9 @@ namespace xml {
 
 class XmlReaderImpl
 {
+    XmlReaderImpl(const XmlReaderImpl&) { }
+    XmlReaderImpl& operator=(const XmlReaderImpl&) { return *this; }
+
     struct State
     {
         virtual ~State()
@@ -193,7 +196,7 @@ class XmlReaderImpl
             unsigned len = content.length();
 
             if( len > 2 && content[len-2] == ']' &&
-                content[len-2] == ']')
+                content[len-1] == ']')
             {
                 reader._chars.content().resize(len-2);
                 return AfterTag::instance();

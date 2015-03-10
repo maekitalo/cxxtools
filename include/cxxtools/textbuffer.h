@@ -350,11 +350,10 @@ class BasicTextBuffer : public std::basic_streambuf<CharT>
             }
             else
             {
-                // copy characters and advance fromNext and toNext
+                // copy characters and advance toNext
                 int n = _ebufsize > _ibufmax ? _ibufmax : _ebufsize;
                 this->copyBytes(toBegin, fromBegin, n);
                 _ebufsize -= n;
-                fromNext += n;
                 toNext += n;
             }
 

@@ -139,7 +139,7 @@ void SelectorImpl::changed( Selectable& s )
 
 bool SelectorImpl::waitUntil(Timespan until)
 {
-    if (_avail.size() > 0)
+    if (!_avail.empty())
         until = Timespan(0);
 
     if (_isDirty)

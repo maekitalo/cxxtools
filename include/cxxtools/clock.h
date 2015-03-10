@@ -46,7 +46,7 @@ class Clock
 
         Clock(const Clock& cl);
 
-        const Clock& operator=(const Clock& cl);
+        Clock& operator=(const Clock& cl);
 
         /** @brief Destructor
         */

@@ -38,6 +38,9 @@ namespace cxxtools
 
     class ThreadPool
     {
+            ThreadPool(const ThreadPool&) { }
+            ThreadPool& operator=(const ThreadPool&) { return *this; }
+
         public:
             /**
                 The Future class monitors the state of a job, which runs in the thread pool.

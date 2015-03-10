@@ -96,7 +96,7 @@ void Formatter::addValueString(const std::string& name, const std::string& type,
 
     if (type == "int")
     {
-        if (value.size() > 0 && (value[0] == L'-' || value[0] == L'+'))
+        if (!value.empty() && (value[0] == L'-' || value[0] == L'+'))
         {
             int64_t v = convert<int64_t>(value);
             printInt(v, name);
@@ -198,7 +198,7 @@ void Formatter::addValueStdString(const std::string& name, const std::string& ty
 
     if (type == "int")
     {
-        if (value.size() > 0 && (value[0] == L'-' || value[0] == L'+'))
+        if (!value.empty() && (value[0] == L'-' || value[0] == L'+'))
         {
             int64_t v = convert<int64_t>(value);
             printInt(v, name);

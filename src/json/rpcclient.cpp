@@ -95,6 +95,9 @@ RpcClient::RpcClient(const RpcClient& other)
 
 RpcClient& RpcClient::operator= (const RpcClient& other)
 {
+    if (_impl == other._impl)
+        return *this;
+
     if (_impl && _impl->release() <= 0)
         delete _impl;
 

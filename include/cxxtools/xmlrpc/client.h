@@ -42,8 +42,8 @@ class Client : public RemoteClient
         ClientImpl* _impl;
 
     protected:
-        Client(Client&) { }
-        Client& operator= (const Client&) { return *this; }
+        Client(Client& c) : _impl(c._impl) { }
+        Client& operator= (const Client& c) { _impl = c._impl; return *this; }
 
         void impl(ClientImpl* i) { _impl = i; }
 

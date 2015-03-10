@@ -549,7 +549,7 @@ class Arg<bool> : public ArgBase
 
 /// Output operator for a argument.
 template <typename T>
-std::ostream& operator<< (std::ostream& out, const ArgBaseT<T> arg)
+std::ostream& operator<< (std::ostream& out, const ArgBaseT<T>& arg)
 {
   return out << arg.getValue();
 }

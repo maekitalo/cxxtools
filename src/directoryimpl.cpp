@@ -42,7 +42,8 @@ DirectoryIteratorImpl::DirectoryIteratorImpl()
 : _refs(1),
   _handle(0),
   _current(0),
-  _dirty(true)
+  _dirty(true),
+  _skipHidden(true)
 {
 }
 

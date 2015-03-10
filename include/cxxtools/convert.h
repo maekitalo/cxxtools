@@ -816,10 +816,9 @@ InIterT getInt(InIterT it, InIterT end, bool& ok, T& n, const FormatT& fmt)
     // parse number
     UnsignedInt u = 0;
     const UnsignedInt base = fmt.base;
-    unsigned char d = 0;
     while(it != end)
     {    
-        d = fmt.toDigit(*it);
+        unsigned char d = fmt.toDigit(*it);
         
         if(d >= base)
             break;

@@ -41,7 +41,7 @@ Clock::Clock(const Clock& cl)
         _impl->addRef();
 }
 
-const Clock& Clock::operator=(const Clock& cl)
+Clock& Clock::operator=(const Clock& cl)
 {
     if (_impl != cl._impl)
     {

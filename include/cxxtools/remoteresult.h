@@ -39,7 +39,8 @@ class IRemoteResult
 {
     public:
         IRemoteResult()
-            : _failed(false)
+            : _failed(false),
+              _rc(0)
             { }
 
         void setFault(int rc, const std::string& msg)

@@ -57,8 +57,8 @@ Connection::Connection(Connectable& sender, Slot* slot)
 
 
 Connection::Connection(const Connection& connection)
+    : _data(connection._data)
 {
-    _data = connection._data;
     if (_data)
         _data->addRef();
 }
@@ -97,7 +97,10 @@ void Connection::close()
 
 Connection& Connection::operator=(const Connection& connection)
 {
-    if( _data && _data->release() == 0)
+    if (_data == connection._data)
+        return *this;
+
+    if (_data && _data->release() == 0)
     {
         close();
         delete _data;

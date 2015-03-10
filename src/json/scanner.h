@@ -44,6 +44,8 @@ namespace cxxtools
         {
             public:
                 Scanner()
+                    : _deserializer(0),
+                      _composer(0)
                 { }
 
                 void begin(JsonDeserializer& handler, IComposer& composer);

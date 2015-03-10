@@ -44,7 +44,11 @@ namespace cxxtools
             public:
                 Scanner()
                     : _state(state_0),
-                      _failed(false)
+                      _deserializer(0),
+                      _composer(0),
+                      _count(0),
+                      _failed(false),
+                      _errorCode(0)
                 { }
 
                 void begin(Deserializer& handler, IComposer& composer);

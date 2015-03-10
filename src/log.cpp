@@ -709,6 +709,9 @@ namespace cxxtools
 
   LogConfiguration& LogConfiguration::operator=(const LogConfiguration& c)
   {
+    if (this == &c)
+      return *this;
+
     delete _impl;
     _impl = 0;
     _impl = new Impl(*c._impl);
