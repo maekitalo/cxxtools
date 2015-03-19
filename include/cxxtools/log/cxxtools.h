@@ -57,49 +57,49 @@
     } \
   } while (false)
 
-#define log_fatal_enabled()     _cxxtools_log_enabled(_default, FATAL)
-#define log_error_enabled()     _cxxtools_log_enabled(_default, ERROR)
-#define log_warn_enabled()      _cxxtools_log_enabled(_default, WARN)
-#define log_info_enabled()      _cxxtools_log_enabled(_default, INFO)
-#define log_debug_enabled()     _cxxtools_log_enabled(_default, DEBUG)
-#define log_trace_enabled()     _cxxtools_log_enabled(_default, TRACE)
+#define log_fatal_enabled()     _cxxtools_log_enabled(_default, LOGLEVEL_FATAL)
+#define log_error_enabled()     _cxxtools_log_enabled(_default, LOGLEVEL_ERROR)
+#define log_warn_enabled()      _cxxtools_log_enabled(_default, LOGLEVEL_WARN)
+#define log_info_enabled()      _cxxtools_log_enabled(_default, LOGLEVEL_INFO)
+#define log_debug_enabled()     _cxxtools_log_enabled(_default, LOGLEVEL_DEBUG)
+#define log_trace_enabled()     _cxxtools_log_enabled(_default, LOGLEVEL_TRACE)
 
-#define log_fatal_to_enabled(impl)     _cxxtools_log_enabled(impl, FATAL)
-#define log_error_to_enabled(impl)     _cxxtools_log_enabled(impl, ERROR)
-#define log_warn_to_enabled(impl)      _cxxtools_log_enabled(impl, WARN)
-#define log_info_to_enabled(impl)      _cxxtools_log_enabled(impl, INFO)
-#define log_debug_to_enabled(impl)     _cxxtools_log_enabled(impl, DEBUG)
-#define log_trace_to_enabled(impl)     _cxxtools_log_enabled(impl, TRACE)
+#define log_fatal_to_enabled(impl)     _cxxtools_log_enabled(impl, LOGLEVEL_FATAL)
+#define log_error_to_enabled(impl)     _cxxtools_log_enabled(impl, LOGLEVEL_ERROR)
+#define log_warn_to_enabled(impl)      _cxxtools_log_enabled(impl, LOGLEVEL_WARN)
+#define log_info_to_enabled(impl)      _cxxtools_log_enabled(impl, LOGLEVEL_INFO)
+#define log_debug_to_enabled(impl)     _cxxtools_log_enabled(impl, LOGLEVEL_DEBUG)
+#define log_trace_to_enabled(impl)     _cxxtools_log_enabled(impl, LOGLEVEL_TRACE)
 
-#define log_fatal(expr)     _cxxtools_log(_default, FATAL, expr)
-#define log_error(expr)     _cxxtools_log(_default, ERROR, expr)
-#define log_warn(expr)      _cxxtools_log(_default, WARN, expr)
-#define log_info(expr)      _cxxtools_log(_default, INFO, expr)
-#define log_debug(expr)     _cxxtools_log(_default, DEBUG, expr)
+#define log_fatal(expr)     _cxxtools_log(_default, LOGLEVEL_FATAL, expr)
+#define log_error(expr)     _cxxtools_log(_default, LOGLEVEL_ERROR, expr)
+#define log_warn(expr)      _cxxtools_log(_default, LOGLEVEL_WARN, expr)
+#define log_info(expr)      _cxxtools_log(_default, LOGLEVEL_INFO, expr)
+#define log_debug(expr)     _cxxtools_log(_default, LOGLEVEL_DEBUG, expr)
 
-#define log_fatal_to(impl, expr)     _cxxtools_log(impl, FATAL, expr)
-#define log_error_to(impl, expr)     _cxxtools_log(impl, ERROR, expr)
-#define log_warn_to(impl, expr)      _cxxtools_log(impl, WARN, expr)
-#define log_info_to(impl, expr)      _cxxtools_log(impl, INFO, expr)
-#define log_debug_to(impl, expr)     _cxxtools_log(impl, DEBUG, expr)
+#define log_fatal_to(impl, expr)     _cxxtools_log(impl, LOGLEVEL_FATAL, expr)
+#define log_error_to(impl, expr)     _cxxtools_log(impl, LOGLEVEL_ERROR, expr)
+#define log_warn_to(impl, expr)      _cxxtools_log(impl, LOGLEVEL_WARN, expr)
+#define log_info_to(impl, expr)      _cxxtools_log(impl, LOGLEVEL_INFO, expr)
+#define log_debug_to(impl, expr)     _cxxtools_log(impl, LOGLEVEL_DEBUG, expr)
 
-#define log_fatal_if(cond, expr)     _cxxtools_log_if(_default, FATAL, cond, expr)
-#define log_error_if(cond, expr)     _cxxtools_log_if(_default, ERROR, cond, expr)
-#define log_warn_if(cond, expr)      _cxxtools_log_if(_default, WARN, cond, expr)
-#define log_info_if(cond, expr)      _cxxtools_log_if(_default, INFO, cond, expr)
-#define log_debug_if(cond, expr)     _cxxtools_log_if(_default, DEBUG, cond, expr)
+#define log_fatal_if(cond, expr)     _cxxtools_log_if(_default, LOGLEVEL_FATAL, cond, expr)
+#define log_error_if(cond, expr)     _cxxtools_log_if(_default, LOGLEVEL_ERROR, cond, expr)
+#define log_warn_if(cond, expr)      _cxxtools_log_if(_default, LOGLEVEL_WARN, cond, expr)
+#define log_info_if(cond, expr)      _cxxtools_log_if(_default, LOGLEVEL_INFO, cond, expr)
+#define log_debug_if(cond, expr)     _cxxtools_log_if(_default, LOGLEVEL_DEBUG, cond, expr)
 
-#define log_fatal_to_if(impl, cond, expr)     _cxxtools_log_if(impl, FATAL, cond, expr)
-#define log_error_to_if(impl, cond, expr)     _cxxtools_log_if(impl, ERROR, cond, expr)
-#define log_warn_to_if(impl, cond, expr)      _cxxtools_log_if(impl, WARN, cond, expr)
-#define log_info_to_if(impl, cond, expr)      _cxxtools_log_if(impl, INFO, cond, expr)
-#define log_debug_to_if(impl, cond, expr)     _cxxtools_log_if(impl, DEBUG, cond, expr)
+#define log_fatal_to_if(impl, cond, expr)     _cxxtools_log_if(impl, LOGLEVEL_FATAL, cond, expr)
+#define log_error_to_if(impl, cond, expr)     _cxxtools_log_if(impl, LOGLEVEL_ERROR, cond, expr)
+#define log_warn_to_if(impl, cond, expr)      _cxxtools_log_if(impl, LOGLEVEL_WARN, cond, expr)
+#define log_info_to_if(impl, cond, expr)      _cxxtools_log_if(impl, LOGLEVEL_INFO, cond, expr)
+#define log_debug_to_if(impl, cond, expr)     _cxxtools_log_if(impl, LOGLEVEL_DEBUG, cond, expr)
 
 #define log_trace_to(impl, expr)     \
   ::cxxtools::LogTracer _cxxtools_tracer;  \
   do { \
     ::cxxtools::Logger* _cxxtools_logger = getLogger ## impl(); \
-    if (_cxxtools_logger != 0 && _cxxtools_logger->isEnabled(::cxxtools::Logger::TRACE)) \
+    if (_cxxtools_logger != 0 && _cxxtools_logger->isEnabled(::cxxtools::Logger::LOGLEVEL_TRACE)) \
     { \
       _cxxtools_tracer.setLogger(_cxxtools_logger); \
       _cxxtools_tracer.out() << expr;  \
@@ -135,12 +135,12 @@ namespace cxxtools
   {
     public:
       typedef enum {
-        FATAL = 0,
-        ERROR = 100,
-        WARN  = 200,
-        INFO  = 300,
-        DEBUG = 400,
-        TRACE = 500
+        LOGLEVEL_FATAL = 0,
+        LOGLEVEL_ERROR = 100,
+        LOGLEVEL_WARN  = 200,
+        LOGLEVEL_INFO  = 300,
+        LOGLEVEL_DEBUG = 400,
+        LOGLEVEL_TRACE = 500
       } log_level_type;
 
     private:

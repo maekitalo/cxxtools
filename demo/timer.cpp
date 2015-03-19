@@ -96,10 +96,10 @@ int main(int argc, char* argv[])
     {
       // when no logfile is passed, we configure the logging without it
       cxxtools::LogConfiguration logConfiguration;
-      logConfiguration.setRootLevel(cxxtools::Logger::INFO);
-      logConfiguration.setLogLevel("cxxtools.timer", cxxtools::Logger::DEBUG);
+      logConfiguration.setRootLevel(cxxtools::Logger::LOGLEVEL_INFO);
+      logConfiguration.setLogLevel("cxxtools.timer", cxxtools::Logger::LOGLEVEL_DEBUG);
       if (debug)
-        logConfiguration.setLogLevel("cxxtools.selector.impl", cxxtools::Logger::DEBUG);
+        logConfiguration.setLogLevel("cxxtools.selector.impl", cxxtools::Logger::LOGLEVEL_DEBUG);
       log_init(logConfiguration);
     }
 

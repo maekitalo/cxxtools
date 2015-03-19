@@ -100,7 +100,7 @@ int main(int argc, char* argv[])
     cxxtools::Arg<bool> norollingfile(argc, argv, 'r');
 
     cxxtools::LogConfiguration logConfiguration;
-    logConfiguration.setRootLevel(cxxtools::Logger::INFO);
+    logConfiguration.setRootLevel(cxxtools::Logger::LOGLEVEL_INFO);
 
     unsigned settingCount = 0;
     if (consolelog)
