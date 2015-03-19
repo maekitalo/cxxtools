@@ -46,6 +46,9 @@ namespace xmlrpc
 
 class HttpClientImpl;
 
+/** A cxxtools::xmlrpc::HttpClient executes xmlrpc requests on a xmlrpc server.
+
+ */
 class HttpClient : public Client
 {
     public:

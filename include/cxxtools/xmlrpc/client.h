@@ -54,13 +54,20 @@ class Client : public RemoteClient
 
         virtual ~Client();
 
+        /// This method is used internally to initiate a rpc request.
         void beginCall(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc);
 
+        /// This method is used internally to finalize a rpc request.
         void endCall();
 
+        /// This method is used internally to initiate a rpc request.
         void call(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc);
 
+        /// Returns the timeout for syncronous requests.
+        /// When the timeout exprires before the request returns, a cxxtools::IOTimeout is thrown.
+        /// On negative timeout the client will wait infinitely. This is the default.
         Milliseconds timeout() const;
+        /// Sets the timeout for syncronous requests.
         void timeout(Milliseconds t);
 
         Milliseconds connectTimeout() const;
