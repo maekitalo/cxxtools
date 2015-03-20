@@ -57,49 +57,49 @@
     } \
   } while (false)
 
-#define log_fatal_enabled()     _cxxtools_log_enabled(_default, LOGLEVEL_FATAL)
-#define log_error_enabled()     _cxxtools_log_enabled(_default, LOGLEVEL_ERROR)
-#define log_warn_enabled()      _cxxtools_log_enabled(_default, LOGLEVEL_WARN)
-#define log_info_enabled()      _cxxtools_log_enabled(_default, LOGLEVEL_INFO)
-#define log_debug_enabled()     _cxxtools_log_enabled(_default, LOGLEVEL_DEBUG)
-#define log_trace_enabled()     _cxxtools_log_enabled(_default, LOGLEVEL_TRACE)
+#define log_fatal_enabled()     _cxxtools_log_enabled(_default, LOG_LEVEL_FATAL)
+#define log_error_enabled()     _cxxtools_log_enabled(_default, LOG_LEVEL_ERROR)
+#define log_warn_enabled()      _cxxtools_log_enabled(_default, LOG_LEVEL_WARN)
+#define log_info_enabled()      _cxxtools_log_enabled(_default, LOG_LEVEL_INFO)
+#define log_debug_enabled()     _cxxtools_log_enabled(_default, LOG_LEVEL_DEBUG)
+#define log_trace_enabled()     _cxxtools_log_enabled(_default, LOG_LEVEL_TRACE)
 
-#define log_fatal_to_enabled(impl)     _cxxtools_log_enabled(impl, LOGLEVEL_FATAL)
-#define log_error_to_enabled(impl)     _cxxtools_log_enabled(impl, LOGLEVEL_ERROR)
-#define log_warn_to_enabled(impl)      _cxxtools_log_enabled(impl, LOGLEVEL_WARN)
-#define log_info_to_enabled(impl)      _cxxtools_log_enabled(impl, LOGLEVEL_INFO)
-#define log_debug_to_enabled(impl)     _cxxtools_log_enabled(impl, LOGLEVEL_DEBUG)
-#define log_trace_to_enabled(impl)     _cxxtools_log_enabled(impl, LOGLEVEL_TRACE)
+#define log_fatal_to_enabled(impl)     _cxxtools_log_enabled(impl, LOG_LEVEL_FATAL)
+#define log_error_to_enabled(impl)     _cxxtools_log_enabled(impl, LOG_LEVEL_ERROR)
+#define log_warn_to_enabled(impl)      _cxxtools_log_enabled(impl, LOG_LEVEL_WARN)
+#define log_info_to_enabled(impl)      _cxxtools_log_enabled(impl, LOG_LEVEL_INFO)
+#define log_debug_to_enabled(impl)     _cxxtools_log_enabled(impl, LOG_LEVEL_DEBUG)
+#define log_trace_to_enabled(impl)     _cxxtools_log_enabled(impl, LOG_LEVEL_TRACE)
 
-#define log_fatal(expr)     _cxxtools_log(_default, LOGLEVEL_FATAL, expr)
-#define log_error(expr)     _cxxtools_log(_default, LOGLEVEL_ERROR, expr)
-#define log_warn(expr)      _cxxtools_log(_default, LOGLEVEL_WARN, expr)
-#define log_info(expr)      _cxxtools_log(_default, LOGLEVEL_INFO, expr)
-#define log_debug(expr)     _cxxtools_log(_default, LOGLEVEL_DEBUG, expr)
+#define log_fatal(expr)     _cxxtools_log(_default, LOG_LEVEL_FATAL, expr)
+#define log_error(expr)     _cxxtools_log(_default, LOG_LEVEL_ERROR, expr)
+#define log_warn(expr)      _cxxtools_log(_default, LOG_LEVEL_WARN, expr)
+#define log_info(expr)      _cxxtools_log(_default, LOG_LEVEL_INFO, expr)
+#define log_debug(expr)     _cxxtools_log(_default, LOG_LEVEL_DEBUG, expr)
 
-#define log_fatal_to(impl, expr)     _cxxtools_log(impl, LOGLEVEL_FATAL, expr)
-#define log_error_to(impl, expr)     _cxxtools_log(impl, LOGLEVEL_ERROR, expr)
-#define log_warn_to(impl, expr)      _cxxtools_log(impl, LOGLEVEL_WARN, expr)
-#define log_info_to(impl, expr)      _cxxtools_log(impl, LOGLEVEL_INFO, expr)
-#define log_debug_to(impl, expr)     _cxxtools_log(impl, LOGLEVEL_DEBUG, expr)
+#define log_fatal_to(impl, expr)     _cxxtools_log(impl, LOG_LEVEL_FATAL, expr)
+#define log_error_to(impl, expr)     _cxxtools_log(impl, LOG_LEVEL_ERROR, expr)
+#define log_warn_to(impl, expr)      _cxxtools_log(impl, LOG_LEVEL_WARN, expr)
+#define log_info_to(impl, expr)      _cxxtools_log(impl, LOG_LEVEL_INFO, expr)
+#define log_debug_to(impl, expr)     _cxxtools_log(impl, LOG_LEVEL_DEBUG, expr)
 
-#define log_fatal_if(cond, expr)     _cxxtools_log_if(_default, LOGLEVEL_FATAL, cond, expr)
-#define log_error_if(cond, expr)     _cxxtools_log_if(_default, LOGLEVEL_ERROR, cond, expr)
-#define log_warn_if(cond, expr)      _cxxtools_log_if(_default, LOGLEVEL_WARN, cond, expr)
-#define log_info_if(cond, expr)      _cxxtools_log_if(_default, LOGLEVEL_INFO, cond, expr)
-#define log_debug_if(cond, expr)     _cxxtools_log_if(_default, LOGLEVEL_DEBUG, cond, expr)
+#define log_fatal_if(cond, expr)     _cxxtools_log_if(_default, LOG_LEVEL_FATAL, cond, expr)
+#define log_error_if(cond, expr)     _cxxtools_log_if(_default, LOG_LEVEL_ERROR, cond, expr)
+#define log_warn_if(cond, expr)      _cxxtools_log_if(_default, LOG_LEVEL_WARN, cond, expr)
+#define log_info_if(cond, expr)      _cxxtools_log_if(_default, LOG_LEVEL_INFO, cond, expr)
+#define log_debug_if(cond, expr)     _cxxtools_log_if(_default, LOG_LEVEL_DEBUG, cond, expr)
 
-#define log_fatal_to_if(impl, cond, expr)     _cxxtools_log_if(impl, LOGLEVEL_FATAL, cond, expr)
-#define log_error_to_if(impl, cond, expr)     _cxxtools_log_if(impl, LOGLEVEL_ERROR, cond, expr)
-#define log_warn_to_if(impl, cond, expr)      _cxxtools_log_if(impl, LOGLEVEL_WARN, cond, expr)
-#define log_info_to_if(impl, cond, expr)      _cxxtools_log_if(impl, LOGLEVEL_INFO, cond, expr)
-#define log_debug_to_if(impl, cond, expr)     _cxxtools_log_if(impl, LOGLEVEL_DEBUG, cond, expr)
+#define log_fatal_to_if(impl, cond, expr)     _cxxtools_log_if(impl, LOG_LEVEL_FATAL, cond, expr)
+#define log_error_to_if(impl, cond, expr)     _cxxtools_log_if(impl, LOG_LEVEL_ERROR, cond, expr)
+#define log_warn_to_if(impl, cond, expr)      _cxxtools_log_if(impl, LOG_LEVEL_WARN, cond, expr)
+#define log_info_to_if(impl, cond, expr)      _cxxtools_log_if(impl, LOG_LEVEL_INFO, cond, expr)
+#define log_debug_to_if(impl, cond, expr)     _cxxtools_log_if(impl, LOG_LEVEL_DEBUG, cond, expr)
 
 #define log_trace_to(impl, expr)     \
   ::cxxtools::LogTracer _cxxtools_tracer;  \
   do { \
     ::cxxtools::Logger* _cxxtools_logger = getLogger ## impl(); \
-    if (_cxxtools_logger != 0 && _cxxtools_logger->isEnabled(::cxxtools::Logger::LOGLEVEL_TRACE)) \
+    if (_cxxtools_logger != 0 && _cxxtools_logger->isEnabled(::cxxtools::Logger::LOG_LEVEL_TRACE)) \
     { \
       _cxxtools_tracer.setLogger(_cxxtools_logger); \
       _cxxtools_tracer.out() << expr;  \
@@ -135,12 +135,12 @@ namespace cxxtools
   {
     public:
       typedef enum {
-        LOGLEVEL_FATAL = 0,
-        LOGLEVEL_ERROR = 100,
-        LOGLEVEL_WARN  = 200,
-        LOGLEVEL_INFO  = 300,
-        LOGLEVEL_DEBUG = 400,
-        LOGLEVEL_TRACE = 500
+        LOG_LEVEL_FATAL = 0,
+        LOG_LEVEL_ERROR = 100,
+        LOG_LEVEL_WARN  = 200,
+        LOG_LEVEL_INFO  = 300,
+        LOG_LEVEL_DEBUG = 400,
+        LOG_LEVEL_TRACE = 500
       } log_level_type;
 
     private:
