@@ -103,6 +103,14 @@ class basic_string< cxxtools::Char > {
         template <typename InputIterator>
         basic_string(InputIterator begin, InputIterator end, const allocator_type& a = allocator_type());
 
+#if __cplusplus >= 201103L
+
+        basic_string(basic_string&& str);
+
+        basic_string& operator=(basic_string&& str);
+
+#endif
+
         ~basic_string();
 
     public:

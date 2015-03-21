@@ -33,6 +33,10 @@
 #include <vector>
 #include <sstream>
 
+#if __cplusplus >= 201103L
+#include <utility>
+#endif
+
 
 class StringTest : public cxxtools::unit::TestSuite
 {
@@ -64,6 +68,9 @@ class StringTest : public cxxtools::unit::TestSuite
             cxxtools::unit::TestSuite::registerMethod( "testReserve", *this, &StringTest::testReserve );
             cxxtools::unit::TestSuite::registerMethod( "testReserveEmpty", *this, &StringTest::testReserveEmpty );
             cxxtools::unit::TestSuite::registerMethod( "testLengthAndSize", *this, &StringTest::testLengthAndSize );
+#if __cplusplus >= 201103L
+            cxxtools::unit::TestSuite::registerMethod( "testMove", *this, &StringTest::testMove );
+#endif
         }
 
     protected:
@@ -92,6 +99,9 @@ class StringTest : public cxxtools::unit::TestSuite
         void testReserve();
         void testReserveEmpty();
         void testLengthAndSize();
+#if __cplusplus >= 201103L
+        void testMove();
+#endif
 };
 
 cxxtools::unit::RegisterTest<StringTest> register_StringTest;
@@ -702,3 +712,31 @@ void StringTest::testLengthAndSize()
     CXXTOOLS_UNIT_ASSERT_EQUALS(s3.length() , 4);
     CXXTOOLS_UNIT_ASSERT_EQUALS(s3.size()   , 4);
 }
+
+#if __cplusplus >= 201103L
+void StringTest::testMove()
+{
+    {
+        // test move constructor
+        wchar_t str[] = L"hi";
+        cxxtools::String s1(str);
+        cxxtools::String s2(std::move(s1));
+        CXXTOOLS_UNIT_ASSERT(s2 == str);
+        CXXTOOLS_UNIT_ASSERT(s1 == str);  // this is true since s1 is a short string and moving is just copying the data without affecting the source
+    }
+
+    {
+        // test move assignment
+        wchar_t str[] = L"This is a quite long string constant, which do not fit into a short string";
+
+        cxxtools::String s1(str);
+        CXXTOOLS_UNIT_ASSERT(s1 == str);
+
+        cxxtools::String s2;
+        s2 = std::move(s1);
+        CXXTOOLS_UNIT_ASSERT(s2 == str);
+        CXXTOOLS_UNIT_ASSERT(s1 != str);  // this is true since s1 is a long string and moving is moving the data from s1 to s2
+    }
+}
+
+#endif

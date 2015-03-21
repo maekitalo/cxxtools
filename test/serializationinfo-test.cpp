@@ -30,6 +30,10 @@
 #include "cxxtools/unit/testsuite.h"
 #include "cxxtools/unit/registertest.h"
 
+#if __cplusplus >= 201103L
+#include <utility>
+#endif
+
 template <typename T>
 T siValue(const cxxtools::SerializationInfo& si)
 {
@@ -55,6 +59,9 @@ class SerializationInfoTest : public cxxtools::unit::TestSuite
             registerMethod("testSiAssign", *this, &SerializationInfoTest::testSiAssign);
             registerMethod("testSiCopy", *this, &SerializationInfoTest::testSiCopy);
             registerMethod("testSiSwap", *this, &SerializationInfoTest::testSiSwap);
+#if __cplusplus >= 201103L
+            registerMethod("testMove", *this, &SerializationInfoTest::testMove);
+#endif
             registerMethod("testStringToBool", *this, &SerializationInfoTest::testStringToBool);
             registerMethod("testRangeCheck", *this, &SerializationInfoTest::testRangeCheck);
             registerMethod("testMember", *this, &SerializationInfoTest::testMember);
@@ -296,6 +303,36 @@ class SerializationInfoTest : public cxxtools::unit::TestSuite
             }
 
         }
+
+#if __cplusplus >= 201103L
+        void testMove()
+        {
+            {
+                cxxtools::SerializationInfo si;
+                si.setValue(static_cast<unsigned short>(42));
+                si.addMember("foo");
+                si.addMember("bar");
+
+                cxxtools::SerializationInfo si2(std::move(si));
+
+                CXXTOOLS_UNIT_ASSERT(si2.isUInt());
+                CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<unsigned>(si2), 42);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(si.memberCount(), 0);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(si2.memberCount(), 2);
+            }
+
+            {
+                cxxtools::SerializationInfo si;
+                const char str[] = "this is a string with aribtrary content";
+                si.setValue(str);
+
+                cxxtools::SerializationInfo si2(std::move(si));
+                CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<std::string>(si2), str);
+                CXXTOOLS_UNIT_ASSERT(siValue<std::string>(si) != str);
+            }
+        }
+
+#endif
 
         void testSiSwap()
         {

@@ -35,6 +35,37 @@
 namespace std
 {
 
+#if __cplusplus >= 201103L
+basic_string<cxxtools::Char>::basic_string(basic_string&& str)
+    : _data(str._data)
+{
+    if (!isShortString())
+    {
+        str._data.u.shortdata[0] = 0;
+        str._data.u.shortdata[_shortStringSize - 1] = _shortStringSize - 1;
+    }
+}
+
+basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::operator=(basic_string<cxxtools::Char>&& str)
+{
+    if (!isShortString())
+    {
+        _data.deallocate(longStringData(), longStringCapacity() + 1);
+    }
+
+    _data = str._data;
+
+    if (!isShortString())
+    {
+        str._data.u.shortdata[0] = 0;
+        str._data.u.shortdata[_shortStringSize - 1] = _shortStringSize - 1;
+    }
+
+    return *this;
+}
+
+#endif
+
 void basic_string<cxxtools::Char>::resize(size_t n, cxxtools::Char ch)
 {
     size_type size = this->size();

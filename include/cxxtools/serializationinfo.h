@@ -46,6 +46,7 @@
 #include <forward_list>
 #include <unordered_set>
 #include <unordered_map>
+#include <utility>
 
 #endif
 
@@ -143,6 +144,16 @@ class SerializationInfo
 
         ~SerializationInfo()
         { _releaseValue(); }
+
+        SerializationInfo& operator =(const SerializationInfo& si);
+
+#if __cplusplus >= 201103L
+
+        SerializationInfo(SerializationInfo&& si);
+
+        SerializationInfo& operator=(SerializationInfo&& si);
+
+#endif
 
         void reserve(size_t n)
         { _nodes.reserve(n); }
@@ -324,8 +335,6 @@ class SerializationInfo
             return _nodes.end();
         }
 
-        SerializationInfo& operator =(const SerializationInfo& si);
-
         void clear();
 
         void swap(SerializationInfo& si);
@@ -447,6 +456,41 @@ inline SerializationInfo& SerializationInfo::operator=(const SerializationInfo& 
     return *this;
 }
 
+
+#if __cplusplus >= 201103L
+
+inline SerializationInfo::SerializationInfo(SerializationInfo&& si)
+    : _category(si._category),
+      _name(std::move(si._name)),
+      _type(std::move(si._type)),
+      _u(si._u),
+      _t(si._t),
+      _nodes(std::move(si._nodes))
+{
+    si._category = Void;
+    si._t = t_none;
+}
+
+
+inline SerializationInfo& SerializationInfo::operator=(SerializationInfo&& si)
+{
+    _category = si._category;
+    _name = std::move(si._name);
+    _type = std::move(si._type);
+    _nodes = std::move(si._nodes);
+    _u = si._u;
+    _t = si._t;
+
+    if (si._t == t_string)
+        _setString( std::move(si._String()) );
+    else if (si._t == t_string8)
+        _setString8( std::move(si._String8()) );
+
+    return *this;
+}
+
+
+#endif
 
 inline void operator >>=(const SerializationInfo& si, SerializationInfo& ssi)
 {
