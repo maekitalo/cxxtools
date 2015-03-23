@@ -35,7 +35,7 @@ namespace cxxtools
 namespace http
 {
 
-void Responder::beginRequest(std::istream& in, Request& request)
+void Responder::beginRequest(net::TcpSocket& socket, std::istream& in, Request& request)
 {
     _request = &request;
 }

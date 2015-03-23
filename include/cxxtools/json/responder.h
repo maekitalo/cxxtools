@@ -54,7 +54,7 @@ class Responder : public http::Responder
 
         ~Responder();
 
-        void beginRequest(std::istream& in, http::Request& request);
+        void beginRequest(net::TcpSocket& socket, std::istream& in, http::Request& request);
 
         std::size_t readBody(std::istream& is);
 

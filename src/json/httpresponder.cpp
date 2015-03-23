@@ -48,7 +48,7 @@ HttpResponder::~HttpResponder()
 {
 }
 
-void HttpResponder::beginRequest(std::istream& in, http::Request& request)
+void HttpResponder::beginRequest(net::TcpSocket& socket, std::istream& in, http::Request& request)
 {
     log_debug("begin request");
     _responder.begin();

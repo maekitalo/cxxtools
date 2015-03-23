@@ -70,7 +70,7 @@ class XmlRpcResponder : public http::Responder
 
         ~XmlRpcResponder();
 
-        void beginRequest(std::istream& in, http::Request& request);
+        void beginRequest(net::TcpSocket& socket, std::istream& in, http::Request& request);
 
         std::size_t readBody(std::istream& is);
 

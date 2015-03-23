@@ -35,6 +35,12 @@
 
 namespace cxxtools
 {
+
+namespace net
+{
+    class TcpSocket;
+}
+
 namespace http
 {
 
@@ -50,7 +56,7 @@ class Responder
 
         virtual ~Responder() { }
 
-        virtual void beginRequest(std::istream& in, Request& request);
+        virtual void beginRequest(net::TcpSocket& socket, std::istream& in, Request& request);
         virtual std::size_t readBody(std::istream&);
         virtual void reply(std::ostream&, Request& request, Reply& reply) = 0;
         virtual void replyError(std::ostream&, Request& request, Reply& reply, const std::exception& ex);

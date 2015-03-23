@@ -69,7 +69,7 @@ XmlRpcResponder::~XmlRpcResponder()
 }
 
 
-void XmlRpcResponder::beginRequest(std::istream& is, http::Request& request)
+void XmlRpcResponder::beginRequest(net::TcpSocket& socket, std::istream& is, http::Request& request)
 {
     _fault.clear();
     _state = OnBegin;

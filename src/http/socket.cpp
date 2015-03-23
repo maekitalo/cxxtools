@@ -158,7 +158,7 @@ void Socket::onInput(StreamBuffer& sb)
             _responder = _server.getResponder(_request);
             try
             {
-                _responder->beginRequest(_stream, _request);
+                _responder->beginRequest(*this, _stream, _request);
             }
             catch (const std::exception& e)
             {
