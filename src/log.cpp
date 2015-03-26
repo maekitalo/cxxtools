@@ -38,10 +38,13 @@
 #include <cxxtools/jsondeserializer.h>
 #include <cxxtools/net/udp.h>
 #include <cxxtools/fileinfo.h>
+#include <cxxtools/split.h>
+#include <iterator>
 #include <vector>
 #include <map>
 #include <fstream>
 #include <sstream>
+#include <cctype>
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
@@ -400,32 +403,164 @@ namespace cxxtools
     }
 
     //////////////////////////////////////////////////////////////////////
-    Logger::log_level_type str2loglevel(const std::string& level, const std::string& category = std::string())
+    int throwInvalidLogLevel(const std::string& level, const std::string& category)
     {
-      char l = level.empty() ? '\0' : level[0];
-      switch (l)
+      std::string msg = "unknown log level \"" + level + '\"';
+      if (!category.empty())
+        msg += " for category \"" + category + '"';
+      throw std::runtime_error(msg);
+    }
+
+    int compareIgnoreCase(const char* s1, const char* s2)
+    {
+        const char* it1 = s1;
+        const char* it2 = s2;
+        while (*it1 && *it2)
+        {
+            if (*it1 != *it2)
+            {
+                char c1 = std::toupper(*it1);
+                char c2 = std::toupper(*it2);
+                if (c1 < c2)
+                    return -1;
+                else if (c2 < c1)
+                    return 1;
+            }
+            ++it1;
+            ++it2;
+        }
+
+        return *it1 ? 1
+                    : *it2 ? -1 : 0;
+    }
+
+    inline Logger::log_level_type logFlag2logLevel(Logger::log_flag_type flag)
+    {
+      return static_cast<Logger::log_level_type>((flag << 1) - 1);
+    }
+
+    Logger::log_flag_type str2logflag(const char* level)
+    {
+      // Converts a log level string (FATAL, ERROR, ...) to log_level_type.
+      // When the log level is not identified, 0 is returned.
+
+      if (compareIgnoreCase(level, "FATAL") == 0)
+        return Logger::LOG_FATAL;
+
+      if (compareIgnoreCase(level, "ERROR") == 0)
+        return Logger::LOG_ERROR;
+
+      if (compareIgnoreCase(level, "WARN") == 0)
+        return Logger::LOG_WARN;
+
+      if (compareIgnoreCase(level, "INFO") == 0)
+        return Logger::LOG_INFO;
+
+      if (compareIgnoreCase(level, "DEBUG") == 0)
+        return Logger::LOG_DEBUG;
+
+      if (compareIgnoreCase(level, "FINE") == 0)
+        return Logger::LOG_FINE;
+
+      if (compareIgnoreCase(level, "FINER") == 0)
+        return Logger::LOG_FINER;
+
+      if (compareIgnoreCase(level, "FINEST") == 0)
+        return Logger::LOG_FINEST;
+
+      switch (level[0])
       {
-        case 'f':
-        case 'F': return Logger::LOG_LEVEL_FATAL;
-        case 'e':
-        case 'E': return Logger::LOG_LEVEL_ERROR;
-        case 'w':
-        case 'W': return Logger::LOG_LEVEL_WARN;
-        case 'i':
-        case 'I': return Logger::LOG_LEVEL_INFO;
-        case 'd':
-        case 'D': return Logger::LOG_LEVEL_DEBUG;
-        case 't':
-        case 'T': return Logger::LOG_LEVEL_TRACE;
-        default:
-                  {
-                    std::string msg = "unknown log level \"" + level + '\"';
-                    if (!category.empty())
-                      msg += " for category \"" + category + '"';
-                    throw std::runtime_error(msg);
-                  }
+        case 'f': case 'F': return Logger::LOG_FATAL;
+        case 'e': case 'E': return Logger::LOG_ERROR;
+        case 'w': case 'W': return Logger::LOG_WARN;
+        case 'i': case 'I': return Logger::LOG_INFO;
+        case 'd': case 'D': return Logger::LOG_DEBUG;
+        case 't': case 'T': return Logger::LOG_TRACE;
+        default:            return static_cast<Logger::log_flag_type>(0);
       }
     }
+
+    int str2logflags(const std::string& level, const std::string& category = std::string())
+    {
+      /*
+       Converts a complex log level string to log_level_type.
+       Throws exception when level string could not be interpreted
+
+       accepted log levels:
+
+        * everything below level:
+            FATAL
+            ERROR
+            WARN
+            INFO
+            DEBUG
+            FINE
+            FINER
+            FINEST
+            TRACE
+
+        * everything below level with trace enabled:
+            TFATAL
+            ...
+            TFINE
+
+        * specific log levels:
+            TRACE|ERROR|WARN
+
+        * just one log level:
+            |WARN
+
+       */
+
+      if (level.empty())
+        throwInvalidLogLevel(level, category);
+
+      // case "just one log level" e.g. "|WARN"
+      if (level[0] == '|')
+      {
+        int ret = str2logflag(level.c_str() + 1);
+        if (ret == 0)
+          throwInvalidLogLevel(level, category);
+        return ret;
+      }
+
+      // case "specific log levels"
+      if (level.find('|') != std::string::npos)
+      {
+        std::vector<std::string> tokens;
+        split('|', level, std::back_inserter(tokens));
+        int ret = 0;
+
+        for (std::vector<std::string>::size_type n = 0; n < tokens.size(); ++n)
+        {
+          int r = str2logflag(tokens[n].c_str());
+          if (r == 0)
+            throwInvalidLogLevel(level, category);
+          ret |= r;
+        }
+
+        return ret;
+      }
+
+      // case "everything below level with trace enabled":
+      if (level.size() > 1 && (level[0] == 'T' || level[0] == 't'))
+      {
+        Logger::log_flag_type r = str2logflag(level.c_str() + 1);
+        if (r == 0)
+          return Logger::LOG_LEVEL_TRACE;
+
+        return logFlag2logLevel(r) | Logger::LOG_TRACE;
+      }
+
+      // case "everything below level":
+
+      Logger::log_flag_type flag = str2logflag(level.c_str());
+      if (flag == 0)
+        throwInvalidLogLevel(level, category);
+
+      return logFlag2logLevel(flag);
+    }
+
   }
 
   //////////////////////////////////////////////////////////////////////
@@ -439,7 +574,7 @@ namespace cxxtools
   class LogConfiguration::Impl
   {
     public:
-      typedef std::map<std::string, Logger::log_level_type> LogLevels;
+      typedef std::map<std::string, int> LogFlags;
 
     private:
       friend void operator>>= (const SerializationInfo& si, LogConfiguration::Impl& loggerManagerConfigurationImpl);
@@ -452,8 +587,8 @@ namespace cxxtools
       bool _broadcast;
       bool _tostdout;  // flag for console output: true=stdout, false=stderr
 
-      Logger::log_level_type _rootLevel;
-      LogLevels _logLevels;
+      int _rootFlags;
+      LogFlags _logFlags;
 
     public:
       typedef Logger::log_level_type log_level_type;
@@ -463,7 +598,7 @@ namespace cxxtools
           _maxbackupindex(0),
           _logport(0),
           _broadcast(true),
-          _rootLevel(Logger::LOG_LEVEL_FATAL)
+          _rootFlags(Logger::LOG_LEVEL_FATAL)
       { }
 
       const std::string& fname() const          { return _fname; }
@@ -474,16 +609,18 @@ namespace cxxtools
       bool broadcast() const                    { return _broadcast; }
       bool tostdout() const                     { return _tostdout; }
 
-      Logger::log_level_type rootLevel() const  { return _rootLevel; }
-      Logger::log_level_type logLevel(const std::string& category) const;
-      const LogLevels& logLevels() const        { return _logLevels; }
+      int rootFlags() const                     { return _rootFlags; }
+      int logFlags(const std::string& category) const;
+      const LogFlags& logLevels() const        { return _logFlags; }
 
-      void setRootLevel(log_level_type level)
-      { _rootLevel = level; }
-
-      void setLogLevel(const std::string& category, log_level_type level)
+      void setRootFlags(int flags)
       {
-        _logLevels[category] = level;
+        _rootFlags = flags;
+      }
+
+      void setLogFlags(const std::string& category, int flags)
+      {
+        _logFlags[category] = flags;
       }
 
       void setFile(const std::string& fname)
@@ -524,18 +661,18 @@ namespace cxxtools
 
   };
 
-  Logger::log_level_type LogConfiguration::Impl::logLevel(const std::string& category) const
+  int LogConfiguration::Impl::logFlags(const std::string& category) const
   {
     // check for exact match of category in log level settings
-    LogLevels::const_iterator lit = _logLevels.find(category);
-    if (lit != _logLevels.end())
+    LogFlags::const_iterator lit = _logFlags.find(category);
+    if (lit != _logFlags.end())
       return lit->second;
 
     // find best match of category in log level settings
     std::string::size_type best_len = 0;
-    Logger::log_level_type best_level = _rootLevel;
+    int best_level = _rootFlags;
 
-    for (LogLevels::const_iterator it = _logLevels.begin(); it != _logLevels.end(); ++it)
+    for (LogFlags::const_iterator it = _logFlags.begin(); it != _logFlags.end(); ++it)
     {
       if (it->first.size() > best_len
         && it->first.size() < category.size()
@@ -596,31 +733,31 @@ namespace cxxtools
         impl._tostdout = false;
     }
 
-    std::string rootLevel;
-    if (!si.getMember("rootlogger", rootLevel))
-      impl._rootLevel = Logger::LOG_LEVEL_FATAL;
+    std::string rootFlags;
+    if (!si.getMember("rootlogger", rootFlags))
+      impl._rootFlags = Logger::LOG_LEVEL_FATAL;
     else
-      impl._rootLevel = str2loglevel(rootLevel);
+      impl._rootFlags = str2logflags(rootFlags);
 
     const SerializationInfo* psi = si.findMember("loggers");
     if (psi)
     {
       std::string category;
-      std::string levelstr;
-      Logger::log_level_type level;
+      std::string flagstr;
+      int flags;
       for( SerializationInfo::ConstIterator it = psi->begin(); it != psi->end(); ++it)
       {
         it->getMember("category") >>= category;
-        if (impl._logLevels.find(category) != impl._logLevels.end())
+        if (impl._logFlags.find(category) != impl._logFlags.end())
           throw std::runtime_error("level already set for category \"" + category + '"'); 
 
-        it->getMember("level") >>= levelstr;
-        if (levelstr.empty())
-          level = Logger::LOG_LEVEL_FATAL;
+        it->getMember("level") >>= flagstr;
+        if (flagstr.empty())
+          flags = Logger::LOG_LEVEL_FATAL;
         else
-          level = str2loglevel(levelstr, category);
+          flags = str2logflags(flagstr, category);
 
-        impl._logLevels[category] = level;
+        impl._logFlags[category] = flags;
       }
     }
 
@@ -629,17 +766,17 @@ namespace cxxtools
       for( SerializationInfo::ConstIterator it = psi->begin(); it != psi->end(); ++it)
       {
         std::string category = it->name();
-        std::string levelstr;
-        Logger::log_level_type level;
+        std::string flagstr;
+        int flag;
 
-        it->getValue(levelstr);
+        it->getValue(flagstr);
 
-        if (levelstr.empty())
-          level = Logger::LOG_LEVEL_FATAL;
+        if (flagstr.empty())
+          flag = Logger::LOG_LEVEL_FATAL;
         else
-          level = str2loglevel(levelstr, category);
+          flag = str2logflags(flagstr, category);
 
-        impl._logLevels[category] = level;
+        impl._logFlags[category] = flag;
       }
     }
   }
@@ -648,16 +785,16 @@ namespace cxxtools
   {
     si.setTypeName("LogConfiguration");
 
-    si.addMember("rootlogger") <<= (impl._rootLevel == Logger::LOG_LEVEL_TRACE ? "TRACE"
-                                  : impl._rootLevel == Logger::LOG_LEVEL_DEBUG ? "DEBUG"
-                                  : impl._rootLevel == Logger::LOG_LEVEL_INFO  ? "INFO"
-                                  : impl._rootLevel == Logger::LOG_LEVEL_WARN  ? "WARN"
-                                  : impl._rootLevel == Logger::LOG_LEVEL_ERROR ? "ERROR"
+    si.addMember("rootlogger") <<= (impl._rootFlags == Logger::LOG_LEVEL_TRACE ? "TRACE"
+                                  : impl._rootFlags == Logger::LOG_LEVEL_DEBUG ? "DEBUG"
+                                  : impl._rootFlags == Logger::LOG_LEVEL_INFO  ? "INFO"
+                                  : impl._rootFlags == Logger::LOG_LEVEL_WARN  ? "WARN"
+                                  : impl._rootFlags == Logger::LOG_LEVEL_ERROR ? "ERROR"
                                   : "FATAL");
 
     cxxtools::SerializationInfo& lsi = si.addMember("loggers");
     lsi.setCategory(SerializationInfo::Array);
-    for (LogConfiguration::Impl::LogLevels::const_iterator it = impl._logLevels.begin(); it != impl._logLevels.end(); ++it)
+    for (LogConfiguration::Impl::LogFlags::const_iterator it = impl._logFlags.begin(); it != impl._logFlags.end(); ++it)
     {
       cxxtools::SerializationInfo& llsi = lsi.addMember();
       llsi.setTypeName("logger");
@@ -723,24 +860,24 @@ namespace cxxtools
     delete _impl;
   }
 
-  Logger::log_level_type LogConfiguration::rootLevel() const
+  int LogConfiguration::rootFlags() const
   {
-    return _impl->rootLevel();
+    return _impl->rootFlags();
   }
 
-  Logger::log_level_type LogConfiguration::logLevel(const std::string& category) const
+  int LogConfiguration::logFlags(const std::string& category) const
   {
-    return _impl->logLevel(category);
+    return _impl->logFlags(category);
   }
 
-  void LogConfiguration::setRootLevel(log_level_type level)
+  void LogConfiguration::setRootFlags(int flags)
   {
-    _impl->setRootLevel(level);
+    _impl->setRootFlags(flags);
   }
 
-  void LogConfiguration::setLogLevel(const std::string& category, log_level_type level)
+  void LogConfiguration::setLogFlags(const std::string& category, int flags)
   {
-    _impl->setLogLevel(category, level);
+    _impl->setLogFlags(category, flags);
   }
 
   void LogConfiguration::setFile(const std::string& fname)
@@ -804,11 +941,11 @@ namespace cxxtools
       LogAppender& appender()
       { return *_appender; }
     
-      Logger::log_level_type rootLevel() const
-      { return _config.rootLevel(); }
+      int rootFlags() const
+      { return _config.rootFlags(); }
 
-      Logger::log_level_type logLevel(const std::string& category) const
-      { return _config.logLevel(category); }
+      int logFlags(const std::string& category) const
+      { return _config.logFlags(category); }
   };
 
   LogManager::Impl::Impl(const LogConfiguration& config)
@@ -861,7 +998,7 @@ namespace cxxtools
     _config = config;
 
     for (Loggers::iterator it = _loggers.begin(); it != _loggers.end(); ++it)
-      it->second->setLogLevel(logLevel(it->second->getCategory()));
+      it->second->setLogFlags(logFlags(it->second->getCategory()));
   }
 
   LogManager::Impl::~Impl()
@@ -984,14 +1121,14 @@ namespace cxxtools
     return _impl ? _impl->getLogConfiguration() : LogConfiguration();
   }
 
-  Logger::log_level_type LogManager::rootLevel() const
+  int LogManager::rootFlags() const
   {
-    return _impl->rootLevel();
+    return _impl->rootFlags();
   }
 
-  Logger::log_level_type LogManager::logLevel(const std::string& category) const
+  int LogManager::logFlags(const std::string& category) const
   {
-    return _impl->logLevel(category);
+    return _impl->logFlags(category);
   }
 
   Logger* LogManager::getLogger(const std::string& category)
@@ -1010,7 +1147,7 @@ namespace cxxtools
     if (it != _loggers.end())
       return it->second;
 
-    Logger* ret = new Logger(category, logLevel(category));
+    Logger* ret = new Logger(category, logFlags(category));
     _loggers[category] = ret;
 
     return ret;
