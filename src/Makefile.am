@@ -2,8 +2,6 @@ AUTOMAKE_OPTIONS = subdir-objects
 AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/include -I$(top_srcdir)/include
 
 lib_LTLIBRARIES = libcxxtools.la
-include_HEADERS = \
-	dateutils.h
 
 libcxxtools_la_SOURCES = \
 	addrinfo.cpp \
@@ -134,6 +132,7 @@ noinst_HEADERS = \
 	applicationimpl.h \
 	clockimpl.h \
 	conditionimpl.h \
+	dateutils.h \
 	directoryimpl.h \
 	error.h \
 	facets.cpp \
