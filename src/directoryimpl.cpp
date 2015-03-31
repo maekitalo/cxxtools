@@ -67,7 +67,10 @@ DirectoryIteratorImpl::DirectoryIteratorImpl(const char* path, bool skipHidden)
 
     if( !_handle )
     {
-        throw SystemError("opendir", "Could not open directory '" + std::string(path) + '\'');
+        std::string fn = "opendir(\"";
+        fn += path;
+        fn += "\")";
+        throw SystemError(fn.c_str());
     }
 
     // append a trailing slash if not empty, so we can add the
