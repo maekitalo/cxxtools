@@ -25,27 +25,27 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-#ifndef CXXTOOLS_ISO8859_15CODEC_H
-#define CXXTOOLS_ISO8859_15CODEC_H
+#ifndef CXXTOOLS_ISO8859_9CODEC_H
+#define CXXTOOLS_ISO8859_9CODEC_H
 
 #include <cxxtools/charmapcodec.h>
 
 namespace cxxtools
 {
 
-class Iso8859_15Codec : public CharMapCodec
+class Iso8859_9Codec : public CharMapCodec
 {
     public:
-        explicit Iso8859_15Codec(size_t ref = 0);
+        explicit Iso8859_9Codec(size_t ref = 0);
 
         static String decode(const char* data, unsigned size)
-            { return cxxtools::decode<Iso8859_15Codec>(data, size); }
+            { return cxxtools::decode<Iso8859_9Codec>(data, size); }
         static String decode(const std::string& data)
-            { return cxxtools::decode<Iso8859_15Codec>(data); }
+            { return cxxtools::decode<Iso8859_9Codec>(data); }
         static std::string encode(const Char* data, unsigned size)
-            { return cxxtools::encode<Iso8859_15Codec>(data, size); }
+            { return cxxtools::encode<Iso8859_9Codec>(data, size); }
         static std::string encode(const String& data)
-            { return cxxtools::encode<Iso8859_15Codec>(data); }
+            { return cxxtools::encode<Iso8859_9Codec>(data); }
 };
 
 

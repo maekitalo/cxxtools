@@ -24,6 +24,7 @@ nobase_include_HEADERS = \
         cxxtools/csvparser.h \
         cxxtools/csvserializer.h \
         cxxtools/char.h \
+        cxxtools/charmapcodec.h \
         cxxtools/cgi.h \
         cxxtools/clock.h \
         cxxtools/condition.h \
@@ -73,7 +74,20 @@ nobase_include_HEADERS = \
         cxxtools/iodevice.h \
         cxxtools/iostream.h \
         cxxtools/iso8859_1codec.h \
+        cxxtools/iso8859_2codec.h \
+        cxxtools/iso8859_3codec.h \
+        cxxtools/iso8859_4codec.h \
+        cxxtools/iso8859_5codec.h \
+        cxxtools/iso8859_6codec.h \
+        cxxtools/iso8859_7codec.h \
+        cxxtools/iso8859_8codec.h \
+        cxxtools/iso8859_9codec.h \
+        cxxtools/iso8859_10codec.h \
+        cxxtools/iso8859_11codec.h \
+        cxxtools/iso8859_13codec.h \
+        cxxtools/iso8859_14codec.h \
         cxxtools/iso8859_15codec.h \
+        cxxtools/iso8859_16codec.h \
         cxxtools/join.h \
         cxxtools/json.h \
         cxxtools/json/httpclient.h \

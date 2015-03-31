@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 by Tommi Maekitalo
+ * Copyright (C) 2015 by Tommi Maekitalo
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -28,70 +28,24 @@
 #ifndef CXXTOOLS_ISO8859_1CODEC_H
 #define CXXTOOLS_ISO8859_1CODEC_H
 
-#include <cxxtools/char.h>
-#include <cxxtools/textcodec.h>
-#include <cxxtools/string.h>
+#include <cxxtools/charmapcodec.h>
 
 namespace cxxtools
 {
 
-class Iso8859_1Codec : public TextCodec<Char, char>
+class Iso8859_1Codec : public CharMapCodec
 {
     public:
-        explicit Iso8859_1Codec(size_t ref = 0)
-        : TextCodec<Char, char>(ref)
-        {}
+        explicit Iso8859_1Codec(size_t ref = 0);
 
-        virtual ~Iso8859_1Codec()
-        {}
-
-    protected:
-        //! @brief Decodes ISO-8859-1 to UTF-32.
-        virtual result do_in(MBState& s, const char* fromBegin,
-                                        const char* fromEnd, const char*& fromNext,
-                                        Char* toBegin, Char* toEnd, Char*& toNext) const;
-        //! @brief Encodes UTF-32 to ISO-8859-1.
-        virtual result do_out(MBState& s, const Char* fromBegin,
-                                         const Char* fromEnd, const Char*& fromNext,
-                                         char* toBegin, char* toEnd, char*& toNext) const;
-
-        std::codecvt_base::result do_unshift(cxxtools::MBState&, char*, char*, char*&) const
-        { return std::codecvt_base::noconv; }
-
-        bool do_always_noconv() const throw();
-
-        int do_length(MBState& s, const char* fromBegin,
-                      const char* fromEnd, size_t max) const;
-
-        int do_encoding() const throw()
-        { return 0; }
-
-        int do_max_length() const throw();
-
-    public:
-        /** @brief shortcut for converting base64 encoded data to std::string
-
-            Example:
-            @code
-              std::string data = cxxtools::Iso8859_1Codec::decode(base64dataptr, base64datasize);
-            @endcode
-         */
         static String decode(const char* data, unsigned size)
-        { return cxxtools::decode<Iso8859_1Codec>(data, size); }
-        /** @brief shortcut for converting base64 encoded std::string to std::string
-         */
+            { return cxxtools::decode<Iso8859_1Codec>(data, size); }
         static String decode(const std::string& data)
-        { return cxxtools::decode<Iso8859_1Codec>(data); }
-
-        /** @brief shortcut for converting data to base64 encoded std::string
-         */
+            { return cxxtools::decode<Iso8859_1Codec>(data); }
         static std::string encode(const Char* data, unsigned size)
-        { return cxxtools::encode<Iso8859_1Codec>(data, size); }
-
-        /** @brief shortcut for converting std::string to base64 encoded std::string
-         */
+            { return cxxtools::encode<Iso8859_1Codec>(data, size); }
         static std::string encode(const String& data)
-        { return cxxtools::encode<Iso8859_1Codec>(data); }
+            { return cxxtools::encode<Iso8859_1Codec>(data); }
 };
 
 

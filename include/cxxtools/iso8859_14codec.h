@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2013 Tommi Maekitalo
- * 
+ * Copyright (C) 2015 by Tommi Maekitalo
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
- * 
+ *
  * As a special exception, you may use this file as part of a free
  * software library without restriction. Specifically, if other files
  * instantiate templates or use macros or inline functions from this
@@ -15,51 +15,40 @@
  * License. This exception does not however invalidate any other
  * reasons why the executable file might be covered by the GNU Library
  * General Public License.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
+#ifndef CXXTOOLS_ISO8859_14CODEC_H
+#define CXXTOOLS_ISO8859_14CODEC_H
 
-#include "cxxtools/iso8859_15codec.h"
+#include <cxxtools/charmapcodec.h>
 
 namespace cxxtools
 {
 
-Iso8859_15Codec::result Iso8859_15Codec::do_in(MBState& s, const char* fromBegin, const char* fromEnd, const char*& fromNext,
-                                   Char* toBegin, Char* toEnd, Char*& toNext) const
+class Iso8859_14Codec : public CharMapCodec
 {
-    fromNext  = fromBegin;
-    toNext = toBegin;
-    while (fromNext < fromEnd && toNext < toEnd)
-    {
-        *toNext = *fromNext == '\xa4' ? Char(0x20ac) : Char(static_cast<unsigned char>(*fromNext));
-        ++fromNext;
-        ++toNext;
-    }
+    public:
+        explicit Iso8859_14Codec(size_t ref = 0);
 
-    return ok;
-}
+        static String decode(const char* data, unsigned size)
+            { return cxxtools::decode<Iso8859_14Codec>(data, size); }
+        static String decode(const std::string& data)
+            { return cxxtools::decode<Iso8859_14Codec>(data); }
+        static std::string encode(const Char* data, unsigned size)
+            { return cxxtools::encode<Iso8859_14Codec>(data, size); }
+        static std::string encode(const String& data)
+            { return cxxtools::encode<Iso8859_14Codec>(data); }
+};
 
 
-Iso8859_15Codec::result Iso8859_15Codec::do_out(MBState& s, const Char* fromBegin, const Char* fromEnd, const Char*& fromNext,
-                                                  char* toBegin, char* toEnd, char*& toNext) const
-{
-    fromNext  = fromBegin;
-    toNext = toBegin;
-    while (fromNext < fromEnd && toNext < toEnd)
-    {
-        *toNext = *fromNext == Char(0x20ac) ? '\xa4' : fromNext->narrow();
-        ++fromNext;
-        ++toNext;
-    }
+} //namespace cxxtools
 
-    return ok;
-}
-
-} // namespace cxxtools
+#endif

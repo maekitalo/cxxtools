@@ -13,6 +13,7 @@ libcxxtools_la_SOURCES = \
 	csvformatter.cpp \
 	csvparser.cpp \
 	char.cpp \
+	charmapcodec.cpp \
 	clock.cpp \
 	clockimpl.cpp \
 	condition.cpp \
@@ -47,8 +48,7 @@ libcxxtools_la_SOURCES = \
 	iodeviceimpl.cpp \
 	ioerror.cpp \
 	iostream.cpp \
-	iso8859_1codec.cpp \
-	iso8859_15codec.cpp \
+	iso8859_codec.cpp \
 	jsondeserializer.cpp \
 	jsonformatter.cpp \
 	jsonparser.cpp \
