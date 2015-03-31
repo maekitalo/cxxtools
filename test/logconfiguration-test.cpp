@@ -44,12 +44,16 @@ class LogconfigurationTest : public cxxtools::unit::TestSuite
       registerMethod("logLevelWithTraceTest", *this, &LogconfigurationTest::logLevelWithTraceTest);
       registerMethod("logSingleFlagTest", *this, &LogconfigurationTest::logSingleFlagTest);
       registerMethod("logFlagsTest", *this, &LogconfigurationTest::logFlagsTest);
+      registerMethod("rootLevelTest", *this, &LogconfigurationTest::rootLevelTest);
+      registerMethod("hierachicalTest", *this, &LogconfigurationTest::hierachicalTest);
     }
 
     void logLevelTest();
     void logLevelWithTraceTest();
     void logSingleFlagTest();
     void logFlagsTest();
+    void rootLevelTest();
+    void hierachicalTest();
 };
 
 void LogconfigurationTest::logLevelTest()
@@ -157,6 +161,55 @@ void LogconfigurationTest::logFlagsTest()
   CXXTOOLS_UNIT_ASSERT_EQUALS(config.logFlags("cat1"), cxxtools::Logger::LOG_WARN | cxxtools::Logger::LOG_INFO);
   CXXTOOLS_UNIT_ASSERT_EQUALS(config.logFlags("cat2"), cxxtools::Logger::LOG_DEBUG | cxxtools::Logger::LOG_TRACE);
   CXXTOOLS_UNIT_ASSERT_EQUALS(config.logFlags("cat3"), cxxtools::Logger::LOG_INFO | cxxtools::Logger::LOG_TRACE);
+}
+
+void LogconfigurationTest::rootLevelTest()
+{
+  std::istringstream properties(
+    "rootlogger=WARN\n"
+    "logger.cat1=INFO\n");
+
+  cxxtools::LogConfiguration config;
+  properties >> cxxtools::Properties(config);
+
+  cxxtools::Logger cat1("cat1", config.logFlags("cat1"));
+  cxxtools::Logger cat2("cat2", config.logFlags("cat2"));
+
+  CXXTOOLS_UNIT_ASSERT(cat1.isEnabled(cxxtools::Logger::LOG_WARN));
+  CXXTOOLS_UNIT_ASSERT(cat1.isEnabled(cxxtools::Logger::LOG_INFO));
+  CXXTOOLS_UNIT_ASSERT(!cat1.isEnabled(cxxtools::Logger::LOG_DEBUG));
+
+  CXXTOOLS_UNIT_ASSERT(cat2.isEnabled(cxxtools::Logger::LOG_WARN));
+  CXXTOOLS_UNIT_ASSERT(!cat2.isEnabled(cxxtools::Logger::LOG_INFO));
+  CXXTOOLS_UNIT_ASSERT(!cat2.isEnabled(cxxtools::Logger::LOG_DEBUG));
+}
+
+void LogconfigurationTest::hierachicalTest()
+{
+  std::istringstream properties(
+    "rootlogger=WARN\n"
+    "logger.cat1=INFO\n"
+    "logger.cat1.sub1=ERROR\n");
+
+  cxxtools::LogConfiguration config;
+  properties >> cxxtools::Properties(config);
+
+  cxxtools::Logger cat1("cat1", config.logFlags("cat1"));
+  cxxtools::Logger sub1("sub1", config.logFlags("cat1.sub1"));
+  cxxtools::Logger sub2("sub2", config.logFlags("cat1.sub2"));
+
+  CXXTOOLS_UNIT_ASSERT(cat1.isEnabled(cxxtools::Logger::LOG_WARN));
+  CXXTOOLS_UNIT_ASSERT(cat1.isEnabled(cxxtools::Logger::LOG_INFO));
+  CXXTOOLS_UNIT_ASSERT(!cat1.isEnabled(cxxtools::Logger::LOG_DEBUG));
+
+  CXXTOOLS_UNIT_ASSERT(!sub1.isEnabled(cxxtools::Logger::LOG_WARN));
+  CXXTOOLS_UNIT_ASSERT(!sub1.isEnabled(cxxtools::Logger::LOG_INFO));
+  CXXTOOLS_UNIT_ASSERT(!sub1.isEnabled(cxxtools::Logger::LOG_DEBUG));
+
+  CXXTOOLS_UNIT_ASSERT(sub2.isEnabled(cxxtools::Logger::LOG_WARN));
+  CXXTOOLS_UNIT_ASSERT(!sub2.isEnabled(cxxtools::Logger::LOG_INFO));
+  CXXTOOLS_UNIT_ASSERT(!sub2.isEnabled(cxxtools::Logger::LOG_DEBUG));
+
 }
 
 
