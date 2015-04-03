@@ -39,6 +39,7 @@
 #include <cxxtools/net/udp.h>
 #include <cxxtools/fileinfo.h>
 #include <cxxtools/split.h>
+#include <cxxtools/envsubst.h>
 #include <iterator>
 #include <vector>
 #include <map>
@@ -691,6 +692,7 @@ namespace cxxtools
   {
     if (si.getMember("file", impl._fname))
     {
+      impl._fname = envSubst(impl._fname);
       std::string s;
       if (si.getMember("maxfilesize", s))
       {
