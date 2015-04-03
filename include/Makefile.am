@@ -43,6 +43,7 @@ nobase_include_HEADERS = \
         cxxtools/dir.h \
         cxxtools/directory.h \
         cxxtools/dlloader.h \
+        cxxtools/envsubst.h \
         cxxtools/event.h \
         cxxtools/eventloop.h \
         cxxtools/eventsink.h \

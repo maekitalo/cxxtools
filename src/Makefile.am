@@ -30,6 +30,7 @@ libcxxtools_la_SOURCES = \
 	deserializer.cpp \
 	directory.cpp \
 	directoryimpl.cpp \
+	envsubst.cpp \
 	error.cpp \
 	eventloop.cpp \
 	eventsink.cpp \

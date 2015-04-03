@@ -20,6 +20,7 @@ alltests_SOURCES = \
     convert-test.cpp \
     date-test.cpp \
     datetime-test.cpp \
+    envsubst-test.cpp \
     file-test.cpp \
     inifile-test.cpp \
     iniparser-test.cpp \
