@@ -51,8 +51,13 @@ Logging
 
 Each log statement has a level. The levels are in descending severity _fatal_,
 _error_, _warn_, _info_ and _debug_. Additionally there is a special level
-_trace_, which is even below _debug_ and works a little different. But lets
-look first, how we can produce log output.
+_trace_, which is even below _debug_ and works a little different.
+
+Starting with cxxtools 2.3 we have additional levels _fine_, _finer_ and
+_finest_, where debug output can be controlled more granular. While _fine_ is
+actually the same as _debug_.
+
+But lets look first, how we can produce log output.
 
 Lets say we want to output the number of wheels of our car as a
 debug information. And the number of wheels are held in a variable
@@ -94,15 +99,21 @@ _log.properties_. This was the only variant in cxxtools version below 2.2. In
 cxxtools version > 2.2 it will look for a file _log.json_ in json format. If
 nothing is found, the logging is not configured and no output is produced.
 
-There are 2 additional variants. `log_init()` takes optionally a parameter. It
-is either a file name or a `cxxtools::SerializationInfo`. If the file extension
-is `.properties`, properties format is again used. If the file extension is
-`.json` (for cxxtools version > 2.2), json format is used. Otherwise xml is
-assumed.
+There are 3 additional variants. `log_init()` takes optionally a parameter. It
+is either a file name or a object of type `cxxtools::LogConfiguration`.
 
-The variant with `cxxtools::SerializationInfo` can be used to either build your
-own configuration without a file or using one of the deserializers in _cxxtools_
-and extract only a part of a configuration file.
+If the file extension is `.properties`, properties format is used. If the
+file extension is `.json` (for cxxtools version > 2.2), json format is used.
+Otherwise xml is assumed.
+
+A object of type `cxxtools::LogConfiguration` can be used to read the logging
+configuration from your own file using a proper deserializer or to build a
+configuration manually.
+
+The currently active configuration can be read using
+`cxxtools::LogManager::getInstance().getLogConfiguratoin()`. A copy is returned.
+Starting with cxxtools 2.3 `log_init` can be called multiple times to change the
+current log configuration at runtime.
 
 ### Format: xml
 
@@ -136,11 +147,32 @@ case you will get all levels up to debug for the specified categories. You will
 see debug output also for categories _cxxtools.csv.parser_ and
 _cxxtools.csv.formatter_.
 
-The level may be _FATAL_, _ERROR_, _WARN_, _INFO_, _DEBUG_ or _TRACE_. Actually
+The level may be _FATAL_, _ERROR_, _WARN_, _INFO_, _DEBUG_ or _TRACE_.  Actually
 only the first character is significant and even that is not case sensitive, so
 you can write as well `<level>d</level>` to define _debug_ level.
 
-The _file_ entry enabled logging to a file. I guess you guessed it already.
+With cxxtools 2.3 there are new features available. There new levels _FINE_,
+_FINER_ and _FINEST_. Also each level can be enabled separately. There are
+actually 4 different possibilities to specify the desired logging levels.
+
+The most simple is just to specify the log level as in 2.2. As a special
+exception _TRACE_ do not enable _FINER_ and _FINEST_. As such it acts like in
+2.2, where those log levels were not available at all.
+
+The log level can be prefixed by _T_ to add trace output to a selected log
+level. E.g. _TINFO_ logs all output above _INFO_ and additionally the _TRACE_
+level.
+
+To enable individual log levels, the levels are separated by '|'. So setting
+_FATAL_|_INFO_|_TRACE enables exactly those levels but no _WARN_, _ERROR_,
+_DEBUG_, _FINE_, _FINER_ or _FINEST_.
+
+To enable just one single level the first character must be '|'. So to enable
+just _ERROR_ the setting must be |_ERROR_.
+
+The _file_ entry enabled logging to a file. I guess you guessed it already. With
+cxxtools 2.3 the setting may contain environ variables e.g.
+"/home/$USER/log/foo.log". See the class _cxxtools::EnvSubst_ for details.
 
 When a file is defined and both _maxfilesize_ and _maxbackupindex_ the file is
 automatically rotated.
