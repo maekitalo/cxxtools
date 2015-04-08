@@ -90,7 +90,7 @@ void LogconfigurationTest::logLevelTest()
   CXXTOOLS_UNIT_ASSERT_EQUALS(config.logFlags("fine"),   0x1f);
   CXXTOOLS_UNIT_ASSERT_EQUALS(config.logFlags("finer"),  0x3f);
   CXXTOOLS_UNIT_ASSERT_EQUALS(config.logFlags("finest"), 0x7f);
-  CXXTOOLS_UNIT_ASSERT_EQUALS(config.logFlags("trace"),  0xff);
+  CXXTOOLS_UNIT_ASSERT_EQUALS(config.logFlags("trace"),  0x9f);
 }
 
 void LogconfigurationTest::logLevelWithTraceTest()
@@ -136,15 +136,15 @@ void LogconfigurationTest::logSingleFlagTest()
   cxxtools::LogConfiguration config;
   properties >> cxxtools::Properties(config);
 
-  CXXTOOLS_UNIT_ASSERT_EQUALS(config.logFlags("fatal"),  0x01);
-  CXXTOOLS_UNIT_ASSERT_EQUALS(config.logFlags("error"),  0x02);
-  CXXTOOLS_UNIT_ASSERT_EQUALS(config.logFlags("warn"),   0x04);
-  CXXTOOLS_UNIT_ASSERT_EQUALS(config.logFlags("info"),   0x08);
-  CXXTOOLS_UNIT_ASSERT_EQUALS(config.logFlags("debug"),  0x10);
-  CXXTOOLS_UNIT_ASSERT_EQUALS(config.logFlags("fine"),   0x10);
-  CXXTOOLS_UNIT_ASSERT_EQUALS(config.logFlags("finer"),  0x20);
-  CXXTOOLS_UNIT_ASSERT_EQUALS(config.logFlags("finest"), 0x40);
-  CXXTOOLS_UNIT_ASSERT_EQUALS(config.logFlags("trace"),  0x80);
+  CXXTOOLS_UNIT_ASSERT_EQUALS(config.logFlags("fatal"),  cxxtools::Logger::LOG_FATAL);
+  CXXTOOLS_UNIT_ASSERT_EQUALS(config.logFlags("error"),  cxxtools::Logger::LOG_ERROR);
+  CXXTOOLS_UNIT_ASSERT_EQUALS(config.logFlags("warn"),   cxxtools::Logger::LOG_WARN);
+  CXXTOOLS_UNIT_ASSERT_EQUALS(config.logFlags("info"),   cxxtools::Logger::LOG_INFO);
+  CXXTOOLS_UNIT_ASSERT_EQUALS(config.logFlags("debug"),  cxxtools::Logger::LOG_DEBUG);
+  CXXTOOLS_UNIT_ASSERT_EQUALS(config.logFlags("fine"),   cxxtools::Logger::LOG_FINE);
+  CXXTOOLS_UNIT_ASSERT_EQUALS(config.logFlags("finer"),  cxxtools::Logger::LOG_FINER);
+  CXXTOOLS_UNIT_ASSERT_EQUALS(config.logFlags("finest"), cxxtools::Logger::LOG_FINEST);
+  CXXTOOLS_UNIT_ASSERT_EQUALS(config.logFlags("trace"),  cxxtools::Logger::LOG_TRACE);
 }
 
 void LogconfigurationTest::logFlagsTest()
@@ -207,7 +207,7 @@ void LogconfigurationTest::hierachicalTest()
   CXXTOOLS_UNIT_ASSERT(!sub1.isEnabled(cxxtools::Logger::LOG_DEBUG));
 
   CXXTOOLS_UNIT_ASSERT(sub2.isEnabled(cxxtools::Logger::LOG_WARN));
-  CXXTOOLS_UNIT_ASSERT(!sub2.isEnabled(cxxtools::Logger::LOG_INFO));
+  CXXTOOLS_UNIT_ASSERT(sub2.isEnabled(cxxtools::Logger::LOG_INFO));
   CXXTOOLS_UNIT_ASSERT(!sub2.isEnabled(cxxtools::Logger::LOG_DEBUG));
 
 }
