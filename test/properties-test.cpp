@@ -29,7 +29,6 @@
 #include "cxxtools/unit/testsuite.h"
 #include "cxxtools/unit/registertest.h"
 #include "cxxtools/serializationinfo.h"
-#include "cxxtools/xml/xmlserializer.h"
 #include "cxxtools/propertiesdeserializer.h"
 #include "cxxtools/propertiesparser.h"
 #include "cxxtools/properties.h"
