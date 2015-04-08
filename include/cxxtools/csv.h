@@ -77,7 +77,7 @@ namespace cxxtools
         CsvOObject& quote(Char quote)
         { _quote = quote; return *this; }
 
-        CsvOObject& lineEnding(String lineEnding)
+        CsvOObject& lineEnding(const String& lineEnding)
         { _lineEnding = lineEnding; return *this; }
 
         Char delimiter() const
