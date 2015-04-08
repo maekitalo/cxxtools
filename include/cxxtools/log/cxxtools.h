@@ -164,7 +164,7 @@ namespace cxxtools
         LOG_FINE   = 0x10,
         LOG_FINER  = 0x20,
         LOG_FINEST = 0x40,
-        LOG_TRACE  = 0x80,
+        LOG_TRACE  = 0x80
       };
 
       enum log_level_type {
@@ -176,7 +176,7 @@ namespace cxxtools
         LOG_LEVEL_FINE   = (LOG_FINE << 1) - 1,
         LOG_LEVEL_FINER  = (LOG_FINER << 1) - 1,
         LOG_LEVEL_FINEST = (LOG_FINEST << 1) - 1,
-        LOG_LEVEL_TRACE  = (LOG_TRACE << 1) - 1,
+        LOG_LEVEL_TRACE  = LOG_LEVEL_DEBUG | LOG_TRACE
       };
 
     private:
