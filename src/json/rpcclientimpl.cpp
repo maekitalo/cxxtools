@@ -80,22 +80,36 @@ void RpcClientImpl::beginCall(IComposer& r, IRemoteProcedure& method, IDecompose
 
     prepareRequest(method.name(), argv, argc);
 
-    if (_socket.isConnected())
+    try
     {
-        try
+        if (_socket.isConnected())
         {
-            _stream.buffer().beginWrite();
+            try
+            {
+                _stream.buffer().beginWrite();
+            }
+            catch (const IOError&)
+            {
+                log_debug("write failed, connection is not active any more");
+                _socket.beginConnect(_addrInfo);
+            }
         }
-        catch (const IOError&)
+        else
         {
-            log_debug("write failed, connection is not active any more");
+            log_debug("not yet connected - do it now");
             _socket.beginConnect(_addrInfo);
         }
     }
-    else
+    catch (const std::exception& )
     {
-        log_debug("not yet connected - do it now");
-        _socket.beginConnect(_addrInfo);
+        IRemoteProcedure* proc = _proc;
+        cancel();
+
+        _exceptionPending = true;
+        proc->onFinished();
+
+        if (_exceptionPending)
+            throw;
     }
 
     _scanner.begin(_deserializer, r);
