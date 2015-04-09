@@ -107,7 +107,21 @@ void ClientImpl::beginCall(IComposer& r, IRemoteProcedure& method, IDecomposer**
 
     prepareRequest(method.name(), argv, argc);
 
-    beginExecute();
+    try
+    {
+        beginExecute();
+    }
+    catch (const std::exception& )
+    {
+        IRemoteProcedure* method = _method;
+        cancel();
+
+        _errorPending = true;
+        method->onFinished();
+
+        if (_errorPending)
+            throw;
+    }
 
     _reader.reset(_ts);
     _scanner.begin(_deserializer, r);

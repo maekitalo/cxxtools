@@ -74,7 +74,21 @@ void HttpClientImpl::beginCall(IComposer& r, IRemoteProcedure& method, IDecompos
 
     prepareRequest(method.name(), argv, argc);
 
-    _client.beginExecute(_request);
+    try
+    {
+        _client.beginExecute(_request);
+    }
+    catch (const std::exception& )
+    {
+        IRemoteProcedure* proc = _proc;
+        cancel();
+
+        _exceptionPending = true;
+        proc->onFinished();
+
+        if (_exceptionPending)
+            throw;
+    }
 
     _scanner.begin(_deserializer, r);
 }
