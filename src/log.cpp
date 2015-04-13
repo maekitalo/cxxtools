@@ -1166,6 +1166,7 @@ namespace cxxtools
       const char* _level;
       std::ostringstream _msg;
       std::ios_base::fmtflags _fmtflags;
+      std::string _buffer;
 
     public:
       Impl()
@@ -1211,6 +1212,8 @@ namespace cxxtools
   {
     _impl->setLogger(logger);
     _impl->setLevel(level >= Logger::LOG_LEVEL_TRACE ? "TRACE"
+                  : level >= Logger::LOG_LEVEL_FINEST ? "FINEST"
+                  : level >= Logger::LOG_LEVEL_FINER ? "FINER"
                   : level >= Logger::LOG_LEVEL_DEBUG ? "DEBUG"
                   : level >= Logger::LOG_LEVEL_INFO  ? "INFO"
                   : level >= Logger::LOG_LEVEL_WARN  ? "WARN"
@@ -1244,13 +1247,13 @@ namespace cxxtools
       ScopedAtomicIncrementer inc(mutexWaitCount);
       MutexLock lock(logMutex);
 
-      std::string msg;
-      logentry(msg, _level, _logger->getCategory());
-      msg += _msg.str();
+      logentry(_buffer, _level, _logger->getCategory());
+      _buffer += _msg.str();
 
       LogAppender& appender = LogManager::getInstance().impl()->appender();
-      appender.putMessage(msg);
+      appender.putMessage(_buffer);
       appender.finish(inc.decrement() == 0);
+      _buffer.clear();
     }
     catch (const std::exception&)
     {
