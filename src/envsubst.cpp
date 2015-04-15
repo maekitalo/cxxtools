@@ -27,7 +27,10 @@
  */
 
 #include <cxxtools/envsubst.h>
+#include <cxxtools/log.h>
 #include <stdlib.h>
+
+log_define("cxxtools.envsubst")
 
 namespace cxxtools
 {
@@ -72,7 +75,10 @@ void EnvSubst::parse(char ch)
           _state = state_varname;
         }
         else if (ch == '{')
+        {
+          _varname.clear();
           _state = state_bvarname;
+        }
         else
           throw EnvSubstSyntaxError("expected env variable");
         break;
@@ -84,8 +90,13 @@ void EnvSubst::parse(char ch)
         {
           const char* e = ::getenv(_varname.c_str());
           if (e)
+          {
+            log_debug("envvar \"" << _varname << "\": " << e);
             while (*e)
               _ev.onChar(*e++);
+          }
+          else
+            log_debug("envvar \"" << _varname << "\" is not set");
 
           if (ch == '\\')
             _state = state_esc;
@@ -102,8 +113,14 @@ void EnvSubst::parse(char ch)
         {
           const char* e = ::getenv(_varname.c_str());
           if (e)
+          {
+            log_debug("envvar \"" << _varname << "\": " << e);
             while (*e)
               _ev.onChar(*e++);
+          }
+          else
+            log_debug("envvar \"" << _varname << "\" is not set");
+
           _state = state_0;
         }
         else if (ch == ':')
@@ -120,12 +137,14 @@ void EnvSubst::parse(char ch)
           const char* e = ::getenv(_varname.c_str());
           if (e)
           {
+            log_debug("envvar \"" << _varname << "\": " << e);
             while (*e)
               _ev.onChar(*e++);
             _state = state_nosubst;
           }
           else
           {
+            log_debug("envvar \"" << _varname << "\" is not set");
             _next = new EnvSubst(_ev);
             _state = state_subst;
           }
@@ -172,8 +191,14 @@ void EnvSubst::parseEnd()
     case state_varname:
         const char* e = ::getenv(_varname.c_str());
         if (e)
+        {
+          log_debug("envvar \"" << _varname << "\": " << e);
           while (*e)
             _ev.onChar(*e++);
+        }
+        else
+          log_debug("envvar \"" << _varname << "\" is not set");
+
         _state = state_0;
         break;
   }
@@ -191,10 +216,14 @@ std::string envSubst(const std::string& str)
     }
   } ev;
 
+  log_debug("envSubst(\"" << str << '"');
+
   EnvSubst es(ev);
   for (std::string::const_iterator it = str.begin(); it != str.end(); ++it)
     es.parse(*it);
   es.parseEnd();
+
+  log_debug("envSubst => \"" << ev.ret << '"');
 
   return ev.ret;
 }
