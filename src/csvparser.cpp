@@ -50,7 +50,7 @@ namespace
         else if (column + 1 != noColumns)
         {
             std::ostringstream msg;
-            msg << "number of columns " << (column + 1) << " in line " << lineNo << " does not match expected number of columns " << noColumns;
+            msg << "number of columns " << (column + 1) << " in line " << lineNo << " does not match expected number of columns " << noColumns << " in csv";
             SerializationError::doThrow(msg.str());
         }
     }

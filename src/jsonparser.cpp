@@ -482,7 +482,7 @@ int JsonParser::advance(Char ch)
                     _state = state_comment0;
                 }
                 else if (!std::isspace(ch.value()))
-                    doThrow(std::string("unexpected character '") + ch.narrow() + "\' after end");
+                    doThrow(std::string("unexpected character '") + ch.narrow() + "\' after end in json parser");
                 break;
         }
     }
@@ -518,7 +518,7 @@ void JsonParser::finish()
         case state_commentline:
         case state_comment:
         case state_comment_e:
-            SerializationError::doThrow("unexpected end");
+            SerializationError::doThrow("unexpected end of json");
 
         case state_number:
             _deserializer->setValue(_token);

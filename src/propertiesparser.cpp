@@ -260,7 +260,7 @@ namespace cxxtools
           ++unicodeCount;
         }
         else if (unicodeCount == 0)
-          throw PropertiesParserError(std::string("invalid unicode sequence \\u") + ch.narrow(), lineNo);
+          throw PropertiesParserError(std::string("invalid unicode sequence \\u") + ch.narrow() + " in properties", lineNo);
         else
         {
           if (state == state_unicode)
@@ -324,7 +324,7 @@ namespace cxxtools
 
       case state_unicode:
         if (unicodeCount == 0)
-          throw PropertiesParserError("invalid unicode sequence at end", lineNo);
+          throw PropertiesParserError("invalid unicode sequence at end of json", lineNo);
 
         value += Char(unicode);
         event.onValue(value);
@@ -337,7 +337,7 @@ namespace cxxtools
 
       case state_key_esc:
       case state_key_unicode:
-        throw PropertiesParserError("parse error while reading key " + Utf8Codec::encode(key), lineNo);
+        throw PropertiesParserError("parse error while reading key " + Utf8Codec::encode(key) + " in properties", lineNo);
     }
   }
 
