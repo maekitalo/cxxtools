@@ -84,11 +84,11 @@ namespace net
             }
 
             /// Set timeout to the given value in milliseconds.
-            void setTimeout(std::size_t timeout)
+            void setTimeout(Milliseconds timeout)
             { _socket.setTimeout(timeout); }
 
             /// Returns the current value for timeout in milliseconds.
-            std::size_t getTimeout() const
+            Milliseconds getTimeout() const
             { return _socket.getTimeout(); }
 
             void close()
