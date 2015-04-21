@@ -43,12 +43,16 @@ namespace cxxtools
     {
         ObjectType& _object;
         std::string _name;
+        bool _envSubst;
+        bool _trim;
 
       public:
         /// Constructor. Needs the wrapped object.
         explicit PropertiesIObject(ObjectType& object, const std::string& name = std::string())
           : _object(object),
-            _name(name)
+            _name(name),
+            _envSubst(false),
+            _trim(false)
         { }
 
         ObjectType& object()
@@ -56,6 +60,26 @@ namespace cxxtools
 
         const std::string& name() const
         { return _name; }
+
+        /// Sets the envSubst flag.
+        /// When set flag is set, environment variables are substituted in the
+        /// value using / `cxxtools::envSubst`.
+        PropertiesIObject& envSubst(bool sw) { _envSubst = sw; return *this; }
+
+        /// Returns the envSubst flag.
+        bool envSubst() const
+        { return _envSubst; }
+
+        /// Sets the trim flag.
+        /// When set flag is set, white space is removed from the beginning
+        /// and end of the values.
+        PropertiesIObject& trim(bool sw)
+        { _trim = sw; return *this; }
+
+        /// Returns the trim flag.
+        bool trim() const
+        { return _trim; }
+
     };
 
     /// The input operator for PropertiesIObject. It does the actual work.

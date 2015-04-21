@@ -39,12 +39,34 @@ namespace cxxtools
         class Ev;
         friend class Ev;
 
+        bool _envSubst;
+        bool _trim;
+
     public:
         PropertiesDeserializer(std::istream& in, TextCodec<Char, char>* codec = 0);
 
         PropertiesDeserializer(std::basic_istream<Char>& in);
 
         PropertiesDeserializer();
+
+        /// Sets the envSubst flag.
+        /// When set flag is set, environment variables are substituted in the
+        /// value using / `cxxtools::envSubst`.
+        void envSubst(bool sw) { _envSubst = sw; }
+
+        /// Returns the envSubst flag.
+        bool envSubst() const
+        { return _envSubst; }
+
+        /// Sets the trim flag.
+        /// When set flag is set, white space is removed from the beginning
+        /// and end of the values.
+        void trim(bool sw)
+        { _trim = sw; }
+
+        /// Returns the trim flag.
+        bool trim() const
+        { return _trim; }
 
     private:
         void doDeserialize(std::basic_istream<Char>& in);

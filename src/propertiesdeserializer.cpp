@@ -29,6 +29,8 @@
 #include <cxxtools/propertiesdeserializer.h>
 #include <cxxtools/utf8codec.h>
 #include <cxxtools/propertiesparser.h>
+#include <cxxtools/envsubst.h>
+#include <cxxtools/trim.h>
 #include <cxxtools/log.h>
 
 log_define("cxxtools.properties.deserializer")
@@ -36,12 +38,16 @@ log_define("cxxtools.properties.deserializer")
 namespace cxxtools
 {
     PropertiesDeserializer::PropertiesDeserializer(std::istream& in, TextCodec<Char, char>* codec)
+        : _envSubst(false),
+          _trim(false)
     {
         TextIStream s(in, codec);
         doDeserialize(s);
     }
 
     PropertiesDeserializer::PropertiesDeserializer(std::basic_istream<Char>& in)
+        : _envSubst(false),
+          _trim(false)
     {
         doDeserialize(in);
     }
@@ -76,12 +82,23 @@ namespace cxxtools
 
     bool PropertiesDeserializer::Ev::onValue(const String& value)
     {
+        String v = value;
+        if (_deserializer._envSubst)
+        {
+            v = Utf8Codec::decode(
+                        cxxtools::envSubst(
+                            Utf8Codec::encode(v)));
+        }
+
+        if (_deserializer._trim)
+            v = cxxtools::trim(v);
+
         SerializationInfo* p = _deserializer.current()->findMember(_longkey);
         if (p == 0)
             p = &_deserializer.current()->addMember(_longkey);
 
-        *p <<= value;
-        p->addMember(std::string()) <<= value;
+        *p <<= v;
+        p->addMember(std::string()) <<= v;
 
         if (_keys.size() > 1)
         {
@@ -89,11 +106,11 @@ namespace cxxtools
             std::string member = _longkey.substr(key.size() + 1);   // foo.bar.baz => bar.baz
             for (unsigned n = 1; n < _keys.size(); ++n )
             {
-                log_debug("add key " << key << " member " << member << " value " << value);
+                log_debug("add key " << key << " member " << member << " value " << v);
                 SerializationInfo* p = _deserializer.current()->findMember(key);
                 if (p == 0)
                     p = &_deserializer.current()->addMember(key);
-                p->addMember(member) <<= value;
+                p->addMember(member) <<= v;
 
                 key += '.';  // foo => foo.bar; foo.bar => foo.bar.baz
                 key += _keys[n];
