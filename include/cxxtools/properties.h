@@ -86,7 +86,10 @@ namespace cxxtools
     template <typename CharType, typename ObjectType>
     std::basic_istream<CharType>& operator>> (std::basic_istream<CharType>& in, PropertiesIObject<ObjectType> object)
     {
-      PropertiesDeserializer deserializer(in);
+      PropertiesDeserializer deserializer;
+      deserializer.envSubst(object.envSubst());
+      deserializer.trim(object.trim());
+      deserializer.read(in);
       if (object.name().empty())
         deserializer.deserialize(object.object());
       else

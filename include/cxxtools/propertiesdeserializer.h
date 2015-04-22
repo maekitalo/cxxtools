@@ -30,7 +30,7 @@
 #define CXXTOOLS_PROPERTIESDESERIALIZER_H
 
 #include <cxxtools/deserializer.h>
-#include <cxxtools/textstream.h>
+#include <cxxtools/textcodec.h>
 
 namespace cxxtools
 {
@@ -48,6 +48,10 @@ namespace cxxtools
         PropertiesDeserializer(std::basic_istream<Char>& in);
 
         PropertiesDeserializer();
+
+        void read(std::istream& in, TextCodec<Char, char>* codec = 0);
+
+        void read(std::basic_istream<Char>& in);
 
         /// Sets the envSubst flag.
         /// When set flag is set, environment variables are substituted in the

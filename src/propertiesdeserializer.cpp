@@ -27,6 +27,7 @@
  */
 
 #include <cxxtools/propertiesdeserializer.h>
+#include <cxxtools/textstream.h>
 #include <cxxtools/utf8codec.h>
 #include <cxxtools/propertiesparser.h>
 #include <cxxtools/envsubst.h>
@@ -48,6 +49,23 @@ namespace cxxtools
     PropertiesDeserializer::PropertiesDeserializer(std::basic_istream<Char>& in)
         : _envSubst(false),
           _trim(false)
+    {
+        doDeserialize(in);
+    }
+
+    PropertiesDeserializer::PropertiesDeserializer()
+        : _envSubst(false),
+          _trim(false)
+    {
+    }
+
+    void PropertiesDeserializer::read(std::istream& in, TextCodec<Char, char>* codec)
+    {
+        TextIStream s(in, codec);
+        doDeserialize(s);
+    }
+
+    void PropertiesDeserializer::read(std::basic_istream<Char>& in)
     {
         doDeserialize(in);
     }
