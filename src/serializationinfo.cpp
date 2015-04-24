@@ -43,13 +43,11 @@ SerializationInfo& SerializationInfo::addMember(const std::string& name)
 
     if (_nodes.empty())
     {
-        log_debug("initial reserve");
         _nodes.reserve(16);
     }
     else if (_nodes.size() == _nodes.capacity())
     {
         // we use swap here to prevent copying subnodes
-        log_debug("extend capacity");
         Nodes nodes;
         nodes.reserve(_nodes.size() + _nodes.size() / 2);
         nodes.resize(_nodes.size());
@@ -58,10 +56,8 @@ SerializationInfo& SerializationInfo::addMember(const std::string& name)
         _nodes.swap(nodes);
     }
 
-    log_debug("resize " << _nodes.size() << " => " << (_nodes.size() + 1));
     _nodes.resize(_nodes.size() + 1);
 
-    log_debug("set name");
     _nodes.back().setName(name);
 
     // category Array overrides Object
@@ -72,7 +68,6 @@ SerializationInfo& SerializationInfo::addMember(const std::string& name)
     if (_category != Array)
         _category = Object;
 
-    log_debug("return");
     return _nodes.back();
 }
 
