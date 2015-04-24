@@ -321,8 +321,12 @@ class BasicTextBuffer : public std::basic_streambuf<CharT>
 
             bool atEof = false;
             const std::streamsize bufavail = _ebufmax - _ebufsize;
-            size = bufavail < size ? bufavail : size;
-            if(size)
+            const std::streamsize in_avail = _target->rdbuf()->in_avail();
+            if (bufavail < size)
+                size = bufavail;
+            if (in_avail > 0 && in_avail < size)
+                size = in_avail;
+            if (size > 0)
             {
                 n = _target->rdbuf()->sgetn( _ebuf + _ebufsize, size );
                 _ebufsize += n;
