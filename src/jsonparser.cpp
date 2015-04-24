@@ -191,7 +191,10 @@ int JsonParser::advance(Char ch)
                     _stringParser.clear();
                 }
                 else if (ch == '}')
+                {
+                    _state = state_end;
                     return 1;
+                }
                 else if (ch == '/')
                 {
                     _nextState = _state;
@@ -274,7 +277,10 @@ int JsonParser::advance(Char ch)
                 if (ch == ',')
                     _state = state_object_next_member;
                 else if (ch == '}')
+                {
+                    _state = state_end;
                     return 1;
+                }
                 else if (ch == '/')
                 {
                     _nextState = _state;
@@ -307,6 +313,7 @@ int JsonParser::advance(Char ch)
             case state_array:
                 if (ch == ']')
                 {
+                    _state = state_end;
                     return 1;
                 }
                 else if (ch == '/')
@@ -340,6 +347,7 @@ int JsonParser::advance(Char ch)
                 {
                     log_debug("leave member");
                     _deserializer->leaveMember();
+                    _state = state_end;
                     return 1;
                 }
                 else if (ch == ',')
@@ -518,6 +526,7 @@ void JsonParser::finish()
         case state_commentline:
         case state_comment:
         case state_comment_e:
+            log_warn("unexpected end of json; state=" << _state);
             SerializationError::doThrow("unexpected end of json");
 
         case state_number:

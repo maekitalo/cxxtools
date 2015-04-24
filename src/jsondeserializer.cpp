@@ -58,7 +58,7 @@ void JsonDeserializer::doDeserialize(std::basic_istream<Char>& in)
         if (ret == -1)
             in.putback(ch);
         if (ret != 0)
-            return;
+            break;
     }
 
     if (in.rdstate() & std::ios::badbit)
