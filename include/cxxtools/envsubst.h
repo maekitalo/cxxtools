@@ -93,7 +93,7 @@ namespace cxxtools
         state_bvarname,
         state_subst0,
         state_subst,
-        state_nosubst,
+        state_nosubst
       } _state;
 
       std::string _varname;
