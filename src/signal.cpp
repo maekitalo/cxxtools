@@ -165,7 +165,7 @@ bool CompareEventTypeInfo::operator()(const std::type_info* t1,
 }
 
 
-Signal<const cxxtools::Event&>::Sentry::Sentry(const Signal* signal)
+Signal<const Event&, Void, Void, Void, Void, Void, Void, Void, Void, Void>::Sentry::Sentry(const Signal* signal)
 : _signal(signal)
 {
     _signal->_sentry = this;
@@ -174,14 +174,14 @@ Signal<const cxxtools::Event&>::Sentry::Sentry(const Signal* signal)
 }
 
 
-Signal<const cxxtools::Event&>::Sentry::~Sentry()
+Signal<const Event&, Void, Void, Void, Void, Void, Void, Void, Void, Void>::Sentry::~Sentry()
 {
     if( _signal )
         this->detach();
 }
 
 
-void Signal<const cxxtools::Event&>::Sentry::detach()
+void Signal<const Event&, Void, Void, Void, Void, Void, Void, Void, Void, Void>::Sentry::detach()
 {
     _signal->_sending = false;
 
@@ -212,14 +212,14 @@ void Signal<const cxxtools::Event&>::Sentry::detach()
 }
 
 
-Signal<const cxxtools::Event&>::Signal()
+Signal<const Event&, Void, Void, Void, Void, Void, Void, Void, Void, Void>::Signal()
 : _sentry(0)
 , _sending(false)
 , _dirty(false)
 {}
 
 
-Signal<const cxxtools::Event&>::~Signal()
+Signal<const Event&, Void, Void, Void, Void, Void, Void, Void, Void, Void>::~Signal()
 {
     if(_sentry)
         _sentry->detach();
@@ -232,7 +232,7 @@ Signal<const cxxtools::Event&>::~Signal()
 }
 
 
-void Signal<const cxxtools::Event&>::send(const cxxtools::Event& ev) const
+void Signal<const Event&, Void, Void, Void, Void, Void, Void, Void, Void, Void>::send(const cxxtools::Event& ev) const
 {
     // The sentry will set the Signal to the sending state and
     // reset it to not-sending upon destruction. In the sending
@@ -291,7 +291,7 @@ void Signal<const cxxtools::Event&>::send(const cxxtools::Event& ev) const
 }
 
 
-void Signal<const cxxtools::Event&>::onConnectionOpen(const Connection& c)
+void Signal<const Event&, Void, Void, Void, Void, Void, Void, Void, Void, Void>::onConnectionOpen(const Connection& c)
 {
     const Connectable& sender = c.sender();
     if(&sender != this)
@@ -301,7 +301,7 @@ void Signal<const cxxtools::Event&>::onConnectionOpen(const Connection& c)
 }
 
 
-void Signal<const cxxtools::Event&>::onConnectionClose(const Connection& c)
+void Signal<const Event&, Void, Void, Void, Void, Void, Void, Void, Void, Void>::onConnectionClose(const Connection& c)
 {
     // if the signal is currently calling its slots, do not
     // remove the connection now, but only set the cleanup flag
@@ -330,14 +330,14 @@ void Signal<const cxxtools::Event&>::onConnectionClose(const Connection& c)
 }
 
 
-void Signal<const cxxtools::Event&>::addRoute(const std::type_info* ti, IEventRoute* route)
+void Signal<const Event&, Void, Void, Void, Void, Void, Void, Void, Void, Void>::addRoute(const std::type_info* ti, IEventRoute* route)
 {
     RouteMap::value_type elem(ti, route);
     _routes.insert( elem );
 }
 
 
-void Signal<const cxxtools::Event&>::removeRoute(const Slot& slot)
+void Signal<const Event&, Void, Void, Void, Void, Void, Void, Void, Void, Void>::removeRoute(const Slot& slot)
 {
     RouteMap::iterator it = _routes.begin();
     while( it != _routes.end() && it->first == 0 )
@@ -352,7 +352,7 @@ void Signal<const cxxtools::Event&>::removeRoute(const Slot& slot)
 }
 
 
-void Signal<const cxxtools::Event&>::removeRoute(const std::type_info* ti, const Slot& slot)
+void Signal<const Event&, Void, Void, Void, Void, Void, Void, Void, Void, Void>::removeRoute(const std::type_info* ti, const Slot& slot)
 {
     RouteMap::iterator it = _routes.lower_bound( ti );
     while(it != _routes.end() && *(it->first) == *ti)
