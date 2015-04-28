@@ -29,6 +29,7 @@
 #include "cxxtools/unit/testsuite.h"
 #include "cxxtools/unit/registertest.h"
 #include "cxxtools/jsondeserializer.h"
+#include "cxxtools/json.h"
 #include "cxxtools/log.h"
 
 //log_define("cxxtools.test.jsondeserializer")
@@ -106,6 +107,8 @@ class JsonDeserializerTest : public cxxtools::unit::TestSuite
             registerMethod("testComplexObject", *this, &JsonDeserializerTest::testComplexObject);
             registerMethod("testCommentLine", *this, &JsonDeserializerTest::testCommentLine);
             registerMethod("testCommentMultiline", *this, &JsonDeserializerTest::testCommentMultiline);
+            registerMethod("testMultipleObjectsT", *this, &JsonDeserializerTest::testMultipleObjectsT);
+            registerMethod("testMultipleObjectsI", *this, &JsonDeserializerTest::testMultipleObjectsI);
         }
 
         void testInt()
@@ -302,6 +305,46 @@ class JsonDeserializerTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(data.boolValue, true);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data.nullValue, true);
         }
+
+        void testMultipleObjectsT()
+        {
+            std::vector<int> data;
+            std::istringstream in("[3][4] [5]");
+            cxxtools::TextIStream tin(in, new cxxtools::Utf8Codec());
+
+            tin >> cxxtools::Json(data);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 1);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0], 3);
+
+            tin >> cxxtools::Json(data);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 1);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0], 4);
+
+            tin >> cxxtools::Json(data);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 1);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0], 5);
+
+        }
+
+        void testMultipleObjectsI()
+        {
+            std::vector<int> data;
+            std::istringstream in("[3][4] [5]");
+
+            in >> cxxtools::Json(data);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 1);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0], 3);
+
+            in >> cxxtools::Json(data);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 1);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0], 4);
+
+            in >> cxxtools::Json(data);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 1);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0], 5);
+
+        }
+
 };
 
 cxxtools::unit::RegisterTest<JsonDeserializerTest> register_JsonDeserializerTest;

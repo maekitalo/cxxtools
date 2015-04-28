@@ -119,8 +119,6 @@ namespace cxxtools
             { return _parser.finish(); }
 
         private:
-            void doDeserialize(std::basic_istream<Char>& in);
-
             JsonParser _parser;
     };
 }

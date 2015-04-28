@@ -30,24 +30,82 @@
 
 namespace cxxtools
 {
+
+namespace
+{
+    struct CodecReleaser
+    {
+        TextCodec<Char, char>* _codec;
+        CodecReleaser(TextCodec<Char, char>* codec)
+            : _codec(codec)
+        { }
+
+        ~CodecReleaser()
+        {
+            if (_codec->refs() == 0)
+                delete _codec;
+        }
+
+    private:
+        CodecReleaser(const CodecReleaser&)  { }
+        void operator=(const CodecReleaser&)  { }
+    };
+}
+
 JsonDeserializer::JsonDeserializer(std::istream& in, TextCodec<Char, char>* codec)
 {
-  TextIStream s(in, codec);
-  doDeserialize(s);
+    CodecReleaser r(codec);
+
+    char ibuf;
+    Char obuf;
+
+    const char* fromBegin = &ibuf;
+    const char* fromEnd = (&ibuf) + 1;
+    const char* fromNext = fromEnd;
+    Char* toBegin = &obuf;
+    Char* toEnd = (&obuf) + 1;
+    Char* toNext = &obuf;
+    MBState mbstate;
+
+    begin();
+
+    while (true)
+    {
+        if (fromNext > fromBegin)
+        {
+            if (!in.get(ibuf))
+                break;
+            fromNext = fromBegin;
+        }
+
+        if (fromNext < fromEnd || toNext < toEnd)
+        {
+            std::codecvt_base::result r = codec->in(mbstate, fromBegin, fromEnd, fromNext, toBegin, toEnd, toNext);
+            if (r == std::codecvt_base::error)
+            {
+                in.setstate(std::ios::failbit);
+                return;
+            }
+        }
+
+        if (toNext > toBegin)
+        {
+            int ret = advance(obuf);
+            if (ret == -1)
+                in.putback(ibuf);
+            if (ret != 0)
+                break;
+            toNext = &obuf;
+        }
+    }
+
+    if (in.rdstate() & std::ios::badbit)
+        SerializationError::doThrow("json deserialization failed");
+
+    finish();
 }
 
 JsonDeserializer::JsonDeserializer(std::basic_istream<Char>& in)
-{
-  doDeserialize(in);
-}
-
-void JsonDeserializer::begin()
-{
-    Deserializer::begin();
-    _parser.begin(*this);
-}
-
-void JsonDeserializer::doDeserialize(std::basic_istream<Char>& in)
 {
     begin();
     Char ch;
@@ -66,4 +124,11 @@ void JsonDeserializer::doDeserialize(std::basic_istream<Char>& in)
 
     finish();
 }
+
+void JsonDeserializer::begin()
+{
+    Deserializer::begin();
+    _parser.begin(*this);
+}
+
 }
