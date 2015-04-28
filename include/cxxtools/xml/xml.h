@@ -108,6 +108,7 @@ namespace xml
       catch (const std::exception&)
       {
         out.setstate(std::ios::failbit);
+        throw;
       }
 
       return out;
@@ -175,10 +176,18 @@ namespace xml
     template <typename CharType, typename ObjectType>
     std::basic_istream<CharType>& operator>> (std::basic_istream<CharType>& in, XmlIObject<ObjectType> object)
     {
-      XmlDeserializer deserializer;
-      deserializer.readAttributes(object.readAttributes());
-      deserializer.parse(in);
-      deserializer.deserialize(object.object());
+      try
+      {
+        XmlDeserializer deserializer;
+        deserializer.readAttributes(object.readAttributes());
+        deserializer.parse(in);
+        deserializer.deserialize(object.object());
+      }
+      catch (const std::exception&)
+      {
+        in.setstate(std::ios::failbit);
+        throw;
+      }
       return in;
     }
 

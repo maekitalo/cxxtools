@@ -113,6 +113,7 @@ namespace cxxtools
       catch (const std::exception&)
       {
         out.setstate(std::ios::failbit);
+        throw;
       }
 
       return out;
@@ -174,6 +175,7 @@ namespace cxxtools
       catch (const std::exception&)
       {
         in.setstate(std::ios::failbit);
+        throw;
       }
 
       return in;
