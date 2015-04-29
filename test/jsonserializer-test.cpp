@@ -29,6 +29,7 @@
 #include "cxxtools/unit/testsuite.h"
 #include "cxxtools/unit/registertest.h"
 #include "cxxtools/jsonserializer.h"
+#include "cxxtools/json.h"
 
 namespace
 {
@@ -91,6 +92,7 @@ class JsonSerializerTest : public cxxtools::unit::TestSuite
             registerMethod("testPlainEmpty", *this, &JsonSerializerTest::testPlainEmpty);
             registerMethod("testEmptyObject", *this, &JsonSerializerTest::testEmptyObject);
             registerMethod("testDirect", *this, &JsonSerializerTest::testDirect);
+            registerMethod("testPlainkey", *this, &JsonSerializerTest::testPlainkey);
         }
 
         void testInt()
@@ -261,6 +263,26 @@ class JsonSerializerTest : public cxxtools::unit::TestSuite
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(out.str(), "{\"a\":42,\"jsonData\":{ b: 17; c: \"Hi there\" }}");
 
+        }
+
+        void testPlainkey()
+        {
+            TestObject data;
+            data.intValue = 17;
+            data.stringValue = "foobar";
+            data.doubleValue = 1.5;
+            data.boolValue = false;
+
+            std::ostringstream out;
+            out << cxxtools::Json(data).plainkey(true);
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(out.str(), "{"
+                "intValue:17,"
+                "stringValue:\"foobar\","
+                "doubleValue:1.5,"
+                "boolValue:false,"
+                "nullValue:null"
+                "}");
         }
 };
 

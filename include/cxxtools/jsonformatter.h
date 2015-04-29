@@ -41,7 +41,8 @@ namespace cxxtools
                 : _ts(0),
                   _level(1),
                   _lastLevel(0),
-                  _beautify(false)
+                  _beautify(false),
+                  _plainkey(false)
             {
             }
 
@@ -49,7 +50,8 @@ namespace cxxtools
                 : _ts(0),
                   _level(1),
                   _lastLevel(0),
-                  _beautify(false)
+                  _beautify(false),
+                  _plainkey(false)
             {
                 begin(ts);
             }
@@ -94,6 +96,10 @@ namespace cxxtools
 
             void beautify(bool sw)    { _beautify = sw; }
 
+            bool plainkey() const     { return _plainkey; }
+
+            void plainkey(bool sw)    { _plainkey = sw; }
+
             void beginValue(const std::string& name);
 
             void finishValue();
@@ -107,6 +113,7 @@ namespace cxxtools
             unsigned _level;
             unsigned _lastLevel;
             bool _beautify;
+            bool _plainkey;
     };
 
 }

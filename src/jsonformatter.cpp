@@ -320,6 +320,24 @@ void JsonFormatter::indent()
         *_ts << L'\t';
 }
 
+namespace
+{
+    bool isplain(const std::string& str)
+    {
+        if (str.empty())
+            return false;
+
+        if (!std::isalpha(str[0]))
+            return false;
+
+        for (std::string::size_type n = 1; n < str.size(); ++n)
+            if (!std::isalnum(str[n]))
+                return false;
+
+        return true;
+    }
+}
+
 void JsonFormatter::stringOut(const std::string& str)
 {
     for (std::string::const_iterator it = str.begin(); it != str.end(); ++it)
@@ -424,10 +442,19 @@ void JsonFormatter::beginValue(const std::string& name)
 
     if (!name.empty())
     {
-        *_ts << L'"';
-        stringOut(name);
-        *_ts << L'"'
-             << L':';
+        if (_plainkey && isplain(name))
+        {
+            for (std::string::size_type n = 0; n < name.size(); ++n)
+                *_ts << Char(name[n]);
+        }
+        else
+        {
+            *_ts << L'"';
+            stringOut(name);
+            *_ts << L'"';
+        }
+
+        *_ts << L':';
         if (_beautify)
             *_ts << L' ';
     }

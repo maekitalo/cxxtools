@@ -189,6 +189,10 @@ namespace cxxtools
 
             void beautify(bool sw)    { _formatter.beautify(sw); }
 
+            bool plainkey() const     { return _formatter.plainkey(); }
+
+            void plainkey(bool sw)    { _formatter.plainkey(sw); }
+
             template <typename T>
             static std::string toString(const T& type, const std::string& name, bool beautify = false)
             {

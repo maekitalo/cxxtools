@@ -57,13 +57,15 @@ namespace cxxtools
     {
         const ObjectType& _constObject;
         bool _beautify;
+        bool _plainkey;
 
       public:
         /// Constructor. Needs the wrapped object. Optionally a flag can be
         /// passed whether the json should be nicely formatted.
         explicit JsonOObject(const ObjectType& object, bool beautify = false)
           : _constObject(object),
-            _beautify(beautify)
+            _beautify(beautify),
+            _plainkey(false)
         { }
 
         /// Sets the formatting for json. If the passed flag is true, enables
@@ -74,6 +76,12 @@ namespace cxxtools
 
         bool beautify() const
         { return _beautify; }
+
+        JsonOObject& plainkey(bool sw)
+        { _plainkey = sw; return *this; }
+
+        bool plainkey() const
+        { return _plainkey; }
 
         const ObjectType& object() const
         { return _constObject; }
@@ -87,6 +95,7 @@ namespace cxxtools
       {
         JsonSerializer serializer(out);
         serializer.beautify(object.beautify());
+        serializer.plainkey(object.plainkey());
         serializer.serialize(object.object())
                   .finish();
       }
