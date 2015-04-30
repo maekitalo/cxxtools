@@ -57,6 +57,23 @@ namespace
         si.addMember("nullValue");
     }
 
+    // test object for plain key test
+    struct PlainKeyObject
+    {
+        int a;
+        int b;
+        int c;
+        int d;
+    };
+
+    inline void operator<<= (cxxtools::SerializationInfo& si, const PlainKeyObject& obj)
+    {
+        si.addMember("a a") <<= obj.a;
+        si.addMember("1b") <<= obj.b;
+        si.addMember("c-c") <<= obj.c;
+        si.addMember("ddd") <<= obj.d;
+    }
+
     struct JsonData
     {
         int a;
@@ -92,6 +109,7 @@ class JsonSerializerTest : public cxxtools::unit::TestSuite
             registerMethod("testPlainEmpty", *this, &JsonSerializerTest::testPlainEmpty);
             registerMethod("testEmptyObject", *this, &JsonSerializerTest::testEmptyObject);
             registerMethod("testDirect", *this, &JsonSerializerTest::testDirect);
+            registerMethod("testEasyJson", *this, &JsonSerializerTest::testEasyJson);
             registerMethod("testPlainkey", *this, &JsonSerializerTest::testPlainkey);
         }
 
@@ -265,7 +283,7 @@ class JsonSerializerTest : public cxxtools::unit::TestSuite
 
         }
 
-        void testPlainkey()
+        void testEasyJson()
         {
             TestObject data;
             data.intValue = 17;
@@ -274,15 +292,54 @@ class JsonSerializerTest : public cxxtools::unit::TestSuite
             data.boolValue = false;
 
             std::ostringstream out;
-            out << cxxtools::Json(data).plainkey(true);
+            out << cxxtools::Json(data);
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(out.str(), "{"
-                "intValue:17,"
-                "stringValue:\"foobar\","
-                "doubleValue:1.5,"
-                "boolValue:false,"
-                "nullValue:null"
+                "\"intValue\":17,"
+                "\"stringValue\":\"foobar\","
+                "\"doubleValue\":1.5,"
+                "\"boolValue\":false,"
+                "\"nullValue\":null"
                 "}");
+        }
+
+        void testPlainkey()
+        {
+            {
+                TestObject data;
+                data.intValue = 17;
+                data.stringValue = "foobar";
+                data.doubleValue = 1.5;
+                data.boolValue = false;
+
+                std::ostringstream out;
+                out << cxxtools::Json(data).plainkey(true);
+
+                CXXTOOLS_UNIT_ASSERT_EQUALS(out.str(), "{"
+                    "intValue:17,"
+                    "stringValue:\"foobar\","
+                    "doubleValue:1.5,"
+                    "boolValue:false,"
+                    "nullValue:null"
+                    "}");
+            }
+
+            {
+                PlainKeyObject o;
+                o.a = 1;
+                o.b = 2;
+                o.c = 3;
+                o.d = 4;
+
+                std::ostringstream out;
+                out << cxxtools::Json(o).plainkey(true);
+
+                CXXTOOLS_UNIT_ASSERT_EQUALS(out.str(), "{"
+                    "\"a a\":1,"
+                    "\"1b\":2,"
+                    "\"c-c\":3,"
+                    "ddd:4}");
+            }
         }
 };
 
