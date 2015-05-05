@@ -269,6 +269,16 @@ class SerializationInfo
         */
         SerializationInfo& addMember(const std::string& name = std::string());
 
+        /** @brief Returns a member; adds when not yet found
+         */
+        SerializationInfo& getAddMember(const std::string& name)
+        {
+            SerializationInfo* si = findMember(name);
+            if (si == 0)
+                return addMember(name);
+            return *si;
+        }
+
         /** @brief Deserialization of member data
 
             @throws SerializationError when member is not found.
