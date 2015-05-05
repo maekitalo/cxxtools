@@ -234,13 +234,9 @@ class PropertiesTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(v, 5);
 
             v = 0;
-            CXXTOOLS_UNIT_ASSERT_NOTHROW(si.getMember("a").getMember(0) >>= v);
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(
+                si.getMember("a").getMember("b").getMember("c").getMember("d") >>= v);
             CXXTOOLS_UNIT_ASSERT_EQUALS(v, 5);
-
-            v = 0;
-            CXXTOOLS_UNIT_ASSERT_NOTHROW(si.getMember("a").getMember(1) >>= v);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(v, 7);
-
         }
 
         void testIStream()
@@ -318,6 +314,7 @@ class PropertiesTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(v, "");
 
         }
+
 };
 
 cxxtools::unit::RegisterTest<PropertiesTest> register_PropertiesTest;

@@ -88,18 +88,22 @@ namespace cxxtools
 
     bool PropertiesDeserializer::Ev::onKeyPart(const String& key)
     {
+        log_finer("onKeyPart(" << key << ')');
         _keys.push_back(Utf8Codec::encode(key));
         return false;
     }
 
     bool PropertiesDeserializer::Ev::onKey(const String& key)
     {
+        log_finer("onKey(" << key << ')');
         _longkey = Utf8Codec::encode(key);
         return false;
     }
 
     bool PropertiesDeserializer::Ev::onValue(const String& value)
     {
+        log_finer("onValue(" << value << ')');
+
         String v = value;
         if (_deserializer._envSubst)
         {
@@ -113,15 +117,18 @@ namespace cxxtools
 
         SerializationInfo* p = _deserializer.current()->findMember(_longkey);
         if (p == 0)
+        {
             p = &_deserializer.current()->addMember(_longkey);
+            *p <<= v;
+        }
 
-        *p <<= v;
         p->addMember(std::string()) <<= v;
 
         if (_keys.size() > 1)
         {
             std::string key = _keys[0];          // foo.bar.baz => foo
             std::string member = _longkey.substr(key.size() + 1);   // foo.bar.baz => bar.baz
+            SerializationInfo* pp = &_deserializer.current()->getAddMember(_keys[0]);
             for (unsigned n = 1; n < _keys.size(); ++n )
             {
                 log_debug("add key " << key << " member " << member << " value " << v);
@@ -134,7 +141,11 @@ namespace cxxtools
                 key += _keys[n];
 
                 member.erase(0, _keys[n].size() + 1);   // bar.baz => baz
+
+                pp = &pp->getAddMember(_keys[n]);
             }
+
+            *pp <<= v;
         }
 
         _keys.clear();
