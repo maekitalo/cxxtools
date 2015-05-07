@@ -64,9 +64,12 @@ DateTime::DateTime(const std::string& str, const std::string& fmt)
           state = state_fmt;
         else
         {
-          if (dit == str.end() || *dit != ch)
+          if (ch == '*')
+            skipNonDigit(dit, str.end());
+          else if (dit == str.end() || (*dit != ch && ch != '?'))
             throw std::runtime_error("string <" + str + "> does not match datetime format <" + fmt + '>');
-          ++dit;
+          else
+            ++dit;
         }
         break;
 

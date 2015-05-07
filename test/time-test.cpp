@@ -97,6 +97,14 @@ class TimeTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(seconds, 14);
             CXXTOOLS_UNIT_ASSERT_EQUALS(milliseconds, 0);
 
+            dt = cxxtools::Time("9    13 b 54  xx  ", "%H*%M*%S*");
+
+            dt.get(hours, minutes, seconds, milliseconds);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(hours, 9);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(minutes, 13);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(seconds, 54);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(milliseconds, 0);
+
         }
 
         void toString()

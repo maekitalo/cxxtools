@@ -91,9 +91,12 @@ Date::Date(const std::string& str, const std::string& fmt)
           state = state_fmt;
         else
         {
-          if (*dit != ch)
+          if (ch == '*')
+            skipNonDigit(dit, str.end());
+          else if (*dit != ch && ch != '?')
             throw std::runtime_error("string <" + str + "> does not match date format <" + fmt + '>');
-          ++dit;
+          else
+            ++dit;
         }
         break;
 

@@ -65,6 +65,8 @@ class DateTime
               %K   milliseconds (3 digits, with leading '.')
               %k   milliseconds (3 digits)
               %p   AM/PM
+              ?    arbitrary character
+              *    skip non digit characters
          */
         explicit DateTime(const std::string& d, const std::string& fmt = "%Y-%m-%d %H:%M:%S%j");
 

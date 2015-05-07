@@ -33,6 +33,7 @@
 
 namespace cxxtools
 {
+  void skipNonDigit(std::string::const_iterator& b, std::string::const_iterator e);
   unsigned getUnsigned(std::string::const_iterator& b, std::string::const_iterator e, unsigned digits);
   unsigned getInt(std::string::const_iterator& b, std::string::const_iterator e, unsigned digits);
   unsigned getMilliseconds(std::string::const_iterator& b, std::string::const_iterator e);

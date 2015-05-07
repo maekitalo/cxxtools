@@ -163,6 +163,8 @@ class Date
               %y   2 digit year
               %m   month (1-12)
               %d   day (1-31)
+              ?    arbitrary character
+              *    skip non digit characters
          */
         explicit Date(const std::string& d, const std::string& fmt = "%Y-%m-%d");
 

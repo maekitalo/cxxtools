@@ -62,6 +62,27 @@ class DateTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(month, 5);
             CXXTOOLS_UNIT_ASSERT_EQUALS(day, 3);
 
+            dt = cxxtools::Date("20140802", "%Y%m%d");
+
+            dt.get(year, month, day);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(year, 2014);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(month, 8);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(day, 2);
+
+            dt = cxxtools::Date("1975H11#12", "%Y?%m?%d");
+
+            dt.get(year, month, day);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(year, 1975);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(month, 11);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(day, 12);
+
+            dt = cxxtools::Date("1893 foobar 10 hi there 30", "%Y*%m*%d");
+
+            dt.get(year, month, day);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(year, 1893);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(month, 10);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(day, 30);
+
         }
 
         void toString()
@@ -73,6 +94,9 @@ class DateTest : public cxxtools::unit::TestSuite
 
           str = dt.toString("%Y %m %d");
           CXXTOOLS_UNIT_ASSERT_EQUALS(str, "2013 05 03");
+
+          str = dt.toString("%Y%m%d");
+          CXXTOOLS_UNIT_ASSERT_EQUALS(str, "20130503");
 
           str = dt.toString("%w %W");
           CXXTOOLS_UNIT_ASSERT_EQUALS(str, "5 5");

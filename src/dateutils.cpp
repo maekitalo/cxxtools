@@ -32,6 +32,12 @@
 
 namespace cxxtools
 {
+  void skipNonDigit(std::string::const_iterator& b, std::string::const_iterator e)
+  {
+    while (b != e && !std::isdigit(*b))
+      ++b;
+  }
+
   unsigned getUnsigned(std::string::const_iterator& b, std::string::const_iterator e, unsigned digits)
   {
     if (b == e || !std::isdigit(*b))

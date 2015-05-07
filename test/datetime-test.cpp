@@ -111,6 +111,17 @@ class DateTimeTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(seconds, 14);
             CXXTOOLS_UNIT_ASSERT_EQUALS(milliseconds, 0);
 
+            dt = cxxtools::DateTime("2013 foo 5 bar 3 5   01     14 pm", "%Y*%m*%d*%H*%M*%S %p");
+
+            dt.get(year, month, day, hours, minutes, seconds, milliseconds);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(year, 2013);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(month, 5);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(day, 3);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(hours, 17);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(minutes, 1);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(seconds, 14);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(milliseconds, 0);
+
         }
 
         void toString()
