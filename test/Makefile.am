@@ -6,6 +6,9 @@ noinst_PROGRAMS = \
     rpcbenchasyncclient \
     rpcbenchserver
 
+noinst_HEADERS = \
+    color.h
+
 AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/include -I$(top_srcdir)/include
 
 alltests_SOURCES = \
