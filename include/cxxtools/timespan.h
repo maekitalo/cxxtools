@@ -92,6 +92,9 @@ class Timespan
         Timespan& operator-=(const Timespan& d)
         { _span -= d._span; return *this; }
 
+        Timespan& operator-()
+        { _span = -_span; return *this; }
+
         //! @brief Returns the total number of hours.
         double totalDays() const
         { return double(_span) / 1000 / 1000 / 60 / 60 / 24; }

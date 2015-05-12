@@ -97,6 +97,8 @@ class TimespanTest : public cxxtools::unit::TestSuite
             t -= t2;
             CXXTOOLS_UNIT_ASSERT_EQUALS(t, cxxtools::Timespan(3900));
 
+            t = -t1;
+            CXXTOOLS_UNIT_ASSERT_EQUALS(t, cxxtools::Timespan(-4000));
         }
 
         void microseconds()
