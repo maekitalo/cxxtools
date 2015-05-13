@@ -189,18 +189,25 @@ void LogconfigurationTest::hierachicalTest()
   std::istringstream properties(
     "rootlogger=WARN\n"
     "logger.cat1=INFO\n"
-    "logger.cat1.sub1=ERROR\n");
+    "logger.cat1.sub1=ERROR\n"
+    "logger.cat2.sub3=|INFO\n");
 
   cxxtools::LogConfiguration config;
   properties >> cxxtools::Properties(config);
 
   cxxtools::Logger cat1("cat1", config.logFlags("cat1"));
+  cxxtools::Logger cat2("cat2", config.logFlags("cat2"));
   cxxtools::Logger sub1("sub1", config.logFlags("cat1.sub1"));
   cxxtools::Logger sub2("sub2", config.logFlags("cat1.sub2"));
+  cxxtools::Logger sub3("sub3", config.logFlags("cat2.sub3"));
 
   CXXTOOLS_UNIT_ASSERT(cat1.isEnabled(cxxtools::Logger::LOG_WARN));
   CXXTOOLS_UNIT_ASSERT(cat1.isEnabled(cxxtools::Logger::LOG_INFO));
   CXXTOOLS_UNIT_ASSERT(!cat1.isEnabled(cxxtools::Logger::LOG_DEBUG));
+
+  CXXTOOLS_UNIT_ASSERT(cat2.isEnabled(cxxtools::Logger::LOG_WARN));
+  CXXTOOLS_UNIT_ASSERT(!cat2.isEnabled(cxxtools::Logger::LOG_INFO));
+  CXXTOOLS_UNIT_ASSERT(!cat2.isEnabled(cxxtools::Logger::LOG_DEBUG));
 
   CXXTOOLS_UNIT_ASSERT(!sub1.isEnabled(cxxtools::Logger::LOG_WARN));
   CXXTOOLS_UNIT_ASSERT(!sub1.isEnabled(cxxtools::Logger::LOG_INFO));
@@ -209,6 +216,10 @@ void LogconfigurationTest::hierachicalTest()
   CXXTOOLS_UNIT_ASSERT(sub2.isEnabled(cxxtools::Logger::LOG_WARN));
   CXXTOOLS_UNIT_ASSERT(sub2.isEnabled(cxxtools::Logger::LOG_INFO));
   CXXTOOLS_UNIT_ASSERT(!sub2.isEnabled(cxxtools::Logger::LOG_DEBUG));
+
+  CXXTOOLS_UNIT_ASSERT(!sub3.isEnabled(cxxtools::Logger::LOG_WARN));
+  CXXTOOLS_UNIT_ASSERT(sub3.isEnabled(cxxtools::Logger::LOG_INFO));
+  CXXTOOLS_UNIT_ASSERT(!sub3.isEnabled(cxxtools::Logger::LOG_DEBUG));
 
 }
 

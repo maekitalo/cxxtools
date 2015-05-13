@@ -774,13 +774,11 @@ namespace cxxtools
         int flag;
 
         it->getValue(flagstr);
-
-        if (flagstr.empty())
-          flag = Logger::LOG_LEVEL_FATAL;
-        else
+        if (!flagstr.empty())
+        {
           flag = str2logflags(flagstr, category);
-
-        impl._logFlags[category] = flag;
+          impl._logFlags[category] = flag;
+        }
       }
     }
   }
