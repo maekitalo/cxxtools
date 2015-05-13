@@ -1811,7 +1811,7 @@ const StartElement& XmlReader::nextElement()
         {
             case Node::EndDocument:
             {
-                throw std::logic_error("End of document");
+                throw XmlNoDocument(line());
             }
             case Node::StartElement:
                 found = true;
@@ -1837,7 +1837,7 @@ const Node& XmlReader::nextTag()
         {
             case Node::EndDocument:
             {
-                throw std::logic_error("End of document");
+                throw XmlUnexpectedEndOfDocument(line());
             }
             case Node::StartElement:
             case Node::EndElement:

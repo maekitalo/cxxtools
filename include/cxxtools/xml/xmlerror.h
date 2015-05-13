@@ -51,6 +51,28 @@ class XmlError : public std::runtime_error
         unsigned _line;
 };
 
+/// Exception is thrown when trying to read a xml document but nothing was read.
+///
+/// It may not be really an error but just eof when no document is read at all.
+class XmlNoDocument : public XmlError
+{
+    public:
+        explicit XmlNoDocument(unsigned line)
+            : XmlError("no xml document read", line)
+        { }
+};
+
+/// Exception is thrown when trying to read a xml document but the underlying stream fails.
+///
+/// It is really an error if a document is just partly read.
+class XmlUnexpectedEndOfDocument : public XmlError
+{
+    public:
+        explicit XmlUnexpectedEndOfDocument(unsigned line)
+            : XmlError("unexpected end of xml", line)
+        { }
+};
+
 }
 
 }

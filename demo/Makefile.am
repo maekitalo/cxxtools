@@ -6,7 +6,7 @@ noinst_PROGRAMS = arg arg-set cgi dir dlloader getini hd \
 	netio netmsg pipestream pool signals thread threadpool uuencode cxxlog \
 	rpcserver rpcechoclient rpcaddclient splitter json jsonbeautify regex execLs rpcasyncaddclient \
 	deserialization serialization rpcparallelecho timer xmlreader \
-	msgclient msgserver future
+	msgclient msgserver xmlmsgclient xmlmsgserver future
 
 arg_SOURCES = arg.cpp
 arg_set_SOURCES = arg-set.cpp
@@ -49,6 +49,8 @@ timer_SOURCES = timer.cpp
 xmlreader_SOURCES = xmlreader.cpp
 msgclient_SOURCES = msgclient.cpp
 msgserver_SOURCES = msgserver.cpp
+xmlmsgclient_SOURCES = xmlmsgclient.cpp
+xmlmsgserver_SOURCES = xmlmsgserver.cpp
 future_SOURCES = future.cpp
 
 if MAKE_ICONVSTREAM
@@ -77,6 +79,8 @@ rpcasyncaddclient_LDADD = $(XMLRPC_LIBS) $(BIN_LIBS) $(JSON_LIBS)
 rpcparallelecho_LDADD = $(BIN_LIBS)
 msgclient_LDADD = $(BIN_LIBS)
 msgserver_LDADD = $(BIN_LIBS)
+xmlmsgclient_LDADD = $(XMLRPC_LIBS)
+xmlmsgserver_LDADD = $(XMLRPC_LIBS)
 
 log.xml:
 	/bin/sh $(top_builddir)/cxxtools-config --logxml cxxtools >$@
