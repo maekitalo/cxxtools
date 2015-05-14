@@ -30,6 +30,7 @@
 
 #include <string>
 #include <stdexcept>
+#include <cxxtools/timespan.h>
 
 namespace cxxtools
 {
@@ -236,12 +237,6 @@ class Date
         */
         bool leapYear() const;
 
-        // TODO: move to cxxtools:.System
-        //static Date localDate();
-
-        // TODO: move to cxxtools:.System
-        //static Date universalDate();
-
         /** @brief Assignment operator
         */
         Date& operator=(const Date& date)
@@ -252,7 +247,7 @@ class Date
         Date& operator+=(int days)
         { _julian += days; return *this; }
 
-        /** @brief Substract days from the date
+        /** @brief Subtract days from the date
         */
         Date& operator-=(int days)
         { _julian -= days; return *this; }
@@ -301,7 +296,7 @@ class Date
 
         friend inline Date operator+(int days, const Date& d);
 
-        friend inline int operator-(const Date& a, const Date& b);
+        friend inline Days operator-(const Date& a, const Date& b);
 
         /** \brief format Date into a string using a format string
 
@@ -456,8 +451,8 @@ inline Date operator+(int days, const Date& d)
 { return Date(days + d._julian); }
 
 
-inline int operator-(const Date& a, const Date& b)
-{ return a._julian - b._julian; }
+inline Days operator-(const Date& a, const Date& b)
+{ return Days(a._julian - b._julian); }
 
 }
 

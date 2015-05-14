@@ -28,6 +28,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 #include "cxxtools/datetime.h"
+#include "cxxtools/clock.h"
 #include "cxxtools/serializationinfo.h"
 #include "dateutils.h"
 #include <stdexcept>
@@ -157,10 +158,20 @@ DateTime::DateTime(const std::string& str, const std::string& fmt)
   set(year, month, day, am ? hours : hours + 12, minutes, seconds, mseconds);
 }
 
-int64_t DateTime::msecsSinceEpoch() const
+DateTime DateTime::gmtime()
+{
+    return Clock::getSystemTime();
+}
+
+DateTime DateTime::localtime()
+{
+    return Clock::getLocalTime();
+}
+
+Milliseconds DateTime::msecsSinceEpoch() const
 {
     static const DateTime dt(1970, 1, 1, 0, 0, 0);
-    return (*this - dt).totalMSecs();
+    return *this - dt;
 }
 
 std::string DateTime::toString(const std::string& fmt) const
@@ -252,41 +263,21 @@ std::string DateTime::toString(const std::string& fmt) const
 
 DateTime& DateTime::operator+=(const Timespan& ts)
 {
-    int64_t totalMSecs = ts.totalMSecs();
-    int64_t days = totalMSecs / Time::MSecsPerDay;
-    int64_t overrun = totalMSecs % Time::MSecsPerDay;
+    int64_t totalUSecs = ts.totalUSecs();
+    int64_t days = totalUSecs / Time::USecsPerDay;
+    int64_t overrun = totalUSecs % Time::USecsPerDay;
 
-    if( (-overrun) > _time.totalMSecs()  )
+    if ((-overrun) > static_cast<int64_t>(_time.totalUSecs()) )
     {
         days -= 1;
     }
-    else if( overrun + _time.totalMSecs() > Time::MSecsPerDay)
+    else if (overrun + _time.totalUSecs() > Time::USecsPerDay)
     {
         days += 1;
     }
 
     _date += static_cast<int>(days);
-    _time += Timespan(overrun * 1000);
-    return *this;
-}
-
-DateTime& DateTime::operator-=(const Timespan& ts)
-{
-    int64_t totalMSecs = ts.totalMSecs();
-    int64_t days = totalMSecs / Time::MSecsPerDay;
-    int64_t overrun = totalMSecs % Time::MSecsPerDay;
-
-    if( overrun > _time.totalMSecs() )
-    {
-        days += 1;
-    }
-    else if(_time.totalMSecs() - overrun > Time::MSecsPerDay)
-    {
-        days -= 1;
-    }
-
-    _date -= static_cast<int>(days);
-    _time -= Timespan( overrun * 1000 );
+    _time += Microseconds(overrun);
     return *this;
 }
 

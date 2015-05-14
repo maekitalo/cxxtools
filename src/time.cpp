@@ -31,6 +31,7 @@
 #include "cxxtools/serializationinfo.h"
 #include "dateutils.h"
 #include <stdexcept>
+#include <sstream>
 #include <cctype>
 
 namespace cxxtools
@@ -41,7 +42,7 @@ InvalidTime::InvalidTime()
 { }
 
 Time::Time(const std::string& str, const std::string& fmt)
-: _msecs(0)
+: _usecs(0)
 {
   unsigned hours = 0;
   unsigned minutes = 0;
@@ -221,6 +222,33 @@ std::string Time::toString(const std::string& fmt) const
   return str;
 }
 
+Time& Time::operator+=(const Timespan& ts)
+{
+    double microsecs = _usecs + Microseconds(ts);
+    if (microsecs < 0 || microsecs > MSecsPerDay * 1000.0)
+    {
+        std::ostringstream s;
+        s << "cannot add " << Microseconds(ts) << " to " << toString();
+        throw std::overflow_error(s.str());
+    }
+
+    _usecs = static_cast<unsigned long>(microsecs);
+    return *this;
+}
+
+Time& Time::operator-=(const Timespan& ts)
+{
+    double microsecs = _usecs - Microseconds(ts);
+    if (microsecs < 0 || microsecs > MSecsPerDay * 1000.0)
+    {
+        std::ostringstream s;
+        s << "cannot subtract " << Microseconds(ts) << " from " << toString();
+        throw std::overflow_error(s.str());
+    }
+
+    _usecs = static_cast<unsigned long>(microsecs);
+    return *this;
+}
 
 void operator >>=(const SerializationInfo& si, Time& time)
 {

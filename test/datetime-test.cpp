@@ -38,6 +38,7 @@ class DateTimeTest : public cxxtools::unit::TestSuite
         : cxxtools::unit::TestSuite("datetime")
         {
             registerMethod("diff", *this, &DateTimeTest::diff);
+            registerMethod("arithmetic", *this, &DateTimeTest::arithmetic);
             registerMethod("fromString", *this, &DateTimeTest::fromString);
             registerMethod("toString", *this, &DateTimeTest::toString);
         }
@@ -47,17 +48,31 @@ class DateTimeTest : public cxxtools::unit::TestSuite
             cxxtools::DateTime dt1 = cxxtools::DateTime("2013-05-03 17:01:14.342");
             cxxtools::DateTime dt2 = cxxtools::DateTime("2013-05-04 17:01:14.342");
             cxxtools::Timespan dt = dt2 - dt1;
-            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.totalDays(), 1.0);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.totalHours(), 24.0);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.totalMinutes(), 24.0 * 60.0);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.totalSeconds(), 24.0 * 60.0 * 60.0);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.totalMSecs(), 24.0 * 60.0 * 60.0 * 1000);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.totalUSecs(), 24.0 * 60.0 * 60.0 * 1000 * 1000);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::Days(dt), 1.0);
 
             dt1 = cxxtools::DateTime("2013-05-03 17:01:14.000");
             dt2 = cxxtools::DateTime("2013-05-03 17:01:14.342");
             dt = dt2 - dt1;
-            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.totalUSecs(), 342000);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::Microseconds(dt), 342000);
+        }
+
+        void arithmetic()
+        {
+            cxxtools::DateTime dt1(2014, 5, 3, 17, 1, 14);
+
+            cxxtools::DateTime dt2 = dt1 - cxxtools::Days(1);
+            CXXTOOLS_UNIT_ASSERT(dt2 == cxxtools::DateTime(2014, 5, 2, 17, 1, 14));
+
+            dt2 = dt1 + cxxtools::Hours(8);
+            CXXTOOLS_UNIT_ASSERT(dt2 == cxxtools::DateTime(2014, 5, 4, 1, 1, 14));
+
+            dt2 = dt1 - cxxtools::Hours(18);
+            CXXTOOLS_UNIT_ASSERT(dt2 == cxxtools::DateTime(2014, 5, 2, 23, 1, 14));
+
+            dt1 = cxxtools::DateTime(2012, 2, 28, 1, 2, 3);
+            dt2 = dt1 + cxxtools::Days(3);
+            CXXTOOLS_UNIT_ASSERT(dt2 == cxxtools::DateTime(2012, 3, 2, 1, 2, 3));
+
         }
 
         void fromString()

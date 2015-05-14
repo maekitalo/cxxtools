@@ -37,26 +37,42 @@ class TimeTest : public cxxtools::unit::TestSuite
         TimeTest()
         : cxxtools::unit::TestSuite("time")
         {
+            registerMethod("access", *this, &TimeTest::access);
             registerMethod("diff", *this, &TimeTest::diff);
             registerMethod("fromString", *this, &TimeTest::fromString);
             registerMethod("toString", *this, &TimeTest::toString);
         }
 
+        void access()
+        {
+            cxxtools::Time t(17, 1, 14, 300);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(t.hour(), 17);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(t.minute(), 1);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(t.second(), 14);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(t.msec(), 300);
+            //CXXTOOLS_UNIT_ASSERT_EQUALS(t.microsecond(), 300000);
+
+            t.set(19, 55, 49, 345);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(t.hour(), 19);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(t.minute(), 55);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(t.second(), 49);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(t.msec(), 345);
+            //CXXTOOLS_UNIT_ASSERT_EQUALS(t.microsecond(), 300000);
+        }
+
         void diff()
         {
-            cxxtools::Time dt1 = cxxtools::Time("17:01:14.342");
-            cxxtools::Time dt2 = cxxtools::Time("18:01:14.342");
-            cxxtools::Timespan dt = dt2 - dt1;
-            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.totalHours(), 1.0);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.totalMinutes(), 60.0);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.totalSeconds(), 60.0 * 60.0);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.totalMSecs(), 60.0 * 60.0 * 1000);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.totalUSecs(), 60.0 * 60.0 * 1000 * 1000);
+            cxxtools::Time t1(17, 1, 2, 300);
+            cxxtools::Time t2(16, 4, 5, 600);
 
-            dt1 = cxxtools::Time("17:01:14.000");
-            dt2 = cxxtools::Time("17:01:14.342");
-            dt = dt2 - dt1;
-            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.totalUSecs(), 342000);
+            cxxtools::Timespan diff = t1 - t2;
+            CXXTOOLS_UNIT_ASSERT_EQUALS(diff, cxxtools::Milliseconds(3416700));
+
+            diff = t2 - t1;
+            CXXTOOLS_UNIT_ASSERT_EQUALS(diff, cxxtools::Milliseconds(-3416700));
+
+            CXXTOOLS_UNIT_ASSERT_THROW(t1 - cxxtools::Hours(18), std::overflow_error);
+            CXXTOOLS_UNIT_ASSERT_THROW(t1 + cxxtools::Hours(8), std::overflow_error);
         }
 
         void fromString()

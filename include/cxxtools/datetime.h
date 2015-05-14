@@ -82,11 +82,6 @@ class DateTime
           _time(time)
         { }
 
-        static DateTime fromJulianDays(unsigned julianDays)
-        {
-            return DateTime(julianDays);
-        }
-
         /** @brief Creates a DateTime object relative to the Unix epoch.
 
             The DateTime will be relative to the unix-epoch (Jan 1st 1970)
@@ -98,30 +93,39 @@ class DateTime
             DateTime. And accordingly a "GMT" millisecond value will lead
             to a "GMT" DateTime.
         */
-        static inline DateTime fromMSecsSinceEpoch(const int64_t msecsSinceEpoch)
+        static inline DateTime fromMSecsSinceEpoch(cxxtools::Milliseconds sinceEpoch)
         {
             static const DateTime dt(1970, 1, 1, 0, 0, 0);
-            Timespan ts(msecsSinceEpoch*1000);
-            return dt + ts;
+            return dt + sinceEpoch;
         }
 
-        DateTime& operator=(unsigned julianDay);
+        /// Returns the GMT time
+        static DateTime gmtime();
 
+        /// Returns the local time
+        static DateTime localtime();
+
+        /// Sets the date and time.
         void set(int year, unsigned month, unsigned day,
                  unsigned hour, unsigned min, unsigned sec, unsigned msec = 0);
 
+        /// Returns the components of the date time.
         void get(int& year, unsigned& month, unsigned& day,
                  unsigned& hour, unsigned& min, unsigned& sec, unsigned& msec) const;
 
+        /// Returns the date part of the DateTime object.
         const Date& date() const
         { return _date; }
 
+        /// Set the date part and keeps the time of the DateTime object.
         DateTime& setDate(const Date& date)
         { _date = date; return *this; }
 
+        /// Returns the time part of the DateTime object.
         const Time& time() const
         { return _time; }
 
+        /// Set the time part and keeps the date of the DateTime object.
         DateTime& setTime(const Time& time)
         { _time = time; return *this; }
 
@@ -174,7 +178,7 @@ class DateTime
             millisecond value. And  accordingly calling this API on a "GMT"
             DateTime will lead to a "GMT" millisecond value.
         */
-        int64_t msecsSinceEpoch() const;
+        Milliseconds msecsSinceEpoch() const;
 
         /** \brief format Date into a string using a format string
 
@@ -225,7 +229,8 @@ class DateTime
 
         /** @brief Assignment by difference operator
         */
-        DateTime& operator-=(const Timespan& ts);
+        DateTime& operator-=(const Timespan& ts)
+        { return operator+= (-ts); }
 
         friend Timespan operator-(const DateTime& first, const DateTime& second);
 
@@ -262,11 +267,6 @@ class DateTime
         }
 
     private:
-        DateTime(unsigned jd)
-        : _date(jd)
-        {}
-
-    private:
         Date _date;
         Time _time;
 };
@@ -274,13 +274,6 @@ class DateTime
 void operator >>=(const SerializationInfo& si, DateTime& dt);
 
 void operator <<=(SerializationInfo& si, const DateTime& dt);
-
-inline DateTime& DateTime::operator=(unsigned julianDay)
-{
-    _time = Time(0, 0, 0, 0);
-    _date.setJulian(julianDay);
-    return *this;
-}
 
 
 inline void DateTime::set(int year, unsigned month, unsigned day,
