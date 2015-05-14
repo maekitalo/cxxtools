@@ -264,8 +264,8 @@ std::string DateTime::toString(const std::string& fmt) const
 DateTime& DateTime::operator+=(const Timespan& ts)
 {
     int64_t totalUSecs = ts.totalUSecs();
-    int64_t days = totalUSecs / Time::USecsPerDay;
-    int64_t overrun = totalUSecs % Time::USecsPerDay;
+    int64_t days = totalUSecs / static_cast<int64_t>(Time::USecsPerDay);
+    int64_t overrun = totalUSecs % static_cast<int64_t>(Time::USecsPerDay);
 
     if ((-overrun) > static_cast<int64_t>(_time.totalUSecs()) )
     {

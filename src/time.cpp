@@ -225,7 +225,7 @@ std::string Time::toString(const std::string& fmt) const
 Time& Time::operator+=(const Timespan& ts)
 {
     double microsecs = _usecs + Microseconds(ts);
-    if (microsecs < 0 || microsecs > MSecsPerDay * 1000.0)
+    if (microsecs < 0 || microsecs > USecsPerDay)
     {
         std::ostringstream s;
         s << "cannot add " << Microseconds(ts) << " to " << toString();
@@ -239,7 +239,7 @@ Time& Time::operator+=(const Timespan& ts)
 Time& Time::operator-=(const Timespan& ts)
 {
     double microsecs = _usecs - Microseconds(ts);
-    if (microsecs < 0 || microsecs > MSecsPerDay * 1000.0)
+    if (microsecs < 0 || microsecs > USecsPerDay)
     {
         std::ostringstream s;
         s << "cannot subtract " << Microseconds(ts) << " from " << toString();
