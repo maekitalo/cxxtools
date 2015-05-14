@@ -40,6 +40,7 @@ class TimespanTest : public cxxtools::unit::TestSuite
         {
             registerMethod("compare", *this, &TimespanTest::compare);
             registerMethod("arithmetic", *this, &TimespanTest::arithmetic);
+            registerMethod("muldiv", *this, &TimespanTest::muldiv);
             registerMethod("microseconds", *this, &TimespanTest::microseconds);
             registerMethod("milliseconds", *this, &TimespanTest::milliseconds);
             registerMethod("seconds", *this, &TimespanTest::seconds);
@@ -99,6 +100,20 @@ class TimespanTest : public cxxtools::unit::TestSuite
 
             t = -t1;
             CXXTOOLS_UNIT_ASSERT_EQUALS(t, cxxtools::Timespan(-4000));
+        }
+
+        void muldiv()
+        {
+            cxxtools::Seconds t1(2500);
+
+            cxxtools::Timespan d = t1 * 2.0;
+            CXXTOOLS_UNIT_ASSERT_EQUALS(d, cxxtools::Seconds(5000));
+
+            d = 3.0 * t1;
+            CXXTOOLS_UNIT_ASSERT_EQUALS(d, cxxtools::Seconds(7500));
+
+            d = t1 / 2.0;
+            CXXTOOLS_UNIT_ASSERT_EQUALS(d, cxxtools::Seconds(1250));
         }
 
         void microseconds()
