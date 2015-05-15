@@ -98,9 +98,9 @@ class Time
 
             InvalidTime is thrown if one or more of the values are out of range
         */
-        Time(unsigned h, unsigned m, unsigned s = 0, unsigned ms = 0)
+        Time(unsigned h, unsigned m, unsigned s = 0, unsigned ms = 0, unsigned usec = 0)
         {
-            set(h, m, s, ms);
+            set(h, m, s, ms, usec);
         }
 
         /** \brief Returns the hour-part of the Time.
@@ -135,9 +135,9 @@ class Time
          *
          *  Note that the microsoecnds contain the milliseconds also.
         */
-        unsigned microsecsec() const
+        unsigned usec() const
         {
-            return unsigned(_usecs) % 1000000;
+            return unsigned(_usecs % 1000000);
         }
 
         unsigned totalMSecs() const
@@ -157,14 +157,14 @@ class Time
             Sets the time to a new hour, minute, second, milli-second.
             InvalidTime is thrown if one or more of the values are out of range
         */
-        void set(unsigned hour, unsigned min, unsigned sec, unsigned msec = 0, unsigned microsec = 0)
+        void set(unsigned hour, unsigned min, unsigned sec, unsigned msec = 0, unsigned usec = 0)
         {
-            if ( ! isValid(hour, min, sec, msec, microsec) )
+            if ( ! isValid(hour, min, sec, msec, usec) )
             {
                 throw InvalidTime();
             }
 
-            _usecs = (((((static_cast<unsigned long>(hour) * 60 + min) * 60) + sec) * 1000) + msec) * 1000 + microsec;
+            _usecs = (((((static_cast<unsigned long>(hour) * 60 + min) * 60) + sec) * 1000) + msec) * 1000 + usec;
         }
 
         /** @brief Get the time values
@@ -271,9 +271,9 @@ class Time
 
         /** \brief Returns true if values are a valid time
         */
-        static bool isValid(unsigned h, unsigned m, unsigned s, unsigned ms, unsigned micros)
+        static bool isValid(unsigned h, unsigned m, unsigned s, unsigned ms, unsigned usec)
         {
-            return h < 24 && m < 60 && s < 60 && ms < 1000 && micros < 1000000;
+            return h < 24 && m < 60 && s < 60 && ms < 1000 && usec < 1000000;
         }
 
         /** \brief Convert from an ISO time string
