@@ -270,10 +270,12 @@ DateTime& DateTime::operator+=(const Timespan& ts)
     if ((-overrun) > static_cast<int64_t>(_time.totalUSecs()) )
     {
         days -= 1;
+        overrun += Time::USecsPerDay;
     }
     else if (overrun + _time.totalUSecs() > Time::USecsPerDay)
     {
         days += 1;
+        overrun -= Time::USecsPerDay;
     }
 
     _date += static_cast<int>(days);

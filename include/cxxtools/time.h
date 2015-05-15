@@ -131,6 +131,10 @@ class Time
             return unsigned(_usecs / 1000) % 1000;
         }
 
+        /** \brief Returns the microseconds of the Time.
+         *
+         *  Note that the microsoecnds contain the milliseconds also.
+        */
         unsigned microsecsec() const
         {
             return unsigned(_usecs) % 1000000;
@@ -145,7 +149,7 @@ class Time
         void setTotalMSecs(unsigned msecs)
         { _usecs = msecs * 1000; }
 
-        void setTotalUSecs(unsigned m)
+        void setTotalUSecs(unsigned long m)
         { _usecs = m; }
 
         /** \brief Sets the time.
