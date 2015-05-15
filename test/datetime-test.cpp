@@ -26,8 +26,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <iostream>
 #include "cxxtools/datetime.h"
+
+#include "cxxtools/serializationinfo.h"
+
 #include "cxxtools/unit/testsuite.h"
 #include "cxxtools/unit/registertest.h"
 
@@ -41,6 +43,7 @@ class DateTimeTest : public cxxtools::unit::TestSuite
             registerMethod("arithmetic", *this, &DateTimeTest::arithmetic);
             registerMethod("fromString", *this, &DateTimeTest::fromString);
             registerMethod("toString", *this, &DateTimeTest::toString);
+            registerMethod("serialization", *this, &DateTimeTest::serialization);
         }
 
         void diff()
@@ -168,6 +171,18 @@ class DateTimeTest : public cxxtools::unit::TestSuite
 
         }
 
+        void serialization()
+        {
+            cxxtools::DateTime dt1(2014, 5, 3, 17, 1, 14);
+
+            cxxtools::SerializationInfo si;
+            si <<= dt1;
+
+            cxxtools::DateTime dt2;
+            si >>= dt2;
+
+            CXXTOOLS_UNIT_ASSERT(dt1 == dt2);
+        }
 };
 
 cxxtools::unit::RegisterTest<DateTimeTest> register_DateTimeTest;

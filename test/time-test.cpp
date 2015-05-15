@@ -26,8 +26,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <iostream>
 #include "cxxtools/time.h"
+
+#include "cxxtools/serializationinfo.h"
+
 #include "cxxtools/unit/testsuite.h"
 #include "cxxtools/unit/registertest.h"
 
@@ -41,6 +43,7 @@ class TimeTest : public cxxtools::unit::TestSuite
             registerMethod("diff", *this, &TimeTest::diff);
             registerMethod("fromString", *this, &TimeTest::fromString);
             registerMethod("toString", *this, &TimeTest::toString);
+            registerMethod("serialization", *this, &TimeTest::serialization);
         }
 
         void access()
@@ -50,14 +53,14 @@ class TimeTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(t.minute(), 1);
             CXXTOOLS_UNIT_ASSERT_EQUALS(t.second(), 14);
             CXXTOOLS_UNIT_ASSERT_EQUALS(t.msec(), 300);
-            //CXXTOOLS_UNIT_ASSERT_EQUALS(t.microsecond(), 300000);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(t.usec(), 300000);
 
             t.set(19, 55, 49, 345);
             CXXTOOLS_UNIT_ASSERT_EQUALS(t.hour(), 19);
             CXXTOOLS_UNIT_ASSERT_EQUALS(t.minute(), 55);
             CXXTOOLS_UNIT_ASSERT_EQUALS(t.second(), 49);
             CXXTOOLS_UNIT_ASSERT_EQUALS(t.msec(), 345);
-            //CXXTOOLS_UNIT_ASSERT_EQUALS(t.microsecond(), 300000);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(t.usec(), 345000);
         }
 
         void diff()
@@ -152,6 +155,18 @@ class TimeTest : public cxxtools::unit::TestSuite
 
         }
 
+        void serialization()
+        {
+            cxxtools::Time t1(17, 1, 14, 765);
+
+            cxxtools::SerializationInfo si;
+            si <<= t1;
+
+            cxxtools::Time t2;
+            si >>= t2;
+
+            CXXTOOLS_UNIT_ASSERT(t1 == t2);
+        }
 };
 
 cxxtools::unit::RegisterTest<TimeTest> register_TimeTest;

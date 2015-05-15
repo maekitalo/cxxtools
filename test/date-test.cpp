@@ -26,8 +26,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <iostream>
 #include "cxxtools/date.h"
+
+#include "cxxtools/serializationinfo.h"
+
 #include "cxxtools/unit/testsuite.h"
 #include "cxxtools/unit/registertest.h"
 
@@ -39,6 +41,7 @@ class DateTest : public cxxtools::unit::TestSuite
         {
             registerMethod("fromString", *this, &DateTest::fromString);
             registerMethod("toString", *this, &DateTest::toString);
+            registerMethod("serialization", *this, &DateTest::serialization);
         }
 
         void fromString()
@@ -106,6 +109,18 @@ class DateTest : public cxxtools::unit::TestSuite
           CXXTOOLS_UNIT_ASSERT_EQUALS(str, "0 7");
         }
 
+        void serialization()
+        {
+            cxxtools::Date d1(2014, 5, 3);
+
+            cxxtools::SerializationInfo si;
+            si <<= d1;
+
+            cxxtools::Date d2;
+            si >>= d2;
+
+            CXXTOOLS_UNIT_ASSERT(d1 == d2);
+        }
 };
 
 cxxtools::unit::RegisterTest<DateTest> register_DateTest;
