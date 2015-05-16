@@ -60,10 +60,12 @@ class DateTime
               %I   hours (0-11)
               %M   minutes
               %S   seconds
-              %j   milliseconds (1-3 digits, optionally leading '.')
-              %J   milliseconds (1-3 digits, with leading '.')
+              %j   fractional seconds (1-6 digits, optionally leading '.')
+              %J   fractional seconds (1-6 digits, with leading '.')
               %K   milliseconds (3 digits, with leading '.')
               %k   milliseconds (3 digits)
+              %U   microseconds (6 digits, with leading '.')
+              %u   microseconds (6 digits)
               %p   AM/PM
               ?    arbitrary character
               *    skip non digit characters
@@ -72,9 +74,9 @@ class DateTime
 
         DateTime(int year, unsigned month, unsigned day,
                  unsigned hour, unsigned minute, 
-                 unsigned second, unsigned msec = 0)
+                 unsigned second, unsigned msec = 0, unsigned usec = 0)
         : _date(year, month, day)
-        , _time(hour, minute, second, msec)
+        , _time(hour, minute, second, msec, usec)
         { }
 
         DateTime(const Date& date, const Time& time)
@@ -107,11 +109,15 @@ class DateTime
 
         /// Sets the date and time.
         void set(int year, unsigned month, unsigned day,
-                 unsigned hour, unsigned min, unsigned sec, unsigned msec = 0);
+                 unsigned hour, unsigned min, unsigned sec, unsigned msec = 0, unsigned usec = 0);
 
         /// Returns the components of the date time.
         void get(int& year, unsigned& month, unsigned& day,
                  unsigned& hour, unsigned& min, unsigned& sec, unsigned& msec) const;
+
+        /// Returns the components of the date time.
+        void get(int& year, unsigned& month, unsigned& day,
+                 unsigned& hour, unsigned& min, unsigned& sec, unsigned& msec, unsigned& usec) const;
 
         /// Returns the date part of the DateTime object.
         const Date& date() const
@@ -194,10 +200,12 @@ class DateTime
               %H   hours (0-11)
               %M   minutes
               %S   seconds
-              %j   milliseconds (1-3 digits, optionally leading '.')
-              %J   milliseconds (1-3 digits, with leading '.')
+              %j   fractional seconds (1-6 digits, optionally leading '.')
+              %J   fractional seconds (1-6 digits, with leading '.')
               %K   milliseconds (3 digits, with leading '.')
               %k   milliseconds (3 digits)
+              %U   microseconds (6 digits, with leading '.')
+              %u   microseconds (6 digits)
               %p   am/pm
               %P   AM/PM
          */
@@ -277,10 +285,10 @@ void operator <<=(SerializationInfo& si, const DateTime& dt);
 
 
 inline void DateTime::set(int year, unsigned month, unsigned day,
-                   unsigned hour, unsigned minute, unsigned second, unsigned msec)
+                   unsigned hour, unsigned minute, unsigned second, unsigned msec, unsigned usec)
 {
     _date.set(year, month, day);
-    _time.set(hour, minute, second, msec);
+    _time.set(hour, minute, second, msec, usec);
 }
 
 
@@ -289,6 +297,14 @@ inline void DateTime::get(int& y, unsigned& month, unsigned& d,
 {
     _date.get(y, month, d);
     _time.get(h, min, s, ms);
+}
+
+
+inline void DateTime::get(int& y, unsigned& month, unsigned& d,
+                   unsigned& h, unsigned& min, unsigned& s, unsigned& ms, unsigned& usec) const
+{
+    _date.get(y, month, d);
+    _time.get(h, min, s, ms, usec);
 }
 
 

@@ -75,56 +75,51 @@ namespace cxxtools
     return ret * sgn;
   }
 
-  unsigned getMilliseconds(std::string::const_iterator& b, std::string::const_iterator e)
+  unsigned getMicroseconds(std::string::const_iterator& b, std::string::const_iterator e)
   {
     unsigned m = 0;
+    unsigned d = 100000;
 
-    if (!std::isdigit(*b))  // nothing
-      return 0;
+    for (unsigned c = 0; c < 6; ++c)
+    {
+      if (b == e || !std::isdigit(*b))
+        return m;
 
-    m = (*b++ - '0') * 100;
-    if (!std::isdigit(*b))  // .4  => 400 msec
-      return m;
+      m += (*b++ - '0') * d;
+      d /= 10;
+    }
 
-    m += (*b++ - '0') * 10;
-    if (!std::isdigit(*b))  // .43  => 430 msec
-      return m;
-
-    m += (*b++ - '0');       // .432 => 432 msec
     return m;
   }
 
-  void appendD4(std::string& s, unsigned v)
+  void appendDn(std::string& s, unsigned short n, unsigned short v)
   {
-      char d[4];
-      d[3] = '0' + v % 10;
-      v /= 10;
-      d[2] = '0' + v % 10;
-      v /= 10;
-      d[1] = '0' + v % 10;
-      v /= 10;
-      d[0] = '0' + v % 10;
-      s.append(d, 4);
+      s.resize(s.size() + n);
+      for (unsigned short i = 0; i < n; ++i)
+      {
+        s[s.size() - i - 1] = '0' + v % 10;
+        v /= 10;
+      }
   }
 
-  void appendD3(std::string& s, unsigned v)
+  void appendD6(std::string& s, unsigned short v)
   {
-      char d[3];
-      d[2] = '0' + v % 10;
-      v /= 10;
-      d[1] = '0' + v % 10;
-      v /= 10;
-      d[0] = '0' + v % 10;
-      s.append(d, 3);
+      appendDn(s, 6, v);
   }
 
-  void appendD2(std::string& s, unsigned v)
+  void appendD4(std::string& s, unsigned short v)
   {
-      char d[2];
-      d[1] = '0' + v % 10;
-      v /= 10;
-      d[0] = '0' + v % 10;
-      s.append(d, 2);
+      appendDn(s, 4, v);
+  }
+
+  void appendD3(std::string& s, unsigned short v)
+  {
+      appendDn(s, 3, v);
+  }
+
+  void appendD2(std::string& s, unsigned short v)
+  {
+      appendDn(s, 2, v);
   }
 
   void appendD1(std::string& s, unsigned short v)

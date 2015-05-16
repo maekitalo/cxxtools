@@ -80,61 +80,66 @@ class TimeTest : public cxxtools::unit::TestSuite
 
         void fromString()
         {
-            unsigned hours, minutes, seconds, milliseconds;
+            unsigned hours, minutes, seconds, milliseconds, microseconds;
 
             cxxtools::Time dt;
 
-            dt = cxxtools::Time("17:01:14.342");
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(dt = cxxtools::Time("17:01:14.3428"));
 
-            dt.get(hours, minutes, seconds, milliseconds);
+            dt.get(hours, minutes, seconds, milliseconds, microseconds);
             CXXTOOLS_UNIT_ASSERT_EQUALS(hours, 17);
             CXXTOOLS_UNIT_ASSERT_EQUALS(minutes, 1);
             CXXTOOLS_UNIT_ASSERT_EQUALS(seconds, 14);
             CXXTOOLS_UNIT_ASSERT_EQUALS(milliseconds, 342);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(microseconds, 342800);
 
             dt = cxxtools::Time("17 1 14.3", "%H %M %S%J");
 
-            dt.get(hours, minutes, seconds, milliseconds);
+            dt.get(hours, minutes, seconds, milliseconds, microseconds);
             CXXTOOLS_UNIT_ASSERT_EQUALS(hours, 17);
             CXXTOOLS_UNIT_ASSERT_EQUALS(minutes, 1);
             CXXTOOLS_UNIT_ASSERT_EQUALS(seconds, 14);
             CXXTOOLS_UNIT_ASSERT_EQUALS(milliseconds, 300);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(microseconds, 300000);
 
             dt = cxxtools::Time("17 1 14", "%H %M %S%J");
 
-            dt.get(hours, minutes, seconds, milliseconds);
+            dt.get(hours, minutes, seconds, milliseconds, microseconds);
             CXXTOOLS_UNIT_ASSERT_EQUALS(hours, 17);
             CXXTOOLS_UNIT_ASSERT_EQUALS(minutes, 1);
             CXXTOOLS_UNIT_ASSERT_EQUALS(seconds, 14);
             CXXTOOLS_UNIT_ASSERT_EQUALS(milliseconds, 0);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(microseconds, 0);
 
             dt = cxxtools::Time("5:01:14 pm", "%H:%M:%S %p");
 
-            dt.get(hours, minutes, seconds, milliseconds);
+            dt.get(hours, minutes, seconds, milliseconds, microseconds);
             CXXTOOLS_UNIT_ASSERT_EQUALS(hours, 17);
             CXXTOOLS_UNIT_ASSERT_EQUALS(minutes, 1);
             CXXTOOLS_UNIT_ASSERT_EQUALS(seconds, 14);
             CXXTOOLS_UNIT_ASSERT_EQUALS(milliseconds, 0);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(microseconds, 0);
 
             dt = cxxtools::Time("9    13 b 54  xx  ", "%H*%M*%S*");
 
-            dt.get(hours, minutes, seconds, milliseconds);
+            dt.get(hours, minutes, seconds, milliseconds, microseconds);
             CXXTOOLS_UNIT_ASSERT_EQUALS(hours, 9);
             CXXTOOLS_UNIT_ASSERT_EQUALS(minutes, 13);
             CXXTOOLS_UNIT_ASSERT_EQUALS(seconds, 54);
             CXXTOOLS_UNIT_ASSERT_EQUALS(milliseconds, 0);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(microseconds, 0);
 
         }
 
         void toString()
         {
-          cxxtools::Time dt(17, 1, 14, 342);
+          cxxtools::Time dt(17, 1, 14, 342, 800);
 
           std::string str = dt.toString();
-          CXXTOOLS_UNIT_ASSERT_EQUALS(str, "17:01:14.342");
+          CXXTOOLS_UNIT_ASSERT_EQUALS(str, "17:01:14.3428");
 
           str = dt.toString("%H %M %S%J");
-          CXXTOOLS_UNIT_ASSERT_EQUALS(str, "17 01 14.342");
+          CXXTOOLS_UNIT_ASSERT_EQUALS(str, "17 01 14.3428");
 
           dt = cxxtools::Time(17, 1, 14);
 
@@ -146,6 +151,12 @@ class TimeTest : public cxxtools::unit::TestSuite
 
           str = dt.toString("%H %M %S %k");
           CXXTOOLS_UNIT_ASSERT_EQUALS(str, "17 01 14 000");
+
+          str = dt.toString("%H %M %S%U");
+          CXXTOOLS_UNIT_ASSERT_EQUALS(str, "17 01 14.000000");
+
+          str = dt.toString("%H %M %S %u");
+          CXXTOOLS_UNIT_ASSERT_EQUALS(str, "17 01 14 000000");
 
           str = dt.toString("%H %M %S%j");
           CXXTOOLS_UNIT_ASSERT_EQUALS(str, "17 01 14");

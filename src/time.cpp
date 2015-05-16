@@ -47,7 +47,7 @@ Time::Time(const std::string& str, const std::string& fmt)
   unsigned hours = 0;
   unsigned minutes = 0;
   unsigned seconds = 0;
-  unsigned mseconds = 0;
+  unsigned useconds = 0;
   bool am = true;
 
   enum {
@@ -95,20 +95,22 @@ Time::Time(const std::string& str, const std::string& fmt)
           case 'j':
             if (dit != str.end() && *dit == '.')
               ++dit;
-            mseconds = getMilliseconds(dit, str.end());
+            useconds = getMicroseconds(dit, str.end());
             break;
 
           case 'J':
           case 'K':
+          case 'U':
             if (dit != str.end() && *dit == '.')
             {
               ++dit;
-              mseconds = getMilliseconds(dit, str.end());
+              useconds = getMicroseconds(dit, str.end());
             }
             break;
 
           case 'k':
-            mseconds = getMilliseconds(dit, str.end());
+          case 'u':
+            useconds = getMicroseconds(dit, str.end());
             break;
 
           case 'p':
@@ -140,14 +142,14 @@ Time::Time(const std::string& str, const std::string& fmt)
   if (it != fmt.end() || dit != str.end())
     throw std::runtime_error("string <" + str + "> does not match time format <" + fmt + '>');
 
-  set(am ? hours : hours + 12, minutes, seconds, mseconds);
+  set(am ? hours : hours + 12, minutes, seconds, 0, useconds);
 }
 
 std::string Time::toString(const std::string& fmt) const
 {
-  unsigned hours, minutes, seconds, mseconds;
+  unsigned hours, minutes, seconds, mseconds, useconds;
 
-  get(hours, minutes, seconds, mseconds);
+  get(hours, minutes, seconds, mseconds, useconds);
 
   std::string str;
 
@@ -170,44 +172,52 @@ std::string Time::toString(const std::string& fmt) const
       case state_fmt:
         switch (*it)
         {
-          case 'H': appendD2(str, hours); break;
-          case 'I': appendD2(str, hours % 12); break;
-          case 'M': appendD2(str, minutes); break;
-          case 'S': appendD2(str, seconds); break;
-          case 'j': if (mseconds != 0)
+          case 'H': appendDn(str, 2, hours); break;
+          case 'I': appendDn(str, 2, hours % 12); break;
+          case 'M': appendDn(str, 2, minutes); break;
+          case 'S': appendDn(str, 2, seconds); break;
+          case 'j': if (useconds != 0)
                     {
                       str += '.';
-                      str += (mseconds / 100 + '0');
-                      if (mseconds % 100 != 0)
+                      str += (useconds / 100000 + '0');
+                      useconds %= 100000;
+                      for (unsigned e = 10000; e > 0 && useconds > 0; e /= 10)
                       {
-                        str += (mseconds / 10 % 10 + '0');
-                        if (mseconds % 10 != 0)
-                          str += (mseconds % 10 + '0');
+                        str += (useconds / e + '0');
+                        useconds %= e;
                       }
                     }
                     break;
 
           case 'J': str += '.';
-                    str += (mseconds / 100 + '0');
-                    if (mseconds % 100 != 0)
+                    str += (useconds / 100000 + '0');
+                    useconds %= 100000;
+                    for (unsigned e = 10000; e > 0 && useconds > 0; e /= 10)
                     {
-                      str += (mseconds / 10 % 10 + '0');
-                      if (mseconds % 10 != 0)
-                        str += (mseconds % 10 + '0');
+                      str += (useconds / e + '0');
+                      useconds %= e;
                     }
                     break;
 
-          case 'k': appendD3(str, mseconds);
+          case 'k': appendDn(str, 3, mseconds);
                     break;
 
           case 'K': str += '.';
-                    appendD3(str, mseconds);
+                    appendDn(str, 3, mseconds);
+                    break;
+
+          case 'u': appendDn(str, 6, mseconds);
+                    break;
+
+          case 'U': str += '.';
+                    appendDn(str, 6, mseconds);
                     break;
 
           case 'p': str += (hours < 12 ? "am" : "pm"); break;
           case 'P': str += (hours < 12 ? "AM" : "PM"); break;
           default:
             str += '%';
+            str += *it;
         }
 
         if (*it != '%')

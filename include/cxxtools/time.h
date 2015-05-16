@@ -84,10 +84,12 @@ class Time
               %I   hours (0-11)
               %M   minutes
               %S   seconds
-              %j   milliseconds (1-3 digits, optionally leading '.')
-              %J   milliseconds (1-3 digits, with leading '.')
+              %j   fractional seconds (1-6 digits, optionally leading '.')
+              %J   fractional seconds (1-6 digits, with leading '.')
               %K   milliseconds (3 digits, with leading '.')
               %k   milliseconds (3 digits)
+              %U   microseconds (6 digits, with leading '.')
+              %u   microseconds (6 digits)
               %p   AM/PM
               ?    arbitrary character
               *    skip non digit characters
@@ -179,6 +181,20 @@ class Time
             ms = msec();
         }
 
+        /** @brief Get the time values
+
+            Gets the hour, minute, second, millisecond and microsecond parts of the time.
+            Note that the microseconds include the millisecons.
+        */
+        void get(unsigned& h, unsigned& m, unsigned& s, unsigned& ms, unsigned& us) const
+        {
+            h = hour();
+            m = minute();
+            s = second();
+            ms = msec();
+            us = usec();
+        }
+
         /** \brief format Time into a string using a format string
 
             Valid format codes are:
@@ -187,10 +203,12 @@ class Time
               %H   hours (0-11)
               %M   minutes
               %S   seconds
-              %j   milliseconds (1-3 digits, optionally leading '.')
-              %J   milliseconds (1-3 digits, with leading '.')
+              %j   fractional seconds (1-6 digits, optionally leading '.')
+              %J   fractional seconds (1-6 digits, with leading '.')
               %K   milliseconds (3 digits, with leading '.')
               %k   milliseconds (3 digits)
+              %U   microseconds (6 digits, with leading '.')
+              %u   microseconds (6 digits)
               %p   am/pm
               %P   AM/PM
          */

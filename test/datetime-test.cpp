@@ -81,13 +81,13 @@ class DateTimeTest : public cxxtools::unit::TestSuite
         void fromString()
         {
             int year;
-            unsigned month, day, hours, minutes, seconds, milliseconds;
+            unsigned month, day, hours, minutes, seconds, milliseconds, microseconds;
 
             cxxtools::DateTime dt;
 
-            dt = cxxtools::DateTime("2013-05-03 17:01:14.342");
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(dt = cxxtools::DateTime("2013-05-03 17:01:14.3428"));
 
-            dt.get(year, month, day, hours, minutes, seconds, milliseconds);
+            dt.get(year, month, day, hours, minutes, seconds, milliseconds, microseconds);
             CXXTOOLS_UNIT_ASSERT_EQUALS(year, 2013);
             CXXTOOLS_UNIT_ASSERT_EQUALS(month, 5);
             CXXTOOLS_UNIT_ASSERT_EQUALS(day, 3);
@@ -95,10 +95,11 @@ class DateTimeTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(minutes, 1);
             CXXTOOLS_UNIT_ASSERT_EQUALS(seconds, 14);
             CXXTOOLS_UNIT_ASSERT_EQUALS(milliseconds, 342);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(microseconds, 342800);
 
             dt = cxxtools::DateTime("2013 5 3 17 1 14.3", "%Y %m %d %H %M %S%J");
 
-            dt.get(year, month, day, hours, minutes, seconds, milliseconds);
+            dt.get(year, month, day, hours, minutes, seconds, milliseconds, microseconds);
             CXXTOOLS_UNIT_ASSERT_EQUALS(year, 2013);
             CXXTOOLS_UNIT_ASSERT_EQUALS(month, 5);
             CXXTOOLS_UNIT_ASSERT_EQUALS(day, 3);
@@ -106,10 +107,11 @@ class DateTimeTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(minutes, 1);
             CXXTOOLS_UNIT_ASSERT_EQUALS(seconds, 14);
             CXXTOOLS_UNIT_ASSERT_EQUALS(milliseconds, 300);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(microseconds, 300000);
 
             dt = cxxtools::DateTime("2013 5 3 17 1 14", "%Y %m %d %H %M %S%J");
 
-            dt.get(year, month, day, hours, minutes, seconds, milliseconds);
+            dt.get(year, month, day, hours, minutes, seconds, milliseconds, microseconds);
             CXXTOOLS_UNIT_ASSERT_EQUALS(year, 2013);
             CXXTOOLS_UNIT_ASSERT_EQUALS(month, 5);
             CXXTOOLS_UNIT_ASSERT_EQUALS(day, 3);
@@ -117,10 +119,11 @@ class DateTimeTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(minutes, 1);
             CXXTOOLS_UNIT_ASSERT_EQUALS(seconds, 14);
             CXXTOOLS_UNIT_ASSERT_EQUALS(milliseconds, 0);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(microseconds, 0);
 
             dt = cxxtools::DateTime("2013-5-3 5:01:14 pm", "%Y-%m-%d %H:%M:%S %p");
 
-            dt.get(year, month, day, hours, minutes, seconds, milliseconds);
+            dt.get(year, month, day, hours, minutes, seconds, milliseconds, microseconds);
             CXXTOOLS_UNIT_ASSERT_EQUALS(year, 2013);
             CXXTOOLS_UNIT_ASSERT_EQUALS(month, 5);
             CXXTOOLS_UNIT_ASSERT_EQUALS(day, 3);
@@ -128,10 +131,11 @@ class DateTimeTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(minutes, 1);
             CXXTOOLS_UNIT_ASSERT_EQUALS(seconds, 14);
             CXXTOOLS_UNIT_ASSERT_EQUALS(milliseconds, 0);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(microseconds, 0);
 
             dt = cxxtools::DateTime("2013 foo 5 bar 3 5   01     14 pm", "%Y*%m*%d*%H*%M*%S %p");
 
-            dt.get(year, month, day, hours, minutes, seconds, milliseconds);
+            dt.get(year, month, day, hours, minutes, seconds, milliseconds, microseconds);
             CXXTOOLS_UNIT_ASSERT_EQUALS(year, 2013);
             CXXTOOLS_UNIT_ASSERT_EQUALS(month, 5);
             CXXTOOLS_UNIT_ASSERT_EQUALS(day, 3);
@@ -139,18 +143,19 @@ class DateTimeTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(minutes, 1);
             CXXTOOLS_UNIT_ASSERT_EQUALS(seconds, 14);
             CXXTOOLS_UNIT_ASSERT_EQUALS(milliseconds, 0);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(microseconds, 0);
 
         }
 
         void toString()
         {
-          cxxtools::DateTime dt(2013, 5, 3, 17, 1, 14, 342);
+          cxxtools::DateTime dt(2013, 5, 3, 17, 1, 14, 342, 800);
 
           std::string str = dt.toString();
-          CXXTOOLS_UNIT_ASSERT_EQUALS(str, "2013-05-03 17:01:14.342");
+          CXXTOOLS_UNIT_ASSERT_EQUALS(str, "2013-05-03 17:01:14.3428");
 
           str = dt.toString("%Y %m %d %H %M %S%J");
-          CXXTOOLS_UNIT_ASSERT_EQUALS(str, "2013 05 03 17 01 14.342");
+          CXXTOOLS_UNIT_ASSERT_EQUALS(str, "2013 05 03 17 01 14.3428");
 
           dt = cxxtools::DateTime(2013, 5, 3, 17, 1, 14);
 
@@ -162,6 +167,12 @@ class DateTimeTest : public cxxtools::unit::TestSuite
 
           str = dt.toString("%Y %m %d %H %M %S %k");
           CXXTOOLS_UNIT_ASSERT_EQUALS(str, "2013 05 03 17 01 14 000");
+
+          str = dt.toString("%Y %m %d %H %M %S%U");
+          CXXTOOLS_UNIT_ASSERT_EQUALS(str, "2013 05 03 17 01 14.000000");
+
+          str = dt.toString("%Y %m %d %H %M %S %u");
+          CXXTOOLS_UNIT_ASSERT_EQUALS(str, "2013 05 03 17 01 14 000000");
 
           str = dt.toString("%Y %m %d %H %M %S%j");
           CXXTOOLS_UNIT_ASSERT_EQUALS(str, "2013 05 03 17 01 14");

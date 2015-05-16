@@ -45,7 +45,7 @@ DateTime::DateTime(const std::string& str, const std::string& fmt)
   unsigned hours = 0;
   unsigned minutes = 0;
   unsigned seconds = 0;
-  unsigned mseconds = 0;
+  unsigned useconds = 0;
   bool am = true;
 
   enum {
@@ -110,20 +110,22 @@ DateTime::DateTime(const std::string& str, const std::string& fmt)
           case 'j':
             if (dit != str.end() && *dit == '.')
               ++dit;
-            mseconds = getMilliseconds(dit, str.end());
+            useconds = getMicroseconds(dit, str.end());
             break;
 
           case 'J':
           case 'K':
+          case 'U':
             if (dit != str.end() && *dit == '.')
             {
               ++dit;
-              mseconds = getMilliseconds(dit, str.end());
+              useconds = getMicroseconds(dit, str.end());
             }
             break;
 
           case 'k':
-            mseconds = getMilliseconds(dit, str.end());
+          case 'u':
+            useconds = getMicroseconds(dit, str.end());
             break;
 
           case 'p':
@@ -155,7 +157,7 @@ DateTime::DateTime(const std::string& str, const std::string& fmt)
   if (it != fmt.end() || dit != str.end())
     throw std::runtime_error("string <" + str + "> does not match datetime format <" + fmt + '>');
 
-  set(year, month, day, am ? hours : hours + 12, minutes, seconds, mseconds);
+  set(year, month, day, am ? hours : hours + 12, minutes, seconds, 0, useconds);
 }
 
 DateTime DateTime::gmtime()
@@ -177,9 +179,9 @@ Milliseconds DateTime::msecsSinceEpoch() const
 std::string DateTime::toString(const std::string& fmt) const
 {
   int year;
-  unsigned month, day, hours, minutes, seconds, mseconds;
+  unsigned month, day, hours, minutes, seconds, mseconds, useconds;
 
-  get(year, month, day, hours, minutes, seconds, mseconds);
+  get(year, month, day, hours, minutes, seconds, mseconds, useconds);
 
   std::string str;
 
@@ -202,50 +204,58 @@ std::string DateTime::toString(const std::string& fmt) const
       case state_fmt:
         switch (*it)
         {
-          case 'Y': appendD4(str, year); break;
-          case 'y': appendD2(str, year % 100); break;
-          case 'm': appendD2(str, month); break;
-          case 'd': appendD2(str, day); break;
-          case 'w': appendD1(str, dayOfWeek()); break;
-          case 'W': { int dow = dayOfWeek(); appendD1(str, dow == 0 ? 7 : dow); } break;
-          case 'H': appendD2(str, hours); break;
-          case 'I': appendD2(str, hours % 12); break;
-          case 'M': appendD2(str, minutes); break;
-          case 'S': appendD2(str, seconds); break;
-          case 'j': if (mseconds != 0)
+          case 'Y': appendDn(str, 4, year); break;
+          case 'y': appendDn(str, 2, year % 100); break;
+          case 'm': appendDn(str, 2, month); break;
+          case 'd': appendDn(str, 2, day); break;
+          case 'w': appendDn(str, 1, dayOfWeek()); break;
+          case 'W': { int dow = dayOfWeek(); appendDn(str, 1, dow == 0 ? 7 : dow); } break;
+          case 'H': appendDn(str, 2, hours); break;
+          case 'I': appendDn(str, 2, hours % 12); break;
+          case 'M': appendDn(str, 2, minutes); break;
+          case 'S': appendDn(str, 2, seconds); break;
+          case 'j': if (useconds != 0)
                     {
                       str += '.';
-                      str += (mseconds / 100 + '0');
-                      if (mseconds % 100 != 0)
+                      str += (useconds / 100000 + '0');
+                      useconds %= 100000;
+                      for (unsigned e = 10000; e > 0 && useconds > 0; e /= 10)
                       {
-                        str += (mseconds / 10 % 10 + '0');
-                        if (mseconds % 10 != 0)
-                          str += (mseconds % 10 + '0');
+                        str += (useconds / e + '0');
+                        useconds %= e;
                       }
                     }
                     break;
 
           case 'J': str += '.';
-                    str += (mseconds / 100 + '0');
-                    if (mseconds % 100 != 0)
+                    str += (useconds / 100000 + '0');
+                    useconds %= 100000;
+                    for (unsigned e = 10000; e > 0 && useconds > 0; e /= 10)
                     {
-                      str += (mseconds / 10 % 10 + '0');
-                      if (mseconds % 10 != 0)
-                        str += (mseconds % 10 + '0');
+                      str += (useconds / e + '0');
+                      useconds %= e;
                     }
                     break;
 
-          case 'k': appendD3(str, mseconds);
+          case 'k': appendDn(str, 3, mseconds);
                     break;
 
           case 'K': str += '.';
-                    appendD3(str, mseconds);
+                    appendDn(str, 3, mseconds);
+                    break;
+
+          case 'u': appendDn(str, 6, mseconds);
+                    break;
+
+          case 'U': str += '.';
+                    appendDn(str, 6, mseconds);
                     break;
 
           case 'p': str += (hours < 12 ? "am" : "pm"); break;
           case 'P': str += (hours < 12 ? "AM" : "PM"); break;
           default:
             str += '%';
+            str += *it;
         }
 
         if (*it != '%')
