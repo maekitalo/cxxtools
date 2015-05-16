@@ -75,7 +75,10 @@ DateTime ClockImpl::getSystemTime()
     struct timeval tod;
     gettimeofday(&tod, NULL);
 
-    return DateTime::fromMSecsSinceEpoch(static_cast<int64_t>(tod.tv_sec) * 1000 + tod.tv_usec / 1000);
+    Date date(tod.tv_sec / 24 / 60 / 60);
+    Time time;
+    time.setTotalUSecs(tod.tv_usec);
+    return DateTime(date, time);
 }
 
 
@@ -94,7 +97,8 @@ DateTime ClockImpl::getLocalTime()
                      tim.tm_hour,
                      tim.tm_min,
                      tim.tm_sec,
-                     tod.tv_usec / 1000 );
+                     0,
+                     tod.tv_usec);
 }
 
 

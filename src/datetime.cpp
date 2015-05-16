@@ -244,11 +244,11 @@ std::string DateTime::toString(const std::string& fmt) const
                     appendDn(str, 3, mseconds);
                     break;
 
-          case 'u': appendDn(str, 6, mseconds);
+          case 'u': appendDn(str, 6, useconds);
                     break;
 
           case 'U': str += '.';
-                    appendDn(str, 6, mseconds);
+                    appendDn(str, 6, useconds);
                     break;
 
           case 'p': str += (hours < 12 ? "am" : "pm"); break;

@@ -92,7 +92,7 @@ namespace cxxtools
     return m;
   }
 
-  void appendDn(std::string& s, unsigned short n, unsigned short v)
+  void appendDn(std::string& s, unsigned short n, unsigned v)
   {
       s.resize(s.size() + n);
       for (unsigned short i = 0; i < n; ++i)
@@ -101,30 +101,4 @@ namespace cxxtools
         v /= 10;
       }
   }
-
-  void appendD6(std::string& s, unsigned short v)
-  {
-      appendDn(s, 6, v);
-  }
-
-  void appendD4(std::string& s, unsigned short v)
-  {
-      appendDn(s, 4, v);
-  }
-
-  void appendD3(std::string& s, unsigned short v)
-  {
-      appendDn(s, 3, v);
-  }
-
-  void appendD2(std::string& s, unsigned short v)
-  {
-      appendDn(s, 2, v);
-  }
-
-  void appendD1(std::string& s, unsigned short v)
-  {
-      s += '0' + v % 10;
-  }
-
 }

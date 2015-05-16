@@ -164,12 +164,12 @@ std::string Date::toString(const std::string& fmt) const
       case state_fmt:
         switch (*it)
         {
-          case 'Y': appendD4(str, year); break;
-          case 'y': appendD2(str, year % 100); break;
-          case 'm': appendD2(str, month); break;
-          case 'd': appendD2(str, day); break;
-          case 'w': appendD1(str, dayOfWeek()); break;
-          case 'W': { int dow = dayOfWeek(); appendD1(str, dow == 0 ? 7 : dow); } break;
+          case 'Y': appendDn(str, 4, year); break;
+          case 'y': appendDn(str, 2, year % 100); break;
+          case 'm': appendDn(str, 2, month); break;
+          case 'd': appendDn(str, 2, day); break;
+          case 'w': appendDn(str, 1, dayOfWeek()); break;
+          case 'W': { int dow = dayOfWeek(); appendDn(str, 1, dow == 0 ? 7 : dow); } break;
           default:
             str += '%';
         }

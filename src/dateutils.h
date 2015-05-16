@@ -37,12 +37,7 @@ namespace cxxtools
   unsigned getUnsigned(std::string::const_iterator& b, std::string::const_iterator e, unsigned digits);
   unsigned getInt(std::string::const_iterator& b, std::string::const_iterator e, unsigned digits);
   unsigned getMicroseconds(std::string::const_iterator& b, std::string::const_iterator e);
-  void appendDn(std::string& s, unsigned short n, unsigned short v);
-  void appendD6(std::string& s, unsigned short v);
-  void appendD4(std::string& s, unsigned short v);
-  void appendD3(std::string& s, unsigned short v);
-  void appendD2(std::string& s, unsigned short v);
-  void appendD1(std::string& s, unsigned short v);
+  void appendDn(std::string& s, unsigned short n, unsigned v);
 }
 
 #endif // CXXTOOLS_DATEUTILS_H
