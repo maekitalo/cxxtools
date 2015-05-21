@@ -75,10 +75,18 @@ DateTime ClockImpl::getSystemTime()
     struct timeval tod;
     gettimeofday(&tod, NULL);
 
-    Date date(tod.tv_sec / 24 / 60 / 60);
-    Time time;
-    time.setTotalUSecs(tod.tv_usec);
-    return DateTime(date, time);
+    struct tm tim;
+    time_t sec = tod.tv_sec;
+    gmtime_r(&sec, &tim);
+
+    return DateTime( tim.tm_year + 1900,
+                     tim.tm_mon + 1,
+                     tim.tm_mday,
+                     tim.tm_hour,
+                     tim.tm_min,
+                     tim.tm_sec,
+                     0,
+                     tod.tv_usec);
 }
 
 
