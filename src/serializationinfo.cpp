@@ -37,6 +37,107 @@ log_define("cxxtools.serializationinfo")
 namespace cxxtools
 {
 
+SerializationInfo::SerializationInfo(const SerializationInfo& si)
+: _category(si._category)
+, _name(si._name)
+, _type(si._type)
+, _u(si._u)
+, _t(si._t)
+, _nodes(si._nodes)
+{
+    switch (_t)
+    {
+        case t_string:  new (_StringPtr()) String(si._String());
+                        break;
+
+        case t_string8: new (_String8Ptr()) std::string(si._String8());
+                        break;
+
+        default:
+            ;
+    }
+}
+
+
+SerializationInfo& SerializationInfo::operator=(const SerializationInfo& si)
+{
+    _category = si._category;
+    _name = si._name;
+    _type = si._type;
+    _nodes = si._nodes;
+
+    if (si._t == t_string)
+        _setString( si._String() );
+    else if (si._t == t_string8)
+        _setString8( si._String8() );
+    else
+    {
+        _releaseValue();
+        _u = si._u;
+        _t = si._t;
+    }
+
+    return *this;
+}
+
+
+#if __cplusplus >= 201103L
+
+SerializationInfo::SerializationInfo(SerializationInfo&& si)
+    : _category(si._category),
+      _name(std::move(si._name)),
+      _type(std::move(si._type)),
+      _u(si._u),
+      _t(si._t),
+      _nodes(std::move(si._nodes))
+{
+    si._category = Void;
+    si._t = t_none;
+}
+
+
+SerializationInfo& SerializationInfo::operator=(SerializationInfo&& si)
+{
+    _category = si._category;
+    _name = std::move(si._name);
+    _type = std::move(si._type);
+    _nodes = std::move(si._nodes);
+
+    if (si._t == t_string)
+    {
+        if (_t != t_string)
+        {
+            _releaseValue();
+            new (_StringPtr()) String();
+            _t = t_string;
+        }
+
+        _String().swap(si._String());
+    }
+    else if (si._t == t_string8)
+    {
+        if (_t != t_string8)
+        {
+            _releaseValue();
+            new (_String8Ptr()) std::string();
+            _t = t_string8;
+        }
+
+        _String8().swap(si._String8());
+    }
+    else
+    {
+        _releaseValue();
+        _t = si._t;
+        _u = si._u;
+    }
+
+    return *this;
+}
+
+
+#endif
+
 SerializationInfo& SerializationInfo::addMember(const std::string& name)
 {
     log_trace("addMember(\"" << name << "\")");

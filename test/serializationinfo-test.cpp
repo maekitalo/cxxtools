@@ -326,10 +326,23 @@ class SerializationInfoTest : public cxxtools::unit::TestSuite
                 const char str[] = "this is a string with aribtrary content";
                 si.setValue(str);
 
+                cxxtools::SerializationInfo si2;
+                si2.setValue(L"string to be replaced");
+                si2 = std::move(si);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<std::string>(si2), str);
+                CXXTOOLS_UNIT_ASSERT(siValue<std::string>(si) != str);
+            }
+
+            {
+                cxxtools::SerializationInfo si;
+                const char str[] = "this is a string with aribtrary content";
+                si.setValue(str);
+
                 cxxtools::SerializationInfo si2(std::move(si));
                 CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<std::string>(si2), str);
                 CXXTOOLS_UNIT_ASSERT(siValue<std::string>(si) != str);
             }
+
         }
 
 #endif
