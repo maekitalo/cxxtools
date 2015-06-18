@@ -1,4 +1,4 @@
-nobase_include_HEADERS = \
+noinst_HEADERS = \
 	msg.h
 
 noinst_PROGRAMS = arg arg-set cgi dir dlloader getini hd \
