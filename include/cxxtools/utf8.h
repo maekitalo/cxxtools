@@ -101,7 +101,7 @@ namespace cxxtools
         si <<= str.ustr();
     }
 
-    inline void operator>>= (SerializationInfo& si, Utf8IOString& str)
+    inline void operator>>= (const SerializationInfo& si, Utf8IOString& str)
     {
         String s;
         si >>= s;
