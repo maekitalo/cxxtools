@@ -47,6 +47,21 @@ namespace
 
     }
 
+    bool isplain(const std::string& str)
+    {
+        if (str.empty())
+            return false;
+
+        if (!std::isalpha(str[0]))
+            return false;
+
+        for (std::string::size_type n = 1; n < str.size(); ++n)
+            if (!std::isalnum(str[n]))
+                return false;
+
+        return true;
+    }
+
 }
 
 void JsonFormatter::begin(std::basic_ostream<Char>& ts)
@@ -228,10 +243,20 @@ void JsonFormatter::beginArray(const std::string& name, const std::string& type)
 
     if (!name.empty())
     {
-        *_ts << L'"';
-        stringOut(name);
-        *_ts << L'"'
-             << L':';
+        if (_plainkey && isplain(name))
+        {
+            for (std::string::size_type n = 0; n < name.size(); ++n)
+                *_ts << Char(name[n]);
+        }
+        else
+        {
+          *_ts << L'"';
+          stringOut(name);
+          *_ts << L'"';
+        }
+
+        *_ts << L':';
+
         if (_beautify)
             *_ts << L' ';
     }
@@ -277,10 +302,20 @@ void JsonFormatter::beginObject(const std::string& name, const std::string& type
 
     if (!name.empty())
     {
-        *_ts << L'"';
-        stringOut(name);
-        *_ts << L'"'
-             << L':';
+        if (_plainkey && isplain(name))
+        {
+            for (std::string::size_type n = 0; n < name.size(); ++n)
+                *_ts << Char(name[n]);
+        }
+        else
+        {
+          *_ts << L'"';
+          stringOut(name);
+          *_ts << L'"';
+        }
+
+        *_ts << L':';
+
         if (_beautify)
             *_ts << L' ';
     }
@@ -318,24 +353,6 @@ void JsonFormatter::indent()
 {
     for (unsigned n = 0; n < _level; ++n)
         *_ts << L'\t';
-}
-
-namespace
-{
-    bool isplain(const std::string& str)
-    {
-        if (str.empty())
-            return false;
-
-        if (!std::isalpha(str[0]))
-            return false;
-
-        for (std::string::size_type n = 1; n < str.size(); ++n)
-            if (!std::isalnum(str[n]))
-                return false;
-
-        return true;
-    }
 }
 
 void JsonFormatter::stringOut(const std::string& str)
