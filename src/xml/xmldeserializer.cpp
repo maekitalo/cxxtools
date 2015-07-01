@@ -34,7 +34,7 @@
 #include "cxxtools/log.h"
 #include <stdexcept>
 
-log_define("cxxtools.xml.deserializer");
+log_define("cxxtools.xml.deserializer")
 
 namespace cxxtools {
 
