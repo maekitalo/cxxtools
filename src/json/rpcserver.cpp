@@ -54,13 +54,13 @@ RpcServer::~RpcServer()
     delete _impl;
 }
 
-void RpcServer::addService(const std::string& praefix, const ServiceRegistry& service)
+void RpcServer::addService(const std::string& prefix, const ServiceRegistry& service)
 {
     std::vector<std::string> procs = service.getProcedureNames();
 
     for (std::vector<std::string>::const_iterator it = procs.begin(); it != procs.end(); ++it)
     {
-        registerProcedure(praefix + *it, service.getProcedure(*it));
+        registerProcedure(prefix + *it, service.getProcedure(*it));
     }
 }
 

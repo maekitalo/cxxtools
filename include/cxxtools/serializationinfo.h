@@ -358,7 +358,7 @@ class SerializationInfo
         bool isUInt() const     { return _t == t_uint; }
         bool isFloat() const    { return _t == t_float; }
 
-        void dump(std::ostream& out, const std::string& praefix = std::string()) const;
+        void dump(std::ostream& out, const std::string& prefix = std::string()) const;
 
     private:
         Category _category;

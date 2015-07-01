@@ -37,7 +37,7 @@ namespace xml {
 
 namespace
 {
-    static const String xmlPraefix(L"<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+    static const String xmlPrefix(L"<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
 }
 
 XmlWriter::XmlWriter()
@@ -53,7 +53,7 @@ XmlWriter::XmlWriter(std::ostream& os, int flags)
 {
     if (useXmlDeclaration())
     {
-        _tos << xmlPraefix;
+        _tos << xmlPrefix;
         if (useEndl())
             endl();
     }
@@ -69,7 +69,7 @@ void XmlWriter::begin(std::ostream& os)
 {
     _tos.attach(os);
     if (useXmlDeclaration())
-        _tos << xmlPraefix;
+        _tos << xmlPrefix;
     if (useEndl())
         endl();
 }

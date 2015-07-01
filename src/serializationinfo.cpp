@@ -335,23 +335,23 @@ void SerializationInfo::swap(SerializationInfo& si)
     _nodes.swap(si._nodes);
 }
 
-void SerializationInfo::dump(std::ostream& out, const std::string& praefix) const
+void SerializationInfo::dump(std::ostream& out, const std::string& prefix) const
 {
     if (!_name.empty())
-        out << praefix << "name = \"" << _name << "\"\n";
+        out << prefix << "name = \"" << _name << "\"\n";
 
     if (_t != t_none)
     {
-        out << praefix << "type = " << (_t == t_none ? "none" :
-                                        _t == t_string ? "string" :
-                                        _t == t_string8 ? "string8" :
-                                        _t == t_char ? "char" :
-                                        _t == t_bool ? "bool" :
-                                        _t == t_int ? "int" :
-                                        _t == t_uint ? "uint" :
-                                        _t == t_float ? "float" : "?") << '\n';
+        out << prefix << "type = " << (_t == t_none ? "none" :
+                                       _t == t_string ? "string" :
+                                       _t == t_string8 ? "string8" :
+                                       _t == t_char ? "char" :
+                                       _t == t_bool ? "bool" :
+                                       _t == t_int ? "int" :
+                                       _t == t_uint ? "uint" :
+                                       _t == t_float ? "float" : "?") << '\n';
 
-        out << praefix << "value = ";
+        out << prefix << "value = ";
 
         switch (_t)
         {
@@ -369,13 +369,13 @@ void SerializationInfo::dump(std::ostream& out, const std::string& praefix) cons
     }
 
     if (!_type.empty())
-        out << praefix << "typeName = " << _type << '\n';
+        out << prefix << "typeName = " << _type << '\n';
     if (!_nodes.empty())
     {
-        std::string p = praefix + '\t';
+        std::string p = prefix + '\t';
         for (std::vector<SerializationInfo>::size_type n = 0; n < _nodes.size(); ++n)
         {
-            out << praefix << "node[" << n << "]\n";
+            out << prefix << "node[" << n << "]\n";
             _nodes[n].dump(out, p);
         }
     }
