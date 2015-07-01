@@ -53,17 +53,18 @@ namespace xml
 
                 To read a xml structure, the parse method has to be called.
              */
-            explicit XmlDeserializer(bool readAttributes = false)
-                : _readAttributes(readAttributes)
+            explicit XmlDeserializer(bool readAttributes = false, const String& attributePrefix = cxxtools::String())
+                : _readAttributes(readAttributes),
+                  _attributePrefix(attributePrefix)
             { }
 
             /** Initializes a deserializer and reads a xml structure into the underlying SerializationInfo.
              */
-            explicit XmlDeserializer(XmlReader& reader, bool readAttributes = false);
+            explicit XmlDeserializer(XmlReader& reader, bool readAttributes = false, const String& attributePrefix = cxxtools::String());
 
             /** Initializes a deserializer and reads a xml structure into the underlying SerializationInfo.
              */
-            explicit XmlDeserializer(std::istream& is, bool readAttributes = false);
+            explicit XmlDeserializer(std::istream& is, bool readAttributes = false, const String& attributePrefix = cxxtools::String());
 
             /** Reads a xml structure into the underlying SerializationInfo.
              */
@@ -89,6 +90,20 @@ namespace xml
              */
             bool readAttributes() const
             { return _readAttributes; }
+
+            /** When reading attributes, the member names can be prefixed with a string.
+
+                The string is set with this method.
+             */
+            void attributePrefix(const String& attributePrefix)
+            { _attributePrefix = attributePrefix; }
+
+            /** When reading attributes, the member names can be prefixed with a string.
+
+                The currently set string is returned with this method.
+             */
+            const String& attributePrefix() const
+            { return _attributePrefix; }
 
             template <typename T>
             static void toObject(const std::string& str, T& type, bool readAttributes = false)
@@ -143,15 +158,17 @@ namespace xml
             bool _readAttributes;
 
             //! @internal
-            cxxtools::String _nodeName;
+            String _nodeName;
 
-            cxxtools::String _nodeId;
+            String _nodeId;
 
-            cxxtools::String _nodeType;
+            String _nodeType;
 
-            cxxtools::String _nodeCategory;
+            String _nodeCategory;
 
             Attributes _attributes;
+
+            String _attributePrefix;
 
             SerializationInfo::Category nodeCategory() const;
 

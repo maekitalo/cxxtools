@@ -153,6 +153,7 @@ namespace xml
     {
         ObjectType& _object;
         bool _readAttributes;
+        String _attributePrefix;
 
       public:
         explicit XmlIObject(ObjectType& object)
@@ -169,6 +170,12 @@ namespace xml
         bool readAttributes()
         { return _readAttributes; }
 
+        XmlIObject& attributePrefix(const String& p)
+        { _attributePrefix = p; return *this; }
+
+        const String& attributePrefix()
+        { return _attributePrefix; }
+
     };
 
     /// The input operator for XmlIObject. It does the actual work.
@@ -180,6 +187,7 @@ namespace xml
       {
         XmlDeserializer deserializer;
         deserializer.readAttributes(object.readAttributes());
+        deserializer.attributePrefix(object.attributePrefix());
         deserializer.parse(in);
         deserializer.deserialize(object.object());
       }
