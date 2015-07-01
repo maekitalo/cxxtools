@@ -31,11 +31,36 @@
 #include "cxxtools/xml/characters.h"
 #include "cxxtools/string.h"
 #include "cxxtools/utf8codec.h"
+#include "cxxtools/log.h"
 #include <stdexcept>
+
+log_define("cxxtools.xml.deserializer");
 
 namespace cxxtools {
 
 namespace xml {
+
+namespace {
+
+    std::ostream& operator<< (std::ostream& out, Node::Type type)
+    {
+        switch(type)
+        {
+            case Node::StartDocument: out << "StartDocument"; break;
+            case Node::DocType: out << "DocType"; break;
+            case Node::EndDocument: out << "EndDocument"; break;
+            case Node::StartElement: out << "StartElement"; break;
+            case Node::EndElement: out << "EndElement"; break;
+            case Node::Characters: out << "Characters"; break;
+            case Node::Comment: out << "Comment"; break;
+            case Node::ProcessingInstruction: out << "ProcessingInstruction"; break;
+            case Node::Unknown:
+            default: out << "Unknown"; break;
+        }
+
+        return out;
+    }
+}
 
 XmlDeserializer::XmlDeserializer(XmlReader& reader, bool readAttributes)
   : _readAttributes(readAttributes)
@@ -90,6 +115,9 @@ void XmlDeserializer::parse(XmlReader& reader)
 void XmlDeserializer::beginDocument(XmlReader& reader)
 {
     const Node& node = reader.get();
+
+    log_debug("beginDocument; node type=" << node.type());
+
     switch( node.type() )
     {
         case Node::StartElement:
@@ -119,6 +147,9 @@ void XmlDeserializer::beginDocument(XmlReader& reader)
 void XmlDeserializer::onRootElement(XmlReader& reader)
 {
     const Node& node = reader.get();
+
+    log_debug("onRootElement; node type=" << node.type());
+
     switch( node.type() )
     {
         case Node::Characters:
@@ -164,6 +195,9 @@ void XmlDeserializer::onRootElement(XmlReader& reader)
 void XmlDeserializer::onStartElement(XmlReader& reader)
 {
     const Node& node = reader.get();
+
+    log_debug("onStartElement; node type=" << node.type());
+
     switch( node.type() )
     {
         case Node::Characters:
@@ -206,7 +240,10 @@ void XmlDeserializer::onStartElement(XmlReader& reader)
             _nodeType = se.attribute(L"type");
             _nodeCategory = se.attribute(L"category");
             if (_readAttributes)
+            {
+                processAttributes(_attributes);
                 _attributes = se.attributes();
+            }
             break;
         }
         case Node::EndElement:
@@ -232,6 +269,9 @@ void XmlDeserializer::onStartElement(XmlReader& reader)
 void XmlDeserializer::onWhitespace(XmlReader& reader)
 {
     const Node& node = reader.get();
+
+    log_debug("onWhitespaceElement; node type=" << node.type());
+
     switch( node.type() )
     {
         case Node::StartElement:
@@ -265,6 +305,9 @@ void XmlDeserializer::onWhitespace(XmlReader& reader)
 void XmlDeserializer::onContent(XmlReader& reader)
 {
     const Node& node = reader.get();
+
+    log_debug("onContentElement; node type=" << node.type());
+
     switch( node.type() )
     {
         case Node::EndElement:
@@ -281,6 +324,9 @@ void XmlDeserializer::onContent(XmlReader& reader)
 void XmlDeserializer::onEndElement(XmlReader& reader)
 {
     const Node& node = reader.get();
+
+    log_debug("onEndElement; node type=" << node.type());
+
     switch( node.type() )
     {
         case Node::Characters:
@@ -327,6 +373,7 @@ SerializationInfo::Category XmlDeserializer::nodeCategory() const
 
 void XmlDeserializer::processAttributes(const Attributes& attributes)
 {
+    log_debug("processAttributes " << attributes.size() << " attributes");
     SerializationInfo& si = *current();
     for (Attributes::const_iterator it = attributes.begin(); it != attributes.end(); ++it)
     {
