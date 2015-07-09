@@ -209,7 +209,7 @@ namespace cxxtools
         : n(0)
         {}
 
-        int n;
+        uint8_t n;
         union {
             Char::value_type wchars[4];
             char mbytes[16];

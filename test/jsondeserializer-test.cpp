@@ -104,6 +104,7 @@ class JsonDeserializerTest : public cxxtools::unit::TestSuite
             registerMethod("testArray", *this, &JsonDeserializerTest::testArray);
             registerMethod("testEmptyArrays", *this, &JsonDeserializerTest::testEmptyArrays);
             registerMethod("testStrings", *this, &JsonDeserializerTest::testStrings);
+            registerMethod("testUnicodeString", *this, &JsonDeserializerTest::testUnicodeString);
             registerMethod("testComplexObject", *this, &JsonDeserializerTest::testComplexObject);
             registerMethod("testCommentLine", *this, &JsonDeserializerTest::testCommentLine);
             registerMethod("testCommentMultiline", *this, &JsonDeserializerTest::testCommentMultiline);
@@ -220,6 +221,20 @@ class JsonDeserializerTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[3].size(), 2);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[3][0].value(), 0x1e04);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[3][1], '4');
+        }
+
+        void testUnicodeString()
+        {
+            cxxtools::String data;
+
+            std::istringstream in("\"M\xc3\xa4kitalo\xf0\x90\xa4\x80\"");
+
+            cxxtools::JsonDeserializer deserializer(in);
+            deserializer.deserialize(data);
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 9);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[1].value(), 0xe4);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[8].value(), 0x10900);
         }
 
         void testComplexObject()
