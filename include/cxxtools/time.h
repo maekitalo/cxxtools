@@ -68,7 +68,7 @@ class Time
         static const unsigned MSecsPerHour     = 3600000;
         static const unsigned MSecsPerMinute   = 60000;
         static const unsigned MSecsPerSecond   = 1000;
-        static const unsigned long USecsPerDay = static_cast<unsigned long>(MSecsPerDay) * 1000;
+        static const uint64_t USecsPerDay = static_cast<uint64_t>(MSecsPerDay) * 1000;
 
         /** \brief Creates a Time set to zero.
         */
@@ -145,13 +145,13 @@ class Time
         unsigned totalMSecs() const
         { return _usecs / 1000; }
 
-        unsigned long totalUSecs() const
+        uint64_t totalUSecs() const
         { return _usecs; }
 
         void setTotalMSecs(unsigned msecs)
         { _usecs = msecs * 1000; }
 
-        void setTotalUSecs(unsigned long m)
+        void setTotalUSecs(uint64_t m)
         { _usecs = m; }
 
         /** \brief Sets the time.
@@ -166,7 +166,7 @@ class Time
                 throw InvalidTime();
             }
 
-            _usecs = (((((static_cast<unsigned long>(hour) * 60 + min) * 60) + sec) * 1000) + msec) * 1000 + usec;
+            _usecs = (((((static_cast<uint64_t>(hour) * 60 + min) * 60) + sec) * 1000) + msec) * 1000 + usec;
         }
 
         /** @brief Get the time values
@@ -305,7 +305,7 @@ class Time
 
     private:
         //! @internal
-        unsigned long _usecs;
+        uint64_t _usecs;
     };
 
     void operator >>=(const SerializationInfo& si, Time& time);

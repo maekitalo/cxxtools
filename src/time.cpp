@@ -242,7 +242,7 @@ Time& Time::operator+=(const Timespan& ts)
         throw std::overflow_error(s.str());
     }
 
-    _usecs = static_cast<unsigned long>(microsecs);
+    _usecs = static_cast<uint64_t>(microsecs);
     return *this;
 }
 
@@ -256,7 +256,7 @@ Time& Time::operator-=(const Timespan& ts)
         throw std::overflow_error(s.str());
     }
 
-    _usecs = static_cast<unsigned long>(microsecs);
+    _usecs = static_cast<uint64_t>(microsecs);
     return *this;
 }
 
