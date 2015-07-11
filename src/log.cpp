@@ -40,12 +40,17 @@
 #include <cxxtools/fileinfo.h>
 #include <cxxtools/split.h>
 #include <cxxtools/envsubst.h>
+#include <cxxtools/datetime.h>
+
+#include "dateutils.h"
+
 #include <iterator>
 #include <vector>
 #include <map>
 #include <fstream>
 #include <sstream>
 #include <cctype>
+
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
@@ -250,20 +255,34 @@ namespace cxxtools
     class FileAppender : public FdAppender
     {
         std::string _fname;
+        std::string _fpattern;
+        time_t _nextModTime;
 
       public:
         explicit FileAppender(const std::string& fname);
         virtual void putMessage(const std::string& msg);
 
         const std::string& fname() const  { return _fname; }
+        void fname(const std::string& f)
+        {
+          if (f != _fname)
+          {
+            closeFile();
+            _fname = f;
+          }
+        }
+
         void closeFile();
         void openFile();
     };
 
     FileAppender::FileAppender(const std::string& fname)
       : FdAppender(-1),
-        _fname(fname)
+        _fname(fname),
+        _nextModTime(0)
     {
+      if (_fname.find('%') != std::string::npos)
+        _fpattern = fname;
     }
 
     void FileAppender::openFile()
@@ -292,6 +311,157 @@ namespace cxxtools
 
     void FileAppender::putMessage(const std::string& msg)
     {
+      if (!_fpattern.empty())
+      {
+        time_t t;
+
+        if (_nextModTime != 0)
+          time(&t);
+
+        if (_nextModTime == 0 || _nextModTime <= t)
+        {
+          enum {
+            state_0,
+            state_p
+          } state = state_0;
+
+          /*
+           Format codes:
+
+                %Y   4 digit year
+                %y   2 digit year
+                %m   month (1-12)
+                %d   day (1-31)
+                %H   hours (0-23)
+                %I   hours (0-11)
+                %M   minutes
+                %S   seconds
+                %w   day of week (0-6, Sunday=0)
+                %W   day of week (1-7, Sunday=7)
+                %p   am/pm
+                %P   AM/PM
+                %L   localtime
+                %G   gmtime
+                %%   single %
+           */
+
+          DateTime localtime = DateTime::localtime();
+          DateTime gmtime = DateTime::gmtime();
+          time_t current;
+          time(&current);
+
+          int year;
+          unsigned month, day, hour, min, sec, msec;
+          localtime.get(year, month, day, hour, min, sec, msec);
+          DateTime* dt = &localtime;
+
+          time_t res = 3600;
+
+          std::string str;
+
+          for (std::string::const_iterator it = _fpattern.begin(); it != _fpattern.end(); ++it)
+          {
+            char ch = *it;
+            switch (state)
+            {
+              case state_0:
+                if (ch == '%')
+                  state = state_p;
+                else
+                  str += ch;
+                break;
+
+              case state_p:
+                switch (ch)
+                {
+                  case 'Y':
+                    appendDn(str, 4, year);
+                    break;
+
+                  case 'y':
+                    appendDn(str, 2, year % 100);
+                    break;
+
+                  case 'm':
+                    appendDn(str, 2, month);
+                    break;
+
+                  case 'd':
+                    appendDn(str, 2, day);
+                    break;
+
+                  case 'H':
+                    appendDn(str, 2, hour);
+                    break;
+
+                  case 'I':
+                    appendDn(str, 2, hour % 12);
+                    break;
+
+                  case 'M':
+                    appendDn(str, 2, min);
+                    if (res > 60)
+                      res = 60;
+                    break;
+
+                  case 'S':
+                    appendDn(str, 2, sec);
+                    res = 1;
+                    break;
+
+                  case 'w':
+                    appendDn(str, 1, dt->dayOfWeek());
+                    break;
+
+                  case 'W':
+                    {
+                      int wday = dt->dayOfWeek();
+                      appendDn(str, 1, wday == 0 ? 7 : wday);
+                    }
+                    break;
+
+                  case 'p':
+                    str += (hour >= 12 ? "pm" : "am");
+                    break;
+
+                  case 'P':
+                    str += (hour >= 12 ? "PM" : "AM");
+                    break;
+
+                  case '%':
+                    str += '%';
+                    break;
+
+                  case 'L':
+                    dt = &localtime;
+                    dt->get(year, month, day, hour, min, sec, msec);
+                    break;
+
+                  case 'G':
+                    dt = &gmtime;
+                    dt->get(year, month, day, hour, min, sec, msec);
+                    break;
+
+                  default:
+                    str += '%';
+                    str += ch;
+                    break;
+                }
+
+                state = state_0;
+                break;
+            }
+          }
+
+          if (state == state_p)
+            str += '%';
+
+          fname(str);
+
+          _nextModTime = current + res - current % res;
+        }
+      }
+
       if (_fd == -1)
         openFile();
 
@@ -723,7 +893,7 @@ namespace cxxtools
           }
         }
 
-        si.getMember("maxbackupindex") >>= impl._maxbackupindex;
+        si.getMember("maxbackupindex", impl._maxbackupindex);
       }
     }
     else if (si.getMember("logport", impl._logport))
