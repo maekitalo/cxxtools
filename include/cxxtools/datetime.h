@@ -197,7 +197,7 @@ class DateTime
               %w   day of week (0-6 sunday=6)
               %W   day of week (1-7 sunday=7)
               %H   hours (0-23)
-              %h   hours (0-11)
+              %I   hours (0-11)
               %M   minutes
               %S   seconds
               %j   fractional seconds (1-6 digits, optionally leading '.')
