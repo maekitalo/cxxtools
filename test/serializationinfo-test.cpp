@@ -29,6 +29,9 @@
 #include "cxxtools/serializationinfo.h"
 #include "cxxtools/unit/testsuite.h"
 #include "cxxtools/unit/registertest.h"
+#include "cxxtools/log.h"
+
+log_define("cxxtools.unit.serializationinfo")
 
 #if __cplusplus >= 201103L
 #include <utility>
@@ -490,22 +493,35 @@ class SerializationInfoTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_THROW(siValue<short>(si), std::range_error);
             CXXTOOLS_UNIT_ASSERT_NOTHROW(siValue<long>(si));
 
-            si.setValue(static_cast<long double>(std::numeric_limits<double>::max()) * 1.00000000001);
-            CXXTOOLS_UNIT_ASSERT_THROW(siValue<double>(si), std::range_error);
-            CXXTOOLS_UNIT_ASSERT_NOTHROW(siValue<long double>(si));
+            if (std::numeric_limits<long double>::max() > static_cast<long double>(std::numeric_limits<double>::max()))
+            {
+                si.setValue(static_cast<long double>(std::numeric_limits<double>::max()) * 1.00000000001);
+                CXXTOOLS_UNIT_ASSERT_THROW(siValue<double>(si), std::range_error);
+                CXXTOOLS_UNIT_ASSERT_NOTHROW(siValue<long double>(si));
 
-            si.setValue(static_cast<long double>(std::numeric_limits<float>::max()) * 1.00000000001);
-            CXXTOOLS_UNIT_ASSERT_THROW(siValue<float>(si), std::range_error);
-            CXXTOOLS_UNIT_ASSERT_NOTHROW(siValue<double>(si));
+                si.setValue(static_cast<long double>(-std::numeric_limits<double>::max()) * 1.00000000001);
+                CXXTOOLS_UNIT_ASSERT_THROW(siValue<double>(si), std::range_error);
+                CXXTOOLS_UNIT_ASSERT_NOTHROW(siValue<long double>(si));
+            }
+            else
+            {
+                log_info("range error for double skipped since long double is not larger than double");
+            }
 
-            si.setValue(static_cast<long double>(-std::numeric_limits<double>::max()) * 1.00000000001);
-            CXXTOOLS_UNIT_ASSERT_THROW(siValue<double>(si), std::range_error);
-            CXXTOOLS_UNIT_ASSERT_NOTHROW(siValue<long double>(si));
+            if (std::numeric_limits<long double>::max() > static_cast<long double>(std::numeric_limits<float>::max()))
+            {
+                si.setValue(static_cast<long double>(std::numeric_limits<float>::max()) * 1.00000000001);
+                CXXTOOLS_UNIT_ASSERT_THROW(siValue<float>(si), std::range_error);
+                CXXTOOLS_UNIT_ASSERT_NOTHROW(siValue<double>(si));
 
-            si.setValue(static_cast<long double>(-std::numeric_limits<float>::max()) * 1.00000000001);
-            CXXTOOLS_UNIT_ASSERT_THROW(siValue<float>(si), std::range_error);
-            CXXTOOLS_UNIT_ASSERT_NOTHROW(siValue<double>(si));
-
+                si.setValue(static_cast<long double>(-std::numeric_limits<float>::max()) * 1.00000000001);
+                CXXTOOLS_UNIT_ASSERT_THROW(siValue<float>(si), std::range_error);
+                CXXTOOLS_UNIT_ASSERT_NOTHROW(siValue<double>(si));
+            }
+            else
+            {
+                log_info("range error for float skipped since long double is not larger than double");
+            }
         }
 
         void testMember()
