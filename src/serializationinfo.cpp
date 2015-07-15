@@ -142,23 +142,7 @@ SerializationInfo& SerializationInfo::addMember(const std::string& name)
 {
     log_trace("addMember(\"" << name << "\")");
 
-    if (_nodes.empty())
-    {
-        _nodes.reserve(16);
-    }
-    else if (_nodes.size() == _nodes.capacity())
-    {
-        // we use swap here to prevent copying subnodes
-        Nodes nodes;
-        nodes.reserve(_nodes.size() + _nodes.size() / 2);
-        nodes.resize(_nodes.size());
-        for (unsigned n = 0; n < _nodes.size(); ++n)
-            _nodes[n].swap(nodes[n]);
-        _nodes.swap(nodes);
-    }
-
-    _nodes.resize(_nodes.size() + 1);
-
+    _nodes.push_back(SerializationInfo());
     _nodes.back().setName(name);
 
     // category Array overrides Object

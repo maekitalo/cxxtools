@@ -109,7 +109,7 @@ namespace cxxtools
 
 class SerializationInfo
 {
-    typedef std::vector<SerializationInfo> Nodes;
+    typedef std::deque<SerializationInfo> Nodes;
 
     public:
         enum Category {
@@ -154,9 +154,6 @@ class SerializationInfo
         SerializationInfo& operator=(SerializationInfo&& si);
 
 #endif
-
-        void reserve(size_t n)
-        { _nodes.reserve(n); }
 
         Category category() const
         {
@@ -689,7 +686,6 @@ inline void operator <<=(SerializationInfo& si, const std::vector<T, A>& vec)
 {
     typename std::vector<T, A>::const_iterator it;
 
-    si.reserve(vec.size());
     for(it = vec.begin(); it != vec.end(); ++it)
     {
         SerializationInfo& newSi = si.addMember();
