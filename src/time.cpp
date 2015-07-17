@@ -95,22 +95,32 @@ Time::Time(const std::string& str, const std::string& fmt)
           case 'j':
             if (dit != str.end() && *dit == '.')
               ++dit;
-            useconds = getMicroseconds(dit, str.end());
+            useconds = getMicroseconds(dit, str.end(), 6);
             break;
 
           case 'J':
-          case 'K':
           case 'U':
             if (dit != str.end() && *dit == '.')
             {
               ++dit;
-              useconds = getMicroseconds(dit, str.end());
+              useconds = getMicroseconds(dit, str.end(), 6);
+            }
+            break;
+
+          case 'K':
+            if (dit != str.end() && *dit == '.')
+            {
+              ++dit;
+              useconds = getMicroseconds(dit, str.end(), 3);
             }
             break;
 
           case 'k':
+            useconds = getMicroseconds(dit, str.end(), 3);
+            break;
+
           case 'u':
-            useconds = getMicroseconds(dit, str.end());
+            useconds = getMicroseconds(dit, str.end(), 6);
             break;
 
           case 'p':

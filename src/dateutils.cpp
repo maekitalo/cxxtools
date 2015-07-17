@@ -75,12 +75,12 @@ namespace cxxtools
     return ret * sgn;
   }
 
-  unsigned getMicroseconds(std::string::const_iterator& b, std::string::const_iterator e)
+  unsigned getMicroseconds(std::string::const_iterator& b, std::string::const_iterator e, unsigned digits)
   {
     unsigned m = 0;
     unsigned d = 100000;
 
-    for (unsigned c = 0; c < 6; ++c)
+    for (unsigned c = 0; c < digits; ++c)
     {
       if (b == e || !std::isdigit(*b))
         return m;
