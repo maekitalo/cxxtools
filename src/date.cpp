@@ -108,7 +108,7 @@ Date::Date(const std::string& str, const std::string& fmt)
             break;
 
           case 'y':
-            year = getInt(dit, str.end(), 4);
+            year = getInt(dit, str.end(), 2);
             year += (year < 50 ? 2000 : 1900);
             break;
 
