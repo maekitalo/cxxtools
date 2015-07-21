@@ -771,6 +771,7 @@ namespace cxxtools
           _maxbackupindex(0),
           _logport(0),
           _broadcast(true),
+          _tostdout(false),
           _rootFlags(Logger::LOG_LEVEL_FATAL)
       { }
 
