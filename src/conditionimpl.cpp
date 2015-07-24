@@ -60,6 +60,12 @@ void ConditionImpl::wait(Mutex& mtx)
 
 bool ConditionImpl::wait(Mutex& mtx, const Timespan& ts)
 {
+    if (ts < Timespan(0))
+    {
+        wait(mtx);
+        return true;
+    }
+
     int result;
 
     Timespan tt = Timespan::gettimeofday() + ts;
