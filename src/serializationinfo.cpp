@@ -38,12 +38,12 @@ namespace cxxtools
 {
 
 SerializationInfo::SerializationInfo(const SerializationInfo& si)
-: _category(si._category)
-, _name(si._name)
-, _type(si._type)
-, _u(si._u)
-, _t(si._t)
-, _nodes(si._nodes)
+: _category(si._category),
+  _name(si._name),
+  _type(si._type),
+  _u(si._u),
+  _t(si._t),
+  _nodes(0)
 {
     switch (_t)
     {
@@ -56,15 +56,26 @@ SerializationInfo::SerializationInfo(const SerializationInfo& si)
         default:
             ;
     }
+
+    if (si._nodes)
+        _nodes = new Nodes(*si._nodes);
 }
 
 
 SerializationInfo& SerializationInfo::operator=(const SerializationInfo& si)
 {
+    if (this == &si)
+        return *this;
+
     _category = si._category;
     _name = si._name;
     _type = si._type;
-    _nodes = si._nodes;
+
+    delete _nodes;
+    if (si._nodes)
+        _nodes = new Nodes(*si._nodes);
+    else
+        _nodes = 0;
 
     if (si._t == t_string)
         _setString( si._String() );
@@ -89,10 +100,11 @@ SerializationInfo::SerializationInfo(SerializationInfo&& si)
       _type(std::move(si._type)),
       _u(si._u),
       _t(si._t),
-      _nodes(std::move(si._nodes))
+      _nodes(si._nodes)
 {
     si._category = Void;
     si._t = t_none;
+    si._nodes = 0;
 }
 
 
@@ -101,7 +113,8 @@ SerializationInfo& SerializationInfo::operator=(SerializationInfo&& si)
     _category = si._category;
     _name = std::move(si._name);
     _type = std::move(si._type);
-    _nodes = std::move(si._nodes);
+    _nodes = si._nodes;
+    si._nodes = 0;
 
     if (si._t == t_string)
     {
@@ -142,8 +155,9 @@ SerializationInfo& SerializationInfo::addMember(const std::string& name)
 {
     log_trace("addMember(\"" << name << "\")");
 
-    _nodes.push_back(SerializationInfo());
-    _nodes.back().setName(name);
+    Nodes& n = nodes();
+    n.push_back(SerializationInfo());
+    n.back().setName(name);
 
     // category Array overrides Object
     // This is needed for xmldeserialization. In the xml file the root node of a array
@@ -153,14 +167,15 @@ SerializationInfo& SerializationInfo::addMember(const std::string& name)
     if (_category != Array)
         _category = Object;
 
-    return _nodes.back();
+    return n.back();
 }
 
 
 const SerializationInfo& SerializationInfo::getMember(const std::string& name) const
 {
-    Nodes::const_iterator it = _nodes.begin();
-    for(; it != _nodes.end(); ++it)
+    const Nodes& n = nodes();
+
+    for (Nodes::const_iterator it = n.begin(); it != n.end(); ++it)
     {
         if( it->name() == name )
             return *it;
@@ -172,21 +187,24 @@ const SerializationInfo& SerializationInfo::getMember(const std::string& name) c
 
 const SerializationInfo& SerializationInfo::getMember(unsigned idx) const
 {
-    if (idx >= _nodes.size())
+    const Nodes& n = nodes();
+
+    if (idx >= n.size())
     {
         std::ostringstream msg;
-        msg << "requested member index " << idx << " exceeds number of members " << _nodes.size();
+        msg << "requested member index " << idx << " exceeds number of members " << n.size();
         throw std::range_error(msg.str());
     }
 
-    return _nodes[idx];
+    return n[idx];
 }
 
 
 const SerializationInfo* SerializationInfo::findMember(const std::string& name) const
 {
-    Nodes::const_iterator it = _nodes.begin();
-    for(; it != _nodes.end(); ++it)
+    const Nodes& n = nodes();
+
+    for (Nodes::const_iterator it = n.begin(); it != n.end(); ++it)
     {
         if( it->name() == name )
             return &(*it);
@@ -198,8 +216,9 @@ const SerializationInfo* SerializationInfo::findMember(const std::string& name) 
 
 SerializationInfo* SerializationInfo::findMember(const std::string& name)
 {
-    Nodes::iterator it = _nodes.begin();
-    for(; it != _nodes.end(); ++it)
+    Nodes& n = nodes();
+
+    for (Nodes::iterator it = n.begin(); it != n.end(); ++it)
     {
         if( it->name() == name )
             return &(*it);
@@ -213,7 +232,7 @@ void SerializationInfo::clear()
     _category = Void;
     _name.clear();
     _type.clear();
-    _nodes.clear();
+    nodes().clear();
     switch (_t)
     {
         case t_string: _String().clear(); break;
@@ -316,7 +335,7 @@ void SerializationInfo::swap(SerializationInfo& si)
         }
     }
 
-    _nodes.swap(si._nodes);
+    std::swap(_nodes, si._nodes);
 }
 
 void SerializationInfo::dump(std::ostream& out, const std::string& prefix) const
@@ -354,13 +373,15 @@ void SerializationInfo::dump(std::ostream& out, const std::string& prefix) const
 
     if (!_type.empty())
         out << prefix << "typeName = " << _type << '\n';
-    if (!_nodes.empty())
+
+    const Nodes& n = nodes();
+    if (!n.empty())
     {
         std::string p = prefix + '\t';
-        for (std::vector<SerializationInfo>::size_type n = 0; n < _nodes.size(); ++n)
+        for (Nodes::size_type i = 0; i < n.size(); ++i)
         {
-            out << prefix << "node[" << n << "]\n";
-            _nodes[n].dump(out, p);
+            out << prefix << "node[" << i << "]\n";
+            n[i].dump(out, p);
         }
     }
 }
@@ -747,6 +768,24 @@ long double SerializationInfo::_getFloat(const char* type, long double max) cons
     }
 
     return ret;
+}
+
+SerializationInfo::Nodes& SerializationInfo::nodes()
+{
+    if (!_nodes)
+        _nodes = new Nodes;
+
+    return *_nodes;
+}
+
+const SerializationInfo::Nodes& SerializationInfo::nodes() const
+{
+    static const Nodes emptyNodes;
+
+    if (_nodes)
+        return *_nodes;
+    else
+        return emptyNodes;
 }
 
 

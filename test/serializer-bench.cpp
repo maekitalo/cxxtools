@@ -198,6 +198,8 @@ int main(int argc, char* argv[])
         runJson = cxxtools::Arg<bool>(argc, argv, 'j');
         runBin  = cxxtools::Arg<bool>(argc, argv, 'b');
 
+        std::cout << "size of SerializationInfo: " << sizeof(cxxtools::SerializationInfo) << std::endl;
+
         if (!runXml && !runJson && !runBin)
         {
             runXml  = runJson = runBin  = true;

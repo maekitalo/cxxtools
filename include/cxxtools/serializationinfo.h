@@ -109,7 +109,7 @@ namespace cxxtools
 
 class SerializationInfo
 {
-    typedef std::deque<SerializationInfo> Nodes;
+        typedef std::deque<SerializationInfo> Nodes;
 
     public:
         enum Category {
@@ -319,27 +319,27 @@ class SerializationInfo
 
         size_t memberCount() const
         {
-            return _nodes.size();
+            return nodes().size();
         }
 
         Iterator begin()
         {
-            return _nodes.begin();
+            return nodes().begin();
         }
 
         Iterator end()
         {
-            return _nodes.end();
+            return nodes().end();
         }
 
         ConstIterator begin() const
         {
-            return _nodes.begin();
+            return nodes().begin();
         }
 
         ConstIterator end() const
         {
-            return _nodes.end();
+            return nodes().end();
         }
 
         void clear();
@@ -378,6 +378,8 @@ class SerializationInfo
         int_type _getInt(const char* type, int_type min, int_type max) const;
         unsigned_type _getUInt(const char* type, unsigned_type max) const;
         long double _getFloat(const char* type, long double max) const;
+        Nodes& nodes();
+        const Nodes& nodes() const;
 
         union U
         {
@@ -410,13 +412,14 @@ class SerializationInfo
           t_float
         } _t;
 
-        Nodes _nodes;             // objects/arrays
+        Nodes* _nodes;             // objects/arrays
 };
 
 
 inline SerializationInfo::SerializationInfo()
-: _category(Void)
-, _t(t_none)
+: _category(Void),
+  _t(t_none),
+  _nodes(0)
 { }
 
 
