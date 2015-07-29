@@ -45,6 +45,10 @@ class InvalidTime : public std::invalid_argument
     public:
         InvalidTime();
 
+        explicit InvalidTime(const std::string& what)
+            : std::invalid_argument(what)
+            { }
+
         ~InvalidTime() throw()
         {}
 };
@@ -82,8 +86,11 @@ class Time
 
               %H   hours (0-23)
               %I   hours (0-11)
-              %M   minutes
-              %S   seconds
+              %2I  hours (00-11)
+              %M   minutes (0-59)
+              %2M  minutes (00-59)
+              %S   seconds (0-59)
+              %2S  seconds (00-59)
               %j   fractional seconds (1-6 digits, optionally leading '.')
               %J   fractional seconds (1-6 digits, with leading '.')
               %K   milliseconds (3 digits, with leading '.')
@@ -199,10 +206,13 @@ class Time
 
             Valid format codes are:
 
-              %H   hours (0-23)
-              %H   hours (0-11)
-              %M   minutes
-              %S   seconds
+              %1H  hours (0-23)
+              %I   hours (00-11)
+              %1I  hours (0-11)
+              %M   minutes (00-59)
+              %1M  minutes (0-59)
+              %S   seconds (00-59)
+              %1S  seconds (0-59)
               %j   fractional seconds (1-6 digits, optionally leading '.')
               %J   fractional seconds (1-6 digits, with leading '.')
               %K   milliseconds (3 digits, with leading '.')

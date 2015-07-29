@@ -52,107 +52,132 @@ Time::Time(const std::string& str, const std::string& fmt)
 
   enum {
     state_0,
-    state_fmt
+    state_fmt,
+    state_two
   } state = state_0;
 
-  std::string::const_iterator dit = str.begin();
-  std::string::const_iterator it;
-  for (it = fmt.begin(); it != fmt.end(); ++it)
+  try
   {
-    char ch = *it;
-    switch (state)
+    std::string::const_iterator dit = str.begin();
+    std::string::const_iterator it;
+    for (it = fmt.begin(); it != fmt.end(); ++it)
     {
-      case state_0:
-        if (ch == '%')
-          state = state_fmt;
-        else
-        {
-          if (ch == '*')
-            skipNonDigit(dit, str.end());
-          else if (dit == str.end() || (*dit != ch && ch != '?'))
-            throw std::runtime_error("string <" + str + "> does not match time format <" + fmt + '>');
+      char ch = *it;
+      switch (state)
+      {
+        case state_0:
+          if (ch == '%')
+            state = state_fmt;
           else
-            ++dit;
-        }
-        break;
-
-      case state_fmt:
-        switch (ch)
-        {
-          case 'H':
-          case 'I':
-            hours = getUnsigned(dit, str.end(), 2);
-            break;
-
-          case 'M':
-            minutes = getUnsigned(dit, str.end(), 2);
-            break;
-
-          case 'S':
-            seconds = getUnsigned(dit, str.end(), 2);
-            break;
-
-          case 'j':
-            if (dit != str.end() && *dit == '.')
+          {
+            if (ch == '*')
+              skipNonDigit(dit, str.end());
+            else if (dit == str.end() || (*dit != ch && ch != '?'))
+              throw InvalidTime("string <" + str + "> does not match time format <" + fmt + '>');
+            else
               ++dit;
-            useconds = getMicroseconds(dit, str.end(), 6);
-            break;
+          }
+          break;
 
-          case 'J':
-          case 'U':
-            if (dit != str.end() && *dit == '.')
-            {
-              ++dit;
+        case state_fmt:
+          state = state_0;
+          switch (ch)
+          {
+            case 'H':
+            case 'I':
+              hours = getUnsigned(dit, str.end(), 2);
+              break;
+
+            case 'M':
+              minutes = getUnsigned(dit, str.end(), 2);
+              break;
+
+            case 'S':
+              seconds = getUnsigned(dit, str.end(), 2);
+              break;
+
+            case 'j':
+              if (dit != str.end() && *dit == '.')
+                ++dit;
               useconds = getMicroseconds(dit, str.end(), 6);
-            }
-            break;
+              break;
 
-          case 'K':
-            if (dit != str.end() && *dit == '.')
-            {
-              ++dit;
+            case 'J':
+            case 'U':
+              if (dit != str.end() && *dit == '.')
+              {
+                ++dit;
+                useconds = getMicroseconds(dit, str.end(), 6);
+              }
+              break;
+
+            case 'K':
+              if (dit != str.end() && *dit == '.')
+              {
+                ++dit;
+                useconds = getMicroseconds(dit, str.end(), 3);
+              }
+              break;
+
+            case 'k':
               useconds = getMicroseconds(dit, str.end(), 3);
-            }
-            break;
+              break;
 
-          case 'k':
-            useconds = getMicroseconds(dit, str.end(), 3);
-            break;
+            case 'u':
+              useconds = getMicroseconds(dit, str.end(), 6);
+              break;
 
-          case 'u':
-            useconds = getMicroseconds(dit, str.end(), 6);
-            break;
+            case 'p':
+              if (dit == str.end()
+                || dit + 1 == str.end()
+                || ((*dit != 'A'
+                  && *dit != 'a'
+                  && *dit != 'P'
+                  && *dit != 'p')
+                || (*(dit + 1) != 'M'
+                  &&  *(dit + 1) != 'm')))
+              {
+                  throw InvalidTime("string <" + str + "> does not match time format <" + fmt + '>');
+              }
 
-          case 'p':
-            if (dit == str.end()
-              || dit + 1 == str.end()
-              || ((*dit != 'A'
-                && *dit != 'a'
-                && *dit != 'P'
-                && *dit != 'p')
-              || (*(dit + 1) != 'M'
-                &&  *(dit + 1) != 'm')))
-            {
-                throw std::runtime_error("string <" + str + "> does not match time format <" + fmt + '>');
-            }
+              am = (*dit == 'A' || *dit == 'a');
+              dit += 2;
+              break;
 
-            am = (*dit == 'A' || *dit == 'a');
-            dit += 2;
-            break;
+            case '2':
+              state = state_two;
+              break;
 
-          default:
-            throw std::runtime_error("invalid time format <" + fmt + '>');
-        }
+            default:
+              throw InvalidTime("invalid time format <" + fmt + '>');
+          }
 
-        state = state_0;
-        break;
+          break;
+
+        case state_two:
+          state = state_0;
+          switch (ch)
+          {
+            case 'H':
+            case 'I': hours = getUnsignedF(dit, str.end(), 2); break;
+            case 'M': minutes = getUnsignedF(dit, str.end(), 2); break;
+            case 'S': seconds = getUnsignedF(dit, str.end(), 2); break;
+            default:
+              throw InvalidTime("invalid time format <" + fmt + '>');
+          }
+
+      }
     }
+
+    if (it != fmt.end() || dit != str.end())
+      throw InvalidTime("string <" + str + "> does not match time format <" + fmt + '>');
+
+    set(am ? hours : hours + 12, minutes, seconds, 0, useconds);
   }
-
-  if (it != fmt.end() || dit != str.end())
-    throw std::runtime_error("string <" + str + "> does not match time format <" + fmt + '>');
-
-  set(am ? hours : hours + 12, minutes, seconds, 0, useconds);
+  catch (const std::invalid_argument&)
+  {
+    throw InvalidTime("string <" + str + "> does not match time format <" + fmt + '>');
+  }
 }
 
 std::string Time::toString(const std::string& fmt) const
@@ -165,7 +190,8 @@ std::string Time::toString(const std::string& fmt) const
 
   enum {
     state_0,
-    state_fmt
+    state_fmt,
+    state_one
   } state = state_0;
 
   for (std::string::const_iterator it = fmt.begin(); it != fmt.end(); ++it)
@@ -180,6 +206,9 @@ std::string Time::toString(const std::string& fmt) const
         break;
 
       case state_fmt:
+        if (*it != '%')
+          state = state_0;
+
         switch (*it)
         {
           case 'H': appendDn(str, 2, hours); break;
@@ -225,13 +254,32 @@ std::string Time::toString(const std::string& fmt) const
 
           case 'p': str += (hours < 12 ? "am" : "pm"); break;
           case 'P': str += (hours < 12 ? "AM" : "PM"); break;
+
+          case '1': state = state_one; break;
+
           default:
             str += '%';
             str += *it;
         }
 
-        if (*it != '%')
-          state = state_0;
+        break;
+
+      case state_one:
+        state = state_0;
+        switch (*it)
+        {
+          case 'H': appendDn(str, hours < 10 ? 1 : 2, hours); break;
+          case 'I': appendDn(str, hours%12 < 10 ? 1 : 2, hours%12); break;
+          case 'M': appendDn(str, minutes < 10 ? 1 : 2, minutes); break;
+          case 'S': appendDn(str, seconds < 10 ? 1 : 2, seconds); break;
+
+          default:  str += "%1";
+                    str += *it;
+                    if (*it == '%')
+                      state = state_fmt;
+                    break;
+        }
+
         break;
     }
   }

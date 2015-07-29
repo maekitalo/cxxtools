@@ -55,11 +55,17 @@ class DateTime
               %Y   4 digit year
               %y   2 digit year
               %m   month (1-12)
+              %2m  month (01-12)
               %d   day (1-31)
+              %2d  day (01-31)
               %H   hours (0-23)
+              %2H  hours (00-23)
               %I   hours (0-11)
-              %M   minutes
-              %S   seconds
+              %2I  hours (00-11)
+              %M   minutes (0-59)
+              %2M  minutes (00-59)
+              %S   seconds (0-59)
+              %2S  seconds (00-59)
               %j   fractional seconds (1-6 digits, optionally leading '.')
               %J   fractional seconds (1-6 digits, with leading '.')
               %K   milliseconds (3 digits, with leading '.')
@@ -190,16 +196,22 @@ class DateTime
 
             Valid format codes are:
 
-              %d   day (1-31)
-              %m   month (1-12)
+              %d   day (01-31)
+              %1d  day (1-31)
+              %m   month (01-12)
+              %1m  month (1-12)
               %Y   4 digit year
               %y   2 digit year
               %w   day of week (0-6 sunday=6)
               %W   day of week (1-7 sunday=7)
-              %H   hours (0-23)
-              %I   hours (0-11)
-              %M   minutes
-              %S   seconds
+              %H   hours (00-23)
+              %1H  hours (0-23)
+              %I   hours (00-11)
+              %1I  hours (0-11)
+              %M   minutes (00-59)
+              %1M  minutes (0-59)
+              %S   seconds (00-59)
+              %1S  seconds (0-59)
               %j   fractional seconds (1-6 digits, optionally leading '.')
               %J   fractional seconds (1-6 digits, with leading '.')
               %K   milliseconds (3 digits, with leading '.')

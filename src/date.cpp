@@ -39,6 +39,11 @@ InvalidDate::InvalidDate()
 {
 }
 
+InvalidDate::InvalidDate(const std::string& what)
+: std::invalid_argument(what)
+{
+}
+
 
 void greg2jul(unsigned& jd, int y, int m, int d)
 {
@@ -71,68 +76,92 @@ void jul2greg(unsigned jd, int& y, int& m, int& d)
 Date::Date(const std::string& str, const std::string& fmt)
 {
   unsigned year = 0;
-  unsigned month = 0;
-  unsigned day = 0;
+  unsigned month = 1;
+  unsigned day = 1;
 
   enum {
     state_0,
-    state_fmt
+    state_fmt,
+    state_two
   } state = state_0;
 
-  std::string::const_iterator dit = str.begin();
-  std::string::const_iterator it;
-  for (it = fmt.begin(); it != fmt.end() && dit != str.end(); ++it)
+  try
   {
-    char ch = *it;
-    switch (state)
+    std::string::const_iterator dit = str.begin();
+    std::string::const_iterator it;
+    for (it = fmt.begin(); it != fmt.end() && dit != str.end(); ++it)
     {
-      case state_0:
-        if (ch == '%')
-          state = state_fmt;
-        else
-        {
-          if (ch == '*')
-            skipNonDigit(dit, str.end());
-          else if (*dit != ch && ch != '?')
-            throw std::runtime_error("string <" + str + "> does not match date format <" + fmt + '>');
+      char ch = *it;
+      switch (state)
+      {
+        case state_0:
+          if (ch == '%')
+            state = state_fmt;
           else
-            ++dit;
-        }
-        break;
+          {
+            if (ch == '*')
+              skipNonDigit(dit, str.end());
+            else if (*dit != ch && ch != '?')
+              throw InvalidDate("string <" + str + "> does not match date format <" + fmt + '>');
+            else
+              ++dit;
+          }
+          break;
 
-      case state_fmt:
-        switch (ch)
-        {
-          case 'Y':
-            year = getInt(dit, str.end(), 4);
-            break;
+        case state_fmt:
+          if (*it != '%')
+            state = state_0;
 
-          case 'y':
-            year = getInt(dit, str.end(), 2);
-            year += (year < 50 ? 2000 : 1900);
-            break;
+          switch (ch)
+          {
+            case 'Y':
+              year = getInt(dit, str.end(), 4);
+              break;
 
-          case 'm':
-            month = getUnsigned(dit, str.end(), 2);
-            break;
+            case 'y':
+              year = getInt(dit, str.end(), 2);
+              year += (year < 50 ? 2000 : 1900);
+              break;
 
-          case 'd':
-            day = getUnsigned(dit, str.end(), 2);
-            break;
+            case 'm':
+              month = getUnsigned(dit, str.end(), 2);
+              break;
 
-          default:
-            throw std::runtime_error("invalid date format <" + fmt + '>');
-        }
+            case 'd':
+              day = getUnsigned(dit, str.end(), 2);
+              break;
 
-        state = state_0;
-        break;
+            case '2':
+              state = state_two;
+              break;
+
+            default:
+              throw InvalidDate("invalid date format <" + fmt + '>');
+          }
+
+          break;
+
+        case state_two:
+          state = state_0;
+          switch (ch)
+          {
+            case 'm': month = getUnsignedF(dit, str.end(), 2); break;
+            case 'd': day = getUnsignedF(dit, str.end(), 2); break;
+            default:
+              throw InvalidDate("invalid date format <" + fmt + '>');
+          }
+      }
     }
+
+    if (it != fmt.end() || dit != str.end())
+      throw InvalidDate("string <" + str + "> does not match date format <" + fmt + '>');
+
+    set(year, month, day);
   }
-
-  if (it != fmt.end() || dit != str.end())
-    throw std::runtime_error("string <" + str + "> does not match date format <" + fmt + '>');
-
-  set(year, month, day);
+  catch (const std::invalid_argument&)
+  {
+    throw InvalidDate("string <" + str + "> does not match date format <" + fmt + '>');
+  }
 }
 
 std::string Date::toString(const std::string& fmt) const

@@ -42,6 +42,7 @@ class TimeTest : public cxxtools::unit::TestSuite
             registerMethod("access", *this, &TimeTest::access);
             registerMethod("diff", *this, &TimeTest::diff);
             registerMethod("fromString", *this, &TimeTest::fromString);
+            registerMethod("fixDigit", *this, &TimeTest::fixDigit);
             registerMethod("toString", *this, &TimeTest::toString);
             registerMethod("serialization", *this, &TimeTest::serialization);
         }
@@ -129,6 +130,13 @@ class TimeTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(milliseconds, 0);
             CXXTOOLS_UNIT_ASSERT_EQUALS(microseconds, 0);
 
+        }
+
+        void fixDigit()
+        {
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(cxxtools::Time("6 7 2", "%H %M %S"));
+            CXXTOOLS_UNIT_ASSERT_THROW(cxxtools::Time("6 7 2", "%2H %2M %2S"), cxxtools::InvalidTime);
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(cxxtools::Time("06 07 02", "%2H %2M %2S"));
         }
 
         void toString()

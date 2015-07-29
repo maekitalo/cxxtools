@@ -42,6 +42,7 @@ class DateTimeTest : public cxxtools::unit::TestSuite
             registerMethod("diff", *this, &DateTimeTest::diff);
             registerMethod("arithmetic", *this, &DateTimeTest::arithmetic);
             registerMethod("fromString", *this, &DateTimeTest::fromString);
+            registerMethod("fixDigit", *this, &DateTimeTest::fixDigit);
             registerMethod("toString", *this, &DateTimeTest::toString);
             registerMethod("serialization", *this, &DateTimeTest::serialization);
         }
@@ -145,6 +146,22 @@ class DateTimeTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(milliseconds, 0);
             CXXTOOLS_UNIT_ASSERT_EQUALS(microseconds, 0);
 
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(dt = cxxtools::DateTime("5 3 9 1 6", "%m %d %H %M %S"));
+
+            dt.get(year, month, day, hours, minutes, seconds, milliseconds, microseconds);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(month, 5);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(day, 3);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(hours, 9);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(minutes, 1);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(seconds, 6);
+
+        }
+
+        void fixDigit()
+        {
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(cxxtools::DateTime("3 9 9 1 6", "%m %d %H %M %S"));
+            CXXTOOLS_UNIT_ASSERT_THROW(cxxtools::DateTime("3 9 9 1 6", "%2m %2d %2H %2M %2S"), cxxtools::InvalidDate);
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(cxxtools::DateTime("03 09 09 01 06", "%2m %2d %2H %2M %2S"));
         }
 
         void toString()
@@ -156,6 +173,9 @@ class DateTimeTest : public cxxtools::unit::TestSuite
 
           str = dt.toString("%Y %m %d %H %M %S%J");
           CXXTOOLS_UNIT_ASSERT_EQUALS(str, "2013 05 03 17 01 14.3428");
+
+          str = dt.toString("%Y %1m %1d %1H %1M %1S%J");
+          CXXTOOLS_UNIT_ASSERT_EQUALS(str, "2013 5 3 17 1 14.3428");
 
           dt = cxxtools::DateTime(2013, 5, 3, 17, 1, 14);
 

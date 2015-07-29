@@ -41,11 +41,24 @@ namespace cxxtools
   unsigned getUnsigned(std::string::const_iterator& b, std::string::const_iterator e, unsigned digits)
   {
     if (b == e || !std::isdigit(*b))
-      throw std::runtime_error("invalid date format");
+      throw std::invalid_argument("invalid date format");
 
     unsigned ret = 0;
-    for (unsigned d = 0; d < digits && b < e && std::isdigit(*b); ++d, ++b)
+    for (unsigned d = 0; d < digits && b != e && std::isdigit(*b); ++d, ++b)
       ret = ret * 10 + (*b - '0');
+
+    return ret;
+  }
+
+  unsigned getUnsignedF(std::string::const_iterator& b, std::string::const_iterator e, unsigned digits)
+  {
+    unsigned ret = 0;
+    for (unsigned d = 0; d < digits; ++d, ++b)
+    {
+      if (b == e || !std::isdigit(*b))
+        throw std::invalid_argument("invalid date format");
+      ret = ret * 10 + (*b - '0');
+    }
 
     return ret;
   }
@@ -66,10 +79,10 @@ namespace cxxtools
     }
 
     if (b == e || !std::isdigit(*b))
-      throw std::runtime_error("invalid date format");
+      throw std::invalid_argument("invalid date format");
 
     int ret = 0;
-    for (unsigned d = 0; d < digits && b < e && std::isdigit(*b); ++d, ++b)
+    for (unsigned d = 0; d < digits && b != e && std::isdigit(*b); ++d, ++b)
       ret = ret * 10 + (*b - '0');
 
     return ret * sgn;

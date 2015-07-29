@@ -40,6 +40,7 @@ class DateTest : public cxxtools::unit::TestSuite
         : cxxtools::unit::TestSuite("date")
         {
             registerMethod("fromString", *this, &DateTest::fromString);
+            registerMethod("fixDigit", *this, &DateTest::fixDigit);
             registerMethod("toString", *this, &DateTest::toString);
             registerMethod("serialization", *this, &DateTest::serialization);
         }
@@ -86,6 +87,13 @@ class DateTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(month, 10);
             CXXTOOLS_UNIT_ASSERT_EQUALS(day, 30);
 
+        }
+
+        void fixDigit()
+        {
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(cxxtools::Date("3 9", "%m %d"));
+            CXXTOOLS_UNIT_ASSERT_THROW(cxxtools::Date("3 9", "%2m %2d"), cxxtools::InvalidDate);
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(cxxtools::Date("03 09", "%2m %2d"));
         }
 
         void toString()

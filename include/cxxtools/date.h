@@ -42,6 +42,8 @@ class InvalidDate : public std::invalid_argument
     public:
         InvalidDate();
 
+        explicit InvalidDate(const std::string& what);
+
         ~InvalidDate() throw()
         {}
 };
@@ -163,7 +165,9 @@ class Date
               %Y   4 digit year
               %y   2 digit year
               %m   month (1-12)
+              %2m  month (01-12)
               %d   day (1-31)
+              %2d  day (01-31)
               ?    arbitrary character
               *    skip non digit characters
          */
