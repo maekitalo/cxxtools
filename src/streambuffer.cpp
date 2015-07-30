@@ -279,25 +279,7 @@ StreamBuffer::int_type StreamBuffer::overflow(int_type ch)
         _obuffer = new char[_obufferSize];
         this->setp(_obuffer, _obuffer + _obufferSize);
     }
-    else if(_ioDevice->writing()) // beginWrite is unfinished
-    {
-        this->endWrite();
-    }
-    else if (traits_type::eq_int_type( ch, traits_type::eof() ) || !_oextend)
-    {
-        // normal blocking overflow case
-        size_t avail = this->pptr() - _obuffer;
-        size_t written = _ioDevice->write(_obuffer, avail);
-        size_t leftover = avail - written;
-
-        if(leftover > 0)
-        {
-            traits_type::move(_obuffer, _obuffer + written, leftover);
-        }
-        this->setp(_obuffer, _obuffer + _obufferSize);
-        this->pbump( leftover );
-    }
-    else
+    else if (_oextend && !traits_type::eq_int_type( ch, traits_type::eof() ))
     {
         // if the buffer area is extensible and overflow is not called by
         // sync/flush we copy the output buffer to a larger one
@@ -310,9 +292,28 @@ StreamBuffer::int_type StreamBuffer::overflow(int_type ch)
         _obufferSize = bufsize;
         delete [] buf;
     }
+    else if (_ioDevice->writing()) // beginWrite is unfinished
+    {
+        this->endWrite();
+    }
+    else
+    {
+        // normal blocking overflow case
+        size_t avail = this->pptr() - _obuffer;
+        size_t written = _ioDevice->write(_obuffer, avail);
+        size_t leftover = avail - written;
+
+        if (leftover > 0)
+        {
+            traits_type::move(_obuffer, _obuffer + written, leftover);
+        }
+
+        this->setp(_obuffer, _obuffer + _obufferSize);
+        this->pbump( leftover );
+    }
 
     // if the overflow char is not EOF put it in buffer
-    if( traits_type::eq_int_type(ch, traits_type::eof()) ==  false )
+    if ( traits_type::eq_int_type(ch, traits_type::eof()) ==  false )
     {
         *this->pptr() = traits_type::to_char_type(ch);
         this->pbump(1);
