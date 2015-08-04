@@ -206,10 +206,22 @@ size_t StreamBuffer::beginWrite()
 {
     log_trace("beginWrite; out_avail=" << out_avail());
 
-    if(_ioDevice == 0 || _ioDevice->writing())
+    if (_ioDevice == 0)
         return 0;
 
-    if( this->pptr() )
+    if (_ioDevice->writing())
+    {
+        log_debug("already writng - cancel and start again");
+
+        bool reading = _ioDevice->reading();
+
+        _ioDevice->cancel();
+
+        if (reading)
+            beginRead();
+    }
+
+    if ( this->pptr() )
     {
         size_t avail = this->pptr() - this->pbase();
         if(avail > 0)
