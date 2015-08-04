@@ -77,7 +77,7 @@ namespace cxxtools
         void run();
 
         int wait(int options = 0)
-        { return _fork.wait(); }
+        { return _fork.wait(options); }
 
         IODevice& out()
         { return streambuf.out(); }
