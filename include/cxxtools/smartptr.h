@@ -119,7 +119,7 @@ namespace cxxtools
       }
 
       //! \brief link a smart pointer to a managed object
-      void link(const InternalRefCounted& ptr, ObjectType* object)
+      void link(const InternalRefCounted& /*ptr*/, ObjectType* object)
       {
         if (object)
           object->addRef();
