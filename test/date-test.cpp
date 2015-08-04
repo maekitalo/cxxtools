@@ -43,6 +43,7 @@ class DateTest : public cxxtools::unit::TestSuite
             registerMethod("fixDigit", *this, &DateTest::fixDigit);
             registerMethod("toString", *this, &DateTest::toString);
             registerMethod("serialization", *this, &DateTest::serialization);
+            registerMethod("isValid", *this, &DateTest::isValid);
         }
 
         void fromString()
@@ -129,6 +130,29 @@ class DateTest : public cxxtools::unit::TestSuite
 
             CXXTOOLS_UNIT_ASSERT(d1 == d2);
         }
+
+        void isValid()
+        {
+            CXXTOOLS_UNIT_ASSERT(cxxtools::Date::isValid(1, 1, 1));
+
+            CXXTOOLS_UNIT_ASSERT(cxxtools::Date::isValid(2000, 12, 1));
+            CXXTOOLS_UNIT_ASSERT(!cxxtools::Date::isValid(2000, 13, 1));
+            CXXTOOLS_UNIT_ASSERT(!cxxtools::Date::isValid(2000, 0, 1));
+
+            CXXTOOLS_UNIT_ASSERT(cxxtools::Date::isValid(2015, 4, 30));
+            CXXTOOLS_UNIT_ASSERT(!cxxtools::Date::isValid(2015, 4, 31));
+
+            CXXTOOLS_UNIT_ASSERT(cxxtools::Date::isValid(2015, 5, 31));
+            CXXTOOLS_UNIT_ASSERT(!cxxtools::Date::isValid(2015, 5, 32));
+
+            CXXTOOLS_UNIT_ASSERT(cxxtools::Date::isValid(2015, 2, 28));
+            CXXTOOLS_UNIT_ASSERT(!cxxtools::Date::isValid(2015, 2, 29));
+            CXXTOOLS_UNIT_ASSERT(cxxtools::Date::isValid(2012, 2, 29));
+            CXXTOOLS_UNIT_ASSERT(cxxtools::Date::isValid(2000, 2, 29));
+            CXXTOOLS_UNIT_ASSERT(cxxtools::Date::isValid(1900, 2, 28));
+            CXXTOOLS_UNIT_ASSERT(!cxxtools::Date::isValid(1900, 2, 29));
+        }
+
 };
 
 cxxtools::unit::RegisterTest<DateTest> register_DateTest;

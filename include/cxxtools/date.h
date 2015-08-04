@@ -436,17 +436,6 @@ inline bool Date::leapYear() const
 }
 
 
-inline bool Date::isValid(int y, int m, int d)
-{
-    if(m<1 || m>12 || d<1 || d>31)
-    {
-        return false;
-    }
-
-    return true;
-}
-
-
 inline Date operator+(const Date& d, int days)
 { return Date(d._julian + days); }
 

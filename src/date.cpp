@@ -215,6 +215,23 @@ std::string Date::toString(const std::string& fmt) const
   return str;
 }
 
+bool Date::isValid(int y, int m, int d)
+{
+    static const unsigned char monthDays[12]=
+    {
+        31,28,31,30,31,30,31,31,30,31,30,31
+    };
+
+    if (m == 2 && leapYear(y) && d == 29)
+        return true;
+
+    if (m < 1 || m > 12 || d < 1 || d > monthDays[m-1])
+        return false;
+
+    return true;
+}
+
+
 void operator>>=(const SerializationInfo& si, Date& date)
 {
     if (si.category() == cxxtools::SerializationInfo::Object)
