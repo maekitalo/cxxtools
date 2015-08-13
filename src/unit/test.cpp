@@ -75,6 +75,19 @@ void Test::reportSuccess(const TestContext& ctx)
 }
 
 
+void Test::reportSkip(const TestContext& ctx)
+{
+    std::list<Reporter*>::iterator it;
+    for(it = _reporter.begin(); it != _reporter.end(); ++it)
+    {
+        (*it)->reportSkip(ctx);
+    }
+
+    if(_parent)
+        _parent->reportSkip(ctx);
+}
+
+
 void Test::reportAssertion(const TestContext& ctx, const Assertion& ass)
 {
     std::list<Reporter*>::iterator it;

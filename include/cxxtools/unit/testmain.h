@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2005-2006 by Dr. Marc Boris Duerner
+ * Copyright (C) 2015 Tommi Maekitalo
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -30,50 +31,57 @@
 
 #include <cxxtools/arg.h>
 #include <cxxtools/unit/reporter.h>
+#include <cxxtools/unit/jsonreporter.h>
 #include <cxxtools/unit/application.h>
+#include <cxxtools/json.h>
 #include <cxxtools/log.h>
 #include <fstream>
-
-namespace TestMain
-{
-    static int argc = 0;
-    static char** argv = 0;
-}
-
 
 int main(int argc, char** argv)
 {
     log_init();
 
-    TestMain::argc = argc;
-    TestMain::argv = argv;
     cxxtools::unit::Application app;
 
     cxxtools::Arg<bool> help(argc, argv, 'h');
     cxxtools::Arg<bool> list(argc, argv, 'l');
+    cxxtools::Arg<bool> json(argc, argv, "--json");
+    cxxtools::Arg<bool> json1(argc, argv, 'j');
+    cxxtools::Arg<bool> summary(argc, argv, 's');
+
     if( help || list )
     {
-        std::cerr << "Usage: " << argv[0] << " [-t <testname>] [-f <logfile>] { testname }\n";
-        std::cerr << "Available Tests:\n";
-        std::list<cxxtools::unit::Test*>::const_iterator it;
-        for( it = app.tests().begin(); it != app.tests().end(); ++it)
+        std::cerr << "Usage: " << argv[0] << " {options} {testname}\n"
+                     "Options:\n"
+                     " -f <logfile>     output results into file\n"
+                     " -s               print statistic summary\n"
+                     " -j, --json       print output in json format instead of standard\n"
+                     "Available Tests:\n";
+        for (std::list<cxxtools::unit::Test*>::const_iterator it = app.tests().begin();
+             it != app.tests().end();
+             ++it)
         {
-            std::cerr << "  - " << (*it)->name() << std::endl;
+            std::cerr << "  - " << (*it)->name() << '\n';
         }
+
         return 0;
     }
 
     cxxtools::unit::BriefReporter consoleReporter;
-    app.attachReporter(consoleReporter);
+    cxxtools::unit::JsonReporter jsonReporter;
 
-    cxxtools::Arg<std::string> file(argc, argv, 'f');
+    if (json || json1)
+        app.attachReporter(jsonReporter);
+    else
+        app.attachReporter(consoleReporter);
+
+    cxxtools::Arg<const char*> file(argc, argv, 'f');
     std::ofstream logFile;
     cxxtools::unit::BriefReporter fileReporter;
-    std::string fileName = file.getValue();
 
-    if( ! fileName.empty() )
+    if (file.isSet())
     {
-        logFile.open( fileName.c_str() );
+        logFile.open(file);
         fileReporter.setOutput(logFile);
         app.attachReporter(fileReporter);
     }
@@ -89,11 +97,18 @@ int main(int argc, char** argv)
             for (int a = 1; a < argc; ++a)
             {
                 std::string testName = argv[a];
-                if (testName == "-t")
-                    continue;   // just for compatibility
-
                 app.run(testName);
             }
+        }
+
+        if (json || json1)
+            std::cout << cxxtools::Json(jsonReporter).beautify(true);
+
+        if (summary)
+        {
+            std::cout << "success: " << app.success() << "\n"
+                         "errors:  " << app.errors() << "\n"
+                         "skipped: " << app.skipped() << "\n";
         }
 
         return app.errors();

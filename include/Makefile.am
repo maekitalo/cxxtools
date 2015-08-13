@@ -189,6 +189,7 @@ nobase_include_HEADERS = \
         cxxtools/log/cxxtools.h \
         cxxtools/unit/application.h \
         cxxtools/unit/assertion.h \
+        cxxtools/unit/jsonreporter.h \
         cxxtools/unit/registertest.h \
         cxxtools/unit/reporter.h \
         cxxtools/unit/test.h \

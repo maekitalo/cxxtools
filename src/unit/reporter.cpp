@@ -91,6 +91,11 @@ void BriefReporter::reportError(const TestContext&)
     *_out << "ERROR" << std::endl;
 }
 
+void BriefReporter::reportSkip(const TestContext&)
+{
+    *_out << "SKIP" << std::endl;
+}
+
 }
 
 }

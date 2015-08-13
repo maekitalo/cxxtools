@@ -80,6 +80,9 @@ namespace unit {
             std::string _what;
     };
 
+    class Skip
+    { };
+
     #define CXXTOOLS_UNIT_ASSERT(cond) \
         do { \
             if( !(cond) ) \
@@ -96,26 +99,27 @@ namespace unit {
             } \
         } while (false)
 
+    //! @internal
+    template <typename A, typename B>
+    void assertEquals(const char* cond1, const A& value1, const char* cond2, const B& value2, const SourceInfo& si)
+    {
+        if ( ! (value1 == value2) )
+        {
+            std::ostringstream _cxxtools_msg;
+            _cxxtools_msg << "not equal:\n\tvalue1 (" << cond1 << ")=\n\t\t<" << value1 << ">\n\tvalue2 (" << cond2 << ")=\n\t\t<" << value2 << '>';
+            throw cxxtools::unit::Assertion(_cxxtools_msg.str(), si);
+        }
+    }
+
     #define CXXTOOLS_UNIT_ASSERT_EQUALS(value1, value2) \
-        do { \
-            if( ! ((value1) == (value2)) ) \
-            { \
-                std::ostringstream _cxxtools_msg; \
-                _cxxtools_msg << "not equal:\n\tvalue1 (" #value1 ")=\n\t\t<" << (value1) << ">\n\tvalue2 (" #value2 ")=\n\t\t<" << (value2) << '>'; \
-                throw cxxtools::unit::Assertion(_cxxtools_msg.str(), CXXTOOLS_SOURCEINFO); \
-            } \
-        } while (false)
+        cxxtools::unit::assertEquals(#value1, (value1), #value2, (value2), CXXTOOLS_SOURCEINFO)
 
     #define CXXTOOLS_UNIT_ASSERT_THROW(cond, EX) \
         do { \
-            struct _cxxtools_ex { }; \
             try \
             { \
                 cond; \
-                throw _cxxtools_ex(); \
-            } \
-            catch(const _cxxtools_ex &) \
-            { \
+              \
                 std::ostringstream _cxxtools_msg; \
                 _cxxtools_msg << "exception of type " #EX " expected in " #cond; \
                 throw cxxtools::unit::Assertion(_cxxtools_msg.str(), CXXTOOLS_SOURCEINFO); \
@@ -145,6 +149,8 @@ namespace unit {
                 throw cxxtools::unit::Assertion("unexpected exception." , CXXTOOLS_SOURCEINFO); \
             } \
         } while (false)
+
+    #define CXXTOOLS_UNIT_SKIP() throw cxxtools::unit::Skip()
 
     #define CXXTOOLS_UNIT_FAIL(what) \
         do { \

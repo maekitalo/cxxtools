@@ -31,38 +31,57 @@ namespace cxxtools {
 
 namespace unit {
 
-class ErrorCounter : public Reporter
+class SuccessCounter : public Reporter
 {
     public:
-        ErrorCounter()
-        : _errors(0)
+        SuccessCounter()
+        : _success(0),
+          _skipped(0),
+          _errors(0)
         {}
 
-        unsigned errors()
+        unsigned success() const
+        { return _success; }
+
+        unsigned skipped() const
+        { return _skipped; }
+
+        unsigned errors() const
         { return _errors; }
 
         virtual void reportStart(const TestContext& test)
-        {}
+        {
+            _successCurrent = true;
+            _skipCurrent = false;
+        }
 
         virtual void reportFinish(const TestContext& test)
-        {}
+        {
+            if (_skipCurrent)
+                ++_skipped;
+            else if (_successCurrent)
+                ++_success;
+            else
+                ++_errors;
+        }
 
-        virtual void reportMessage(const std::string& msg)
-        {}
-
-        virtual void reportSuccess(const TestContext& test)
-        {}
+        virtual void reportSkip(const TestContext& test)
+        { _skipCurrent = true; }
 
         virtual void reportAssertion(const TestContext& test, const Assertion& a)
-        { ++_errors; }
+        { _successCurrent = false; }
 
         virtual void reportException(const TestContext& test, const std::exception& ex)
-        { ++_errors; }
+        { _successCurrent = false; }
 
         virtual void reportError(const TestContext& test)
-        { ++_errors; }
+        { _successCurrent = false; }
 
     private:
+        bool _successCurrent;
+        bool _skipCurrent;
+        unsigned _success;
+        unsigned _skipped;
         unsigned _errors;
 };
 
@@ -71,8 +90,10 @@ Application* Application::_app = 0;
 
 
 Application::Application()
-: Test("")
-, _errors(0)
+: Test(""),
+  _success(0),
+  _skipped(0),
+  _errors(0)
 {
     _app = this;
 
@@ -134,7 +155,7 @@ void Application::attachReporter(Reporter& r, const std::string& testname)
 
 void Application::run(const std::string& testName)
 {
-    ErrorCounter ec;
+    SuccessCounter ec;
     this->attachReporter(ec);
 
     std::list<Test*>::iterator it;
@@ -145,13 +166,16 @@ void Application::run(const std::string& testName)
     }
 
     this->detachReporter(ec);
+
+    _success = ec.success();
+    _skipped = ec.skipped();
     _errors = ec.errors();
 }
 
 
 void Application::run()
 {
-    ErrorCounter ec;
+    SuccessCounter ec;
     this->attachReporter(ec);
 
     std::list<Test*>::iterator it;
@@ -161,6 +185,9 @@ void Application::run()
     }
 
     this->detachReporter(ec);
+
+    _success = ec.success();
+    _skipped = ec.skipped();
     _errors = ec.errors();
 }
 

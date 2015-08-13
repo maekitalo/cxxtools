@@ -4,13 +4,14 @@ lib_LTLIBRARIES = libcxxtools-unit.la
 
 libcxxtools_unit_la_SOURCES = \
 	application.cpp \
-	testcase.cpp \
-	test.cpp \
-	testsuite.cpp \
 	assertion.cpp \
+	jsonreporter.cpp \
 	reporter.cpp \
+	testcase.cpp \
 	testcontext.cpp \
-	testprotocol.cpp
+	test.cpp \
+	testprotocol.cpp \
+	testsuite.cpp
 
 libcxxtools_unit_la_LIBADD = $(top_builddir)/src/libcxxtools.la
 

@@ -108,6 +108,14 @@ namespace unit {
             */
             virtual void run();
 
+            //! @brief Returns the number of successful tests which occured during a run
+            unsigned success() const
+            { return _success; }
+
+            //! @brief Returns the number of skipped tests which occured during a run
+            unsigned skipped() const
+            { return _skipped; }
+
             //! @brief Returns the number of errors which occured during a run
             unsigned errors() const
             { return _errors; }
@@ -140,8 +148,8 @@ namespace unit {
         private:
             static Application* _app;
 
-            /** @brief Number of errors that occured during a run
-            */
+            unsigned _success;
+            unsigned _skipped;
             unsigned _errors;
     };
 

@@ -31,13 +31,14 @@
 #include <cxxtools/unit/assertion.h>
 #include <cxxtools/unit/testcontext.h>
 #include <cxxtools/signal.h>
-#include <cxxtools/noncopyable.h>
 #include <iosfwd>
 #include <stdexcept>
 
-namespace cxxtools {
+namespace cxxtools
+{
 
-namespace unit {
+namespace unit
+{
 
 /** @brief Test event reporter
 
@@ -46,8 +47,11 @@ namespace unit {
     on perticular events during the test. Reporters can be made to print
     information to the console or write XML logs.
 */
-class Reporter : protected NonCopyable
+class Reporter
 {
+        Reporter(const Reporter&) { }
+        Reporter& operator=(const Reporter&) { return *this; }
+
     public:
         /** @brief Destructor
         */
@@ -61,7 +65,8 @@ class Reporter : protected NonCopyable
 
             @param test The started test
         */
-        virtual void reportStart(const TestContext& test) = 0;
+        virtual void reportStart(const TestContext& test)
+        { }
 
         /** @brief Finished notification
 
@@ -70,7 +75,8 @@ class Reporter : protected NonCopyable
 
             @param test The finished test
         */
-        virtual void reportFinish(const TestContext& test) = 0;
+        virtual void reportFinish(const TestContext& test)
+        { }
 
         /** @brief Message notification
 
@@ -79,7 +85,8 @@ class Reporter : protected NonCopyable
 
             @param msg The message
         */
-        virtual void reportMessage(const std::string& msg) = 0;
+        virtual void reportMessage(const std::string& msg)
+        { }
 
         /** @brief Success notification
 
@@ -87,7 +94,8 @@ class Reporter : protected NonCopyable
 
             @param test The succeeded test
         */
-        virtual void reportSuccess(const TestContext& test) = 0;
+        virtual void reportSuccess(const TestContext& test)
+        { }
 
         /** @brief Assertion notification
 
@@ -96,7 +104,8 @@ class Reporter : protected NonCopyable
 
             @param test The failed test
         */
-        virtual void reportAssertion(const TestContext& test, const Assertion& a) = 0;
+        virtual void reportAssertion(const TestContext& test, const Assertion& a)
+        { }
 
         /** @brief Exception notification
 
@@ -106,7 +115,8 @@ class Reporter : protected NonCopyable
 
             @param test The failed test
         */
-        virtual void reportException(const TestContext& test, const std::exception& ex) = 0;
+        virtual void reportException(const TestContext& test, const std::exception& ex)
+        { }
 
         /** @brief Error notification
 
@@ -115,7 +125,17 @@ class Reporter : protected NonCopyable
 
             @param test The failed test
         */
-        virtual void reportError(const TestContext& test) = 0;
+        virtual void reportError(const TestContext& test)
+        { }
+
+        /** @brief Skipped notification
+
+            This method is called when was skipped.
+
+            @param test The skipped test
+        */
+        virtual void reportSkip(const TestContext& test)
+        { }
 
         Signal<Reporter&> destroyed;
 
@@ -149,6 +169,8 @@ class BriefReporter : public Reporter
         virtual void reportException(const TestContext& test, const std::exception& ex);
 
         virtual void reportError(const TestContext& test);
+
+        virtual void reportSkip(const TestContext& test);
 
     private:
         /** @brief Ostream to print output to

@@ -83,6 +83,10 @@ void TestContext::run()
     {
         _test.reportAssertion(*this, assertion);
     }
+    catch(const Skip& skip)
+    {
+        _test.reportSkip(*this);
+    }
     catch(const std::exception& ex)
     {
         _test.reportException(*this, ex);

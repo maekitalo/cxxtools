@@ -140,7 +140,7 @@ namespace unit {
 
             /** @brief Runs the test suite
 
-                The TestProtocol assosiated with the test will be executed.
+                The TestProtocol associated with the test will be executed.
                 The default protocol will simply call all registered tests.
             */
             virtual void run();
@@ -208,7 +208,7 @@ namespace unit {
 
             TestMethod* findTest(const std::string& name);
 
-            /** @brief The assoziated test protocol
+            /** @brief The associated test protocol
             */
             TestProtocol* _protocol;
 

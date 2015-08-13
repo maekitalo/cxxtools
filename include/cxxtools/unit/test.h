@@ -91,6 +91,12 @@ namespace unit {
             */
             void reportSuccess(const TestContext& ctx);
 
+            /** @brief Skip notification
+
+                This signal is sent when the test was skipped.
+            */
+            void reportSkip(const TestContext& ctx);
+
             /** @brief Assertion notification
 
                 This signal is sent when a assertion failed.
