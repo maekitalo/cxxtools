@@ -80,7 +80,11 @@ void EnvSubst::parse(char ch)
           _state = state_bvarname;
         }
         else
-          throw EnvSubstSyntaxError("expected env variable");
+        {
+          throw EnvSubstSyntaxError(
+            std::string("expected env variable after \'$\', got '").append(1, ch).append(1, '\''));
+        }
+
         break;
 
     case state_varname:
@@ -150,7 +154,11 @@ void EnvSubst::parse(char ch)
           }
         }
         else
-          throw EnvSubstSyntaxError(std::string("invalid substitution operaror ") + ch);
+        {
+          throw EnvSubstSyntaxError(
+            std::string("invalid substitution operator ").append(1, ch));
+        }
+
         break;
 
     case state_subst:
@@ -218,10 +226,21 @@ std::string envSubst(const std::string& str)
 
   log_debug("envSubst(\"" << str << '"');
 
-  EnvSubst es(ev);
-  for (std::string::const_iterator it = str.begin(); it != str.end(); ++it)
-    es.parse(*it);
-  es.parseEnd();
+  try
+  {
+    EnvSubst es(ev);
+    for (std::string::const_iterator it = str.begin(); it != str.end(); ++it)
+      es.parse(*it);
+    es.parseEnd();
+  }
+  catch (const EnvSubstSyntaxError& e)
+  {
+    throw EnvSubstSyntaxError(
+        std::string("failed to parse \"")
+            .append(str)
+            .append("\": ")
+            .append(+ e.what()));
+  }
 
   log_debug("envSubst => \"" << ev.ret << '"');
 
