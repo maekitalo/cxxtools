@@ -68,7 +68,7 @@ void EventLoop::onRemove( Selectable& s )
 }
 
 
-void EventLoop::onReinit(Selectable& s)
+void EventLoop::onReinit(Selectable& /*s*/)
 {
 }
 

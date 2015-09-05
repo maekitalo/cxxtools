@@ -48,8 +48,13 @@ class ServerImplBase;
 
 class Server
 {
-        Server(const Server& server) { }
-        Server& operator=(const Server& server) { return *this; }
+#if __cplusplus >= 201103L
+        Server(const Server& server) = delete;
+        Server& operator=(const Server& server) = delete;
+#else
+        Server(const Server&) { }
+        Server& operator=(const Server&) { return *this; }
+#endif
 
     public:
         explicit Server(EventLoopBase& eventLoop);

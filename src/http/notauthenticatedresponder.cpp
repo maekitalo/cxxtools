@@ -34,7 +34,7 @@ namespace cxxtools
 namespace http
 {
 
-void NotAuthenticatedResponder::reply(std::ostream& out, Request& request, Reply& reply)
+void NotAuthenticatedResponder::reply(std::ostream& out, Request& /*request*/, Reply& reply)
 {
     reply.setHeader("WWW-Authenticate", ("Basic realm=\"" + _realm + '"').c_str());
 

@@ -274,7 +274,7 @@ class BenchClient : public cxxtools::Connectable
       }
     }
 
-    void onFailed(RemoteExecutor* e)
+    void onFailed(RemoteExecutor* /*e*/)
     {
       cxxtools::atomicIncrement(_requestsFailed);
     }

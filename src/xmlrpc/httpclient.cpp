@@ -83,7 +83,8 @@ HttpClient::HttpClient(const net::Uri& uri)
 }
 
 HttpClient::HttpClient(const HttpClient& other)
-: _impl(other._impl)
+: Client(*this),
+  _impl(other._impl)
 {
     if (_impl)
     {

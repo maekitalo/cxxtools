@@ -49,13 +49,13 @@ class SuccessCounter : public Reporter
         unsigned errors() const
         { return _errors; }
 
-        virtual void reportStart(const TestContext& test)
+        virtual void reportStart(const TestContext& /*test*/)
         {
             _successCurrent = true;
             _skipCurrent = false;
         }
 
-        virtual void reportFinish(const TestContext& test)
+        virtual void reportFinish(const TestContext& /*test*/)
         {
             if (_skipCurrent)
                 ++_skipped;
@@ -65,16 +65,16 @@ class SuccessCounter : public Reporter
                 ++_errors;
         }
 
-        virtual void reportSkip(const TestContext& test)
+        virtual void reportSkip(const TestContext& /*test*/)
         { _skipCurrent = true; }
 
-        virtual void reportAssertion(const TestContext& test, const Assertion& a)
+        virtual void reportAssertion(const TestContext& /*test*/, const Assertion& /*a*/)
         { _successCurrent = false; }
 
-        virtual void reportException(const TestContext& test, const std::exception& ex)
+        virtual void reportException(const TestContext& /*test*/, const std::exception& /*ex*/)
         { _successCurrent = false; }
 
-        virtual void reportError(const TestContext& test)
+        virtual void reportError(const TestContext& /*test*/)
         { _successCurrent = false; }
 
     private:

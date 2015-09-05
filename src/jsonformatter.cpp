@@ -216,14 +216,14 @@ void JsonFormatter::addValueFloat(const std::string& name, const std::string& ty
     finishValue();
 }
 
-void JsonFormatter::addNull(const std::string& name, const std::string& type)
+void JsonFormatter::addNull(const std::string& name, const std::string& /*type*/)
 {
     beginValue(name);
     *_ts << L"null";
     finishValue();
 }
 
-void JsonFormatter::beginArray(const std::string& name, const std::string& type)
+void JsonFormatter::beginArray(const std::string& name, const std::string& /*type*/)
 {
     checkTs(_ts);
 
@@ -280,7 +280,7 @@ void JsonFormatter::finishArray()
     *_ts << L']';
 }
 
-void JsonFormatter::beginObject(const std::string& name, const std::string& type)
+void JsonFormatter::beginObject(const std::string& name, const std::string& /*type*/)
 {
     checkTs(_ts);
 
@@ -325,7 +325,7 @@ void JsonFormatter::beginObject(const std::string& name, const std::string& type
         *_ts << L'\n';
 }
 
-void JsonFormatter::beginMember(const std::string& name)
+void JsonFormatter::beginMember(const std::string& /*name*/)
 {
 }
 

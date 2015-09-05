@@ -70,12 +70,12 @@ void HttpClientImpl::onReplyHeader(http::Client& client)
     ClientImpl::onReadReplyBegin(client.in());
 }
 
-std::size_t HttpClientImpl::onReplyBody(http::Client& client)
+std::size_t HttpClientImpl::onReplyBody(http::Client& /*client*/)
 {
     return ClientImpl::onReadReply();
 }
 
-void HttpClientImpl::onReplyFinished(http::Client& client)
+void HttpClientImpl::onReplyFinished(http::Client& /*client*/)
 {
     ClientImpl::onReplyFinished();
 }

@@ -48,7 +48,7 @@ HttpResponder::~HttpResponder()
 {
 }
 
-void HttpResponder::beginRequest(net::TcpSocket& socket, std::istream& in, http::Request& request)
+void HttpResponder::beginRequest(net::TcpSocket& /*socket*/, std::istream& /*in*/, http::Request& /*request*/)
 {
     log_debug("begin request");
     _responder.begin();
@@ -71,7 +71,7 @@ std::size_t HttpResponder::readBody(std::istream& is)
     return n;
 }
 
-void HttpResponder::reply(std::ostream& os, http::Request& request, http::Reply& reply)
+void HttpResponder::reply(std::ostream& os, http::Request& /*request*/, http::Reply& reply)
 {
     reply.setHeader("Content-Type", "application/json");
     _responder.finalize(os);

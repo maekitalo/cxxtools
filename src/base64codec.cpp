@@ -69,7 +69,7 @@ inline uint8_t fromBase64(char b64)
 }
 
 
-Base64Codec::result Base64Codec::do_in(MBState& s,
+Base64Codec::result Base64Codec::do_in(MBState& /*s*/,
                                        const char* fromBegin,
                                        const char* fromEnd,
                                        const char*& fromNext,

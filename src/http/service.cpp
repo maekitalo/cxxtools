@@ -75,7 +75,7 @@ CachedServiceBase::~CachedServiceBase()
         delete *it;
 }
 
-Responder* CachedServiceBase::createResponder(const Request& request)
+Responder* CachedServiceBase::createResponder(const Request& /*request*/)
 {
     if (responders.empty())
     {

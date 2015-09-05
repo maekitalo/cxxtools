@@ -35,7 +35,7 @@ namespace cxxtools
 namespace http
 {
 
-void Responder::beginRequest(net::TcpSocket& socket, std::istream& in, Request& request)
+void Responder::beginRequest(net::TcpSocket& /*socket*/, std::istream& /*in*/, Request& request)
 {
     _request = &request;
 }
@@ -54,7 +54,7 @@ std::size_t Responder::readBody(std::istream& in)
     return ret;
 }
 
-void Responder::replyError(std::ostream& out, Request& request, Reply& reply, const std::exception& ex)
+void Responder::replyError(std::ostream& out, Request& /*request*/, Reply& reply, const std::exception& ex)
 {
     reply.httpReturn(500, "internal server error");
     reply.setHeader("Content-Type", "text/plain");

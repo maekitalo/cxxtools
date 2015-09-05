@@ -561,7 +561,7 @@ namespace cxxtools
       _msg = msg;
     }
 
-    void UdpAppender::finish(bool flush)
+    void UdpAppender::finish(bool /*flush*/)
     {
       try
       {

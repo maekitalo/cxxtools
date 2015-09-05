@@ -71,7 +71,9 @@ Socket::Socket(ServerImpl& server, net::TcpServer& tcpServer)
 }
 
 Socket::Socket(Socket& socket)
-    : inputSlot(slot(*this, &Socket::onInput)),
+    : net::TcpSocket(),
+      Connectable(*this),
+      inputSlot(slot(*this, &Socket::onInput)),
       _tcpServer(socket._tcpServer),
       _server(socket._server),
       _parseEvent(_request),
@@ -114,7 +116,7 @@ void Socket::removeSelector()
     _timer.setSelector(0);
 }
 
-void Socket::onIODeviceInput(IODevice& iodevice)
+void Socket::onIODeviceInput(IODevice& /*iodevice*/)
 {
     log_debug("onIODeviceInput");
     inputReady(*this);

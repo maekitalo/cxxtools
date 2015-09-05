@@ -220,7 +220,7 @@ std::size_t HttpClientImpl::onReplyBody(http::Client& client)
     return count;
 }
 
-void HttpClientImpl::onReplyFinished(http::Client& client)
+void HttpClientImpl::onReplyFinished(http::Client& /*client*/)
 {
     log_debug("onReplyFinished; method=" << static_cast<void*>(_proc));
 

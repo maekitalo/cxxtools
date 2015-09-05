@@ -75,7 +75,7 @@ void XmlWriter::begin(std::ostream& os)
 }
 
 
-void XmlWriter::writeStartElement(const String& prefix, const String& localName, const String& ns)
+void XmlWriter::writeStartElement(const String& /*prefix*/, const String& /*localName*/, const String& /*ns*/)
 {
 }
 

@@ -89,7 +89,7 @@ void ClientImpl::reexecute(const Request& request)
     _stream.flush();
 }
 
-void ClientImpl::reexecuteBegin(const Request& request)
+void ClientImpl::reexecuteBegin(const Request& /*request*/)
 {
     log_debug("reexecuteBegin");
 

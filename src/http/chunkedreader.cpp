@@ -94,7 +94,7 @@ namespace cxxtools
       return 0;
     }
 
-    ChunkedReader::int_type ChunkedReader::overflow(int_type ch)
+    ChunkedReader::int_type ChunkedReader::overflow(int_type /*ch*/)
     {
       return traits_type::eof();
     }

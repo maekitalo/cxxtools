@@ -36,22 +36,22 @@ log_define("cxxtools.iniparser")
 
 namespace cxxtools
 {
-  bool IniParser::Event::onSection(const std::string& section)
+  bool IniParser::Event::onSection(const std::string& /*section*/)
   {
     return false;
   }
 
-  bool IniParser::Event::onKey(const std::string& key)
+  bool IniParser::Event::onKey(const std::string& /*key*/)
   {
     return false;
   }
 
-  bool IniParser::Event::onValue(const std::string& key)
+  bool IniParser::Event::onValue(const std::string& /*key*/)
   {
     return false;
   }
 
-  bool IniParser::Event::onComment(const std::string& comment)
+  bool IniParser::Event::onComment(const std::string& /*comment*/)
   {
     return false;
   }

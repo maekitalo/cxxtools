@@ -72,31 +72,31 @@ namespace http {
         }
     }
 
-    void HeaderParser::Event::onMethod(const std::string& method)
+    void HeaderParser::Event::onMethod(const std::string& /*method*/)
     {
     }
 
-    void HeaderParser::Event::onUrl(const std::string& url)
+    void HeaderParser::Event::onUrl(const std::string& /*url*/)
     {
     }
 
-    void HeaderParser::Event::onUrlParam(const std::string& q)
+    void HeaderParser::Event::onUrlParam(const std::string& /*q*/)
     {
     }
 
-    void HeaderParser::Event::onHttpVersion(unsigned major, unsigned minor)
+    void HeaderParser::Event::onHttpVersion(unsigned /*major*/, unsigned /*minor*/)
     {
     }
 
-    void HeaderParser::Event::onKey(const std::string& key)
+    void HeaderParser::Event::onKey(const std::string& /*key*/)
     {
     }
 
-    void HeaderParser::Event::onValue(const std::string& value)
+    void HeaderParser::Event::onValue(const std::string& /*value*/)
     {
     }
 
-    void HeaderParser::Event::onHttpReturn(unsigned ret, const std::string& text)
+    void HeaderParser::Event::onHttpReturn(unsigned /*ret*/, const std::string& /*text*/)
     {
     }
 
@@ -909,12 +909,12 @@ namespace http {
         }
     }
 
-    void HeaderParser::state_end(char ch)
+    void HeaderParser::state_end(char /*ch*/)
     {
         return;
     }
 
-    void HeaderParser::state_error(char ch)
+    void HeaderParser::state_error(char /*ch*/)
     {
         return;
     }

@@ -89,7 +89,7 @@ namespace cxxtools {
 
                 @sa Connectable::operator=()
             */
-            Connectable(const Connectable& c)
+            Connectable(const Connectable& /*c*/)
             { }
 
             /** @brief Assignment operator
@@ -98,7 +98,7 @@ namespace cxxtools {
                 provides a public copy constructor. Copying a %Connectable
                 will not change its connections.
             */
-            Connectable& operator=(const Connectable& rhs)
+            Connectable& operator=(const Connectable& /*rhs*/)
             { return *this; }
 
             /** @brief Returns a list of all current connections

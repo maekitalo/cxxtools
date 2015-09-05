@@ -262,7 +262,7 @@ void RpcServerImpl::onIdleSocket(const IdleSocketEvent& event)
     socket->inputConnection = connect(socket->inputReady, inputSlot);
 }
 
-void RpcServerImpl::onNoWaitingThreads(const NoWaitingThreadsEvent& event)
+void RpcServerImpl::onNoWaitingThreads(const NoWaitingThreadsEvent& /*event*/)
 {
     MutexLock lock(_threadMutex);
 

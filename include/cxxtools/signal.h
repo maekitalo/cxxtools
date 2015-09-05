@@ -154,8 +154,13 @@ class Signal<const cxxtools::Event&> : public Connectable
                                CompareEventTypeInfo > RouteMap;
 
         // make non copyable
+#if __cplusplus >= 201103L
+        Signal(const Signal&) = delete;
+        Signal& operator=(const Signal&) = delete;
+#else
         Signal(const Signal&) { }
         Signal& operator=(const Signal&) { return *this; }
+#endif
 
     public:
         Signal();

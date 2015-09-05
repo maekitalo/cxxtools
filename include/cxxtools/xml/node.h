@@ -108,7 +108,7 @@ namespace cxxtools {
                  * @return In sub-classes $true is returned if this Node object is the same as the given
                  * Node object. In this generic class $false$ is always returned.
                  */
-                virtual bool operator==(const Node& node) const
+                virtual bool operator==(const Node& /*node*/) const
                 { return false; }
 
                 virtual Node* clone() const = 0;

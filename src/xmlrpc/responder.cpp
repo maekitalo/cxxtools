@@ -69,7 +69,7 @@ XmlRpcResponder::~XmlRpcResponder()
 }
 
 
-void XmlRpcResponder::beginRequest(net::TcpSocket& socket, std::istream& is, http::Request& request)
+void XmlRpcResponder::beginRequest(net::TcpSocket& /*socket*/, std::istream& is, http::Request& /*request*/)
 {
     _fault.clear();
     _state = OnBegin;
@@ -78,7 +78,7 @@ void XmlRpcResponder::beginRequest(net::TcpSocket& socket, std::istream& is, htt
 }
 
 
-std::size_t XmlRpcResponder::readBody(std::istream& is)
+std::size_t XmlRpcResponder::readBody(std::istream& /*is*/)
 {
     std::size_t n = 0;
 
@@ -122,7 +122,7 @@ std::size_t XmlRpcResponder::readBody(std::istream& is)
 }
 
 
-void XmlRpcResponder::replyError(std::ostream& os, http::Request& request,
+void XmlRpcResponder::replyError(std::ostream& os, http::Request& /*request*/,
                                      http::Reply& reply, const std::exception& ex)
 {
     reply.setHeader("Content-Type", "text/xml");

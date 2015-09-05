@@ -36,9 +36,9 @@ namespace cxxtools {
 class MutexImpl
 {
     public:
-        explicit MutexImpl();
+        MutexImpl();
 
-        MutexImpl(int n);
+        explicit MutexImpl(bool recursive);
 
         ~MutexImpl();
 

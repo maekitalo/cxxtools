@@ -58,7 +58,7 @@ namespace
     }
 }
 
-CharMapCodec::result CharMapCodec::do_in(MBState& s, const char* fromBegin, const char* fromEnd, const char*& fromNext,
+CharMapCodec::result CharMapCodec::do_in(MBState& /*s*/, const char* fromBegin, const char* fromEnd, const char*& fromNext,
                                    Char* toBegin, Char* toEnd, Char*& toNext) const
 {
     fromNext  = fromBegin;
@@ -74,7 +74,7 @@ CharMapCodec::result CharMapCodec::do_in(MBState& s, const char* fromBegin, cons
 }
 
 
-CharMapCodec::result CharMapCodec::do_out(MBState& s, const Char* fromBegin, const Char* fromEnd, const Char*& fromNext,
+CharMapCodec::result CharMapCodec::do_out(MBState& /*s*/, const Char* fromBegin, const Char* fromEnd, const Char*& fromNext,
                                                   char* toBegin, char* toEnd, char*& toNext) const
 {
     fromNext  = fromBegin;
@@ -91,7 +91,7 @@ CharMapCodec::result CharMapCodec::do_out(MBState& s, const Char* fromBegin, con
 }
 
 
-int CharMapCodec::do_length(MBState& s, const char* fromBegin, const char* fromEnd, size_t max) const
+int CharMapCodec::do_length(MBState& /*s*/, const char* /*fromBegin*/, const char* /*fromEnd*/, size_t max) const
 {
     return max;
 }

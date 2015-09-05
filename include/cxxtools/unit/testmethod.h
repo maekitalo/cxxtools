@@ -111,7 +111,7 @@ namespace unit {
             , TestMethod(name)
             {}
 
-            void exec(const SerializationInfo* si, unsigned argCount)
+            void exec(const SerializationInfo* /*si*/, unsigned /*argCount*/)
             {
                 cxxtools::Method<void, C>::call();
             }

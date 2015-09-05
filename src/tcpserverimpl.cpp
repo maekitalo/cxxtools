@@ -301,13 +301,13 @@ bool TcpServerImpl::wait(Timespan timeout)
 }
 
 
-void TcpServerImpl::attach(SelectorBase& s)
+void TcpServerImpl::attach(SelectorBase& /*s*/)
 {
     log_debug("attach to selector");
 }
 
 
-void TcpServerImpl::detach(SelectorBase& s)
+void TcpServerImpl::detach(SelectorBase& /*s*/)
 {
     log_debug("detach from selector");
     _pfd = 0;

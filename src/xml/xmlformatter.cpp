@@ -167,7 +167,7 @@ void XmlFormatter::beginObject(const std::string& name, const std::string& type)
 }
 
 
-void XmlFormatter::beginMember(const std::string& name)
+void XmlFormatter::beginMember(const std::string& /*name*/)
 {
 }
 

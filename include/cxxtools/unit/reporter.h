@@ -65,7 +65,7 @@ class Reporter
 
             @param test The started test
         */
-        virtual void reportStart(const TestContext& test)
+        virtual void reportStart(const TestContext& /*test*/)
         { }
 
         /** @brief Finished notification
@@ -75,7 +75,7 @@ class Reporter
 
             @param test The finished test
         */
-        virtual void reportFinish(const TestContext& test)
+        virtual void reportFinish(const TestContext& /*test*/)
         { }
 
         /** @brief Message notification
@@ -85,7 +85,7 @@ class Reporter
 
             @param msg The message
         */
-        virtual void reportMessage(const std::string& msg)
+        virtual void reportMessage(const std::string& /*msg*/)
         { }
 
         /** @brief Success notification
@@ -94,7 +94,7 @@ class Reporter
 
             @param test The succeeded test
         */
-        virtual void reportSuccess(const TestContext& test)
+        virtual void reportSuccess(const TestContext& /*test*/)
         { }
 
         /** @brief Assertion notification
@@ -104,7 +104,7 @@ class Reporter
 
             @param test The failed test
         */
-        virtual void reportAssertion(const TestContext& test, const Assertion& a)
+        virtual void reportAssertion(const TestContext& /*test*/, const Assertion& /*a*/)
         { }
 
         /** @brief Exception notification
@@ -115,7 +115,7 @@ class Reporter
 
             @param test The failed test
         */
-        virtual void reportException(const TestContext& test, const std::exception& ex)
+        virtual void reportException(const TestContext& /*test*/, const std::exception& /*ex*/)
         { }
 
         /** @brief Error notification
@@ -125,7 +125,7 @@ class Reporter
 
             @param test The failed test
         */
-        virtual void reportError(const TestContext& test)
+        virtual void reportError(const TestContext& /*test*/)
         { }
 
         /** @brief Skipped notification
@@ -134,7 +134,7 @@ class Reporter
 
             @param test The skipped test
         */
-        virtual void reportSkip(const TestContext& test)
+        virtual void reportSkip(const TestContext& /*test*/)
         { }
 
         Signal<Reporter&> destroyed;

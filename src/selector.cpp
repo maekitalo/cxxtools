@@ -234,7 +234,7 @@ void Selector::onChanged(Selectable& s)
 }
 
 
-void Selector::onReinit(Selectable& s)
+void Selector::onReinit(Selectable& /*s*/)
 {
 }
 

@@ -290,7 +290,7 @@ void ServerImpl::onActiveSocket(const ActiveSocketEvent& event)
     _queue.put(event.socket());
 }
 
-void ServerImpl::onNoWaitingThreads(const NoWaitingThreadsEvent& event)
+void ServerImpl::onNoWaitingThreads(const NoWaitingThreadsEvent& /*event*/)
 {
     MutexLock lock(_threadMutex);
 

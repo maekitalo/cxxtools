@@ -182,7 +182,7 @@ class JsonRpcHttpTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(_count, 1);
         }
 
-        void onExceptionCallback(cxxtools::RemoteResult<bool>& r)
+        void onExceptionCallback(cxxtools::RemoteResult<bool>& /*r*/)
         {
             log_warn("exception callback");
             ++_count;

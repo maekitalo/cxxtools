@@ -71,7 +71,7 @@ class Base64Codec : public TextCodec<char, char>
             return false;
         }
 
-        int do_length(MBState& s, const char* fromBegin,
+        int do_length(MBState& /*s*/, const char* fromBegin,
                       const char* fromEnd, size_t max) const
         {
             const int from = (fromEnd - fromBegin) / 4;

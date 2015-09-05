@@ -154,7 +154,7 @@ void IODeviceImpl::close()
 }
 
 
-size_t IODeviceImpl::beginRead(char* buffer, size_t n, bool& eof)
+size_t IODeviceImpl::beginRead(char* /*buffer*/, size_t /*n*/, bool& /*eof*/)
 {
     if(_pfd)
     {
@@ -332,13 +332,13 @@ void IODeviceImpl::sync() const
 }
 
 
-void IODeviceImpl::attach(SelectorBase& s)
+void IODeviceImpl::attach(SelectorBase& /*s*/)
 {
 
 }
 
 
-void IODeviceImpl::detach(SelectorBase& s)
+void IODeviceImpl::detach(SelectorBase& /*s*/)
 {
     _pfd = 0;
 }

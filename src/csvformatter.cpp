@@ -76,7 +76,7 @@ namespace cxxtools
         _collectTitles = false;
     }
 
-    void CsvFormatter::toCsvData(String& ret, const std::string& type, const String& value)
+    void CsvFormatter::toCsvData(String& ret, const std::string& /*type*/, const String& value)
     {
         if (value.find(Char(_quote)) == String::npos
                 && value.find(Char(_delimiter)) == String::npos
@@ -135,7 +135,7 @@ namespace cxxtools
         _data.clear();
     }
 
-    void CsvFormatter::addValueString(const std::string& name, const std::string& type,
+    void CsvFormatter::addValueString(const std::string& /*name*/, const std::string& type,
                           const String& value)
     {
         if (_memberName.empty())
@@ -162,7 +162,7 @@ namespace cxxtools
         }
     }
 
-    void CsvFormatter::beginArray(const std::string& name, const std::string& type)
+    void CsvFormatter::beginArray(const std::string& /*name*/, const std::string& /*type*/)
     {
         ++_level;
         log_debug("beginArray, level=" << _level);
@@ -178,7 +178,7 @@ namespace cxxtools
             dataOut();
     }
 
-    void CsvFormatter::beginObject(const std::string& name, const std::string& type)
+    void CsvFormatter::beginObject(const std::string& /*name*/, const std::string& /*type*/)
     {
         ++_level;
         log_debug("beginObject, level=" << _level);

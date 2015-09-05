@@ -64,7 +64,7 @@ namespace cxxtools
             {
             }
 
-            BasicEvent(const BasicEvent& src)
+            BasicEvent(const BasicEvent& /*src*/)
             {
             }
 

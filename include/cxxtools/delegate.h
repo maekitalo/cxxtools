@@ -49,6 +49,7 @@ namespace cxxtools {
             { }
 
             DelegateBase(const DelegateBase& rhs)
+                : Connectable(rhs)
             { operator=(rhs); }
 
             DelegateBase& operator=(const DelegateBase& other)

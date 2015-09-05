@@ -54,7 +54,7 @@ multifstreambuf::~multifstreambuf()
     globfree(&mglob);
 }
 
-std::streambuf::int_type multifstreambuf::overflow(std::streambuf::int_type c)
+std::streambuf::int_type multifstreambuf::overflow(std::streambuf::int_type /*c*/)
 {
   return traits_type::eof();
 }

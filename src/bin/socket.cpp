@@ -50,7 +50,9 @@ Socket::Socket(RpcServerImpl& server, ServiceRegistry& serviceRegistry, net::Tcp
 }
 
 Socket::Socket(Socket& socket)
-    : inputSlot(slot(*this, &Socket::onInput)),
+    : net::TcpSocket(),
+      Connectable(*this),
+      inputSlot(slot(*this, &Socket::onInput)),
       _tcpServer(socket._tcpServer),
       _server(socket._server),
       _responder(socket._responder._serviceRegistry),
@@ -80,7 +82,7 @@ void Socket::removeSelector()
     TcpSocket::setSelector(0);
 }
 
-void Socket::onIODeviceInput(IODevice& iodevice)
+void Socket::onIODeviceInput(IODevice& /*iodevice*/)
 {
     log_debug("onIODeviceInput");
     inputReady(*this);

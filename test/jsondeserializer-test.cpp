@@ -85,7 +85,7 @@ namespace
     {
     };
 
-    inline void operator>>= (const cxxtools::SerializationInfo& si, EmptyObject& obj)
+    inline void operator>>= (const cxxtools::SerializationInfo& /*si*/, EmptyObject& /*obj*/)
     {
     }
 

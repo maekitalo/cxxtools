@@ -107,73 +107,73 @@ class SettingsReader
                 {}
 
             private:
-                virtual State* onSpace(cxxtools::Char c, SettingsReader& reader)
+                virtual State* onSpace(cxxtools::Char /*c*/, SettingsReader& reader)
                 {
                     this->syntaxError(reader.line());
                     return this;
                 }
 
-                virtual State* onQuote(cxxtools::Char c, SettingsReader& reader)
+                virtual State* onQuote(cxxtools::Char /*c*/, SettingsReader& reader)
                 {
                     this->syntaxError(reader.line());
                     return this;
                 }
 
-                virtual State* onComma(cxxtools::Char c, SettingsReader& reader)
+                virtual State* onComma(cxxtools::Char /*c*/, SettingsReader& reader)
                 {
                     this->syntaxError(reader.line());
                     return this;
                 }
 
-                virtual State* onEqual(cxxtools::Char c, SettingsReader& reader)
+                virtual State* onEqual(cxxtools::Char /*c*/, SettingsReader& reader)
                 {
                     this->syntaxError(reader.line());
                     return this;
                 }
 
-                virtual State* onOpenCurlyBrace(cxxtools::Char c, SettingsReader& reader)
+                virtual State* onOpenCurlyBrace(cxxtools::Char /*c*/, SettingsReader& reader)
                 {
                     this->syntaxError(reader.line());
                     return this;
                 }
 
-                virtual State* onCloseCurlyBrace(cxxtools::Char c, SettingsReader& reader)
+                virtual State* onCloseCurlyBrace(cxxtools::Char /*c*/, SettingsReader& reader)
                 {
                     this->syntaxError(reader.line());
                     return this;
                 }
 
-                virtual State* onOpenBrace(cxxtools::Char c, SettingsReader& reader)
+                virtual State* onOpenBrace(cxxtools::Char /*c*/, SettingsReader& reader)
                 {
                     this->syntaxError(reader.line());
                     return this;
                 }
 
-                virtual State* onCloseBrace(cxxtools::Char c, SettingsReader& reader)
+                virtual State* onCloseBrace(cxxtools::Char /*c*/, SettingsReader& reader)
                 {
                     this->syntaxError(reader.line());
                     return this;
                 }
 
-                virtual State* onOpenSquareBrace(cxxtools::Char c, SettingsReader& reader)
+                virtual State* onOpenSquareBrace(cxxtools::Char /*c*/, SettingsReader& reader)
                 {
                     this->syntaxError(reader.line());
                     return this;
                 }
 
-                virtual State* onCloseSquareBrace(cxxtools::Char c, SettingsReader& reader)
+                virtual State* onCloseSquareBrace(cxxtools::Char /*c*/, SettingsReader& reader)
                 {
                     this->syntaxError(reader.line());
                     return this;
                 }
 
-                virtual State* onHash(cxxtools::Char c, SettingsReader& reader)
+                virtual State* onHash(cxxtools::Char /*c*/, SettingsReader& reader)
                 {
                     reader.beginComment(); // save current state
                     return OnComment::instance();
                 }
 
-                virtual State* onAlpha(cxxtools::Char c, SettingsReader& reader)
+                virtual State* onAlpha(cxxtools::Char /*c*/, SettingsReader& reader)
                 {
                     this->syntaxError(reader.line());
                     return this;
@@ -208,12 +208,12 @@ class SettingsReader
 
         class BeginStatement : public State
         {
-            virtual State* onSpace(cxxtools::Char c, SettingsReader& reader)
+            virtual State* onSpace(cxxtools::Char /*c*/, SettingsReader& /*reader*/)
             {
                 return this;
             }
 
-            virtual State* onQuote(cxxtools::Char c, SettingsReader& reader)
+            virtual State* onQuote(cxxtools::Char /*c*/, SettingsReader& reader)
             {
                 if(reader.depth() == 0)
                     this->syntaxError(reader.line());
@@ -221,13 +221,13 @@ class SettingsReader
                 return OnQuotedValue::instance();
             }
 
-            virtual State* onOpenSquareBrace(cxxtools::Char c, SettingsReader& reader)
+            virtual State* onOpenSquareBrace(cxxtools::Char /*c*/, SettingsReader& reader)
             {
                 reader.beginSection();
                 return OnSection::instance();
             }
 
-            virtual State* onOpenCurlyBrace(cxxtools::Char c, SettingsReader& reader)
+            virtual State* onOpenCurlyBrace(cxxtools::Char /*c*/, SettingsReader& reader)
             {
                 reader.enterMember();
                 return OnCurly::instance();
@@ -239,7 +239,7 @@ class SettingsReader
                 return BeginType::instance();
             }
 
-            virtual State* onEof(SettingsReader& reader)
+            virtual State* onEof(SettingsReader& /*reader*/)
             {
                 return this;
             }
@@ -255,12 +255,12 @@ class SettingsReader
 
         class OnSection : public State
         {
-            virtual State* onSpace(cxxtools::Char c, SettingsReader& reader)
+            virtual State* onSpace(cxxtools::Char /*c*/, SettingsReader& /*reader*/)
             {
                 return this;
             }
 
-            virtual State* onCloseSquareBrace(cxxtools::Char c, SettingsReader& reader)
+            virtual State* onCloseSquareBrace(cxxtools::Char /*c*/, SettingsReader& /*reader*/)
             {
                 return BeginStatement::instance();
             }
@@ -282,14 +282,14 @@ class SettingsReader
 
         class BeginType : public State
         {
-            virtual State* onSpace(cxxtools::Char c, SettingsReader& reader)
+            virtual State* onSpace(cxxtools::Char /*c*/, SettingsReader& /*reader*/)
             {
                 return AfterName::instance();
             }
 
-            virtual State* onEqual(cxxtools::Char c, SettingsReader& reader)
+            virtual State* onEqual(cxxtools::Char /*c*/, SettingsReader& reader)
             {
-                if(reader.depth() == 0)
+                if (reader.depth() == 0)
                     reader.enterMember();
                 else
                     reader.pushName();
@@ -297,7 +297,7 @@ class SettingsReader
                 return OnEqual::instance();
             }
 
-            virtual State* onComma(cxxtools::Char c, SettingsReader& reader)
+            virtual State* onComma(cxxtools::Char /*c*/, SettingsReader& reader)
             {
                 reader.pushValue();
                 reader.leaveMember();
@@ -305,13 +305,13 @@ class SettingsReader
                 return BeginStatement::instance();
             }
 
-            virtual State* onOpenBrace(cxxtools::Char c, SettingsReader& reader)
+            virtual State* onOpenBrace(cxxtools::Char /*c*/, SettingsReader& reader)
             {
                 reader.pushTypeName();
                 return BeginTypedValue::instance();
             }
 
-            virtual State* onOpenCurlyBrace(cxxtools::Char c, SettingsReader& reader)
+            virtual State* onOpenCurlyBrace(cxxtools::Char /*c*/, SettingsReader& reader)
             {
                 if(reader.depth() == 0)
                     this->syntaxError(reader.line());
@@ -321,7 +321,7 @@ class SettingsReader
                 return OnCurly::instance();
             }
 
-            virtual State* onCloseCurlyBrace(cxxtools::Char c, SettingsReader& reader)
+            virtual State* onCloseCurlyBrace(cxxtools::Char /*c*/, SettingsReader& reader)
             {
                 reader.pushValue();
                 reader.leaveMember();
@@ -346,12 +346,12 @@ class SettingsReader
 
         class AfterName : public BeginType
         {
-            virtual State* onSpace(cxxtools::Char c, SettingsReader& reader)
+            virtual State* onSpace(cxxtools::Char /*c*/, SettingsReader& /*reader*/)
             {
                 return this;
             }
 
-            virtual State* onAlpha(cxxtools::Char c, SettingsReader& reader)
+            virtual State* onAlpha(cxxtools::Char /*c*/, SettingsReader& reader)
             {
                 this->syntaxError(reader.line());
                 return this;
@@ -379,12 +379,12 @@ class SettingsReader
                     return this;
             }
 
-            virtual State* onQuote(cxxtools::Char c, SettingsReader& reader)
+            virtual State* onQuote(cxxtools::Char /*c*/, SettingsReader& /*reader*/)
             {
                 return OnQuotedValue::instance();
             }
 
-            virtual State* onOpenCurlyBrace(cxxtools::Char c, SettingsReader& reader)
+            virtual State* onOpenCurlyBrace(cxxtools::Char /*c*/, SettingsReader& reader)
             {
                 reader.enterMember();
                 return OnCurly::instance();
@@ -413,7 +413,7 @@ class SettingsReader
                 return this;
             }
 
-            virtual State* onQuote(cxxtools::Char c, SettingsReader& reader)
+            virtual State* onQuote(cxxtools::Char /*c*/, SettingsReader& reader)
             {
                 reader.pushValue();
                 return AfterQuotedValue::instance();
@@ -493,19 +493,19 @@ class SettingsReader
 
         class AfterValue : public State
         {
-            virtual State* onSpace(cxxtools::Char c, SettingsReader& reader)
+            virtual State* onSpace(cxxtools::Char /*c*/, SettingsReader& /*reader*/)
             {
                 return this;
             }
 
-            virtual State* onComma(cxxtools::Char c, SettingsReader& reader)
+            virtual State* onComma(cxxtools::Char /*c*/, SettingsReader& reader)
             {
                 reader.leaveMember();
                 reader.enterMember();
                 return BeginStatement::instance();
             }
 
-            virtual State* onCloseCurlyBrace(cxxtools::Char c, SettingsReader& reader)
+            virtual State* onCloseCurlyBrace(cxxtools::Char /*c*/, SettingsReader& reader)
             {
                 reader.leaveMember();
                 reader.leaveMember();
@@ -539,13 +539,13 @@ class SettingsReader
 
         class AfterQuotedValue : public AfterValue
         {
-            virtual State* onQuote(cxxtools::Char c, SettingsReader& reader)
+            virtual State* onQuote(cxxtools::Char /*c*/, SettingsReader& /*reader*/)
             {
                 /// TODO: multi-line strings
                 return this;
             }
 
-            virtual State* onOpenSquareBrace(cxxtools::Char c, SettingsReader& reader)
+            virtual State* onOpenSquareBrace(cxxtools::Char /*c*/, SettingsReader& reader)
             {
                 reader.leaveMember();
                 reader.beginSection();
@@ -563,12 +563,12 @@ class SettingsReader
 
         class OnRValue : public State
         {
-            virtual State* onSpace(cxxtools::Char c, SettingsReader& reader)
+            virtual State* onSpace(cxxtools::Char /*c*/, SettingsReader& /*reader*/)
             {
                 return AfterRValue::instance();
             }
 
-            virtual State* onOpenSquareBrace(cxxtools::Char c, SettingsReader& reader)
+            virtual State* onOpenSquareBrace(cxxtools::Char /*c*/, SettingsReader& reader)
             {
                 reader.pushValue();
                 reader.leaveMember();
@@ -577,20 +577,20 @@ class SettingsReader
                 return OnSection::instance();
             }
 
-            virtual State* onOpenCurlyBrace(cxxtools::Char c, SettingsReader& reader)
+            virtual State* onOpenCurlyBrace(cxxtools::Char /*c*/, SettingsReader& reader)
             {
                 reader.pushTypeName();
                 reader.enterMember();
                 return OnCurly::instance();
             }
 
-            virtual State* onOpenBrace(cxxtools::Char c, SettingsReader& reader)
+            virtual State* onOpenBrace(cxxtools::Char /*c*/, SettingsReader& reader)
             {
                 reader.pushTypeName();
                 return BeginTypedValue::instance();
             }
 
-            virtual State* onCloseCurlyBrace(cxxtools::Char c, SettingsReader& reader)
+            virtual State* onCloseCurlyBrace(cxxtools::Char /*c*/, SettingsReader& reader)
             {
                 reader.pushValue();
                 reader.leaveMember();
@@ -598,7 +598,7 @@ class SettingsReader
                 return OnCloseCurly::instance();
             }
 
-            virtual State* onComma(cxxtools::Char c, SettingsReader& reader)
+            virtual State* onComma(cxxtools::Char /*c*/, SettingsReader& reader)
             {
                 reader.pushValue();
                 reader.leaveMember();
@@ -630,7 +630,7 @@ class SettingsReader
 
         class AfterRValue : public OnRValue
         {
-            virtual State* onSpace(cxxtools::Char c, SettingsReader& reader)
+            virtual State* onSpace(cxxtools::Char /*c*/, SettingsReader& /*reader*/)
             {
                 return this;
             }
@@ -654,24 +654,24 @@ class SettingsReader
 
         class OnCurly : public State
         {
-            virtual State* onSpace(cxxtools::Char c, SettingsReader& reader)
+            virtual State* onSpace(cxxtools::Char /*c*/, SettingsReader& /*reader*/)
             {
                 return this;
             }
 
-            virtual State* onOpenCurlyBrace(cxxtools::Char c, SettingsReader& reader)
+            virtual State* onOpenCurlyBrace(cxxtools::Char /*c*/, SettingsReader& reader)
             {
                 reader.enterMember();
                 return OnCurly::instance();
             }
 
-            virtual State* onCloseCurlyBrace(cxxtools::Char c, SettingsReader& reader)
+            virtual State* onCloseCurlyBrace(cxxtools::Char /*c*/, SettingsReader& reader)
             {
                 reader.leaveMember();
                 return OnCloseCurly::instance();
             }
 
-            virtual State* onQuote(cxxtools::Char c, SettingsReader& reader)
+            virtual State* onQuote(cxxtools::Char /*c*/, SettingsReader& /*reader*/)
             {
                 return OnQuotedValue::instance();
             }
@@ -693,24 +693,24 @@ class SettingsReader
 
         class OnCloseCurly : public State
         {
-            virtual State* onSpace(cxxtools::Char c, SettingsReader& reader)
+            virtual State* onSpace(cxxtools::Char /*c*/, SettingsReader& /*reader*/)
             {
                 return this;
             }
 
-            virtual State* onOpenSquareBrace(cxxtools::Char c, SettingsReader& reader)
+            virtual State* onOpenSquareBrace(cxxtools::Char /*c*/, SettingsReader& reader)
             {
                 reader.beginSection();
                 return OnSection::instance();
             }
 
-            virtual State* onCloseCurlyBrace(cxxtools::Char c, SettingsReader& reader)
+            virtual State* onCloseCurlyBrace(cxxtools::Char /*c*/, SettingsReader& reader)
             {
                 reader.leaveMember();
                 return this;
             }
 
-            virtual State* onComma(cxxtools::Char c, SettingsReader& reader)
+            virtual State* onComma(cxxtools::Char /*c*/, SettingsReader& reader)
             {
                 if(reader.depth() == 0)
                 {
@@ -746,12 +746,12 @@ class SettingsReader
 
         class BeginTypedValue : public State
         {
-            virtual State* onSpace(cxxtools::Char c, SettingsReader& reader)
+            virtual State* onSpace(cxxtools::Char /*c*/, SettingsReader& /*reader*/)
             {
                 return this;
             }
 
-            virtual State* onQuote(cxxtools::Char c, SettingsReader& reader)
+            virtual State* onQuote(cxxtools::Char /*c*/, SettingsReader& /*reader*/)
             {
                 return OnQuotedTypedValue::instance();
             }
@@ -773,12 +773,12 @@ class SettingsReader
 
         class OnTypedValue : public State
         {
-            virtual State* onSpace(cxxtools::Char c, SettingsReader& reader)
+            virtual State* onSpace(cxxtools::Char /*c*/, SettingsReader& /*reader*/)
             {
                 return EndTypedValue::instance();
             }
 
-            virtual State* onCloseBrace(cxxtools::Char c, SettingsReader& reader)
+            virtual State* onCloseBrace(cxxtools::Char /*c*/, SettingsReader& reader)
             {
                 reader.pushValue();
                 return AfterValue::instance();
@@ -801,7 +801,7 @@ class SettingsReader
 
         class OnQuotedTypedValue : public OnQuotedValue
         {
-            virtual State* onQuote(cxxtools::Char c, SettingsReader& reader)
+            virtual State* onQuote(cxxtools::Char /*c*/, SettingsReader& /*reader*/)
             {
                 return EndTypedValue::instance();
             }
@@ -817,7 +817,7 @@ class SettingsReader
 
         class EndTypedValue : public OnTypedValue
         {
-            virtual State* onAlpha(cxxtools::Char c, SettingsReader& reader)
+            virtual State* onAlpha(cxxtools::Char /*c*/, SettingsReader& reader)
             {
                 this->syntaxError(reader.line());
                 return this;

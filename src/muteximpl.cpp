@@ -36,7 +36,7 @@ MutexImpl::MutexImpl()
 {
     pthread_mutexattr_t attr;
     pthread_mutexattr_init(&attr);
-    pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK  );
+    pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_ERRORCHECK);
 
     int rc = pthread_mutex_init(&_handle, &attr);
     if (rc != 0)
@@ -44,11 +44,12 @@ MutexImpl::MutexImpl()
 }
 
 
-MutexImpl::MutexImpl(int recursive)
+MutexImpl::MutexImpl(bool recursive)
 {
     pthread_mutexattr_t attr;
     pthread_mutexattr_init(&attr);
-    pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE );
+    if (recursive)
+        pthread_mutexattr_settype(&attr, PTHREAD_MUTEX_RECURSIVE);
 
     int rc = pthread_mutex_init(&_handle, &attr);
     if (rc != 0)

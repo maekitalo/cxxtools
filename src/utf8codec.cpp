@@ -221,7 +221,7 @@ Utf8Codec::result Utf8Codec::do_in(MBState& s, const char* fromBegin, const char
 }
 
 
-Utf8Codec::result Utf8Codec::do_out(MBState& s, const Char* fromBegin, const Char* fromEnd, const Char*& fromNext,
+Utf8Codec::result Utf8Codec::do_out(MBState& /*s*/, const Char* fromBegin, const Char* fromEnd, const Char*& fromNext,
                                                   char* toBegin, char* toEnd, char*& toNext) const
 {
     result retstat = ok;
@@ -288,7 +288,7 @@ Utf8Codec::result Utf8Codec::do_out(MBState& s, const Char* fromBegin, const Cha
 }
 
 
-int Utf8Codec::do_length(MBState& s, const char* fromBegin, const char* fromEnd, size_t max) const
+int Utf8Codec::do_length(MBState& /*s*/, const char* fromBegin, const char* fromEnd, size_t max) const
 {
     const char* fromNext = fromBegin;
     size_t counter = 0;

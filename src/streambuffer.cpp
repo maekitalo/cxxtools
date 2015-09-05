@@ -136,7 +136,7 @@ void StreamBuffer::beginRead()
 }
 
 
-void StreamBuffer::onRead(IODevice& dev)
+void StreamBuffer::onRead(IODevice& /*dev*/)
 {
     inputReady.send(*this);
 }
@@ -247,7 +247,7 @@ void StreamBuffer::discard()
 }
 
 
-void StreamBuffer::onWrite(IODevice& dev)
+void StreamBuffer::onWrite(IODevice& /*dev*/)
 {
     outputReady.send(*this);
 }

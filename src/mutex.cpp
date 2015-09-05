@@ -76,7 +76,7 @@ bool Mutex::unlockNoThrow()
 
 RecursiveMutex::RecursiveMutex()
 {
-    _impl = new MutexImpl(1);
+    _impl = new MutexImpl(true);
 }
 
 

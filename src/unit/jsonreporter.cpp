@@ -40,7 +40,7 @@ void JsonReporter::reportStart(const cxxtools::unit::TestContext& test)
     current = &si.addMember(test.testName());
 }
 
-void JsonReporter::reportFinish(const cxxtools::unit::TestContext& test)
+void JsonReporter::reportFinish(const cxxtools::unit::TestContext& /*test*/)
 {
 }
 
@@ -49,12 +49,12 @@ void JsonReporter::reportMessage(const std::string& msg)
     current->addMember("message") <<= msg;
 }
 
-void JsonReporter::reportSuccess(const cxxtools::unit::TestContext& test)
+void JsonReporter::reportSuccess(const cxxtools::unit::TestContext& /*test*/)
 {
     current->addMember("success") <<= true;
 }
 
-void JsonReporter::reportAssertion(const cxxtools::unit::TestContext& test, const cxxtools::unit::Assertion& a)
+void JsonReporter::reportAssertion(const cxxtools::unit::TestContext& /*test*/, const cxxtools::unit::Assertion& a)
 {
     current->addMember("success") <<= false;
     current->addMember("assertion") <<= true;
@@ -64,20 +64,20 @@ void JsonReporter::reportAssertion(const cxxtools::unit::TestContext& test, cons
     current->addMember("message") <<= a.what();
 }
 
-void JsonReporter::reportException(const cxxtools::unit::TestContext& test, const std::exception& ex)
+void JsonReporter::reportException(const cxxtools::unit::TestContext& /*test*/, const std::exception& ex)
 {
     current->addMember("success") <<= false;
     current->addMember("exception") <<= true;
     current->addMember("message") <<= ex.what();
 }
 
-void JsonReporter::reportError(const cxxtools::unit::TestContext& test)
+void JsonReporter::reportError(const cxxtools::unit::TestContext& /*test*/)
 {
     current->addMember("success") <<= false;
     current->addMember("error") <<= true;
 }
 
-void JsonReporter::reportSkip(const cxxtools::unit::TestContext& test)
+void JsonReporter::reportSkip(const cxxtools::unit::TestContext& /*test*/)
 {
     current->addMember("success") <<= false;
     current->addMember("skip") <<= true;
