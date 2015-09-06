@@ -1,3 +1,358 @@
+2015-09-06 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - fix unused parameters warnings (not enabled by default)
+
+2015-08-18 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - better error message when string could not be parsed in envsubst
+
+2015-08-13 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - Several unit test improvements
+    * In CXXTOOLS_UNIT_ASSERT_EQUALS the expressions are evaluated just once now.
+    * There is a new macro CXXTOOLS_UNIT_SKIP to skip a test.
+    * A new flag -s prints a statistic summary of the tests.
+    * A new class cxxtools::unit::JsonReporter makes it possible to output test results
+      with a serializer like json.
+    * A new flag -j or --json in unit test outputs results in json format.
+
+2015-08-04 Tommi Mäkitalo <tommi.maekitalo@comyno.com>
+
+ - optimization in StreamBuffer: beginWrite will try to write some if already in write operation
+ - fix date validation
+ - remove unused parameter name from smart pointer to remove an extended compiler warning
+ - pass options parameter to for in command input class
+
+2015-07-30 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - fix a bug where the streambuffer may block when non blocking I/O is used
+
+2015-07-29 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - additional date and time formats for fixed number of digits
+
+2015-07-25 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - change SerializationInfo to held a pointer to container to subnodes instead of the container itself
+
+2015-07-24 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - wait infinitely when passing negative timeout to queue
+
+2015-07-21 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - initialize tostdout flag correctly in logger
+
+2015-07-17 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - limit to 3 digits when parsing milliseconds in cxxtools::Time and cxxtools::DateTime
+ - fix parsing date with format code %y: should read just 2 digits
+
+2015-07-15 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - Change container for subnodes in SerializationInfo from std::vector to std::deque
+   Adding members to SerializationInfo using addMember may result to invalidation of previous references to
+   the object when using std::vector. This does not happen with std::deque.
+   Since a deque do not have a reserve method, the reserve method in SerializationInfo is removed also.
+   This results in a break in the api. If someone use the method, just remove it. It is not needed in a
+   deque.
+
+2015-07-13 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - skip range error check in serialization info if double or float are not smaler than long double
+
+2015-07-12 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - update release and so number
+ - fix format code in documentation of DateTime class
+
+2015-07-11 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - implement time based rolling of log files
+ - fix cxxtools::Time object on 32 bit platforms
+   Extending resolution of time object lead to overflow when long is just 32 bit. We use uint64_t now.
+
+2015-07-10 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - fix reading multibyte utf8 sequences from utf8 codec
+
+2015-07-01 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - fix xml deserializer and add attribute prefix feature
+   The xml deserializer forgot to read some attributes on some circumstances.
+   The attribute prefix feature helps distinquishing between xml nodes and xml attributes.
+ - fix typo
+ - fix compiler warning
+ - fix processing xml attributes in deserializer when a start node is followed directly by another start node
+
+2015-06-25 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - fix plainkey flag in jsonformatter: keys for subarrays or substructs did not considered the flag
+
+2015-06-20 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - fix utf8 convert helper for deserialization (const was missing)
+
+2015-06-18 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - fix move assignment of SerializationInfo
+   In some cicumstances move operations lead to double free corruption.
+ - do not install header from demo
+
+2015-05-21 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - fix cxxtools::Clock::getSystemTime
+
+2015-05-16 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - fix handling microseconds in datetime and time
+ - add format codes %u and %U for microseconds in Time and Datetime classes
+
+2015-05-15 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - implement unit tests for serialization of date, time and datetime
+ - rename microsec to usec in cxxtools::Time and fix accessor for it
+ - fix datetime arithmetic
+ - fix for DateTime calculation (not finished yet)
+ - Simplify and extend date and time handling.
+   cxxtools::Time has now microseconds resolution instead of just milliseconds.
+
+2015-05-14 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - add unit test for multiplication and division of cxxtools::Timespan
+
+2015-05-13 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - fix for reading log configuration from properties file
+   When a sub category was set but the top level category not, the top level got
+   log level FATAL. This was wrong. It must not have a explicit own level but fall
+   back to root level.
+ - Improve xml interface so that a xml message based communication is possible.
+   We also add a demo, which shows how to send xml messages from a server to a client.
+
+2015-05-12 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - add unary - operator to timespan class
+
+2015-05-08 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - add missing unittest include file in dist package
+
+2015-05-07 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - extended format codes for date, time and datetime
+   '?' is a placeholder for a arbitrary character
+   '*' is a placeholder for skipping non digit data
+
+2015-05-05 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - fix PropertiesDeserializer: chain of members were not read correctly
+ - new member method getAddMember in SerializationInfo which combines findMember and addMember
+
+2015-04-30 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - improve unit test for json serializer
+ - new flag "plainkey" in json serializer, where keys in structs are written without quotes where possible
+
+2015-04-28 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - better error handling in iostream operators for serialization and deserialization
+ - use codec directly in json deserializer instead of using a temporary TextIStream to prevent loosing data in its buffer
+
+2015-04-27 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - fix compile bug: sunstudio compiler complaint about syntax error
+ - fix compile bug not detected by gcc
+
+2015-04-24 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - remove useless log_debug output in SerializationInfo
+ - do not block in TextBuffer::underflow when not needed
+ - fix error detection if json is not ended properly
+
+2015-04-22 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - fix support for environment variables and trim in properties deserializer:
+     need a way to set the flags before reading the properties file
+
+2015-04-21 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - add support for environment variables and trim in properties deserializer
+
+2015-04-20 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - use timespan as timeout in TcpStream class
+
+2015-04-17 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - improve exception messages in json, csv and properties parsers
+
+2015-04-15 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - bugfix cxxtools::envSubst: multiple environmen variables in one string did not work always
+
+2015-04-13 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - optimization in logger: string buffer is kept between calls, which speeds up log output for about 7%
+
+2015-04-09 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - fix handling connect error in jsonhttp and xmlrpc client
+ - fix handling connect error in json and binary rpc client
+
+2015-04-08 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - remove unused include statment
+ - fix unit test of logger; was broken after last change
+ - fix compiler warning in logger
+ - minor optimization: pass string by reference to cxxtools::CsvOObject
+
+2015-04-04 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - update logging howto
+ - change log level TRACE not to include FINER and FINEST
+
+2015-04-03 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - allow environment variables when specifying log file in logger
+ - new class cxxtools::EnvSubst to substitute environment variables in character sequences
+
+2015-03-31 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - add more unit tests for logging configuration
+ - improve error message in cxxtools::Directory
+ - add codecs for all iso-8859-x character sets
+
+2015-03-27 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - do not include private header <dateutils.h>
+
+2015-03-26 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - improved logging: allow log levels to be switched on and off individually
+ - fix display of log levels in logger
+
+2015-03-23 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - make socket available in http responder
+
+2015-03-21 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - add move constructor and move assignment to cxxtools::String and cxxtools::SerializationInfo if C++11 is used
+
+2015-03-20 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - revert to old log level definitions LOG_LEVEL_something
+
+2015-03-19 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - add prefix debug level definitions to prevent name clash with commonly used macros like DEBUG
+ - add some documentation
+
+2015-03-10 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - minor updates after running cppcheck
+
+2015-03-04 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - fix binary deserializer: failed to deserialize arrays with names
+
+2015-02-26 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - fix not initialized counter variable in json rpc client
+
+2015-02-08 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - fix possible memory leak when rpc server is terminated while a thread is starting
+ - fix use heap after free bug in Connectable
+ - fix delete in limit stream (delete[] instead of delete)
+
+2015-02-06 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - future demo added to gitignore
+ - fix base64 test - string was accessed outside
+
+2015-02-03 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - add future object to thread pool to make it easy to wait for a finished job
+
+2015-01-23 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - add new demo: send messages over a socket using serialization
+ - fix handling of exceptions when serialization helprs are used (iostream operators should not throw exepctions but just set the failbit
+
+2015-01-22 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - support for socket option SO_REUSEADDR
+   listen in tcpsocket fails when one of the addresses got via getaddrinfo fail
+
+2015-01-06 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - fix some cxxtools::String compare cases
+
+2015-01-05 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - cxxtools::convert functions for long long types imlemented
+
+2015-01-04 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - add serialization operators for std::forward_list
+
+2015-01-03 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - implement serialization operators for C++11 containers std::unordered_...
+
+2014-12-26 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - xmlrpc howto was converted to markdown - remove original odt file
+
+2014-12-23 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - fix endless loop in File::copy when sendfile is not used (solaris, bsd)
+
+2014-12-21 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - fix some copyright headers
+ - some small improvements in cxxtools::IniFile
+ - fix compile errors in timed wait of queue and add a new class ScopedIncrement for use in queue
+
+2014-12-20 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - delete old test program, which does not work any more
+
+2014-12-15 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - add getter method with timeout to thread queue class (cxxtools::Queue)
+
+2014-12-05 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - fix tcpsocket: may fail when first connection attempt did not succeed
+
+2014-12-04 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - some cleanup to help compiling with oraclestudio compiler (do not fully work yet)
+
+2014-12-03 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - update autoconf macro to check for C++-11 (makes C++-11 flag optional)
+
+2014-11-18 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - AC_PROG_LIBTOOL is obsolete and replaced by LT_INIT
+
+2014-11-16 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - move daemonize.cpp to right directory
+
+2014-11-15 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - read logging settings optionally from xml attributes
+
+2014-11-14 Tommi Mäkitalo <tommi@tntnet.org>
+
+ - add a demo for reading a object from xml
+ - minor fix in xml deserialization helper object
+ - optionally read xml attributes into SerializationInfo members in xml deserializer
 
 2014-10-30 Tommi Mäkitalo <tommi@tntnet.org>
 
