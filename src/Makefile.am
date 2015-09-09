@@ -73,6 +73,7 @@ libcxxtools_la_SOURCES = \
 	propertiesfile.cpp \
 	propertiesparser.cpp \
 	propertiesdeserializer.cpp \
+	propertiesserializer.cpp \
 	query_params.cpp \
 	quotedprintablestream.cpp \
 	regex.cpp \

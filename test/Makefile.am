@@ -41,6 +41,7 @@ alltests_SOURCES = \
     md5-test.cpp \
     pool-test.cpp \
     properties-test.cpp \
+    propertiesserializer-test.cpp \
     query_params-test.cpp \
     quotedprintable-test.cpp \
     regex-test.cpp \
