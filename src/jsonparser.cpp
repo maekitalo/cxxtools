@@ -31,7 +31,9 @@
 #include <cxxtools/serializationerror.h>
 #include <cxxtools/utf8codec.h>
 #include <cxxtools/log.h>
+
 #include <cctype>
+#include <sstream>
 
 log_define("cxxtools.json.parser")
 

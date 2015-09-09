@@ -27,8 +27,10 @@
  */
 
 #include "cxxtools/serializationinfo.h"
+#include "cxxtools/serializationerror.h"
 #include "cxxtools/unit/testsuite.h"
 #include "cxxtools/unit/registertest.h"
+#include "cxxtools/convert.h"
 #include "cxxtools/log.h"
 
 log_define("cxxtools.unit.serializationinfo")

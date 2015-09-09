@@ -30,7 +30,9 @@
 #include <cxxtools/csvdeserializer.h>
 #include <cxxtools/serializationerror.h>
 #include <cxxtools/log.h>
+
 #include <stdexcept>
+#include <sstream>
 
 log_define("cxxtools.csv.parser")
 

@@ -30,8 +30,6 @@
 #define cxxtools_SerializationInfo_h
 
 #include <cxxtools/string.h>
-#include <cxxtools/convert.h>
-#include <cxxtools/serializationerror.h>
 #include <vector>
 #include <set>
 #include <map>

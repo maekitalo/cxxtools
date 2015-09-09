@@ -28,13 +28,13 @@
 #ifndef cxxtools_Settings_h
 #define cxxtools_Settings_h
 
-#include <cxxtools/string.h>
 #include <cxxtools/serializationinfo.h>
-#include <iostream>
-#include <sstream>
-#include <cassert>
+#include <cxxtools/serializationerror.h>
 
-namespace cxxtools {
+#include <iostream>
+
+namespace cxxtools
+{
 
 class SettingsError : public cxxtools::SerializationError
 {
