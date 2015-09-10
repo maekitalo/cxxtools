@@ -734,6 +734,16 @@ namespace cxxtools
       return logFlag2logLevel(flag);
     }
 
+    const char* logLevel2Charp(int level)
+    {
+        return level == Logger::LOG_LEVEL_TRACE ? "TRACE"
+             : level == Logger::LOG_LEVEL_DEBUG ? "FINEST"
+             : level == Logger::LOG_LEVEL_DEBUG ? "FINER"
+             : level == Logger::LOG_LEVEL_INFO  ? "INFO"
+             : level == Logger::LOG_LEVEL_WARN  ? "WARN"
+             : level == Logger::LOG_LEVEL_ERROR ? "ERROR"
+             : "FATAL";
+    }
   }
 
   //////////////////////////////////////////////////////////////////////
@@ -958,12 +968,7 @@ namespace cxxtools
   {
     si.setTypeName("LogConfiguration");
 
-    si.addMember("rootlogger") <<= (impl._rootFlags == Logger::LOG_LEVEL_TRACE ? "TRACE"
-                                  : impl._rootFlags == Logger::LOG_LEVEL_DEBUG ? "DEBUG"
-                                  : impl._rootFlags == Logger::LOG_LEVEL_INFO  ? "INFO"
-                                  : impl._rootFlags == Logger::LOG_LEVEL_WARN  ? "WARN"
-                                  : impl._rootFlags == Logger::LOG_LEVEL_ERROR ? "ERROR"
-                                  : "FATAL");
+    si.addMember("rootlogger") <<= logLevel2Charp(impl._rootFlags);
 
     cxxtools::SerializationInfo& lsi = si.addMember("loggers");
     lsi.setCategory(SerializationInfo::Array);
@@ -972,12 +977,7 @@ namespace cxxtools
       cxxtools::SerializationInfo& llsi = lsi.addMember();
       llsi.setTypeName("logger");
       llsi.addMember("category") <<= it->first;
-      llsi.addMember("level") <<= (it->second == Logger::LOG_LEVEL_TRACE ? "TRACE"
-                                 : it->second == Logger::LOG_LEVEL_DEBUG ? "DEBUG"
-                                 : it->second == Logger::LOG_LEVEL_INFO ? "INFO"
-                                 : it->second == Logger::LOG_LEVEL_WARN ? "WARN"
-                                 : it->second == Logger::LOG_LEVEL_ERROR ? "ERROR"
-                                 : "FATAL");
+      llsi.addMember("level") <<= logLevel2Charp(it->second == Logger::LOG_LEVEL_TRACE);
     }
 
     if (!impl._fname.empty())
@@ -1380,14 +1380,7 @@ namespace cxxtools
     : _impl(logMessageImplPool.getInstance())
   {
     _impl->setLogger(logger);
-    _impl->setLevel(level >= Logger::LOG_LEVEL_TRACE ? "TRACE"
-                  : level >= Logger::LOG_LEVEL_FINEST ? "FINEST"
-                  : level >= Logger::LOG_LEVEL_FINER ? "FINER"
-                  : level >= Logger::LOG_LEVEL_DEBUG ? "DEBUG"
-                  : level >= Logger::LOG_LEVEL_INFO  ? "INFO"
-                  : level >= Logger::LOG_LEVEL_WARN  ? "WARN"
-                  : level >= Logger::LOG_LEVEL_ERROR ? "ERROR"
-                  : "FATAL");
+    _impl->setLevel(logLevel2Charp(level));
   }
 
   LogMessage::~LogMessage()
