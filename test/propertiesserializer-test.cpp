@@ -132,6 +132,7 @@ class PropertiesSerializerTest : public cxxtools::unit::TestSuite
             serializer.serialize(data, "testObject").finish();
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(out.str(),
+                "# object testObject.size = 5\n"
                 "testObject.intValue = 17\n"
                 "testObject.stringValue = foobar\n"
                 "testObject.doubleValue = 1.5\n"
@@ -151,6 +152,7 @@ class PropertiesSerializerTest : public cxxtools::unit::TestSuite
             serializer.serialize(data, "array").finish();
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(out.str(),
+                "# array array.size = 3\n"
                 "array.0 = 3\n"
                 "array.1 = 4\n"
                 "array.2 = -33\n");
@@ -165,7 +167,10 @@ class PropertiesSerializerTest : public cxxtools::unit::TestSuite
             cxxtools::PropertiesSerializer serializer(out);
             serializer.serialize(data).finish();
 
-            CXXTOOLS_UNIT_ASSERT_EQUALS(out.str(), "");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(out.str(),
+                "# array size = 2\n"
+                "# array 0.size = 0\n"
+                "# array 1.size = 0\n");
         }
 
         void testString()
@@ -203,6 +208,7 @@ class PropertiesSerializerTest : public cxxtools::unit::TestSuite
             serializer.serialize(data).finish();
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(out.str(),
+                "# object size = 5\n"
                 "intValue = 17\n"
                 "stringValue = foobar\n"
                 "doubleValue = 1.5\n"
@@ -222,6 +228,7 @@ class PropertiesSerializerTest : public cxxtools::unit::TestSuite
             serializer.serialize(data).finish();
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(out.str(),
+                "# array size = 3\n"
                 "0 = 3\n"
                 "1 = 4\n"
                 "2 = -33\n");
@@ -272,6 +279,7 @@ class PropertiesSerializerTest : public cxxtools::unit::TestSuite
             out << cxxtools::Properties(data);
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(out.str(),
+                "# object size = 5\n"
                 "intValue = 17\n"
                 "stringValue = foobar\n"
                 "doubleValue = 1.5\n"
