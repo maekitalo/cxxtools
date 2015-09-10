@@ -46,13 +46,15 @@ namespace cxxtools
 
         public:
             PropertiesSerializer()
-                : _myts(0),
+                : _outputSize(true),
+                  _myts(0),
                   _ts(0)
             {
             }
 
             explicit PropertiesSerializer(std::basic_ostream<cxxtools::Char>& ts)
-                : _myts(0),
+                : _outputSize(true),
+                  _myts(0),
                   _ts(0)
             {
                 begin(ts);
@@ -60,7 +62,8 @@ namespace cxxtools
 
             explicit PropertiesSerializer(std::ostream& os,
                 TextCodec<cxxtools::Char, char>* codec = 0)
-                : _myts(0),
+                : _outputSize(true),
+                  _myts(0),
                   _ts(0)
             {
                 begin(os, codec);
@@ -96,10 +99,16 @@ namespace cxxtools
                 return *this;
             }
 
+            bool outputSize() const     { return _outputSize; }
+
+            void outputSize(bool sw)    { _outputSize = sw; }
+
+
         private:
             void format(const SerializationInfo& si, const std::string& key);
             void doFormat(const SerializationInfo& si, const std::string& key);
 
+            bool _outputSize;
             std::basic_ostream<cxxtools::Char>* _myts;
             std::basic_ostream<cxxtools::Char>* _ts;
     };

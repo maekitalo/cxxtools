@@ -186,7 +186,8 @@ void PropertiesSerializer::doFormat(const SerializationInfo& si, const std::stri
 
             log_debug("format object; prefix=\"" << prefix);
 
-            *_ts << L"# object " << String(prefix) << (prefix.empty() ? L"size = " : L".size = ") << si.memberCount() << L'\n';
+            if (_outputSize)
+                *_ts << L"# object " << String(prefix) << (prefix.empty() ? L"size = " : L".size = ") << si.memberCount() << L'\n';
 
             for (SerializationInfo::const_iterator it = si.begin(); it != si.end(); ++it)
                 format(*it, prefix);
@@ -197,12 +198,17 @@ void PropertiesSerializer::doFormat(const SerializationInfo& si, const std::stri
         case SerializationInfo::Array:
         {
             std::string prefix = key;
+            if (prefix.empty())
+                prefix = si.name();
+
             if (!prefix.empty())
                 prefix += '.';
 
             log_debug("format array; size=" << si.memberCount() << "; prefix=\"" << prefix);
 
-            *_ts << L"# array " << String(prefix) << L"size = " << si.memberCount() << L'\n';
+            if (_outputSize)
+                *_ts << L"# array " << String(prefix) << L"size = " << si.memberCount() << L'\n';
+
             for (unsigned n = 0; n < si.memberCount(); ++n)
             {
                 format(si.getMember(n), prefix + convert<std::string>(n));

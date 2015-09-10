@@ -49,20 +49,28 @@ namespace cxxtools
         v.push_back(4);
         v.push_back(17);
         v.push_back(12);
-        std::cout << cxxtools::Properties(v).beautify(true) << std::endl;
+        std::cout << cxxtools::Properties(v) << std::endl;
        \endcode
      */
     template <typename ObjectType>
     class PropertiesOObject
     {
         const ObjectType& _constObject;
+        bool _outputSize;
 
       public:
         /// Constructor. Needs the wrapped object. Optionally a flag can be
         /// passed whether the properties should be nicely formatted.
-        explicit PropertiesOObject(const ObjectType& object, bool beautify = false)
-          : _constObject(object)
+        explicit PropertiesOObject(const ObjectType& object, bool outputSize = true)
+          : _constObject(object),
+            _outputSize(outputSize)
         { }
+
+        PropertiesOObject& outputSize(bool sw)
+        { _outputSize = sw; return *this; }
+
+        bool outputSize() const
+        { return _outputSize; }
 
         const ObjectType& object() const
         { return _constObject; }
@@ -75,6 +83,7 @@ namespace cxxtools
       try
       {
         PropertiesSerializer serializer(out);
+        serializer.outputSize(object.outputSize());
         serializer.serialize(object.object())
                   .finish();
       }

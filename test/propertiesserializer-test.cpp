@@ -108,6 +108,7 @@ class PropertiesSerializerTest : public cxxtools::unit::TestSuite
             registerMethod("testMultipleObjects", *this, &PropertiesSerializerTest::testMultipleObjects);
             registerMethod("testPlainEmpty", *this, &PropertiesSerializerTest::testPlainEmpty);
             registerMethod("testEasyProperties", *this, &PropertiesSerializerTest::testEasyProperties);
+            registerMethod("testNoSizes", *this, &PropertiesSerializerTest::testNoSizes);
         }
 
         void testInt()
@@ -280,6 +281,25 @@ class PropertiesSerializerTest : public cxxtools::unit::TestSuite
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(out.str(),
                 "# object size = 5\n"
+                "intValue = 17\n"
+                "stringValue = foobar\n"
+                "doubleValue = 1.5\n"
+                "boolValue = false\n"
+                "nullValue =\n");
+        }
+
+        void testNoSizes()
+        {
+            TestObject data;
+            data.intValue = 17;
+            data.stringValue = "foobar";
+            data.doubleValue = 1.5;
+            data.boolValue = false;
+
+            std::ostringstream out;
+            out << cxxtools::Properties(data).outputSize(false);
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(out.str(),
                 "intValue = 17\n"
                 "stringValue = foobar\n"
                 "doubleValue = 1.5\n"
