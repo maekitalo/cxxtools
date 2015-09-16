@@ -32,6 +32,7 @@
 #include <cxxtools/propertiesparser.h>
 #include <cxxtools/envsubst.h>
 #include <cxxtools/trim.h>
+#include <cxxtools/join.h>
 #include <cxxtools/log.h>
 
 log_define("cxxtools.properties.deserializer")
@@ -74,7 +75,6 @@ namespace cxxtools
     {
             PropertiesDeserializer& _deserializer;
             std::vector<std::string> _keys;
-            std::string _longkey;
 
         public:
             Ev(PropertiesDeserializer& deserializer)
@@ -96,8 +96,43 @@ namespace cxxtools
     bool PropertiesDeserializer::Ev::onKey(const String& key)
     {
         log_finer("onKey(" << key << ')');
-        _longkey = Utf8Codec::encode(key);
         return false;
+    }
+
+    namespace
+    {
+        void addValue(SerializationInfo& si, const std::string& key, const std::vector<std::string>& keys, unsigned idx, const String& value)
+        {
+            log_trace("val key=" << key << " keys.size=" << keys.size() << " idx=" << idx << " value=" << value);
+
+            std::string k = join(keys.begin() + idx, keys.end(), '.');
+            log_debug("key " << k << " value " << value);
+            si.getAddMember(k).setValue(value);
+
+            SerializationInfo& sia = si.getAddMember(key);
+
+            for (unsigned n = idx + 1; n < keys.size(); ++n)
+            {
+                addValue(sia, join(keys.begin() + idx + 1, keys.begin() + n + 1, '.'), keys, n, value);
+                addValue(si, join(keys.begin(), keys.begin() + n + 1, '.'), keys, n, value);
+            }
+        }
+
+        void addValue(SerializationInfo& si, const std::vector<std::string>& keys, const String& value)
+        {
+            if (keys.empty())
+                return;
+
+            SerializationInfo& sia = si.getAddMember(keys[0]);
+
+            if (keys.size() == 1)
+            {
+                log_debug("key " << keys[0] << " value " << value << "(1)");
+                sia.setValue(value);
+            }
+            else if (keys.size() > 1)
+                addValue(si, keys[0], keys, 0, value);
+        }
     }
 
     bool PropertiesDeserializer::Ev::onValue(const String& value)
@@ -107,49 +142,15 @@ namespace cxxtools
         String v = value;
         if (_deserializer._envSubst)
         {
-            v = Utf8Codec::decode(
-                        cxxtools::envSubst(
-                            Utf8Codec::encode(v)));
+            v = Utf8Codec::decode(cxxtools::envSubst(Utf8Codec::encode(v)));
         }
 
         if (_deserializer._trim)
             v = cxxtools::trim(v);
 
-        SerializationInfo* p = _deserializer.current()->findMember(_longkey);
-        if (p == 0)
-        {
-            p = &_deserializer.current()->addMember(_longkey);
-            *p <<= v;
-        }
-
-        p->addMember(std::string()) <<= v;
-
-        if (_keys.size() > 1)
-        {
-            std::string key = _keys[0];          // foo.bar.baz => foo
-            std::string member = _longkey.substr(key.size() + 1);   // foo.bar.baz => bar.baz
-            SerializationInfo* pp = &_deserializer.current()->getAddMember(_keys[0]);
-            for (unsigned n = 1; n < _keys.size(); ++n )
-            {
-                log_debug("add key " << key << " member " << member << " value " << v);
-                SerializationInfo* p = _deserializer.current()->findMember(key);
-                if (p == 0)
-                    p = &_deserializer.current()->addMember(key);
-                p->addMember(member) <<= v;
-
-                key += '.';  // foo => foo.bar; foo.bar => foo.bar.baz
-                key += _keys[n];
-
-                member.erase(0, _keys[n].size() + 1);   // bar.baz => baz
-
-                pp = &pp->getAddMember(_keys[n]);
-            }
-
-            *pp <<= v;
-        }
+        addValue(*_deserializer.current(), _keys, v);
 
         _keys.clear();
-        _longkey.clear();
 
         return false;
     }

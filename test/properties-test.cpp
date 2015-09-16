@@ -191,9 +191,9 @@ class PropertiesTest : public cxxtools::unit::TestSuite
         void testVector()
         {
             std::istringstream data(
-                "myvector=4\n"
-                "myvector=Hi\n"
-                "myvector=foo\n"
+                "myvector.0=4\n"
+                "myvector.1=Hi\n"
+                "myvector.2=foo\n"
             );
 
             cxxtools::PropertiesDeserializer deserializer(data);
@@ -237,6 +237,32 @@ class PropertiesTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_NOTHROW(
                 si.getMember("a").getMember("b").getMember("c").getMember("d") >>= v);
             CXXTOOLS_UNIT_ASSERT_EQUALS(v, 5);
+
+            v = 0;
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(
+                si.getMember("a.b").getMember("c").getMember("d") >>= v);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v, 5);
+
+            v = 0;
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(
+                si.getMember("a").getMember("b.c").getMember("d") >>= v);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v, 5);
+
+            v = 0;
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(
+                si.getMember("a").getMember("b.c.d") >>= v);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v, 5);
+
+            v = 0;
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(
+                si.getMember("a.b").getMember("c.d") >>= v);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v, 5);
+
+            v = 0;
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(
+                si.getMember("a.e.f.g") >>= v);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v, 7);
+
         }
 
         void testIStream()

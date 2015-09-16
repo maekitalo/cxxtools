@@ -272,6 +272,7 @@ namespace cxxtools
           {
             state = state_key;
             key += Char(unicode);
+            keypart += Char(unicode);
           }
 
           return advance(ch);
