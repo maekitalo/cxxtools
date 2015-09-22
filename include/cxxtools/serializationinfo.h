@@ -140,8 +140,7 @@ class SerializationInfo
 
         SerializationInfo(const SerializationInfo& si);
 
-        ~SerializationInfo()
-        { _releaseValue(); }
+        ~SerializationInfo();
 
         SerializationInfo& operator =(const SerializationInfo& si);
 

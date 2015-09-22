@@ -154,6 +154,12 @@ SerializationInfo& SerializationInfo::operator=(SerializationInfo&& si)
 
 #endif
 
+SerializationInfo::~SerializationInfo()
+{
+    _releaseValue();
+    delete _nodes;
+}
+
 SerializationInfo& SerializationInfo::addMember(const std::string& name)
 {
     log_trace("addMember(\"" << name << "\")");
