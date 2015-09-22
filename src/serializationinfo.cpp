@@ -75,10 +75,9 @@ SerializationInfo& SerializationInfo::operator=(const SerializationInfo& si)
     _type = si._type;
 
     delete _nodes;
+    _nodes = 0;
     if (si._nodes)
         _nodes = new Nodes(*si._nodes);
-    else
-        _nodes = 0;
 
     if (si._t == t_string)
         _setString( si._String() );
