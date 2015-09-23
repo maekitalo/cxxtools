@@ -146,7 +146,7 @@ bool SelectorImpl::waitUntil(Timespan until)
     {
         _pollfds.clear();
 
-        // Groesse neu berechnen
+        // recalculate size
         size_t pollSize= 1;
 
         std::set<Selectable*>::iterator iter;
@@ -163,10 +163,10 @@ bool SelectorImpl::waitUntil(Timespan until)
 
         _pollfds.assign(pollSize, pfd);
 
-        // Eintraege einfuegen
+        // add entries
         pollfd* pCurr= &_pollfds[0];
 
-        // Event Pipe einfuegen
+        // insert event pipe
         pCurr->fd = _wakePipe[0];
         pCurr->events = POLLIN;
 

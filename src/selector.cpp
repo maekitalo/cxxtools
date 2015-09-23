@@ -157,7 +157,7 @@ bool SelectorBase::wait(Milliseconds msecs)
 
 bool SelectorBase::waitUntil(Timespan t)
 {
-    log_debug("wait(" << t << ')');
+    log_debug("waitUntil(" << t << ')');
 
     Timespan timerTimeout = Timespan(Selector::WaitInfinite);
 
@@ -188,8 +188,26 @@ bool SelectorBase::waitUntil(Timespan t)
         if (updateTimer(timerTimeout))
             return true;
     }
+}
 
-    return false;
+
+Timespan SelectorBase::waitTimer()
+{
+    log_debug("waitTimer()");
+
+    while (true)
+    {
+        Timespan timerTimeout = Timespan(Selector::WaitInfinite);
+        updateTimer(timerTimeout);
+        onWaitUntil(Timespan(0));
+
+        if (timerTimeout < Timespan(0))
+            return timerTimeout;
+
+        Timespan now = Timespan::gettimeofday();
+        if (timerTimeout > now)
+            return timerTimeout - now;
+    }
 }
 
 

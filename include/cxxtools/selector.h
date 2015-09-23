@@ -165,15 +165,23 @@ namespace cxxtools {
             */
             void wake();
 
+            /** @brief Wait for activity
+
+                This method executes just the pending events and returns the time
+                when the next timer is due. When there are no active timers a
+                negative timespan is returned.
+             */
+            Timespan waitTimer();
+
         protected:
             //! @brief Default constructor
             SelectorBase();
 
             void onAddTimer(Timer& timer);
 
-            void onRemoveTimer( Timer& timer );
+            void onRemoveTimer(Timer& timer);
 
-            void onTimerChanged( Timer& timer );
+            void onTimerChanged(Timer& timer);
 
             /** @brief A Selectable is added to this %Selector
 
