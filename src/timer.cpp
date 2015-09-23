@@ -27,8 +27,7 @@
 #include "cxxtools/clock.h"
 #include "cxxtools/selector.h"
 #include "cxxtools/datetime.h"
-#include <limits>
-#include <stdint.h>
+#include <stdexcept>
 
 namespace cxxtools
 {
@@ -102,6 +101,9 @@ const Timespan& Timer::interval() const
 
 void Timer::start(const Milliseconds& interval)
 {
+    if (interval <= Timespan(0))
+        throw std::logic_error("cannot run interval timer without interval");
+
     if (_active)
         stop();
     
@@ -118,6 +120,9 @@ void Timer::start(const Milliseconds& interval)
 
 void Timer::start(const DateTime& startTime, const Milliseconds& interval)
 {
+    if (interval <= Timespan(0))
+        throw std::logic_error("cannot run interval timer without interval");
+
     if (_active)
         stop();
     

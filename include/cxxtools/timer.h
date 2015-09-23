@@ -28,8 +28,6 @@
 
 #include <cxxtools/signal.h>
 #include <cxxtools/timespan.h>
-#include <vector>
-#include <cstddef>
 
 namespace cxxtools {
 
