@@ -212,7 +212,7 @@ int JsonParser::advance(Char ch)
                 break;
 
             case state_object_plainname:
-                if (std::isalnum(ch.value()))
+                if (std::isalnum(ch.value()) || ch == 'l')
                     _token += ch;
                 else if (std::isspace(ch.value()))
                 {
