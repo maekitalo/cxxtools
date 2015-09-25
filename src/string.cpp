@@ -38,7 +38,7 @@ namespace std
 const basic_string<cxxtools::Char>::size_type basic_string<cxxtools::Char>::npos;
 
 #if __cplusplus >= 201103L
-basic_string<cxxtools::Char>::basic_string(basic_string&& str)
+basic_string<cxxtools::Char>::basic_string(basic_string&& str) noexcept
     : _data(str._data)
 {
     if (!isShortString())

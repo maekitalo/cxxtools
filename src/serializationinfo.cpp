@@ -96,7 +96,7 @@ SerializationInfo& SerializationInfo::operator=(const SerializationInfo& si)
 
 #if __cplusplus >= 201103L
 
-SerializationInfo::SerializationInfo(SerializationInfo&& si)
+SerializationInfo::SerializationInfo(SerializationInfo&& si) noexcept
     : _category(si._category),
       _name(std::move(si._name)),
       _type(std::move(si._type)),

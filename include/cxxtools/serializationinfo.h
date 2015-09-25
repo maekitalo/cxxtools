@@ -146,7 +146,7 @@ class SerializationInfo
 
 #if __cplusplus >= 201103L
 
-        SerializationInfo(SerializationInfo&& si);
+        SerializationInfo(SerializationInfo&& si) noexcept;
 
         SerializationInfo& operator=(SerializationInfo&& si);
 

@@ -105,7 +105,7 @@ class basic_string< cxxtools::Char > {
 
 #if __cplusplus >= 201103L
 
-        basic_string(basic_string&& str);
+        basic_string(basic_string&& str) noexcept;
 
         basic_string& operator=(basic_string&& str);
 
