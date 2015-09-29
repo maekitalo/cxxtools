@@ -64,6 +64,8 @@ void EnvSubst::parse(char ch)
         break;
 
     case state_esc:
+        if (ch != '$')
+          _ev.onChar('\\');
         _ev.onChar(ch);
         _state = state_0;
         break;
@@ -189,6 +191,10 @@ void EnvSubst::parseEnd()
         break;
 
     case state_esc:
+        _ev.onChar('\\');
+        _state = state_0;
+        break;
+
     case state_varbegin:
     case state_bvarname:
     case state_subst0:

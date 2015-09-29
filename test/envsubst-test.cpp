@@ -43,6 +43,7 @@ class EnvSubstTest : public cxxtools::unit::TestSuite
             registerMethod("testBracketedEnvVar", *this, &EnvSubstTest::testBracketedEnvVar);
             registerMethod("testUnsetEnvVar", *this, &EnvSubstTest::testUnsetEnvVar);
             registerMethod("testEsc", *this, &EnvSubstTest::testEsc);
+            registerMethod("testPlainEsc", *this, &EnvSubstTest::testPlainEsc);
             registerMethod("testUseDefvalue", *this, &EnvSubstTest::testUseDefvalue);
             registerMethod("testSkipDefvalue", *this, &EnvSubstTest::testSkipDefvalue);
             registerMethod("testUseOtherVar", *this, &EnvSubstTest::testUseOtherVar);
@@ -101,6 +102,26 @@ class EnvSubstTest : public cxxtools::unit::TestSuite
             std::string expected = "abc $USER def foobar";
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(exvalue, expected);
+        }
+
+        void testPlainEsc()
+        {
+            {
+                std::string value = "\\";
+                std::string exvalue = cxxtools::envSubst(value);
+                std::string expected = "\\";
+
+                CXXTOOLS_UNIT_ASSERT_EQUALS(exvalue, expected);
+            }
+
+            {
+                std::string value = "\\ t";
+                std::string exvalue = cxxtools::envSubst(value);
+                std::string expected = "\\ t";
+
+                CXXTOOLS_UNIT_ASSERT_EQUALS(exvalue, expected);
+            }
+
         }
 
         void testUseDefvalue()
