@@ -173,6 +173,11 @@ namespace cxxtools
           key.clear();
           state = state_key;
         }
+        else if (ch == '\\')
+        {
+          value.clear();
+          state = state_value_esc;
+        }
         else if (!std::isspace(ch.value()))
         {
           value = ch;
