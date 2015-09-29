@@ -32,6 +32,7 @@
 #include <cxxtools/serializationerror.h>
 #include <cxxtools/log.h>
 
+#include <sstream>
 #include <math.h>
 
 log_define("cxxtools.bin.parser")

@@ -35,6 +35,7 @@
 #include "cxxtools/xml/endelement.h"
 #include "cxxtools/http/reply.h"
 #include "cxxtools/utf8codec.h"
+#include "cxxtools/convert.h"
 #include "cxxtools/log.h"
 
 log_define("cxxtools.xmlrpc.responder")

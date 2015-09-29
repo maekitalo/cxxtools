@@ -28,13 +28,11 @@
 #ifndef cxxtools_Decomposer_h
 #define cxxtools_Decomposer_h
 
-#include <cxxtools/convert.h>
 #include <cxxtools/serializationinfo.h>
-#include <cxxtools/noncopyable.h>
-#include <vector>
-#include <map>
+#include <string>
 
-namespace cxxtools {
+namespace cxxtools
+{
 
 class Formatter;
 
