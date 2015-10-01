@@ -368,7 +368,9 @@ class PropertiesTest : public cxxtools::unit::TestSuite
                 "b = \thi\n"
                 "c = hi\\t\n"
                 "d = \t\\thi\\  \n"
-                );
+                "e blah \n"
+                "f blah\x9\n"
+                "g blah\\t");
 
             cxxtools::PropertiesDeserializer deserializer;
             deserializer.trim(true);
@@ -389,6 +391,18 @@ class PropertiesTest : public cxxtools::unit::TestSuite
             v.clear();
             CXXTOOLS_UNIT_ASSERT_NOTHROW(deserializer.deserialize(v, "d"));
             CXXTOOLS_UNIT_ASSERT_EQUALS(v, cxxtools::String(L"\thi "));
+
+            v.clear();
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(deserializer.deserialize(v, "e"));
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v, cxxtools::String(L"blah"));
+
+            v.clear();
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(deserializer.deserialize(v, "f"));
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v, cxxtools::String(L"blah"));
+
+            v.clear();
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(deserializer.deserialize(v, "g"));
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v, cxxtools::String(L"blah\t"));
 
         }
 
