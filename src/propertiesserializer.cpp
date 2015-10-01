@@ -155,7 +155,7 @@ void PropertiesSerializer::doFormat(const SerializationInfo& si, const std::stri
             String value;
             si.getValue(value);
 
-            log_debug("format value; key=\"" << key << "\" name=\"" << si.name() << "\" value=\"" << value);
+            log_debug("format value; key=\"" << key << "\" name=\"" << si.name() << "\" value=\"" << value << '"');
 
             if (key.empty())
             {
@@ -184,13 +184,13 @@ void PropertiesSerializer::doFormat(const SerializationInfo& si, const std::stri
             if (prefix.empty())
                 prefix = si.name();
 
-            log_debug("format object; prefix=\"" << prefix);
+            log_debug("format object; prefix=\"" << prefix << '"');
 
             if (_outputSize)
                 *_ts << L"# object " << String(prefix) << (prefix.empty() ? L"size = " : L".size = ") << si.memberCount() << L'\n';
 
             for (SerializationInfo::const_iterator it = si.begin(); it != si.end(); ++it)
-                format(*it, prefix);
+                doFormat(*it, prefix);
 
             break;
         }
@@ -200,18 +200,23 @@ void PropertiesSerializer::doFormat(const SerializationInfo& si, const std::stri
             std::string prefix = key;
             if (prefix.empty())
                 prefix = si.name();
+            else if (!si.name().empty())
+            {
+                prefix += '.';
+                prefix += si.name();
+            }
 
             if (!prefix.empty())
                 prefix += '.';
 
-            log_debug("format array; size=" << si.memberCount() << "; prefix=\"" << prefix);
+            log_debug("format array; size=" << si.memberCount() << "; prefix=\"" << prefix << '"');
 
             if (_outputSize)
                 *_ts << L"# array " << String(prefix) << L"size = " << si.memberCount() << L'\n';
 
             for (unsigned n = 0; n < si.memberCount(); ++n)
             {
-                format(si.getMember(n), prefix + convert<std::string>(n));
+                doFormat(si.getMember(n), prefix + convert<std::string>(n));
             }
 
             break;
