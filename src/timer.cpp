@@ -139,7 +139,7 @@ void Timer::start(const DateTime& startTime, const Milliseconds& interval)
     {
         // startTime =< now
         Timespan elapsed = now - startTime;
-        unsigned ticksElapsed = elapsed.totalMSecs() / interval.totalMSecs();
+        uint64_t ticksElapsed = elapsed.totalMSecs() / interval.totalMSecs();
         DateTime tickTime = startTime + (ticksElapsed + 1) * Timespan(interval);
         _finished = Clock::getSystemTicks() + (tickTime - now);
     }
