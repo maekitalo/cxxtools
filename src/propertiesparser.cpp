@@ -67,183 +67,228 @@ namespace cxxtools
     bool ret = false;
 
     if (ch == '\n')
-      ++lineNo;
+      ++_lineNo;
 
-    switch (state)
+    switch (_state)
     {
       case state_0:
         if (ch == '#' || ch == '!')
-          state = state_comment;
+          _state = state_comment;
         else if (ch == ' ' || ch == '\t' || ch == '\r' || ch == '\n')
           ;
         else if (ch == '\\')
         {
-          key.clear();
-          keypart.clear();
-          state = state_key_esc;
+          _key.clear();
+          _keypart.clear();
+          _state = state_key_esc;
         }
         else
         {
-          key = ch;
-          keypart = ch;
-          state = state_key;
+          _key = ch;
+          _keypart = ch;
+          _state = state_key;
         }
         break;
 
       case state_key:
         if (ch == '.')
         {
-          event.onKeyPart(keypart);
-          keypart.clear();
-          key += ch;
+          _event.onKeyPart(_keypart);
+          _keypart.clear();
+          _key += ch;
         }
         else if (ch == '\r' || ch == '\n')
         {
-          ret = event.onKeyPart(keypart)
-             || event.onKey(key)
-             || event.onValue(String());
-          keypart.clear();
-          key.clear();
+          ret = _event.onKeyPart(_keypart)
+             || _event.onKey(_key)
+             || _event.onValue(String());
+          _keypart.clear();
+          _key.clear();
         }
         else if (std::isspace(ch.value()))
         {
-          ret = event.onKeyPart(keypart)
-             || event.onKey(key);
-          state = state_key_sp;
+          ret = _event.onKeyPart(_keypart)
+             || _event.onKey(_key);
+          _state = state_key_sp;
         }
         else if (ch == '=' || ch == ':')
         {
-          ret = event.onKeyPart(keypart)
-             || event.onKey(key);
-          state = state_value;
+          ret = _event.onKeyPart(_keypart)
+             || _event.onKey(_key);
+          _state = state_value0;
         }
         else if (ch == '\\')
         {
-          state = state_key_esc;
+          _state = state_key_esc;
         }
         else
         {
-          keypart += ch;
-          key += ch;
+          _keypart += ch;
+          _key += ch;
         }
         break;
 
       case state_key_esc:
         if (ch == 'u')
         {
-          unicode = 0;
-          unicodeCount = 0;
-          state = state_key_unicode;
+          _unicode = 0;
+          _unicodeCount = 0;
+          _state = state_key_unicode;
         }
         else if (ch == 'n')
         {
-          keypart += '\n';
-          key += '\n';
-          state = state_key;
+          _keypart += '\n';
+          _key += '\n';
+          _state = state_key;
         }
         else if (ch == 'r')
         {
-          keypart += '\r';
-          key += '\r';
-          state = state_key;
+          _keypart += '\r';
+          _key += '\r';
+          _state = state_key;
         }
         else if (ch == 't')
         {
-          keypart += '\t';
-          key += '\t';
-          state = state_key;
+          _keypart += '\t';
+          _key += '\t';
+          _state = state_key;
         }
         else
         {
-          keypart += ch;
-          key += ch;
-          state = state_key;
+          _keypart += ch;
+          _key += ch;
+          _state = state_key;
         }
         break;
 
       case state_key_sp:
         if (ch == '=' || ch == ':')
         {
-          state = state_value;
+          _state = state_value0;
         }
         else if (ch == '\r' || ch == '\n')
         {
-          ret = event.onValue(String());
-          keypart.clear();
-          key.clear();
-          state = state_key;
+          ret = _event.onValue(String());
+          _keypart.clear();
+          _key.clear();
+          _state = state_key;
         }
         else if (ch == '\\')
         {
-          value.clear();
-          state = state_value_esc;
+          _value.clear();
+          _state = state_value_esc;
         }
         else if (!std::isspace(ch.value()))
         {
-          value = ch;
-          state = state_value;
+          _value = ch;
+          _state = state_value;
+        }
+        break;
+
+      case state_value0:
+        if (ch == '\n')
+        {
+          ret = _event.onValue(_value);
+          _value.clear();
+          _state = state_0;
+        }
+        else if (ch == '\\')
+          _state = state_value_esc;
+        else if (!std::isspace(ch.value()))
+        {
+          _value = ch;
+          _state = state_value;
         }
         break;
 
       case state_value:
         if (ch == '\n')
         {
-          ret = event.onValue(value);
-          value.clear();
-          state = state_0;
+          ret = _event.onValue(_value);
+          _value.clear();
+          _state = state_0;
         }
         else if (ch == '\\')
-          state = state_value_esc;
-        else if (!value.empty() || !std::isspace(ch.value()))
-          value += ch;
+          _state = state_value_esc;
+        else if (_trim && std::isspace(ch.value()))
+        {
+          _space = ch;
+          _state = state_value_space;
+        }
+        else
+          _value += ch;
         break;
 
       case state_value_esc:
         if (ch == 'u')
         {
-          unicode = 0;
-          unicodeCount = 0;
-          state = state_unicode;
+          _unicode = 0;
+          _unicodeCount = 0;
+          _state = state_unicode;
         }
         else if (ch == 'n')
         {
-          value += '\n';
-          state = state_value;
+          _value += '\n';
+          _state = state_value;
         }
         else if (ch == 'r')
         {
-          value += '\r';
-          state = state_value;
+          _value += '\r';
+          _state = state_value;
         }
         else if (ch == 't')
         {
-          value += '\t';
-          state = state_value;
+          _value += '\t';
+          _state = state_value;
         }
         else if (ch == '\r' || ch == '\n')
         {
-          state = state_value_cont;
+          _state = state_value_cont;
         }
         else
         {
-          value += ch;
-          state = state_value;
+          _value += ch;
+          _state = state_value;
         }
         break;
 
       case state_value_cont:
         if (ch == '\n')
         {
-          ret = event.onValue(value);
-          value.clear();
-          state = state_0;
+          ret = _event.onValue(_value);
+          _value.clear();
+          _state = state_0;
         }
         else if (ch == '\\')
-          state = state_value_esc;
+          _state = state_value_esc;
         else if (!std::isspace(ch.value()))
         {
-          value += ch;
-          state = state_value;
+          _value += ch;
+          _state = state_value;
+        }
+        break;
+
+      case state_value_space:
+        if (ch == '\n')
+        {
+          ret = _event.onValue(_value);
+          _value.clear();
+          _state = state_0;
+        }
+        else if (ch == '\\')
+        {
+          _value += _space;
+          _state = state_value_esc;
+        }
+        else if (std::isspace(ch.value()))
+        {
+          _space += ch;
+        }
+        else
+        {
+          _value += _space;
+          _value += ch;
+          _state = state_value;
         }
         break;
 
@@ -251,49 +296,49 @@ namespace cxxtools
       case state_key_unicode:
         if (ch >= '0' && ch <= '9')
         {
-          unicode = (unicode << 4) | (ch - '0');
-          ++unicodeCount;
+          _unicode = (_unicode << 4) | (ch - '0');
+          ++_unicodeCount;
         }
         else if (ch >= 'a' && ch <= 'f')
         {
-          unicode = (unicode << 4) | (ch - 'a' + 10);
-          ++unicodeCount;
+          _unicode = (_unicode << 4) | (ch - 'a' + 10);
+          ++_unicodeCount;
         }
         else if (ch >= 'A' && ch <= 'F')
         {
-          unicode = (unicode << 4) | (ch - 'A' + 10);
-          ++unicodeCount;
+          _unicode = (_unicode << 4) | (ch - 'A' + 10);
+          ++_unicodeCount;
         }
-        else if (unicodeCount == 0)
-          throw PropertiesParserError(std::string("invalid unicode sequence \\u") + ch.narrow() + " in properties", lineNo);
+        else if (_unicodeCount == 0)
+          throw PropertiesParserError(std::string("invalid unicode sequence \\u") + ch.narrow() + " in properties", _lineNo);
         else
         {
-          if (state == state_unicode)
+          if (_state == state_unicode)
           {
-            state = state_value;
-            value += Char(unicode);
+            _state = state_value;
+            _value += Char(_unicode);
           }
           else
           {
-            state = state_key;
-            key += Char(unicode);
-            keypart += Char(unicode);
+            _state = state_key;
+            _key += Char(_unicode);
+            _keypart += Char(_unicode);
           }
 
           return advance(ch);
         }
 
-        if (unicodeCount >= 8)
+        if (_unicodeCount >= 8)
         {
-          if (state == state_unicode)
+          if (_state == state_unicode)
           {
-            state = state_value;
-            value += Char(unicode);
+            _state = state_value;
+            _value += Char(_unicode);
           }
           else
           {
-            state = state_key;
-            key += Char(unicode);
+            _state = state_key;
+            _key += Char(_unicode);
           }
 
           return false;
@@ -303,7 +348,7 @@ namespace cxxtools
 
       case state_comment:
         if (ch == '\n')
-          state = state_0;
+          _state = state_0;
         break;
     }
 
@@ -312,29 +357,35 @@ namespace cxxtools
 
   void PropertiesParser::end()
   {
-    switch (state)
+    switch (_state)
     {
+      case state_value0:
       case state_value:
       case state_value_cont:
       case state_value_esc:
       case state_key_sp:
-        event.onValue(value);
-        value.clear();
+        _event.onValue(_value);
+        _value.clear();
+        break;
+
+      case state_value_space:
+        _event.onValue(_value + _space);
+        _value.clear();
         break;
 
       case state_key:
-          event.onKeyPart(keypart)
-             || event.onKey(key)
-             || event.onValue(String());
+          _event.onKeyPart(_keypart)
+             || _event.onKey(_key)
+             || _event.onValue(String());
           break;
 
       case state_unicode:
-        if (unicodeCount == 0)
-          throw PropertiesParserError("invalid unicode sequence at end of json", lineNo);
+        if (_unicodeCount == 0)
+          throw PropertiesParserError("invalid unicode sequence at end of json", _lineNo);
 
-        value += Char(unicode);
-        event.onValue(value);
-        value.clear();
+        _value += Char(_unicode);
+        _event.onValue(_value);
+        _value.clear();
         break;
 
       case state_0:
@@ -343,7 +394,7 @@ namespace cxxtools
 
       case state_key_esc:
       case state_key_unicode:
-        throw PropertiesParserError("parse error while reading key " + Utf8Codec::encode(key) + " in properties", lineNo);
+        throw PropertiesParserError("parse error while reading key " + Utf8Codec::encode(_key) + " in properties", _lineNo);
     }
   }
 

@@ -51,13 +51,15 @@ namespace cxxtools
       };
 
     private:
-      Event& event;
-      String key;
-      String keypart;
-      String value;
-      Char::value_type unicode;
-      unsigned unicodeCount;
-      unsigned lineNo;
+      Event& _event;
+      String _key;
+      String _keypart;
+      String _value;
+      String _space;
+      Char::value_type _unicode;
+      unsigned _unicodeCount;
+      unsigned _lineNo;
+      bool _trim;
 
       enum {
         state_0,
@@ -65,20 +67,25 @@ namespace cxxtools
         state_key_esc,
         state_key_unicode,
         state_key_sp,
+        state_value0,
         state_value,
         state_value_esc,
         state_value_cont,
+        state_value_space,
         state_unicode,
         state_comment
-      } state;
+      } _state;
 
     public:
-      PropertiesParser(Event& event_)
-        : event(event_),
-          lineNo(1),
-          state(state_0)
+      PropertiesParser(Event& event_, bool trim_ = false)
+        : _event(event_),
+          _lineNo(1),
+          _trim(trim_),
+          _state(state_0)
         { }
 
+      bool trim() const   { return _trim; }
+      void trim(bool sw)  { _trim = sw; }
       void parse(std::basic_istream<Char>& in);
       void parse(std::istream& in, TextCodec<Char, char>* codec = 0);
       bool advance(Char ch);

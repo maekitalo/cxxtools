@@ -86,6 +86,8 @@ class PropertiesTest : public cxxtools::unit::TestSuite
             registerMethod("testStrangeKeys", *this, &PropertiesTest::testStrangeKeys);
             registerMethod("testMultilineValues", *this, &PropertiesTest::testMultilineValues);
             registerMethod("testEmptyValue", *this, &PropertiesTest::testEmptyValue);
+            registerMethod("testTab", *this, &PropertiesTest::testTab);
+            registerMethod("testTrim", *this, &PropertiesTest::testTrim);
         }
 
         void testProperties()
@@ -338,6 +340,55 @@ class PropertiesTest : public cxxtools::unit::TestSuite
 
             CXXTOOLS_UNIT_ASSERT_NOTHROW(si.getMember("cantaloupe") >>= v);
             CXXTOOLS_UNIT_ASSERT_EQUALS(v, "");
+
+        }
+
+        void testTab()
+        {
+            std::istringstream data(
+                "a \\t\n"
+                "b : \\t\n");
+
+            cxxtools::PropertiesDeserializer deserializer(data);
+
+            cxxtools::Char v;
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(deserializer.deserialize(v, "a"));
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v, L'\t');
+
+            v = L' ';
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(deserializer.deserialize(v, "b"));
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v, L'\t');
+
+        }
+
+        void testTrim()
+        {
+            std::istringstream data(
+                "a = hi\t\n"
+                "b = \thi\n"
+                "c = hi\\t\n"
+                "d = \t\\thi\\  \n"
+                );
+
+            cxxtools::PropertiesDeserializer deserializer;
+            deserializer.trim(true);
+            deserializer.read(data);
+
+            cxxtools::String v;
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(deserializer.deserialize(v, "a"));
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v, cxxtools::String(L"hi"));
+
+            v.clear();
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(deserializer.deserialize(v, "b"));
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v, cxxtools::String(L"hi"));
+
+            v.clear();
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(deserializer.deserialize(v, "c"));
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v, cxxtools::String(L"hi\t"));
+
+            v.clear();
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(deserializer.deserialize(v, "d"));
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v, cxxtools::String(L"\thi "));
 
         }
 

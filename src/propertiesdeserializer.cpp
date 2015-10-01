@@ -145,9 +145,6 @@ namespace cxxtools
             v = Utf8Codec::decode(cxxtools::envSubst(Utf8Codec::encode(v)));
         }
 
-        if (_deserializer._trim)
-            v = cxxtools::trim(v);
-
         addValue(*_deserializer.current(), _keys, v);
 
         _keys.clear();
@@ -159,7 +156,7 @@ namespace cxxtools
     {
         begin();
         Ev ev(*this);
-        PropertiesParser parser(ev);
+        PropertiesParser parser(ev, _trim);
         parser.parse(in);
 
         if (in.rdstate() & std::ios::badbit)
