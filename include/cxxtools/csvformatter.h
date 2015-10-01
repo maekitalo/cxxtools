@@ -51,7 +51,7 @@ namespace cxxtools
 
             void selectColumn(const std::string& memberName, const std::string& title);
 
-            void delimiter(Char delimiter)
+            void delimiter(String delimiter)
             { _delimiter = delimiter; }
 
             void quote(Char quote)
@@ -85,7 +85,7 @@ namespace cxxtools
             bool _collectTitles;
             unsigned _level;
 
-            Char _delimiter;
+            String _delimiter;
             Char _quote;
             String _lineEnding;
 

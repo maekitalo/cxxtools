@@ -63,9 +63,14 @@ namespace cxxtools
                 _formatter->selectColumn(memberName, title);
             }
 
-            void delimiter(Char delimiter)
+            void delimiter(String delimiter)
             {
                 _formatter->delimiter(delimiter);
+            }
+
+            void delimiter(Char delimiter)
+            {
+                _formatter->delimiter(String(1, delimiter));
             }
 
             void quote(Char quote)

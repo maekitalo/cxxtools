@@ -67,6 +67,7 @@ class CsvSerializerTest : public cxxtools::unit::TestSuite
             registerMethod("testCustomTitles", *this, &CsvSerializerTest::testCustomTitles);
             registerMethod("testEmptyCsvWithTitles", *this, &CsvSerializerTest::testEmptyCsvWithTitles);
             registerMethod("testCustomChars", *this, &CsvSerializerTest::testCustomChars);
+            registerMethod("testMultichar", *this, &CsvSerializerTest::testMultichar);
             registerMethod("testOStream", *this, &CsvSerializerTest::testOStream);
             registerMethod("testLinefeeddata", *this, &CsvSerializerTest::testLinefeeddata);
         }
@@ -202,6 +203,27 @@ class CsvSerializerTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(out.str(),
                 "fHelloflfffWorldfTab"
                 "34l67Tab");
+        }
+
+        void testMultichar()
+        {
+            std::vector<std::vector<std::string> > data;
+            data.resize(2);
+            data[0].push_back("Hello");
+            data[0].push_back("World");
+            data[1].push_back("34");
+            data[1].push_back("67");
+
+            std::ostringstream out;
+            cxxtools::CsvSerializer serializer(out);
+            serializer.delimiter(L"foobar");
+            serializer.lineEnding(L"\r\n");
+
+            serializer.serialize(data);
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(out.str(),
+                "HellofoobarWorld\r\n"
+                "34foobar67\r\n");
         }
 
         void testOStream()

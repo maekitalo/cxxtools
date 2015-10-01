@@ -37,7 +37,7 @@ namespace cxxtools
         : _firstline(true),
           _collectTitles(true),
           _level(0),
-          _delimiter(','),
+          _delimiter(L","),
           _quote('"'),
           _lineEnding(L"\n"),
           _ts(new TextOStream(os, codec)),
@@ -48,7 +48,7 @@ namespace cxxtools
         : _firstline(true),
           _collectTitles(true),
           _level(0),
-          _delimiter(','),
+          _delimiter(L","),
           _quote('"'),
           _lineEnding(L"\n"),
           _ts(0),
@@ -79,7 +79,7 @@ namespace cxxtools
     void CsvFormatter::toCsvData(String& ret, const std::string& /*type*/, const String& value)
     {
         if (value.find(Char(_quote)) == String::npos
-                && value.find(Char(_delimiter)) == String::npos
+                && value.find(_delimiter) == String::npos
                 && value.find(_lineEnding) == String::npos)
         {
             ret = value;
