@@ -110,6 +110,7 @@ class JsonDeserializerTest : public cxxtools::unit::TestSuite
             registerMethod("testCommentMultiline", *this, &JsonDeserializerTest::testCommentMultiline);
             registerMethod("testMultipleObjectsT", *this, &JsonDeserializerTest::testMultipleObjectsT);
             registerMethod("testMultipleObjectsI", *this, &JsonDeserializerTest::testMultipleObjectsI);
+            registerMethod("testTrailingComma", *this, &JsonDeserializerTest::testTrailingComma);
         }
 
         void testInt()
@@ -360,6 +361,24 @@ class JsonDeserializerTest : public cxxtools::unit::TestSuite
 
         }
 
+        void testTrailingComma()
+        {
+            std::istringstream in("{ a: 5, b: [ 2,3,], }");
+            cxxtools::JsonDeserializer deserializer(in);
+            cxxtools::SerializationInfo si;
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(deserializer.deserialize(si));
+
+            int value = 0;
+            si.getMember("a") >>= value;
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(value, 5);
+
+            std::vector<int> data;
+            si.getMember("b") >>= data;
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 2);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0], 2);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[1], 3);
+        }
 };
 
 cxxtools::unit::RegisterTest<JsonDeserializerTest> register_JsonDeserializerTest;
