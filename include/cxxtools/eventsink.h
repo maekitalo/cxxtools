@@ -46,9 +46,11 @@ namespace cxxtools {
 
             virtual ~EventSink();
 
+            void queueEvent(const Event& event);
             void commitEvent(const Event& event);
 
         protected:
+            virtual void onQueueEvent(const Event& event) = 0;
             virtual void onCommitEvent(const Event& event) = 0;
 
         private:

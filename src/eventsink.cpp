@@ -54,6 +54,12 @@ EventSink::~EventSink()
 }
 
 
+void EventSink::queueEvent(const Event& event)
+{
+    this->onQueueEvent(event);
+}
+
+
 void EventSink::commitEvent(const Event& event)
 {
     this->onCommitEvent(event);

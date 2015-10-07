@@ -143,25 +143,28 @@ void EventLoop::onExit()
 }
 
 
+void EventLoop::onQueueEvent(const Event& ev)
+{
+    RecursiveLock lock( _queueMutex );
+
+    Event* clonedEvent = ev.clone();
+
+    try
+    {
+        _eventQueue.push_back(clonedEvent);
+    }
+    catch(...)
+    {
+        clonedEvent->destroy();
+        throw;
+    }
+}
+
+
 void EventLoop::onCommitEvent(const Event& ev)
 {
-    {
-        RecursiveLock lock( _queueMutex );
-
-        Event* clonedEvent = ev.clone();
-
-        try
-        {
-            _eventQueue.push_back(clonedEvent);
-        }
-        catch(...)
-        {
-            clonedEvent->destroy();
-            throw;
-        }
-    }
-
-    this->wake();
+    onQueueEvent(ev);
+    _selector->wake();
 }
 
 
