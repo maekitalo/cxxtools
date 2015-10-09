@@ -65,7 +65,7 @@ namespace cxxtools
                 input format. The type \a type must be serializable.
             */
             template <typename T>
-            void deserialize(T& type)
+            void deserialize(T& type) const
             {
                 if (current() == 0)
                     throw SerializationError("no data was processed");
@@ -74,9 +74,9 @@ namespace cxxtools
             }
 
             template <typename T>
-            void deserialize(T& type, const std::string& name)
+            void deserialize(T& type, const std::string& name) const
             {
-                SerializationInfo* p;
+                const SerializationInfo* p;
 
                 if (current() == 0 || (p = current()->findMember(name)) == 0)
                     throw SerializationMemberNotFound(name);
@@ -95,6 +95,9 @@ namespace cxxtools
             void clear();
 
             SerializationInfo* current()
+            { return _current.empty() ? 0 : _current.top(); }
+
+            const SerializationInfo* current() const
             { return _current.empty() ? 0 : _current.top(); }
 
             void setCategory(SerializationInfo::Category category)
