@@ -349,9 +349,47 @@ inline Timespan operator / (const Timespan& d, double fac)
     return Timespan(d.totalUSecs() / fac);
 }
 
+/// outputs timespan as number of seconds with the suffix 's'
 std::ostream& operator<< (std::ostream& out, const Timespan& ts);
 
+/// outputs timespan as number of microseconds with the suffix 'us'
+std::ostream& operator<< (std::ostream& out, const Microseconds& ts);
+
+/// outputs timespan as number of milliseconds with the suffix 'ms'
+std::ostream& operator<< (std::ostream& out, const Milliseconds& ts);
+
+/// outputs timespan as number of seconds with the suffix 's'
+std::ostream& operator<< (std::ostream& out, const Seconds& ts);
+
+/// outputs timespan as number of minutes with the suffix 'min'
+std::ostream& operator<< (std::ostream& out, const Minutes& ts);
+
+/// outputs timespan as number of hours with the suffix 'h'
+std::ostream& operator<< (std::ostream& out, const Hours& ts);
+
+/// outputs timespan as number of days with the suffix 'd'
+std::ostream& operator<< (std::ostream& out, const Days& ts);
+
+/// reads a whole number from stream and creates a timespan with the number of microseconds
 std::istream& operator>> (std::istream& in, Timespan& ts);
+
+/// reads a whole number from stream and creates a timespan with the number of microseconds
+std::istream& operator>> (std::istream& in, Microseconds& ts);
+
+/// reads a decimal number from stream and creates a timespan with the number of milliseconds
+std::istream& operator>> (std::istream& in, Milliseconds& ts);
+
+/// reads a decimal number from stream and creates a timespan with the number of seconds
+std::istream& operator>> (std::istream& in, Seconds& ts);
+
+/// reads a decimal number from stream and creates a timespan with the number of minutes
+std::istream& operator>> (std::istream& in, Minutes& ts);
+
+/// reads a decimal number from stream and creates a timespan with the number of hours
+std::istream& operator>> (std::istream& in, Hours& ts);
+
+/// reads a decimal number from stream and creates a timespan with the number of days
+std::istream& operator>> (std::istream& in, Days& ts);
 
 template <uint64_t Resolution>
 std::istream& operator>> (std::istream& in, WeakTimespan<Resolution>& ts)
@@ -363,6 +401,18 @@ std::istream& operator>> (std::istream& in, WeakTimespan<Resolution>& ts)
 void operator >>=(const SerializationInfo& si, Timespan& timespan);
 
 void operator <<=(SerializationInfo& si, const Timespan& timespan);
+
+void operator <<=(SerializationInfo& si, const Microseconds& timespan);
+
+void operator <<=(SerializationInfo& si, const Milliseconds& timespan);
+
+void operator <<=(SerializationInfo& si, const Seconds& timespan);
+
+void operator <<=(SerializationInfo& si, const Minutes& timespan);
+
+void operator <<=(SerializationInfo& si, const Hours& timespan);
+
+void operator <<=(SerializationInfo& si, const Days& timespan);
 
 } // namespace cxxtools
 

@@ -28,6 +28,8 @@
 
 #include <cxxtools/timespan.h>
 #include <cxxtools/serializationinfo.h>
+#include <cxxtools/serializationerror.h>
+#include <cxxtools/convert.h>
 #include <sys/time.h>
 #include <time.h>
 #include <iostream>
@@ -47,40 +49,194 @@ namespace cxxtools
         return out;
     }
 
+    std::ostream& operator<< (std::ostream& out, const Microseconds& ts)
+    {
+        out << ts.totalUSecs() << "us";
+        return out;
+    }
+
+    std::ostream& operator<< (std::ostream& out, const Milliseconds& ts)
+    {
+        out << static_cast<double>(ts.totalMSecs()) << "ms";
+        return out;
+    }
+
+    std::ostream& operator<< (std::ostream& out, const Seconds& ts)
+    {
+        out << static_cast<double>(ts.totalSeconds()) << 's';
+        return out;
+    }
+
+    std::ostream& operator<< (std::ostream& out, const Minutes& ts)
+    {
+        out << static_cast<double>(ts.totalMinutes()) << "min";
+        return out;
+    }
+
+    std::ostream& operator<< (std::ostream& out, const Hours& ts)
+    {
+        out << static_cast<double>(ts.totalHours()) << 'h';
+        return out;
+    }
+
+    std::ostream& operator<< (std::ostream& out, const Days& ts)
+    {
+        out << static_cast<double>(ts.totalDays()) << 'd';
+        return out;
+    }
+
     std::istream& operator>> (std::istream& in, Timespan& ts)
     {
-        uint64_t usecs;
+        int64_t usecs;
         in >> usecs;
         if (in)
             ts = Timespan(usecs);
         return in;
     }
 
-    namespace tshelper
+    std::istream& operator>> (std::istream& in, Microseconds& ts)
     {
-        void get(std::istream& in, Timespan& ts, uint64_t res)
-        {
-            double usecs;
-            in >> usecs;
-            if (in)
-                ts = Timespan(usecs * res);
-        }
+        int64_t usecs;
+        in >> usecs;
+        if (in)
+            ts = Timespan(usecs);
+        return in;
+    }
+
+    std::istream& operator>> (std::istream& in, Milliseconds& ts)
+    {
+        double ms;
+        in >> ms;
+        if (in)
+            ts = Milliseconds(ms);
+        return in;
+    }
+
+    std::istream& operator>> (std::istream& in, Seconds& ts)
+    {
+        double ms;
+        in >> ms;
+        if (in)
+            ts = Seconds(ms);
+        return in;
+    }
+
+    std::istream& operator>> (std::istream& in, Minutes& ts)
+    {
+        double ms;
+        in >> ms;
+        if (in)
+            ts = Minutes(ms);
+        return in;
+    }
+
+    std::istream& operator>> (std::istream& in, Hours& ts)
+    {
+        double ms;
+        in >> ms;
+        if (in)
+            ts = Hours(ms);
+        return in;
+    }
+
+    std::istream& operator>> (std::istream& in, Days& ts)
+    {
+        double ms;
+        in >> ms;
+        if (in)
+            ts = Days(ms);
+        return in;
     }
 
     void operator >>=(const SerializationInfo& si, Timespan& timespan)
     {
-        double s;
-        si >>= s;
-        if (s >= 0)
-            timespan = Timespan(static_cast<int64_t>(s * 1e6 + .5));
+        std::string stringValue;
+        si >>= stringValue;
+
+        bool ok;
+        double floatValue;
+        std::string::const_iterator end = getFloat(stringValue.begin(), stringValue.end(), ok, floatValue);
+
+        if (!ok)
+        {
+            std::string msg = "failed to get timespan from value \"";
+            msg += stringValue;
+            msg += '"';
+            throw SerializationError(msg);
+        }
+
+        if (end != stringValue.end())
+        {
+            std::string::size_type pos = end - stringValue.begin();
+            if (stringValue.compare(pos, 1, "u") == 0)
+                timespan = Microseconds(floatValue);
+            else if (stringValue.compare(pos, 2, "ms") == 0)
+                timespan = Milliseconds(floatValue);
+            else if (stringValue.compare(pos, 1, "s") == 0)
+                timespan = Seconds(floatValue);
+            else if (stringValue.compare(pos, 2, "mi") == 0)
+                timespan = Minutes(floatValue);
+            else if (stringValue.compare(pos, 1, "h") == 0)
+                timespan = Hours(floatValue);
+            else if (stringValue.compare(pos, 1, "d") == 0)
+                timespan = Days(floatValue);
+        }
+        else if (si.typeName() == "microseconds")
+            timespan = Microseconds(floatValue);
+        else if (si.typeName() == "milliseconds")
+            timespan = Milliseconds(floatValue);
+        else if (si.typeName() == "seconds")
+            timespan = Seconds(floatValue);
+        else if (si.typeName() == "minutes")
+            timespan = Minutes(floatValue);
+        else if (si.typeName() == "hours")
+            timespan = Hours(floatValue);
+        else if (si.typeName() == "days")
+            timespan = Days(floatValue);
         else
-            timespan = Timespan(static_cast<int64_t>(s * 1e6 - .5));
+            timespan = Microseconds(floatValue);
     }
 
     void operator <<=(SerializationInfo& si, const Timespan& timespan)
     {
+        si <<= timespan.totalUSecs();
+        si.setTypeName("microseconds");
+    }
+
+    void operator <<=(SerializationInfo& si, const Microseconds& timespan)
+    {
+        si <<= timespan.totalUSecs();
+        si.setTypeName("microseconds");
+    }
+
+    void operator <<=(SerializationInfo& si, const Milliseconds& timespan)
+    {
+        si <<= timespan.totalMSecs();
+        si.setTypeName("milliseconds");
+    }
+
+    void operator <<=(SerializationInfo& si, const Seconds& timespan)
+    {
+        si <<= timespan.totalSeconds();
         si.setTypeName("seconds");
-        si <<= (timespan.totalUSecs() / 1e6);
+    }
+
+    void operator <<=(SerializationInfo& si, const Minutes& timespan)
+    {
+        si <<= timespan.totalMinutes();
+        si.setTypeName("minutes");
+    }
+
+    void operator <<=(SerializationInfo& si, const Hours& timespan)
+    {
+        si <<= timespan.totalHours();
+        si.setTypeName("hours");
+    }
+
+    void operator <<=(SerializationInfo& si, const Days& timespan)
+    {
+        si <<= timespan.totalDays();
+        si.setTypeName("days");
     }
 
 }

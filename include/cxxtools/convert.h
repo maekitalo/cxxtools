@@ -993,6 +993,7 @@ InIterT getFloat(InIterT it, InIterT end, bool& ok, T& n, const FormatT& fmt)
         if(digit >= fmt.base)
             return it;
         
+        ok = true;
         n *= 10;
         n += digit; 
     }
