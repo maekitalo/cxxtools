@@ -288,6 +288,7 @@ class WeakTimespan<1> : public Timespan
 namespace tshelper
 {
     void get(std::istream& in, Timespan& ts, uint64_t res);
+    void get(const SerializationInfo& si, Timespan& ts, uint64_t res);
 }
 /// @endcond
 
@@ -371,34 +372,83 @@ std::ostream& operator<< (std::ostream& out, const Hours& ts);
 std::ostream& operator<< (std::ostream& out, const Days& ts);
 
 /// reads a whole number from stream and creates a timespan with the number of microseconds
-std::istream& operator>> (std::istream& in, Timespan& ts);
-
-/// reads a whole number from stream and creates a timespan with the number of microseconds
-std::istream& operator>> (std::istream& in, Microseconds& ts);
-
-/// reads a decimal number from stream and creates a timespan with the number of milliseconds
-std::istream& operator>> (std::istream& in, Milliseconds& ts);
-
-/// reads a decimal number from stream and creates a timespan with the number of seconds
-std::istream& operator>> (std::istream& in, Seconds& ts);
-
-/// reads a decimal number from stream and creates a timespan with the number of minutes
-std::istream& operator>> (std::istream& in, Minutes& ts);
-
-/// reads a decimal number from stream and creates a timespan with the number of hours
-std::istream& operator>> (std::istream& in, Hours& ts);
-
-/// reads a decimal number from stream and creates a timespan with the number of days
-std::istream& operator>> (std::istream& in, Days& ts);
-
-template <uint64_t Resolution>
-std::istream& operator>> (std::istream& in, WeakTimespan<Resolution>& ts)
+inline std::istream& operator>> (std::istream& in, Timespan& ts)
 {
-    tshelper::get(in, ts, Resolution);
+    tshelper::get(in, ts, 1);
     return in;
 }
 
-void operator >>=(const SerializationInfo& si, Timespan& timespan);
+/// reads a whole number from stream and creates a timespan with the number of microseconds
+inline std::istream& operator>> (std::istream& in, Microseconds& ts)
+{
+    tshelper::get(in, ts, 1);
+    return in;
+}
+
+/// reads a decimal number from stream and creates a timespan with the number of milliseconds
+inline std::istream& operator>> (std::istream& in, Milliseconds& ts)
+{
+    tshelper::get(in, ts, int64_t(1000));
+    return in;
+}
+
+/// reads a decimal number from stream and creates a timespan with the number of seconds
+inline std::istream& operator>> (std::istream& in, Seconds& ts)
+{
+    tshelper::get(in, ts, int64_t(1000)*1000);
+    return in;
+}
+
+/// reads a decimal number from stream and creates a timespan with the number of minutes
+inline std::istream& operator>> (std::istream& in, Minutes& ts)
+{
+    tshelper::get(in, ts, int64_t(1000)*1000*60);
+    return in;
+}
+
+/// reads a decimal number from stream and creates a timespan with the number of hours
+inline std::istream& operator>> (std::istream& in, Hours& ts)
+{
+    tshelper::get(in, ts, int64_t(1000)*1000*60*60);
+    return in;
+}
+
+/// reads a decimal number from stream and creates a timespan with the number of days
+inline std::istream& operator>> (std::istream& in, Days& ts)
+{
+    tshelper::get(in, ts, int64_t(1000)*1000*60*60*24);
+    return in;
+}
+
+inline void operator >>=(const SerializationInfo& si, Timespan& timespan)
+{
+    tshelper::get(si, timespan, 1);
+}
+
+inline void operator >>=(const SerializationInfo& si, Milliseconds& timespan)
+{
+    tshelper::get(si, timespan, int64_t(1000));
+}
+
+inline void operator >>=(const SerializationInfo& si, Seconds& timespan)
+{
+    tshelper::get(si, timespan, int64_t(1000)*1000);
+}
+
+inline void operator >>=(const SerializationInfo& si, Minutes& timespan)
+{
+    tshelper::get(si, timespan, int64_t(1000)*1000*60);
+}
+
+inline void operator >>=(const SerializationInfo& si, Hours& timespan)
+{
+    tshelper::get(si, timespan, int64_t(1000)*1000*60*60);
+}
+
+inline void operator >>=(const SerializationInfo& si, Days& timespan)
+{
+    tshelper::get(si, timespan, int64_t(1000)*1000*60*60*24);
+}
 
 void operator <<=(SerializationInfo& si, const Timespan& timespan);
 

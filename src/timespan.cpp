@@ -85,116 +85,120 @@ namespace cxxtools
         return out;
     }
 
-    std::istream& operator>> (std::istream& in, Timespan& ts)
+    namespace tshelper
     {
-        int64_t usecs;
-        in >> usecs;
-        if (in)
-            ts = Timespan(usecs);
-        return in;
-    }
-
-    std::istream& operator>> (std::istream& in, Microseconds& ts)
-    {
-        int64_t usecs;
-        in >> usecs;
-        if (in)
-            ts = Timespan(usecs);
-        return in;
-    }
-
-    std::istream& operator>> (std::istream& in, Milliseconds& ts)
-    {
-        double ms;
-        in >> ms;
-        if (in)
-            ts = Milliseconds(ms);
-        return in;
-    }
-
-    std::istream& operator>> (std::istream& in, Seconds& ts)
-    {
-        double ms;
-        in >> ms;
-        if (in)
-            ts = Seconds(ms);
-        return in;
-    }
-
-    std::istream& operator>> (std::istream& in, Minutes& ts)
-    {
-        double ms;
-        in >> ms;
-        if (in)
-            ts = Minutes(ms);
-        return in;
-    }
-
-    std::istream& operator>> (std::istream& in, Hours& ts)
-    {
-        double ms;
-        in >> ms;
-        if (in)
-            ts = Hours(ms);
-        return in;
-    }
-
-    std::istream& operator>> (std::istream& in, Days& ts)
-    {
-        double ms;
-        in >> ms;
-        if (in)
-            ts = Days(ms);
-        return in;
-    }
-
-    void operator >>=(const SerializationInfo& si, Timespan& timespan)
-    {
-        std::string stringValue;
-        si >>= stringValue;
-
-        bool ok;
-        double floatValue;
-        std::string::const_iterator end = getFloat(stringValue.begin(), stringValue.end(), ok, floatValue);
-
-        if (!ok)
+        void get(std::istream& in, Timespan& ts, uint64_t res)
         {
-            std::string msg = "failed to get timespan from value \"";
-            msg += stringValue;
-            msg += '"';
-            throw SerializationError(msg);
+            double value;
+            in >> value;
+            if (in)
+            {
+                int ch = in.peek();
+                if (in)
+                {
+                    switch (std::istream::traits_type::to_char_type(ch))
+                    {
+                        case 'u':
+                            in.get();
+                            ts = Microseconds(value);
+                            return;
+
+                        case 'm':
+                        {
+                            in.get();
+                            ch = in.peek();
+                            if (in)
+                            {
+                                switch (std::istream::traits_type::to_char_type(ch))
+                                {
+                                    case 's':
+                                        in.get();
+                                        ts = Milliseconds(value);
+                                        return;
+
+                                    case 'i':
+                                        in.get();
+                                        ts = Minutes(value);
+                                        return;
+                                }
+                            }
+
+                            in.clear();
+                            ts = Minutes(value);
+                            return;
+                        }
+
+                        case 's':
+                            in.get();
+                            ts = Seconds(value);
+                            return;
+
+                        case 'h':
+                            in.get();
+                            ts = Hours(value);
+                            return;
+
+                        case 'd':
+                            in.get();
+                            ts = Days(value);
+                            return;
+                    }
+                }
+
+                in.clear();
+
+                ts = Timespan(value * res);
+            }
         }
 
-        if (end != stringValue.end())
+        void get(const SerializationInfo& si, Timespan& timespan, uint64_t res)
         {
-            std::string::size_type pos = end - stringValue.begin();
-            if (stringValue.compare(pos, 1, "u") == 0)
+            std::string stringValue;
+            si >>= stringValue;
+
+            bool ok;
+            double floatValue;
+            std::string::const_iterator end = getFloat(stringValue.begin(), stringValue.end(), ok, floatValue);
+
+            if (!ok)
+            {
+                std::string msg = "failed to get timespan from value \"";
+                msg += stringValue;
+                msg += '"';
+                throw SerializationError(msg);
+            }
+
+            if (end != stringValue.end())
+            {
+                std::string::size_type pos = end - stringValue.begin();
+                if (stringValue.compare(pos, 1, "u") == 0)
+                    timespan = Microseconds(floatValue);
+                else if (stringValue.compare(pos, 2, "ms") == 0)
+                    timespan = Milliseconds(floatValue);
+                else if (stringValue.compare(pos, 1, "s") == 0)
+                    timespan = Seconds(floatValue);
+                else if (stringValue.compare(pos, 2, "mi") == 0)
+                    timespan = Minutes(floatValue);
+                else if (stringValue.compare(pos, 1, "h") == 0)
+                    timespan = Hours(floatValue);
+                else if (stringValue.compare(pos, 1, "d") == 0)
+                    timespan = Days(floatValue);
+            }
+            else if (si.typeName() == "microseconds")
                 timespan = Microseconds(floatValue);
-            else if (stringValue.compare(pos, 2, "ms") == 0)
+            else if (si.typeName() == "milliseconds")
                 timespan = Milliseconds(floatValue);
-            else if (stringValue.compare(pos, 1, "s") == 0)
+            else if (si.typeName() == "seconds")
                 timespan = Seconds(floatValue);
-            else if (stringValue.compare(pos, 2, "mi") == 0)
+            else if (si.typeName() == "minutes")
                 timespan = Minutes(floatValue);
-            else if (stringValue.compare(pos, 1, "h") == 0)
+            else if (si.typeName() == "hours")
                 timespan = Hours(floatValue);
-            else if (stringValue.compare(pos, 1, "d") == 0)
+            else if (si.typeName() == "days")
                 timespan = Days(floatValue);
+            else
+                timespan = Timespan(floatValue * res);
         }
-        else if (si.typeName() == "microseconds")
-            timespan = Microseconds(floatValue);
-        else if (si.typeName() == "milliseconds")
-            timespan = Milliseconds(floatValue);
-        else if (si.typeName() == "seconds")
-            timespan = Seconds(floatValue);
-        else if (si.typeName() == "minutes")
-            timespan = Minutes(floatValue);
-        else if (si.typeName() == "hours")
-            timespan = Hours(floatValue);
-        else if (si.typeName() == "days")
-            timespan = Days(floatValue);
-        else
-            timespan = Microseconds(floatValue);
     }
 
     void operator <<=(SerializationInfo& si, const Timespan& timespan)

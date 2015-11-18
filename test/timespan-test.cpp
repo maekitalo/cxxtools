@@ -50,7 +50,10 @@ class TimespanTest : public cxxtools::unit::TestSuite
             registerMethod("serialize", *this, &TimespanTest::serialize);
             registerMethod("serializeunits", *this, &TimespanTest::serializeunits);
             registerMethod("deserializeunits", *this, &TimespanTest::deserializeunits);
+            registerMethod("deserializeweaktimespan", *this, &TimespanTest::deserializeweaktimespan);
             registerMethod("ostream", *this, &TimespanTest::ostream);
+            registerMethod("istream", *this, &TimespanTest::istream);
+            registerMethod("istreamunits", *this, &TimespanTest::istreamunits);
             registerMethod("ceil", *this, &TimespanTest::ceil);
         }
 
@@ -318,6 +321,59 @@ class TimespanTest : public cxxtools::unit::TestSuite
 
         }
 
+        void deserializeweaktimespan()
+        {
+            {
+                cxxtools::SerializationInfo si;
+                si <<= "2";
+                cxxtools::Timespan t;
+                si >>= t;
+                CXXTOOLS_UNIT_ASSERT_EQUALS(t, cxxtools::Microseconds(2));
+            }
+
+            {
+                cxxtools::SerializationInfo si;
+                si <<= "2.5";
+                cxxtools::Milliseconds t;
+                si >>= t;
+                CXXTOOLS_UNIT_ASSERT_EQUALS(t, cxxtools::Milliseconds(2.5));
+            }
+
+            {
+                cxxtools::SerializationInfo si;
+                si <<= "2.5";
+                cxxtools::Seconds t;
+                si >>= t;
+                CXXTOOLS_UNIT_ASSERT_EQUALS(t, cxxtools::Seconds(2.5));
+            }
+
+            {
+                cxxtools::SerializationInfo si;
+                si <<= "2.5";
+                cxxtools::Minutes t;
+                si >>= t;
+                CXXTOOLS_UNIT_ASSERT_EQUALS(t, cxxtools::Minutes(2.5));
+            }
+
+            {
+                cxxtools::SerializationInfo si;
+                si <<= "2.5";
+                cxxtools::Hours t;
+                si >>= t;
+                CXXTOOLS_UNIT_ASSERT_EQUALS(t, cxxtools::Hours(2.5));
+            }
+
+            {
+                cxxtools::SerializationInfo si;
+                si <<= "2.5";
+                cxxtools::Days t;
+                si >>= t;
+                CXXTOOLS_UNIT_ASSERT_EQUALS(t, cxxtools::Days(2.5));
+            }
+
+        }
+
+
         void ostream()
         {
             {
@@ -356,6 +412,116 @@ class TimespanTest : public cxxtools::unit::TestSuite
                 CXXTOOLS_UNIT_ASSERT_EQUALS(s.str(), "823d");
             }
 
+        }
+
+        void istream()
+        {
+            {
+                std::istringstream s("823");
+                cxxtools::Microseconds ts;
+                s >> ts;
+                CXXTOOLS_UNIT_ASSERT(!s.fail());
+                CXXTOOLS_UNIT_ASSERT_EQUALS(ts, cxxtools::Microseconds(823));
+            }
+
+            {
+                std::istringstream s("823");
+                cxxtools::Milliseconds ts;
+                s >> ts;
+                CXXTOOLS_UNIT_ASSERT(s);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(ts, cxxtools::Milliseconds(823));
+            }
+
+            {
+                std::istringstream s("823");
+                cxxtools::Seconds ts;
+                s >> ts;
+                CXXTOOLS_UNIT_ASSERT(s);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(ts, cxxtools::Seconds(823));
+            }
+
+            {
+                std::istringstream s("823");
+                cxxtools::Minutes ts;
+                s >> ts;
+                CXXTOOLS_UNIT_ASSERT(s);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(ts, cxxtools::Minutes(823));
+            }
+
+            {
+                std::istringstream s("823");
+                cxxtools::Hours ts;
+                s >> ts;
+                CXXTOOLS_UNIT_ASSERT(s);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(ts, cxxtools::Hours(823));
+            }
+
+            {
+                std::istringstream s("823");
+                cxxtools::Days ts;
+                s >> ts;
+                CXXTOOLS_UNIT_ASSERT(s);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(ts, cxxtools::Days(823));
+            }
+        }
+
+        void istreamunits()
+        {
+            {
+                std::istringstream s("823u");
+                cxxtools::Timespan ts;
+                s >> ts;
+                CXXTOOLS_UNIT_ASSERT(!s.fail());
+                CXXTOOLS_UNIT_ASSERT_EQUALS(ts, cxxtools::Microseconds(823));
+            }
+
+            {
+                std::istringstream s("823ms");
+                cxxtools::Seconds ts;
+                s >> ts;
+                CXXTOOLS_UNIT_ASSERT(s);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(ts, cxxtools::Milliseconds(823));
+            }
+
+            {
+                std::istringstream s("823s");
+                cxxtools::Timespan ts;
+                s >> ts;
+                CXXTOOLS_UNIT_ASSERT(s);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(ts, cxxtools::Seconds(823));
+            }
+
+            {
+                std::istringstream s("823.5m");
+                cxxtools::Timespan ts;
+                s >> ts;
+                CXXTOOLS_UNIT_ASSERT(s);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(ts, cxxtools::Minutes(823.5));
+            }
+
+            {
+                std::istringstream s("823mi");
+                cxxtools::Timespan ts;
+                s >> ts;
+                CXXTOOLS_UNIT_ASSERT(s);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(ts, cxxtools::Minutes(823));
+            }
+
+            {
+                std::istringstream s("823h");
+                cxxtools::Timespan ts;
+                s >> ts;
+                CXXTOOLS_UNIT_ASSERT(s);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(ts, cxxtools::Hours(823));
+            }
+
+            {
+                std::istringstream s("823d");
+                cxxtools::Timespan ts;
+                s >> ts;
+                CXXTOOLS_UNIT_ASSERT(s);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(ts, cxxtools::Days(823));
+            }
         }
 
         void ceil()
