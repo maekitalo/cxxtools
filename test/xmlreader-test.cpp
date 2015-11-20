@@ -40,6 +40,7 @@ class XmlReaderTest : public cxxtools::unit::TestSuite
         : cxxtools::unit::TestSuite("xmlreader")
         {
             registerMethod("XmlReadXml", *this, &XmlReaderTest::XmlReadXml);
+            registerMethod("XmlReadNsXml", *this, &XmlReaderTest::XmlReadNsXml);
             registerMethod("XmlReadEmptyXml", *this, &XmlReaderTest::XmlReadEmptyXml);
             registerMethod("XmlReadAttributes", *this, &XmlReaderTest::XmlReadAttributes);
             registerMethod("XmlReadAttributesFromEmptyXml", *this, &XmlReaderTest::XmlReadAttributesFromEmptyXml);
@@ -71,6 +72,32 @@ class XmlReaderTest : public cxxtools::unit::TestSuite
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(root.name().narrow(), "root");
             CXXTOOLS_UNIT_ASSERT_EQUALS(foo.name().narrow(), "foo");
+        }
+
+        void XmlReadNsXml()
+        {
+            std::istringstream in(
+                "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
+                "<ns:root>\n"
+                "<b:foo>\n"
+                "</b:foo>\n"
+                "</ns:root>");
+            cxxtools::xml::XmlReader xr(in);
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(xr.documentVersion().narrow(), "1.0");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(xr.documentEncoding().narrow(), "UTF-8");
+
+            cxxtools::xml::StartElement root = xr.nextElement();
+            cxxtools::xml::StartElement foo = xr.nextElement();
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(root.name().narrow(), "ns:root");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(foo.name().narrow(), "b:foo");
+
+            const cxxtools::xml::Node& endFoo = xr.nextTag();
+            CXXTOOLS_UNIT_ASSERT_EQUALS(endFoo.type(), cxxtools::xml::Node::EndElement);
+
+            const cxxtools::xml::Node& endRoot = xr.nextTag();
+            CXXTOOLS_UNIT_ASSERT_EQUALS(endRoot.type(), cxxtools::xml::Node::EndElement);
         }
 
         void XmlReadEmptyXml()
