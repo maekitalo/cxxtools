@@ -46,6 +46,7 @@ class LogconfigurationTest : public cxxtools::unit::TestSuite
       registerMethod("logFlagsTest", *this, &LogconfigurationTest::logFlagsTest);
       registerMethod("rootLevelTest", *this, &LogconfigurationTest::rootLevelTest);
       registerMethod("hierachicalTest", *this, &LogconfigurationTest::hierachicalTest);
+      registerMethod("convertLogFlagsTest", *this, &LogconfigurationTest::convertLogFlagsTest);
     }
 
     void logLevelTest();
@@ -54,6 +55,7 @@ class LogconfigurationTest : public cxxtools::unit::TestSuite
     void logFlagsTest();
     void rootLevelTest();
     void hierachicalTest();
+    void convertLogFlagsTest();
 };
 
 void LogconfigurationTest::logLevelTest()
@@ -221,6 +223,40 @@ void LogconfigurationTest::hierachicalTest()
   CXXTOOLS_UNIT_ASSERT(sub3.isEnabled(cxxtools::Logger::LOG_INFO));
   CXXTOOLS_UNIT_ASSERT(!sub3.isEnabled(cxxtools::Logger::LOG_DEBUG));
 
+}
+
+void LogconfigurationTest::convertLogFlagsTest()
+{
+  CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::LogConfiguration::strToLogFlags("|FATAL"),  0x01);
+  CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::LogConfiguration::strToLogFlags("FATAL"),  0x01);
+  CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::LogConfiguration::strToLogFlags("TFATAL"),  0x81);
+  CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::LogConfiguration::strToLogFlags("F"),  0x01);
+  CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::LogConfiguration::strToLogFlags("TF"),  0x81);
+  CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::LogConfiguration::strToLogFlags("|ERROR"),  0x02);
+  CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::LogConfiguration::strToLogFlags("ERROR"),  0x03);
+  CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::LogConfiguration::strToLogFlags("TERROR"),  0x83);
+  CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::LogConfiguration::strToLogFlags("E"),  0x03);
+  CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::LogConfiguration::strToLogFlags("ERROR|FATAL"),  0x03);
+  CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::LogConfiguration::strToLogFlags("|WARN"),   0x04);
+  CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::LogConfiguration::strToLogFlags("ERROR|WARN"),   0x06);
+  CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::LogConfiguration::strToLogFlags("WARN"),   0x07);
+  CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::LogConfiguration::strToLogFlags("W"),   0x07);
+  CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::LogConfiguration::strToLogFlags("|INFO"),   0x08);
+  CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::LogConfiguration::strToLogFlags("INFO"),   0x0f);
+  CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::LogConfiguration::strToLogFlags("|DEBUG"),  0x10);
+  CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::LogConfiguration::strToLogFlags("DEBUG"),  0x1f);
+  CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::LogConfiguration::strToLogFlags("D"),  0x1f);
+  CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::LogConfiguration::strToLogFlags("D|I"),  0x18);
+  CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::LogConfiguration::strToLogFlags("|FINE"),   0x10);
+  CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::LogConfiguration::strToLogFlags("FINE"),   0x1f);
+  CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::LogConfiguration::strToLogFlags("|FINER"),  0x20);
+  CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::LogConfiguration::strToLogFlags("FINER"),  0x3f);
+  CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::LogConfiguration::strToLogFlags("|FINEST"), 0x40);
+  CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::LogConfiguration::strToLogFlags("FINEST"), 0x7f);
+  CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::LogConfiguration::strToLogFlags("|TRACE"),  0x80);
+  CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::LogConfiguration::strToLogFlags("TRACE"),  0x9f);
+
+  CXXTOOLS_UNIT_ASSERT_THROW(cxxtools::LogConfiguration::strToLogFlags("blah"), std::runtime_error);
 }
 
 

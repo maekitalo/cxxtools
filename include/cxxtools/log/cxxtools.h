@@ -213,6 +213,37 @@ namespace cxxtools
       Impl* _impl;
 
     public:
+      /**
+       Converts a complex log level string to log_level_type.
+       Throws exception when level string could not be interpreted
+
+       accepted log levels:
+
+        * everything below level:
+            FATAL
+            ERROR
+            WARN
+            INFO
+            DEBUG
+            FINE
+            FINER
+            FINEST
+            TRACE
+
+        * everything below level with trace enabled:
+            TFATAL
+            ...
+            TFINE
+
+        * specific log levels:
+            TRACE|ERROR|WARN
+
+        * just one log level:
+            |WARN
+
+       */
+      static int strToLogFlags(const std::string& level);
+
       typedef Logger::log_level_type log_level_type;
 
       LogConfiguration();
@@ -231,10 +262,18 @@ namespace cxxtools
       void setRootFlags(int flags);
       void setRootLevel(log_level_type level)
         { setRootFlags(static_cast<int>(level)); }
+      /// Sets root level using string notation.
+      /// See method strToLogFlags for syntax of string.
+      void setRootLevel(const std::string& level)
+        { setRootFlags(strToLogFlags(level)); }
 
       void setLogFlags(const std::string& category, int flags);
       void setLogLevel(const std::string& category, log_level_type level)
         { setLogFlags(category, static_cast<int>(level)); };
+      /// Sets specific level using string notation.
+      /// See method strToLogFlags for syntax of string.
+      /// Empty level removes the specific setting for the category.
+      void setLogLevel(const std::string& category, const std::string& level);
 
       void setFile(const std::string& fname);
       void setFile(const std::string& fname, unsigned maxfilesize, unsigned maxbackupindex);

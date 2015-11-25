@@ -807,6 +807,11 @@ namespace cxxtools
         _logFlags[category] = flags;
       }
 
+      void unsetCategory(const std::string& category)
+      {
+        _logFlags.erase(category);
+      }
+
       void setFile(const std::string& fname)
       {
         _fname = fname;
@@ -1007,6 +1012,11 @@ namespace cxxtools
   // LogConfiguration
   //
 
+  int LogConfiguration::strToLogFlags(const std::string& level)
+  {
+      return str2logflags(level);
+  }
+
   LogConfiguration::LogConfiguration()
     : _impl(new LogConfiguration::Impl())
   {
@@ -1051,6 +1061,14 @@ namespace cxxtools
   void LogConfiguration::setLogFlags(const std::string& category, int flags)
   {
     _impl->setLogFlags(category, flags);
+  }
+
+  void LogConfiguration::setLogLevel(const std::string& category, const std::string& level)
+  {
+    if (level.empty())
+        _impl->unsetCategory(category);
+    else
+        setLogFlags(category, strToLogFlags(level));
   }
 
   void LogConfiguration::setFile(const std::string& fname)
