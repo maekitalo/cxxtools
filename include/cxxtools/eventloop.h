@@ -31,13 +31,12 @@
 
 #include <cxxtools/event.h>
 #include <cxxtools/signal.h>
-#include <cxxtools/mutex.h>
 #include <cxxtools/selector.h>
 #include <cxxtools/eventsink.h>
 #include <cxxtools/timespan.h>
-#include <deque>
 
-namespace cxxtools {
+namespace cxxtools
+{
 
     class Selectable;
 
@@ -169,10 +168,8 @@ namespace cxxtools {
             virtual void onProcessEvents();
 
         private:
-            bool _exitLoop;
-            SelectorImpl* _selector;
-            std::deque<Event* > _eventQueue;
-            RecursiveMutex _queueMutex;
+            class Impl;
+            Impl* _impl;
     };
 
 } // namespace cxxtools
