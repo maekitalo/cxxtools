@@ -26,6 +26,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 #include "cxxtools/utf8codec.h"
+#include <cstring>
 
 #define byteMask 0xBF
 #define byteMark 0x80
@@ -142,6 +143,23 @@ Utf8Codec::Utf8Codec(size_t ref)
 {}
 
 
+namespace
+{
+    inline unsigned short numBytes(const MBState& s, const char* fromBegin, const char* fromEnd)
+    {
+        return fromEnd - fromBegin + s.n;
+    }
+
+    inline char getByte(const MBState& s, const char* fromBegin, const char* fromEnd, unsigned short n)
+    {
+        if (n < s.n)
+            return s.value.mbytes[n];
+        else
+            return fromBegin[n - s.n];
+    }
+}
+
+
 Utf8Codec::result Utf8Codec::do_in(MBState& s, const char* fromBegin, const char* fromEnd, const char*& fromNext,
                                    Char* toBegin, Char* toEnd, Char*& toNext) const
 {
@@ -149,15 +167,38 @@ Utf8Codec::result Utf8Codec::do_in(MBState& s, const char* fromBegin, const char
     fromNext = fromBegin;
     toNext = toBegin;
 
-    // check for incomplete byte order mark:
-    if (fromEnd - fromBegin < 3 && fromBegin[0] == '\xef')
+    // check for empty input
+    if (fromEnd == fromBegin)
         return ok;
 
-    // skip byte order mark
-    if (fromEnd - fromBegin >= 3
-            && fromBegin[0] == '\xef' && fromBegin[1] == '\xbb' && fromBegin[2] == '\xbf')
+    // check for incomplete byte order mark:
+    if (numBytes(s, fromBegin, fromEnd) < 3)
     {
-        fromNext += 3;
+        if (getByte(s, fromBegin, fromEnd, 0) == '\xef')
+        {
+            while (fromNext < fromEnd)
+                s.value.mbytes[s.n++] = *fromNext++;
+            return ok;
+        }
+    }
+    else
+    {
+        // skip byte order mark
+        if (getByte(s, fromBegin, fromEnd, 0) == '\xef'
+            && getByte(s, fromBegin, fromEnd, 1) == '\xbb'
+            && getByte(s, fromBegin, fromEnd, 2) == '\xbf')
+        {
+            if (s.n <= 3)
+            {
+                fromNext += 3 - s.n;
+                s.n = 0;
+            }
+            else
+            {
+                std::memmove(s.value.mbytes, s.value.mbytes + 3, s.n - 3);
+                s.n -= 3;
+            }
+        }
     }
 
     while (fromNext < fromEnd)

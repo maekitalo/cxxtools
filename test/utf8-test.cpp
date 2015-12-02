@@ -43,6 +43,7 @@ class Utf8Test : public cxxtools::unit::TestSuite
       registerMethod("decode", *this, &Utf8Test::decodeTest);
       registerMethod("byteordermark", *this, &Utf8Test::byteordermarkTest);
       registerMethod("incompleteBom", *this, &Utf8Test::incompleteBomTest);
+      registerMethod("partialBom", *this, &Utf8Test::partialBomTest);
     }
 
     void encodeTest()
@@ -74,6 +75,36 @@ class Utf8Test : public cxxtools::unit::TestSuite
       std::string bstr("\xef\xbb");
       cxxtools::String ustr = cxxtools::Utf8Codec::decode(bstr);
       CXXTOOLS_UNIT_ASSERT(ustr.empty());
+    }
+
+    void partialBomTest()
+    {
+      // check whether codec is able to partially consume byte order mark
+      cxxtools::Utf8Codec codec;
+      const char data[] = { '\xef', '\xbb', '\xbf', 'A' };
+      cxxtools::Char to[10];
+      const char* fromBegin = data;
+      const char* fromNext = data;
+      cxxtools::Char* toNext = to;
+      cxxtools::MBState mbstate;
+
+      // consume first char
+      codec.in(mbstate, fromBegin, fromBegin + 1, fromNext, to, to + 10, toNext);
+      CXXTOOLS_UNIT_ASSERT(fromNext > fromBegin);  // codec must consume char
+      CXXTOOLS_UNIT_ASSERT_EQUALS(toNext - to, 0);   // no output yet
+
+      fromBegin = fromNext;
+
+      codec.in(mbstate, fromBegin, fromBegin + 1, fromNext, to, to + 10, toNext);
+      CXXTOOLS_UNIT_ASSERT(fromNext > fromBegin);  // codec must consume another char
+      CXXTOOLS_UNIT_ASSERT_EQUALS(toNext - to, 0);   // no output yet
+
+      fromBegin = fromNext;
+
+      codec.in(mbstate, fromBegin, fromBegin + 2, fromNext, to, to + 10, toNext);
+      CXXTOOLS_UNIT_ASSERT(fromNext > fromBegin);  // codec must consume the third and forth char
+      CXXTOOLS_UNIT_ASSERT_EQUALS(toNext - to, 1);   // now output
+      CXXTOOLS_UNIT_ASSERT_EQUALS(to[0].narrow(), 'A');   // now output
     }
 
 };
