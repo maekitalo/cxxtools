@@ -161,9 +161,9 @@ namespace cxxtools
 
             virtual void onExit();
 
-            virtual void onQueueEvent(const Event& event);
+            virtual void onQueueEvent(const Event& event, bool priority);
 
-            virtual void onCommitEvent(const Event& event);
+            virtual void onCommitEvent(const Event& event, bool priority);
 
             virtual void onProcessEvents();
 

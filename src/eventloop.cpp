@@ -43,9 +43,29 @@ public:
         { }
     ~Impl();
 
+    bool eventQueueEmpty()
+    { return _eventQueue.empty() && _priorityEventQueue.empty(); }
+
+    Event* front()
+    {
+        if (_priorityEventQueue.empty())
+            return _eventQueue.front();
+        else
+            return _priorityEventQueue.front();
+    }
+
+    void pop_front()
+    {
+        if (_priorityEventQueue.empty())
+            _eventQueue.pop_front();
+        else
+            _priorityEventQueue.pop_front();
+    }
+
     bool _exitLoop;
     SelectorImpl* _selector;
     std::deque<Event* > _eventQueue;
+    std::deque<Event* > _priorityEventQueue;
     RecursiveMutex _queueMutex;
 };
 
@@ -57,6 +77,13 @@ EventLoop::Impl::~Impl()
         {
             Event* ev = _eventQueue.front();
             _eventQueue.pop_front();
+            ev->destroy();
+        }
+
+        while ( ! _priorityEventQueue.empty() )
+        {
+            Event* ev = _priorityEventQueue.front();
+            _priorityEventQueue.pop_front();
             ev->destroy();
         }
     }
@@ -103,17 +130,17 @@ void EventLoop::onChanged(Selectable& s)
 
 void EventLoop::onRun()
 {
-    while( true )
+    while (true)
     {
         RecursiveLock lock(_impl->_queueMutex);
 
-        if(_impl->_exitLoop)
+        if (_impl->_exitLoop)
         {
             _impl->_exitLoop = false;
             break;
         }
 
-        if( !_impl->_eventQueue.empty() )
+        if (!_impl->eventQueueEmpty())
         {
             lock.unlock();
             this->processEvents();
@@ -132,11 +159,11 @@ void EventLoop::onRun()
 
 bool EventLoop::onWaitUntil(Timespan timeout)
 {
-    if( _impl->_selector->waitUntil(timeout) )
+    if (_impl->_selector->waitUntil(timeout))
     {
         RecursiveLock lock(_impl->_queueMutex);
 
-        if( !_impl->_eventQueue.empty() )
+        if (!_impl->eventQueueEmpty())
         {
             lock.unlock();
             this->processEvents();
@@ -165,7 +192,7 @@ void EventLoop::onExit()
 }
 
 
-void EventLoop::onQueueEvent(const Event& ev)
+void EventLoop::onQueueEvent(const Event& ev, bool priority)
 {
     RecursiveLock lock( _impl->_queueMutex );
 
@@ -173,7 +200,10 @@ void EventLoop::onQueueEvent(const Event& ev)
 
     try
     {
-        _impl->_eventQueue.push_back(clonedEvent);
+        if (priority)
+            _impl->_priorityEventQueue.push_back(clonedEvent);
+        else
+            _impl->_eventQueue.push_back(clonedEvent);
     }
     catch(...)
     {
@@ -183,24 +213,24 @@ void EventLoop::onQueueEvent(const Event& ev)
 }
 
 
-void EventLoop::onCommitEvent(const Event& ev)
+void EventLoop::onCommitEvent(const Event& ev, bool priority)
 {
-    onQueueEvent(ev);
+    onQueueEvent(ev, priority);
     _impl->_selector->wake();
 }
 
 
 void EventLoop::onProcessEvents()
 {
-    while( !_impl->_exitLoop )
+    while (!_impl->_exitLoop)
     {
         RecursiveLock lock(_impl->_queueMutex);
 
-        if ( _impl->_eventQueue.empty() || _impl->_exitLoop )
+        if (_impl->eventQueueEmpty() || _impl->_exitLoop)
             break;
 
-        Event* ev = _impl->_eventQueue.front();
-        _impl->_eventQueue.pop_front();
+        Event* ev = _impl->front();
+        _impl->pop_front();
 
         try
         {

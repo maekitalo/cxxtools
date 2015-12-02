@@ -24,6 +24,7 @@ alltests_SOURCES = \
     date-test.cpp \
     datetime-test.cpp \
     envsubst-test.cpp \
+    eventloop-test.cpp \
     file-test.cpp \
     inifile-test.cpp \
     iniparser-test.cpp \

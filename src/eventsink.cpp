@@ -56,13 +56,25 @@ EventSink::~EventSink()
 
 void EventSink::queueEvent(const Event& event)
 {
-    this->onQueueEvent(event);
+    this->onQueueEvent(event, false);
 }
 
 
 void EventSink::commitEvent(const Event& event)
 {
-    this->onCommitEvent(event);
+    this->onCommitEvent(event, false);
+}
+
+
+void EventSink::queuePriorityEvent(const Event& event)
+{
+    this->onQueueEvent(event, true);
+}
+
+
+void EventSink::commitPriorityEvent(const Event& event)
+{
+    this->onCommitEvent(event, true);
 }
 
 

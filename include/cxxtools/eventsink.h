@@ -46,12 +46,23 @@ namespace cxxtools {
 
             virtual ~EventSink();
 
+            /// Puts a event in the queue but does not wake the loop.
             void queueEvent(const Event& event);
+
+            /// Puts a event in the queue and wakes the loop so that the event is processed.
             void commitEvent(const Event& event);
 
+            /// Puts a priority event in the queue and wakes the loop so that the event is processed.
+            /// Priority events are processed before any non priority event.
+            void queuePriorityEvent(const Event& event);
+
+            /// Puts a priority event in the queue and wakes the loop so that the event is processed.
+            /// Priority events are processed before any non priority event.
+            void commitPriorityEvent(const Event& event);
+
         protected:
-            virtual void onQueueEvent(const Event& event) = 0;
-            virtual void onCommitEvent(const Event& event) = 0;
+            virtual void onQueueEvent(const Event& event, bool priority) = 0;
+            virtual void onCommitEvent(const Event& event, bool priority) = 0;
 
         private:
             void onConnect(EventSource& source);
