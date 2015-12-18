@@ -104,8 +104,15 @@ SerializationInfo::SerializationInfo(SerializationInfo&& si) noexcept
       _t(si._t),
       _nodes(si._nodes)
 {
-    si._category = Void;
-    si._t = t_none;
+    if (si._t == t_string)
+    {
+        new (_StringPtr()) String(std::move(*si._StringPtr()));
+    }
+    else if (si._t == t_string8)
+    {
+        new (_String8Ptr()) std::string(std::move(*si._String8Ptr()));
+    }
+
     si._nodes = 0;
 }
 
