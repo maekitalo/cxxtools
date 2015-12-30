@@ -135,49 +135,55 @@ namespace cxxtools
 
   std::ostream& operator<< (std::ostream& out, const Mime& mime)
   {
-    // build string parts
-    typedef std::vector<std::string> SpartsType;
-    SpartsType sparts;
+    log_debug("output " << mime.parts.size() << " parts");
 
-    for (Mime::PartsType::const_iterator pit = mime.parts.begin(); pit != mime.parts.end(); ++pit)
+    if (mime.parts.size() == 1)
     {
-      std::ostringstream out;
-      out << *pit;
-      sparts.push_back(out.str());
+      out << mime.parts[0];
     }
-
-    // choose suitable boundary
-    std::string boundary;
-    time_t t;
-    time(&t);
-    while (true)
+    else if (mime.parts.size() > 1)
     {
+      // build string parts
+      typedef std::vector<std::string> SpartsType;
+      SpartsType sparts;
+
+      for (Mime::PartsType::const_iterator pit = mime.parts.begin(); pit != mime.parts.end(); ++pit)
+      {
+        std::ostringstream out;
+        out << *pit;
+        sparts.push_back(out.str());
+      }
+
+      // choose suitable boundary
+      std::string boundary;
       std::ostringstream h;
-      h << std::hex << t;
-      boundary = "=Boundary=" + h.str() + "=";
+      while (true)
+      {
+        h << std::hex << rand();
+        boundary = "=Boundary=" + h.str() + "=";
+        for (SpartsType::const_iterator it = sparts.begin(); it != sparts.end(); ++it)
+          if (it->find(boundary) != std::string::npos)
+            continue;
+        break;
+      }
+
+      // print headers
+      out << "MIME-Version: 1.0\n"
+             "Content-Type: multipart/mixed; boundary=\"" << boundary << "\"\n";
+      for (Mime::HeadersType::const_iterator it = mime.headers.begin();
+           it != mime.headers.end(); ++it)
+        out << it->first << ": " << it->second << '\n';
+      out << '\n';
+
+      // print parts
       for (SpartsType::const_iterator it = sparts.begin(); it != sparts.end(); ++it)
-        if (it->find(boundary) != std::string::npos)
-          continue;
-      t += rand();
-      break;
+        out << "--" << boundary << '\n'
+            << *it;
+
+      out << "--" << boundary << "--\n";
+
+      return out;
     }
-
-    // print headers
-    out << "MIME-Version: 1.0\n"
-           "Content-Type: multipart/mixed; boundary=\"" << boundary << "\"\n";
-    for (Mime::HeadersType::const_iterator it = mime.headers.begin();
-         it != mime.headers.end(); ++it)
-      out << it->first << ": " << it->second << '\n';
-    out << '\n';
-
-    // print parts
-    for (SpartsType::const_iterator it = sparts.begin(); it != sparts.end(); ++it)
-      out << "--" << boundary << '\n'
-          << *it;
-
-    out << "--" << boundary << "--\n";
-
-    return out;
   }
 
 }

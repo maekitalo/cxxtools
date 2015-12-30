@@ -50,7 +50,7 @@ namespace cxxtools
       std::string body;
 
     public:
-      explicit Mimepart(const std::string& contentType_ = "text/plain, charset=UTF-8",
+      explicit Mimepart(const std::string& contentType_ = "text/plain; charset=UTF-8",
                         ContentTransferEncoding contentTransferEncoding_ = quotedPrintable);
 
       void setData(const std::string& data)   { body = data; }
@@ -80,16 +80,20 @@ namespace cxxtools
       void setHeader(const std::string& key, const std::string& value)
          { headers[key] = value; }
 
+      /// Adds a empty part to the mime-object.
+      Mimepart& addPart()
+        { parts.resize(parts.size() + 1); return parts.back(); }
+
       /// Adds a part to the mime-object.
       Mimepart& addPart(const Mimepart& part)
         { parts.push_back(part); return parts.back(); }
 
       /// Adds a part to the mime-object. The data is passed as a std::string.
-      Mimepart& addPart(const std::string& data, const std::string& contentType = "text/plain",
+      Mimepart& addPart(const std::string& data, const std::string& contentType = "text/plain; charset=UTF-8",
         ContentTransferEncoding contentTransferEncoding = Mimepart::quotedPrintable);
 
       /// Adds a part to the mime-object. The data is read from a input stream.
-      Mimepart& addPart(std::istream& in, const std::string& contentType = "text/plain",
+      Mimepart& addPart(std::istream& in, const std::string& contentType = "text/plain; charset=UTF-8",
         ContentTransferEncoding contentTransferEncoding = Mimepart::quotedPrintable);
 
       /// Adds a text file. The data is passed as a std::string.
