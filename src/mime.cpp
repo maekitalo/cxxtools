@@ -104,23 +104,23 @@ namespace cxxtools
     // print headers
     for (Mimepart::HeadersType::const_iterator it = mimePart.headers.begin();
          it != mimePart.headers.end(); ++it)
-      out << it->first << ": " << it->second << '\n';
+      out << it->first << ": " << it->second << "\r\n";
 
     // encode data
     if (mimePart.contentTransferEncoding == Mimepart::quotedPrintable)
     {
-      out << "Content-Transfer-Encoding: quoted-printable\n\n";
+      out << "Content-Transfer-Encoding: quoted-printable\r\n\r\n";
       QuotedPrintable_ostream enc(out);
       enc << mimePart.getBody();
-      out << '\n';
+      out << "\r\n";
     }
     else if (mimePart.contentTransferEncoding == Mimepart::base64)
     {
-      out << "Content-Transfer-Encoding: base64\n\n";
+      out << "Content-Transfer-Encoding: base64\r\n\r\n";
       Base64ostream enc(out);
       enc << mimePart.getBody();
       enc.terminate();
-      out << "\n\n";
+      out << "\r\n\r\n";
     }
     else
     {
@@ -168,19 +168,19 @@ namespace cxxtools
       }
 
       // print headers
-      out << "MIME-Version: 1.0\n"
-             "Content-Type: multipart/mixed; boundary=\"" << boundary << "\"\n";
+      out << "MIME-Version: 1.0\r\n"
+             "Content-Type: multipart/mixed; boundary=\"" << boundary << "\"\r\n";
       for (Mime::HeadersType::const_iterator it = mime.headers.begin();
            it != mime.headers.end(); ++it)
-        out << it->first << ": " << it->second << '\n';
-      out << '\n';
+        out << it->first << ": " << it->second << "\r\n";
+      out << "\r\n";
 
       // print parts
       for (SpartsType::const_iterator it = sparts.begin(); it != sparts.end(); ++it)
-        out << "--" << boundary << '\n'
+        out << "--" << boundary << "\r\n"
             << *it;
 
-      out << "--" << boundary << "--\n";
+      out << "--" << boundary << "--\r\n";
 
       return out;
     }
