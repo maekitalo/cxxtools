@@ -29,7 +29,6 @@
 #define cxxtools_Base64Codec_h
 
 #include <cxxtools/textcodec.h>
-#include <cxxtools/string.h>
 
 namespace cxxtools
 {
