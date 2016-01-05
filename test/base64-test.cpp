@@ -54,6 +54,7 @@ class Base64Test : public cxxtools::unit::TestSuite
             registerMethod("encodeStreamTest1", *this, &Base64Test::encodeStreamTest1);
             registerMethod("encodeStreamTest2", *this, &Base64Test::encodeStreamTest2);
             registerMethod("encodeDecodeTest", *this, &Base64Test::encodeDecodeTest);
+            registerMethod("whitespaceDecodeTest", *this, &Base64Test::whitespaceDecodeTest);
             registerMethod("binaryTest", *this, &Base64Test::binaryTest);
             registerMethod("artemTest", *this, &Base64Test::artemTest);
         }
@@ -123,6 +124,14 @@ class Base64Test : public cxxtools::unit::TestSuite
             std::string data2 = encodeDecode(data);
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(data, data2);
+        }
+
+        void whitespaceDecodeTest()
+        {
+            std::string data =
+                "SGk  gd\tGhl\n\ncmU=\n";
+            std::string w = cxxtools::Base64Codec::decode(data);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(w, "Hi there");
         }
 
         void binaryTest()

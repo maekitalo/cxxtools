@@ -69,7 +69,30 @@ inline uint8_t fromBase64(char b64)
 }
 
 
-Base64Codec::result Base64Codec::do_in(MBState& /*s*/,
+namespace
+{
+    // returns number of available non space bytes up to N
+    unsigned short numBytesN(unsigned short N, const MBState& s, const char* fromBegin, const char* fromEnd)
+    {
+        unsigned short count = s.n;
+        while (count < N && fromBegin < fromEnd)
+            if (!std::isspace(*fromBegin++))
+                ++count;
+        return count;
+    }
+
+    // returns the next non space byte
+    char readByte(const char*& fromNext)
+    {
+        while (std::isspace(*fromNext))
+            ++fromNext;
+        return *fromNext++;
+    }
+}
+
+
+
+Base64Codec::result Base64Codec::do_in(MBState& s,
                                        const char* fromBegin,
                                        const char* fromEnd,
                                        const char*& fromNext,
@@ -80,12 +103,12 @@ Base64Codec::result Base64Codec::do_in(MBState& /*s*/,
     fromNext = fromBegin;
     toNext = toBegin;
 
-    while ( (fromEnd - fromNext) >= 4 && (toEnd - toNext) >= 3 )
+    while ( numBytesN(4, s, fromNext, fromEnd) && (toEnd - toNext) >= 3 )
     {
-        uint8_t first  = fromBase64( *(fromNext++) );
-        uint8_t second = fromBase64( *(fromNext++) );
-        uint8_t third  = fromBase64( *(fromNext++) );
-        uint8_t fourth = fromBase64( *(fromNext++) );
+        uint8_t first  = fromBase64(readByte(fromNext));
+        uint8_t second = fromBase64(readByte(fromNext));
+        uint8_t third  = fromBase64(readByte(fromNext));
+        uint8_t fourth = fromBase64(readByte(fromNext));
 
         *(toNext++) = (first << 2) + (second >> 4);
 
@@ -96,10 +119,8 @@ Base64Codec::result Base64Codec::do_in(MBState& /*s*/,
             *(toNext++) = (third << 6) + (fourth);
     }
 
-    if ( fromEnd == fromNext )
-        return std::codecvt_base::ok;
-
-    return std::codecvt_base::partial;
+    return numBytesN(1, s, fromNext, fromEnd) > 0 ? std::codecvt_base::partial
+                                                  : std::codecvt_base::ok;
 }
 
 
