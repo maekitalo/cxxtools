@@ -66,28 +66,34 @@ inline uint8_t fromBase64(char b64)
     return b64dec[(int)b64];
 }
 
+// returns number of available non space bytes up to N
+unsigned short numBytesN(unsigned short N, const MBState& s, const char* fromBegin, const char* fromEnd)
+{
+    unsigned short count = s.n;
+    while (count < N && fromBegin < fromEnd)
+        if (!std::isspace(*fromBegin++))
+            ++count;
+    return count;
 }
 
-
-namespace
+// returns the next non space byte
+char readByte(MBState& s, const char*& fromNext)
 {
-    // returns number of available non space bytes up to N
-    unsigned short numBytesN(unsigned short N, const MBState& s, const char* fromBegin, const char* fromEnd)
+    if (s.n > 0)
     {
-        unsigned short count = s.n;
-        while (count < N && fromBegin < fromEnd)
-            if (!std::isspace(*fromBegin++))
-                ++count;
-        return count;
+        char ret = s.value.mbytes[0];
+        std::memmove(s.value.mbytes, s.value.mbytes + 1, s.n - 1);
+        --s.n;
+        return ret;
     }
-
-    // returns the next non space byte
-    char readByte(const char*& fromNext)
+    else
     {
         while (std::isspace(*fromNext))
             ++fromNext;
         return *fromNext++;
     }
+}
+
 }
 
 
@@ -103,12 +109,12 @@ Base64Codec::result Base64Codec::do_in(MBState& s,
     fromNext = fromBegin;
     toNext = toBegin;
 
-    while ( numBytesN(4, s, fromNext, fromEnd) && (toEnd - toNext) >= 3 )
+    while ( numBytesN(4, s, fromNext, fromEnd) >= 4 && (toEnd - toNext) >= 3 )
     {
-        uint8_t first  = fromBase64(readByte(fromNext));
-        uint8_t second = fromBase64(readByte(fromNext));
-        uint8_t third  = fromBase64(readByte(fromNext));
-        uint8_t fourth = fromBase64(readByte(fromNext));
+        uint8_t first  = fromBase64(readByte(s, fromNext));
+        uint8_t second = fromBase64(readByte(s, fromNext));
+        uint8_t third  = fromBase64(readByte(s, fromNext));
+        uint8_t fourth = fromBase64(readByte(s, fromNext));
 
         *(toNext++) = (first << 2) + (second >> 4);
 
@@ -119,8 +125,17 @@ Base64Codec::result Base64Codec::do_in(MBState& s,
             *(toNext++) = (third << 6) + (fourth);
     }
 
-    return numBytesN(1, s, fromNext, fromEnd) > 0 ? std::codecvt_base::partial
-                                                  : std::codecvt_base::ok;
+    while (fromNext < fromEnd && s.n < 4)
+    {
+        while (fromNext < fromEnd && std::isspace(*fromNext))
+            ++fromNext;
+        if (fromNext < fromEnd)
+            s.value.mbytes[s.n++] = *fromNext++;
+    }
+
+    return numBytesN(1, s, fromNext, fromEnd) > 0
+                ? std::codecvt_base::partial
+                : std::codecvt_base::ok;
 }
 
 
