@@ -76,7 +76,6 @@ libcxxtools_la_SOURCES = \
 	propertiesserializer.cpp \
 	query_params.cpp \
 	quotedprintablecodec.cpp \
-	quotedprintablestream.cpp \
 	regex.cpp \
 	remoteclient.cpp \
 	selectable.cpp \
