@@ -63,12 +63,13 @@ class QuotedPrintableTest : public cxxtools::unit::TestSuite
             std::ostringstream s;
             cxxtools::QuotedPrintable_ostream q(s);
             q << "H\xe4tten H\xfcte ein \xdf im Namen, w\xe4ren sie m\xf6glicherweise keine H\xfcte mehr,\nsondern H\xfc\xdf" "e.";
+            q.flush();
 
             std::string qq = s.str();
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(qq,
-                "H=E4tten H=FCte ein =DF im Namen, w=E4ren sie m=F6glicherweise keine H=FCte=\n"
-                " mehr,\n"
+                "H=E4tten H=FCte ein =DF im Namen, w=E4ren sie m=F6glicherweise keine H=FCte m=\r\n"
+                "ehr,=0A"
                 "sondern H=FC=DFe.");
         }
 

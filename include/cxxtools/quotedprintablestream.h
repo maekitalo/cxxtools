@@ -26,17 +26,18 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef CXXTOOLS_QUOTEDPRINTABLE_H
-#define CXXTOOLS_QUOTEDPRINTABLE_H
+#ifndef CXXTOOLS_QUOTEDPRINTABLESTREAM_H
+#define CXXTOOLS_QUOTEDPRINTABLESTREAM_H
 
 #include <iostream>
+#include <cxxtools/textstream.h>
+#include <cxxtools/quotedprintablecodec.h>
 
 namespace cxxtools
 {
 
 /**
-   The QuotedPrintable_streambuf and QuotedPrintable_ostream implements a
-   encoder for Quoted-printable encoding.
+   The QuotedPrintable_ostream implements a encoder for Quoted-printable encoding.
 
    Quoted-printable encoding is used sometimes in E-Mails to reduce the
    character set to 7 bit.
@@ -52,46 +53,16 @@ namespace cxxtools
 
    \endcode
  */
-class QuotedPrintable_streambuf : public std::streambuf
+class QuotedPrintable_ostream : public BasicTextOStream<char, char>
 {
-    std::streambuf* sinksource;
-    unsigned col;
+    public:
+        explicit QuotedPrintable_ostream(std::ostream& in)
+          : BasicTextOStream<char, char>(in, new QuotedPrintableCodec())
+          { }
 
-  public:
-    QuotedPrintable_streambuf(std::streambuf* sinksource_)
-      : sinksource(sinksource_),
-        col(0)
-      { }
-
-  protected:
-    std::streambuf::int_type overflow(std::streambuf::int_type ch);
-    std::streambuf::int_type underflow();
-    int sync();
-};
-
-class QuotedPrintable_ostream : public std::ostream
-{
-    QuotedPrintable_streambuf streambuf;
-
-  public:
-    /// instantiate encode with a output-stream, which received encoded
-    /// Data.
-    QuotedPrintable_ostream(std::ostream& out)
-      : std::ostream(0),
-        streambuf(out.rdbuf())
-      {
-        init(&streambuf);
-      }
-    /// instantiate encode with a output-std::streambuf.
-    QuotedPrintable_ostream(std::streambuf* sb)
-      : std::ostream(0),
-        streambuf(sb)
-      {
-        init(&streambuf);
-      }
 };
 
 }
 
-#endif // CXXTOOLS_QUOTEDPRINTABLE_H
+#endif // CXXTOOLS_QUOTEDPRINTABLESTREAM_H
 
