@@ -40,3 +40,5 @@ threadpool
 uuencode
 xmlreader
 msgserver
+xmlmsgclient
+xmlmsgserver
