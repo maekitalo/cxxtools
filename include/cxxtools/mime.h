@@ -146,7 +146,7 @@ class MimeMultipart : public MimeHeader
             ContentTransferEncoding contentTransferEncoding = MimeObject::quotedPrintable);
 
         /// Adds a text file. The data is passed as a std::string.
-        MimeObject& attachTextFile(const std::string& contentType, const std::string& filename, const std::string& data)
+        MimeObject& attachTextFile(const std::string& data, const std::string& filename, const std::string& contentType = "text/plain; charset=UTF-8")
         {
             MimeObject& mimeObject = addObject(data, contentType, MimeObject::quotedPrintable);
             mimeObject.addHeader("Content-Disposition", "attachment; filename=" + filename);
@@ -154,7 +154,7 @@ class MimeMultipart : public MimeHeader
         }
 
         /// Adds a text file. The data is read from a istream
-        MimeObject& attachTextFile(const std::string& contentType, const std::string& filename, std::istream& in)
+        MimeObject& attachTextFile(std::istream& in, const std::string& filename, const std::string& contentType = "text/plain; charset=UTF-8")
         {
             MimeObject& mimeObject = addObject(in, contentType, MimeObject::quotedPrintable);
             mimeObject.addHeader("Content-Disposition", "attachment; filename=" + filename);
@@ -162,10 +162,10 @@ class MimeMultipart : public MimeHeader
         }
 
         /// Adds a text file. The data is read from a file.
-        MimeObject& attachTextFile(const std::string& contentType, const std::string& filename);
+        MimeObject& attachTextFile(const std::string& filename, const std::string& contentType = "text/plain; charset=UTF-8");
 
         /// Adds a binary file. The data is passed as a std::string.
-        MimeObject& attachBinaryFile(const std::string& contentType, const std::string& filename, const std::string& data)
+        MimeObject& attachBinaryFile(const std::string& data, const std::string& filename, const std::string& contentType = "application/x-binary")
         {
             MimeObject& mimeObject = addObject(data, contentType, MimeObject::base64);
             mimeObject.addHeader("Content-Disposition", "attachment; filename=" + filename);
@@ -173,7 +173,7 @@ class MimeMultipart : public MimeHeader
         }
 
         /// Adds a binary file. The data is read from a istream
-        MimeObject& attachBinaryFile(const std::string& contentType, const std::string& filename, std::istream& in)
+        MimeObject& attachBinaryFile(std::istream& in, const std::string& filename, const std::string& contentType = "application/x-binary")
         {
             MimeObject& mimeObject = addObject(in, contentType, MimeObject::base64);
             mimeObject.addHeader("Content-Disposition", "attachment; filename=" + filename);
@@ -181,7 +181,7 @@ class MimeMultipart : public MimeHeader
         }
 
         /// Adds a binary file. The data is read from a file.
-        MimeObject& attachBinaryFile(const std::string& contentType, const std::string& filename);
+        MimeObject& attachBinaryFile(const std::string& filenamea, const std::string& contentType = "application/x-binary");
 
 };
 

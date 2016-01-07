@@ -69,7 +69,7 @@ class QuotedPrintableTest : public cxxtools::unit::TestSuite
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(qq,
                 "H=E4tten H=FCte ein =DF im Namen, w=E4ren sie m=F6glicherweise keine H=FCte m=\r\n"
-                "ehr,=0A"
+                "ehr,\n"
                 "sondern H=FC=DFe.");
         }
 

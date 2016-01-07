@@ -302,6 +302,24 @@ std::string MimeHeader::getHeader(const std::string& key, const std::string& def
     return def;
 }
 
+void MimeHeader::setHeader(const std::string& key, const std::string& value, bool replace)
+{
+    if (replace)
+        unsetHeader(key);
+    addHeader(key, value);
+}
+
+void MimeHeader::unsetHeader(const std::string& key)
+{
+    for (HeadersType::size_type n = 0; n < headers.size(); )
+    {
+        if (compareIgnoreCase(key, headers[n].first) == 0)
+            headers.erase(headers.begin() + n);
+        else
+            ++n;
+    }
+}
+
 bool MimeHeader::isMultipart() const
 {
     static Regex mpr("multipart/.*boundary=\"(.*)\"");
@@ -316,37 +334,40 @@ void operator<<= (SerializationInfo& si, const MimeHeader& mh)
 }
 
 ////////////////////////////////////////////////////////////////////////
-// Mimepart
+// MimeObject
 //
-Mimepart::Mimepart(const std::string& contentType_,
-                                     ContentTransferEncoding contentTransferEncoding)
+MimeObject::MimeObject(const std::string& data)
 {
-    setHeader("Content-Type", contentType_);
+    HeaderParser headerParser(*this);
+    std::string::size_type pos;
+    for (pos = 0; pos < data.size(); ++pos)
+    {
+        if (headerParser.parse(data[pos]))
+        {
+            ++pos;
+            break;
+        }
+    }
 
-    if (contentTransferEncoding == Mimepart::quotedPrintable)
+    body.assign(data, pos, std::string::npos);
+}
+
+void MimeObject::setContentTransferEncoding(ContentTransferEncoding cte)
+{
+    if (cte == MimeObject::quotedPrintable)
         setHeader("Content-Transfer-Encoding", "quoted-printable");
-    else if (contentTransferEncoding == Mimepart::base64)
+    else if (cte == MimeObject::base64)
         setHeader("Content-Transfer-Encoding", "base64");
-}
-
-void Mimepart::addData(std::istream& in)
-{
-    std::ostringstream data;
-    data << in.rdbuf();
-    body += data.str();
-}
-
-void operator<<= (SerializationInfo& si, const Mimepart& mp)
-{
-    if (mp.isMultipart())
-    {
-        si <<= MimeMultipart(mp);
-    }
     else
-    {
-        si.addMember("header") <<= static_cast<const MimeHeader&>(mp);
-        si.addMember("body") <<= mp.body;
-    }
+        unsetHeader("Content-Transfer-Encoding");
+}
+
+MimeObject::ContentTransferEncoding MimeObject::getContentTransferEncoding() const
+{
+    std::string contentTransferEncoding = getHeader("Content-Transfer-Encoding");
+    return contentTransferEncoding == "base64"           ? MimeObject::base64
+         : contentTransferEncoding == "quoted-printable" ? MimeObject::quotedPrintable
+         : MimeObject::none;
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -388,7 +409,7 @@ void MimeMultipart::partsFromBody(const std::string& body, std::string::size_typ
         {
             log_debug("boundary at " << posEnd << " found");
             parts.resize(parts.size() + 1);
-            Mimepart& part = parts.back();
+            MimeObject& part = parts.back();
 
             HeaderParser headerParser(part);
             for (; pos < posEnd; ++pos)
@@ -400,15 +421,14 @@ void MimeMultipart::partsFromBody(const std::string& body, std::string::size_typ
                 }
             }
 
-            part.body.assign(body, pos, posEnd - pos);
             std::string contentTransferEncoding = part.getHeader("Content-Transfer-Encoding");
+
             if (contentTransferEncoding == "base64")
-            {
-                log_debug("decode base64 <" << part.body << '>');
-                part.body = Base64Codec::decode(part.body);
-            }
+                part.getBody() = Base64Codec::decode(body.c_str() + pos, posEnd - pos);
             else if (contentTransferEncoding == "quoted-printable")
-                part.body = QuotedPrintableCodec::decode(part.body);
+                part.getBody() = QuotedPrintableCodec::decode(body.c_str() + pos, posEnd - pos);
+            else
+                part.getBody().assign(body, pos, posEnd - pos);
 
             pos = posEnd + boundary.size() + 2;
             if (body[posEnd + boundary.size()] == '\n')
@@ -417,9 +437,9 @@ void MimeMultipart::partsFromBody(const std::string& body, std::string::size_typ
                 pos = posEnd + boundary.size() + 2;
             else
             {
-            log_debug("boundary not delimited by CRLF or LF");
-            return;
-        }
+                log_debug("boundary not delimited by CRLF or LF");
+                return;
+            }
 
             if (body[posEnd + boundary.size()] == '-'
               && body[posEnd + boundary.size() + 1] == '-')
@@ -431,80 +451,88 @@ void MimeMultipart::partsFromBody(const std::string& body, std::string::size_typ
     }
 }
 
-MimeMultipart::MimeMultipart(const std::string& p)
+MimeMultipart::MimeMultipart(const std::string& data)
 {
     HeaderParser headerParser(*this);
     std::string::size_type pos;
-    for (pos = 0; pos < p.size(); ++pos)
+    for (; pos < data.size(); ++pos)
     {
-        if (headerParser.parse(p[pos]))
+        if (headerParser.parse(data[pos]))
         {
             ++pos;
             break;
         }
     }
 
-    partsFromBody(p, pos);
+    partsFromBody(data, pos);
 }
 
-MimeMultipart::MimeMultipart(const Mimepart& part)
-    : MimeHeader(part)
+MimeMultipart::MimeMultipart(const MimeObject& mimeObject)
+    : MimeHeader(mimeObject)
 {
-    partsFromBody(part.getBody());
+    partsFromBody(mimeObject.getBody());
 }
 
-Mimepart& MimeMultipart::addPart(const std::string& data, const std::string& contentType,
+MimeObject& MimeMultipart::addObject(const std::string& data, const std::string& contentType,
     ContentTransferEncoding contentTransferEncoding)
 {
     log_debug("add part " << data.size() << " bytes, contentType \""
             << contentType << "\" content transfer encoding " << contentTransferEncoding);
 
-    parts.push_back(Mimepart(contentType, contentTransferEncoding));
-    parts.back().setData(data);
-    return parts.back();
+    MimeObject& mimeObject = addObject();
+    mimeObject.setContentType(contentType);
+    mimeObject.setContentTransferEncoding(contentTransferEncoding);
+    return mimeObject;
 }
 
-Mimepart& MimeMultipart::addPart(std::istream& in, const std::string& contentType,
+MimeObject& MimeMultipart::addObject(std::istream& in, const std::string& contentType,
     ContentTransferEncoding contentTransferEncoding)
 {
     log_debug("add part from stream, contentType \""
             << contentType << "\" content transfer encoding " << contentTransferEncoding);
 
-    parts.push_back(Mimepart(contentType, contentTransferEncoding));
+    MimeObject& mimeObject = addObject();
+    mimeObject.setContentType(contentType);
+    mimeObject.setContentTransferEncoding(contentTransferEncoding);
+
     std::ostringstream body;
     body << in.rdbuf();
-
-    log_debug("part has " << body.str().size() << " bytes");
-
-    parts.back().setData(body.str());
-    return parts.back();
+    mimeObject.getBody() = body.str();
+    return mimeObject;
 }
 
-Mimepart& MimeMultipart::addTextFile(const std::string& contentType, const std::string& filename)
+MimeObject& MimeMultipart::attachTextFile(const std::string& filename, const std::string& contentType)
 {
     std::ifstream in(filename.c_str());
     if (!in)
         throw std::runtime_error("cannot open file \"" + filename + '"');
 
-    return addTextFile(contentType, filename, in);
+    return attachTextFile(in, filename, contentType);
 }
 
-Mimepart& MimeMultipart::addBinaryFile(const std::string& contentType, const std::string& filename)
+MimeObject& MimeMultipart::attachBinaryFile(const std::string& filename, const std::string& contentType)
 {
     std::ifstream in(filename.c_str());
     if (!in)
         throw std::runtime_error("cannot open file \"" + filename + '"');
 
-    return addBinaryFile(contentType, filename, in);
+    return attachBinaryFile(in, filename, contentType);
 }
 
-std::ostream& operator<< (std::ostream& out, const Mimepart& mimePart)
+std::ostream& operator<< (std::ostream& out, const MimeHeader& mimeHeaders)
 {
-    // print headers
-    for (Mimepart::HeadersType::const_iterator it = mimePart.headers.begin();
-             it != mimePart.headers.end(); ++it)
+    for (MimeObject::HeadersType::const_iterator it = mimeHeaders.headers.begin();
+             it != mimeHeaders.headers.end(); ++it)
         out << it->first << ": " << it->second << "\r\n";
     out << "\r\n";
+
+    return out;
+}
+
+std::ostream& operator<< (std::ostream& out, const MimeObject& mimePart)
+{
+    // print headers
+    out << static_cast<const MimeHeader&>(mimePart);
 
     // encode data
     std::string contentTransferEncoding = mimePart.getHeader("Content-Transfer-Encoding");
@@ -512,6 +540,7 @@ std::ostream& operator<< (std::ostream& out, const Mimepart& mimePart)
     {
         QuotedPrintable_ostream enc(out);
         enc << mimePart.getBody();
+        enc.flush();
     }
     else if (contentTransferEncoding == "base64")
     {
@@ -555,6 +584,7 @@ std::ostream& operator<< (std::ostream& out, const MimeMultipart& mime)
             boundary += '0' + r%10;
             r /= 10;
         }
+
         for (SpartsType::const_iterator it = sparts.begin(); it != sparts.end(); ++it)
             if (it->find(boundary) != std::string::npos)
                 continue;
@@ -563,16 +593,14 @@ std::ostream& operator<< (std::ostream& out, const MimeMultipart& mime)
 
     // print headers
     out << "MIME-Version: 1.0\r\n"
-                 "Content-Type: multipart/" << mime.type << "; boundary=\"" << boundary << "\"\r\n";
-    for (MimeMultipart::HeadersType::const_iterator it = mime.headers.begin();
-             it != mime.headers.end(); ++it)
-        out << it->first << ": " << it->second << "\r\n";
+           "Content-Type: multipart/" << mime.type << "; boundary=\"" << boundary << "\"\r\n";
+    out << static_cast<const MimeHeader&>(mime);
     out << "\r\n";
 
     // print parts
     for (SpartsType::const_iterator it = sparts.begin(); it != sparts.end(); ++it)
         out << "--" << boundary << "\r\n"
-                << *it;
+            << *it;
 
     out << "--" << boundary << "--\r\n";
 

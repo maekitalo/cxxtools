@@ -217,6 +217,11 @@ QuotedPrintableCodec::result QuotedPrintableCodec::do_out(MBState& s,
             *toNext++ = ch;
             ++col;
         }
+        else if (ch == '\r' || ch == '\n')
+        {
+            *toNext++ = ch;
+            col = 0;
+        }
         else if (ch == '\t' || ch == ' ')
         {
             // tab or space is not allowed at the end of the line
@@ -252,8 +257,25 @@ QuotedPrintableCodec::result QuotedPrintableCodec::do_out(MBState& s,
                 return std::codecvt_base::partial;
             }
         }
-        else if (toEnd >= toNext + 3 && col < maxcol - 3)
+        else if (toNext + 3 < toEnd)
         {
+            if (col + 3 > maxcol)
+            {
+                *toNext++ = '=';
+                *toNext++ = '\r';
+                *toNext++ = '\n';
+                col = 0;
+
+                if (toEnd < toNext + 3)
+                {
+                    // we filled the remaining space withour newline
+                    // put the char back to buffer and wait for a new output buffer
+                    s.value.mbytes[s.n-1] = ch;
+                    ++s.n;
+                    return std::codecvt_base::partial;
+                }
+            }
+
             *toNext++ = '=';
             *toNext++ = hex[static_cast<unsigned char>(ch) >> 4];
             *toNext++ = hex[static_cast<unsigned char>(ch) & 0xf];
