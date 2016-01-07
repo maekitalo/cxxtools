@@ -30,6 +30,7 @@
 #include <fstream>
 #include <stdexcept>
 #include <cxxtools/mime.h>
+#include <cxxtools/arg.h>
 #include <cxxtools/log.h>
 
 int main(int argc, char* argv[])
@@ -38,7 +39,9 @@ int main(int argc, char* argv[])
   {
     log_init();
 
-    cxxtools::Mime mime;
+    cxxtools::Arg<bool> binary(argc, argv, 'b');
+
+    cxxtools::MimeMultipart mime;
 
     for (int a = 1; a < argc; ++a)
     {
@@ -54,6 +57,8 @@ int main(int argc, char* argv[])
         mime.addBinaryFile("image/gif", fname, ifile);
       else if (fname.size() >= 4 && fname.compare(fname.size() - 4, 4, ".png") == 0)
         mime.addBinaryFile("image/png", fname, ifile);
+      else if (binary)
+        mime.addBinaryFile("application/x-binary", fname, ifile);
       else
         mime.addPart(ifile);
     }
@@ -65,4 +70,3 @@ int main(int argc, char* argv[])
     std::cerr << e.what() << std::endl;
   }
 }
-
