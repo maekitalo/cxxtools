@@ -6,7 +6,7 @@ noinst_PROGRAMS = arg arg-set cgi dir dlloader getini hd \
 	netio netmsg pipestream pool signals thread threadpool uuencode cxxlog \
 	rpcserver rpcechoclient rpcaddclient splitter json jsonbeautify regex execLs rpcasyncaddclient \
 	deserialization serialization rpcparallelecho timer xmlreader \
-	msgclient msgserver xmlmsgclient xmlmsgserver future multipart2json
+	msgclient msgserver xmlmsgclient xmlmsgserver future mime2json
 
 arg_SOURCES = arg.cpp
 arg_set_SOURCES = arg-set.cpp
@@ -52,7 +52,7 @@ msgserver_SOURCES = msgserver.cpp
 xmlmsgclient_SOURCES = xmlmsgclient.cpp
 xmlmsgserver_SOURCES = xmlmsgserver.cpp
 future_SOURCES = future.cpp
-multipart2json_SOURCES = multipart2json.cpp
+mime2json_SOURCES = mime2json.cpp
 
 if MAKE_ICONVSTREAM
 noinst_PROGRAMS += iconv

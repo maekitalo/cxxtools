@@ -158,12 +158,10 @@ void HeaderParser::state_hfieldname(char ch)
 {
     if (ch == ':')
     {
-        log_debug("key=\"" << key << '"');
         state = &HeaderParser::state_hfieldbody0;
     }
     else if (ch == ' ' || ch == '\t')
     {
-        log_debug("key=\"" << key << '"');
         state = &HeaderParser::state_hfieldnamespace;
     }
     else if (ch > 32 && ch < 127)
@@ -248,6 +246,7 @@ void HeaderParser::state_hfieldbody_crlf(char ch)
     }
     else
     {
+        log_debug("header key=\"" << key << "\" value=\"" << value << '"');
         mm.setHeader(key, value);
 
         if (ch == '\r')
