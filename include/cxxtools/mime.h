@@ -65,6 +65,7 @@ class MimeHeader
 class MimeObject : public MimeHeader
 {
         friend std::ostream& operator<< (std::ostream& out, const MimeObject& mimeObject);
+        friend void operator<<= (SerializationInfo& si, const MimeObject& mo);
 
     public:
         enum ContentTransferEncoding {

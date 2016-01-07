@@ -248,7 +248,6 @@ void HeaderParser::state_hfieldbody_crlf(char ch)
     }
     else
     {
-        log_debug(static_cast<const void*>(this) << " header key=\"" << key << "\" value=\"" << value << '"');
         mm.setHeader(key, value);
 
         if (ch == '\r')
@@ -370,13 +369,24 @@ MimeObject::ContentTransferEncoding MimeObject::getContentTransferEncoding() con
          : MimeObject::none;
 }
 
+void operator<<= (SerializationInfo& si, const MimeObject& mo)
+{
+    if (mo.isMultipart())
+    {
+        si <<= MimeMultipart(mo);
+    }
+    else
+    {
+        si.addMember("header") <<= static_cast<const MimeHeader&>(mo);
+        si.addMember("body") <<= mo.body;
+    }
+}
+
 ////////////////////////////////////////////////////////////////////////
 // MimeMultipart
 //
 void MimeMultipart::partsFromBody(const std::string& body, std::string::size_type pos)
 {
-    log_debug("partsFromBody <" << body << '>');
-
     static Regex mpr("multipart/([^;]+);.*boundary=\"(.*)\"");
     RegexSMatch sm;
 
@@ -388,7 +398,6 @@ void MimeMultipart::partsFromBody(const std::string& body, std::string::size_typ
     type = sm.get(1);
     std::string boundary = "--";
     boundary += sm.get(2);
-    log_debug("boundary <" << boundary << "> found");
     pos = body.find(boundary, pos);
 
     if (pos != std::string::npos
@@ -399,15 +408,11 @@ void MimeMultipart::partsFromBody(const std::string& body, std::string::size_typ
         else if (body[pos + boundary.size()] == '\r' && body[pos + boundary.size() + 1] == '\n')
             pos += boundary.size() + 2;
         else
-        {
-            log_debug("boundary not delimited by CRLF or LF");
             return;
-        }
 
         std::string::size_type posEnd;
         while ((posEnd = body.find(boundary, pos)) != std::string::npos)
         {
-            log_debug("boundary at " << posEnd << " found");
             parts.resize(parts.size() + 1);
             MimeObject& part = parts.back();
 
@@ -455,7 +460,7 @@ MimeMultipart::MimeMultipart(const std::string& data)
 {
     HeaderParser headerParser(*this);
     std::string::size_type pos;
-    for (; pos < data.size(); ++pos)
+    for (pos = 0; pos < data.size(); ++pos)
     {
         if (headerParser.parse(data[pos]))
         {
