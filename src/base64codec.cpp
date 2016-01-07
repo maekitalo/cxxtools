@@ -150,12 +150,31 @@ Base64Codec::result Base64Codec::do_out(cxxtools::MBState& state,
     fromNext = fromBegin;
     toNext = toBegin;
 
+    static const unsigned char maxcol = 76;
+    unsigned char& col = reinterpret_cast<unsigned char&>(state.value.mbytes[15]);
+    if (state.n == 0)
+    {
+        state.n = 1;
+        col = 0;
+    }
+
     while (fromEnd - fromNext > 0)
     {
-        if (state.n == 3)
+        if (state.n == 4)
         {
             if (toEnd - toNext < 4)
                 return std::codecvt_base::partial;
+
+            if (col + 4 > maxcol)
+            {
+                if (toEnd - toNext < 6)
+                    return std::codecvt_base::partial;
+                *toNext++ = '\r';
+                *toNext++ = '\n';
+                col = 0;
+            }
+
+            col += 4;
 
             *toNext++   = toBase64( (static_cast<unsigned char>(state.value.mbytes[0]) >> 2) & 0x3f );
             *(toNext++) = toBase64( ((static_cast<unsigned char>(state.value.mbytes[0]) << 4)
@@ -163,10 +182,11 @@ Base64Codec::result Base64Codec::do_out(cxxtools::MBState& state,
             *(toNext++) = toBase64( (static_cast<unsigned char>(state.value.mbytes[1] << 2)
                                         + (static_cast<unsigned char>(state.value.mbytes[2]) >> 6)) & 0x3f );
             *(toNext++) = toBase64( static_cast<unsigned char>(state.value.mbytes[2]) & 0x3f );
-            state.n = 0;
+            state.n = 1;
         }
 
-        state.value.mbytes[state.n++] = *fromNext++;
+        state.value.mbytes[state.n-1] = *fromNext++;
+        ++state.n;
     }
 
     return std::codecvt_base::ok;
@@ -180,12 +200,31 @@ Base64Codec::result Base64Codec::do_unshift(MBState& state,
 {
     toNext = toBegin;
 
+    static const unsigned char maxcol = 76;
+    unsigned char& col = reinterpret_cast<unsigned char&>(state.value.mbytes[15]);
+    if (state.n == 0)
+    {
+        state.n = 1;
+        col = 0;
+    }
+
+    if (col + 4 > maxcol)
+    {
+        if (toEnd - toNext < 6)
+            return std::codecvt_base::partial;
+        *toNext++ = '\r';
+        *toNext++ = '\n';
+        col = 0;
+    }
+
+    col += 4;
+
     if (toEnd - toBegin < 4)
         return std::codecvt_base::partial;
 
     switch(state.n)
     {
-        case 3:
+        case 4:
             *toNext++   = toBase64( (static_cast<unsigned char>(state.value.mbytes[0]) >> 2) & 0x3f );
             *(toNext++) = toBase64( ((static_cast<unsigned char>(state.value.mbytes[0]) << 4)
                                         + (static_cast<unsigned char>(state.value.mbytes[1]) >> 4)) & 0x3f );
@@ -194,7 +233,7 @@ Base64Codec::result Base64Codec::do_unshift(MBState& state,
             *(toNext++) = toBase64( static_cast<unsigned char>(state.value.mbytes[2]) & 0x3f );
             break;
 
-        case 2:
+        case 3:
             *toNext++   = toBase64( (static_cast<unsigned char>(state.value.mbytes[0]) >> 2) & 0x3f );
             *(toNext++) = toBase64( ((static_cast<unsigned char>(state.value.mbytes[0]) << 4)
                                         + (static_cast<unsigned char>(state.value.mbytes[1]) >> 4)) & 0x3f );
@@ -202,14 +241,14 @@ Base64Codec::result Base64Codec::do_unshift(MBState& state,
             *(toNext++) = '=';
             break;
 
-        case 1:
+        case 2:
             *toNext++   = toBase64( (static_cast<unsigned char>(state.value.mbytes[0]) >> 2) & 0x3f );
             *(toNext++) = toBase64( (static_cast<unsigned char>(state.value.mbytes[0]) << 4) & 0x3f );
             *(toNext++) = '=';
             *(toNext++) = '=';
             break;
 
-        case 0:
+        default:
             return std::codecvt_base::noconv;
     }
 

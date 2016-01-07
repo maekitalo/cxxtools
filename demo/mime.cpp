@@ -52,15 +52,15 @@ int main(int argc, char* argv[])
         throw std::runtime_error("cannot open file " + fname);
 
       if (fname.size() >= 4 && fname.compare(fname.size() - 4, 4, ".jpg") == 0)
-        mime.addBinaryFile("image/jpg", fname, ifile);
+        mime.attachBinaryFile(ifile, fname, "image/jpg");
       else if (fname.size() >= 4 && fname.compare(fname.size() - 4, 4, ".gif") == 0)
-        mime.addBinaryFile("image/gif", fname, ifile);
+        mime.attachBinaryFile(ifile, fname, "image/gif");
       else if (fname.size() >= 4 && fname.compare(fname.size() - 4, 4, ".png") == 0)
-        mime.addBinaryFile("image/png", fname, ifile);
+        mime.attachBinaryFile(ifile, fname, "image/png");
       else if (binary)
-        mime.addBinaryFile("application/x-binary", fname, ifile);
+        mime.attachBinaryFile(ifile, fname);
       else
-        mime.addPart(ifile);
+        mime.addObject(ifile, "text/plain; charset=UTF-8");
     }
 
     std::cout << mime;
