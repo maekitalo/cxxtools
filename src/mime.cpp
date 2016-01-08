@@ -486,6 +486,7 @@ MimeObject& MimeMultipart::addObject(const std::string& data, const std::string&
     MimeObject& mimeObject = addObject();
     mimeObject.setContentType(contentType);
     mimeObject.setContentTransferEncoding(contentTransferEncoding);
+    mimeObject.getBody() = data;
     return mimeObject;
 }
 
