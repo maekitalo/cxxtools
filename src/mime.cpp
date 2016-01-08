@@ -34,10 +34,8 @@
 #include <cxxtools/regex.h>
 #include <cxxtools/serializationinfo.h>
 #include <cxxtools/log.h>
-#include <stdlib.h>
 #include <vector>
 #include <sstream>
-#include <fstream>
 #include <stdexcept>
 #include <cctype>
 
@@ -504,24 +502,6 @@ MimeObject& MimeMultipart::addObject(std::istream& in, const std::string& conten
     body << in.rdbuf();
     mimeObject.getBody() = body.str();
     return mimeObject;
-}
-
-MimeObject& MimeMultipart::attachTextFile(const std::string& filename, const std::string& contentType)
-{
-    std::ifstream in(filename.c_str());
-    if (!in)
-        throw std::runtime_error("cannot open file \"" + filename + '"');
-
-    return attachTextFile(in, filename, contentType);
-}
-
-MimeObject& MimeMultipart::attachBinaryFile(const std::string& filename, const std::string& contentType)
-{
-    std::ifstream in(filename.c_str());
-    if (!in)
-        throw std::runtime_error("cannot open file \"" + filename + '"');
-
-    return attachBinaryFile(in, filename, contentType);
 }
 
 std::ostream& operator<< (std::ostream& out, const MimeHeader& mimeHeaders)

@@ -181,9 +181,6 @@ class MimeMultipart : public MimeHeader
             return mimeObject;
         }
 
-        /// Adds a text file. The data is read from a file.
-        MimeObject& attachTextFile(const std::string& filename, const std::string& contentType = "text/plain; charset=UTF-8");
-
         /// Adds a binary file. The data is passed as a std::string.
         MimeObject& attachBinaryFile(const std::string& data, const std::string& filename, const std::string& contentType = "application/x-binary")
         {
@@ -199,9 +196,6 @@ class MimeMultipart : public MimeHeader
             mimeObject.addHeader("Content-Disposition", "attachment; filename=" + filename);
             return mimeObject;
         }
-
-        /// Adds a binary file. The data is read from a file.
-        MimeObject& attachBinaryFile(const std::string& filenamea, const std::string& contentType = "application/x-binary");
 
 };
 
