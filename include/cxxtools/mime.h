@@ -115,6 +115,10 @@ class MimeMultipart : public MimeHeader
         void partsFromBody(const std::string& body, std::string::size_type pos = 0);
 
     public:
+        typedef PartsType::const_iterator const_iterator;
+        typedef PartsType::iterator iterator;
+        typedef PartsType::size_type size_type;
+
         /// parses a multipart object
         explicit MimeMultipart(const std::string& data);
 
@@ -124,6 +128,21 @@ class MimeMultipart : public MimeHeader
         explicit MimeMultipart(Type type_ = typeMixed)
             : type(type_ == typeMixed ? "mixed" : "alternative")
         { }
+
+        size_type size() const
+            { return parts.size(); }
+        MimeObject& operator[] (size_type n)
+            { return parts[n]; }
+        const MimeObject& operator[] (size_type n) const
+            { return parts[n]; }
+        iterator begin()
+            { return parts.begin(); }
+        iterator end()
+            { return parts.end(); }
+        const_iterator begin() const
+            { return parts.begin(); }
+        const_iterator end() const
+            { return parts.end(); }
 
         void setType(Type type_)
             { type = (type_ == typeMixed ? "mixed" : "alternative"); }
