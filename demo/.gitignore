@@ -18,6 +18,7 @@ logbench
 logsh
 md5sum
 mime
+mimeextract
 msgclient
 multifstream
 netcat
