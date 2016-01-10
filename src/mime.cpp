@@ -348,6 +348,23 @@ MimeObject::MimeObject(const std::string& data)
     body.assign(data, pos, std::string::npos);
 }
 
+MimeObject::MimeObject(std::istream& in)
+{
+    HeaderParser headerParser(*this);
+
+    // parse mime headers
+    char ch;
+    while (in.get(ch))
+    {
+        if (headerParser.parse(ch))
+            break;
+    }
+
+    // copy rest of data to body
+    while (in.get(ch))
+        body += ch;
+}
+
 void MimeObject::setContentTransferEncoding(ContentTransferEncoding cte)
 {
     if (cte == MimeObject::quotedPrintable)

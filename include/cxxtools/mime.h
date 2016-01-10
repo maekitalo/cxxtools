@@ -80,6 +80,7 @@ class MimeObject : public MimeHeader
     public:
         MimeObject() { }
         explicit MimeObject(const std::string& data);
+        explicit MimeObject(std::istream& in);
 
         const std::string& getBody() const       { return body; }
         std::string& getBody()                   { return body; }
