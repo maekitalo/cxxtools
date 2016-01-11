@@ -39,6 +39,7 @@ alltests_SOURCES = \
     limitstream-test.cpp \
     logconfiguration-test.cpp \
     lrucache-test.cpp \
+    mime-test.cpp \
     md5-test.cpp \
     pool-test.cpp \
     properties-test.cpp \

@@ -43,6 +43,7 @@ class MimeHeader
 {
         friend std::ostream& operator<< (std::ostream& out, const MimeHeader& mimeHeader);
         friend void operator<<= (SerializationInfo& si, const MimeHeader& mh);
+        friend void operator>>= (const SerializationInfo& si, MimeHeader& mh);
 
         typedef std::vector<std::pair<std::string, std::string> > HeadersType;
         HeadersType headers;
@@ -74,6 +75,7 @@ class MimeEntity : public MimeHeader
 {
         friend std::ostream& operator<< (std::ostream& out, const MimeEntity& mimeEntity);
         friend void operator<<= (SerializationInfo& si, const MimeEntity& mo);
+        friend void operator>>= (const SerializationInfo& si, MimeEntity& mo);
 
     public:
         enum ContentTransferEncoding {
@@ -101,6 +103,9 @@ class MimeEntity : public MimeHeader
         /// Returns the body of the message.
         std::string& getBody()                   { return body; }
 
+        /// Sets the body of the message.
+        void setBody(const std::string& b)       { body = b; }
+
         void setContentTransferEncoding(ContentTransferEncoding cte);
         ContentTransferEncoding getContentTransferEncoding() const;
 
@@ -116,6 +121,8 @@ class MimeMultipart : public MimeHeader
 {
         friend std::ostream& operator<< (std::ostream& out, const MimeMultipart& mime);
         friend void operator<<= (SerializationInfo& si, const MimeMultipart& mm);
+        friend void operator>>= (const SerializationInfo& si, MimeMultipart& mm);
+        friend void operator>>= (const SerializationInfo& si, MimeEntity& mo);
 
     public:
         typedef MimeEntity::ContentTransferEncoding ContentTransferEncoding;
@@ -132,6 +139,7 @@ class MimeMultipart : public MimeHeader
         std::string type;    // mixed or alternative
 
         void partsFromBody(const std::string& body, std::string::size_type pos = 0);
+        static std::string stringParts(const std::vector<MimeEntity>& parts, std::vector<std::string>& sparts);
 
     public:
         typedef PartsType::const_iterator const_iterator;

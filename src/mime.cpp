@@ -33,6 +33,7 @@
 #include <cxxtools/quotedprintablecodec.h>
 #include <cxxtools/regex.h>
 #include <cxxtools/serializationinfo.h>
+#include <cxxtools/serializationerror.h>
 #include <cxxtools/log.h>
 #include <vector>
 #include <sstream>
@@ -191,10 +192,12 @@ void HeaderParser::state_hfieldbody0(char ch)
 {
     if (ch == '\r')
     {
+        value.clear();
         state = &HeaderParser::state_hfieldbody_cr;
     }
     else if (ch == '\n')
     {
+        value.clear();
         state = &HeaderParser::state_hfieldbody_crlf;
     }
     else if (!std::isspace(ch))
@@ -325,8 +328,19 @@ bool MimeHeader::isMultipart() const
 
 void operator<<= (SerializationInfo& si, const MimeHeader& mh)
 {
+    si.setTypeName("mimeHeader");
     for (MimeHeader::HeadersType::const_iterator it = mh.headers.begin(); it != mh.headers.end(); ++it)
         si.addMember(it->first) <<= it->second;
+}
+
+void operator>>= (const SerializationInfo& si, MimeHeader& mh)
+{
+    std::string value;
+    for (cxxtools::SerializationInfo::const_iterator it = si.begin(); it != si.end(); ++it)
+    {
+        it->getValue(value);
+        mh.addHeader(it->name(), value);
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -385,6 +399,7 @@ MimeEntity::ContentTransferEncoding MimeEntity::getContentTransferEncoding() con
 
 void operator<<= (SerializationInfo& si, const MimeEntity& mo)
 {
+    si.setTypeName("mimeEntity");
     if (mo.isMultipart())
     {
         si <<= MimeMultipart(mo);
@@ -393,6 +408,42 @@ void operator<<= (SerializationInfo& si, const MimeEntity& mo)
     {
         si.addMember("header") <<= static_cast<const MimeHeader&>(mo);
         si.addMember("body") <<= mo.body;
+    }
+}
+
+void operator>>= (const SerializationInfo& si, MimeEntity& mo)
+{
+    si.getMember("header") >>= static_cast<MimeHeader&>(mo);
+
+    if (!si.getMember("body", mo.body))
+    {
+        std::vector<MimeEntity> parts;
+        si.getMember("parts") >>= parts;
+
+        std::ostringstream out;
+
+        typedef std::vector<std::string> SpartsType;
+        SpartsType sparts;
+        std::string boundary = MimeMultipart::stringParts(parts, sparts);
+
+        // print parts
+        for (SpartsType::const_iterator it = sparts.begin(); it != sparts.end(); ++it)
+            out << "--" << boundary << "\r\n"
+                << *it;
+
+        out << "--" << boundary << "--\r\n";
+
+        mo.body = out.str();
+
+        std::string type;
+        si.getMember("type") >>= type;
+
+        std::string contentType = type;
+        contentType += ";boundary=\"";
+        contentType += boundary;
+        contentType += '"';
+        mo.setHeader("Content-Type", contentType);
+
     }
 }
 
@@ -443,9 +494,9 @@ void MimeMultipart::partsFromBody(const std::string& body, std::string::size_typ
             std::string contentTransferEncoding = part.getHeader("Content-Transfer-Encoding");
 
             if (contentTransferEncoding == "base64")
-                part.getBody() = Base64Codec::decode(body.c_str() + pos, posEnd - pos);
+                part.setBody(Base64Codec::decode(body.c_str() + pos, posEnd - pos));
             else if (contentTransferEncoding == "quoted-printable")
-                part.getBody() = QuotedPrintableCodec::decode(body.c_str() + pos, posEnd - pos);
+                part.setBody(QuotedPrintableCodec::decode(body.c_str() + pos, posEnd - pos));
             else
                 part.getBody().assign(body, pos, posEnd - pos);
 
@@ -468,6 +519,34 @@ void MimeMultipart::partsFromBody(const std::string& body, std::string::size_typ
             }
         }
     }
+}
+
+std::string MimeMultipart::stringParts(const std::vector<MimeEntity>& parts, std::vector<std::string>& sparts)
+{
+    for (MimeMultipart::PartsType::const_iterator pit = parts.begin(); pit != parts.end(); ++pit)
+    {
+        std::ostringstream out;
+        out << *pit;
+        sparts.push_back(out.str());
+    }
+
+    std::string boundary(10, '-');
+    while (true)
+    {
+        unsigned r = static_cast<unsigned>(rand());
+        while (r > 0)
+        {
+            boundary += '0' + r%10;
+            r /= 10;
+        }
+
+        for (std::vector<std::string>::const_iterator it = sparts.begin(); it != sparts.end(); ++it)
+            if (it->find(boundary) != std::string::npos)
+                continue;
+        break;
+    }
+
+    return boundary;
 }
 
 MimeMultipart::MimeMultipart(const std::string& data)
@@ -568,35 +647,15 @@ std::ostream& operator<< (std::ostream& out, const MimeMultipart& mime)
     // build string parts
     typedef std::vector<std::string> SpartsType;
     SpartsType sparts;
-
-    for (MimeMultipart::PartsType::const_iterator pit = mime.parts.begin(); pit != mime.parts.end(); ++pit)
-    {
-        std::ostringstream out;
-        out << *pit;
-        sparts.push_back(out.str());
-    }
-
-    // choose suitable boundary
-    std::string boundary(10, '-');
-    while (true)
-    {
-        unsigned r = static_cast<unsigned>(rand());
-        while (r > 0)
-        {
-            boundary += '0' + r%10;
-            r /= 10;
-        }
-
-        for (SpartsType::const_iterator it = sparts.begin(); it != sparts.end(); ++it)
-            if (it->find(boundary) != std::string::npos)
-                continue;
-        break;
-    }
+    std::string boundary = MimeMultipart::stringParts(mime.parts, sparts);
 
     // print headers
     out << "MIME-Version: 1.0\r\n"
            "Content-Type: multipart/" << mime.type << "; boundary=\"" << boundary << "\"\r\n";
-    out << static_cast<const MimeHeader&>(mime);
+    MimeHeader mh = mime;
+    mh.unsetHeader("MIME-Version");
+    mh.unsetHeader("Content-Type");
+    out << mh;
     out << "\r\n";
 
     // print parts
@@ -611,9 +670,36 @@ std::ostream& operator<< (std::ostream& out, const MimeMultipart& mime)
 
 void operator<<= (SerializationInfo& si, const MimeMultipart& mm)
 {
+    si.setTypeName("mimeMultipart");
     si.addMember("header") <<= static_cast<const MimeHeader&>(mm);
     si.addMember("type") <<= ("multipart/" + mm.type);
     si.addMember("parts") <<= mm.parts;
+}
+
+void operator>>= (const SerializationInfo& si, MimeMultipart& mm)
+{
+    si.getMember("header") >>= static_cast<MimeHeader&>(mm);
+
+    std::string type;
+    if (si.getMember("type", type))
+    {
+        if (type.compare(0, 10, "multipart/") != 0)
+            throw std::runtime_error("object is no mime multipart");
+        mm.type.assign(type, 11, std::string::npos);
+    }
+    else
+    {
+        static Regex mpr("multipart/([^;]+)");
+        RegexSMatch sm;
+
+        std::string contentType = mm.getHeader("Content-Type");
+        if (!mpr.match(contentType, sm))
+            throw std::runtime_error("object is no mime multipart");
+
+        mm.type = sm[1];
+    }
+
+    si.getMember("parts") >>= mm.parts;
 }
 
 }
