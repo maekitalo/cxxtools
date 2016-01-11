@@ -54,10 +54,10 @@ class MimeExtractor
             : N(0)
             { }
 
-        void extract(const cxxtools::MimeObject& mo);
+        void extract(const cxxtools::MimeEntity& mo);
 };
 
-void MimeExtractor::extract(const cxxtools::MimeObject& mo)
+void MimeExtractor::extract(const cxxtools::MimeEntity& mo)
 {
     if (mo.isMultipart())
     {
@@ -111,7 +111,7 @@ int main(int argc, char* argv[])
         cxxtools::ArgIn in(argc, argv);
 
         // Parse the file from input stream
-        cxxtools::MimeObject mo(in);
+        cxxtools::MimeEntity mo(in);
 
         // Extract objects from data
         MimeExtractor mx;

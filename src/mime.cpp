@@ -330,9 +330,9 @@ void operator<<= (SerializationInfo& si, const MimeHeader& mh)
 }
 
 ////////////////////////////////////////////////////////////////////////
-// MimeObject
+// MimeEntity
 //
-MimeObject::MimeObject(const std::string& data)
+MimeEntity::MimeEntity(const std::string& data)
 {
     HeaderParser headerParser(*this);
     std::string::size_type pos;
@@ -348,7 +348,7 @@ MimeObject::MimeObject(const std::string& data)
     body.assign(data, pos, std::string::npos);
 }
 
-MimeObject::MimeObject(std::istream& in)
+MimeEntity::MimeEntity(std::istream& in)
 {
     HeaderParser headerParser(*this);
 
@@ -365,25 +365,25 @@ MimeObject::MimeObject(std::istream& in)
         body += ch;
 }
 
-void MimeObject::setContentTransferEncoding(ContentTransferEncoding cte)
+void MimeEntity::setContentTransferEncoding(ContentTransferEncoding cte)
 {
-    if (cte == MimeObject::quotedPrintable)
+    if (cte == MimeEntity::quotedPrintable)
         setHeader("Content-Transfer-Encoding", "quoted-printable");
-    else if (cte == MimeObject::base64)
+    else if (cte == MimeEntity::base64)
         setHeader("Content-Transfer-Encoding", "base64");
     else
         unsetHeader("Content-Transfer-Encoding");
 }
 
-MimeObject::ContentTransferEncoding MimeObject::getContentTransferEncoding() const
+MimeEntity::ContentTransferEncoding MimeEntity::getContentTransferEncoding() const
 {
     std::string contentTransferEncoding = getHeader("Content-Transfer-Encoding");
-    return contentTransferEncoding == "base64"           ? MimeObject::base64
-         : contentTransferEncoding == "quoted-printable" ? MimeObject::quotedPrintable
-         : MimeObject::none;
+    return contentTransferEncoding == "base64"           ? MimeEntity::base64
+         : contentTransferEncoding == "quoted-printable" ? MimeEntity::quotedPrintable
+         : MimeEntity::none;
 }
 
-void operator<<= (SerializationInfo& si, const MimeObject& mo)
+void operator<<= (SerializationInfo& si, const MimeEntity& mo)
 {
     if (mo.isMultipart())
     {
@@ -428,7 +428,7 @@ void MimeMultipart::partsFromBody(const std::string& body, std::string::size_typ
         while ((posEnd = body.find(boundary, pos)) != std::string::npos)
         {
             parts.resize(parts.size() + 1);
-            MimeObject& part = parts.back();
+            MimeEntity& part = parts.back();
 
             HeaderParser headerParser(part);
             for (; pos < posEnd; ++pos)
@@ -486,44 +486,44 @@ MimeMultipart::MimeMultipart(const std::string& data)
     partsFromBody(data, pos);
 }
 
-MimeMultipart::MimeMultipart(const MimeObject& mimeObject)
-    : MimeHeader(mimeObject)
+MimeMultipart::MimeMultipart(const MimeEntity& mimeEntity)
+    : MimeHeader(mimeEntity)
 {
-    partsFromBody(mimeObject.getBody());
+    partsFromBody(mimeEntity.getBody());
 }
 
-MimeObject& MimeMultipart::addObject(const std::string& data, const std::string& contentType,
+MimeEntity& MimeMultipart::addObject(const std::string& data, const std::string& contentType,
     ContentTransferEncoding contentTransferEncoding)
 {
     log_debug("add part " << data.size() << " bytes, contentType \""
             << contentType << "\" content transfer encoding " << contentTransferEncoding);
 
-    MimeObject& mimeObject = addObject();
-    mimeObject.setContentType(contentType);
-    mimeObject.setContentTransferEncoding(contentTransferEncoding);
-    mimeObject.getBody() = data;
-    return mimeObject;
+    MimeEntity& mimeEntity = addObject();
+    mimeEntity.setContentType(contentType);
+    mimeEntity.setContentTransferEncoding(contentTransferEncoding);
+    mimeEntity.getBody() = data;
+    return mimeEntity;
 }
 
-MimeObject& MimeMultipart::addObject(std::istream& in, const std::string& contentType,
+MimeEntity& MimeMultipart::addObject(std::istream& in, const std::string& contentType,
     ContentTransferEncoding contentTransferEncoding)
 {
     log_debug("add part from stream, contentType \""
             << contentType << "\" content transfer encoding " << contentTransferEncoding);
 
-    MimeObject& mimeObject = addObject();
-    mimeObject.setContentType(contentType);
-    mimeObject.setContentTransferEncoding(contentTransferEncoding);
+    MimeEntity& mimeEntity = addObject();
+    mimeEntity.setContentType(contentType);
+    mimeEntity.setContentTransferEncoding(contentTransferEncoding);
 
     std::ostringstream body;
     body << in.rdbuf();
-    mimeObject.getBody() = body.str();
-    return mimeObject;
+    mimeEntity.getBody() = body.str();
+    return mimeEntity;
 }
 
 std::ostream& operator<< (std::ostream& out, const MimeHeader& mimeHeaders)
 {
-    for (MimeObject::HeadersType::const_iterator it = mimeHeaders.headers.begin();
+    for (MimeEntity::HeadersType::const_iterator it = mimeHeaders.headers.begin();
              it != mimeHeaders.headers.end(); ++it)
         out << it->first << ": " << it->second << "\r\n";
     out << "\r\n";
@@ -531,7 +531,7 @@ std::ostream& operator<< (std::ostream& out, const MimeHeader& mimeHeaders)
     return out;
 }
 
-std::ostream& operator<< (std::ostream& out, const MimeObject& mimePart)
+std::ostream& operator<< (std::ostream& out, const MimeEntity& mimePart)
 {
     // print headers
     out << static_cast<const MimeHeader&>(mimePart);

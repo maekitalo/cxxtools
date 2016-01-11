@@ -65,7 +65,7 @@ int main(int argc, char* argv[])
         }
 
         // parse the file
-        cxxtools::MimeObject mo(m.str());
+        cxxtools::MimeEntity mo(m.str());
 
         // print as json using serialization framework
         std::cout << cxxtools::Json(mo).beautify(true);
