@@ -110,7 +110,7 @@ QuotedPrintableCodec::result QuotedPrintableCodec::do_in(cxxtools::MBState& s,
         state = state_0;
     }
 
-    while (fromNext < fromEnd > 0 && toEnd > toNext)
+    while (fromNext < fromEnd && toEnd > toNext)
     {
         char ch = *fromNext++;
         switch (state)
