@@ -183,7 +183,7 @@ class MimeMultipart : public MimeHeader
         void setType(Type type_)
             { type = (type_ == typeMixed ? "mixed" : "alternative"); }
         void setType(const std::string& type_)
-            { type = type; }
+            { type = type_; }
 
         /// Adds a empty mime entity and returns a reference to it.
         MimeEntity& addObject()
