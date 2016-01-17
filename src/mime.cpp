@@ -35,10 +35,13 @@
 #include <cxxtools/serializationinfo.h>
 #include <cxxtools/serializationerror.h>
 #include <cxxtools/log.h>
+
 #include <vector>
 #include <sstream>
 #include <stdexcept>
 #include <cctype>
+
+#include <cstdlib>
 
 log_define("cxxtools.mime")
 
@@ -533,7 +536,7 @@ std::string MimeMultipart::stringParts(const std::vector<MimeEntity>& parts, std
     std::string boundary(10, '-');
     while (true)
     {
-        unsigned r = static_cast<unsigned>(rand());
+        unsigned r = static_cast<unsigned>(std::rand());
         while (r > 0)
         {
             boundary += '0' + r%10;
