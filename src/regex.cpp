@@ -183,10 +183,13 @@ namespace cxxtools
 
     if (p > 0)
     {
-      for (unsigned n = 0; n < 10 && smatch.matchbuf[n].rm_so >= 0; ++n)
+      for (unsigned n = 0; n < 10; ++n)
       {
-        smatch.matchbuf[n].rm_so += p;
-        smatch.matchbuf[n].rm_eo += p;
+        if (smatch.matchbuf[n].rm_so >= 0)
+        {
+          smatch.matchbuf[n].rm_so += p;
+          smatch.matchbuf[n].rm_eo += p;
+        }
       }
     }
 
