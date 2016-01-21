@@ -290,6 +290,26 @@ void HeaderParser::state_end(char /*ch*/)
 {
 }
 
+struct TypeBoundary
+{
+    std::string type;
+    std::string boundary;
+};
+
+TypeBoundary getTypeBoundary(const std::string& ct)
+{
+    static Regex mpr("^multipart/([^;]+).*;[[:space:]]*boundary=(\"([^\"]+)\"|([^][ ()<>@,;:\\\"/?=]+))");
+    RegexSMatch sm;
+    TypeBoundary ret;
+    if (mpr.match(ct, sm))
+    {
+        ret.type = sm[1];
+        ret.boundary = sm[sm.offsetEnd(3) > sm.offsetBegin(3) ? 3 : 4];
+    }
+
+    return ret;
+}
+
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -324,9 +344,7 @@ void MimeHeader::unsetHeader(const std::string& key)
 
 bool MimeHeader::isMultipart() const
 {
-    static Regex mpr("multipart/.*boundary=\"(.*)\"");
-    std::string contentType = getHeader("Content-Type");
-    return mpr.match(contentType);
+    return !getTypeBoundary(getHeader("Content-Type")).boundary.empty();
 }
 
 void operator<<= (SerializationInfo& si, const MimeHeader& mh)
@@ -455,17 +473,14 @@ void operator>>= (const SerializationInfo& si, MimeEntity& mo)
 //
 void MimeMultipart::partsFromBody(const std::string& body, std::string::size_type pos)
 {
-    static Regex mpr("multipart/([^;]+);.*boundary=\"(.*)\"");
-    RegexSMatch sm;
-
-    std::string contentType = getHeader("Content-Type");
-    if (!mpr.match(contentType, sm))
+    TypeBoundary tb = getTypeBoundary(getHeader("Content-Type"));
+    if (tb.boundary.empty())
         throw std::runtime_error("data is no mime multipart");
 
     // multipart
-    type = sm.get(1);
+    type = tb.type;
     std::string boundary = "--";
-    boundary += sm.get(2);
+    boundary += tb.boundary;
     pos = body.find(boundary, pos);
 
     if (pos != std::string::npos
