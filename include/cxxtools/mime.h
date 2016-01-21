@@ -26,6 +26,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA    02110-1301    USA
  */
 
+#ifndef CXXTOOLS_MIME_H
+#define CXXTOOLS_MIME_H
+
 #include <iosfwd>
 #include <string>
 #include <vector>
@@ -240,3 +243,5 @@ std::ostream& operator<< (std::ostream& out, const MimeEntity& mimeEntity);
 std::ostream& operator<< (std::ostream& out, const MimeMultipart& mime);
 
 }
+
+#endif
