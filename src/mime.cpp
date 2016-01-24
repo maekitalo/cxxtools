@@ -400,7 +400,7 @@ MimeEntity::MimeEntity(std::istream& in)
         body += ch;
 }
 
-void MimeEntity::setContentTransferEncoding(ContentTransferEncoding cte)
+MimeEntity& MimeEntity::setContentTransferEncoding(ContentTransferEncoding cte)
 {
     if (cte == MimeEntity::quotedPrintable)
         setHeader("Content-Transfer-Encoding", "quoted-printable");
@@ -408,6 +408,8 @@ void MimeEntity::setContentTransferEncoding(ContentTransferEncoding cte)
         setHeader("Content-Transfer-Encoding", "base64");
     else
         unsetHeader("Content-Transfer-Encoding");
+
+    return *this;
 }
 
 MimeEntity::ContentTransferEncoding MimeEntity::getContentTransferEncoding() const
@@ -471,6 +473,18 @@ void operator>>= (const SerializationInfo& si, MimeEntity& mo)
 ////////////////////////////////////////////////////////////////////////
 // MimeMultipart
 //
+void MimeMultipart::setType(Type type_)
+{
+    switch (type_)
+    {
+        case typeMixed: type = "mixed"; break;
+        case typeAlternative: type = "alternative"; break;
+        case typeDigest: type = "digest"; break;
+        case typeParallel: type = "parallel"; break;
+        case typeRelated: type = "related"; break;
+    }
+}
+
 void MimeMultipart::partsFromBody(const std::string& body, std::string::size_type pos)
 {
     TypeBoundary tb = getTypeBoundary(getHeader("Content-Type"));
@@ -617,6 +631,36 @@ MimeEntity& MimeMultipart::addObject(std::istream& in, const std::string& conten
     mimeEntity.getBody() = body.str();
     return mimeEntity;
 }
+
+MimeEntity& MimeMultipart::addObject(const MimeMultipart& mimeMultipart)
+{
+    // build string parts
+    typedef std::vector<std::string> SpartsType;
+    SpartsType sparts;
+    std::string boundary = stringParts(mimeMultipart.parts, sparts);
+
+    // build content type header
+    std::string contentType = "multipart/";
+    contentType += mimeMultipart.type;
+    contentType += "; boundary=\"";
+    contentType += boundary;
+    contentType += '"';
+
+    MimeEntity& mimeEntity = addObject();
+    mimeEntity.setContentType(contentType);
+
+    // build body
+    for (SpartsType::const_iterator it = sparts.begin(); it != sparts.end(); ++it)
+        mimeEntity << "--" << boundary << "\r\n"
+                   << *it;
+
+    mimeEntity << "--" << boundary << "--\r\n";
+
+    return mimeEntity;
+
+
+}
+
 
 std::ostream& operator<< (std::ostream& out, const MimeHeader& mimeHeaders)
 {

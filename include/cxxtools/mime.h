@@ -79,6 +79,8 @@ class MimeEntity : public MimeHeader
         friend std::ostream& operator<< (std::ostream& out, const MimeEntity& mimeEntity);
         friend void operator<<= (SerializationInfo& si, const MimeEntity& mo);
         friend void operator>>= (const SerializationInfo& si, MimeEntity& mo);
+        friend MimeEntity& operator<< (MimeEntity& me, const std::string& str);
+        friend MimeEntity& operator<< (MimeEntity& me, const char* str);
 
     public:
         enum ContentTransferEncoding {
@@ -107,16 +109,34 @@ class MimeEntity : public MimeHeader
         std::string& getBody()                   { return body; }
 
         /// Sets the body of the message.
-        void setBody(const std::string& b)       { body = b; }
+        MimeEntity& setBody(const std::string& b)       { body = b; return *this; }
 
-        void setContentTransferEncoding(ContentTransferEncoding cte);
+        MimeEntity& setContentTransferEncoding(ContentTransferEncoding cte);
         ContentTransferEncoding getContentTransferEncoding() const;
 
-        void setContentType(const std::string& ct)
-            { setHeader("Content-Type", ct); }
+        MimeEntity& setContentType(const std::string& ct)
+            { setHeader("Content-Type", ct); return *this; }
         std::string getContentType() const
             { return getHeader("Content-Type"); }
+
+        MimeEntity& setHeader(const std::string& key, const std::string& value, bool replace = true)
+            { MimeHeader::setHeader(key, value, replace); return *this; }
 };
+
+/// operator to add a std::string to a mime entity body.
+inline MimeEntity& operator<< (MimeEntity& me, const std::string& str)
+{
+    me.body.append(str);
+    return me;
+}
+
+/// operator to add a const char* to a mime entity body.
+inline MimeEntity& operator<< (MimeEntity& me, const char* str)
+{
+    me.body.append(str);
+    return me;
+}
+
 
 /** A MimeMultipart is a mime entity with multiple embedded entities.
  */
@@ -132,7 +152,10 @@ class MimeMultipart : public MimeHeader
 
         enum Type {
                 typeMixed,
-                typeAlternative
+                typeAlternative,
+                typeDigest,
+                typeParallel,
+                typeRelated
         };
 
     private:
@@ -158,8 +181,7 @@ class MimeMultipart : public MimeHeader
 
         /// Creates a empty MimeMultipart object
         explicit MimeMultipart(Type type_ = typeMixed)
-            : type(type_ == typeMixed ? "mixed" : "alternative")
-        { }
+            { setType(type_); }
 
         /// Returns the number of entities in this object.
         size_type size() const
@@ -183,8 +205,7 @@ class MimeMultipart : public MimeHeader
         const_iterator end() const
             { return parts.end(); }
 
-        void setType(Type type_)
-            { type = (type_ == typeMixed ? "mixed" : "alternative"); }
+        void setType(Type type_);
         void setType(const std::string& type_)
             { type = type_; }
 
@@ -203,6 +224,8 @@ class MimeMultipart : public MimeHeader
         /// Adds a entity to the mime entity. The data is read from a input stream.
         MimeEntity& addObject(std::istream& in, const std::string& contentType = "text/plain; charset=UTF-8",
             ContentTransferEncoding contentTransferEncoding = MimeEntity::quotedPrintable);
+
+        MimeEntity& addObject(const MimeMultipart& mimeMultipart);
 
         /// Adds a text file. The data is passed as a std::string.
         MimeEntity& attachTextFile(const std::string& data, const std::string& filename, const std::string& contentType = "text/plain; charset=UTF-8")

@@ -1,59 +1,100 @@
 noinst_HEADERS = \
 	msg.h
 
-noinst_PROGRAMS = arg arg-set cgi dir dlloader getini hd \
-	httpclient httprequest httpserver log logsh md5sum mime multifstream netcat \
-	netio netmsg pipestream pool signals thread threadpool uuencode cxxlog \
-	rpcserver rpcechoclient rpcaddclient splitter json jsonbeautify regex execLs rpcasyncaddclient \
-	deserialization serialization rpcparallelecho timer xmlreader \
-	msgclient msgserver xmlmsgclient xmlmsgserver future mime2json mimeextract
+noinst_PROGRAMS = \
+	arg \
+	arg-set cgi \
+	cxxlog \
+	deserialization \
+	dir \
+	dlloader \
+	execLs \
+	future \
+	getini hd \
+	httpclient \
+	httprequest \
+	httpserver \
+	json \
+	jsonbeautify \
+	log \
+	logsh \
+	md5sum \
+	mime \
+	mime2json \
+	mimeextract \
+	mimemultipart \
+	msgclient \
+	msgserver \
+	multifstream \
+	netcat \
+	netio \
+	netmsg \
+	pipestream \
+	pool \
+	regex \
+	rpcaddclient \
+	rpcasyncaddclient \
+	rpcechoclient \
+	rpcparallelecho \
+	rpcserver \
+	serialization \
+	signals \
+	splitter \
+	thread \
+	threadpool \
+	timer \
+	uuencode \
+	xmlmsgclient \
+	xmlmsgserver \
+	xmlreader
 
-arg_SOURCES = arg.cpp
 arg_set_SOURCES = arg-set.cpp
+arg_SOURCES = arg.cpp
 cgi_SOURCES = cgi.cpp
+cxxlog_SOURCES = cxxlog.cpp
+deserialization_SOURCES = deserialization.cpp
 dir_SOURCES = dir.cpp
 dlloader_SOURCES = dlloader.cpp
+execLs_SOURCES = execLs.cpp
+future_SOURCES = future.cpp
 getini_SOURCES = getini.cpp
 hd_SOURCES = hd.cpp
 httpclient_SOURCES = httpclient.cpp
 httprequest_SOURCES = httprequest.cpp
 httpserver_SOURCES = httpserver.cpp
-log_SOURCES = log.cpp
+jsonbeautify_SOURCES = jsonbeautify.cpp
+json_SOURCES = json.cpp
 logsh_SOURCES = logsh.cpp
+log_SOURCES = log.cpp
 md5sum_SOURCES = md5sum.cpp
+mime2json_SOURCES = mime2json.cpp
+mimeextract_SOURCES = mimeextract.cpp
+mimemultipart_SOURCES = mimemultipart.cpp
 mime_SOURCES = mime.cpp
+msgclient_SOURCES = msgclient.cpp
+msgserver_SOURCES = msgserver.cpp
 multifstream_SOURCES = multifstream.cpp
 netcat_SOURCES = netcat.cpp
 netio_SOURCES = netio.cpp
 netmsg_SOURCES = netmsg.cpp
 pipestream_SOURCES = pipestream.cpp
 pool_SOURCES = pool.cpp
-signals_SOURCES = signals.cpp
-thread_SOURCES = thread.cpp
-threadpool_SOURCES = threadpool.cpp
-uuencode_SOURCES = uuencode.cpp
-cxxlog_SOURCES = cxxlog.cpp
-rpcserver_SOURCES = rpcserver.cpp
-rpcechoclient_SOURCES = rpcechoclient.cpp
-rpcaddclient_SOURCES = rpcaddclient.cpp
-deserialization_SOURCES = deserialization.cpp
-serialization_SOURCES = serialization.cpp
-splitter_SOURCES = splitter.cpp
-json_SOURCES = json.cpp
-jsonbeautify_SOURCES = jsonbeautify.cpp
 regex_SOURCES = regex.cpp
-execLs_SOURCES = execLs.cpp
+rpcaddclient_SOURCES = rpcaddclient.cpp
 rpcasyncaddclient_SOURCES = rpcasyncaddclient.cpp
+rpcechoclient_SOURCES = rpcechoclient.cpp
 rpcparallelecho_SOURCES = rpcparallelecho.cpp
+rpcserver_SOURCES = rpcserver.cpp
+serialization_SOURCES = serialization.cpp
+signals_SOURCES = signals.cpp
+splitter_SOURCES = splitter.cpp
+threadpool_SOURCES = threadpool.cpp
+thread_SOURCES = thread.cpp
 timer_SOURCES = timer.cpp
-xmlreader_SOURCES = xmlreader.cpp
-msgclient_SOURCES = msgclient.cpp
-msgserver_SOURCES = msgserver.cpp
+uuencode_SOURCES = uuencode.cpp
 xmlmsgclient_SOURCES = xmlmsgclient.cpp
 xmlmsgserver_SOURCES = xmlmsgserver.cpp
-future_SOURCES = future.cpp
-mime2json_SOURCES = mime2json.cpp
-mimeextract_SOURCES = mimeextract.cpp
+xmlreader_SOURCES = xmlreader.cpp
 
 if MAKE_ICONVSTREAM
 noinst_PROGRAMS += iconv

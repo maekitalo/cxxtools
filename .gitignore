@@ -36,27 +36,31 @@ stamp-h1
 
 cxxtools-config
 
+**/demo/arg_set
 **/demo/arg
-**/demo/arg-set
 **/demo/cgi
 **/demo/cxxlog
 **/demo/deserialization
 **/demo/dir
 **/demo/dlloader
 **/demo/execLs
+**/demo/future
 **/demo/getini
 **/demo/hd
 **/demo/httpclient
 **/demo/httprequest
 **/demo/httpserver
-**/demo/json
 **/demo/jsonbeautify
-**/demo/log
-**/demo/log.xml
-**/demo/logbench
+**/demo/json
 **/demo/logsh
+**/demo/log
 **/demo/md5sum
+**/demo/mime2json
+**/demo/mimeextract
+**/demo/mimemultipart
 **/demo/mime
+**/demo/msgclient
+**/demo/msgserver
 **/demo/multifstream
 **/demo/netcat
 **/demo/netio
@@ -72,15 +76,13 @@ cxxtools-config
 **/demo/serialization
 **/demo/signals
 **/demo/splitter
-**/demo/thread
 **/demo/threadpool
+**/demo/thread
 **/demo/timer
 **/demo/uuencode
-**/test/alltests
-**/test/logbench
-**/test/rpcbenchclient
-**/test/rpcbenchserver
-**/test/serializer-bench
+**/demo/xmlmsgclient
+**/demo/xmlmsgserver
+**/demo/xmlreader
 
 *.l[ao]
 *.o
