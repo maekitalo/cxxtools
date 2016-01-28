@@ -380,7 +380,20 @@ MimeEntity::MimeEntity(const std::string& data)
         }
     }
 
-    body.assign(data, pos, std::string::npos);
+    // decode data
+    std::string contentTransferEncoding = getHeader("Content-Transfer-Encoding");
+    if (contentTransferEncoding == "quoted-printable")
+    {
+        body = QuotedPrintableCodec::decode(data.c_str() + pos, data.size() - pos);
+    }
+    else if (contentTransferEncoding == "base64")
+    {
+        body = Base64Codec::decode(data.c_str() + pos, data.size() - pos);
+    }
+    else
+    {
+        body.assign(data, pos, std::string::npos);
+    }
 }
 
 MimeEntity::MimeEntity(std::istream& in)
@@ -396,8 +409,30 @@ MimeEntity::MimeEntity(std::istream& in)
     }
 
     // copy rest of data to body
-    while (in.get(ch))
-        body += ch;
+    readBody(in);
+}
+
+MimeEntity& MimeEntity::readBody(std::istream& in)
+{
+    char buffer[512];
+    while (in)
+    {
+        in.read(buffer, 512);
+        body.append(buffer, in.gcount());
+    }
+
+    // decode data
+    std::string contentTransferEncoding = getHeader("Content-Transfer-Encoding");
+    if (contentTransferEncoding == "quoted-printable")
+    {
+        body = QuotedPrintableCodec::decode(body);
+    }
+    else if (contentTransferEncoding == "base64")
+    {
+        body = Base64Codec::decode(body);
+    }
+
+    return *this;
 }
 
 MimeEntity& MimeEntity::setContentTransferEncoding(ContentTransferEncoding cte)

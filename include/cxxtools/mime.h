@@ -110,6 +110,7 @@ class MimeEntity : public MimeHeader
 
         /// Sets the body of the message.
         MimeEntity& setBody(const std::string& b)       { body = b; return *this; }
+        MimeEntity& readBody(std::istream& in);
 
         MimeEntity& setContentTransferEncoding(ContentTransferEncoding cte);
         ContentTransferEncoding getContentTransferEncoding() const;
