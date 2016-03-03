@@ -1,11 +1,11 @@
 /*
  * Copyright (C) 2005 Marc Boris Duerner
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
- * 
+ *
  * As a special exception, you may use this file as part of a free
  * software library without restriction. Specifically, if other files
  * instantiate templates or use macros or inline functions from this
@@ -15,12 +15,12 @@
  * License. This exception does not however invalidate any other
  * reasons why the executable file might be covered by the GNU Library
  * General Public License.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
@@ -32,7 +32,8 @@
 #include <streambuf>
 #include <cxxtools/iodevice.h>
 
-namespace cxxtools {
+namespace cxxtools
+{
 
 template <typename CharT>
 class BasicStreamBuffer : public std::basic_streambuf<CharT>
@@ -78,20 +79,76 @@ class StreamBuffer : public BasicStreamBuffer<char>,
 
         void attach(IODevice& ioDevice);
 
-        IODevice* device();
+        IODevice* device()
+            { return _ioDevice; }
 
+        /** Sets the stream buffer in reading mode.
+         *
+         *  This signals the cxxtools::Selector, that the streambuffer is interested in
+         *  receiving data. When data is available the cxxtools::Selector will emit
+         *  the inputReady signal. After that endRead can be called without blocking.
+         */
         void beginRead();
 
+        /** Finalizes a read initiated with beginRead.
+         *
+         *  The call to endRead reads at least one byte from the underlying I/O device
+         *  to the buffer. When no data is available, the call will block.
+         */
         void endRead();
 
+        /** Sets the stream buffer in writing mode if data is available in output buffer.
+         *
+         *  The device will emit a outputReady signal when it will be ready to
+         *  write without blocking. When there is no data to be written, the
+         *  device mode is not changed.
+         *
+         *  The streambuffer tries to write data immediately. The number of
+         *  bytes written is returned. When data is already written, the device
+         *  is still changed to writing mode and a endWrite must be called to
+         *  finalize the write.
+         *
+         *  When the device is already in writing mode, nothing is done.
+         */
         size_t beginWrite();
 
+        /** Finalizes the write operation.
+         *
+         *  A write operation must be finalized with the call to endWrite.
+         *  The method returns the number of bytes written either when
+         *  beginWrite was called or here on endWrite.
+         */
         size_t endWrite();
 
+        /** Returns true if the underlying device is in reading mode.
+         *
+         *  The device is in reading mode, when beginRead has been called.
+         *  The call of endRead finished the reading mode.
+         */
+        bool reading() const
+            { return _ioDevice && _ioDevice->reading(); }
+
+        /** Returns true if the underlying device is in writing mode.
+         *
+         *  The device is in writing mode, when beginWrite has been called.
+         *  The call of endWrite finished the writing mode.
+         */
+        bool writing() const
+            { return _ioDevice && _ioDevice->writing(); }
+
+        /** Empties the data in the buffer.
+         *
+         *  The device must not be in reading or writing mode.  A exception of
+         *  type cxxtools::IOPending will be thrown otherwise.
+         */
         void discard();
 
+        /** Signals, that the underlying I/O device has data to read.
+         */
         Signal<StreamBuffer&> inputReady;
 
+        /** Signals, that the underlying I/O device can receive data without blocking.
+         */
         Signal<StreamBuffer&> outputReady;
 
     protected:

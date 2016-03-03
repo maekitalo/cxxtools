@@ -43,6 +43,7 @@
 #include "cxxtools/systemerror.h"
 #include "cxxtools/ioerror.h"
 #include "cxxtools/log.h"
+#include <cxxtools/hdstream.h>
 #include "config.h"
 #include "error.h"
 #include <cerrno>
@@ -477,7 +478,7 @@ bool TcpSocketImpl::checkPollEvent(pollfd& pfd)
 
 size_t TcpSocketImpl::beginWrite(const char* buffer, size_t n)
 {
-    log_debug("::send(" << _fd << ", buffer, " << n << ')');
+    log_debug("::send(" << _fd << ", \"" << hexDump(buffer, n) << "\", " << n << ')');
 
 #if defined(HAVE_MSG_NOSIGNAL)
 

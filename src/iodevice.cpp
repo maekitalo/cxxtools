@@ -1,11 +1,11 @@
 /*
  * Copyright (C) 2004-2008 Marc Boris Duerner
- * 
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
- * 
+ *
  * As a special exception, you may use this file as part of a free
  * software library without restriction. Specifically, if other files
  * instantiate templates or use macros or inline functions from this
@@ -15,12 +15,12 @@
  * License. This exception does not however invalidate any other
  * reasons why the executable file might be covered by the GNU Library
  * General Public License.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
@@ -62,7 +62,7 @@ void IODevice::beginRead(char* buffer, size_t n)
 
     size_t r = this->onBeginRead(buffer, n, _eof);
 
-    if(r > 0 || _eof || _wavail)
+    if (r > 0 || _eof || _wavail)
         this->setState(Selectable::Avail);
     else
         this->setState(Selectable::Busy);
@@ -75,7 +75,7 @@ void IODevice::beginRead(char* buffer, size_t n)
 
 size_t IODevice::endRead()
 {
-    if( ! _rbuf )
+    if ( ! _rbuf )
         return 0;
 
     size_t n;
@@ -91,9 +91,9 @@ size_t IODevice::endRead()
         throw;
     }
 
-    if(_wavail > 0)
+    if (_wavail > 0)
         this->setState(Selectable::Avail);
-    else if(_wbuf)
+    else if (_wbuf)
         this->setState(Selectable::Busy);
     else
         this->setState(Selectable::Idle);
@@ -110,7 +110,7 @@ size_t IODevice::read(char* buffer, size_t n)
 {
     if (async())
     {
-        if( _rbuf )
+        if ( _rbuf )
             throw IOPending("read operation pending");
 
         try // TODO pass buffer pointer/length to onEndRead
@@ -144,7 +144,7 @@ size_t IODevice::beginWrite(const char* buffer, size_t n)
 
     size_t r = this->onBeginWrite(buffer, n);
 
-    if(r > 0 || _ravail)
+    if (r > 0 || _ravail)
         this->setState(Selectable::Avail);
     else
         this->setState(Selectable::Busy);
@@ -159,7 +159,7 @@ size_t IODevice::beginWrite(const char* buffer, size_t n)
 
 size_t IODevice::endWrite()
 {
-    if( ! _wbuf )
+    if ( ! _wbuf )
         return 0;
 
     size_t n;
@@ -175,9 +175,9 @@ size_t IODevice::endWrite()
         throw;
     }
 
-    if(_ravail > 0 || (_rbuf && _eof) )
+    if (_ravail > 0 || (_rbuf && _eof) )
         this->setState(Selectable::Avail);
-    else if(_rbuf)
+    else if (_rbuf)
         this->setState(Selectable::Busy);
     else
         this->setState(Selectable::Idle);
@@ -192,9 +192,9 @@ size_t IODevice::endWrite()
 
 size_t IODevice::write(const char* buffer, size_t n)
 {
-    if( async() )
+    if ( async() )
     {
-        if( _wbuf )
+        if ( _wbuf )
         {
             throw IOPending("write operation pending");
         }
@@ -242,7 +242,7 @@ bool IODevice::seekable() const
 IODevice::pos_type IODevice::seek(off_type offset, std::ios::seekdir sd)
 {
     off_type ret = this->onSeek(offset, sd);
-    if( ret != off_type(-1) )
+    if ( ret != off_type(-1) )
         setEof(false);
 
     return ret;
@@ -250,44 +250,44 @@ IODevice::pos_type IODevice::seek(off_type offset, std::ios::seekdir sd)
 
 
 size_t IODevice::peek(char* buffer, size_t n)
-{ 
-    return this->onPeek(buffer, n); 
+{
+    return this->onPeek(buffer, n);
 }
 
 
 void IODevice::sync()
-{ 
-    return this->onSync(); 
+{
+    return this->onSync();
 }
 
 
 IODevice::pos_type IODevice::position()
-{ 
-    return this->seek(0, std::ios::cur); 
+{
+    return this->seek(0, std::ios::cur);
 }
 
 
 bool IODevice::eof() const
-{ 
-    return _eof; 
+{
+    return _eof;
 }
 
 
 bool IODevice::async() const
 {
-    return _async; 
+    return _async;
 }
 
 
 void IODevice::setEof(bool eof)
-{ 
-    _eof = eof; 
+{
+    _eof = eof;
 }
 
 
 void IODevice::setAsync(bool async)
 {
-    _async = async; 
+    _async = async;
 }
 
 }
