@@ -177,12 +177,14 @@ namespace cxxtools
                     timespan = Milliseconds(floatValue);
                 else if (stringValue.compare(pos, 1, "s") == 0)
                     timespan = Seconds(floatValue);
-                else if (stringValue.compare(pos, 2, "mi") == 0)
+                else if (stringValue.compare(pos, 1, "m") == 0)
                     timespan = Minutes(floatValue);
                 else if (stringValue.compare(pos, 1, "h") == 0)
                     timespan = Hours(floatValue);
                 else if (stringValue.compare(pos, 1, "d") == 0)
                     timespan = Days(floatValue);
+                else
+                    timespan = Timespan(floatValue * res);
             }
             else if (si.typeName() == "microseconds")
                 timespan = Microseconds(floatValue);
