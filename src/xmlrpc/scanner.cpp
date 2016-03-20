@@ -149,7 +149,6 @@ bool Scanner::advance(const cxxtools::xml::Node& node)
                      || ee.name() == L"fault")
                 {
                     _composer->fixup(_deserializer->si());
-                    _state = OnValueEnd;
                     return true;
                 }
                 else

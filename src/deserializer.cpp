@@ -54,9 +54,10 @@ namespace cxxtools
 
     void Deserializer::leaveMember()
     {
-        SerializationInfo* p = _current.top();
-        if( !p )
+        if (_current.size() <= 1)
             SerializationError::doThrow("invalid member");
+
+        SerializationInfo* p = _current.top();
 
         _current.pop();
     }
