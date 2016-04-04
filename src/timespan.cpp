@@ -173,7 +173,7 @@ namespace cxxtools
                 std::string::size_type pos = end - stringValue.begin();
                 if (stringValue.compare(pos, 1, "u") == 0)
                     timespan = Microseconds(floatValue);
-                else if (stringValue.compare(pos, 2, "ms") == 0)
+                else if (stringValue.compare(pos, 2, "ms") == 0 || stringValue.compare(pos, 3, "mil") == 0)
                     timespan = Milliseconds(floatValue);
                 else if (stringValue.compare(pos, 1, "s") == 0)
                     timespan = Seconds(floatValue);
