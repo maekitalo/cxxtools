@@ -60,9 +60,6 @@ namespace cxxtools
         Pipestreambuf streambuf;
 
       public:
-        typedef Exec::const_reference const_reference;
-        typedef Exec::reference reference;
-
         explicit CommandInput(const std::string& cmd, unsigned bufsize = 8192)
           : std::ostream(&streambuf),
             _fork(false),

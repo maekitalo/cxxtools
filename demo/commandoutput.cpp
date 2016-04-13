@@ -26,56 +26,31 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <cxxtools/systemerror.h>
-#include <vector>
-#include <string>
-#include <unistd.h>
+#include <iostream>
+#include <cxxtools/posix/commandoutput.h>
 
-namespace cxxtools
+// example for starting a sub process and reading its output through a stream
+//
+int main(int argc, char* argv[])
 {
-  namespace posix
+  try
   {
-    /** cxxtools::posix::Exec is a wrapper around the exec?? functions of posix.
+    // create a class of type CommandOutput
+    cxxtools::posix::CommandOutput ls("ls");
 
-        Usage is like this:
-        \code
-          cxxtools::posix::Exec e("ls");
-          e.push_back("-l");
-          e.exec();
-        \endcode
+    // add some parameters
+    ls.push_back("-l");
+    ls.push_back("/bin");
 
-        This replaces the current process with the unix command "ls -l".
-     */
-    class Exec
-    {
-        std::vector<std::string> _args;
+    // run the process
+    ls.run();
 
-      public:
-        explicit Exec(const std::string& cmd)
-        {
-          _args.push_back(cmd);
-        }
-
-        Exec& push_back(const std::string& arg)
-        {
-          _args.push_back(arg);
-          return *this;
-        }
-
-        // nice alias of push_back
-        Exec& arg(const std::string& arg)
-        { return push_back(arg); }
-
-        void exec()
-        {
-          std::vector<const char*> argv;
-          for (unsigned n = 0; n < _args.size(); ++n)
-              argv.push_back(_args[n].c_str());
-          argv.push_back(0);
-          ::execvp(argv[0], (char**)&argv[0]);
-          throw SystemError("execvp");
-        }
-
-    };
+    // read the output of the process (copy it to std::cout here)
+    std::cout << ls.rdbuf();
+  }
+  catch (const std::exception& e)
+  {
+    std::cerr << e.what() << std::endl;
   }
 }
+

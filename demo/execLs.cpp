@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 Tommi Maekitalo
+ * Copyright (C) 2016 Tommi Maekitalo
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -27,30 +27,27 @@
  */
 
 #include <iostream>
-#include <cxxtools/posix/commandoutput.h>
+#include <cxxtools/posix/exec.h>
 
-// example for starting a sub process and reading its output through a stream
-//
 int main(int argc, char* argv[])
 {
-  try
-  {
-    // create a class of type CommandOutput
-    cxxtools::posix::CommandOutput ls("ls");
+    try
+    {
+        cxxtools::posix::Exec e("ls");
+        e.push_back("-l");
+        e.exec();
 
-    // add some parameters
-    ls.push_back("-l");
-    ls.push_back("/bin");
+        /*
+         * may be written even shorter:
 
-    // run the process
-    ls.run();
-
-    // read the output of the process (copy it to std::cout here)
-    std::cout << ls.rdbuf();
-  }
-  catch (const std::exception& e)
-  {
-    std::cerr << e.what() << std::endl;
-  }
+            cxxtools::posix::Exec("ls")
+                .push_back("-l")
+                .exec();
+         */
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << e.what() << std::endl;
+    }
 }
 
