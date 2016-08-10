@@ -80,6 +80,7 @@ class JsonRpcTest : public cxxtools::unit::TestSuite
         cxxtools::EventLoop _loop;
         cxxtools::json::RpcServer* _server;
         unsigned _count;
+        std::string _listen;
         unsigned short _port;
 
     public:
@@ -117,6 +118,10 @@ class JsonRpcTest : public cxxtools::unit::TestSuite
                 std::istringstream s(PORT);
                 s >> _port;
             }
+
+            char* LISTEN = getenv("UTEST_LISTEN");
+            if (LISTEN)
+                _listen = LISTEN;
         }
 
         void failTest()
@@ -130,7 +135,7 @@ class JsonRpcTest : public cxxtools::unit::TestSuite
             connect(_loop.timeout, *this, &JsonRpcTest::failTest);
             connect(_loop.timeout, _loop, &cxxtools::EventLoop::exit);
 
-            _server = new cxxtools::json::RpcServer(_loop, _port);
+            _server = new cxxtools::json::RpcServer(_loop, _listen, _port);
             _server->minThreads(1);
         }
 
@@ -146,7 +151,7 @@ class JsonRpcTest : public cxxtools::unit::TestSuite
         {
             _server->registerMethod("multiply", *this, &JsonRpcTest::multiplyNothing);
 
-            cxxtools::json::RpcClient client(_loop, "", _port);
+            cxxtools::json::RpcClient client(_loop, _listen, _port);
             cxxtools::RemoteProcedure<bool> multiply(client, "multiply");
 
             multiply.begin();
@@ -165,7 +170,7 @@ class JsonRpcTest : public cxxtools::unit::TestSuite
         {
             _server->registerMethod("multiply", *this, &JsonRpcTest::multiplyNothing);
 
-            cxxtools::json::RpcClient client(_loop, "", _port);
+            cxxtools::json::RpcClient client(_loop, _listen, _port);
             cxxtools::RemoteProcedure<bool> multiply(client, "multiply");
             connect( multiply.finished, *this, &JsonRpcTest::onExceptionCallback );
 
@@ -191,7 +196,7 @@ class JsonRpcTest : public cxxtools::unit::TestSuite
         {
             log_trace("ConnectError");
 
-            cxxtools::json::RpcClient client(_loop, "", _port + 1);
+            cxxtools::json::RpcClient client(_loop, _listen, _port + 1);
             cxxtools::RemoteProcedure<bool> multiply(client, "multiply");
             connect( multiply.finished, *this, &JsonRpcTest::onConnectErrorCallback );
 
@@ -222,7 +227,7 @@ class JsonRpcTest : public cxxtools::unit::TestSuite
         {
             _server->registerMethod("boolean", *this, &JsonRpcTest::boolean);
 
-            cxxtools::json::RpcClient client(_loop, "", _port);
+            cxxtools::json::RpcClient client(_loop, _listen, _port);
             cxxtools::RemoteProcedure<bool, bool, bool> multiply(client, "boolean");
 
             multiply.begin(true, true);
@@ -243,7 +248,7 @@ class JsonRpcTest : public cxxtools::unit::TestSuite
         {
             _server->registerMethod("multiply", *this, &JsonRpcTest::multiplyInt);
 
-            cxxtools::json::RpcClient client(_loop, "", _port);
+            cxxtools::json::RpcClient client(_loop, _listen, _port);
             cxxtools::RemoteProcedure<int, int, int> multiply(client, "multiply");
 
             multiply.begin(2, 3);
@@ -262,7 +267,7 @@ class JsonRpcTest : public cxxtools::unit::TestSuite
         {
             _server->registerMethod("multiply", *this, &JsonRpcTest::multiplyDouble);
 
-            cxxtools::json::RpcClient client(_loop, "", _port);
+            cxxtools::json::RpcClient client(_loop, _listen, _port);
             cxxtools::RemoteProcedure<double, double, double> multiply(client, "multiply");
 
             multiply.begin(2.0, 3.0);
@@ -281,7 +286,7 @@ class JsonRpcTest : public cxxtools::unit::TestSuite
         {
             _server->registerMethod("echoString", *this, &JsonRpcTest::echoString);
 
-            cxxtools::json::RpcClient client(_loop, "", _port);
+            cxxtools::json::RpcClient client(_loop, _listen, _port);
             cxxtools::RemoteProcedure<std::string, std::string> echo(client, "echoString");
 
             echo.begin("\xc3\xaf\xc2\xbb\xc2\xbf'\"&<> foo?");
@@ -300,7 +305,7 @@ class JsonRpcTest : public cxxtools::unit::TestSuite
         {
             _server->registerMethod("multiply", *this, &JsonRpcTest::multiplyEmpty);
 
-            cxxtools::json::RpcClient client(_loop, "", _port);
+            cxxtools::json::RpcClient client(_loop, _listen, _port);
             cxxtools::RemoteProcedure<std::string, std::string, std::string> multiply(client, "multiply");
 
             multiply.begin("", "");
@@ -321,7 +326,7 @@ class JsonRpcTest : public cxxtools::unit::TestSuite
         {
             _server->registerMethod("multiply", *this, &JsonRpcTest::multiplyVector);
 
-            cxxtools::json::RpcClient client(_loop, "", _port);
+            cxxtools::json::RpcClient client(_loop, _listen, _port);
             cxxtools::RemoteProcedure< std::vector<int>, std::vector<int>, std::vector<int> > multiply(client, "multiply");
 
             std::vector<int> vec;
@@ -354,7 +359,7 @@ class JsonRpcTest : public cxxtools::unit::TestSuite
         {
             _server->registerMethod("multiply", *this, &JsonRpcTest::multiplyVector);
 
-            cxxtools::json::RpcClient client(_loop, "", _port);
+            cxxtools::json::RpcClient client(_loop, _listen, _port);
             cxxtools::RemoteProcedure< std::vector<int>, std::vector<int>, std::vector<int> > multiply(client, "multiply");
 
             std::vector<int> vec;
@@ -369,7 +374,7 @@ class JsonRpcTest : public cxxtools::unit::TestSuite
         {
             _server->registerMethod("multiply", *this, &JsonRpcTest::multiplyColor);
 
-            cxxtools::json::RpcClient client(_loop, "", _port);
+            cxxtools::json::RpcClient client(_loop, _listen, _port);
             cxxtools::RemoteProcedure< Color, Color, Color > multiply(client, "multiply");
 
             Color a;
@@ -405,7 +410,7 @@ class JsonRpcTest : public cxxtools::unit::TestSuite
         {
             _server->registerMethod("multiplyset", *this, &JsonRpcTest::multiplySet);
 
-            cxxtools::json::RpcClient client(_loop, "", _port);
+            cxxtools::json::RpcClient client(_loop, _listen, _port);
             cxxtools::RemoteProcedure<IntSet, IntSet, int> multiply(client, "multiplyset");
 
             IntSet myset;
@@ -437,7 +442,7 @@ class JsonRpcTest : public cxxtools::unit::TestSuite
         {
             _server->registerMethod("multiplyset", *this, &JsonRpcTest::multiplyMultiset);
 
-            cxxtools::json::RpcClient client(_loop, "", _port);
+            cxxtools::json::RpcClient client(_loop, _listen, _port);
             cxxtools::RemoteProcedure<IntMultiset, IntMultiset, int> multiply(client, "multiplyset");
 
             IntMultiset myset;
@@ -469,7 +474,7 @@ class JsonRpcTest : public cxxtools::unit::TestSuite
         {
             _server->registerMethod("multiplymap", *this, &JsonRpcTest::multiplyMap);
 
-            cxxtools::json::RpcClient client(_loop, "", _port);
+            cxxtools::json::RpcClient client(_loop, _listen, _port);
             cxxtools::RemoteProcedure<IntMap, IntMap, int> multiply(client, "multiplymap");
 
             IntMap mymap;
@@ -507,7 +512,7 @@ class JsonRpcTest : public cxxtools::unit::TestSuite
         {
             _server->registerMethod("multiplymultimap", *this, &JsonRpcTest::multiplyMultimap);
 
-            cxxtools::json::RpcClient client(_loop, "", _port);
+            cxxtools::json::RpcClient client(_loop, _listen, _port);
             cxxtools::RemoteProcedure<IntMultimap, IntMultimap, int> multiply(client, "multiplymultimap");
 
             IntMultimap mymap;
@@ -551,7 +556,7 @@ class JsonRpcTest : public cxxtools::unit::TestSuite
         {
             _server->registerMethod("somePrefix.multiply", *this, &JsonRpcTest::multiplyInt);
 
-            cxxtools::json::RpcClient client(_loop, "", _port);
+            cxxtools::json::RpcClient client(_loop, _listen, _port);
             client.prefix("somePrefix.");
             cxxtools::RemoteProcedure<int, int, int> multiply(client, "multiply");
 
@@ -561,7 +566,7 @@ class JsonRpcTest : public cxxtools::unit::TestSuite
 
         void UnknownMethod()
         {
-            cxxtools::json::RpcClient client(_loop, "", _port);
+            cxxtools::json::RpcClient client(_loop, _listen, _port);
             cxxtools::RemoteProcedure<bool> unknownMethod(client, "unknownMethod");
 
             unknownMethod.begin();
@@ -576,7 +581,7 @@ class JsonRpcTest : public cxxtools::unit::TestSuite
         {
             _server->registerMethod("multiply", *this, &JsonRpcTest::throwFault);
 
-            cxxtools::json::RpcClient client(_loop, "", _port);
+            cxxtools::json::RpcClient client(_loop, _listen, _port);
             cxxtools::RemoteProcedure<bool> multiply(client, "multiply");
             multiply.begin();
 
@@ -605,7 +610,7 @@ class JsonRpcTest : public cxxtools::unit::TestSuite
         {
             _server->registerMethod("multiply", *this, &JsonRpcTest::throwException);
 
-            cxxtools::json::RpcClient client(_loop, "", _port);
+            cxxtools::json::RpcClient client(_loop, _listen, _port);
             cxxtools::RemoteProcedure<bool> multiply(client, "multiply");
 
             multiply.begin();
@@ -634,7 +639,7 @@ class JsonRpcTest : public cxxtools::unit::TestSuite
         {
             _server->registerMethod("countSize", *this, &JsonRpcTest::countSize);
 
-            cxxtools::json::RpcClient client(_loop, "", _port);
+            cxxtools::json::RpcClient client(_loop, _listen, _port);
             cxxtools::RemoteProcedure<unsigned, std::vector<int> > countSize(client, "countSize");
 
             std::vector<int> v;
@@ -672,7 +677,7 @@ class JsonRpcTest : public cxxtools::unit::TestSuite
                 cxxtools::json::RpcClient client(_loop);
                 cxxtools::RemoteProcedure<bool, bool, bool> boolean(client, "boolean");
 
-                client.prepareConnect(cxxtools::net::AddrInfo("", _port));
+                client.prepareConnect(cxxtools::net::AddrInfo(_listen, _port));
                 boolean.begin(true, true);
                 CXXTOOLS_UNIT_ASSERT_EQUALS(boolean.end(2000), true);
             }
@@ -682,7 +687,7 @@ class JsonRpcTest : public cxxtools::unit::TestSuite
                 cxxtools::json::RpcClient client(_loop);
                 cxxtools::RemoteProcedure<bool, bool, bool> boolean(client, "boolean");
 
-                client.prepareConnect("", _port);
+                client.prepareConnect(_listen, _port);
                 boolean.begin(true, true);
                 CXXTOOLS_UNIT_ASSERT_EQUALS(boolean.end(2000), true);
             }
@@ -704,7 +709,7 @@ class JsonRpcTest : public cxxtools::unit::TestSuite
                 cxxtools::json::RpcClient client(_loop);
                 cxxtools::RemoteProcedure<bool, bool, bool> boolean(client, "boolean");
 
-                CXXTOOLS_UNIT_ASSERT_NOTHROW(client.prepareConnect("", _port + 1));
+                CXXTOOLS_UNIT_ASSERT_NOTHROW(client.prepareConnect(_listen, _port + 1));
                 CXXTOOLS_UNIT_ASSERT_THROW(client.connect(), cxxtools::IOError);
             }
 
@@ -712,7 +717,7 @@ class JsonRpcTest : public cxxtools::unit::TestSuite
             {
                 cxxtools::json::RpcClient client(_loop);
                 cxxtools::RemoteProcedure<bool, bool, bool> boolean(client, "boolean");
-                CXXTOOLS_UNIT_ASSERT_NOTHROW(client.prepareConnect("", _port + 1));
+                CXXTOOLS_UNIT_ASSERT_NOTHROW(client.prepareConnect(_listen, _port + 1));
 
                 boolean.begin(true, true);
                 CXXTOOLS_UNIT_ASSERT_THROW(boolean.end(2000), cxxtools::IOError);
@@ -732,7 +737,7 @@ class JsonRpcTest : public cxxtools::unit::TestSuite
                 cxxtools::json::RpcClient client(_loop);
                 cxxtools::RemoteProcedure<bool, bool, bool> boolean(client, "boolean");
 
-                client.connect(cxxtools::net::AddrInfo("", _port));
+                client.connect(cxxtools::net::AddrInfo(_listen, _port));
                 boolean.begin(true, true);
                 CXXTOOLS_UNIT_ASSERT_EQUALS(boolean.end(2000), true);
             }
@@ -742,7 +747,7 @@ class JsonRpcTest : public cxxtools::unit::TestSuite
                 cxxtools::json::RpcClient client(_loop);
                 cxxtools::RemoteProcedure<bool, bool, bool> boolean(client, "boolean");
 
-                client.connect("", _port);
+                client.connect(_listen, _port);
                 boolean.begin(true, true);
                 CXXTOOLS_UNIT_ASSERT_EQUALS(boolean.end(2000), true);
             }
@@ -764,7 +769,7 @@ class JsonRpcTest : public cxxtools::unit::TestSuite
                 cxxtools::json::RpcClient client(_loop);
                 cxxtools::RemoteProcedure<bool, bool, bool> boolean(client, "boolean");
 
-                CXXTOOLS_UNIT_ASSERT_THROW(client.connect("", _port + 1), cxxtools::IOError);
+                CXXTOOLS_UNIT_ASSERT_THROW(client.connect(_listen, _port + 1), cxxtools::IOError);
             }
 
         }
@@ -786,7 +791,7 @@ class JsonRpcTest : public cxxtools::unit::TestSuite
 
             for (unsigned i = 0; i < 16; ++i)
             {
-                clients.push_back(cxxtools::json::RpcClient(_loop, "", _port));
+                clients.push_back(cxxtools::json::RpcClient(_loop, _listen, _port));
                 procs.push_back(Multiply(clients.back(), "multiply"));
                 procs.back().begin(i, i);
             }
