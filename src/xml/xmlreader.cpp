@@ -363,6 +363,12 @@ class XmlReaderImpl
             return OnTag::instance();
         }
 
+        virtual State* onCloseBracket(cxxtools::Char c, XmlReaderImpl& reader)
+        {
+            reader.appendContent(c);
+            return this;
+        }
+
         virtual State* onSlash(cxxtools::Char c, XmlReaderImpl& reader)
         {
             reader.appendContent(c);
