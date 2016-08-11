@@ -27,6 +27,7 @@
  */
 
 #include <cxxtools/base64codec.h>
+#include <cctype>
 
 namespace cxxtools
 {
