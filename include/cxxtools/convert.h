@@ -648,12 +648,12 @@ inline OutIterT putInt(OutIterT it, T i)
 
 
 template <typename OutIterT, typename T, typename FormatT>
-inline OutIterT putFloat(OutIterT it, T d, const FormatT& fmt, int precision)
+inline OutIterT putFloat(OutIterT it, T value, const FormatT& fmt, int precision)
 {
     typedef typename FormatT::CharT CharT;
 
-    // 1. Test for not-a-number with d != d
-    if( d != d ) 
+    // 1. Test for not-a-number with value != value
+    if( value != value ) 
     {
         for(const CharT* nanstr = fmt.nan(); *nanstr != 0; ++nanstr)
         {
@@ -665,13 +665,13 @@ inline OutIterT putFloat(OutIterT it, T d, const FormatT& fmt, int precision)
     }
 
     // 2. check sign
-    if(d < 0.0)
+    if(value < 0.0)
     {
         *it = fmt.minus();
         ++it;
     }
 
-    T num = std::fabs(d);
+    T num = std::fabs(value);
 
     // 3. Test for infinity
     if( num == std::numeric_limits<T>::infinity() ) 
@@ -691,21 +691,21 @@ inline OutIterT putFloat(OutIterT it, T d, const FormatT& fmt, int precision)
         precision = bufsize;
 
     CharT fract[bufsize + 1];
-    fract[bufsize] = CharT('\0');
+    fract[precision] = CharT('\0');
 
     int exp = static_cast<int>(std::floor(std::log10(num))) + 1;
 
-    num *= std::pow(T(10.0), static_cast<int>(precision) - exp);
+    num *= std::pow(T(10.0), precision - exp);
     num += .5;
 
     bool notZero = false;
-    for (unsigned short d = precision; d > 0; --d)
+    for (unsigned short dd = precision; dd > 0; --dd)
     {
-        T n = num / 10.0;
-        T fl = std::floor(n) * 10.0;
+        T n = num / T(10.0);
+        T fl = std::floor(n) * T(10.0);
         unsigned char v = static_cast<unsigned char>(num - fl);
-        notZero |= (v != 0);
-        fract[d - 1] = notZero ? fmt.toChar(v) : CharT('\0');
+        notZero |= (v != 0 && v < 10);
+        fract[dd - 1] = notZero ? fmt.toChar(v) : CharT('\0');
         num = n;
     }
 
@@ -726,21 +726,21 @@ inline OutIterT putFloat(OutIterT it, T d, const FormatT& fmt, int precision)
             ++exp;
         }
 
-        for (int d = 0; fract[d]; ++d)
+        for (int dd = 0; fract[dd]; ++dd)
         {
-            *it = fract[d]; ++it;
+            *it = fract[dd]; ++it;
         }
     }
     else
     {
-        for (int d = 0; fract[d]; ++d)
+        for (int dd = 0; fract[dd]; ++dd)
         {
             if (exp-- == 0)
             {
                 *it = '.';
                 ++it;
             }
-            *it = fract[d]; ++it;
+            *it = fract[dd]; ++it;
         }
 
         while (exp-- > 0)
@@ -754,11 +754,11 @@ inline OutIterT putFloat(OutIterT it, T d, const FormatT& fmt, int precision)
 
 
 template <typename OutIterT, typename T>
-inline OutIterT putFloat(OutIterT it, T d)
+inline OutIterT putFloat(OutIterT it, T value)
 {
-    const int precision = std::numeric_limits<T>::digits10 + 1;
+    const int precision = std::numeric_limits<T>::digits10 - 1;
     FloatFormat<char> fmt;
-    return putFloat(it, d, fmt, precision);
+    return putFloat(it, value, fmt, precision);
 }
 
 
