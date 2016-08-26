@@ -63,6 +63,8 @@ class Parser
 
         void begin(Deserializer& handler);
 
+        void finish();
+
         void skip();
 
         bool advance(char ch); // returns true, if number is read completely

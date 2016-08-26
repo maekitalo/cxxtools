@@ -73,6 +73,7 @@ bool Scanner::advance(char ch)
         case state_value:
             if (_vp.advance(ch))
             {
+                log_debug(_deserializer->si());
                 _composer->fixup(_deserializer->si());
                 _deserializer->clear();
                 _state = state_end;
@@ -106,8 +107,9 @@ bool Scanner::advance(char ch)
     return false;
 }
 
-void Scanner::checkException()
+void Scanner::finish()
 {
+    _vp.finish();
     if (_failed)
         throw RemoteException(_errorMessage, _errorCode);
 }

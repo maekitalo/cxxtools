@@ -84,6 +84,9 @@ void Formatter::begin(std::ostream& out)
 
 void Formatter::finish()
 {
+    _ts.detach();
+    _dictionary.clear();
+    _out = 0;
 }
 
 void Formatter::addValueString(const std::string& name, const std::string& type,
@@ -487,7 +490,7 @@ void Formatter::finishArray()
 
 void Formatter::beginObject(const std::string& name, const std::string& type)
 {
-    log_trace("beginObject(\"" << name << "\", \"" << type << ')');
+    log_trace("beginObject(\"" << name << "\", \"" << type << "\")");
 
     std::streambuf* sb = _out->rdbuf();
 
@@ -498,7 +501,7 @@ void Formatter::beginObject(const std::string& name, const std::string& type)
 
 void Formatter::beginMember(const std::string& name)
 {
-    log_trace("beginMember(\"" << name << ')');
+    log_trace("beginMember(\"" << name << "\")");
 }
 
 void Formatter::finishMember()
@@ -663,6 +666,7 @@ void Formatter::outputString(const std::string& value)
     {
         if (_dictionary[idx] == value)
         {
+            log_debug("use dictionary value \"" << value << "\" idx=" << idx);
             sb->sputc('\1');
             sb->sputc(static_cast<char>(idx >> 8));
             sb->sputc(static_cast<char>(idx));

@@ -43,7 +43,6 @@ namespace bin
 
 RpcClientImpl::RpcClientImpl()
     : _stream(_socket, 8192, true),
-      _formatter(_stream),
       _exceptionPending(false),
       _proc(0),
       _timeout(Selectable::WaitInfinite),
@@ -117,6 +116,7 @@ void RpcClientImpl::beginCall(IComposer& r, IRemoteProcedure& method, IDecompose
 void RpcClientImpl::endCall()
 {
     _proc = 0;
+    _formatter.finish();
 
     if (_exceptionPending)
     {
@@ -160,7 +160,7 @@ void RpcClientImpl::call(IComposer& r, IRemoteProcedure& method, IDecomposer** a
             if ( _scanner.advance( StreamBuffer::traits_type::to_char_type(ch) ) )
             {
                 _proc = 0;
-                _scanner.checkException();
+                _scanner.finish();
                 break;
             }
         }
@@ -211,6 +211,7 @@ void RpcClientImpl::wait(Timespan timeout)
 
 void RpcClientImpl::prepareRequest(const String& name, IDecomposer** argv, unsigned argc)
 {
+    _formatter.begin(_stream);
     if (_domain.empty())
         _stream << '\xc0' << name << '\0';
     else
@@ -293,7 +294,7 @@ void RpcClientImpl::onInput(StreamBuffer& sb)
             char ch = StreamBuffer::traits_type::to_char_type(_stream.buffer().sbumpc());
             if (_scanner.advance(ch))
             {
-                _scanner.checkException();
+                _scanner.finish();
                 IRemoteProcedure* proc = _proc;
                 _proc = 0;
                 proc->onFinished();

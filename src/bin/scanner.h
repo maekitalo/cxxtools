@@ -55,7 +55,7 @@ namespace cxxtools
 
                 bool advance(char ch);
 
-                void checkException();
+                void finish();
 
             private:
                 enum

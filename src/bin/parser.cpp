@@ -116,7 +116,6 @@ namespace
 
 void Parser::begin(Deserializer& handler)
 {
-    log_debug(static_cast<void*>(this) << " begin");
     _deserializer = &handler;
     _state = state_type;
     _nextstate = state_type;
@@ -127,6 +126,14 @@ void Parser::begin(Deserializer& handler)
     _next = 0;
 }
 
+void Parser::finish()
+{
+    _deserializer = 0;
+    _token.clear();
+    delete _next;
+    _next = 0;
+    _mydictionary.clear();
+}
 
 void Parser::skip()
 {
@@ -140,7 +147,7 @@ void Parser::skip()
 
 bool Parser::advance(char ch)
 {
-    //log_debug(static_cast<void*>(this) << " advance " << std::hex << static_cast<unsigned>(static_cast<unsigned char>(ch)) << std::dec << " state " << _state << " nextstate " << _nextstate);
+    log_finest(static_cast<void*>(this) << " advance " << std::hex << static_cast<unsigned>(static_cast<unsigned char>(ch)) << std::dec << " state " << _state << " nextstate " << _nextstate);
     switch (_state)
     {
         case state_type:
