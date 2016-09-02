@@ -149,14 +149,17 @@ void ServerImpl::listen(const std::string& ip, unsigned short int port, int back
     log_debug("listen on " << ip << " port " << port);
     net::TcpServer* listener = new net::TcpServer(ip, port, backlog,
         net::TcpServer::DEFER_ACCEPT|net::TcpServer::REUSEADDR);
+    Socket* socket = 0;
 
     try
     {
         _listener.push_back(listener);
-        _queue.put(new Socket(*this, *listener));
+        socket = new Socket(*this, *listener);
+        _queue.put(socket);
     }
     catch (...)
     {
+        delete socket;
         delete listener;
         throw;
     }
