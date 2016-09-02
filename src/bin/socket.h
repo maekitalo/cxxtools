@@ -31,7 +31,6 @@
 
 #include <cxxtools/net/tcpsocket.h>
 #include <cxxtools/iostream.h>
-#include <cxxtools/timer.h>
 #include <cxxtools/connectable.h>
 #include <cxxtools/signal.h>
 #include <cxxtools/method.h>
