@@ -118,8 +118,6 @@ void Timer::start(const Milliseconds& interval)
 
     if (_selector)
         _selector->onTimerChanged(*this);
-    else
-        log_warn("no selector configured");
 }
 
 
@@ -151,8 +149,6 @@ void Timer::start(const DateTime& startTime, const Milliseconds& interval)
 
     if (_selector)
         _selector->onTimerChanged(*this);
-    else
-        log_warn("no selector configured");
 }
 
 void Timer::after(const Milliseconds& interval)
@@ -177,8 +173,6 @@ void Timer::at(const DateTime& tickTime)
 
         if (_selector)
             _selector->onTimerChanged(*this);
-        else
-            log_warn("no selector configured");
     }
 }
 
