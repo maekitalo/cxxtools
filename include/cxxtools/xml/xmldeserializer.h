@@ -32,6 +32,7 @@
 #include <cxxtools/deserializer.h>
 #include "cxxtools/xml/xmlreader.h"
 #include "cxxtools/xml/startelement.h"
+#include <sstream>
 
 namespace cxxtools
 {
