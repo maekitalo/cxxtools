@@ -65,7 +65,8 @@ AddrInfo::AddrInfo(const std::string& host, unsigned short port, bool listen)
 AddrInfo::AddrInfo(const AddrInfo& src)
     : _impl(src._impl)
 {
-    _impl->addRef();
+    if (_impl)
+        _impl->addRef();
 }
 
 AddrInfo::~AddrInfo()
