@@ -137,7 +137,35 @@ void TcpServerImpl::listen(const std::string& ipaddr, unsigned short int port, i
         for (AddrInfoImpl::const_iterator it = ai.impl()->begin(); it != ai.impl()->end(); ++it)
         {
             int fd;
-            fd = create(it->ai_family, SOCK_STREAM, 0);
+            try
+            {
+                fd = create(it->ai_family, SOCK_STREAM, 0);
+            }
+            catch (const SystemError& e)
+            {
+                // if we have at least one listener created succesfully then we
+                // can ignore that entry
+                if (_listeners.size() > 0)
+                {
+                    log_debug("ignoring addr entry");
+                    continue;
+                }
+
+                // check if there are more entries to listen on
+                AddrInfoImpl::const_iterator itNext = it;
+                ++itNext;
+                if (itNext == ai.impl()->end())
+                {
+                    // Since this was the last entry and we have no listeners, we
+                    // propagate that error.
+                    throw;
+                }
+
+                // We have no listeners yet but the next entry might be successful
+                // so we just skip that entry.
+                log_debug("ignoring addr entry");
+                continue;
+            }
 
             _listeners.push_back(Listener());
             _listeners.back()._fd = fd;
