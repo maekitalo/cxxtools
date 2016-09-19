@@ -167,7 +167,16 @@ namespace cxxtools {
             */
             Signal<> timeout;
 
-            Milliseconds finished() const
+            /** @brief Notifies about interval timeouts
+
+                This signal is sent if the interval time has expired.
+                As a parameter the due time is passed.
+            */
+            Signal<DateTime> timeoutts;
+
+            /** @brief Returns the timespan since epoch when the timer expires
+             */
+            Timespan finished() const
             { return _finished; }
 
         private:

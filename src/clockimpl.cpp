@@ -30,20 +30,14 @@
 namespace cxxtools
 {
 
-ClockImpl::ClockImpl()
-{}
-
-
-ClockImpl::~ClockImpl()
-{}
-
-
-void ClockImpl::start()
+Timespan ClockImpl::start()
 {
 #ifdef HAVE_CLOCK_GETTIME
     clock_gettime(CLOCK_MONOTONIC, &_startTime);
+    return Timespan(_startTime.tv_sec, _startTime.tv_nsec / 1000);
 #else
     gettimeofday( &_startTime, 0 );
+    return Timespan(_startTime.tv_sec, _startTime.tv_usec);
 #endif
 }
 

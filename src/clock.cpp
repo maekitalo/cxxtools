@@ -63,9 +63,9 @@ Clock::~Clock()
         delete _impl;
 }
 
-void Clock::start()
+Timespan Clock::start()
 {
-    _impl->start();
+    return _impl->start();
 }
 
 Timespan Clock::stop() const

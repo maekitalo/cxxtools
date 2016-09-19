@@ -52,9 +52,9 @@ class Clock
         */
         virtual ~Clock();
 
-        /** @brief Start the clock
+        /** @brief Start the clock and return the current system ticks.
         */
-        void start();
+        Timespan start();
 
         /** @brief Stop the clock. Can be called several times.
 

@@ -92,16 +92,16 @@ class DateTime
 
         /** @brief Creates a DateTime object relative to the Unix epoch.
 
-            The DateTime will be relative to the unix-epoch (Jan 1st 1970)
-            by the milli-seconds specified by \a msecsSinceEpoch. The
+            The DateTime will be relative to the unix epoch (Jan 1st 1970)
+            by the milli seconds specified by \a msecsSinceEpoch. The
             construction does not take care of any time zones. I.e. the
             milliseconds will be treated as if they were in the same time
             zone as the reference (January 1st 1970). Thus specifying a
-            "time-zoned" millisecond value will lead to a "time-zoned"
+            "time zoned" millisecond value will lead to a "time zoned"
             DateTime. And accordingly a "GMT" millisecond value will lead
             to a "GMT" DateTime.
         */
-        static inline DateTime fromMSecsSinceEpoch(cxxtools::Milliseconds sinceEpoch)
+        static DateTime fromMSecsSinceEpoch(cxxtools::Milliseconds sinceEpoch)
         {
             static const DateTime dt(1970, 1, 1, 0, 0, 0);
             return dt + sinceEpoch;
@@ -141,17 +141,17 @@ class DateTime
         DateTime& setTime(const Time& time)
         { _time = time; return *this; }
 
-        /** @brief Returns the day-part of the date.
+        /** @brief Returns the day part of the date.
         */
         unsigned day() const
         { return date().day(); }
 
-        /** @brief Returns the month-part of the date.
+        /** @brief Returns the month part of the date.
         */
         unsigned month() const
         { return date().month(); }
 
-        /** @brief Returns the year-part of the date.
+        /** @brief Returns the year part of the date.
         */
         int year() const
         { return date().year(); }
@@ -161,32 +161,32 @@ class DateTime
         unsigned dayOfWeek() const
         { return date().dayOfWeek(); }
 
-        /** \brief Returns the hour-part of the Time.
+        /** \brief Returns the hour part of the Time.
         */
         unsigned hour() const
         { return time().hour(); }
 
-        /** \brief Returns the minute-part of the Time.
+        /** \brief Returns the minute part of the Time.
         */
         unsigned minute() const
         { return time().minute(); }
 
-        /** \brief Returns the second-part of the Time.
+        /** \brief Returns the second part of the Time.
         */
         unsigned second() const
         { return time().second(); }
 
-        /** \brief Returns the millisecond-part of the Time.
+        /** \brief Returns the millisecond part of the Time.
         */
         unsigned msec() const
         { return time().msec(); }
 
-        /** @brief Returns the milliseconds relative to the Unix-epoch.
+        /** @brief Returns the milliseconds relative to the Unix epoch.
 
             The calculation does currently not take care of any time zones.
             I.e. the milliseconds will be calculated as if they were in the
             same time zone as the reference (January 1st 1970). Thus calling
-            this API on a "time-zoned" DateTime will lead to a "time-zoned"
+            this API on a "time zoned" DateTime will lead to a "time zoned"
             millisecond value. And  accordingly calling this API on a "GMT"
             DateTime will lead to a "GMT" millisecond value.
         */

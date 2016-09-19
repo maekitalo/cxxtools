@@ -133,10 +133,16 @@ void Timer::start(const DateTime& startTime, const Milliseconds& interval)
     _interval = interval;
     _once = false;
 
-    DateTime now = Clock::getLocalTime();
+    Timespan systemTime = Clock::getSystemTicks();
+    struct tm tim;
+    time_t sec = static_cast<time_t>(systemTime.totalSeconds());
+    localtime_r(&sec, &tim);
+    DateTime now(tim.tm_year + 1900, tim.tm_mon + 1, tim.tm_mday,
+                 tim.tm_hour, tim.tm_min, tim.tm_sec,
+                 0, systemTime.totalUSecs() % 1000000);
     if (startTime > now)
     {
-        _finished = Clock::getSystemTicks() + (startTime - now);
+        _finished = systemTime + (startTime - now);
     }
     else
     {
@@ -144,7 +150,8 @@ void Timer::start(const DateTime& startTime, const Milliseconds& interval)
         Timespan elapsed = now - startTime;
         uint64_t ticksElapsed = elapsed.totalMSecs() / interval.totalMSecs();
         DateTime tickTime = startTime + (ticksElapsed + 1) * Timespan(interval);
-        _finished = Clock::getSystemTicks() + (tickTime - now);
+        Timespan delay = tickTime - now;
+        _finished = systemTime + (tickTime - now);
     }
 
     if (_selector)
@@ -206,14 +213,35 @@ bool Timer::update(const Milliseconds& now)
 
     Timer::Sentry sentry(_sentry);
 
+    DateTime ts;
+
     while( _active && now >= _finished )
     {
+        Milliseconds currentTs = _finished;
+
+        // We add another interval before sending the signal
+        // since sending might throw an exception. We would
+        // skip recalculating the new time then and may loop.
         _finished += _interval;
 
         if( ! sentry )
             return hasElapsed;
 
         timeout.send();
+
+        // We send the signal with datetime only, when someone is
+        // connected since it will take some time to calculate a
+        // DateTime object from milliseconds.
+        if (timeoutts.connectionCount() > 0)
+        {
+            struct tm tim;
+            time_t sec = static_cast<time_t>(currentTs.totalSeconds());
+            localtime_r(&sec, &tim);
+            DateTime dueTime(tim.tm_year + 1900, tim.tm_mon + 1, tim.tm_mday,
+                 tim.tm_hour, tim.tm_min, tim.tm_sec,
+                 0, currentTs.totalUSecs() % 1000000);
+            timeoutts.send(dueTime);
+        }
 
         if (_once)
             stop();

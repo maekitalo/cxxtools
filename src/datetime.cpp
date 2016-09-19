@@ -359,10 +359,10 @@ Timespan operator-(const DateTime& first, const DateTime& second)
     int64_t dayDiff      = int64_t( first.date().julian() ) -
                                int64_t( second.date().julian() );
 
-    int64_t milliSecDiff = int64_t( first.time().totalMSecs() ) -
-                               int64_t( second.time().totalMSecs() );
+    int64_t microSecDiff = int64_t( first.time().totalUSecs() ) -
+                               int64_t( second.time().totalUSecs() );
 
-    int64_t result = (dayDiff * Time::MSecsPerDay + milliSecDiff) * 1000;
+    int64_t result = (dayDiff * Time::USecsPerDay + microSecDiff);
 
     return Timespan(result);
 }
