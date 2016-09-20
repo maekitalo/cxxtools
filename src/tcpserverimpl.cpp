@@ -147,7 +147,7 @@ void TcpServerImpl::listen(const std::string& ipaddr, unsigned short int port, i
                 // can ignore that entry
                 if (_listeners.size() > 0)
                 {
-                    log_debug("ignoring addr entry");
+                    log_debug("failed to create socket for ip <" << formatIp(*reinterpret_cast<const Sockaddr*>(it->ai_addr)) << ">; have already " << _listeners.size() << " listeners");
                     continue;
                 }
 
@@ -163,7 +163,7 @@ void TcpServerImpl::listen(const std::string& ipaddr, unsigned short int port, i
 
                 // We have no listeners yet but the next entry might be successful
                 // so we just skip that entry.
-                log_debug("ignoring addr entry");
+                log_debug("failed to create socket for ip <" << formatIp(*reinterpret_cast<const Sockaddr*>(it->ai_addr)) << '>');
                 continue;
             }
 
