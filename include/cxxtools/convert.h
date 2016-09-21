@@ -155,10 +155,10 @@ void convert(std::string& s, unsigned int value);
 void convert(std::string& s, long value);
 void convert(std::string& s, unsigned long value);
 #ifdef HAVE_LONG_LONG
-void convert(std::string& s, long value);
+void convert(std::string& s, long long value);
 #endif
 #ifdef HAVE_UNSIGNED_LONG_LONG
-void convert(std::string& s, unsigned long value);
+void convert(std::string& s, unsigned long long value);
 #endif
 
 void convert(std::string& s, float value);
