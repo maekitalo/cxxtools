@@ -30,12 +30,15 @@
 #include <cxxtools/arg.h>
 #include <cxxtools/net/tcpstream.h>
 #include <cxxtools/bin/bin.h>
+#include <cxxtools/log.h>
 #include "msg.h"
 
 int main(int argc, char* argv[])
 {
   try
   {
+    log_init();
+
     cxxtools::Arg<std::string> ip(argc, argv, 'i');
     cxxtools::Arg<unsigned short> port(argc, argv, 'p', 7010);
 

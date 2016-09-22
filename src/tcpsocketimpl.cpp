@@ -38,11 +38,12 @@
 
 #include "tcpsocketimpl.h"
 #include "tcpserverimpl.h"
-#include "cxxtools/net/tcpserver.h"
-#include "cxxtools/net/tcpsocket.h"
-#include "cxxtools/systemerror.h"
-#include "cxxtools/ioerror.h"
-#include "cxxtools/log.h"
+#include <cxxtools/net/tcpserver.h>
+#include <cxxtools/net/tcpsocket.h>
+#include <cxxtools/systemerror.h>
+#include <cxxtools/ioerror.h>
+#include <cxxtools/log.h>
+#include <cxxtools/join.h>
 #include <cxxtools/hdstream.h>
 #include "config.h"
 #include "error.h"
@@ -67,11 +68,11 @@ namespace net
 
 namespace
 {
-    std::string connectFailedMessage(const AddrInfo& ai, int err)
+    std::string connectFailedMessage(AddrInfoImpl::const_iterator aip, int err)
     {
         std::ostringstream msg;
-        msg << "failed to connect to host \"" << ai.host() << "\" port " << ai.port()
-            << ": " << getErrnoString(err);
+        msg << "failed to connect to <" << formatIp(*reinterpret_cast<const Sockaddr*>(aip->ai_addr))
+            << ">: " << getErrnoString(err);
         return msg.str();
     }
 
@@ -129,6 +130,20 @@ std::string getSockAddr(int fd)
     std::string ret;
     formatIp(addr, ret);
     return ret;
+}
+
+std::string TcpSocketImpl::connectFailedMessages()
+{
+    std::ostringstream msg;
+    msg << "while trying to connect to ";
+    if (_addrInfo.host().empty())
+        msg << "local host";
+    else
+        msg << "host \"" << _addrInfo.host() << '"';
+    msg << " port " << _addrInfo.port() << ": ";
+    join(_connectFailedMessages.begin(), _connectFailedMessages.end(), " / ", msg);
+    _connectFailedMessages.clear();
+    return msg.str();
 }
 
 TcpSocketImpl::TcpSocketImpl(TcpSocket& socket)
@@ -205,9 +220,9 @@ void TcpSocketImpl::checkPendingError()
 {
     if (!_connectResult.empty())
     {
-        std::string p = _connectResult;
+        _connectFailedMessages.push_back(_connectResult);
         _connectResult.clear();
-        throw IOError(p);
+        throw IOError(connectFailedMessages());
     }
 }
 
@@ -231,19 +246,16 @@ std::string TcpSocketImpl::tryConnect()
         int fd;
         while (true)
         {
-            log_debug("create socket");
+            log_debug("create socket for ip <" << formatIp(*reinterpret_cast<const Sockaddr*>(_addrInfoPtr->ai_addr)) << '>');
             fd = ::socket(_addrInfoPtr->ai_family, SOCK_STREAM, 0);
             if (fd >= 0)
                 break;
 
+            log_debug("failed to create socket: " << getErrnoString());
+
+            AddrInfoImpl::const_iterator aip = _addrInfoPtr;
             if (++_addrInfoPtr == _addrInfo.impl()->end())
-            {
-                std::ostringstream msg;
-                msg << "failed to create socket for host \"" << _addrInfo.host()
-                    << "\" port " << _addrInfo.port()
-                    << ": " << getErrnoString();
-                return msg.str();
-            }
+                return connectFailedMessage(aip, errno);
         }
 
 #ifdef HAVE_SO_NOSIGPIPE
@@ -257,6 +269,7 @@ std::string TcpSocketImpl::tryConnect()
         std::memmove(&_peeraddr, _addrInfoPtr->ai_addr, _addrInfoPtr->ai_addrlen);
 
         log_debug("created socket " << _fd << " max: " << FD_SETSIZE);
+        log_debug("connect to port " << _addrInfo.port());
 
         if( ::connect(this->fd(), _addrInfoPtr->ai_addr, _addrInfoPtr->ai_addrlen) == 0 )
         {
@@ -272,8 +285,9 @@ std::string TcpSocketImpl::tryConnect()
         }
 
         close();
+        AddrInfoImpl::const_iterator aip = _addrInfoPtr;
         if (++_addrInfoPtr == _addrInfo.impl()->end())
-            return connectFailedMessage(_addrInfo, errno);
+            return connectFailedMessage(aip, errno);
     }
 
     return std::string();
@@ -286,6 +300,7 @@ bool TcpSocketImpl::beginConnect(const AddrInfo& addrInfo)
 
     assert(!_isConnected);
 
+    _connectFailedMessages.clear();
     _addrInfo = addrInfo;
     _addrInfoPtr = _addrInfo.impl()->begin();
     _connectResult = tryConnect();
@@ -325,12 +340,18 @@ void TcpSocketImpl::endConnect()
                 // something has happened
                 int sockerr = checkConnect();
                 if (_isConnected)
+                {
+                    _connectFailedMessages.clear();
                     return;
+                }
+
+                _connectFailedMessages.push_back(connectFailedMessage(_addrInfoPtr, sockerr));
+                log_debug("connect failed: " << _connectFailedMessages.back());
 
                 if (++_addrInfoPtr == _addrInfo.impl()->end())
                 {
                     // no more addrInfo - propagate error
-                    throw IOError(connectFailedMessage(_addrInfo, sockerr));
+                    throw IOError(connectFailedMessages());
                 }
             }
             else if (++_addrInfoPtr == _addrInfo.impl()->end())
@@ -343,7 +364,11 @@ void TcpSocketImpl::endConnect()
 
             _connectResult = tryConnect();
             if (_isConnected)
+            {
+                _connectResult.clear();
+                _connectFailedMessages.clear();
                 return;
+            }
             checkPendingError();
         }
     }
@@ -393,7 +418,7 @@ bool TcpSocketImpl::checkPollEvent(pollfd& pfd)
 {
     log_debug("checkPollEvent " << pfd.revents);
 
-    if( _isConnected )
+    if (_isConnected)
     {
         // check for error while neither reading nor writing
         //
@@ -411,8 +436,17 @@ bool TcpSocketImpl::checkPollEvent(pollfd& pfd)
         return IODeviceImpl::checkPollEvent(pfd);
     }
 
-    if ( pfd.revents & POLLERR )
+    if (pfd.revents & POLLERR)
     {
+        int sockerr;
+        socklen_t optlen = sizeof(sockerr);
+
+        // check for socket error
+        if( ::getsockopt(this->fd(), SOL_SOCKET, SO_ERROR, &sockerr, &optlen) != 0 )
+            throw SystemError("getsockopt");
+
+        _connectFailedMessages.push_back(connectFailedMessage(_addrInfoPtr, sockerr));
+
         AddrInfoImpl::const_iterator ptr = _addrInfoPtr;
         if (++ptr == _addrInfo.impl()->end())
         {
@@ -455,11 +489,12 @@ bool TcpSocketImpl::checkPollEvent(pollfd& pfd)
         }
 
         // something went wrong - look for next addrInfo
-        log_debug("sockerr is " << sockerr << " try next");
+        _connectFailedMessages.push_back(connectFailedMessage(_addrInfoPtr, sockerr));
+        log_debug("connect failed: " << _connectFailedMessages.back());
         if (++_addrInfoPtr == _addrInfo.impl()->end())
         {
             // no more addrInfo - propagate error
-            _connectResult = connectFailedMessage(_addrInfo, sockerr);
+            _connectResult = connectFailedMessages();
             _socket.connected(_socket);
             return true;
         }
