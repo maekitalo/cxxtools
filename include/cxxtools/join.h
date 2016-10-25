@@ -26,6 +26,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+#ifndef CXXTOOLS_JOIN_H
+#define CXXTOOLS_JOIN_H
+
 #include <iostream>
 #include <sstream>
 
@@ -82,3 +85,5 @@ namespace cxxtools
   }
 
 }
+
+#endif
