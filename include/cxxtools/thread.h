@@ -26,8 +26,9 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-#if !defined(CXXTOOLS_SYSTEM_THREAD_H)
-#define CXXTOOLS_SYSTEM_THREAD_H
+
+#ifndef CXXTOOLS_THREAD_H
+#define CXXTOOLS_THREAD_H
 
 #include <cxxtools/noncopyable.h>
 #include <cxxtools/callable.h>
@@ -35,7 +36,8 @@
 #include <cxxtools/method.h>
 #include <cxxtools/timespan.h>
 
-namespace cxxtools {
+namespace cxxtools
+{
 
     /** @brief Platform independent threads
 

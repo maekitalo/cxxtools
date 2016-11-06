@@ -26,6 +26,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+#ifndef CXXTOOLS_INIPARSER_H
+#define CXXTOOLS_INIPARSER_H
+
 #include <iosfwd>
 #include <string>
 
@@ -77,3 +80,5 @@ namespace cxxtools
       void parse(std::istream& in);
   };
 }
+
+#endif

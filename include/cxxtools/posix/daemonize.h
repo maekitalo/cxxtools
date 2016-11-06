@@ -26,6 +26,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+#ifndef CXXTOOLS_POSIX_DAEMONIZE_H
+#define CXXTOOLS_POSIX_DAEMONIZE_H
+
 #include <string>
 
 namespace cxxtools
@@ -42,3 +45,5 @@ namespace cxxtools
     void daemonize(const std::string& pidfile = std::string());
   }
 }
+
+#endif
