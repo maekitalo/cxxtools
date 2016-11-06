@@ -59,13 +59,7 @@ void Selectable::setSelector(SelectorBase* parent)
 }
 
 
-SelectorBase* Selectable::selector()
-{
-    return _parent;
-}
-
-
-const SelectorBase* Selectable::selector() const
+SelectorBase* Selectable::selector() const
 {
     return _parent;
 }

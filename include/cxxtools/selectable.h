@@ -57,9 +57,7 @@ class Selectable
 
         void setSelector(SelectorBase* parent);
 
-        SelectorBase* selector();
-
-        const SelectorBase* selector() const;
+        SelectorBase* selector() const;
 
         //! @brief Closes the I/O device
         /*!
