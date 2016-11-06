@@ -803,5 +803,13 @@ const SerializationInfo::Nodes& SerializationInfo::nodes() const
         return emptyNodes;
 }
 
+void operator <<=(SerializationInfo& si, const SerializationInfo& ssi)
+{
+    std::string name = si.name();
+    si = ssi;
+    si.setName(name);
+}
+
+
 
 } // namespace cxxtools

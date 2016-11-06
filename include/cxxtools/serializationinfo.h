@@ -426,10 +426,7 @@ inline void operator >>=(const SerializationInfo& si, SerializationInfo& ssi)
 }
 
 
-inline void operator <<=(SerializationInfo& si, const SerializationInfo& ssi)
-{
-    si = ssi;
-}
+void operator <<=(SerializationInfo& si, const SerializationInfo& ssi);
 
 
 inline void operator >>=(const SerializationInfo& si, bool& n)
