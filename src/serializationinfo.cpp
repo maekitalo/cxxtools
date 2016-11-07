@@ -70,25 +70,8 @@ SerializationInfo& SerializationInfo::operator=(const SerializationInfo& si)
     if (this == &si)
         return *this;
 
-    _category = si._category;
+    assignData(si);
     _name = si._name;
-    _type = si._type;
-
-    delete _nodes;
-    _nodes = 0;
-    if (si._nodes)
-        _nodes = new Nodes(*si._nodes);
-
-    if (si._t == t_string)
-        _setString( si._String() );
-    else if (si._t == t_string8)
-        _setString8( si._String8() );
-    else
-    {
-        _releaseValue();
-        _u = si._u;
-        _t = si._t;
-    }
 
     return *this;
 }
@@ -803,11 +786,32 @@ const SerializationInfo::Nodes& SerializationInfo::nodes() const
         return emptyNodes;
 }
 
+void SerializationInfo::assignData(const SerializationInfo& si)
+{
+    _category = si._category;
+    _type = si._type;
+
+    delete _nodes;
+    _nodes = 0;
+    if (si._nodes)
+        _nodes = new Nodes(*si._nodes);
+
+    if (si._t == t_string)
+        _setString( si._String() );
+    else if (si._t == t_string8)
+        _setString8( si._String8() );
+    else
+    {
+        _releaseValue();
+        _u = si._u;
+        _t = si._t;
+    }
+
+}
+
 void operator <<=(SerializationInfo& si, const SerializationInfo& ssi)
 {
-    std::string name = si.name();
-    si = ssi;
-    si.setName(name);
+    si.assignData(ssi);
 }
 
 
