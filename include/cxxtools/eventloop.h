@@ -82,6 +82,10 @@ namespace cxxtools
             */
             Signal<> timeout;
 
+            /** @brief Notifies that all events are processed and the event loop starts waiting.
+             */
+            Signal<> idle;
+
             /** @brief Reports all events
             */
             Signal<const Event&> event;

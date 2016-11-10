@@ -143,12 +143,14 @@ void EventLoop::onRun()
         if (!_impl->eventQueueEmpty())
         {
             lock.unlock();
-            this->processEvents();
+            processEvents();
         }
 
         lock.unlock();
 
-        bool active = this->wait( this->idleTimeout() );
+        idle();
+
+        bool active = wait( this->idleTimeout() );
         if( ! active )
             timeout.send();
     }
