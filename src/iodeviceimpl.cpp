@@ -192,7 +192,7 @@ size_t IODeviceImpl::read( char* buffer, size_t count, bool& eof )
 
         if(ret > 0)
         {
-            log_debug("::read(" << _fd << ", " << count << ") returned " << ret << " => \"" << hexDump(buffer, ret) << '"');
+            log_debug("::read(" << _fd << ", " << count << ") returned " << ret << " => \"" << HexDump(buffer, ret) << '"');
             break;
         }
 
@@ -229,7 +229,7 @@ size_t IODeviceImpl::read( char* buffer, size_t count, bool& eof )
 
 size_t IODeviceImpl::beginWrite(const char* buffer, size_t n)
 {
-    log_debug("::write(" << _fd << ", \"" << hexDump(buffer, n) << "\", " << n << ')');
+    log_debug("::write(" << _fd << ", \"" << HexDump(buffer, n) << "\", " << n << ')');
     ssize_t ret = ::write(_fd, (const void*)buffer, n);
 
     log_debug("write returned " << ret);

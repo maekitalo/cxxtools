@@ -513,7 +513,7 @@ bool TcpSocketImpl::checkPollEvent(pollfd& pfd)
 
 size_t TcpSocketImpl::beginWrite(const char* buffer, size_t n)
 {
-    log_debug("::send(" << _fd << ", \"" << hexDump(buffer, n) << "\", " << n << ')');
+    log_debug("::send(" << _fd << ", \"" << HexDump(buffer, n) << "\", " << n << ')');
 
 #if defined(HAVE_MSG_NOSIGNAL)
 
