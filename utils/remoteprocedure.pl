@@ -65,6 +65,8 @@ EOF
 ## first
 ##
 print <<EOF;
+// generated with `remoteprocedure.pl -n $N`
+//! \@cond internal
 template <typename R,
 EOF
 
@@ -83,8 +85,12 @@ EOF
 class RemoteProcedure : public RemoteProcedureBase<R>
 {
     public:
-        RemoteProcedure(Client& client, const std::string& name)
+        RemoteProcedure(RemoteClient& client, const String& name)
         : RemoteProcedureBase<R>(client, name)
+        { }
+
+        RemoteProcedure(RemoteClient& client, const char* name)
+        : RemoteProcedureBase<R>(client, String(name))
         { }
 
         void begin($constRef)
@@ -98,11 +104,15 @@ EOF
 
             this->_r.begin(this->_result.value());
 
-            ISerializer* argv[$N] = { $argv };
+            IDecomposer* argv[$N] = { $argv };
             this->client().beginCall(this->_r, *this, argv, $N);
         }
 
-        const R& call($constRef)
+#if __cplusplus >= 201103L
+        R&& call($constRef)
+#else
+        R& call($constRef)
+#endif
         {
             this->_result.clearFault();
 
@@ -112,12 +122,16 @@ EOF
   print <<EOF;
             this->_r.begin(this->_result.value());
 
-            ISerializer* argv[$N] = { $argv };
+            IDecomposer* argv[$N] = { $argv };
             this->client().call(this->_r, *this, argv, $N);
             return this->_result.get();
         }
 
-        const R& operator()($constRef)
+#if __cplusplus >= 201103L
+        R&& operator()($constRef)
+#else
+        R& operator()($constRef)
+#endif
         {
             return this->call($params);
         }
@@ -128,7 +142,7 @@ EOF
 for (my $n = 1; $n <= $N; ++$n)
 {
   print <<EOF;
-        Serializer<A$n> _a$n;
+        Decomposer<A$n> _a$n;
 EOF
 }
   print <<EOF;
@@ -175,8 +189,12 @@ EOF
                       ${ns}::Void> : public RemoteProcedureBase<R>
 {
     public:
-        RemoteProcedure(Client& client, const std::string& name)
+        RemoteProcedure(RemoteClient& client, const String& name)
         : RemoteProcedureBase<R>(client, name)
+        { }
+
+        RemoteProcedure(RemoteClient& client, const char* name)
+        : RemoteProcedureBase<R>(client, String(name))
         { }
 
         void begin($constRef)
@@ -190,11 +208,15 @@ EOF
 
             this->_r.begin(this->_result.value());
 
-            ISerializer* argv[$nn] = { $argv };
+            IDecomposer* argv[$nn] = { $argv };
             this->client().beginCall(this->_r, *this, argv, $nn);
         }
 
-        const R& call($constRef)
+#if __cplusplus >= 201103L
+        R&& call($constRef)
+#else
+        R& call($constRef)
+#endif
         {
             this->_result.clearFault();
 
@@ -204,12 +226,16 @@ EOF
   print <<EOF;
             this->_r.begin(this->_result.value());
 
-            ISerializer* argv[$nn] = { $argv };
+            IDecomposer* argv[$nn] = { $argv };
             this->client().call(this->_r, *this, argv, $nn);
             return this->_result.get();
         }
 
-        const R& operator()($constRef)
+#if __cplusplus >= 201103L
+        R&& operator()($constRef)
+#else
+        R& operator()($constRef)
+#endif
         {
             return this->call($params);
         }
@@ -220,7 +246,7 @@ EOF
 for (my $n = 1; $n <= $nn; ++$n)
 {
   print <<EOF;
-        Serializer<A$n> _a$n;
+        Decomposer<A$n> _a$n;
 EOF
 }
   print <<EOF;
@@ -247,8 +273,12 @@ EOF
                       ${ns}::Void> : public RemoteProcedureBase<R>
 {
     public:
-        RemoteProcedure(Client& client, const std::string& name)
+        RemoteProcedure(RemoteClient& client, const String& name)
         : RemoteProcedureBase<R>(client, name)
+        { }
+
+        RemoteProcedure(RemoteClient& client, const char* name)
+        : RemoteProcedureBase<R>(client, String(name))
         { }
 
         void begin()
@@ -257,25 +287,27 @@ EOF
 
             this->_r.begin(this->_result.value());
 
-            ISerializer* argv[1] = { 0 };
+            IDecomposer* argv[1] = { 0 };
             this->client().beginCall(this->_r, *this, argv, 0);
         }
 
-        const R& call()
+        R& call()
         {
             this->_result.clearFault();
 
             this->_r.begin(this->_result.value());
 
-            ISerializer* argv[1] = { 0 };
+            IDecomposer* argv[1] = { 0 };
             this->client().call(this->_r, *this, argv, 0);
             return this->_result.get();
         }
 
-        const R& operator()()
+        R& operator()()
         {
             return this->call();
         }
 };
 
+//! \@endcond internal
+// end generated with `remoteprocedure.pl -n $N`
 EOF

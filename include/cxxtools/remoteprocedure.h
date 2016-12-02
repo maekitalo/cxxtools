@@ -78,7 +78,9 @@ class IRemoteProcedure
 };
 
 
-//! @cond internal
+/** Base class for Remote procedure class.
+ *
+ */
 
 template <typename R>
 class RemoteProcedureBase : public IRemoteProcedure
@@ -94,12 +96,22 @@ class RemoteProcedureBase : public IRemoteProcedure
             _result.setFault(rc, msg);
         }
 
-        R& result()
+        /// access result value.
+        const R& value() const
         {
-            return _result.get();
+            return _result.value();
         }
 
-        const R& result() const
+        /** Finalize call and return result.
+         *  Exceptions are thrown when the call resulted in a exception.
+         *  The method should be called just once since the exception state
+         *  is partly reset.
+         */
+#if __cplusplus >= 201103L
+        R&& result()
+#else
+        R& result()
+#endif
         {
             return _result.get();
         }
@@ -111,7 +123,11 @@ class RemoteProcedureBase : public IRemoteProcedure
 
         Signal< RemoteResult<R> & > finished;
 
+#if __cplusplus >= 201103L
+        R&& end(Milliseconds msecs = RemoteClient::WaitInfinite)
+#else
         R& end(Milliseconds msecs = RemoteClient::WaitInfinite)
+#endif
         {
             _result.client().wait(msecs);
             return _result.get();
@@ -130,6 +146,8 @@ class RemoteProcedureBase : public IRemoteProcedure
 
 /// Template for calling a remote procedure.
 
+// generated with `remoteprocedure.pl -n 10`
+//! @cond internal
 template <typename R,
           typename A1 = cxxtools::Void,
           typename A2 = cxxtools::Void,
@@ -173,7 +191,11 @@ class RemoteProcedure : public RemoteProcedureBase<R>
             this->client().beginCall(this->_r, *this, argv, 10);
         }
 
+#if __cplusplus >= 201103L
+        R&& call(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7, const A8& a8, const A9& a9, const A10& a10)
+#else
         R& call(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7, const A8& a8, const A9& a9, const A10& a10)
+#endif
         {
             this->_result.clearFault();
 
@@ -194,7 +216,11 @@ class RemoteProcedure : public RemoteProcedureBase<R>
             return this->_result.get();
         }
 
+#if __cplusplus >= 201103L
+        R&& operator()(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7, const A8& a8, const A9& a9, const A10& a10)
+#else
         R& operator()(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7, const A8& a8, const A9& a9, const A10& a10)
+#endif
         {
             return this->call(a1, a2, a3, a4, a5, a6, a7, a8, a9, a10);
         }
@@ -212,7 +238,6 @@ class RemoteProcedure : public RemoteProcedureBase<R>
         Decomposer<A10> _a10;
 };
 
-//! @cond internal
 
 template <typename R,
           typename A1,
@@ -256,7 +281,11 @@ class RemoteProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8, A9,
             this->client().beginCall(this->_r, *this, argv, 9);
         }
 
+#if __cplusplus >= 201103L
+        R&& call(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7, const A8& a8, const A9& a9)
+#else
         R& call(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7, const A8& a8, const A9& a9)
+#endif
         {
             this->_result.clearFault();
 
@@ -276,7 +305,11 @@ class RemoteProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8, A9,
             return this->_result.get();
         }
 
+#if __cplusplus >= 201103L
+        R&& operator()(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7, const A8& a8, const A9& a9)
+#else
         R& operator()(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7, const A8& a8, const A9& a9)
+#endif
         {
             return this->call(a1, a2, a3, a4, a5, a6, a7, a8, a9);
         }
@@ -335,7 +368,11 @@ class RemoteProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8,
             this->client().beginCall(this->_r, *this, argv, 8);
         }
 
+#if __cplusplus >= 201103L
+        R&& call(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7, const A8& a8)
+#else
         R& call(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7, const A8& a8)
+#endif
         {
             this->_result.clearFault();
 
@@ -354,7 +391,11 @@ class RemoteProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8,
             return this->_result.get();
         }
 
+#if __cplusplus >= 201103L
+        R&& operator()(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7, const A8& a8)
+#else
         R& operator()(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7, const A8& a8)
+#endif
         {
             return this->call(a1, a2, a3, a4, a5, a6, a7, a8);
         }
@@ -411,7 +452,11 @@ class RemoteProcedure<R, A1, A2, A3, A4, A5, A6, A7,
             this->client().beginCall(this->_r, *this, argv, 7);
         }
 
+#if __cplusplus >= 201103L
+        R&& call(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7)
+#else
         R& call(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7)
+#endif
         {
             this->_result.clearFault();
 
@@ -429,7 +474,11 @@ class RemoteProcedure<R, A1, A2, A3, A4, A5, A6, A7,
             return this->_result.get();
         }
 
+#if __cplusplus >= 201103L
+        R&& operator()(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7)
+#else
         R& operator()(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6, const A7& a7)
+#endif
         {
             return this->call(a1, a2, a3, a4, a5, a6, a7);
         }
@@ -484,7 +533,11 @@ class RemoteProcedure<R, A1, A2, A3, A4, A5, A6,
             this->client().beginCall(this->_r, *this, argv, 6);
         }
 
+#if __cplusplus >= 201103L
+        R&& call(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6)
+#else
         R& call(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6)
+#endif
         {
             this->_result.clearFault();
 
@@ -501,7 +554,11 @@ class RemoteProcedure<R, A1, A2, A3, A4, A5, A6,
             return this->_result.get();
         }
 
+#if __cplusplus >= 201103L
+        R&& operator()(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6)
+#else
         R& operator()(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5, const A6& a6)
+#endif
         {
             return this->call(a1, a2, a3, a4, a5, a6);
         }
@@ -554,7 +611,11 @@ class RemoteProcedure<R, A1, A2, A3, A4, A5,
             this->client().beginCall(this->_r, *this, argv, 5);
         }
 
+#if __cplusplus >= 201103L
+        R&& call(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5)
+#else
         R& call(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5)
+#endif
         {
             this->_result.clearFault();
 
@@ -570,7 +631,11 @@ class RemoteProcedure<R, A1, A2, A3, A4, A5,
             return this->_result.get();
         }
 
+#if __cplusplus >= 201103L
+        R&& operator()(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5)
+#else
         R& operator()(const A1& a1, const A2& a2, const A3& a3, const A4& a4, const A5& a5)
+#endif
         {
             return this->call(a1, a2, a3, a4, a5);
         }
@@ -621,7 +686,11 @@ class RemoteProcedure<R, A1, A2, A3, A4,
             this->client().beginCall(this->_r, *this, argv, 4);
         }
 
+#if __cplusplus >= 201103L
+        R&& call(const A1& a1, const A2& a2, const A3& a3, const A4& a4)
+#else
         R& call(const A1& a1, const A2& a2, const A3& a3, const A4& a4)
+#endif
         {
             this->_result.clearFault();
 
@@ -636,7 +705,11 @@ class RemoteProcedure<R, A1, A2, A3, A4,
             return this->_result.get();
         }
 
+#if __cplusplus >= 201103L
+        R&& operator()(const A1& a1, const A2& a2, const A3& a3, const A4& a4)
+#else
         R& operator()(const A1& a1, const A2& a2, const A3& a3, const A4& a4)
+#endif
         {
             return this->call(a1, a2, a3, a4);
         }
@@ -685,7 +758,11 @@ class RemoteProcedure<R, A1, A2, A3,
             this->client().beginCall(this->_r, *this, argv, 3);
         }
 
+#if __cplusplus >= 201103L
+        R&& call(const A1& a1, const A2& a2, const A3& a3)
+#else
         R& call(const A1& a1, const A2& a2, const A3& a3)
+#endif
         {
             this->_result.clearFault();
 
@@ -699,7 +776,11 @@ class RemoteProcedure<R, A1, A2, A3,
             return this->_result.get();
         }
 
+#if __cplusplus >= 201103L
+        R&& operator()(const A1& a1, const A2& a2, const A3& a3)
+#else
         R& operator()(const A1& a1, const A2& a2, const A3& a3)
+#endif
         {
             return this->call(a1, a2, a3);
         }
@@ -746,7 +827,11 @@ class RemoteProcedure<R, A1, A2,
             this->client().beginCall(this->_r, *this, argv, 2);
         }
 
+#if __cplusplus >= 201103L
+        R&& call(const A1& a1, const A2& a2)
+#else
         R& call(const A1& a1, const A2& a2)
+#endif
         {
             this->_result.clearFault();
 
@@ -759,7 +844,11 @@ class RemoteProcedure<R, A1, A2,
             return this->_result.get();
         }
 
+#if __cplusplus >= 201103L
+        R&& operator()(const A1& a1, const A2& a2)
+#else
         R& operator()(const A1& a1, const A2& a2)
+#endif
         {
             return this->call(a1, a2);
         }
@@ -804,7 +893,11 @@ class RemoteProcedure<R, A1,
             this->client().beginCall(this->_r, *this, argv, 1);
         }
 
+#if __cplusplus >= 201103L
+        R&& call(const A1& a1)
+#else
         R& call(const A1& a1)
+#endif
         {
             this->_result.clearFault();
 
@@ -816,7 +909,11 @@ class RemoteProcedure<R, A1,
             return this->_result.get();
         }
 
+#if __cplusplus >= 201103L
+        R&& operator()(const A1& a1)
+#else
         R& operator()(const A1& a1)
+#endif
         {
             return this->call(a1);
         }
@@ -876,7 +973,8 @@ class RemoteProcedure<R,
 };
 
 //! @endcond internal
+// end generated with `remoteprocedure.pl -n 10`
 
 }
 
-#endif // CXXTOOLS_REMOTEPROCEDURE_H
+#endif
