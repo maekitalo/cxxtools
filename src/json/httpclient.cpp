@@ -212,7 +212,7 @@ const std::string& HttpClient::url() const
 
 const IRemoteProcedure* HttpClient::activeProcedure() const
 {
-    return _impl->activeProcedure();
+    return _impl == 0 ? 0 : _impl->activeProcedure();
 }
 
 void HttpClient::cancel()

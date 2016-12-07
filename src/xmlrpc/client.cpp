@@ -80,7 +80,7 @@ std::string Client::url() const
 
 const IRemoteProcedure* Client::activeProcedure() const
 {
-    return _impl->activeProcedure();
+    return _impl == 0 ? 0 : _impl->activeProcedure();
 }
 
 void Client::cancel()
