@@ -955,7 +955,11 @@ class RemoteProcedure<R,
             this->client().beginCall(this->_r, *this, argv, 0);
         }
 
+#if __cplusplus >= 201103L
+        R&& call()
+#else
         R& call()
+#endif
         {
             this->_result.clearFault();
 
