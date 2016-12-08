@@ -306,7 +306,11 @@ EOF
             return this->_result.get();
         }
 
+#if __cplusplus >= 201103L
+        R&& operator()()
+#else
         R& operator()()
+#endif
         {
             return this->call();
         }
