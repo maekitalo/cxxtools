@@ -30,6 +30,7 @@
 #include <ios>
 #include <iomanip>
 #include <cctype>
+#include <cstdio>
 
 namespace cxxtools
 {
