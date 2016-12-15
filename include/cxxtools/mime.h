@@ -18,120 +18,254 @@
  * 
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.    See the GNU
  * Lesser General Public License for more details.
  * 
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA    02110-1301    USA
  */
+
+#ifndef CXXTOOLS_MIME_H
+#define CXXTOOLS_MIME_H
 
 #include <iosfwd>
 #include <string>
 #include <vector>
-#include <map>
+#include <utility>
 
 namespace cxxtools
 {
-  class Mimepart
-  {
-      friend std::ostream& operator<< (std::ostream& out, const Mimepart& mimePart);
+class MimeEntity;
+class MimeMultipart;
+class SerializationInfo;
+
+/** The class implements a base class for mime entities, with headers as specified in rfc2045.
+ */
+class MimeHeader
+{
+        friend std::ostream& operator<< (std::ostream& out, const MimeHeader& mimeHeader);
+        friend void operator<<= (SerializationInfo& si, const MimeHeader& mh);
+        friend void operator>>= (const SerializationInfo& si, MimeHeader& mh);
+
+        typedef std::vector<std::pair<std::string, std::string> > HeadersType;
+        HeadersType headers;
 
     public:
-      enum ContentTransferEncoding {
-        quotedPrintable,
-        base64
-      };
+        /// returns the header value or a default value
+        std::string getHeader(const std::string& key, const std::string& def = std::string()) const;
+
+        /// Set a header line to the mime entity.
+        void setHeader(const std::string& key, const std::string& value, bool replace = true);
+
+        /// Adds a header line to the mime entity.
+        void addHeader(const std::string& key, const std::string& value)
+            { headers.push_back(HeadersType::value_type(key, value)); }
+
+        /// Removes the header
+        void unsetHeader(const std::string& key);
+
+        /// Returns true, if the content type is multipart/*
+        bool isMultipart() const;
+};
+
+/** A MimeEntity is a message with headers and a body.
+
+    The headers contain typically a content type, which specifies, how the body
+    is to be interpreted.
+ */
+class MimeEntity : public MimeHeader
+{
+        friend std::ostream& operator<< (std::ostream& out, const MimeEntity& mimeEntity);
+        friend void operator<<= (SerializationInfo& si, const MimeEntity& mo);
+        friend void operator>>= (const SerializationInfo& si, MimeEntity& mo);
+        friend MimeEntity& operator<< (MimeEntity& me, const std::string& str);
+        friend MimeEntity& operator<< (MimeEntity& me, const char* str);
+
+    public:
+        enum ContentTransferEncoding {
+            none,
+            quotedPrintable,
+            base64
+        };
 
     private:
-      typedef std::map<std::string, std::string> HeadersType;
-      HeadersType headers;
-      ContentTransferEncoding contentTransferEncoding;
-      std::string body;
+        std::string body;
 
     public:
-      explicit Mimepart(const std::string& contentType_ = "text/plain, charset=UTF-8",
-                        ContentTransferEncoding contentTransferEncoding_ = quotedPrintable);
+        /// Creates an mime entity without headers and an empty body.
+        MimeEntity() { }
 
-      void setData(const std::string& data)   { body = data; }
-      void addData(const std::string& data)   { body += data; }
-      void addData(std::istream& in);
-      const std::string& getBody() const       { return body; }
-      void setHeader(const std::string& key, const std::string& value)
-        { headers[key] = value; }
-  };
+        /// Creates an mime entity from a string.
+        /// The string must be a mime message. On errors an exception is thrown.
+        explicit MimeEntity(const std::string& data);
 
-  class Mime
-  {
-      friend std::ostream& operator<< (std::ostream& out, const Mime& mime);
+        /// Reads an mime entity from a input stream.
+        explicit MimeEntity(std::istream& in);
 
-    public:
-      typedef Mimepart::ContentTransferEncoding ContentTransferEncoding;
+        /// Returns the body of the message.
+        const std::string& getBody() const       { return body; }
+        /// Returns the body of the message.
+        std::string& getBody()                   { return body; }
 
-    private:
-      typedef std::map<std::string, std::string> HeadersType;
-      HeadersType headers;
+        /// Sets the body of the message.
+        MimeEntity& setBody(const std::string& b)       { body = b; return *this; }
+        MimeEntity& readBody(std::istream& in);
 
-      typedef std::vector<Mimepart> PartsType;
-      PartsType parts;
+        MimeEntity& setContentTransferEncoding(ContentTransferEncoding cte);
+        ContentTransferEncoding getContentTransferEncoding() const;
 
-    public:
-      /// Adds a header-line to the mime-object.
-      void setHeader(const std::string& key, const std::string& value)
-         { headers[key] = value; }
+        MimeEntity& setContentType(const std::string& ct)
+            { setHeader("Content-Type", ct); return *this; }
+        std::string getContentType() const
+            { return getHeader("Content-Type"); }
 
-      /// Adds a part to the mime-object.
-      Mimepart& addPart(const Mimepart& part)
-        { parts.push_back(part); return parts.back(); }
+        MimeEntity& setHeader(const std::string& key, const std::string& value, bool replace = true)
+            { MimeHeader::setHeader(key, value, replace); return *this; }
+};
 
-      /// Adds a part to the mime-object. The data is passed as a std::string.
-      Mimepart& addPart(const std::string& data, const std::string& contentType = "text/plain",
-        ContentTransferEncoding contentTransferEncoding = Mimepart::quotedPrintable);
-
-      /// Adds a part to the mime-object. The data is read from a input stream.
-      Mimepart& addPart(std::istream& in, const std::string& contentType = "text/plain",
-        ContentTransferEncoding contentTransferEncoding = Mimepart::quotedPrintable);
-
-      /// Adds a text file. The data is passed as a std::string.
-      Mimepart& addTextFile(const std::string& contentType, const std::string& filename, const std::string& data)
-      {
-        Mimepart& part = addPart(data, contentType, Mimepart::quotedPrintable);
-        part.setHeader("Content-Disposition", "attachment; filename=" + filename);
-        return part;
-      }
-
-      /// Adds a text file. The data is read from a istream
-      Mimepart& addTextFile(const std::string& contentType, const std::string& filename, std::istream& in)
-      {
-        Mimepart& part = addPart(in, contentType, Mimepart::quotedPrintable);
-        part.setHeader("Content-Disposition", "attachment; filename=" + filename);
-        return part;
-      }
-
-      /// Adds a text file. The data is read from a file.
-      Mimepart& addTextFile(const std::string& contentType, const std::string& filename);
-
-      /// Adds a binary file. The data is passed as a std::string.
-      Mimepart& addBinaryFile(const std::string& contentType, const std::string& filename, const std::string& data)
-      {
-        Mimepart& part = addPart(data, contentType, Mimepart::base64);
-        part.setHeader("Content-Disposition", "attachment; filename=" + filename);
-        return part;
-      }
-
-      /// Adds a binary file. The data is read from a istream
-      Mimepart& addBinaryFile(const std::string& contentType, const std::string& filename, std::istream& in)
-      {
-        Mimepart& part = addPart(in, contentType, Mimepart::base64);
-        part.setHeader("Content-Disposition", "attachment; filename=" + filename);
-        return part;
-      }
-
-      /// Adds a binary file. The data is read from a file.
-      Mimepart& addBinaryFile(const std::string& contentType, const std::string& filename);
-
-  };
-
-  std::ostream& operator<< (std::ostream& out, const Mimepart& mimePart);
-  std::ostream& operator<< (std::ostream& out, const Mime& mime);
+/// operator to add a std::string to a mime entity body.
+inline MimeEntity& operator<< (MimeEntity& me, const std::string& str)
+{
+    me.body.append(str);
+    return me;
 }
+
+/// operator to add a const char* to a mime entity body.
+inline MimeEntity& operator<< (MimeEntity& me, const char* str)
+{
+    me.body.append(str);
+    return me;
+}
+
+
+/** A MimeMultipart is a mime entity with multiple embedded entities.
+ */
+class MimeMultipart : public MimeHeader
+{
+        friend std::ostream& operator<< (std::ostream& out, const MimeMultipart& mime);
+        friend void operator<<= (SerializationInfo& si, const MimeMultipart& mm);
+        friend void operator>>= (const SerializationInfo& si, MimeMultipart& mm);
+        friend void operator>>= (const SerializationInfo& si, MimeEntity& mo);
+
+    public:
+        typedef MimeEntity::ContentTransferEncoding ContentTransferEncoding;
+
+        enum Type {
+                typeMixed,
+                typeAlternative,
+                typeDigest,
+                typeParallel,
+                typeRelated
+        };
+
+    private:
+        typedef std::vector<MimeEntity> PartsType;
+        PartsType parts;
+
+        std::string type;    // mixed or alternative
+
+        void partsFromBody(const std::string& body, std::string::size_type pos = 0);
+        static std::string stringParts(const std::vector<MimeEntity>& parts, std::vector<std::string>& sparts);
+
+    public:
+        typedef PartsType::const_iterator const_iterator;
+        typedef PartsType::iterator iterator;
+        typedef PartsType::size_type size_type;
+
+        /// Parses a multipart entity.
+        explicit MimeMultipart(const std::string& data);
+
+        /// Make a MimeMultipart entity from a MimeEntity.
+        /// If the content type is not multipart/something, a exception is thrown.
+        MimeMultipart(const MimeEntity& mimeEntity);
+
+        /// Creates a empty MimeMultipart object
+        explicit MimeMultipart(Type type_ = typeMixed)
+            { setType(type_); }
+
+        /// Returns the number of entities in this object.
+        size_type size() const
+            { return parts.size(); }
+        /// Returns the nth entity.
+        MimeEntity& operator[] (size_type n)
+            { return parts[n]; }
+        /// Returns the nth entity.
+        const MimeEntity& operator[] (size_type n) const
+            { return parts[n]; }
+        /// Returns a iterator to the first entity.
+        iterator begin()
+            { return parts.begin(); }
+        /// Returns a iterator after the last entity.
+        iterator end()
+            { return parts.end(); }
+        /// Returns a iterator to the first entity.
+        const_iterator begin() const
+            { return parts.begin(); }
+        /// Returns a iterator after the last entity.
+        const_iterator end() const
+            { return parts.end(); }
+
+        void setType(Type type_);
+        void setType(const std::string& type_)
+            { type = type_; }
+
+        /// Adds a empty mime entity and returns a reference to it.
+        MimeEntity& addObject()
+            { parts.resize(parts.size() + 1); return parts.back(); }
+
+        /// Adds a entity to the mime entity.
+        MimeEntity& addObject(const MimeEntity& mimeEntity)
+            { parts.push_back(mimeEntity); return parts.back(); }
+
+        /// Adds a entity to the mime entity. The data is passed as a std::string.
+        MimeEntity& addObject(const std::string& data, const std::string& contentType = "text/plain; charset=UTF-8",
+            ContentTransferEncoding contentTransferEncoding = MimeEntity::quotedPrintable);
+
+        /// Adds a entity to the mime entity. The data is read from a input stream.
+        MimeEntity& addObject(std::istream& in, const std::string& contentType = "text/plain; charset=UTF-8",
+            ContentTransferEncoding contentTransferEncoding = MimeEntity::quotedPrintable);
+
+        MimeEntity& addObject(const MimeMultipart& mimeMultipart);
+
+        /// Adds a text file. The data is passed as a std::string.
+        MimeEntity& attachTextFile(const std::string& data, const std::string& filename, const std::string& contentType = "text/plain; charset=UTF-8")
+        {
+            MimeEntity& mimeEntity = addObject(data, contentType, MimeEntity::quotedPrintable);
+            mimeEntity.addHeader("Content-Disposition", "attachment; filename=" + filename);
+            return mimeEntity;
+        }
+
+        /// Adds a text file. The data is read from a istream
+        MimeEntity& attachTextFile(std::istream& in, const std::string& filename, const std::string& contentType = "text/plain; charset=UTF-8")
+        {
+            MimeEntity& mimeEntity = addObject(in, contentType, MimeEntity::quotedPrintable);
+            mimeEntity.addHeader("Content-Disposition", "attachment; filename=" + filename);
+            return mimeEntity;
+        }
+
+        /// Adds a binary file. The data is passed as a std::string.
+        MimeEntity& attachBinaryFile(const std::string& data, const std::string& filename, const std::string& contentType = "application/x-binary")
+        {
+            MimeEntity& mimeEntity = addObject(data, contentType, MimeEntity::base64);
+            mimeEntity.addHeader("Content-Disposition", "attachment; filename=" + filename);
+            return mimeEntity;
+        }
+
+        /// Adds a binary file. The data is read from a istream
+        MimeEntity& attachBinaryFile(std::istream& in, const std::string& filename, const std::string& contentType = "application/x-binary")
+        {
+            MimeEntity& mimeEntity = addObject(in, contentType, MimeEntity::base64);
+            mimeEntity.addHeader("Content-Disposition", "attachment; filename=" + filename);
+            return mimeEntity;
+        }
+
+};
+
+std::ostream& operator<< (std::ostream& out, const MimeHeader& mimeHeader);
+std::ostream& operator<< (std::ostream& out, const MimeEntity& mimeEntity);
+std::ostream& operator<< (std::ostream& out, const MimeMultipart& mime);
+
+}
+
+#endif
