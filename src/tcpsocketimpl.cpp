@@ -463,7 +463,7 @@ bool TcpSocketImpl::checkPollEvent(pollfd& pfd)
             close();
             _connectResult = tryConnect();
 
-            if (_isConnected || !_connectResult.empty())
+            if (_isConnected || !_connectFailedMessages.empty())
             {
                 // immediate success or error
                 log_debug("connected successfully");
