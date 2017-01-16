@@ -306,12 +306,14 @@ class Date
 
             Valid format codes are:
 
-              %d day (1-31)
-              %m month (1-12)
-              %Y 4 digit year
-              %y 2 digit year
-              %w day of week (0-6 sunday=6)
-              %W day of week (1-7 sunday=7)
+              %d   day (01-31)
+              %1d  day (1-31)
+              %m   month (01-12)
+              %1m  month (1-12)
+              %Y   4 digit year
+              %y   2 digit year
+              %w   day of week (0-6 sunday=6)
+              %W   day of week (1-7 sunday=7)
          */
         std::string toString(const std::string& fmt = "%Y-%m-%d") const;
 

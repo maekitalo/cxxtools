@@ -176,7 +176,8 @@ std::string Date::toString(const std::string& fmt) const
 
   enum {
     state_0,
-    state_fmt
+    state_fmt,
+    state_one
   } state = state_0;
 
   for (std::string::const_iterator it = fmt.begin(); it != fmt.end(); ++it)
@@ -191,6 +192,9 @@ std::string Date::toString(const std::string& fmt) const
         break;
 
       case state_fmt:
+        if (*it != '%')
+          state = state_0;
+
         switch (*it)
         {
           case 'Y': appendDn(str, 4, year); break;
@@ -199,12 +203,28 @@ std::string Date::toString(const std::string& fmt) const
           case 'd': appendDn(str, 2, day); break;
           case 'w': appendDn(str, 1, dayOfWeek()); break;
           case 'W': { int dow = dayOfWeek(); appendDn(str, 1, dow == 0 ? 7 : dow); } break;
+          case '1': state = state_one; break;
+
           default:
             str += '%';
+            str += *it;
         }
 
-        if (*it != '%')
-          state = state_0;
+        break;
+
+      case state_one:
+        state = state_0;
+        switch (*it)
+        {
+          case 'd': appendDn(str, day < 10 ? 1 : 2, day); break;
+          case 'm': appendDn(str, month < 10 ? 1 : 2, month); break;
+          default:  str += "%1";
+                    str += *it;
+                    if (*it == '%')
+                      state = state_fmt;
+                    break;
+        }
+
         break;
     }
   }
