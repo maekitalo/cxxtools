@@ -59,17 +59,18 @@ namespace cxxtools
   template <typename outputIterator, typename characterType>
   void split(characterType ch, const std::basic_string<characterType>& line, outputIterator it)
   {
-    std::basic_string<characterType> s(line);
-    typename std::basic_string<characterType>::size_type pos;
+    typename std::basic_string<characterType>::size_type b;
+    typename std::basic_string<characterType>::size_type e;
 
-    while ((pos = s.find(ch)) != std::basic_string<characterType>::npos)
+    b = 0;
+    while ((e = line.find(ch, b)) != std::basic_string<characterType>::npos)
     {
-      *it = s.substr(0, pos);
+      (*it) = std::basic_string<characterType>(line, b, e - b);
       ++it;
-      s.erase(0, pos + 1);
+      b = e + 1;
     }
 
-    *it = s;
+    *it = std::basic_string<characterType>(line, b);
     ++it;
   }
 
@@ -93,17 +94,18 @@ namespace cxxtools
   template <typename outputIterator, typename characterType>
   void split(const characterType* chars, const std::basic_string<characterType>& line, outputIterator it)
   {
-    std::basic_string<characterType> s(line);
-    typename std::basic_string<characterType>::size_type pos;
+    typename std::basic_string<characterType>::size_type b;
+    typename std::basic_string<characterType>::size_type e;
 
-    while ((pos = s.find_first_of(chars)) != std::basic_string<characterType>::npos)
+    b = 0;
+    while ((e = line.find_first_of(chars, b)) != std::basic_string<characterType>::npos)
     {
-      *it = s.substr(0, pos);
+      (*it) = std::basic_string<characterType>(line, b, e - b);
       ++it;
-      s.erase(0, pos + 1);
+      b = e + 1;
     }
 
-    *it = s;
+    *it = std::basic_string<characterType>(line, b);
     ++it;
   }
 
@@ -127,17 +129,18 @@ namespace cxxtools
   template <typename outputIterator, typename characterType>
   void split(const std::basic_string<characterType>& chars, const std::basic_string<characterType>& line, outputIterator it)
   {
-    std::basic_string<characterType> s(line);
-    typename std::basic_string<characterType>::size_type pos;
+    typename std::basic_string<characterType>::size_type e;
+    typename std::basic_string<characterType>::size_type b;
 
-    while ((pos = s.find_first_of(chars)) != std::basic_string<characterType>::npos)
+    b = 0;
+    while ((e = line.find_first_of(chars, b)) != std::basic_string<characterType>::npos)
     {
-      *it = s.substr(0, pos);
+      (*it) = std::basic_string<characterType>(line, b, e - b);
       ++it;
-      s.erase(0, pos + 1);
+      b = e + 1;
     }
 
-    *it = s;
+    *it = std::basic_string<characterType>(line, b);
     ++it;
   }
 
@@ -158,17 +161,18 @@ namespace cxxtools
   template <typename outputIterator>
   void split(const Regex& re, const std::string& line, outputIterator it)
   {
-    std::string s(line);
     RegexSMatch sm;
+    typename std::string::size_type b;
 
-    while (re.match(s, sm))
+    b = 0;
+    while (re.matchp(line, b, sm))
     {
-      *it = s.substr(0, sm.offsetBegin(0));
+      (*it) = std::string(line, b, sm.offsetBegin(0) - b);
       ++it;
-      s.erase(0, sm.offsetEnd(0));
+      b = sm.offsetEnd(0);
     }
 
-    *it = s;
+    *it = std::string(line, b);
     ++it;
   }
 
