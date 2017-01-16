@@ -3,7 +3,7 @@ noinst_HEADERS = \
 
 noinst_PROGRAMS = \
 	arg \
-	arg-set cgi \
+	arg-set \
 	commandoutput \
 	cxxlog \
 	deserialization \
@@ -51,7 +51,6 @@ noinst_PROGRAMS = \
 
 arg_set_SOURCES = arg-set.cpp
 arg_SOURCES = arg.cpp
-cgi_SOURCES = cgi.cpp
 commandoutput_SOURCES = commandoutput.cpp
 cxxlog_SOURCES = cxxlog.cpp
 deserialization_SOURCES = deserialization.cpp
