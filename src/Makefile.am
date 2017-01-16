@@ -108,7 +108,6 @@ libcxxtools_la_SOURCES = \
 	uri.cpp \
 	utf8codec.cpp \
 	uuencode.cpp \
-	xmltag.cpp \
 	net.cpp \
 	tcpserverimpl.cpp \
 	tcpserver.cpp \
