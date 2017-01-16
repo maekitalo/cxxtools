@@ -82,18 +82,21 @@ void XmlWriter::writeStartElement(const String& localName, const Attribute* attr
         throw std::runtime_error("local name must not be empty in xml writer");
 
     if (useIndent())
-    {
-        for(size_t n = 0; n < _elements.size(); ++n)
-        {
-            _tos << Char(' ') << Char(' ');
-        }
-    }
+        indent();
 
     _tos << Char('<') << localName;
 
-    for(size_t n = 0; n < attrCount; ++n)
+    for (size_t n = 0; n < attrCount; ++n)
     {
-        _tos << Char(' ') << attr[n].name() << Char('=') << Char('"');
+        if (useEndl())
+            endl();
+
+        if (useIndent())
+            indent(_elements.size() + 1);
+        else
+            _tos << Char(' ');
+
+        _tos << attr[n].name() << Char('=') << Char('"');
         writeCharacters(attr[n].value());
         _tos << Char('"');
     }
@@ -113,12 +116,7 @@ void XmlWriter::writeEndElement()
         return;
 
     if (useIndent())
-    {
-        for(size_t n = 1; n < _elements.size(); ++n)
-        {
-            _tos << Char(' ') << Char(' ');
-        }
-    }
+        indent(_elements.size() - 1);
 
     _tos << Char(L'<') << Char(L'/') << _elements.top() << Char(L'>');
 
@@ -138,18 +136,21 @@ void XmlWriter::writeElement(const String& localName, const String& content)
 void XmlWriter::writeElement(const String& localName, const Attribute* attr, size_t attrCount, const String& content)
 {
     if (useIndent())
-    {
-        for(size_t n = 0; n < _elements.size(); ++n)
-        {
-            _tos << Char(' ') << Char(' ');
-        }
-    }
+        indent();
 
     _tos << Char(L'<') << localName;
 
-    for(size_t n = 0; n < attrCount; ++n)
+    for (size_t n = 0; n < attrCount; ++n)
     {
-        _tos << Char(' ') << attr[n].name() << Char('=') << Char('"');
+        if (useEndl())
+            endl();
+
+        if (useIndent())
+            indent(_elements.size() + 1);
+        else
+            _tos << Char(' ');
+
+        _tos << attr[n].name() << Char('=') << Char('"');
         writeCharacters(attr[n].value());
         _tos << Char('"');
     }
@@ -169,7 +170,7 @@ void XmlWriter::writeCharacters(const String& text)
     static EntityResolver resolver;
 
     String::const_iterator it;
-    for(it = text.begin(); it != text.end(); ++it)
+    for (it = text.begin(); it != text.end(); ++it)
         resolver.getEntity(_tos, *it);
 }
 
@@ -183,6 +184,22 @@ void XmlWriter::flush()
 void XmlWriter::endl()
 {
     _tos << Char('\n');
+}
+
+void XmlWriter::indent(size_t size)
+{
+    for (size_t n = 0; n < size; ++n)
+        _tos << Char(' ') << Char(' ');
+}
+
+void XmlWriter::Element::writeContent(const String& text)
+{
+    if (_writer.useIndent())
+        _writer.indent();
+
+    _writer.writeCharacters(text);
+    if (_writer.useEndl())
+        _writer.endl();
 }
 
 } // namespace xml

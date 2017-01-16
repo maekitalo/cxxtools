@@ -109,27 +109,26 @@ namespace xml {
                     : _writer(writer)
                     { _writer.writeStartElement(localName, attr); }
 
-                void writeContent(const String& text)
-                {
-                    _writer.writeCharacters(text);
-                    if (_writer.useEndl())
-                        _writer.endl();
-                }
-
-
                 ~Element()
                     { _writer.writeEndElement(); }
+
+                void writeContent(const String& text);
 
             private:
                 XmlWriter& _writer;
             };
 
         private:
+            void indent(size_t size);
+            void indent();
+
             TextOStream _tos;
             std::stack<cxxtools::String> _elements;
             int _flags;
     };
 
+    inline void XmlWriter::indent()
+    { indent(_elements.size()); }
 }
 
 }

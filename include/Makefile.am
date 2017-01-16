@@ -187,7 +187,6 @@ nobase_include_HEADERS = \
         cxxtools/utf8codec.h \
         cxxtools/uuencode.h \
         cxxtools/void.h \
-        cxxtools/xmltag.h \
         cxxtools/log/cxxtools.h \
         cxxtools/unit/application.h \
         cxxtools/unit/assertion.h \
@@ -202,6 +201,7 @@ nobase_include_HEADERS = \
         cxxtools/unit/testmethod.h \
         cxxtools/unit/testprotocol.h \
         cxxtools/unit/testsuite.h \
+        cxxtools/xml/attribute.h \
         cxxtools/xml/characters.h \
         cxxtools/xml/comment.h \
         cxxtools/xml/doctypedeclaration.h \
