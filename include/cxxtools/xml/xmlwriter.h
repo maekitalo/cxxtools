@@ -28,13 +28,12 @@
 
 #include <cxxtools/string.h>
 #include <cxxtools/textstream.h>
+#include <cxxtools/xml/attribute.h>
 #include <stack>
 
 namespace cxxtools {
 
 namespace xml {
-
-    class Attribute;
 
     class XmlWriter
     {
@@ -43,21 +42,25 @@ namespace xml {
 
             XmlWriter(std::ostream& os, int format =  UseXmlDeclaration | UseIndent | UseEndl);
 
-            ~XmlWriter();
-
             void begin(std::ostream& os);
-
-            void writeStartElement(const cxxtools::String& prefix, const cxxtools::String& localName, const cxxtools::String& ns);
 
             void writeStartElement(const cxxtools::String& localName);
 
             void writeStartElement(const cxxtools::String& localName, const Attribute* attr, size_t attrCount);
+
+            void writeStartElement(const cxxtools::String& localName, const Attributes& attr)
+                { writeStartElement(localName, &attr[0], attr.size()); }
 
             void writeEndElement();
 
             void writeElement(const cxxtools::String& localName, const cxxtools::String& content);
 
             void writeElement(const cxxtools::String& localName, const Attribute* attr, size_t attrCount, const cxxtools::String& content);
+
+            void writeElement(const cxxtools::String& localName, const Attributes& attr, const cxxtools::String& content)
+                { writeElement(localName, &attr[0], attr.size(), content); }
+
+            void writeContent(const cxxtools::String& text);
 
             void writeCharacters(const cxxtools::String& text);
 
@@ -88,6 +91,38 @@ namespace xml {
             bool useEndl() const             { return _flags & UseEndl; }
 
             void useEndl(bool sw)            { setFormatFlags(UseEndl, sw); }
+
+            void beautify(bool sw)           { _flags = sw ? (UseXmlDeclaration | UseIndent | UseEndl) : 0; }
+
+            class Element
+            {
+            public:
+                Element(XmlWriter& writer, const cxxtools::String& localName)
+                    : _writer(writer)
+                    { _writer.writeStartElement(localName); }
+
+                Element(XmlWriter& writer, const cxxtools::String& localName, const Attribute* attr, size_t attrCount)
+                    : _writer(writer)
+                    { _writer.writeStartElement(localName, attr, attrCount); }
+
+                Element(XmlWriter& writer, const cxxtools::String& localName, const Attributes& attr)
+                    : _writer(writer)
+                    { _writer.writeStartElement(localName, attr); }
+
+                void writeContent(const String& text)
+                {
+                    _writer.writeCharacters(text);
+                    if (_writer.useEndl())
+                        _writer.endl();
+                }
+
+
+                ~Element()
+                    { _writer.writeEndElement(); }
+
+            private:
+                XmlWriter& _writer;
+            };
 
         private:
             TextOStream _tos;

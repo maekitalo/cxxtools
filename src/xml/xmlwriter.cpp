@@ -60,11 +60,6 @@ XmlWriter::XmlWriter(std::ostream& os, int flags)
 }
 
 
-XmlWriter::~XmlWriter()
-{
-}
-
-
 void XmlWriter::begin(std::ostream& os)
 {
     _tos.attach(os);
@@ -72,11 +67,6 @@ void XmlWriter::begin(std::ostream& os)
         _tos << xmlPrefix;
     if (useEndl())
         endl();
-}
-
-
-void XmlWriter::writeStartElement(const String& /*prefix*/, const String& /*localName*/, const String& /*ns*/)
-{
 }
 
 

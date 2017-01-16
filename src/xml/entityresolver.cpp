@@ -25,7 +25,7 @@
  */
 
 #include <cxxtools/xml/entityresolver.h>
-#include <cxxtools/stringstream.h>
+#include <cxxtools/convert.h>
 #include <stdexcept>
 #include <stdint.h>
 
@@ -312,6 +312,14 @@ namespace
           os << Char(*p++);
       os << Char(';');
   }
+
+  const Ent* findEntity(Char ch)
+  {
+      for (unsigned n = 0; n < sizeof(rent)/sizeof(Ent); ++n)
+          if (rent[n].charValue == ch.value())
+              return &rent[n];
+      return 0;
+  }
 }
 
 
@@ -384,35 +392,34 @@ String EntityResolver::resolveEntity(const String& entity) const
 
 String EntityResolver::getEntity(Char ch) const
 {
-    OStringStream s;
-    getEntity(s, ch);
-    return s.str();
+    const Ent* e = findEntity(ch);
+    if (e)
+    {
+        String s;
+        s += '&';
+        s += e->entity;
+        s += ';';
+        return s;
+    }
+
+    if (ch.value() >= ' ' && ch.value() <= 0x7F)
+        return String(1, ch);
+
+    String s;
+    s += '&';
+    s += '#';
+    s += convert<String>(ch.value());
+    s += ';';
+    return s;
 }
 
 
 void EntityResolver::getEntity(std::basic_ostream<Char>& os, Char ch) const
 {
-    unsigned u = 0;
-    unsigned o = sizeof(rent)/sizeof(Ent) - 1;
-    while (o - u > 1)
-    {
-        unsigned m = (o + u) / 2;
-        if (rent[m].charValue == ch.value())
-        {
-            printEntity(os, rent[m].entity);
-            return;
-        }
+    const Ent* e = findEntity(ch);
 
-        if (ch.value() < rent[m].charValue)
-            o = m;
-        else
-            u = m;
-    }
-
-    if (rent[u].charValue == ch.value())
-        printEntity(os, rent[u].entity);
-    else if (rent[o].charValue == ch.value())
-        printEntity(os, rent[o].entity);
+    if (e)
+        printEntity(os, e->entity);
     else if (ch.value() >= ' ' && ch.value() <= 0x7F)
         os << ch;
     else

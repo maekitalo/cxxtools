@@ -29,88 +29,12 @@
 #include <cxxtools/xml/node.h>
 #include <cxxtools/xml/namespace.h>
 #include <cxxtools/xml/namespacecontext.h>
+#include <cxxtools/xml/attribute.h>
 #include <cxxtools/string.h>
-#include <vector>
 
 namespace cxxtools {
 
 namespace xml {
-
-    /**
-     * @brief A class representing a single attribute of a tag from an XML document.
-     *
-     * An XML attribute consists of the attribute's name and the attribute's value.
-     * The name can be retrieved using the method name(). The value can be retrieved
-     * using the method value().
-     *
-     * The attributes of a tag are retrieved from the document when the opening tag
-     * is parsed. The attributes are stored in a StartElement object from where they
-     * can be retrieved.
-     */
-    class Attribute
-    {
-        public:
-            //! Constructs a new Attribute object with an empty name and value.
-            Attribute()
-            { }
-
-            /**
-             * @brief Constructs a new Attribute using the given name and value.
-             *
-             * @param name The name of the XML attribute.
-             * @param value The value of the XML attribute.
-             */
-            Attribute(const String& name, const String& value)
-            : _name(name), _value(value)
-            { }
-
-
-            /**
-             * @brief Returns the name of this attribute.
-             * @return The attribute's name.
-             */
-            const String& name() const
-            { return _name; }
-
-            String& name()
-            { return _name; }
-
-            /**
-             * @brief Sets the name of this attribute.
-             * @param name The new name of this attribute.
-             */
-            void setName(const String& name)
-            { _name = name; }
-
-            /**
-             * @brief Returns the value of this attribute.
-             * @return The attribute's value.
-             */
-            const String& value() const
-            { return _value; }
-
-            String& value()
-            { return _value; }
-
-            /**
-             * @brief Sets the value of this attribute.
-             * @param value The new value of this attribute.
-             */
-            void setValue(const String& value)
-            { _value = value; }
-
-            void clear()
-            { _name.clear(); _value.clear(); }
-
-        private:
-            //! The name of this attribute.
-            String _name;
-
-            //! The value of this attribute.
-            String _value;
-    };
-
-    typedef std::vector<Attribute> Attributes;
 
     /**
      * @brief A start element (Node) which represents an opening tag of an XML document.
