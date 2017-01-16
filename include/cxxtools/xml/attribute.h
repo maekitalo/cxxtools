@@ -27,6 +27,9 @@
 #define cxxtools_xml_Attribute_h
 
 #include <cxxtools/string.h>
+#include <cxxtools/date.h>
+#include <cxxtools/time.h>
+#include <cxxtools/datetime.h>
 #include <vector>
 
 namespace cxxtools {
@@ -61,6 +64,17 @@ namespace xml {
             : _name(name), _value(value)
             { }
 
+            Attribute(const String& name, const Date& value)
+            : _name(name), _value(value.toString("%Y-%m-%d"))
+            { }
+
+            Attribute(const String& name, const Time& value)
+            : _name(name), _value(value.toString("%H:%M:%S"))
+            { }
+
+            Attribute(const String& name, const DateTime& value)
+            : _name(name), _value(value.toString("%Y-%m-%dT%H:%M:%S"))
+            { }
 
             /**
              * @brief Returns the name of this attribute.
