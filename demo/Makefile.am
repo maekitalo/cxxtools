@@ -38,6 +38,7 @@ noinst_PROGRAMS = \
 	rpcechoclient \
 	rpcparallelecho \
 	rpcserver \
+	saml2 \
 	serialization \
 	signals \
 	splitter \
@@ -86,6 +87,7 @@ rpcasyncaddclient_SOURCES = rpcasyncaddclient.cpp
 rpcechoclient_SOURCES = rpcechoclient.cpp
 rpcparallelecho_SOURCES = rpcparallelecho.cpp
 rpcserver_SOURCES = rpcserver.cpp
+saml2_SOURCES = saml2.cpp
 serialization_SOURCES = serialization.cpp
 signals_SOURCES = signals.cpp
 splitter_SOURCES = splitter.cpp

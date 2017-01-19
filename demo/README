@@ -118,3 +118,9 @@ The messages are serialized using binary serialization. It is easy to send and
 receive more complex messages over a socket. It is easy to change the
 serialization format to xml or json using the suitable serializer and
 deserializer.
+
+saml2
+=====
+Demonstrate how to create dynamically xml using `cxxtools::xml::XmlWriter`.
+
+It prints a SAML2 document to stdout.
