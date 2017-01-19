@@ -32,7 +32,7 @@ namespace cxxtools
 {
 namespace net
 {
-void TcpStream::init(std::size_t timeout)
+void TcpStream::init(cxxtools::Timespan timeout)
 {
     _socket.setTimeout(timeout);
     attachDevice(_socket);

@@ -40,44 +40,55 @@ namespace cxxtools
 
 namespace net
 {
+    /** A buffered TCP/IP stream which supports asyncronous communication.
+     *
+     *  When a object is created a buffer size is passed. By default the buffer size
+     *  is 0, which means, that the buffer is dynamically extended when needed so that
+     *  writing do not block.
+     */
     class TcpStream : public IOStream, public Connectable
     {
-            void init(std::size_t timeout);
+            void init(cxxtools::Timespan timeout);
 
         public:
-            explicit TcpStream(unsigned bufsize = 8192, std::size_t timeout = Selectable::WaitInfinite)
-            : IOStream(bufsize)
+            /// Creates a not connected TCP stream object.
+            explicit TcpStream(unsigned bufsize = 0, cxxtools::Milliseconds timeout = Selectable::WaitInfinite)
+            : IOStream(bufsize > 0 ? bufsize : 8192, bufsize == 0)
             {
                 init(timeout);
             }
 
+            /// Creates a TCP stream object and connects to the specified IP address and port.
             TcpStream(const std::string& ipaddr, unsigned short int port,
-                      unsigned bufsize = 8192, std::size_t timeout = Selectable::WaitInfinite)
-            : IOStream(bufsize)
+                      unsigned bufsize = 0, cxxtools::Milliseconds timeout = Selectable::WaitInfinite)
+            : IOStream(bufsize > 0 ? bufsize : 8192, bufsize == 0)
             , _socket(ipaddr, port)
             {
                 init(timeout);
             }
 
+            /// Creates a TCP stream object and connects to the specified address info.
             explicit TcpStream(const AddrInfo& addrinfo,
-                      unsigned bufsize = 8192, std::size_t timeout = Selectable::WaitInfinite)
-            : IOStream(bufsize)
+                      unsigned bufsize = 0, cxxtools::Milliseconds timeout = Selectable::WaitInfinite)
+            : IOStream(bufsize > 0 ? bufsize : 8192, bufsize == 0)
             , _socket(addrinfo)
             {
                 init(timeout);
             }
 
+            /// Creates a TCP stream object and connects to the specified IP address and port.
             TcpStream(const char* ipaddr, unsigned short int port,
-                      unsigned bufsize = 8192, std::size_t timeout = Selectable::WaitInfinite)
-            : IOStream(bufsize)
+                      unsigned bufsize = 8192, cxxtools::Milliseconds timeout = Selectable::WaitInfinite)
+            : IOStream(bufsize, true)
             , _socket(ipaddr, port)
             {
                 init(timeout);
             }
 
+            /// Creates a TCP stream object and accepts a connection from a server.
             explicit TcpStream(TcpServer& server, unsigned bufsize = 8192,
-                      unsigned flags = 0, std::size_t timeout = Selectable::WaitInfinite)
-            : IOStream(bufsize)
+                      unsigned flags = 0, cxxtools::Milliseconds timeout = Selectable::WaitInfinite)
+            : IOStream(bufsize, true)
             , _socket(server, flags)
             {
                 init(timeout);
