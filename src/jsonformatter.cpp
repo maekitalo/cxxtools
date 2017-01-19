@@ -32,7 +32,7 @@
 #include <cxxtools/log.h>
 #include <limits>
 
-log_define("cxxtools.jsonformatter")
+log_define("cxxtools.json.formatter")
 
 namespace cxxtools
 {
