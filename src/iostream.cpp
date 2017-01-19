@@ -29,15 +29,15 @@
 
 namespace cxxtools {
 
-IStream::IStream(size_t bufferSize, bool extend)
-: _buffer(bufferSize, extend)
+IStream::IStream(size_t bufferSize)
+: _buffer(bufferSize)
 {
     attachBuffer(&_buffer);
 }
 
 
-IStream::IStream(IODevice& device, size_t bufferSize, bool extend)
-: _buffer(device, bufferSize, extend)
+IStream::IStream(IODevice& device, size_t bufferSize)
+: _buffer(device, bufferSize)
 {
     attachBuffer(&_buffer);
 }

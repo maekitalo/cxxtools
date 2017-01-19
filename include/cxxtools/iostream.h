@@ -199,11 +199,11 @@ class BasicIOStream : public std::basic_iostream<CharT>
 class IStream : public BasicIStream<char>
 {
     public:
-        explicit IStream(size_t bufferSize = 8192, bool extend = false);
+        explicit IStream(size_t bufferSize = 8192);
 
         ~IStream();
 
-        explicit IStream(IODevice& device, size_t bufferSize = 8192, bool extend = false);
+        explicit IStream(IODevice& device, size_t bufferSize = 8192);
 
         StreamBuffer& buffer();
 
