@@ -124,6 +124,9 @@ class TcpSocketImpl : public IODeviceImpl
 
         // overrid beginWrite to use send(2) instead of write(2)
         virtual size_t beginWrite(const char* buffer, size_t n);
+
+        // overrid write to use send(2) instead of write(2)
+        virtual size_t write( const char* buffer, size_t count );
 };
 
 } // namespace net

@@ -192,7 +192,8 @@ size_t IODeviceImpl::read( char* buffer, size_t count, bool& eof )
 
         if(ret > 0)
         {
-            log_debug("::read(" << _fd << ", " << count << ") returned " << ret << " => \"" << HexDump(buffer, ret) << '"');
+            log_debug("::read(" << _fd << ", " << count << ") returned " << ret);
+            log_finer(HexDump(buffer, ret));
             break;
         }
 
@@ -229,7 +230,9 @@ size_t IODeviceImpl::read( char* buffer, size_t count, bool& eof )
 
 size_t IODeviceImpl::beginWrite(const char* buffer, size_t n)
 {
-    log_debug("::write(" << _fd << ", \"" << HexDump(buffer, n) << "\", " << n << ')');
+    log_debug("::write(" << _fd << ", buffer, " << n << ')');
+    log_finer(HexDump(buffer, n));
+
     ssize_t ret = ::write(_fd, (const void*)buffer, n);
 
     log_debug("write returned " << ret);
@@ -239,10 +242,8 @@ size_t IODeviceImpl::beginWrite(const char* buffer, size_t n)
     if (ret == 0 || errno == ECONNRESET || errno == EPIPE)
         throw IOError("lost connection to peer");
 
-    if(_pfd)
-    {
+    if (_pfd)
         _pfd->events |= POLLOUT;
-    }
 
     return 0;
 }
@@ -279,6 +280,7 @@ size_t IODeviceImpl::write( const char* buffer, size_t count )
     while(true)
     {
         log_debug("::write(" << _fd << ", buffer, " << count << ')');
+        log_finer(HexDump(buffer, count));
 
         ret = ::write(_fd, (const void*)buffer, count);
         log_debug("write returned " << ret);
