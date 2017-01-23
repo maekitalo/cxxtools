@@ -613,7 +613,33 @@ size_t TcpSocketImpl::write(const char* buffer, size_t n)
     return static_cast<size_t>(ret);
 }
 
+void TcpSocketImpl::inputReady()
+{
+    // check for ssl - may need to call ssl_read or ssl_write (when it returned with SSL_ERROR_WANT_READ)
+    IODeviceImpl::inputReady();
+}
 
+void TcpSocketImpl::outputReady()
+{
+    // check for ssl - may need to call ssl_read (on SSL_ERROR_WANT_WRITE) or ssl_write
+    IODeviceImpl::outputReady();
+}
+
+size_t TcpSocketImpl::read(char* buffer, size_t count, bool& eof)
+{
+    // TODO check for ssl mode
+    return IODeviceImpl::read(buffer, count, eof);
+}
+
+void TcpSocketImpl::sslStart()
+{
+    // TODO
+}
+
+void TcpSocketImpl::sslStop()
+{
+    // TODO
+}
 
 } // namespace net
 

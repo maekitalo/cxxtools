@@ -96,6 +96,10 @@ class TcpSocket : public IODevice
 
         short poll(short events) const;
 
+        void sslStart();
+
+        void sslStop();
+
     protected:
         TcpSocket(TcpSocketImpl* impl)
         : _impl(impl)

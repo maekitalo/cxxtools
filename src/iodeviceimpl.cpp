@@ -470,8 +470,7 @@ bool IODeviceImpl::checkPollEvent(pollfd& pfd)
 
     if( _device.wavail() > 0 || (pfd.revents & POLLOUT_MASK) )
     {
-        log_debug("send signal outputReady");
-        _device.outputReady(_device);
+        outputReady();
         avail = true;
     }
 
@@ -480,12 +479,24 @@ bool IODeviceImpl::checkPollEvent(pollfd& pfd)
 
     if( pfd.revents & POLLIN_MASK )
     {
-        log_debug("send signal inputReady");
-        _device.inputReady(_device);
+        inputReady();
         avail = true;
     }
 
     return avail;
 }
+
+void IODeviceImpl::inputReady()
+{
+    log_debug("send signal inputReady");
+    _device.inputReady(_device);
+}
+
+void IODeviceImpl::outputReady()
+{
+    log_debug("send signal outputReady");
+    _device.outputReady(_device);
+}
+
 
 }

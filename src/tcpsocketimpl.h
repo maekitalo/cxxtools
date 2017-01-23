@@ -79,6 +79,15 @@ class TcpSocketImpl : public IODeviceImpl
 {
     private:
         TcpSocket& _socket;
+        enum {
+            IDLE,
+            CONNECTING,
+            CONNECTED,
+            SSLINIT,
+            SSL,
+            SSLEND
+        } _state;
+
         bool _isConnected;
         struct sockaddr_storage _peeraddr;
         AddrInfo _addrInfo;
@@ -122,11 +131,24 @@ class TcpSocketImpl : public IODeviceImpl
         // implementation using poll
         bool checkPollEvent(pollfd& pfd);
 
-        // overrid beginWrite to use send(2) instead of write(2)
+        // override beginWrite to use send(2) instead of write(2)
         virtual size_t beginWrite(const char* buffer, size_t n);
 
-        // overrid write to use send(2) instead of write(2)
-        virtual size_t write( const char* buffer, size_t count );
+        // override write to use send(2) instead of write(2)
+        virtual size_t write(const char* buffer, size_t count);
+
+        // override for ssl
+        virtual size_t read(char* buffer, size_t count, bool& eof);
+
+        // override for ssl
+        virtual void inputReady();
+
+        // override for ssl
+        virtual void outputReady();
+
+        void sslStart();
+
+        void sslStop();
 };
 
 } // namespace net

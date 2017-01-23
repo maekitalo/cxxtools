@@ -180,6 +180,16 @@ int TcpSocket::getFd() const
 }
 
 
+void TcpSocket::sslStart()
+{
+    _impl->sslStart();
+}
+
+void TcpSocket::sslStop()
+{
+    _impl->sslStop();
+}
+
 void TcpSocket::accept(const TcpServer& server, unsigned flags)
 {
     close();
