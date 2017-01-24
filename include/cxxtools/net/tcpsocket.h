@@ -96,9 +96,14 @@ class TcpSocket : public IODevice
 
         short poll(short events) const;
 
-        void sslStart();
+        // initiates a ssl connection on the socket
+        void sslConnect();
 
-        void sslStop();
+        // accept a ssl connection from the peer
+        void sslAccept();
+
+        // terminates ssl
+        void sslShutdown();
 
     protected:
         TcpSocket(TcpSocketImpl* impl)

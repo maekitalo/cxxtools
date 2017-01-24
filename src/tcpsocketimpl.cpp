@@ -631,12 +631,17 @@ size_t TcpSocketImpl::read(char* buffer, size_t count, bool& eof)
     return IODeviceImpl::read(buffer, count, eof);
 }
 
-void TcpSocketImpl::sslStart()
+void TcpSocketImpl::sslAccept()
 {
     // TODO
 }
 
-void TcpSocketImpl::sslStop()
+void TcpSocketImpl::sslConnect()
+{
+    // TODO
+}
+
+void TcpSocketImpl::sslShutdown()
 {
     // TODO
 }

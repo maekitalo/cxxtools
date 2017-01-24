@@ -180,14 +180,19 @@ int TcpSocket::getFd() const
 }
 
 
-void TcpSocket::sslStart()
+void TcpSocket::sslConnect()
 {
-    _impl->sslStart();
+    _impl->sslConnect();
 }
 
-void TcpSocket::sslStop()
+void TcpSocket::sslAccept()
 {
-    _impl->sslStop();
+    _impl->sslAccept();
+}
+
+void TcpSocket::sslShutdown()
+{
+    _impl->sslShutdown();
 }
 
 void TcpSocket::accept(const TcpServer& server, unsigned flags)

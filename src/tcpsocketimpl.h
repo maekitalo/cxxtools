@@ -146,9 +146,14 @@ class TcpSocketImpl : public IODeviceImpl
         // override for ssl
         virtual void outputReady();
 
-        void sslStart();
+        // initiates a ssl connection on the socket
+        void sslConnect();
 
-        void sslStop();
+        // accept a ssl connection from the peer
+        void sslAccept();
+
+        // terminates ssl
+        void sslShutdown();
 };
 
 } // namespace net
