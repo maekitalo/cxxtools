@@ -562,7 +562,7 @@ void JsonParser::finish()
         case state_comment:
         case state_comment_e:
             log_warn("unexpected end of json; state=" << _state);
-            SerializationError::doThrow("unexpected end of json");
+            doThrow("unexpected end of json");
 
         case state_number:
             _deserializer->setValue(_token);
