@@ -277,6 +277,14 @@ class QueryParams
       return *this;
     }
 
+    /// returns all names of parameters
+    template <typename output_iterator>
+    void getNames(output_iterator o) const
+    {
+      for (values_type::const_iterator i = _values.begin(); i != _values.end(); ++i)
+        *o++ = (*i).name;
+    }
+
     /// removes all data
     void clear()
     { _values.clear(); }

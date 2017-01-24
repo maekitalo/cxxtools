@@ -29,6 +29,8 @@
 #include "cxxtools/unit/testsuite.h"
 #include "cxxtools/unit/registertest.h"
 #include "cxxtools/query_params.h"
+#include <vector>
+#include <iterator>
 
 class QueryParamsTest : public cxxtools::unit::TestSuite
 {
@@ -46,6 +48,7 @@ class QueryParamsTest : public cxxtools::unit::TestSuite
             registerMethod("testSet", *this, &QueryParamsTest::testSet);
             registerMethod("testIterator", *this, &QueryParamsTest::testIterator);
             registerMethod("testGetUrl", *this, &QueryParamsTest::testGetUrl);
+            registerMethod("testGetNames", *this, &QueryParamsTest::testGetNames);
         }
 
         void testQueryParams()
@@ -203,6 +206,22 @@ class QueryParamsTest : public cxxtools::unit::TestSuite
             std::string url = q.getUrl();
             CXXTOOLS_UNIT_ASSERT_EQUALS(url, "first+name=Tommi&last+name=M%A4kitalo&some+value");
         }
+
+        void testGetNames()
+        {
+            cxxtools::QueryParams q;
+            q.add("p1", "value1");
+            q.add("p2", "value2");
+            q.add("value3");
+
+            std::vector<std::string> names;
+            q.getNames(std::back_inserter(names));
+            CXXTOOLS_UNIT_ASSERT_EQUALS(names.size(), 3);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(names[0], "p1");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(names[1], "p2");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(names[2], "");
+        }
+
 };
 
 cxxtools::unit::RegisterTest<QueryParamsTest> register_QueryParamsTest;
