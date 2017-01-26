@@ -147,9 +147,9 @@ std::string TcpSocketImpl::connectFailedMessages()
 }
 
 TcpSocketImpl::TcpSocketImpl(TcpSocket& socket)
-: IODeviceImpl(socket)
-, _socket(socket)
-, _isConnected(false)
+: IODeviceImpl(socket),
+  _socket(socket),
+  _state(IDLE)
 {
 }
 
@@ -164,12 +164,12 @@ void TcpSocketImpl::close()
 {
     log_debug("close socket " << _fd);
     IODeviceImpl::close();
-    _isConnected = false;
+    _state = IDLE;
 }
 
 
 std::string TcpSocketImpl::getSockAddr() const
-{ return net::getSockAddr(fd()); }
+{ return net::getSockAddr(_fd); }
 
 std::string TcpSocketImpl::getPeerAddr() const
 {
@@ -186,8 +186,8 @@ std::string TcpSocketImpl::getPeerAddr() const
 void TcpSocketImpl::connect(const AddrInfo& addrInfo)
 {
     log_debug("connect");
-    this->beginConnect(addrInfo);
-    this->endConnect();
+    beginConnect(addrInfo);
+    endConnect();
 }
 
 
@@ -199,7 +199,7 @@ int TcpSocketImpl::checkConnect()
     socklen_t optlen = sizeof(sockerr);
 
     // check for socket error
-    if( ::getsockopt(this->fd(), SOL_SOCKET, SO_ERROR, &sockerr, &optlen) != 0 )
+    if (::getsockopt(_fd, SOL_SOCKET, SO_ERROR, &sockerr, &optlen) != 0)
     {
         // getsockopt failed
         int e = errno;
@@ -210,7 +210,7 @@ int TcpSocketImpl::checkConnect()
     if (sockerr == 0)
     {
         log_debug("connected successfully to " << getPeerAddr());
-        _isConnected = true;
+        _state = CONNECTED;
     }
 
     return sockerr;
@@ -271,9 +271,9 @@ std::string TcpSocketImpl::tryConnect()
         log_debug("created socket " << _fd << " max: " << FD_SETSIZE);
         log_debug("connect to port " << _addrInfo.port());
 
-        if( ::connect(this->fd(), _addrInfoPtr->ai_addr, _addrInfoPtr->ai_addrlen) == 0 )
+        if (::connect(_fd, _addrInfoPtr->ai_addr, _addrInfoPtr->ai_addrlen) == 0)
         {
-            _isConnected = true;
+            _state = CONNECTED;
             log_debug("connected successfully to " << getPeerAddr());
             break;
         }
@@ -298,14 +298,15 @@ bool TcpSocketImpl::beginConnect(const AddrInfo& addrInfo)
 {
     log_trace("begin connect");
 
-    assert(!_isConnected);
+    assert(_state == IDLE);
 
     _connectFailedMessages.clear();
     _addrInfo = addrInfo;
     _addrInfoPtr = _addrInfo.impl()->begin();
+    _state = CONNECTING;
     _connectResult = tryConnect();
     checkPendingError();
-    return _isConnected;
+    return _state == CONNECTED;
 }
 
 
@@ -313,14 +314,14 @@ void TcpSocketImpl::endConnect()
 {
     log_trace("ending connect");
 
-    if(_pfd && ! _socket.wbuf())
+    if (_pfd && ! _socket.wbuf())
     {
         _pfd->events &= ~POLLOUT;
     }
 
     checkPendingError();
 
-    if( _isConnected )
+    if ( _state == CONNECTED )
         return;
 
     try
@@ -328,18 +329,18 @@ void TcpSocketImpl::endConnect()
         while (true)
         {
             pollfd pfd;
-            pfd.fd = this->fd();
+            pfd.fd = _fd;
             pfd.revents = 0;
             pfd.events = POLLOUT;
 
             log_debug("wait " << timeout());
-            bool avail = this->wait(this->timeout(), pfd);
+            bool avail = wait(timeout(), pfd);
 
             if (avail)
             {
                 // something has happened
                 int sockerr = checkConnect();
-                if (_isConnected)
+                if (_state == CONNECTED)
                 {
                     _connectFailedMessages.clear();
                     return;
@@ -363,7 +364,7 @@ void TcpSocketImpl::endConnect()
             close();
 
             _connectResult = tryConnect();
-            if (_isConnected)
+            if (_state == CONNECTED)
             {
                 _connectResult.clear();
                 _connectFailedMessages.clear();
@@ -386,7 +387,7 @@ void TcpSocketImpl::accept(const TcpServer& server, unsigned flags)
 
     _fd = server.impl().accept(flags, reinterpret_cast <struct sockaddr*>(&_peeraddr), peeraddr_len);
 
-    if( _fd < 0 )
+    if (_fd < 0)
         throw SystemError("accept");
 
 #ifdef HAVE_ACCEPT4
@@ -397,7 +398,7 @@ void TcpSocketImpl::accept(const TcpServer& server, unsigned flags)
 #endif
     //TODO ECONNABORTED EINTR EPERM
 
-    _isConnected = true;
+    _state = CONNECTED;
     log_debug( "accepted from " << getPeerAddr());
 }
 
@@ -406,7 +407,7 @@ void TcpSocketImpl::initWait(pollfd& pfd)
 {
     IODeviceImpl::initWait(pfd);
 
-    if( ! _isConnected )
+    if (!isConnected())
     {
         log_debug("not connected, setting POLLOUT ");
         pfd.events = POLLOUT;
@@ -418,7 +419,7 @@ bool TcpSocketImpl::checkPollEvent(pollfd& pfd)
 {
     log_debug("checkPollEvent " << pfd.revents);
 
-    if (_isConnected)
+    if (isConnected())
     {
         // check for error while neither reading nor writing
         //
@@ -442,7 +443,7 @@ bool TcpSocketImpl::checkPollEvent(pollfd& pfd)
         socklen_t optlen = sizeof(sockerr);
 
         // check for socket error
-        if( ::getsockopt(this->fd(), SOL_SOCKET, SO_ERROR, &sockerr, &optlen) != 0 )
+        if (::getsockopt(_fd, SOL_SOCKET, SO_ERROR, &sockerr, &optlen) != 0)
             throw SystemError("getsockopt");
 
         _connectFailedMessages.push_back(connectFailedMessage(_addrInfoPtr, sockerr));
@@ -463,7 +464,7 @@ bool TcpSocketImpl::checkPollEvent(pollfd& pfd)
             close();
             _connectResult = tryConnect();
 
-            if (_isConnected || !_connectFailedMessages.empty())
+            if (_state == CONNECTED || !_connectFailedMessages.empty())
             {
                 // immediate success or error
                 log_debug("connected successfully");
@@ -479,10 +480,10 @@ bool TcpSocketImpl::checkPollEvent(pollfd& pfd)
             return true;
         }
     }
-    else if( pfd.revents & POLLOUT )
+    else if (pfd.revents & POLLOUT)
     {
         int sockerr = checkConnect();
-        if (_isConnected)
+        if (_state == CONNECTED)
         {
             _socket.connected(_socket);
             return true;
@@ -501,7 +502,7 @@ bool TcpSocketImpl::checkPollEvent(pollfd& pfd)
 
         close();
         _connectResult = tryConnect();
-        if (_isConnected)
+        if (_state == CONNECTED)
         {
             _socket.connected(_socket);
             return true;
@@ -634,16 +635,22 @@ size_t TcpSocketImpl::read(char* buffer, size_t count, bool& eof)
 void TcpSocketImpl::sslAccept()
 {
     // TODO
+    _state = SSLACCEPTING;
+    //SSL_accept(ssl);
 }
 
 void TcpSocketImpl::sslConnect()
 {
     // TODO
+    _state = SSLCONNECTING;
+    //SSL_connect(ssl);
 }
 
 void TcpSocketImpl::sslShutdown()
 {
     // TODO
+    _state = SSLSHUTDOWN;
+    //SSL_shutdown(ssl);
 }
 
 } // namespace net

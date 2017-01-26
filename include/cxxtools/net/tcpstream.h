@@ -135,6 +135,18 @@ namespace net
             int getFd() const
             { return _socket.getFd(); }
 
+            // initiates a ssl connection on the socket
+            void sslConnect()
+            { _socket.sslConnect(); }
+
+            // accept a ssl connection from the peer
+            void sslAccept()
+            { _socket.sslAccept(); }
+
+            // terminates ssl
+            void sslShutdown()
+            { _socket.sslShutdown(); }
+
             TcpSocket& socket()
             { return _socket; }
 

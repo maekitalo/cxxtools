@@ -83,9 +83,10 @@ class TcpSocketImpl : public IODeviceImpl
             IDLE,
             CONNECTING,
             CONNECTED,
-            SSLINIT,
+            SSLACCEPTING,
+            SSLCONNECTING,
             SSL,
-            SSLEND
+            SSLSHUTDOWN
         } _state;
 
         bool _isConnected;
@@ -113,7 +114,7 @@ class TcpSocketImpl : public IODeviceImpl
         std::string getPeerAddr() const;
 
         bool isConnected() const
-        { return _isConnected; }
+        { return _state >= CONNECTED; }
 
         void connect(const AddrInfo& addrinfo);
 
