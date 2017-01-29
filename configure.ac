@@ -214,6 +214,27 @@ AC_COMPILE_IFELSE(
 AC_SUBST(HAVE_REVERSE_ITERATOR, "$HAVE_REVERSE_ITERATOR")
 AC_SUBST(HAVE_REVERSE_ITERATOR_4, "$HAVE_REVERSE_ITERATOR_4")
 
+#
+# SSL
+#
+AC_ARG_WITH([ssl],
+    AS_HELP_STRING([--with-ssl=yes|no], [build with SSL support]),
+  [ssl_option=$withval],
+  [ssl_option=yes])
+
+AS_IF([test $ssl_option = yes],
+[
+  AC_CHECK_HEADER([openssl/ssl.h],
+      [
+        AC_MSG_RESULT([building with ssl support])
+        AC_DEFINE(WITH_SSL, [], [Define to build with openssl])
+      ],
+      AC_MSG_ERROR([header for openssl not found; install openssl developent package or use --without-ssl])
+      )
+])
+
+AM_CONDITIONAL(MAKE_OPENSSL, test x$with_openssl = x1)
+
 AC_ARG_ENABLE([demos],
   AS_HELP_STRING([--disable-demos], [disable building demos]),
   [enable_demos=$enableval],

@@ -148,13 +148,16 @@ class TcpSocketImpl : public IODeviceImpl
         virtual void outputReady();
 
         // initiates a ssl connection on the socket
-        void sslConnect();
+        void sslConnectBegin();
+        void sslConnectEnd();
 
         // accept a ssl connection from the peer
-        void sslAccept();
+        void sslAcceptBegin();
+        void sslAcceptEnd();
 
         // terminates ssl
-        void sslShutdown();
+        void sslShutdownBegin();
+        void sslShutdownEnd();
 };
 
 } // namespace net

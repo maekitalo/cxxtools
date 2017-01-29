@@ -180,19 +180,52 @@ int TcpSocket::getFd() const
 }
 
 
+void TcpSocket::sslConnectBegin()
+{
+    _impl->sslConnectBegin();
+}
+
+void TcpSocket::sslConnectEnd()
+{
+    _impl->sslConnectEnd();
+}
+
 void TcpSocket::sslConnect()
 {
-    _impl->sslConnect();
+    _impl->sslConnectBegin();
+    _impl->sslConnectEnd();
+}
+
+void TcpSocket::sslAcceptBegin()
+{
+    _impl->sslAcceptBegin();
+}
+
+void TcpSocket::sslAcceptEnd()
+{
+    _impl->sslAcceptEnd();
 }
 
 void TcpSocket::sslAccept()
 {
-    _impl->sslAccept();
+    _impl->sslAcceptBegin();
+    _impl->sslAcceptEnd();
+}
+
+void TcpSocket::sslShutdownBegin()
+{
+    _impl->sslShutdownBegin();
+}
+
+void TcpSocket::sslShutdownEnd()
+{
+    _impl->sslShutdownEnd();
 }
 
 void TcpSocket::sslShutdown()
 {
-    _impl->sslShutdown();
+    _impl->sslShutdownBegin();
+    _impl->sslShutdownEnd();
 }
 
 void TcpSocket::accept(const TcpServer& server, unsigned flags)

@@ -632,25 +632,43 @@ size_t TcpSocketImpl::read(char* buffer, size_t count, bool& eof)
     return IODeviceImpl::read(buffer, count, eof);
 }
 
-void TcpSocketImpl::sslAccept()
+void TcpSocketImpl::sslAcceptBegin()
 {
     // TODO
     _state = SSLACCEPTING;
     //SSL_accept(ssl);
 }
 
-void TcpSocketImpl::sslConnect()
+void TcpSocketImpl::sslAcceptEnd()
+{
+    // TODO
+    _state = SSL;
+}
+
+void TcpSocketImpl::sslConnectBegin()
 {
     // TODO
     _state = SSLCONNECTING;
     //SSL_connect(ssl);
 }
 
-void TcpSocketImpl::sslShutdown()
+void TcpSocketImpl::sslConnectEnd()
+{
+    // TODO
+    _state = SSL;
+}
+
+void TcpSocketImpl::sslShutdownBegin()
 {
     // TODO
     _state = SSLSHUTDOWN;
     //SSL_shutdown(ssl);
+}
+
+void TcpSocketImpl::sslShutdownEnd()
+{
+    // TODO
+    _state = CONNECTED;
 }
 
 } // namespace net
