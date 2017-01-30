@@ -39,6 +39,9 @@ namespace cxxtools
  */
 class SystemError : public std::runtime_error
 {
+    protected:
+        explicit SystemError(const std::string& msg);
+
     public:
         SystemError(int err, const char* fn);
 
@@ -55,13 +58,9 @@ class SystemError : public std::runtime_error
         int m_errno;
 };
 
-void throwSystemError(const char* msg);
-inline void throwSystemError(const std::string& msg)
-{
-  throwSystemError(msg.c_str());
-}
+void throwSystemError(const char* fn);
 
-void throwSystemError(int errnum, const char* msg);
+void throwSystemError(int errnum, const char* fn);
 
 /** @brief Thrown, when a shared library could not be loaded
 */
@@ -97,6 +96,20 @@ class SymbolNotFound : public SystemError
         //! @brief Returns the symbol, which was not found
         const std::string& symbol() const
         { return _symbol; }
+};
+
+class SslError : public SystemError
+{
+    public:
+        SslError(const std::string& msg, unsigned long sslError)
+            : SystemError(msg),
+              _sslError(sslError)
+            { }
+
+        unsigned long getSslError() const
+            { return _sslError; }
+    private:
+        unsigned long _sslError;
 };
 
 } // namespace cxxtools

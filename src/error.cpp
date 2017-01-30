@@ -96,12 +96,23 @@ std::string getErrnoString(int errnum, const char* fn)
     if (errnum != 0)
     {
         std::ostringstream msg;
-        msg << fn << ": errno " << errnum << ": ";
+        if (fn && fn[0])
+            msg << "error " << errnum << " in function " << fn << ": ";
+        else
+            msg << "error " << errnum << ": ";
         errorOut(msg, errnum);
         return msg.str();
     }
+    else if (fn && fn[0])
+    {
+        std::ostringstream msg;
+        msg << "function " << fn << " failed with unknown error";
+        return msg.str();
+    }
     else
-        return fn;
+    {
+        return "unknown error";
+    }
 }
 
 }

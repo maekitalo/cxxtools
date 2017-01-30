@@ -27,7 +27,11 @@
  */
 
 #include "addrinfoimpl.h"
+#include "error.h"
+
+#include <cxxtools/net/addrinfo.h>
 #include <cxxtools/systemerror.h>
+
 #include <string>
 #include <sstream>
 #include <string.h>
@@ -37,6 +41,24 @@ namespace cxxtools
 
 namespace net
 {
+  namespace
+  {
+      std::string getAddrInfoError(int ret)
+      {
+          if (ret == EAI_SYSTEM)
+              return getErrnoString("getaddrinfo");
+
+          std::ostringstream msg;
+          msg << "error " << ret << " in function getaddrinfo: " << ::gai_strerror(ret);
+          return msg.str();
+      }
+  }
+
+  AddrInfoError::AddrInfoError(int ret)
+    : SystemError(getAddrInfoError(ret))
+  {
+  }
+
 
   void AddrInfoImpl::init(const std::string& host, unsigned short port)
   {
@@ -64,11 +86,18 @@ namespace net
     std::ostringstream p;
     p << port;
 
-    // TODO: exception type
-    if (0 != ::getaddrinfo(host.empty() ? 0 : host.c_str(), p.str().c_str(), &hints, &_ai))
-      throw SystemError(0, ("invalid ipaddress \"" + host + '"').c_str());
+    while (true)
+    {
+      int ret = ::getaddrinfo(host.empty() ? 0 : host.c_str(), p.str().c_str(), &hints, &_ai);
+      if (ret == 0)
+        break;
 
-    // TODO: exception type
+      if (ret == EAI_AGAIN)
+        continue;
+
+      throw AddrInfoError(ret);
+    }
+
     if (_ai == 0)
       throw SystemError("getaddrinfo");
   }
