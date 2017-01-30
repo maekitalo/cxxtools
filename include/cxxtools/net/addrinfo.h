@@ -30,6 +30,7 @@
 #define CXXTOOLS_NET_ADDRINFO_H
 
 #include <string>
+#include <cxxtools/systemerror.h>
 
 namespace cxxtools
 {
@@ -74,6 +75,12 @@ namespace net
     {
         return !(a1 == a2);
     }
+
+    class AddrInfoError : public SystemError
+    {
+        public:
+            explicit AddrInfoError(int ret);
+    };
 
 } // namespace net
 

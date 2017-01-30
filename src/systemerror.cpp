@@ -35,55 +35,62 @@ log_define("cxxtools.systemerror")
 
 namespace cxxtools
 {
+SystemError::SystemError(const std::string& msg)
+: std::runtime_error(msg),
+  m_errno(0)
+{
+  log_finer("system error: " << what());
+}
+
 
 SystemError::SystemError(int err, const char* fn)
-: std::runtime_error( getErrnoString(err, fn) )
-, m_errno(err)
+: std::runtime_error(getErrnoString(err, fn)),
+  m_errno(err)
 {
-  //log_debug("system error; " << what());
+  log_finer("system error: " << what());
 }
 
 
 SystemError::SystemError(const char* fn)
-: std::runtime_error( getErrnoString(fn) )
-, m_errno(errno)
+: std::runtime_error(getErrnoString(fn)),
+  m_errno(errno)
 {
-  //log_debug("system error; " << what());
+  log_finer("system error: " << what());
 }
 
 
 SystemError::SystemError(const char* fn, const std::string& what)
-: std::runtime_error(fn && fn[0] ? (std::string("error in function ") + fn + ": " + what) : what),
+: std::runtime_error(fn && fn[0] ? (std::string("function ") + fn + " failed: " + what) : what),
   m_errno(0)
 {
-  //log_debug("system error; " << std::exception::what());
+  log_finer("system error: " << std::exception::what());
 }
 
 
 SystemError::~SystemError() throw()
 { }
 
-void throwSystemError(const char* msg)
+void throwSystemError(const char* fn)
 {
-    throw SystemError(msg);
+    throw SystemError(fn);
 }
 
-void throwSystemError(int errnum, const char* msg)
+void throwSystemError(int errnum, const char* fn)
 {
-    throw SystemError(errnum, msg);
+    throw SystemError(errnum, fn);
 }
 
 OpenLibraryFailed::OpenLibraryFailed(const std::string& msg)
-: SystemError(0, msg)
+: SystemError(msg)
 {
-  log_debug("open library failed; " << what());
+  log_finer("open library failed: " << what());
 }
 
 SymbolNotFound::SymbolNotFound(const std::string& sym)
-: SystemError(0, "symbol not found: " + sym)
-, _symbol(sym)
+: SystemError(0, "symbol not found: " + sym),
+  _symbol(sym)
 {
-  log_debug("symbol " << sym << " not found; " << what());
+  log_finer("symbol " << sym << " not found; " << what());
 }
 
 } // namespace cxxtools
