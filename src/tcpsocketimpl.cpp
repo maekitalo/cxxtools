@@ -45,6 +45,10 @@
 #include <cxxtools/log.h>
 #include <cxxtools/join.h>
 #include <cxxtools/hdstream.h>
+#ifndef HAVE_INET_NTOP
+#include "cxxtools/mutex.h"
+#endif
+
 #include "config.h"
 #include "error.h"
 #include <cerrno>
@@ -54,9 +58,9 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sstream>
-#ifndef HAVE_INET_NTOP
-#include "cxxtools/mutex.h"
-#endif
+
+#include <openssl/err.h>
+#include <openssl/ssl.h>
 
 log_define("cxxtools.net.tcpsocket.impl")
 
@@ -74,6 +78,25 @@ namespace
         msg << "failed to connect to <" << formatIp(*reinterpret_cast<const Sockaddr*>(aip->ai_addr))
             << ">: " << getErrnoString(err);
         return msg.str();
+    }
+
+    void checkSslError()
+    {
+        unsigned long code = ERR_get_error();
+        if (code != 0)
+        {
+            char buffer[120];
+            if (ERR_error_string(code, buffer))
+            {
+                log_debug("SSL-Error " << code << ": \"" << buffer << '"');
+                throw SslError(buffer, code);
+            }
+            else
+            {
+                log_debug("unknown SSL-Error " << code);
+                throw SslError("unknown SSL-Error", code);
+            }
+        }
     }
 
 }
@@ -107,8 +130,8 @@ void formatIp(const Sockaddr& sa, std::string& str)
 
 #else // HAVE_INET_NTOP
 
-      static cxxtools::Mutex monitor;
-      cxxtools::MutexLock lock(monitor);
+      static Mutex monitor;
+      MutexLock lock(monitor);
 
       const char* p = inet_ntoa(sa.sa_in.sin_addr);
       if (p)
@@ -261,7 +284,7 @@ std::string TcpSocketImpl::tryConnect()
 #ifdef HAVE_SO_NOSIGPIPE
         static const int on = 1;
         if (::setsockopt(fd, SOL_SOCKET, SO_NOSIGPIPE, &on, sizeof(on)) < 0)
-            throw cxxtools::SystemError("setsockopt(SO_NOSIGPIPE)");
+            throw SystemError("setsockopt(SO_NOSIGPIPE)");
 #endif
 
         IODeviceImpl::open(fd, true, false);
