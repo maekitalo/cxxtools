@@ -85,6 +85,8 @@ class TcpSocket : public IODevice
         void endConnect();
 
         Signal<TcpSocket&> connected;
+        Signal<TcpSocket&> sslAccepted;
+        Signal<TcpSocket&> sslConnected;
 
         /** @brief Notifies when the device is closed while no reading or writing is pending
          */

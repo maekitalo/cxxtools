@@ -29,11 +29,14 @@
 #ifndef CXXTOOLS_NET_TcpSocketImpl_H
 #define CXXTOOLS_NET_TcpSocketImpl_H
 
-#include "cxxtools/signal.h"
 #include "iodeviceimpl.h"
 #include "cxxtools/net/addrinfo.h"
+#include "cxxtools/mutex.h"
 #include "addrinfoimpl.h"
 #include "config.h"
+
+#include <openssl/ssl.h>
+
 #include <string>
 #include <vector>
 #include <sys/types.h>
@@ -84,23 +87,31 @@ class TcpSocketImpl : public IODeviceImpl
             CONNECTING,
             CONNECTED,
             SSLACCEPTING,
+            SSLACCEPTED,
             SSLCONNECTING,
-            SSL,
+            SSLCONNECTED,
+            SSLC,
             SSLSHUTDOWN
         } _state;
 
-        bool _isConnected;
         struct sockaddr_storage _peeraddr;
         AddrInfo _addrInfo;
         AddrInfoImpl::const_iterator _addrInfoPtr;
-
-        int checkConnect();
-        void checkPendingError();
-        std::string tryConnect();
         std::string _connectResult;
         std::vector<std::string> _connectFailedMessages;
 
+        // SSL
+        static Mutex _sslMutex;
+        SSL_CTX* _sslCtx;
+        SSL* _ssl;
+
+        // methods
+        int checkConnect();
+        void checkPendingError();
+        std::string tryConnect();
         std::string connectFailedMessages();
+
+        void initSsl();
 
     public:
         explicit TcpSocketImpl(TcpSocket& socket);
