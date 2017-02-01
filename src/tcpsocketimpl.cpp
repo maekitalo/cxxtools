@@ -659,78 +659,90 @@ bool TcpSocketImpl::checkPollEvent(pollfd& pfd)
     return false;
 }
 
-namespace
+size_t TcpSocketImpl::callSend(const char* buffer, size_t n)
 {
-    size_t callSend(int fd, const char* buffer, size_t n)
-    {
-        log_debug("::send(" << fd << ", buffer, " << n << ')');
-        log_finer(HexDump(buffer, n));
+    log_debug("::send(" << _fd << ", buffer, " << n << ')');
+    log_finer(HexDump(buffer, n));
 
 #if defined(HAVE_MSG_NOSIGNAL)
 
-        ssize_t ret;
-        do {
-            ret = ::send(fd, (const void*)buffer, n, MSG_NOSIGNAL);
-        } while (ret == -1 && errno == EINTR);
+    ssize_t ret;
+    do {
+        ret = ::send(_fd, (const void*)buffer, n, MSG_NOSIGNAL);
+    } while (ret == -1 && errno == EINTR);
 
 #elif defined(HAVE_SO_NOSIGPIPE)
 
-        ssize_t ret;
-        do {
-            ret = ::send(fd, (const void*)buffer, n, 0);
-        } while (ret == -1 && errno == EINTR);
+    ssize_t ret;
+    do {
+        ret = ::send(_fd, (const void*)buffer, n, 0);
+    } while (ret == -1 && errno == EINTR);
 
 #else
 
-        // block SIGPIPE
-        sigset_t sigpipeMask, oldSigmask;
-        sigemptyset(&sigpipeMask);
-        sigaddset(&sigpipeMask, SIGPIPE);
-        pthread_sigmask(SIG_BLOCK, &sigpipeMask, &oldSigmask);
+    // block SIGPIPE
+    sigset_t sigpipeMask, oldSigmask;
+    sigemptyset(&sigpipeMask);
+    sigaddset(&sigpipeMask, SIGPIPE);
+    pthread_sigmask(SIG_BLOCK, &sigpipeMask, &oldSigmask);
 
-        // execute send
-        ssize_t ret;
-        eo {
-            ret = ::send(fd, (const void*)buffer, n, 0);
-        } while (ret == -1 && errno == EINTR);
+    // execute send
+    ssize_t ret;
+    do {
+        ret = ::send(_fd, (const void*)buffer, n, 0);
+    } while (ret == -1 && errno == EINTR);
 
-        // clear possible SIGPIPE
-        sigset_t pending;
-        sigemptyset(&pending);
-        sigpending(&pending);
-        if (sigismember(&pending, SIGPIPE))
-        {
-          static const struct timespec nowait = { 0, 0 };
-          while (sigtimedwait(&sigpipeMask, 0, &nowait) == -1 && errno == EINTR)
-            ;
-        }
+    // clear possible SIGPIPE
+    sigset_t pending;
+    sigemptyset(&pending);
+    sigpending(&pending);
+    if (sigismember(&pending, SIGPIPE))
+    {
+      static const struct timespec nowait = { 0, 0 };
+      while (sigtimedwait(&sigpipeMask, 0, &nowait) == -1 && errno == EINTR)
+        ;
+    }
 
-        // unblock SIGPIPE
-        pthread_sigmask(SIG_SETMASK, &oldSigmask, 0);
+    // unblock SIGPIPE
+    pthread_sigmask(SIG_SETMASK, &oldSigmask, 0);
 
 #endif
 
-        log_debug("send returned " << ret);
-        if (ret > 0)
-            return static_cast<size_t>(ret);
+    log_debug("send returned " << ret);
+    if (ret > 0)
+        return static_cast<size_t>(ret);
 
-        if (errno == ECONNRESET || errno == EPIPE)
-            throw IOError("lost connection to peer");
+    if (errno == ECONNRESET || errno == EPIPE)
+        throw IOError("lost connection to peer");
 
-        return 0;
-    }
+    return 0;
 }
 
 
 size_t TcpSocketImpl::beginWrite(const char* buffer, size_t n)
 {
-    size_t ret = callSend(_fd, buffer, n);
+    if (_state == CONNECTED)
+    {
+        size_t ret = callSend(buffer, n);
 
-    if (ret > 0)
-        return ret;
+        if (ret > 0)
+            return ret;
 
-    if (_pfd)
-        _pfd->events |= POLLOUT;
+        if (_pfd)
+            _pfd->events |= POLLOUT;
+    }
+    else if (_state == SSLCONNECTED)
+    {
+        log_debug("SSL_write");
+        int ret = SSL_write(_ssl, buffer, n);
+        if (ret > 0)
+            return ret;
+        checkSslOperation(ret, "SSL_write", _pfd);
+    }
+    else
+    {
+        throw std::logic_error("Device not connected when trying to write");
+    }
 
     return 0;
 }
@@ -742,20 +754,35 @@ size_t TcpSocketImpl::write(const char* buffer, size_t n)
 
     while (true)
     {
-        ret = callSend(_fd, buffer, n);
-        if (ret > 0)
-            break;
+        if (_state == CONNECTED)
+        {
+            ret = callSend(buffer, n);
+            if (ret > 0)
+                break;
 
-        if (errno != EAGAIN)
-            throw IOError(getErrnoString("Could not write to file handle"));
+            if (errno != EAGAIN)
+                throw IOError(getErrnoString("Could not write to file handle"));
 
-        pollfd pfd;
-        pfd.fd = _fd;
-        pfd.revents = 0;
-        pfd.events = POLLOUT;
+            pollfd pfd;
+            pfd.fd = _fd;
+            pfd.revents = 0;
+            pfd.events = POLLOUT;
 
-        if (!wait(_timeout, pfd))
-            throw IOTimeout();
+            if (!wait(_timeout, pfd))
+                throw IOTimeout();
+        }
+        else if (_state == SSLCONNECTED)
+        {
+            log_debug("SSL_write");
+            ret = SSL_write(_ssl, buffer, n);
+            if (ret > 0)
+                break;
+            waitSslOperation(ret);
+        }
+        else
+        {
+            throw std::logic_error("Device not connected when trying to write");
+        }
     }
 
     return static_cast<size_t>(ret);
@@ -823,8 +850,31 @@ void TcpSocketImpl::outputReady()
 
 size_t TcpSocketImpl::read(char* buffer, size_t count, bool& eof)
 {
-    // TODO check for ssl mode
-    return IODeviceImpl::read(buffer, count, eof);
+    if (_state == CONNECTED)
+    {
+        return IODeviceImpl::read(buffer, count, eof);
+    }
+    else if (_state == SSLCONNECTED)
+    {
+        while (true)
+        {
+            log_debug("SSL_read");
+            int ret = SSL_read(_ssl, buffer, count);
+            if (ret > 0)
+                return ret;
+
+            checkSslOperation(ret, "SSL_read", _pfd);
+
+            if (_state != SSLCONNECTED)
+                return 0;
+
+            waitSslOperation(ret);
+        }
+    }
+    else
+    {
+        throw std::logic_error("Device not connected when trying to read");
+    }
 }
 
 void TcpSocketImpl::beginSslAccept()

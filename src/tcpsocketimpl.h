@@ -110,6 +110,7 @@ class TcpSocketImpl : public IODeviceImpl
 
         // methods
         int checkConnect();
+        size_t callSend(const char* buffer, size_t n);
         void checkPendingError();
         std::string tryConnect();
         std::string connectFailedMessages();
