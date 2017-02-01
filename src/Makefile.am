@@ -224,3 +224,7 @@ endif
 
 libcxxtools_la_LIBADD = $(LIBICONV)
 libcxxtools_la_LDFLAGS = -version-info @sonumber@ @SHARED_LIB_FLAG@
+
+if MAKE_OPENSSL
+libcxxtools_la_LDFLAGS += -lssl
+endif

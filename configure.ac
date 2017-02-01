@@ -233,7 +233,7 @@ AS_IF([test $ssl_option = yes],
       )
 ])
 
-AM_CONDITIONAL(MAKE_OPENSSL, test x$with_openssl = x1)
+AM_CONDITIONAL(MAKE_OPENSSL, test $ssl_option = yes)
 
 AC_ARG_ENABLE([demos],
   AS_HELP_STRING([--disable-demos], [disable building demos]),
