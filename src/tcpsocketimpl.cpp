@@ -171,6 +171,62 @@ std::string TcpSocketImpl::connectFailedMessages()
     return msg.str();
 }
 
+void TcpSocketImpl::checkSslOperation(int ret)
+{
+    if (ret == -1)
+    {
+        int err = SSL_get_error(_ssl, ret);
+        if (err == SSL_ERROR_WANT_READ)
+        {
+            if (_pfd)
+            {
+                _pfd->events |= POLLIN;
+                _pfd->events &= ~POLLOUT;
+            }
+
+            return;
+        }
+
+        if (err == SSL_ERROR_WANT_WRITE)
+        {
+            if (_pfd)
+            {
+                _pfd->events |= POLLOUT;
+                _pfd->events &= ~POLLIN;
+            }
+
+            return;
+        }
+    }
+
+    checkSslError();
+}
+
+void TcpSocketImpl::waitSslOperation(int ret)
+{
+    int err;
+    if (ret == -1 &&
+        ((err = SSL_get_error(_ssl, ret)) == SSL_ERROR_WANT_WRITE
+          || err == SSL_ERROR_WANT_READ))
+    {
+        pollfd pfd;
+        pfd.fd = _fd;
+        pfd.revents = 0;
+
+        if (err == SSL_ERROR_WANT_READ)
+            pfd.events = (err == SSL_ERROR_WANT_READ) ? POLLIN : POLLOUT;
+
+        log_debug("wait " << timeout());
+        bool avail = wait(timeout(), pfd);
+        if (!avail)
+            throw IOTimeout();
+
+        return;
+    }
+
+    checkSslError();
+}
+
 void TcpSocketImpl::initSsl()
 {
     {
@@ -683,38 +739,62 @@ size_t TcpSocketImpl::write(const char* buffer, size_t n)
 
 void TcpSocketImpl::inputReady()
 {
-    // check for ssl - may need to call ssl_read or ssl_write (when it returned with SSL_ERROR_WANT_READ)
     switch (_state)
     {
         case IDLE:
         case CONNECTING:
+        case SSLACCEPTPENDING:
+        case SSLCONNECTPENDING:
+        case SSLSHUTDOWNPENDING:
             break;
 
         case CONNECTED:
-        case SSLC:
-        case SSLACCEPTED:
         case SSLCONNECTED:
             IODeviceImpl::inputReady();
             break;
 
         case SSLACCEPTING:
-            sslAcceptBegin();
+            beginSslAccept();
             break;
 
         case SSLCONNECTING:
-            sslConnectBegin();
+            beginSslConnect();
             break;
 
-        case SSLSHUTDOWN:
-            sslShutdownBegin();
+        case SSLSHUTTINGDOWN:
+            beginSslShutdown();
             break;
     }
 }
 
 void TcpSocketImpl::outputReady()
 {
-    // check for ssl - may need to call ssl_read (on SSL_ERROR_WANT_WRITE) or ssl_write
-    IODeviceImpl::outputReady();
+    switch (_state)
+    {
+        case IDLE:
+        case CONNECTING:
+        case SSLACCEPTPENDING:
+        case SSLCONNECTPENDING:
+        case SSLSHUTDOWNPENDING:
+            break;
+
+        case CONNECTED:
+        case SSLCONNECTED:
+            IODeviceImpl::outputReady();
+            break;
+
+        case SSLACCEPTING:
+            beginSslAccept();
+            break;
+
+        case SSLCONNECTING:
+            beginSslConnect();
+            break;
+
+        case SSLSHUTTINGDOWN:
+            beginSslShutdown();
+            break;
+    }
 }
 
 size_t TcpSocketImpl::read(char* buffer, size_t count, bool& eof)
@@ -723,7 +803,7 @@ size_t TcpSocketImpl::read(char* buffer, size_t count, bool& eof)
     return IODeviceImpl::read(buffer, count, eof);
 }
 
-void TcpSocketImpl::sslAcceptBegin()
+void TcpSocketImpl::beginSslAccept()
 {
     if (!(_state == CONNECTED || _state == SSLACCEPTING))
         throw std::logic_error("Device not connected when trying to enable ssl");
@@ -734,49 +814,23 @@ void TcpSocketImpl::sslAcceptBegin()
     int ret = SSL_accept(_ssl);
     if (ret == 1)
     {
-        _state = SSLACCEPTED;
+        _state = SSLACCEPTPENDING;
         _socket.sslAccepted(_socket);
         return;
     }
 
-    if (ret == -1)
-    {
-        int err = SSL_get_error(_ssl, ret);
-        if (err == SSL_ERROR_WANT_READ)
-        {
-            if (_pfd)
-            {
-                _pfd->events |= POLLIN;
-                _pfd->events &= ~POLLOUT;
-            }
-
-            return;
-        }
-
-        if (err == SSL_ERROR_WANT_WRITE)
-        {
-            if (_pfd)
-            {
-                _pfd->events |= POLLOUT;
-                _pfd->events &= ~POLLIN;
-            }
-
-            return;
-        }
-    }
-
-    checkSslError();
+    checkSslOperation(ret);
 }
 
-void TcpSocketImpl::sslAcceptEnd()
+void TcpSocketImpl::endSslAccept()
 {
-    if (_state != SSLACCEPTING && _state != SSLACCEPTED)
+    if (_state != SSLACCEPTING && _state != SSLACCEPTPENDING)
         throw std::logic_error("Device not in accepting mode when trying to finish ssl");
 
-    if (_state == SSLACCEPTED)
+    if (_state == SSLACCEPTPENDING)
     {
         _pfd->events &= ~(POLLIN|POLLOUT);
-        _state = SSLC;
+        _state = SSLCONNECTED;
         return;
     }
 
@@ -785,58 +839,104 @@ void TcpSocketImpl::sslAcceptEnd()
         int ret = SSL_accept(_ssl);
         if (ret == 1)
         {
-            _state = SSLC;
+            _state = SSLCONNECTED;
             _pfd->events &= ~(POLLIN|POLLOUT);
             return;
         }
 
-        if (ret == -1)
-        {
-            pollfd pfd;
-            pfd.fd = _fd;
-            pfd.revents = 0;
-            int err = SSL_get_error(_ssl, ret);
-            if (err == SSL_ERROR_WANT_READ)
-            {
-                pfd.events = POLLIN;
-            }
-            else if (err == SSL_ERROR_WANT_WRITE)
-            {
-                pfd.events = POLLOUT;
-            }
-
-            log_debug("wait " << timeout());
-            bool avail = wait(timeout(), pfd);
-            if (!avail)
-                throw IOTimeout();
-        }
+        waitSslOperation(ret);
     }
 }
 
-void TcpSocketImpl::sslConnectBegin()
+void TcpSocketImpl::beginSslConnect()
 {
-    // TODO
+    if (!(_state == CONNECTED || _state == SSLCONNECTING))
+        throw std::logic_error("Device not connected when trying to enable ssl");
+
     _state = SSLCONNECTING;
-    //SSL_connect(ssl);
+    initSsl();
+
+    int ret = SSL_connect(_ssl);
+    if (ret == 1)
+    {
+        _state = SSLCONNECTPENDING;
+        _socket.sslConnected(_socket);
+        return;
+    }
+
+    checkSslOperation(ret);
 }
 
-void TcpSocketImpl::sslConnectEnd()
+void TcpSocketImpl::endSslConnect()
 {
-    // TODO
-    _state = SSLC;
+    if (_state != SSLCONNECTING && _state != SSLCONNECTPENDING)
+        throw std::logic_error("Device not in connecting mode when trying to finish ssl");
+
+    if (_state == SSLCONNECTPENDING)
+    {
+        _pfd->events &= ~(POLLIN|POLLOUT);
+        _state = SSLCONNECTED;
+        return;
+    }
+
+    while (true)
+    {
+        int ret = SSL_connect(_ssl);
+        if (ret == 1)
+        {
+            _state = SSLCONNECTED;
+            _pfd->events &= ~(POLLIN|POLLOUT);
+            return;
+        }
+
+        waitSslOperation(ret);
+    }
 }
 
-void TcpSocketImpl::sslShutdownBegin()
+void TcpSocketImpl::beginSslShutdown()
 {
-    // TODO
-    _state = SSLSHUTDOWN;
-    //SSL_shutdown(ssl);
+    if (!(_state == SSLCONNECTED || _state == SSLSHUTTINGDOWN))
+        throw std::logic_error("Device not connected when trying to shutdown ssl");
+
+    _state = SSLSHUTTINGDOWN;
+    initSsl();
+
+    int ret = SSL_shutdown(_ssl);
+    if (ret == 1)
+    {
+        _state = SSLSHUTDOWNPENDING;
+        _socket.sslClosed(_socket);
+        return;
+    }
+
+    checkSslOperation(ret);
 }
 
-void TcpSocketImpl::sslShutdownEnd()
+void TcpSocketImpl::endSslShutdown()
 {
-    // TODO
-    _state = CONNECTED;
+    if (_state != SSLCONNECTING && _state != SSLCONNECTPENDING)
+        throw std::logic_error("Device not in connecting mode when trying to finish ssl");
+
+    if (_state == SSLCONNECTPENDING)
+    {
+        _pfd->events &= ~(POLLIN|POLLOUT);
+        _state = CONNECTED;
+        return;
+    }
+
+    while (true)
+    {
+        int ret = SSL_shutdown(_ssl);
+        if (ret == 1)
+        {
+            _state = CONNECTED;
+            _pfd->events &= ~(POLLIN|POLLOUT);
+            return;
+        }
+
+        waitSslOperation(ret);
+
+    }
 }
 
 } // namespace net

@@ -87,6 +87,7 @@ class TcpSocket : public IODevice
         Signal<TcpSocket&> connected;
         Signal<TcpSocket&> sslAccepted;
         Signal<TcpSocket&> sslConnected;
+        Signal<TcpSocket&> sslClosed;
 
         /** @brief Notifies when the device is closed while no reading or writing is pending
          */
@@ -99,24 +100,37 @@ class TcpSocket : public IODevice
         short poll(short events) const;
 
         /// initiates a ssl connection on the socket
-        void sslConnectBegin();
-        void sslConnectEnd();
+        void beginSslConnect();
+        void endSslConnect();
 
         /// blocking call for initiating ssl
-        void sslConnect();
+        void sslConnect()
+        {
+            beginSslConnect();
+            endSslConnect();
+        }
 
         /// accept a ssl connection from the peer
-        void sslAcceptBegin();
-        void sslAcceptEnd();
+        void beginSslAccept();
+        void endSslAccept();
+
         /// blocking call to accept a ssl connection from the peer
-        void sslAccept();
+        void sslAccept()
+        {
+            beginSslAccept();
+            endSslAccept();
+        }
 
         /// terminates ssl
-        void sslShutdownBegin();
-        void sslShutdownEnd();
+        void beginSslShutdown();
+        void endSslShutdown();
 
         /// blocking call to terminate ssl
-        void sslShutdown();
+        void sslShutdown()
+        {
+            beginSslShutdown();
+            endSslShutdown();
+        }
 
     protected:
         TcpSocket(TcpSocketImpl* impl)

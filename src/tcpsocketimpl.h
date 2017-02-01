@@ -86,12 +86,15 @@ class TcpSocketImpl : public IODeviceImpl
             IDLE,
             CONNECTING,
             CONNECTED,
+
             SSLACCEPTING,
-            SSLACCEPTED,
+            SSLACCEPTPENDING,
             SSLCONNECTING,
-            SSLCONNECTED,
-            SSLC,
-            SSLSHUTDOWN
+            SSLCONNECTPENDING,
+            SSLSHUTTINGDOWN,
+            SSLSHUTDOWNPENDING,
+
+            SSLCONNECTED
         } _state;
 
         struct sockaddr_storage _peeraddr;
@@ -110,6 +113,8 @@ class TcpSocketImpl : public IODeviceImpl
         void checkPendingError();
         std::string tryConnect();
         std::string connectFailedMessages();
+        void checkSslOperation(int ret);
+        void waitSslOperation(int ret);
 
         void initSsl();
 
@@ -159,16 +164,16 @@ class TcpSocketImpl : public IODeviceImpl
         virtual void outputReady();
 
         // initiates a ssl connection on the socket
-        void sslConnectBegin();
-        void sslConnectEnd();
+        void beginSslConnect();
+        void endSslConnect();
 
         // accept a ssl connection from the peer
-        void sslAcceptBegin();
-        void sslAcceptEnd();
+        void beginSslAccept();
+        void endSslAccept();
 
         // terminates ssl
-        void sslShutdownBegin();
-        void sslShutdownEnd();
+        void beginSslShutdown();
+        void endSslShutdown();
 };
 
 } // namespace net
