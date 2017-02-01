@@ -43,6 +43,7 @@ int main(int argc, char* argv[])
     cxxtools::Arg<unsigned> bufsize(argc, argv, 'b', 8192);
     cxxtools::Arg<bool> listen(argc, argv, 'l');
     cxxtools::Arg<bool> read_reply(argc, argv, 'r');
+    cxxtools::Arg<bool> ssl(argc, argv, 's');
 
     if (listen)
     {
@@ -52,7 +53,10 @@ int main(int argc, char* argv[])
       cxxtools::net::TcpServer server(ip.getValue(), port);
 
       // accept a connetion
-      cxxtools::net::iostream worker(server, bufsize);
+      cxxtools::net::TcpStream worker(server, bufsize);
+
+      if (ssl)
+          worker.sslAccept();
 
       // copy to stdout
       std::cout << worker.rdbuf();
@@ -62,7 +66,10 @@ int main(int argc, char* argv[])
       // I'm a client
 
       // connect to server
-      cxxtools::net::iostream peer(ip, port, bufsize);
+      cxxtools::net::TcpStream peer(ip, port, bufsize);
+
+      if (ssl)
+          peer.sslConnect();
 
       // copy stdin to server
       peer << std::cin.rdbuf() << std::flush;

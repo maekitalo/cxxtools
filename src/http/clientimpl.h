@@ -49,11 +49,6 @@
 namespace cxxtools
 {
 
-namespace net
-{
-    class Uri;
-}
-
 namespace http
 {
 

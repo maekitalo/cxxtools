@@ -113,7 +113,7 @@ class TcpSocketImpl : public IODeviceImpl
         void checkPendingError();
         std::string tryConnect();
         std::string connectFailedMessages();
-        void checkSslOperation(int ret);
+        void checkSslOperation(int ret, const char* fn, pollfd* pfd);
         void waitSslOperation(int ret);
 
         void initSsl();
