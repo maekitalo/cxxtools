@@ -26,11 +26,13 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <exception>
-#include <iostream>
 #include <cxxtools/net/tcpstream.h>
 #include <cxxtools/arg.h>
 #include <cxxtools/log.h>
+
+#include <exception>
+#include <iostream>
+#include <fstream>
 
 int main(int argc, char* argv[])
 {
@@ -71,8 +73,19 @@ int main(int argc, char* argv[])
       if (ssl)
           peer.sslConnect();
 
-      // copy stdin to server
-      peer << std::cin.rdbuf() << std::flush;
+      if (argc > 1)
+      {
+          for (int a = 1; a < argc; ++a)
+          {
+              std::ifstream in(argv[a]);
+              peer << in.rdbuf() << std::flush;
+          }
+      }
+      else
+      {
+          // copy stdin to server
+          peer << std::cin.rdbuf() << std::flush;
+      }
 
       if (read_reply)
         // copy answer to stdout

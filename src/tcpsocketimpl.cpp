@@ -839,6 +839,7 @@ void TcpSocketImpl::beginSslAccept()
     int ret = SSL_accept(_ssl);
     if (ret == 1)
     {
+        log_debug("SSL accepted");
         _state = SSLACCEPTPENDING;
         _socket.sslAccepted(_socket);
         return;
@@ -854,7 +855,8 @@ void TcpSocketImpl::endSslAccept()
 
     if (_state == SSLACCEPTPENDING)
     {
-        _pfd->events &= ~(POLLIN|POLLOUT);
+        if (_pfd)
+            _pfd->events &= ~(POLLIN|POLLOUT);
         _state = SSLCONNECTED;
         return;
     }
@@ -865,8 +867,10 @@ void TcpSocketImpl::endSslAccept()
         int ret = SSL_accept(_ssl);
         if (ret == 1)
         {
+            log_debug("SSL accepted");
             _state = SSLCONNECTED;
-            _pfd->events &= ~(POLLIN|POLLOUT);
+            if (_pfd)
+                _pfd->events &= ~(POLLIN|POLLOUT);
             return;
         }
 
@@ -886,6 +890,7 @@ void TcpSocketImpl::beginSslConnect()
     int ret = SSL_connect(_ssl);
     if (ret == 1)
     {
+        log_debug("SSL connection successful");
         _state = SSLCONNECTPENDING;
         _socket.sslConnected(_socket);
         return;
@@ -901,7 +906,8 @@ void TcpSocketImpl::endSslConnect()
 
     if (_state == SSLCONNECTPENDING)
     {
-        _pfd->events &= ~(POLLIN|POLLOUT);
+        if (_pfd)
+            _pfd->events &= ~(POLLIN|POLLOUT);
         _state = SSLCONNECTED;
         return;
     }
@@ -912,8 +918,10 @@ void TcpSocketImpl::endSslConnect()
         int ret = SSL_connect(_ssl);
         if (ret == 1)
         {
+            log_debug("SSL connection successful");
             _state = SSLCONNECTED;
-            _pfd->events &= ~(POLLIN|POLLOUT);
+            if (_pfd)
+                _pfd->events &= ~(POLLIN|POLLOUT);
             return;
         }
 
@@ -947,7 +955,8 @@ void TcpSocketImpl::endSslShutdown()
 
     if (_state == SSLSHUTDOWNPENDING)
     {
-        _pfd->events &= ~(POLLIN|POLLOUT);
+        if (_pfd)
+            _pfd->events &= ~(POLLIN|POLLOUT);
         _state = CONNECTED;
         return;
     }
@@ -959,7 +968,8 @@ void TcpSocketImpl::endSslShutdown()
         if (ret == 1)
         {
             _state = CONNECTED;
-            _pfd->events &= ~(POLLIN|POLLOUT);
+            if (_pfd)
+                _pfd->events &= ~(POLLIN|POLLOUT);
             SSL* ssl = _ssl;
             _ssl = 0;
             SSL_clear(ssl);
