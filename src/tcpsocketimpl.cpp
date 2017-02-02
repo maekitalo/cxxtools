@@ -733,10 +733,14 @@ size_t TcpSocketImpl::beginWrite(const char* buffer, size_t n)
     }
     else if (_state == SSLCONNECTED)
     {
-        log_debug("SSL_write");
+        log_debug("SSL_write(" << _fd << ", buffer, " << n << ')');
+        log_finer(HexDump(buffer, n));
+
         int ret = SSL_write(_ssl, buffer, n);
+        log_debug("SSL_write returned " << ret);
         if (ret > 0)
             return ret;
+
         checkSslOperation(ret, "SSL_write", _pfd);
     }
     else
@@ -860,13 +864,20 @@ size_t TcpSocketImpl::read(char* buffer, size_t count, bool& eof)
         {
             log_debug("SSL_read");
             int ret = SSL_read(_ssl, buffer, count);
+            log_debug("SSL_read(" << _fd << ", " << count << ") returned " << ret);
             if (ret > 0)
+            {
+                log_finer(HexDump(buffer, ret));
                 return ret;
+            }
 
             checkSslOperation(ret, "SSL_read", _pfd);
 
             if (_state != SSLCONNECTED)
+            {
+                eof = true;
                 return 0;
+            }
 
             waitSslOperation(ret);
         }
