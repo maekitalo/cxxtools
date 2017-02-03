@@ -47,16 +47,16 @@ RpcClientImpl* RpcClient::getImpl()
     return _impl;
 }
 
-RpcClient::RpcClient(const net::AddrInfo& addr)
+RpcClient::RpcClient(const net::AddrInfo& addr, bool ssl)
     : _impl(0)
 {
-    prepareConnect(addr);
+    prepareConnect(addr, ssl);
 }
 
-RpcClient::RpcClient(const std::string& addr, unsigned short port)
+RpcClient::RpcClient(const std::string& addr, unsigned short port, bool ssl)
     : _impl(0)
 {
-    prepareConnect(addr, port);
+    prepareConnect(addr, port, ssl);
 }
 
 RpcClient::RpcClient(const net::Uri& uri)
@@ -65,17 +65,17 @@ RpcClient::RpcClient(const net::Uri& uri)
     prepareConnect(uri);
 }
 
-RpcClient::RpcClient(SelectorBase& selector, const net::AddrInfo& addr)
+RpcClient::RpcClient(SelectorBase& selector, const net::AddrInfo& addr, bool ssl)
     : _impl(0)
 {
-    prepareConnect(addr);
+    prepareConnect(addr, ssl);
     setSelector(selector);
 }
 
-RpcClient::RpcClient(SelectorBase& selector, const std::string& addr, unsigned short port)
+RpcClient::RpcClient(SelectorBase& selector, const std::string& addr, unsigned short port, bool ssl)
     : _impl(0)
 {
-    prepareConnect(addr, port);
+    prepareConnect(addr, port, ssl);
     setSelector(selector);
 }
 
@@ -115,21 +115,21 @@ RpcClient::~RpcClient()
         delete _impl;
 }
 
-void RpcClient::prepareConnect(const net::AddrInfo& addrinfo)
+void RpcClient::prepareConnect(const net::AddrInfo& addrinfo, bool ssl)
 {
-    getImpl()->prepareConnect(addrinfo);
+    getImpl()->prepareConnect(addrinfo, ssl);
 }
 
-void RpcClient::prepareConnect(const std::string& host, unsigned short int port)
+void RpcClient::prepareConnect(const std::string& host, unsigned short int port, bool ssl)
 {
-    prepareConnect(net::AddrInfo(host, port));
+    prepareConnect(net::AddrInfo(host, port), ssl);
 }
 
 void RpcClient::prepareConnect(const net::Uri& uri)
 {
-    if (uri.protocol() != "http")
-        throw std::runtime_error("only http is supported by http client");
-    prepareConnect(net::AddrInfo(uri.host(), uri.port()));
+    if (uri.protocol() != "json" && uri.protocol() != "jsons")
+        throw std::runtime_error("only protocols json and jsons are supported by json rpc client");
+    prepareConnect(net::AddrInfo(uri.host(), uri.port()), uri.protocol() == "jsons");
 }
 
 void RpcClient::connect()

@@ -52,6 +52,7 @@ RpcClientImpl::RpcClientImpl()
       _connectTimeout(Selectable::WaitInfinite)
 {
     cxxtools::connect(_socket.connected, *this, &RpcClientImpl::onConnect);
+    cxxtools::connect(_socket.sslConnected, *this, &RpcClientImpl::onSslConnect);
     cxxtools::connect(_stream.buffer().outputReady, *this, &RpcClientImpl::onOutput);
     cxxtools::connect(_stream.buffer().inputReady, *this, &RpcClientImpl::onInput);
 }
@@ -61,6 +62,8 @@ void RpcClientImpl::connect()
     _socket.setTimeout(_connectTimeout);
     _socket.close();
     _socket.connect(_addrInfo);
+    if (_ssl)
+        _socket.sslConnect();
 }
 
 void RpcClientImpl::close()
@@ -246,7 +249,40 @@ void RpcClientImpl::onConnect(net::TcpSocket& socket)
         log_trace("onConnect");
 
         _exceptionPending = false;
+        if (_ssl)
+        {
+            socket.beginSslConnect();
+            return;
+        }
+
         socket.endConnect();
+
+        _stream.buffer().beginWrite();
+    }
+    catch (const std::exception& )
+    {
+        IRemoteProcedure* proc = _proc;
+        cancel();
+
+        if (!proc)
+            throw;
+
+        _exceptionPending = true;
+        proc->onFinished();
+
+        if (_exceptionPending)
+            throw;
+    }
+}
+
+void RpcClientImpl::onSslConnect(net::TcpSocket& socket)
+{
+    try
+    {
+        log_trace("onSslConnect");
+
+        _exceptionPending = false;
+        socket.endSslConnect();
 
         _stream.buffer().beginWrite();
     }
