@@ -37,11 +37,14 @@
 #include <cxxtools/http/client.h>
 #include <cxxtools/net/uri.h>
 #include <cxxtools/query_params.h>
+#include <cxxtools/log.h>
 
 int main(int argc, char* argv[])
 {
   try
   {
+    log_init();
+
     // We default construct a http client
     cxxtools::http::Client client;
 

@@ -81,9 +81,9 @@ class Client
         { }
 
         ///@{
-        /// constructors which set the connection parameters and optionally connect to the server.
-        explicit Client(const net::AddrInfo& addr);
-        Client(const std::string& host, unsigned short int port);
+        /// constructors which set the connection parameters.
+        explicit Client(const net::AddrInfo& addr, bool ssl = false);
+        Client(const std::string& host, unsigned short int port, bool ssl = false);
         ///@}
 
         explicit Client(SelectorBase& selector)
@@ -106,8 +106,8 @@ class Client
         ///@{
         /// constructors which set the selector for asyncronous request processing and the connection parameters.
 
-        Client(SelectorBase& selector, const std::string& host, unsigned short int port);
-        Client(SelectorBase& selector, const net::AddrInfo& addrinfo);
+        Client(SelectorBase& selector, const std::string& host, unsigned short int port, bool ssl = false);
+        Client(SelectorBase& selector, const net::AddrInfo& addrinfo, bool ssl = false);
         Client(SelectorBase& selector, const net::Uri& uri);
 
         ///@}
@@ -129,8 +129,8 @@ class Client
            \see
              \ref connection
          */
-        void prepareConnect(const net::AddrInfo& addrinfo);
-        void prepareConnect(const std::string& host, unsigned short int port);
+        void prepareConnect(const net::AddrInfo& addrinfo, bool ssl = false);
+        void prepareConnect(const std::string& host, unsigned short int port, bool ssl = false);
         void prepareConnect(const net::Uri& uri);
 
         /** Connects to the client specified by prepareConnect or passed by teh constructor.

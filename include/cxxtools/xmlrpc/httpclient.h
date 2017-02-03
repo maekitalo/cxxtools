@@ -61,11 +61,11 @@ class HttpClient : public Client
         { setSelector(selector); }
 
         HttpClient(SelectorBase& selector, const std::string& addr,
-               unsigned short port, const std::string& url);
+               unsigned short port, const std::string& url, bool ssl = false);
 
         HttpClient(SelectorBase& selector, const net::Uri& uri);
 
-        HttpClient(const std::string& addr, unsigned short port, const std::string& url);
+        HttpClient(const std::string& addr, unsigned short port, const std::string& url, bool ssl = false);
 
         explicit HttpClient(const net::Uri& uri);
 
@@ -74,28 +74,32 @@ class HttpClient : public Client
 
         virtual ~HttpClient();
 
-        void prepareConnect(const net::AddrInfo& addrinfo, const std::string& url);
+        void prepareConnect(const net::AddrInfo& addrinfo, const std::string& url, bool ssl = false);
 
         void prepareConnect(const net::Uri& uri);
 
         void prepareConnect(const std::string& addr, unsigned short port,
-                     const std::string& url);
+                     const std::string& url, bool ssl = false);
 
         void connect();
 
-        void connect(const net::AddrInfo& addrinfo, const std::string& url)
-        { prepareConnect(addrinfo, url); connect(); }
+        void connect(const net::AddrInfo& addrinfo, const std::string& url, bool ssl = false)
+        { prepareConnect(addrinfo, url, ssl); connect(); }
 
         void connect(const net::Uri& uri)
         { prepareConnect(uri); connect(); }
 
         void connect(const std::string& host, unsigned short port,
-                     const std::string& url)
-        { prepareConnect(host, port, url); connect(); }
+                     const std::string& url, bool ssl = false)
+        { prepareConnect(host, port, url, false); connect(); }
 
+        /// sets the url part
         void url(const std::string& url);
+
+        /// sets username and password for authentification
         void auth(const std::string& username, const std::string& password);
 
+        /// removes username and password for authentification
         void clearAuth();
 
         void setSelector(SelectorBase& selector);

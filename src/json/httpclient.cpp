@@ -50,20 +50,20 @@ HttpClientImpl* HttpClient::getImpl()
 }
 
 HttpClient::HttpClient(SelectorBase& selector, const std::string& server,
-                       unsigned short port, const std::string& url)
+                       unsigned short port, const std::string& url, bool ssl)
 : _impl(0)
 {
-    prepareConnect(net::AddrInfo(server, port), url);
+    prepareConnect(net::AddrInfo(server, port), url, ssl);
     setSelector(selector);
 }
 
 
 HttpClient::HttpClient(SelectorBase& selector, const net::AddrInfo& addrinfo,
-                       const std::string& url)
+                       const std::string& url, bool ssl)
 : _impl(0)
 {
     setSelector(selector);
-    prepareConnect(addrinfo, url);
+    prepareConnect(addrinfo, url, ssl);
 }
 
 
@@ -71,29 +71,29 @@ HttpClient::HttpClient(SelectorBase& selector, const net::Uri& uri)
 : _impl(0)
 {
     setSelector(selector);
-    prepareConnect(net::AddrInfo(uri.host(), uri.port()), uri.path());
+    prepareConnect(uri);
     auth(uri.user(), uri.password());
 }
 
 
-HttpClient::HttpClient(const std::string& server, unsigned short port, const std::string& url)
+HttpClient::HttpClient(const std::string& server, unsigned short port, const std::string& url, bool ssl)
 : _impl(0)
 {
-    prepareConnect(net::AddrInfo(server, port), url);
+    prepareConnect(net::AddrInfo(server, port), url, ssl);
 }
 
 
-HttpClient::HttpClient(const net::AddrInfo& addrinfo, const std::string& url)
+HttpClient::HttpClient(const net::AddrInfo& addrinfo, const std::string& url, bool ssl)
 : _impl(0)
 {
-    prepareConnect(addrinfo, url);
+    prepareConnect(addrinfo, url, ssl);
 }
 
 
 HttpClient::HttpClient(const net::Uri& uri)
 : _impl(0)
 {
-    prepareConnect(net::AddrInfo(uri.host(), uri.port()), uri.path());
+    prepareConnect(uri);
     auth(uri.user(), uri.password());
 }
 
@@ -127,22 +127,22 @@ HttpClient::~HttpClient()
         delete _impl;
 }
 
-void HttpClient::prepareConnect(const net::AddrInfo& addrinfo, const std::string& url)
+void HttpClient::prepareConnect(const net::AddrInfo& addrinfo, const std::string& url, bool ssl)
 {
-    getImpl()->prepareConnect(addrinfo, url);
+    getImpl()->prepareConnect(addrinfo, url, ssl);
 }
 
 void HttpClient::prepareConnect(const net::Uri& uri)
 {
-    if (uri.protocol() != "http")
-        throw std::runtime_error("only http is supported by http client");
-    prepareConnect(net::AddrInfo(uri.host(), uri.port()), uri.path());
+    if (uri.protocol() != "http" && uri.protocol() != "https")
+        throw std::runtime_error("only protocols http and https are supported by http client");
+    prepareConnect(net::AddrInfo(uri.host(), uri.port()), uri.path(), uri.protocol() == "https");
     auth(uri.user(), uri.password());
 }
 
-void HttpClient::prepareConnect(const std::string& addr, unsigned short port, const std::string& url)
+void HttpClient::prepareConnect(const std::string& addr, unsigned short port, const std::string& url, bool ssl)
 {
-    prepareConnect(net::AddrInfo(addr, port), url);
+    prepareConnect(net::AddrInfo(addr, port), url, ssl);
 }
 
 void HttpClient::connect()

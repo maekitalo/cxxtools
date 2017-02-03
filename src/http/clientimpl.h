@@ -80,6 +80,7 @@ class ClientImpl : public RefCounted, public Connectable
         HeaderParser _parser;
 
         net::AddrInfo _addrInfo;
+        bool _ssl;
         net::TcpSocket _socket;
         IOStream _stream;
         ChunkedIStream _chunkedIStream;
@@ -106,6 +107,7 @@ class ClientImpl : public RefCounted, public Connectable
 
     protected:
         void onConnect(net::TcpSocket& socket);
+        void onSslConnect(net::TcpSocket& socket);
         void onOutput(StreamBuffer& sb);
         void onInput(StreamBuffer& sb);
 
@@ -113,11 +115,12 @@ class ClientImpl : public RefCounted, public Connectable
         ClientImpl(Client* client);
 
         // Sets the server and port. No actual network connect is done.
-        void prepareConnect(const net::AddrInfo& addrinfo)
+        void prepareConnect(const net::AddrInfo& addrinfo, bool ssl)
         {
-            if (addrinfo != _addrInfo)
+            if (addrinfo != _addrInfo || ssl != _ssl)
             {
                 _addrInfo = addrinfo;
+                _ssl = ssl;
                 _socket.close();
             }
         }
@@ -126,6 +129,8 @@ class ClientImpl : public RefCounted, public Connectable
         {
             _socket.close();
             _socket.connect(_addrInfo);
+            if (_ssl)
+                _socket.sslConnect();
         }
 
         void close()
