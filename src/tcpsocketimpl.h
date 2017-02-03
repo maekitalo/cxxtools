@@ -88,11 +88,8 @@ class TcpSocketImpl : public IODeviceImpl
             CONNECTED,
 
             SSLACCEPTING,
-            SSLACCEPTPENDING,
             SSLCONNECTING,
-            SSLCONNECTPENDING,
             SSLSHUTTINGDOWN,
-            SSLSHUTDOWNPENDING,
 
             SSLCONNECTED
         } _state;
@@ -133,8 +130,6 @@ class TcpSocketImpl : public IODeviceImpl
         bool isConnected() const
         { return _state >= CONNECTED; }
 
-        void connect(const AddrInfo& addrinfo);
-
         bool beginConnect(const AddrInfo& addrinfo);
 
         void endConnect();
@@ -165,15 +160,15 @@ class TcpSocketImpl : public IODeviceImpl
         virtual void outputReady();
 
         // initiates a ssl connection on the socket
-        void beginSslConnect();
+        bool beginSslConnect();
         void endSslConnect();
 
         // accept a ssl connection from the peer
-        void beginSslAccept();
+        bool beginSslAccept();
         void endSslAccept();
 
         // terminates ssl
-        void beginSslShutdown();
+        bool beginSslShutdown();
         void endSslShutdown();
 };
 

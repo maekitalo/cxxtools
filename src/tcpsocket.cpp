@@ -133,7 +133,8 @@ Milliseconds TcpSocket::timeout() const
 void TcpSocket::connect(const AddrInfo& addrinfo)
 {
     close();
-    _impl->connect(addrinfo);
+    _impl->beginConnect(addrinfo);
+    _impl->endConnect();
     setEnabled(true);
     setAsync(true);
     setEof(false);
@@ -148,7 +149,7 @@ bool TcpSocket::beginConnect(const AddrInfo& addrinfo)
     setAsync(true);
     setEof(false);
 
-    if(ret)
+    if (ret)
         connected(*this);
     return ret;
 }
@@ -182,7 +183,8 @@ int TcpSocket::getFd() const
 
 void TcpSocket::beginSslConnect()
 {
-    _impl->beginSslConnect();
+    if (_impl->beginSslConnect())
+        sslConnected(*this);
 }
 
 void TcpSocket::endSslConnect()
@@ -190,9 +192,16 @@ void TcpSocket::endSslConnect()
     _impl->endSslConnect();
 }
 
+void TcpSocket::sslConnect()
+{
+    _impl->beginSslConnect();
+    _impl->endSslConnect();
+}
+
 void TcpSocket::beginSslAccept()
 {
-    _impl->beginSslAccept();
+    if (_impl->beginSslAccept())
+        sslAccepted(*this);
 }
 
 void TcpSocket::endSslAccept()
@@ -200,13 +209,26 @@ void TcpSocket::endSslAccept()
     _impl->endSslAccept();
 }
 
+void TcpSocket::sslAccept()
+{
+    _impl->beginSslAccept();
+    _impl->endSslAccept();
+}
+
 void TcpSocket::beginSslShutdown()
 {
-    _impl->beginSslShutdown();
+    if (_impl->beginSslShutdown())
+        sslClosed(*this);
 }
 
 void TcpSocket::endSslShutdown()
 {
+    _impl->endSslShutdown();
+}
+
+void TcpSocket::sslShutdown()
+{
+    _impl->beginSslShutdown();
     _impl->endSslShutdown();
 }
 

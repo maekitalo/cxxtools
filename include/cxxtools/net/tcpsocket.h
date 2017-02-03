@@ -104,33 +104,21 @@ class TcpSocket : public IODevice
         void endSslConnect();
 
         /// blocking call for initiating ssl
-        void sslConnect()
-        {
-            beginSslConnect();
-            endSslConnect();
-        }
+        void sslConnect();
 
         /// accept a ssl connection from the peer
         void beginSslAccept();
         void endSslAccept();
 
         /// blocking call to accept a ssl connection from the peer
-        void sslAccept()
-        {
-            beginSslAccept();
-            endSslAccept();
-        }
+        void sslAccept();
 
         /// terminates ssl
         void beginSslShutdown();
         void endSslShutdown();
 
         /// blocking call to terminate ssl
-        void sslShutdown()
-        {
-            beginSslShutdown();
-            endSslShutdown();
-        }
+        void sslShutdown();
 
     protected:
         TcpSocket(TcpSocketImpl* impl)
