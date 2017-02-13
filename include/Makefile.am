@@ -120,6 +120,7 @@ nobase_include_HEADERS = \
         cxxtools/propertiesdeserializer.h \
         cxxtools/query_params.h \
         cxxtools/queue.h \
+        cxxtools/quotedprintablecodec.h \
         cxxtools/quotedprintablestream.h \
         cxxtools/refcounted.h \
         cxxtools/regex.h \
