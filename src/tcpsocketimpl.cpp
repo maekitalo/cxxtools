@@ -222,8 +222,10 @@ void TcpSocketImpl::checkPendingError()
     {
         _connectFailedMessages.push_back(_connectResult);
         _connectResult.clear();
-        throw IOError(connectFailedMessages());
     }
+
+    if (!_connectFailedMessages.empty())
+        throw IOError(connectFailedMessages());
 }
 
 
