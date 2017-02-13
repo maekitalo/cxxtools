@@ -57,8 +57,6 @@ namespace cxxtools
         if (_current.size() <= 1)
             SerializationError::doThrow("invalid member");
 
-        SerializationInfo* p = _current.top();
-
         _current.pop();
     }
 

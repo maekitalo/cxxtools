@@ -150,7 +150,6 @@ void Timer::start(const DateTime& startTime, const Milliseconds& interval)
         Timespan elapsed = now - startTime;
         uint64_t ticksElapsed = elapsed.totalMSecs() / interval.totalMSecs();
         DateTime tickTime = startTime + (ticksElapsed + 1) * Timespan(interval);
-        Timespan delay = tickTime - now;
         _finished = systemTime + (tickTime - now);
     }
 
