@@ -881,6 +881,24 @@ size_t TcpSocketImpl::read(char* buffer, size_t count, bool& eof)
     }
 }
 
+void TcpSocketImpl::loadSslCertificateFile(const char* file)
+{
+    int ret = SSL_CTX_use_certificate_chain_file(_sslCtx, file);
+    if (ret != 1)
+    {
+        checkSslOperation(ret, "SSL_CTX_use_certificate_chain_file", _pfd);
+    }
+}
+
+void TcpSocketImpl::loadSslPrivateKeyFile(const char* file)
+{
+    int ret = SSL_CTX_use_PrivateKey_file(_sslCtx, file, SSL_FILETYPE_PEM);
+    if (ret != 1)
+    {
+        checkSslOperation(ret, "SSL_CTX_use_PrivateKey_file", _pfd);
+    }
+}
+
 bool TcpSocketImpl::beginSslAccept()
 {
     if (!(_state == CONNECTED || _state == SSLACCEPTING))

@@ -159,6 +159,9 @@ class TcpSocketImpl : public IODeviceImpl
         // override for ssl
         virtual void outputReady();
 
+        void loadSslCertificateFile(const char* file);
+        void loadSslPrivateKeyFile(const char* file);
+
         // initiates a ssl connection on the socket
         bool beginSslConnect();
         void endSslConnect();
