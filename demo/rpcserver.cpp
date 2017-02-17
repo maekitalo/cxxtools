@@ -111,6 +111,8 @@ int main(int argc, char* argv[])
     cxxtools::Arg<bool> daemonize(argc, argv, 'd');
     cxxtools::Arg<std::string> pidfile(argc, argv, "--pidfile");
 
+    cxxtools::Arg<const char*> sslCert(argc, argv, 'c');
+
     std::cout << "run rpcecho server\n"
               << "http protocol on port "<< port.getValue() << "\n"
               << "binary protocol on port " << bport.getValue() << "\n"
@@ -122,6 +124,9 @@ int main(int argc, char* argv[])
     // the http server is instantiated with an ip address and a port number
     // It will be used for xmlrpc and json over http on different urls.
     cxxtools::http::Server httpServer(loop, ip, port);
+
+    if (sslCert.isSet())
+        httpServer.loadSslCertificateFile(sslCert);
 
     ////////////////////////////////////////////////////////////////////////
     // Xmlrpc
