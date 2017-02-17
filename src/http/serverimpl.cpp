@@ -165,6 +165,12 @@ void ServerImpl::listen(const std::string& ip, unsigned short int port, int back
     }
 }
 
+void ServerImpl::loadSslCertificateFile(const char* certificateFile, const char* privateKeyFile)
+{
+    _certificateFile = certificateFile;
+    _privateKeyFile = privateKeyFile ? privateKeyFile : certificateFile;
+}
+
 void ServerImpl::start()
 {
     log_trace("start server");
