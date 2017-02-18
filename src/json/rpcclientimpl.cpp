@@ -139,6 +139,8 @@ void RpcClientImpl::call(IComposer& r, IRemoteProcedure& method, IDecomposer** a
     {
         _socket.setTimeout(_connectTimeout);
         _socket.connect(_addrInfo);
+        if (_ssl)
+            _socket.sslConnect();
     }
 
     _socket.setTimeout(timeout());

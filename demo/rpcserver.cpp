@@ -125,9 +125,6 @@ int main(int argc, char* argv[])
     // It will be used for xmlrpc and json over http on different urls.
     cxxtools::http::Server httpServer(loop, ip, port);
 
-    if (sslCert.isSet())
-        httpServer.loadSslCertificateFile(sslCert);
-
     ////////////////////////////////////////////////////////////////////////
     // Xmlrpc
 
@@ -176,6 +173,15 @@ int main(int argc, char* argv[])
     // go to the background if requested
     if (daemonize)
       cxxtools::posix::daemonize(pidfile);
+
+    ////////////////////////////////////////////////////////////////////////
+    // set ssl
+    //
+    if (sslCert.isSet())
+    {
+        httpServer.loadSslCertificateFile(sslCert);
+        jsonServer.loadSslCertificateFile(sslCert);
+    }
 
     ////////////////////////////////////////////////////////////////////////
     // Run

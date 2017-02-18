@@ -71,6 +71,13 @@ namespace cxxtools
 
                 void listen(const std::string& ip, unsigned short int port, int backlog);
 
+                void loadSslCertificateFile(const std::string& certificateFile, const std::string& privateKeyFile);
+
+                const std::string& certificateFile() const
+                { return _certificateFile; }
+                const std::string& privateKeyFile() const
+                { return _privateKeyFile; }
+
                 unsigned minThreads() const
                 { return _minThreads; }
 
@@ -137,6 +144,8 @@ namespace cxxtools
                 bool isTerminating() const
                 { return runmode() == RpcServer::Terminating; }
 
+                std::string _certificateFile;
+                std::string _privateKeyFile;
         };
     }
 }
