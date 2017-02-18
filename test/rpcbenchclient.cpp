@@ -176,6 +176,8 @@ int main(int argc, char* argv[])
     cxxtools::Arg<bool> json(argc, argv, 'j');
     cxxtools::Arg<bool> jsonhttp(argc, argv, 'J');
     cxxtools::Arg<unsigned short> port(argc, argv, 'p', binary ? 7003 : json ? 7004 : 7002);
+    cxxtools::Arg<bool> ssl(argc, argv, 's');
+
     BenchClient::numRequests(cxxtools::Arg<unsigned>(argc, argv, 'n', 10000));
     BenchClient::vectorSize(cxxtools::Arg<unsigned>(argc, argv, 'v', 0));
     BenchClient::objectsSize(cxxtools::Arg<unsigned>(argc, argv, 'o', 0));
@@ -190,6 +192,7 @@ int main(int argc, char* argv[])
                      "   -b         use binary rpc protocol\n"
                      "   -j         use json rpc protocol\n"
                      "   -J         use json rpc over http protocol\n"
+                     "   -s         enable ssl\n"
                      "   -t number  set number of threads (default: 4)\n"
                      "   -n number  set number of requests (default: 10000)\n"
                      "one protocol must be selected\n"
@@ -203,13 +206,27 @@ int main(int argc, char* argv[])
     {
       cxxtools::RemoteClient* client;
       if (binary)
-        client = new cxxtools::bin::RpcClient(ip, port);
+      {
+        cxxtools::bin::RpcClient* c = new cxxtools::bin::RpcClient(ip, port);
+        c->ssl(ssl);
+        client = c;
+      }
       else if (json)
-        client = new cxxtools::json::RpcClient(ip, port);
+      {
+        cxxtools::json::RpcClient* c = new cxxtools::json::RpcClient(ip, port);
+        c->ssl(ssl);
+        client = c;
+      }
       else if (jsonhttp)
-        client = new cxxtools::json::HttpClient(ip, port, "/jsonrpc");
+      {
+        cxxtools::json::HttpClient* c = new cxxtools::json::HttpClient(ip, port, "/jsonrpc", ssl);
+        client = c;
+      }
       else // if (xmlrpc)
-        client = new cxxtools::xmlrpc::HttpClient(ip, port, "/xmlrpc");
+      {
+        cxxtools::xmlrpc::HttpClient* c = new cxxtools::xmlrpc::HttpClient(ip, port, "/xmlrpc", ssl);
+        client = c;
+      }
 
       clients.push_back(new BenchClient(client));
     }
