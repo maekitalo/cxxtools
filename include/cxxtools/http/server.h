@@ -65,7 +65,7 @@ class Server
         void listen(const std::string& ip, unsigned short int port, int backlog = 64);
         void listen(unsigned short int port, int backlog = 64);
 
-        void loadSslCertificateFile(const char* certificateFile, const char* privateKeyFile = 0);
+        void loadSslCertificateFile(const std::string& certificateFile, const std::string& privateKeyFile = std::string());
 
         void addService(const std::string& url, Service& service);
         void addService(const Regex& url, Service& service);

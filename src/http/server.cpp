@@ -77,7 +77,7 @@ void Server::listen(unsigned short int port, int backlog)
     _impl->listen(std::string(), port, backlog);
 }
 
-void Server::loadSslCertificateFile(const char* certificateFile, const char* privateKeyFile)
+void Server::loadSslCertificateFile(const std::string& certificateFile, const std::string& privateKeyFile)
 {
     _impl->loadSslCertificateFile(certificateFile, privateKeyFile);
 }

@@ -68,7 +68,7 @@ class ServerImpl : public ServerImplBase, public Connectable
         // override from ServerImplBase
         void listen(const std::string& ip, unsigned short int port, int backlog);
 
-        void loadSslCertificateFile(const char* certificateFile, const char* privateKeyFile);
+        void loadSslCertificateFile(const std::string& certificateFile, const std::string& privateKeyFile);
 
         const std::string& certificateFile() const
         { return _certificateFile; }

@@ -111,7 +111,7 @@ int main(int argc, char* argv[])
     cxxtools::Arg<bool> daemonize(argc, argv, 'd');
     cxxtools::Arg<std::string> pidfile(argc, argv, "--pidfile");
 
-    cxxtools::Arg<const char*> sslCert(argc, argv, 'c');
+    cxxtools::Arg<std::string> sslCert(argc, argv, 'c');
 
     std::cout << "run rpcecho server\n"
               << "http protocol on port "<< port.getValue() << "\n"
