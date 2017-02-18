@@ -61,8 +61,10 @@ int main(int argc, char* argv[])
     cxxtools::xmlrpc::HttpClient xmlrpcClient(ip, port, "/xmlrpc", ssl);
     // and a binary rpc client
     cxxtools::bin::RpcClient binaryClient(ip, port);
+    binaryClient.ssl(ssl);
     // and a json rpc client
-    cxxtools::json::RpcClient jsonClient(ip, port, ssl);
+    cxxtools::json::RpcClient jsonClient(ip, port);
+    jsonClient.ssl(ssl);
     // and a json rpc http client
     cxxtools::json::HttpClient jsonHttpClient(ip, port, "/jsonrpc", ssl);
 

@@ -536,7 +536,8 @@ class BinRpcTest : public cxxtools::unit::TestSuite
             registry.registerMethod("multiply", *this, &BinRpcTest::multiplyInt);
             _server->addService("myDomain", registry);
 
-            cxxtools::bin::RpcClient client(_loop, _listen, _port, "myDomain");
+            cxxtools::bin::RpcClient client(_loop, _listen, _port);
+            client.domain("myDomain");
             cxxtools::RemoteProcedure<int, int, int> multiply(client, "multiply");
 
             multiply.begin(2, 3);
@@ -552,7 +553,8 @@ class BinRpcTest : public cxxtools::unit::TestSuite
             registry.registerMethod("multiply", *this, &BinRpcTest::multiplyInt);
             _server->addService("myDomain", registry);
 
-            cxxtools::bin::RpcClient client(_loop, _listen, _port, "unknownDomain");
+            cxxtools::bin::RpcClient client(_loop, _listen, _port);
+            client.domain("unknownDomain");
             cxxtools::RemoteProcedure<int, int, int> multiply(client, "multiply");
 
             multiply.begin(2, 3);

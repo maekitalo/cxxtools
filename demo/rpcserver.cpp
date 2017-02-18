@@ -181,6 +181,7 @@ int main(int argc, char* argv[])
     {
         httpServer.loadSslCertificateFile(sslCert);
         jsonServer.loadSslCertificateFile(sslCert);
+        binServer.loadSslCertificateFile(sslCert);
     }
 
     ////////////////////////////////////////////////////////////////////////

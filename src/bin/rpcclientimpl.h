@@ -66,6 +66,11 @@ class RpcClientImpl : public RefCounted, public Connectable
             _socket.close();
         }
 
+        void ssl(bool sw)
+        {
+            _ssl = sw;
+        }
+
         void connect();
 
         void close();
@@ -98,6 +103,7 @@ class RpcClientImpl : public RefCounted, public Connectable
     private:
         void prepareRequest(const String& name, IDecomposer** argv, unsigned argc);
         void onConnect(net::TcpSocket& socket);
+        void onSslConnect(net::TcpSocket& socket);
         void onOutput(StreamBuffer& sb);
         void onInput(StreamBuffer& sb);
 
@@ -106,6 +112,7 @@ class RpcClientImpl : public RefCounted, public Connectable
         IOStream _stream;
 
         net::AddrInfo _addrInfo;
+        bool _ssl;
         std::string _domain;
 
         // serialization

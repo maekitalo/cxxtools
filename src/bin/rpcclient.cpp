@@ -47,42 +47,42 @@ RpcClientImpl* RpcClient::getImpl()
     return _impl;
 }
 
-RpcClient::RpcClient(const net::AddrInfo& addr, const std::string& domain)
+RpcClient::RpcClient(const net::AddrInfo& addr)
     : _impl(0)
 {
-    prepareConnect(addr, domain);
+    prepareConnect(addr);
 }
 
-RpcClient::RpcClient(const std::string& addr, unsigned short port, const std::string& domain)
+RpcClient::RpcClient(const std::string& addr, unsigned short port)
     : _impl(0)
 {
-    prepareConnect(addr, port, domain);
+    prepareConnect(addr, port);
 }
 
-RpcClient::RpcClient(const net::Uri& uri, const std::string& domain)
+RpcClient::RpcClient(const net::Uri& uri)
     : _impl(0)
 {
-    prepareConnect(uri, domain);
+    prepareConnect(uri);
 }
 
-RpcClient::RpcClient(SelectorBase& selector, const net::AddrInfo& addr, const std::string& domain)
+RpcClient::RpcClient(SelectorBase& selector, const net::AddrInfo& addr)
     : _impl(0)
 {
-    prepareConnect(addr, domain);
+    prepareConnect(addr);
     setSelector(selector);
 }
 
-RpcClient::RpcClient(SelectorBase& selector, const std::string& addr, unsigned short port, const std::string& domain)
+RpcClient::RpcClient(SelectorBase& selector, const std::string& addr, unsigned short port)
     : _impl(0)
 {
-    prepareConnect(addr, port, domain);
+    prepareConnect(addr, port);
     setSelector(selector);
 }
 
-RpcClient::RpcClient(SelectorBase& selector, const net::Uri& uri, const std::string& domain)
+RpcClient::RpcClient(SelectorBase& selector, const net::Uri& uri)
     : _impl(0)
 {
-    prepareConnect(uri, domain);
+    prepareConnect(uri);
     setSelector(selector);
 }
 
@@ -115,24 +115,27 @@ RpcClient::~RpcClient()
         delete _impl;
 }
 
-void RpcClient::prepareConnect(const net::AddrInfo& addrinfo, const std::string& domain_)
+void RpcClient::prepareConnect(const net::AddrInfo& addrinfo)
 {
     getImpl()->prepareConnect(addrinfo);
-    domain(domain_);
 }
 
-void RpcClient::prepareConnect(const std::string& host, unsigned short int port, const std::string& domain_)
+void RpcClient::prepareConnect(const std::string& host, unsigned short int port)
 {
     prepareConnect(net::AddrInfo(host, port));
-    domain(domain_);
 }
 
-void RpcClient::prepareConnect(const net::Uri& uri, const std::string& domain_)
+void RpcClient::prepareConnect(const net::Uri& uri)
 {
-    if (uri.protocol() != "http")
-        throw std::runtime_error("only http is supported by http client");
+    if (uri.protocol() != "bin" && uri.protocol() != "bins")
+        throw std::runtime_error("only bin and bins is supported by binary rpc client");
     prepareConnect(net::AddrInfo(uri.host(), uri.port()));
-    domain(domain_);
+    ssl(uri.protocol() == "bins");
+}
+
+void RpcClient::ssl(bool sw)
+{
+    getImpl()->ssl(sw);
 }
 
 void RpcClient::connect()

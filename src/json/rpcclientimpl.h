@@ -62,11 +62,15 @@ class RpcClientImpl : public RefCounted, public Connectable
         void setSelector(SelectorBase& selector)
         { selector.add(_socket); }
 
-        void prepareConnect(const net::AddrInfo& addrinfo, bool ssl)
+        void prepareConnect(const net::AddrInfo& addrinfo)
         {
             _addrInfo = addrinfo;
-            _ssl = ssl;
             _socket.close();
+        }
+
+        void ssl(bool sw)
+        {
+            _ssl = sw;
         }
 
         void connect();

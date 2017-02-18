@@ -47,16 +47,16 @@ RpcClientImpl* RpcClient::getImpl()
     return _impl;
 }
 
-RpcClient::RpcClient(const net::AddrInfo& addr, bool ssl)
+RpcClient::RpcClient(const net::AddrInfo& addr)
     : _impl(0)
 {
-    prepareConnect(addr, ssl);
+    prepareConnect(addr);
 }
 
-RpcClient::RpcClient(const std::string& addr, unsigned short port, bool ssl)
+RpcClient::RpcClient(const std::string& addr, unsigned short port)
     : _impl(0)
 {
-    prepareConnect(addr, port, ssl);
+    prepareConnect(addr, port);
 }
 
 RpcClient::RpcClient(const net::Uri& uri)
@@ -65,17 +65,17 @@ RpcClient::RpcClient(const net::Uri& uri)
     prepareConnect(uri);
 }
 
-RpcClient::RpcClient(SelectorBase& selector, const net::AddrInfo& addr, bool ssl)
+RpcClient::RpcClient(SelectorBase& selector, const net::AddrInfo& addr)
     : _impl(0)
 {
-    prepareConnect(addr, ssl);
+    prepareConnect(addr);
     setSelector(selector);
 }
 
-RpcClient::RpcClient(SelectorBase& selector, const std::string& addr, unsigned short port, bool ssl)
+RpcClient::RpcClient(SelectorBase& selector, const std::string& addr, unsigned short port)
     : _impl(0)
 {
-    prepareConnect(addr, port, ssl);
+    prepareConnect(addr, port);
     setSelector(selector);
 }
 
@@ -115,21 +115,27 @@ RpcClient::~RpcClient()
         delete _impl;
 }
 
-void RpcClient::prepareConnect(const net::AddrInfo& addrinfo, bool ssl)
+void RpcClient::prepareConnect(const net::AddrInfo& addrinfo)
 {
-    getImpl()->prepareConnect(addrinfo, ssl);
+    getImpl()->prepareConnect(addrinfo);
 }
 
-void RpcClient::prepareConnect(const std::string& host, unsigned short int port, bool ssl)
+void RpcClient::prepareConnect(const std::string& host, unsigned short int port)
 {
-    prepareConnect(net::AddrInfo(host, port), ssl);
+    prepareConnect(net::AddrInfo(host, port));
 }
 
 void RpcClient::prepareConnect(const net::Uri& uri)
 {
     if (uri.protocol() != "json" && uri.protocol() != "jsons")
         throw std::runtime_error("only protocols json and jsons are supported by json rpc client");
-    prepareConnect(net::AddrInfo(uri.host(), uri.port()), uri.protocol() == "jsons");
+    prepareConnect(net::AddrInfo(uri.host(), uri.port()));
+    ssl(uri.protocol() == "jsons");
+}
+
+void RpcClient::ssl(bool sw)
+{
+    getImpl()->ssl(sw);
 }
 
 void RpcClient::connect()

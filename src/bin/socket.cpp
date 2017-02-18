@@ -67,6 +67,12 @@ void Socket::accept()
 {
     net::TcpSocket::accept(_tcpServer);
 
+    if (!_server.certificateFile().empty())
+    {
+        loadSslCertificateFile(_server.certificateFile(), _server.privateKeyFile());
+        sslAccept();
+    }
+
     _accepted = true;
 
     _stream.buffer().beginRead();

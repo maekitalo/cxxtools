@@ -56,6 +56,8 @@ namespace cxxtools
                 void listen(const std::string& ip, unsigned short int port, int backlog = 64);
                 void listen(unsigned short int port, int backlog = 64);
 
+                void loadSslCertificateFile(const std::string& certificateFile, const std::string& privateKeyFile = std::string());
+
                 void addService(const ServiceRegistry& service);
                 void addService(const std::string& domain, const ServiceRegistry& service);
 

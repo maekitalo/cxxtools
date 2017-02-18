@@ -66,28 +66,30 @@ class RpcClient : public RemoteClient
             : _impl(0)
         { setSelector(selector); }
 
-        RpcClient(const net::AddrInfo& addr, bool ssl = false);
-        RpcClient(const std::string& addr, unsigned short port, bool ssl = false);
+        explicit RpcClient(const net::AddrInfo& addr);
+        RpcClient(const std::string& addr, unsigned short port);
         explicit RpcClient(const net::Uri& uri);
 
-        RpcClient(SelectorBase& selector, const net::AddrInfo& addr, bool ssl = false);
-        RpcClient(SelectorBase& selector, const std::string& addr, unsigned short port, bool ssl = false);
-        explicit RpcClient(SelectorBase& selector, const net::Uri& uri);
+        RpcClient(SelectorBase& selector, const net::AddrInfo& addr);
+        RpcClient(SelectorBase& selector, const std::string& addr, unsigned short port);
+        RpcClient(SelectorBase& selector, const net::Uri& uri);
 
         RpcClient(const RpcClient&);
         RpcClient& operator= (const RpcClient&);
 
         virtual ~RpcClient();
 
-        void prepareConnect(const net::AddrInfo& addr, bool ssl = false);
-        void prepareConnect(const std::string& addr, unsigned short port, bool ssl = false);
+        void prepareConnect(const net::AddrInfo& addr);
+        void prepareConnect(const std::string& addr, unsigned short port);
         void prepareConnect(const net::Uri& uri);
 
-        void connect(const net::AddrInfo& addrinfo, bool ssl = false)
-        { prepareConnect(addrinfo, ssl); connect(); }
+        void ssl(bool sw);
 
-        void connect(const std::string& host, unsigned short int port, bool ssl = false)
-        { prepareConnect(host, port, ssl); connect(); }
+        void connect(const net::AddrInfo& addrinfo, bool ssl_ = false)
+        { prepareConnect(addrinfo); ssl(ssl_); connect(); }
+
+        void connect(const std::string& host, unsigned short int port, bool ssl_ = false)
+        { prepareConnect(host, port); ssl(ssl_); connect(); }
 
         void connect(const net::Uri& uri)
         { prepareConnect(uri); connect(); }

@@ -44,6 +44,7 @@ namespace json
 
 RpcClientImpl::RpcClientImpl()
     : _stream(_socket, 8192, true),
+      _ssl(false),
       _exceptionPending(false),
       _proc(0),
       _count(0),
