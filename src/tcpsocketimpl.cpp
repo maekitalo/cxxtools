@@ -881,22 +881,25 @@ size_t TcpSocketImpl::read(char* buffer, size_t count, bool& eof)
     }
 }
 
-void TcpSocketImpl::loadSslCertificateFile(const char* file)
+void TcpSocketImpl::loadSslCertificateFile(const std::string& certFile, const std::string& privateKeyFile)
 {
-    int ret = SSL_CTX_use_certificate_chain_file(_sslCtx, file);
+    log_debug("load ssl certificate file \"" << certFile << '"');
+    initSsl();
+    int ret = SSL_use_certificate_file(_ssl, certFile.c_str(), SSL_FILETYPE_PEM);
     if (ret != 1)
-    {
-        checkSslOperation(ret, "SSL_CTX_use_certificate_chain_file", _pfd);
-    }
-}
+        checkSslOperation(ret, "SSL_use_certificate_file", _pfd);
 
-void TcpSocketImpl::loadSslPrivateKeyFile(const char* file)
-{
-    int ret = SSL_CTX_use_PrivateKey_file(_sslCtx, file, SSL_FILETYPE_PEM);
+    std::string key = privateKeyFile.empty() ? certFile : privateKeyFile;
+    log_debug("load ssl private key file \"" << key << '"');
+    ret = SSL_use_PrivateKey_file(_ssl, key.c_str(), SSL_FILETYPE_PEM);
     if (ret != 1)
-    {
-        checkSslOperation(ret, "SSL_CTX_use_PrivateKey_file", _pfd);
-    }
+        checkSslOperation(ret, "SSL_use_PrivateKey_file", _pfd);
+
+    log_debug("check private key");
+    if (!SSL_check_private_key(_ssl))
+        throw SslError("private key does not match the certificate public key", 0);
+
+    log_debug("private key ok");
 }
 
 bool TcpSocketImpl::beginSslAccept()

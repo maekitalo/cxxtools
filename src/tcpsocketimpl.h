@@ -159,8 +159,7 @@ class TcpSocketImpl : public IODeviceImpl
         // override for ssl
         virtual void outputReady();
 
-        void loadSslCertificateFile(const char* file);
-        void loadSslPrivateKeyFile(const char* file);
+        void loadSslCertificateFile(const std::string& certFile, const std::string& privateKeyFile);
 
         // initiates a ssl connection on the socket
         bool beginSslConnect();

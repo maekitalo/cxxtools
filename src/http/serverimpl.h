@@ -70,6 +70,11 @@ class ServerImpl : public ServerImplBase, public Connectable
 
         void loadSslCertificateFile(const char* certificateFile, const char* privateKeyFile);
 
+        const std::string& certificateFile() const
+        { return _certificateFile; }
+        const std::string& privateKeyFile() const
+        { return _privateKeyFile; }
+
         bool isTerminating() const
         { return runmode() == Server::Terminating; }
 

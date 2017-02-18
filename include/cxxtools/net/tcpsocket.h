@@ -99,8 +99,7 @@ class TcpSocket : public IODevice
 
         short poll(short events) const;
 
-        void loadSslCertificateFile(const char* file);
-        void loadSslPrivateKeyFile(const char* file);
+        void loadSslCertificateFile(const std::string& certFile, const std::string& privateKeyFile = std::string());
 
         /// initiates a ssl connection on the socket
         void beginSslConnect();

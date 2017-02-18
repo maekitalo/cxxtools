@@ -181,14 +181,9 @@ int TcpSocket::getFd() const
 }
 
 
-void TcpSocket::loadSslCertificateFile(const char* file)
+void TcpSocket::loadSslCertificateFile(const std::string& certFile, const std::string& privateKeyFile)
 {
-    _impl->loadSslCertificateFile(file);
-}
-
-void TcpSocket::loadSslPrivateKeyFile(const char* file)
-{
-    _impl->loadSslPrivateKeyFile(file);
+    _impl->loadSslCertificateFile(certFile, privateKeyFile);
 }
 
 void TcpSocket::beginSslConnect()
