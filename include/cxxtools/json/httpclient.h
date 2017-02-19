@@ -59,16 +59,16 @@ namespace json
             { setSelector(selector); }
 
             HttpClient(SelectorBase& selector, const std::string& addr,
-                   unsigned short port, const std::string& url);
+                   unsigned short port, const std::string& url, bool ssl = false);
 
             HttpClient(SelectorBase& selector, const net::AddrInfo& addrinfo,
-                   const std::string& url);
+                   const std::string& url, bool ssl = false);
 
             HttpClient(SelectorBase& selector, const net::Uri& uri);
 
-            HttpClient(const std::string& addr, unsigned short port, const std::string& url);
+            HttpClient(const std::string& addr, unsigned short port, const std::string& url, bool ssl = false);
 
-            HttpClient(const net::AddrInfo& addrinfo, const std::string& url);
+            HttpClient(const net::AddrInfo& addrinfo, const std::string& url, bool ssl = false);
 
             explicit HttpClient(const net::Uri& uri);
 
@@ -77,23 +77,23 @@ namespace json
 
             virtual ~HttpClient();
 
-            void prepareConnect(const net::AddrInfo& addrinfo, const std::string& url);
+            void prepareConnect(const net::AddrInfo& addrinfo, const std::string& url, bool ssl = false);
 
             void prepareConnect(const net::Uri& uri);
 
             void prepareConnect(const std::string& addr, unsigned short port,
-                                const std::string& url);
+                                const std::string& url, bool ssl = false);
 
             void connect();
 
-            void connect(const net::AddrInfo& addrinfo, const std::string& url)
-            { prepareConnect(addrinfo, url); connect(); }
+            void connect(const net::AddrInfo& addrinfo, const std::string& url, bool ssl = false)
+            { prepareConnect(addrinfo, url, ssl); connect(); }
 
             void connect(const net::Uri& uri)
             { prepareConnect(uri); connect(); }
 
-            void connect(const std::string& addr, unsigned short port, const std::string& url)
-            { prepareConnect(addr, port, url); connect(); }
+            void connect(const std::string& addr, unsigned short port, const std::string& url, bool ssl = false)
+            { prepareConnect(addr, port, url, ssl); connect(); }
 
             void url(const std::string& url);
             void auth(const std::string& username, const std::string& password);

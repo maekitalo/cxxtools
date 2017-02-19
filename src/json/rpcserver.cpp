@@ -74,6 +74,11 @@ void RpcServer::listen(unsigned short int port, int backlog)
     _impl->listen(std::string(), port, backlog);
 }
 
+void RpcServer::loadSslCertificateFile(const std::string& certificateFile, const std::string& privateKeyFile)
+{
+    _impl->loadSslCertificateFile(certificateFile, privateKeyFile);
+}
+
 unsigned RpcServer::minThreads() const
 {
     return _impl->minThreads();

@@ -29,11 +29,14 @@
 #ifndef CXXTOOLS_NET_TcpSocketImpl_H
 #define CXXTOOLS_NET_TcpSocketImpl_H
 
-#include "cxxtools/signal.h"
 #include "iodeviceimpl.h"
 #include "cxxtools/net/addrinfo.h"
+#include "cxxtools/mutex.h"
 #include "addrinfoimpl.h"
 #include "config.h"
+
+#include <openssl/ssl.h>
+
 #include <string>
 #include <vector>
 #include <sys/types.h>
@@ -79,18 +82,39 @@ class TcpSocketImpl : public IODeviceImpl
 {
     private:
         TcpSocket& _socket;
-        bool _isConnected;
+        enum {
+            IDLE,
+            CONNECTING,
+            CONNECTED,
+
+            SSLACCEPTING,
+            SSLCONNECTING,
+            SSLSHUTTINGDOWN,
+
+            SSLCONNECTED
+        } _state;
+
         struct sockaddr_storage _peeraddr;
         AddrInfo _addrInfo;
         AddrInfoImpl::const_iterator _addrInfoPtr;
-
-        int checkConnect();
-        void checkPendingError();
-        std::string tryConnect();
         std::string _connectResult;
         std::vector<std::string> _connectFailedMessages;
 
+        // SSL
+        static Mutex _sslMutex;
+        SSL_CTX* _sslCtx;
+        SSL* _ssl;
+
+        // methods
+        int checkConnect();
+        size_t callSend(const char* buffer, size_t n);
+        void checkPendingError();
+        std::string tryConnect();
         std::string connectFailedMessages();
+        void checkSslOperation(int ret, const char* fn, pollfd* pfd);
+        void waitSslOperation(int ret);
+
+        void initSsl();
 
     public:
         explicit TcpSocketImpl(TcpSocket& socket);
@@ -104,9 +128,7 @@ class TcpSocketImpl : public IODeviceImpl
         std::string getPeerAddr() const;
 
         bool isConnected() const
-        { return _isConnected; }
-
-        void connect(const AddrInfo& addrinfo);
+        { return _state >= CONNECTED; }
 
         bool beginConnect(const AddrInfo& addrinfo);
 
@@ -122,11 +144,34 @@ class TcpSocketImpl : public IODeviceImpl
         // implementation using poll
         bool checkPollEvent(pollfd& pfd);
 
-        // overrid beginWrite to use send(2) instead of write(2)
+        // override beginWrite to use send(2) instead of write(2)
         virtual size_t beginWrite(const char* buffer, size_t n);
 
-        // overrid write to use send(2) instead of write(2)
-        virtual size_t write( const char* buffer, size_t count );
+        // override write to use send(2) instead of write(2)
+        virtual size_t write(const char* buffer, size_t count);
+
+        // override for ssl
+        virtual size_t read(char* buffer, size_t count, bool& eof);
+
+        // override for ssl
+        virtual void inputReady();
+
+        // override for ssl
+        virtual void outputReady();
+
+        void loadSslCertificateFile(const std::string& certFile, const std::string& privateKeyFile);
+
+        // initiates a ssl connection on the socket
+        bool beginSslConnect();
+        void endSslConnect();
+
+        // accept a ssl connection from the peer
+        bool beginSslAccept();
+        void endSslAccept();
+
+        // terminates ssl
+        bool beginSslShutdown();
+        void endSslShutdown();
 };
 
 } // namespace net

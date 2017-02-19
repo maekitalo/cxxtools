@@ -47,10 +47,10 @@ ClientImpl* Client::getImpl()
     return _impl;
 }
 
-Client::Client(const net::AddrInfo& addrinfo)
+Client::Client(const net::AddrInfo& addrinfo, bool ssl)
 : _impl(0)
 {
-    prepareConnect(addrinfo);
+    prepareConnect(addrinfo, ssl);
 }
 
 Client::Client(const net::Uri& uri)
@@ -59,24 +59,24 @@ Client::Client(const net::Uri& uri)
     prepareConnect(uri);
 }
 
-Client::Client(const std::string& host, unsigned short int port)
+Client::Client(const std::string& host, unsigned short int port, bool ssl)
 : _impl(0)
 {
-    prepareConnect(host, port);
+    prepareConnect(host, port, ssl);
 }
 
 
-Client::Client(SelectorBase& selector, const std::string& host, unsigned short int port)
+Client::Client(SelectorBase& selector, const std::string& host, unsigned short int port, bool ssl)
 : _impl(0)
 {
-    prepareConnect(host, port);
+    prepareConnect(host, port, ssl);
     setSelector(selector);
 }
 
-Client::Client(SelectorBase& selector, const net::AddrInfo& addrinfo)
+Client::Client(SelectorBase& selector, const net::AddrInfo& addrinfo, bool ssl)
 : _impl(0)
 {
-    prepareConnect(addrinfo);
+    prepareConnect(addrinfo, ssl);
     setSelector(selector);
 }
 
@@ -113,21 +113,21 @@ Client::~Client()
         delete _impl;
 }
 
-void Client::prepareConnect(const net::AddrInfo& addrinfo)
+void Client::prepareConnect(const net::AddrInfo& addrinfo, bool ssl)
 {
-    getImpl()->prepareConnect(addrinfo);
+    getImpl()->prepareConnect(addrinfo, ssl);
 }
 
-void Client::prepareConnect(const std::string& host, unsigned short int port)
+void Client::prepareConnect(const std::string& host, unsigned short int port, bool ssl)
 {
-    prepareConnect(net::AddrInfo(host, port));
+    prepareConnect(net::AddrInfo(host, port, ssl));
 }
 
 void Client::prepareConnect(const net::Uri& uri)
 {
-    if (uri.protocol() != "http")
-        throw std::runtime_error("only http is supported by http client");
-    prepareConnect(net::AddrInfo(uri.host(), uri.port()));
+    if (uri.protocol() != "http" && uri.protocol() != "https")
+        throw std::runtime_error("only protocols http and https are supported by http client");
+    prepareConnect(net::AddrInfo(uri.host(), uri.port()), uri.protocol() == "https");
     auth(uri.user(), uri.password());
 }
 

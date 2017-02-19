@@ -111,6 +111,8 @@ int main(int argc, char* argv[])
     cxxtools::Arg<bool> daemonize(argc, argv, 'd');
     cxxtools::Arg<std::string> pidfile(argc, argv, "--pidfile");
 
+    cxxtools::Arg<std::string> sslCert(argc, argv, 'c');
+
     std::cout << "run rpcecho server\n"
               << "http protocol on port "<< port.getValue() << "\n"
               << "binary protocol on port " << bport.getValue() << "\n"
@@ -171,6 +173,16 @@ int main(int argc, char* argv[])
     // go to the background if requested
     if (daemonize)
       cxxtools::posix::daemonize(pidfile);
+
+    ////////////////////////////////////////////////////////////////////////
+    // set ssl
+    //
+    if (sslCert.isSet())
+    {
+        httpServer.loadSslCertificateFile(sslCert);
+        jsonServer.loadSslCertificateFile(sslCert);
+        binServer.loadSslCertificateFile(sslCert);
+    }
 
     ////////////////////////////////////////////////////////////////////////
     // Run

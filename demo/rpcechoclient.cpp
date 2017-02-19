@@ -51,19 +51,22 @@ int main(int argc, char* argv[])
     cxxtools::Arg<unsigned short> port(argc, argv, 'p', binary ? 7003
                                                       : json   ? 7004
                                                       :          7002);
+    cxxtools::Arg<bool> ssl(argc, argv, 's');
 
     // optionally read -t <timeout> or -T <connectTimeout> (in ms)
     cxxtools::Arg<cxxtools::Milliseconds> timeout(argc, argv, 't');
     cxxtools::Arg<cxxtools::Milliseconds> connectTimeout(argc, argv, 'T');
 
     // define a xmlrpc client
-    cxxtools::xmlrpc::HttpClient xmlrpcClient(ip, port, "/xmlrpc");
+    cxxtools::xmlrpc::HttpClient xmlrpcClient(ip, port, "/xmlrpc", ssl);
     // and a binary rpc client
     cxxtools::bin::RpcClient binaryClient(ip, port);
+    binaryClient.ssl(ssl);
     // and a json rpc client
     cxxtools::json::RpcClient jsonClient(ip, port);
+    jsonClient.ssl(ssl);
     // and a json rpc http client
-    cxxtools::json::HttpClient jsonHttpClient(ip, port, "/jsonrpc");
+    cxxtools::json::HttpClient jsonHttpClient(ip, port, "/jsonrpc", ssl);
 
     cxxtools::RemoteClient& client = 
         binary   ? static_cast<cxxtools::RemoteClient&>(binaryClient) :

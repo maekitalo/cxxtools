@@ -26,11 +26,13 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <exception>
-#include <iostream>
 #include <cxxtools/net/tcpstream.h>
 #include <cxxtools/arg.h>
 #include <cxxtools/log.h>
+
+#include <exception>
+#include <iostream>
+#include <fstream>
 
 int main(int argc, char* argv[])
 {
@@ -43,6 +45,7 @@ int main(int argc, char* argv[])
     cxxtools::Arg<unsigned> bufsize(argc, argv, 'b', 8192);
     cxxtools::Arg<bool> listen(argc, argv, 'l');
     cxxtools::Arg<bool> read_reply(argc, argv, 'r');
+    cxxtools::Arg<bool> ssl(argc, argv, 's');
 
     if (listen)
     {
@@ -52,7 +55,10 @@ int main(int argc, char* argv[])
       cxxtools::net::TcpServer server(ip.getValue(), port);
 
       // accept a connetion
-      cxxtools::net::iostream worker(server, bufsize);
+      cxxtools::net::TcpStream worker(server, bufsize);
+
+      if (ssl)
+          worker.sslAccept();
 
       // copy to stdout
       std::cout << worker.rdbuf();
@@ -62,10 +68,24 @@ int main(int argc, char* argv[])
       // I'm a client
 
       // connect to server
-      cxxtools::net::iostream peer(ip, port, bufsize);
+      cxxtools::net::TcpStream peer(ip, port, bufsize);
 
-      // copy stdin to server
-      peer << std::cin.rdbuf() << std::flush;
+      if (ssl)
+          peer.sslConnect();
+
+      if (argc > 1)
+      {
+          for (int a = 1; a < argc; ++a)
+          {
+              std::ifstream in(argv[a]);
+              peer << in.rdbuf() << std::flush;
+          }
+      }
+      else
+      {
+          // copy stdin to server
+          peer << std::cin.rdbuf() << std::flush;
+      }
 
       if (read_reply)
         // copy answer to stdout

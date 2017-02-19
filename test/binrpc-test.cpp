@@ -536,7 +536,8 @@ class BinRpcTest : public cxxtools::unit::TestSuite
             registry.registerMethod("multiply", *this, &BinRpcTest::multiplyInt);
             _server->addService("myDomain", registry);
 
-            cxxtools::bin::RpcClient client(_loop, _listen, _port, "myDomain");
+            cxxtools::bin::RpcClient client(_loop, _listen, _port);
+            client.domain("myDomain");
             cxxtools::RemoteProcedure<int, int, int> multiply(client, "multiply");
 
             multiply.begin(2, 3);
@@ -552,7 +553,8 @@ class BinRpcTest : public cxxtools::unit::TestSuite
             registry.registerMethod("multiply", *this, &BinRpcTest::multiplyInt);
             _server->addService("myDomain", registry);
 
-            cxxtools::bin::RpcClient client(_loop, _listen, _port, "unknownDomain");
+            cxxtools::bin::RpcClient client(_loop, _listen, _port);
+            client.domain("unknownDomain");
             cxxtools::RemoteProcedure<int, int, int> multiply(client, "multiply");
 
             multiply.begin(2, 3);
@@ -697,7 +699,7 @@ class BinRpcTest : public cxxtools::unit::TestSuite
                 cxxtools::RemoteProcedure<bool, bool, bool> boolean(client, "boolean");
 
                 std::ostringstream uri;
-                uri << "http://localhost:" << _port << '/';
+                uri << "bin://localhost:" << _port << '/';
                 client.prepareConnect(cxxtools::net::Uri(uri.str()));
                 boolean.begin(true, true);
                 CXXTOOLS_UNIT_ASSERT_EQUALS(boolean.end(2000), true);
@@ -757,7 +759,7 @@ class BinRpcTest : public cxxtools::unit::TestSuite
                 cxxtools::RemoteProcedure<bool, bool, bool> boolean(client, "boolean");
 
                 std::ostringstream uri;
-                uri << "http://localhost:" << _port << '/';
+                uri << "bin://localhost:" << _port << '/';
                 client.connect(cxxtools::net::Uri(uri.str()));
                 boolean.begin(true, true);
                 CXXTOOLS_UNIT_ASSERT_EQUALS(boolean.end(2000), true);

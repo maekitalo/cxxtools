@@ -130,6 +130,10 @@ namespace cxxtools {
 
             virtual bool checkPollEvent(pollfd& pfd);
 
+            virtual void inputReady();
+
+            virtual void outputReady();
+
         protected:
             IODevice& _device;
             int _fd;

@@ -65,6 +65,7 @@ ClientImpl::ClientImpl(Client* client)
 {
     _stream.attachDevice(_socket);
     cxxtools::connect(_socket.connected, *this, &ClientImpl::onConnect);
+    cxxtools::connect(_socket.sslConnected, *this, &ClientImpl::onSslConnect);
     cxxtools::connect(_stream.buffer().outputReady, *this, &ClientImpl::onOutput);
     cxxtools::connect(_stream.buffer().inputReady, *this, &ClientImpl::onInput);
 }
@@ -84,6 +85,8 @@ void ClientImpl::reexecute(const Request& request)
     _stream.buffer().discard();
 
     _socket.connect(_addrInfo);
+    if (_ssl)
+        _socket.sslConnect();
 
     sendRequest(request);
     _stream.flush();
@@ -135,6 +138,12 @@ const ReplyHeader& ClientImpl::execute(const Request& request, Timespan timeout,
     {
         log_debug("connect");
         _socket.connect(_addrInfo);
+
+        if (_ssl)
+        {
+            log_debug("ssl connect");
+            _socket.sslConnect();
+        }
     }
 
     _socket.setTimeout(timeout);
@@ -383,6 +392,35 @@ void ClientImpl::onConnect(net::TcpSocket& socket)
 
         _errorPending = false;
         socket.endConnect();
+        if (_ssl)
+        {
+            socket.beginSslConnect();
+            return;
+        }
+
+        sendRequest(*_request);
+
+        log_debug("request sent - begin write");
+        _stream.buffer().beginWrite();
+    }
+    catch (const std::exception& )
+    {
+        _errorPending = true;
+        _client->replyFinished(*_client);
+
+        if (_errorPending)
+            throw;
+    }
+}
+
+void ClientImpl::onSslConnect(net::TcpSocket& socket)
+{
+    try
+    {
+        log_trace("onSslConnect");
+
+        _errorPending = false;
+        socket.endSslConnect();
         sendRequest(*_request);
 
         log_debug("request sent - begin write");

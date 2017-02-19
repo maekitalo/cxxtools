@@ -85,6 +85,9 @@ class TcpSocket : public IODevice
         void endConnect();
 
         Signal<TcpSocket&> connected;
+        Signal<TcpSocket&> sslAccepted;
+        Signal<TcpSocket&> sslConnected;
+        Signal<TcpSocket&> sslClosed;
 
         /** @brief Notifies when the device is closed while no reading or writing is pending
          */
@@ -95,6 +98,29 @@ class TcpSocket : public IODevice
         int getFd() const;
 
         short poll(short events) const;
+
+        void loadSslCertificateFile(const std::string& certFile, const std::string& privateKeyFile = std::string());
+
+        /// initiates a ssl connection on the socket
+        void beginSslConnect();
+        void endSslConnect();
+
+        /// blocking call for initiating ssl
+        void sslConnect();
+
+        /// accept a ssl connection from the peer
+        void beginSslAccept();
+        void endSslAccept();
+
+        /// blocking call to accept a ssl connection from the peer
+        void sslAccept();
+
+        /// terminates ssl
+        void beginSslShutdown();
+        void endSslShutdown();
+
+        /// blocking call to terminate ssl
+        void sslShutdown();
 
     protected:
         TcpSocket(TcpSocketImpl* impl)

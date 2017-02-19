@@ -148,6 +148,13 @@ void RpcServerImpl::listen(const std::string& ip, unsigned short int port, int b
 
 }
 
+void RpcServerImpl::loadSslCertificateFile(const std::string& certificateFile, const std::string& privateKeyFile)
+{
+    _certificateFile = certificateFile;
+    _privateKeyFile = privateKeyFile;
+}
+
+
 void RpcServerImpl::start()
 {
     log_trace("start server");
