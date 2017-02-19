@@ -699,7 +699,7 @@ class BinRpcTest : public cxxtools::unit::TestSuite
                 cxxtools::RemoteProcedure<bool, bool, bool> boolean(client, "boolean");
 
                 std::ostringstream uri;
-                uri << "http://localhost:" << _port << '/';
+                uri << "bin://localhost:" << _port << '/';
                 client.prepareConnect(cxxtools::net::Uri(uri.str()));
                 boolean.begin(true, true);
                 CXXTOOLS_UNIT_ASSERT_EQUALS(boolean.end(2000), true);
@@ -759,7 +759,7 @@ class BinRpcTest : public cxxtools::unit::TestSuite
                 cxxtools::RemoteProcedure<bool, bool, bool> boolean(client, "boolean");
 
                 std::ostringstream uri;
-                uri << "http://localhost:" << _port << '/';
+                uri << "bin://localhost:" << _port << '/';
                 client.connect(cxxtools::net::Uri(uri.str()));
                 boolean.begin(true, true);
                 CXXTOOLS_UNIT_ASSERT_EQUALS(boolean.end(2000), true);
