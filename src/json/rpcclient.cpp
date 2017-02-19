@@ -31,6 +31,8 @@
 #include <cxxtools/net/uri.h>
 #include "rpcclientimpl.h"
 
+#include "config.h"
+
 namespace cxxtools
 {
 namespace json
@@ -127,8 +129,13 @@ void RpcClient::prepareConnect(const std::string& host, unsigned short int port)
 
 void RpcClient::prepareConnect(const net::Uri& uri)
 {
+#ifdef WITH_SSL
     if (uri.protocol() != "json" && uri.protocol() != "jsons")
-        throw std::runtime_error("only protocols json and jsons are supported by json rpc client");
+        throw std::runtime_error("only protocols \"json\" and \"jsons\" are supported by json rpc client");
+#else
+    if (uri.protocol() != "json")
+        throw std::runtime_error("only protocol \"json\" is supported by json rpc client");
+#endif
     prepareConnect(net::AddrInfo(uri.host(), uri.port()));
     ssl(uri.protocol() == "jsons");
 }

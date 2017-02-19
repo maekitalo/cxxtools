@@ -85,13 +85,16 @@ class TcpSocketImpl : public IODeviceImpl
         enum {
             IDLE,
             CONNECTING,
-            CONNECTED,
+            CONNECTED
 
+#ifdef WITH_SSL
+            ,
             SSLACCEPTING,
             SSLCONNECTING,
             SSLSHUTTINGDOWN,
 
             SSLCONNECTED
+#endif
         } _state;
 
         struct sockaddr_storage _peeraddr;
@@ -100,10 +103,12 @@ class TcpSocketImpl : public IODeviceImpl
         std::string _connectResult;
         std::vector<std::string> _connectFailedMessages;
 
+#ifdef WITH_SSL
         // SSL
         static Mutex _sslMutex;
         SSL_CTX* _sslCtx;
         SSL* _ssl;
+#endif
 
         // methods
         int checkConnect();
@@ -111,10 +116,13 @@ class TcpSocketImpl : public IODeviceImpl
         void checkPendingError();
         std::string tryConnect();
         std::string connectFailedMessages();
+
+#ifdef WITH_SSL
         void checkSslOperation(int ret, const char* fn, pollfd* pfd);
         void waitSslOperation(int ret);
 
         void initSsl();
+#endif
 
     public:
         explicit TcpSocketImpl(TcpSocket& socket);
@@ -159,6 +167,7 @@ class TcpSocketImpl : public IODeviceImpl
         // override for ssl
         virtual void outputReady();
 
+#ifdef WITH_SSL
         void loadSslCertificateFile(const std::string& certFile, const std::string& privateKeyFile);
 
         // initiates a ssl connection on the socket
@@ -172,6 +181,7 @@ class TcpSocketImpl : public IODeviceImpl
         // terminates ssl
         bool beginSslShutdown();
         void endSslShutdown();
+#endif
 };
 
 } // namespace net

@@ -51,25 +51,48 @@ void ClientImpl::ParseEvent::onHttpReturn(unsigned ret, const std::string& text)
 }
 
 ClientImpl::ClientImpl(Client* client)
-: _client(client)
-, _request(0)
-, _parseEvent(_reply.header())
-, _parser(_parseEvent, true)
-, _stream(8192, true)
-, _chunkedIStream(_stream.rdbuf())
-, _bodyStream(_stream.rdbuf())
-, _readHeader(true)
-, _chunkedEncoding(false)
-, _reconnectOnError(false)
-, _errorPending(false)
+: _client(client),
+  _request(0),
+  _parseEvent(_reply.header()),
+  _parser(_parseEvent, true),
+#ifdef WITH_SSL
+  _ssl(false),
+#endif
+  _stream(8192, true),
+  _chunkedIStream(_stream.rdbuf()),
+  _bodyStream(_stream.rdbuf()),
+  _readHeader(true),
+  _chunkedEncoding(false),
+  _reconnectOnError(false),
+  _errorPending(false)
 {
     _stream.attachDevice(_socket);
     cxxtools::connect(_socket.connected, *this, &ClientImpl::onConnect);
+#ifdef WITH_SSL
     cxxtools::connect(_socket.sslConnected, *this, &ClientImpl::onSslConnect);
+#endif
     cxxtools::connect(_stream.buffer().outputReady, *this, &ClientImpl::onOutput);
     cxxtools::connect(_stream.buffer().inputReady, *this, &ClientImpl::onInput);
 }
 
+
+void ClientImpl::prepareConnect(const net::AddrInfo& addrinfo, bool ssl)
+{
+#ifdef WITH_SSL
+    if (addrinfo != _addrInfo || ssl != _ssl)
+    {
+        _addrInfo = addrinfo;
+        _ssl = ssl;
+        _socket.close();
+    }
+#else
+    if (addrinfo != _addrInfo)
+    {
+        _addrInfo = addrinfo;
+        _socket.close();
+    }
+#endif
+}
 
 void ClientImpl::setSelector(SelectorBase& selector)
 {
@@ -85,8 +108,10 @@ void ClientImpl::reexecute(const Request& request)
     _stream.buffer().discard();
 
     _socket.connect(_addrInfo);
+#ifdef WITH_SSL
     if (_ssl)
         _socket.sslConnect();
+#endif
 
     sendRequest(request);
     _stream.flush();
@@ -139,11 +164,13 @@ const ReplyHeader& ClientImpl::execute(const Request& request, Timespan timeout,
         log_debug("connect");
         _socket.connect(_addrInfo);
 
+#ifdef WITH_SSL
         if (_ssl)
         {
             log_debug("ssl connect");
             _socket.sslConnect();
         }
+#endif
     }
 
     _socket.setTimeout(timeout);
@@ -392,11 +419,13 @@ void ClientImpl::onConnect(net::TcpSocket& socket)
 
         _errorPending = false;
         socket.endConnect();
+#ifdef WITH_SSL
         if (_ssl)
         {
             socket.beginSslConnect();
             return;
         }
+#endif
 
         sendRequest(*_request);
 
@@ -413,6 +442,7 @@ void ClientImpl::onConnect(net::TcpSocket& socket)
     }
 }
 
+#ifdef WITH_SSL
 void ClientImpl::onSslConnect(net::TcpSocket& socket)
 {
     try
@@ -435,6 +465,7 @@ void ClientImpl::onSslConnect(net::TcpSocket& socket)
             throw;
     }
 }
+#endif
 
 void ClientImpl::onOutput(StreamBuffer& sb)
 {

@@ -29,7 +29,12 @@
 #include <cxxtools/bin/rpcclient.h>
 #include <cxxtools/net/addrinfo.h>
 #include <cxxtools/net/uri.h>
+#include <cxxtools/log.h>
 #include "rpcclientimpl.h"
+
+#include "config.h"
+
+log_define("cxxtools.bin.rpcclient")
 
 namespace cxxtools
 {
@@ -127,15 +132,26 @@ void RpcClient::prepareConnect(const std::string& host, unsigned short int port)
 
 void RpcClient::prepareConnect(const net::Uri& uri)
 {
+#ifdef WITH_SSL
     if (uri.protocol() != "bin" && uri.protocol() != "bins")
-        throw std::runtime_error("only bin and bins is supported by binary rpc client");
+        throw std::runtime_error("only protocols \"bin\" and \"bins\" is supported by binary rpc client");
     prepareConnect(net::AddrInfo(uri.host(), uri.port()));
     ssl(uri.protocol() == "bins");
+#else
+    if (uri.protocol() != "bin")
+        throw std::runtime_error("only protocol \"bin\" is supported by binary rpc client");
+    prepareConnect(net::AddrInfo(uri.host(), uri.port()));
+#endif
 }
 
 void RpcClient::ssl(bool sw)
 {
+#ifdef WITH_SSL
     getImpl()->ssl(sw);
+#else
+    if (sw)
+        log_warn("can't enable ssl since ssl is disabled");
+#endif
 }
 
 void RpcClient::connect()

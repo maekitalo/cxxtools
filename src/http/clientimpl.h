@@ -29,11 +29,15 @@
 #ifndef cxxtools_Http_ClientImpl_h
 #define cxxtools_Http_ClientImpl_h
 
-#include <cxxtools/net/tcpserver.h>
-#include <cxxtools/net/tcpsocket.h>
 #include "parser.h"
+#include "chunkedreader.h"
+
 #include <cxxtools/http/request.h>
 #include <cxxtools/http/reply.h>
+
+#include <cxxtools/net/tcpserver.h>
+#include <cxxtools/net/tcpsocket.h>
+
 #include <cxxtools/selectable.h>
 #include <cxxtools/iostream.h>
 #include <cxxtools/limitstream.h>
@@ -41,10 +45,12 @@
 #include <cxxtools/connectable.h>
 #include <cxxtools/delegate.h>
 #include <cxxtools/refcounted.h>
+
 #include <string>
 #include <sstream>
 #include <cstddef>
-#include "chunkedreader.h"
+
+#include "config.h"
 
 namespace cxxtools
 {
@@ -80,7 +86,9 @@ class ClientImpl : public RefCounted, public Connectable
         HeaderParser _parser;
 
         net::AddrInfo _addrInfo;
+#ifdef WITH_SSL
         bool _ssl;
+#endif
         net::TcpSocket _socket;
         IOStream _stream;
         ChunkedIStream _chunkedIStream;
@@ -107,7 +115,9 @@ class ClientImpl : public RefCounted, public Connectable
 
     protected:
         void onConnect(net::TcpSocket& socket);
+#ifdef WITH_SSL
         void onSslConnect(net::TcpSocket& socket);
+#endif
         void onOutput(StreamBuffer& sb);
         void onInput(StreamBuffer& sb);
 
@@ -115,22 +125,16 @@ class ClientImpl : public RefCounted, public Connectable
         ClientImpl(Client* client);
 
         // Sets the server and port. No actual network connect is done.
-        void prepareConnect(const net::AddrInfo& addrinfo, bool ssl)
-        {
-            if (addrinfo != _addrInfo || ssl != _ssl)
-            {
-                _addrInfo = addrinfo;
-                _ssl = ssl;
-                _socket.close();
-            }
-        }
+        void prepareConnect(const net::AddrInfo& addrinfo, bool ssl);
 
         void connect()
         {
             _socket.close();
             _socket.connect(_addrInfo);
+#ifdef WITH_SSL
             if (_ssl)
                 _socket.sslConnect();
+#endif
         }
 
         void close()

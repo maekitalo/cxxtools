@@ -125,8 +125,13 @@ void Client::prepareConnect(const std::string& host, unsigned short int port, bo
 
 void Client::prepareConnect(const net::Uri& uri)
 {
+#ifdef WITH_SSL
     if (uri.protocol() != "http" && uri.protocol() != "https")
         throw std::runtime_error("only protocols http and https are supported by http client");
+#else
+    if (uri.protocol() != "http")
+        throw std::runtime_error("only protocol http is supported by http client");
+#endif
     prepareConnect(net::AddrInfo(uri.host(), uri.port()), uri.protocol() == "https");
     auth(uri.user(), uri.password());
 }
