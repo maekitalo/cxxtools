@@ -47,7 +47,7 @@ namespace cxxtools
                 friend class Responder;
 
             public:
-                RpcServer(EventLoopBase& eventLoop);
+                explicit RpcServer(EventLoopBase& eventLoop);
                 RpcServer(EventLoopBase& eventLoop, const std::string& ip, unsigned short int port, int backlog = 64);
                 RpcServer(EventLoopBase& eventLoop, unsigned short int port, int backlog = 64);
                 ~RpcServer();

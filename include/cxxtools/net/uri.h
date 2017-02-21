@@ -87,8 +87,11 @@ namespace net
       void parse(const char* str);
 
     public:
-      /// Creates a empty Uri.
-      Uri()  { }
+      /// Creates an empty Uri.
+      Uri()
+        : _ipv6(false),
+          _port(0)
+      { }
 
       /// Parses the string str and set the elements of the Uri.
       Uri(const std::string& str)
