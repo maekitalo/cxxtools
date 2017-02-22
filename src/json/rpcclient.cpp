@@ -132,12 +132,13 @@ void RpcClient::prepareConnect(const net::Uri& uri)
 #ifdef WITH_SSL
     if (uri.protocol() != "json" && uri.protocol() != "jsons")
         throw std::runtime_error("only protocols \"json\" and \"jsons\" are supported by json rpc client");
+    prepareConnect(net::AddrInfo(uri.host(), uri.port()));
+    ssl(uri.protocol() == "jsons");
 #else
     if (uri.protocol() != "json")
         throw std::runtime_error("only protocol \"json\" is supported by json rpc client");
-#endif
     prepareConnect(net::AddrInfo(uri.host(), uri.port()));
-    ssl(uri.protocol() == "jsons");
+#endif
 }
 
 void RpcClient::ssl(bool sw)
