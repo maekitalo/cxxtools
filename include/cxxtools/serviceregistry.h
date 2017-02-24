@@ -31,6 +31,8 @@
 
 #include <cxxtools/serviceprocedure.h>
 #include <cxxtools/callable.h>
+#include <cxxtools/function.h>
+#include <cxxtools/method.h>
 #include <string>
 #include <vector>
 #include <map>
