@@ -29,8 +29,7 @@
 #ifndef CXXTOOLS_NET_NET_H
 #define CXXTOOLS_NET_NET_H
 
-#include <cxxtools/ioerror.h>
-#include <cxxtools/noncopyable.h>
+#include <string>
 
 namespace cxxtools
 {
@@ -41,8 +40,15 @@ namespace net
   /**
    * Wrapper for BSD sockets.
    */
-  class Socket : private NonCopyable
+  class Socket
   {
+#if __cplusplus >= 201103L
+      Socket(const Socket&) = delete;
+      Socket& operator=(const Socket&) = delete;
+#else
+      Socket(const Socket&) { }
+      Socket& operator=(const Socket&) { return *this; }
+#endif
 
     public:
       /// A socket is created. On error a net::Exception is thrown.

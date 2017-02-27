@@ -30,7 +30,6 @@
 #ifndef CXXTOOLS_THREAD_H
 #define CXXTOOLS_THREAD_H
 
-#include <cxxtools/noncopyable.h>
 #include <cxxtools/callable.h>
 #include <cxxtools/function.h>
 #include <cxxtools/method.h>
@@ -60,8 +59,15 @@ namespace cxxtools
         can give up CPU time either by calling Thread::yield() or sleep() to
         stop for a specified periode of time.
     */
-    class Thread : protected NonCopyable
+    class Thread
     {
+#if __cplusplus >= 201103L
+            Thread(const Thread&) = delete;
+            Thread& operator=(const Thread&) = delete;
+#else
+            Thread(const Thread&) { }
+            Thread& operator=(const Thread&) { return *this; }
+#endif
         public:
             //! @brief Status of a thread
             enum State

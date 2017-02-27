@@ -37,8 +37,15 @@ namespace cxxtools {
 
     class EventSource;
 
-    class EventSink : protected NonCopyable
+    class EventSink
     {
+#if __cplusplus >= 201103L
+            EventSink(const EventSink&) = delete;
+            EventSink& operator=(const EventSink&) = delete;
+#else
+            EventSink(const EventSink&) { }
+            EventSink& operator=(const EventSink&) { return *this; }
+#endif
         friend class EventSource;
 
         public:

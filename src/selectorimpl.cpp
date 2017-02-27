@@ -35,7 +35,6 @@
 #include <cerrno>
 #include <unistd.h>
 #include <fcntl.h>
-#include <signal.h>
 #include <cassert>
 #include <iostream>
 #include <limits>

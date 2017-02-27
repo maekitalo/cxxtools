@@ -28,17 +28,24 @@
 #ifndef cxxtools_Semaphore_h
 #define cxxtools_Semaphore_h
 
-#include <cxxtools/noncopyable.h>
 
 namespace cxxtools {
 
-class Semaphore : private NonCopyable
+class Semaphore
 {
-    friend class SemaphoreImpl;
+        friend class SemaphoreImpl;
+
+#if __cplusplus >= 201103L
+        Semaphore(const Semaphore&) = delete;
+        Semaphore& operator=(const Semaphore&) = delete;
+#else
+        Semaphore(const Semaphore&) { }
+        Semaphore& operator=(const Semaphore&) { return *this; }
+#endif
 
     public:
         //! @brief Construct with initial count
-        Semaphore(unsigned int initial = 0);
+        explicit Semaphore(unsigned int initial = 0);
 
         //! @brief Destructor. Does not signal...
         ~Semaphore();

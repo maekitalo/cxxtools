@@ -49,9 +49,16 @@ class EventSink;
     slot.
     Construction and destruction must always occur in isolation.
 */
-class EventSource : protected NonCopyable
+class EventSource
 {
-    friend class EventSink;
+#if __cplusplus >= 201103L
+        EventSource(const EventSource&) = delete;
+        EventSource& operator=(const EventSource&) = delete;
+#else
+        EventSource(const EventSource&) { }
+        EventSource& operator=(const EventSource&) { return *this; }
+#endif
+        friend class EventSink;
 
     public:
         EventSource();

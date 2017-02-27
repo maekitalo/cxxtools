@@ -29,7 +29,6 @@
 #define cxxtools_Mutex_h
 
 #include <cxxtools/atomicity.h>
-#include <cxxtools/noncopyable.h>
 #include <cxxtools/thread.h>
 
 namespace cxxtools {
@@ -41,9 +40,16 @@ namespace cxxtools {
     process at the same time. Mutexes are not recursive, that is the
     same thread can not lock a mutex multiple times without deadlocking.
 */
-class Mutex : private NonCopyable
+class Mutex
 {
-    private:
+#if __cplusplus >= 201103L
+        Mutex(const Mutex&) = delete;
+        Mutex& operator=(const Mutex&) = delete;
+#else
+        Mutex(const Mutex&) { }
+        Mutex& operator=(const Mutex&) { return *this; }
+#endif
+
         class MutexImpl* _impl;
 
     public:
@@ -114,8 +120,15 @@ class Mutex : private NonCopyable
             };
     @endcode
 */
-class MutexLock : private NonCopyable
+class MutexLock
 {
+#if __cplusplus >= 201103L
+        MutexLock(const MutexLock&) = delete;
+        MutexLock& operator=(const MutexLock&) = delete;
+#else
+        MutexLock(const MutexLock&) { }
+        MutexLock& operator=(const MutexLock&) { return *this; }
+#endif
     public:
         /** @brief Construct to guard a %Mutex
 
@@ -124,24 +137,24 @@ class MutexLock : private NonCopyable
             will only unlock the given mutex in the destructor, but not
             lock it in the constructor.
         */
-        MutexLock(Mutex& m, bool doLock = true, bool isLocked = false)
+        explicit MutexLock(Mutex& m, bool doLock = true, bool isLocked = false)
         : _mutex(m)
         , _isLocked(isLocked)
         {
-            if(doLock)
+            if (doLock)
                 this->lock();
         }
 
         //! @brief Unlocks the mutex unless %unlock() was called
         ~MutexLock()
         {
-            if(_isLocked)
+            if (_isLocked)
                 _mutex.unlockNoThrow();
         }
 
         void lock()
         {
-            if(!_isLocked)
+            if (!_isLocked)
             {
                 _mutex.lock();
                 _isLocked = true;
@@ -151,7 +164,7 @@ class MutexLock : private NonCopyable
         //! @brief Unlock so that the destructor does not unlock
         void unlock()
         {
-            if(_isLocked)
+            if (_isLocked)
             {
                 _mutex.unlock();
                 _isLocked = false;
@@ -173,8 +186,15 @@ class MutexLock : private NonCopyable
 
 /** @brief Recursive mutual exclusion device
 */
-class RecursiveMutex : private NonCopyable
+class RecursiveMutex
 {
+#if __cplusplus >= 201103L
+        RecursiveMutex(const RecursiveMutex&) = delete;
+        RecursiveMutex& operator=(const RecursiveMutex&) = delete;
+#else
+        RecursiveMutex(const RecursiveMutex&) { }
+        RecursiveMutex& operator=(const RecursiveMutex&) { return *this; }
+#endif
     private:
         class MutexImpl* _impl;
 
@@ -200,8 +220,16 @@ class RecursiveMutex : private NonCopyable
 
 /** @brief Lock class for recursive mutexes.
 */
-class RecursiveLock : private NonCopyable
+class RecursiveLock
 {
+#if __cplusplus >= 201103L
+        RecursiveLock(const RecursiveLock&) = delete;
+        RecursiveLock& operator=(const RecursiveLock&) = delete;
+#else
+        RecursiveLock(const RecursiveLock&) { }
+        RecursiveLock& operator=(const RecursiveLock&) { return *this; }
+#endif
+
     public:
         /** @brief Construct to guard a %RecursiveMutex
 
@@ -210,24 +238,24 @@ class RecursiveLock : private NonCopyable
             the %RecursiveLock will only unlock the given mutex in the
             destructor, but not lock it in the constructor.
         */
-        RecursiveLock(RecursiveMutex& m, bool doLock = true, bool isLocked = false)
+        explicit RecursiveLock(RecursiveMutex& m, bool doLock = true, bool isLocked = false)
         : _mutex(m)
         , _isLocked(isLocked)
         {
-            if(doLock)
+            if (doLock)
                 this->lock();
         }
 
         //! @brief Unlocks the mutex unless %unlock() was called
         ~RecursiveLock()
         {
-            if(_isLocked)
+            if (_isLocked)
                 _mutex.unlockNoThrow();
         }
 
         void lock()
         {
-            if(!_isLocked)
+            if (!_isLocked)
             {
                 _mutex.lock();
                 _isLocked = true;
@@ -237,7 +265,7 @@ class RecursiveLock : private NonCopyable
         //! @brief Unlock so that the destructor does not unlock
         void unlock()
         {
-            if(_isLocked)
+            if (_isLocked)
             {
                 _mutex.unlock();
                 _isLocked = false;
@@ -262,8 +290,15 @@ class RecursiveLock : private NonCopyable
     A %ReadWriteMutex allows multiple concurrent readers or one exclusive writer to
     access a resource.
 */
-class ReadWriteMutex : private NonCopyable
+class ReadWriteMutex
 {
+#if __cplusplus >= 201103L
+        ReadWriteMutex(const ReadWriteMutex&) = delete;
+        ReadWriteMutex& operator=(const ReadWriteMutex&) = delete;
+#else
+        ReadWriteMutex(const ReadWriteMutex&) { }
+        ReadWriteMutex& operator=(const ReadWriteMutex&) { return *this; }
+#endif
     public:
         //! @brief Creates the Reader/Writer lock.
         ReadWriteMutex();
@@ -306,26 +341,34 @@ class ReadWriteMutex : private NonCopyable
 };
 
 
-class ReadLock : private NonCopyable
+class ReadLock
 {
+#if __cplusplus >= 201103L
+        ReadLock(const ReadLock&) = delete;
+        ReadLock& operator=(const ReadLock&) = delete;
+#else
+        ReadLock(const ReadLock&) { }
+        ReadLock& operator=(const ReadLock&) { return *this; }
+#endif
+
     public:
-        ReadLock(ReadWriteMutex& m, bool doLock = true, bool isLocked = false)
+        explicit ReadLock(ReadWriteMutex& m, bool doLock = true, bool isLocked = false)
         : _mutex(m)
         , _locked(isLocked)
         {
-            if(doLock)
+            if (doLock)
                 this->lock();
         }
 
         ~ReadLock()
         {
-            if(_locked)
+            if (_locked)
                 _mutex.unlockNoThrow();
         }
 
         void lock()
         {
-            if( ! _locked )
+            if ( !_locked )
             {
                 _mutex.readLock();
                 _locked = true;
@@ -334,7 +377,7 @@ class ReadLock : private NonCopyable
 
         void unlock()
         {
-            if( _locked)
+            if ( _locked)
             {
                 _mutex.unlock();
                 _locked = false;
@@ -350,26 +393,33 @@ class ReadLock : private NonCopyable
 };
 
 
-class WriteLock : private NonCopyable
+class WriteLock
 {
+#if __cplusplus >= 201103L
+        WriteLock(const WriteLock&) = delete;
+        WriteLock& operator=(const WriteLock&) = delete;
+#else
+        WriteLock(const WriteLock&) { }
+        WriteLock& operator=(const WriteLock&) { return *this; }
+#endif
     public:
-        WriteLock(ReadWriteMutex& m, bool doLock = true, bool isLocked = false)
+        explicit WriteLock(ReadWriteMutex& m, bool doLock = true, bool isLocked = false)
         : _mutex(m)
         , _locked(isLocked)
         {
-            if(doLock)
+            if (doLock)
                 this->lock();
         }
 
         ~WriteLock()
         {
-            if(_locked)
+            if (_locked)
                 _mutex.unlockNoThrow();
         }
 
         void lock()
         {
-            if( ! _locked )
+            if ( ! _locked )
             {
                 _mutex.writeLock();
                 _locked = true;
@@ -378,7 +428,7 @@ class WriteLock : private NonCopyable
 
         void unlock()
         {
-            if( _locked)
+            if ( _locked)
             {
                 _mutex.unlock();
                 _locked = false;
@@ -407,8 +457,16 @@ class WriteLock : private NonCopyable
    usable in cases where resources need to be locked for a very short time, but in
    these cases a higher performance can be achieved.
 */
-class SpinMutex : private NonCopyable
+class SpinMutex
 {
+#if __cplusplus >= 201103L
+        SpinMutex(const SpinMutex&) = delete;
+        SpinMutex& operator=(const SpinMutex&) = delete;
+#else
+        SpinMutex(const SpinMutex&) { }
+        SpinMutex& operator=(const SpinMutex&) { return *this; }
+#endif
+
     public:
         //! @brief Default Constructor.
         SpinMutex()
@@ -458,26 +516,34 @@ private:
 };
 
 
-class SpinLock : private NonCopyable
+class SpinLock
 {
+#if __cplusplus >= 201103L
+        SpinLock(const SpinLock&) = delete;
+        SpinLock& operator=(const SpinLock&) = delete;
+#else
+        SpinLock(const SpinLock&) { }
+        SpinLock& operator=(const SpinLock&) { return *this; }
+#endif
+
     public:
-        SpinLock(SpinMutex& m, bool doLock = true, bool isLocked = false)
+        explicit SpinLock(SpinMutex& m, bool doLock = true, bool isLocked = false)
         : _mutex(m)
         , _locked(isLocked)
         {
-            if(doLock)
+            if (doLock)
                 this->lock();
         }
 
         ~SpinLock()
         {
-            if(_locked)
+            if (_locked)
                 this->unlock();
         }
 
         void lock()
         {
-            if( ! _locked )
+            if ( ! _locked )
             {
                 _mutex.lock();
                 _locked = true;
@@ -486,7 +552,7 @@ class SpinLock : private NonCopyable
 
         void unlock()
         {
-            if( _locked)
+            if ( _locked)
             {
                 _mutex.unlock();
                 _locked = false;

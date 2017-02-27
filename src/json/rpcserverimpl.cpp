@@ -34,8 +34,6 @@
 #include <cxxtools/net/tcpserver.h>
 #include <cxxtools/log.h>
 
-#include <signal.h>
-
 log_define("cxxtools.json.rpcserver.impl")
 
 namespace cxxtools
