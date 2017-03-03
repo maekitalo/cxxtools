@@ -59,7 +59,7 @@ namespace cxxtools {
             /// Puts a event in the queue and wakes the loop so that the event is processed.
             void commitEvent(const Event& event);
 
-            /// Puts a priority event in the queue and wakes the loop so that the event is processed.
+            /// Puts a priority event in the queue but does not wake the loop.
             /// Priority events are processed before any non priority event.
             void queuePriorityEvent(const Event& event);
 
