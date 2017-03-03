@@ -497,11 +497,11 @@ class SerializationInfoTest : public cxxtools::unit::TestSuite
 
             if (std::numeric_limits<long double>::max() > static_cast<long double>(std::numeric_limits<double>::max()))
             {
-                si.setValue(static_cast<long double>(std::numeric_limits<double>::max()) * 1.00000000001);
+                si.setValue(static_cast<long double>(std::numeric_limits<double>::max()) * 1.01);
                 CXXTOOLS_UNIT_ASSERT_THROW(siValue<double>(si), std::range_error);
                 CXXTOOLS_UNIT_ASSERT_NOTHROW(siValue<long double>(si));
 
-                si.setValue(static_cast<long double>(-std::numeric_limits<double>::max()) * 1.00000000001);
+                si.setValue(static_cast<long double>(-std::numeric_limits<double>::max()) * 1.01);
                 CXXTOOLS_UNIT_ASSERT_THROW(siValue<double>(si), std::range_error);
                 CXXTOOLS_UNIT_ASSERT_NOTHROW(siValue<long double>(si));
             }
@@ -512,11 +512,11 @@ class SerializationInfoTest : public cxxtools::unit::TestSuite
 
             if (std::numeric_limits<long double>::max() > static_cast<long double>(std::numeric_limits<float>::max()))
             {
-                si.setValue(static_cast<long double>(std::numeric_limits<float>::max()) * 1.00000000001);
+                si.setValue(static_cast<long double>(std::numeric_limits<float>::max()) * 1.01);
                 CXXTOOLS_UNIT_ASSERT_THROW(siValue<float>(si), std::range_error);
                 CXXTOOLS_UNIT_ASSERT_NOTHROW(siValue<double>(si));
 
-                si.setValue(static_cast<long double>(-std::numeric_limits<float>::max()) * 1.00000000001);
+                si.setValue(static_cast<long double>(-std::numeric_limits<float>::max()) * 1.01);
                 CXXTOOLS_UNIT_ASSERT_THROW(siValue<float>(si), std::range_error);
                 CXXTOOLS_UNIT_ASSERT_NOTHROW(siValue<double>(si));
             }
