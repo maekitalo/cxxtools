@@ -61,7 +61,7 @@ namespace cxxtools {
      *
      * There are convenience methods available for easier access to functionality of
      * the underlying event loop. commitEvent() delegates to EventLoop::commitEvent(),
-     * queueEvent() delegates to EventLoop::delegateEvent() and processEvents() delegates
+     * queueEvent() delegates to EventLoop::queueEvent() and processEvents() delegates
      * to EventLoop::processEvents() without making it necessary to first obtain the
      * event loop manually.
      */
@@ -111,6 +111,24 @@ namespace cxxtools {
 
             ApplicationImpl& impl()
             { return *_impl; }
+
+            /// Puts a event in the queue but does not wake the loop.
+            void queueEvent(const Event& event)
+            { loop().queueEvent(event); }
+
+            /// Puts a event in the queue and wakes the loop so that the event is processed.
+            void commitEvent(const Event& event)
+            { loop().commitEvent(event); }
+
+            /// Puts a priority event in the queue and wakes the loop so that the event is processed.
+            /// Priority events are processed before any non priority event.
+            void queuePriorityEvent(const Event& event)
+            { loop().commitPriorityEvent(event); }
+
+            /// Puts a priority event in the queue and wakes the loop so that the event is processed.
+            /// Priority events are processed before any non priority event.
+            void commitPriorityEvent(const Event& event)
+            { loop().commitPriorityEvent(event); }
 
         protected:
             void init(EventLoopBase& loop);
