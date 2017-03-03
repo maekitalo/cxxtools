@@ -100,7 +100,13 @@ namespace cxxtools {
             int argc() const
             { return _argc; }
 
-            char** argv() const
+            int& argc()
+            { return _argc; }
+
+            const char* const* argv() const
+            { return _argv; }
+
+            char** argv()
             { return _argv; }
 
             ApplicationImpl& impl()
