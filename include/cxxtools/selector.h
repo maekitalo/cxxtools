@@ -138,7 +138,7 @@ namespace cxxtools {
                 number to the method to get a timeout in milliseconds.
 
                 @param msecs timeout
-                @return true on timeout
+                @return false on timeout
             */
             bool wait(Milliseconds msecs = WaitInfinite);
 
