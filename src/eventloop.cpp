@@ -130,6 +130,8 @@ void EventLoop::onChanged(Selectable& s)
 
 void EventLoop::onRun()
 {
+    started();
+
     while (true)
     {
         RecursiveLock lock(_impl->_queueMutex);
