@@ -171,6 +171,8 @@ class SerializationInfo
         void setTypeName(const std::string& type)
         {
             _type = type;
+            if (_category == Void)
+                _category = Object;
         }
 
         const std::string& name() const
