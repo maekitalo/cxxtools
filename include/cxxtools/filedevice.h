@@ -81,7 +81,15 @@ class FileDevice : public IODevice
 
         size_t onPeek(char* buffer, size_t count);
 
-        void onSync() const;
+        IODeviceImpl& ioimpl();
+
+        SelectableImpl& simpl();
+
+        bool onWait(Timespan timeout);
+
+        void onAttach(SelectorBase& s);
+
+        void onDetach(SelectorBase& s);
 
     private:
         std::string _path;

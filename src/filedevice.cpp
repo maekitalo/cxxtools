@@ -148,5 +148,30 @@ void FileDevice::onSync() const
     _impl->sync();
 }
 
+IODeviceImpl& FileDevice::ioimpl()
+{
+    return *_impl;
+}
+
+SelectableImpl& FileDevice::simpl()
+{
+    return *_impl;
+}
+
+bool FileDevice::onWait(Timespan timeout)
+{
+    return _impl->wait(timeout);
+}
+
+void FileDevice::onAttach(SelectorBase& s)
+{
+    _impl->attach(s);
+}
+
+void FileDevice::onDetach(SelectorBase& s)
+{
+    _impl->detach(s);
+}
+
 
 } // namespace cxxtools
