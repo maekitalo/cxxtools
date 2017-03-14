@@ -57,6 +57,9 @@ class Base64Test : public cxxtools::unit::TestSuite
             registerMethod("whitespaceDecodeTest", *this, &Base64Test::whitespaceDecodeTest);
             registerMethod("binaryTest", *this, &Base64Test::binaryTest);
             registerMethod("artemTest", *this, &Base64Test::artemTest);
+            registerMethod("maxcolTest", *this, &Base64Test::maxcolTest);
+            registerMethod("lineendTest", *this, &Base64Test::lineendTest);
+            registerMethod("paddingTest", *this, &Base64Test::paddingTest);
         }
 
         void encodeTest0()
@@ -206,6 +209,44 @@ class Base64Test : public cxxtools::unit::TestSuite
                 CXXTOOLS_UNIT_ASSERT_EQUALS(data, data2);
             }
         }
+
+        void maxcolTest()
+        {
+            std::ostringstream s;
+            
+            cxxtools::Base64ostream encoder(s);
+            encoder.maxcol(8);
+            encoder << "123456789";
+            encoder.terminate();
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(s.str(), "MTIzNDU2\r\nNzg5");
+        }
+
+        void lineendTest()
+        {
+            std::ostringstream s;
+            
+            cxxtools::Base64ostream encoder(s);
+            encoder.maxcol(8);
+            encoder.lineend("\n");
+            encoder << "123456789";
+            encoder.terminate();
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(s.str(), "MTIzNDU2\nNzg5");
+        }
+
+        void paddingTest()
+        {
+            std::ostringstream s;
+            
+            cxxtools::Base64ostream encoder(s);
+            encoder.padding(false);
+            encoder << "12345678";
+            encoder.terminate();
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(s.str(), "MTIzNDU2Nzg");
+        }
+
 };
 
 cxxtools::unit::RegisterTest<Base64Test> register_Base64Test;

@@ -48,12 +48,22 @@ namespace cxxtools
 
 class Base64ostream : public BasicTextOStream<char, char>
 {
+    Base64Codec* _codec;
+
   public:
     explicit Base64ostream(std::ostream& out)
-      : BasicTextOStream<char, char>(out, new Base64Codec())
+      : BasicTextOStream<char, char>(out, _codec = new Base64Codec())
       { }
 
     void end()  { terminate(); }
+
+    unsigned maxcol() const             { return _codec->maxcol(); }
+    const std::string& lineend() const  { return _codec->lineend(); }
+    bool padding() const                { return _codec->padding(); }
+
+    void maxcol(unsigned m)             { _codec->maxcol(m); }
+    void lineend(const std::string& l)  { _codec->lineend(l); }
+    void padding(bool p)                { _codec->padding(p); }
 };
 
 /**
