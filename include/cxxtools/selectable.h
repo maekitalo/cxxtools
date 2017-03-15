@@ -37,8 +37,13 @@ class SelectableImpl;
 
 class Selectable
 {
+#if __cplusplus >= 201103L
+        Selectable(const Selectable&) = delete;
+        Selectable& operator=(const Selectable&)= delete;
+#else
         Selectable(const Selectable&) { }
         Selectable& operator=(const Selectable&) { return *this; }
+#endif
 
     public:
         static const std::size_t WaitInfinite = Selector::WaitInfinite;

@@ -114,10 +114,13 @@ void IODeviceImpl::open(int fd, bool isAsync, bool inherit)
     if (isAsync)
     {
         int flags = fcntl(_fd, F_GETFL);
-        flags |= O_NONBLOCK ;
-        int ret = fcntl(_fd, F_SETFL, flags);
-        if(-1 == ret)
-            throw IOError(getErrnoString("Could not set fd to non-blocking"));
+        if ((flags & O_NONBLOCK) == 0)
+        {
+            flags |= O_NONBLOCK ;
+            int ret = fcntl(_fd, F_SETFL, flags);
+            if(-1 == ret)
+                throw IOError(getErrnoString("Could not set fd to non-blocking"));
+        }
     }
 
     if (!inherit)
