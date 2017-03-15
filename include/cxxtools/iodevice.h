@@ -319,7 +319,6 @@ class IODevice : public Selectable
         const char* _wbuf;
         size_t _wbuflen;
         size_t _wavail;
-        void* _reserved;
 };
 
 } // namespace cxxtools

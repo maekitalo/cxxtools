@@ -38,11 +38,16 @@ namespace cxxtools
 StdinDevice::StdinDevice()
 {
     _impl = new IODeviceImpl(*this);
+    setEnabled(true);
+    setAsync(true);
+    setEof(false);
     _impl->open(STDIN_FILENO, true, true);
 }
 
 StdinDevice::~StdinDevice()
 {
+    _impl->detach(*selector());
+    setEnabled(false);
     delete _impl;
 }
 
@@ -73,6 +78,8 @@ ODevice::ODevice()
 
 ODevice::~ODevice()
 {
+    _impl->detach(*selector());
+    setEnabled(false);
     delete _impl;
 }
 

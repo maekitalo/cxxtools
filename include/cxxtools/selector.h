@@ -223,8 +223,6 @@ namespace cxxtools {
 
             //! @internal
             TimerMap _timers;
-
-            void* _reserved;
     };
 
     class Selector : public SelectorBase
