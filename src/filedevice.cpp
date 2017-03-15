@@ -66,86 +66,19 @@ void FileDevice::open( const std::string& path, IODevice::OpenMode mode, bool in
     _path = path;
 }
 
-
-void FileDevice::onClose()
-{
-    _impl->close();
-}
-
-
-void FileDevice::onSetTimeout(Timespan timeout)
-{
-    _impl->setTimeout(timeout);
-}
-
-
-size_t FileDevice::onBeginRead(char* buffer, size_t n, bool& eof)
-{
-    return _impl->beginRead(buffer, n, eof);
-}
-
-
-size_t FileDevice::onEndRead(bool& eof)
-{
-    return _impl->endRead(eof);
-}
-
-
-size_t FileDevice::onBeginWrite(const char* buffer, size_t n)
-{
-    return _impl->beginWrite(buffer, n);
-}
-
-
-size_t FileDevice::onEndWrite()
-{
-    return _impl->endWrite();
-}
-
-
 size_t FileDevice::size() const
 {
     return _impl->size();
 }
-
 
 FileDevice::pos_type FileDevice::onSeek(off_type offset, std::ios::seekdir sd)
 {
     return _impl->seek(offset, sd);
 }
 
-
-size_t FileDevice::onRead( char* buffer, size_t count, bool& eof )
-{
-    //if(count > SSIZE_MAX)
-    //    count = SSIZE_MAX;
-
-    size_t ret = _impl->read( buffer, count, eof );
-    return ret;
-}
-
-
-size_t FileDevice::onWrite(const char* buffer, size_t count)
-{
-    return _impl->write(buffer, count);
-}
-
-
-void FileDevice::onCancel()
-{
-    _impl->cancel();
-}
-
-
 size_t FileDevice::onPeek(char* buffer, size_t count)
 {
     return _impl->peek(buffer, count);
-}
-
-
-void FileDevice::onSync() const
-{
-    _impl->sync();
 }
 
 IODeviceImpl& FileDevice::ioimpl()
@@ -157,21 +90,5 @@ SelectableImpl& FileDevice::simpl()
 {
     return *_impl;
 }
-
-bool FileDevice::onWait(Timespan timeout)
-{
-    return _impl->wait(timeout);
-}
-
-void FileDevice::onAttach(SelectorBase& s)
-{
-    _impl->attach(s);
-}
-
-void FileDevice::onDetach(SelectorBase& s)
-{
-    _impl->detach(s);
-}
-
 
 } // namespace cxxtools

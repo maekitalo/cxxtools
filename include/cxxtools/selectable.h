@@ -97,13 +97,15 @@ class Selectable
         void setState(State state);
 
         //! @brief Closes the Selector
-        virtual void onClose() = 0;
+        virtual void onClose();
 
-        virtual bool onWait(Timespan timeout) = 0;
+        virtual bool onWait(Timespan timeout);
 
-        virtual void onAttach(SelectorBase&) = 0;
+        virtual void onAttach(SelectorBase&)
+        { }
 
-        virtual void onDetach(SelectorBase&) = 0;
+        virtual void onDetach(SelectorBase&)
+        { }
 
     private:
         SelectorBase* _parent;

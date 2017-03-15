@@ -898,7 +898,7 @@ size_t TcpSocketImpl::read(char* buffer, size_t count, bool& eof)
 #endif
     else
     {
-        throw std::logic_error("Device not connected when trying to read");
+        throw IOError("socket not connected when trying to read");
     }
 }
 

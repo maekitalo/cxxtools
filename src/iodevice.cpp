@@ -27,7 +27,7 @@
  */
 
 #include "cxxtools/iodevice.h"
-#include <string.h>
+#include "iodeviceimpl.h"
 
 namespace cxxtools
 {
@@ -44,10 +44,61 @@ IODevice::IODevice()
 , _reserved(0)
 { }
 
+size_t IODevice::onBeginRead(char* buffer, size_t n, bool& eof)
+{
+    return ioimpl().beginRead(buffer, n, eof);
+}
 
-IODevice::~IODevice()
-{ }
+size_t IODevice::onEndRead(bool& eof)
+{
+    return ioimpl().endRead(eof);
+}
 
+size_t IODevice::onRead(char* buffer, size_t count, bool& eof)
+{
+    return ioimpl().read( buffer, count, eof );
+}
+
+size_t IODevice::onBeginWrite(const char* buffer, size_t n)
+{
+    return ioimpl().beginWrite(buffer, n);
+}
+
+size_t IODevice::onEndWrite()
+{
+    return ioimpl().endWrite();
+}
+
+size_t IODevice::onWrite(const char* buffer, size_t count)
+{
+    return ioimpl().write(buffer, count);
+}
+
+void IODevice::onClose()
+{
+    cancel();
+    ioimpl().close();
+}
+
+void IODevice::onCancel()
+{
+    ioimpl().cancel();
+}
+
+void IODevice::onSync()
+{
+    ioimpl().sync();
+}
+
+void IODevice::onAttach(SelectorBase& s)
+{
+    ioimpl().attach(s);
+}
+
+void IODevice::onDetach(SelectorBase& s)
+{
+    ioimpl().detach(s);
+}
 
 void IODevice::beginRead(char* buffer, size_t n)
 {
@@ -288,6 +339,11 @@ void IODevice::setEof(bool eof)
 void IODevice::setAsync(bool async)
 {
     _async = async;
+}
+
+void IODevice::setTimeout(Milliseconds timeout)
+{
+    ioimpl().setTimeout(timeout);
 }
 
 }

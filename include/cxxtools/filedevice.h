@@ -56,40 +56,16 @@ class FileDevice : public IODevice
         size_t size() const;
 
     protected:
-        size_t onBeginRead(char* buffer, size_t n, bool& eof);
-
-        size_t onEndRead(bool& eof);
-
-        size_t onBeginWrite(const char* buffer, size_t n);
-
-        size_t onEndWrite();
-
-        void onClose();
-
-        void onSetTimeout(Timespan timeout);
-
         bool onSeekable() const
         { return true; }
 
         pos_type onSeek(off_type offset, std::ios::seekdir sd);
-
-        size_t onRead(char* buffer, size_t count, bool& eof);
-
-        size_t onWrite(const char* buffer, size_t count);
-
-        void onCancel();
 
         size_t onPeek(char* buffer, size_t count);
 
         IODeviceImpl& ioimpl();
 
         SelectableImpl& simpl();
-
-        bool onWait(Timespan timeout);
-
-        void onAttach(SelectorBase& s);
-
-        void onDetach(SelectorBase& s);
 
     private:
         std::string _path;
