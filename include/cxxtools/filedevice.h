@@ -81,6 +81,8 @@ class FileDevice : public IODevice
 
         size_t onPeek(char* buffer, size_t count);
 
+        void onSync() const;
+
         IODeviceImpl& ioimpl();
 
         SelectableImpl& simpl();
