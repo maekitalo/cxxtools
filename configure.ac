@@ -1,5 +1,5 @@
 AC_INIT(cxxtools, 2.2.1, [Tommi Maekitalo <tommi@tntnet.org>])
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE([subdir-objects])
 
 AC_PREREQ([2.5.9])
 
