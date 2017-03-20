@@ -331,9 +331,6 @@ void IODeviceImpl::cancel()
 
 void IODeviceImpl::sync() const
 {
-    int ret = fsync(_fd);
-    if(ret != 0)
-        throw IOError(getErrnoString("Could not sync handle"));
 }
 
 

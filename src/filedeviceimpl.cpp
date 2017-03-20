@@ -123,4 +123,13 @@ size_t FileDeviceImpl::peek(char* buffer, size_t count)
     return ret;
 }
 
+
+void FileDeviceImpl::sync() const
+{
+    int ret = fsync(_fd);
+    if(ret != 0)
+        throw IOError(getErrnoString("fsync"));
+}
+
+
 } //namespace cxxtools
