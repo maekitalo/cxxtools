@@ -85,7 +85,7 @@ FileDeviceImpl::pos_type FileDeviceImpl::seek(off_type offset, std::ios::seekdir
 
     off_t ret = lseek(fd(), offset, whence);
     if( ret == (off_t)-1 )
-        throw IOError(getErrnoString("lseek failed"));
+        throw IOError(getErrnoString("lseek"));
 
     return ret;
 }
@@ -95,7 +95,7 @@ void FileDeviceImpl::resize(off_type size)
 {
     int ret = ::ftruncate(fd(), size);
     if(ret != 0)
-        throw IOError(getErrnoString("ftruncate failed"));
+        throw IOError(getErrnoString("ftruncate"));
 
 }
 
@@ -105,7 +105,7 @@ size_t FileDeviceImpl::size() const
     struct stat buff;
     int ret = fstat(fd(), &buff);
     if(ret != 0)
-        throw IOError(getErrnoString("fstat failed"));
+        throw IOError(getErrnoString("fstat"));
 
     return buff.st_size;
 }

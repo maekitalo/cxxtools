@@ -513,7 +513,7 @@ int TcpServerImpl::accept(int flags, struct sockaddr* sa, socklen_t& sa_len)
         flags |= FD_CLOEXEC ;
         int ret = ::fcntl(clientFd, F_SETFD, flags);
         if (ret == -1)
-            throw IOError(getErrnoString("Could not set FD_CLOEXEC"));
+            throw IOError(getErrnoString("fcntl(FD_CLOEXEC)"));
     }
 #endif
 

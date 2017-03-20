@@ -93,7 +93,7 @@ void IODeviceImpl::open(const std::string& path, IODevice::OpenMode mode, bool i
 
     _fd = ::open( path.c_str(), flags );
     if(_fd == -1)
-        throw AccessFailed(getErrnoString("open failed"));
+        throw AccessFailed(getErrnoString("open"));
 
     if (!inherit)
     {
@@ -101,7 +101,7 @@ void IODeviceImpl::open(const std::string& path, IODevice::OpenMode mode, bool i
         flags |= FD_CLOEXEC ;
         int ret = fcntl(_fd, F_SETFD, flags);
         if(-1 == ret)
-            throw IOError(getErrnoString("Could not set FD_CLOEXEC"));
+            throw IOError(getErrnoString("fcntl(FD_CLOEXEC)"));
     }
 
 }
@@ -119,7 +119,7 @@ void IODeviceImpl::open(int fd, bool isAsync, bool inherit)
             flags |= O_NONBLOCK ;
             int ret = fcntl(_fd, F_SETFL, flags);
             if(-1 == ret)
-                throw IOError(getErrnoString("Could not set fd to non-blocking"));
+                throw IOError(getErrnoString("fcntl(O_NONBLOCK)"));
         }
     }
 
@@ -129,7 +129,7 @@ void IODeviceImpl::open(int fd, bool isAsync, bool inherit)
         flags |= FD_CLOEXEC ;
         int ret = fcntl(_fd, F_SETFD, flags);
         if(-1 == ret)
-            throw IOError(getErrnoString("Could not set FD_CLOEXEC"));
+            throw IOError(getErrnoString("fcntl(FD_CLOEXEC)"));
     }
 
 }
@@ -150,7 +150,7 @@ void IODeviceImpl::close()
             if( errno != EINTR )
             {
                 log_error("close of iodevice failed; errno=" << errno);
-                throw IOError(getErrnoString("Could not close file handle"));
+                throw IOError(getErrnoString("close"));
             }
         }
     }
@@ -212,7 +212,7 @@ size_t IODeviceImpl::read( char* buffer, size_t count, bool& eof )
             continue;
 
         if(errno != EAGAIN)
-            throw IOError(getErrnoString("read failed"));
+            throw IOError(getErrnoString("read"));
 
         pollfd pfd;
         pfd.fd = this->fd();
@@ -290,14 +290,14 @@ size_t IODeviceImpl::write( const char* buffer, size_t count )
         if(ret > 0)
             break;
 
-        if(ret == 0 || errno == ECONNRESET || errno == EPIPE)
+        if (ret == 0 || errno == ECONNRESET || errno == EPIPE)
             throw IOError("lost connection to peer");
 
-        if(errno == EINTR)
+        if (errno == EINTR)
             continue;
 
-        if(errno != EAGAIN)
-            throw IOError(getErrnoString("Could not write to file handle"));
+        if (errno != EAGAIN)
+            throw IOError(getErrnoString("write"));
 
         pollfd pfd;
         pfd.fd = this->fd();
@@ -376,7 +376,7 @@ bool IODeviceImpl::wait(Timespan timeout, pollfd& pfd)
     } while (ret == -1 && errno == EINTR);
 
     if (ret == -1)
-        throw IOError(getErrnoString("poll failed"));
+        throw IOError(getErrnoString("poll"));
 
     return ret > 0;
 }

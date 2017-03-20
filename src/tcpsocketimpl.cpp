@@ -765,7 +765,7 @@ size_t TcpSocketImpl::write(const char* buffer, size_t n)
                 break;
 
             if (errno != EAGAIN)
-                throw IOError(getErrnoString("Could not write to file handle"));
+                throw IOError(getErrnoString("send"));
 
             pollfd pfd;
             pfd.fd = _fd;
