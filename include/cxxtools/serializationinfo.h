@@ -624,6 +624,19 @@ inline void operator <<=(SerializationInfo& si, double n)
 }
 
 
+inline void operator >>=(const SerializationInfo& si, long double& n)
+{
+    si.getValue(n);
+}
+
+
+inline void operator <<=(SerializationInfo& si, long double n)
+{
+    si.setValue(n);
+    si.setTypeName("double");
+}
+
+
 inline void operator >>=(const SerializationInfo& si, std::string& n)
 {
     si.getValue(n);
