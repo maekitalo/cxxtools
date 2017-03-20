@@ -536,7 +536,9 @@ void TcpSocketImpl::accept(const TcpServer& server, unsigned flags)
         throw SystemError("accept");
 
 #ifdef HAVE_ACCEPT4
-    IODeviceImpl::open(_fd, false, false);
+    // Pass inherit flag as "true" since this is the default.
+    // Otherwise `open` would set it although we have already set it with accept4
+    IODeviceImpl::open(_fd, false, true);
 #else
     bool inherit = (flags & TcpSocket::INHERIT) != 0;
     IODeviceImpl::open(_fd, true, inherit);
