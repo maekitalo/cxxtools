@@ -37,8 +37,13 @@ class SelectableImpl;
 
 class Selectable
 {
+#if __cplusplus >= 201103L
+        Selectable(const Selectable&) = delete;
+        Selectable& operator=(const Selectable&)= delete;
+#else
         Selectable(const Selectable&) { }
         Selectable& operator=(const Selectable&) { return *this; }
+#endif
 
     public:
         static const std::size_t WaitInfinite = Selector::WaitInfinite;
@@ -97,13 +102,15 @@ class Selectable
         void setState(State state);
 
         //! @brief Closes the Selector
-        virtual void onClose() = 0;
+        virtual void onClose();
 
-        virtual bool onWait(Timespan timeout) = 0;
+        virtual bool onWait(Timespan timeout);
 
-        virtual void onAttach(SelectorBase&) = 0;
+        virtual void onAttach(SelectorBase&)
+        { }
 
-        virtual void onDetach(SelectorBase&) = 0;
+        virtual void onDetach(SelectorBase&)
+        { }
 
     private:
         SelectorBase* _parent;

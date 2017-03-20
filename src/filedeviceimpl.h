@@ -55,6 +55,8 @@ class FileDeviceImpl : public IODeviceImpl
         size_t size() const;
 
         size_t peek(char* buffer, size_t count);
+
+        void sync() const;
 };
 
 } //namespace cxxtools

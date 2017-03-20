@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2006-2007 Marc Boris Duerner
- * Copyright (C) 2006-2007 Laurentiu-Gheorghe Crisan
+ * Copyright (C) 2017 Tommi Maekitalo
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,69 +25,92 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-#include <cxxtools/filedevice.h>
-#include "filedeviceimpl.h"
+
+#include <cxxtools/stddevice.h>
+#include <cxxtools/ioerror.h>
+#include "iodeviceimpl.h"
+
+#include <unistd.h>
 
 namespace cxxtools
 {
 
-FileDevice::FileDevice()
+StdinDevice::StdinDevice()
 {
-    _impl = new FileDeviceImpl(*this);
+    _impl = new IODeviceImpl(*this);
+    setEnabled(true);
+    setAsync(true);
+    setEof(false);
+    _impl->open(STDIN_FILENO, true, true);
 }
 
-
-FileDevice::FileDevice(const std::string& path, IODevice::OpenMode mode, bool inherit)
+StdinDevice::~StdinDevice()
 {
-    _impl = new FileDeviceImpl(*this);
-
-    open(path, mode, inherit);
-}
-
-
-FileDevice::~FileDevice()
-{
-    try
-    {
-        close();
-    }
-    catch(...)
-    { }
-
+    _impl->detach(*selector());
+    setEnabled(false);
     delete _impl;
 }
 
-
-void FileDevice::open( const std::string& path, IODevice::OpenMode mode, bool inherit)
-{
-    close();
-    _impl->open(path, mode, inherit);
-    _path = path;
-}
-
-size_t FileDevice::size() const
-{
-    return _impl->size();
-}
-
-FileDevice::pos_type FileDevice::onSeek(off_type offset, std::ios::seekdir sd)
-{
-    return _impl->seek(offset, sd);
-}
-
-size_t FileDevice::onPeek(char* buffer, size_t count)
-{
-    return _impl->peek(buffer, count);
-}
-
-IODeviceImpl& FileDevice::ioimpl()
+IODeviceImpl& StdinDevice::ioimpl()
 {
     return *_impl;
 }
 
-SelectableImpl& FileDevice::simpl()
+SelectableImpl& StdinDevice::simpl()
 {
     return *_impl;
+}
+
+size_t StdinDevice::onBeginWrite(const char* buffer, size_t n)
+{
+    throw IOError("cannot write to standard input device");
+}
+
+size_t StdinDevice::onWrite(const char* buffer, size_t count)
+{
+    throw IOError("cannot write to standard input device");
+}
+
+ODevice::ODevice()
+{
+    _impl = new IODeviceImpl(*this);
+}
+
+ODevice::~ODevice()
+{
+    _impl->detach(*selector());
+    setEnabled(false);
+    delete _impl;
+}
+
+IODeviceImpl& ODevice::ioimpl()
+{
+    return *_impl;
+}
+
+SelectableImpl& ODevice::simpl()
+{
+    return *_impl;
+}
+
+size_t ODevice::onBeginRead(char* buffer, size_t n, bool& eof)
+{
+    throw IOError("cannot read from standard output device");
+}
+
+size_t ODevice::onRead(char* buffer, size_t count, bool& eof)
+{
+    throw IOError("cannot read from standard output device");
+}
+
+StdoutDevice::StdoutDevice()
+{
+    ioimpl().open(STDOUT_FILENO, true, true);
+}
+
+StderrDevice::StderrDevice()
+{
+    ioimpl().open(STDERR_FILENO, true, true);
 }
 
 } // namespace cxxtools

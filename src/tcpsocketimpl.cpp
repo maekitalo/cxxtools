@@ -767,7 +767,7 @@ size_t TcpSocketImpl::write(const char* buffer, size_t n)
                 break;
 
             if (errno != EAGAIN)
-                throw IOError(getErrnoString("Could not write to file handle"));
+                throw IOError(getErrnoString("send"));
 
             pollfd pfd;
             pfd.fd = _fd;
@@ -900,7 +900,7 @@ size_t TcpSocketImpl::read(char* buffer, size_t count, bool& eof)
 #endif
     else
     {
-        throw std::logic_error("Device not connected when trying to read");
+        throw IOError("socket not connected when trying to read");
     }
 }
 

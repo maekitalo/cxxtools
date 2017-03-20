@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2006-2007 Marc Boris Duerner
- * Copyright (C) 2006-2007 Laurentiu-Gheorghe Crisan
+ * Copyright (C) 2017 Tommi Maekitalo
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,69 +25,66 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-#include <cxxtools/filedevice.h>
-#include "filedeviceimpl.h"
+
+#ifndef CXXTOOLS_STDDEVICE_H
+#define CXXTOOLS_STDDEVICE_H
+
+#include <cxxtools/iodevice.h>
 
 namespace cxxtools
 {
 
-FileDevice::FileDevice()
+class StdinDevice : public IODevice
 {
-    _impl = new FileDeviceImpl(*this);
+    public:
+        StdinDevice();
+
+        ~StdinDevice();
+
+    protected:
+        IODeviceImpl& ioimpl();
+
+        SelectableImpl& simpl();
+
+        size_t onBeginWrite(const char* buffer, size_t n);
+
+        size_t onWrite(const char* buffer, size_t count);
+
+    private:
+        IODeviceImpl* _impl;
+};
+
+class ODevice : public IODevice
+{
+    protected:
+        ODevice();
+
+        ~ODevice();
+
+        IODeviceImpl& ioimpl();
+
+        SelectableImpl& simpl();
+
+        size_t onBeginRead(char* buffer, size_t n, bool& eof);
+
+        size_t onRead(char* buffer, size_t count, bool& eof);
+
+    private:
+        IODeviceImpl* _impl;
+};
+
+class StdoutDevice : public ODevice
+{
+    public:
+        StdoutDevice();
+};
+
+class StderrDevice : public ODevice
+{
+    public:
+        StderrDevice();
+};
+
 }
 
-
-FileDevice::FileDevice(const std::string& path, IODevice::OpenMode mode, bool inherit)
-{
-    _impl = new FileDeviceImpl(*this);
-
-    open(path, mode, inherit);
-}
-
-
-FileDevice::~FileDevice()
-{
-    try
-    {
-        close();
-    }
-    catch(...)
-    { }
-
-    delete _impl;
-}
-
-
-void FileDevice::open( const std::string& path, IODevice::OpenMode mode, bool inherit)
-{
-    close();
-    _impl->open(path, mode, inherit);
-    _path = path;
-}
-
-size_t FileDevice::size() const
-{
-    return _impl->size();
-}
-
-FileDevice::pos_type FileDevice::onSeek(off_type offset, std::ios::seekdir sd)
-{
-    return _impl->seek(offset, sd);
-}
-
-size_t FileDevice::onPeek(char* buffer, size_t count)
-{
-    return _impl->peek(buffer, count);
-}
-
-IODeviceImpl& FileDevice::ioimpl()
-{
-    return *_impl;
-}
-
-SelectableImpl& FileDevice::simpl()
-{
-    return *_impl;
-}
-
-} // namespace cxxtools
+#endif

@@ -90,6 +90,7 @@ libcxxtools_la_SOURCES = \
 	serializationerror.cpp \
 	serializationinfo.cpp \
 	signal.cpp \
+	stddevice.cpp \
 	streambuffer.cpp \
 	string.cpp \
 	stringstream.cpp \

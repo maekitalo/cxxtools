@@ -72,60 +72,6 @@ void PipeIODevice::open(int fd, bool isAsync)
 }
 
 
-bool PipeIODevice::onWait(Timespan timeout)
-{
-    return _impl.wait(timeout);
-}
-
-
-size_t PipeIODevice::onBeginRead(char* buffer, size_t n, bool& eof)
-{
-    return _impl.beginRead(buffer, n, eof);
-}
-
-
-size_t PipeIODevice::onEndRead(bool& eof)
-{
-    return _impl.endRead(eof);
-}
-
-
-size_t PipeIODevice::onRead(char* buffer, size_t count, bool& eof)
-{
-    return _impl.read(buffer, count, eof);
-}
-
-
-size_t PipeIODevice::onBeginWrite(const char* buffer, size_t n)
-{
-    return _impl.beginWrite(buffer, n);
-}
-
-
-size_t PipeIODevice::onEndWrite()
-{
-    return _impl.endWrite();
-}
-
-
-size_t PipeIODevice::onWrite(const char* buffer, size_t count)
-{
-    return _impl.write(buffer, count);
-}
-
-
-void PipeIODevice::onCancel()
-{
-    _impl.cancel();
-}
-
-
-void PipeIODevice::onSync() const
-{
-    _impl.sync();
-}
-
-
 PipeImpl::PipeImpl(bool isAsync)
 {
     int fds[2];

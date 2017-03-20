@@ -15,6 +15,7 @@ noinst_PROGRAMS = \
 	httpclient \
 	httprequest \
 	httpserver \
+	insrv \
 	json \
 	jsonbeautify \
 	log \
@@ -64,6 +65,7 @@ hd_SOURCES = hd.cpp
 httpclient_SOURCES = httpclient.cpp
 httprequest_SOURCES = httprequest.cpp
 httpserver_SOURCES = httpserver.cpp
+insrv_SOURCES = insrv.cpp
 jsonbeautify_SOURCES = jsonbeautify.cpp
 json_SOURCES = json.cpp
 logsh_SOURCES = logsh.cpp
