@@ -28,8 +28,7 @@
 
 #include <iostream>
 #include <cxxtools/application.h>
-#include <cxxtools/iostream.h>
-#include <cxxtools/stddevice.h>
+#include <cxxtools/stdstream.h>
 #include <cxxtools/net/tcpserver.h>
 #include <cxxtools/net/tcpstream.h>
 #include <cxxtools/arg.h>
@@ -40,14 +39,13 @@ log_define("insrv")
 
 class Insrv : public cxxtools::Application
 {
-    cxxtools::StdinDevice indev;
-    cxxtools::IOStream in;
+    cxxtools::Cin in;
     cxxtools::net::TcpServer srv;
 
     typedef std::vector<cxxtools::net::TcpStream*> Clients;
     Clients _clients;
 
-    void onInput(cxxtools::IOStream& s);
+    void onInput(cxxtools::IStream& s);
     void onOutput(cxxtools::net::TcpStream& s);
     void onConnect(cxxtools::net::TcpServer& srv);
 
@@ -62,8 +60,7 @@ Insrv::Insrv(int& argc, char* argv[])
     cxxtools::Arg<std::string> ip(argc, argv, 'i');
     cxxtools::Arg<unsigned short> port(argc, argv, 'p', 1234);
 
-    indev.setSelector(&loop());
-    in.attachDevice(indev);
+    in.setSelector(&loop());
     in.beginRead();
     cxxtools::connect(in.inputReady, *this, &Insrv::onInput);
 
@@ -78,7 +75,7 @@ Insrv::~Insrv()
         delete *it;
 }
 
-void Insrv::onInput(cxxtools::IOStream& s)
+void Insrv::onInput(cxxtools::IStream& s)
 {
     try
     {
