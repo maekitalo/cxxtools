@@ -196,7 +196,7 @@ class BasicIOStream : public std::basic_iostream<CharT>
 };
 
 
-class IStream : public BasicIStream<char>
+class IStream : public BasicIStream<char>, public Connectable
 {
     public:
         explicit IStream(size_t bufferSize = 8192);
@@ -205,18 +205,41 @@ class IStream : public BasicIStream<char>
 
         explicit IStream(IODevice& device, size_t bufferSize = 8192);
 
-        StreamBuffer& buffer();
+        // needed to avoid confusion.
+        // clear is defined in Connectable also
+        void clear()
+        { BasicIStream<char>::clear(); }
+
+        StreamBuffer& buffer()
+        { return _buffer; }
+
+        std::streamsize in_avail()
+        { return buffer().in_avail(); }
 
         IODevice* attachDevice(IODevice& device);
 
-        IODevice* attachedDevice();
+        IODevice* attachedDevice()
+        { return _buffer.device(); }
+
+        void setSelector(SelectorBase* parent)
+        { attachedDevice()->setSelector(parent); }
+
+        void beginRead()
+        { buffer().beginRead(); }
+
+        void endRead();
+
+        Signal<IStream&> inputReady;
 
     private:
+        void onInput(StreamBuffer&);
+        void onOutput(StreamBuffer&);
+
         StreamBuffer _buffer;
 };
 
 
-class OStream : public BasicOStream<char>
+class OStream : public BasicOStream<char>, public Connectable
 {
     public:
         explicit OStream(size_t bufferSize = 8192, bool extend = false);
@@ -225,13 +248,36 @@ class OStream : public BasicOStream<char>
 
         ~OStream();
 
-        StreamBuffer& buffer();
+        // needed to avoid confusion.
+        // clear is defined in Connectable also
+        void clear()
+        { BasicOStream<char>::clear(); }
+
+        StreamBuffer& buffer()
+        { return _buffer; }
+
+        std::streamsize out_avail()
+        { return buffer().out_avail(); }
 
         IODevice* attachDevice(IODevice& device);
 
-        IODevice* attachedDevice();
+        IODevice* attachedDevice()
+        { return _buffer.device(); }
+
+        void setSelector(SelectorBase* parent)
+        { attachedDevice()->setSelector(parent); }
+
+        void beginWrite()
+        { buffer().beginWrite(); }
+
+        void endWrite()
+        { buffer().endWrite(); }
+
+        Signal<OStream&> outputReady;
 
     private:
+        void onOutput(StreamBuffer&);
+
         StreamBuffer _buffer;
 };
 
