@@ -124,3 +124,23 @@ saml2
 Demonstrate how to create dynamically xml using `cxxtools::xml::XmlWriter`.
 
 It prints a SAML2 document to stdout.
+
+insrv
+=====
+The demo shows asyncronous I/O with cxxtools::IOStream and use of
+`cxxtools::StdinDevice`, which implements a cxxtools::IODevice to `stdin`.
+
+The demo starts a tcp server using `cxxtools::net::TcpServer` and waits for
+incoming connection. A `cxxtools::StdinDevices` is created and attached to a
+`cxxtools::IOStream`.  When new connections arrive they are accepted by
+creating a `cxxtools::net::TcpStream`. All that is done in the same event loop
+using non blocking I/O.
+
+When the demo is started it reads input from stdin and sends it to all
+attached clients.
+
+It can be tried out using telnet:
+    telnet localhost 1234
+
+Or with the netcat demo:
+    ./netcat -r </dev/null
