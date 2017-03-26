@@ -46,7 +46,7 @@ namespace net
      *  is 0, which means, that the buffer is dynamically extended when needed so that
      *  writing do not block.
      */
-    class TcpStream : public IOStream, public Connectable
+    class TcpStream : public IOStream
     {
             void init(cxxtools::Timespan timeout);
 

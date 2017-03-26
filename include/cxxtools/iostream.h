@@ -236,7 +236,7 @@ class OStream : public BasicOStream<char>
 };
 
 
-class IOStream : public BasicIOStream<char>
+class IOStream : public BasicIOStream<char>, public Connectable
 {
     public:
         explicit IOStream(size_t bufferSize = 8192, bool extend = false);
@@ -245,13 +245,47 @@ class IOStream : public BasicIOStream<char>
 
         ~IOStream();
 
-        StreamBuffer& buffer();
+        // needed to avoid confusion.
+        // clear is defined in Connectable also
+        void clear()
+        { BasicIOStream<char>::clear(); }
+
+        StreamBuffer& buffer()
+        { return _buffer; }
+
+        std::streamsize in_avail()
+        { return buffer().in_avail(); }
+
+        std::streamsize out_avail()
+        { return buffer().out_avail(); }
 
         IODevice* attachDevice(IODevice& device);
 
-        IODevice* attachedDevice();
+        IODevice* attachedDevice()
+        { return _buffer.device(); }
+
+        void setSelector(SelectorBase* parent)
+        { attachedDevice()->setSelector(parent); }
+
+        void beginRead()
+        { buffer().beginRead(); }
+
+        void endRead();
+
+        void beginWrite()
+        { buffer().beginWrite(); }
+
+        void endWrite()
+        { buffer().endWrite(); }
+
+        Signal<IOStream&> inputReady;
+
+        Signal<IOStream&> outputReady;
 
     private:
+        void onInput(StreamBuffer&);
+        void onOutput(StreamBuffer&);
+
         StreamBuffer _buffer;
 };
 

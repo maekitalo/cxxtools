@@ -47,8 +47,8 @@ class Insrv : public cxxtools::Application
     typedef std::vector<cxxtools::net::TcpStream*> Clients;
     Clients _clients;
 
-    void onInput(cxxtools::StreamBuffer& sb);
-    void onOutput(cxxtools::StreamBuffer& cli);
+    void onInput(cxxtools::IOStream& s);
+    void onOutput(cxxtools::net::TcpStream& s);
     void onConnect(cxxtools::net::TcpServer& srv);
 
 public:
@@ -64,8 +64,8 @@ Insrv::Insrv(int& argc, char* argv[])
 
     indev.setSelector(&loop());
     in.attachDevice(indev);
-    in.buffer().beginRead();
-    cxxtools::connect(in.buffer().inputReady, *this, &Insrv::onInput);
+    in.beginRead();
+    cxxtools::connect(in.inputReady, *this, &Insrv::onInput);
 
     srv.listen(ip, port);
     srv.setSelector(&loop());
@@ -78,11 +78,11 @@ Insrv::~Insrv()
         delete *it;
 }
 
-void Insrv::onInput(cxxtools::StreamBuffer& sb)
+void Insrv::onInput(cxxtools::IOStream& s)
 {
     try
     {
-        sb.endRead();
+        s.endRead();
     }
     catch (const std::exception& e)
     {
@@ -91,9 +91,9 @@ void Insrv::onInput(cxxtools::StreamBuffer& sb)
         return;
     }
 
-    log_debug("onInput; in_avail=" << sb.in_avail());
+    log_debug("onInput; in_avail=" << s.in_avail());
 
-    if (sb.in_avail() == 0 || sb.device()->eof())
+    if (!s)
     {
         log_debug("exit loop");
         loop().exit();
@@ -101,46 +101,43 @@ void Insrv::onInput(cxxtools::StreamBuffer& sb)
     }
 
     char buffer[8192];
-    while (sb.in_avail())
+    while (s.in_avail())
     {
-        unsigned count = std::min(
-            static_cast<unsigned>(sb.in_avail()),
-            static_cast<unsigned>(sizeof(buffer)));
-
-        count = sb.sgetn(buffer, count);
+        unsigned count = s.readsome(buffer, sizeof(buffer));
 
         for (Clients::iterator it = _clients.begin(); it != _clients.end(); ++it)
         {
             log_debug("write " << count << " bytes to client " << static_cast<void*>(*it));
             (*it)->write(buffer, count);
-            (*it)->buffer().beginWrite();
+            (*it)->beginWrite();
         }
     }
 
     log_debug("read");
-    sb.beginRead();
+    s.beginRead();
 }
 
-void Insrv::onOutput(cxxtools::StreamBuffer& sb)
+void Insrv::onOutput(cxxtools::net::TcpStream& s)
 {
     try
     {
-        log_debug("endWrite " << static_cast<void*>(&sb));
-        sb.endWrite();
-        if (sb.out_avail() > 0)
+        log_debug("endWrite " << static_cast<void*>(&s));
+        s.endWrite();
+        if (s.out_avail() > 0)
         {
-            log_debug("beginWrite " << static_cast<void*>(&sb));
-            sb.beginWrite();
+            log_debug("beginWrite " << static_cast<void*>(&s));
+            s.beginWrite();
         }
     }
     catch (const std::exception& e)
     {
-        log_debug("client disconnected");
+        log_debug("client disconnected " << static_cast<void*>(&s));
         for (Clients::iterator it = _clients.begin(); it != _clients.end(); ++it)
         {
-            if ((*it)->rdbuf() == &sb)
+            if ((*it) == &s)
             {
-                log_debug("remove client");
+                log_debug("remove client " << static_cast<void*>(*it));
+                delete *it;
                 _clients.erase(it);
                 break;
             }
@@ -150,12 +147,11 @@ void Insrv::onOutput(cxxtools::StreamBuffer& sb)
 
 void Insrv::onConnect(cxxtools::net::TcpServer& srv)
 {
-    log_debug("new client connected");
-
     cxxtools::net::TcpStream* cli = new cxxtools::net::TcpStream(srv);
+    log_debug("new client connected " << static_cast<void*>(cli));
     _clients.push_back(cli);
-    cli->buffer().device()->setSelector(&loop());
-    cxxtools::connect(cli->buffer().outputReady, *this, &Insrv::onOutput);
+    cli->setSelector(&loop());
+    cxxtools::connect(cli->outputReady, *this, &Insrv::onOutput);
 }
 
 int main(int argc, char* argv[])
