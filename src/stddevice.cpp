@@ -74,6 +74,9 @@ size_t StdinDevice::onWrite(const char* buffer, size_t count)
 ODevice::ODevice()
 {
     _impl = new IODeviceImpl(*this);
+    setEnabled(true);
+    setAsync(true);
+    setEof(false);
 }
 
 ODevice::~ODevice()
