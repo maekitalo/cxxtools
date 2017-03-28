@@ -39,7 +39,8 @@ class EventLoop::Impl
 public:
     Impl()
         : _exitLoop(false),
-          _selector(new SelectorImpl())
+          _selector(new SelectorImpl()),
+          _eventsPerLoop(1024)
         { }
     ~Impl();
 
@@ -67,6 +68,7 @@ public:
     std::deque<Event* > _eventQueue;
     std::deque<Event* > _priorityEventQueue;
     RecursiveMutex _queueMutex;
+    unsigned _eventsPerLoop;
 };
 
 EventLoop::Impl::~Impl()
@@ -102,6 +104,16 @@ EventLoop::EventLoop()
 EventLoop::~EventLoop()
 {
     delete _impl;
+}
+
+unsigned EventLoop::eventsPerLoop()
+{
+    return _impl->_eventsPerLoop;
+}
+
+void EventLoop::eventsPerLoop(unsigned n)
+{
+    _impl->_eventsPerLoop = n;
 }
 
 
@@ -142,19 +154,29 @@ void EventLoop::onRun()
             break;
         }
 
-        if (!_impl->eventQueueEmpty())
+        bool eventQueueEmpty = _impl->eventQueueEmpty();
+        if (!eventQueueEmpty)
         {
             lock.unlock();
-            processEvents();
+            processEvents(_impl->_eventsPerLoop);
+            eventQueueEmpty = _impl->eventQueueEmpty();
         }
 
         lock.unlock();
 
-        idle();
+        if (eventQueueEmpty)
+        {
+            idle();
 
-        bool active = wait( this->idleTimeout() );
-        if( ! active )
-            timeout.send();
+            bool active = wait(idleTimeout());
+            if (!active)
+                timeout.send();
+        }
+        else
+        {
+            // process I/O events
+            wait(0);
+        }
     }
 
     exited();
@@ -170,7 +192,7 @@ bool EventLoop::onWaitUntil(Timespan timeout)
         if (!_impl->eventQueueEmpty())
         {
             lock.unlock();
-            this->processEvents();
+            processEvents(_impl->_eventsPerLoop);
         }
 
         return true;
@@ -224,8 +246,10 @@ void EventLoop::onCommitEvent(const Event& ev, bool priority)
 }
 
 
-void EventLoop::onProcessEvents()
+void EventLoop::onProcessEvents(unsigned max)
 {
+    unsigned count = 0;
+
     while (!_impl->_exitLoop)
     {
         RecursiveLock lock(_impl->_queueMutex);
@@ -248,6 +272,10 @@ void EventLoop::onProcessEvents()
         }
 
         ev->destroy();
+
+        ++count;
+        if (max != 0 && count >= max)
+            break;
     }
 }
 

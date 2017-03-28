@@ -58,8 +58,8 @@ namespace cxxtools
 
             /** @brief Processes all events which are currently in the event queue
             */
-            void processEvents()
-            { this->onProcessEvents(); }
+            void processEvents(unsigned max = 0)
+            { onProcessEvents(max); }
 
             /** @brief Stops the %EventLoop.
             */
@@ -109,7 +109,7 @@ namespace cxxtools
 
             virtual void onExit() = 0;
 
-            virtual void onProcessEvents() = 0;
+            virtual void onProcessEvents(unsigned max) = 0;
 
         private:
             Timespan _timeout;
@@ -152,6 +152,16 @@ namespace cxxtools
              */
             virtual ~EventLoop();
 
+            /** Returns the maximum number of events processed per loop cycle.
+                When the loop runs after the specified number of events
+                I/O events are checked.
+             */
+            unsigned eventsPerLoop();
+
+            /** Sets the maximum number of events processed per loop cycle.
+             */
+            void eventsPerLoop(unsigned n);
+
         protected:
             virtual void onAdd( Selectable& s );
 
@@ -173,7 +183,7 @@ namespace cxxtools
 
             virtual void onCommitEvent(const Event& event, bool priority);
 
-            virtual void onProcessEvents();
+            virtual void onProcessEvents(unsigned max);
 
         private:
             class Impl;
