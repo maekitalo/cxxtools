@@ -31,7 +31,7 @@
 #include "cxxtools/serializationinfo.h"
 #include "cxxtools/json.h"
 #include "cxxtools/log.h"
-#include "cxxtools/hdstream.h"
+#include "cxxtools/hexdump.h"
 #include <limits>
 #include <stdint.h>
 #include <config.h>
@@ -337,7 +337,7 @@ class JsonTest : public cxxtools::unit::TestSuite
                 v.push_back(static_cast<char>(n));
 
             data << cxxtools::Json(v);
-            log_debug("v.data=" << cxxtools::hexDump(data.str()));
+            log_debug("v.data:\n" << cxxtools::hexDump(data.str()));
 
             std::string v2;
             data >> cxxtools::Json(v2);
@@ -351,7 +351,7 @@ class JsonTest : public cxxtools::unit::TestSuite
                 v.push_back(static_cast<char>(n));
 
             data << cxxtools::Json(v);
-            log_debug("v.data=" << cxxtools::hexDump(data.str()));
+            log_debug("v.data:\n" << cxxtools::hexDump(data.str()));
 
             data >> cxxtools::Json(v2);
 

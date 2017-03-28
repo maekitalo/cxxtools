@@ -31,7 +31,7 @@
 #include "cxxtools/serializationinfo.h"
 #include "cxxtools/bin/bin.h"
 #include "cxxtools/log.h"
-#include "cxxtools/hdstream.h"
+#include "cxxtools/hexdump.h"
 #include <limits>
 #include <stdint.h>
 #include <config.h>
@@ -195,7 +195,7 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
             double result = 0.0;
             data >> cxxtools::bin::Bin(result);
 
-            log_debug("test double value " << value << " => " << cxxtools::hexDump(data.str()) << " => " << result);
+            log_debug("test double value " << value << " =>\n" << cxxtools::hexDump(data.str()) << "\n=> " << result);
 
             if (value != value) // check for nan
                 CXXTOOLS_UNIT_ASSERT(result != result);
@@ -245,7 +245,7 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
             intvector.push_back(-257);
 
             data << cxxtools::bin::Bin(intvector);
-            log_debug("intvector: " << cxxtools::hexDump(data.str()));
+            log_debug("intvector:\n" << cxxtools::hexDump(data.str()));
 
             std::vector<int> intvector2;
             data >> cxxtools::bin::Bin(intvector2);
@@ -269,7 +269,7 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
             obj.nullValue = true;
 
             data << cxxtools::bin::Bin(obj);
-            log_debug("bindata testobject: " << cxxtools::hexDump(data.str()));
+            log_debug("bindata testobject:\n" << cxxtools::hexDump(data.str()));
 
             TestObject obj2;
             data >> cxxtools::bin::Bin(obj2);
@@ -304,7 +304,7 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
             v.push_back(obj);
 
             data << cxxtools::bin::Bin(v);
-            log_debug("bindata complex object: " << cxxtools::hexDump(data.str()));
+            log_debug("bindata complex object:\n" << cxxtools::hexDump(data.str()));
 
             std::vector<TestObject2> v2;
             data >> cxxtools::bin::Bin(v2);
@@ -375,6 +375,7 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT(v == v2);
 
         }
+
 };
 
 cxxtools::unit::RegisterTest<BinSerializerTest> register_BinSerializerTest;

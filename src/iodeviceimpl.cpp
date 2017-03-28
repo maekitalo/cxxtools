@@ -36,7 +36,7 @@
 #include <fcntl.h>
 #include <sys/poll.h>
 #include <cxxtools/log.h>
-#include <cxxtools/hdstream.h>
+#include <cxxtools/hexdump.h>
 
 log_define("cxxtools.iodevice.impl")
 
@@ -196,7 +196,7 @@ size_t IODeviceImpl::read( char* buffer, size_t count, bool& eof )
         if(ret > 0)
         {
             log_debug("::read(" << _fd << ", " << count << ") returned " << ret);
-            log_finer(HexDump(buffer, ret));
+            log_finer(hexDump(buffer, ret));
             break;
         }
 
@@ -234,7 +234,7 @@ size_t IODeviceImpl::read( char* buffer, size_t count, bool& eof )
 size_t IODeviceImpl::beginWrite(const char* buffer, size_t n)
 {
     log_debug("::write(" << _fd << ", buffer, " << n << ')');
-    log_finer(HexDump(buffer, n));
+    log_finer(hexDump(buffer, n));
 
     ssize_t ret = ::write(_fd, (const void*)buffer, n);
 
@@ -283,7 +283,7 @@ size_t IODeviceImpl::write( const char* buffer, size_t count )
     while(true)
     {
         log_debug("::write(" << _fd << ", buffer, " << count << ')');
-        log_finer(HexDump(buffer, count));
+        log_finer(hexDump(buffer, count));
 
         ret = ::write(_fd, (const void*)buffer, count);
         log_debug("write returned " << ret);

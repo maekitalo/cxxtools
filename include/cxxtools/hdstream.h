@@ -30,8 +30,6 @@
 #define CXXTOOLS_HDSTREAM_H
 
 #include <iostream>
-#include <string>
-#include <sstream>
 
 namespace cxxtools
 {
@@ -87,71 +85,6 @@ class Hdostream : public std::ostream
     unsigned getOffset() const         { return streambuf.getOffset(); }
     void setOffset(unsigned offset_)   { streambuf.setOffset(offset_); }
 };
-
-template <typename T>
-void hexDump(std::ostream& out, const T& t)
-{
-  Hdostream hd(out);
-  hd << t << std::flush;
-}
-
-template <typename T>
-std::string hexDump(const T& t)
-{
-  std::ostringstream out;
-  Hdostream hd(out);
-  hd << t << std::flush;
-  return out.str();
-}
-
-inline std::string hexDump(const char* p, unsigned n)
-{
-  std::ostringstream out;
-  Hdostream hd(out);
-  hd.write(p, n);
-  hd.flush();
-  return out.str();
-}
-
-/** Helper object for dumping content to output stream without creating another output stream.
- *
- *  This makes dumping data a little more efficient than using `hexDump(const char*, n)`,
- *  which creates a ostringstream, a cxxtools::Hdostream and a temporary std::string when
- *  printed to a output stream.
- */
-class HexDump
-{
-  friend std::ostream& operator<< (std::ostream& out, const HexDump& hd);
-  const char* _p;
-  unsigned _n;
-
-public:
-  HexDump(const char* p, unsigned n)
-    : _p(p),
-      _n(n)
-      { }
-};
-
-/** Outputs data to output stream as a hex dump.
- *
- *  Example:
- *  \code
- *    const char* buffer = ...;
- *    unsigned bufsize = ...
- *    std::cout << HexDump(buffer, bufsize);
- *  \endcode
- *
- *  This outputs the content of the buffer to standard out as a hex dump.
- */
-inline std::ostream& operator<< (std::ostream& out, const HexDump& hd)
-{
-   Hdstreambuf buf(out.rdbuf());
-   if (buf.sputn(hd._p, hd._n) == hd._n)
-     buf.pubsync();
-   else
-     out.setstate(std::ios::failbit);
-   return out;
-}
 
 }
 
