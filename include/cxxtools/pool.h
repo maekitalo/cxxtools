@@ -26,6 +26,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+#ifndef CXXTOOLS_POOL_H
+#define CXXTOOLS_POOL_H
+
 #include <cxxtools/smartptr.h>
 #include <cxxtools/noncopyable.h>
 #include <cxxtools/mutex.h>
@@ -223,3 +226,5 @@ namespace cxxtools
   };
 
 }
+
+#endif

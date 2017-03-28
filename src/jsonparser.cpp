@@ -102,6 +102,11 @@ JsonParser::JsonParser()
       _next(0)
 { }
 
+JsonParser::~JsonParser()
+{
+    delete _next;
+}
+
 int JsonParser::advance(Char ch)
 {
     int ret;

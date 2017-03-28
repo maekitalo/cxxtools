@@ -30,6 +30,7 @@
 #include <fstream>
 #include <stdexcept>
 #include <cxxtools/mime.h>
+#include <cxxtools/arg.h>
 #include <cxxtools/log.h>
 
 int main(int argc, char* argv[])
@@ -38,7 +39,9 @@ int main(int argc, char* argv[])
   {
     log_init();
 
-    cxxtools::Mime mime;
+    cxxtools::Arg<bool> binary(argc, argv, 'b');
+
+    cxxtools::MimeMultipart mime;
 
     for (int a = 1; a < argc; ++a)
     {
@@ -49,13 +52,15 @@ int main(int argc, char* argv[])
         throw std::runtime_error("cannot open file " + fname);
 
       if (fname.size() >= 4 && fname.compare(fname.size() - 4, 4, ".jpg") == 0)
-        mime.addBinaryFile("image/jpg", fname, ifile);
+        mime.attachBinaryFile(ifile, fname, "image/jpg");
       else if (fname.size() >= 4 && fname.compare(fname.size() - 4, 4, ".gif") == 0)
-        mime.addBinaryFile("image/gif", fname, ifile);
+        mime.attachBinaryFile(ifile, fname, "image/gif");
       else if (fname.size() >= 4 && fname.compare(fname.size() - 4, 4, ".png") == 0)
-        mime.addBinaryFile("image/png", fname, ifile);
+        mime.attachBinaryFile(ifile, fname, "image/png");
+      else if (binary)
+        mime.attachBinaryFile(ifile, fname);
       else
-        mime.addPart(ifile);
+        mime.addObject(ifile, "text/plain; charset=UTF-8");
     }
 
     std::cout << mime;
@@ -65,4 +70,3 @@ int main(int argc, char* argv[])
     std::cerr << e.what() << std::endl;
   }
 }
-

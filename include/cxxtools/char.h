@@ -148,6 +148,12 @@ namespace cxxtools
             friend bool operator==(char a, const Char& b)
             { return a == b.value(); }
 
+            //! @brief Returns $true$ if the a and b are the same character; $false$ otherwise.
+            //! @return $true$ if the a and b are the same character; $false$ otherwise.
+            friend bool operator==(const Char& a, unsigned int b)
+            { return a.value() >= 0 && ((unsigned int) a.value() == b); }
+
+
             //! @brief Returns $true$ if the a and b are not the same character; $false$ otherwise.
             //! @return $true$ if the a and b are not the same character; $false$ otherwise.
             friend bool operator!=(const Char& a, const Char& b)
