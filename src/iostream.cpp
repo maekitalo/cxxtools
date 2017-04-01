@@ -33,6 +33,7 @@ IStream::IStream(size_t bufferSize)
 : _buffer(bufferSize)
 {
     attachBuffer(&_buffer);
+    connect(_buffer.inputReady, *this, &IStream::onInput);
 }
 
 
@@ -47,13 +48,6 @@ IStream::~IStream()
 {
 }
 
-
-StreamBuffer& IStream::buffer()
-{
-return _buffer;
-}
-
-
 IODevice* IStream::attachDevice(IODevice& device)
 {
     IODevice* ret = attachedDevice();
@@ -61,10 +55,16 @@ IODevice* IStream::attachDevice(IODevice& device)
     return ret;
 }
 
-
-IODevice* IStream::attachedDevice()
+void IStream::endRead()
 {
-return _buffer.device();
+    buffer().endRead();
+    if (buffer().in_avail() == 0)
+        setstate(std::ios::eofbit);
+}
+
+void IStream::onInput(StreamBuffer&)
+{
+    inputReady(*this);
 }
 
 
@@ -72,6 +72,7 @@ OStream::OStream(size_t bufferSize, bool extend)
 : _buffer(bufferSize, extend)
 {
     attachBuffer(&_buffer);
+    connect(_buffer.outputReady, *this, &OStream::onOutput);
 }
 
 
@@ -86,13 +87,6 @@ OStream::~OStream()
 {
 }
 
-
-StreamBuffer& OStream::buffer()
-{
-    return _buffer;
-}
-
-
 IODevice* OStream::attachDevice(IODevice& device)
 {
     IODevice* ret = attachedDevice();
@@ -101,9 +95,9 @@ IODevice* OStream::attachDevice(IODevice& device)
 }
 
 
-IODevice* OStream::attachedDevice()
+void OStream::onOutput(StreamBuffer&)
 {
-    return _buffer.device();
+    outputReady(*this);
 }
 
 
@@ -111,6 +105,8 @@ IOStream::IOStream(size_t bufferSize, bool extend)
 : _buffer(bufferSize, extend)
 {
     attachBuffer(&_buffer);
+    connect(_buffer.inputReady, *this, &IOStream::onInput);
+    connect(_buffer.outputReady, *this, &IOStream::onOutput);
 }
 
 
@@ -125,12 +121,15 @@ IOStream::IOStream(IODevice& device, size_t bufferSize, bool extend)
     attachBuffer(&_buffer);
 }
 
-
-StreamBuffer& IOStream::buffer()
+void IOStream::onInput(StreamBuffer&)
 {
-    return _buffer;
+    inputReady(*this);
 }
 
+void IOStream::onOutput(StreamBuffer&)
+{
+    outputReady(*this);
+}
 
 IODevice* IOStream::attachDevice(IODevice& device)
 {
@@ -140,9 +139,11 @@ IODevice* IOStream::attachDevice(IODevice& device)
 }
 
 
-IODevice* IOStream::attachedDevice()
+void IOStream::endRead()
 {
-    return _buffer.device();
+    buffer().endRead();
+    if (buffer().in_avail() == 0)
+        setstate(std::ios::eofbit);
 }
 
 } // namespace cxxtools

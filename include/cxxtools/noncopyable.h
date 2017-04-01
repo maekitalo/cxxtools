@@ -31,6 +31,7 @@
 
 namespace cxxtools
 {
+  /// @deprecated
   class NonCopyable
   {
     private:
@@ -42,4 +43,3 @@ namespace cxxtools
 }
 
 #endif // CXXTOOLS_NONCOPYABLE_H
-

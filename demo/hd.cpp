@@ -28,7 +28,8 @@
 
 #include <iostream>
 #include <fstream>
-#include "cxxtools/hdstream.h"
+#include <iterator>
+#include "cxxtools/hexdump.h"
 
 int main(int argc, char* argv[])
 {
@@ -43,9 +44,15 @@ int main(int argc, char* argv[])
             continue;
         }
 
-        // copy file content as hex dump to std::out
         std::cout << "file: " << argv[a] << '\n';
-        cxxtools::Hdostream hd(std::cout);
-        hd << in.rdbuf() << std::flush;
+
+        // copy file content as hex dump to std::out
+
+        // using explicit cxxtools::Hdostream:
+        //     cxxtools::Hdostream hd(std::cout);
+        //     hd << in.rdbuf() << std::flush;
+
+        // or using 2 iterators:
+        std::cout << cxxtools::hexDump(std::istreambuf_iterator<char>(in), std::istreambuf_iterator<char>());
     }
 }

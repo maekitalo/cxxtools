@@ -50,6 +50,7 @@ cxxtools-config
 **/demo/httpclient
 **/demo/httprequest
 **/demo/httpserver
+**/demo/insrv
 **/demo/jsonbeautify
 **/demo/json
 **/demo/logsh

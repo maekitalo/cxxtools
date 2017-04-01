@@ -128,36 +128,10 @@ class TcpSocket : public IODevice
         { }
 
         // inherit doc
-        virtual void onClose();
-
-        // inherit doc
-        virtual bool onWait(Timespan timeout);
-
-        // inherit doc
-        virtual void onAttach(SelectorBase&);
-
-        // inherit doc
-        virtual void onDetach(SelectorBase&);
-
-        // inherit doc
         virtual size_t onBeginRead(char* buffer, size_t n, bool& eof);
 
         // inherit doc
-        virtual size_t onEndRead(bool& eof);
-
-        // inherit doc
-        virtual size_t onRead(char* buffer, size_t count, bool& eof);
-
-        // inherit doc
         virtual size_t onBeginWrite(const char* buffer, size_t n);
-
-        // inherit doc
-        virtual size_t onEndWrite();
-
-        // inherit doc
-        virtual size_t onWrite(const char* buffer, size_t count);
-
-        virtual void onCancel();
 
     public:
         // inherit doc

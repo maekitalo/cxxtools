@@ -27,8 +27,10 @@
  */
 
 #include "cxxtools/selectable.h"
+#include "selectableimpl.h"
 
-namespace cxxtools {
+namespace cxxtools
+{
 
 Selectable::~Selectable()
 {
@@ -150,6 +152,16 @@ void Selectable::setState(State state)
     {
         _parent->onChanged(*this /*, prev */);
     }
+}
+
+void Selectable::onClose()
+{
+    simpl().close();
+}
+
+bool Selectable::onWait(Timespan timeout)
+{
+    return simpl().wait(timeout);
 }
 
 }

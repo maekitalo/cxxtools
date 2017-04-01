@@ -31,7 +31,6 @@
 #include <cxxtools/unit/reporter.h>
 #include <cxxtools/unit/assertion.h>
 #include <cxxtools/connectable.h>
-#include <cxxtools/noncopyable.h>
 #include <string>
 
 namespace cxxtools {
@@ -48,9 +47,16 @@ namespace unit {
         is overriden by the derived classes and signals to inform about
         events that occur while the test is run.
     */
-    class Test : public Connectable,
-                 protected NonCopyable
+    class Test : public Connectable
     {
+#if __cplusplus >= 201103L
+            Test(const Test&) = delete;
+            Test& operator=(const Test&) = delete;
+#else
+            Test(const Test&) { }
+            Test& operator=(const Test&) { return *this; }
+#endif
+
         public:
             /** @brief Destructor
             */

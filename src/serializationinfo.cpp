@@ -350,7 +350,7 @@ void SerializationInfo::dump(std::ostream& out, const std::string& prefix) const
                                        _t == t_bool ? "bool" :
                                        _t == t_int ? "int" :
                                        _t == t_uint ? "uint" :
-                                       _t == t_float ? "float" : "?") << '\n';
+                                       _t == t_ldouble ? "double" : "?") << '\n';
 
         out << prefix << "value = ";
 
@@ -364,6 +364,8 @@ void SerializationInfo::dump(std::ostream& out, const std::string& prefix) const
             case t_int:     out << _u._i; break;
             case t_uint:    out << _u._u; break;
             case t_float:   out << _u._f; break;
+            case t_double:  out << _u._d; break;
+            case t_ldouble: out << _u._ld; break;
         }
 
         out << '\n';
@@ -511,7 +513,7 @@ void SerializationInfo::_setUInt(unsigned_type value)
     _category = Value;
 }
 
-void SerializationInfo::_setFloat(long double value)
+void SerializationInfo::_setFloat(float value)
 {
     if (_t != t_float)
     {
@@ -524,6 +526,31 @@ void SerializationInfo::_setFloat(long double value)
     _category = Value;
 }
 
+void SerializationInfo::_setDouble(double value)
+{
+    if (_t != t_double)
+    {
+        _releaseValue();
+        _t = t_double;
+    }
+
+    _u._d = value;
+
+    _category = Value;
+}
+
+void SerializationInfo::_setLongDouble(long double value)
+{
+    if (_t != t_ldouble)
+    {
+        _releaseValue();
+        _t = t_ldouble;
+    }
+
+    _u._ld = value;
+
+    _category = Value;
+}
 
 void SerializationInfo::getValue(String& value) const
 {
@@ -537,6 +564,8 @@ void SerializationInfo::getValue(String& value) const
         case t_int:     convert(value, _u._i); break;
         case t_uint:    convert(value, _u._u); break;
         case t_float:   convert(value, _u._f); break;
+        case t_double:  convert(value, _u._d); break;
+        case t_ldouble: convert(value, _u._ld); break;
     }
 }
 
@@ -552,6 +581,8 @@ void SerializationInfo::getValue(std::string& value) const
         case t_int:     convert(value, _u._i); break;
         case t_uint:    convert(value, _u._u); break;
         case t_float:   convert(value, _u._f); break;
+        case t_double:  convert(value, _u._d); break;
+        case t_ldouble: convert(value, _u._ld); break;
     }
 }
 
@@ -580,6 +611,8 @@ bool SerializationInfo::_getBool() const
         case t_int:     return _u._i;
         case t_uint:    return _u._u;
         case t_float:   return _u._f;
+        case t_double:  return _u._d;
+        case t_ldouble: return _u._ld;
     }
 
     // never reached
@@ -598,6 +631,8 @@ wchar_t SerializationInfo::_getWChar() const
         case t_int:     return _u._i;
         case t_uint:    return _u._u;
         case t_float:   return static_cast<wchar_t>(_u._f);
+        case t_double:  return static_cast<wchar_t>(_u._d);
+        case t_ldouble: return static_cast<wchar_t>(_u._ld);
     }
 
     // never reached
@@ -616,6 +651,8 @@ char SerializationInfo::_getChar() const
         case t_int:     return _u._i; break;
         case t_uint:    return _u._u; break;
         case t_float:   return static_cast<char>(_u._f); break;
+        case t_double:   return static_cast<char>(_u._d); break;
+        case t_ldouble:   return static_cast<char>(_u._ld); break;
     }
     // never reached
     return 0;
@@ -660,6 +697,8 @@ SerializationInfo::int_type SerializationInfo::_getInt(const char* type, int_typ
                         }
                         ret = _u._u; break;
         case t_float:   ret = static_cast<int_type>(_u._f); break;
+        case t_double:   ret = static_cast<int_type>(_u._d); break;
+        case t_ldouble:   ret = static_cast<int_type>(_u._ld); break;
     }
 
     if (ret < min || ret > max)
@@ -708,6 +747,8 @@ SerializationInfo::unsigned_type SerializationInfo::_getUInt(const char* type, u
                         break;
         case t_uint:    ret = _u._u; break;
         case t_float:   ret = static_cast<unsigned_type>(_u._f); break;
+        case t_double:  ret = static_cast<unsigned_type>(_u._d); break;
+        case t_ldouble: ret = static_cast<unsigned_type>(_u._ld); break;
     }
 
     if (ret > max)
@@ -720,7 +761,132 @@ SerializationInfo::unsigned_type SerializationInfo::_getUInt(const char* type, u
     return ret;
 }
 
-long double SerializationInfo::_getFloat(const char* type, long double max) const
+float SerializationInfo::_getFloat() const
+{
+    float ret = 0;
+
+    switch (_t)
+    {
+        case t_none:    break;
+
+        case t_string:  try
+                        {
+                            ret = convert<float>(_String());
+                        }
+                        catch (const ConversionError&)
+                        {
+                            ConversionError::doThrow("float", "String", _String().narrow().c_str());
+                        }
+                        break;
+
+        case t_string8: try
+                        {
+                            ret = convert<float>(_String8());
+                        }
+                        catch (const ConversionError&)
+                        {
+                            ConversionError::doThrow("float", "string", _String8().c_str());
+                        }
+                        break;
+
+        case t_char:    ret = _u._c - '0'; break;
+        case t_bool:    ret = _u._b; break;
+        case t_int:     ret = _u._i; break;
+        case t_uint:    ret = _u._u; break;
+        case t_float:   ret = _u._f; break;
+
+        case t_double:
+            if (_u._d == std::numeric_limits<double>::infinity())
+                ret = std::numeric_limits<float>::infinity();
+            else if (_u._d == -std::numeric_limits<double>::infinity())
+                ret = -std::numeric_limits<float>::infinity();
+            else if (_u._d != _u._d)  // NaN
+                ret = _u._d;
+            else if (_u._d > std::numeric_limits<float>::max()
+                  || _u._d < -std::numeric_limits<float>::max())
+            {
+                std::ostringstream msg;
+                msg << "value " << _u._d << " does not fit into float";
+                throw std::range_error(msg.str());
+            }
+            break;
+
+        case t_ldouble:
+            if (_u._ld == std::numeric_limits<long double>::infinity())
+                ret = std::numeric_limits<float>::infinity();
+            else if (_u._ld == -std::numeric_limits<long double>::infinity())
+                ret = -std::numeric_limits<float>::infinity();
+            else if (_u._ld != _u._ld)  // NaN
+                ret = _u._ld;
+            else if (_u._ld > std::numeric_limits<float>::max()
+                  || _u._ld < -std::numeric_limits<float>::max())
+            {
+                std::ostringstream msg;
+                msg << "value " << _u._ld << " does not fit into float";
+                throw std::range_error(msg.str());
+            }
+            break;
+    }
+
+    return ret;
+}
+
+double SerializationInfo::_getDouble() const
+{
+    double ret = 0;
+
+    switch (_t)
+    {
+        case t_none:    break;
+
+        case t_string:  try
+                        {
+                            ret = convert<double>(_String());
+                        }
+                        catch (const ConversionError&)
+                        {
+                            ConversionError::doThrow("double", "String", _String().narrow().c_str());
+                        }
+                        break;
+
+        case t_string8: try
+                        {
+                            ret = convert<double>(_String8());
+                        }
+                        catch (const ConversionError&)
+                        {
+                            ConversionError::doThrow("double", "string", _String8().c_str());
+                        }
+                        break;
+
+        case t_char:    ret = _u._c - '0'; break;
+        case t_bool:    ret = _u._b; break;
+        case t_int:     ret = _u._i; break;
+        case t_uint:    ret = _u._u; break;
+        case t_float:   ret = _u._f; break;
+        case t_double:  ret = _u._d; break;
+
+        case t_ldouble:
+            if (_u._ld == std::numeric_limits<long double>::infinity())
+                ret = std::numeric_limits<double>::infinity();
+            else if (_u._ld == -std::numeric_limits<long double>::infinity())
+                ret = -std::numeric_limits<double>::infinity();
+            else if (_u._ld != _u._ld)  // NaN
+                ret = _u._ld;
+            else if (_u._ld > std::numeric_limits<double>::max()
+                  || _u._ld < -std::numeric_limits<double>::max())
+            {
+                std::ostringstream msg;
+                msg << "value " << _u._ld << " does not fit into double";
+                throw std::range_error(msg.str());
+            }
+            break;
+    }
+
+    return ret;
+}
+
+long double SerializationInfo::_getLongDouble() const
 {
     long double ret = 0;
 
@@ -734,7 +900,7 @@ long double SerializationInfo::_getFloat(const char* type, long double max) cons
                         }
                         catch (const ConversionError&)
                         {
-                            ConversionError::doThrow(type, "String", _String().narrow().c_str());
+                            ConversionError::doThrow("long double", "String", _String().narrow().c_str());
                         }
                         break;
 
@@ -744,7 +910,7 @@ long double SerializationInfo::_getFloat(const char* type, long double max) cons
                         }
                         catch (const ConversionError&)
                         {
-                            ConversionError::doThrow(type, "string", _String8().c_str());
+                            ConversionError::doThrow("long double", "string", _String8().c_str());
                         }
                         break;
 
@@ -753,16 +919,8 @@ long double SerializationInfo::_getFloat(const char* type, long double max) cons
         case t_int:     ret = _u._i; break;
         case t_uint:    ret = _u._u; break;
         case t_float:   ret = _u._f; break;
-    }
-
-    if (ret != std::numeric_limits<long double>::infinity()
-        && ret != -std::numeric_limits<long double>::infinity()
-        && ret == ret        // check for NaN
-        && (ret < -max || ret > max))
-    {
-        std::ostringstream msg;
-        msg << "value " << ret << " does not fit into " << type;
-        throw std::range_error(msg.str());
+        case t_double:  ret = _u._d; break;
+        case t_ldouble: ret = _u._ld; break;
     }
 
     return ret;

@@ -29,17 +29,21 @@
 #ifndef CXXTOOLS_PIPE_H
 #define CXXTOOLS_PIPE_H
 
-#include <cxxtools/noncopyable.h>
 #include <cxxtools/iodevice.h>
-#include <unistd.h>
 
 namespace cxxtools
 {
     class PipeImpl;
 
-class Pipe : private NonCopyable
+class Pipe
 {
-    private:
+#if __cplusplus >= 201103L
+        Pipe(const Pipe&) = delete;
+        Pipe& operator=(const Pipe&) = delete;
+#else
+        Pipe(const Pipe&) { }
+        Pipe& operator=(const Pipe&) { return *this; }
+#endif
         class PipeImpl* _impl;
 
     protected:

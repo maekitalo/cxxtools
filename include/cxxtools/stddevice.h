@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2003 Tommi Maekitalo
+ * Copyright (C) 2017 Tommi Maekitalo
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,66 +26,65 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef CXXTOOLS_HDSTREAM_H
-#define CXXTOOLS_HDSTREAM_H
+#ifndef CXXTOOLS_STDDEVICE_H
+#define CXXTOOLS_STDDEVICE_H
 
-#include <iostream>
+#include <cxxtools/iodevice.h>
 
 namespace cxxtools
 {
 
-class Hdstreambuf : public std::streambuf
+class StdinDevice : public IODevice
 {
-    static const unsigned BUFFERSIZE = 16;
-    
-    std::streambuf::int_type overflow(std::streambuf::int_type ch);
-    std::streambuf::int_type underflow();
-    int sync();
+    public:
+        StdinDevice();
 
-    char Buffer[BUFFERSIZE];
-    std::streambuf* Dest;
-    unsigned offset;
+        ~StdinDevice();
 
-  public:
-    Hdstreambuf(std::streambuf* dest)
-      : Dest(dest),
-        offset(0)
-    {
-      setp(Buffer, Buffer + BUFFERSIZE);
-    }
+    protected:
+        IODeviceImpl& ioimpl();
 
-    unsigned getOffset() const         { return offset; }
-    void setOffset(unsigned offset_)   { offset = offset_; }
+        SelectableImpl& simpl();
+
+        size_t onBeginWrite(const char* buffer, size_t n);
+
+        size_t onWrite(const char* buffer, size_t count);
+
+    private:
+        IODeviceImpl* _impl;
 };
 
-/**
- hexdumper as a outputstream.
-
- Data written to a hdostream are passed as a hexdump to the given sink.
- */
-class Hdostream : public std::ostream
+class ODevice : public IODevice
 {
-    typedef std::ostream base_class;
-    Hdstreambuf streambuf;
+    protected:
+        ODevice();
 
-  public:
-    Hdostream()
-      : base_class(0),
-        streambuf(std::cout.rdbuf())
-    {
-      init(&streambuf);
-    }
-    Hdostream(std::ostream& out)
-      : base_class(0),
-        streambuf(out.rdbuf())
-    {
-      init(&streambuf);
-    }
+        ~ODevice();
 
-    unsigned getOffset() const         { return streambuf.getOffset(); }
-    void setOffset(unsigned offset_)   { streambuf.setOffset(offset_); }
+        IODeviceImpl& ioimpl();
+
+        SelectableImpl& simpl();
+
+        size_t onBeginRead(char* buffer, size_t n, bool& eof);
+
+        size_t onRead(char* buffer, size_t count, bool& eof);
+
+    private:
+        IODeviceImpl* _impl;
+};
+
+class StdoutDevice : public ODevice
+{
+    public:
+        StdoutDevice();
+};
+
+class StderrDevice : public ODevice
+{
+    public:
+        StderrDevice();
 };
 
 }
 
-#endif  // CXXTOOLS_HDSTREAM_H
+#endif

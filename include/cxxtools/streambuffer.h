@@ -47,7 +47,7 @@ class BasicStreamBuffer : public std::basic_streambuf<CharT>
             if( this->pptr() )
                 return this->pptr() - this->pbase();
 
-             return this->showfull();
+             return 0;
         }
 
     protected:
@@ -60,8 +60,6 @@ class BasicStreamBuffer : public std::basic_streambuf<CharT>
             return 1;
         }
 
-        virtual std::streamsize showfull()
-        { return 0; }
 };
 
 //! @brief A stream buffer for IODevices with linear buffer area
@@ -153,8 +151,6 @@ class StreamBuffer : public BasicStreamBuffer<char>,
 
     protected:
         virtual int sync();
-
-        virtual std::streamsize showfull();
 
         virtual std::streamsize xspeekn(char* buffer, std::streamsize size);
 

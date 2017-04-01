@@ -34,8 +34,6 @@
 #include <cxxtools/log.h>
 #include <cxxtools/net/tcpserver.h>
 
-#include <signal.h>
-
 log_define("cxxtools.http.server.impl")
 
 namespace cxxtools

@@ -60,7 +60,9 @@ class SerializationInfoTest : public cxxtools::unit::TestSuite
             registerMethod("testChar", *this, &SerializationInfoTest::testChar);
             registerMethod("testInt", *this, &SerializationInfoTest::testInt);
             registerMethod("testUInt", *this, &SerializationInfoTest::testUInt);
+            registerMethod("testFloat", *this, &SerializationInfoTest::testFloat);
             registerMethod("testDouble", *this, &SerializationInfoTest::testDouble);
+            registerMethod("testLongDouble", *this, &SerializationInfoTest::testLongDouble);
             registerMethod("testSiAssign", *this, &SerializationInfoTest::testSiAssign);
             registerMethod("testSiCopy", *this, &SerializationInfoTest::testSiCopy);
             registerMethod("testSiSwap", *this, &SerializationInfoTest::testSiSwap);
@@ -100,7 +102,7 @@ class SerializationInfoTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<short>(si), -17);
 
             si.setValue(0.0);
-            CXXTOOLS_UNIT_ASSERT(si.isFloat());
+            CXXTOOLS_UNIT_ASSERT(si.isDouble());
             CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::convert<double>(siValue<std::string>(si)), 0);
             CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::convert<double>(siValue<cxxtools::String>(si)), 0);
             CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<unsigned>(si), 0);
@@ -119,6 +121,8 @@ class SerializationInfoTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT(!si.isInt());
             CXXTOOLS_UNIT_ASSERT(!si.isUInt());
             CXXTOOLS_UNIT_ASSERT(!si.isFloat());
+            CXXTOOLS_UNIT_ASSERT(!si.isDouble());
+            CXXTOOLS_UNIT_ASSERT(!si.isLongDouble());
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<cxxtools::String>(si), cxxtools::String(L"42"));
             CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<std::string>(si), "42");
@@ -140,6 +144,8 @@ class SerializationInfoTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT(!si.isInt());
             CXXTOOLS_UNIT_ASSERT(!si.isUInt());
             CXXTOOLS_UNIT_ASSERT(!si.isFloat());
+            CXXTOOLS_UNIT_ASSERT(!si.isDouble());
+            CXXTOOLS_UNIT_ASSERT(!si.isLongDouble());
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<cxxtools::String>(si), cxxtools::String(L"42"));
             CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<std::string>(si), "42");
@@ -161,6 +167,8 @@ class SerializationInfoTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT(!si.isInt());
             CXXTOOLS_UNIT_ASSERT(!si.isUInt());
             CXXTOOLS_UNIT_ASSERT(!si.isFloat());
+            CXXTOOLS_UNIT_ASSERT(!si.isDouble());
+            CXXTOOLS_UNIT_ASSERT(!si.isLongDouble());
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<cxxtools::String>(si), cxxtools::String(L"7"));
             CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<std::string>(si), "7");
@@ -182,6 +190,8 @@ class SerializationInfoTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT(si.isInt());
             CXXTOOLS_UNIT_ASSERT(!si.isUInt());
             CXXTOOLS_UNIT_ASSERT(!si.isFloat());
+            CXXTOOLS_UNIT_ASSERT(!si.isDouble());
+            CXXTOOLS_UNIT_ASSERT(!si.isLongDouble());
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<cxxtools::String>(si), cxxtools::String(L"42"));
             CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<std::string>(si), "42");
@@ -203,6 +213,8 @@ class SerializationInfoTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT(!si.isInt());
             CXXTOOLS_UNIT_ASSERT(si.isUInt());
             CXXTOOLS_UNIT_ASSERT(!si.isFloat());
+            CXXTOOLS_UNIT_ASSERT(!si.isDouble());
+            CXXTOOLS_UNIT_ASSERT(!si.isLongDouble());
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<cxxtools::String>(si), cxxtools::String(L"42"));
             CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<std::string>(si), "42");
@@ -211,6 +223,29 @@ class SerializationInfoTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<bool>(si), true);
             CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<int>(si), 42);
             CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<double>(si), 42.0);
+        }
+
+        void testFloat()
+        {
+            cxxtools::SerializationInfo si;
+            si.setValue(static_cast<float>(48.0));
+
+            CXXTOOLS_UNIT_ASSERT(!si.isString());
+            CXXTOOLS_UNIT_ASSERT(!si.isString8());
+            CXXTOOLS_UNIT_ASSERT(!si.isChar());
+            CXXTOOLS_UNIT_ASSERT(!si.isInt());
+            CXXTOOLS_UNIT_ASSERT(!si.isUInt());
+            CXXTOOLS_UNIT_ASSERT(si.isFloat());
+            CXXTOOLS_UNIT_ASSERT(!si.isDouble());
+            CXXTOOLS_UNIT_ASSERT(!si.isLongDouble());
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::convert<float>(siValue<std::string>(si)), 48);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::convert<float>(siValue<cxxtools::String>(si)), 48);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<char>(si), 48);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<unsigned char>(si), static_cast<unsigned char>(48));
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<bool>(si), true);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<int>(si), 48);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<float>(si), 48.0);
         }
 
         void testDouble()
@@ -223,7 +258,9 @@ class SerializationInfoTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT(!si.isChar());
             CXXTOOLS_UNIT_ASSERT(!si.isInt());
             CXXTOOLS_UNIT_ASSERT(!si.isUInt());
-            CXXTOOLS_UNIT_ASSERT(si.isFloat());
+            CXXTOOLS_UNIT_ASSERT(!si.isFloat());
+            CXXTOOLS_UNIT_ASSERT(si.isDouble());
+            CXXTOOLS_UNIT_ASSERT(!si.isLongDouble());
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::convert<double>(siValue<std::string>(si)), 48);
             CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::convert<double>(siValue<cxxtools::String>(si)), 48);
@@ -232,6 +269,29 @@ class SerializationInfoTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<bool>(si), true);
             CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<int>(si), 48);
             CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<double>(si), 48.0);
+        }
+
+        void testLongDouble()
+        {
+            cxxtools::SerializationInfo si;
+            si.setValue(48.0l);
+
+            CXXTOOLS_UNIT_ASSERT(!si.isString());
+            CXXTOOLS_UNIT_ASSERT(!si.isString8());
+            CXXTOOLS_UNIT_ASSERT(!si.isChar());
+            CXXTOOLS_UNIT_ASSERT(!si.isInt());
+            CXXTOOLS_UNIT_ASSERT(!si.isUInt());
+            CXXTOOLS_UNIT_ASSERT(!si.isFloat());
+            CXXTOOLS_UNIT_ASSERT(!si.isDouble());
+            CXXTOOLS_UNIT_ASSERT(si.isLongDouble());
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::convert<long double>(siValue<std::string>(si)), 48);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::convert<long double>(siValue<cxxtools::String>(si)), 48);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<char>(si), 48);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<unsigned char>(si), static_cast<unsigned char>(48));
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<bool>(si), true);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<int>(si), 48);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<long double>(si), 48.0);
         }
 
         void testSiAssign()
@@ -362,7 +422,7 @@ class SerializationInfoTest : public cxxtools::unit::TestSuite
             si1.setValue(17);
             si2.setValue(1.5);
             si1.swap(si2);
-            CXXTOOLS_UNIT_ASSERT(si1.isFloat());
+            CXXTOOLS_UNIT_ASSERT(si1.isDouble());
             CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<double>(si1), 1.5);
             CXXTOOLS_UNIT_ASSERT(si2.isInt());
             CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<int>(si2), 17);
@@ -389,7 +449,7 @@ class SerializationInfoTest : public cxxtools::unit::TestSuite
             si1.setValue("Hi");
             si2.setValue(1.5);
             si1.swap(si2);
-            CXXTOOLS_UNIT_ASSERT(si1.isFloat());
+            CXXTOOLS_UNIT_ASSERT(si1.isDouble());
             CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<double>(si1), 1.5);
             CXXTOOLS_UNIT_ASSERT(si2.isString8());
             CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<std::string>(si2), "Hi");
@@ -416,7 +476,7 @@ class SerializationInfoTest : public cxxtools::unit::TestSuite
             si1.setValue(cxxtools::String("Hi"));
             si2.setValue(1.5);
             si1.swap(si2);
-            CXXTOOLS_UNIT_ASSERT(si1.isFloat());
+            CXXTOOLS_UNIT_ASSERT(si1.isDouble());
             CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<double>(si1), 1.5);
             CXXTOOLS_UNIT_ASSERT(si2.isString());
             CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<std::string>(si2), "Hi");
@@ -497,11 +557,11 @@ class SerializationInfoTest : public cxxtools::unit::TestSuite
 
             if (std::numeric_limits<long double>::max() > static_cast<long double>(std::numeric_limits<double>::max()))
             {
-                si.setValue(static_cast<long double>(std::numeric_limits<double>::max()) * 1.00000000001);
+                si.setValue(static_cast<long double>(std::numeric_limits<double>::max()) * 1.01);
                 CXXTOOLS_UNIT_ASSERT_THROW(siValue<double>(si), std::range_error);
                 CXXTOOLS_UNIT_ASSERT_NOTHROW(siValue<long double>(si));
 
-                si.setValue(static_cast<long double>(-std::numeric_limits<double>::max()) * 1.00000000001);
+                si.setValue(static_cast<long double>(-std::numeric_limits<double>::max()) * 1.01);
                 CXXTOOLS_UNIT_ASSERT_THROW(siValue<double>(si), std::range_error);
                 CXXTOOLS_UNIT_ASSERT_NOTHROW(siValue<long double>(si));
             }
@@ -512,11 +572,11 @@ class SerializationInfoTest : public cxxtools::unit::TestSuite
 
             if (std::numeric_limits<long double>::max() > static_cast<long double>(std::numeric_limits<float>::max()))
             {
-                si.setValue(static_cast<long double>(std::numeric_limits<float>::max()) * 1.00000000001);
+                si.setValue(static_cast<long double>(std::numeric_limits<float>::max()) * 1.01);
                 CXXTOOLS_UNIT_ASSERT_THROW(siValue<float>(si), std::range_error);
                 CXXTOOLS_UNIT_ASSERT_NOTHROW(siValue<double>(si));
 
-                si.setValue(static_cast<long double>(-std::numeric_limits<float>::max()) * 1.00000000001);
+                si.setValue(static_cast<long double>(-std::numeric_limits<float>::max()) * 1.01);
                 CXXTOOLS_UNIT_ASSERT_THROW(siValue<float>(si), std::range_error);
                 CXXTOOLS_UNIT_ASSERT_NOTHROW(siValue<double>(si));
             }

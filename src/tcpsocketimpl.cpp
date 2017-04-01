@@ -44,7 +44,7 @@
 #include <cxxtools/ioerror.h>
 #include <cxxtools/log.h>
 #include <cxxtools/join.h>
-#include <cxxtools/hdstream.h>
+#include <cxxtools/hexdump.h>
 #ifndef HAVE_INET_NTOP
 #include "cxxtools/mutex.h"
 #endif
@@ -536,7 +536,9 @@ void TcpSocketImpl::accept(const TcpServer& server, unsigned flags)
         throw SystemError("accept");
 
 #ifdef HAVE_ACCEPT4
-    IODeviceImpl::open(_fd, false, false);
+    // Pass inherit flag as "true" since this is the default.
+    // Otherwise `open` would set it although we have already set it with accept4
+    IODeviceImpl::open(_fd, false, true);
 #else
     bool inherit = (flags & TcpSocket::INHERIT) != 0;
     IODeviceImpl::open(_fd, true, inherit);
@@ -660,7 +662,7 @@ bool TcpSocketImpl::checkPollEvent(pollfd& pfd)
 size_t TcpSocketImpl::callSend(const char* buffer, size_t n)
 {
     log_debug("::send(" << _fd << ", buffer, " << n << ')');
-    log_finer(HexDump(buffer, n));
+    log_finer(hexDump(buffer, n));
 
 #if defined(HAVE_MSG_NOSIGNAL)
 
@@ -733,7 +735,7 @@ size_t TcpSocketImpl::beginWrite(const char* buffer, size_t n)
     else if (_state == SSLCONNECTED)
     {
         log_debug("SSL_write(" << _fd << ", buffer, " << n << ')');
-        log_finer(HexDump(buffer, n));
+        log_finer(hexDump(buffer, n));
 
         int ret = SSL_write(_ssl, buffer, n);
         log_debug("SSL_write returned " << ret);
@@ -765,7 +767,7 @@ size_t TcpSocketImpl::write(const char* buffer, size_t n)
                 break;
 
             if (errno != EAGAIN)
-                throw IOError(getErrnoString("Could not write to file handle"));
+                throw IOError(getErrnoString("send"));
 
             pollfd pfd;
             pfd.fd = _fd;
@@ -872,7 +874,7 @@ size_t TcpSocketImpl::read(char* buffer, size_t count, bool& eof)
             log_debug("SSL_read(" << _fd << ", " << count << ") returned " << ret);
             if (ret > 0)
             {
-                log_finer(HexDump(buffer, ret));
+                log_finer(hexDump(buffer, ret));
                 return ret;
             }
 
@@ -898,7 +900,7 @@ size_t TcpSocketImpl::read(char* buffer, size_t count, bool& eof)
 #endif
     else
     {
-        throw std::logic_error("Device not connected when trying to read");
+        throw IOError("socket not connected when trying to read");
     }
 }
 

@@ -56,6 +56,7 @@ nobase_include_HEADERS = \
         cxxtools/fileinfo.h \
         cxxtools/function.h \
         cxxtools/function.tpp \
+        cxxtools/hexdump.h \
         cxxtools/hdstream.h \
         cxxtools/hmac.h \
         cxxtools/http/client.h \
@@ -166,6 +167,8 @@ nobase_include_HEADERS = \
         cxxtools/slot.tpp \
         cxxtools/smartptr.h \
         cxxtools/sourceinfo.h \
+        cxxtools/stddevice.h \
+        cxxtools/stdstream.h \
         cxxtools/streambuffer.h \
         cxxtools/streamcounter.h \
         cxxtools/string.h \

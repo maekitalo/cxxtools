@@ -56,35 +56,11 @@ class PipeIODevice : public IODevice
         void onClose()
         { cancel(); _impl.close(); }
 
-        bool onWait(Timespan timeout);
-
-        size_t onBeginRead(char* buffer, size_t n, bool& eof);
-
-        size_t onEndRead(bool& eof);
-
-        size_t onRead(char* buffer, size_t count, bool& eof);
-
-        size_t onBeginWrite(const char* buffer, size_t n);
-
-        size_t onEndWrite();
-
-        size_t onWrite(const char* buffer, size_t count);
-
-        void onCancel();
-
-        void onSync() const;
-
         IODeviceImpl& ioimpl()
         { return _impl; }
 
         SelectableImpl& simpl()
         { return _impl; }
-
-        void onAttach(SelectorBase& s)
-        { _impl.attach(s); }
-
-        void onDetach(SelectorBase& s)
-        { _impl.detach(s); }
 
     private:
         IODeviceImpl _impl;

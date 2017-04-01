@@ -58,7 +58,7 @@ void greg2jul(unsigned& jd, int y, int m, int d)
 
 void jul2greg(unsigned jd, int& y, int& m, int& d)
 {
-  register int l,n,i,j;
+  int l,n,i,j;
   l=jd+68569;
   n=(4*l)/146097;
   l=l-(146097*n+3)/4;

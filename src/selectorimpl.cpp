@@ -35,7 +35,6 @@
 #include <cerrno>
 #include <unistd.h>
 #include <fcntl.h>
-#include <signal.h>
 #include <cassert>
 #include <iostream>
 #include <limits>
@@ -293,7 +292,7 @@ bool SelectorImpl::waitUntil(Timespan until)
     }
     catch (...)
     {
-        _current= _devices.end();
+        _current = _devices.end();
         throw;
     }
 
@@ -304,7 +303,6 @@ bool SelectorImpl::waitUntil(Timespan until)
 void SelectorImpl::wake()
 {
     ::write( _wakePipe[1], "W", 1);
-    ::fsync( _wakePipe[1] );
 }
 
 } //namespace cxxtools

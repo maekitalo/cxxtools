@@ -29,17 +29,16 @@
 #ifndef CXXTOOLS_JSON_RPCSERVERIMPL_H
 #define CXXTOOLS_JSON_RPCSERVERIMPL_H
 
-#include <map>
-#include <set>
-#include <vector>
-#include <cxxtools/noncopyable.h>
+#include <cxxtools/json/rpcserver.h>
 #include <cxxtools/event.h>
 #include <cxxtools/mutex.h>
 #include <cxxtools/condition.h>
 #include <cxxtools/queue.h>
 #include <cxxtools/signal.h>
 #include <cxxtools/connectable.h>
-#include <cxxtools/json/rpcserver.h>
+
+#include <set>
+#include <vector>
 
 namespace cxxtools
 {
@@ -62,8 +61,16 @@ namespace cxxtools
         class ThreadTerminatedEvent;
         class ActiveSocketEvent;
 
-        class RpcServerImpl : private NonCopyable, public Connectable
+        class RpcServerImpl : public Connectable
         {
+#if __cplusplus >= 201103L
+                RpcServerImpl(const RpcServerImpl&) = delete;
+                RpcServerImpl& operator=(const RpcServerImpl&) = delete;
+#else
+                RpcServerImpl(const RpcServerImpl&) { }
+                RpcServerImpl& operator=(const RpcServerImpl&) { return *this; }
+#endif
+
             public:
                 RpcServerImpl(EventLoopBase& eventLoop, Signal<RpcServer::Runmode>& runmodeChanged, ServiceRegistry& serviceRegistry);
 

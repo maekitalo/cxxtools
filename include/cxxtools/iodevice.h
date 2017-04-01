@@ -107,7 +107,8 @@ class IODevice : public Selectable
 
     public:
         //! @brief Destructor
-        virtual ~IODevice();
+        virtual ~IODevice()
+        { }
 
         void beginRead(char* buffer, size_t n);
 
@@ -212,6 +213,9 @@ class IODevice : public Selectable
         */
         bool async() const;
 
+        //! @brief Sets the timeout for blocking reads and writes.
+        void setTimeout(Milliseconds timeout);
+
         /** @brief Notifies about available data
 
             This signal is send when the IODevice is monitored
@@ -257,21 +261,23 @@ class IODevice : public Selectable
         //! @brief Default Constructor
         IODevice();
 
-        virtual size_t onBeginRead(char* buffer, size_t n, bool& eof) = 0;
+        virtual size_t onBeginRead(char* buffer, size_t n, bool& eof);
 
-        virtual size_t onEndRead(bool& eof) = 0;
+        virtual size_t onEndRead(bool& eof);
 
         //! @brief Read bytes from device
-        virtual size_t onRead(char* buffer, size_t count, bool& eof) = 0;
+        virtual size_t onRead(char* buffer, size_t count, bool& eof);
 
-        virtual size_t onBeginWrite(const char* buffer, size_t n) = 0;
+        virtual size_t onBeginWrite(const char* buffer, size_t n);
 
-        virtual size_t onEndWrite() = 0;
+        virtual size_t onEndWrite();
 
         //! @brief Write bytes to device
-        virtual size_t onWrite(const char* buffer, size_t count) = 0;
+        virtual size_t onWrite(const char* buffer, size_t count);
 
-        virtual void onCancel() = 0;
+        virtual void onClose();
+
+        virtual void onCancel();
 
         //! @brief Read data from I/O device without consuming them
         virtual size_t onPeek(char*, size_t)
@@ -281,13 +287,16 @@ class IODevice : public Selectable
         virtual bool onSeekable() const
         { return false; }
 
+        virtual void onAttach(SelectorBase&);
+
+        virtual void onDetach(SelectorBase&);
+
         //! @brief Move the next read position to the given offset
         virtual pos_type onSeek(off_type, std::ios::seekdir)
         { throw IOError("Could not seek on device."); }
 
         //! @brief Synchronize device
-        virtual void onSync() const
-        { }
+        virtual void onSync();
 
         //! @brief Returns the size of the device
         virtual size_t onSize() const
@@ -310,7 +319,6 @@ class IODevice : public Selectable
         const char* _wbuf;
         size_t _wbuflen;
         size_t _wavail;
-        void* _reserved;
 };
 
 } // namespace cxxtools

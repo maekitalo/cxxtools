@@ -33,7 +33,7 @@
 #include "cxxtools/xml/xmldeserializer.h"
 #include "cxxtools/xml/xml.h"
 #include "cxxtools/log.h"
-#include "cxxtools/hdstream.h"
+#include "cxxtools/hexdump.h"
 #include <limits>
 #include <stdint.h>
 #include <config.h>
@@ -340,7 +340,7 @@ class XmlSerializerTest : public cxxtools::unit::TestSuite
 
             data << cxxtools::xml::Xml(v, "v");
 
-            log_debug("v.data=" << cxxtools::hexDump(data.str()));
+            log_debug("v.data:\n" << cxxtools::hexDump(data.str()));
 
             std::string v2;
             data >> cxxtools::xml::Xml(v2);

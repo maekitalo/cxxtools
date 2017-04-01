@@ -190,12 +190,6 @@ StreamBuffer::int_type StreamBuffer::underflow()
 }
 
 
-std::streamsize StreamBuffer::showfull()
-{
-    return 0;
-}
-
-
 size_t StreamBuffer::beginWrite()
 {
     log_trace("beginWrite; out_avail=" << out_avail());

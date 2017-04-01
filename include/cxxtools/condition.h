@@ -28,7 +28,6 @@
 #ifndef CXXTOOLS_SYSTEM_CONDITION_H
 #define CXXTOOLS_SYSTEM_CONDITION_H
 
-#include <cxxtools/noncopyable.h>
 #include <cxxtools/mutex.h>
 #include <cxxtools/timespan.h>
 #include <cstddef>
@@ -47,8 +46,16 @@ namespace cxxtools {
         So this can be seen as some kind of wait queue where only the topmost
         is signaled. Automatic resets are signaled by a call to broadcast().
      */
-    class Condition : private NonCopyable
+    class Condition
     {
+#if __cplusplus >= 201103L
+            Condition(const Condition&) = delete;
+            Condition& operator=(const Condition&) = delete;
+#else
+            Condition(const Condition&) { }
+            Condition& operator=(const Condition&) { return *this; }
+#endif
+
         public:
             //! @brief Default Constructor.
             Condition();

@@ -171,6 +171,8 @@ class SerializationInfo
         void setTypeName(const std::string& type)
         {
             _type = type;
+            if (_category == Void)
+                _category = Object;
         }
 
         const std::string& name() const
@@ -207,8 +209,8 @@ class SerializationInfo
 #endif
 
         void setValue(float value)               { _setFloat(value); }
-        void setValue(double value)              { _setFloat(value); }
-        void setValue(long double value)         { _setFloat(value); }
+        void setValue(double value)              { _setDouble(value); }
+        void setValue(long double value)         { _setLongDouble(value); }
         void setNull();
 
         /** @brief Deserialization of flat data-types
@@ -244,11 +246,11 @@ class SerializationInfo
             { value = static_cast<unsigned long long>(_getUInt("unsigned long long", std::numeric_limits<unsigned long long>::max())); }
 #endif
         void getValue(float& value) const
-            { value = static_cast<float>(_getFloat("float", static_cast<long double>(std::numeric_limits<float>::max())*1.0000000000001)); }
+            { value = _getFloat(); }
         void getValue(double& value) const
-            { value = static_cast<double>(_getFloat("double", static_cast<long double>(std::numeric_limits<double>::max())*1.0000000000001)); }
+            { value = _getDouble(); }
         void getValue(long double& value) const
-            { value = static_cast<long double>(_getFloat("long double", std::numeric_limits<long double>::max())); }
+            { value = _getLongDouble(); }
 
         /** @brief Serialization of flat member data-types
         */
@@ -344,14 +346,16 @@ class SerializationInfo
 
         void swap(SerializationInfo& si);
 
-        bool isNull() const     { return _t == t_none && _category == Void; }
-        bool isString() const   { return _t == t_string; }
-        bool isString8() const  { return _t == t_string8; }
-        bool isChar() const     { return _t == t_char; }
-        bool isBool() const     { return _t == t_bool; }
-        bool isInt() const      { return _t == t_int; }
-        bool isUInt() const     { return _t == t_uint; }
-        bool isFloat() const    { return _t == t_float; }
+        bool isNull() const       { return _t == t_none && _category == Void; }
+        bool isString() const     { return _t == t_string; }
+        bool isString8() const    { return _t == t_string8; }
+        bool isChar() const       { return _t == t_char; }
+        bool isBool() const       { return _t == t_bool; }
+        bool isInt() const        { return _t == t_int; }
+        bool isUInt() const       { return _t == t_uint; }
+        bool isFloat() const      { return _t == t_float; }
+        bool isDouble() const     { return _t == t_double; }
+        bool isLongDouble() const { return _t == t_ldouble; }
 
         void dump(std::ostream& out, const std::string& prefix = std::string()) const;
 
@@ -368,14 +372,18 @@ class SerializationInfo
         void _setBool(bool value);
         void _setInt(int_type value);
         void _setUInt(unsigned_type value);
-        void _setFloat(long double value);
+        void _setFloat(float value);
+        void _setDouble(double value);
+        void _setLongDouble(long double value);
 
         bool _getBool() const;
         wchar_t _getWChar() const;
         char _getChar() const;
         int_type _getInt(const char* type, int_type min, int_type max) const;
         unsigned_type _getUInt(const char* type, unsigned_type max) const;
-        long double _getFloat(const char* type, long double max) const;
+        float _getFloat() const;
+        double _getDouble() const;
+        long double _getLongDouble() const;
         Nodes& nodes();
         const Nodes& nodes() const;
         // assignment without name
@@ -388,7 +396,9 @@ class SerializationInfo
             bool _b;
             int_type _i;
             unsigned_type _u;
-            long double _f;
+            float _f;
+            double _d;
+            long double _ld;
         } _u;
 
         String* _StringPtr()                    { return reinterpret_cast<String*>(&_u); }
@@ -409,7 +419,9 @@ class SerializationInfo
           t_bool,
           t_int,
           t_uint,
-          t_float
+          t_float,
+          t_double,
+          t_ldouble
         } _t;
 
         Nodes* _nodes;             // objects/arrays
@@ -605,7 +617,7 @@ inline void operator >>=(const SerializationInfo& si, float& n)
 inline void operator <<=(SerializationInfo& si, float n)
 {
     si.setValue(n);
-    si.setTypeName("double");
+    si.setTypeName("float");
 }
 
 
@@ -616,6 +628,19 @@ inline void operator >>=(const SerializationInfo& si, double& n)
 
 
 inline void operator <<=(SerializationInfo& si, double n)
+{
+    si.setValue(n);
+    si.setTypeName("double");
+}
+
+
+inline void operator >>=(const SerializationInfo& si, long double& n)
+{
+    si.getValue(n);
+}
+
+
+inline void operator <<=(SerializationInfo& si, long double n)
 {
     si.setValue(n);
     si.setTypeName("double");
