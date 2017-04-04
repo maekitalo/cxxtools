@@ -76,6 +76,12 @@ namespace cxxtools
                                   unsigned_type value);
 
             virtual void addValueFloat(const std::string& name, const std::string& type,
+                                  float value);
+
+            virtual void addValueDouble(const std::string& name, const std::string& type,
+                                  double value);
+
+            virtual void addValueLongDouble(const std::string& name, const std::string& type,
                                   long double value);
 
             virtual void addNull(const std::string& name, const std::string& type);

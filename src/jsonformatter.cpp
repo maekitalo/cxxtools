@@ -196,9 +196,51 @@ void JsonFormatter::addValueUnsigned(const std::string& name, const std::string&
 }
 
 void JsonFormatter::addValueFloat(const std::string& name, const std::string& type,
-                      long double value)
+                      float value)
 {
     log_trace("addValueFloat name=\"" << name << "\", type=\"" << type << "\", \" value=" << value);
+
+    beginValue(name);
+
+    if (value != value  // check for nan
+        || value == std::numeric_limits<float>::infinity()
+        || value == -std::numeric_limits<float>::infinity())
+    {
+        *_ts << L"null";
+    }
+    else
+    {
+        *_ts << convert<String>(value);
+    }
+
+    finishValue();
+}
+
+void JsonFormatter::addValueDouble(const std::string& name, const std::string& type,
+                      double value)
+{
+    log_trace("addValueDouble name=\"" << name << "\", type=\"" << type << "\", \" value=" << value);
+
+    beginValue(name);
+
+    if (value != value  // check for nan
+        || value == std::numeric_limits<double>::infinity()
+        || value == -std::numeric_limits<double>::infinity())
+    {
+        *_ts << L"null";
+    }
+    else
+    {
+        *_ts << convert<String>(value);
+    }
+
+    finishValue();
+}
+
+void JsonFormatter::addValueLongDouble(const std::string& name, const std::string& type,
+                      long double value)
+{
+    log_trace("addValueLongDouble name=\"" << name << "\", type=\"" << type << "\", \" value=" << value);
 
     beginValue(name);
 
