@@ -809,6 +809,8 @@ float SerializationInfo::_getFloat() const
                 msg << "value " << _u._d << " does not fit into float";
                 throw std::range_error(msg.str());
             }
+            else
+                ret = static_cast<float>(_u._d);
             break;
 
         case t_ldouble:
@@ -825,6 +827,8 @@ float SerializationInfo::_getFloat() const
                 msg << "value " << _u._ld << " does not fit into float";
                 throw std::range_error(msg.str());
             }
+            else
+                ret = static_cast<float>(_u._ld);
             break;
     }
 
@@ -880,6 +884,8 @@ double SerializationInfo::_getDouble() const
                 msg << "value " << _u._ld << " does not fit into double";
                 throw std::range_error(msg.str());
             }
+            else
+                ret = static_cast<double>(_u._ld);
             break;
     }
 
