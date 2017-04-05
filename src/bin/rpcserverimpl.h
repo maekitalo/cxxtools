@@ -67,8 +67,8 @@ namespace cxxtools
                 RpcServerImpl(const RpcServerImpl&) = delete;
                 RpcServerImpl& operator=(const RpcServerImpl&) = delete;
 #else
-                RpcServerImpl(const RpcServerImpl&) { }
-                RpcServerImpl& operator=(const RpcServerImpl&) { return *this; }
+                RpcServerImpl(const RpcServerImpl&);
+                RpcServerImpl& operator=(const RpcServerImpl&);
 #endif
 
             public:

@@ -32,6 +32,7 @@
 
 int main(int argc, char* argv[])
 {
+#if __cplusplus >= 201103L
     try
     {
         cxxtools::xml::XmlWriter w(std::cout);
@@ -130,5 +131,8 @@ int main(int argc, char* argv[])
     {
         std::cerr << e.what() << std::endl;
     }
+#else
+    std::cerr << "this demo needs C++11" << std::endl;
+#endif
 }
 

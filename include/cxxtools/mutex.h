@@ -126,8 +126,8 @@ class MutexLock
         MutexLock(const MutexLock&) = delete;
         MutexLock& operator=(const MutexLock&) = delete;
 #else
-        MutexLock(const MutexLock&) { }
-        MutexLock& operator=(const MutexLock&) { return *this; }
+        MutexLock(const MutexLock&);
+        MutexLock& operator=(const MutexLock&);
 #endif
     public:
         /** @brief Construct to guard a %Mutex
@@ -226,8 +226,8 @@ class RecursiveLock
         RecursiveLock(const RecursiveLock&) = delete;
         RecursiveLock& operator=(const RecursiveLock&) = delete;
 #else
-        RecursiveLock(const RecursiveLock&) { }
-        RecursiveLock& operator=(const RecursiveLock&) { return *this; }
+        RecursiveLock(const RecursiveLock&);
+        RecursiveLock& operator=(const RecursiveLock&);
 #endif
 
     public:
@@ -347,8 +347,8 @@ class ReadLock
         ReadLock(const ReadLock&) = delete;
         ReadLock& operator=(const ReadLock&) = delete;
 #else
-        ReadLock(const ReadLock&) { }
-        ReadLock& operator=(const ReadLock&) { return *this; }
+        ReadLock(const ReadLock&);
+        ReadLock& operator=(const ReadLock&);
 #endif
 
     public:
@@ -399,7 +399,7 @@ class WriteLock
         WriteLock(const WriteLock&) = delete;
         WriteLock& operator=(const WriteLock&) = delete;
 #else
-        WriteLock(const WriteLock&) { }
+        WriteLock(const WriteLock&);
         WriteLock& operator=(const WriteLock&) { return *this; }
 #endif
     public:
@@ -522,8 +522,8 @@ class SpinLock
         SpinLock(const SpinLock&) = delete;
         SpinLock& operator=(const SpinLock&) = delete;
 #else
-        SpinLock(const SpinLock&) { }
-        SpinLock& operator=(const SpinLock&) { return *this; }
+        SpinLock(const SpinLock&);
+        SpinLock& operator=(const SpinLock&);
 #endif
 
     public:

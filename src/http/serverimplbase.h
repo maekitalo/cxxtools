@@ -47,8 +47,8 @@ class ServerImplBase
         ServerImplBase(const ServerImplBase&) = delete;
         ServerImplBase& operator=(const ServerImplBase&) = delete;
 #else
-        ServerImplBase(const ServerImplBase&) { }
-        ServerImplBase& operator=(const ServerImplBase&) { return *this; }
+        ServerImplBase(const ServerImplBase&);
+        ServerImplBase& operator=(const ServerImplBase&);
 #endif
 
     public:
