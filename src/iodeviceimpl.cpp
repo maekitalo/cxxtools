@@ -137,7 +137,10 @@ void IODeviceImpl::open(int fd, bool isAsync, bool inherit)
 
 void IODeviceImpl::close()
 {
-    log_debug("close device; fd=" << _fd << " pfd=" << _pfd);
+    log_debug("close device; fd=" << _fd << " pfd=" << _pfd << " revents=" << _pfd->revents);
+
+    if (_pfd)
+        _pfd->revents = 0;
 
     if(_fd != -1)
     {
@@ -419,7 +422,7 @@ bool IODeviceImpl::checkPollEvent()
 
 bool IODeviceImpl::checkPollEvent(pollfd& pfd)
 {
-    log_trace("checkPollEvent");
+    log_trace("checkPollEvent " << pfd.revents);
 
     bool avail = false;
 
