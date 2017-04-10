@@ -137,7 +137,7 @@ void IODeviceImpl::open(int fd, bool isAsync, bool inherit)
 
 void IODeviceImpl::close()
 {
-    log_debug("close device; fd=" << _fd << " pfd=" << _pfd << " revents=" << _pfd->revents);
+    log_debug("close device; fd=" << _fd << " pfd=" << _pfd);
 
     if (_pfd)
         _pfd->revents = 0;
