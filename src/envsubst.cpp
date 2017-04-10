@@ -230,7 +230,7 @@ std::string envSubst(const std::string& str)
     }
   } ev;
 
-  log_debug("envSubst(\"" << str << '"');
+  log_debug("envSubst(\"" << str << "\")");
 
   try
   {
