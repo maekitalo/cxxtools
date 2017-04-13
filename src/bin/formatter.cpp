@@ -686,7 +686,7 @@ void Formatter::beginArray(const std::string& name, const std::string& type)
 
     sb->sputc(static_cast<char>(Serializer::CategoryArray));
     outputString(name);
-    printTypeCode(type, name.empty());
+    printTypeCode(type, true);
 }
 
 void Formatter::finishArray()
