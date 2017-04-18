@@ -43,7 +43,10 @@ void Deserializer::read(std::istream& in)
     std::streambuf::int_type ch;
     while ((ch = in.rdbuf()->sbumpc()) != std::streambuf::traits_type::eof())
         if (_parser.advance(ch) == true)
+        {
+            _parser.finish();
             return;
+        }
 
     in.setstate(std::ios::eofbit);
     SerializationError::doThrow("binary deserialization failed");
@@ -53,6 +56,17 @@ void Deserializer::begin()
 {
     cxxtools::Deserializer::begin();
     _parser.begin(*this);
+}
+
+bool Deserializer::advance(char ch)
+{
+    if (_parser.advance(ch))
+    {
+        _parser.finish();
+        return true;
+    }
+    else
+        return false;
 }
 
 }

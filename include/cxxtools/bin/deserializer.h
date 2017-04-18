@@ -58,8 +58,7 @@ namespace bin
 
             /// Process one more character.
             /// Returns  true, if the characters indicates the end of data.
-            bool advance(char ch)
-            { return _parser.advance(ch); }
+            bool advance(char ch);
 
             /// Rest of input is parsed but do not process any data.
             void skip()
