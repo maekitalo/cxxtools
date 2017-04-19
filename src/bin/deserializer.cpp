@@ -38,7 +38,6 @@ namespace bin
 void Deserializer::read(std::istream& in)
 {
     begin();
-    _parser.begin(*this);
 
     std::streambuf::int_type ch;
     while ((ch = in.rdbuf()->sbumpc()) != std::streambuf::traits_type::eof())
@@ -52,21 +51,10 @@ void Deserializer::read(std::istream& in)
     SerializationError::doThrow("binary deserialization failed");
 }
 
-void Deserializer::begin()
+void Deserializer::begin(bool resetDictionary)
 {
     cxxtools::Deserializer::begin();
-    _parser.begin(*this);
-}
-
-bool Deserializer::advance(char ch)
-{
-    if (_parser.advance(ch))
-    {
-        _parser.finish();
-        return true;
-    }
-    else
-        return false;
+    _parser.begin(*this, resetDictionary);
 }
 
 }

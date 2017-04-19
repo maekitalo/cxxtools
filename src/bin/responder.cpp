@@ -183,7 +183,7 @@ bool Responder::advance(char ch)
                 }
                 else
                 {
-                    _deserializer.begin();
+                    _deserializer.begin(false);
                     _deserializer.advance(ch);
                     _state = state_param;
                 }
@@ -208,7 +208,6 @@ bool Responder::advance(char ch)
                 try
                 {
                     (*_args)->fixup(_deserializer.si());
-                    _deserializer.begin();
                     ++_args;
                     _state = state_params;
                 }

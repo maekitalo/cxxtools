@@ -114,7 +114,7 @@ namespace
     static const char bcdDigits[16] = "0123456789+-. e";
 }
 
-void Parser::begin(Deserializer& handler)
+void Parser::begin(Deserializer& handler, bool resetDictionary)
 {
     _deserializer = &handler;
     _state = state_type;
@@ -124,6 +124,9 @@ void Parser::begin(Deserializer& handler)
     _token.clear();
     delete _next;
     _next = 0;
+
+    if (resetDictionary)
+        _mydictionary.clear();
 }
 
 void Parser::finish()
@@ -132,7 +135,6 @@ void Parser::finish()
     _token.clear();
     delete _next;
     _next = 0;
-    _mydictionary.clear();
 }
 
 void Parser::skip()

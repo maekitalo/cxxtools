@@ -68,7 +68,7 @@ class Parser
             delete _next;
         }
 
-        void begin(Deserializer& handler);
+        void begin(Deserializer& handler, bool resetDictionary = true);
 
         void finish();
 

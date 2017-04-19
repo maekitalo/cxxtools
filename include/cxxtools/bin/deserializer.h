@@ -54,11 +54,12 @@ namespace bin
             void read(std::istream& in);
 
             /// Initialize the binary deserializer to receive data.
-            void begin();
+            void begin(bool resetDictionary = true);
 
             /// Process one more character.
             /// Returns  true, if the characters indicates the end of data.
-            bool advance(char ch);
+            bool advance(char ch)
+            { return _parser.advance(ch); }
 
             /// Rest of input is parsed but do not process any data.
             void skip()
