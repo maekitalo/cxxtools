@@ -29,8 +29,12 @@
 #include "cxxtools/unit/testsuite.h"
 #include "cxxtools/unit/registertest.h"
 #include "cxxtools/query_params.h"
+#include "cxxtools/serializationinfo.h"
+#include "cxxtools/log.h"
 #include <vector>
 #include <iterator>
+
+log_define("cxxtools.test.queryparams")
 
 class QueryParamsTest : public cxxtools::unit::TestSuite
 {
@@ -49,6 +53,7 @@ class QueryParamsTest : public cxxtools::unit::TestSuite
             registerMethod("testIterator", *this, &QueryParamsTest::testIterator);
             registerMethod("testGetUrl", *this, &QueryParamsTest::testGetUrl);
             registerMethod("testGetNames", *this, &QueryParamsTest::testGetNames);
+            registerMethod("testDeserialization", *this, &QueryParamsTest::testDeserialization);
         }
 
         void testQueryParams()
@@ -222,6 +227,69 @@ class QueryParamsTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(names[2], "");
         }
 
+        void testDeserialization();
 };
 
 cxxtools::unit::RegisterTest<QueryParamsTest> register_QueryParamsTest;
+
+// helper classes for deserialization
+
+namespace
+{
+    struct Columns
+    {
+        std::string name;
+        std::string value;
+    };
+
+    struct TableQuery
+    {
+        bool draw;
+        std::vector<Columns> columns;
+        unsigned start;
+
+        TableQuery() : draw(false), start(0) { }
+    };
+
+    void operator>>= (const cxxtools::SerializationInfo& si, Columns& column)
+    {
+        si.getMember("name") >>= column.name;
+        si.getMember("value") >>= column.value;
+    }
+
+    void operator>>= (const cxxtools::SerializationInfo& si, TableQuery& query)
+    {
+        si.getMember("draw") >>= query.draw;
+        si.getMember("columns") >>= query.columns;
+        si.getMember("start") >>= query.start;
+    }
+
+}
+
+void QueryParamsTest::testDeserialization()
+{
+    cxxtools::QueryParams qp;
+    qp.add("draw", "1");
+    qp.add("columns[0][name]", "somename");
+    qp.add("columns[0][value]", "somevalue");
+    qp.add("columns[1][name]", "othername");
+    qp.add("columns[1][value]", "othervalue");
+    qp.add("start", "42");
+
+    cxxtools::SerializationInfo si;
+    si <<= qp;
+    CXXTOOLS_UNIT_ASSERT_EQUALS(si.memberCount(), 3);
+    CXXTOOLS_UNIT_ASSERT(si.findMember("draw") != 0);
+    CXXTOOLS_UNIT_ASSERT(si.findMember("columns") != 0);
+    CXXTOOLS_UNIT_ASSERT(si.findMember("start") != 0);
+
+    TableQuery query;
+    si >>= query;
+    CXXTOOLS_UNIT_ASSERT(query.draw);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(query.columns.size(), 2);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(query.columns[0].name, "somename");
+    CXXTOOLS_UNIT_ASSERT_EQUALS(query.columns[0].value, "somevalue");
+    CXXTOOLS_UNIT_ASSERT_EQUALS(query.columns[1].name, "othername");
+    CXXTOOLS_UNIT_ASSERT_EQUALS(query.columns[1].value, "othervalue");
+    CXXTOOLS_UNIT_ASSERT_EQUALS(query.start, 42);
+}

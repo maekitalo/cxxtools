@@ -27,6 +27,8 @@
  */
 
 #include "cxxtools/query_params.h"
+#include "cxxtools/serializationinfo.h"
+#include "cxxtools/serializationerror.h"
 #include <iterator>
 #include <iostream>
 #include <stdlib.h>
@@ -393,6 +395,61 @@ std::string QueryParams::getUrl() const
   }
 
   return url;
+}
+
+void operator<<= (cxxtools::SerializationInfo& si, const QueryParams& q)
+{
+    for (QueryParams::values_type::const_iterator it = q._values.begin(); it != q._values.end(); ++it)
+    {
+        enum {
+            state_0,
+            state_key,
+            state_keyend
+        } state = state_0;
+
+        std::string nodename;
+
+        cxxtools::SerializationInfo* current = &si;
+        for (unsigned n = 0; n < it->name.size(); ++n)
+        {
+            char ch = it->name[n];
+            switch (state)
+            {
+                case state_0:
+                    if (ch == '[')
+                    {
+                        cxxtools::SerializationInfo* p = current->findMember(nodename);
+                        current = p ? p : &current->addMember(nodename);
+                        nodename.clear();
+                        state = state_key;
+                    }
+                    else
+                        nodename += ch;
+                    break;
+
+                case state_key:
+                    if (ch == ']')
+                        state = state_keyend;
+                    else
+                        nodename += ch;
+                    break;
+
+                case state_keyend:
+                    if (ch == '[')
+                    {
+                        cxxtools::SerializationInfo* p = current->findMember(nodename);
+                        current = p ? p : &current->addMember(nodename);
+                        nodename.clear();
+                        state = state_key;
+                    }
+                    else
+                        SerializationError::doThrow("'[' expected in query parameters");
+                    break;
+            }
+        }
+
+        current->addMember(nodename) <<= it->value;
+    }
 }
 
 }
