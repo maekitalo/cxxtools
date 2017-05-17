@@ -515,7 +515,9 @@ void TcpSocketImpl::endConnect()
                 _connectFailedMessages.clear();
                 return;
             }
-            checkPendingError();
+
+            if (!_connectResult.empty())
+                checkPendingError();
         }
     }
     catch(...)
