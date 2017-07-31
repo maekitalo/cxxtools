@@ -353,6 +353,7 @@ int TcpSocketImpl::checkConnect()
     if (sockerr == 0)
     {
         log_debug("connected successfully to " << getPeerAddr());
+        _connectFailedMessages.clear();
         _state = CONNECTED;
     }
 
@@ -613,10 +614,11 @@ bool TcpSocketImpl::checkPollEvent(pollfd& pfd)
             close();
             _connectResult = tryConnect();
 
-            if (_state == CONNECTED || !_connectFailedMessages.empty())
+            if (_state == CONNECTED || !_connectResult.empty())
             {
                 // immediate success or error
-                log_debug("connected successfully");
+                log_debug_if(_state == CONNECTED, "connected successfully");
+                log_debug_if(!_connectResult.empty(), "connection failed: " << _connectResult);
                 _socket.connected(_socket);
             }
             else

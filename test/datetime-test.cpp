@@ -77,6 +77,10 @@ class DateTimeTest : public cxxtools::unit::TestSuite
             dt2 = dt1 + cxxtools::Days(3);
             CXXTOOLS_UNIT_ASSERT(dt2 == cxxtools::DateTime(2012, 3, 2, 1, 2, 3));
 
+            dt1 = cxxtools::DateTime(2012, 2, 20, 10, 0, 0);
+            dt2 = dt1 + cxxtools::Hours(14);
+            CXXTOOLS_UNIT_ASSERT(dt2 == cxxtools::DateTime(2012, 2, 21, 0, 0, 0));
+
         }
 
         void fromString()

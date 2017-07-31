@@ -132,34 +132,57 @@ void RpcClientImpl::endCall()
 
 void RpcClientImpl::call(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc)
 {
-    _proc = &method;
-
-    prepareRequest(_proc->name(), argv, argc);
-
-    if (!_socket.isConnected())
-    {
-        _socket.setTimeout(_connectTimeout);
-        _socket.connect(_addrInfo);
-        if (_ssl)
-            _socket.sslConnect();
-    }
-
-    _socket.setTimeout(timeout());
-
     try
     {
-        _stream.flush();
+        _proc = &method;
+        StreamBuffer& sb = _stream.buffer();
+
+        if (_socket.isConnected())
+        {
+            log_debug("socket is connected");
+
+            try
+            {
+                prepareRequest(_proc->name(), argv, argc);
+                _socket.setTimeout(timeout());
+                sb.pubsync();
+
+                // try to read from socket to check if still connected
+                // sgetc fills the input buffer but do not consume the character
+                int ch = sb.sgetc();
+                if (ch == StreamBuffer::traits_type::eof())
+                {
+                    log_debug("reading failed");
+                    _socket.close();
+                }
+            }
+            catch (const std::exception& e)
+            {
+                log_debug("request failed: " << e.what());
+                _socket.close();
+            }
+        }
+
+        if (!_socket.isConnected())
+        {
+            log_debug("socket is not connected");
+            _socket.setTimeout(_connectTimeout);
+            _socket.connect(_addrInfo);
+            if (_ssl)
+                _socket.sslConnect();
+
+            prepareRequest(_proc->name(), argv, argc);
+            _socket.setTimeout(timeout());
+            sb.pubsync();
+        }
 
         _scanner.begin(_deserializer, r);
-
-        StreamBuffer& sb = _stream.buffer();
 
         while (true)
         {
             int ch = sb.sbumpc();
             if (ch == StreamBuffer::traits_type::eof())
             {
-                _proc = 0;
                 cancel();
                 throw std::runtime_error("reading result failed");
             }
@@ -174,6 +197,7 @@ void RpcClientImpl::call(IComposer& r, IRemoteProcedure& method, IDecomposer** a
     }
     catch (const RemoteException&)
     {
+        _proc = 0;
         throw;
     }
     catch (const std::exception& e)

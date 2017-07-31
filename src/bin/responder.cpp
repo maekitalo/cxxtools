@@ -105,6 +105,7 @@ bool Responder::onInput(IOStream& ios)
             _state = state_0;
             _failed = false;
             _errorMessage.clear();
+            _deserializer.begin();
 
             return true;
         }
