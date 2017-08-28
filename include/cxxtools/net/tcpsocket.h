@@ -101,6 +101,21 @@ class TcpSocket : public IODevice
 
         void loadSslCertificateFile(const std::string& certFile, const std::string& privateKeyFile = std::string());
 
+        /** Enables client ssl certificate check for server mode.
+         *
+         *  Level 0 disables client certificate checking, which is the default.
+         *  Level 1 verify client certificate but accept if not valid (use
+         *          getSslPeerCertificate for further checking).
+         *  Level 2 verify client certificate and deny connection if not valid
+         *
+         *  A `ca` must be given if `level` > 0. It specifies the certification
+         *  authority file or directory of accepted client certificates.
+         */
+        void setSslVerify(int level, const std::string& ca = std::string());
+
+        std::string getSslPeerSubject() const;
+        std::string getSslPeerIssuer() const;
+
         /// initiates a ssl connection on the socket
         void beginSslConnect();
         void endSslConnect();

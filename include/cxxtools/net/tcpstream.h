@@ -135,6 +135,18 @@ namespace net
             int getFd() const
             { return _socket.getFd(); }
 
+            void loadSslCertificateFile(const std::string& certFile, const std::string& privateKeyFile = std::string())
+            { _socket.loadSslCertificateFile(certFile, privateKeyFile); }
+
+            void setSslVerify(int level, const std::string& ca = std::string())
+            { _socket.setSslVerify(level, ca); }
+
+            std::string getSslPeerSubject() const
+            { return _socket.getSslPeerSubject(); }
+
+            std::string getSslPeerIssuer() const
+            { return _socket.getSslPeerIssuer(); }
+
             // initiates a ssl connection on the socket
             void sslConnect()
             { _socket.sslConnect(); }

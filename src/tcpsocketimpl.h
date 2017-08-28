@@ -169,6 +169,9 @@ class TcpSocketImpl : public IODeviceImpl
 
 #ifdef WITH_SSL
         void loadSslCertificateFile(const std::string& certFile, const std::string& privateKeyFile);
+        void setSslVerify(int level, const std::string& ca);
+        std::string getSslPeerSubject() const;
+        std::string getSslPeerIssuer() const;
 
         // initiates a ssl connection on the socket
         bool beginSslConnect();

@@ -46,6 +46,8 @@ int main(int argc, char* argv[])
     cxxtools::Arg<bool> listen(argc, argv, 'l');
     cxxtools::Arg<bool> read_reply(argc, argv, 'r');
     cxxtools::Arg<bool> ssl(argc, argv, 's');
+    cxxtools::Arg<std::string> cert(argc, argv, "--cert");
+    cxxtools::Arg<std::string> ca(argc, argv, "--CA");
 
     if (listen)
     {
@@ -58,7 +60,13 @@ int main(int argc, char* argv[])
       cxxtools::net::TcpStream worker(server, bufsize);
 
       if (ssl)
+      {
+          if (cert.isSet())
+              worker.loadSslCertificateFile(cert);
+          if (ca.isSet())
+              worker.setSslVerify(2, ca);
           worker.sslAccept();
+      }
 
       // copy to stdout
       std::cout << worker.rdbuf();
@@ -71,7 +79,11 @@ int main(int argc, char* argv[])
       cxxtools::net::TcpStream peer(ip, port, bufsize);
 
       if (ssl)
+      {
+          if (cert.isSet())
+              peer.loadSslCertificateFile(cert);
           peer.sslConnect();
+      }
 
       if (argc > 1)
       {

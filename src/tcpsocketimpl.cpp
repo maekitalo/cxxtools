@@ -45,9 +45,8 @@
 #include <cxxtools/log.h>
 #include <cxxtools/join.h>
 #include <cxxtools/hexdump.h>
-#ifndef HAVE_INET_NTOP
+#include <cxxtools/fileinfo.h>
 #include "cxxtools/mutex.h"
-#endif
 
 #include "config.h"
 #include "error.h"
@@ -251,6 +250,9 @@ void TcpSocketImpl::waitSslOperation(int ret)
 
 void TcpSocketImpl::initSsl()
 {
+    if (_ssl)
+        return;
+
     {
         MutexLock lock(_sslMutex);
         if (!_sslCtx)
@@ -931,6 +933,72 @@ void TcpSocketImpl::loadSslCertificateFile(const std::string& certFile, const st
         throw SslError("private key does not match the certificate public key", 0);
 
     log_debug("private key ok");
+}
+
+void TcpSocketImpl::setSslVerify(int level, const std::string& ca)
+{
+    cxxtools::FileInfo fileInfo(ca);
+
+    initSsl();
+
+    STACK_OF(X509_NAME)* names = SSL_load_client_CA_file(ca.c_str());
+    log_debug("SSL_load_client_CA_file => " << names << " (" << sk_X509_NAME_num(names) << ')');
+
+    log_debug("SSL_CTX_set_client_CA_list");
+    SSL_CTX_set_client_CA_list(_sslCtx, names);
+
+    log_debug("set ssl verify level " << level);
+    SSL_set_verify(
+        _ssl,
+        level == 0 ? SSL_VERIFY_NONE :
+        level == 1 ? (SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE) :
+                     (SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT | SSL_VERIFY_CLIENT_ONCE),
+        0);
+
+    log_debug_if(fileInfo.isFile(), "load verify locations file \"" << ca << '"');
+    log_debug_if(fileInfo.isDirectory(), "load verify locations directory \"" << ca << '"');
+    int ret = SSL_CTX_load_verify_locations(_sslCtx,
+        fileInfo.isFile()      ? ca.c_str() : 0,
+        fileInfo.isDirectory() ? ca.c_str() : 0);
+
+    if (ret == 0)
+        checkSslError();
+}
+
+std::string TcpSocketImpl::getSslPeerSubject() const
+{
+    if (!_ssl)
+        return std::string();
+
+    X509* cert = SSL_get_peer_certificate(_ssl);
+    if (!cert)
+        return std::string();
+
+    char buffer[512];
+    char *subj = X509_NAME_oneline(X509_get_subject_name(cert), buffer, sizeof(buffer));
+
+    if (!subj)
+        return std::string();
+
+    return subj;
+}
+
+std::string TcpSocketImpl::getSslPeerIssuer() const
+{
+    if (!_ssl)
+        return std::string();
+
+    X509* cert = SSL_get_peer_certificate(_ssl);
+    if (!cert)
+        return std::string();
+
+    char buffer[512];
+    char *subj = X509_NAME_oneline(X509_get_issuer_name(cert), buffer, sizeof(buffer));
+
+    if (!subj)
+        return std::string();
+
+    return subj;
 }
 
 bool TcpSocketImpl::beginSslConnect()

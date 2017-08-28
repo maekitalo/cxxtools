@@ -193,6 +193,35 @@ void TcpSocket::loadSslCertificateFile(const std::string& certFile, const std::s
 #endif
 }
 
+void TcpSocket::setSslVerify(int level, const std::string& ca)
+{
+#ifdef WITH_SSL
+    _impl->setSslVerify(level, ca);
+#else
+    log_warn("can't set ssl verify level since ssl is disabled");
+#endif
+}
+
+std::string TcpSocket::getSslPeerSubject() const
+{
+#ifdef WITH_SSL
+    return _impl->getSslPeerSubject();
+#else
+    log_warn("can't get ssl peer subject since ssl is disabled");
+    return std::string();
+#endif
+}
+
+std::string TcpSocket::getSslPeerIssuer() const
+{
+#ifdef WITH_SSL
+    return _impl->getSslPeerIssuer();
+#else
+    log_warn("can't get ssl peer issuer since ssl is disabled");
+    return std::string();
+#endif
+}
+
 void TcpSocket::beginSslConnect()
 {
 #ifdef WITH_SSL
