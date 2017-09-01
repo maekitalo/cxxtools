@@ -33,6 +33,20 @@
 
 namespace cxxtools
 {
+namespace
+{
+    struct EvPtr
+    {
+        Event* ev;
+        explicit EvPtr(Event* ev_)
+            : ev(ev_)
+        { }
+
+        ~EvPtr()
+        { if (ev) ev->destroy(); }
+
+    };
+}
 
 class EventLoop::Impl
 {
@@ -217,25 +231,18 @@ void EventLoop::onExit()
     this->wake();
 }
 
-
 void EventLoop::onQueueEvent(const Event& ev, bool priority)
 {
     RecursiveLock lock( _impl->_queueMutex );
 
-    Event* clonedEvent = ev.clone();
+    EvPtr cloned(ev.clone());
 
-    try
-    {
-        if (priority)
-            _impl->_priorityEventQueue.push_back(clonedEvent);
-        else
-            _impl->_eventQueue.push_back(clonedEvent);
-    }
-    catch(...)
-    {
-        clonedEvent->destroy();
-        throw;
-    }
+    if (priority)
+        _impl->_priorityEventQueue.push_back(cloned.ev);
+    else
+        _impl->_eventQueue.push_back(cloned.ev);
+
+    cloned.ev = 0;
 }
 
 
@@ -257,21 +264,11 @@ void EventLoop::onProcessEvents(unsigned max)
         if (_impl->eventQueueEmpty() || _impl->_exitLoop)
             break;
 
-        Event* ev = _impl->front();
+        EvPtr ev(_impl->front());
         _impl->pop_front();
 
-        try
-        {
-            lock.unlock();
-            event.send(*ev);
-        }
-        catch(...)
-        {
-            ev->destroy();
-            throw;
-        }
-
-        ev->destroy();
+        lock.unlock();
+        event.send(*ev.ev);
 
         ++count;
         if (max != 0 && count >= max)
