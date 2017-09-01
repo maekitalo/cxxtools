@@ -32,6 +32,7 @@
 #include <cxxtools/serializationerror.h>
 #include <cxxtools/log.h>
 
+#include <streambuf>
 #include <sstream>
 #include <math.h>
 
@@ -147,442 +148,514 @@ void Parser::skip()
 }
 
 
-bool Parser::advance(char ch)
+bool Parser::advance(std::streambuf& in)
 {
-    log_finest(static_cast<void*>(this) << " advance " << std::hex << static_cast<unsigned>(static_cast<unsigned char>(ch)) << std::dec << " state " << _state << " nextstate " << _nextstate);
-    switch (_state)
+    while (in.in_avail())
     {
-        case state_type:
-            {
-                Serializer::TypeCode tc = static_cast<Serializer::TypeCode>(static_cast<unsigned char>(ch));
-                if (tc == Serializer::CategoryObject)
+        char ch = std::streambuf::traits_type::to_char_type(in.sgetc());
+
+        log_finest(static_cast<void*>(this) << " advance " << std::hex << static_cast<unsigned>(static_cast<unsigned char>(ch)) << std::dec << " state " << _state << " nextstate " << _nextstate);
+        switch (_state)
+        {
+            case state_type:
                 {
-                    _nextstate = state_object_type;
-                    _state = state_name;
-                    if (_deserializer)
-                        _deserializer->setCategory(SerializationInfo::Object);
-                }
-                else if (tc == Serializer::CategoryArray)
-                {
-                    _nextstate = state_array_type;
-                    _state = state_name;
-                    if (_deserializer)
-                        _deserializer->setCategory(SerializationInfo::Array);
-                }
-                else if (tc == Serializer::TypeOther)
-                {
-                    log_debug("type other");
-                    _nextstate = state_name;
-                    _state = state_value_type_other;
-                }
-                else if (tc == Serializer::TypePlainOther)
-                {
-                    log_debug("type plain other");
-                    _nextstate = state_value_value;
-                    _state = state_value_type_other;
-                }
-                else
-                {
-                    log_debug("type code " << std::hex << tc << " => type " << typeName(ch));
-                    if (_deserializer)
+                    Serializer::TypeCode tc = static_cast<Serializer::TypeCode>(static_cast<unsigned char>(ch));
+                    if (tc == Serializer::CategoryObject)
                     {
-                        _deserializer->setTypeName(typeName(ch));
-                        _deserializer->setCategory(SerializationInfo::Value);
+                        _nextstate = state_object_type;
+                        _state = state_name;
+                        if (_deserializer)
+                            _deserializer->setCategory(SerializationInfo::Object);
                     }
-
-                    switch (tc)
+                    else if (tc == Serializer::CategoryArray)
                     {
-                        case Serializer::TypeEmpty:
-                            if (_deserializer)
-                                _deserializer->setNull();
-                            _nextstate = state_end;
-                            _state = state_name;
-                            break;
-
-                        case Serializer::TypeChar:
-                        case Serializer::TypeString:
-                        case Serializer::TypeInt:
-                            _nextstate = state_value_value;
-                            _state = state_name;
-                            break;
-
-                        case Serializer::TypeBool:
-                            _nextstate = state_value_bool;
-                            _state = state_name;
-                            break;
-
-                        case Serializer::TypeBinary2:
-                            _count = 2;
-                            _nextstate = state_value_binary_length;
-                            _state = state_name;
-                            break;
-
-                        case Serializer::TypeBinary4:
-                            _count = 4;
-                            _nextstate = state_value_binary_length;
-                            _state = state_name;
-                            break;
-
-                        case Serializer::TypeInt8:
-                            _count = 1;
-                            _nextstate = state_value_intsign;
-                            _state = state_name;
-                            break;
-
-                        case Serializer::TypeInt16:
-                            _count = 2;
-                            _nextstate = state_value_intsign;
-                            _state = state_name;
-                            break;
-
-                        case Serializer::TypeInt32:
-                            _count = 4;
-                            _nextstate = state_value_intsign;
-                            _state = state_name;
-                            break;
-
-                        case Serializer::TypeInt64:
-                            _count = 8;
-                            _nextstate = state_value_intsign;
-                            _state = state_name;
-                            break;
-
-                        case Serializer::TypeUInt8:
-                            _count = 1;
-                            _nextstate = state_value_uint;
-                            _state = state_name;
-                            break;
-
-                        case Serializer::TypeUInt16:
-                            _count = 2;
-                            _nextstate = state_value_uint;
-                            _state = state_name;
-                            break;
-
-                        case Serializer::TypeUInt32:
-                            _count = 4;
-                            _nextstate = state_value_uint;
-                            _state = state_name;
-                            break;
-
-                        case Serializer::TypeUInt64:
-                            _count = 8;
-                            _nextstate = state_value_uint;
-                            _state = state_name;
-                            break;
-
-                        case Serializer::TypeShortFloat:
-                            _nextstate = state_sfloat_exp;
-                            _count = 1;
-                            _state = state_name;
-                            break;
-
-                        case Serializer::TypeMediumFloat:
-                            _nextstate = state_mfloat_exp;
-                            _count = 1;
-                            _state = state_name;
-                            break;
-
-                        case Serializer::TypeLongFloat:
-                            _nextstate = state_lfloat_exp;
-                            _count = 2;
-                            _state = state_name;
-                            break;
-
-                        case Serializer::TypeBcdFloat:
-                            _nextstate = state_value_bcd0;
-                            _state = state_name;
-                            break;
-
-                        case Serializer::TypeArray:
-                        case Serializer::TypeVector:
-                        case Serializer::TypeList:
-                        case Serializer::TypeDeque:
-                        case Serializer::TypeSet:
-                        case Serializer::TypeMultiset:
-                            _state = state_name;
-                            _nextstate = state_array_member;
-                            if (_deserializer)
-                                _deserializer->setCategory(SerializationInfo::Array);
-                            break;
-
-                        case Serializer::TypePair:
-                        case Serializer::TypeMap:
-                        case Serializer::TypeMultimap:
-                            _nextstate = state_object_member;
-                            _state = state_name;
-                            if (_deserializer)
-                                _deserializer->setCategory(SerializationInfo::Object);
-                            break;
-
-                        case Serializer::TypePlainEmpty:
-                            if (_deserializer)
-                                _deserializer->setNull();
-                            _state = state_end;
-                            break;
-
-                        case Serializer::TypePlainChar:
-                        case Serializer::TypePlainString:
-                        case Serializer::TypePlainInt:
-                            _state = state_value_value;
-                            break;
-
-                        case Serializer::TypePlainBool:
-                            _state = state_value_bool;
-                            break;
-
-                        case Serializer::TypePlainBcdFloat:
-                            _state = state_value_bcd0;
-                            break;
-
-                        case Serializer::TypePlainBinary2:
-                            _count = 2;
-                            _state = state_value_binary_length;
-                            break;
-
-                        case Serializer::TypePlainBinary4:
-                            _count = 4;
-                            _state = state_value_binary_length;
-                            break;
-
-                        case Serializer::TypePlainInt8:
-                            _count = 1;
-                            _state = state_value_intsign;
-                            break;
-
-                        case Serializer::TypePlainInt16:
-                            _count = 2;
-                            _state = state_value_intsign;
-                            break;
-
-                        case Serializer::TypePlainInt32:
-                            _count = 4;
-                            _state = state_value_intsign;
-                            break;
-
-                        case Serializer::TypePlainInt64:
-                            _count = 8;
-                            _state = state_value_intsign;
-                            break;
-
-                        case Serializer::TypePlainUInt8:
-                            _count = 1;
-                            _state = state_value_uint;
-                            break;
-
-                        case Serializer::TypePlainUInt16:
-                            _count = 2;
-                            _state = state_value_uint;
-                            break;
-
-                        case Serializer::TypePlainUInt32:
-                            _count = 4;
-                            _state = state_value_uint;
-                            break;
-
-                        case Serializer::TypePlainUInt64:
-                            _count = 8;
-                            _state = state_value_uint;
-                            break;
-
-                        case Serializer::TypePlainShortFloat:
-                            _state = state_sfloat_exp;
-                            _count = 1;
-                            break;
-
-                        case Serializer::TypePlainMediumFloat:
-                            _state = state_mfloat_exp;
-                            _count = 1;
-                            break;
-
-                        case Serializer::TypePlainLongFloat:
-                            _state = state_lfloat_exp;
-                            _count = 2;
-                            break;
-
-                        case Serializer::TypePlainArray:
-                        case Serializer::TypePlainVector:
-                        case Serializer::TypePlainList:
-                        case Serializer::TypePlainDeque:
-                        case Serializer::TypePlainSet:
-                        case Serializer::TypePlainMultiset:
-                            _state = state_array_type;
-                            if (_deserializer)
-                                _deserializer->setCategory(SerializationInfo::Array);
-                            break;
-
-                        case Serializer::TypePlainPair:
-                        case Serializer::TypePlainMap:
-                        case Serializer::TypePlainMultimap:
-                            _state = state_object_type;
-                            if (_deserializer)
-                                _deserializer->setCategory(SerializationInfo::Object);
-                            break;
-
-                        default:
-                            {
-                                std::ostringstream msg;
-                                msg << "invalid type code <h" << std::hex << tc << '>';
-                                SerializationError::doThrow(msg.str());
-                            }
+                        _nextstate = state_array_type;
+                        _state = state_name;
+                        if (_deserializer)
+                            _deserializer->setCategory(SerializationInfo::Array);
                     }
-                }
-            }
-            break;
-
-        case state_name:
-            if (ch == '\0')
-            {
-                log_debug("name=" << _token);
-                if (_deserializer)
-                    _deserializer->setName(_token);
-
-                dict(_token);
-                _token.clear();
-                _state = _nextstate;
-            }
-            else if (_token.empty() && ch == '\1')
-                _state = state_name_idx0;
-            else
-                _token += ch;
-            break;
-
-        case state_name_idx0:
-            _dictidx = static_cast<unsigned>(ch) << 8;
-            _state = state_name_idx1;
-            break;
-
-        case state_name_idx1:
-            _dictidx |= static_cast<unsigned>(ch);
-            if (_dictidx >= _dictionary->size())
-            {
-                log_error("invalid dictionary index " << _dictidx);
-                SerializationError::doThrow("invalid dictionary index");
-            }
-
-            log_debug("dictidx=" << _dictidx << " name=" << (*_dictionary)[_dictidx]);
-            if (_deserializer)
-                _deserializer->setName((*_dictionary)[_dictidx]);
-            _state = _nextstate;
-            break;
-
-        case state_value_type_other:
-            if (ch == '\0')
-            {
-                log_debug("typename=" << _token);
-                if (_deserializer)
-                    _deserializer->setTypeName(_token);
-
-                dict(_token);
-                _token.clear();
-                _state = _nextstate;
-                _nextstate = state_value_value;
-            }
-            else if (_token.empty() && ch == '\1')
-                _state = state_value_type_other_idx0;
-            else
-                _token += ch;
-            break;
-
-        case state_value_type_other_idx0:
-            _dictidx = static_cast<unsigned>(ch) << 8;
-            _state = state_value_type_other_idx1;
-            break;
-
-        case state_value_type_other_idx1:
-            _dictidx |= static_cast<unsigned>(ch);
-            if (_dictidx >= _dictionary->size())
-            {
-                log_error("invalid dictionary index " << _dictidx);
-                SerializationError::doThrow("invalid dictionary index");
-            }
-
-            log_debug("dictidx=" << _dictidx << " typename=" << (*_dictionary)[_dictidx]);
-            if (_deserializer)
-                _deserializer->setTypeName((*_dictionary)[_dictidx]);
-
-            _state = _nextstate;
-            _nextstate = state_value_value;
-            break;
-
-        case state_value_intsign:
-            if (static_cast<signed char>(ch) < 0)
-                _int = static_cast<uint64_t>(-1);  // set all bits
-            else
-                _int = 0;
-
-            _state = state_value_int;
-            // no break
-
-        case state_value_int:
-        case state_value_uint:
-            _int = (_int << 8) | static_cast<unsigned char>(ch);
-            if (--_count == 0)
-            {
-                if (_deserializer)
-                {
-                    if (_state == state_value_int)
+                    else if (tc == Serializer::TypeOther)
                     {
-                        Deserializer::int_type value = Deserializer::int_type(_int);
-                        _deserializer->setValue(value);
+                        log_debug("type other");
+                        _nextstate = state_name;
+                        _state = state_value_type_other;
+                    }
+                    else if (tc == Serializer::TypePlainOther)
+                    {
+                        log_debug("type plain other");
+                        _nextstate = state_value_value;
+                        _state = state_value_type_other;
                     }
                     else
                     {
-                        Deserializer::unsigned_type value = Deserializer::unsigned_type(_int);
-                        _deserializer->setValue(value);
+                        log_debug("type code " << std::hex << tc << " => type " << typeName(ch));
+                        if (_deserializer)
+                        {
+                            _deserializer->setTypeName(typeName(ch));
+                            _deserializer->setCategory(SerializationInfo::Value);
+                        }
+
+                        switch (tc)
+                        {
+                            case Serializer::TypeEmpty:
+                                if (_deserializer)
+                                    _deserializer->setNull();
+                                _nextstate = state_end;
+                                _state = state_name;
+                                break;
+
+                            case Serializer::TypeChar:
+                            case Serializer::TypeString:
+                            case Serializer::TypeInt:
+                                _nextstate = state_value_value;
+                                _state = state_name;
+                                break;
+
+                            case Serializer::TypeBool:
+                                _nextstate = state_value_bool;
+                                _state = state_name;
+                                break;
+
+                            case Serializer::TypeBinary2:
+                                _count = 2;
+                                _nextstate = state_value_binary_length;
+                                _state = state_name;
+                                break;
+
+                            case Serializer::TypeBinary4:
+                                _count = 4;
+                                _nextstate = state_value_binary_length;
+                                _state = state_name;
+                                break;
+
+                            case Serializer::TypeInt8:
+                                _count = 1;
+                                _nextstate = state_value_intsign;
+                                _state = state_name;
+                                break;
+
+                            case Serializer::TypeInt16:
+                                _count = 2;
+                                _nextstate = state_value_intsign;
+                                _state = state_name;
+                                break;
+
+                            case Serializer::TypeInt32:
+                                _count = 4;
+                                _nextstate = state_value_intsign;
+                                _state = state_name;
+                                break;
+
+                            case Serializer::TypeInt64:
+                                _count = 8;
+                                _nextstate = state_value_intsign;
+                                _state = state_name;
+                                break;
+
+                            case Serializer::TypeUInt8:
+                                _count = 1;
+                                _nextstate = state_value_uint;
+                                _state = state_name;
+                                break;
+
+                            case Serializer::TypeUInt16:
+                                _count = 2;
+                                _nextstate = state_value_uint;
+                                _state = state_name;
+                                break;
+
+                            case Serializer::TypeUInt32:
+                                _count = 4;
+                                _nextstate = state_value_uint;
+                                _state = state_name;
+                                break;
+
+                            case Serializer::TypeUInt64:
+                                _count = 8;
+                                _nextstate = state_value_uint;
+                                _state = state_name;
+                                break;
+
+                            case Serializer::TypeShortFloat:
+                                _nextstate = state_sfloat_exp;
+                                _count = 1;
+                                _state = state_name;
+                                break;
+
+                            case Serializer::TypeMediumFloat:
+                                _nextstate = state_mfloat_exp;
+                                _count = 1;
+                                _state = state_name;
+                                break;
+
+                            case Serializer::TypeLongFloat:
+                                _nextstate = state_lfloat_exp;
+                                _count = 2;
+                                _state = state_name;
+                                break;
+
+                            case Serializer::TypeBcdFloat:
+                                _nextstate = state_value_bcd0;
+                                _state = state_name;
+                                break;
+
+                            case Serializer::TypeArray:
+                            case Serializer::TypeVector:
+                            case Serializer::TypeList:
+                            case Serializer::TypeDeque:
+                            case Serializer::TypeSet:
+                            case Serializer::TypeMultiset:
+                                _state = state_name;
+                                _nextstate = state_array_member;
+                                if (_deserializer)
+                                    _deserializer->setCategory(SerializationInfo::Array);
+                                break;
+
+                            case Serializer::TypePair:
+                            case Serializer::TypeMap:
+                            case Serializer::TypeMultimap:
+                                _nextstate = state_object_member;
+                                _state = state_name;
+                                if (_deserializer)
+                                    _deserializer->setCategory(SerializationInfo::Object);
+                                break;
+
+                            case Serializer::TypePlainEmpty:
+                                if (_deserializer)
+                                    _deserializer->setNull();
+                                _state = state_end;
+                                break;
+
+                            case Serializer::TypePlainChar:
+                            case Serializer::TypePlainString:
+                            case Serializer::TypePlainInt:
+                                _state = state_value_value;
+                                break;
+
+                            case Serializer::TypePlainBool:
+                                _state = state_value_bool;
+                                break;
+
+                            case Serializer::TypePlainBcdFloat:
+                                _state = state_value_bcd0;
+                                break;
+
+                            case Serializer::TypePlainBinary2:
+                                _count = 2;
+                                _state = state_value_binary_length;
+                                break;
+
+                            case Serializer::TypePlainBinary4:
+                                _count = 4;
+                                _state = state_value_binary_length;
+                                break;
+
+                            case Serializer::TypePlainInt8:
+                                _count = 1;
+                                _state = state_value_intsign;
+                                break;
+
+                            case Serializer::TypePlainInt16:
+                                _count = 2;
+                                _state = state_value_intsign;
+                                break;
+
+                            case Serializer::TypePlainInt32:
+                                _count = 4;
+                                _state = state_value_intsign;
+                                break;
+
+                            case Serializer::TypePlainInt64:
+                                _count = 8;
+                                _state = state_value_intsign;
+                                break;
+
+                            case Serializer::TypePlainUInt8:
+                                _count = 1;
+                                _state = state_value_uint;
+                                break;
+
+                            case Serializer::TypePlainUInt16:
+                                _count = 2;
+                                _state = state_value_uint;
+                                break;
+
+                            case Serializer::TypePlainUInt32:
+                                _count = 4;
+                                _state = state_value_uint;
+                                break;
+
+                            case Serializer::TypePlainUInt64:
+                                _count = 8;
+                                _state = state_value_uint;
+                                break;
+
+                            case Serializer::TypePlainShortFloat:
+                                _state = state_sfloat_exp;
+                                _count = 1;
+                                break;
+
+                            case Serializer::TypePlainMediumFloat:
+                                _state = state_mfloat_exp;
+                                _count = 1;
+                                break;
+
+                            case Serializer::TypePlainLongFloat:
+                                _state = state_lfloat_exp;
+                                _count = 2;
+                                break;
+
+                            case Serializer::TypePlainArray:
+                            case Serializer::TypePlainVector:
+                            case Serializer::TypePlainList:
+                            case Serializer::TypePlainDeque:
+                            case Serializer::TypePlainSet:
+                            case Serializer::TypePlainMultiset:
+                                _state = state_array_type;
+                                if (_deserializer)
+                                    _deserializer->setCategory(SerializationInfo::Array);
+                                break;
+
+                            case Serializer::TypePlainPair:
+                            case Serializer::TypePlainMap:
+                            case Serializer::TypePlainMultimap:
+                                _state = state_object_type;
+                                if (_deserializer)
+                                    _deserializer->setCategory(SerializationInfo::Object);
+                                break;
+
+                            default:
+                                {
+                                    std::ostringstream msg;
+                                    msg << "invalid type code <h" << std::hex << tc << '>';
+                                    SerializationError::doThrow(msg.str());
+                                }
+                        }
                     }
+
+                    in.sbumpc();
+                }
+                break;
+
+            case state_name:
+                if (ch == '\0')
+                {
+                    log_debug("name=" << _token);
+                    if (_deserializer)
+                        _deserializer->setName(_token);
+
+                    dict(_token);
+                    _token.clear();
+                    _state = _nextstate;
+                }
+                else if (_token.empty() && ch == '\1')
+                    _state = state_name_idx0;
+                else
+                    _token += ch;
+
+                in.sbumpc();
+                break;
+
+            case state_name_idx0:
+                _dictidx = static_cast<unsigned>(ch) << 8;
+                _state = state_name_idx1;
+                in.sbumpc();
+                break;
+
+            case state_name_idx1:
+                _dictidx |= static_cast<unsigned>(ch);
+                if (_dictidx >= _dictionary->size())
+                {
+                    log_error("invalid dictionary index " << _dictidx);
+                    SerializationError::doThrow("invalid dictionary index");
                 }
 
-                _int = 0;
+                log_debug("dictidx=" << _dictidx << " name=" << (*_dictionary)[_dictidx]);
+                if (_deserializer)
+                    _deserializer->setName((*_dictionary)[_dictidx]);
+                _state = _nextstate;
+                in.sbumpc();
+                break;
+
+            case state_value_type_other:
+                if (ch == '\0')
+                {
+                    log_debug("typename=" << _token);
+                    if (_deserializer)
+                        _deserializer->setTypeName(_token);
+
+                    dict(_token);
+                    _token.clear();
+                    _state = _nextstate;
+                    _nextstate = state_value_value;
+                }
+                else if (_token.empty() && ch == '\1')
+                    _state = state_value_type_other_idx0;
+                else
+                    _token += ch;
+                in.sbumpc();
+                break;
+
+            case state_value_type_other_idx0:
+                _dictidx = static_cast<unsigned>(ch) << 8;
+                _state = state_value_type_other_idx1;
+                in.sbumpc();
+                break;
+
+            case state_value_type_other_idx1:
+                _dictidx |= static_cast<unsigned>(ch);
+                if (_dictidx >= _dictionary->size())
+                {
+                    log_error("invalid dictionary index " << _dictidx);
+                    SerializationError::doThrow("invalid dictionary index");
+                }
+
+                log_debug("dictidx=" << _dictidx << " typename=" << (*_dictionary)[_dictidx]);
+                if (_deserializer)
+                    _deserializer->setTypeName((*_dictionary)[_dictidx]);
+
+                _state = _nextstate;
+                _nextstate = state_value_value;
+                in.sbumpc();
+                break;
+
+            case state_value_intsign:
+                if (static_cast<signed char>(ch) < 0)
+                    _int = static_cast<uint64_t>(-1);  // set all bits
+                else
+                    _int = 0;
+
+                _state = state_value_int;
+                // no break
+
+            case state_value_int:
+            case state_value_uint:
+                _int = (_int << 8) | static_cast<unsigned char>(ch);
+                if (--_count == 0)
+                {
+                    if (_deserializer)
+                    {
+                        if (_state == state_value_int)
+                        {
+                            Deserializer::int_type value = Deserializer::int_type(_int);
+                            _deserializer->setValue(value);
+                        }
+                        else
+                        {
+                            Deserializer::unsigned_type value = Deserializer::unsigned_type(_int);
+                            _deserializer->setValue(value);
+                        }
+                    }
+
+                    _int = 0;
+                    in.sbumpc();
+                    return true;
+                }
+                in.sbumpc();
+                break;
+
+            case state_value_bool:
+                if (_deserializer)
+                    _deserializer->setValue(ch != '\0');
+
+                in.sbumpc();
                 return true;
-            }
-            break;
 
-        case state_value_bool:
-            if (_deserializer)
-                _deserializer->setValue(ch != '\0');
+            case state_value_bcd0:
+                if (ch == '\xf0')
+                {
+                    if (_deserializer)
+                        _deserializer->setValue("nan");
+                    _state = state_end;
+                    in.sbumpc();
+                    break;
+                }
+                else if (ch == '\xf1')
+                {
+                    if (_deserializer)
+                        _deserializer->setValue("inf");
+                    _state = state_end;
+                    in.sbumpc();
+                    break;
+                }
+                else if (ch == '\xf2')
+                {
+                    if (_deserializer)
+                        _deserializer->setValue("-inf");
+                    _state = state_end;
+                    in.sbumpc();
+                    break;
+                }
 
-            return true;
+                _state = state_value_bcd;
 
-        case state_value_bcd0:
-            if (ch == '\xf0')
-            {
-                if (_deserializer)
-                    _deserializer->setValue("nan");
-                _state = state_end;
+                // no break
+
+            case state_value_bcd:
+                if (ch == '\xff')
+                {
+                    if (_deserializer)
+                        _deserializer->setValue(_token);
+                    _token.clear();
+                    in.sbumpc();
+                    return true;
+                }
+                else
+                {
+                    _token += bcdDigits[static_cast<uint8_t>(ch) >> 4];
+                    if ((ch & '\xf') == '\xd')
+                    {
+                        if (_deserializer)
+                            _deserializer->setValue(_token);
+                        _token.clear();
+                        _state = state_end;
+                    }
+                    else
+                    {
+                        _token += bcdDigits[static_cast<uint8_t>(ch) & '\xf'];
+                    }
+
+                    in.sbumpc();
+                }
+
                 break;
-            }
-            else if (ch == '\xf1')
-            {
-                if (_deserializer)
-                    _deserializer->setValue("inf");
-                _state = state_end;
+
+            case state_value_binary_length:
+                _int = (_int << 8) | static_cast<unsigned char>(ch);
+                if (--_count == 0)
+                {
+                    _count = static_cast<unsigned>(_int);
+                    _int = 0;
+                    if (_count == 0)
+                    {
+                        if (_deserializer)
+                            _deserializer->setValue(std::string());
+                        _state = state_end;
+                    }
+                    else
+                    {
+                        _state = state_value_binary;
+                    }
+                }
+                in.sbumpc();
                 break;
-            }
-            else if (ch == '\xf2')
-            {
+
+            case state_value_binary:
                 if (_deserializer)
-                    _deserializer->setValue("-inf");
-                _state = state_end;
+                    _token += ch;
+
+                in.sbumpc();
+                if (--_count == 0)
+                {
+                    if (_deserializer)
+                        _deserializer->setValue(_token);
+                    return true;
+                }
+
                 break;
-            }
 
-            _state = state_value_bcd;
-
-            // no break
-
-        case state_value_bcd:
-            if (ch == '\xff')
-            {
-                if (_deserializer)
-                    _deserializer->setValue(_token);
-                _token.clear();
-                return true;
-            }
-            else
-            {
-                _token += bcdDigits[static_cast<uint8_t>(ch) >> 4];
-                if ((ch & '\xf') == '\xd')
+            case state_value_value:
+                if (ch == '\0')
                 {
                     if (_deserializer)
                         _deserializer->setValue(_token);
@@ -590,267 +663,213 @@ bool Parser::advance(char ch)
                     _state = state_end;
                 }
                 else
-                {
-                    _token += bcdDigits[static_cast<uint8_t>(ch) & '\xf'];
-                }
-            }
+                    _token += ch;
+                in.sbumpc();
+                break;
 
-            break;
+            case state_sfloat_exp:
+                _isNeg = (ch & '\x80') != 0;
+                _exp = ch & '\x7f';
+                _state = state_sfloat_base;
+                _count = 2;
+                in.sbumpc();
+                break;
 
-        case state_value_binary_length:
-            _int = (_int << 8) | static_cast<unsigned char>(ch);
-            if (--_count == 0)
-            {
-                _count = static_cast<unsigned>(_int);
-                _int = 0;
-                if (_count == 0)
+            case state_mfloat_exp:
+                _isNeg = (ch & '\x80') != 0;
+                _exp = ch & '\x7f';
+                _state = state_mfloat_base;
+                _count = 4;
+                in.sbumpc();
+                break;
+
+            case state_lfloat_exp:
+                if (--_count == 1)
                 {
-                    if (_deserializer)
-                        _deserializer->setValue(std::string());
-                    _state = state_end;
+                    _isNeg = (ch & '\x80') != 0;
+                    _exp = ch & '\x7f';
                 }
                 else
                 {
-                    _state = state_value_binary;
+                    _exp = (_exp << 8) | static_cast<unsigned char>(ch);
+                    _count = 8;
+                    _state = state_lfloat_base;
                 }
-            }
-            break;
+                in.sbumpc();
+                break;
 
-        case state_value_binary:
-            if (_deserializer)
-                _token += ch;
+            case state_sfloat_base:
+                in.sbumpc();
+                if (processFloatBase(ch, 48, 63))
+                    return true;
+                break;
 
-            if (--_count == 0)
-            {
-                if (_deserializer)
-                    _deserializer->setValue(_token);
-                return true;
-            }
-            break;
+            case state_mfloat_base:
+                in.sbumpc();
+                if (processFloatBase(ch, 32, 63))
+                    return true;
+                break;
 
-        case state_value_value:
-            if (ch == '\0')
-            {
-                if (_deserializer)
-                    _deserializer->setValue(_token);
-                _token.clear();
-                _state = state_end;
-            }
-            else
-                _token += ch;
-            break;
+            case state_lfloat_base:
+                in.sbumpc();
+                if (processFloatBase(ch, 0, 16383))
+                    return true;
+                break;
 
-        case state_sfloat_exp:
-            _isNeg = (ch & '\x80') != 0;
-            _exp = ch & '\x7f';
-            _state = state_sfloat_base;
-            _count = 2;
-            break;
-
-        case state_mfloat_exp:
-            _isNeg = (ch & '\x80') != 0;
-            _exp = ch & '\x7f';
-            _state = state_mfloat_base;
-            _count = 4;
-            break;
-
-        case state_lfloat_exp:
-            if (--_count == 1)
-            {
-                _isNeg = (ch & '\x80') != 0;
-                _exp = ch & '\x7f';
-            }
-            else
-            {
-                _exp = (_exp << 8) | static_cast<unsigned char>(ch);
-                _count = 8;
-                _state = state_lfloat_base;
-            }
-            break;
-
-        case state_sfloat_base:
-            return processFloatBase(ch, 48, 63);
-
-        case state_mfloat_base:
-            return processFloatBase(ch, 32, 63);
-
-        case state_lfloat_base:
-            return processFloatBase(ch, 0, 16383);
-
-        case state_object_type:
-            if (static_cast<Serializer::TypeCode>(ch) == Serializer::TypePlainOther
-                || static_cast<Serializer::TypeCode>(ch) == Serializer::TypeOther)
-                _state = state_object_type_other;
-            else
-            {
-                if (_deserializer)
-                    _deserializer->setTypeName(typeName(ch));
-                _state = state_object_member;
-            }
-            break;
-
-        case state_object_type_other:
-            if (ch == '\0')
-            {
-                if (_deserializer)
-                    _deserializer->setTypeName(_token);
-                dict(_token);
-                _token.clear();
-                _state = state_object_member;
-            }
-            else if (_token.empty() && ch == '\1')
-                _state = state_object_type_other_idx0;
-            else
-                _token += ch;
-            break;
-
-        case state_object_type_other_idx0:
-            _dictidx = static_cast<unsigned>(ch) << 8;
-            _state = state_object_type_other_idx1;
-            break;
-
-        case state_object_type_other_idx1:
-            _dictidx |= static_cast<unsigned>(ch);
-            if (_dictidx >= _dictionary->size())
-            {
-                log_error("invalid dictionary index " << _dictidx);
-                SerializationError::doThrow("invalid dictionary index");
-            }
-
-            log_debug("dictidx=" << _dictidx << " typename=" << (*_dictionary)[_dictidx]);
-            if (_deserializer)
-                _deserializer->setTypeName((*_dictionary)[_dictidx]);
-
-            _token.clear();
-            _state = state_object_member;
-            break;
-
-        case state_object_member:
-            if (ch == '\xff')
-                return true;
-
-            if (_next == 0)
-                _next = new Parser(_dictionary);
-
-            if (_deserializer)
-            {
-                _deserializer->beginMember(_token, "", SerializationInfo::Void);
-                _next->begin(*_deserializer);
-            }
-            else
-                _next->skip();
-
-            if (_next->advance(ch))
-            {
-                log_error("serialization error: member code expected; got " << static_cast<int>(ch));
-                SerializationError::doThrow("member expected");
-            }
-
-            _state = state_object_member_value;
-            break;
-
-        case state_object_member_value:
-            if (_next->advance(ch))
-            {
-                if (_deserializer)
-                    _deserializer->leaveMember();
-                _state = state_object_member;
-            }
-            break;
-
-        case state_array_type:
-            {
-                Serializer::TypeCode tc = static_cast<Serializer::TypeCode>(static_cast<unsigned char>(ch));
-                if (tc == Serializer::TypeOther)
-                {
-                    _state = state_name;
-                    _nextstate = state_array_type_other;
-                }
-                else if (tc == Serializer::TypePlainOther)
-                {
-                    _state = state_array_type_other;
-                }
+            case state_object_type:
+                if (static_cast<Serializer::TypeCode>(ch) == Serializer::TypePlainOther
+                    || static_cast<Serializer::TypeCode>(ch) == Serializer::TypeOther)
+                    _state = state_object_type_other;
                 else
                 {
                     if (_deserializer)
                         _deserializer->setTypeName(typeName(ch));
+                    _state = state_object_member;
+                }
+                in.sbumpc();
+                break;
+
+            case state_object_type_other:
+                if (ch == '\0')
+                {
+                    if (_deserializer)
+                        _deserializer->setTypeName(_token);
+                    dict(_token);
+                    _token.clear();
+                    _state = state_object_member;
+                }
+                else if (_token.empty() && ch == '\1')
+                    _state = state_object_type_other_idx0;
+                else
+                    _token += ch;
+                in.sbumpc();
+                break;
+
+            case state_object_type_other_idx0:
+                _dictidx = static_cast<unsigned>(ch) << 8;
+                _state = state_object_type_other_idx1;
+                in.sbumpc();
+                break;
+
+            case state_object_type_other_idx1:
+                _dictidx |= static_cast<unsigned>(ch);
+                if (_dictidx >= _dictionary->size())
+                {
+                    log_error("invalid dictionary index " << _dictidx);
+                    SerializationError::doThrow("invalid dictionary index");
+                }
+
+                log_debug("dictidx=" << _dictidx << " typename=" << (*_dictionary)[_dictidx]);
+                if (_deserializer)
+                    _deserializer->setTypeName((*_dictionary)[_dictidx]);
+
+                _token.clear();
+                _state = state_object_member;
+                in.sbumpc();
+                break;
+
+            case state_object_member:
+                if (ch == '\xff')
+                {
+                    in.sbumpc();
+                    return true;
+                }
+
+                if (_next == 0)
+                    _next = new Parser(_dictionary);
+
+                if (_deserializer)
+                {
+                    _deserializer->beginMember(_token, "", SerializationInfo::Void);
+                    _next->begin(*_deserializer);
+                }
+                else
+                    _next->skip();
+
+                _state = state_object_member_value;
+                break;
+
+            case state_object_member_value:
+                if (_next->advance(in))
+                {
+                    if (_deserializer)
+                        _deserializer->leaveMember();
+                    _state = state_object_member;
+                }
+                break;
+
+            case state_array_type:
+                {
+                    Serializer::TypeCode tc = static_cast<Serializer::TypeCode>(static_cast<unsigned char>(ch));
+                    if (tc == Serializer::TypeOther)
+                    {
+                        _state = state_name;
+                        _nextstate = state_array_type_other;
+                    }
+                    else if (tc == Serializer::TypePlainOther)
+                    {
+                        _state = state_array_type_other;
+                    }
+                    else
+                    {
+                        if (_deserializer)
+                            _deserializer->setTypeName(typeName(ch));
+                        _state = state_array_member;
+                    }
+
+                    in.sbumpc();
+                }
+                break;
+
+            case state_array_type_other:
+                if (ch == '\0')
+                {
+                    if (_deserializer)
+                        _deserializer->setTypeName(_token);
+                    dict(_token);
+                    _token.clear();
                     _state = state_array_member;
                 }
-            }
-            break;
+                else if (_token.empty() && ch == '\1')
+                    _state = state_array_type_other_idx0;
+                else
+                    _token += ch;
 
-        case state_array_type_other:
-            if (ch == '\0')
-            {
+                in.sbumpc();
+                break;
+
+            case state_array_type_other_idx0:
+                _dictidx = static_cast<unsigned>(ch) << 8;
+                _state = state_array_type_other_idx1;
+                in.sbumpc();
+                break;
+
+            case state_array_type_other_idx1:
+                _dictidx |= static_cast<unsigned>(ch);
+                if (_dictidx >= _dictionary->size())
+                {
+                    log_error("invalid dictionary index " << _dictidx);
+                    SerializationError::doThrow("invalid dictionary index");
+                }
+
+                log_debug("dictidx=" << _dictidx << " typename=" << (*_dictionary)[_dictidx]);
                 if (_deserializer)
-                    _deserializer->setTypeName(_token);
-                dict(_token);
-                _token.clear();
+                    _deserializer->setTypeName((*_dictionary)[_dictidx]);
+
                 _state = state_array_member;
-            }
-            else if (_token.empty() && ch == '\1')
-                _state = state_array_type_other_idx0;
-            else
-                _token += ch;
-            break;
+                in.sbumpc();
+                break;
 
-        case state_array_type_other_idx0:
-            _dictidx = static_cast<unsigned>(ch) << 8;
-            _state = state_array_type_other_idx1;
-            break;
+            case state_array_member:
+                if (ch == '\xff')
+                {
+                    in.sbumpc();
+                    return true;
+                }
 
-        case state_array_type_other_idx1:
-            _dictidx |= static_cast<unsigned>(ch);
-            if (_dictidx >= _dictionary->size())
-            {
-                log_error("invalid dictionary index " << _dictidx);
-                SerializationError::doThrow("invalid dictionary index");
-            }
+                if (_next == 0)
+                    _next = new Parser(_dictionary);
 
-            log_debug("dictidx=" << _dictidx << " typename=" << (*_dictionary)[_dictidx]);
-            if (_deserializer)
-                _deserializer->setTypeName((*_dictionary)[_dictidx]);
-
-            _state = state_array_member;
-            break;
-
-        case state_array_member:
-            if (ch == '\xff')
-                return true;
-
-            if (_next == 0)
-                _next = new Parser(_dictionary);
-
-            if (_deserializer)
-            {
-                _deserializer->beginMember("", "", SerializationInfo::Void);
-                _next->begin(*_deserializer);
-            }
-            else
-            {
-                _next->skip();
-            }
-
-            _next->advance(ch);
-            _state = state_array_member_value;
-            break;
-
-        case state_array_member_value:
-            if (_next->advance(ch))
-            {
-                if (_deserializer)
-                    _deserializer->leaveMember();
-                _state = state_array_member_value_next;
-            }
-            break;
-
-        case state_array_member_value_next:
-            if (ch == '\xff')
-            {
-                return true;
-            }
-            else
-            {
                 if (_deserializer)
                 {
                     _deserializer->beginMember("", "", SerializationInfo::Void);
@@ -861,16 +880,47 @@ bool Parser::advance(char ch)
                     _next->skip();
                 }
 
-                _next->advance(ch);
                 _state = state_array_member_value;
-            }
-            break;
+                // no break
 
-        case state_end:
-            if (ch != '\xff')
-                SerializationError::doThrow("end of value marker expected");
-            log_debug("end of value");
-            return true;
+            case state_array_member_value:
+                if (_next->advance(in))
+                {
+                    if (_deserializer)
+                        _deserializer->leaveMember();
+                    _state = state_array_member_value_next;
+                }
+                break;
+
+            case state_array_member_value_next:
+                if (ch == '\xff')
+                {
+                    in.sbumpc();
+                    return true;
+                }
+                else
+                {
+                    if (_deserializer)
+                    {
+                        _deserializer->beginMember("", "", SerializationInfo::Void);
+                        _next->begin(*_deserializer);
+                    }
+                    else
+                    {
+                        _next->skip();
+                    }
+
+                    _state = state_array_member_value;
+                }
+                break;
+
+            case state_end:
+                if (ch != '\xff')
+                    SerializationError::doThrow("end of value marker expected");
+                in.sbumpc();
+                log_debug("end of value");
+                return true;
+        }
     }
 
     return false;

@@ -30,22 +30,39 @@
 #include <cxxtools/bin/parser.h>
 #include <cxxtools/serializationerror.h>
 
+#include <sstream>
+
 namespace cxxtools
 {
 namespace bin
 {
 
+Deserializer::Deserializer(const char* data, unsigned size)
+{
+    begin();
+
+    std::stringbuf in(std::string(data, size));
+    if (_parser.advance(in))
+    {
+        _parser.finish();
+        return;
+    }
+
+    SerializationError::doThrow("binary deserialization failed");
+}
+
 void Deserializer::read(std::istream& in)
 {
     begin();
 
-    std::streambuf::int_type ch;
-    while ((ch = in.rdbuf()->sbumpc()) != std::streambuf::traits_type::eof())
-        if (_parser.advance(ch) == true)
+    while (in.rdbuf()->sgetc() != std::streambuf::traits_type::eof())
+    {
+        if (_parser.advance(*in.rdbuf()))
         {
             _parser.finish();
             return;
         }
+    }
 
     in.setstate(std::ios::eofbit);
     SerializationError::doThrow("binary deserialization failed");

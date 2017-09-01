@@ -31,7 +31,9 @@
 
 #include <cxxtools/composer.h>
 #include <cxxtools/bin/parser.h>
+
 #include <string>
+#include <iosfwd>
 
 namespace cxxtools
 {
@@ -53,7 +55,7 @@ namespace cxxtools
 
                 void begin(Deserializer& handler, IComposer& composer);
 
-                bool advance(char ch);
+                bool advance(std::streambuf& in);
 
                 void finish();
 

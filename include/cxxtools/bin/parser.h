@@ -31,6 +31,7 @@
 
 #include <cxxtools/serializationinfo.h>
 #include <vector>
+#include <iosfwd>
 
 namespace cxxtools
 {
@@ -74,7 +75,7 @@ class Parser
 
         void skip();
 
-        bool advance(char ch); // returns true, if number is read completely
+        bool advance(std::streambuf& in); // returns true, if value is complete
 
     private:
 

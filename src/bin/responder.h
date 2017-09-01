@@ -34,6 +34,8 @@
 #include <cxxtools/bin/formatter.h>
 #include <cxxtools/serviceregistry.h>
 
+#include <iosfwd>
+
 namespace cxxtools
 {
 
@@ -75,7 +77,7 @@ class Responder
 
         // returns true, if request is ready and reply is put to the socket
         bool onInput(IOStream& ios);
-        bool advance(char ch);
+        bool advance(std::streambuf& in);
         void reply(IOStream& out);
         void replyError(IOStream& out, const char* msg, int rc);
 
