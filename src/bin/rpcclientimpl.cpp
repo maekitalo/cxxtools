@@ -260,14 +260,14 @@ void RpcClientImpl::onConnect(net::TcpSocket& socket)
     {
         log_trace("onConnect");
 
+        socket.endConnect();
+
         _exceptionPending = false;
         if (_ssl)
         {
             socket.beginSslConnect();
             return;
         }
-
-        socket.endConnect();
 
         _stream.buffer().beginWrite();
     }

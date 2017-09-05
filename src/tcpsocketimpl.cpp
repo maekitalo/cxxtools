@@ -802,6 +802,8 @@ size_t TcpSocketImpl::write(const char* buffer, size_t n)
 
 void TcpSocketImpl::inputReady()
 {
+    log_trace("inputReady; state=" << static_cast<int>(_state));
+
     switch (_state)
     {
         case IDLE:
@@ -817,15 +819,18 @@ void TcpSocketImpl::inputReady()
 
 #ifdef WITH_SSL
         case SSLACCEPTING:
-            beginSslAccept();
+            if (beginSslAccept())
+                _socket.sslAccepted(_socket);
             break;
 
         case SSLCONNECTING:
-            beginSslConnect();
+            if (beginSslConnect())
+                _socket.sslConnected(_socket);
             break;
 
         case SSLSHUTTINGDOWN:
-            beginSslShutdown();
+            if (beginSslShutdown())
+                _socket.sslClosed(_socket);
             break;
 #endif
     }
@@ -852,7 +857,8 @@ void TcpSocketImpl::outputReady()
             break;
 
         case SSLCONNECTING:
-            beginSslConnect();
+            if (beginSslConnect())
+                _socket.sslConnected(_socket);
             break;
 
         case SSLSHUTTINGDOWN:
@@ -935,6 +941,8 @@ void TcpSocketImpl::loadSslCertificateFile(const std::string& certFile, const st
 
 bool TcpSocketImpl::beginSslConnect()
 {
+    log_trace("beginSslConnect; state=" << static_cast<int>(_state));
+
     if (!(_state == CONNECTED || _state == SSLCONNECTING))
         throw std::logic_error("Device not connected when trying to enable ssl");
 
