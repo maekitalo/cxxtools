@@ -106,6 +106,7 @@ class TcpSocketImpl : public IODeviceImpl
 #ifdef WITH_SSL
         // SSL
         static Mutex _sslMutex;
+        static bool _sslInitialized;
         SSL_CTX* _sslCtx;
         SSL* _ssl;
 #endif

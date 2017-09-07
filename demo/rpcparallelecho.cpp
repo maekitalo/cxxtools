@@ -61,6 +61,8 @@ int main(int argc, char* argv[])
     // Switch -c <number> sets the number of parallel calls to execute. Default is 1.
     cxxtools::Arg<unsigned> count(argc, argv, 'c', 1);
 
+    cxxtools::Arg<bool> ssl(argc, argv, 's');
+
     typedef cxxtools::RemoteProcedure<std::string, std::string> Echo;
 
     // We define vectors for the clients and remote procedures
@@ -84,6 +86,7 @@ int main(int argc, char* argv[])
     {
       // We instantiate a remote client and pass the selector to him
       clients.push_back(cxxtools::bin::RpcClient(selector, ip, port));
+      clients.back().ssl(ssl);
 
       // ... and a remote procedure object.
       echo.push_back(Echo(clients.back(), "echo"));

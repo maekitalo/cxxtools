@@ -73,7 +73,7 @@ bool Responder::onInput(IOStream& ios)
 {
     while (ios.buffer().in_avail() > 0)
     {
-        if (advance(ios.buffer().sbumpc()))
+        if (advance(ios.buffer()))
         {
             if (_failed)
             {
@@ -114,118 +114,128 @@ bool Responder::onInput(IOStream& ios)
     return false;
 }
 
-bool Responder::advance(char ch)
+bool Responder::advance(std::streambuf& in)
 {
-    switch (_state)
+    std::streambuf::int_type chi;
+    while ((chi = in.sgetc()) != std::streambuf::traits_type::eof())
     {
-        case state_0:
-            if (ch == '\xc0')
-                _state = state_method;
-            else if (ch == '\xc3')
-                _state = state_domain;
-            else
-                throw std::runtime_error("domain or method name expected");
-            break;
+        char ch = std::streambuf::traits_type::to_char_type(chi);
+        switch (_state)
+        {
+            case state_0:
+                if (ch == '\xc0')
+                    _state = state_method;
+                else if (ch == '\xc3')
+                    _state = state_domain;
+                else
+                    throw std::runtime_error("domain or method name expected");
+                in.sbumpc();
+                break;
 
-        case state_domain:
-            if (ch == '\0')
-            {
-                log_info("rpc method domain \"" << _domain << '"');
-                _state = state_method;
-            }
-            else
-                _domain += ch;
-            break;
-
-        case state_method:
-            if (ch == '\0')
-            {
-                log_info("rpc method \"" << _methodName << '"');
-
-                _proc = _serviceRegistry.getProcedure(_domain.empty() ? _methodName : _domain + '\0' + _methodName);
-
-                if (_proc)
+            case state_domain:
+                if (ch == '\0')
                 {
-                    _args = _proc->beginCall();
-                    _state = state_params;
+                    log_info("rpc method domain \"" << _domain << '"');
+                    _state = state_method;
+                }
+                else
+                    _domain += ch;
+                in.sbumpc();
+                break;
+
+            case state_method:
+                if (ch == '\0')
+                {
+                    log_info("rpc method \"" << _methodName << '"');
+
+                    _proc = _serviceRegistry.getProcedure(_domain.empty() ? _methodName : _domain + '\0' + _methodName);
+
+                    if (_proc)
+                    {
+                        _args = _proc->beginCall();
+                        _state = state_params;
+                    }
+                    else
+                    {
+                        _failed = true;
+                        _errorMessage = "unknown method \"" + _methodName + '"';
+                        _state = state_params_skip;
+                    }
+
+                    _methodName.clear();
+                    _domain.clear();
+                }
+                else
+                    _methodName += ch;
+                in.sbumpc();
+                break;
+
+            case state_params:
+                if (ch == '\xff')
+                {
+                    if (_args && *_args)
+                    {
+                        _failed = true;
+                        _errorMessage = "argument expected";
+                    }
+
+                    in.sbumpc();
+                    return true;
                 }
                 else
                 {
-                    _failed = true;
-                    _errorMessage = "unknown method \"" + _methodName + '"';
-                    _state = state_params_skip;
+                    if (_args == 0 || *_args == 0)
+                    {
+                        _failed = true;
+                        _errorMessage = "too many arguments";
+                        _state = state_params_skip;
+                    }
+                    else
+                    {
+                        _deserializer.begin(false);
+                        _state = state_param;
+                    }
                 }
+                break;
 
-                _methodName.clear();
-                _domain.clear();
-            }
-            else
-                _methodName += ch;
-            break;
-
-        case state_params:
-            if (ch == '\xff')
-            {
-                if (_args && *_args)
+            case state_params_skip:
+                if (ch == '\xff')
                 {
-                    _failed = true;
-                    _errorMessage = "argument expected";
-                }
-
-                return true;
-            }
-            else
-            {
-                if (_args == 0 || *_args == 0)
-                {
-                    _failed = true;
-                    _errorMessage = "too many arguments";
-                    _state = state_params_skip;
+                    in.sbumpc();
+                    return true;
                 }
                 else
                 {
-                    _deserializer.begin(false);
-                    _deserializer.advance(ch);
-                    _state = state_param;
+                    _deserializer.skip();
+                    _state = state_param_skip;
                 }
-            }
-            break;
 
-        case state_params_skip:
-            if (ch == '\xff')
-                return true;
-            else
-            {
-                _deserializer.skip();
-                _deserializer.advance(ch);
-                _state = state_param_skip;
-            }
+                break;
 
-            break;
-
-        case state_param:
-            if (_deserializer.advance(ch))
-            {
-                try
+            case state_param:
+                if (_deserializer.advance(in))
                 {
-                    (*_args)->fixup(_deserializer.si());
-                    ++_args;
-                    _state = state_params;
+                    try
+                    {
+                        (*_args)->fixup(_deserializer.si());
+                        ++_args;
+                        _state = state_params;
+                    }
+                    catch (const std::exception& e)
+                    {
+                        _failed = true;
+                        _errorMessage = e.what();
+                        _state = state_params_skip;
+                    }
                 }
-                catch (const std::exception& e)
-                {
-                    _failed = true;
-                    _errorMessage = e.what();
+                break;
+
+            case state_param_skip:
+                if (_deserializer.advance(in))
                     _state = state_params_skip;
-                }
-            }
-            break;
 
-        case state_param_skip:
-            if (_deserializer.advance(ch))
-                _state = state_params_skip;
-
-            break;
+                break;
+        }
     }
 
     return false;

@@ -33,6 +33,8 @@
 #include <cxxtools/bin/serializer.h>
 #include <cxxtools/bin/parser.h>
 
+#include <iosfwd>
+
 namespace cxxtools
 {
 namespace bin
@@ -50,16 +52,20 @@ namespace bin
             explicit Deserializer(std::istream& in)
             { read(in); }
 
+            Deserializer(const char* data, unsigned size);
+
             /// Processes all input from passed stream.
             void read(std::istream& in);
 
             /// Initialize the binary deserializer to receive data.
             void begin(bool resetDictionary = true);
 
-            /// Process one more character.
-            /// Returns  true, if the characters indicates the end of data.
-            bool advance(char ch)
-            { return _parser.advance(ch); }
+            /// Process available characters in input stream buf.
+            /// Only characters available in input buffer are processed. No
+            /// underflow is triggered.
+            /// Returns true, if the end of data is reached.
+            bool advance(std::streambuf& in)
+            { return _parser.advance(in); }
 
             /// Rest of input is parsed but do not process any data.
             void skip()

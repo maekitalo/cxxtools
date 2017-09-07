@@ -179,14 +179,13 @@ void RpcClientImpl::call(IComposer& r, IRemoteProcedure& method, IDecomposer** a
 
         while (true)
         {
-            int ch = sb.sbumpc();
-            if (ch == StreamBuffer::traits_type::eof())
+            if (sb.sgetc() == std::streambuf::traits_type::eof())
             {
                 cancel();
                 throw std::runtime_error("reading result failed");
             }
 
-            if ( _scanner.advance( StreamBuffer::traits_type::to_char_type(ch) ) )
+            if (_scanner.advance(sb))
             {
                 _proc = 0;
                 _scanner.finish();
@@ -261,14 +260,14 @@ void RpcClientImpl::onConnect(net::TcpSocket& socket)
     {
         log_trace("onConnect");
 
+        socket.endConnect();
+
         _exceptionPending = false;
         if (_ssl)
         {
             socket.beginSslConnect();
             return;
         }
-
-        socket.endConnect();
 
         _stream.buffer().beginWrite();
     }
@@ -352,17 +351,13 @@ void RpcClientImpl::onInput(StreamBuffer& sb)
         if (sb.device()->eof())
             throw IOError("end of input");
 
-        while (_stream.buffer().in_avail())
+        if (_scanner.advance(sb))
         {
-            char ch = StreamBuffer::traits_type::to_char_type(_stream.buffer().sbumpc());
-            if (_scanner.advance(ch))
-            {
-                _scanner.finish();
-                IRemoteProcedure* proc = _proc;
-                _proc = 0;
-                proc->onFinished();
-                return;
-            }
+            _scanner.finish();
+            IRemoteProcedure* proc = _proc;
+            _proc = 0;
+            proc->onFinished();
+            return;
         }
 
         if (!_stream)

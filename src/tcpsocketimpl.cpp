@@ -257,13 +257,18 @@ void TcpSocketImpl::initSsl()
         MutexLock lock(_sslMutex);
         if (!_sslCtx)
         {
-            log_debug("SSL_load_error_strings");
-            SSL_load_error_strings();
+            if (!_sslInitialized)
+            {
+                log_debug("SSL_load_error_strings");
+                SSL_load_error_strings();
 
-            log_debug("SSL_library_init");
-            SSL_library_init();
+                log_debug("SSL_library_init");
+                SSL_library_init();
 
-            checkSslError();
+                checkSslError();
+
+                _sslInitialized = true;
+            }
 
 #ifdef HAVE_TLS_METHOD
             log_debug("SSL_CTX_new(TLS_method())");
@@ -551,7 +556,7 @@ void TcpSocketImpl::accept(const TcpServer& server, unsigned flags)
     //TODO ECONNABORTED EINTR EPERM
 
     _state = CONNECTED;
-    log_debug( "accepted from " << getPeerAddr());
+    log_debug( "accepted from " << getPeerAddr() << " fd=" << _fd);
 }
 
 
@@ -569,7 +574,7 @@ void TcpSocketImpl::initWait(pollfd& pfd)
 
 bool TcpSocketImpl::checkPollEvent(pollfd& pfd)
 {
-    log_debug("checkPollEvent " << pfd.revents);
+    log_finer("checkPollEvent " << pfd.revents);
 
     if (isConnected())
     {
@@ -804,6 +809,8 @@ size_t TcpSocketImpl::write(const char* buffer, size_t n)
 
 void TcpSocketImpl::inputReady()
 {
+    log_trace("inputReady; state=" << static_cast<int>(_state));
+
     switch (_state)
     {
         case IDLE:
@@ -819,15 +826,18 @@ void TcpSocketImpl::inputReady()
 
 #ifdef WITH_SSL
         case SSLACCEPTING:
-            beginSslAccept();
+            if (beginSslAccept())
+                _socket.sslAccepted(_socket);
             break;
 
         case SSLCONNECTING:
-            beginSslConnect();
+            if (beginSslConnect())
+                _socket.sslConnected(_socket);
             break;
 
         case SSLSHUTTINGDOWN:
-            beginSslShutdown();
+            if (beginSslShutdown())
+                _socket.sslClosed(_socket);
             break;
 #endif
     }
@@ -854,7 +864,8 @@ void TcpSocketImpl::outputReady()
             break;
 
         case SSLCONNECTING:
-            beginSslConnect();
+            if (beginSslConnect())
+                _socket.sslConnected(_socket);
             break;
 
         case SSLSHUTTINGDOWN:
@@ -913,6 +924,7 @@ size_t TcpSocketImpl::read(char* buffer, size_t count, bool& eof)
 #ifdef WITH_SSL
 
 Mutex TcpSocketImpl::_sslMutex;
+bool TcpSocketImpl::_sslInitialized = false;
 
 void TcpSocketImpl::loadSslCertificateFile(const std::string& certFile, const std::string& privateKeyFile)
 {
@@ -1003,6 +1015,8 @@ std::string TcpSocketImpl::getSslPeerIssuer() const
 
 bool TcpSocketImpl::beginSslConnect()
 {
+    log_trace("beginSslConnect; state=" << static_cast<int>(_state));
+
     if (!(_state == CONNECTED || _state == SSLCONNECTING))
         throw std::logic_error("Device not connected when trying to enable ssl");
 
@@ -1052,6 +1066,8 @@ void TcpSocketImpl::endSslConnect()
 
 bool TcpSocketImpl::beginSslAccept()
 {
+    log_trace("begin ssl accept");
+
     if (!(_state == CONNECTED || _state == SSLACCEPTING))
         throw std::logic_error("Device not connected when trying to enable ssl");
 

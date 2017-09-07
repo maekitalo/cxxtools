@@ -31,6 +31,8 @@
 #include <cxxtools/remoteexception.h>
 #include <cxxtools/bin/deserializer.h>
 
+#include <streambuf>
+
 log_define("cxxtools.bin.scanner")
 
 namespace cxxtools
@@ -50,58 +52,68 @@ void Scanner::begin(Deserializer& handler, IComposer& composer)
     _errorMessage.clear();
 }
 
-bool Scanner::advance(char ch)
+bool Scanner::advance(std::streambuf& in)
 {
-    switch (_state)
+    while (in.in_avail())
     {
-        case state_0:
-            if (ch == '\xc1')
-            {
-                _failed = false;
-                _state = state_value;
-            }
-            else if (ch == '\xc2')
-            {
-                _failed = true;
-                _state = state_errorcode;
-                _count = 4;
-            }
-            else
-                throw std::runtime_error("response expected");
-            break;
+        char ch = std::streambuf::traits_type::to_char_type(in.sgetc());
 
-        case state_value:
-            if (_vp.advance(ch))
-            {
-                log_debug(_deserializer->si());
-                _composer->fixup(_deserializer->si());
-                _deserializer->clear();
-                _state = state_end;
-            }
-            break;
+        switch (_state)
+        {
+            case state_0:
+                if (ch == '\xc1')
+                {
+                    _failed = false;
+                    _state = state_value;
+                }
+                else if (ch == '\xc2')
+                {
+                    _failed = true;
+                    _state = state_errorcode;
+                    _count = 4;
+                }
+                else
+                    throw std::runtime_error("response expected");
 
-        case state_errorcode:
-            _errorCode = (_errorCode << 8) | ch;
-            if (--_count == 0)
-                _state = state_errormessage;
-            break;
+                in.sbumpc();
+                break;
 
-        case state_errormessage:
-            if (ch == '\0')
-                _state = state_end;
-            else
-                _errorMessage += ch;
-            break;
+            case state_value:
+                if (_vp.advance(in))
+                {
+                    log_debug(_deserializer->si());
+                    _composer->fixup(_deserializer->si());
+                    _deserializer->clear();
+                    _state = state_end;
+                }
+                break;
 
-        case state_end:
-            if (ch == '\xff')
-            {
-                log_debug("reply finished");
-                return true;
-            }
-            else
-                throw std::runtime_error("end of response marker expected");
-            break;
+            case state_errorcode:
+                _errorCode = (_errorCode << 8) | ch;
+                if (--_count == 0)
+                    _state = state_errormessage;
+                in.sbumpc();
+                break;
+
+            case state_errormessage:
+                if (ch == '\0')
+                    _state = state_end;
+                else
+                    _errorMessage += ch;
+                in.sbumpc();
+                break;
+
+            case state_end:
+                if (ch == '\xff')
+                {
+                    log_debug("reply finished");
+                    in.sbumpc();
+                    return true;
+                }
+                else
+                    throw std::runtime_error("end of response marker expected");
+                break;
+        }
     }
 
     return false;
