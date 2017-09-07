@@ -255,13 +255,18 @@ void TcpSocketImpl::initSsl()
         MutexLock lock(_sslMutex);
         if (!_sslCtx)
         {
-            log_debug("SSL_load_error_strings");
-            SSL_load_error_strings();
+            if (!_sslInitialized)
+            {
+                log_debug("SSL_load_error_strings");
+                SSL_load_error_strings();
 
-            log_debug("SSL_library_init");
-            SSL_library_init();
+                log_debug("SSL_library_init");
+                SSL_library_init();
 
-            checkSslError();
+                checkSslError();
+
+                _sslInitialized = true;
+            }
 
 #ifdef HAVE_TLS_METHOD
             log_debug("SSL_CTX_new(TLS_method())");
@@ -549,7 +554,7 @@ void TcpSocketImpl::accept(const TcpServer& server, unsigned flags)
     //TODO ECONNABORTED EINTR EPERM
 
     _state = CONNECTED;
-    log_debug( "accepted from " << getPeerAddr());
+    log_debug( "accepted from " << getPeerAddr() << " fd=" << _fd);
 }
 
 
@@ -567,7 +572,7 @@ void TcpSocketImpl::initWait(pollfd& pfd)
 
 bool TcpSocketImpl::checkPollEvent(pollfd& pfd)
 {
-    log_debug("checkPollEvent " << pfd.revents);
+    log_finer("checkPollEvent " << pfd.revents);
 
     if (isConnected())
     {
@@ -917,6 +922,7 @@ size_t TcpSocketImpl::read(char* buffer, size_t count, bool& eof)
 #ifdef WITH_SSL
 
 Mutex TcpSocketImpl::_sslMutex;
+bool TcpSocketImpl::_sslInitialized = false;
 
 void TcpSocketImpl::loadSslCertificateFile(const std::string& certFile, const std::string& privateKeyFile)
 {
@@ -992,6 +998,8 @@ void TcpSocketImpl::endSslConnect()
 
 bool TcpSocketImpl::beginSslAccept()
 {
+    log_trace("begin ssl accept");
+
     if (!(_state == CONNECTED || _state == SSLACCEPTING))
         throw std::logic_error("Device not connected when trying to enable ssl");
 
