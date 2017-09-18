@@ -70,6 +70,7 @@ class CsvDeserializerTest : public cxxtools::unit::TestSuite
             registerMethod("testSingleColumn", *this, &CsvDeserializerTest::testSingleColumn);
             registerMethod("testSetDelimiter", *this, &CsvDeserializerTest::testSetDelimiter);
             registerMethod("testQuotedTitle", *this, &CsvDeserializerTest::testQuotedTitle);
+            registerMethod("testQuoteData", *this, &CsvDeserializerTest::testQuoteData);
             registerMethod("testFailDecoding", *this, &CsvDeserializerTest::testFailDecoding);
             registerMethod("testLinefeed", *this, &CsvDeserializerTest::testLinefeed);
         }
@@ -303,6 +304,25 @@ class CsvDeserializerTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[1].intValue, -6);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[1].stringValue, "Foo");
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[1].doubleValue, -1000);
+        }
+
+        void testQuoteData()
+        {
+            std::vector<std::vector<std::string> > data;
+            std::istringstream in(
+                "A|B\n"
+                "He'llo|Wor'ld'\n"
+                "He\"llo|Wor\"'ld\n");
+
+            in >> cxxtools::Csv(data);
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 2);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0].size(), 2);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[1].size(), 2);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0][0], "He'llo");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0][1], "Wor'ld'");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[1][0], "He\"llo");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[1][1], "Wor\"'ld");
         }
 
         void testFailDecoding()
