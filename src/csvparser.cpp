@@ -262,6 +262,9 @@ void CsvParser::advance(Char ch)
                 break;
             }
 
+            _state = state_data;
+            // fallthrough
+
         case state_data:
             if (ch == L'\n' || ch == L'\r')
             {
