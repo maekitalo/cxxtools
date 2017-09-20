@@ -438,22 +438,28 @@ bool Parser::advance(std::streambuf& in)
                 break;
 
             case state_name:
-                if (ch == '\0')
+                while (in.in_avail())
                 {
-                    log_debug("name=" << _token);
-                    if (_deserializer)
-                        _deserializer->setName(_token);
+                    ch = std::streambuf::traits_type::to_char_type(in.sbumpc());
+                    if (ch == '\0')
+                    {
+                        log_debug("name=" << _token);
+                        if (_deserializer)
+                            _deserializer->setName(_token);
 
-                    dict(_token);
-                    _token.clear();
-                    _state = _nextstate;
+                        dict(_token);
+                        _token.clear();
+                        _state = _nextstate;
+                        break;
+                    }
+                    else if (_token.empty() && ch == '\1')
+                    {
+                        _state = state_name_idx0;
+                        break;
+                    }
+                    else
+                        _token += ch;
                 }
-                else if (_token.empty() && ch == '\1')
-                    _state = state_name_idx0;
-                else
-                    _token += ch;
-
-                in.sbumpc();
                 break;
 
             case state_name_idx0:
@@ -530,28 +536,30 @@ bool Parser::advance(std::streambuf& in)
 
             case state_value_int:
             case state_value_uint:
-                _int = (_int << 8) | static_cast<unsigned char>(ch);
-                if (--_count == 0)
+                while (in.in_avail())
                 {
-                    if (_deserializer)
+                    ch = std::streambuf::traits_type::to_char_type(in.sbumpc());
+                    _int = (_int << 8) | static_cast<unsigned char>(ch);
+                    if (--_count == 0)
                     {
-                        if (_state == state_value_int)
+                        if (_deserializer)
                         {
-                            Deserializer::int_type value = Deserializer::int_type(_int);
-                            _deserializer->setValue(value);
+                            if (_state == state_value_int)
+                            {
+                                Deserializer::int_type value = Deserializer::int_type(_int);
+                                _deserializer->setValue(value);
+                            }
+                            else
+                            {
+                                Deserializer::unsigned_type value = Deserializer::unsigned_type(_int);
+                                _deserializer->setValue(value);
+                            }
                         }
-                        else
-                        {
-                            Deserializer::unsigned_type value = Deserializer::unsigned_type(_int);
-                            _deserializer->setValue(value);
-                        }
-                    }
 
-                    _int = 0;
-                    in.sbumpc();
-                    return true;
+                        _int = 0;
+                        return true;
+                    }
                 }
-                in.sbumpc();
                 break;
 
             case state_value_bool:
@@ -641,30 +649,39 @@ bool Parser::advance(std::streambuf& in)
                 break;
 
             case state_value_binary:
-                if (_deserializer)
-                    _token += ch;
-
-                in.sbumpc();
-                if (--_count == 0)
+                while (in.in_avail())
                 {
+                    ch = std::streambuf::traits_type::to_char_type(in.sbumpc());
+
                     if (_deserializer)
-                        _deserializer->setValue(_token);
-                    return true;
+                        _token += ch;
+
+                    if (--_count == 0)
+                    {
+                        if (_deserializer)
+                            _deserializer->setValue(_token);
+                        return true;
+                    }
                 }
 
                 break;
 
             case state_value_value:
-                if (ch == '\0')
+                while (in.in_avail())
                 {
-                    if (_deserializer)
-                        _deserializer->setValue(_token);
-                    _token.clear();
-                    _state = state_end;
+                    ch = std::streambuf::traits_type::to_char_type(in.sbumpc());
+                    if (ch == '\0')
+                    {
+                        if (_deserializer)
+                            _deserializer->setValue(_token);
+                        _token.clear();
+                        _state = state_end;
+                        break;
+                    }
+                    else
+                        _token += ch;
                 }
-                else
-                    _token += ch;
-                in.sbumpc();
+
                 break;
 
             case state_sfloat_exp:
@@ -699,21 +716,30 @@ bool Parser::advance(std::streambuf& in)
                 break;
 
             case state_sfloat_base:
-                in.sbumpc();
-                if (processFloatBase(ch, 48, 63))
-                    return true;
+                while (in.in_avail())
+                {
+                    ch = std::streambuf::traits_type::to_char_type(in.sbumpc());
+                    if (processFloatBase(ch, 48, 63))
+                        return true;
+                }
                 break;
 
             case state_mfloat_base:
-                in.sbumpc();
-                if (processFloatBase(ch, 32, 63))
-                    return true;
+                while (in.in_avail())
+                {
+                    ch = std::streambuf::traits_type::to_char_type(in.sbumpc());
+                    if (processFloatBase(ch, 32, 63))
+                        return true;
+                }
                 break;
 
             case state_lfloat_base:
-                in.sbumpc();
-                if (processFloatBase(ch, 0, 16383))
-                    return true;
+                while (in.in_avail())
+                {
+                    ch = std::streambuf::traits_type::to_char_type(in.sbumpc());
+                    if (processFloatBase(ch, 0, 16383))
+                        return true;
+                }
                 break;
 
             case state_object_type:
