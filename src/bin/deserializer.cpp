@@ -42,7 +42,7 @@ Deserializer::Deserializer(const char* data, unsigned size)
     begin();
 
     std::stringbuf in(std::string(data, size));
-    if (_parser.advance(in))
+    if (_parser.advance(in) && !in.in_avail())
     {
         _parser.finish();
         return;
