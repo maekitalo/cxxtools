@@ -121,6 +121,9 @@ namespace cxxtools
             void setValue(bool value)
             { current()->setValue(value); }
 
+            void setValue(char value)
+            { current()->setValue(value); }
+
             void setValue(int_type value)
             { current()->setValue(value); }
 

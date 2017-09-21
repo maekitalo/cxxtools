@@ -148,9 +148,9 @@ void Parser::skip()
 }
 
 
-bool Parser::advance(std::streambuf& in)
+bool Parser::advance(std::streambuf& in, bool atLeastOne)
 {
-    while (in.in_avail())
+    while (in.in_avail() || atLeastOne)
     {
         char ch = std::streambuf::traits_type::to_char_type(in.sgetc());
 
@@ -205,6 +205,10 @@ bool Parser::advance(std::streambuf& in)
                                 break;
 
                             case Serializer::TypeChar:
+                                _nextstate = state_value_char;
+                                _state = state_name;
+                                break;
+
                             case Serializer::TypeString:
                             case Serializer::TypeInt:
                                 _nextstate = state_value_value;
@@ -327,6 +331,9 @@ bool Parser::advance(std::streambuf& in)
                                 break;
 
                             case Serializer::TypePlainChar:
+                                _state = state_value_char;
+                                break;
+
                             case Serializer::TypePlainString:
                             case Serializer::TypePlainInt:
                                 _state = state_value_value;
@@ -438,8 +445,9 @@ bool Parser::advance(std::streambuf& in)
                 break;
 
             case state_name:
-                while (in.in_avail())
+                while (in.in_avail() || atLeastOne)
                 {
+                    atLeastOne = false;
                     ch = std::streambuf::traits_type::to_char_type(in.sbumpc());
                     if (ch == '\0')
                     {
@@ -536,8 +544,9 @@ bool Parser::advance(std::streambuf& in)
 
             case state_value_int:
             case state_value_uint:
-                while (in.in_avail())
+                while (in.in_avail() || atLeastOne)
                 {
+                    atLeastOne = false;
                     ch = std::streambuf::traits_type::to_char_type(in.sbumpc());
                     _int = (_int << 8) | static_cast<unsigned char>(ch);
                     if (--_count == 0)
@@ -649,8 +658,9 @@ bool Parser::advance(std::streambuf& in)
                 break;
 
             case state_value_binary:
-                while (in.in_avail())
+                while (in.in_avail() || atLeastOne)
                 {
+                    atLeastOne = false;
                     ch = std::streambuf::traits_type::to_char_type(in.sbumpc());
 
                     if (_deserializer)
@@ -667,8 +677,9 @@ bool Parser::advance(std::streambuf& in)
                 break;
 
             case state_value_value:
-                while (in.in_avail())
+                while (in.in_avail() || atLeastOne)
                 {
+                    atLeastOne = false;
                     ch = std::streambuf::traits_type::to_char_type(in.sbumpc());
                     if (ch == '\0')
                     {
@@ -683,6 +694,12 @@ bool Parser::advance(std::streambuf& in)
                 }
 
                 break;
+
+            case state_value_char:
+                ch = std::streambuf::traits_type::to_char_type(in.sbumpc());
+                if (_deserializer)
+                    _deserializer->setValue(ch);
+                return true;
 
             case state_sfloat_exp:
                 _isNeg = (ch & '\x80') != 0;
@@ -716,8 +733,9 @@ bool Parser::advance(std::streambuf& in)
                 break;
 
             case state_sfloat_base:
-                while (in.in_avail())
+                while (in.in_avail() || atLeastOne)
                 {
+                    atLeastOne = false;
                     ch = std::streambuf::traits_type::to_char_type(in.sbumpc());
                     if (processFloatBase(ch, 48, 63))
                         return true;
@@ -725,8 +743,9 @@ bool Parser::advance(std::streambuf& in)
                 break;
 
             case state_mfloat_base:
-                while (in.in_avail())
+                while (in.in_avail() || atLeastOne)
                 {
+                    atLeastOne = false;
                     ch = std::streambuf::traits_type::to_char_type(in.sbumpc());
                     if (processFloatBase(ch, 32, 63))
                         return true;
@@ -734,8 +753,9 @@ bool Parser::advance(std::streambuf& in)
                 break;
 
             case state_lfloat_base:
-                while (in.in_avail())
+                while (in.in_avail() || atLeastOne)
                 {
+                    atLeastOne = false;
                     ch = std::streambuf::traits_type::to_char_type(in.sbumpc());
                     if (processFloatBase(ch, 0, 16383))
                         return true;
@@ -816,7 +836,7 @@ bool Parser::advance(std::streambuf& in)
                 break;
 
             case state_object_member_value:
-                if (_next->advance(in))
+                if (_next->advance(in, atLeastOne))
                 {
                     if (_deserializer)
                         _deserializer->leaveMember();
@@ -910,7 +930,7 @@ bool Parser::advance(std::streambuf& in)
                 // no break
 
             case state_array_member_value:
-                if (_next->advance(in))
+                if (_next->advance(in, atLeastOne))
                 {
                     if (_deserializer)
                         _deserializer->leaveMember();
@@ -947,6 +967,8 @@ bool Parser::advance(std::streambuf& in)
                 log_debug("end of value");
                 return true;
         }
+
+        atLeastOne = false;
     }
 
     return false;

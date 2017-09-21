@@ -54,6 +54,9 @@ namespace cxxtools
                 virtual void addValueStdString(const std::string& name, const std::string& type,
                                       const std::string& value);
 
+                virtual void addValueChar(const std::string& name, const std::string& type,
+                                      char value);
+
                 virtual void addValueBool(const std::string& name, const std::string& type,
                                       bool value);
 

@@ -117,6 +117,12 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
         {
             registerMethod("testScalar", *this, &BinSerializerTest::testScalar);
             registerMethod("testInt", *this, &BinSerializerTest::testInt);
+            registerMethod("testChar", *this, &BinSerializerTest::testChar);
+            registerMethod("testChar_0", *this, &BinSerializerTest::testChar_0);
+            registerMethod("testString8", *this, &BinSerializerTest::testString8);
+            registerMethod("testString8_0", *this, &BinSerializerTest::testString8_0);
+            registerMethod("testString", *this, &BinSerializerTest::testString);
+            registerMethod("testString_0", *this, &BinSerializerTest::testString_0);
             registerMethod("testDouble", *this, &BinSerializerTest::testDouble);
             registerMethod("testArray", *this, &BinSerializerTest::testArray);
             registerMethod("testObject", *this, &BinSerializerTest::testObject);
@@ -148,6 +154,19 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
             data << cxxtools::bin::Bin(value);
 
             IntT result = 0;
+            data >> cxxtools::bin::Bin(result);
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(value, result);
+        }
+
+        template <typename T>
+        void testStreamableValue(T value, T initvalue)
+        {
+            std::stringstream data;
+
+            data << cxxtools::bin::Bin(value);
+
+            T result = initvalue;
             data >> cxxtools::bin::Bin(result);
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(value, result);
@@ -186,6 +205,39 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
             testIntValue(static_cast<uint64_t>(std::numeric_limits<uint32_t>::max()) + 1);
             testIntValue(std::numeric_limits<uint64_t>::max());
 #endif
+        }
+
+        void testChar()
+        {
+            testStreamableValue('a', '\xff');
+            testStreamableValue('\1', '\xff');
+        }
+
+        void testChar_0()
+        {
+            testStreamableValue('\0', '\xff');
+        }
+
+        void testString8()
+        {
+            testStreamableValue(std::string(""), std::string("init"));
+            testStreamableValue(std::string("Hi there"), std::string("init"));
+        }
+
+        void testString8_0()
+        {
+            testStreamableValue(std::string(1, '\0'), std::string("init"));
+        }
+
+        void testString()
+        {
+            testStreamableValue(cxxtools::String(L""), cxxtools::String(L"init"));
+            testStreamableValue(cxxtools::String(L"Hi there"), cxxtools::String(L"init"));
+        }
+
+        void testString_0()
+        {
+            testStreamableValue(cxxtools::String(1, L'\0'), cxxtools::String(L"init"));
         }
 
         void testDoubleValue(double value)

@@ -333,6 +333,22 @@ basic_string<cxxtools::Char>::find(const basic_string& str, size_type pos) const
 
 inline
 basic_string<cxxtools::Char>::size_type
+basic_string<cxxtools::Char>::find(wchar_t ch, size_type pos) const
+{
+    return this->find(cxxtools::Char(ch), pos);
+}
+
+
+inline
+basic_string<cxxtools::Char>::size_type
+basic_string<cxxtools::Char>::rfind(wchar_t ch, size_type pos) const
+{
+    return this->rfind(cxxtools::Char(ch), pos);
+}
+
+
+inline
+basic_string<cxxtools::Char>::size_type
 basic_string<cxxtools::Char>::rfind(const basic_string& str, size_type pos) const
 {
     return this->rfind( str.privdata_ro(), pos, str.size() );

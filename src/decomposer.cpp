@@ -81,6 +81,12 @@ void IDecomposer::formatEach(const SerializationInfo& si, Formatter& formatter)
             si.getValue(value);
             formatter.addValueStdString( si.name(), si.typeName(), value );
         }
+        else if (si.isChar())
+        {
+            char value;
+            si.getValue(value);
+            formatter.addValueChar( si.name(), si.typeName(), value );
+        }
         else
         {
             String value;

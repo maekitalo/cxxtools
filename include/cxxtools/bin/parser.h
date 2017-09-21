@@ -75,7 +75,7 @@ class Parser
 
         void skip();
 
-        bool advance(std::streambuf& in); // returns true, if value is complete
+        bool advance(std::streambuf& in, bool atLeastOne = false); // returns true, if value is complete
 
     private:
 
@@ -95,6 +95,7 @@ class Parser
             state_value_int,
             state_value_uint,
             state_value_bool,
+            state_value_char,
             state_value_bcd0,
             state_value_bcd,
             state_value_binary_length,

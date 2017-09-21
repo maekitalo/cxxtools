@@ -37,6 +37,12 @@ void Formatter::addValueStdString(const std::string& name, const std::string& ty
     addValueString(name, type, String::widen(value));
 }
 
+void Formatter::addValueChar(const std::string& name, const std::string& type,
+                         char value)
+{
+    addValueString(name, type, String(1, Char(value)));
+}
+
 void Formatter::addValueBool(const std::string& name, const std::string& type,
                          bool value)
 {

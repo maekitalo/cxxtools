@@ -29,8 +29,11 @@
 #include <cxxtools/bin/deserializer.h>
 #include <cxxtools/bin/parser.h>
 #include <cxxtools/serializationerror.h>
+#include <cxxtools/log.h>
 
 #include <sstream>
+
+log_define("cxxtools.bin.deseriailzer")
 
 namespace cxxtools
 {
@@ -53,11 +56,14 @@ Deserializer::Deserializer(const char* data, unsigned size)
 
 void Deserializer::read(std::istream& in)
 {
+    log_trace("read from input stream");
+
     begin();
 
     while (in.rdbuf()->sgetc() != std::streambuf::traits_type::eof())
     {
-        if (_parser.advance(*in.rdbuf()))
+        log_debug("call advance - in_avail=" << in.rdbuf()->in_avail() << " ch=" << in.rdbuf()->sgetc());
+        if (_parser.advance(*in.rdbuf(), true))
         {
             _parser.finish();
             return;

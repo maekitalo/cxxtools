@@ -178,6 +178,32 @@ void Formatter::addValueString(const std::string& name, const std::string& type,
 
         sb->sputc((isTrue(value) ? '\1' : '\0'));
     }
+    else if (value.find(L'\0') != cxxtools::String::npos)
+    {
+        std::string svalue = Utf8Codec::encode(value);
+        uint32_t v = svalue.size();
+        if (v <= 0xffff)
+        {
+            sb->sputc(static_cast<char>(plain ? Serializer::TypePlainBinary2 : Serializer::TypeBinary2));
+
+            if (!plain)
+                outputString(name);
+        }
+        else
+        {
+            sb->sputc(static_cast<char>(plain ? Serializer::TypePlainBinary4 : Serializer::TypeBinary4));
+
+            if (!plain)
+                outputString(name);
+
+            sb->sputc(static_cast<char>(v >> 24));
+            sb->sputc(static_cast<char>(v >> 16));
+        }
+
+        sb->sputc(static_cast<char>(v >> 8));
+        sb->sputc(static_cast<char>(v));
+        *_out << svalue;
+    }
     else
     {
         printTypeCode(type, plain);
@@ -319,6 +345,21 @@ void Formatter::addValueStdString(const std::string& name, const std::string& ty
 
 }
 
+void Formatter::addValueChar(const std::string& name, const std::string& type,
+                         char value)
+{
+    log_trace("addValueChar(\"" << name << "\", \"" << type << "\", " << value << ')');
+
+    bool plain = name.empty();
+    std::streambuf* sb = _out->rdbuf();
+
+    sb->sputc(static_cast<char>(plain ? Serializer::TypePlainChar : Serializer::TypeChar));
+
+    if (!plain)
+        outputString(name);
+
+    sb->sputc(value);
+}
 void Formatter::addValueBool(const std::string& name, const std::string& type,
                          bool value)
 {

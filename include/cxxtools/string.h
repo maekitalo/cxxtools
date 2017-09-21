@@ -316,6 +316,8 @@ class basic_string< cxxtools::Char > {
 //
         size_type find(cxxtools::Char ch, size_type pos = 0) const;
 
+        size_type find(wchar_t ch, size_type pos = 0) const;
+
         size_type rfind(const basic_string& str, size_type pos = npos) const;
 
         size_type rfind(const cxxtools::Char* str, size_type pos, size_type n) const;
@@ -323,6 +325,8 @@ class basic_string< cxxtools::Char > {
         size_type rfind(const cxxtools::Char* str, size_type pos = npos) const;
 
         size_type rfind(cxxtools::Char ch, size_type pos = npos) const;
+
+        size_type rfind(wchar_t ch, size_type pos = npos) const;
 
         size_type find_first_of(const basic_string& str, size_type pos = 0) const
         { return this->find_first_of( str.data(), pos, str.size() ); }
