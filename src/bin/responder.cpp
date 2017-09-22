@@ -123,6 +123,8 @@ bool Responder::advance(std::streambuf& in)
         switch (_state)
         {
             case state_0:
+                log_debug("new rpc request");
+
                 if (ch == '\xc0')
                     _state = state_method;
                 else if (ch == '\xc3')
@@ -135,7 +137,7 @@ bool Responder::advance(std::streambuf& in)
             case state_domain:
                 if (ch == '\0')
                 {
-                    log_info("rpc method domain \"" << _domain << '"');
+                    log_info_if(!_domain.empty(), "rpc method domain \"" << _domain << '"');
                     _state = state_method;
                 }
                 else
