@@ -773,9 +773,7 @@ void Formatter::printTypeCode(const std::string& type, bool plain)
 {
     std::streambuf* sb = _out->rdbuf();
 
-    if (type.empty())
-        sb->sputc(static_cast<char>(plain ? Serializer::TypePlainEmpty : Serializer::TypeEmpty));
-    else if (type == "bool")
+    if (type == "bool")
         sb->sputc(static_cast<char>(plain ? Serializer::TypePlainBool : Serializer::TypeBool));
     else if (type == "char")
         sb->sputc(static_cast<char>(plain ? Serializer::TypePlainChar : Serializer::TypeChar));
