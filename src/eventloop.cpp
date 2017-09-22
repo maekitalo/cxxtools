@@ -29,7 +29,10 @@
 #include "selectorimpl.h"
 #include "cxxtools/eventloop.h"
 #include "cxxtools/mutex.h"
+#include "cxxtools/log.h"
 #include <deque>
+
+log_define("cxxtools.eventloop")
 
 namespace cxxtools
 {
@@ -54,12 +57,12 @@ public:
     Impl()
         : _exitLoop(false),
           _selector(new SelectorImpl()),
-          _eventsPerLoop(1024)
+          _eventsPerLoop(16)
         { }
     ~Impl();
 
     bool eventQueueEmpty()
-    { return _eventQueue.empty() && _priorityEventQueue.empty(); }
+    { return _eventQueue.empty() && _priorityEventQueue.empty() && _activeEventQueue.empty(); }
 
     Event* front()
     {
@@ -79,9 +82,11 @@ public:
 
     bool _exitLoop;
     SelectorImpl* _selector;
-    std::deque<Event* > _eventQueue;
-    std::deque<Event* > _priorityEventQueue;
-    RecursiveMutex _queueMutex;
+    std::deque<Event*> _eventQueue;
+    std::deque<Event*> _priorityEventQueue;
+    std::deque<Event*> _activeEventQueue;
+    bool _activeEventQueueIsPriority;
+    Mutex _queueMutex;
     unsigned _eventsPerLoop;
 };
 
@@ -102,6 +107,15 @@ EventLoop::Impl::~Impl()
             _priorityEventQueue.pop_front();
             ev->destroy();
         }
+
+        while ( ! _activeEventQueue.empty() )
+        {
+            Event* ev = _activeEventQueue.front();
+            _activeEventQueue.pop_front();
+            if (ev)
+                ev->destroy();
+        }
+
     }
     catch(...)
     {}
@@ -160,7 +174,7 @@ void EventLoop::onRun()
 
     while (true)
     {
-        RecursiveLock lock(_impl->_queueMutex);
+        MutexLock lock(_impl->_queueMutex);
 
         if (_impl->_exitLoop)
         {
@@ -201,7 +215,7 @@ bool EventLoop::onWaitUntil(Timespan timeout)
 {
     if (_impl->_selector->waitUntil(timeout))
     {
-        RecursiveLock lock(_impl->_queueMutex);
+        MutexLock lock(_impl->_queueMutex);
 
         if (!_impl->eventQueueEmpty())
         {
@@ -224,16 +238,21 @@ void EventLoop::onWake()
 
 void EventLoop::onExit()
 {
-    RecursiveLock lock(_impl->_queueMutex);
-    _impl->_exitLoop = true;
-    lock.unlock();
+    log_debug("exit loop");
 
-    this->wake();
+    {
+        MutexLock lock(_impl->_queueMutex);
+        _impl->_exitLoop = true;
+    }
+
+    wake();
 }
 
 void EventLoop::onQueueEvent(const Event& ev, bool priority)
 {
-    RecursiveLock lock( _impl->_queueMutex );
+    log_debug("queue event");
+
+    MutexLock lock( _impl->_queueMutex );
 
     EvPtr cloned(ev.clone());
 
@@ -257,22 +276,75 @@ void EventLoop::onProcessEvents(unsigned max)
 {
     unsigned count = 0;
 
-    while (!_impl->_exitLoop)
+    auto& exitLoop = _impl->_exitLoop;
+    auto& eventQueue = _impl->_eventQueue;
+    auto& priorityEventQueue = _impl->_priorityEventQueue;
+    auto& activeEventQueue = _impl->_activeEventQueue;
+    auto& activeEventQueueIsPriority = _impl->_activeEventQueueIsPriority;
+    auto& queueMutex = _impl->_queueMutex;
+
+    log_debug("processEvents(max:" << max << ") normal/priority/active(priority): " << eventQueue.size() << '/' << priorityEventQueue.size() << '/' << activeEventQueue.size() << '(' << activeEventQueueIsPriority << ')');
+
+    if (!activeEventQueue.empty() && !activeEventQueueIsPriority)
     {
-        RecursiveLock lock(_impl->_queueMutex);
+        MutexLock lock(queueMutex);
+        if (!priorityEventQueue.empty())
+        {
+            log_debug("priority events bypass active events");
 
-        if (_impl->eventQueueEmpty() || _impl->_exitLoop)
+            if (eventQueue.empty())
+            {
+                eventQueue.swap(activeEventQueue);
+            }
+            else
+            {
+                eventQueue.insert(eventQueue.begin(), activeEventQueue.begin(), activeEventQueue.end()); 
+                activeEventQueue.clear();
+            }
+
+            priorityEventQueue.swap(activeEventQueue);
+            activeEventQueueIsPriority = true;
+        }
+    }
+
+    while (!exitLoop)
+    {
+        if (activeEventQueue.empty())
+        {
+            MutexLock lock(queueMutex);
+            if (!priorityEventQueue.empty())
+            {
+                log_debug("move " << priorityEventQueue.size() << " priority events to active event queue");
+                activeEventQueueIsPriority = true;
+                activeEventQueue.swap(priorityEventQueue);
+            }
+            else if (!eventQueue.empty())
+            {
+                log_debug("move " << eventQueue.size() << " events to active event queue");
+                activeEventQueueIsPriority = false;
+                activeEventQueue.swap(eventQueue);
+            }
+        }
+
+        if (exitLoop || activeEventQueue.empty())
+        {
+            log_debug_if(activeEventQueue.empty(), "no events to process");
             break;
+        }
 
-        EvPtr ev(_impl->front());
-        _impl->pop_front();
-
-        lock.unlock();
-        event.send(*ev.ev);
+        EvPtr ev(activeEventQueue.front());
+        activeEventQueue.pop_front();
 
         ++count;
+
+        log_debug("send event " << count);
+        event.send(*ev.ev);
+
         if (max != 0 && count >= max)
+        {
+            log_debug("maximum number of events per loop " << max << " reached");
             break;
+        }
     }
 }
 

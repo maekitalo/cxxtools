@@ -138,7 +138,7 @@ namespace cxxtools
         %IODevices and %Timers can be added to an %EventLoop just as to Selector.
         In fact a %Selector is used internally to implement the %EventLoop.
 
-        Since the %EventLoop is a Runnable, it can be easily assigned to a Thread
+        Since the %EventLoop is a Runnable, it can be easily assigned to a thread
         to give it its own event loop.
      */
     class EventLoop : public EventLoopBase
@@ -159,6 +159,7 @@ namespace cxxtools
             unsigned eventsPerLoop();
 
             /** Sets the maximum number of events processed per loop cycle.
+             *  The default is 16.
              */
             void eventsPerLoop(unsigned n);
 
