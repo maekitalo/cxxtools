@@ -74,6 +74,7 @@ cxxtools-config
 **/demo/rpcechoclient
 **/demo/rpcparallelecho
 **/demo/rpcserver
+**/demo/saml2
 **/demo/serialization
 **/demo/signals
 **/demo/splitter
