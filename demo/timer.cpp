@@ -57,18 +57,25 @@ void onIntervalFuture()
   log_info("delayed start interval second " << count);
 }
 
-void onIntervalFutureFullSecond()
+void onIntervalFutureFullSecond(cxxtools::DateTime ts)
 {
   static unsigned count = 0;
   ++count;
-  log_info("future full second interval " << count);
+  log_info("future full second interval " << count << ' ' << ts.toString());
 }
 
-void onIntervalPast()
+void onIntervalPast(cxxtools::DateTime ts)
 {
   static unsigned count = 0;
   ++count;
-  log_info("late start " << count);
+  log_info("late start " << count << ' ' << ts.toString());
+}
+
+void onIntervalPastGmt(cxxtools::DateTime ts)
+{
+  static unsigned count = 0;
+  ++count;
+  log_info("gmt " << ts.toString());
 }
 
 void onOneShot()
@@ -108,41 +115,41 @@ int main(int argc, char* argv[])
 
     // timer to tick just once after 1500 ms
     cxxtools::Timer oneShotTimer(&loop);
-    oneShotTimer.after(1500);
+    oneShotTimer.after(cxxtools::Milliseconds(1500));
     cxxtools::connect(oneShotTimer.timeout, onOneShot);
-
 
     // timer tick once per second
     cxxtools::Timer intervalTimer(&loop);
-    intervalTimer.start(1000);
+    intervalTimer.start(cxxtools::Seconds(1));
     cxxtools::connect(intervalTimer.timeout, onInterval);
 
     // timer tick once per second but start at full second
     cxxtools::Timer intervalFullSecondTimer(&loop);
-    intervalFullSecondTimer.start(cxxtools::DateTime(1970, 1, 1, 0, 0, 0), 1000);
+    intervalFullSecondTimer.start(cxxtools::DateTime(1970, 1, 1, 0, 0, 0), cxxtools::Seconds(1));
     cxxtools::connect(intervalFullSecondTimer.timeout, onIntervalFullSecond);
 
     // timer tick once per second but start after 5 seconds
     cxxtools::Timer intervalFutureTimer(&loop);
-    intervalFutureTimer.start(cxxtools::Clock::getLocalTime() + cxxtools::Timespan(5, 0), 1000);
+    intervalFutureTimer.start(cxxtools::Clock::getLocalTime() + cxxtools::Seconds(5), cxxtools::Seconds(1));
     cxxtools::connect(intervalFutureTimer.timeout, onIntervalFuture);
 
     // timer tick once per second but start after 2 seconds at full second
     cxxtools::Timer intervalFutureFullSecondTimer(&loop);
 
-    cxxtools::DateTime dt = cxxtools::Clock::getLocalTime() + cxxtools::Timespan(2, 0);
+    cxxtools::DateTime dt = cxxtools::Clock::getLocalTime() + cxxtools::Seconds(2);
     int year;
     unsigned month, day, hour, min, sec, msec;
     dt.get(year, month, day, hour, min, sec, msec);
     dt.set(year, month, day, hour, min, sec, 0);
 
-    intervalFutureFullSecondTimer.start(dt, 1000);
-    cxxtools::connect(intervalFutureFullSecondTimer.timeout, onIntervalFutureFullSecond);
+    intervalFutureFullSecondTimer.start(dt, cxxtools::Seconds(1));
+    cxxtools::connect(intervalFutureFullSecondTimer.timeoutts, onIntervalFutureFullSecond);
 
     // timer, which was started in the past - it just starts ticking immediately
     cxxtools::Timer intervalPastTimer(&loop);
-    intervalPastTimer.start(cxxtools::DateTime(1990, 1, 1, 8, 0, 0), 1000);
-    cxxtools::connect(intervalPastTimer.timeout, onIntervalPast);
+    intervalPastTimer.start(cxxtools::DateTime(1990, 1, 1, 8, 0, 0), cxxtools::Seconds(1));
+    cxxtools::connect(intervalPastTimer.timeoutts, onIntervalPast);
+    cxxtools::connect(intervalPastTimer.timeoutgmt, onIntervalPastGmt);
 
     // now we start the event loop to execute the timers
     // this will loop forever and call the timer callback functions at suitable times

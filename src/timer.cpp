@@ -121,7 +121,7 @@ void Timer::start(const Milliseconds& interval)
 }
 
 
-void Timer::start(const DateTime& startTime, const Milliseconds& interval)
+void Timer::start(const DateTime& startTime, const Milliseconds& interval, bool localtime)
 {
     if (interval <= Timespan(0))
         throw std::logic_error("cannot run interval timer without interval");
@@ -136,7 +136,11 @@ void Timer::start(const DateTime& startTime, const Milliseconds& interval)
     Timespan systemTime = Clock::getSystemTicks();
     struct tm tim;
     time_t sec = static_cast<time_t>(systemTime.totalSeconds());
-    localtime_r(&sec, &tim);
+    if (localtime)
+        localtime_r(&sec, &tim);
+    else
+        gmtime_r(&sec, &tim);
+
     DateTime now(tim.tm_year + 1900, tim.tm_mon + 1, tim.tm_mday,
                  tim.tm_hour, tim.tm_min, tim.tm_sec,
                  0, systemTime.totalUSecs() % 1000000);
@@ -164,14 +168,14 @@ void Timer::after(const Milliseconds& interval)
 }
 
 
-void Timer::at(const DateTime& tickTime)
+void Timer::at(const DateTime& tickTime, bool localtime)
 {
     if (_active)
         stop();
     
     _once = true;
 
-    DateTime now = Clock::getLocalTime();
+    DateTime now = localtime ? Clock::getLocalTime() : Clock::getSystemTime();
     if (tickTime >= now)
     {
         _active = true;
@@ -240,6 +244,17 @@ bool Timer::update(const Milliseconds& now)
                  tim.tm_hour, tim.tm_min, tim.tm_sec,
                  0, currentTs.totalUSecs() % 1000000);
             timeoutts.send(dueTime);
+        }
+
+        if (timeoutgmt.connectionCount() > 0)
+        {
+            struct tm tim;
+            time_t sec = static_cast<time_t>(currentTs.totalSeconds());
+            gmtime_r(&sec, &tim);
+            DateTime dueTime(tim.tm_year + 1900, tim.tm_mon + 1, tim.tm_mday,
+                 tim.tm_hour, tim.tm_min, tim.tm_sec,
+                 0, currentTs.totalUSecs() % 1000000);
+            timeoutgmt.send(dueTime);
         }
 
         if (_once)

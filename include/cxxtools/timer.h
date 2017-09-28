@@ -120,7 +120,7 @@ namespace cxxtools {
 
                 @param interval Timeout interval as a cxxtools::Timespan
             */
-            void start(const DateTime& startTime, const Milliseconds& interval);
+            void start(const DateTime& startTime, const Milliseconds& interval, bool localtime = true);
 
             /** @brief Starts the timer
 
@@ -141,7 +141,7 @@ namespace cxxtools {
 
                 @param tickTime The time, when the timer should tick.
             */
-            void at(const DateTime& tickTime);
+            void at(const DateTime& tickTime, bool localtime = true);
 
             /** @brief Stops the timer
 
@@ -170,9 +170,16 @@ namespace cxxtools {
             /** @brief Notifies about interval timeouts
 
                 This signal is sent if the interval time has expired.
-                As a parameter the due time is passed.
+                As a parameter the due time is passed as local time.
             */
             Signal<DateTime> timeoutts;
+
+            /** @brief Notifies about interval timeouts
+
+                This signal is sent if the interval time has expired.
+                As a parameter the due time is passed in gmt.
+            */
+            Signal<DateTime> timeoutgmt;
 
             /** @brief Returns the timespan since epoch when the timer expires
              */
