@@ -126,14 +126,14 @@ class Time
             return unsigned(_usecs / 1000 / 1000 / 60) % 60;
         }
 
-        /** \brief Returns the second-part of the Time.
+        /** \brief Returns the second part of the Time.
         */
         unsigned second() const
         {
             return unsigned(_usecs / 1000 / 1000) % 60;
         }
 
-        /** \brief Returns the millisecond-part of the Time.
+        /** \brief Returns the millisecond part of the Time.
         */
         unsigned msec() const
         {
@@ -142,7 +142,7 @@ class Time
 
         /** \brief Returns the microseconds of the Time.
          *
-         *  Note that the microsoecnds contain the milliseconds also.
+         *  Note that the microseconds contain the milliseconds also.
         */
         unsigned usec() const
         {
@@ -156,14 +156,14 @@ class Time
         { return _usecs; }
 
         void setTotalMSecs(unsigned msecs)
-        { _usecs = msecs * 1000; }
+        { _usecs = static_cast<uint64_t>(msecs) * 1000; }
 
         void setTotalUSecs(uint64_t m)
         { _usecs = m; }
 
         /** \brief Sets the time.
 
-            Sets the time to a new hour, minute, second, milli-second.
+            Sets the time to a new hour, minute, second, millisecond.
             InvalidTime is thrown if one or more of the values are out of range
         */
         void set(unsigned hour, unsigned min, unsigned sec, unsigned msec = 0, unsigned usec = 0)

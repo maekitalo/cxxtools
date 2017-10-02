@@ -45,6 +45,7 @@ class TimeTest : public cxxtools::unit::TestSuite
             registerMethod("fixDigit", *this, &TimeTest::fixDigit);
             registerMethod("toString", *this, &TimeTest::toString);
             registerMethod("serialization", *this, &TimeTest::serialization);
+            registerMethod("getSetTotal", *this, &TimeTest::getSetTotal);
         }
 
         void access()
@@ -185,6 +186,34 @@ class TimeTest : public cxxtools::unit::TestSuite
             si >>= t2;
 
             CXXTOOLS_UNIT_ASSERT(t1 == t2);
+        }
+
+        void getSetTotal()
+        {
+            cxxtools::Time t1(23, 5, 17, 123);
+            uint64_t msecs = t1.totalMSecs();
+            cxxtools::Time t2;
+            t2.setTotalMSecs(msecs);
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(t1.hour(), t2.hour());
+            CXXTOOLS_UNIT_ASSERT_EQUALS(t1.minute(), t2.minute());
+            CXXTOOLS_UNIT_ASSERT_EQUALS(t1.second(), t2.second());
+            CXXTOOLS_UNIT_ASSERT_EQUALS(t1.msec(), t2.msec());
+            CXXTOOLS_UNIT_ASSERT_EQUALS(t1.usec(), t2.usec());
+            CXXTOOLS_UNIT_ASSERT(t1 == t2);
+
+            t2 = cxxtools::Time();
+
+            uint64_t usecs = t1.totalUSecs();
+            t2.setTotalUSecs(usecs);
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(t1.hour(), t2.hour());
+            CXXTOOLS_UNIT_ASSERT_EQUALS(t1.minute(), t2.minute());
+            CXXTOOLS_UNIT_ASSERT_EQUALS(t1.second(), t2.second());
+            CXXTOOLS_UNIT_ASSERT_EQUALS(t1.msec(), t2.msec());
+            CXXTOOLS_UNIT_ASSERT_EQUALS(t1.usec(), t2.usec());
+            CXXTOOLS_UNIT_ASSERT(t1 == t2);
+
         }
 };
 
