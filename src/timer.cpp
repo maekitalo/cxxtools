@@ -230,6 +230,9 @@ bool Timer::update(const Milliseconds& now)
         if( ! sentry )
             return hasElapsed;
 
+        if (_once)
+            stop();
+
         timeout.send();
 
         // We send the signal with datetime only, when someone is
@@ -256,9 +259,6 @@ bool Timer::update(const Milliseconds& now)
                  0, currentTs.totalUSecs() % 1000000);
             timeoutgmt.send(dueTime);
         }
-
-        if (_once)
-            stop();
     }
 
     return hasElapsed;
