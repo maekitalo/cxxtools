@@ -71,11 +71,11 @@ void onIntervalPast(cxxtools::DateTime ts)
   log_info("late start " << count << ' ' << ts.toString());
 }
 
-void onIntervalPastGmt(cxxtools::DateTime ts)
+void onIntervalPastUtc(cxxtools::DateTime ts)
 {
   static unsigned count = 0;
   ++count;
-  log_info("gmt " << ts.toString());
+  log_info("utc " << ts.toString());
 }
 
 void onOneShot()
@@ -149,7 +149,7 @@ int main(int argc, char* argv[])
     cxxtools::Timer intervalPastTimer(&loop);
     intervalPastTimer.start(cxxtools::DateTime(1990, 1, 1, 8, 0, 0), cxxtools::Seconds(1));
     cxxtools::connect(intervalPastTimer.timeoutts, onIntervalPast);
-    cxxtools::connect(intervalPastTimer.timeoutgmt, onIntervalPastGmt);
+    cxxtools::connect(intervalPastTimer.timeoutUtc, onIntervalPastUtc);
 
     // now we start the event loop to execute the timers
     // this will loop forever and call the timer callback functions at suitable times

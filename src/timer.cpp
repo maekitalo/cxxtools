@@ -249,7 +249,7 @@ bool Timer::update(const Milliseconds& now)
             timeoutts.send(dueTime);
         }
 
-        if (timeoutgmt.connectionCount() > 0)
+        if (timeoutUtc.connectionCount() > 0)
         {
             struct tm tim;
             time_t sec = static_cast<time_t>(currentTs.totalSeconds());
@@ -257,7 +257,7 @@ bool Timer::update(const Milliseconds& now)
             DateTime dueTime(tim.tm_year + 1900, tim.tm_mon + 1, tim.tm_mday,
                  tim.tm_hour, tim.tm_min, tim.tm_sec,
                  0, currentTs.totalUSecs() % 1000000);
-            timeoutgmt.send(dueTime);
+            timeoutUtc.send(dueTime);
         }
     }
 

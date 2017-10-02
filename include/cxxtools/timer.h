@@ -177,9 +177,9 @@ namespace cxxtools {
             /** @brief Notifies about interval timeouts
 
                 This signal is sent if the interval time has expired.
-                As a parameter the due time is passed in gmt.
+                As a parameter the due time is passed in utc.
             */
-            Signal<DateTime> timeoutgmt;
+            Signal<DateTime> timeoutUtc;
 
             /** @brief Returns the timespan since epoch when the timer expires
              */
