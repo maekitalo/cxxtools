@@ -80,6 +80,7 @@ object:
 array:
     \xa1                     category array
     myarray\0                name
+    \x40                     type
     \x43 Hello \0 \xff       element1  (type: plain string)
     \x43 World \0 \xff       element2
     \xff                     eod
