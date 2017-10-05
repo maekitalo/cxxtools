@@ -30,10 +30,13 @@
 #include "cxxtools/serializationinfo.h"
 #include "cxxtools/serializationerror.h"
 #include "cxxtools/utf8codec.h"
+#include "cxxtools/log.h"
 
 #include <iterator>
 #include <iostream>
 #include <stdlib.h>
+
+log_define("cxxtools.queryparams")
 
 namespace cxxtools
 {
@@ -78,6 +81,11 @@ namespace
           ;
         else if (ch == '%')
           _state = state_keyesc;
+        else if (ch == '+')
+        {
+          _key = ' ';
+          _state = state_key;
+        }
         else
         {
           _key = ch;
@@ -96,6 +104,8 @@ namespace
         }
         else if (ch == '%')
           _state = state_keyesc;
+        else if (ch == '+')
+          _key += ' ';
         else
           _key += ch;
         break;
@@ -406,17 +416,14 @@ void operator<<= (cxxtools::SerializationInfo& si, const QueryParams& q)
         enum {
             state_0,
             state_key,
-            state_keyend,
-            state_0esc0,
-            state_keyesc0,
-            state_0esc1,
-            state_keyesc1
+            state_keyend
         } state = state_0;
 
         std::string nodename;
-        char value = 0;
 
         cxxtools::SerializationInfo* current = &si;
+        log_debug("parse query param name <" << it->name << '>');
+
         for (unsigned n = 0; n < it->name.size(); ++n)
         {
             char ch = it->name[n];
@@ -430,10 +437,6 @@ void operator<<= (cxxtools::SerializationInfo& si, const QueryParams& q)
                         nodename.clear();
                         state = state_key;
                     }
-                    else if (ch == '+')
-                        nodename += ' ';
-                    else if (ch == '%')
-                        state = state_0esc0;
                     else
                         nodename += ch;
                     break;
@@ -441,10 +444,6 @@ void operator<<= (cxxtools::SerializationInfo& si, const QueryParams& q)
                 case state_key:
                     if (ch == ']')
                         state = state_keyend;
-                    else if (ch == '+')
-                        nodename += ' ';
-                    else if (ch == '%')
-                        state = state_keyesc0;
                     else
                         nodename += ch;
                     break;
@@ -458,34 +457,10 @@ void operator<<= (cxxtools::SerializationInfo& si, const QueryParams& q)
                         state = state_key;
                     }
                     else
+                    {
+                        log_warn("invalid query param name <" << it->name.substr(0, n) << " *** " << it->name.substr(n) << "> (1)");
                         SerializationError::doThrow("'[' expected in query parameters");
-                    break;
-
-                case state_0esc0:
-                case state_keyesc0:
-                    if (ch >= '0' && ch <= '9')
-                        value = (ch - '0');
-                    else if (ch >= 'a' && ch <= 'f')
-                        value = (ch - 'a' + 10);
-                    else if (ch >= 'A' && ch <= 'F')
-                        value = (ch - 'A' + 10);
-                    else
-                        SerializationError::doThrow("invalid query params");
-                    state = state == state_0esc0 ? state_0esc1 : state_keyesc1;
-                    break;
-
-                case state_0esc1:
-                case state_keyesc1:
-                    if (ch >= '0' && ch <= '9')
-                        value = (value << 4) + (ch - '0');
-                    else if (ch >= 'a' && ch <= 'f')
-                        value = (value << 4) + (ch - 'a' + 10);
-                    else if (ch >= 'A' && ch <= 'F')
-                        value = (value << 4) + (ch - 'A' + 10);
-                    else
-                        SerializationError::doThrow("invalid query params");
-                    nodename += value;
-                    state = state == state_0esc1 ? state_0 : state_key;
+                    }
                     break;
             }
         }
