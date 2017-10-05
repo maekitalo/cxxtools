@@ -29,6 +29,8 @@
 #include "cxxtools/query_params.h"
 #include "cxxtools/serializationinfo.h"
 #include "cxxtools/serializationerror.h"
+#include "cxxtools/utf8codec.h"
+
 #include <iterator>
 #include <iostream>
 #include <stdlib.h>
@@ -404,10 +406,15 @@ void operator<<= (cxxtools::SerializationInfo& si, const QueryParams& q)
         enum {
             state_0,
             state_key,
-            state_keyend
+            state_keyend,
+            state_0esc0,
+            state_keyesc0,
+            state_0esc1,
+            state_keyesc1
         } state = state_0;
 
         std::string nodename;
+        char value = 0;
 
         cxxtools::SerializationInfo* current = &si;
         for (unsigned n = 0; n < it->name.size(); ++n)
@@ -423,6 +430,10 @@ void operator<<= (cxxtools::SerializationInfo& si, const QueryParams& q)
                         nodename.clear();
                         state = state_key;
                     }
+                    else if (ch == '+')
+                        nodename += ' ';
+                    else if (ch == '%')
+                        state = state_0esc0;
                     else
                         nodename += ch;
                     break;
@@ -430,6 +441,10 @@ void operator<<= (cxxtools::SerializationInfo& si, const QueryParams& q)
                 case state_key:
                     if (ch == ']')
                         state = state_keyend;
+                    else if (ch == '+')
+                        nodename += ' ';
+                    else if (ch == '%')
+                        state = state_keyesc0;
                     else
                         nodename += ch;
                     break;
@@ -445,10 +460,37 @@ void operator<<= (cxxtools::SerializationInfo& si, const QueryParams& q)
                     else
                         SerializationError::doThrow("'[' expected in query parameters");
                     break;
+
+                case state_0esc0:
+                case state_keyesc0:
+                    if (ch >= '0' && ch <= '9')
+                        value = (ch - '0');
+                    else if (ch >= 'a' && ch <= 'f')
+                        value = (ch - 'a' + 10);
+                    else if (ch >= 'A' && ch <= 'F')
+                        value = (ch - 'A' + 10);
+                    else
+                        SerializationError::doThrow("invalid query params");
+                    state = state == state_0esc0 ? state_0esc1 : state_keyesc1;
+                    break;
+
+                case state_0esc1:
+                case state_keyesc1:
+                    if (ch >= '0' && ch <= '9')
+                        value = (value << 4) + (ch - '0');
+                    else if (ch >= 'a' && ch <= 'f')
+                        value = (value << 4) + (ch - 'a' + 10);
+                    else if (ch >= 'A' && ch <= 'F')
+                        value = (value << 4) + (ch - 'A' + 10);
+                    else
+                        SerializationError::doThrow("invalid query params");
+                    nodename += value;
+                    state = state == state_0esc1 ? state_0 : state_key;
+                    break;
             }
         }
 
-        current->addMember(nodename) <<= it->value;
+        current->addMember(nodename) <<= Utf8Codec::decode(it->value);
     }
 }
 
