@@ -31,6 +31,7 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #endif
+#include <netinet/tcp.h>
 
 #if !defined(MSG_MSG_NOSIGNAL)
 #include <signal.h>
@@ -411,11 +412,13 @@ std::string TcpSocketImpl::tryConnect()
                 return connectFailedMessage(aip, errno);
         }
 
-#ifdef HAVE_SO_NOSIGPIPE
         static const int on = 1;
+#ifdef HAVE_SO_NOSIGPIPE
         if (::setsockopt(fd, SOL_SOCKET, SO_NOSIGPIPE, &on, sizeof(on)) < 0)
             throw SystemError("setsockopt(SO_NOSIGPIPE)");
 #endif
+        if (::setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &on, sizeof(on)) < 0)
+            throw SystemError("setsockopt(TCP_NODELAY)");
 
         IODeviceImpl::open(fd, true, false);
 
@@ -554,6 +557,10 @@ void TcpSocketImpl::accept(const TcpServer& server, unsigned flags)
     IODeviceImpl::open(_fd, true, inherit);
 #endif
     //TODO ECONNABORTED EINTR EPERM
+
+    static const int on = 1;
+    if (::setsockopt(_fd, IPPROTO_TCP, TCP_NODELAY, &on, sizeof(on)) < 0)
+        throw SystemError("setsockopt(TCP_NODELAY)");
 
     _state = CONNECTED;
     log_debug( "accepted from " << getPeerAddr() << " fd=" << _fd);
