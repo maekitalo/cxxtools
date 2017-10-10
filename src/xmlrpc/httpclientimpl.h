@@ -75,9 +75,14 @@ class HttpClientImpl : public RefCounted, public ClientImpl
             _client.clearAuth();
         }
 
-        void setSelector(SelectorBase& selector)
+        void setSelector(SelectorBase* selector)
         {
             _client.setSelector(selector);
+        }
+
+        void setSelector(SelectorBase& selector)
+        {
+            _client.setSelector(&selector);
         }
 
         std::string url() const;

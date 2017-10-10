@@ -171,7 +171,10 @@ class ClientImpl : public RefCounted, public Connectable
 
         void endExecute();
 
-        void setSelector(SelectorBase& selector);
+        void setSelector(SelectorBase* selector)
+        {
+            _socket.setSelector(selector);
+        }
 
         SelectorBase* selector();
 

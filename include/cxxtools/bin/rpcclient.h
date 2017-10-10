@@ -98,6 +98,8 @@ class RpcClient : public RemoteClient
 
         void close();
 
+        void setSelector(SelectorBase* selector);
+
         void setSelector(SelectorBase& selector);
 
         void beginCall(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc);

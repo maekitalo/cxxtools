@@ -157,9 +157,14 @@ void RpcClient::close()
         _impl->close();
 }
 
-void RpcClient::setSelector(SelectorBase& selector)
+void RpcClient::setSelector(SelectorBase* selector)
 {
     getImpl()->setSelector(selector);
+}
+
+void RpcClient::setSelector(SelectorBase& selector)
+{
+    getImpl()->setSelector(&selector);
 }
 
 void RpcClient::beginCall(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc)

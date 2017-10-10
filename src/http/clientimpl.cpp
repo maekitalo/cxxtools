@@ -94,12 +94,6 @@ void ClientImpl::prepareConnect(const net::AddrInfo& addrinfo, bool ssl)
 #endif
 }
 
-void ClientImpl::setSelector(SelectorBase& selector)
-{
-    selector.add(_socket);
-}
-
-
 void ClientImpl::reexecute(const Request& request)
 {
     log_debug("reexecute");

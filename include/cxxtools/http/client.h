@@ -256,6 +256,7 @@ class Client
         void endExecute();
 
         /// Sets the selector for asyncronous event processing.
+        void setSelector(SelectorBase* selector);
         void setSelector(SelectorBase& selector);
 
         /// Returns the selector for asyncronous event processing.

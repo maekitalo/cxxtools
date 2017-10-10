@@ -165,9 +165,14 @@ void HttpClient::clearAuth()
     getImpl()->clearAuth();
 }
 
-void HttpClient::setSelector(SelectorBase& selector)
+void HttpClient::setSelector(SelectorBase* selector)
 {
     getImpl()->setSelector(selector);
+}
+
+void HttpClient::setSelector(SelectorBase& selector)
+{
+    getImpl()->setSelector(&selector);
 }
 
 void HttpClient::beginCall(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc)

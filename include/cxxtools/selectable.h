@@ -60,7 +60,12 @@ class Selectable
         //! @brief Destructor
         virtual ~Selectable();
 
+        /// Sets the selector for this device.
         void setSelector(SelectorBase* parent);
+
+        /// For convenience the application may pass a reference to a selector.
+        void setSelector(SelectorBase& parent)
+        { setSelector(&parent); }
 
         SelectorBase* selector() const;
 

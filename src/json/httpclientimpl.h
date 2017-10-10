@@ -84,7 +84,7 @@ namespace json
                 _client.clearAuth();
             }
 
-            void setSelector(SelectorBase& selector)
+            void setSelector(SelectorBase* selector)
             {
                 _client.setSelector(selector);
             }

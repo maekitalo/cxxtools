@@ -27,10 +27,7 @@
 #include "cxxtools/clock.h"
 #include "cxxtools/selector.h"
 #include "cxxtools/datetime.h"
-#include "cxxtools/log.h"
 #include <stdexcept>
-
-log_define("cxxtools.timer")
 
 namespace cxxtools
 {

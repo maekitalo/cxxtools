@@ -224,6 +224,9 @@ class IStream : public BasicIStream<char>, public Connectable
         void setSelector(SelectorBase* parent)
         { attachedDevice()->setSelector(parent); }
 
+        void setSelector(SelectorBase& parent)
+        { attachedDevice()->setSelector(parent); }
+
         void beginRead()
         { buffer().beginRead(); }
 
@@ -265,6 +268,9 @@ class OStream : public BasicOStream<char>, public Connectable
         { return _buffer.device(); }
 
         void setSelector(SelectorBase* parent)
+        { attachedDevice()->setSelector(parent); }
+
+        void setSelector(SelectorBase& parent)
         { attachedDevice()->setSelector(parent); }
 
         void beginWrite()
@@ -311,6 +317,9 @@ class IOStream : public BasicIOStream<char>, public Connectable
         { return _buffer.device(); }
 
         void setSelector(SelectorBase* parent)
+        { attachedDevice()->setSelector(parent); }
+
+        void setSelector(SelectorBase& parent)
         { attachedDevice()->setSelector(parent); }
 
         void beginRead()

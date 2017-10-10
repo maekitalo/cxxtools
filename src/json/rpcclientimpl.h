@@ -59,8 +59,10 @@ class RpcClientImpl : public RefCounted, public Connectable
     public:
         RpcClientImpl();
 
-        void setSelector(SelectorBase& selector)
-        { selector.add(_socket); }
+        void setSelector(SelectorBase* selector)
+        {
+            _socket.setSelector(selector);
+        }
 
         void prepareConnect(const net::AddrInfo& addrinfo)
         {

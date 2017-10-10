@@ -100,6 +100,7 @@ namespace json
 
             void clearAuth();
 
+            void setSelector(SelectorBase* selector);
             void setSelector(SelectorBase& selector);
 
             void beginCall(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc);

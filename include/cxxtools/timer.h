@@ -89,6 +89,9 @@ namespace cxxtools {
 
             void setSelector(SelectorBase* s);
 
+            void setSelector(SelectorBase& s)
+            { setSelector(&s); }
+
             /** @brief Returs true if timer is active
             */
             bool active() const;

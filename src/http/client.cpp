@@ -207,9 +207,14 @@ void Client::endExecute()
     _impl->endExecute();
 }
 
-void Client::setSelector(SelectorBase& selector)
+void Client::setSelector(SelectorBase* selector)
 {
     getImpl()->setSelector(selector);
+}
+
+void Client::setSelector(SelectorBase& selector)
+{
+    getImpl()->setSelector(&selector);
 }
 
 SelectorBase* Client::selector()

@@ -102,6 +102,7 @@ class HttpClient : public Client
         /// removes username and password for authentification
         void clearAuth();
 
+        void setSelector(SelectorBase* selector);
         void setSelector(SelectorBase& selector);
 
         void wait(Milliseconds msecs = WaitInfinite);
