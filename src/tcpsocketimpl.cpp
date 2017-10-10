@@ -598,7 +598,15 @@ bool TcpSocketImpl::checkPollEvent(pollfd& pfd)
             return true;
         }
 
-        return IODeviceImpl::checkPollEvent(pfd);
+        bool avail = IODeviceImpl::checkPollEvent(pfd);
+
+        if ( !_device.reading() && !_device.writing() && !_socket.enabled())
+        {
+            _socket.closed(_socket);
+            return true;
+        }
+
+        return avail;
     }
 
     if (pfd.revents & POLLERR)
