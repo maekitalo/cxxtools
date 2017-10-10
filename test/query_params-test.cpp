@@ -54,7 +54,6 @@ class QueryParamsTest : public cxxtools::unit::TestSuite
             registerMethod("testGetUrl", *this, &QueryParamsTest::testGetUrl);
             registerMethod("testGetNames", *this, &QueryParamsTest::testGetNames);
             registerMethod("testDeserialization", *this, &QueryParamsTest::testDeserialization);
-            registerMethod("testDeserializeSpecial", *this, &QueryParamsTest::testDeserializeSpecial);
         }
 
         void testQueryParams()
@@ -229,7 +228,6 @@ class QueryParamsTest : public cxxtools::unit::TestSuite
         }
 
         void testDeserialization();
-        void testDeserializeSpecial();
 };
 
 cxxtools::unit::RegisterTest<QueryParamsTest> register_QueryParamsTest;
@@ -294,21 +292,4 @@ void QueryParamsTest::testDeserialization()
     CXXTOOLS_UNIT_ASSERT_EQUALS(query.columns[1].name, "othername");
     CXXTOOLS_UNIT_ASSERT_EQUALS(query.columns[1].value, "othervalue");
     CXXTOOLS_UNIT_ASSERT_EQUALS(query.start, 42);
-}
-
-void QueryParamsTest::testDeserializeSpecial()
-{
-    cxxtools::QueryParams qp;
-    qp.add("+Key+[Key%2Bwith space+]", "value");
-    qp.add("%2bKey+%20[0]", "value");
-
-    cxxtools::SerializationInfo si;
-    si <<= qp;
-    CXXTOOLS_UNIT_ASSERT_EQUALS(si.memberCount(), 2);
-
-    log_info(si);
-
-    std::string value;
-    CXXTOOLS_UNIT_ASSERT_NOTHROW(si.getMember(" Key ").getMember("Key+with space "));
-    CXXTOOLS_UNIT_ASSERT_NOTHROW(si.getMember("+Key  ").getMember("0"));
 }
