@@ -26,6 +26,22 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+/*
+ *  This is a tcp server, which demonstrate non blocking I/O on stdin.
+ *
+ *  The class cxxtools::Cin is a cxxtools::IStream, which is a std::istream
+ *  with non blocking I/O.
+ *  The server accepts connections on a port (default is 1234, can be changed
+ *  with the command line optin -p). It reads from stdin and sends everything
+ *  to all connected clients.
+ *
+ *  To try it out, start the server in one terminal and execute e.g. netcat,
+ *  which is often installed, on one or more other terminals using
+ *  `nc localhost 1234`. Everything you enter now on the keyboard to `insrv`
+ *  is echoed to the nc processes.
+ *
+ */
+
 #include <iostream>
 #include <cxxtools/application.h>
 #include <cxxtools/stdstream.h>
@@ -48,6 +64,7 @@ class Insrv : public cxxtools::Application
     void onInput(cxxtools::IStream& s);
     void onOutput(cxxtools::net::TcpStream& s);
     void onConnect(cxxtools::net::TcpServer& srv);
+    void onClosed(cxxtools::net::TcpStream& s);
 
 public:
     Insrv(int& argc, char* argv[]);
@@ -60,12 +77,16 @@ Insrv::Insrv(int& argc, char* argv[])
     cxxtools::Arg<std::string> ip(argc, argv, 'i');
     cxxtools::Arg<unsigned short> port(argc, argv, 'p', 1234);
 
-    in.setSelector(&loop());
+    // Attach our stdin device to the event loop of the application
+    // and inform that we want to read from there.
+
+    in.setSelector(loop());
     in.beginRead();
     cxxtools::connect(in.inputReady, *this, &Insrv::onInput);
 
+    // Initialize our tcp server class.
     srv.listen(ip, port);
-    srv.setSelector(&loop());
+    srv.setSelector(loop());
     cxxtools::connect(srv.connectionPending, *this, &Insrv::onConnect);
 }
 
@@ -79,6 +100,8 @@ void Insrv::onInput(cxxtools::IStream& s)
 {
     try
     {
+        // Finalize reading, which was started with beginRead.
+        // This does the actual read and fills the input buffer.
         s.endRead();
     }
     catch (const std::exception& e)
@@ -90,7 +113,7 @@ void Insrv::onInput(cxxtools::IStream& s)
 
     log_debug("onInput; in_avail=" << s.in_avail());
 
-    if (!s)
+    if (!s.good())
     {
         log_debug("exit loop");
         loop().exit();
@@ -102,6 +125,7 @@ void Insrv::onInput(cxxtools::IStream& s)
     {
         unsigned count = s.readsome(buffer, sizeof(buffer));
 
+        // For each client we put the data to the output buffer and initiate writing.
         for (Clients::iterator it = _clients.begin(); it != _clients.end(); ++it)
         {
             log_debug("write " << count << " bytes to client " << static_cast<void*>(*it));
@@ -118,7 +142,12 @@ void Insrv::onOutput(cxxtools::net::TcpStream& s)
 {
     try
     {
-        log_debug("endWrite " << static_cast<void*>(&s));
+        // This signals that the client is ready to receive data without blocking.
+        // We finish the write operation and if there is more to send, we initiate
+        // the next write operation, so that we are signalled, when the device
+        // is ready to receive more data.
+
+        log_trace("endWrite " << static_cast<void*>(&s));
         s.endWrite();
         if (s.out_avail() > 0)
         {
@@ -128,27 +157,41 @@ void Insrv::onOutput(cxxtools::net::TcpStream& s)
     }
     catch (const std::exception& e)
     {
-        log_debug("client disconnected " << static_cast<void*>(&s));
-        for (Clients::iterator it = _clients.begin(); it != _clients.end(); ++it)
+        onClosed(s);
+    }
+}
+
+void Insrv::onClosed(cxxtools::net::TcpStream& s)
+{
+    log_debug("client disconnected " << static_cast<void*>(&s));
+    for (Clients::iterator it = _clients.begin(); it != _clients.end(); ++it)
+    {
+        if ((*it) == &s)
         {
-            if ((*it) == &s)
-            {
-                log_debug("remove client " << static_cast<void*>(*it));
-                delete *it;
-                _clients.erase(it);
-                break;
-            }
+            log_debug("remove client " << static_cast<void*>(*it));
+            delete *it;
+            _clients.erase(it);
+            break;
         }
     }
 }
 
 void Insrv::onConnect(cxxtools::net::TcpServer& srv)
 {
+    // A new client is detected. We create a new client class
+    // and connect the needed signals.
+
+    // Close is either signaled with a exception when a I/O operation is
+    // finished using `endRead` or `endWrite` or if a close is detected in the
+    // event loop while no I/O operation is pending the signal `closed` is
+    // sent.
+
     cxxtools::net::TcpStream* cli = new cxxtools::net::TcpStream(srv);
     log_debug("new client connected " << static_cast<void*>(cli));
     _clients.push_back(cli);
-    cli->setSelector(&loop());
+    cli->setSelector(loop());
     cxxtools::connect(cli->outputReady, *this, &Insrv::onOutput);
+    cxxtools::connect(cli->closed, *this, &Insrv::onClosed);
 }
 
 int main(int argc, char* argv[])
