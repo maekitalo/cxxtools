@@ -38,6 +38,7 @@
 #include <cxxtools/mutex.h>
 #include <cxxtools/clock.h>
 #include <cxxtools/timespan.h>
+#include <cxxtools/datetime.h>
 #include <cxxtools/atomicity.h>
 
 #include "color.h"
@@ -51,6 +52,7 @@ class BenchClient
     cxxtools::AttachedThread thread;
 
     static unsigned _numRequests;
+    static cxxtools::DateTime _until;
     static unsigned _vectorSize;
     static unsigned _objectsSize;
     static cxxtools::atomic_t _requestsStarted;
@@ -71,6 +73,12 @@ class BenchClient
 
     static void numRequests(unsigned n)
     { _numRequests = n; }
+
+    static cxxtools::DateTime until()
+    { return _until; }
+
+    static void until(cxxtools::DateTime n)
+    { _until = n; }
 
     static unsigned vectorSize()
     { return _vectorSize; }
@@ -104,6 +112,7 @@ cxxtools::atomic_t BenchClient::_requestsStarted(0);
 cxxtools::atomic_t BenchClient::_requestsFinished(0);
 cxxtools::atomic_t BenchClient::_requestsFailed(0);
 unsigned BenchClient::_numRequests = 0;
+cxxtools::DateTime BenchClient::_until(2999, 12, 31, 23, 59, 59, 999);
 unsigned BenchClient::_vectorSize = 0;
 unsigned BenchClient::_objectsSize = 0;
 typedef std::vector<BenchClient*> BenchClients;
@@ -116,7 +125,8 @@ void BenchClient::exec()
   cxxtools::RemoteProcedure<std::vector<int>, int, int> seq(*client, "seq");
   cxxtools::RemoteProcedure<std::vector<Color>, unsigned> objects(*client, "objects");
 
-  while (static_cast<unsigned>(cxxtools::atomicIncrement(_requestsStarted)) <= _numRequests)
+  while (static_cast<unsigned>(cxxtools::atomicIncrement(_requestsStarted)) <= _numRequests
+      && cxxtools::DateTime::gmtime() < _until)
   {
     try
     {
@@ -177,10 +187,14 @@ int main(int argc, char* argv[])
     cxxtools::Arg<bool> jsonhttp(argc, argv, 'J');
     cxxtools::Arg<unsigned short> port(argc, argv, 'p', binary ? 7003 : json ? 7004 : 7002);
     cxxtools::Arg<bool> ssl(argc, argv, 's');
+    cxxtools::Arg<cxxtools::Seconds> maxtime(argc, argv, 'T');
 
     BenchClient::numRequests(cxxtools::Arg<unsigned>(argc, argv, 'n', 10000));
     BenchClient::vectorSize(cxxtools::Arg<unsigned>(argc, argv, 'v', 0));
     BenchClient::objectsSize(cxxtools::Arg<unsigned>(argc, argv, 'o', 0));
+
+    if (maxtime.isSet())
+        BenchClient::until(cxxtools::DateTime::gmtime() + maxtime);
 
     if (!xmlrpc && !binary && !json && !jsonhttp)
     {
@@ -195,6 +209,9 @@ int main(int argc, char* argv[])
                      "   -s         enable ssl\n"
                      "   -t number  set number of threads (default: 4)\n"
                      "   -n number  set number of requests (default: 10000)\n"
+                     "   -T seconds set maximum runtime after which the test stops\n"
+                     "   -v number  test int vector with <number> of elements\n"
+                     "   -o number  test vector of objects\n"
                      "one protocol must be selected\n"
                   << std::endl;
         return -1;
@@ -242,7 +259,7 @@ int main(int argc, char* argv[])
 
     cxxtools::Timespan t = cl.stop();
 
-    std::cout << BenchClient::numRequests() << " requests in " << t.totalMSecs()/1e3 << " s => " << (BenchClient::requestsStarted() / (t.totalMSecs()/1e3)) << "#/s\n"
+    std::cout << BenchClient::requestsStarted() << " requests in " << t.totalMSecs()/1e3 << " s => " << (BenchClient::requestsStarted() / (t.totalMSecs()/1e3)) << "#/s\n"
               << BenchClient::requestsFinished() << " finished " << BenchClient::requestsFailed() << " failed" << std::endl;
 
     for (BenchClients::iterator it = clients.begin(); it != clients.end(); ++it)
