@@ -109,6 +109,7 @@ class TcpSocketImpl : public IODeviceImpl
         static bool _sslInitialized;
         SSL_CTX* _sslCtx;
         SSL* _ssl;
+        mutable X509* _peerCertificate;
 #endif
 
         // methods
@@ -171,6 +172,7 @@ class TcpSocketImpl : public IODeviceImpl
 #ifdef WITH_SSL
         void loadSslCertificateFile(const std::string& certFile, const std::string& privateKeyFile);
         void setSslVerify(int level, const std::string& ca);
+        X509* getSslPeerCertificate() const;
         std::string getSslPeerSubject() const;
         std::string getSslPeerIssuer() const;
 

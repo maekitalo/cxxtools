@@ -300,7 +300,8 @@ TcpSocketImpl::TcpSocketImpl(TcpSocket& socket)
 #ifdef WITH_SSL
   ,
   _sslCtx(0),
-  _ssl(0)
+  _ssl(0),
+  _peerCertificate(0)
 #endif
 {
 }
@@ -315,6 +316,8 @@ TcpSocketImpl::~TcpSocketImpl()
         SSL_clear(_ssl);
     if (_sslCtx)
         SSL_CTX_free(_sslCtx);
+    if (_peerCertificate)
+        X509_free(_peerCertificate);
 #endif
 }
 
@@ -992,12 +995,19 @@ void TcpSocketImpl::setSslVerify(int level, const std::string& ca)
         checkSslError();
 }
 
+X509* TcpSocketImpl::getSslPeerCertificate() const
+{
+    if (!_peerCertificate)
+        _peerCertificate = SSL_get_peer_certificate(_ssl);
+    return _peerCertificate;
+}
+
 std::string TcpSocketImpl::getSslPeerSubject() const
 {
     if (!_ssl)
         return std::string();
 
-    X509* cert = SSL_get_peer_certificate(_ssl);
+    X509* cert = getSslPeerCertificate();
     if (!cert)
         return std::string();
 
@@ -1015,7 +1025,7 @@ std::string TcpSocketImpl::getSslPeerIssuer() const
     if (!_ssl)
         return std::string();
 
-    X509* cert = SSL_get_peer_certificate(_ssl);
+    X509* cert = getSslPeerCertificate();
     if (!cert)
         return std::string();
 
