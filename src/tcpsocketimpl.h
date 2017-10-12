@@ -32,6 +32,7 @@
 #include "iodeviceimpl.h"
 #include "cxxtools/net/addrinfo.h"
 #include "cxxtools/mutex.h"
+#include "cxxtools/string.h"
 #include "addrinfoimpl.h"
 #include "config.h"
 
@@ -173,8 +174,8 @@ class TcpSocketImpl : public IODeviceImpl
         void loadSslCertificateFile(const std::string& certFile, const std::string& privateKeyFile);
         void setSslVerify(int level, const std::string& ca);
         X509* getSslPeerCertificate() const;
-        std::string getSslPeerSubject() const;
-        std::string getSslPeerIssuer() const;
+        String getSslPeerSubject() const;
+        String getSslPeerIssuer() const;
 
         // initiates a ssl connection on the socket
         bool beginSslConnect();

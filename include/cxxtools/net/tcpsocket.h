@@ -32,6 +32,7 @@
 #include <cxxtools/iodevice.h>
 #include <cxxtools/net/addrinfo.h>
 #include <cxxtools/signal.h>
+#include <cxxtools/string.h>
 #include <string>
 
 namespace cxxtools {
@@ -113,8 +114,8 @@ class TcpSocket : public IODevice
          */
         void setSslVerify(int level, const std::string& ca = std::string());
 
-        std::string getSslPeerSubject() const;
-        std::string getSslPeerIssuer() const;
+        String getSslPeerSubject() const;
+        String getSslPeerIssuer() const;
 
         /// initiates a ssl connection on the socket
         void beginSslConnect();

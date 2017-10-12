@@ -202,23 +202,23 @@ void TcpSocket::setSslVerify(int level, const std::string& ca)
 #endif
 }
 
-std::string TcpSocket::getSslPeerSubject() const
+String TcpSocket::getSslPeerSubject() const
 {
 #ifdef WITH_SSL
     return _impl->getSslPeerSubject();
 #else
     log_warn("can't get ssl peer subject since ssl is disabled");
-    return std::string();
+    return String();
 #endif
 }
 
-std::string TcpSocket::getSslPeerIssuer() const
+String TcpSocket::getSslPeerIssuer() const
 {
 #ifdef WITH_SSL
     return _impl->getSslPeerIssuer();
 #else
     log_warn("can't get ssl peer issuer since ssl is disabled");
-    return std::string();
+    return String();
 #endif
 }
 

@@ -48,6 +48,7 @@
 #include <cxxtools/hexdump.h>
 #include <cxxtools/fileinfo.h>
 #include "cxxtools/mutex.h"
+#include "cxxtools/utf8codec.h"
 
 #include "config.h"
 #include "error.h"
@@ -58,6 +59,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sstream>
+#include <vector>
 
 #include <openssl/err.h>
 #include <openssl/ssl.h>
@@ -1002,40 +1004,59 @@ X509* TcpSocketImpl::getSslPeerCertificate() const
     return _peerCertificate;
 }
 
-std::string TcpSocketImpl::getSslPeerSubject() const
+static String str(X509_NAME* a)
 {
-    if (!_ssl)
-        return std::string();
+    class MemBIO
+    {
+        BIO* _out;
+        MemBIO(const MemBIO&) { }
+        MemBIO& operator=(const MemBIO&) { return *this; }
 
-    X509* cert = getSslPeerCertificate();
-    if (!cert)
-        return std::string();
+    public:
+        MemBIO()
+            : _out(BIO_new(BIO_s_mem()))
+        { }
 
-    char buffer[512];
-    char *subj = X509_NAME_oneline(X509_get_subject_name(cert), buffer, sizeof(buffer));
+        ~MemBIO()
+        { BIO_free(_out); }
 
-    if (!subj)
-        return std::string();
+        operator BIO* ()  { return _out; }
+    };
 
-    return subj;
+    MemBIO out;
+    X509_NAME_print_ex(out, a, 0, XN_FLAG_RFC2253 & ~ASN1_STRFLGS_ESC_MSB);
+    std::vector<char> buf(BIO_number_written(out));
+    BIO_read(out, &buf[0], buf.size());
+
+    return Utf8Codec::decode(&buf[0], buf.size());
 }
 
-std::string TcpSocketImpl::getSslPeerIssuer() const
+String TcpSocketImpl::getSslPeerSubject() const
 {
+    log_debug("getSslPeerSubject");
+
     if (!_ssl)
-        return std::string();
+        return String();
 
     X509* cert = getSslPeerCertificate();
     if (!cert)
-        return std::string();
+        return String();
 
-    char buffer[512];
-    char *subj = X509_NAME_oneline(X509_get_issuer_name(cert), buffer, sizeof(buffer));
+    return str(X509_get_subject_name(cert));
+}
 
-    if (!subj)
-        return std::string();
+String TcpSocketImpl::getSslPeerIssuer() const
+{
+    log_debug("getSslPeerIssuer");
 
-    return subj;
+    if (!_ssl)
+        return String();
+
+    X509* cert = getSslPeerCertificate();
+    if (!cert)
+        return String();
+
+    return str(X509_get_issuer_name(cert));
 }
 
 bool TcpSocketImpl::beginSslConnect()

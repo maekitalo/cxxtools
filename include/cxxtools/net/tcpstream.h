@@ -141,10 +141,10 @@ namespace net
             void setSslVerify(int level, const std::string& ca = std::string())
             { _socket.setSslVerify(level, ca); }
 
-            std::string getSslPeerSubject() const
+            String getSslPeerSubject() const
             { return _socket.getSslPeerSubject(); }
 
-            std::string getSslPeerIssuer() const
+            String getSslPeerIssuer() const
             { return _socket.getSslPeerIssuer(); }
 
             // initiates a ssl connection on the socket
