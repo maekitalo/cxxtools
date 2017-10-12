@@ -198,6 +198,10 @@ namespace net
              */
             Signal<TcpStream&> closed;
 
+            Signal<TcpStream&> sslAccepted;
+            Signal<TcpStream&> sslConnected;
+            Signal<TcpStream&> sslClosed;
+
         private:
             TcpSocket _socket;
 
@@ -205,6 +209,9 @@ namespace net
             void onOutput(IODevice&);
             void onConnected(TcpSocket&);
             void onClosed(TcpSocket&);
+            void onSslAccepted(TcpSocket&);
+            void onSslConnected(TcpSocket&);
+            void onSslClosed(TcpSocket&);
     };
 
     typedef TcpStream iostream;
