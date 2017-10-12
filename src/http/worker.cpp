@@ -59,28 +59,38 @@ void Worker::run()
         {
             if (!socket->hasAccepted())
             {
-                // do blocking accept
-                socket->accept();
-                log_debug("connection accepted from " << socket->getPeerAddr());
-
-                if (_server.isTerminating())
+                try
                 {
-                    log_debug("server is terminating - quit thread");
-                    _server._queue.put(socket);
-                    break;
-                }
+                    // do blocking accept
+                    socket->accept();
+                    log_debug("connection accepted from " << socket->getPeerAddr());
 
-                // new connection arrived - create new accept socket
-                _server._queue.put(new Socket(*socket));
+                    if (_server.isTerminating())
+                    {
+                        log_debug("server is terminating - quit thread");
+                        _server._queue.put(socket);
+                        break;
+                    }
+
+                    // new connection arrived - create new accept socket
+                    log_info("new connection accepted from " << socket->getPeerAddr());
+                    _server._queue.put(new Socket(*socket));
+                }
+                catch (const std::exception&)
+                {
+                    _server._queue.put(new Socket(*socket));
+                    throw;
+                }
             }
             else if (socket->isConnected())
             {
-                log_debug("process available input");
+                log_debug("process available input from " << socket->getPeerAddr());
                 socket->onInput(socket->buffer());
             }
             else
             {
                 log_debug("socket is not connected any more; delete " << static_cast<void*>(socket));
+                log_info("client " << socket->getPeerAddr() << " closed connection");
                 delete socket;
                 continue;
             }
@@ -104,6 +114,7 @@ void Worker::run()
             else
             {
                 log_debug("socket is not connected any more; delete " << static_cast<void*>(socket));
+                log_info("client " << socket->getPeerAddr() << " closed connection");
                 delete socket;
             }
         }

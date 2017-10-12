@@ -59,20 +59,28 @@ void Worker::run()
         {
             if (!socket->hasAccepted())
             {
-                // do blocking accept
-                socket->accept();
-                log_debug("connection accepted from " << socket->getPeerAddr());
-
-                if (_server.isTerminating())
+                try
                 {
-                    log_debug("server is terminating - quit thread");
-                    _server._queue.put(socket);
-                    break;
-                }
+                    // do blocking accept
+                    socket->accept();
+                    log_debug("connection accepted from " << socket->getPeerAddr());
 
-                // new connection arrived - create new accept socket
-                log_info("new connection accepted from " << socket->getPeerAddr());
-                _server._queue.put(new Socket(*socket));
+                    if (_server.isTerminating())
+                    {
+                        log_debug("server is terminating - quit thread");
+                        _server._queue.put(socket);
+                        break;
+                    }
+
+                    // new connection arrived - create new accept socket
+                    log_info("new connection accepted from " << socket->getPeerAddr());
+                    _server._queue.put(new Socket(*socket));
+                }
+                catch (const std::exception&)
+                {
+                    _server._queue.put(new Socket(*socket));
+                    throw;
+                }
             }
             else if (socket->isConnected())
             {
