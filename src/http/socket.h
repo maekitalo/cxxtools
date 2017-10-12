@@ -69,6 +69,7 @@ class Socket : public net::TcpSocket, public Connectable
         ~Socket();
 
         void accept();
+        void postAccept();
         bool hasAccepted() const  { return _accepted; }
 
         void setSelector(SelectorBase* s);

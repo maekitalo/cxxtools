@@ -75,6 +75,8 @@ void Worker::run()
                     // new connection arrived - create new accept socket
                     log_info("new connection accepted from " << socket->getPeerAddr());
                     _server._queue.put(new Socket(*socket));
+
+                    socket->postAccept();
                 }
                 catch (const std::exception&)
                 {

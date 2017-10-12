@@ -100,12 +100,26 @@ void Socket::accept()
     if (!_server.certificateFile().empty())
     {
         loadSslCertificateFile(_server.certificateFile(), _server.privateKeyFile());
-        sslAccept();
+        beginSslAccept();
+    }
+}
+
+void Socket::postAccept()
+{
+    log_trace("post accept");
+    if (!_server.certificateFile().empty())
+    {
+        cxxtools::Timespan t = getTimeout();
+        setTimeout(cxxtools::Seconds(10));
+        endSslAccept();
+        setTimeout(t);
     }
 
     _accepted = true;
 
     _stream.buffer().beginRead();
+
+    log_debug("accepted");
 
     _timer.start(_server.readTimeout());
 }

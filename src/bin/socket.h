@@ -50,6 +50,7 @@ class Socket : public net::TcpSocket, public Connectable
         explicit Socket(Socket& socket);
 
         void accept();
+        void postAccept();
         bool hasAccepted() const  { return _accepted; }
 
         void setSelector(SelectorBase* s);

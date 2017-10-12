@@ -67,17 +67,32 @@ Socket::Socket(Socket& socket)
 
 void Socket::accept()
 {
+    log_debug("accept");
     net::TcpSocket::accept(_tcpServer);
 
     if (!_server.certificateFile().empty())
     {
         loadSslCertificateFile(_server.certificateFile(), _server.privateKeyFile());
-        sslAccept();
+        beginSslAccept();
+    }
+}
+
+void Socket::postAccept()
+{
+    log_trace("post accept");
+    if (!_server.certificateFile().empty())
+    {
+        cxxtools::Timespan t = getTimeout();
+        setTimeout(cxxtools::Seconds(10));
+        endSslAccept();
+        setTimeout(t);
     }
 
     _accepted = true;
 
-    buffer().beginRead();
+    _stream.buffer().beginRead();
+
+    log_debug("accepted");
 }
 
 void Socket::setSelector(SelectorBase* s)
