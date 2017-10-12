@@ -32,11 +32,21 @@
 #include <cxxtools/iodevice.h>
 #include <cxxtools/net/addrinfo.h>
 #include <cxxtools/signal.h>
+#include <cxxtools/delegate.h>
 #include <cxxtools/string.h>
 #include <cxxtools/datetime.h>
 #include <string>
 
 namespace cxxtools {
+
+class SslCertificateNotAccepted : public std::runtime_error
+{
+public:
+    SslCertificateNotAccepted()
+        : std::runtime_error("certificate not accepted")
+        { }
+};
+
 
 namespace net {
 
@@ -90,6 +100,7 @@ class TcpSocket : public IODevice
         Signal<TcpSocket&> sslAccepted;
         Signal<TcpSocket&> sslConnected;
         Signal<TcpSocket&> sslClosed;
+        Delegate<bool, TcpSocket&> acceptSslCertificate;
 
         /** @brief Notifies when the device is closed while no reading or writing is pending
          */

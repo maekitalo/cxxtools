@@ -1132,7 +1132,10 @@ void TcpSocketImpl::endSslConnect()
         _pfd->events &= ~POLLOUT;
 
     if (_state == SSLCONNECTED)
+    {
+        verifySslCertificate();
         return;
+    }
 
     if (_state != SSLCONNECTING)
         throw std::logic_error("Device not in connecting mode when trying to finish ssl");
@@ -1145,6 +1148,7 @@ void TcpSocketImpl::endSslConnect()
         {
             log_debug("SSL connection successful");
             log_debug_if(hasSslPeerCertificate(), "peer subject: \"" << getSslPeerSubject() << "\" validity: " << getSslNotBefore().toString() << " - " << getSslNotAfter().toString());
+            verifySslCertificate();
             _state = SSLCONNECTED;
             return;
         }
@@ -1185,7 +1189,10 @@ void TcpSocketImpl::endSslAccept()
         _pfd->events &= ~POLLOUT;
 
     if (_state == SSLCONNECTED)
+    {
+        verifySslCertificate();
         return;
+    }
 
     if (_state != SSLACCEPTING)
         throw std::logic_error("Device not in accepting mode when trying to finish ssl");
@@ -1197,6 +1204,7 @@ void TcpSocketImpl::endSslAccept()
         if (ret == 1)
         {
             log_debug("SSL accepted");
+            verifySslCertificate();
             _state = SSLCONNECTED;
             return;
         }
@@ -1252,6 +1260,16 @@ void TcpSocketImpl::endSslShutdown()
         }
 
         waitSslOperation(ret);
+    }
+}
+
+void TcpSocketImpl::verifySslCertificate()
+{
+    if (_socket.acceptSslCertificate.isConnected()
+        && !_socket.acceptSslCertificate(_socket))
+    {
+        _state = CONNECTED;
+        throw SslCertificateNotAccepted();
     }
 }
 

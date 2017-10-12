@@ -201,6 +201,7 @@ namespace net
             Signal<TcpStream&> sslAccepted;
             Signal<TcpStream&> sslConnected;
             Signal<TcpStream&> sslClosed;
+            Delegate<bool, TcpStream&> acceptSslCertificate;
 
         private:
             TcpSocket _socket;
@@ -212,6 +213,7 @@ namespace net
             void onSslAccepted(TcpSocket&);
             void onSslConnected(TcpSocket&);
             void onSslClosed(TcpSocket&);
+            bool onAcceptSslCertificate(TcpSocket&);
     };
 
     typedef TcpStream iostream;

@@ -43,6 +43,7 @@ void TcpStream::init(cxxtools::Timespan timeout)
     cxxtools::connect(_socket.sslAccepted, *this, &TcpStream::onSslAccepted);
     cxxtools::connect(_socket.sslConnected, *this, &TcpStream::onSslConnected);
     cxxtools::connect(_socket.sslClosed, *this, &TcpStream::onSslClosed);
+    cxxtools::connect(_socket.acceptSslCertificate, *this, &TcpStream::onAcceptSslCertificate);
 }
 
 void TcpStream::onInput(IODevice&)
@@ -80,6 +81,13 @@ void TcpStream::onSslClosed(TcpSocket&)
     sslClosed(*this);
 }
 
+bool TcpStream::onAcceptSslCertificate(TcpSocket&)
+{
+    if (!acceptSslCertificate.isConnected())
+        return true;
+
+    return acceptSslCertificate(*this);
+}
 
 }
 }

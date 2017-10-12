@@ -192,6 +192,8 @@ class TcpSocketImpl : public IODeviceImpl
         // terminates ssl
         bool beginSslShutdown();
         void endSslShutdown();
+
+        void verifySslCertificate();
 #endif
 };
 
