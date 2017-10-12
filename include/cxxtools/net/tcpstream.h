@@ -141,11 +141,20 @@ namespace net
             void setSslVerify(int level, const std::string& ca = std::string())
             { _socket.setSslVerify(level, ca); }
 
+            bool hasSslPeerCertificate() const
+            { return _socket.hasSslPeerCertificate(); }
+
             String getSslPeerSubject() const
             { return _socket.getSslPeerSubject(); }
 
             String getSslPeerIssuer() const
             { return _socket.getSslPeerIssuer(); }
+
+            DateTime getSslNotBefore() const
+            { return _socket.getSslNotBefore(); }
+
+            DateTime getSslNotAfter() const
+            { return _socket.getSslNotAfter(); }
 
             // initiates a ssl connection on the socket
             void sslConnect()

@@ -999,6 +999,8 @@ void TcpSocketImpl::setSslVerify(int level, const std::string& ca)
 
 X509* TcpSocketImpl::getSslPeerCertificate() const
 {
+    if (!_ssl)
+        return 0;
     if (!_peerCertificate)
         _peerCertificate = SSL_get_peer_certificate(_ssl);
     return _peerCertificate;
@@ -1033,11 +1035,6 @@ static String str(X509_NAME* a)
 
 String TcpSocketImpl::getSslPeerSubject() const
 {
-    log_debug("getSslPeerSubject");
-
-    if (!_ssl)
-        return String();
-
     X509* cert = getSslPeerCertificate();
     if (!cert)
         return String();
@@ -1047,16 +1044,61 @@ String TcpSocketImpl::getSslPeerSubject() const
 
 String TcpSocketImpl::getSslPeerIssuer() const
 {
-    log_debug("getSslPeerIssuer");
-
-    if (!_ssl)
-        return String();
-
     X509* cert = getSslPeerCertificate();
     if (!cert)
         return String();
 
     return str(X509_get_issuer_name(cert));
+}
+
+static DateTime dt(ASN1_TIME* t)
+{
+    class Asn1Time
+    {
+        ASN1_TIME* _t;
+        Asn1Time(const Asn1Time&) { }
+        Asn1Time& operator=(const Asn1Time&) { return *this; }
+    public:
+        Asn1Time(time_t t)
+            : _t(ASN1_TIME_set(0, t))
+            { }
+
+        ~Asn1Time()
+            { ASN1_STRING_free(_t); }
+
+        operator ASN1_TIME* ()   { return _t; }
+    };
+
+    Asn1Time epoch(0);
+
+    int pday, psec;
+    ASN1_TIME_diff(&pday, &psec, epoch, t);
+
+    int secs = pday * (24*60*60) + psec;
+
+    return DateTime::fromMSecsSinceEpoch(Seconds(secs));
+}
+
+DateTime TcpSocketImpl::getSslNotBefore() const
+{
+    X509* cert = getSslPeerCertificate();
+    if (!cert)
+        return DateTime(0, 1, 1, 0, 0, 0);
+
+    ASN1_TIME* t = X509_get_notBefore(cert);
+
+    return dt(t);
+}
+
+DateTime TcpSocketImpl::getSslNotAfter() const
+{
+    X509* cert = getSslPeerCertificate();
+    if (!cert)
+        return DateTime(0, 1, 1, 0, 0, 0);
+
+    ASN1_TIME* t = X509_get_notAfter(cert);
+
+    return dt(t);
 }
 
 bool TcpSocketImpl::beginSslConnect()
@@ -1102,6 +1144,7 @@ void TcpSocketImpl::endSslConnect()
         if (ret == 1)
         {
             log_debug("SSL connection successful");
+            log_debug_if(hasSslPeerCertificate(), "peer subject: \"" << getSslPeerSubject() << "\" validity: " << getSslNotBefore().toString() << " - " << getSslNotAfter().toString());
             _state = SSLCONNECTED;
             return;
         }
@@ -1125,6 +1168,7 @@ bool TcpSocketImpl::beginSslAccept()
     if (ret == 1)
     {
         log_debug("SSL accepted");
+        log_debug_if(hasSslPeerCertificate(), "peer subject: \"" << getSslPeerSubject() << "\" validity: " << getSslNotBefore().toString() << " - " << getSslNotAfter().toString());
         _state = SSLCONNECTED;
         return true;
     }

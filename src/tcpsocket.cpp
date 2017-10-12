@@ -202,6 +202,15 @@ void TcpSocket::setSslVerify(int level, const std::string& ca)
 #endif
 }
 
+bool TcpSocket::hasSslPeerCertificate() const
+{
+#ifdef WITH_SSL
+    return _impl->hasSslPeerCertificate();
+#else
+    return false;
+#endif
+}
+
 String TcpSocket::getSslPeerSubject() const
 {
 #ifdef WITH_SSL
@@ -219,6 +228,26 @@ String TcpSocket::getSslPeerIssuer() const
 #else
     log_warn("can't get ssl peer issuer since ssl is disabled");
     return String();
+#endif
+}
+
+DateTime TcpSocket::getSslNotBefore() const
+{
+#ifdef WITH_SSL
+    return _impl->getSslNotBefore();
+#else
+    log_warn("can't get ssl not before since ssl is disabled");
+    return DateTime();
+#endif
+}
+
+DateTime TcpSocket::getSslNotAfter() const
+{
+#ifdef WITH_SSL
+    return _impl->getSslNotAfter();
+#else
+    log_warn("can't get ssl not after since ssl is disabled");
+    return DateTime();
 #endif
 }
 
