@@ -37,12 +37,11 @@ namespace cxxtools
 namespace json
 {
 
-Socket::Socket(RpcServerImpl& server, ServiceRegistry& serviceRegistry, net::TcpServer& tcpServer, const std::string& certificateFile, const std::string& privateKeyFile)
+Socket::Socket(ServiceRegistry& serviceRegistry, net::TcpServer& tcpServer, const std::string& certificateFile, const std::string& privateKeyFile)
     : inputSlot(slot(*this, &Socket::onInput)),
       _tcpServer(tcpServer),
       _certificateFile(certificateFile),
       _privateKeyFile(privateKeyFile),
-      _server(server),
       _responder(serviceRegistry),
       _accepted(false)
 {
@@ -59,7 +58,6 @@ Socket::Socket(Socket& socket)
       _tcpServer(socket._tcpServer),
       _certificateFile(socket._certificateFile),
       _privateKeyFile(socket._privateKeyFile),
-      _server(socket._server),
       _responder(socket._responder._serviceRegistry),
       _accepted(false)
 {

@@ -136,7 +136,7 @@ void RpcServerImpl::listen(const std::string& ip, unsigned short int port, const
     try
     {
         _listener.push_back(listener);
-        _queue.put(new Socket(*this, _serviceRegistry, *listener, certificateFile, privateKeyFile));
+        _queue.put(new Socket(_serviceRegistry, *listener, certificateFile, privateKeyFile));
     }
     catch (...)
     {
