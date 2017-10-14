@@ -107,7 +107,7 @@ int main(int argc, char* argv[])
     binServer.maxThreads(maxThreads);
     binServer.addService(service);
 
-    cxxtools::json::RpcServer jsonServer(loop, ip, jport);
+    cxxtools::json::RpcServer jsonServer(loop, ip, jport, sslCert);
     jsonServer.minThreads(threads);
     jsonServer.maxThreads(maxThreads);
     jsonServer.addService("", service);
@@ -121,7 +121,6 @@ int main(int argc, char* argv[])
     if (sslCert.isSet())
     {
         server.loadSslCertificateFile(sslCert);
-        jsonServer.loadSslCertificateFile(sslCert);
     }
 
     loop.run();

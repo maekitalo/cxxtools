@@ -37,9 +37,11 @@ namespace cxxtools
 namespace json
 {
 
-Socket::Socket(RpcServerImpl& server, ServiceRegistry& serviceRegistry, net::TcpServer& tcpServer)
+Socket::Socket(RpcServerImpl& server, ServiceRegistry& serviceRegistry, net::TcpServer& tcpServer, const std::string& certificateFile, const std::string& privateKeyFile)
     : inputSlot(slot(*this, &Socket::onInput)),
       _tcpServer(tcpServer),
+      _certificateFile(certificateFile),
+      _privateKeyFile(privateKeyFile),
       _server(server),
       _responder(serviceRegistry),
       _accepted(false)
@@ -55,6 +57,8 @@ Socket::Socket(Socket& socket)
       Connectable(*this),
       inputSlot(slot(*this, &Socket::onInput)),
       _tcpServer(socket._tcpServer),
+      _certificateFile(socket._certificateFile),
+      _privateKeyFile(socket._privateKeyFile),
       _server(socket._server),
       _responder(socket._responder._serviceRegistry),
       _accepted(false)
@@ -70,9 +74,9 @@ void Socket::accept()
     log_debug("accept");
     net::TcpSocket::accept(_tcpServer);
 
-    if (!_server.certificateFile().empty())
+    if (!_certificateFile.empty())
     {
-        loadSslCertificateFile(_server.certificateFile(), _server.privateKeyFile());
+        loadSslCertificateFile(_certificateFile, _privateKeyFile);
         beginSslAccept();
     }
 }
@@ -80,7 +84,7 @@ void Socket::accept()
 void Socket::postAccept()
 {
     log_trace("post accept");
-    if (!_server.certificateFile().empty())
+    if (!_certificateFile.empty())
     {
         cxxtools::Timespan t = getTimeout();
         setTimeout(cxxtools::Seconds(10));

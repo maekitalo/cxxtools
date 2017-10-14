@@ -152,7 +152,7 @@ int main(int argc, char* argv[])
     // Json rpc
 
     // for the json rpc server we define a json server
-    cxxtools::json::RpcServer jsonServer(loop, ip, jport);
+    cxxtools::json::RpcServer jsonServer(loop, ip, jport, sslCert);
 
     // and register the functions in the server
     jsonServer.registerFunction("echo", echo);
@@ -180,7 +180,6 @@ int main(int argc, char* argv[])
     if (sslCert.isSet())
     {
         httpServer.loadSslCertificateFile(sslCert);
-        jsonServer.loadSslCertificateFile(sslCert);
     }
 
     ////////////////////////////////////////////////////////////////////////

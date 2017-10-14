@@ -46,7 +46,7 @@ class RpcServerImpl;
 class Socket : public net::TcpSocket, public Connectable
 {
     public:
-        Socket(RpcServerImpl& server, ServiceRegistry& _serviceRegistry, net::TcpServer& tcpServer);
+        Socket(RpcServerImpl& server, ServiceRegistry& _serviceRegistry, net::TcpServer& tcpServer, const std::string& certificateFile, const std::string& privateKeyFile);
         explicit Socket(Socket& socket);
 
         void accept();
@@ -71,6 +71,8 @@ class Socket : public net::TcpSocket, public Connectable
 
     private:
         net::TcpServer& _tcpServer;
+        std::string _certificateFile;
+        std::string _privateKeyFile;
         RpcServerImpl& _server;
 
         Responder _responder;

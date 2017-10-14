@@ -127,16 +127,16 @@ RpcServerImpl::~RpcServerImpl()
 
 }
 
-void RpcServerImpl::listen(const std::string& ip, unsigned short int port, int backlog)
+void RpcServerImpl::listen(const std::string& ip, unsigned short int port, const std::string& certificateFile, const std::string& privateKeyFile)
 {
     log_info("listen on " << ip << " port " << port);
-    net::TcpServer* listener = new net::TcpServer(ip, port, backlog,
+    net::TcpServer* listener = new net::TcpServer(ip, port, 64,
         net::TcpServer::DEFER_ACCEPT|net::TcpServer::REUSEADDR);
 
     try
     {
         _listener.push_back(listener);
-        _queue.put(new Socket(*this, _serviceRegistry, *listener));
+        _queue.put(new Socket(*this, _serviceRegistry, *listener, certificateFile, privateKeyFile));
     }
     catch (...)
     {
@@ -145,13 +145,6 @@ void RpcServerImpl::listen(const std::string& ip, unsigned short int port, int b
     }
 
 }
-
-void RpcServerImpl::loadSslCertificateFile(const std::string& certificateFile, const std::string& privateKeyFile)
-{
-    _certificateFile = certificateFile;
-    _privateKeyFile = privateKeyFile;
-}
-
 
 void RpcServerImpl::start()
 {

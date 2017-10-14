@@ -37,16 +37,16 @@ RpcServer::RpcServer(EventLoopBase& eventLoop)
     : _impl(new RpcServerImpl(eventLoop, runmodeChanged, *this))
 { }
 
-RpcServer::RpcServer(EventLoopBase& eventLoop, const std::string& ip, unsigned short int port, int backlog)
+RpcServer::RpcServer(EventLoopBase& eventLoop, const std::string& ip, unsigned short int port, const std::string& certificateFile, const std::string& privateKeyFile)
     : _impl(new RpcServerImpl(eventLoop, runmodeChanged, *this))
 {
-    listen(ip, port, backlog);
+    listen(ip, port, certificateFile, privateKeyFile);
 }
 
-RpcServer::RpcServer(EventLoopBase& eventLoop, unsigned short int port, int backlog)
+RpcServer::RpcServer(EventLoopBase& eventLoop, unsigned short int port, const std::string& certificateFile, const std::string& privateKeyFile)
     : _impl(new RpcServerImpl(eventLoop, runmodeChanged, *this))
 {
-    listen(port, backlog);
+    listen(port, certificateFile, privateKeyFile);
 }
 
 RpcServer::~RpcServer()
@@ -64,19 +64,14 @@ void RpcServer::addService(const std::string& prefix, const ServiceRegistry& ser
     }
 }
 
-void RpcServer::listen(const std::string& ip, unsigned short int port, int backlog)
+void RpcServer::listen(const std::string& ip, unsigned short int port, const std::string& certificateFile, const std::string& privateKeyFile)
 {
-    _impl->listen(ip, port, backlog);
+    _impl->listen(ip, port, certificateFile, privateKeyFile);
 }
 
-void RpcServer::listen(unsigned short int port, int backlog)
+void RpcServer::listen(unsigned short int port, const std::string& certificateFile, const std::string& privateKeyFile)
 {
-    _impl->listen(std::string(), port, backlog);
-}
-
-void RpcServer::loadSslCertificateFile(const std::string& certificateFile, const std::string& privateKeyFile)
-{
-    _impl->loadSslCertificateFile(certificateFile, privateKeyFile);
+    _impl->listen(std::string(), port, certificateFile, privateKeyFile);
 }
 
 unsigned RpcServer::minThreads() const
