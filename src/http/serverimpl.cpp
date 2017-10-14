@@ -142,17 +142,17 @@ ServerImpl::~ServerImpl()
     }
 }
 
-void ServerImpl::listen(const std::string& ip, unsigned short int port, int backlog)
+void ServerImpl::listen(const std::string& ip, unsigned short int port, const std::string& certificateFile, const std::string& privateKeyFile)
 {
-    log_debug("listen on " << ip << " port " << port);
-    net::TcpServer* listener = new net::TcpServer(ip, port, backlog,
+    log_debug("listen on " << ip << " port " << port << " certificate \"" << certificateFile << "\" private key \"" << privateKeyFile << '"');
+    net::TcpServer* listener = new net::TcpServer(ip, port, 64,
         net::TcpServer::DEFER_ACCEPT|net::TcpServer::REUSEADDR);
     Socket* socket = 0;
 
     try
     {
         _listener.push_back(listener);
-        socket = new Socket(*this, *listener);
+        socket = new Socket(*this, *listener, certificateFile, privateKeyFile);
         _queue.put(socket);
     }
     catch (...)
@@ -161,12 +161,6 @@ void ServerImpl::listen(const std::string& ip, unsigned short int port, int back
         delete listener;
         throw;
     }
-}
-
-void ServerImpl::loadSslCertificateFile(const std::string& certificateFile, const std::string& privateKeyFile)
-{
-    _certificateFile = certificateFile;
-    _privateKeyFile = privateKeyFile;
 }
 
 void ServerImpl::start()

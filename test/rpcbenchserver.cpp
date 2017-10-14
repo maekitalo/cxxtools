@@ -93,7 +93,7 @@ int main(int argc, char* argv[])
 
     cxxtools::EventLoop loop;
 
-    cxxtools::http::Server server(loop, ip, port);
+    cxxtools::http::Server server(loop, ip, port, sslCert);
     server.minThreads(threads);
     server.maxThreads(maxThreads);
     cxxtools::xmlrpc::Service service;
@@ -117,11 +117,6 @@ int main(int argc, char* argv[])
     jsonhttpService.registerFunction("seq", seq);
     jsonhttpService.registerFunction("objects", objects);
     server.addService("/jsonrpc", jsonhttpService);
-
-    if (sslCert.isSet())
-    {
-        server.loadSslCertificateFile(sslCert);
-    }
 
     loop.run();
   }

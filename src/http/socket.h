@@ -64,7 +64,7 @@ class Socket : public net::TcpSocket, public Connectable
         };
 
     public:
-        Socket(ServerImpl& server, net::TcpServer& tcpServer);
+        Socket(ServerImpl& server, net::TcpServer& tcpServer, const std::string& certificateFile, const std::string& privateKeyFile);
         explicit Socket(Socket& socket);
         ~Socket();
 
@@ -100,6 +100,8 @@ class Socket : public net::TcpSocket, public Connectable
 
     private:
         net::TcpServer& _tcpServer;
+        std::string _certificateFile;
+        std::string _privateKeyFile;
         ServerImpl& _server;
 
         ParseEvent _parseEvent;

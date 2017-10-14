@@ -42,16 +42,16 @@ Server::Server(EventLoopBase& eventLoop)
 {
 }
 
-Server::Server(EventLoopBase& eventLoop, const std::string& ip, unsigned short int port, int backlog)
+Server::Server(EventLoopBase& eventLoop, const std::string& ip, unsigned short int port, const std::string& certificateFile, const std::string& privateKeyFile)
     : _impl(new ServerImpl(eventLoop, runmodeChanged))
 {
-    listen(ip, port, backlog);
+    listen(ip, port, certificateFile, privateKeyFile);
 }
 
-Server::Server(EventLoopBase& eventLoop, unsigned short int port, int backlog)
+Server::Server(EventLoopBase& eventLoop, unsigned short int port, const std::string& certificateFile, const std::string& privateKeyFile)
     : _impl(new ServerImpl(eventLoop, runmodeChanged))
 {
-    listen(port, backlog);
+    listen(port, certificateFile, privateKeyFile);
 }
 
 Server::~Server()
@@ -65,21 +65,18 @@ Server::~Server()
     delete _impl;
 }
 
-void Server::listen(const std::string& ip, unsigned short int port, int backlog)
+void Server::listen(const std::string& ip, unsigned short int port, const std::string& certificateFile, const std::string& privateKeyFile)
 {
-    log_info("listen ip=" << ip << " port=" << port);
-    _impl->listen(ip, port, backlog);
+    log_info_if(certificateFile.empty(), "listen ip=" << ip << " port=" << port);
+    log_info_if(!certificateFile.empty(), "listen ip=" << ip << " port=" << port << " certificate: \"" << certificateFile << "\" private key: \"" << privateKeyFile << '"');
+    _impl->listen(ip, port, certificateFile, privateKeyFile);
 }
 
-void Server::listen(unsigned short int port, int backlog)
+void Server::listen(unsigned short int port, const std::string& certificateFile, const std::string& privateKeyFile)
 {
-    log_info("listen port=" << port);
-    _impl->listen(std::string(), port, backlog);
-}
-
-void Server::loadSslCertificateFile(const std::string& certificateFile, const std::string& privateKeyFile)
-{
-    _impl->loadSslCertificateFile(certificateFile, privateKeyFile);
+    log_info_if(certificateFile.empty(), "listen port=" << port);
+    log_info_if(!certificateFile.empty(), "listen port=" << port << " certificate: \"" << certificateFile << "\" private key: \"" << privateKeyFile << '"');
+    _impl->listen(std::string(), port, certificateFile, privateKeyFile);
 }
 
 void Server::addService(const std::string& url, Service& service)

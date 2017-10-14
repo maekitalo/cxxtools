@@ -66,14 +66,7 @@ class ServerImpl : public ServerImplBase, public Connectable
         ~ServerImpl();
 
         // override from ServerImplBase
-        void listen(const std::string& ip, unsigned short int port, int backlog);
-
-        void loadSslCertificateFile(const std::string& certificateFile, const std::string& privateKeyFile);
-
-        const std::string& certificateFile() const
-        { return _certificateFile; }
-        const std::string& privateKeyFile() const
-        { return _privateKeyFile; }
+        void listen(const std::string& ip, unsigned short int port, const std::string& certificateFile, const std::string& privateKeyFile);
 
         bool isTerminating() const
         { return runmode() == Server::Terminating; }
@@ -116,9 +109,6 @@ class ServerImpl : public ServerImplBase, public Connectable
         Mutex _threadMutex;
         Condition _threadTerminated;
         void threadTerminated(Worker* worker);
-
-        std::string _certificateFile;
-        std::string _privateKeyFile;
 };
 
 }

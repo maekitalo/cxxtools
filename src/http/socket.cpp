@@ -55,9 +55,11 @@ void Socket::ParseEvent::onUrlParam(const std::string& q)
     _request.qparams(q);
 }
 
-Socket::Socket(ServerImpl& server, net::TcpServer& tcpServer)
+Socket::Socket(ServerImpl& server, net::TcpServer& tcpServer, const std::string& certificateFile, const std::string& privateKeyFile)
     : inputSlot(slot(*this, &Socket::onInput)),
       _tcpServer(tcpServer),
+      _certificateFile(certificateFile),
+      _privateKeyFile(privateKeyFile),
       _server(server),
       _parseEvent(_request),
       _parser(_parseEvent, false),
@@ -75,6 +77,8 @@ Socket::Socket(Socket& socket)
       Connectable(*this),
       inputSlot(slot(*this, &Socket::onInput)),
       _tcpServer(socket._tcpServer),
+      _certificateFile(socket._certificateFile),
+      _privateKeyFile(socket._privateKeyFile),
       _server(socket._server),
       _parseEvent(_request),
       _parser(_parseEvent, false),
@@ -97,9 +101,9 @@ void Socket::accept()
 {
     net::TcpSocket::accept(_tcpServer, net::TcpSocket::DEFER_ACCEPT);
 
-    if (!_server.certificateFile().empty())
+    if (!_certificateFile.empty())
     {
-        loadSslCertificateFile(_server.certificateFile(), _server.privateKeyFile());
+        loadSslCertificateFile(_certificateFile, _privateKeyFile);
         beginSslAccept();
     }
 }
@@ -107,7 +111,7 @@ void Socket::accept()
 void Socket::postAccept()
 {
     log_trace("post accept");
-    if (!_server.certificateFile().empty())
+    if (!_certificateFile.empty())
     {
         cxxtools::Timespan t = getTimeout();
         setTimeout(cxxtools::Seconds(10));

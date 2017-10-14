@@ -65,8 +65,7 @@ class ServerImplBase
 
         virtual ~ServerImplBase() { }
 
-        virtual void listen(const std::string& ip, unsigned short int port, int backlog) = 0;
-        virtual void loadSslCertificateFile(const std::string& certificateFile, const std::string& privateKeyFile) = 0;
+        virtual void listen(const std::string& ip, unsigned short int port, const std::string& certificateFile, const std::string& privateKeyFile) = 0;
 
         void addService(const std::string& url, Service& service)
         { _mapper.addService(url, service); }
