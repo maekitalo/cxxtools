@@ -39,6 +39,7 @@
 
 namespace cxxtools {
 
+class SslCertificate;
 class SslCertificateNotAccepted : public std::runtime_error
 {
 public:
@@ -100,7 +101,7 @@ class TcpSocket : public IODevice
         Signal<TcpSocket&> sslAccepted;
         Signal<TcpSocket&> sslConnected;
         Signal<TcpSocket&> sslClosed;
-        Delegate<bool, TcpSocket&> acceptSslCertificate;
+        Delegate<bool, const SslCertificate&> acceptSslCertificate;
 
         /** @brief Notifies when the device is closed while no reading or writing is pending
          */
@@ -127,10 +128,7 @@ class TcpSocket : public IODevice
         void setSslVerify(int level, const std::string& ca = std::string());
 
         bool hasSslPeerCertificate() const;
-        String getSslPeerSubject() const;
-        String getSslPeerIssuer() const;
-        DateTime getSslNotBefore() const;
-        DateTime getSslNotAfter() const;
+        const SslCertificate& getSslPeerCertificate() const;
 
         /// initiates a ssl connection on the socket
         void beginSslConnect();

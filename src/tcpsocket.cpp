@@ -31,6 +31,7 @@
 #include "cxxtools/log.h"
 #include "cxxtools/systemerror.h"
 #include "cxxtools/ioerror.h"
+#include "cxxtools/sslcertificate.h"
 
 #include <stdexcept>
 #include <errno.h>
@@ -205,49 +206,20 @@ void TcpSocket::setSslVerify(int level, const std::string& ca)
 bool TcpSocket::hasSslPeerCertificate() const
 {
 #ifdef WITH_SSL
-    return _impl->hasSslPeerCertificate();
+    return getSslPeerCertificate();
 #else
     return false;
 #endif
 }
 
-String TcpSocket::getSslPeerSubject() const
+const SslCertificate& TcpSocket::getSslPeerCertificate() const
 {
 #ifdef WITH_SSL
-    return _impl->getSslPeerSubject();
+    return _impl->getSslPeerCertificate();
 #else
-    log_warn("can't get ssl peer subject since ssl is disabled");
-    return String();
-#endif
-}
-
-String TcpSocket::getSslPeerIssuer() const
-{
-#ifdef WITH_SSL
-    return _impl->getSslPeerIssuer();
-#else
-    log_warn("can't get ssl peer issuer since ssl is disabled");
-    return String();
-#endif
-}
-
-DateTime TcpSocket::getSslNotBefore() const
-{
-#ifdef WITH_SSL
-    return _impl->getSslNotBefore();
-#else
-    log_warn("can't get ssl not before since ssl is disabled");
-    return DateTime();
-#endif
-}
-
-DateTime TcpSocket::getSslNotAfter() const
-{
-#ifdef WITH_SSL
-    return _impl->getSslNotAfter();
-#else
-    log_warn("can't get ssl not after since ssl is disabled");
-    return DateTime();
+    log_warn("can't get ssl peer certificate since ssl is disabled");
+    static SslCertificate cert;
+    return cert;
 #endif
 }
 

@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2011 Tommi Maekitalo
- * 
+ * Copyright (C) 2017 Tommi Maekitalo
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
- * 
+ *
  * As a special exception, you may use this file as part of a free
  * software library without restriction. Specifically, if other files
  * instantiate templates or use macros or inline functions from this
@@ -15,70 +15,95 @@
  * License. This exception does not however invalidate any other
  * reasons why the executable file might be covered by the GNU Library
  * General Public License.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <cxxtools/net/tcpstream.h>
+#include <cxxtools/sslcertificate.h>
+#include "sslcertificateimpl.h"
 
 namespace cxxtools
 {
-namespace net
+SslCertificate::SslCertificate(SslCertificateImpl* impl)
+    : _impl(impl)
 {
-void TcpStream::init(cxxtools::Timespan timeout)
-{
-    _socket.setTimeout(timeout);
-    attachDevice(_socket);
-    cxxtools::connect(_socket.inputReady, *this, &TcpStream::onInput);
-    cxxtools::connect(_socket.outputReady, *this, &TcpStream::onOutput);
-    cxxtools::connect(_socket.connected, *this, &TcpStream::onConnected);
-    cxxtools::connect(_socket.closed, *this, &TcpStream::onClosed);
-    cxxtools::connect(_socket.sslAccepted, *this, &TcpStream::onSslAccepted);
-    cxxtools::connect(_socket.sslConnected, *this, &TcpStream::onSslConnected);
-    cxxtools::connect(_socket.sslClosed, *this, &TcpStream::onSslClosed);
+    if (_impl)
+        _impl->addRef();
 }
 
-void TcpStream::onInput(IODevice&)
+SslCertificate::SslCertificate(SslCertificate& s)
+    : _impl(s._impl)
 {
-    inputReady(*this);
+    if (_impl)
+        _impl->addRef();
 }
 
-void TcpStream::onOutput(IODevice&)
+SslCertificate& SslCertificate::operator=(const SslCertificate& s)
 {
-    outputReady(*this);
+    if (_impl && _impl->release() <= 0)
+        delete _impl;
+
+    _impl = s._impl;
+
+    if (_impl)
+        _impl->addRef();
+
+    return *this;
 }
 
-void TcpStream::onConnected(TcpSocket&)
+SslCertificate::~SslCertificate()
 {
-    connected(*this);
+    if (_impl && _impl->release() <= 0)
+        delete _impl;
 }
 
-void TcpStream::onClosed(TcpSocket&)
+void SslCertificate::clear()
 {
-    closed(*this);
+    if (_impl)
+    {
+        if (_impl->release() <= 0)
+            delete _impl;
+        _impl = 0;
+    }
 }
 
-void TcpStream::onSslAccepted(TcpSocket&)
+String SslCertificate::getSubject() const
 {
-    sslAccepted(*this);
+    if (!_impl)
+        return String();
+    else
+        return _impl->getSubject();
 }
 
-void TcpStream::onSslConnected(TcpSocket&)
+String SslCertificate::getIssuer() const
 {
-    sslConnected(*this);
+    if (!_impl)
+        return String();
+    else
+        return _impl->getIssuer();
 }
 
-void TcpStream::onSslClosed(TcpSocket&)
+DateTime SslCertificate::getNotBefore() const
 {
-    sslClosed(*this);
+    if (!_impl)
+        return DateTime(0, 1, 1, 0, 0, 0);
+    else
+        return _impl->getNotBefore();
 }
 
+DateTime SslCertificate::getNotAfter() const
+{
+    if (!_impl)
+        return DateTime(2999, 12, 31, 23, 59, 59, 999);
+    else
+        return _impl->getNotAfter();
 }
+
 }

@@ -90,6 +90,7 @@ libcxxtools_la_SOURCES = \
 	serializationerror.cpp \
 	serializationinfo.cpp \
 	signal.cpp \
+	sslcertificate.cpp \
 	stddevice.cpp \
 	streambuffer.cpp \
 	string.cpp \
@@ -151,11 +152,12 @@ noinst_HEADERS = \
 	semaphoreimpl.h \
 	settingsreader.h \
 	settingswriter.h \
-	threadimpl.h \
-	threadpoolimpl.h \
-	unicode.h \
+	sslcertificateimpl.h \
 	tcpserverimpl.h \
 	tcpsocketimpl.h
+	threadimpl.h \
+	threadpoolimpl.h \
+	unicode.h
 
 if MAKE_ICONVSTREAM
 libcxxtools_la_SOURCES += \
@@ -228,4 +230,6 @@ libcxxtools_la_LDFLAGS = -version-info @sonumber@ @SHARED_LIB_FLAG@
 
 if MAKE_OPENSSL
 libcxxtools_la_LDFLAGS += -lssl
+libcxxtools_la_SOURCES += \
+	sslcertificateimpl.cpp
 endif
