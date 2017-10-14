@@ -142,7 +142,7 @@ int main(int argc, char* argv[])
     // Binary rpc
 
     // for the binary rpc server we define a binary server
-    cxxtools::bin::RpcServer binServer(loop, ip, bport);
+    cxxtools::bin::RpcServer binServer(loop, ip, bport, sslCert);
 
     // and register the functions in the server
     binServer.registerFunction("echo", echo);
@@ -181,7 +181,6 @@ int main(int argc, char* argv[])
     {
         httpServer.loadSslCertificateFile(sslCert);
         jsonServer.loadSslCertificateFile(sslCert);
-        binServer.loadSslCertificateFile(sslCert);
     }
 
     ////////////////////////////////////////////////////////////////////////

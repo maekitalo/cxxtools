@@ -49,14 +49,19 @@ namespace cxxtools
 
             public:
                 explicit RpcServer(EventLoopBase& eventLoop);
-                RpcServer(EventLoopBase& eventLoop, const std::string& ip, unsigned short int port, int backlog = 64);
-                RpcServer(EventLoopBase& eventLoop, unsigned short int port, int backlog = 64);
+                RpcServer(EventLoopBase& eventLoop, const std::string& ip, unsigned short int port, const std::string& certificateFile = std::string(), const std::string& privateKeyFile = std::string());
+                RpcServer(EventLoopBase& eventLoop, unsigned short int port, const std::string& certificateFile = std::string(), const std::string& privateKeyFile = std::string());
                 ~RpcServer();
 
-                void listen(const std::string& ip, unsigned short int port, int backlog = 64);
-                void listen(unsigned short int port, int backlog = 64);
-
-                void loadSslCertificateFile(const std::string& certificateFile, const std::string& privateKeyFile = std::string());
+                /** Listen to the specified ip and port.
+                 *
+                 *  When a certificate file is given, ssl is enabled. If no private key file is given, the private key
+                 *  is expected to be in the certificate file.
+                 *
+                 *  Multiple listen calls can be made to listen on multiple interfaces or different settings.
+                 */
+                void listen(const std::string& ip, unsigned short int port, const std::string& certificateFile = std::string(), const std::string& privateKeyFile = std::string());
+                void listen(unsigned short int port, const std::string& certificateFile = std::string(), const std::string& privateKeyFile = std::string());
 
                 void addService(const ServiceRegistry& service);
                 void addService(const std::string& domain, const ServiceRegistry& service);

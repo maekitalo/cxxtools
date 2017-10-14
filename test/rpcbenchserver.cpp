@@ -102,7 +102,7 @@ int main(int argc, char* argv[])
     service.registerFunction("objects", objects);
     server.addService("/xmlrpc", service);
 
-    cxxtools::bin::RpcServer binServer(loop, ip, bport);
+    cxxtools::bin::RpcServer binServer(loop, ip, bport, sslCert);
     binServer.minThreads(threads);
     binServer.maxThreads(maxThreads);
     binServer.addService(service);
@@ -121,7 +121,6 @@ int main(int argc, char* argv[])
     if (sslCert.isSet())
     {
         server.loadSslCertificateFile(sslCert);
-        binServer.loadSslCertificateFile(sslCert);
         jsonServer.loadSslCertificateFile(sslCert);
     }
 
