@@ -29,12 +29,9 @@
 #include <cxxtools/bin/rpcclient.h>
 #include <cxxtools/net/addrinfo.h>
 #include <cxxtools/net/uri.h>
-#include <cxxtools/log.h>
 #include "rpcclientimpl.h"
 
 #include "config.h"
-
-log_define("cxxtools.bin.rpcclient")
 
 namespace cxxtools
 {
@@ -50,45 +47,6 @@ RpcClientImpl* RpcClient::getImpl()
     }
 
     return _impl;
-}
-
-RpcClient::RpcClient(const net::AddrInfo& addr)
-    : _impl(0)
-{
-    prepareConnect(addr);
-}
-
-RpcClient::RpcClient(const std::string& addr, unsigned short port)
-    : _impl(0)
-{
-    prepareConnect(addr, port);
-}
-
-RpcClient::RpcClient(const net::Uri& uri)
-    : _impl(0)
-{
-    prepareConnect(uri);
-}
-
-RpcClient::RpcClient(SelectorBase& selector, const net::AddrInfo& addr)
-    : _impl(0)
-{
-    prepareConnect(addr);
-    setSelector(selector);
-}
-
-RpcClient::RpcClient(SelectorBase& selector, const std::string& addr, unsigned short port)
-    : _impl(0)
-{
-    prepareConnect(addr, port);
-    setSelector(selector);
-}
-
-RpcClient::RpcClient(SelectorBase& selector, const net::Uri& uri)
-    : _impl(0)
-{
-    prepareConnect(uri);
-    setSelector(selector);
 }
 
 RpcClient::RpcClient(const RpcClient& other)
@@ -120,14 +78,25 @@ RpcClient::~RpcClient()
         delete _impl;
 }
 
-void RpcClient::prepareConnect(const net::AddrInfo& addrinfo)
+void RpcClient::prepareConnect(const net::AddrInfo& addrinfo, bool ssl)
 {
-    getImpl()->prepareConnect(addrinfo);
+    getImpl()->prepareConnect(addrinfo, std::string());
+    getImpl()->ssl(ssl);
 }
 
-void RpcClient::prepareConnect(const std::string& host, unsigned short int port)
+void RpcClient::prepareConnect(const net::AddrInfo& addrinfo, const std::string& sslCertificate)
 {
-    prepareConnect(net::AddrInfo(host, port));
+    getImpl()->prepareConnect(addrinfo, sslCertificate);
+}
+
+void RpcClient::prepareConnect(const std::string& host, unsigned short int port, bool ssl)
+{
+    prepareConnect(net::AddrInfo(host, port), ssl);
+}
+
+void RpcClient::prepareConnect(const std::string& host, unsigned short int port, const std::string& sslCertificate)
+{
+    prepareConnect(net::AddrInfo(host, port), sslCertificate);
 }
 
 void RpcClient::prepareConnect(const net::Uri& uri)
@@ -135,8 +104,7 @@ void RpcClient::prepareConnect(const net::Uri& uri)
 #ifdef WITH_SSL
     if (uri.protocol() != "bin" && uri.protocol() != "bins")
         throw std::runtime_error("only protocols \"bin\" and \"bins\" is supported by binary rpc client");
-    prepareConnect(net::AddrInfo(uri.host(), uri.port()));
-    ssl(uri.protocol() == "bins");
+    prepareConnect(net::AddrInfo(uri.host(), uri.port()), uri.protocol() == "bins");
 #else
     if (uri.protocol() != "bin")
         throw std::runtime_error("only protocol \"bin\" is supported by binary rpc client");
@@ -144,13 +112,16 @@ void RpcClient::prepareConnect(const net::Uri& uri)
 #endif
 }
 
-void RpcClient::ssl(bool sw)
+void RpcClient::prepareConnect(const net::Uri& uri, const std::string& sslCertificate)
 {
 #ifdef WITH_SSL
-    getImpl()->ssl(sw);
+    if (uri.protocol() != "bins")
+        throw std::runtime_error("only protocol \"bins\" is supported when ssl certificate is set");
+    prepareConnect(net::AddrInfo(uri.host(), uri.port()), sslCertificate);
 #else
-    if (sw)
-        log_warn("can't enable ssl since ssl is disabled");
+    if (uri.protocol() != "bin")
+        throw std::runtime_error("only protocol \"bin\" is supported by binary rpc client");
+    prepareConnect(net::AddrInfo(uri.host(), uri.port()));
 #endif
 }
 

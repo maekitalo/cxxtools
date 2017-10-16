@@ -85,8 +85,7 @@ int main(int argc, char* argv[])
     for (unsigned n = 0; n < count; ++n)
     {
       // We instantiate a remote client and pass the selector to him
-      clients.push_back(cxxtools::bin::RpcClient(selector, ip, port));
-      clients.back().ssl(ssl);
+      clients.push_back(cxxtools::bin::RpcClient(selector, ip, port, ssl));
 
       // ... and a remote procedure object.
       echo.push_back(Echo(clients.back(), "echo"));

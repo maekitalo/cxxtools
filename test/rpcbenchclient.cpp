@@ -224,8 +224,7 @@ int main(int argc, char* argv[])
       cxxtools::RemoteClient* client;
       if (binary)
       {
-        cxxtools::bin::RpcClient* c = new cxxtools::bin::RpcClient(ip, port);
-        c->ssl(ssl);
+        cxxtools::bin::RpcClient* c = new cxxtools::bin::RpcClient(ip, port, ssl);
         client = c;
       }
       else if (json)

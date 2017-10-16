@@ -62,10 +62,12 @@ class RpcClientImpl : public RefCounted, public Connectable
             _socket.setSelector(selector);
         }
 
-        void prepareConnect(const net::AddrInfo& addrinfo)
+        void prepareConnect(const net::AddrInfo& addrinfo, const std::string& sslCertificate)
         {
             _addrInfo = addrinfo;
             _socket.close();
+            _sslCertificate = sslCertificate;
+            _ssl = !sslCertificate.empty();
         }
 
         void ssl(bool sw)
@@ -115,6 +117,7 @@ class RpcClientImpl : public RefCounted, public Connectable
 
         net::AddrInfo _addrInfo;
         bool _ssl;
+        std::string _sslCertificate;
         std::string _domain;
 
         // serialization
