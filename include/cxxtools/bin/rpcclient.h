@@ -30,11 +30,13 @@
 #define CXXTOOLS_BIN_CLIENT_H
 
 #include <cxxtools/remoteclient.h>
+#include <cxxtools/delegate.h>
 #include <string>
 
 namespace cxxtools
 {
 
+class SslCertificate;
 class SelectorBase;
 
 namespace net
@@ -164,6 +166,7 @@ class RpcClient : public RemoteClient
 
         void domain(const std::string& p);
 
+        Delegate<bool, const SslCertificate&>& acceptSslCertificate();
 };
 
 }

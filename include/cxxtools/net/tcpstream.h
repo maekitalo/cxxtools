@@ -63,8 +63,8 @@ namespace net
             TcpStream(const std::string& ipaddr, unsigned short int port,
                       unsigned bufsize = 0, cxxtools::Milliseconds timeout = Selectable::WaitInfinite)
             : IOStream(bufsize > 0 ? bufsize : 8192, bufsize == 0),
-              _socket(ipaddr, port),
-              acceptSslCertificate(_socket.acceptSslCertificate)
+              acceptSslCertificate(_socket.acceptSslCertificate),
+              _socket(ipaddr, port)
             {
                 init(timeout);
             }
@@ -73,8 +73,8 @@ namespace net
             explicit TcpStream(const AddrInfo& addrinfo,
                       unsigned bufsize = 0, cxxtools::Milliseconds timeout = Selectable::WaitInfinite)
             : IOStream(bufsize > 0 ? bufsize : 8192, bufsize == 0),
-              _socket(addrinfo),
-              acceptSslCertificate(_socket.acceptSslCertificate)
+              acceptSslCertificate(_socket.acceptSslCertificate),
+              _socket(addrinfo)
             {
                 init(timeout);
             }
@@ -83,8 +83,8 @@ namespace net
             TcpStream(const char* ipaddr, unsigned short int port,
                       unsigned bufsize = 8192, cxxtools::Milliseconds timeout = Selectable::WaitInfinite)
             : IOStream(bufsize, true),
-              _socket(ipaddr, port),
-              acceptSslCertificate(_socket.acceptSslCertificate)
+              acceptSslCertificate(_socket.acceptSslCertificate),
+              _socket(ipaddr, port)
             {
                 init(timeout);
             }
@@ -93,8 +93,8 @@ namespace net
             explicit TcpStream(TcpServer& server, unsigned bufsize = 8192,
                       unsigned flags = 0, cxxtools::Milliseconds timeout = Selectable::WaitInfinite)
             : IOStream(bufsize, true),
-              _socket(server, flags),
-              acceptSslCertificate(_socket.acceptSslCertificate)
+              acceptSslCertificate(_socket.acceptSslCertificate),
+              _socket(server, flags)
             {
                 init(timeout);
             }

@@ -78,6 +78,7 @@ cxxtools-config
 **/demo/serialization
 **/demo/signals
 **/demo/splitter
+**/demo/sslshowcert
 **/demo/threadpool
 **/demo/thread
 **/demo/timer

@@ -45,6 +45,9 @@ class SslCertificate
             : _impl(0)
             { }
 
+        /// Reads certificate from file.
+        explicit SslCertificate(const std::string& filename);
+
         explicit SslCertificate(SslCertificateImpl* impl);
 
         SslCertificate(SslCertificate& s);
@@ -57,6 +60,7 @@ class SslCertificate
         String getIssuer() const;
         DateTime getNotBefore() const;
         DateTime getNotAfter() const;
+        std::string getSerial() const;
         bool isValid(const DateTime& dt = DateTime::gmtime()) const
             { return dt >= getNotBefore() && dt <= getNotAfter(); }
 };

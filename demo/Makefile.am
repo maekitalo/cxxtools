@@ -43,6 +43,7 @@ noinst_PROGRAMS = \
 	serialization \
 	signals \
 	splitter \
+	sslshowcert \
 	thread \
 	threadpool \
 	timer \
@@ -93,6 +94,7 @@ saml2_SOURCES = saml2.cpp
 serialization_SOURCES = serialization.cpp
 signals_SOURCES = signals.cpp
 splitter_SOURCES = splitter.cpp
+sslshowcert_SOURCES = sslshowcert.cpp
 threadpool_SOURCES = threadpool.cpp
 thread_SOURCES = thread.cpp
 timer_SOURCES = timer.cpp

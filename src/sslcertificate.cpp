@@ -27,10 +27,33 @@
  */
 
 #include <cxxtools/sslcertificate.h>
+#include <cxxtools/systemerror.h>
 #include "sslcertificateimpl.h"
+#include <stdio.h>
+#include <errno.h>
 
 namespace cxxtools
 {
+SslCertificate::SslCertificate(const std::string& filename)
+    : _impl(0)
+{
+    X509* cert = 0;
+    FILE* fp = fopen(filename.c_str(), "r");
+    if (fp == 0)
+        throw SystemError(errno, ("fopen(" + filename + ')').c_str());
+
+    cert = PEM_read_X509(fp, 0, 0, 0);
+    if (cert == 0)
+    {
+        fclose(fp);
+        SslError::checkSslError();
+        throw std::runtime_error("failed to read certificate from file \""  + filename + '"');
+    }
+
+    fclose(fp);
+    _impl = new SslCertificateImpl(cert);
+}
+
 SslCertificate::SslCertificate(SslCertificateImpl* impl)
     : _impl(impl)
 {
@@ -104,6 +127,14 @@ DateTime SslCertificate::getNotAfter() const
         return DateTime(2999, 12, 31, 23, 59, 59, 999);
     else
         return _impl->getNotAfter();
+}
+
+std::string SslCertificate::getSerial() const
+{
+    if (!_impl)
+        return std::string();
+    else
+        return _impl->getSerial();
 }
 
 }

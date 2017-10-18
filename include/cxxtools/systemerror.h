@@ -108,6 +108,9 @@ class SslError : public SystemError
 
         unsigned long getSslError() const
             { return _sslError; }
+
+        /// \internal
+        static void checkSslError();
     private:
         unsigned long _sslError;
 };

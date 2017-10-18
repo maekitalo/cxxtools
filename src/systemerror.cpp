@@ -27,7 +27,12 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 #include "cxxtools/systemerror.h"
+#include "cxxtools/mutex.h"
 #include "cxxtools/log.h"
+
+#include <openssl/err.h>
+#include <openssl/ssl.h>
+
 #include <errno.h>
 #include "error.h"
 
@@ -91,6 +96,39 @@ SymbolNotFound::SymbolNotFound(const std::string& sym)
   _symbol(sym)
 {
   log_finer("symbol " << sym << " not found; " << what());
+}
+
+void SslError::checkSslError()
+{
+    static Mutex mutex;
+    static bool errorStringsLoaded = false;
+
+    unsigned long code = ERR_get_error();
+    if (code != 0)
+    {
+        if (!errorStringsLoaded)
+        {
+            MutexLock lock(mutex);
+            if (!errorStringsLoaded)
+            {
+                log_debug("SSL_load_error_strings");
+                SSL_load_error_strings();
+                errorStringsLoaded = true;
+            }
+        }
+
+        char buffer[120];
+        if (ERR_error_string(code, buffer))
+        {
+            log_debug("SSL-Error " << code << ": \"" << buffer << '"');
+            throw SslError(buffer, code);
+        }
+        else
+        {
+            log_debug("unknown SSL-Error " << code);
+            throw SslError("unknown SSL-Error", code);
+        }
+    }
 }
 
 } // namespace cxxtools

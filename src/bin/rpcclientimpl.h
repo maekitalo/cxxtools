@@ -57,6 +57,8 @@ class RpcClientImpl : public RefCounted, public Connectable
     public:
         RpcClientImpl();
 
+        net::TcpSocket& socket()    { return _socket; }
+
         void setSelector(SelectorBase* selector)
         {
             _socket.setSelector(selector);

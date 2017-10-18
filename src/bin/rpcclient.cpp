@@ -207,5 +207,10 @@ void RpcClient::domain(const std::string& p)
     getImpl()->domain(p);
 }
 
+Delegate<bool, const SslCertificate&>& RpcClient::acceptSslCertificate()
+{
+    return getImpl()->socket().acceptSslCertificate;
+}
+
 }
 }

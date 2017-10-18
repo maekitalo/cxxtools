@@ -83,25 +83,6 @@ namespace
         return msg.str();
     }
 
-    void checkSslError()
-    {
-        unsigned long code = ERR_get_error();
-        if (code != 0)
-        {
-            char buffer[120];
-            if (ERR_error_string(code, buffer))
-            {
-                log_debug("SSL-Error " << code << ": \"" << buffer << '"');
-                throw SslError(buffer, code);
-            }
-            else
-            {
-                log_debug("unknown SSL-Error " << code);
-                throw SslError("unknown SSL-Error", code);
-            }
-        }
-    }
-
 }
 
 void formatIp(const Sockaddr& sa, std::string& str)
@@ -216,7 +197,7 @@ void TcpSocketImpl::checkSslOperation(int ret, const char* fn, pollfd* pfd)
 
         case SSL_ERROR_SYSCALL:
             log_debug("SSL_ERROR_SYSCALL; errno=" << errno);
-            checkSslError();
+            SslError::checkSslError();
             if (ret == 0)
             {
                 close();
@@ -232,7 +213,7 @@ void TcpSocketImpl::checkSslOperation(int ret, const char* fn, pollfd* pfd)
 
         case SSL_ERROR_SSL:
             log_debug("SSL_ERROR_SSL");
-            checkSslError();
+            SslError::checkSslError();
             break;
     }
 }
@@ -263,13 +244,10 @@ void TcpSocketImpl::initSsl()
         {
             if (!_sslInitialized)
             {
-                log_debug("SSL_load_error_strings");
-                SSL_load_error_strings();
-
                 log_debug("SSL_library_init");
                 SSL_library_init();
 
-                checkSslError();
+                SslError::checkSslError();
 
                 _sslInitialized = true;
             }
@@ -281,14 +259,14 @@ void TcpSocketImpl::initSsl()
             log_debug("SSL_CTX_new(SSLv23_method())");
             _sslCtx = SSL_CTX_new(SSLv23_method());
 #endif
-            checkSslError();
+            SslError::checkSslError();
         }
     }
 
     if (!_ssl)
     {
         _ssl = SSL_new(_sslCtx);
-        checkSslError();
+        SslError::checkSslError();
 
         log_debug("SSL_set_fd(" << _ssl << ", " << _fd << ')');
         SSL_set_fd(_ssl, _fd);
@@ -995,7 +973,7 @@ void TcpSocketImpl::setSslVerify(int level, const std::string& ca)
         fileInfo.isDirectory() ? ca.c_str() : 0);
 
     if (ret == 0)
-        checkSslError();
+        SslError::checkSslError();
 }
 
 const SslCertificate& TcpSocketImpl::getSslPeerCertificate() const
@@ -1164,7 +1142,7 @@ void TcpSocketImpl::endSslShutdown()
             SSL* ssl = _ssl;
             _ssl = 0;
             SSL_clear(ssl);
-            checkSslError();
+            SslError::checkSslError();
             return;
         }
 

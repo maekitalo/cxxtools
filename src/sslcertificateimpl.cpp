@@ -59,6 +59,17 @@ static String str(X509_NAME* a)
     return Utf8Codec::decode(&buf[0], buf.size());
 }
 
+static std::string str(ASN1_INTEGER* a)
+{
+    BIGNUM bn;
+    BN_init(&bn);
+    ASN1_INTEGER_to_BN(a, &bn);
+    char* ch = BN_bn2hex(&bn);
+    std::string ret = ch;
+    OPENSSL_free(ch);
+    return ret;
+}
+
 static DateTime dt(ASN1_TIME* t)
 {
     class Asn1Time
@@ -110,6 +121,11 @@ DateTime SslCertificateImpl::getNotBefore() const
 DateTime SslCertificateImpl::getNotAfter() const
 {
     return dt(X509_get_notAfter(_cert));
+}
+
+std::string SslCertificateImpl::getSerial() const
+{
+    return str(X509_get_serialNumber(_cert));
 }
 
 }
