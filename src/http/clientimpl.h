@@ -124,6 +124,8 @@ class ClientImpl : public RefCounted, public Connectable
     public:
         ClientImpl(Client* client);
 
+        net::TcpSocket& socket()    { return _socket; }
+
         // Sets the server and port. No actual network connect is done.
         void prepareConnect(const net::AddrInfo& addrinfo, bool ssl);
 

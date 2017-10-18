@@ -228,5 +228,10 @@ void RpcClient::prefix(const std::string& p)
     getImpl()->prefix(p);
 }
 
+Delegate<bool, const SslCertificate&>& RpcClient::acceptSslCertificate()
+{
+    return getImpl()->socket().acceptSslCertificate;
+}
+
 }
 }

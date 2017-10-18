@@ -31,8 +31,6 @@
 
 #include <cxxtools/http/reply.h>
 #include <cxxtools/query_params.h>
-#include <cxxtools/net/uri.h>
-#include <cxxtools/net/addrinfo.h>
 #include <cxxtools/selectable.h>
 #include <cxxtools/signal.h>
 #include <cxxtools/delegate.h>
@@ -41,7 +39,16 @@
 namespace cxxtools
 {
 
+class SslCertificate;
 class SelectorBase;
+
+namespace net
+{
+
+class AddrInfo;
+class Uri;
+
+}
 
 namespace http
 {
@@ -299,6 +306,8 @@ class Client
 
         /// Signals that the reply is completely processed.
         Signal<Client&> replyFinished;
+
+        Delegate<bool, const SslCertificate&>& acceptSslCertificate();
 };
 
 } // namespace http

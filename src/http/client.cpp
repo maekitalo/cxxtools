@@ -258,6 +258,11 @@ void Client::cancel()
         _impl->cancel();
 }
 
+Delegate<bool, const SslCertificate&>& Client::acceptSslCertificate()
+{
+    return getImpl()->socket().acceptSslCertificate;
+}
+
 } // namespace http
 
 } // namespace cxxtools
