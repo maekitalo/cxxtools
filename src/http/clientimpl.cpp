@@ -76,13 +76,14 @@ ClientImpl::ClientImpl(Client* client)
 }
 
 
-void ClientImpl::prepareConnect(const net::AddrInfo& addrinfo, bool ssl)
+void ClientImpl::prepareConnect(const net::AddrInfo& addrinfo, const std::string& sslCertificate)
 {
 #ifdef WITH_SSL
-    if (addrinfo != _addrInfo || ssl != _ssl)
+    if (addrinfo != _addrInfo || sslCertificate != _sslCertificate || _ssl != _sslCertificate.empty())
     {
         _addrInfo = addrinfo;
-        _ssl = ssl;
+        _sslCertificate = sslCertificate;
+        _ssl = !sslCertificate.empty();
         _socket.close();
     }
 #else

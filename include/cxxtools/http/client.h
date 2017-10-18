@@ -87,47 +87,71 @@ class Client
             : _impl(0)
         { }
 
-        ///@{
-        /// constructors which set the connection parameters.
-        explicit Client(const net::AddrInfo& addr, bool ssl = false);
-        Client(const std::string& host, unsigned short int port, bool ssl = false);
-        ///@}
-
         explicit Client(SelectorBase& selector)
             : _impl(0)
-        { setSelector(selector); }
+            { setSelector(selector); }
 
-        /** constructor with cxxtools::net::Uri.
+        /**@{
+            constructors which set the connection parameters.
+
             Note that the Uri class has a non explicit constructor from std::string.
-            The protocol of the uri must be http. The url part of the uri is ignored.
-
-            This makes using uris easy.
+            The protocol of the uri must be http or https. The url part of the uri is ignored.
 
             example:
             \code
               cxxtools::http::Client client("http://localhost:8000/");
             \endcode
          */
-        explicit Client(const net::Uri& uri);
+        explicit Client(const net::AddrInfo& addr, bool ssl = false)
+            : _impl(0)
+            { prepareConnect(addr, ssl); }
+        Client(const net::AddrInfo& addr, const std::string& sslCertificate)
+            : _impl(0)
+            { prepareConnect(addr, sslCertificate); }
+        Client(const std::string& addr, unsigned short port, bool ssl = false)
+            : _impl(0)
+            { prepareConnect(addr, port, ssl); }
+        Client(const std::string& addr, unsigned short port, const std::string& sslCertificate)
+            : _impl(0)
+            { prepareConnect(addr, port, sslCertificate); }
+        explicit Client(const net::Uri& uri)
+            : _impl(0)
+            { prepareConnect(uri); }
+        Client(const net::Uri& uri, const std::string& sslCertificate)
+            : _impl(0)
+            { prepareConnect(uri, sslCertificate); }
 
-        ///@{
-        /// constructors which set the selector for asyncronous request processing and the connection parameters.
-
-        Client(SelectorBase& selector, const std::string& host, unsigned short int port, bool ssl = false);
-        Client(SelectorBase& selector, const net::AddrInfo& addrinfo, bool ssl = false);
-        Client(SelectorBase& selector, const net::Uri& uri);
-
+        Client(SelectorBase& selector, const net::AddrInfo& addr, bool ssl = false)
+            : _impl(0)
+            { setSelector(selector); prepareConnect(addr, ssl); }
+        Client(SelectorBase& selector, const net::AddrInfo& addr, const std::string& sslCertificate)
+            : _impl(0)
+            { setSelector(selector); prepareConnect(addr, sslCertificate); }
+        Client(SelectorBase& selector, const std::string& addr, unsigned short port, bool ssl = false)
+            : _impl(0)
+            { setSelector(selector); prepareConnect(addr, port, ssl); }
+        Client(SelectorBase& selector, const std::string& addr, unsigned short port, const std::string& sslCertificate)
+            : _impl(0)
+            { setSelector(selector); prepareConnect(addr, port, sslCertificate); }
+        Client(SelectorBase& selector, const net::Uri& uri)
+            : _impl(0)
+            { setSelector(selector); prepareConnect(uri); }
+        Client(SelectorBase& selector, const net::Uri& uri, const std::string& sslCertificate)
+            : _impl(0)
+            { setSelector(selector); prepareConnect(uri, sslCertificate); }
         ///@}
 
-        /** copy and assignment.
-            When the class is copied, the copy points to the same implementation.
-            Hence it is not a real copy.
+        /** Copy and assignment.
+
+            Copying the class results in a copy which references to the same
+            implementation instance.  Since one client can have only one
+            running request and the copy shares the same implementation the
+            copy can't run another request.
          */
+        Client(const Client&);
+        Client& operator= (const Client&);
 
-        Client(const Client& other);
-        Client& operator= (const Client& other);
-
-        ~Client();
+        virtual ~Client();
 
         /** The prepareConnect methods set the host and port of the server for this http client.
 
@@ -136,9 +160,12 @@ class Client
            \see
              \ref connection
          */
-        void prepareConnect(const net::AddrInfo& addrinfo, bool ssl = false);
-        void prepareConnect(const std::string& host, unsigned short int port, bool ssl = false);
+        void prepareConnect(const net::AddrInfo& addr, bool ssl = false);
+        void prepareConnect(const net::AddrInfo& addr, const std::string& sslCertificate);
+        void prepareConnect(const std::string& host, unsigned short port, bool ssl = false);
+        void prepareConnect(const std::string& host, unsigned short port, const std::string& sslCertificate);
         void prepareConnect(const net::Uri& uri);
+        void prepareConnect(const net::Uri& uri, const std::string& sslCertificate);
 
         /** Connects to the client specified by prepareConnect or passed by teh constructor.
 
@@ -154,16 +181,26 @@ class Client
          */
         void close();
 
-        /** Sets the network parameters and connects the socket.
-         */
-        void connect(const net::AddrInfo& addrinfo)
-        { prepareConnect(addrinfo); connect(); }
+        ///@{ `connect` Sets the network parameters and connects the socket.
+        void connect(const net::AddrInfo& addrinfo, bool ssl_ = false)
+            { prepareConnect(addrinfo, ssl_); connect(); }
 
-        void connect(const std::string& host, unsigned short int port)
-        { prepareConnect(host, port); connect(); }
+        void connect(const net::AddrInfo& addrinfo, const std::string& sslCertificate)
+            { prepareConnect(addrinfo, sslCertificate); connect(); }
+
+        void connect(const std::string& host, unsigned short int port, bool ssl_ = false)
+            { prepareConnect(host, port, ssl_); connect(); }
+
+        void connect(const std::string& host, unsigned short int port, const std::string& sslCertificate)
+            { prepareConnect(host, port, sslCertificate); connect(); }
 
         void connect(const net::Uri& uri)
-        { prepareConnect(uri); connect(); }
+            { prepareConnect(uri); connect(); }
+
+        void connect(const net::Uri& uri, const std::string& sslCertificate)
+            { prepareConnect(uri, sslCertificate); connect(); }
+        ///@}
+
 
         /** Sends the passed request to the server and parses the headers.
 

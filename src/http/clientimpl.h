@@ -88,6 +88,7 @@ class ClientImpl : public RefCounted, public Connectable
         net::AddrInfo _addrInfo;
 #ifdef WITH_SSL
         bool _ssl;
+        std::string _sslCertificate;
 #endif
         net::TcpSocket _socket;
         IOStream _stream;
@@ -127,7 +128,16 @@ class ClientImpl : public RefCounted, public Connectable
         net::TcpSocket& socket()    { return _socket; }
 
         // Sets the server and port. No actual network connect is done.
-        void prepareConnect(const net::AddrInfo& addrinfo, bool ssl);
+        void prepareConnect(const net::AddrInfo& addrinfo, const std::string& sslCertificate);
+
+        void ssl(bool sw)
+        {
+            if (_ssl != sw)
+            {
+                _ssl = sw;
+                close();
+            }
+        }
 
         void connect()
         {
