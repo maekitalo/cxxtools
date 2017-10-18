@@ -229,8 +229,7 @@ int main(int argc, char* argv[])
       }
       else if (json)
       {
-        cxxtools::json::RpcClient* c = new cxxtools::json::RpcClient(ip, port);
-        c->ssl(ssl);
+        cxxtools::json::RpcClient* c = new cxxtools::json::RpcClient(ip, port, ssl);
         client = c;
       }
       else if (jsonhttp)

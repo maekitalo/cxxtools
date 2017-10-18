@@ -64,7 +64,11 @@ void RpcClientImpl::connect()
     _socket.close();
     _socket.connect(_addrInfo);
     if (_ssl)
+    {
+        if (!_sslCertificate.empty())
+            _socket.loadSslCertificateFile(_sslCertificate);
         _socket.sslConnect();
+    }
 }
 
 void RpcClientImpl::close()

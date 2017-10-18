@@ -62,8 +62,7 @@ int main(int argc, char* argv[])
     // and a binary rpc client
     cxxtools::bin::RpcClient binaryClient(ip, port, ssl);
     // and a json rpc client
-    cxxtools::json::RpcClient jsonClient(ip, port);
-    jsonClient.ssl(ssl);
+    cxxtools::json::RpcClient jsonClient(ip, port, ssl);
     // and a json rpc http client
     cxxtools::json::HttpClient jsonHttpClient(ip, port, "/jsonrpc", ssl);
 

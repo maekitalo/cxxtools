@@ -49,45 +49,6 @@ RpcClientImpl* RpcClient::getImpl()
     return _impl;
 }
 
-RpcClient::RpcClient(const net::AddrInfo& addr)
-    : _impl(0)
-{
-    prepareConnect(addr);
-}
-
-RpcClient::RpcClient(const std::string& addr, unsigned short port)
-    : _impl(0)
-{
-    prepareConnect(addr, port);
-}
-
-RpcClient::RpcClient(const net::Uri& uri)
-    : _impl(0)
-{
-    prepareConnect(uri);
-}
-
-RpcClient::RpcClient(SelectorBase& selector, const net::AddrInfo& addr)
-    : _impl(0)
-{
-    prepareConnect(addr);
-    setSelector(selector);
-}
-
-RpcClient::RpcClient(SelectorBase& selector, const std::string& addr, unsigned short port)
-    : _impl(0)
-{
-    prepareConnect(addr, port);
-    setSelector(selector);
-}
-
-RpcClient::RpcClient(SelectorBase& selector, const net::Uri& uri)
-    : _impl(0)
-{
-    prepareConnect(uri);
-    setSelector(selector);
-}
-
 RpcClient::RpcClient(const RpcClient& other)
 : _impl(other._impl)
 {
@@ -117,23 +78,33 @@ RpcClient::~RpcClient()
         delete _impl;
 }
 
-void RpcClient::prepareConnect(const net::AddrInfo& addrinfo)
+void RpcClient::prepareConnect(const net::AddrInfo& addrinfo, bool ssl)
 {
-    getImpl()->prepareConnect(addrinfo);
+    getImpl()->prepareConnect(addrinfo, std::string());
+    getImpl()->ssl(ssl);
 }
 
-void RpcClient::prepareConnect(const std::string& host, unsigned short int port)
+void RpcClient::prepareConnect(const net::AddrInfo& addrinfo, const std::string& sslCertificate)
 {
-    prepareConnect(net::AddrInfo(host, port));
+    getImpl()->prepareConnect(addrinfo, sslCertificate);
+}
+
+void RpcClient::prepareConnect(const std::string& host, unsigned short int port, bool ssl)
+{
+    prepareConnect(net::AddrInfo(host, port), ssl);
+}
+
+void RpcClient::prepareConnect(const std::string& host, unsigned short int port, const std::string& sslCertificate)
+{
+    prepareConnect(net::AddrInfo(host, port), sslCertificate);
 }
 
 void RpcClient::prepareConnect(const net::Uri& uri)
 {
 #ifdef WITH_SSL
     if (uri.protocol() != "json" && uri.protocol() != "jsons")
-        throw std::runtime_error("only protocols \"json\" and \"jsons\" are supported by json rpc client");
-    prepareConnect(net::AddrInfo(uri.host(), uri.port()));
-    ssl(uri.protocol() == "jsons");
+        throw std::runtime_error("only protocols \"json\" and \"jsons\" is supported by json rpc client");
+    prepareConnect(net::AddrInfo(uri.host(), uri.port()), uri.protocol() == "jsons");
 #else
     if (uri.protocol() != "json")
         throw std::runtime_error("only protocol \"json\" is supported by json rpc client");
@@ -141,9 +112,17 @@ void RpcClient::prepareConnect(const net::Uri& uri)
 #endif
 }
 
-void RpcClient::ssl(bool sw)
+void RpcClient::prepareConnect(const net::Uri& uri, const std::string& sslCertificate)
 {
-    getImpl()->ssl(sw);
+#ifdef WITH_SSL
+    if (uri.protocol() != "json" && uri.protocol() != "jsons")
+        throw std::runtime_error("only protocols \"json\" and \"jsons\" are supported by json rpc client");
+    prepareConnect(net::AddrInfo(uri.host(), uri.port()), sslCertificate);
+#else
+    if (uri.protocol() != "json")
+        throw std::runtime_error("only protocol \"json\" is supported by json rpc client");
+    prepareConnect(net::AddrInfo(uri.host(), uri.port()));
+#endif
 }
 
 void RpcClient::connect()
