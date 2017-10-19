@@ -33,20 +33,9 @@ namespace cxxtools
 {
 namespace bin
 {
-RpcServer::RpcServer(EventLoopBase& eventLoop)
-    : _impl(new RpcServerImpl(eventLoop, runmodeChanged, *this))
-{ }
-
-RpcServer::RpcServer(EventLoopBase& eventLoop, const std::string& ip, unsigned short int port, const std::string& certificateFile, const std::string& privateKeyFile)
-    : _impl(new RpcServerImpl(eventLoop, runmodeChanged, *this))
+RpcServerImpl* RpcServer::newImpl(EventLoopBase& eventLoop)
 {
-    listen(ip, port, certificateFile, privateKeyFile);
-}
-
-RpcServer::RpcServer(EventLoopBase& eventLoop, unsigned short int port, const std::string& certificateFile, const std::string& privateKeyFile)
-    : _impl(new RpcServerImpl(eventLoop, runmodeChanged, *this))
-{
-    listen(port, certificateFile, privateKeyFile);
+    return new RpcServerImpl(eventLoop, runmodeChanged, *this);
 }
 
 RpcServer::~RpcServer()
@@ -74,14 +63,9 @@ void RpcServer::addService(const std::string& domain, const ServiceRegistry& ser
     }
 }
 
-void RpcServer::listen(const std::string& ip, unsigned short int port, const std::string& certificateFile, const std::string& privateKeyFile)
+void RpcServer::listen(const std::string& ip, unsigned short int port, const std::string& certificateFile, const std::string& privateKeyFile, int sslVerifyLevel, const std::string& sslCa)
 {
-    _impl->listen(ip, port, certificateFile, privateKeyFile);
-}
-
-void RpcServer::listen(unsigned short int port, const std::string& certificateFile, const std::string& privateKeyFile)
-{
-    _impl->listen(std::string(), port, certificateFile, privateKeyFile);
+    _impl->listen(ip, port, certificateFile, privateKeyFile, sslVerifyLevel, sslCa);
 }
 
 unsigned RpcServer::minThreads() const

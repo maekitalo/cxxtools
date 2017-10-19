@@ -966,14 +966,17 @@ void TcpSocketImpl::setSslVerify(int level, const std::string& ca)
                      (SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT | SSL_VERIFY_CLIENT_ONCE),
         0);
 
-    log_debug_if(fileInfo.isFile(), "load verify locations file \"" << ca << '"');
-    log_debug_if(fileInfo.isDirectory(), "load verify locations directory \"" << ca << '"');
-    int ret = SSL_CTX_load_verify_locations(_sslCtx,
-        fileInfo.isFile()      ? ca.c_str() : 0,
-        fileInfo.isDirectory() ? ca.c_str() : 0);
+    if (level > 0)
+    {
+        log_debug_if(fileInfo.isFile(), "load verify locations file \"" << ca << '"');
+        log_debug_if(fileInfo.isDirectory(), "load verify locations directory \"" << ca << '"');
+        int ret = SSL_CTX_load_verify_locations(_sslCtx,
+            fileInfo.isFile()      ? ca.c_str() : 0,
+            fileInfo.isDirectory() ? ca.c_str() : 0);
 
-    if (ret == 0)
-        SslError::checkSslError();
+        if (ret == 0)
+            SslError::checkSslError();
+    }
 }
 
 const SslCertificate& TcpSocketImpl::getSslPeerCertificate() const

@@ -172,7 +172,11 @@ void RpcClientImpl::call(IComposer& r, IRemoteProcedure& method, IDecomposer** a
             _socket.setTimeout(_connectTimeout);
             _socket.connect(_addrInfo);
             if (_ssl)
+            {
+                if (!_sslCertificate.empty())
+                    _socket.loadSslCertificateFile(_sslCertificate);
                 _socket.sslConnect();
+            }
 
             prepareRequest(_proc->name(), argv, argc);
             _socket.setTimeout(timeout());
@@ -269,6 +273,8 @@ void RpcClientImpl::onConnect(net::TcpSocket& socket)
         _exceptionPending = false;
         if (_ssl)
         {
+            if (!_sslCertificate.empty())
+                _socket.loadSslCertificateFile(_sslCertificate);
             socket.beginSslConnect();
             return;
         }

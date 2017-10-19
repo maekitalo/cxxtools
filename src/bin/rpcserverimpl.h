@@ -76,7 +76,7 @@ namespace cxxtools
 
                 ~RpcServerImpl();
 
-                void listen(const std::string& ip, unsigned short int port, const std::string& certificateFile, const std::string& privateKeyFile);
+                void listen(const std::string& ip, unsigned short int port, const std::string& certificateFile, const std::string& privateKeyFile, int sslVerifyLevel, const std::string& sslCa);
 
                 unsigned minThreads() const
                 { return _minThreads; }
