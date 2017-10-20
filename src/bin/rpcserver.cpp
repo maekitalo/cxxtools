@@ -43,6 +43,11 @@ RpcServer::~RpcServer()
     delete _impl;
 }
 
+void RpcServer::listen(const std::string& ip, unsigned short int port, const std::string& certificateFile, const std::string& privateKeyFile, int sslVerifyLevel, const std::string& sslCa)
+{
+    _impl->listen(ip, port, certificateFile, privateKeyFile, sslVerifyLevel, sslCa);
+}
+
 void RpcServer::addService(const ServiceRegistry& service)
 {
     std::vector<std::string> procs = service.getProcedureNames();
@@ -61,11 +66,6 @@ void RpcServer::addService(const std::string& domain, const ServiceRegistry& ser
     {
         registerProcedure(domain.empty() ? *it : (domain + '\0' + *it), service.getProcedure(*it));
     }
-}
-
-void RpcServer::listen(const std::string& ip, unsigned short int port, const std::string& certificateFile, const std::string& privateKeyFile, int sslVerifyLevel, const std::string& sslCa)
-{
-    _impl->listen(ip, port, certificateFile, privateKeyFile, sslVerifyLevel, sslCa);
 }
 
 unsigned RpcServer::minThreads() const

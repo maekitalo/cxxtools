@@ -127,7 +127,7 @@ RpcServerImpl::~RpcServerImpl()
 
 }
 
-void RpcServerImpl::listen(const std::string& ip, unsigned short int port, const std::string& certificateFile, const std::string& privateKeyFile)
+void RpcServerImpl::listen(const std::string& ip, unsigned short int port, const std::string& certificateFile, const std::string& privateKeyFile, int sslVerifyLevel, const std::string& sslCa)
 {
     log_info("listen on " << ip << " port " << port);
     net::TcpServer* listener = new net::TcpServer(ip, port, 64,
@@ -136,7 +136,7 @@ void RpcServerImpl::listen(const std::string& ip, unsigned short int port, const
     try
     {
         _listener.push_back(listener);
-        _queue.put(new Socket(_serviceRegistry, *listener, certificateFile, privateKeyFile));
+        _queue.put(new Socket(_serviceRegistry, *listener, certificateFile, privateKeyFile, sslVerifyLevel, sslCa));
     }
     catch (...)
     {

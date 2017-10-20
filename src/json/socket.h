@@ -44,7 +44,7 @@ namespace json
 class Socket : public net::TcpSocket, public Connectable
 {
     public:
-        Socket(ServiceRegistry& _serviceRegistry, net::TcpServer& tcpServer, const std::string& certificateFile, const std::string& privateKeyFile);
+        Socket(ServiceRegistry& _serviceRegistry, net::TcpServer& tcpServer, const std::string& certificateFile, const std::string& privateKeyFile, int sslVerifyLevel, const std::string& sslCa);
         explicit Socket(Socket& socket);
 
         void accept();
@@ -75,6 +75,8 @@ class Socket : public net::TcpSocket, public Connectable
         Responder _responder;
         IOStream _stream;
 
+        int _sslVerifyLevel;
+        std::string _sslCa;
         bool _accepted;
 };
 

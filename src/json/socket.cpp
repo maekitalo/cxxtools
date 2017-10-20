@@ -37,12 +37,14 @@ namespace cxxtools
 namespace json
 {
 
-Socket::Socket(ServiceRegistry& serviceRegistry, net::TcpServer& tcpServer, const std::string& certificateFile, const std::string& privateKeyFile)
+Socket::Socket(ServiceRegistry& serviceRegistry, net::TcpServer& tcpServer, const std::string& certificateFile, const std::string& privateKeyFile, int sslVerifyLevel, const std::string& sslCa)
     : inputSlot(slot(*this, &Socket::onInput)),
       _tcpServer(tcpServer),
       _certificateFile(certificateFile),
       _privateKeyFile(privateKeyFile),
       _responder(serviceRegistry),
+      _sslVerifyLevel(sslVerifyLevel),
+      _sslCa(sslCa),
       _accepted(false)
 {
     _stream.attachDevice(*this);
@@ -59,6 +61,8 @@ Socket::Socket(Socket& socket)
       _certificateFile(socket._certificateFile),
       _privateKeyFile(socket._privateKeyFile),
       _responder(socket._responder._serviceRegistry),
+      _sslVerifyLevel(socket._sslVerifyLevel),
+      _sslCa(socket._sslCa),
       _accepted(false)
 {
     _stream.attachDevice(*this);
@@ -75,6 +79,7 @@ void Socket::accept()
     if (!_certificateFile.empty())
     {
         loadSslCertificateFile(_certificateFile, _privateKeyFile);
+        setSslVerify(_sslVerifyLevel, _sslCa);
         beginSslAccept();
     }
 }
