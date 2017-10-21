@@ -37,12 +37,13 @@ namespace cxxtools
 namespace bin
 {
 
-Socket::Socket(ServiceRegistry& serviceRegistry, net::TcpServer& tcpServer, const std::string& certificateFile, const std::string& privateKeyFile, int sslVerifyLevel, const std::string& sslCa)
+Socket::Socket(RpcServerImpl& rpcServerImpl, net::TcpServer& tcpServer, const std::string& certificateFile, const std::string& privateKeyFile, int sslVerifyLevel, const std::string& sslCa)
     : inputSlot(slot(*this, &Socket::onInput)),
+      _rpcServerImpl(rpcServerImpl),
       _tcpServer(tcpServer),
       _certificateFile(certificateFile),
       _privateKeyFile(privateKeyFile),
-      _responder(serviceRegistry),
+      _responder(rpcServerImpl._serviceRegistry),
       _sslVerifyLevel(sslVerifyLevel),
       _sslCa(sslCa),
       _accepted(false)
@@ -50,16 +51,18 @@ Socket::Socket(ServiceRegistry& serviceRegistry, net::TcpServer& tcpServer, cons
     _stream.attachDevice(*this);
     cxxtools::connect(IODevice::inputReady, *this, &Socket::onIODeviceInput);
     cxxtools::connect(_stream.buffer().outputReady, *this, &Socket::onOutput);
+    cxxtools::connect(acceptSslCertificate, *this, &Socket::onAcceptSslCertificate);
 }
 
 Socket::Socket(Socket& socket)
     : net::TcpSocket(),
       Connectable(*this),
       inputSlot(slot(*this, &Socket::onInput)),
+      _rpcServerImpl(socket._rpcServerImpl),
       _tcpServer(socket._tcpServer),
       _certificateFile(socket._certificateFile),
       _privateKeyFile(socket._privateKeyFile),
-      _responder(socket._responder._serviceRegistry),
+      _responder(_rpcServerImpl._serviceRegistry),
       _sslVerifyLevel(socket._sslVerifyLevel),
       _sslCa(socket._sslCa),
       _accepted(false)
@@ -67,6 +70,7 @@ Socket::Socket(Socket& socket)
     _stream.attachDevice(*this);
     cxxtools::connect(IODevice::inputReady, *this, &Socket::onIODeviceInput);
     cxxtools::connect(_stream.buffer().outputReady, *this, &Socket::onOutput);
+    cxxtools::connect(acceptSslCertificate, *this, &Socket::onAcceptSslCertificate);
 }
 
 void Socket::accept()
@@ -169,6 +173,11 @@ bool Socket::onOutput(StreamBuffer& sb)
     }
 
     return true;
+}
+
+bool Socket::onAcceptSslCertificate(const SslCertificate& cert)
+{
+    return !_rpcServerImpl.acceptSslCertificate.isConnected() || _rpcServerImpl.acceptSslCertificate(cert);
 }
 
 }

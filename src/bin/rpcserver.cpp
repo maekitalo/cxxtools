@@ -88,5 +88,10 @@ void RpcServer::maxThreads(unsigned m)
     _impl->maxThreads(m);
 }
 
+Delegate<bool, const SslCertificate&>& RpcServer::acceptSslCertificate()
+{
+    return _impl->acceptSslCertificate;
+}
+
 }
 }

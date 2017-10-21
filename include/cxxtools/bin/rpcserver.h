@@ -31,12 +31,13 @@
 
 #include <string>
 #include <cxxtools/signal.h>
-#include <cxxtools/callable.h>
+#include <cxxtools/delegate.h>
 #include <cxxtools/serviceregistry.h>
 
 namespace cxxtools
 {
     class EventLoopBase;
+    class SslCertificate;
 
     namespace bin
     {
@@ -109,6 +110,8 @@ namespace cxxtools
                 };
 
                 Signal<Runmode> runmodeChanged;
+
+                Delegate<bool, const SslCertificate&>& acceptSslCertificate();
 
             private:
                 RpcServerImpl* _impl;

@@ -40,11 +40,12 @@ namespace cxxtools
 {
 namespace json
 {
+class RpcServerImpl;
 
 class Socket : public net::TcpSocket, public Connectable
 {
     public:
-        Socket(ServiceRegistry& _serviceRegistry, net::TcpServer& tcpServer, const std::string& certificateFile, const std::string& privateKeyFile, int sslVerifyLevel, const std::string& sslCa);
+        Socket(RpcServerImpl& rpcServerImpl, net::TcpServer& tcpServer, const std::string& certificateFile, const std::string& privateKeyFile, int sslVerifyLevel, const std::string& sslCa);
         explicit Socket(Socket& socket);
 
         void accept();
@@ -57,6 +58,7 @@ class Socket : public net::TcpSocket, public Connectable
         void onIODeviceInput(IODevice& iodevice);
         void onInput(StreamBuffer& sb);
         bool onOutput(StreamBuffer& sb);
+        bool onAcceptSslCertificate(const SslCertificate& cert);
 
         Signal<Socket&> inputReady;
 
@@ -68,6 +70,7 @@ class Socket : public net::TcpSocket, public Connectable
         Connection timeoutConnection;
 
     private:
+        RpcServerImpl& _rpcServerImpl;
         net::TcpServer& _tcpServer;
         std::string _certificateFile;
         std::string _privateKeyFile;

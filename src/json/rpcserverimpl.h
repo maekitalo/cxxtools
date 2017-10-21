@@ -35,6 +35,7 @@
 #include <cxxtools/condition.h>
 #include <cxxtools/queue.h>
 #include <cxxtools/signal.h>
+#include <cxxtools/delegate.h>
 #include <cxxtools/connectable.h>
 
 #include <set>
@@ -95,6 +96,8 @@ namespace cxxtools
                 RpcServer::Runmode runmode() const
                 { return _runmode; }
 
+                Delegate<bool, const SslCertificate&> acceptSslCertificate;
+
             private:
                 void runmode(RpcServer::Runmode runmode)
                 {
@@ -119,6 +122,7 @@ namespace cxxtools
                 void start();
 
                 friend class Worker;
+                friend class Socket;
 
                 ////////////////////////////////////////////////////
 
