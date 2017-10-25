@@ -1,7 +1,7 @@
 ACLOCAL_AMFLAGS = -I m4
 
 if MAKE_DEMOS
-  DEMO_DIR = demo
+  DEMO_DIR = demo demo/ssl
 endif
 
 if MAKE_UNITTEST
