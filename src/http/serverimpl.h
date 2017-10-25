@@ -66,7 +66,7 @@ class ServerImpl : public ServerImplBase, public Connectable
         ~ServerImpl();
 
         // override from ServerImplBase
-        void listen(const std::string& ip, unsigned short int port, const std::string& certificateFile, const std::string& privateKeyFile);
+        void listen(const std::string& ip, unsigned short int port, const std::string& certificateFile, const std::string& privateKeyFile, int sslVerifyLevel, const std::string& sslCa);
 
         bool isTerminating() const
         { return runmode() == Server::Terminating; }

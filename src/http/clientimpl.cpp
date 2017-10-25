@@ -105,7 +105,11 @@ void ClientImpl::reexecute(const Request& request)
     _socket.connect(_addrInfo);
 #ifdef WITH_SSL
     if (_ssl)
+    {
+        if (!_sslCertificate.empty())
+            _socket.loadSslCertificateFile(_sslCertificate);
         _socket.sslConnect();
+    }
 #endif
 
     sendRequest(request);
@@ -163,6 +167,8 @@ const ReplyHeader& ClientImpl::execute(const Request& request, Timespan timeout,
         if (_ssl)
         {
             log_debug("ssl connect");
+            if (!_sslCertificate.empty())
+                _socket.loadSslCertificateFile(_sslCertificate);
             _socket.sslConnect();
         }
 #endif
@@ -417,6 +423,8 @@ void ClientImpl::onConnect(net::TcpSocket& socket)
 #ifdef WITH_SSL
         if (_ssl)
         {
+            if (!_sslCertificate.empty())
+                socket.loadSslCertificateFile(_sslCertificate);
             socket.beginSslConnect();
             return;
         }

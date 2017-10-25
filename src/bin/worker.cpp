@@ -122,7 +122,7 @@ void Worker::run()
         }
         catch (const std::exception& e)
         {
-            log_debug("error occured in device: " << e.what() << "; delete " << static_cast<void*>(socket));
+            log_warn("error occured in device: " << e.what() << "; delete " << static_cast<void*>(socket));
             delete socket;
         }
     }

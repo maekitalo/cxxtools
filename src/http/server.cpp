@@ -37,21 +37,9 @@ namespace cxxtools {
 
 namespace http {
 
-Server::Server(EventLoopBase& eventLoop)
-    : _impl(new ServerImpl(eventLoop, runmodeChanged))
+ServerImplBase* Server::newImpl(EventLoopBase& eventLoop)
 {
-}
-
-Server::Server(EventLoopBase& eventLoop, const std::string& ip, unsigned short int port, const std::string& certificateFile, const std::string& privateKeyFile)
-    : _impl(new ServerImpl(eventLoop, runmodeChanged))
-{
-    listen(ip, port, certificateFile, privateKeyFile);
-}
-
-Server::Server(EventLoopBase& eventLoop, unsigned short int port, const std::string& certificateFile, const std::string& privateKeyFile)
-    : _impl(new ServerImpl(eventLoop, runmodeChanged))
-{
-    listen(port, certificateFile, privateKeyFile);
+    return new ServerImpl(eventLoop, runmodeChanged);
 }
 
 Server::~Server()
@@ -65,18 +53,11 @@ Server::~Server()
     delete _impl;
 }
 
-void Server::listen(const std::string& ip, unsigned short int port, const std::string& certificateFile, const std::string& privateKeyFile)
+void Server::listen(const std::string& ip, unsigned short int port, const std::string& certificateFile, const std::string& privateKeyFile, int sslVerifyLevel, const std::string& sslCa)
 {
     log_info_if(certificateFile.empty(), "listen ip=" << ip << " port=" << port);
     log_info_if(!certificateFile.empty(), "listen ip=" << ip << " port=" << port << " certificate: \"" << certificateFile << "\" private key: \"" << privateKeyFile << '"');
-    _impl->listen(ip, port, certificateFile, privateKeyFile);
-}
-
-void Server::listen(unsigned short int port, const std::string& certificateFile, const std::string& privateKeyFile)
-{
-    log_info_if(certificateFile.empty(), "listen port=" << port);
-    log_info_if(!certificateFile.empty(), "listen port=" << port << " certificate: \"" << certificateFile << "\" private key: \"" << privateKeyFile << '"');
-    _impl->listen(std::string(), port, certificateFile, privateKeyFile);
+    _impl->listen(ip, port, certificateFile, privateKeyFile, sslVerifyLevel, sslCa);
 }
 
 void Server::addService(const std::string& url, Service& service)
@@ -142,6 +123,11 @@ unsigned Server::maxThreads() const
 void Server::maxThreads(unsigned m)
 {
     _impl->maxThreads(m);
+}
+
+Delegate<bool, const SslCertificate&>& Server::acceptSslCertificate()
+{
+    return _impl->acceptSslCertificate;
 }
 
 } // namespace http

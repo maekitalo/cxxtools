@@ -142,7 +142,7 @@ ServerImpl::~ServerImpl()
     }
 }
 
-void ServerImpl::listen(const std::string& ip, unsigned short int port, const std::string& certificateFile, const std::string& privateKeyFile)
+void ServerImpl::listen(const std::string& ip, unsigned short int port, const std::string& certificateFile, const std::string& privateKeyFile, int sslVerifyLevel, const std::string& sslCa)
 {
     log_debug("listen on " << ip << " port " << port << " certificate \"" << certificateFile << "\" private key \"" << privateKeyFile << '"');
     net::TcpServer* listener = new net::TcpServer(ip, port, 64,
@@ -152,7 +152,7 @@ void ServerImpl::listen(const std::string& ip, unsigned short int port, const st
     try
     {
         _listener.push_back(listener);
-        socket = new Socket(*this, *listener, certificateFile, privateKeyFile);
+        socket = new Socket(*this, *listener, certificateFile, privateKeyFile, sslVerifyLevel, sslCa);
         _queue.put(socket);
     }
     catch (...)

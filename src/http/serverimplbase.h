@@ -65,7 +65,7 @@ class ServerImplBase
 
         virtual ~ServerImplBase() { }
 
-        virtual void listen(const std::string& ip, unsigned short int port, const std::string& certificateFile, const std::string& privateKeyFile) = 0;
+        virtual void listen(const std::string& ip, unsigned short int port, const std::string& certificateFile, const std::string& privateKeyFile, int sslVerifyLevel, const std::string& sslCa) = 0;
 
         void addService(const std::string& url, Service& service)
         { _mapper.addService(url, service); }
@@ -96,6 +96,8 @@ class ServerImplBase
         virtual void terminate()              { }
         Server::Runmode runmode() const
         { return _runmode; }
+
+        Delegate<bool, const SslCertificate&> acceptSslCertificate;
 
     protected:
         void runmode(Server::Runmode runmode)

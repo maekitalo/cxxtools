@@ -64,7 +64,7 @@ class Socket : public net::TcpSocket, public Connectable
         };
 
     public:
-        Socket(ServerImpl& server, net::TcpServer& tcpServer, const std::string& certificateFile, const std::string& privateKeyFile);
+        Socket(ServerImpl& server, net::TcpServer& tcpServer, const std::string& certificateFile, const std::string& privateKeyFile, int sslVerifyLevel, const std::string& sslCa);
         explicit Socket(Socket& socket);
         ~Socket();
 
@@ -79,6 +79,7 @@ class Socket : public net::TcpSocket, public Connectable
         void onInput(StreamBuffer& sb);
         bool onOutput(StreamBuffer& sb);
         void onTimeout();
+        bool onAcceptSslCertificate(const SslCertificate& cert);
 
         bool doReply();
         void sendReply();
@@ -114,6 +115,8 @@ class Socket : public net::TcpSocket, public Connectable
         Responder* _responder;
         IOStream _stream;
 
+        int _sslVerifyLevel;
+        std::string _sslCa;
         bool _accepted;
 };
 

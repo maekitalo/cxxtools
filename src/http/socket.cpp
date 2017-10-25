@@ -55,7 +55,7 @@ void Socket::ParseEvent::onUrlParam(const std::string& q)
     _request.qparams(q);
 }
 
-Socket::Socket(ServerImpl& server, net::TcpServer& tcpServer, const std::string& certificateFile, const std::string& privateKeyFile)
+Socket::Socket(ServerImpl& server, net::TcpServer& tcpServer, const std::string& certificateFile, const std::string& privateKeyFile, int sslVerifyLevel, const std::string& sslCa)
     : inputSlot(slot(*this, &Socket::onInput)),
       _tcpServer(tcpServer),
       _certificateFile(certificateFile),
@@ -64,12 +64,15 @@ Socket::Socket(ServerImpl& server, net::TcpServer& tcpServer, const std::string&
       _parseEvent(_request),
       _parser(_parseEvent, false),
       _responder(0),
+      _sslVerifyLevel(sslVerifyLevel),
+      _sslCa(sslCa),
       _accepted(false)
 {
     _stream.attachDevice(*this);
     cxxtools::connect(IODevice::inputReady, *this, &Socket::onIODeviceInput);
     cxxtools::connect(_stream.buffer().outputReady, *this, &Socket::onOutput);
     cxxtools::connect(_timer.timeout, *this, &Socket::onTimeout);
+    cxxtools::connect(acceptSslCertificate, *this, &Socket::onAcceptSslCertificate);
 }
 
 Socket::Socket(Socket& socket)
@@ -83,12 +86,15 @@ Socket::Socket(Socket& socket)
       _parseEvent(_request),
       _parser(_parseEvent, false),
       _responder(0),
+      _sslVerifyLevel(socket._sslVerifyLevel),
+      _sslCa(socket._sslCa),
       _accepted(false)
 {
     _stream.attachDevice(*this);
     cxxtools::connect(IODevice::inputReady, *this, &Socket::onIODeviceInput);
     cxxtools::connect(_stream.buffer().outputReady, *this, &Socket::onOutput);
     cxxtools::connect(_timer.timeout, *this, &Socket::onTimeout);
+    cxxtools::connect(acceptSslCertificate, *this, &Socket::onAcceptSslCertificate);
 }
 
 Socket::~Socket()
@@ -104,6 +110,7 @@ void Socket::accept()
     if (!_certificateFile.empty())
     {
         loadSslCertificateFile(_certificateFile, _privateKeyFile);
+        setSslVerify(_sslVerifyLevel, _sslCa);
         beginSslAccept();
     }
 }
@@ -378,6 +385,11 @@ void Socket::sendReply()
 
     _reply.sendBody(_stream);
 
+}
+
+bool Socket::onAcceptSslCertificate(const SslCertificate& cert)
+{
+    return !_server.acceptSslCertificate.isConnected() || _server.acceptSslCertificate(cert);
 }
 
 } // namespace http
