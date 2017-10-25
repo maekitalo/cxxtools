@@ -55,6 +55,12 @@ class HttpClientImpl : public RefCounted, public ClientImpl
             _request.url(url);
         }
 
+            void prepareConnect(const net::AddrInfo& addrinfo, const std::string& url, const std::string& sslCertificate)
+            {
+                _client.prepareConnect(addrinfo, sslCertificate);
+                _request.url(url);
+            }
+
         void connect()
         {
             _client.connect();

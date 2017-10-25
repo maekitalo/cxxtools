@@ -87,12 +87,14 @@ cxxtools-config
 **/demo/xmlmsgserver
 **/demo/xmlreader
 **/demo/ssl/rpcecho
+**/demo/ssl/rpcecho
 **/demo/ssl/rpcjecho
 **/demo/ssl/rpcJecho
-**/demo/ssl/rpcecho
-**/demo/ssl/rpcserver
 **/demo/ssl/rpcjserver
 **/demo/ssl/rpcJserver
+**/demo/ssl/rpcserver
+**/demo/ssl/rpcxecho
+**/demo/ssl/rpcxserver
 
 *.l[ao]
 *.o
