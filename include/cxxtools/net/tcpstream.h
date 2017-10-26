@@ -155,14 +155,26 @@ namespace net
             // initiates a ssl connection on the socket
             void sslConnect()
             { _socket.sslConnect(); }
+            void beginSslConnect()
+            { _socket.beginSslConnect(); }
+            void endSslConnect()
+            { _socket.endSslConnect(); }
 
             // accept a ssl connection from the peer
             void sslAccept()
             { _socket.sslAccept(); }
+            void beginSslAccept()
+            { _socket.beginSslAccept(); }
+            void endSslAccept()
+            { _socket.endSslAccept(); }
 
             // terminates ssl
             void sslShutdown()
             { _socket.sslShutdown(); }
+            void beginSslShutdown()
+            { _socket.beginSslShutdown(); }
+            void endSslShutdown()
+            { _socket.endSslShutdown(); }
 
             TcpSocket& socket()
             { return _socket; }
