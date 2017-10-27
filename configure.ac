@@ -228,6 +228,15 @@ AS_IF([test $ssl_option = yes],
       [
         AC_MSG_RESULT([building with ssl support])
         AC_DEFINE(WITH_SSL, [], [Define to build with openssl])
+        AC_COMPILE_IFELSE(
+            [AC_LANG_SOURCE([
+                #include <openssl/asn1.h>
+                ASN1_TIME* t;
+                void foo() { ASN1_TIME_diff(0, 0, t, t); }
+            ])],
+            [AC_DEFINE(HAVE_ASN1_TIME_diff, [], [Defined when openssl supports ASN1_TIME_diff (openssl 1.0.2)])],
+            []
+        )
       ],
       AC_MSG_ERROR([header for openssl not found; install openssl developent package or use --without-ssl])
       )

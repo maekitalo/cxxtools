@@ -27,8 +27,13 @@
  */
 
 #include "sslcertificateimpl.h"
+#include "config.h"
 #include <cxxtools/utf8codec.h>
 #include <vector>
+
+#ifndef HAVE_ASN1_TIME_diff
+#include <sstream>
+#endif
 
 namespace cxxtools
 {
@@ -70,6 +75,7 @@ static std::string str(ASN1_INTEGER* a)
     return ret;
 }
 
+#ifdef HAVE_ASN1_TIME_diff
 static DateTime dt(ASN1_TIME* t)
 {
     class Asn1Time
@@ -97,6 +103,53 @@ static DateTime dt(ASN1_TIME* t)
 
     return DateTime::fromMSecsSinceEpoch(Seconds(secs));
 }
+#else
+static DateTime dt(ASN1_TIME* time)
+{
+    const char* str = (const char*) time->data;
+    size_t i = 0;
+
+    int year;
+    unsigned mon, mday, hour, min, sec;
+
+    if (time->type == V_ASN1_UTCTIME)
+    {/* two digit year */
+        year = (str[i++] - '0') * 10;
+        year += (str[i++] - '0');
+        if (year < 70)
+            year += 2000;
+        else
+            year += 1900;
+    }
+    else if (time->type == V_ASN1_GENERALIZEDTIME)
+    {/* four digit year */
+        year = (str[i++] - '0') * 1000;
+        year+= (str[i++] - '0') * 100;
+        year+= (str[i++] - '0') * 10;
+        year+= (str[i++] - '0');
+    }
+    else
+    {
+        std::ostringstream msg;
+        msg << "unknown time format in ssl certificate; type=" << time->type << " str=\"" << str << '"';
+        throw std::runtime_error(msg.str());
+    }
+
+    mon  = (str[i++] - '0') * 10;
+    mon += (str[i++] - '0');
+    mday = (str[i++] - '0') * 10;
+    mday+= (str[i++] - '0');
+    hour = (str[i++] - '0') * 10;
+    hour+= (str[i++] - '0');
+    min  = (str[i++] - '0') * 10;
+    min += (str[i++] - '0');
+    sec  = (str[i++] - '0') * 10;
+    sec += (str[i++] - '0');
+
+    return DateTime(year, mon, mday, hour, min, sec);
+
+}
+#endif
 
 SslCertificateImpl::~SslCertificateImpl()
 {
