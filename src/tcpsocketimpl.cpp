@@ -232,6 +232,26 @@ void TcpSocketImpl::waitSslOperation(int ret)
     if (!avail)
         throw IOTimeout();
 }
+static cxxtools::Mutex *openssl_mutex;
+
+static unsigned long pthreads_thread_id()
+    { return (unsigned long)pthread_self(); }
+
+static void pthreads_locking_callback(int mode, int n, const char* /* file */, int /* line */)
+{
+    if (mode & CRYPTO_LOCK)
+        openssl_mutex[n].lock();
+    else
+        openssl_mutex[n].unlock();
+}
+
+static void thread_setup()
+{
+    openssl_mutex = new cxxtools::Mutex[CRYPTO_num_locks()];
+
+    CRYPTO_set_id_callback(pthreads_thread_id);
+    CRYPTO_set_locking_callback(pthreads_locking_callback);
+}
 
 void TcpSocketImpl::initSsl()
 {
@@ -248,6 +268,8 @@ void TcpSocketImpl::initSsl()
                 SSL_library_init();
 
                 SslError::checkSslError();
+
+                thread_setup();
 
                 _sslInitialized = true;
             }
