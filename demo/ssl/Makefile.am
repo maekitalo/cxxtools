@@ -1,6 +1,6 @@
-noinst_PROGRAMS = rpcserver rpcjserver rpcJserver rpcxserver rpcecho rpcjecho rpcJserver rpcxecho
-rpcserver_SOURCES = rpcserver.cpp
-rpcserver_LDADD=$(top_builddir)/src/bin/libcxxtools-bin.la
+noinst_PROGRAMS = rpcbserver rpcjserver rpcJserver rpcxserver rpcbecho rpcjecho rpcJserver rpcxecho
+rpcbserver_SOURCES = rpcbserver.cpp
+rpcbserver_LDADD=$(top_builddir)/src/bin/libcxxtools-bin.la
 
 rpcjserver_SOURCES = rpcjserver.cpp
 rpcjserver_LDADD=$(top_builddir)/src/json/libcxxtools-json.la
@@ -11,8 +11,8 @@ rpcJserver_LDADD=$(top_builddir)/src/json/libcxxtools-json.la
 rpcxserver_SOURCES = rpcxserver.cpp
 rpcxserver_LDADD=$(top_builddir)/src/xmlrpc/libcxxtools-xmlrpc.la
 
-rpcecho_SOURCES = rpcecho.cpp
-rpcecho_LDADD=$(top_builddir)/src/bin/libcxxtools-bin.la
+rpcbecho_SOURCES = rpcbecho.cpp
+rpcbecho_LDADD=$(top_builddir)/src/bin/libcxxtools-bin.la
 
 rpcjecho_SOURCES = rpcjecho.cpp
 rpcjecho_LDADD=$(top_builddir)/src/json/libcxxtools-json.la
