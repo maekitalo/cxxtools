@@ -142,6 +142,9 @@ class HttpClient : public Client
         void setSelector(SelectorBase* selector);
         void setSelector(SelectorBase& selector);
 
+        /// @see cxxtools::net::TcpSocket::setSslVerify
+        void setSslVerify(int level, const std::string& ca = std::string());
+
         void wait(Milliseconds msecs = WaitInfinite);
 
     private:

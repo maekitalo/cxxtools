@@ -146,6 +146,11 @@ void RpcClient::setSelector(SelectorBase& selector)
     getImpl()->setSelector(&selector);
 }
 
+void RpcClient::setSslVerify(int level, const std::string& ca)
+{
+    getImpl()->setSslVerify(level, ca);
+}
+
 void RpcClient::beginCall(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc)
 {
     _impl->beginCall(r, method, argv, argc);

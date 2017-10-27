@@ -45,6 +45,7 @@ namespace json
 RpcClientImpl::RpcClientImpl()
     : _stream(_socket, 8192, true),
       _ssl(false),
+      _sslVerifyLevel(0),
       _exceptionPending(false),
       _proc(0),
       _count(0),
@@ -67,6 +68,7 @@ void RpcClientImpl::connect()
     {
         if (!_sslCertificate.empty())
             _socket.loadSslCertificateFile(_sslCertificate);
+        _socket.setSslVerify(_sslVerifyLevel, _sslCa);
         _socket.sslConnect();
     }
 }
@@ -176,6 +178,7 @@ void RpcClientImpl::call(IComposer& r, IRemoteProcedure& method, IDecomposer** a
             {
                 if (!_sslCertificate.empty())
                     _socket.loadSslCertificateFile(_sslCertificate);
+                _socket.setSslVerify(_sslVerifyLevel, _sslCa);
                 _socket.sslConnect();
             }
 
@@ -283,16 +286,17 @@ void RpcClientImpl::onConnect(net::TcpSocket& socket)
     {
         log_trace("onConnect");
 
+        socket.endConnect();
+
         _exceptionPending = false;
         if (_ssl)
         {
             if (!_sslCertificate.empty())
                 _socket.loadSslCertificateFile(_sslCertificate);
+            _socket.setSslVerify(_sslVerifyLevel, _sslCa);
             socket.beginSslConnect();
             return;
         }
-
-        socket.endConnect();
 
         _stream.buffer().beginWrite();
     }

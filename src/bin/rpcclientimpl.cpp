@@ -44,6 +44,7 @@ namespace bin
 RpcClientImpl::RpcClientImpl()
     : _stream(_socket, 8192, true),
       _ssl(false),
+      _sslVerifyLevel(0),
       _exceptionPending(false),
       _proc(0),
       _timeout(Selectable::WaitInfinite),
@@ -65,6 +66,7 @@ void RpcClientImpl::connect()
     {
         if (!_sslCertificate.empty())
             _socket.loadSslCertificateFile(_sslCertificate);
+        _socket.setSslVerify(_sslVerifyLevel, _sslCa);
         _socket.sslConnect();
     }
 }
@@ -175,6 +177,7 @@ void RpcClientImpl::call(IComposer& r, IRemoteProcedure& method, IDecomposer** a
             {
                 if (!_sslCertificate.empty())
                     _socket.loadSslCertificateFile(_sslCertificate);
+                _socket.setSslVerify(_sslVerifyLevel, _sslCa);
                 _socket.sslConnect();
             }
 
@@ -275,6 +278,7 @@ void RpcClientImpl::onConnect(net::TcpSocket& socket)
         {
             if (!_sslCertificate.empty())
                 _socket.loadSslCertificateFile(_sslCertificate);
+            _socket.setSslVerify(_sslVerifyLevel, _sslCa);
             socket.beginSslConnect();
             return;
         }

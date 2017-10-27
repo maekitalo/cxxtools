@@ -303,6 +303,9 @@ class Client
         void setSelector(SelectorBase* selector);
         void setSelector(SelectorBase& selector);
 
+        /// @see cxxtools::net::TcpSocket::setSslVerify
+        void setSslVerify(int level, const std::string& ca = std::string());
+
         /// Returns the selector for asyncronous event processing.
         SelectorBase* selector();
 

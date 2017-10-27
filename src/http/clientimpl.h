@@ -89,6 +89,8 @@ class ClientImpl : public RefCounted, public Connectable
 #ifdef WITH_SSL
         bool _ssl;
         std::string _sslCertificate;
+        int _sslVerifyLevel;
+        std::string _sslCa;
 #endif
         net::TcpSocket _socket;
         IOStream _stream;
@@ -152,6 +154,12 @@ class ClientImpl : public RefCounted, public Connectable
         void close()
         {
             _socket.close();
+        }
+
+        void setSslVerify(int level, const std::string& ca)
+        {
+            _sslVerifyLevel = level;
+            _sslCa = ca;
         }
 
         // Sends the passed request to the server and parses the headers.

@@ -91,6 +91,11 @@ class HttpClientImpl : public RefCounted, public ClientImpl
             _client.setSelector(&selector);
         }
 
+        void setSslVerify(int level, const std::string& ca)
+        {
+            _client.setSslVerify(level, ca);
+        }
+
         std::string url() const;
 
         virtual void wait(std::size_t msecs);

@@ -182,6 +182,11 @@ void Client::setSelector(SelectorBase& selector)
     getImpl()->setSelector(&selector);
 }
 
+void Client::setSslVerify(int level, const std::string& ca)
+{
+    getImpl()->setSslVerify(level, ca);
+}
+
 SelectorBase* Client::selector()
 {
     return _impl ? _impl->selector() : 0;

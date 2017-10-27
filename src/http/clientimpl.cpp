@@ -108,6 +108,7 @@ void ClientImpl::reexecute(const Request& request)
     {
         if (!_sslCertificate.empty())
             _socket.loadSslCertificateFile(_sslCertificate);
+        _socket.setSslVerify(_sslVerifyLevel, _sslCa);
         _socket.sslConnect();
     }
 #endif
@@ -169,6 +170,7 @@ const ReplyHeader& ClientImpl::execute(const Request& request, Timespan timeout,
             log_debug("ssl connect");
             if (!_sslCertificate.empty())
                 _socket.loadSslCertificateFile(_sslCertificate);
+            _socket.setSslVerify(_sslVerifyLevel, _sslCa);
             _socket.sslConnect();
         }
 #endif
@@ -425,6 +427,7 @@ void ClientImpl::onConnect(net::TcpSocket& socket)
         {
             if (!_sslCertificate.empty())
                 socket.loadSslCertificateFile(_sslCertificate);
+            socket.setSslVerify(_sslVerifyLevel, _sslCa);
             socket.beginSslConnect();
             return;
         }

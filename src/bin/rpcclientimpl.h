@@ -81,6 +81,12 @@ class RpcClientImpl : public RefCounted, public Connectable
 
         void close();
 
+        void setSslVerify(int level, const std::string& ca)
+        {
+            _sslVerifyLevel = level;
+            _sslCa = ca;
+        }
+
         void beginCall(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc);
 
         void endCall();
@@ -120,6 +126,8 @@ class RpcClientImpl : public RefCounted, public Connectable
         net::AddrInfo _addrInfo;
         bool _ssl;
         std::string _sslCertificate;
+        int _sslVerifyLevel;
+        std::string _sslCa;
         std::string _domain;
 
         // serialization
