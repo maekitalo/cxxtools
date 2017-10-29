@@ -66,10 +66,18 @@ static String str(X509_NAME* a)
 
 static std::string str(ASN1_INTEGER* a)
 {
-    BIGNUM bn;
-    BN_init(&bn);
-    ASN1_INTEGER_to_BN(a, &bn);
-    char* ch = BN_bn2hex(&bn);
+    BIGNUM* bn = ASN1_INTEGER_to_BN(a, 0);
+    if (bn == 0)
+        throw std::bad_alloc();
+
+    char* ch = BN_bn2hex(bn);
+    if (ch == 0)
+    {
+        BN_free(bn);
+        throw std::bad_alloc();
+    }
+
+    BN_free(bn);
     std::string ret = ch;
     OPENSSL_free(ch);
     return ret;
