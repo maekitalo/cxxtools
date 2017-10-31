@@ -61,7 +61,7 @@ SslCertificate::SslCertificate(SslCertificateImpl* impl)
         _impl->addRef();
 }
 
-SslCertificate::SslCertificate(SslCertificate& s)
+SslCertificate::SslCertificate(const SslCertificate& s)
     : _impl(s._impl)
 {
     if (_impl)

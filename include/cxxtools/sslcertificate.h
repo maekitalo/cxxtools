@@ -50,7 +50,7 @@ class SslCertificate
 
         explicit SslCertificate(SslCertificateImpl* impl);
 
-        SslCertificate(SslCertificate& s);
+        SslCertificate(const SslCertificate& s);
         SslCertificate& operator=(const SslCertificate& s);
         ~SslCertificate();
 
