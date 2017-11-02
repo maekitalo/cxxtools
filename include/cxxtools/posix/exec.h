@@ -40,10 +40,15 @@ namespace cxxtools
   {
     /** cxxtools::posix::Exec is a wrapper around the exec?? functions of posix.
 
+        Note that after an fork, memory allocations are not allowed in a
+        multithreaded application. So arguments must be set befor a possible
+        call to fork.
+
         Usage is like this:
         \code
           cxxtools::posix::Exec e("ls");
           e.push_back("-l");
+          // possibly fork here
           e.exec();
         \endcode
 
@@ -52,30 +57,37 @@ namespace cxxtools
     class Exec
     {
         std::vector<std::string> _args;
+        std::vector<const char*> _argv;
 
       public:
         explicit Exec(const std::string& cmd)
         {
           _args.push_back(cmd);
+          _argv.reserve(1);
         }
 
+        /// Adds a parameter to the process.
         Exec& push_back(const std::string& arg)
         {
           _args.push_back(arg);
+          _argv.reserve(_args.size());
           return *this;
         }
 
-        // nice alias of push_back
+        /// Alias for push_back if you prefer that name.
         Exec& arg(const std::string& arg)
         { return push_back(arg); }
 
+        /// Call `execvp` to replace the current process.
         void exec()
         {
-          std::vector<const char*> argv;
           for (unsigned n = 0; n < _args.size(); ++n)
-              argv.push_back(_args[n].c_str());
-          argv.push_back(0);
-          ::execvp(argv[0], (char**)&argv[0]);
+              _argv.push_back(_args[n].c_str());
+          _argv.push_back(0);
+          ::execvp(_argv[0], (char**)&_argv[0]);
+
+          // `execvp` do not return and hence this won't never be executed.
+          // Just in case:
           throw SystemError("execvp");
         }
 
