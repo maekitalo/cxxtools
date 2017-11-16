@@ -335,7 +335,7 @@ size_t TcpSocket::onBeginRead(char* buffer, size_t n, bool& eof)
 size_t TcpSocket::onBeginWrite(const char* buffer, size_t n)
 {
     if (!_impl->isConnected())
-        throw IOError("socket not connected when trying to read");
+        throw IOError("socket not connected when trying to write");
 
     return _impl->beginWrite(buffer, n);
 }
