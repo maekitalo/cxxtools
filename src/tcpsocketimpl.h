@@ -83,7 +83,7 @@ class TcpSocketImpl : public IODeviceImpl
 {
     private:
         TcpSocket& _socket;
-        enum {
+        enum State {
             IDLE,
             CONNECTING,
             CONNECTED
@@ -94,7 +94,8 @@ class TcpSocketImpl : public IODeviceImpl
             SSLCONNECTING,
             SSLSHUTTINGDOWN,
 
-            SSLCONNECTED
+            SSLCONNECTED,
+            THROWING
 #endif
         } _state;
 
@@ -141,6 +142,9 @@ class TcpSocketImpl : public IODeviceImpl
 
         bool isConnected() const
         { return _state >= CONNECTED; }
+
+        bool isSslConnected() const
+        { return _state == SSLCONNECTED; }
 
         bool beginConnect(const AddrInfo& addrinfo);
 

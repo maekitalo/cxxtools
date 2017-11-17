@@ -49,7 +49,7 @@
 #include <cxxtools/hexdump.h>
 #include <cxxtools/fileinfo.h>
 #include "cxxtools/mutex.h"
-#include "cxxtools/utf8codec.h"
+#include "cxxtools/resetter.h"
 
 #include "config.h"
 #include "error.h"
@@ -64,8 +64,10 @@
 
 #include <openssl/err.h>
 #include <openssl/ssl.h>
+#include <stdlib.h>
 
 log_define("cxxtools.net.tcpsocket.impl")
+log_define_instance(ssl, "cxxtools.net.tcpsocket.impl.ssl")
 
 namespace cxxtools
 {
@@ -158,7 +160,7 @@ void TcpSocketImpl::checkSslOperation(int ret, const char* fn, pollfd* pfd)
 {
     int err = SSL_get_error(_ssl, ret);
 
-    log_debug("check ssl operation ret=" << ret << " err=" << err);
+    log_debug_to(ssl, "check ssl operation ret=" << ret << " err=" << err);
 
     switch (err)
     {
@@ -166,13 +168,13 @@ void TcpSocketImpl::checkSslOperation(int ret, const char* fn, pollfd* pfd)
             break;
 
         case SSL_ERROR_ZERO_RETURN:
-            log_debug("SSL_ERROR_ZERO_RETURN");
+            log_debug_to(ssl, "SSL_ERROR_ZERO_RETURN");
             _state = CONNECTED;
             _socket.sslClosed(_socket);
             break;
 
         case SSL_ERROR_WANT_READ:
-            log_debug("SSL_ERROR_WANT_READ");
+            log_debug_to(ssl, "SSL_ERROR_WANT_READ");
             if (pfd)
             {
                 pfd->events |= POLLIN;
@@ -183,7 +185,7 @@ void TcpSocketImpl::checkSslOperation(int ret, const char* fn, pollfd* pfd)
         case SSL_ERROR_WANT_WRITE:
         case SSL_ERROR_WANT_CONNECT:
         case SSL_ERROR_WANT_ACCEPT:
-            log_debug("SSL_ERROR_WANT_WRITE");
+            log_debug_to(ssl, "SSL_ERROR_WANT_WRITE");
             if (pfd)
             {
                 pfd->events |= POLLOUT;
@@ -192,11 +194,11 @@ void TcpSocketImpl::checkSslOperation(int ret, const char* fn, pollfd* pfd)
             break;
 
         case SSL_ERROR_WANT_X509_LOOKUP:
-            log_debug("SSL_ERROR_WANT_X509_LOOKUP");
+            log_debug_to(ssl, "SSL_ERROR_WANT_X509_LOOKUP");
             break;
 
         case SSL_ERROR_SYSCALL:
-            log_debug("SSL_ERROR_SYSCALL; errno=" << errno);
+            log_debug_to(ssl, "SSL_ERROR_SYSCALL; errno=" << errno);
             SslError::checkSslError();
             if (ret == 0)
             {
@@ -212,7 +214,7 @@ void TcpSocketImpl::checkSslOperation(int ret, const char* fn, pollfd* pfd)
             }
 
         case SSL_ERROR_SSL:
-            log_debug("SSL_ERROR_SSL");
+            log_debug_to(ssl, "SSL_ERROR_SSL");
             SslError::checkSslError();
             break;
     }
@@ -227,10 +229,13 @@ void TcpSocketImpl::waitSslOperation(int ret)
 
     checkSslOperation(ret, 0, &pfd);
 
-    log_debug("wait " << timeout());
+    log_debug_to(ssl, "wait " << timeout() << " fd " << _fd);
     bool avail = wait(timeout(), pfd);
     if (!avail)
+    {
+        log_debug_to(ssl, "IOTimeout " << _fd);
         throw IOTimeout();
+    }
 }
 static cxxtools::Mutex *openssl_mutex;
 
@@ -264,7 +269,7 @@ void TcpSocketImpl::initSsl()
         {
             if (!_sslInitialized)
             {
-                log_debug("SSL_library_init");
+                log_debug_to(ssl, "SSL_library_init");
                 SSL_library_init();
 
                 SslError::checkSslError();
@@ -275,10 +280,10 @@ void TcpSocketImpl::initSsl()
             }
 
 #ifdef HAVE_TLS_METHOD
-            log_debug("SSL_CTX_new(TLS_method())");
+            log_debug_to(ssl, "SSL_CTX_new(TLS_method())");
             _sslCtx = SSL_CTX_new(TLS_method());
 #else
-            log_debug("SSL_CTX_new(SSLv23_method())");
+            log_debug_to(ssl, "SSL_CTX_new(SSLv23_method())");
             _sslCtx = SSL_CTX_new(SSLv23_method());
 #endif
             SslError::checkSslError();
@@ -290,7 +295,7 @@ void TcpSocketImpl::initSsl()
         _ssl = SSL_new(_sslCtx);
         SslError::checkSslError();
 
-        log_debug("SSL_set_fd(" << _ssl << ", " << _fd << ')');
+        log_debug_to(ssl, "SSL_set_fd(" << _ssl << ", " << _fd << ')');
         SSL_set_fd(_ssl, _fd);
     }
 }
@@ -604,6 +609,57 @@ bool TcpSocketImpl::checkPollEvent(pollfd& pfd)
             return true;
         }
 
+        if (_state == SSLCONNECTING)
+        {
+            log_debug_to(ssl, "SSL_connect");
+            int ret = SSL_connect(_ssl);
+            if (ret == 1)
+            {
+                _state = SSLCONNECTED;
+                _socket.sslConnected(_socket);
+            }
+            else
+            {
+                try
+                {
+                    checkSslOperation(ret, "SSL_connect", _pfd);
+                }
+                catch (const std::exception&)
+                {
+                    Resetter<State> resetter(_state, CONNECTED);
+                    _state = THROWING;
+                    _socket.sslConnected(_socket);
+                }
+            }
+
+            return true;
+        }
+        else if (_state == SSLACCEPTING)
+        {
+            log_debug_to(ssl, "SSL_accept " << _fd);
+            int ret = SSL_accept(_ssl);
+            if (ret == 1)
+            {
+                _state = SSLCONNECTED;
+                _socket.sslAccepted(_socket);
+            }
+            else
+            {
+                try
+                {
+                    checkSslOperation(ret, "SSL_accept", _pfd);
+                }
+                catch (const std::exception&)
+                {
+                    Resetter<State> resetter(_state, CONNECTED);
+                    _state = THROWING;
+                    _socket.sslAccepted(_socket);
+                }
+            }
+
+            return true;
+        }
+
         bool avail = IODeviceImpl::checkPollEvent(pfd);
 
         if ( !_device.reading() && !_device.writing() && !_socket.enabled())
@@ -881,7 +937,8 @@ void TcpSocketImpl::outputReady()
 
 #ifdef WITH_SSL
         case SSLACCEPTING:
-            beginSslAccept();
+            if (beginSslAccept())
+                _socket.sslAccepted(_socket);
             break;
 
         case SSLCONNECTING:
@@ -890,7 +947,8 @@ void TcpSocketImpl::outputReady()
             break;
 
         case SSLSHUTTINGDOWN:
-            beginSslShutdown();
+            if (beginSslShutdown())
+                _socket.sslClosed(_socket);
             break;
 #endif
     }
@@ -938,6 +996,8 @@ size_t TcpSocketImpl::read(char* buffer, size_t count, bool& eof)
 #endif
     else
     {
+        log_warn("socket not connected when trying to read; state=" << _state);
+        abort();
         throw IOError("socket not connected when trying to read");
     }
 }
@@ -1043,6 +1103,9 @@ void TcpSocketImpl::endSslConnect()
     if (_pfd && !_socket.wbuf())
         _pfd->events &= ~POLLOUT;
 
+    if (_state == THROWING)
+        throw;
+
     if (_state == SSLCONNECTED)
     {
         verifySslCertificate();
@@ -1059,7 +1122,10 @@ void TcpSocketImpl::endSslConnect()
         if (ret == 1)
         {
             log_debug("SSL connection successful");
-            log_debug_if(_socket.hasSslPeerCertificate(), "peer subject: \"" << _socket.getSslPeerCertificate().getSubject() << "\" validity: " << _socket.getSslPeerCertificate().getNotBefore().toString() << " - " << _socket.getSslPeerCertificate().getNotAfter().toString());
+            log_debug_if(_socket.hasSslPeerCertificate(),
+                    "peer subject: \"" << _socket.getSslPeerCertificate().getSubject() << "\" "
+                    "validity: " << _socket.getSslPeerCertificate().getNotBefore().toString() <<
+                    " - " << _socket.getSslPeerCertificate().getNotAfter().toString());
             verifySslCertificate();
             _state = SSLCONNECTED;
             return;
@@ -1079,12 +1145,12 @@ bool TcpSocketImpl::beginSslAccept()
     _state = SSLACCEPTING;
     initSsl();
 
-    log_debug("SSL_accept");
+    log_debug_to(ssl, "SSL_accept " << _fd);
     int ret = SSL_accept(_ssl);
     if (ret == 1)
     {
-        log_debug("SSL accepted");
-        log_debug_if(_socket.hasSslPeerCertificate(), "peer subject: \"" << _socket.getSslPeerCertificate().getSubject() << "\" validity: " << _socket.getSslPeerCertificate().getNotBefore().toString() << " - " << _socket.getSslPeerCertificate().getNotAfter().toString());
+        log_debug_to(ssl, "SSL accepted");
+        log_debug_to_if(ssl, _socket.hasSslPeerCertificate(), "peer subject: \"" << _socket.getSslPeerCertificate().getSubject() << "\" validity: " << _socket.getSslPeerCertificate().getNotBefore().toString() << " - " << _socket.getSslPeerCertificate().getNotAfter().toString());
         _state = SSLCONNECTED;
         return true;
     }
@@ -1095,10 +1161,13 @@ bool TcpSocketImpl::beginSslAccept()
 
 void TcpSocketImpl::endSslAccept()
 {
-    log_trace("ending ssl accept");
+    log_trace_to(ssl, "ending ssl accept");
 
     if (_pfd && !_socket.wbuf())
         _pfd->events &= ~POLLOUT;
+
+    if (_state == THROWING)
+        throw;
 
     if (_state == SSLCONNECTED)
     {
@@ -1111,11 +1180,11 @@ void TcpSocketImpl::endSslAccept()
 
     while (true)
     {
-        log_debug("SSL_accept");
+        log_debug_to(ssl, "SSL_accept " << _fd);
         int ret = SSL_accept(_ssl);
         if (ret == 1)
         {
-            log_debug("SSL accepted");
+            log_debug_to(ssl, "SSL accepted");
             verifySslCertificate();
             _state = SSLCONNECTED;
             return;
@@ -1132,7 +1201,7 @@ bool TcpSocketImpl::beginSslShutdown()
 
     _state = SSLSHUTTINGDOWN;
 
-    log_debug("SSL_shutdown");
+    log_debug_to(ssl, "SSL_shutdown");
     int ret = SSL_shutdown(_ssl);
     if (ret == 1)
     {
@@ -1146,7 +1215,7 @@ bool TcpSocketImpl::beginSslShutdown()
 
 void TcpSocketImpl::endSslShutdown()
 {
-    log_trace("ending ssl accept");
+    log_trace_to(ssl, "ending ssl accept");
 
     if (_pfd && !_socket.wbuf())
         _pfd->events &= ~POLLOUT;
@@ -1159,7 +1228,7 @@ void TcpSocketImpl::endSslShutdown()
 
     while (true)
     {
-        log_debug("SSL_shutdown");
+        log_debug_to(ssl, "SSL_shutdown");
         int ret = SSL_shutdown(_ssl);
         if (ret == 1)
         {

@@ -150,6 +150,7 @@ nobase_include_HEADERS = \
         cxxtools/remoteexception.h \
         cxxtools/remoteprocedure.h \
         cxxtools/remoteresult.h \
+        cxxtools/resetter.h \
         cxxtools/scopedincrement.h \
         cxxtools/selector.h \
         cxxtools/selectable.h \

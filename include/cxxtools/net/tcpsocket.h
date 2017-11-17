@@ -108,6 +108,7 @@ class TcpSocket : public IODevice
         Signal<TcpSocket&> closed;
  
         bool isConnected() const;
+        bool isSslConnected() const;
 
         int getFd() const;
 

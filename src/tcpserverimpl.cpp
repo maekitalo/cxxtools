@@ -37,6 +37,7 @@
 #include <cxxtools/systemerror.h>
 #include <cxxtools/log.h>
 #include <cxxtools/ioerror.h>
+#include <cxxtools/resetter.h>
 #include <cerrno>
 #include <cassert>
 #include <cstring>
@@ -268,27 +269,6 @@ void TcpServerImpl::deferAccept(bool sw)
     }
 }
 #endif
-
-template <typename T>
-class Resetter
-{
-        T& _t;
-        T _sav;
-
-    public:
-        explicit Resetter(T& t)
-            : _t(t),
-              _sav(t)
-        { }
-        Resetter(T& t, T value)
-            : _t(t),
-              _sav(value)
-        { }
-        ~Resetter()
-        {
-            _t = _sav;
-        }
-};
 
 bool TcpServerImpl::wait(Timespan timeout)
 {

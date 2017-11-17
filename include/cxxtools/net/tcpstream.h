@@ -137,6 +137,9 @@ namespace net
             bool isConnected() const
             { return _socket.isConnected(); }
 
+            bool isSslConnected() const
+            { return _socket.isSslConnected(); }
+
             int getFd() const
             { return _socket.getFd(); }
 

@@ -179,6 +179,16 @@ bool TcpSocket::isConnected() const
 }
 
 
+bool TcpSocket::isSslConnected() const
+{
+#ifdef WITH_SSL
+    return _impl->isSslConnected();
+#else
+    return false;
+#endif
+}
+
+
 int TcpSocket::getFd() const
 {
     return _impl->fd();
