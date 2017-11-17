@@ -316,7 +316,7 @@ TcpSocketImpl::~TcpSocketImpl()
 
 #ifdef WITH_SSL
     if (_ssl)
-        SSL_clear(_ssl);
+        SSL_free(_ssl);
     if (_sslCtx)
         SSL_CTX_free(_sslCtx);
 #endif
