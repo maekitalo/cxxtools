@@ -33,6 +33,9 @@
 #include <signal.h>
 #include <unistd.h>
 #include <iostream>
+#ifdef HAVE_ABI_FORCED_UNWIND
+#include <cxxabi.h>
+#endif
 
 extern "C"
 {
@@ -49,6 +52,12 @@ extern "C"
             {
                 std::cerr << "exception occured: " << e.what() << std::endl;
             }
+#ifdef HAVE_ABI_FORCED_UNWIND
+            catch (const abi::__forced_unwind&)
+            {
+                throw;
+            }
+#endif
             catch (...)
             {
                 std::cerr << "exception occured" << std::endl;

@@ -214,6 +214,13 @@ AC_COMPILE_IFELSE(
 AC_SUBST(HAVE_REVERSE_ITERATOR, "$HAVE_REVERSE_ITERATOR")
 AC_SUBST(HAVE_REVERSE_ITERATOR_4, "$HAVE_REVERSE_ITERATOR_4")
 
+AC_COMPILE_IFELSE(
+  [AC_LANG_SOURCE([
+   #include <cxxabi.h>
+   void foo() { try {} catch (const abi::__forced_unwind&) {} }
+  ])],
+  AC_DEFINE(HAVE_ABI_FORCED_UNWIND, 1, [defined if exception abi::__forced_unwind exists]))
+
 #
 # SSL
 #
