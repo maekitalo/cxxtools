@@ -28,11 +28,9 @@
 
 #include "httpclientimpl.h"
 #include "cxxtools/remoteprocedure.h"
-#include "cxxtools/textstream.h"
 #include "cxxtools/jsonformatter.h"
 #include "cxxtools/http/replyheader.h"
 #include "cxxtools/selectable.h"
-#include "cxxtools/utf8codec.h"
 #include "cxxtools/ioerror.h"
 #include "cxxtools/clock.h"
 #include "cxxtools/log.h"
@@ -153,10 +151,9 @@ void HttpClientImpl::prepareRequest(const String& name, IDecomposer** argv, unsi
     _request.setHeader("Content-Type", "application/json");
     _request.method("POST");
 
-    TextOStream ts(_request.body(), new Utf8Codec());
     JsonFormatter formatter;
 
-    formatter.begin(ts);
+    formatter.begin(_request.body());
 
     formatter.beginObject(std::string(), std::string());
 
@@ -176,8 +173,6 @@ void HttpClientImpl::prepareRequest(const String& name, IDecomposer** argv, unsi
     formatter.finishObject();
 
     formatter.finish();
-
-    ts.flush();
 }
 
 void HttpClientImpl::onReplyHeader(http::Client& client)

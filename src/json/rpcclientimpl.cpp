@@ -29,7 +29,6 @@
 #include "rpcclientimpl.h"
 #include <cxxtools/log.h>
 #include <cxxtools/remoteprocedure.h>
-#include <cxxtools/utf8codec.h>
 #include <cxxtools/jsonformatter.h>
 #include <cxxtools/ioerror.h>
 #include <cxxtools/clock.h>
@@ -253,10 +252,9 @@ void RpcClientImpl::wait(Timespan timeout)
 
 void RpcClientImpl::prepareRequest(const String& name, IDecomposer** argv, unsigned argc)
 {
-    TextOStream ts(_stream, new Utf8Codec());
     JsonFormatter formatter;
 
-    formatter.begin(ts);
+    formatter.begin(_stream);
 
     formatter.beginObject(std::string(), std::string());
 
@@ -276,8 +274,6 @@ void RpcClientImpl::prepareRequest(const String& name, IDecomposer** argv, unsig
     formatter.finishObject();
 
     formatter.finish();
-
-    ts.flush();
 }
 
 void RpcClientImpl::onConnect(net::TcpSocket& socket)

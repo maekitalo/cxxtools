@@ -53,7 +53,6 @@ libcxxtools_la_SOURCES = \
 	jsondeserializer.cpp \
 	jsonformatter.cpp \
 	jsonparser.cpp \
-	jsonserializer.cpp \
 	library.cpp \
 	libraryimpl.cpp \
 	log.cpp \

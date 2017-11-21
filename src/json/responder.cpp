@@ -31,8 +31,6 @@
 #include <cxxtools/serviceprocedure.h>
 #include <cxxtools/serviceregistry.h>
 #include <cxxtools/remoteexception.h>
-#include <cxxtools/textstream.h>
-#include <cxxtools/utf8codec.h>
 #include <cxxtools/log.h>
 
 log_define("cxxtools.json.responder")
@@ -70,10 +68,9 @@ void Responder::finalize(std::ostream& out)
     std::string methodName;
     ServiceProcedure* proc = 0;
 
-    TextOStream ts(out, new Utf8Codec());
     JsonFormatter formatter;
 
-    formatter.begin(ts);
+    formatter.begin(out);
 
     formatter.beginObject(std::string(), std::string());
     formatter.addValueString("jsonrpc", "string", L"2.0");

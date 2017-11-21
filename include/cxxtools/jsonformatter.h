@@ -30,7 +30,7 @@
 #define CXXTOOLS_JSONFORMATTER_H
 
 #include <cxxtools/formatter.h>
-#include <cxxtools/textstream.h>
+#include <iosfwd>
 
 namespace cxxtools
 {
@@ -38,7 +38,7 @@ namespace cxxtools
     {
         public:
             JsonFormatter()
-                : _ts(0),
+                : _os(0),
                   _level(1),
                   _lastLevel(0),
                   _beautify(false),
@@ -46,17 +46,17 @@ namespace cxxtools
             {
             }
 
-            explicit JsonFormatter(std::basic_ostream<cxxtools::Char>& ts)
-                : _ts(0),
+            explicit JsonFormatter(std::ostream& out)
+                : _os(0),
                   _level(1),
                   _lastLevel(0),
                   _beautify(false),
                   _plainkey(false)
             {
-                begin(ts);
+                begin(out);
             }
 
-            void begin(std::basic_ostream<cxxtools::Char>& ts);
+            void begin(std::ostream& out);
 
             void finish();
 
@@ -115,7 +115,7 @@ namespace cxxtools
             void stringOut(const std::string& str);
             void stringOut(const cxxtools::String& str);
 
-            std::basic_ostream<cxxtools::Char>* _ts;
+            std::ostream* _os;
             unsigned _level;
             unsigned _lastLevel;
             bool _beautify;
