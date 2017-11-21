@@ -41,7 +41,7 @@ namespace cxxtools
        JsonOObject is a little wrapper which makes it easy to output serializable
        objects into a ostream. For this the JsonOObject expects a reference to the
        wrapped object and has a output operator for a std::ostream, or actually
-       a std::basic_ostream, which prints the object in json format.
+       a std::ostream, which prints the object in json format.
 
        Example:
        \code
@@ -88,8 +88,8 @@ namespace cxxtools
     };
 
     /// The output operator for JsonOObject. It does the actual work.
-    template <typename CharType, typename ObjectType>
-    std::basic_ostream<CharType>& operator<< (std::basic_ostream<CharType>& out, const JsonOObject<ObjectType>& object)
+    template <typename ObjectType>
+    std::ostream& operator<< (std::ostream& out, const JsonOObject<ObjectType>& object)
     {
       try
       {
