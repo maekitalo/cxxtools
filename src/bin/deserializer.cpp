@@ -40,7 +40,7 @@ namespace cxxtools
 namespace bin
 {
 
-Deserializer::Deserializer(const char* data, unsigned size)
+Deserializer::Deserializer(const char* data, size_t size)
 {
     begin();
 

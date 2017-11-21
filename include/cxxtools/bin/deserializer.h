@@ -34,6 +34,7 @@
 #include <cxxtools/bin/parser.h>
 
 #include <iosfwd>
+#include <cstddef>
 
 namespace cxxtools
 {
@@ -52,7 +53,7 @@ namespace bin
             explicit Deserializer(std::istream& in)
             { read(in); }
 
-            Deserializer(const char* data, unsigned size);
+            Deserializer(const char* data, size_t size);
 
             /// Processes all input from passed stream.
             void read(std::istream& in);
