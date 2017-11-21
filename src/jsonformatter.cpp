@@ -169,7 +169,7 @@ void JsonFormatter::addValueInt(const std::string& name, const std::string& type
     if (type == "bool")
         *_os << (value ? "true" : "false");
     else
-        *_os << value;
+        putInt(std::ostreambuf_iterator<char>(*_os), value);
 
     finishValue();
 }
@@ -184,7 +184,7 @@ void JsonFormatter::addValueUnsigned(const std::string& name, const std::string&
     if (type == "bool")
         *_os << (value ? "true" : "false");
     else
-        *_os << value;
+        putInt(std::ostreambuf_iterator<char>(*_os), value);
 
     finishValue();
 }
@@ -204,7 +204,7 @@ void JsonFormatter::addValueFloat(const std::string& name, const std::string& ty
     }
     else
     {
-        *_os << convert<std::string>(value);
+        putFloat(std::ostreambuf_iterator<char>(*_os), value);
     }
 
     finishValue();
@@ -225,7 +225,7 @@ void JsonFormatter::addValueDouble(const std::string& name, const std::string& t
     }
     else
     {
-        *_os << convert<std::string>(value);
+        putFloat(std::ostreambuf_iterator<char>(*_os), value);
     }
 
     finishValue();
@@ -246,7 +246,7 @@ void JsonFormatter::addValueLongDouble(const std::string& name, const std::strin
     }
     else
     {
-        *_os << convert<std::string>(value);
+        putFloat(std::ostreambuf_iterator<char>(*_os), value);
     }
 
     finishValue();
