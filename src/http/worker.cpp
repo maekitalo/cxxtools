@@ -28,6 +28,7 @@
 
 #include "worker.h"
 #include "serverimpl.h"
+#include <cxxtools/net/tcpserver.h>
 #include <cxxtools/log.h>
 #include "socket.h"
 
@@ -119,6 +120,10 @@ void Worker::run()
                 log_info("client " << socket->getPeerAddr() << " closed connection");
                 delete socket;
             }
+        }
+        catch (const net::AcceptTerminated&)
+        {
+            delete socket;
         }
         catch (const std::exception& e)
         {
