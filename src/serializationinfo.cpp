@@ -373,6 +373,7 @@ void SerializationInfo::dump(std::ostream& out, const std::string& prefix) const
 
     if (!_type.empty())
         out << prefix << "typeName = " << _type << '\n';
+    out << prefix << "category = " << static_cast<unsigned>(_category) << '\n';
 
     const Nodes& n = nodes();
     if (!n.empty())
@@ -410,7 +411,7 @@ void SerializationInfo::setNull()
 {
     _releaseValue();
     _t = t_none;
-    _category = Void;
+    _category = Value;
 }
 
 void SerializationInfo::_setString(const String& value)

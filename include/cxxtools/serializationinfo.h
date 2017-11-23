@@ -346,7 +346,7 @@ class SerializationInfo
 
         void swap(SerializationInfo& si);
 
-        bool isNull() const       { return _t == t_none && _category == Void; }
+        bool isNull() const       { return _t == t_none && (_category == Void || _category == Value); }
         bool isString() const     { return _t == t_string; }
         bool isString8() const    { return _t == t_string8; }
         bool isChar() const       { return _t == t_char; }
