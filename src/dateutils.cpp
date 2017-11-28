@@ -114,4 +114,15 @@ namespace cxxtools
         v /= 10;
       }
   }
+
+  void appendDn(std::string& s, unsigned short n, int v)
+  {
+      if (v < 0)
+      {
+          s += '-';
+          appendDn(s, n, static_cast<unsigned>(-v));
+      }
+      else
+          appendDn(s, n, static_cast<unsigned>(v));
+  }
 }

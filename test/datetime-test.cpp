@@ -208,15 +208,28 @@ class DateTimeTest : public cxxtools::unit::TestSuite
 
         void serialization()
         {
-            cxxtools::DateTime dt1(2014, 5, 3, 17, 1, 14);
+            {
+                cxxtools::DateTime dt1;
 
-            cxxtools::SerializationInfo si;
-            si <<= dt1;
+                cxxtools::SerializationInfo si;
+                si <<= dt1;
 
-            cxxtools::DateTime dt2;
-            si >>= dt2;
+                cxxtools::DateTime dt2;
+                si >>= dt2;
 
-            CXXTOOLS_UNIT_ASSERT(dt1 == dt2);
+                CXXTOOLS_UNIT_ASSERT(dt1 == dt2);
+            }
+            {
+                cxxtools::DateTime dt1(2014, 5, 3, 17, 1, 14);
+
+                cxxtools::SerializationInfo si;
+                si <<= dt1;
+
+                cxxtools::DateTime dt2;
+                si >>= dt2;
+
+                CXXTOOLS_UNIT_ASSERT(dt1 == dt2);
+            }
         }
 };
 
