@@ -220,7 +220,7 @@ void TcpSocketImpl::checkSslOperation(int ret, const char* fn, pollfd* pfd)
     }
 }
 
-void TcpSocketImpl::waitSslOperation(int ret)
+void TcpSocketImpl::waitSslOperation(int ret, cxxtools::Timespan timeout)
 {
     pollfd pfd;
     pfd.fd = _fd;
@@ -229,8 +229,8 @@ void TcpSocketImpl::waitSslOperation(int ret)
 
     checkSslOperation(ret, 0, &pfd);
 
-    log_debug_to(ssl, "wait " << timeout() << " fd " << _fd);
-    bool avail = wait(timeout(), pfd);
+    log_debug_to(ssl, "wait " << timeout << " fd " << _fd);
+    bool avail = wait(timeout, pfd);
     if (!avail)
     {
         log_debug_to(ssl, "IOTimeout " << _fd);
@@ -872,7 +872,7 @@ size_t TcpSocketImpl::write(const char* buffer, size_t n)
             ret = SSL_write(_ssl, buffer, n);
             if (ret > 0)
                 break;
-            waitSslOperation(ret);
+            waitSslOperation(ret, timeout());
         }
 #endif
         else
@@ -1131,7 +1131,7 @@ void TcpSocketImpl::endSslConnect()
             return;
         }
 
-        waitSslOperation(ret);
+        waitSslOperation(ret, cxxtools::Seconds(-1));
     }
 }
 
@@ -1190,7 +1190,7 @@ void TcpSocketImpl::endSslAccept()
             return;
         }
 
-        waitSslOperation(ret);
+        waitSslOperation(ret, cxxtools::Seconds(-1));
     }
 }
 
@@ -1240,7 +1240,7 @@ void TcpSocketImpl::endSslShutdown()
             return;
         }
 
-        waitSslOperation(ret);
+        waitSslOperation(ret, cxxtools::Seconds(-1));
     }
 }
 

@@ -51,6 +51,7 @@ namespace cxxtools
 {
 
 class SelectorBase;
+class Timespan;
 
 namespace net
 {
@@ -124,7 +125,7 @@ class TcpSocketImpl : public IODeviceImpl
 
 #ifdef WITH_SSL
         void checkSslOperation(int ret, const char* fn, pollfd* pfd);
-        void waitSslOperation(int ret);
+        void waitSslOperation(int ret, cxxtools::Timespan timeout);
 
         void initSsl();
 #endif
