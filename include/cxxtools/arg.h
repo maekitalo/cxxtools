@@ -113,6 +113,9 @@ class ArgBaseT : public ArgBase
      */
     operator T() const   { return m_value; }
 
+    /// dereference operator returns value
+    T operator *() const   { return m_value; }
+
     ArgBaseT<T>& operator= (const T& value)
     {
       m_value = value;
@@ -144,6 +147,9 @@ class ArgBaseT<const char*> : public ArgBase
 
     /// class is convertible to "const char*"
     operator const char*() const   { return m_value; }
+
+    /// dereference operator returns value
+    const char* operator *() const   { return m_value; }
 
     ArgBaseT<const char*>& operator= (const char* value)
     {
@@ -177,12 +183,51 @@ class ArgBaseT<std::string> : public ArgBase
     /// class is convertible to "const std::string&"
     operator const std::string&() const   { return m_value; }
 
+    /// dereference operator returns value
+    std::string operator *() const   { return m_value; }
+
     ArgBaseT<std::string>& operator= (const std::string& value)
     {
       m_value = value;
       return *this;
     }
 };
+
+template <>
+class ArgBaseT<char> : public ArgBase
+{
+    char m_value;
+
+  protected:
+    explicit ArgBaseT(char def)
+      : m_value(def)
+    { }
+
+    bool extract(const char* str, int& argc, char* argv[], int i, int n)
+    {
+      m_value = str[0];
+      m_isset = str[0] != '\0';
+      removeArg(argc, argv, i, n);
+      return true;
+    }
+
+  public:
+    /// returns the extracted value.
+    char getValue() const   { return m_value; }
+
+    /// class is convertible to "char"
+    operator char() const   { return m_value; }
+
+    /// dereference operator returns value
+    char operator *() const   { return m_value; }
+
+    ArgBaseT<char>& operator= (char value)
+    {
+      m_value = value;
+      return *this;
+    }
+};
+
 /// @endcond internal
 
 /** @brief Read and extract commandline parameters from argc/argv.

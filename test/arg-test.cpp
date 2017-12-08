@@ -53,6 +53,7 @@ class ArgTest : public cxxtools::unit::TestSuite
             registerMethod("testArgpInt", *this, &ArgTest::testArgpInt);
             registerMethod("testArgpCharp", *this, &ArgTest::testArgpCharp);
             registerMethod("testArgpStdString", *this, &ArgTest::testArgpStdString);
+            registerMethod("testArgChar", *this, &ArgTest::testArgChar);
         }
 
         void setUp()
@@ -183,6 +184,21 @@ class ArgTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(argv[3], static_cast<const char*>(0));
         }
 
+        void testArgChar()
+        {
+            int argc = 5;
+            char* argv[] = { arg("prog"), arg("-D"), arg("A"), arg("-F"), arg("\t"), 0 };
+
+            cxxtools::Arg<char> optionA(argc, argv, 'A');
+            cxxtools::Arg<char> optionD(argc, argv, 'D');
+            cxxtools::Arg<char> optionF(argc, argv, 'F');
+            CXXTOOLS_UNIT_ASSERT(!optionA.isSet());
+            CXXTOOLS_UNIT_ASSERT(optionD.isSet());
+            CXXTOOLS_UNIT_ASSERT(optionF.isSet());
+            CXXTOOLS_UNIT_ASSERT_EQUALS(*optionD, 'A');
+            CXXTOOLS_UNIT_ASSERT_EQUALS(*optionF, '\t');
+            CXXTOOLS_UNIT_ASSERT_EQUALS(argc, 1);
+        }
 };
 
 cxxtools::unit::RegisterTest<ArgTest> register_ArgTest;
