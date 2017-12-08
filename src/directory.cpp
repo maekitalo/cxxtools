@@ -119,7 +119,7 @@ Directory::Directory()
 Directory::Directory(const std::string& path)
 : _path(path)
 {
-    if ( ! Directory::exists( path.c_str() ) )
+    if (! exists(_path) )
         throw DirectoryNotFound(path);
 }
 
@@ -127,7 +127,7 @@ Directory::Directory(const std::string& path)
 Directory::Directory(const FileInfo& fi)
 : _path( fi.path() )
 {
-    if (! fi.isDirectory())
+    if (!exists(_path))
         throw DirectoryNotFound(fi.path());
 }
 
@@ -158,7 +158,7 @@ std::size_t Directory::size() const
 
 Directory::const_iterator Directory::begin(bool skipHidden) const
 {
-    return DirectoryIterator( path().c_str(), skipHidden );
+    return DirectoryIterator( path(), skipHidden );
 }
 
 
@@ -216,14 +216,14 @@ std::string Directory::name() const
 
 Directory Directory::create(const std::string& path)
 {
-    DirectoryImpl::create( path.c_str() );
+    DirectoryImpl::create( path );
     return Directory(path);
 }
 
 
 bool Directory::exists(const std::string& path)
 {
-    return FileInfo::getType( path.c_str() ) == FileInfo::Directory;
+    return DirectoryImpl::exists(path);
 }
 
 
