@@ -111,6 +111,7 @@ class JsonSerializerTest : public cxxtools::unit::TestSuite
             registerMethod("testDirect", *this, &JsonSerializerTest::testDirect);
             registerMethod("testEasyJson", *this, &JsonSerializerTest::testEasyJson);
             registerMethod("testPlainkey", *this, &JsonSerializerTest::testPlainkey);
+            registerMethod("testInputUtf8", *this, &JsonSerializerTest::testInputUtf8);
         }
 
         void testInt()
@@ -341,6 +342,15 @@ class JsonSerializerTest : public cxxtools::unit::TestSuite
                     "ddd:4}");
             }
         }
+
+        void testInputUtf8()
+        {
+            std::string str("Euro sign: \342\202\254");
+            std::ostringstream out;
+            out << cxxtools::Json(str).inputUtf8(true);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(out.str(), "\"" + str + "\"");
+        }
+
 };
 
 cxxtools::unit::RegisterTest<JsonSerializerTest> register_JsonSerializerTest;

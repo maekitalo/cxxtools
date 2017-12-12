@@ -184,6 +184,10 @@ namespace cxxtools
 
             void plainkey(bool sw)    { _formatter.plainkey(sw); }
 
+            bool inputUtf8() const     { return _formatter.inputUtf8(); }
+
+            void inputUtf8(bool sw)    { _formatter.inputUtf8(sw); }
+
             template <typename T>
             static std::string toString(const T& type, const std::string& name, bool beautify = false)
             {
