@@ -136,6 +136,9 @@ namespace json
             void setSelector(SelectorBase* selector);
             void setSelector(SelectorBase& selector);
 
+            /// @see cxxtools::net::TcpSocket::setSslVerify
+            void setSslVerify(int level, const std::string& ca = std::string());
+
             void beginCall(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc);
 
             void endCall();

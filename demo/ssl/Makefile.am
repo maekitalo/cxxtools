@@ -1,4 +1,4 @@
-noinst_PROGRAMS = rpcbserver rpcjserver rpcJserver rpcxserver rpcbecho rpcjecho rpcJserver rpcxecho
+noinst_PROGRAMS = rpcbserver rpcjserver rpcJserver rpcxserver rpcbecho rpcjecho rpcJecho rpcxecho
 rpcbserver_SOURCES = rpcbserver.cpp
 rpcbserver_LDADD=$(top_builddir)/src/bin/libcxxtools-bin.la
 

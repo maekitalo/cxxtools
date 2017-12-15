@@ -95,6 +95,11 @@ namespace json
                 _client.setSelector(selector);
             }
 
+            void setSslVerify(int level, const std::string& ca)
+            {
+                _client.setSslVerify(level, ca);
+            }
+
             const std::string& url() const
             {
                 return _request.url();

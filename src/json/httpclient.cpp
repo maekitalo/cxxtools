@@ -154,6 +154,11 @@ void HttpClient::setSelector(SelectorBase& selector)
     getImpl()->setSelector(&selector);
 }
 
+void HttpClient::setSslVerify(int level, const std::string& ca)
+{
+    getImpl()->setSslVerify(level, ca);
+}
+
 void HttpClient::beginCall(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc)
 {
     _impl->beginCall(r, method, argv, argc);
