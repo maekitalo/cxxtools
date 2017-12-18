@@ -105,6 +105,7 @@ class TcpSocketImpl : public IODeviceImpl
         AddrInfoImpl::const_iterator _addrInfoPtr;
         std::string _connectResult;
         std::vector<std::string> _connectFailedMessages;
+        DestructionSentry* _sentry;
 
 #ifdef WITH_SSL
         // SSL

@@ -304,7 +304,8 @@ void TcpSocketImpl::initSsl()
 TcpSocketImpl::TcpSocketImpl(TcpSocket& socket)
 : IODeviceImpl(socket),
   _socket(socket),
-  _state(IDLE)
+  _state(IDLE),
+  _sentry(0)
 #ifdef WITH_SSL
   ,
   _sslCtx(0),
@@ -325,6 +326,9 @@ TcpSocketImpl::~TcpSocketImpl()
     if (_sslCtx)
         SSL_CTX_free(_sslCtx);
 #endif
+
+    if (_sentry)
+        _sentry->detach();
 }
 
 
@@ -594,6 +598,8 @@ bool TcpSocketImpl::checkPollEvent(pollfd& pfd)
 {
     log_finer("checkPollEvent " << pfd.revents);
 
+    DestructionSentry sentry(_sentry);
+
     if (isConnected())
     {
         // check for error while neither reading nor writing
@@ -661,6 +667,9 @@ bool TcpSocketImpl::checkPollEvent(pollfd& pfd)
         }
 
         bool avail = IODeviceImpl::checkPollEvent(pfd);
+
+        if (!_sentry)
+            return avail;
 
         if ( !_device.reading() && !_device.writing() && !_socket.enabled())
         {
