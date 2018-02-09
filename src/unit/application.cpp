@@ -167,9 +167,9 @@ void Application::run(const std::string& testName)
 
     this->detachReporter(ec);
 
-    _success = ec.success();
-    _skipped = ec.skipped();
-    _errors = ec.errors();
+    _success += ec.success();
+    _skipped += ec.skipped();
+    _errors += ec.errors();
 }
 
 
