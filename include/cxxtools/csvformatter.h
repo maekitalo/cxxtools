@@ -41,9 +41,9 @@ namespace cxxtools
     class CsvFormatter : public Formatter
     {
         public:
-            CsvFormatter(std::ostream& os, TextCodec<Char, char>* codec = new Utf8Codec());
+            explicit CsvFormatter(std::ostream& os, TextCodec<Char, char>* codec = new Utf8Codec());
 
-            CsvFormatter(TextOStream& os);
+            explicit CsvFormatter(TextOStream& os);
 
             ~CsvFormatter();
 

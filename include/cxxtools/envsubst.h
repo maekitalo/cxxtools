@@ -37,7 +37,7 @@ namespace cxxtools
   class EnvSubstSyntaxError : public std::runtime_error
   {
     public:
-      EnvSubstSyntaxError(const std::string& msg);
+      explicit EnvSubstSyntaxError(const std::string& msg);
   };
 
   /**

@@ -167,13 +167,13 @@ namespace xml
         XmlIObject& readAttributes(bool sw)
         { _readAttributes = sw; return *this; }
 
-        bool readAttributes()
+        bool readAttributes() const
         { return _readAttributes; }
 
         XmlIObject& attributePrefix(const String& p)
         { _attributePrefix = p; return *this; }
 
-        const String& attributePrefix()
+        const String& attributePrefix() const
         { return _attributePrefix; }
 
     };

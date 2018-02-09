@@ -40,11 +40,11 @@ namespace cxxtools
             CsvSerializer& operator= (const CsvSerializer&);
 
         public:
-            CsvSerializer(std::ostream& os, TextCodec<Char, char>* codec = new Utf8Codec())
+            explicit CsvSerializer(std::ostream& os, TextCodec<Char, char>* codec = new Utf8Codec())
                 : _formatter(new CsvFormatter(os, codec))
             { }
 
-            CsvSerializer(TextOStream& os)
+            explicit CsvSerializer(TextOStream& os)
                 : _formatter(new CsvFormatter(os))
             { }
 

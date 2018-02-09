@@ -47,7 +47,7 @@ class Hdstreambuf : public std::streambuf
     unsigned offset;
 
   public:
-    Hdstreambuf(std::streambuf* dest)
+    explicit Hdstreambuf(std::streambuf* dest)
       : Dest(dest),
         offset(0)
     {
@@ -75,7 +75,7 @@ class Hdostream : public std::ostream
     {
       init(&streambuf);
     }
-    Hdostream(std::ostream& out)
+    explicit Hdostream(std::ostream& out)
       : base_class(0),
         streambuf(out.rdbuf())
     {

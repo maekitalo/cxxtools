@@ -69,7 +69,7 @@ namespace cxxtools
         pid_t pid;
 
       public:
-        Fork(bool now = true)
+        explicit Fork(bool now = true)
           : pid(0)
         {
           if (now)
