@@ -278,32 +278,31 @@ StreamBuffer::int_type StreamBuffer::overflow(int_type ch)
     }
     else if (_oextend && !traits_type::eq_int_type( ch, traits_type::eof() ))
     {
-        size_t n = 0;
-        bool writing = _ioDevice->writing();
-        if (_ioDevice->writing())
-        {
-            // device is writing so we try to write
-            n = endWrite();
-            log_debug_if(n > 0, "successfully written " << n << " bytes");
-        }
+        // break asyncronous I/O if any active
+        bool pendingWrite = _ioDevice->writing();
+        bool pendingRead = _ioDevice->reading();
+        if (pendingWrite)
+            _ioDevice->cancel();
 
-        if (n == 0)
-        {
-            // if the buffer area is extensible and overflow is not called by
-            // sync/flush we copy the output buffer to a larger one
-            size_t bufsize = _obufferSize + (_obufferSize/2);
-            log_debug("extend buffer from " << _obufferSize << " to " << bufsize);
-            char* buf = new char[ bufsize ];
-            traits_type::copy(buf, _obuffer, _obufferSize);
-            std::swap(_obuffer, buf);
-            setp(_obuffer, _obuffer + bufsize);
-            pbump( _obufferSize );
-            _obufferSize = bufsize;
-            delete [] buf;
-        }
+        // if the buffer area is extensible and overflow is not called by
+        // sync/flush we copy the output buffer to a larger one
+        size_t bufsize = _obufferSize + (_obufferSize/2);
+        log_debug("extend buffer from " << _obufferSize << " to " << bufsize);
+        char* buf = new char[ bufsize ];
+        traits_type::copy(buf, _obuffer, _obufferSize);
+        std::swap(_obuffer, buf);
+        setp(_obuffer, _obuffer + bufsize);
+        pbump( _obufferSize );
+        _obufferSize = bufsize;
+        delete [] buf;
 
-        if (writing)
+        // restart asyncronous I/O
+        if (pendingWrite)
+        {
             beginWrite();
+            if (pendingRead)
+                beginRead();
+        }
     }
     else if (_ioDevice->writing()) // beginWrite is unfinished
     {
