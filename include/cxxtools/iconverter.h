@@ -46,9 +46,9 @@ namespace cxxtools
     \code
      cxxtools::IConverter conv("ISO8859-1", "UTF8");
      std::string utf8string = getUtf8String();
-     std::string iso8895_1 = conv.convert(utf8string);
+     std::string iso8859_1 = conv.convert(utf8string);
      // or functor-style:
-     std::string iso8895_1 = conv(utf8string);
+     std::string iso8859_1 = conv(utf8string);
     \endcode
    */
   class IConverter
