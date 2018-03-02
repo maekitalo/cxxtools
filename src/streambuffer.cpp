@@ -280,21 +280,40 @@ StreamBuffer::int_type StreamBuffer::overflow(int_type ch)
     {
         // break asyncronous I/O if any active
         bool pendingWrite = _ioDevice->writing();
-        bool pendingRead = _ioDevice->reading();
-        if (pendingWrite)
-            _ioDevice->cancel();
+        bool pendingRead = false;
 
-        // if the buffer area is extensible and overflow is not called by
-        // sync/flush we copy the output buffer to a larger one
-        size_t bufsize = _obufferSize + (_obufferSize/2);
-        log_debug("extend buffer from " << _obufferSize << " to " << bufsize);
-        char* buf = new char[ bufsize ];
-        traits_type::copy(buf, _obuffer, _obufferSize);
-        std::swap(_obuffer, buf);
-        setp(_obuffer, _obuffer + bufsize);
-        pbump( _obufferSize );
-        _obufferSize = bufsize;
-        delete [] buf;
+        if (pendingWrite)
+        {
+            if (_ioDevice->wavail())
+            {
+                log_debug("finish writing");
+                endWrite();
+            }
+            else
+            {
+                pendingRead = _ioDevice->reading();
+                log_debug("cancel asyncronous operations");
+                _ioDevice->cancel();
+            }
+        }
+
+        // `endWrite` may have freed some data in the buffer, in which case a
+        // expand is not needed any more.
+
+        if (epptr() == pptr())
+        {
+            // if the buffer area is extensible and overflow is not called by
+            // sync/flush we copy the output buffer to a larger one
+            size_t bufsize = _obufferSize + (_obufferSize/2);
+            log_debug("extend buffer from " << _obufferSize << " to " << bufsize);
+            char* buf = new char[ bufsize ];
+            traits_type::copy(buf, _obuffer, _obufferSize);
+            std::swap(_obuffer, buf);
+            setp(_obuffer, _obuffer + bufsize);
+            pbump( _obufferSize );
+            _obufferSize = bufsize;
+            delete [] buf;
+        }
 
         // restart asyncronous I/O
         if (pendingWrite)
