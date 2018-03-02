@@ -805,11 +805,13 @@ size_t TcpSocketImpl::callSend(const char* buffer, size_t n)
 
 #endif
 
+    int e = errno;
+
     log_debug("send returned " << ret);
     if (ret > 0)
         return static_cast<size_t>(ret);
 
-    if (errno == ECONNRESET || errno == EPIPE)
+    if (e == ECONNRESET || e == EPIPE)
         throw IOError("lost connection to peer");
 
     return 0;

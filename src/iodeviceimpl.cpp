@@ -195,6 +195,7 @@ size_t IODeviceImpl::read( char* buffer, size_t count, bool& eof )
     while(true)
     {
         ret = ::read( _fd, (void*)buffer, count);
+        int e = errno;
 
         if(ret > 0)
         {
@@ -203,18 +204,18 @@ size_t IODeviceImpl::read( char* buffer, size_t count, bool& eof )
             break;
         }
 
-        log_debug("::read(" << _fd << ", " << count << ") returned " << ret << " errno=" << errno);
+        log_debug("::read(" << _fd << ", " << count << ") returned " << ret << " errno=" << e);
 
-        if(ret == 0 || errno == ECONNRESET)
+        if(ret == 0 || e == ECONNRESET)
         {
             eof = true;
             return 0;
         }
 
-        if(errno == EINTR)
+        if(e == EINTR)
             continue;
 
-        if(errno != EAGAIN)
+        if(e != EAGAIN)
             throw IOError(getErrnoString("read"));
 
         pollfd pfd;
@@ -240,12 +241,13 @@ size_t IODeviceImpl::beginWrite(const char* buffer, size_t n)
     log_finer(hexDump(buffer, n));
 
     ssize_t ret = ::write(_fd, (const void*)buffer, n);
+    int e = errno;
 
     log_debug("write returned " << ret);
     if (ret > 0)
         return static_cast<size_t>(ret);
 
-    if (ret == 0 || errno == ECONNRESET || errno == EPIPE)
+    if (ret == 0 || e == ECONNRESET || e == EPIPE)
         throw IOError("lost connection to peer");
 
     if (_pfd)
@@ -289,17 +291,18 @@ size_t IODeviceImpl::write( const char* buffer, size_t count )
         log_finer(hexDump(buffer, count));
 
         ret = ::write(_fd, (const void*)buffer, count);
+        int e = errno;
         log_debug("write returned " << ret);
         if(ret > 0)
             break;
 
-        if (ret == 0 || errno == ECONNRESET || errno == EPIPE)
+        if (ret == 0 || e == ECONNRESET || e == EPIPE)
             throw IOError("lost connection to peer");
 
-        if (errno == EINTR)
+        if (e == EINTR)
             continue;
 
-        if (errno != EAGAIN)
+        if (e != EAGAIN)
             throw IOError(getErrnoString("write"));
 
         pollfd pfd;
