@@ -125,7 +125,7 @@ void StreamBuffer::beginRead()
     _ioDevice->beginRead( _ibuffer + used, _ibufferSize - used );
 
     setg( _ibuffer + (_pbmax - putback), // start of get area
-                _ibuffer + used, // gptr position
+                _ibuffer + putback, // gptr position
                 _ibuffer + used ); // end of get area
 }
 
