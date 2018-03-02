@@ -33,7 +33,7 @@
 
 #include <sstream>
 
-log_define("cxxtools.bin.deseriailzer")
+log_define("cxxtools.bin.deserializer")
 
 namespace cxxtools
 {
@@ -51,7 +51,7 @@ Deserializer::Deserializer(const char* data, size_t size)
         return;
     }
 
-    SerializationError::doThrow("binary deserialization failed");
+    SerializationError::doThrow("binary deserialization failed - unexpected eof");
 }
 
 void Deserializer::read(std::istream& in)
@@ -71,7 +71,7 @@ void Deserializer::read(std::istream& in)
     }
 
     in.setstate(std::ios::eofbit);
-    SerializationError::doThrow("binary deserialization failed");
+    SerializationError::doThrow("binary deserialization failed - unexpected eof");
 }
 
 void Deserializer::begin(bool resetDictionary)

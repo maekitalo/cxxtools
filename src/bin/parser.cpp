@@ -434,7 +434,7 @@ bool Parser::advance(std::streambuf& in, bool atLeastOne)
                             default:
                                 {
                                     std::ostringstream msg;
-                                    msg << "invalid type code <h" << std::hex << tc << '>';
+                                    msg << "invalid type code <0x" << std::hex << tc << '>';
                                     SerializationError::doThrow(msg.str());
                                 }
                         }
@@ -962,7 +962,11 @@ bool Parser::advance(std::streambuf& in, bool atLeastOne)
 
             case state_end:
                 if (ch != '\xff')
-                    SerializationError::doThrow("end of value marker expected");
+                {
+                    std::ostringstream msg;
+                    msg << "end of value marker expected; got <0x" << std::hex << static_cast<unsigned>(static_cast<unsigned char>(ch)) << '>';
+                    SerializationError::doThrow(msg.str());
+                }
                 in.sbumpc();
                 log_debug("end of value");
                 return true;
