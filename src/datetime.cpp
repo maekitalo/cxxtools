@@ -37,6 +37,11 @@
 namespace cxxtools
 {
 
+static void throwInvalidDate(const std::string& str, std::string::const_iterator p, const std::string& fmt)
+{
+    throw InvalidDate("string <" + std::string(str.begin(), p) + "(*)" + std::string(p, str.end()) + "> does not match datetime format <" + fmt + '>');
+}
+
 DateTime::DateTime(const std::string& str, const std::string& fmt)
 {
   unsigned year = 0;
@@ -54,9 +59,9 @@ DateTime::DateTime(const std::string& str, const std::string& fmt)
     state_two
   } state = state_0;
 
+  std::string::const_iterator dit = str.begin();
   try
   {
-    std::string::const_iterator dit = str.begin();
     std::string::const_iterator it;
     for (it = fmt.begin(); it != fmt.end(); ++it)
     {
@@ -70,8 +75,10 @@ DateTime::DateTime(const std::string& str, const std::string& fmt)
           {
             if (ch == '*')
               skipNonDigit(dit, str.end());
+            else if (ch == '#')
+              skipWord(dit, str.end());
             else if (dit == str.end() || (*dit != ch && ch != '?'))
-              throw InvalidDate("string <" + str + "> does not match datetime format <" + fmt + '>');
+              throwInvalidDate(str, dit, fmt);
             else
               ++dit;
           }
@@ -92,6 +99,10 @@ DateTime::DateTime(const std::string& str, const std::string& fmt)
 
             case 'm':
               month = getUnsigned(dit, str.end(), 2);
+              break;
+
+            case 'O':
+              month = getMonthFromName(dit, str.end());
               break;
 
             case 'd':
@@ -152,7 +163,7 @@ DateTime::DateTime(const std::string& str, const std::string& fmt)
                 || (*(dit + 1) != 'M'
                   &&  *(dit + 1) != 'm')))
               {
-                  throw InvalidDate("string <" + str + "> does not match datetime format <" + fmt + '>');
+                throwInvalidDate(str, dit, fmt);
               }
 
               am = (*dit == 'A' || *dit == 'a');
@@ -186,13 +197,13 @@ DateTime::DateTime(const std::string& str, const std::string& fmt)
     }
 
     if (it != fmt.end() || dit != str.end())
-      throw InvalidDate("string <" + str + "> does not match datetime format <" + fmt + '>');
+      throwInvalidDate(str, dit, fmt);
 
     set(year, month, day, am ? hours : hours + 12, minutes, seconds, 0, useconds);
   }
   catch (const std::invalid_argument&)
   {
-    throw InvalidDate("string <" + str + "> does not match datetime format <" + fmt + '>');
+    throwInvalidDate(str, dit, fmt);
   }
 }
 
@@ -247,9 +258,11 @@ std::string DateTime::toString(const std::string& fmt) const
           case 'Y': appendDn(str, 4, year); break;
           case 'y': appendDn(str, 2, year % 100); break;
           case 'm': appendDn(str, 2, month); break;
+          case 'O': str += monthnames[month-1]; break;
           case 'd': appendDn(str, 2, day); break;
           case 'w': appendDn(str, 1, dayOfWeek()); break;
           case 'W': { int dow = dayOfWeek(); appendDn(str, 1, dow == 0 ? 7 : dow); } break;
+          case 'N': str += weekdaynames[dayOfWeek()]; break;
           case 'H': appendDn(str, 2, hours); break;
           case 'I': appendDn(str, 2, hours % 12); break;
           case 'M': appendDn(str, 2, minutes); break;

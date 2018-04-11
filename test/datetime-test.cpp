@@ -42,8 +42,10 @@ class DateTimeTest : public cxxtools::unit::TestSuite
             registerMethod("diff", *this, &DateTimeTest::diff);
             registerMethod("arithmetic", *this, &DateTimeTest::arithmetic);
             registerMethod("fromString", *this, &DateTimeTest::fromString);
+            registerMethod("fromStringMonthname", *this, &DateTimeTest::fromStringMonthname);
             registerMethod("fixDigit", *this, &DateTimeTest::fixDigit);
             registerMethod("toString", *this, &DateTimeTest::toString);
+            registerMethod("names", *this, &DateTimeTest::names);
             registerMethod("serialization", *this, &DateTimeTest::serialization);
         }
 
@@ -161,6 +163,32 @@ class DateTimeTest : public cxxtools::unit::TestSuite
 
         }
 
+        void fromStringMonthname()
+        {
+            int year;
+            unsigned month, day, hours, minutes, seconds, milliseconds, microseconds;
+            cxxtools::DateTime dt;
+
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(dt = cxxtools::DateTime("Wed Apr 11 14:24:14 CEST 2018", "??? %O %d %H:%M:%S # %Y"));
+            dt.get(year, month, day, hours, minutes, seconds, milliseconds, microseconds);
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(year, 2018);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(month, 4);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(day, 11);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(hours, 14);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(minutes, 24);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(seconds, 14);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(microseconds, 0);
+
+            static const char* monthnames[12] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+            for (unsigned m = 0; m < 12; ++m)
+            {
+              CXXTOOLS_UNIT_ASSERT_NOTHROW(dt = cxxtools::DateTime(monthnames[m], "%O"));
+              dt.get(year, month, day, hours, minutes, seconds, milliseconds, microseconds);
+              CXXTOOLS_UNIT_ASSERT_EQUALS(month, m + 1);
+            }
+        }
+
         void fixDigit()
         {
             CXXTOOLS_UNIT_ASSERT_NOTHROW(cxxtools::DateTime("3 9 9 1 6", "%m %d %H %M %S"));
@@ -204,6 +232,17 @@ class DateTimeTest : public cxxtools::unit::TestSuite
           str = dt.toString("%Y %m %d %I %M %S%j %p");
           CXXTOOLS_UNIT_ASSERT_EQUALS(str, "2013 05 03 05 01 14 pm");
 
+        }
+
+        void names()
+        {
+          cxxtools::DateTime dt(2013, 5, 3, 17, 1, 14, 342, 800);
+          std::string str = dt.toString("%O %N");
+          CXXTOOLS_UNIT_ASSERT_EQUALS(str, "May Fri");
+
+          dt += cxxtools::Days(30);
+          str = dt.toString("%O %N");
+          CXXTOOLS_UNIT_ASSERT_EQUALS(str, "Jun Sun");
         }
 
         void serialization()

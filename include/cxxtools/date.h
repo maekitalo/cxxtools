@@ -166,10 +166,12 @@ class Date
               %y   2 digit year
               %m   month (1-12)
               %2m  month (01-12)
+              %O   english monthname (Jan-Dec)
               %d   day (1-31)
               %2d  day (01-31)
               ?    arbitrary character
               *    skip non digit characters
+              #    skip word
          */
         explicit Date(const std::string& d, const std::string& fmt = "%Y-%m-%d");
 
@@ -310,6 +312,7 @@ class Date
               %1d  day (1-31)
               %m   month (01-12)
               %1m  month (1-12)
+              %O   english monthname (Jan-Dec)
               %Y   4 digit year
               %y   2 digit year
               %w   day of week (0-6 sunday=6)

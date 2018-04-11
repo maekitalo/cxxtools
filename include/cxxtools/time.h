@@ -100,6 +100,7 @@ class Time
               %p   AM/PM
               ?    arbitrary character
               *    skip non digit characters
+              #    skip word
          */
         explicit Time(const std::string& d, const std::string& fmt = "%H:%M:%S%j");
 

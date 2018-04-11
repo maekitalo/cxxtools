@@ -29,12 +29,23 @@
 #include "dateutils.h"
 #include <stdexcept>
 #include <cctype>
+#include <string.h>
 
 namespace cxxtools
 {
+  const char* weekdaynames[7] = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" };
+
+  const char* monthnames[12] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+
   void skipNonDigit(std::string::const_iterator& b, std::string::const_iterator e)
   {
     while (b != e && !std::isdigit(*b))
+      ++b;
+  }
+
+  void skipWord(std::string::const_iterator& b, std::string::const_iterator e)
+  {
+    while (b != e && std::isalnum(*b))
       ++b;
   }
 
@@ -125,4 +136,24 @@ namespace cxxtools
       else
           appendDn(s, n, static_cast<unsigned>(v));
   }
+
+  unsigned getMonthFromName(std::string::const_iterator& b, std::string::const_iterator e)
+  {
+    char m[4];
+    unsigned d;
+    for (d = 0; d < 3 && b != e && std::isalpha(*b); ++d)
+      m[d] = *b++;
+    if (d != 3)
+      throw std::invalid_argument("invalid date format - monthname expected");
+
+    m[3] = '\0';
+    for (d = 0; d < 12; ++d)
+    {
+      if (strcasecmp(monthnames[d], m) == 0)
+        return d + 1;
+    }
+
+    throw std::invalid_argument("invalid date format - monthname expected");
+  }
+
 }

@@ -40,8 +40,10 @@ class DateTest : public cxxtools::unit::TestSuite
         : cxxtools::unit::TestSuite("date")
         {
             registerMethod("fromString", *this, &DateTest::fromString);
+            registerMethod("fromStringMonthname", *this, &DateTest::fromStringMonthname);
             registerMethod("fixDigit", *this, &DateTest::fixDigit);
             registerMethod("toString", *this, &DateTest::toString);
+            registerMethod("names", *this, &DateTest::names);
             registerMethod("serialization", *this, &DateTest::serialization);
             registerMethod("isValid", *this, &DateTest::isValid);
         }
@@ -90,6 +92,28 @@ class DateTest : public cxxtools::unit::TestSuite
 
         }
 
+        void fromStringMonthname()
+        {
+            int year;
+            unsigned month, day;
+            cxxtools::Date dt;
+
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(dt = cxxtools::Date("Wed Apr 11 2018", "??? %O %d %Y"));
+            dt.get(year, month, day);
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(year, 2018);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(month, 4);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(day, 11);
+
+            static const char* monthnames[12] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+            for (unsigned m = 0; m < 12; ++m)
+            {
+              CXXTOOLS_UNIT_ASSERT_NOTHROW(dt = cxxtools::Date(monthnames[m], "%O"));
+              dt.get(year, month, day);
+              CXXTOOLS_UNIT_ASSERT_EQUALS(month, m + 1);
+            }
+        }
+
         void fixDigit()
         {
             CXXTOOLS_UNIT_ASSERT_NOTHROW(cxxtools::Date("3 9", "%m %d"));
@@ -116,6 +140,17 @@ class DateTest : public cxxtools::unit::TestSuite
           dt = cxxtools::Date(2013, 5, 5);
           str = dt.toString("%w %W");
           CXXTOOLS_UNIT_ASSERT_EQUALS(str, "0 7");
+        }
+
+        void names()
+        {
+          cxxtools::Date dt(2013, 5, 3);
+          std::string str = dt.toString("%O %N");
+          CXXTOOLS_UNIT_ASSERT_EQUALS(str, "May Fri");
+
+          dt.set(2013, 6, 2);
+          str = dt.toString("%O %N");
+          CXXTOOLS_UNIT_ASSERT_EQUALS(str, "Jun Sun");
         }
 
         void serialization()

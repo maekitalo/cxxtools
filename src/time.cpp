@@ -37,6 +37,11 @@
 namespace cxxtools
 {
 
+static void throwInvalidTime(const std::string& str, std::string::const_iterator p, const std::string& fmt)
+{
+    throw InvalidTime("string <" + std::string(str.begin(), p) + "(*)" + std::string(p, str.end()) + "> does not match time format <" + fmt + '>');
+}
+
 InvalidTime::InvalidTime()
 : std::invalid_argument("Invalid time")
 { }
@@ -56,9 +61,9 @@ Time::Time(const std::string& str, const std::string& fmt)
     state_two
   } state = state_0;
 
+  std::string::const_iterator dit = str.begin();
   try
   {
-    std::string::const_iterator dit = str.begin();
     std::string::const_iterator it;
     for (it = fmt.begin(); it != fmt.end(); ++it)
     {
@@ -72,8 +77,10 @@ Time::Time(const std::string& str, const std::string& fmt)
           {
             if (ch == '*')
               skipNonDigit(dit, str.end());
+            else if (ch == '#')
+              skipWord(dit, str.end());
             else if (dit == str.end() || (*dit != ch && ch != '?'))
-              throw InvalidTime("string <" + str + "> does not match time format <" + fmt + '>');
+              throwInvalidTime(str, dit, fmt);
             else
               ++dit;
           }
@@ -137,7 +144,7 @@ Time::Time(const std::string& str, const std::string& fmt)
                 || (*(dit + 1) != 'M'
                   &&  *(dit + 1) != 'm')))
               {
-                  throw InvalidTime("string <" + str + "> does not match time format <" + fmt + '>');
+                throwInvalidTime(str, dit, fmt);
               }
 
               am = (*dit == 'A' || *dit == 'a');
@@ -170,13 +177,13 @@ Time::Time(const std::string& str, const std::string& fmt)
     }
 
     if (it != fmt.end() || dit != str.end())
-      throw InvalidTime("string <" + str + "> does not match time format <" + fmt + '>');
+      throwInvalidTime(str, dit, fmt);
 
     set(am ? hours : hours + 12, minutes, seconds, 0, useconds);
   }
   catch (const std::invalid_argument&)
   {
-    throw InvalidTime("string <" + str + "> does not match time format <" + fmt + '>');
+    throwInvalidTime(str, dit, fmt);
   }
 }
 
