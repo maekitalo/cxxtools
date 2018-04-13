@@ -699,9 +699,19 @@ MimeEntity& MimeMultipart::addObject(const MimeMultipart& mimeMultipart)
 
 std::ostream& operator<< (std::ostream& out, const MimeHeader& mimeHeaders)
 {
+    out << "MIME-Version: 1.0\r\n";
     for (MimeEntity::HeadersType::const_iterator it = mimeHeaders.headers.begin();
              it != mimeHeaders.headers.end(); ++it)
-        out << it->first << ": " << it->second << "\r\n";
+    {
+        out << it->first << ": ";
+        for (std::string::const_iterator c = it->second.begin(); c != it->second.end(); ++c)
+        {
+            out << *c;
+            if (*c == '\n')
+                out << ' ';
+        }
+        out << "\r\n";
+    }
     out << "\r\n";
 
     return out;
@@ -725,14 +735,13 @@ std::ostream& operator<< (std::ostream& out, const MimeEntity& mimePart)
         Base64ostream enc(out);
         enc << mimePart.getBody();
         enc.terminate();
+        out << "\r\n";
     }
     else
     {
         log_warn_if(!contentTransferEncoding.empty(), "unknown content transfer encoding \"" << contentTransferEncoding << '"');
         out << mimePart.getBody();
     }
-
-    out << "\r\n";
 
     return out;
 }

@@ -30,6 +30,7 @@
 #include "cxxtools/unit/registertest.h"
 #include "cxxtools/mime.h"
 #include "cxxtools/serializationinfo.h"
+#include <sstream>
 
 class MimeTest : public cxxtools::unit::TestSuite
 {
@@ -41,6 +42,7 @@ class MimeTest : public cxxtools::unit::TestSuite
             registerMethod("buildMessage", *this, &MimeTest::buildMessage);
             registerMethod("serializeMessage", *this, &MimeTest::serializeMessage);
             registerMethod("multipartMessage", *this, &MimeTest::multipartMessage);
+            registerMethod("outputMessage", *this, &MimeTest::outputMessage);
             registerMethod("serializeMultipartMessage", *this, &MimeTest::serializeMultipartMessage);
             registerMethod("serializeMultipartToEntity", *this, &MimeTest::serializeMultipartToEntity);
         }
@@ -70,6 +72,18 @@ class MimeTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(mime.getBody(), "some body text");
         }
 
+        void outputMessage()
+        {
+            cxxtools::MimeEntity mime;
+            mime.addHeader("hdr1", "bar1\nblub");
+            mime.addHeader("hdr2", "bar2");
+            mime.getBody() = "some body text";
+
+            std::ostringstream s;
+            s << mime;
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(s.str(), "MIME-Version: 1.0\r\nhdr1: bar1\n blub\r\nhdr2: bar2\r\n\r\nsome body text");
+        }
 
         void serializeMessage()
         {
