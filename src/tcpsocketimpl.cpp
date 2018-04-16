@@ -64,7 +64,6 @@
 
 #include <openssl/err.h>
 #include <openssl/ssl.h>
-#include <stdlib.h>
 
 log_define("cxxtools.net.tcpsocket.impl")
 log_define_instance(ssl, "cxxtools.net.tcpsocket.impl.ssl")
@@ -848,6 +847,7 @@ size_t TcpSocketImpl::beginWrite(const char* buffer, size_t n)
 #endif
     else
     {
+        log_error("Device not connected when trying to write; state=" << _state);
         throw std::logic_error("Device not connected when trying to write");
     }
 
@@ -890,6 +890,7 @@ size_t TcpSocketImpl::write(const char* buffer, size_t n)
 #endif
         else
         {
+            log_error("Device not connected when trying to write; state=" << _state);
             throw std::logic_error("Device not connected when trying to write");
         }
     }
@@ -1010,7 +1011,6 @@ size_t TcpSocketImpl::read(char* buffer, size_t count, bool& eof)
     else
     {
         log_warn("socket not connected when trying to read; state=" << _state);
-        abort();
         throw IOError("socket not connected when trying to read");
     }
 }
@@ -1091,7 +1091,10 @@ bool TcpSocketImpl::beginSslConnect()
     log_trace("beginSslConnect; state=" << static_cast<int>(_state));
 
     if (!(_state == CONNECTED || _state == SSLCONNECTING))
+    {
+        log_error("Device not connected when trying to enable ssl; state=" << _state);
         throw std::logic_error("Device not connected when trying to enable ssl");
+    }
 
     _state = SSLCONNECTING;
     initSsl();
@@ -1125,8 +1128,17 @@ void TcpSocketImpl::endSslConnect()
         return;
     }
 
+    if (_state == IDLE)
+    {
+        log_debug("no connection when ending connect; assume lost connection");
+        throw IOError("lost connection to peer");
+    }
+
     if (_state != SSLCONNECTING)
-        throw std::logic_error("Device not in connecting mode when trying to finish ssl");
+    {
+        log_error_to(ssl, "Device not in connecting mode when trying to finish ssl connect; state=" << _state);
+        throw std::logic_error("Device not in connecting mode when trying to finish ssl connect");
+    }
 
     while (true)
     {
@@ -1153,7 +1165,10 @@ bool TcpSocketImpl::beginSslAccept()
     log_trace("begin ssl accept");
 
     if (!(_state == CONNECTED || _state == SSLACCEPTING))
+    {
+        log_error_to(ssl, "Device not connected when trying to enable ssl; state=" << _state);
         throw std::logic_error("Device not connected when trying to enable ssl");
+    }
 
     _state = SSLACCEPTING;
     initSsl();
@@ -1188,8 +1203,17 @@ void TcpSocketImpl::endSslAccept()
         return;
     }
 
+    if (_state == IDLE)
+    {
+        log_debug("no connection when ending accept; assume lost connection");
+        throw IOError("lost connection to peer");
+    }
+
     if (_state != SSLACCEPTING)
-        throw std::logic_error("Device not in accepting mode when trying to finish ssl");
+    {
+        log_error_to(ssl, "Device not in accepting mode when trying to finish ssl accept; state=" << _state);
+        throw std::logic_error("Device not in accepting mode when trying to finish ssl accept");
+    }
 
     while (true)
     {
@@ -1210,7 +1234,10 @@ void TcpSocketImpl::endSslAccept()
 bool TcpSocketImpl::beginSslShutdown()
 {
     if (!(_state == SSLCONNECTED || _state == SSLSHUTTINGDOWN))
+    {
+        log_error_to(ssl, "Device not connected when trying to shutdown ssl; state=" << _state);
         throw std::logic_error("Device not connected when trying to shutdown ssl");
+    }
 
     _state = SSLSHUTTINGDOWN;
 
@@ -1228,7 +1255,7 @@ bool TcpSocketImpl::beginSslShutdown()
 
 void TcpSocketImpl::endSslShutdown()
 {
-    log_trace_to(ssl, "ending ssl accept");
+    log_trace_to(ssl, "ending ssl shutdown");
 
     if (_pfd && !_socket.wbuf())
         _pfd->events &= ~POLLOUT;
@@ -1236,8 +1263,17 @@ void TcpSocketImpl::endSslShutdown()
     if (_state == CONNECTED)
         return;
 
+    if (_state == IDLE)
+    {
+        log_debug("no connection when ending ssl shutdown; assume lost connection");
+        throw IOError("lost connection to peer");
+    }
+
     if (_state != SSLSHUTTINGDOWN)
-        throw std::logic_error("Device not in ssl shutdown mode when trying to finish ssl");
+    {
+        log_error_to(ssl, "Device not in ssl shutdown mode when trying to finish ssl shutdown; state=" << _state);
+        throw std::logic_error("Device not in ssl shutdown mode when trying to finish ssl shutdown");
+    }
 
     while (true)
     {
