@@ -151,7 +151,7 @@ SerializationInfo::~SerializationInfo()
 
 SerializationInfo& SerializationInfo::addMember(const std::string& name)
 {
-    log_trace("addMember(\"" << name << "\")");
+    log_debug("addMember(\"" << name << "\")");
 
     Nodes& n = nodes();
     n.push_back(SerializationInfo());
@@ -171,6 +171,8 @@ SerializationInfo& SerializationInfo::addMember(const std::string& name)
 
 const SerializationInfo& SerializationInfo::getMember(const std::string& name) const
 {
+    log_debug("getMember(\"" << name << "\")");
+
     const Nodes& n = nodes();
 
     for (Nodes::const_iterator it = n.begin(); it != n.end(); ++it)
@@ -185,6 +187,8 @@ const SerializationInfo& SerializationInfo::getMember(const std::string& name) c
 
 const SerializationInfo& SerializationInfo::getMember(unsigned idx) const
 {
+    log_debug("getMember(" << idx << ')');
+
     const Nodes& n = nodes();
 
     if (idx >= n.size())
@@ -200,6 +204,8 @@ const SerializationInfo& SerializationInfo::getMember(unsigned idx) const
 
 const SerializationInfo* SerializationInfo::findMember(const std::string& name) const
 {
+    log_debug("findMember(\"" << name << "\")");
+
     const Nodes& n = nodes();
 
     for (Nodes::const_iterator it = n.begin(); it != n.end(); ++it)
@@ -214,6 +220,8 @@ const SerializationInfo* SerializationInfo::findMember(const std::string& name) 
 
 SerializationInfo* SerializationInfo::findMember(const std::string& name)
 {
+    log_debug("findMember(\"" << name << "\")");
+
     Nodes& n = nodes();
 
     for (Nodes::iterator it = n.begin(); it != n.end(); ++it)
