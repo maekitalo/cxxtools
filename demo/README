@@ -144,3 +144,36 @@ It can be tried out using telnet:
 
 Or with the netcat demo:
     ./netcat -r </dev/null
+
+siconvert
+=========
+Converts files from one serialization format to another using
+`cxxtools::SerializationInfo`.
+
+It reads a file in binary, xml, json or csv format and outputs to those
+formats. The input files are specified either on command line or read from
+stdin when no file is specified.
+
+For reading the flags `-b` (binary), `-x` (xml), `-j` (json) or `-c` (csv) are
+used to tell, which deserializer to use.
+
+For output the flags `-B` (binary), `-X` (xml), `-J` (json) or `-C` (csv) are
+used. Additionally there is `-Y` for simplified xml without attributes and `-n`
+to print just the number of nodes on the first level.
+
+Note that converting a file to the same format is possible but mostly do not
+result in the very same file since not all formats has all serialization
+informations available to restore the original file.
+
+The flag `-d` enables *beautification* for xml and json output, which adds
+indentation for better readability.
+
+Example:
+
+convert a csv file to json:
+
+    siconvert -cJ foo.csv
+
+convert a xml file to json
+
+    siconvert -xJ data.xml

@@ -76,6 +76,7 @@ cxxtools-config
 **/demo/rpcserver
 **/demo/saml2
 **/demo/serialization
+**/demo/siconvert
 **/demo/signals
 **/demo/splitter
 **/demo/sslshowcert
