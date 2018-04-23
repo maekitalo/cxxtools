@@ -319,6 +319,8 @@ namespace cxxtools
       Logger* getLogger(const std::string& category);
       static bool isEnabled()
       { return _enabled; }
+      static void disable()
+      { _enabled = false; }
 
       int rootFlags() const;
       int logFlags(const std::string& category) const;

@@ -30,9 +30,6 @@
 #define CXXTOOLS_FORK_H
 
 #include <sys/types.h>
-#include <sys/wait.h>
-#include <unistd.h>
-#include <cxxtools/systemerror.h>
 
 namespace cxxtools
 {
@@ -44,8 +41,11 @@ namespace cxxtools
      *  robustness and readability due to less code. The constructor executes
      *  fork(2) and does error checking. The destructor waits for the child
      *  process, which prevents the creation of zombie processes. The user may
-     *  decide to deactivate it or waiting explicitely to receive the return
-     *  status, but this has to be done explicitely, which helps robustness.
+     *  decide to deactivate it or waiting explicitly to receive the return
+     *  status, but this has to be done explicitly, which helps robustness.
+     *
+     *  Logging in the child process is deactivated to prevent a dead lock when
+     *  another thread holds the logger lock while fork.
      *
      *  Example:
      *  \code
@@ -82,24 +82,13 @@ namespace cxxtools
             wait();
         }
 
-        void fork()
-        {
-          pid = ::fork();
-          if (pid < 0)
-            throw SystemError("fork");
-        }
+        void fork();
 
         pid_t getPid() const  { return pid; }
         bool parent() const   { return pid > 0; }
         bool child() const    { return !parent(); }
         void setNowait()      { pid = 0; }
-        int wait(int options = 0)
-        {
-          int status;
-          ::waitpid(pid, &status, options);
-          pid = 0;
-          return status;
-        }
+        int wait(int options = 0);
     };
   }
 }

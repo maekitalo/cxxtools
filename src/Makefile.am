@@ -67,6 +67,7 @@ libcxxtools_la_SOURCES = \
 	posix/commandinput.cpp \
 	posix/commandoutput.cpp \
 	posix/daemonize.cpp \
+	posix/fork.cpp \
 	posix/pipestream.cpp \
 	posix/posixpipe.cpp \
 	propertiesfile.cpp \
