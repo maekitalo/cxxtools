@@ -45,7 +45,12 @@ void Fork::fork()
   if (pid < 0)
     throw SystemError("fork");
 
-  cxxtools::LogManager::disable();
+  if (pid == 0)
+  {
+    // disable logging in child process to prevent deadlock if another
+    // hold the lock for logging
+    cxxtools::LogManager::disable();
+  }
 }
 
 int Fork::wait(int options)
