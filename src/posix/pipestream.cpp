@@ -141,7 +141,7 @@ namespace posix
     log_debug(ret << " bytes read");
     setg(ibuffer, ibuffer, ibuffer + ret);
 
-    return *gptr();
+    return traits_type::to_int_type( *(gptr()) );
   }
 
   int Pipestreambuf::sync()
