@@ -53,6 +53,7 @@ class SerializationTest : public cxxtools::unit::TestSuite
             registerMethod("testStringToInt", *this, &SerializationTest::testStringToInt);
             registerMethod("testIntToString", *this, &SerializationTest::testIntToString);
             registerMethod("testVector", *this, &SerializationTest::testVector);
+            registerMethod("testBoolVector", *this, &SerializationTest::testBoolVector);
             registerMethod("testList", *this, &SerializationTest::testList);
             registerMethod("testDeque", *this, &SerializationTest::testDeque);
             registerMethod("testSet", *this, &SerializationTest::testSet);
@@ -267,6 +268,21 @@ class SerializationTest : public cxxtools::unit::TestSuite
             v.push_back(23);
             v.push_back(-754);
             std::vector<int> vv;
+
+            si <<= v;
+            si >>= vv;
+            CXXTOOLS_UNIT_ASSERT(v == vv);
+        }
+
+        void testBoolVector()
+        {
+            cxxtools::SerializationInfo si;
+
+            std::vector<bool> v;
+            v.push_back(true);
+            v.push_back(false);
+            v.push_back(true);
+            std::vector<bool> vv;
 
             si <<= v;
             si >>= vv;

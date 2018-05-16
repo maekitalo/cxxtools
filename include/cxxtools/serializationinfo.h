@@ -722,6 +722,20 @@ inline void operator <<=(SerializationInfo& si, const std::vector<T, A>& vec)
 }
 
 
+inline void operator>>=(const SerializationInfo& si, std::vector<bool>::reference bit)
+{
+    bool v;
+    si >>= v;
+    bit = v;
+}
+
+
+inline void operator<<=(SerializationInfo& si, std::vector<bool>::reference bit)
+{
+    si <<= static_cast<bool>(bit);
+}
+
+
 template <typename T, typename A>
 inline void operator >>=(const SerializationInfo& si, std::list<T, A>& list)
 {
