@@ -161,6 +161,20 @@ class MutexLock
             }
         }
 
+        bool tryLock()
+        {
+            if (_isLocked)
+                return true;
+
+            if (_mutex.tryLock())
+            {
+                _isLocked = true;
+                return true;
+            }
+
+            return false;
+        }
+
         //! @brief Unlock so that the destructor does not unlock
         void unlock()
         {
