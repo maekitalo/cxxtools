@@ -226,6 +226,26 @@ class TimespanTest : public cxxtools::unit::TestSuite
             }
 
             {
+                cxxtools::Seconds t(cxxtools::Timespan(14999999));
+                cxxtools::SerializationInfo si;
+                si <<= t;
+                cxxtools::Timespan t2;
+                si >>= t2;
+                CXXTOOLS_UNIT_ASSERT_EQUALS(t.totalUSecs(), t2.totalUSecs());
+                CXXTOOLS_UNIT_ASSERT_EQUALS(si.typeName(), "seconds");
+            }
+
+            {
+                cxxtools::Seconds t(cxxtools::Timespan(14999998));
+                cxxtools::SerializationInfo si;
+                si <<= t;
+                cxxtools::Timespan t2;
+                si >>= t2;
+                CXXTOOLS_UNIT_ASSERT_EQUALS(t, t2);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(si.typeName(), "seconds");
+            }
+
+            {
                 cxxtools::Minutes t(17.875);
                 cxxtools::SerializationInfo si;
                 si <<= t;

@@ -30,8 +30,11 @@
 #include <cxxtools/serializationinfo.h>
 #include <cxxtools/serializationerror.h>
 #include <cxxtools/convert.h>
+
 #include <sys/time.h>
 #include <time.h>
+#include <stdio.h>
+
 #include <iostream>
 
 namespace cxxtools
@@ -151,55 +154,100 @@ namespace cxxtools
             }
         }
 
+        uint64_t factor(const cxxtools::SerializationInfo& si, uint64_t res)
+        {
+            if (si.typeName() == "microseconds")
+                return 1;
+            else if (si.typeName() == "milliseconds")
+                return 1000l;
+            else if (si.typeName() == "seconds")
+                return 1000l*1000l;
+            else if (si.typeName() == "minutes")
+                return 1000l*1000l*60l;
+            else if (si.typeName() == "hours")
+                return 1000l*1000l*60l*60l;
+            else if (si.typeName() == "days")
+                return 1000l*1000l*60l*60l*24l;
+            else
+                return res;
+        }
+
         void get(const SerializationInfo& si, Timespan& timespan, uint64_t res)
         {
-            std::string stringValue;
-            si >>= stringValue;
-
-            bool ok;
-            double floatValue;
-            std::string::const_iterator end = getFloat(stringValue.begin(), stringValue.end(), ok, floatValue);
-
-            if (!ok)
+            if (si.isInt())
             {
-                std::string msg = "failed to get timespan from value \"";
-                msg += stringValue;
-                msg += '"';
-                throw SerializationError(msg);
+                int64_t value;
+                si >>= value;
+                timespan = Timespan(value);
             }
-
-            if (end != stringValue.end())
+            else if (si.isFloat())
             {
-                std::string::size_type pos = end - stringValue.begin();
-                if (stringValue.compare(pos, 1, "u") == 0)
+                float value;
+                si >>= value;
+                timespan = Timespan(value * factor(si, res));
+            }
+            else if (si.isDouble())
+            {
+                double value;
+                si >>= value;
+                timespan = Timespan(value * factor(si, res));
+            }
+            else if (si.isLongDouble())
+            {
+                long double value;
+                si >>= value;
+                timespan = Timespan(value * factor(si, res));
+            }
+            else
+            {
+                std::string stringValue;
+                si >>= stringValue;
+
+                bool ok;
+                double floatValue;
+                std::string::const_iterator end = getFloat(stringValue.begin(), stringValue.end(), ok, floatValue);
+
+                if (!ok)
+                {
+                    std::string msg = "failed to get timespan from value \"";
+                    msg += stringValue;
+                    msg += '"';
+                    throw SerializationError(msg);
+                }
+
+                if (end != stringValue.end())
+                {
+                    std::string::size_type pos = end - stringValue.begin();
+                    if (stringValue.compare(pos, 1, "u") == 0)
+                        timespan = Microseconds(floatValue);
+                    else if (stringValue.compare(pos, 2, "ms") == 0 || stringValue.compare(pos, 3, "mil") == 0)
+                        timespan = Milliseconds(floatValue);
+                    else if (stringValue.compare(pos, 1, "s") == 0)
+                        timespan = Seconds(floatValue);
+                    else if (stringValue.compare(pos, 1, "m") == 0)
+                        timespan = Minutes(floatValue);
+                    else if (stringValue.compare(pos, 1, "h") == 0)
+                        timespan = Hours(floatValue);
+                    else if (stringValue.compare(pos, 1, "d") == 0)
+                        timespan = Days(floatValue);
+                    else
+                        timespan = Timespan(floatValue * res);
+                }
+                else if (si.typeName() == "microseconds")
                     timespan = Microseconds(floatValue);
-                else if (stringValue.compare(pos, 2, "ms") == 0 || stringValue.compare(pos, 3, "mil") == 0)
+                else if (si.typeName() == "milliseconds")
                     timespan = Milliseconds(floatValue);
-                else if (stringValue.compare(pos, 1, "s") == 0)
+                else if (si.typeName() == "seconds")
                     timespan = Seconds(floatValue);
-                else if (stringValue.compare(pos, 1, "m") == 0)
+                else if (si.typeName() == "minutes")
                     timespan = Minutes(floatValue);
-                else if (stringValue.compare(pos, 1, "h") == 0)
+                else if (si.typeName() == "hours")
                     timespan = Hours(floatValue);
-                else if (stringValue.compare(pos, 1, "d") == 0)
+                else if (si.typeName() == "days")
                     timespan = Days(floatValue);
                 else
                     timespan = Timespan(floatValue * res);
             }
-            else if (si.typeName() == "microseconds")
-                timespan = Microseconds(floatValue);
-            else if (si.typeName() == "milliseconds")
-                timespan = Milliseconds(floatValue);
-            else if (si.typeName() == "seconds")
-                timespan = Seconds(floatValue);
-            else if (si.typeName() == "minutes")
-                timespan = Minutes(floatValue);
-            else if (si.typeName() == "hours")
-                timespan = Hours(floatValue);
-            else if (si.typeName() == "days")
-                timespan = Days(floatValue);
-            else
-                timespan = Timespan(floatValue * res);
         }
     }
 
@@ -215,15 +263,51 @@ namespace cxxtools
         si.setTypeName("microseconds");
     }
 
+    static std::string toString(int64_t number, unsigned short r)
+    {
+        unsigned divisor = 1;
+        for (unsigned short rr = 0; rr < r; ++rr)
+            divisor *= 10;
+
+        uint64_t absnum = static_cast<uint64_t>(number >= 0 ? number : -number);
+        unsigned reminder = absnum % divisor;
+        char buffer[24];
+        if (reminder == 0)
+        {
+            snprintf(buffer, 24, "%lld", (long long)(number / divisor));
+            return buffer;
+        }
+
+        snprintf(buffer, 24, "%lld", (long long)(absnum / divisor));
+
+        char bb[24];
+        snprintf(bb, 24, "%u", reminder);
+
+        std::string ret(bb);
+        ret.insert(0, r - ret.size(), '0');
+        ret.insert(0, 1, '.');
+        ret.insert(0, buffer);
+        if (number < 0)
+            ret.insert(0, 1, '-');
+
+        while (ret[ret.size()-1] == '0')
+            ret.erase(ret.size()-1);
+        if (ret[ret.size()-1] == '.')
+            ret.erase(ret.size()-1);
+
+        return ret;
+    }
+
     void operator <<=(SerializationInfo& si, const Milliseconds& timespan)
     {
-        si <<= timespan.totalMSecs();
+        si <<= toString(timespan.totalUSecs(), 3);
         si.setTypeName("milliseconds");
     }
 
     void operator <<=(SerializationInfo& si, const Seconds& timespan)
     {
         si <<= timespan.totalSeconds();
+        si <<= toString(timespan.totalUSecs(), 6);
         si.setTypeName("seconds");
     }
 
