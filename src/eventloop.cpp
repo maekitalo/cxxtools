@@ -276,12 +276,12 @@ void EventLoop::onProcessEvents(unsigned max)
 {
     unsigned count = 0;
 
-    auto& exitLoop = _impl->_exitLoop;
-    auto& eventQueue = _impl->_eventQueue;
-    auto& priorityEventQueue = _impl->_priorityEventQueue;
-    auto& activeEventQueue = _impl->_activeEventQueue;
-    auto& activeEventQueueIsPriority = _impl->_activeEventQueueIsPriority;
-    auto& queueMutex = _impl->_queueMutex;
+    bool& exitLoop = _impl->_exitLoop;
+    std::deque<Event*>& eventQueue = _impl->_eventQueue;
+    std::deque<Event*>& priorityEventQueue = _impl->_priorityEventQueue;
+    std::deque<Event*>& activeEventQueue = _impl->_activeEventQueue;
+    bool& activeEventQueueIsPriority = _impl->_activeEventQueueIsPriority;
+    Mutex& queueMutex = _impl->_queueMutex;
 
     log_debug("processEvents(max:" << max << ") normal/priority/active(priority): " << eventQueue.size() << '/' << priorityEventQueue.size() << '/' << activeEventQueue.size() << '(' << activeEventQueueIsPriority << ')');
 
