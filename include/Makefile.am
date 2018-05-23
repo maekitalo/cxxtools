@@ -140,6 +140,8 @@ nobase_include_HEADERS = \
         cxxtools/propertiesserializer.h \
         cxxtools/propertiesfile.h \
         cxxtools/propertiesparser.h \
+        cxxtools/ptrstreambuf.h \
+        cxxtools/ptrstream.h \
         cxxtools/query_params.h \
         cxxtools/queue.h \
         cxxtools/quotedprintablecodec.h \

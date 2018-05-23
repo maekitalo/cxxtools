@@ -44,6 +44,7 @@ alltests_SOURCES = \
     pool-test.cpp \
     properties-test.cpp \
     propertiesserializer-test.cpp \
+    ptrstream-test.cpp \
     query_params-test.cpp \
     quotedprintable-test.cpp \
     regex-test.cpp \
