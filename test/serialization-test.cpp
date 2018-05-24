@@ -66,6 +66,7 @@ class SerializationTest : public cxxtools::unit::TestSuite
             registerMethod("testUnorderedMultiset", *this, &SerializationTest::testUnorderedMultiset);
             registerMethod("testUnorderedMap", *this, &SerializationTest::testUnorderedMap);
             registerMethod("testUnorderedMultimap", *this, &SerializationTest::testUnorderedMultimap);
+            registerMethod("testTuple", *this, &SerializationTest::testTuple);
 #endif
         }
 
@@ -467,6 +468,18 @@ class SerializationTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT(vv == v);
         }
 
+        void testTuple()
+        {
+            cxxtools::SerializationInfo si;
+            std::tuple<int, std::string, double> v;
+
+            si <<= std::make_tuple(42, "Hello", 3.5);
+            si >>= v;
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(std::get<0>(v), 42);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(std::get<1>(v), "Hello");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(std::get<2>(v), 3.5);
+        }
 #endif
 
 };

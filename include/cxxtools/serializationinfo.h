@@ -44,6 +44,7 @@
 #include <forward_list>
 #include <unordered_set>
 #include <unordered_map>
+#include <tuple>
 #include <utility>
 
 #endif
@@ -1071,6 +1072,56 @@ inline void operator <<=(SerializationInfo& si, const std::unordered_multimap<K,
 
     si.setTypeName("map");
     si.setCategory(SerializationInfo::Array);
+}
+
+namespace helper
+{
+    template <int index, typename ... Types>
+    struct TupleSerializer
+    {
+        void serialize(SerializationInfo& si, const std::tuple<Types...>& tuple) const
+        {
+            TupleSerializer<index - 1, Types...>{}.serialize(si, tuple);
+            si.addMember() <<= std::get<index>(tuple);
+        }
+
+        void deserialize(const SerializationInfo& si, std::tuple<Types...>& tuple) const
+        {
+            TupleSerializer<index - 1, Types...>{}.deserialize(si, tuple);
+            si.getMember(index) >>= std::get<index>(tuple);
+        }
+    };
+
+    template <typename ... Types>
+    struct TupleSerializer<0, Types ...>
+    {
+        void serialize(SerializationInfo& si, const std::tuple<Types...>& tuple) const
+        {
+            si.addMember() <<= std::get<0>(tuple);
+        }
+
+        void deserialize(const SerializationInfo& si, std::tuple<Types...>& tuple) const
+        {
+            si.getMember(0) >>= std::get<0>(tuple);
+        }
+    };
+}
+
+template <typename ... Types>
+void operator <<=(SerializationInfo& si, const std::tuple<Types...>& tuple)
+{
+    const auto size = std::tuple_size<std::tuple<Types...>>::value;
+    helper::TupleSerializer<size - 1, Types...>{}.serialize(si, tuple);
+
+    si.setTypeName("tuple");
+    si.setCategory(SerializationInfo::Array);
+}
+
+template <class... Types>
+void operator >>=(const SerializationInfo& si, std::tuple<Types...>& tuple)
+{
+    const auto size = std::tuple_size<std::tuple<Types...>>::value;
+    helper::TupleSerializer<size - 1, Types...>{}.deserialize(si, tuple);
 }
 
 
