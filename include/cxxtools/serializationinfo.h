@@ -928,6 +928,23 @@ inline void operator <<=(SerializationInfo& si, const std::multimap<T, C, P, A>&
     si.setCategory(SerializationInfo::Array);
 }
 
+template <typename T, size_t N>
+void operator >>=(const SerializationInfo& si, T (&v)[N])
+{
+    for (size_t n = 0; n < N; ++n)
+        si.getMember(n) >>= v[n];
+}
+
+template <typename T, size_t N>
+void operator <<=(SerializationInfo& si, const T (&v)[N])
+{
+    for (size_t n = 0; n < N; ++n)
+        si.addMember() <<= v[n];
+
+    si.setTypeName("array");
+    si.setCategory(SerializationInfo::Array);
+}
+
 #if __cplusplus >= 201103L
 
 template <typename T, typename A>
