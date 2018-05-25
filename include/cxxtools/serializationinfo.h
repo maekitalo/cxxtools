@@ -45,6 +45,7 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <tuple>
+#include <array>
 #include <utility>
 
 #endif
@@ -1107,6 +1108,13 @@ namespace helper
     };
 }
 
+template <class... Types>
+void operator >>=(const SerializationInfo& si, std::tuple<Types...>& tuple)
+{
+    const auto size = std::tuple_size<std::tuple<Types...>>::value;
+    helper::TupleSerializer<size - 1, Types...>{}.deserialize(si, tuple);
+}
+
 template <typename ... Types>
 void operator <<=(SerializationInfo& si, const std::tuple<Types...>& tuple)
 {
@@ -1117,11 +1125,21 @@ void operator <<=(SerializationInfo& si, const std::tuple<Types...>& tuple)
     si.setCategory(SerializationInfo::Array);
 }
 
-template <class... Types>
-void operator >>=(const SerializationInfo& si, std::tuple<Types...>& tuple)
+template <typename T, size_t N>
+void operator >>=(const SerializationInfo& si, std::array<T, N>& array)
 {
-    const auto size = std::tuple_size<std::tuple<Types...>>::value;
-    helper::TupleSerializer<size - 1, Types...>{}.deserialize(si, tuple);
+    for (size_t n = 0; n < N; ++n)
+        si.getMember(n) >>= array[n];
+}
+
+template <typename T, size_t N>
+void operator <<=(SerializationInfo& si, const std::array<T, N>& array)
+{
+    for (size_t n = 0; n < N; ++n)
+        si.addMember() <<= array[n];
+
+    si.setTypeName("array");
+    si.setCategory(SerializationInfo::Array);
 }
 
 
