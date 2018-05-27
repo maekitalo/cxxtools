@@ -42,7 +42,8 @@ namespace cxxtools
                   _level(1),
                   _lastLevel(0),
                   _beautify(false),
-                  _plainkey(false)
+                  _plainkey(false),
+                  _inputUtf8(false)
             {
             }
 
@@ -51,7 +52,8 @@ namespace cxxtools
                   _level(1),
                   _lastLevel(0),
                   _beautify(false),
-                  _plainkey(false)
+                  _plainkey(false),
+                  _inputUtf8(false)
             {
                 begin(out);
             }
@@ -106,6 +108,10 @@ namespace cxxtools
 
             void plainkey(bool sw)    { _plainkey = sw; }
 
+            bool inputUtf8() const    { return _inputUtf8; }
+
+            void inputUtf8(bool sw)   { _inputUtf8 = sw; }
+
             void beginValue(const std::string& name);
 
             void finishValue();
@@ -120,6 +126,7 @@ namespace cxxtools
             unsigned _lastLevel;
             bool _beautify;
             bool _plainkey;
+            bool _inputUtf8;
     };
 
 }

@@ -58,6 +58,7 @@ namespace cxxtools
         const ObjectType& _constObject;
         bool _beautify;
         bool _plainkey;
+        bool _inputUtf8;
 
       public:
         /// Constructor. Needs the wrapped object. Optionally a flag can be
@@ -65,7 +66,8 @@ namespace cxxtools
         explicit JsonOObject(const ObjectType& object, bool beautify = false)
           : _constObject(object),
             _beautify(beautify),
-            _plainkey(false)
+            _plainkey(false),
+            _inputUtf8(false)
         { }
 
         /// Sets the formatting for json. If the passed flag is true, enables
@@ -83,6 +85,16 @@ namespace cxxtools
         bool plainkey() const
         { return _plainkey; }
 
+        // Tells the serializer that std::string and char* on input are
+        // UTF-8 encoded and do not need to be encoded further. By default,
+        // they are assumed to be Latin1 encoded. cxxtools::string is a wide
+        // string, so it's not affected by this setting
+        JsonOObject& inputUtf8(bool sw)
+        { _inputUtf8 = sw; return *this; }
+
+        bool inputUtf8() const
+        { return _inputUtf8; }
+
         const ObjectType& object() const
         { return _constObject; }
     };
@@ -96,6 +108,7 @@ namespace cxxtools
         JsonSerializer serializer(out);
         serializer.beautify(object.beautify());
         serializer.plainkey(object.plainkey());
+        serializer.inputUtf8(object.inputUtf8());
         serializer.serialize(object.object())
                   .finish();
       }

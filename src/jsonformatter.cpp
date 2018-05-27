@@ -399,7 +399,8 @@ void JsonFormatter::stringOut(const std::string& str)
             *_os << "\\r";
         else if (*it == '\t')
             *_os << "\\t";
-        else if (static_cast<unsigned char>(*it) >= 0x80 || static_cast<unsigned char>(*it) < 0x20)
+        else if ((!_inputUtf8 && static_cast<unsigned char>(*it) >= 0x80) ||
+                                 static_cast<unsigned char>(*it) < 0x20)
         {
             *_os << "\\u";
             static const char hex[] = "0123456789abcdef";
