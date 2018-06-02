@@ -324,14 +324,14 @@ namespace std {
     inline char_traits<cxxtools::Char>::char_type*
     char_traits<cxxtools::Char>::move(char_type* s1, const char_type* s2, int_type n)
     {
-        return (cxxtools::Char*)std::memmove(s1, s2, n * sizeof(cxxtools::Char));
+        return static_cast<cxxtools::Char*>(std::memmove(static_cast<void*>(s1), static_cast<const void*>(s2), n * sizeof(cxxtools::Char)));
     }
 
 
     inline char_traits<cxxtools::Char>::char_type*
     char_traits<cxxtools::Char>::copy(char_type* s1, const char_type* s2, size_t n)
     {
-        return (cxxtools::Char*)std::memcpy(s1, s2, n * sizeof(cxxtools::Char));
+        return static_cast<cxxtools::Char*>(std::memcpy(static_cast<void*>(s1), static_cast<const void*>(s2), n * sizeof(cxxtools::Char)));
     }
 
 
