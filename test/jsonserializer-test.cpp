@@ -30,6 +30,7 @@
 #include "cxxtools/unit/registertest.h"
 #include "cxxtools/jsonserializer.h"
 #include "cxxtools/json.h"
+#include "cxxtools/timespan.h"
 
 namespace
 {
@@ -88,6 +89,14 @@ namespace
       jsi.setTypeName("json");
     }
 
+    template <typename T>
+    std::string toJson(const T& t)
+    {
+        std::ostringstream out;
+        cxxtools::JsonSerializer serializer(out);
+        serializer.serialize(t).finish();
+        return out.str();
+    }
 }
 
 class JsonSerializerTest : public cxxtools::unit::TestSuite
@@ -111,6 +120,7 @@ class JsonSerializerTest : public cxxtools::unit::TestSuite
             registerMethod("testDirect", *this, &JsonSerializerTest::testDirect);
             registerMethod("testEasyJson", *this, &JsonSerializerTest::testEasyJson);
             registerMethod("testPlainkey", *this, &JsonSerializerTest::testPlainkey);
+            registerMethod("testTimespan", *this, &JsonSerializerTest::testTimespan);
         }
 
         void testInt()
@@ -340,6 +350,32 @@ class JsonSerializerTest : public cxxtools::unit::TestSuite
                     "\"c-c\":3,"
                     "ddd:4}");
             }
+        }
+
+        void testTimespan()
+        {
+            std::string j;
+            
+            j = toJson(cxxtools::Microseconds(34));
+            CXXTOOLS_UNIT_ASSERT_EQUALS(j, "34");
+
+            j = toJson(cxxtools::Milliseconds(124));
+            CXXTOOLS_UNIT_ASSERT_EQUALS(j, "124");
+
+            j = toJson(cxxtools::Seconds(3456));
+            CXXTOOLS_UNIT_ASSERT_EQUALS(j, "3456");
+
+            j = toJson(cxxtools::Seconds(cxxtools::Microseconds(34565432)));
+            CXXTOOLS_UNIT_ASSERT_EQUALS(j, "34.565432");
+
+            j = toJson(cxxtools::Seconds(34, 565477));
+            CXXTOOLS_UNIT_ASSERT_EQUALS(j, "34.565477");
+
+            j = toJson(cxxtools::Minutes(18));
+            CXXTOOLS_UNIT_ASSERT_EQUALS(j, "18");
+
+            j = toJson(cxxtools::Hours(67));
+            CXXTOOLS_UNIT_ASSERT_EQUALS(j, "67");
         }
 };
 

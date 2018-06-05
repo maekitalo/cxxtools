@@ -88,7 +88,18 @@ void JsonFormatter::addValueString(const std::string& name, const std::string& t
     {
         beginValue(name);
 
-        if (type == "int" || type == "double")
+        if (type == "bool"
+              || type == "int"
+              || type == "long"
+              || type == "float"
+              || type == "double"
+              || type == "microseconds"
+              || type == "milliseconds"
+              || type == "seconds"
+              || type == "minutes"
+              || type == "hours"
+              || type == "days"
+              || type == "decimal")
         {
             stringOut(value);
         }
@@ -124,7 +135,18 @@ void JsonFormatter::addValueStdString(const std::string& name, const std::string
     {
         beginValue(name);
 
-        if (type == "int" || type == "double")
+        if (type == "bool"
+              || type == "int"
+              || type == "long"
+              || type == "float"
+              || type == "double"
+              || type == "microseconds"
+              || type == "milliseconds"
+              || type == "seconds"
+              || type == "minutes"
+              || type == "hours"
+              || type == "days"
+              || type == "decimal")
         {
             stringOut(value);
         }
