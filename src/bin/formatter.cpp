@@ -97,7 +97,8 @@ void Formatter::addValueString(const std::string& name, const std::string& type,
     bool plain = name.empty();
     std::streambuf* sb = _out->rdbuf();
 
-    if (type == "int")
+    if (type == "int"
+     || type == "long")
     {
         if (!value.empty() && (value[0] == L'-' || value[0] == L'+'))
         {
@@ -110,7 +111,15 @@ void Formatter::addValueString(const std::string& name, const std::string& type,
             printUInt(v, name);
         }
     }
-    else if (type == "double")
+    else if (type == "float"
+          || type == "double"
+          || type == "microseconds"
+          || type == "milliseconds"
+          || type == "seconds"
+          || type == "minutes"
+          || type == "hours"
+          || type == "days"
+          || type == "decimal")
     {
         static const char d[257] = "                " // 00-0f
                                    "                " // 10-1f
@@ -225,7 +234,8 @@ void Formatter::addValueStdString(const std::string& name, const std::string& ty
     bool plain = name.empty();
     std::streambuf* sb = _out->rdbuf();
 
-    if (type == "int")
+    if (type == "int"
+     || type == "long")
     {
         if (!value.empty() && (value[0] == L'-' || value[0] == L'+'))
         {
@@ -238,7 +248,15 @@ void Formatter::addValueStdString(const std::string& name, const std::string& ty
             printUInt(v, name);
         }
     }
-    else if (type == "double")
+    else if (type == "float"
+          || type == "double"
+          || type == "microseconds"
+          || type == "milliseconds"
+          || type == "seconds"
+          || type == "minutes"
+          || type == "hours"
+          || type == "days"
+          || type == "decimal")
     {
         static const char d[257] = "                " // 00-0f
                                    "                " // 10-1f

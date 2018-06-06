@@ -31,6 +31,7 @@
 #include "cxxtools/serializationinfo.h"
 #include "cxxtools/bin/bin.h"
 #include "cxxtools/log.h"
+#include "cxxtools/timespan.h"
 #include "cxxtools/hexdump.h"
 #include <limits>
 #include <stdint.h>
@@ -107,6 +108,24 @@ namespace
             && obj1.setValue == obj2.setValue
             && obj1.mapValue == obj2.mapValue;
     }
+
+    template <typename T>
+    std::string toBin(const T& t)
+    {
+        std::ostringstream out;
+        out << cxxtools::bin::Bin(t);
+        return out.str();
+    }
+
+    template <typename T>
+    T fromBin(const std::string& bin)
+    {
+        std::istringstream in(bin);
+        T t;
+        in >> cxxtools::bin::Bin(t);
+        return t;
+    }
+
 }
 
 class BinSerializerTest : public cxxtools::unit::TestSuite
@@ -131,6 +150,7 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
             registerMethod("testBinaryData", *this, &BinSerializerTest::testBinaryData);
             registerMethod("testReuse", *this, &BinSerializerTest::testReuse);
             registerMethod("testNamedVector", *this, &BinSerializerTest::testNamedVector);
+            registerMethod("testTimespan", *this, &BinSerializerTest::testTimespan);
         }
 
         void testScalar()
@@ -432,6 +452,29 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
 
         void testReuse();
         void testNamedVector();
+
+        template <typename TS>
+        static void testTs(TS t)
+        {
+            std::stringstream s;
+            s << cxxtools::bin::Bin(t);
+
+            TS ts;
+            s >> cxxtools::bin::Bin(ts);
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(t, ts);
+            log_info(s.str().size());
+        }
+
+        void testTimespan()
+        {
+            testTs(cxxtools::Microseconds(34));
+            testTs(cxxtools::Milliseconds(124));
+            testTs(cxxtools::Seconds(cxxtools::Microseconds(34565432)));
+            testTs(cxxtools::Seconds(3456));
+            testTs(cxxtools::Minutes(18));
+            testTs(cxxtools::Hours(67));
+        }
 };
 
 void BinSerializerTest::testReuse()
