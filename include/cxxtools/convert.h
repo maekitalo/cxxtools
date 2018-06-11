@@ -771,14 +771,17 @@ InIterT getSign(InIterT it, InIterT end, bool& pos, const FormatT& fmt)
     while (it != end && isspace(*it))
         ++it;
 
-    if(*it == fmt.minus())
+    if (it != end)
     {
-        pos = false;
-        ++it;
-    }
-    else if( *it == fmt.plus() )
-    {
-        ++it;
+        if (*it == fmt.minus())
+        {
+            pos = false;
+            ++it;
+        }
+        else if ( *it == fmt.plus() )
+        {
+            ++it;
+        }
     }
 
     return it;
