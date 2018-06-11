@@ -239,12 +239,7 @@ void SerializationInfo::clear()
     _name.clear();
     _type.clear();
     nodes().clear();
-    switch (_t)
-    {
-        case t_string: _String().clear(); break;
-        case t_string8: _String8().clear(); break;
-        default: _t = t_none; break;
-    }
+    _releaseValue();
 }
 
 void SerializationInfo::swap(SerializationInfo& si)
