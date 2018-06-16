@@ -60,6 +60,23 @@ namespace
     {
         return v >> bits << bits != v;
     }
+
+    static const char bcd[257] = "                " // 00-0f
+                                 "                " // 10-1f
+                                 "\xe          \xa \xb\xc " // 20-2f
+                                 "\x0\x1\x2\x3\x4\x5\x6\x7\x8\x9\xd     " // 30-3f
+                                 "                " // 40-4f
+                                 "                " // 50-5f
+                                 "                " // 60-6f
+                                 "                " // 70-7f
+                                 "                " // 80-8f
+                                 "                " // 90-9f
+                                 "                " // a0-af
+                                 "                " // b0-bf
+                                 "                " // c0-cf
+                                 "                " // d0-df
+                                 "                " // e0-ef
+                                 "                "; // f0-ff
 }
 
 Formatter::Formatter()
@@ -111,34 +128,14 @@ void Formatter::addValueString(const std::string& name, const std::string& type,
             printUInt(v, name);
         }
     }
-    else if (type == "float"
-          || type == "double"
-          || type == "microseconds"
-          || type == "milliseconds"
-          || type == "seconds"
-          || type == "minutes"
-          || type == "hours"
-          || type == "days"
-          || type == "decimal")
+    else if (value.find_first_not_of(L"0123456789+-.: ") == std::string::npos
+        || value == L"nan" || value == L"inf" || value == L"-inf")
     {
-        static const char d[257] = "                " // 00-0f
-                                   "                " // 10-1f
-                                   "           \xa \xb\xc " // 20-2f
-                                   "\x0\x1\x2\x3\x4\x5\x6\x7\x8\x9      " // 30-3f
-                                   "                " // 40-4f
-                                   "                " // 50-5f
-                                   "     \xe          " // 60-6f
-                                   "                " // 70-7f
-                                   "                " // 80-8f
-                                   "                " // 90-9f
-                                   "                " // a0-af
-                                   "                " // b0-bf
-                                   "                " // c0-cf
-                                   "                " // d0-df
-                                   "                " // e0-ef
-                                   "                "; // f0-ff
-
-        sb->sputc(static_cast<char>(plain ? Serializer::TypePlainBcdFloat : Serializer::TypeBcdFloat));
+        bool isDouble = (type == "double");
+        sb->sputc(static_cast<char>(isDouble ? plain ? Serializer::TypePlainBcdFloat : Serializer::TypeBcdFloat
+                                             : plain ? Serializer::TypePlainBcd : Serializer::TypeBcd));
+        if (!isDouble)
+            outputString(type);
 
         if (!plain)
             outputString(name);
@@ -163,17 +160,17 @@ void Formatter::addValueString(const std::string& name, const std::string& type,
             {
                 int v = it->value();
                 if (high)
-                    ch = d[v] << 4;
+                    ch = bcd[v] << 4;
                 else
                 {
-                    ch |= d[v];
+                    ch |= bcd[v];
                     sb->sputc(ch);
                 }
                 high = !high;
             }
 
             if (!high)
-                sb->sputc(static_cast<char>(ch | '\xd'));
+                sb->sputc(static_cast<char>(ch | '\xf'));
         }
 
         sb->sputc('\xff');
@@ -248,34 +245,14 @@ void Formatter::addValueStdString(const std::string& name, const std::string& ty
             printUInt(v, name);
         }
     }
-    else if (type == "float"
-          || type == "double"
-          || type == "microseconds"
-          || type == "milliseconds"
-          || type == "seconds"
-          || type == "minutes"
-          || type == "hours"
-          || type == "days"
-          || type == "decimal")
+    else if (value.find_first_not_of("0123456789+-.: ") == std::string::npos
+        || value == "nan" || value == "inf" || value == "-inf")
     {
-        static const char d[257] = "                " // 00-0f
-                                   "                " // 10-1f
-                                   "           \xa \xb\xc " // 20-2f
-                                   "\x0\x1\x2\x3\x4\x5\x6\x7\x8\x9      " // 30-3f
-                                   "                " // 40-4f
-                                   "                " // 50-5f
-                                   "     \xe          " // 60-6f
-                                   "                " // 70-7f
-                                   "                " // 80-8f
-                                   "                " // 90-9f
-                                   "                " // a0-af
-                                   "                " // b0-bf
-                                   "                " // c0-cf
-                                   "                " // d0-df
-                                   "                " // e0-ef
-                                   "                "; // f0-ff
-
-        sb->sputc(static_cast<char>(plain ? Serializer::TypePlainBcdFloat : Serializer::TypeBcdFloat));
+        bool isDouble = (type == "double");
+        sb->sputc(static_cast<char>(isDouble ? plain ? Serializer::TypePlainBcdFloat : Serializer::TypeBcdFloat
+                                             : plain ? Serializer::TypePlainBcd : Serializer::TypeBcd));
+        if (!isDouble)
+            outputString(type);
 
         if (!plain)
             outputString(name);
@@ -300,17 +277,17 @@ void Formatter::addValueStdString(const std::string& name, const std::string& ty
             {
                 int v = (*it);
                 if (high)
-                    ch = d[v] << 4;
+                    ch = bcd[v] << 4;
                 else
                 {
-                    ch |= d[v];
+                    ch |= bcd[v];
                     sb->sputc(ch);
                 }
                 high = !high;
             }
 
             if (!high)
-                sb->sputc(static_cast<char>(ch | '\xd'));
+                sb->sputc(static_cast<char>(ch | '\xf'));
         }
 
         sb->sputc('\xff');

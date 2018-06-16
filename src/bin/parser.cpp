@@ -112,7 +112,7 @@ namespace
         return 0;  // never reached
     }
 
-    static const char bcdDigits[16] = "0123456789+-. e";
+    static const char bcdDigits[16] = "0123456789+-.: ";
 }
 
 void Parser::begin(Deserializer& handler, bool resetDictionary)
@@ -185,6 +185,18 @@ bool Parser::advance(std::streambuf& in, bool atLeastOne)
                         log_debug("type plain other");
                         _nextstate = state_value_value;
                         _state = state_value_type_other;
+                    }
+                    else if (tc == Serializer::TypeBcd)
+                    {
+                        log_debug("type bcd");
+                        _nextstate = state_name;
+                        _state = state_value_type_bcd;
+                    }
+                    else if (tc == Serializer::TypePlainBcd)
+                    {
+                        log_debug("type plain bcd");
+                        _nextstate = state_value_bcd0;
+                        _state = state_value_type_bcd;
                     }
                     else
                     {
@@ -492,6 +504,7 @@ bool Parser::advance(std::streambuf& in, bool atLeastOne)
                 break;
 
             case state_value_type_other:
+            case state_value_type_bcd:
                 if (ch == '\0')
                 {
                     log_debug("typename=" << _token);
@@ -500,23 +513,28 @@ bool Parser::advance(std::streambuf& in, bool atLeastOne)
 
                     dict(_token);
                     _token.clear();
+                    State nextstate = (_state == state_value_type_bcd ? state_value_bcd : state_value_value);
                     _state = _nextstate;
-                    _nextstate = state_value_value;
+                    _nextstate = nextstate;
                 }
                 else if (_token.empty() && ch == '\1')
-                    _state = state_value_type_other_idx0;
+                {
+                    _state = (_state == state_value_type_bcd ? state_value_type_bcd_idx0 : state_value_type_other_idx0);
+                }
                 else
                     _token += ch;
                 in.sbumpc();
                 break;
 
             case state_value_type_other_idx0:
+            case state_value_type_bcd_idx0:
                 _dictidx = static_cast<unsigned>(ch) << 8;
-                _state = state_value_type_other_idx1;
+                _state = (_state == state_value_type_bcd_idx0 ? state_value_type_bcd_idx1 : state_value_type_other_idx1);
                 in.sbumpc();
                 break;
 
             case state_value_type_other_idx1:
+            case state_value_type_bcd_idx1:
                 _dictidx |= static_cast<unsigned>(ch);
                 if (_dictidx >= _dictionary->size())
                 {
@@ -528,8 +546,11 @@ bool Parser::advance(std::streambuf& in, bool atLeastOne)
                 if (_deserializer)
                     _deserializer->setTypeName((*_dictionary)[_dictidx]);
 
+                {
+                State nextstate = (_state == state_value_type_bcd_idx1 ? state_value_bcd : state_value_value);
                 _state = _nextstate;
-                _nextstate = state_value_value;
+                _nextstate = nextstate;
+                }
                 in.sbumpc();
                 break;
 
@@ -620,7 +641,7 @@ bool Parser::advance(std::streambuf& in, bool atLeastOne)
                 else
                 {
                     _token += bcdDigits[static_cast<uint8_t>(ch) >> 4];
-                    if ((ch & '\xf') == '\xd')
+                    if ((ch & '\xf') == '\xf')
                     {
                         if (_deserializer)
                             _deserializer->setValue(_token);

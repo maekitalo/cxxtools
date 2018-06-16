@@ -31,6 +31,9 @@
 #include "cxxtools/serializationinfo.h"
 #include "cxxtools/bin/bin.h"
 #include "cxxtools/log.h"
+#include "cxxtools/date.h"
+#include "cxxtools/time.h"
+#include "cxxtools/datetime.h"
 #include "cxxtools/timespan.h"
 #include "cxxtools/hexdump.h"
 #include <limits>
@@ -150,6 +153,9 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
             registerMethod("testBinaryData", *this, &BinSerializerTest::testBinaryData);
             registerMethod("testReuse", *this, &BinSerializerTest::testReuse);
             registerMethod("testNamedVector", *this, &BinSerializerTest::testNamedVector);
+            registerMethod("testDate", *this, &BinSerializerTest::testDate);
+            registerMethod("testTime", *this, &BinSerializerTest::testTime);
+            registerMethod("testDatetime", *this, &BinSerializerTest::testDatetime);
             registerMethod("testTimespan", *this, &BinSerializerTest::testTimespan);
         }
 
@@ -452,6 +458,42 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
 
         void testReuse();
         void testNamedVector();
+
+        void testDate()
+        {
+            std::stringstream data;
+
+            cxxtools::Date d(1966, 5, 3);
+            data << cxxtools::bin::Bin(d);
+            cxxtools::Date d2;
+            data >> cxxtools::bin::Bin(d2);
+
+            CXXTOOLS_UNIT_ASSERT(d2 == d);
+        }
+
+        void testTime()
+        {
+            std::stringstream data;
+
+            cxxtools::Time d(23, 5, 17, 345);
+            data << cxxtools::bin::Bin(d);
+            cxxtools::Time d2;
+            data >> cxxtools::bin::Bin(d2);
+
+            CXXTOOLS_UNIT_ASSERT(d2 == d);
+        }
+
+        void testDatetime()
+        {
+            std::stringstream data;
+
+            cxxtools::DateTime d(1966, 5, 3, 23, 5, 17, 345);
+            data << cxxtools::bin::Bin(d);
+            cxxtools::DateTime d2;
+            data >> cxxtools::bin::Bin(d2);
+
+            CXXTOOLS_UNIT_ASSERT(d2 == d);
+        }
 
         template <typename TS>
         static void testTs(TS t)

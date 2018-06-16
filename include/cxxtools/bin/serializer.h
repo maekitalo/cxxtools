@@ -73,6 +73,7 @@ namespace cxxtools
                     TypeMultiset = 0x36,
                     TypeMap = 0x37,
                     TypeMultimap = 0x38,
+                    TypeBcd = 0x3e,
                     TypeOther = 0x3f,      // followed by zero terminated type name, data is zero terminated
                     TypePlainEmpty = 0x40,
                     TypePlainBool = 0x41,
@@ -102,6 +103,7 @@ namespace cxxtools
                     TypePlainMultiset = 0x76,
                     TypePlainMap = 0x77,
                     TypePlainMultimap = 0x78,
+                    TypePlainBcd = 0x7e,
                     TypePlainOther = 0x7f,      // followed by zero terminated type name, data is zero terminated
                     CategoryObject = 0xa0,
                     CategoryArray = 0xa1,

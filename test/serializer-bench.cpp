@@ -50,6 +50,7 @@ namespace
         double doubleValue;
         bool boolValue;
         cxxtools::Milliseconds msValue;
+        cxxtools::DateTime dtValue;
     };
 
     static const std::string intValue = "intValue";
@@ -57,6 +58,7 @@ namespace
     static const std::string doubleValue = "doubleValue";
     static const std::string boolValue = "boolValue";
     static const std::string msValue = "msValue";
+    static const std::string dtValue = "dtValue";
     static const std::string typeName = "TestObject";
 
     void operator>>= (const cxxtools::SerializationInfo& si, TestObject& obj)
@@ -66,6 +68,7 @@ namespace
         si.getMember(doubleValue) >>= obj.doubleValue;
         si.getMember(boolValue) >>= obj.boolValue;
         si.getMember(msValue) >>= obj.msValue;
+        si.getMember(dtValue) >>= obj.dtValue;
     }
 
     void operator<<= (cxxtools::SerializationInfo& si, const TestObject& obj)
@@ -75,6 +78,7 @@ namespace
         si.addMember(doubleValue) <<= obj.doubleValue;
         si.addMember(boolValue) <<= obj.boolValue;
         si.addMember(msValue) <<= obj.msValue;
+        si.addMember(dtValue) <<= obj.dtValue;
         si.setTypeName(typeName);
     }
 
@@ -236,6 +240,7 @@ int main(int argc, char* argv[])
                 obj.doubleValue = sqrt(static_cast<double>(n));
                 obj.boolValue = n&1;
                 obj.msValue = n;
+                obj.dtValue = cxxtools::DateTime(1900+n, 1+n%12, 1+n%28, n%24, n%60, n%60);
                 v.push_back(obj);
             }
 

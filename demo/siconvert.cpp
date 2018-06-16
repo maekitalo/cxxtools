@@ -153,7 +153,7 @@ int main(int argc, char* argv[])
 
         if (argc > 1)
         {
-            for (unsigned a = 1; a < argc; ++a)
+            for (int a = 1; a < argc; ++a)
             {
                 if (verbose)
                     std::cerr << "process " << a << " <" << argv[a] << '>' << std::endl;

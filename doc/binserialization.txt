@@ -34,6 +34,7 @@ type/category:
                      h36=map
                      h37=map
                      h38=multimap
+                     h3e=bcd (+ zero terminated string)
                      h3f=other (+ zero terminated string)
     plain typecodes: basic typecode + h40
     container:       h80=pair
@@ -93,7 +94,8 @@ bcd double:
                  a: +
                  b: -
                  c: .
-                 e: e
+                 d: :
+                 e: space
     \xff                     eod
 
 rpc request:
