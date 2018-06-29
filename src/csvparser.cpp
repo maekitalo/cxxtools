@@ -299,10 +299,7 @@ void CsvParser::advance(Char ch)
         case state_qdata:
             if (ch == _quote)
             {
-                log_debug("value \"" << _value << '"');
-                _deserializer->setValue(_value);
-                _value.clear();
-                _deserializer->leaveMember();  // leave data item
+                //it can be a double _quote, used to allow usage of _quote
                 _state = state_qdata_end;
             }
             else
@@ -312,6 +309,20 @@ void CsvParser::advance(Char ch)
             break;
 
         case state_qdata_end:
+            if (ch == _quote)
+            {
+                //it is indeed a double_quote. Add one.
+                _value += ch;
+                _state = state_qdata;
+                break;
+            }
+
+            //it is not a double _quote. End the _value
+            log_debug("value \"" << _value << '"');
+            _deserializer->setValue(_value);
+            _value.clear();
+            _deserializer->leaveMember();  // leave data item
+
             if (ch == L'\n' || ch == L'\r')
             {
                 checkNoColumns(_column, _noColumns, _lineNo);
@@ -363,6 +374,10 @@ void CsvParser::finish()
             break;
 
         case state_qdata_end:
+            log_debug("value \"" << _value << '"');
+            _deserializer->setValue(_value);
+            _value.clear();
+            _deserializer->leaveMember();  // leave data item
             _deserializer->leaveMember();  // leave row
             break;
 
