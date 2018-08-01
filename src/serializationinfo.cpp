@@ -162,8 +162,8 @@ SerializationInfo& SerializationInfo::addMember(const std::string& name)
     // has a category attribute. When the serializationinfo of the array is created
     // it is known, that it is of category Array. When the members of the array are read,
     // they should not make an object out of the array.
-    if (_category != Array)
-        _category = Object;
+    if (_category != Array && _category != Object)
+        _category = name.empty() ? Array : Object;
 
     return n.back();
 }
