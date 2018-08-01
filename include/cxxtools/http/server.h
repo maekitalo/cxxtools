@@ -73,9 +73,11 @@ class Server
             { listen(ip, port, certificateFile, certificateFile, sslVerifyLevel, sslCa); }
 
         Server(EventLoopBase& eventLoop, unsigned short int port, const std::string& certificateFile = std::string(), const std::string& privateKeyFile = std::string(), int sslVerifyLevel = 0, const std::string& sslCa = std::string())
+            : _impl(newImpl(eventLoop))
             { listen(port, certificateFile, privateKeyFile, sslVerifyLevel, sslCa); }
 
         Server(EventLoopBase& eventLoop, unsigned short int port, const std::string& certificateFile, int sslVerifyLevel, const std::string& sslCa = std::string())
+            : _impl(newImpl(eventLoop))
             { listen(port, certificateFile, certificateFile, sslVerifyLevel, sslCa); }
 
         ~Server();
