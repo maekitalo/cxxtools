@@ -26,8 +26,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef ENVSUBST_H
-#define ENVSUBST_H
+#ifndef CXXTOOLS_ENVSUBST_H
+#define CXXTOOLS_ENVSUBST_H
 
 #include <stdexcept>
 #include <string>
@@ -41,10 +41,7 @@ namespace cxxtools
   };
 
   /**
-     This class parses a character data and replaces environment variables.
-
-     To use the class, characters are pushed to the class and the class executes
-     a callback method to pass the processed data back.
+     This function parses a character data and replaces environment variables.
 
      These replacements are done:
 
@@ -71,59 +68,8 @@ namespace cxxtools
        The user ${UNKNOWN_VAR:-whoever}  The user whoever
 
    */
-  class EnvSubst
-  {
-      // make non copyable
-      EnvSubst(const EnvSubst&);
-      EnvSubst& operator=(const EnvSubst&);
-
-    public:
-      struct Ev
-      {
-        virtual void onChar(char ch) = 0;
-      };
-
-    private:
-      Ev& _ev;
-      enum {
-        state_0,
-        state_esc,
-        state_varbegin,
-        state_varname,
-        state_bvarname,
-        state_subst0,
-        state_subst,
-        state_nosubst
-      } _state;
-
-      std::string _varname;
-      EnvSubst* _next;
-
-      bool isInBracket() const
-        { return _state == state_bvarname
-              || _state == state_subst0
-              || _state == state_subst
-              || _state == state_nosubst; }
-
-    public:
-      explicit EnvSubst(Ev& ev)
-        : _ev(ev),
-          _state(state_0),
-          _next(0)
-      { }
-      ~EnvSubst()
-      { delete _next; }
-
-      void parse(char ch);
-      void parseEnd();
-      void reset()          { _state = state_0; delete _next; _next = 0; }
-  };
-
-  /** Function uses the class cxxtools::EnvSubst to substitute environment
-      variables in the passed string. The replacement string is returned.
-   */
   std::string envSubst(const std::string& str);
 }
 
-#endif // ENVSUBST_H
+#endif // CXXTOOLS_ENVSUBST_H
 

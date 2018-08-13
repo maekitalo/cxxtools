@@ -44,11 +44,48 @@ namespace
         || (ch >= '0' && ch <= '9')
         || (ch == '_');
   }
-}
 
-EnvSubstSyntaxError::EnvSubstSyntaxError(const std::string& msg)
-  : std::runtime_error(msg)
-  { }
+  class EnvSubst
+  {
+      // make non copyable
+      EnvSubst(const EnvSubst&);
+      EnvSubst& operator=(const EnvSubst&);
+
+      std::string& _result;
+      enum {
+        state_0,
+        state_esc,
+        state_varbegin,
+        state_varname,
+        state_bvarname,
+        state_subst0,
+        state_subst,
+        state_nosubst
+      } _state;
+
+      std::string _varname;
+      EnvSubst* _next;
+
+      bool isInBracket() const
+        { return _state == state_bvarname
+              || _state == state_subst0
+              || _state == state_subst
+              || _state == state_nosubst; }
+
+    public:
+      explicit EnvSubst(std::string& result)
+        : _result(result),
+          _state(state_0),
+          _next(0)
+      { }
+      ~EnvSubst()
+      { delete _next; }
+
+      void parse(char ch);
+      void parseEnd();
+      void reset()          { _state = state_0; delete _next; _next = 0; }
+  };
+
 
 void EnvSubst::parse(char ch)
 {
@@ -60,13 +97,13 @@ void EnvSubst::parse(char ch)
         else if (ch == '$')
           _state = state_varbegin;
         else
-          _ev.onChar(ch);
+          _result += ch;
         break;
 
     case state_esc:
         if (ch != '$')
-          _ev.onChar('\\');
-        _ev.onChar(ch);
+          _result += '\\';
+        _result += ch;
         _state = state_0;
         break;
 
@@ -99,7 +136,7 @@ void EnvSubst::parse(char ch)
           {
             log_debug("envvar \"" << _varname << "\": " << e);
             while (*e)
-              _ev.onChar(*e++);
+              _result += *e++;
           }
           else
             log_debug("envvar \"" << _varname << "\" is not set");
@@ -108,7 +145,7 @@ void EnvSubst::parse(char ch)
             _state = state_esc;
           else
           {
-            _ev.onChar(ch);
+            _result += ch;
             _state = state_0;
           }
         }
@@ -122,7 +159,7 @@ void EnvSubst::parse(char ch)
           {
             log_debug("envvar \"" << _varname << "\": " << e);
             while (*e)
-              _ev.onChar(*e++);
+              _result += *e++;
           }
           else
             log_debug("envvar \"" << _varname << "\" is not set");
@@ -145,13 +182,13 @@ void EnvSubst::parse(char ch)
           {
             log_debug("envvar \"" << _varname << "\": " << e);
             while (*e)
-              _ev.onChar(*e++);
+              _result += *e++;
             _state = state_nosubst;
           }
           else
           {
             log_debug("envvar \"" << _varname << "\" is not set");
-            _next = new EnvSubst(_ev);
+            _next = new EnvSubst(_result);
             _state = state_subst;
           }
         }
@@ -191,7 +228,7 @@ void EnvSubst::parseEnd()
         break;
 
     case state_esc:
-        _ev.onChar('\\');
+        _result += '\\';
         _state = state_0;
         break;
 
@@ -208,7 +245,7 @@ void EnvSubst::parseEnd()
         {
           log_debug("envvar \"" << _varname << "\": " << e);
           while (*e)
-            _ev.onChar(*e++);
+            _result += *e++;
         }
         else
           log_debug("envvar \"" << _varname << "\" is not set");
@@ -219,22 +256,17 @@ void EnvSubst::parseEnd()
 
 }
 
+}
+
 std::string envSubst(const std::string& str)
 {
-  struct Ev : public EnvSubst::Ev
-  {
-    std::string ret;
-    void onChar(char ch)
-    {
-      ret += ch;
-    }
-  } ev;
-
   log_debug("envSubst(\"" << str << "\")");
+
+  std::string ret;
 
   try
   {
-    EnvSubst es(ev);
+    EnvSubst es(ret);
     for (std::string::const_iterator it = str.begin(); it != str.end(); ++it)
       es.parse(*it);
     es.parseEnd();
@@ -245,13 +277,17 @@ std::string envSubst(const std::string& str)
         std::string("failed to parse \"")
             .append(str)
             .append("\": ")
-            .append(+ e.what()));
+            .append(e.what()));
   }
 
-  log_debug("envSubst => \"" << ev.ret << '"');
+  log_debug("envSubst => \"" << ret << '"');
 
-  return ev.ret;
+  return ret;
 }
+
+EnvSubstSyntaxError::EnvSubstSyntaxError(const std::string& msg)
+  : std::runtime_error(msg)
+  { }
 
 
 }
