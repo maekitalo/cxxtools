@@ -46,7 +46,7 @@
 #include <unordered_map>
 #include <tuple>
 #include <array>
-#include <utility>
+#include <type_traits>
 
 #endif
 
@@ -1159,6 +1159,98 @@ void operator <<=(SerializationInfo& si, const std::array<T, N>& array)
     si.setCategory(SerializationInfo::Array);
 }
 
+/// @internal
+template <typename ENUM>
+class EnumClassSerializer
+{
+    const ENUM& _value;
+
+public:
+    explicit EnumClassSerializer(const ENUM& e)
+        : _value(e)
+        { }
+
+    const ENUM& value() const   { return _value; }
+};
+
+/// @internal
+template <typename ENUM>
+void operator <<=(SerializationInfo& si, EnumClassSerializer<ENUM> e)
+{
+    si <<= static_cast<typename std::underlying_type<ENUM>::type>(e.value());
+}
+
+/// @internal
+template <typename ENUM>
+class EnumClassDeserializer
+{
+    ENUM& _value;
+
+public:
+    explicit EnumClassDeserializer(ENUM& e)
+        : _value(e)
+        { }
+
+    ENUM& value() const   { return _value; }
+};
+
+/// @internal
+template <typename ENUM>
+void operator <<=(SerializationInfo& si, EnumClassDeserializer<ENUM> e)
+{
+    si <<= static_cast<typename std::underlying_type<ENUM>::type>(e.value());
+}
+
+/// @internal
+template <typename ENUM>
+void operator >>=(const SerializationInfo& si, EnumClassDeserializer<ENUM> e)
+{
+    si >>= reinterpret_cast<typename std::underlying_type<ENUM>::type&>(e.value());
+}
+
+/** Helper for serializing strongly typed enums.
+ 
+    To serialize a enum this function returns a helper class, which can
+    serialize the underlying type using the serialization operator.
+
+    @code
+        enum class Foo : char
+        {
+            FOO, BAR, BAZ
+        };
+
+        Foo foo(Foo::FOO);
+
+        cxxtools::SerializationInfo si;
+        si <<= cxxtools::EnumClass(foo);
+    @endcode
+
+ */
+template <typename ENUM>
+EnumClassSerializer<ENUM> EnumClass(const ENUM& e)
+{ return EnumClassSerializer<ENUM>(e); }
+
+/** Helper for deserializing strongly typed enums.
+ 
+    To deserialize a enum this function returns a helper class, which can
+    serialize and deserialize the underlying type using the proper operators.
+
+    @code
+        enum class Foo : char
+        {
+            FOO, BAR, BAZ
+        };
+
+        Foo foo(Foo::FOO);
+
+        cxxtools::SerializationInfo si;
+        si <<= cxxtools::EnumClass(foo);
+    @endcode
+
+ */
+template <typename ENUM>
+EnumClassDeserializer<ENUM> EnumClass(ENUM& e)
+{ return EnumClassDeserializer<ENUM>(e); }
 
 #endif // __cplusplus >= 201103L
 

@@ -69,6 +69,7 @@ class SerializationTest : public cxxtools::unit::TestSuite
             registerMethod("testUnorderedMultimap", *this, &SerializationTest::testUnorderedMultimap);
             registerMethod("testTuple", *this, &SerializationTest::testTuple);
             registerMethod("testArray", *this, &SerializationTest::testArray);
+            registerMethod("testEnum", *this, &SerializationTest::testEnum);
 #endif
         }
 
@@ -517,6 +518,36 @@ class SerializationTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(vv[2], 42);
         }
 
+        void testEnum()
+        {
+            enum class Foo : char
+            {
+                FOO, BAR, BAZ
+            };
+
+            {
+                Foo foo(Foo::FOO);
+                Foo foo2(Foo::BAR);
+
+                cxxtools::SerializationInfo si;
+                si <<= cxxtools::EnumClass(foo);
+                si >>= cxxtools::EnumClass(foo2);
+
+                CXXTOOLS_UNIT_ASSERT(foo == foo2);
+            }
+            
+            {
+                const Foo foo(Foo::BAZ);
+                Foo foo2(Foo::BAR);
+
+                cxxtools::SerializationInfo si;
+                si <<= cxxtools::EnumClass(foo);
+                si >>= cxxtools::EnumClass(foo2);
+
+                CXXTOOLS_UNIT_ASSERT(foo == foo2);
+            }
+
+        }
 #endif
 
 };
