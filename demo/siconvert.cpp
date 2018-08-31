@@ -148,6 +148,7 @@ int main(int argc, char* argv[])
 
         cxxtools::ArgOut out(argc, argv, 'o');
         cxxtools::Arg<bool> verbose(argc, argv, 'v');
+        cxxtools::Arg<bool> follow(argc, argv, 'f');
 
         Siconvert app(argc, argv);
 
@@ -159,12 +160,19 @@ int main(int argc, char* argv[])
                     std::cerr << "process " << a << " <" << argv[a] << '>' << std::endl;
 
                 std::ifstream in(argv[a]);
-                app.convert(in, out);
+
+                do
+                {
+                    app.convert(in, out);
+                } while (follow && in.peek() != std::char_traits<char>::eof());
             }
         }
         else
         {
-            app.convert(std::cin, out);
+            do
+            {
+                app.convert(std::cin, out);
+            } while (follow != std::char_traits<char>::eof());
         }
     }
     catch (Usage)
@@ -173,11 +181,13 @@ int main(int argc, char* argv[])
                      "Description:\n"
                      "  Converts data using cxxtools serialization from one format to another.\n"
                      "  When no inputfile is given, data is read from stdin.\n\n"
-                     "Options:\n"
+                     "Options for input format:\n"
                      " -b         read binary data\n"
                      " -x         read xml data\n"
                      " -j         read json data\n"
                      " -c         read csv data\n"
+                     "\n"
+                     "Options for output format:\n"
                      " -B         output binary data\n"
                      " -X         output xml data\n"
                      " -Y         output xml data without attributes\n"
@@ -185,6 +195,9 @@ int main(int argc, char* argv[])
                      " -C         output csv data\n"
                      " -n         output just number of nodes on first level\n"
                      " -d         beautify output (xml, json)\n"
+                     "\n"
+                     "Other options:\n"
+                     " -f         follow - read data until eof is reached\n"
                      " -v         verbose - output filename to stderr when processing\n"
                      " -o <file>  output to file\n";
     }
