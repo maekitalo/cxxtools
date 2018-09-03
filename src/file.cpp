@@ -131,8 +131,6 @@ std::string File::dirName() const
 }
 
 
-// TODO This is identical to Directory::name(). Maybe this should be moved into
-// the common base class FileSystemNode.
 std::string File::name() const
 {
     std::string::size_type separatorPos = path().rfind( Directory::sep() );

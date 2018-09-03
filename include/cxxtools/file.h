@@ -84,10 +84,10 @@ class File
         */
         std::string dirName() const;
 
-        //! @brief Returns the file name including an exension
+        //! @brief Returns the file name including an extension
         std::string name() const;
 
-        //! @brief Returns the file name without the exension
+        //! @brief Returns the file name without the extension
         std::string baseName() const;
 
         //! @brief Returns the file name extension or an empty string if not present
