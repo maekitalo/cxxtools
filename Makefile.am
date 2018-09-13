@@ -15,6 +15,7 @@ SUBDIRS = src \
     src/bin \
     src/json \
     include \
+    tools \
     $(DEMO_DIR) $(UNITTEST_DIR)
 
 bin_SCRIPTS = cxxtools-config

@@ -276,6 +276,7 @@ AC_CONFIG_FILES([
   src/bin/Makefile
   src/json/Makefile
   include/Makefile
+  tools/Makefile
   demo/Makefile
   demo/ssl/Makefile
   test/Makefile

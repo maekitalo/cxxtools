@@ -30,6 +30,7 @@
 #include <cxxtools/argout.h>
 #include <cxxtools/bin/bin.h>
 #include <cxxtools/csv.h>
+#include <cxxtools/properties.h>
 #include <cxxtools/json.h>
 #include <cxxtools/log.h>
 #include <cxxtools/serializationinfo.h>
@@ -51,6 +52,7 @@ class Siconvert
         bool outputXmlCompact;
         bool outputJson;
         bool outputCsv;
+        bool outputProperties;
 
         bool outputCount;
         bool beautify;
@@ -71,6 +73,7 @@ Siconvert::Siconvert(int& argc, char* argv[])
       outputXmlCompact(cxxtools::Arg<bool>(argc, argv, 'Y')),
       outputJson(cxxtools::Arg<bool>(argc, argv, 'J')),
       outputCsv(cxxtools::Arg<bool>(argc, argv, 'C')),
+      outputProperties(cxxtools::Arg<bool>(argc, argv, 'P')),
 
       outputCount(cxxtools::Arg<bool>(argc, argv, 'n')),
       beautify(cxxtools::Arg<bool>(argc, argv, 'd'))
@@ -103,6 +106,8 @@ Siconvert::Siconvert(int& argc, char* argv[])
     if (outputJson)
         ++c;
     if (outputCsv)
+        ++c;
+    if (outputProperties)
         ++c;
     if (outputCount)
         ++c;
@@ -138,6 +143,8 @@ void Siconvert::convert(std::istream& in, std::ostream& out)
         out << cxxtools::Json(si).beautify(beautify);
     else if (outputCsv)
         out << cxxtools::Csv(si);
+    else if (outputProperties)
+        out << cxxtools::Properties(si);
 }
 
 int main(int argc, char* argv[])
@@ -172,7 +179,7 @@ int main(int argc, char* argv[])
             do
             {
                 app.convert(std::cin, out);
-            } while (follow != std::char_traits<char>::eof());
+            } while (follow && std::cin.peek() != std::char_traits<char>::eof());
         }
     }
     catch (Usage)
@@ -193,6 +200,7 @@ int main(int argc, char* argv[])
                      " -Y         output xml data without attributes\n"
                      " -J         output json data\n"
                      " -C         output csv data\n"
+                     " -P         output properties data\n"
                      " -n         output just number of nodes on first level\n"
                      " -d         beautify output (xml, json)\n"
                      "\n"

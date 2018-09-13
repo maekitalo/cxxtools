@@ -41,7 +41,6 @@ noinst_PROGRAMS = \
 	rpcserver \
 	saml2 \
 	serialization \
-	siconvert \
 	signals \
 	splitter \
 	sslshowcert \
@@ -103,7 +102,6 @@ uuencode_SOURCES = uuencode.cpp
 xmlmsgclient_SOURCES = xmlmsgclient.cpp
 xmlmsgserver_SOURCES = xmlmsgserver.cpp
 xmlreader_SOURCES = xmlreader.cpp
-siconvert_SOURCES = siconvert.cpp
 
 if MAKE_ICONVSTREAM
 noinst_PROGRAMS += iconv
@@ -133,7 +131,6 @@ msgclient_LDADD = $(BIN_LIBS)
 msgserver_LDADD = $(BIN_LIBS)
 xmlmsgclient_LDADD = $(XMLRPC_LIBS)
 xmlmsgserver_LDADD = $(XMLRPC_LIBS)
-siconvert_LDADD = $(BIN_LIBS)
 
 log.xml:
 	$(AM_V_GEN)$(SHELL) $(top_builddir)/cxxtools-config --logxml cxxtools >$@
