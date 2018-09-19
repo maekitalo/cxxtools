@@ -36,6 +36,7 @@
 #include <cxxtools/serializationinfo.h>
 #include <cxxtools/xml/xml.h>
 
+#include <limits>
 #include <iostream>
 
 struct Usage { };
@@ -57,9 +58,13 @@ class Siconvert
         bool outputCount;
         bool beautify;
 
+        unsigned skip;
+        unsigned num;
+
     public:
         Siconvert(int& argc, char* argv[]);
         void convert(std::istream& in, std::ostream& out);
+        bool docontinue() const  { return num > 0; }
 };
 
 Siconvert::Siconvert(int& argc, char* argv[])
@@ -76,7 +81,9 @@ Siconvert::Siconvert(int& argc, char* argv[])
       outputProperties(cxxtools::Arg<bool>(argc, argv, 'P')),
 
       outputCount(cxxtools::Arg<bool>(argc, argv, 'n')),
-      beautify(cxxtools::Arg<bool>(argc, argv, 'd'))
+      beautify(cxxtools::Arg<bool>(argc, argv, 'd')),
+      skip(cxxtools::Arg<unsigned>(argc, argv, "--skip")),
+      num(cxxtools::Arg<unsigned>(argc, argv, "--num", std::numeric_limits<unsigned>::max()))
 {
     unsigned c;
 
@@ -131,20 +138,30 @@ void Siconvert::convert(std::istream& in, std::ostream& out)
     else if (inputCsv)
         in >> cxxtools::Csv(si);
 
-    if (outputCount)
-        out << si.memberCount() << std::endl;
-    else if (outputBin)
-        out << cxxtools::bin::Bin(si);
-    else if (outputXml)
-        out << cxxtools::xml::Xml(si, "root").beautify(beautify);
-    else if (outputXmlCompact)
-        out << cxxtools::xml::Xml(si, "root").beautify(beautify).useAttributes(false);
-    else if (outputJson)
-        out << cxxtools::Json(si).beautify(beautify);
-    else if (outputCsv)
-        out << cxxtools::Csv(si);
-    else if (outputProperties)
-        out << cxxtools::Properties(si);
+    if (skip == 0)
+    {
+        if (outputCount)
+            out << si.memberCount() << std::endl;
+        else if (outputBin)
+            out << cxxtools::bin::Bin(si);
+        else if (outputXml)
+            out << cxxtools::xml::Xml(si, "root").beautify(beautify);
+        else if (outputXmlCompact)
+            out << cxxtools::xml::Xml(si, "root").beautify(beautify).useAttributes(false);
+        else if (outputJson)
+            out << cxxtools::Json(si).beautify(beautify);
+        else if (outputCsv)
+            out << cxxtools::Csv(si);
+        else if (outputProperties)
+            out << cxxtools::Properties(si);
+
+        if (num > 0 && num != std::numeric_limits<unsigned>::max())
+            --num;
+    }
+    else
+    {
+        --skip;
+    }
 }
 
 int main(int argc, char* argv[])
@@ -155,7 +172,6 @@ int main(int argc, char* argv[])
 
         cxxtools::ArgOut out(argc, argv, 'o');
         cxxtools::Arg<bool> verbose(argc, argv, 'v');
-        cxxtools::Arg<bool> follow(argc, argv, 'f');
 
         Siconvert app(argc, argv);
 
@@ -171,7 +187,7 @@ int main(int argc, char* argv[])
                 do
                 {
                     app.convert(in, out);
-                } while (follow && in.peek() != std::char_traits<char>::eof());
+                } while (app.docontinue() && in.peek() != std::char_traits<char>::eof());
             }
         }
         else
@@ -179,7 +195,7 @@ int main(int argc, char* argv[])
             do
             {
                 app.convert(std::cin, out);
-            } while (follow && std::cin.peek() != std::char_traits<char>::eof());
+            } while (app.docontinue() && std::cin.peek() != std::char_traits<char>::eof());
         }
     }
     catch (Usage)
@@ -205,7 +221,8 @@ int main(int argc, char* argv[])
                      " -d         beautify output (xml, json)\n"
                      "\n"
                      "Other options:\n"
-                     " -f         follow - read data until eof is reached\n"
+                     " --skip <n> skip <n> objects\n"
+                     " --num <n>  read <n> objects (default unlimited)\n"
                      " -v         verbose - output filename to stderr when processing\n"
                      " -o <file>  output to file\n";
     }
