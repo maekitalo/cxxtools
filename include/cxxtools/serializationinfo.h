@@ -36,7 +36,7 @@
 #include <list>
 #include <deque>
 #include <limits>
-#include <typeinfo>
+#include <iosfwd>
 #include <cxxtools/config.h>
 
 #if __cplusplus >= 201103L

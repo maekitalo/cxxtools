@@ -29,6 +29,7 @@
 
 #include <cxxtools/serializationinfo.h>
 #include <cxxtools/serializationerror.h>
+#include <cxxtools/conversionerror.h>
 #include <cxxtools/convert.h>
 #include <cxxtools/log.h>
 

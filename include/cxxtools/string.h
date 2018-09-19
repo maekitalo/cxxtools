@@ -34,7 +34,6 @@
 
 #include <string>
 #include <iterator>
-#include <stdexcept>
 #include <iosfwd>
 
 #include <cxxtools/config.h>

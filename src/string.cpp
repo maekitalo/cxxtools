@@ -29,7 +29,7 @@
 
 #include <cxxtools/string.h>
 #include <cxxtools/utf8codec.h>
-#include <iostream>
+#include <ostream>
 #include <algorithm>
 
 namespace std

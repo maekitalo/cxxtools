@@ -28,8 +28,7 @@
 #include "cxxtools/char.h"
 #include "cxxtools/string.h"
 #include "cxxtools/utf8codec.h"
-#include <sstream>
-#include <iostream>
+#include <ostream>
 
 #ifdef CXXTOOLS_WITH_STD_LOCALE
 #include "facets.cpp"
