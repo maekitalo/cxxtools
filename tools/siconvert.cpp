@@ -60,11 +60,13 @@ class Siconvert
 
         unsigned skip;
         unsigned num;
+        unsigned count;
 
     public:
         Siconvert(int& argc, char* argv[]);
         void convert(std::istream& in, std::ostream& out);
         bool docontinue() const  { return num > 0; }
+        void finish() const;
 };
 
 Siconvert::Siconvert(int& argc, char* argv[])
@@ -80,10 +82,11 @@ Siconvert::Siconvert(int& argc, char* argv[])
       outputCsv(cxxtools::Arg<bool>(argc, argv, 'C')),
       outputProperties(cxxtools::Arg<bool>(argc, argv, 'P')),
 
-      outputCount(cxxtools::Arg<bool>(argc, argv, 'n')),
+      outputCount(cxxtools::Arg<bool>(argc, argv, 'N')),
       beautify(cxxtools::Arg<bool>(argc, argv, 'd')),
       skip(cxxtools::Arg<unsigned>(argc, argv, "--skip")),
-      num(cxxtools::Arg<unsigned>(argc, argv, "--num", std::numeric_limits<unsigned>::max()))
+      num(cxxtools::Arg<unsigned>(argc, argv, "--num", std::numeric_limits<unsigned>::max())),
+      count(0)
 {
     unsigned c;
 
@@ -140,9 +143,7 @@ void Siconvert::convert(std::istream& in, std::ostream& out)
 
     if (skip == 0)
     {
-        if (outputCount)
-            out << si.memberCount() << std::endl;
-        else if (outputBin)
+        if (outputBin)
             out << cxxtools::bin::Bin(si);
         else if (outputXml)
             out << cxxtools::xml::Xml(si, "root").beautify(beautify);
@@ -157,11 +158,19 @@ void Siconvert::convert(std::istream& in, std::ostream& out)
 
         if (num > 0 && num != std::numeric_limits<unsigned>::max())
             --num;
+
+        ++count;
     }
     else
     {
         --skip;
     }
+}
+
+void Siconvert::finish() const
+{
+    if (outputCount)
+        std::cout << count << std::endl;
 }
 
 int main(int argc, char* argv[])
@@ -197,6 +206,8 @@ int main(int argc, char* argv[])
                 app.convert(std::cin, out);
             } while (app.docontinue() && std::cin.peek() != std::char_traits<char>::eof());
         }
+
+        app.finish();
     }
     catch (Usage)
     {
@@ -217,7 +228,7 @@ int main(int argc, char* argv[])
                      " -J         output json data\n"
                      " -C         output csv data\n"
                      " -P         output properties data\n"
-                     " -n         output just number of nodes on first level\n"
+                     " -N         output number of objects\n"
                      " -d         beautify output (xml, json)\n"
                      "\n"
                      "Other options:\n"
