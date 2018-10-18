@@ -1260,6 +1260,29 @@ inline std::ostream& operator<< (std::ostream& out, const SerializationInfo& si)
     return out;
 }
 
+/** Converts one object to another using serialization operators.
+
+    If a object is serializable (i.e. it has a operator<<=(SerializationInfo&, T)),
+    and another is deserializable (i.e. it has a operator>>=(const SerializationInfo&, ...))
+    this function can be used to convert one to the other.
+
+    @code
+        std::set<int> foo = getSetFromSomewhere();
+        std::vector<long> bar = cxxtools::serialization_cast<std::vector<long> >(foo);
+        // or with C++11:
+        auto bar = cxxtools::serialization_cast<std::vector<long> >(foo);
+    @endcode
+ */
+template <typename R, typename T>
+R serialization_cast(const T& t)
+{
+    SerializationInfo si;
+    si <<= t;
+    R r;
+    si >>= r;
+    return r;
+}
+
 } // namespace cxxtools
 
 

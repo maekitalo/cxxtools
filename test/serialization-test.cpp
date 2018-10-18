@@ -70,6 +70,7 @@ class SerializationTest : public cxxtools::unit::TestSuite
             registerMethod("testTuple", *this, &SerializationTest::testTuple);
             registerMethod("testArray", *this, &SerializationTest::testArray);
             registerMethod("testEnum", *this, &SerializationTest::testEnum);
+            registerMethod("testCast", *this, &SerializationTest::testCast);
 #endif
         }
 
@@ -547,6 +548,17 @@ class SerializationTest : public cxxtools::unit::TestSuite
                 CXXTOOLS_UNIT_ASSERT(foo == foo2);
             }
 
+        }
+
+        void testCast()
+        {
+            std::set<int> foo;
+            foo.insert(56);
+            foo.insert(42);
+            std::vector<long> bar = cxxtools::serialization_cast<std::vector<long> >(foo);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(bar.size(), 2);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(bar[0], 42);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(bar[1], 56);
         }
 #endif
 
