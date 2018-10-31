@@ -165,9 +165,9 @@ namespace cxxtools
             else if (si.typeName() == "minutes")
                 return 1000l*1000l*60l;
             else if (si.typeName() == "hours")
-                return 1000l*1000l*60l*60l;
+                return static_cast<uint64_t>(1000)*1000l*60l*60l;
             else if (si.typeName() == "days")
-                return 1000l*1000l*60l*60l*24l;
+                return static_cast<uint64_t>(1000)*1000l*60l*60l*24l;
             else
                 return res;
         }
