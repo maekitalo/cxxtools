@@ -33,6 +33,7 @@
 #include <cxxtools/pipe.h>
 #include <cxxtools/posix/pipestream.h>
 #include <cxxtools/posix/fork.h>
+#include <cxxtools/thread.h>
 
 int main(int argc, char* argv[])
 {
@@ -69,12 +70,12 @@ int main(int argc, char* argv[])
       pstream.closeReadFd();
 
       // we simulate some long initialization:
-      ::sleep(1);
+      cxxtools::Thread::sleep(cxxtools::Seconds(1));
 
       pipe.write('a');
 
       // make another break
-      ::sleep(1);
+      cxxtools::Thread::sleep(cxxtools::Seconds(1));
 
       pstream << "Hello World!" << std::endl;
     }
