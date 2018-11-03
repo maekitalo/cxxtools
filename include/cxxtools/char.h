@@ -125,78 +125,78 @@ namespace cxxtools
             friend bool operator==(const Char& a, const Char& b)
             { return a.value() == b.value(); }
             friend bool operator==(const Char& a, wchar_t b)
-            { return a.value() == b; }
+            { return a.value() == static_cast<value_type>(b); }
             friend bool operator==(wchar_t a, const Char& b)
-            { return a == b.value(); }
+            { return static_cast<value_type>(a) == b.value(); }
             friend bool operator==(const Char& a, char b)
-            { return a.value() == b; }
+            { return a.value() == static_cast<value_type>(b); }
             friend bool operator==(char a, const Char& b)
-            { return a == b.value(); }
+            { return static_cast<value_type>(a) == b.value(); }
 
             //! @brief Returns $true$ if the a and b are not the same character; $false$ otherwise.
             //! @return $true$ if the a and b are not the same character; $false$ otherwise.
             friend bool operator!=(const Char& a, const Char& b)
             { return a.value() != b.value(); }
             friend bool operator!=(const Char& a, wchar_t b)
-            { return a.value() != b; }
+            { return a.value() != static_cast<value_type>(b); }
             friend bool operator!=(wchar_t a, const Char& b)
-            { return a != b.value(); }
+            { return static_cast<value_type>(a) != b.value(); }
             friend bool operator!=(const Char& a, char b)
-            { return a.value() != b; }
+            { return a.value() != static_cast<value_type>(b); }
             friend bool operator!=(char a, const Char& b)
-            { return a != b.value(); }
+            { return static_cast<value_type>(a) != b.value(); }
 
             //! @brief Returns $true$ if the numeric value of a is less than the numeric value of b; $false$ otherwise.
             //! @return $true$ if the numeric value of a is less than the numeric value of b; $false$ otherwise.
             friend bool operator<(const Char& a, const Char& b)
             { return a.value() < b.value(); }
             friend bool operator<(const Char& a, wchar_t b)
-            { return a.value() < b; }
+            { return a.value() < static_cast<value_type>(b); }
             friend bool operator<(wchar_t a, const Char& b)
-            { return a < b.value(); }
+            { return static_cast<value_type>(a) < b.value(); }
             friend bool operator<(const Char& a, char b)
-            { return a.value() < b; }
+            { return a.value() < static_cast<value_type>(b); }
             friend bool operator<(char a, const Char& b)
-            { return a < b.value(); }
+            { return static_cast<value_type>(a) < b.value(); }
 
             //! @brief Returns $true$ if the numeric value of a is greater than the numeric value of b; $false$ otherwise.
             //! @return $true$ if the numeric value of a is greater than the numeric value of b; $false$ otherwise.
             friend bool operator>(const Char& a, const Char& b)
             { return a.value() > b.value(); }
             friend bool operator>(const Char& a, wchar_t b)
-            { return a.value() > b; }
+            { return a.value() > static_cast<value_type>(b); }
             friend bool operator>(wchar_t a, const Char& b)
-            { return a > b.value(); }
+            { return static_cast<value_type>(a) > b.value(); }
             friend bool operator>(const Char& a, char b)
-            { return a.value() > b; }
+            { return a.value() > static_cast<value_type>(b); }
             friend bool operator>(char a, const Char& b)
-            { return a > b.value(); }
+            { return static_cast<value_type>(a) > b.value(); }
 
             //! @brief Returns $true$ if the numeric value of a is equal or less than the numeric value of b; $false$ otherwise.
             //! @return $true$ if the numeric value of a is equal or less than the numeric value of b; $false$ otherwise.
             friend  bool operator<=(const Char& a, const Char& b)
             { return a.value() <= b.value(); }
             friend  bool operator<=(const Char& a, wchar_t b)
-            { return a.value() <= b; }
+            { return a.value() <= static_cast<value_type>(b); }
             friend  bool operator<=(wchar_t a, const Char& b)
-            { return a <= b.value(); }
+            { return static_cast<value_type>(a) <= b.value(); }
             friend  bool operator<=(const Char& a, char b)
-            { return a.value() <= b; }
+            { return a.value() <= static_cast<value_type>(b); }
             friend  bool operator<=(char a, const Char& b)
-            { return a <= b.value(); }
+            { return static_cast<value_type>(a) <= b.value(); }
 
             //! @brief Returns $true$ if the numeric value of a is equals or greater than the numeric value of b; $false$ otherwise.
             //! @return $true$ if the numeric value of a is equals or greater than the numeric value of b; $false$ otherwise.
             friend  bool operator>=(const Char& a, const Char& b)
             { return a.value() >= b.value(); }
             friend  bool operator>=(const Char& a, wchar_t b)
-            { return a.value() >= b; }
+            { return a.value() >= static_cast<value_type>(b); }
             friend  bool operator>=(wchar_t a, const Char& b)
-            { return a >= b.value(); }
+            { return static_cast<value_type>(a) >= b.value(); }
             friend  bool operator>=(const Char& a, char b)
-            { return a.value() >= b; }
+            { return a.value() >= static_cast<value_type>(b); }
             friend  bool operator>=(char a, const Char& b)
-            { return a >= b.value(); }
+            { return static_cast<value_type>(a) >= b.value(); }
 
         private:
             value_type _value;
