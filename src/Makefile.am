@@ -116,6 +116,7 @@ libcxxtools_la_SOURCES = \
 	tcpsocket.cpp \
 	tcpsocketimpl.cpp \
 	tcpstream.cpp \
+	tz.cpp \
 	udp.cpp \
 	udpstream.cpp \
 	xml/characters.cpp \

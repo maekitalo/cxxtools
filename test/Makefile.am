@@ -58,6 +58,7 @@ alltests_SOURCES = \
     time-test.cpp \
     timespan-test.cpp \
     trim-test.cpp \
+    tz-test.cpp \
     utf8-test.cpp \
     uri-test.cpp \
     xmlreader-test.cpp \
