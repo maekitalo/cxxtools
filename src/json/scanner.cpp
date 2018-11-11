@@ -75,7 +75,7 @@ void Scanner::finalizeReply()
     }
 
     _composer->fixup(
-        _deserializer->si().getMember("result"));
+    _deserializer->si().getMember("result"));
 }
 
 }
