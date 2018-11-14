@@ -14,6 +14,7 @@ public:
         registerMethod("utc2local", *this, &TzTest::utc2local);
         registerMethod("offset", *this, &TzTest::offset);
         registerMethod("isDst", *this, &TzTest::isDst);
+        registerMethod("ownTz", *this, &TzTest::ownTz);
     }
 
     void local2utc();
@@ -21,6 +22,7 @@ public:
     void utc2local();
     void offset();
     void isDst();
+    void ownTz();
 };
 
 void TzTest::local2utc()
@@ -87,6 +89,19 @@ void TzTest::isDst()
 
     dst = tz.toLocal(cxxtools::UtcDateTime(2018, 8, 7, 13, 0, 4)).isdst();
     CXXTOOLS_UNIT_ASSERT(dst);
+}
+
+void TzTest::ownTz()
+{
+    cxxtools::Tz tz;
+
+    // we assume, that reading the current time does not take more that 1 second
+    cxxtools::DateTime local = cxxtools::DateTime::localtime();
+    cxxtools::LocalDateTime lt = tz.toLocal(cxxtools::UtcDateTime(cxxtools::DateTime::gmtime()));
+
+    cxxtools::Seconds diff = lt - local;
+
+    CXXTOOLS_UNIT_ASSERT(diff >= cxxtools::Seconds(0) && diff <= cxxtools::Seconds(1));
 }
 
 cxxtools::unit::RegisterTest<TzTest> register_TzTest;

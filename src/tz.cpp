@@ -531,7 +531,7 @@ std::string Tz::currentZone()
 
         const size_t pos = result.find(tz_dir);
         if (pos != result.npos)
-            result.erase(0, sizeof(tz_dir)+pos);
+            result.erase(0, strlen(tz_dir)+pos);
         return result;
     }
     {
