@@ -64,7 +64,7 @@ Timespan ClockImpl::stop() const
 }
 
 
-DateTime ClockImpl::getSystemTime()
+UtcDateTime ClockImpl::getSystemTime()
 {
     struct timeval tod;
     gettimeofday(&tod, NULL);
@@ -73,18 +73,18 @@ DateTime ClockImpl::getSystemTime()
     time_t sec = tod.tv_sec;
     gmtime_r(&sec, &tim);
 
-    return DateTime( tim.tm_year + 1900,
-                     tim.tm_mon + 1,
-                     tim.tm_mday,
-                     tim.tm_hour,
-                     tim.tm_min,
-                     tim.tm_sec,
-                     0,
-                     tod.tv_usec);
+    return UtcDateTime( tim.tm_year + 1900,
+                        tim.tm_mon + 1,
+                        tim.tm_mday,
+                        tim.tm_hour,
+                        tim.tm_min,
+                        tim.tm_sec,
+                        0,
+                        tod.tv_usec);
 }
 
 
-DateTime ClockImpl::getLocalTime()
+LocalDateTime ClockImpl::getLocalTime()
 {
     struct timeval tod;
     gettimeofday(&tod, NULL);
@@ -93,14 +93,14 @@ DateTime ClockImpl::getLocalTime()
     time_t sec = tod.tv_sec;
     localtime_r(&sec, &tim);
 
-    return DateTime( tim.tm_year + 1900,
-                     tim.tm_mon + 1,
-                     tim.tm_mday,
-                     tim.tm_hour,
-                     tim.tm_min,
-                     tim.tm_sec,
-                     0,
-                     tod.tv_usec);
+    return LocalDateTime( tim.tm_year + 1900,
+                          tim.tm_mon + 1,
+                          tim.tm_mday,
+                          tim.tm_hour,
+                          tim.tm_min,
+                          tim.tm_sec,
+                          0,
+                          tod.tv_usec);
 }
 
 

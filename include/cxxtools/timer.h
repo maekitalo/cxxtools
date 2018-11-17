@@ -32,6 +32,7 @@
 namespace cxxtools {
 
     class DateTime;
+    class UtcDateTime;
     class SelectorBase;
 
     /** @brief Notifies clients in constant intervals
@@ -145,6 +146,7 @@ namespace cxxtools {
                 @param tickTime The time, when the timer should tick.
             */
             void at(const DateTime& tickTime, bool localtime = true);
+            void at(const UtcDateTime& tickTime);
 
             /** @brief Stops the timer
 

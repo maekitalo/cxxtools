@@ -38,6 +38,8 @@ namespace cxxtools
 {
 
 class SerializationInfo;
+class LocalDateTime;
+class UtcDateTime;
 
 /** @brief Combined %Date and %Time value
     @ingroup DateTime
@@ -110,10 +112,10 @@ class DateTime
         }
 
         /// Returns the GMT time
-        static DateTime gmtime();
+        static UtcDateTime gmtime();
 
         /// Returns the local time
-        static DateTime localtime();
+        static LocalDateTime localtime();
 
         /// Sets the date and time.
         void set(int year, unsigned month, unsigned day,
@@ -298,6 +300,68 @@ class DateTime
 void operator >>=(const SerializationInfo& si, DateTime& dt);
 
 void operator <<=(SerializationInfo& si, const DateTime& dt);
+
+/// Same ad DateTime - just a separate type for local date time better type safety
+class LocalDateTime : public DateTime
+{
+public:
+    LocalDateTime() { }
+
+    explicit LocalDateTime(const std::string& d, const std::string& fmt = "%Y-%m-%d %H:%M:%S%j")
+        : DateTime(d, fmt)
+        { }
+
+    LocalDateTime(int year, unsigned month, unsigned day,
+             unsigned hour, unsigned minute,
+             unsigned second, unsigned msec = 0, unsigned usec = 0)
+        : DateTime(year, month, day, hour, minute, second, msec, usec)
+        { }
+
+    LocalDateTime(const Date& date, const Time& time)
+        : DateTime(date, time)
+        { }
+
+    explicit LocalDateTime(const DateTime& dt)
+        : DateTime(dt)
+        { }
+};
+
+/// Same ad DateTime - just a separate type for utc date time better type safety
+class UtcDateTime : public DateTime
+{
+public:
+    UtcDateTime() { }
+
+    explicit UtcDateTime(const std::string& d, const std::string& fmt = "%Y-%m-%d %H:%M:%S%j")
+        : DateTime(d, fmt)
+        { }
+
+    UtcDateTime(int year, unsigned month, unsigned day,
+             unsigned hour, unsigned minute,
+             unsigned second, unsigned msec = 0, unsigned usec = 0)
+        : DateTime(year, month, day, hour, minute, second, msec, usec)
+        { }
+
+    UtcDateTime(const Date& date, const Time& time)
+        : DateTime(date, time)
+        { }
+
+    explicit UtcDateTime(const DateTime& dt)
+        : DateTime(dt)
+        { }
+};
+
+inline void operator>>= (const SerializationInfo& si, LocalDateTime& dt)
+{ si >>= static_cast<DateTime&>(dt); }
+
+inline void operator<<= (SerializationInfo& si, const LocalDateTime& dt)
+{ si <<= static_cast<const DateTime&>(dt); }
+
+inline void operator>>= (const SerializationInfo& si, UtcDateTime& dt)
+{ si >>= static_cast<DateTime&>(dt); }
+
+inline void operator<<= (SerializationInfo& si, const UtcDateTime& dt)
+{ si <<= static_cast<const DateTime&>(dt); }
 
 
 inline void DateTime::set(int year, unsigned month, unsigned day,

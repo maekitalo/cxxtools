@@ -40,9 +40,9 @@ class ClockImpl : public RefCounted
 
         Timespan stop() const;
 
-        static DateTime getSystemTime();
+        static UtcDateTime getSystemTime();
 
-        static DateTime getLocalTime();
+        static LocalDateTime getLocalTime();
 
         static Timespan getSystemTicks();
 

@@ -73,12 +73,12 @@ Timespan Clock::stop() const
     return _impl->stop();
 }
 
-DateTime Clock::getSystemTime()
+UtcDateTime Clock::getSystemTime()
 {
     return ClockImpl::getSystemTime();
 }
 
-DateTime Clock::getLocalTime()
+LocalDateTime Clock::getLocalTime()
 {
     return ClockImpl::getLocalTime();
 }

@@ -172,7 +172,7 @@ void Timer::at(const DateTime& tickTime, bool localtime)
     
     _once = true;
 
-    DateTime now = localtime ? Clock::getLocalTime() : Clock::getSystemTime();
+    DateTime now = localtime ? DateTime(Clock::getLocalTime()) : DateTime(Clock::getSystemTime());
     if (tickTime >= now)
     {
         _active = true;
@@ -181,6 +181,11 @@ void Timer::at(const DateTime& tickTime, bool localtime)
         if (_selector)
             _selector->onTimerChanged(*this);
     }
+}
+
+void Timer::at(const UtcDateTime& tickTime)
+{
+    at(DateTime(tickTime), false);
 }
 
 

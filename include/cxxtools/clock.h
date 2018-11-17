@@ -66,11 +66,11 @@ class Clock
 
         /** @brief Returns the system time
         */
-        static DateTime getSystemTime();
+        static UtcDateTime getSystemTime();
 
         /** @brief Returns the current local time
         */
-        static DateTime getLocalTime();
+        static LocalDateTime getLocalTime();
 
         /** @brief Returns the timespan since a fixed point in the past
 

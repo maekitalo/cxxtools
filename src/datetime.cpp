@@ -207,12 +207,12 @@ DateTime::DateTime(const std::string& str, const std::string& fmt)
   }
 }
 
-DateTime DateTime::gmtime()
+UtcDateTime DateTime::gmtime()
 {
     return Clock::getSystemTime();
 }
 
-DateTime DateTime::localtime()
+LocalDateTime DateTime::localtime()
 {
     return Clock::getLocalTime();
 }
