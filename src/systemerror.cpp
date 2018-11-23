@@ -30,8 +30,12 @@
 #include "cxxtools/mutex.h"
 #include "cxxtools/log.h"
 
+#include "config.h"
+
+#ifdef WITH_SSL
 #include <openssl/err.h>
 #include <openssl/ssl.h>
+#endif
 
 #include <errno.h>
 #include "error.h"
@@ -100,6 +104,7 @@ SymbolNotFound::SymbolNotFound(const std::string& sym)
 
 void SslError::checkSslError()
 {
+#ifdef WITH_SSL
     static Mutex mutex;
     static bool errorStringsLoaded = false;
 
@@ -129,6 +134,7 @@ void SslError::checkSslError()
             throw SslError("unknown SSL-Error", code);
         }
     }
+#endif
 }
 
 } // namespace cxxtools

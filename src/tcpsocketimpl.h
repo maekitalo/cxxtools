@@ -146,7 +146,11 @@ class TcpSocketImpl : public IODeviceImpl
         { return _state >= CONNECTED; }
 
         bool isSslConnected() const
+#ifdef WITH_SSL
         { return _state == SSLCONNECTED; }
+#else
+        { return false; }
+#endif
 
         bool beginConnect(const AddrInfo& addrinfo);
 

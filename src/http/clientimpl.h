@@ -134,11 +134,13 @@ class ClientImpl : public RefCounted, public Connectable
 
         void ssl(bool sw)
         {
+#ifdef WITH_SSL
             if (_ssl != sw)
             {
                 _ssl = sw;
                 close();
             }
+#endif
         }
 
         void connect()
@@ -158,8 +160,10 @@ class ClientImpl : public RefCounted, public Connectable
 
         void setSslVerify(int level, const std::string& ca)
         {
+#ifdef WITH_SSL
             _sslVerifyLevel = level;
             _sslCa = ca;
+#endif
         }
 
         // Sends the passed request to the server and parses the headers.

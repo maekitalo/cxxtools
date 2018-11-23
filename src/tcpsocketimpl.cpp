@@ -336,8 +336,10 @@ void TcpSocketImpl::close()
     log_debug("close socket " << _fd);
     IODeviceImpl::close();
     _state = IDLE;
+#ifdef WITH_SSL
     _peerCertificate.clear();
     _peerCertificateLoaded = false;
+#endif
 }
 
 
@@ -614,6 +616,7 @@ bool TcpSocketImpl::checkPollEvent(pollfd& pfd)
             return true;
         }
 
+#ifdef WITH_SSL
         if (_state == SSLCONNECTING)
         {
             log_debug_to(ssl, "SSL_connect");
@@ -664,6 +667,7 @@ bool TcpSocketImpl::checkPollEvent(pollfd& pfd)
 
             return true;
         }
+#endif
 
         bool avail = IODeviceImpl::checkPollEvent(pfd);
 

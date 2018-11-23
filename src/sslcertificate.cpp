@@ -27,13 +27,18 @@
  */
 
 #include <cxxtools/sslcertificate.h>
+#include "config.h"
+
+#ifdef WITH_SSL
 #include <cxxtools/systemerror.h>
 #include "sslcertificateimpl.h"
 #include <stdio.h>
 #include <errno.h>
+#endif
 
 namespace cxxtools
 {
+#ifdef WITH_SSL
 SslCertificate::SslCertificate(const std::string& filename)
     : _impl(0)
 {
@@ -136,5 +141,62 @@ std::string SslCertificate::getSerial() const
     else
         return _impl->getSerial();
 }
+
+#else
+
+// no ssl enabled - provide just dummies
+
+SslCertificate::SslCertificate(const std::string& filename)
+    : _impl(0)
+{
+}
+
+SslCertificate::SslCertificate(SslCertificateImpl* impl)
+    : _impl(impl)
+{
+}
+
+SslCertificate::SslCertificate(const SslCertificate& s)
+    : _impl(s._impl)
+{
+}
+
+SslCertificate& SslCertificate::operator=(const SslCertificate& s)
+{
+}
+
+SslCertificate::~SslCertificate()
+{
+}
+
+void SslCertificate::clear()
+{
+}
+
+String SslCertificate::getSubject() const
+{
+    return String();
+}
+
+String SslCertificate::getIssuer() const
+{
+    return String();
+}
+
+DateTime SslCertificate::getNotBefore() const
+{
+    return DateTime(0, 1, 1, 0, 0, 0);
+}
+
+DateTime SslCertificate::getNotAfter() const
+{
+    return DateTime(2999, 12, 31, 23, 59, 59, 999);
+}
+
+std::string SslCertificate::getSerial() const
+{
+    return std::string();
+}
+#endif
 
 }
