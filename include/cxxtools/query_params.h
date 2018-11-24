@@ -321,6 +321,9 @@ class QueryParams
 inline std::ostream& operator<< (std::ostream& out, const QueryParams& p)
 { return out << p.getUrl(); }
 
+inline std::istream& operator>> (std::istream& in, QueryParams& p)
+{ p.parse_url(in); return in; }
+
 /// make QueryParams serializable
 void operator<<= (cxxtools::SerializationInfo& si, const QueryParams& p);
 
