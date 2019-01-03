@@ -129,6 +129,7 @@ class TcpSocketImpl : public IODeviceImpl
         void waitSslOperation(int ret, cxxtools::Timespan timeout);
 
         void initSsl();
+        void initSslCtx();
 #endif
 
     public:

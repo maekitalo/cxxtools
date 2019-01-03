@@ -262,32 +262,7 @@ void TcpSocketImpl::initSsl()
     if (_ssl)
         return;
 
-    {
-        MutexLock lock(_sslMutex);
-        if (!_sslCtx)
-        {
-            if (!_sslInitialized)
-            {
-                log_debug_to(ssl, "SSL_library_init");
-                SSL_library_init();
-
-                SslError::checkSslError();
-
-                thread_setup();
-
-                _sslInitialized = true;
-            }
-
-#ifdef HAVE_TLS_METHOD
-            log_debug_to(ssl, "SSL_CTX_new(TLS_method())");
-            _sslCtx = SSL_CTX_new(TLS_method());
-#else
-            log_debug_to(ssl, "SSL_CTX_new(SSLv23_method())");
-            _sslCtx = SSL_CTX_new(SSLv23_method());
-#endif
-            SslError::checkSslError();
-        }
-    }
+    initSslCtx();
 
     if (!_ssl)
     {
@@ -296,6 +271,37 @@ void TcpSocketImpl::initSsl()
 
         log_debug_to(ssl, "SSL_set_fd(" << _ssl << ", " << _fd << ')');
         SSL_set_fd(_ssl, _fd);
+    }
+}
+
+void TcpSocketImpl::initSslCtx()
+{
+    if (_sslCtx)
+        return;
+
+    MutexLock lock(_sslMutex);
+    if (!_sslCtx)
+    {
+        if (!_sslInitialized)
+        {
+            log_debug_to(ssl, "SSL_library_init");
+            SSL_library_init();
+
+            SslError::checkSslError();
+
+            thread_setup();
+
+            _sslInitialized = true;
+        }
+
+#ifdef HAVE_TLS_METHOD
+        log_debug_to(ssl, "SSL_CTX_new(TLS_method())");
+        _sslCtx = SSL_CTX_new(TLS_method());
+#else
+        log_debug_to(ssl, "SSL_CTX_new(SSLv23_method())");
+        _sslCtx = SSL_CTX_new(SSLv23_method());
+#endif
+        SslError::checkSslError();
     }
 }
 #endif // WITH_SSL
