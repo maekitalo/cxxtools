@@ -33,6 +33,9 @@
 #include <cxxtools/properties.h>
 #include <cxxtools/json.h>
 #include <cxxtools/query_params.h>
+#include <cxxtools/settings.h>
+#include <cxxtools/textstream.h>
+#include <cxxtools/utf8codec.h>
 #include <cxxtools/log.h>
 #include <cxxtools/serializationinfo.h>
 #include <cxxtools/xml/xml.h>
@@ -49,6 +52,7 @@ class Siconvert
         bool inputJson;
         bool inputCsv;
         bool inputQparams;
+        bool inputSettings;
 
         bool outputBin;
         bool outputXml;
@@ -77,6 +81,7 @@ Siconvert::Siconvert(int& argc, char* argv[])
       inputJson(cxxtools::Arg<bool>(argc, argv, 'j')),
       inputCsv(cxxtools::Arg<bool>(argc, argv, 'c')),
       inputQparams(cxxtools::Arg<bool>(argc, argv, 'q')),
+      inputSettings(cxxtools::Arg<bool>(argc, argv, 's')),
 
       outputBin(cxxtools::Arg<bool>(argc, argv, 'B')),
       outputXml(cxxtools::Arg<bool>(argc, argv, 'X')),
@@ -103,6 +108,8 @@ Siconvert::Siconvert(int& argc, char* argv[])
     if (inputCsv)
         ++c;
     if (inputQparams)
+        ++c;
+    if (inputSettings)
         ++c;
 
     if (c != 1)
@@ -150,6 +157,13 @@ void Siconvert::convert(std::istream& in, std::ostream& out)
         cxxtools::QueryParams q;
         in >> q;
         si <<= q;
+    }
+    else if (inputSettings)
+    {
+        cxxtools::Settings settings;
+        cxxtools::TextIStream tin(in, new cxxtools::Utf8Codec());
+        settings.load(tin);
+        si = settings;
     }
 
     if (skip == 0)
@@ -232,6 +246,7 @@ int main(int argc, char* argv[])
                      " -j         read json data\n"
                      " -c         read csv data\n"
                      " -q         read http query string\n"
+                     " -s         read settings data\n"
                      "\n"
                      "Options for output format:\n"
                      " -B         output binary data\n"

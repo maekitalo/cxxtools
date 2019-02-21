@@ -53,6 +53,7 @@ class SettingsError : public cxxtools::SerializationError
 };
 
 
+/// @deprecated
 class Settings : public cxxtools::SerializationInfo
 {
     public:
