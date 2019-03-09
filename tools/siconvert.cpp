@@ -245,7 +245,7 @@ int main(int argc, char* argv[])
                      " -x         read xml data\n"
                      " -j         read json data\n"
                      " -c         read csv data\n"
-                     " -q         read http query string\n"
+                     " -q         read url query string\n"
                      " -s         read settings data\n"
                      "\n"
                      "Options for output format:\n"
