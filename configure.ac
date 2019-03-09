@@ -278,6 +278,7 @@ AC_CONFIG_FILES([
   include/Makefile
   tools/Makefile
   demo/Makefile
+  demo/async/Makefile
   demo/ssl/Makefile
   test/Makefile
   ])
