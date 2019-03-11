@@ -59,6 +59,9 @@ namespace cxxtools
   template <typename outputIterator, typename characterType>
   void split(characterType ch, const std::basic_string<characterType>& line, outputIterator it)
   {
+    if (line.empty())
+      return;
+
     typename std::basic_string<characterType>::size_type b;
     typename std::basic_string<characterType>::size_type e;
 
@@ -94,6 +97,9 @@ namespace cxxtools
   template <typename outputIterator, typename characterType>
   void split(const characterType* chars, const std::basic_string<characterType>& line, outputIterator it)
   {
+    if (line.empty())
+      return;
+
     typename std::basic_string<characterType>::size_type b;
     typename std::basic_string<characterType>::size_type e;
 
@@ -129,6 +135,9 @@ namespace cxxtools
   template <typename outputIterator, typename characterType>
   void split(const std::basic_string<characterType>& chars, const std::basic_string<characterType>& line, outputIterator it)
   {
+    if (line.empty())
+      return;
+
     typename std::basic_string<characterType>::size_type e;
     typename std::basic_string<characterType>::size_type b;
 
@@ -161,6 +170,9 @@ namespace cxxtools
   template <typename outputIterator>
   void split(const Regex& re, const std::string& line, outputIterator it)
   {
+    if (line.empty())
+      return;
+
     RegexSMatch sm;
     typename std::string::size_type b;
 

@@ -61,8 +61,7 @@ class SplitTest : public cxxtools::unit::TestSuite
       std::vector<std::string> d;
       std::string t;
       cxxtools::split(':', t, std::back_inserter(d));
-      CXXTOOLS_UNIT_ASSERT_EQUALS(d.size(), 1);
-      CXXTOOLS_UNIT_ASSERT_EQUALS(d[0], "");
+      CXXTOOLS_UNIT_ASSERT_EQUALS(d.size(), 0);
     }
 
     void lastEmpty()
@@ -103,8 +102,7 @@ class SplitTest : public cxxtools::unit::TestSuite
       std::vector<std::string> d;
       std::string t;
       cxxtools::split(cxxtools::Regex("[:)]"), t, std::back_inserter(d));
-      CXXTOOLS_UNIT_ASSERT_EQUALS(d.size(), 1);
-      CXXTOOLS_UNIT_ASSERT_EQUALS(d[0], "");
+      CXXTOOLS_UNIT_ASSERT_EQUALS(d.size(), 0);
     }
 
 };
