@@ -33,33 +33,66 @@
 
 namespace cxxtools
 {
-  template <typename StringType>
-  StringType ltrim(const StringType& s, const StringType& ws = StringType(" \t\r\n"))
-  {
-    typename StringType::size_type p = s.find_first_not_of(ws);
-    return p == StringType::npos ? StringType() : s.substr(p);
-  }
+    /// Removes white space from left of a string. Returns the modified string.
+    template <typename StringType>
+    StringType ltrim(const StringType& s, const StringType& ws = StringType(" \t\r\n"))
+    {
+        typename StringType::size_type p = s.find_first_not_of(ws);
+        return p == StringType::npos ? StringType() : s.substr(p);
+    }
 
-  template <typename StringType>
-  StringType rtrim(const StringType& s, const StringType& ws = StringType(" \t\r\n"))
-  {
-    typename StringType::size_type p = s.find_last_not_of(ws);
-    return p == StringType::npos ? StringType() : s.substr(0, p + 1);
-  }
+    /// Removes white space from right of a string. Returns the modified string.
+    template <typename StringType>
+    StringType rtrim(const StringType& s, const StringType& ws = StringType(" \t\r\n"))
+    {
+        typename StringType::size_type p = s.find_last_not_of(ws);
+        return p == StringType::npos ? StringType() : s.substr(0, p + 1);
+    }
 
-  template <typename StringType>
-  StringType trim(const StringType& s, const StringType& ws = StringType(" \t\r\n"))
-  {
-    typename StringType::size_type pl = s.find_first_not_of(ws);
+    /// Removes white space from left and right of a string. Returns the modified string.
+    template <typename StringType>
+    StringType trim(const StringType& s, const StringType& ws = StringType(" \t\r\n"))
+    {
+        typename StringType::size_type pl = s.find_first_not_of(ws);
 
-    if (pl == StringType::npos)
-      return StringType();
+        if (pl == StringType::npos)
+          return StringType();
 
-    typename StringType::size_type pr = s.find_last_not_of(ws);
+        typename StringType::size_type pr = s.find_last_not_of(ws);
 
-    return s.substr(pl, pr - pl + 1);
-  }
+        return s.substr(pl, pr - pl + 1);
+    }
 
+    /// Removes white space from left of a string. Returns the modified string.
+    /// The passed string is modified.
+    template <typename StringType>
+    StringType& ltrimi(StringType& s, const StringType& ws = StringType(" \t\r\n"))
+    {
+        typename StringType::size_type p = s.find_first_not_of(ws);
+        s.erase(0, p);
+        return s;
+    }
+
+    /// Removes white space from right of a string. Returns the modified string.
+    /// The passed string is modified.
+    template <typename StringType>
+    StringType& rtrimi(StringType& s, const StringType& ws = StringType(" \t\r\n"))
+    {
+        typename StringType::size_type p = s.find_last_not_of(ws);
+        if (p == StringType::npos)
+            s.clear();
+        else
+            s.erase(p + 1);
+        return s;
+    }
+
+    /// Removes white space from left and right of a string. Returns the modified string.
+    /// The passed string is modified.
+    template <typename StringType>
+    StringType& trimi(StringType& s, const StringType& ws = StringType(" \t\r\n"))
+    {
+        return ltrimi(rtrimi(s, ws), ws);
+    }
 }
 
 #endif // CXXTOOLS_TRIM_H
