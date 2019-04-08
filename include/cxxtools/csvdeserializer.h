@@ -59,7 +59,7 @@ namespace cxxtools
 
             void begin();
 
-            void advance(char ch)
+            void advance(Char ch)
             { _parser.advance(ch); }
 
             void finish()

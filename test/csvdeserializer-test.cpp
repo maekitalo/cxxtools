@@ -30,7 +30,6 @@
 #include "cxxtools/unit/registertest.h"
 #include "cxxtools/csvdeserializer.h"
 #include "cxxtools/csv.h"
-#include "cxxtools/csv.h"
 #include "cxxtools/log.h"
 
 //log_define("cxxtools.test.csvdeserializer")
@@ -73,6 +72,7 @@ class CsvDeserializerTest : public cxxtools::unit::TestSuite
             registerMethod("testDoubleQuoteData", *this, &CsvDeserializerTest::testDoubleQuoteData);
             registerMethod("testFailDecoding", *this, &CsvDeserializerTest::testFailDecoding);
             registerMethod("testLinefeed", *this, &CsvDeserializerTest::testLinefeed);
+            registerMethod("testUnicode", *this, &CsvDeserializerTest::testUnicode);
         }
 
         void testVectorVector()
@@ -375,6 +375,23 @@ class CsvDeserializerTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[1][1], "blub");
         }
 
+        void testUnicode()
+        {
+            std::vector<std::vector<cxxtools::String> > data;
+
+            std::istringstream in(
+                "a;b\n"
+                "M\xc3\xa4kitalo;42\n");
+
+            cxxtools::CsvDeserializer deserializer;
+            deserializer.read(in);
+            deserializer.deserialize(data);
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 1);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0].size(), 2);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0][0], L"M\xe4kitalo");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0][1], L"42");
+        }
 };
 
 cxxtools::unit::RegisterTest<CsvDeserializerTest> register_CsvDeserializerTest;
