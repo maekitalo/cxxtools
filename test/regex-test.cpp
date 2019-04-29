@@ -40,6 +40,7 @@ class RegexTest : public cxxtools::unit::TestSuite
             registerMethod("testSubexpression", *this, &RegexTest::testSubexpression);
             registerMethod("testEmptyRegex", *this, &RegexTest::testEmptyRegex);
             registerMethod("testFormat", *this, &RegexTest::testFormat);
+            registerMethod("testFormatBrace", *this, &RegexTest::testFormatBrace);
             registerMethod("testSubst", *this, &RegexTest::testSubst);
         }
 
@@ -82,6 +83,18 @@ class RegexTest : public cxxtools::unit::TestSuite
             std::string b = m.format("blah=<$1>"); // => ,
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(b, "blah=<,>");
+        }
+
+        void testFormatBrace()
+        {
+            cxxtools::Regex r("[ \t]*([,;])[ \t]*");
+            std::string a = "a , b ; c";
+
+            cxxtools::RegexSMatch m;
+            r.match(a, m);
+            std::string b = m.format("blah=<${1}1>"); // => ,
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(b, "blah=<,1>");
         }
 
         void testSubst()

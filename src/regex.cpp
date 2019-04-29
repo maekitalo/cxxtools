@@ -61,6 +61,8 @@ namespace cxxtools
       state_esc,
       state_var0,
       state_var1,
+      state_brace,
+      state_brace_end,
       state_1
     } state;
 
@@ -95,8 +97,31 @@ namespace cxxtools
               ret.append(str, b, e-b);
             state = state_1;
           }
+          else if (ch == '{')
+            state = state_brace;
           else
             state = state_0;
+          break;
+
+        case state_brace:
+          if (std::isdigit(ch))
+          {
+            ret = std::string(s.begin(), it - 2);
+            regoff_t b = matchbuf[ch - '0'].rm_so;
+            regoff_t e = matchbuf[ch - '0'].rm_eo;
+            if (b >= 0 && e >= 0)
+              ret.append(str, b, e-b);
+            state = state_brace_end;
+          }
+          else
+            throw std::runtime_error("invalid replace string <" + s + '>');
+          break;
+
+        case state_brace_end:
+          if (ch == '}')
+            state = state_1;
+          else
+            throw std::runtime_error("invalid replace string <" + s + '>');
           break;
 
         case state_1:
