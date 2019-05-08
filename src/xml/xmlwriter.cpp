@@ -64,9 +64,11 @@ void XmlWriter::begin(std::ostream& os)
 {
     _tos.attach(os);
     if (useXmlDeclaration())
+    {
         _tos << xmlPrefix;
-    if (useEndl())
-        endl();
+        if (useEndl())
+            endl();
+    }
 }
 
 
