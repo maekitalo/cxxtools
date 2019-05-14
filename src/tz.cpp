@@ -206,7 +206,7 @@ Tz::Impl::Impl(std::istream& in, const std::string& name)
 
     check(in);
     if (memcmp(magic, "TZif", 4) != 0)
-        throw std::runtime_error("invalid timezone file: bad magic");
+        throw TzInvalidTimeZoneFile("invalid timezone file: bad magic");
 
     in.get(head.version);
     log_debug_if(head.version, "version: " << head.version);
@@ -367,6 +367,9 @@ static std::string timeT2s(time_t t)
 UtcDateTime Tz::toUtc(const LocalDateTime& dt) const
 {
     log_debug("toUtc(" << dt.toString() << ')');
+
+    if (_impl->transitions.empty())
+        return UtcDateTime(dt);
 
     time_t t = static_cast<time_t>(dt.msecsSinceEpoch().totalSeconds());
     unsigned i;
