@@ -408,6 +408,9 @@ UtcDateTime Tz::toUtc(const LocalDateTime& dt, bool early) const
 {
     log_debug("toUtc(" << dt.toString() << ", " << early << ')');
 
+    if (_impl->transitions.empty())
+        return UtcDateTime(dt);
+
     time_t t = static_cast<time_t>(dt.msecsSinceEpoch().totalSeconds());
     unsigned i;
     for (i = 0; i < _impl->transitions.size() - 1; ++i)
@@ -453,13 +456,16 @@ UtcDateTime Tz::previousChange(const cxxtools::DateTime& dt, bool local) const
 {
     log_debug("previousChange(" << dt.toString() << ')');
 
-    time_t t = static_cast<time_t>(dt.msecsSinceEpoch().totalSeconds());
-    for (unsigned i = 0; i < _impl->transitions.size() - 1; ++i)
+    if (!_impl->transitions.empty())
     {
-        if (_impl->transitions[i + 1].transitionTime > t)
+        time_t t = static_cast<time_t>(dt.msecsSinceEpoch().totalSeconds());
+        for (unsigned i = 0; i < _impl->transitions.size() - 1; ++i)
         {
-            int32_t gmtoff = local ? _impl->ttInfos[_impl->transitions[i].ttIndex].gmtoff : 0;
-            return UtcDateTime(cxxtools::DateTime::fromMSecsSinceEpoch(cxxtools::Seconds(_impl->transitions[i].transitionTime + gmtoff)));
+            if (_impl->transitions[i + 1].transitionTime > t)
+            {
+                int32_t gmtoff = local ? _impl->ttInfos[_impl->transitions[i].ttIndex].gmtoff : 0;
+                return UtcDateTime(cxxtools::DateTime::fromMSecsSinceEpoch(cxxtools::Seconds(_impl->transitions[i].transitionTime + gmtoff)));
+            }
         }
     }
 
@@ -470,13 +476,16 @@ UtcDateTime Tz::nextChange(const cxxtools::DateTime& dt, bool local) const
 {
     log_debug("nextChange(" << dt.toString() << ')');
 
-    time_t t = static_cast<time_t>(dt.msecsSinceEpoch().totalSeconds());
-    for (unsigned i = 0; i < _impl->transitions.size() - 1; ++i)
+    if (!_impl->transitions.empty())
     {
-        if (_impl->transitions[i + 1].transitionTime > t)
+        time_t t = static_cast<time_t>(dt.msecsSinceEpoch().totalSeconds());
+        for (unsigned i = 0; i < _impl->transitions.size() - 1; ++i)
         {
-            int32_t gmtoff = local ? _impl->ttInfos[_impl->transitions[i].ttIndex].gmtoff : 0;
-            return UtcDateTime(cxxtools::DateTime::fromMSecsSinceEpoch(cxxtools::Seconds(_impl->transitions[i + 1].transitionTime + gmtoff)));
+            if (_impl->transitions[i + 1].transitionTime > t)
+            {
+                int32_t gmtoff = local ? _impl->ttInfos[_impl->transitions[i].ttIndex].gmtoff : 0;
+                return UtcDateTime(cxxtools::DateTime::fromMSecsSinceEpoch(cxxtools::Seconds(_impl->transitions[i + 1].transitionTime + gmtoff)));
+            }
         }
     }
 
