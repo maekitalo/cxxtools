@@ -43,8 +43,10 @@ libcxxtools_la_SOURCES = \
 	fileinfo.cpp \
 	formatter.cpp \
 	hdstream.cpp \
+	inideserializer.cpp \
 	inifile.cpp \
 	iniparser.cpp \
+	iniserializer.cpp \
 	iodevice.cpp \
 	iodeviceimpl.cpp \
 	ioerror.cpp \

@@ -54,24 +54,24 @@ class IniFileTest : public cxxtools::unit::TestSuite
                 );
             cxxtools::IniFile inifile(in);
 
-            CXXTOOLS_UNIT_ASSERT(inifile.exists("s1"));
-            CXXTOOLS_UNIT_ASSERT(!inifile.exists("s3"));
+            CXXTOOLS_UNIT_ASSERT(inifile.exists(L"s1"));
+            CXXTOOLS_UNIT_ASSERT(!inifile.exists(L"s3"));
 
-            CXXTOOLS_UNIT_ASSERT(inifile.exists("s1", "k1"));
-            CXXTOOLS_UNIT_ASSERT(!inifile.exists("s1", "k3"));
+            CXXTOOLS_UNIT_ASSERT(inifile.exists(L"s1", L"k1"));
+            CXXTOOLS_UNIT_ASSERT(!inifile.exists(L"s1", L"k3"));
 
-            CXXTOOLS_UNIT_ASSERT_EQUALS(inifile.getValue("s1", "k1"), "v1");
-            CXXTOOLS_UNIT_ASSERT_EQUALS(inifile.getValueT("s1", "k1", 42), 42);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(inifile.getValueT("s2", "k1", 42), 17);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(inifile.getValueT("s2", "k2", 42.25), 1.5);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(inifile.getValueT("s2", "k3", 42.25), 42.25);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(inifile.getValue(L"s1", L"k1"), L"v1");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(inifile.getValueT(L"s1", L"k1", 42), 42);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(inifile.getValueT(L"s2", L"k1", 42), 17);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(inifile.getValueT(L"s2", L"k2", 42.25), 1.5);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(inifile.getValueT(L"s2", L"k3", 42.25), 42.25);
         }
 
         void testWriteIniFile()
         {
             cxxtools::IniFile src;
-            src.setValue("s1", "k1", "v1");
-            src.setValueT("s2", "k1", 17);
+            src.setValue(L"s1", L"k1", L"v1");
+            src.setValueT(L"s2", L"k1", 17);
 
             std::stringstream st;
             st << src;
@@ -79,8 +79,8 @@ class IniFileTest : public cxxtools::unit::TestSuite
             cxxtools::IniFile inifile;
             st >> inifile;
 
-            CXXTOOLS_UNIT_ASSERT_EQUALS(inifile.getValue("s1", "k1"), "v1");
-            CXXTOOLS_UNIT_ASSERT_EQUALS(inifile.getValueT("s2", "k1", 42), 17);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(inifile.getValue(L"s1", L"k1"), L"v1");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(inifile.getValueT(L"s2", L"k1", 42), 17);
         }
 
 };

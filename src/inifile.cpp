@@ -36,82 +36,82 @@ log_define("cxxtools.inifile")
 
 namespace cxxtools
 {
-  namespace
-  {
+namespace
+{
     class IniFileEvent : public IniParser::Event
     {
-        IniFile& iniFile;
+            IniFile& iniFile;
 
-        std::string section;
-        std::string key;
+            String section;
+            String key;
 
-      public:
-        IniFileEvent(IniFile& iniFile_)
-          : iniFile(iniFile_)
-          { }
+        public:
+            IniFileEvent(IniFile& iniFile_)
+                : iniFile(iniFile_)
+                { }
 
-        bool onSection(const std::string& section);
-        bool onKey(const std::string& key);
-        bool onValue(const std::string& value);
+            bool onSection(const String& section);
+            bool onKey(const String& key);
+            bool onValue(const String& value);
     };
 
-      bool IniFileEvent::onSection(const std::string& section_)
-      {
+    bool IniFileEvent::onSection(const String& section_)
+    {
         log_debug("section \"" << section_ << '"');
         section = section_;
         return false;
-      }
+    }
 
-      bool IniFileEvent::onKey(const std::string& key_)
-      {
+    bool IniFileEvent::onKey(const String& key_)
+    {
         log_debug("key \"" << key_ << '"');
         key = key_;
         return false;
-      }
+    }
 
-      bool IniFileEvent::onValue(const std::string& value)
-      {
+    bool IniFileEvent::onValue(const String& value)
+    {
         log_debug("value(" << section << ", " << key << ")=" << value);
         iniFile.setValue(section, key, value);
         return false;
-      }
+    }
 
-  }
+}
 
-  IniFile::IniFile(const std::string& filename)
-  {
+IniFile::IniFile(const std::string& filename)
+{
     log_debug("read ini-file \"" << filename << '"');
     std::ifstream in(filename.c_str());
     if (!in)
-      throw std::runtime_error("could not open file \"" + filename + '"');
+        throw std::runtime_error("could not open file \"" + filename + '"');
     IniFileEvent ev(*this);
     IniParser(ev).parse(in);
-  }
+}
 
-  IniFile::IniFile(std::istream& in)
-  {
+IniFile::IniFile(std::istream& in, TextCodec<Char, char>* codec)
+{
     IniFileEvent ev(*this);
     IniParser(ev).parse(in);
-  }
+}
 
-  std::istream& operator >> (std::istream& in, IniFile& ini)
-  {
+std::istream& operator >> (std::istream& in, IniFile& ini)
+{
     ini.data.clear();
     IniFileEvent ev(ini);
     IniParser(ev).parse(in);
     return in;
-  }
+}
 
-  std::ostream& operator << (std::ostream& out, const IniFile& ini)
-  {
+std::ostream& operator << (std::ostream& out, const IniFile& ini)
+{
     for (IniFile::MapType::const_iterator si = ini.data.begin();
-         si != ini.data.end(); ++si)
+             si != ini.data.end(); ++si)
     {
-      out << '[' << si->first << "]\n";
-      for (IniFile::MapType::mapped_type::const_iterator it = si->second.begin();
-           it != si->second.end(); ++it)
-        out << it->first << '=' << it->second << '\n';
+        out << '[' << si->first << "]\n";
+        for (IniFile::MapType::mapped_type::const_iterator it = si->second.begin();
+                 it != si->second.end(); ++it)
+            out << it->first << '=' << it->second << '\n';
     }
     return out;
-  }
+}
 }

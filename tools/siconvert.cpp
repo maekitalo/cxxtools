@@ -32,6 +32,7 @@
 #include <cxxtools/csv.h>
 #include <cxxtools/properties.h>
 #include <cxxtools/json.h>
+#include <cxxtools/ini.h>
 #include <cxxtools/query_params.h>
 #include <cxxtools/settings.h>
 #include <cxxtools/textstream.h>
@@ -50,6 +51,7 @@ class Siconvert
         bool inputBin;
         bool inputXml;
         bool inputJson;
+        bool inputIni;
         bool inputCsv;
         bool inputQparams;
         bool inputSettings;
@@ -58,6 +60,7 @@ class Siconvert
         bool outputXml;
         bool outputXmlCompact;
         bool outputJson;
+        bool outputIni;
         bool outputCsv;
         bool outputProperties;
 
@@ -79,6 +82,7 @@ Siconvert::Siconvert(int& argc, char* argv[])
     : inputBin(cxxtools::Arg<bool>(argc, argv, 'b')),
       inputXml(cxxtools::Arg<bool>(argc, argv, 'x')),
       inputJson(cxxtools::Arg<bool>(argc, argv, 'j')),
+      inputIni(cxxtools::Arg<bool>(argc, argv, 'i')),
       inputCsv(cxxtools::Arg<bool>(argc, argv, 'c')),
       inputQparams(cxxtools::Arg<bool>(argc, argv, 'q')),
       inputSettings(cxxtools::Arg<bool>(argc, argv, 's')),
@@ -87,6 +91,7 @@ Siconvert::Siconvert(int& argc, char* argv[])
       outputXml(cxxtools::Arg<bool>(argc, argv, 'X')),
       outputXmlCompact(cxxtools::Arg<bool>(argc, argv, 'Y')),
       outputJson(cxxtools::Arg<bool>(argc, argv, 'J')),
+      outputIni(cxxtools::Arg<bool>(argc, argv, 'I')),
       outputCsv(cxxtools::Arg<bool>(argc, argv, 'C')),
       outputProperties(cxxtools::Arg<bool>(argc, argv, 'P')),
 
@@ -104,6 +109,8 @@ Siconvert::Siconvert(int& argc, char* argv[])
     if (inputXml)
         ++c;
     if (inputJson)
+        ++c;
+    if (inputIni)
         ++c;
     if (inputCsv)
         ++c;
@@ -126,6 +133,8 @@ Siconvert::Siconvert(int& argc, char* argv[])
     if (outputXmlCompact)
         ++c;
     if (outputJson)
+        ++c;
+    if (outputIni)
         ++c;
     if (outputCsv)
         ++c;
@@ -150,6 +159,8 @@ void Siconvert::convert(std::istream& in, std::ostream& out)
         in >> cxxtools::xml::Xml(si);
     else if (inputJson)
         in >> cxxtools::Json(si);
+    else if (inputIni)
+        in >> cxxtools::Ini(si);
     else if (inputCsv)
         in >> cxxtools::Csv(si);
     else if (inputQparams)
@@ -176,6 +187,8 @@ void Siconvert::convert(std::istream& in, std::ostream& out)
             out << cxxtools::xml::Xml(si, "root").beautify(beautify).useAttributes(false);
         else if (outputJson)
             out << cxxtools::Json(si).beautify(beautify);
+        else if (outputIni)
+            out << cxxtools::Ini(si);
         else if (outputCsv)
             out << cxxtools::Csv(si);
         else if (outputProperties)
@@ -244,6 +257,7 @@ int main(int argc, char* argv[])
                      " -b         read binary data\n"
                      " -x         read xml data\n"
                      " -j         read json data\n"
+                     " -i         read ini data\n"
                      " -c         read csv data\n"
                      " -q         read url query string\n"
                      " -s         read settings data\n"
@@ -253,6 +267,7 @@ int main(int argc, char* argv[])
                      " -X         output xml data\n"
                      " -Y         output xml data without attributes\n"
                      " -J         output json data\n"
+                     " -I         output ini data\n"
                      " -C         output csv data\n"
                      " -P         output properties data\n"
                      " -N         output number of objects\n"

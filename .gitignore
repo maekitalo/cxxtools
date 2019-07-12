@@ -38,6 +38,7 @@ cxxtools-config
 
 **/demo/arg_set
 **/demo/arg
+**/demo/async/server
 **/demo/cgi
 **/demo/cxxlog
 **/demo/deserialization
@@ -76,7 +77,6 @@ cxxtools-config
 **/demo/rpcserver
 **/demo/saml2
 **/demo/serialization
-**/demo/siconvert
 **/demo/signals
 **/demo/splitter
 **/demo/sslshowcert
@@ -96,6 +96,7 @@ cxxtools-config
 **/demo/ssl/rpcserver
 **/demo/ssl/rpcxecho
 **/demo/ssl/rpcxserver
+**/tools/siconvert
 
 *.l[ao]
 *.o

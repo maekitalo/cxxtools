@@ -68,8 +68,11 @@ nobase_include_HEADERS = \
         cxxtools/http/server.h \
         cxxtools/http/service.h \
         cxxtools/http/responder.h \
+        cxxtools/inideserializer.h \
+        cxxtools/ini.h \
         cxxtools/inifile.h \
         cxxtools/iniparser.h \
+        cxxtools/iniserializer.h \
         cxxtools/invokable.h \
         cxxtools/invokable.tpp \
         cxxtools/ioerror.h \

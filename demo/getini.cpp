@@ -62,7 +62,7 @@ int main(int argc, char* argv[])
       // list sections
       if (!quiet)
         std::cout << "sections in " << fname << ": ";
-      ini.getSections(std::ostream_iterator<std::string>(std::cout, "\t"));
+      ini.getSections(std::ostream_iterator<cxxtools::String>(std::cout, "\t"));
       std::cout << std::endl;
       return 0;
     }
@@ -73,7 +73,7 @@ int main(int argc, char* argv[])
       // list keys
       if (!quiet)
         std::cout << "keys in " << fname << " [" << section << "]: ";
-      ini.getKeys(section, std::ostream_iterator<std::string>(std::cout, "\t"));
+      ini.getKeys(cxxtools::String(section), std::ostream_iterator<cxxtools::String>(std::cout, "\t"));
       std::cout << std::endl;
       return 0;
     }
@@ -82,7 +82,7 @@ int main(int argc, char* argv[])
     const char* defvalue = argv[4] ? argv[4] : "";
     if (!quiet)
       std::cout << "value of " << fname << " [" << section << "]." << key << ": ";
-    std::cout << ini.getValue(section, key, defvalue) << std::endl;
+    std::cout << ini.getValue(cxxtools::String(section), cxxtools::String(key), cxxtools::String(defvalue)) << std::endl;
   }
   catch (const std::exception& e)
   {

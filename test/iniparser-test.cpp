@@ -35,55 +35,55 @@ namespace
 {
     class E : public cxxtools::IniParser::Event
     {
-        std::string _result;
+        cxxtools::String _result;
 
     public:
-        const std::string& result() const  { return _result; }
+        const cxxtools::String& result() const  { return _result; }
         void clear()
         { _result.clear(); }
 
-        virtual bool onSection(const std::string& section);
-        virtual bool onKey(const std::string& key);
-        virtual bool onValue(const std::string& value);
-        virtual bool onComment(const std::string& comment);
+        virtual bool onSection(const cxxtools::String& section);
+        virtual bool onKey(const cxxtools::String& key);
+        virtual bool onValue(const cxxtools::String& value);
+        virtual bool onComment(const cxxtools::String& comment);
         virtual bool onError();
     };
 
-    bool E::onSection(const std::string& section)
+    bool E::onSection(const cxxtools::String& section)
     {
-        _result += "S(";
+        _result += L"S(";
         _result += section;
-        _result += ')';
+        _result += L')';
         return false;
     }
 
-    bool E::onKey(const std::string& key)
+    bool E::onKey(const cxxtools::String& key)
     {
-        _result += "K(";
+        _result += L"K(";
         _result += key;
-        _result += ')';
+        _result += L')';
         return false;
     }
 
-    bool E::onValue(const std::string& value)
+    bool E::onValue(const cxxtools::String& value)
     {
-        _result += "V(";
+        _result += L"V(";
         _result += value;
-        _result += ')';
+        _result += L')';
         return false;
     }
 
-    bool E::onComment(const std::string& comment)
+    bool E::onComment(const cxxtools::String& comment)
     {
-        _result += "C(";
+        _result += L"C(";
         _result += comment;
-        _result += ')';
+        _result += L')';
         return false;
     }
 
     bool E::onError()
     {
-        _result += "E";
+        _result += L"E";
         return false;
     }
 
@@ -98,17 +98,22 @@ class IniParserTest : public cxxtools::unit::TestSuite
         {
             registerMethod("testIniParser", *this, &IniParserTest::testIniParser);
             registerMethod("testEmptyValue", *this, &IniParserTest::testEmptyValue);
+            registerMethod("testSingleQuotedValue", *this, &IniParserTest::testSingleQuotedValue);
+            registerMethod("testDoubleQuotedValue", *this, &IniParserTest::testDoubleQuotedValue);
+            registerMethod("testEscapedValue", *this, &IniParserTest::testEscapedValue);
         }
 
         void testIniParser()
         {
             std::istringstream inifile(
                 "[s1]\n"
-                "k1=v1\n");
+                "k1=v1 \n"
+                "k2= v2\n"
+                "k3=v3");
             E e;
             cxxtools::IniParser p(e);
             p.parse(inifile);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(e.result(), "S(s1)K(k1)V(v1)");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(e.result(), "S(s1)K(k1)V(v1)K(k2)V(v2)K(k3)V(v3)");
         }
 
         void testEmptyValue()
@@ -123,6 +128,41 @@ class IniParserTest : public cxxtools::unit::TestSuite
             cxxtools::IniParser p(e);
             p.parse(inifile);
             CXXTOOLS_UNIT_ASSERT_EQUALS(e.result(), "S(s1)K(k1)V()S(s2)K(k2)V()");
+        }
+
+        void testSingleQuotedValue()
+        {
+            std::istringstream inifile(
+                "[s1]\n"
+                "k1= ' v1 ' \n");
+            E e;
+            cxxtools::IniParser p(e);
+            p.parse(inifile);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(e.result(), "S(s1)K(k1)V( v1 )");
+        }
+
+        void testDoubleQuotedValue()
+        {
+            std::istringstream inifile(
+                "[s1]\n"
+                "k1= \" v1 \"");
+            E e;
+            cxxtools::IniParser p(e);
+            p.parse(inifile);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(e.result(), "S(s1)K(k1)V( v1 )");
+        }
+
+        void testEscapedValue()
+        {
+            std::istringstream inifile(
+                "[s1]\n"
+                "k1=\" \\r\\t\\n\\\"\\' \"\n"
+                "k2=' \\r\\t\\n\\\"\\' '\n" 
+                "k3= v\\t\\\"\\' \n");
+            E e;
+            cxxtools::IniParser p(e);
+            p.parse(inifile);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(e.result(), "S(s1)K(k1)V( \r\t\n\"' )K(k2)V( \r\t\n\"' )K(k3)V(v\t\"')");
         }
 
 };

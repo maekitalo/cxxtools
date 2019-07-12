@@ -18,67 +18,75 @@
  * 
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.    See the GNU
  * Lesser General Public License for more details.
  * 
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA    02110-1301    USA
  */
 
 #ifndef CXXTOOLS_INIPARSER_H
 #define CXXTOOLS_INIPARSER_H
 
-#include <iosfwd>
-#include <string>
+#include <cxxtools/string.h>
+#include <cxxtools/textstream.h>
+#include <cxxtools/utf8codec.h>
 
 namespace cxxtools
 {
-  /**
-   * Parser for files in ini-format
-   */
-  class IniParser
-  {
-    public:
-      class Event
-      {
-        protected:
-          virtual ~Event()  { }
+    /**
+     * Parser for files in ini-format
+     */
+    class IniParser
+    {
+        public:
+            class Event
+            {
+                protected:
+                    virtual ~Event()    { }
+
+                public:
+                    // events return true, if parsing should be stopped
+                    virtual bool onSection(const String& section);
+                    virtual bool onKey(const String& key);
+                    virtual bool onValue(const String& value);
+                    virtual bool onComment(const String& comment);
+                    virtual bool onError();
+            };
+
+        private:
+            Event& event;
+            String data;
+            enum
+            {
+                state_0,
+                state_section,
+                state_key,
+                state_key_sp,
+                state_value0,
+                state_value,
+                state_valueesc,
+                state_valuesq,     // single quote
+                state_valuesqesc,
+                state_valuedq,    // double quote
+                state_valuedqesc,
+                state_valueqend,
+                state_comment
+
+            } state;
 
         public:
-          // events return true, if parsing should be stopped
-          virtual bool onSection(const std::string& section);
-          virtual bool onKey(const std::string& key);
-          virtual bool onValue(const std::string& key);
-          virtual bool onComment(const std::string& comment);
-          virtual bool onError();
-      };
+            IniParser(Event& event_)
+                : event(event_),
+                    state(state_0)
+                { }
 
-    private:
-      Event& event;
-      std::string data;
-      enum
-      {
-        state_0,
-        state_section,
-        state_key,
-        state_key_sp,
-        state_value0,
-        state_value,
-        state_comment
-
-      } state;
-
-    public:
-      IniParser(Event& event_)
-        : event(event_),
-          state(state_0)
-        { }
-
-      bool parse(char ch);
-      void end();
-      void parse(std::istream& in);
-  };
+            bool parse(Char ch);
+            void end();
+            void parse(std::istream& in, TextCodec<Char, char>* codec = new Utf8Codec());
+            void parse(std::basic_istream<Char>& in);
+    };
 }
 
 #endif
