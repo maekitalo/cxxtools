@@ -55,7 +55,8 @@ namespace
     {
     public:
         explicit Ev(SerializationInfo& si)
-            : _si(si)
+            : _si(si),
+              _section(&_si)
             { }
 
     private:
