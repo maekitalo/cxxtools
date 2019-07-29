@@ -68,15 +68,13 @@ static void stringOut(TextOStream& _os, const cxxtools::String& str)
 
 IniSerializer& IniSerializer::serialize(const SerializationInfo& si)
 {
-    // TODO escaping
-    for (SerializationInfo::const_iterator section = si.begin(); section != si.end(); ++section)
+    for (SerializationInfo::const_iterator it = si.begin(); it != si.end(); ++it)
     {
-        _os << L'[' << String(section->name()) << L"]\n";
-        for (SerializationInfo::const_iterator value = section->begin(); value != section->end(); ++value)
+        if (it->category() == SerializationInfo::Value)
         {
             cxxtools::String v;
-            value->getValue(v);
-            _os << String(value->name()) << L'=';
+            it->getValue(v);
+            _os << String(it->name()) << L'=';
             if (isplain(v))
                 _os << v << L'\n';
             else
@@ -84,6 +82,28 @@ IniSerializer& IniSerializer::serialize(const SerializationInfo& si)
                 _os << '"';
                 stringOut(_os, v);
                 _os << "\"\n";
+            }
+        }
+    }
+
+    for (SerializationInfo::const_iterator it = si.begin(); it != si.end(); ++it)
+    {
+        if (it->category() != SerializationInfo::Value)
+        {
+            _os << L'[' << String(it->name()) << L"]\n";
+            for (SerializationInfo::const_iterator value = it->begin(); value != it->end(); ++value)
+            {
+                cxxtools::String v;
+                value->getValue(v);
+                _os << String(value->name()) << L'=';
+                if (isplain(v))
+                    _os << v << L'\n';
+                else
+                {
+                    _os << '"';
+                    stringOut(_os, v);
+                    _os << "\"\n";
+                }
             }
         }
     }

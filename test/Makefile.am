@@ -28,6 +28,7 @@ alltests_SOURCES = \
     file-test.cpp \
     inifile-test.cpp \
     iniparser-test.cpp \
+    iniserialization-test.cpp \
     iso8859_1-test.cpp \
     iso8859_15-test.cpp \
     join-test.cpp \
