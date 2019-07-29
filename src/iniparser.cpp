@@ -30,6 +30,7 @@
 #include <cxxtools/serializationerror.h>
 #include <cxxtools/log.h>
 #include <cxxtools/trim.h>
+#include <cxxtools/utf8codec.h>
 #include <cctype>
 #include <iostream>
 #include <stdexcept>
@@ -38,19 +39,19 @@ log_define("cxxtools.iniparser")
 
 namespace cxxtools
 {
-bool IniParser::Event::onSection(const String& /*section*/)
+bool IniParser::Event::onSection(const String& section)
 {
-    return false;
+    return onSection(Utf8Codec::encode(section));
 }
 
-bool IniParser::Event::onKey(const String& /*key*/)
+bool IniParser::Event::onKey(const String& key)
 {
-    return false;
+    return onKey(Utf8Codec::encode(key));
 }
 
-bool IniParser::Event::onValue(const String& /*value*/)
+bool IniParser::Event::onValue(const String& value)
 {
-    return false;
+    return onValue(Utf8Codec::encode(value));
 }
 
 bool IniParser::Event::onComment(const String& /*comment*/)
@@ -62,6 +63,21 @@ bool IniParser::Event::onError()
 {
     throw std::runtime_error("parse error in ini-file");
     return true;
+}
+
+bool IniParser::Event::onKey(const std::string& key)
+{
+    return false;
+}
+
+bool IniParser::Event::onSection(const std::string& section)
+{
+    return false;
+}
+
+bool IniParser::Event::onValue(const std::string& value)
+{
+    return false;
 }
 
 void IniParser::parse(std::istream& in, TextCodec<Char, char>* codec)

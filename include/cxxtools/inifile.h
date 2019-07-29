@@ -29,11 +29,12 @@
 #ifndef CXXTOOLS_INIFILE_H
 #define CXXTOOLS_INIFILE_H
 
-#include <iostream>
-#include <string>
 #include <cxxtools/convert.h>
 #include <cxxtools/utf8codec.h>
 #include <cxxtools/textstream.h>
+
+#include <iostream>
+#include <string>
 #include <map>
 
 namespace cxxtools
@@ -45,6 +46,17 @@ namespace cxxtools
 
             typedef std::map<String, std::map<String, String> > MapType;
             MapType data;
+
+            struct S
+            {
+                const String& _s;
+                S(const String& s)
+                    : _s(s)
+                    { }
+
+                operator const String&() const   { return _s; }
+                operator std::string() const     { return Utf8Codec::encode(_s); }
+            };
 
         public:
             IniFile()    { }
@@ -66,7 +78,7 @@ namespace cxxtools
 
             /// Returns associated value from section-key-pair or default-value.
             String getValue(const String& section,
-                 const String& token, const String& def = String()) const
+                const String& token, const String& def = String()) const
             {
                 // find section
 
@@ -88,9 +100,9 @@ namespace cxxtools
             /// Get the value and convert it with istream-operator.
             /// The return-type is identified by the default-value-type.
             template <typename T>
-             T getValueT(const String& section,
-                                    const String& token,
-                                    const T& def) const
+            T getValueT(const String& section,
+                        const String& token,
+                        const T& def) const
             {
                 // find section
 
@@ -144,14 +156,14 @@ namespace cxxtools
              *    ini.getSections(std::inserter(s, s.begin());
              *
              *    // or printing the names:
-             *    ini.getSections(std::ostream_iterator(std::cout, "\n"));
+             *    ini.getSections(std::ostream_iterator<cxxtools::String>(std::cout, "\n"));
              * </code>
              */
             template <typename OutputIterator>
             void getSections(OutputIterator oi)
             {
                 for (MapType::const_iterator it = data.begin(); it != data.end(); ++it, ++oi)
-                    *oi = it->first;
+                    *oi = S(it->first);
             }
 
             /**
@@ -165,7 +177,7 @@ namespace cxxtools
              *    ini.getKeys("section2", std::inserter(s, s.begin());
              *
              *    // or printing the keys:
-             *    ini.getKeys("section2", std::ostream_iterator(std::cout, "\n"));
+             *    ini.getKeys("section2", std::ostream_iterator<cxxtools::String>(std::cout, "\n"));
              * </code>
              */
             template <typename OutputIterator>
@@ -176,8 +188,30 @@ namespace cxxtools
                 {
                     for (MapType::mapped_type::const_iterator it = si->second.begin();
                              it != si->second.end(); ++it, ++oi)
-                        *oi = it->first;
+                        *oi = S(it->first);
                 }
+            }
+
+            /// for compatibility with older implementation offer methods with utf-8 encoded strings
+            std::string getValue(const std::string& section,
+                const std::string& token, const std::string& def = std::string()) const
+            {
+                return Utf8Codec::encode(getValue(
+                    Utf8Codec::decode(section),
+                    Utf8Codec::decode(token),
+                    Utf8Codec::decode(def)));
+            }
+
+            /// for compatibility with older implementation offer methods with utf-8 encoded strings
+            template <typename T>
+            T getValueT(const std::string& section,
+                        const std::string& token,
+                        const T& def) const
+            {
+                return getValue(
+                    Utf8Codec::decode(section),
+                    Utf8Codec::decode(token),
+                    def);
             }
 
     };

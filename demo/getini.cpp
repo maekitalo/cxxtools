@@ -30,6 +30,7 @@
 #include <iostream>
 #include <fstream>
 #include <iterator>
+#include <vector>
 #include <stdexcept>
 #include <cxxtools/inifile.h>
 #include <cxxtools/log.h>
@@ -62,6 +63,15 @@ int main(int argc, char* argv[])
       // list sections
       if (!quiet)
         std::cout << "sections in " << fname << ": ";
+
+      std::vector<std::string> sections;
+      ini.getSections(std::back_inserter(sections));
+
+      std::vector<cxxtools::String> ssections;
+      ini.getSections(std::back_inserter(ssections));
+
+      ini.getSections(std::ostream_iterator<std::string>(std::cout, "\t"));
+
       ini.getSections(std::ostream_iterator<cxxtools::String>(std::cout, "\t"));
       std::cout << std::endl;
       return 0;

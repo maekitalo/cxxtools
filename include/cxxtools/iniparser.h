@@ -53,6 +53,11 @@ namespace cxxtools
                     virtual bool onValue(const String& value);
                     virtual bool onComment(const String& comment);
                     virtual bool onError();
+
+                    /// for compatibility with older implementation offer methods with utf-8 encoded strings
+                    virtual bool onSection(const std::string& section);
+                    virtual bool onKey(const std::string& key);
+                    virtual bool onValue(const std::string& value);
             };
 
         private:
