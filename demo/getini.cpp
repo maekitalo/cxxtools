@@ -64,6 +64,11 @@ int main(int argc, char* argv[])
       if (!quiet)
         std::cout << "sections in " << fname << ": ";
 
+      ini.getSections(std::ostream_iterator<cxxtools::String>(std::cout, "\t"));
+
+      /*
+       * other alternatives to get names of sections:
+
       std::vector<std::string> sections;
       ini.getSections(std::back_inserter(sections));
 
@@ -71,8 +76,8 @@ int main(int argc, char* argv[])
       ini.getSections(std::back_inserter(ssections));
 
       ini.getSections(std::ostream_iterator<std::string>(std::cout, "\t"));
+      */
 
-      ini.getSections(std::ostream_iterator<cxxtools::String>(std::cout, "\t"));
       std::cout << std::endl;
       return 0;
     }
