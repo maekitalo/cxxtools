@@ -37,6 +37,7 @@ namespace cxxtools
     class IComposer;
     class IDecomposer;
     class IRemoteProcedure;
+    class SelectorBase;
 
     /// Base class for rpc client.
     class RemoteClient
@@ -65,6 +66,9 @@ namespace cxxtools
             virtual Milliseconds connectTimeout() const = 0;
             virtual void connectTimeout(Milliseconds t) = 0;
 
+            virtual void setSelector(SelectorBase* selector) = 0;
+
+            void setSelector(SelectorBase& selector) { setSelector(&selector); }
     };
 }
 

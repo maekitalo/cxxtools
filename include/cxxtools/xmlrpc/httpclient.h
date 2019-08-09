@@ -140,7 +140,7 @@ class HttpClient : public Client
         void clearAuth();
 
         void setSelector(SelectorBase* selector);
-        void setSelector(SelectorBase& selector);
+        void setSelector(SelectorBase& selector) { setSelector(&selector); }
 
         /// @see cxxtools::net::TcpSocket::setSslVerify
         void setSslVerify(int level, const std::string& ca = std::string());

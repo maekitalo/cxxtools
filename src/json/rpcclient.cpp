@@ -141,11 +141,6 @@ void RpcClient::setSelector(SelectorBase* selector)
     getImpl()->setSelector(selector);
 }
 
-void RpcClient::setSelector(SelectorBase& selector)
-{
-    getImpl()->setSelector(&selector);
-}
-
 void RpcClient::setSslVerify(int level, const std::string& ca)
 {
     _impl->setSslVerify(level, ca);

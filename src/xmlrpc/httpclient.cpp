@@ -158,11 +158,6 @@ void HttpClient::setSelector(SelectorBase* selector)
     getImpl()->setSelector(selector);
 }
 
-void HttpClient::setSelector(SelectorBase& selector)
-{
-    getImpl()->setSelector(&selector);
-}
-
 void HttpClient::setSslVerify(int level, const std::string& ca)
 {
     getImpl()->setSslVerify(level, ca);

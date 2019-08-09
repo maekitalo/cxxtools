@@ -30,6 +30,7 @@
 
 #include <cxxtools/connection.h>
 #include <list>
+#include <unistd.h>
 
 namespace cxxtools {
 
