@@ -29,7 +29,7 @@
 #ifndef CXXTOOLS_REFCOUNTED_H
 #define CXXTOOLS_REFCOUNTED_H
 
-#include <cxxtools/atomicity.h>
+#include <atomic>
 
 namespace cxxtools
 {
@@ -55,7 +55,7 @@ namespace cxxtools
 
   class AtomicRefCounted
   {
-      mutable volatile atomic_t rc;
+      std::atomic<unsigned> rc;
 
     public:
       AtomicRefCounted()
@@ -68,9 +68,9 @@ namespace cxxtools
 
       virtual ~AtomicRefCounted()  { }
 
-      virtual atomic_t addRef()  { return atomicIncrement(rc); }
-      virtual atomic_t release() { atomic_t ret = atomicDecrement(rc); return ret; }
-      atomic_t refs() const      { return rc; }
+      virtual unsigned addRef()  { return ++rc; }
+      virtual unsigned release() { return --rc; }
+      unsigned refs() const      { return rc; }
   };
 
   typedef SimpleRefCounted RefCounted;

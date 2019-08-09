@@ -77,37 +77,39 @@ class ScopedIncrementTest : public cxxtools::unit::TestSuite
 
         void testIncrementAtomic()
         {
-          cxxtools::atomic_t value = 7;
+            typedef std::atomic<int> atomic_t;
+
+            atomic_t value(7);
 
             {
-                cxxtools::ScopedIncrement<cxxtools::atomic_t> inc(value);
-                CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::atomicGet(value), 8);
+                cxxtools::ScopedIncrement<atomic_t> inc(value);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(value, 8);
             }
-            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::atomicGet(value), 7);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(value, 7);
 
             {
-                cxxtools::ScopedIncrement<cxxtools::atomic_t> inc(value, 5);
-                CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::atomicGet(value), 12);
+                cxxtools::ScopedIncrement<atomic_t> inc(value, 5);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(value, 12);
             }
-            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::atomicGet(value), 7);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(value, 7);
 
             {
-                cxxtools::ScopedIncrement<cxxtools::atomic_t> dec(value, -9);
-                CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::atomicGet(value), -2);
+                cxxtools::ScopedIncrement<atomic_t> dec(value, -9);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(value, -2);
             }
-            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::atomicGet(value), 7);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(value, 7);
 
             try
             {
-                cxxtools::ScopedIncrement<cxxtools::atomic_t> inc(value, 2);
-                CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::atomicGet(value), 9);
+                cxxtools::ScopedIncrement<atomic_t> inc(value, 2);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(value, 9);
                 throw 1;
             }
             catch (int)
             {
             }
 
-            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::atomicGet(value), 7);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(value, 7);
         }
 
 };

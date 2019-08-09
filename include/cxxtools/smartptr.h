@@ -29,7 +29,7 @@
 #ifndef CXXTOOLS_SMARTPTR_H
 #define CXXTOOLS_SMARTPTR_H
 
-#include <cxxtools/atomicity.h>
+#include <atomic>
 
 namespace cxxtools
 {
@@ -184,7 +184,7 @@ namespace cxxtools
   template <typename ObjectType>
   class ExternalAtomicRefCounted
   {
-      volatile atomic_t* rc;
+      std::atomic<unsigned>* rc;
 
     protected:
       ExternalAtomicRefCounted()
@@ -192,7 +192,7 @@ namespace cxxtools
 
       bool unlink(ObjectType* object)
       {
-        if (object && atomicDecrement(*rc) <= 0)
+        if (object && --*rc <= 0)
         {
           delete rc;
           rc = 0;
@@ -207,11 +207,11 @@ namespace cxxtools
         if (object)
         {
           if (ptr.rc == 0)
-            rc = new atomic_t(1);
+            rc = new std::atomic<unsigned>(1);
           else
           {
             rc = ptr.rc;
-            atomicIncrement(*rc);
+            --*rc;
           }
         }
         else
@@ -219,8 +219,8 @@ namespace cxxtools
       }
 
     public:
-      atomic_t refs() const
-        { return rc ? atomicGet(*rc) : 0; }
+      unsigned refs() const
+        { return rc ? rc->load() : 0; }
   };
 
   /**

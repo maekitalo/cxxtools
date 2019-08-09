@@ -29,7 +29,7 @@
 #ifndef CXXTOOLS_SCOPEDINCREMENT_H
 #define CXXTOOLS_SCOPEDINCREMENT_H
 
-#include <cxxtools/atomicity.h>
+#include <atomic>
 
 namespace cxxtools
 {
@@ -54,34 +54,26 @@ class ScopedIncrement
 };
 
 template <>
-class ScopedIncrement<atomic_t>
+template <typename T>
+class ScopedIncrement<std::atomic<T>>
 {
-        atomic_t& _value;
-        int _count;
+        std::atomic<T>& _value;
+        T _count;
 
     public:
-        ScopedIncrement(atomic_t& value, int count = 1)
+        ScopedIncrement(std::atomic<T>& value, T count = 1)
             : _value(value),
               _count(count)
         {
-            int c = _count;
-            for (; c > 0; --c)
-                atomicIncrement(_value);
-            for (; c < 0; ++c)
-                atomicDecrement(_value);
+            _value.fetch_add(_count);
         }
 
         ~ScopedIncrement()
         {
-            int c = _count;
-            for (c = _count; c > 0; --c)
-                atomicDecrement(_value);
-            for (; c < 0; ++c)
-                atomicIncrement(_value);
+            _value.fetch_sub(_count);
         }
 };
 
 }
 
 #endif // CXXTOOLS_SCOPEDINCREMENT_H
-

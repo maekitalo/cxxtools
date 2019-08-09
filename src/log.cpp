@@ -31,7 +31,6 @@
 #include <cxxtools/smartptr.h>
 #include <cxxtools/convert.h>
 #include <cxxtools/mutex.h>
-#include <cxxtools/atomicity.h>
 #include <cxxtools/serializationinfo.h>
 #include <cxxtools/xml/xmldeserializer.h>
 #include <cxxtools/propertiesdeserializer.h>
@@ -44,6 +43,7 @@
 
 #include "dateutils.h"
 
+#include <atomic>
 #include <iterator>
 #include <vector>
 #include <map>
@@ -64,12 +64,14 @@ log_define("cxxtools.log")
 
 namespace cxxtools
 {
+  typedef std::atomic<unsigned> atomic_t;
+
   namespace
   {
     Mutex loggersMutex;
     Mutex logMutex;
     Mutex poolMutex;
-    atomic_t mutexWaitCount = 0;
+    atomic_t mutexWaitCount(0);
 
     template <typename T, unsigned MaxPoolSize = 8>
     class LPool
@@ -133,19 +135,19 @@ namespace cxxtools
           : count(count_),
             decremented(false)
         {
-          atomicIncrement(count);
+          ++count;
         }
 
         ~ScopedAtomicIncrementer()
         {
           if (!decremented)
-            atomicDecrement(count);
+            --count;
         }
 
-        atomic_t decrement()
+        unsigned decrement()
         {
           decremented = true;
-          return atomicDecrement(count);
+          return --count;
         }
     };
 

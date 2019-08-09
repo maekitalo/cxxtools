@@ -168,66 +168,6 @@ libcxxtools_la_SOURCES += \
 	iconvstream.cpp
 endif
 
-if MAKE_ATOMICITY_SUN
-libcxxtools_la_SOURCES += \
-	atomicity.sun.cpp
-endif
-
-if MAKE_ATOMICITY_WINDOWS
-libcxxtools_la_SOURCES += \
-	atomicity.windows.cpp
-endif
-
-if MAKE_ATOMICITY_GCC_ARM
-libcxxtools_la_SOURCES += \
-	atomicity.gcc.arm.cpp
-endif
-
-if MAKE_ATOMICITY_GCC_MIPS
-libcxxtools_la_SOURCES += \
-	atomicity.gcc.mips.cpp
-endif
-
-if MAKE_ATOMICITY_GCC_PPC
-libcxxtools_la_SOURCES += \
-	atomicity.gcc.ppc.cpp
-endif
-
-if MAKE_ATOMICITY_GCC_X86_64
-libcxxtools_la_SOURCES += \
-	atomicity.gcc.x86_64.cpp
-endif
-
-if MAKE_ATOMICITY_GCC_X86
-libcxxtools_la_SOURCES += \
-	atomicity.gcc.x86.cpp
-endif
-
-if MAKE_ATOMICITY_GCC_SPARC32
-libcxxtools_la_SOURCES += \
-	atomicity.gcc.sparc32.cpp
-endif
-
-if MAKE_ATOMICITY_GCC_SPARC64
-libcxxtools_la_SOURCES += \
-	atomicity.gcc.sparc64.cpp
-endif
-
-if MAKE_ATOMICITY_GCC_AVR32
-libcxxtools_la_SOURCES += \
-	atomicity.gcc.avr32.cpp
-endif
-
-if MAKE_ATOMICITY_PTHREAD
-libcxxtools_la_SOURCES += \
-	atomicity.pthread.cpp
-endif
-
-if MAKE_ATOMICITY_GENERIC
-libcxxtools_la_SOURCES += \
-	atomicity.generic.cpp
-endif
-
 libcxxtools_la_LIBADD = $(LIBICONV)
 libcxxtools_la_LDFLAGS = -version-info @sonumber@ @SHARED_LIB_FLAG@
 

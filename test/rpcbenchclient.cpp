@@ -39,7 +39,7 @@
 #include <cxxtools/clock.h>
 #include <cxxtools/timespan.h>
 #include <cxxtools/datetime.h>
-#include <cxxtools/atomicity.h>
+#include <atomic>
 
 #include "color.h"
 
@@ -55,9 +55,9 @@ class BenchClient
     static cxxtools::DateTime _until;
     static unsigned _vectorSize;
     static unsigned _objectsSize;
-    static cxxtools::atomic_t _requestsStarted;
-    static cxxtools::atomic_t _requestsFinished;
-    static cxxtools::atomic_t _requestsFailed;
+    static std::atomic<unsigned> _requestsStarted;
+    static std::atomic<unsigned> _requestsFinished;
+    static std::atomic<unsigned> _requestsFailed;
 
   public:
     explicit BenchClient(cxxtools::RemoteClient* client_)
@@ -93,13 +93,13 @@ class BenchClient
     { _objectsSize = n; }
 
     static unsigned requestsStarted()
-    { return static_cast<unsigned>(cxxtools::atomicGet(_requestsStarted)); }
+    { return _requestsStarted; }
 
     static unsigned requestsFinished()
-    { return static_cast<unsigned>(cxxtools::atomicGet(_requestsFinished)); }
+    { return _requestsFinished; }
 
     static unsigned requestsFailed()
-    { return static_cast<unsigned>(cxxtools::atomicGet(_requestsFailed)); }
+    { return _requestsFailed; }
 
     void start()
     { thread.start(); }
@@ -108,9 +108,9 @@ class BenchClient
     { thread.join(); }
 };
 
-cxxtools::atomic_t BenchClient::_requestsStarted(0);
-cxxtools::atomic_t BenchClient::_requestsFinished(0);
-cxxtools::atomic_t BenchClient::_requestsFailed(0);
+std::atomic<unsigned> BenchClient::_requestsStarted(0);
+std::atomic<unsigned> BenchClient::_requestsFinished(0);
+std::atomic<unsigned> BenchClient::_requestsFailed(0);
 unsigned BenchClient::_numRequests = 0;
 cxxtools::DateTime BenchClient::_until(2999, 12, 31, 23, 59, 59, 999);
 unsigned BenchClient::_vectorSize = 0;
@@ -125,7 +125,7 @@ void BenchClient::exec()
   cxxtools::RemoteProcedure<std::vector<int>, int, int> seq(*client, "seq");
   cxxtools::RemoteProcedure<std::vector<Color>, unsigned> objects(*client, "objects");
 
-  while (static_cast<unsigned>(cxxtools::atomicIncrement(_requestsStarted)) <= _numRequests
+  while (_requestsStarted <= _numRequests
       && cxxtools::DateTime::gmtime() < _until)
   {
     try
@@ -133,31 +133,31 @@ void BenchClient::exec()
       if (_vectorSize > 0)
       {
         std::vector<int> ret = seq(1, _vectorSize);
-        cxxtools::atomicIncrement(_requestsFinished);
+        ++_requestsFinished;
         if (ret.size() != _vectorSize)
         {
           std::cerr << "wrong response result size " << ret.size() << std::endl;
-          cxxtools::atomicIncrement(_requestsFailed);
+          ++_requestsFailed;
         }
       }
       else if (_objectsSize > 0)
       {
         std::vector<Color> ret = objects(_objectsSize);
-        cxxtools::atomicIncrement(_requestsFinished);
+        ++_requestsFinished;
         if (ret.size() != _objectsSize)
         {
           std::cerr << "wrong response result size " << ret.size() << std::endl;
-          cxxtools::atomicIncrement(_requestsFailed);
+          ++_requestsFailed;
         }
       }
       else
       {
         std::string ret = echo("hi");
-        cxxtools::atomicIncrement(_requestsFinished);
+        ++_requestsFinished;
         if (ret != "hi")
         {
           std::cerr << "wrong response result \"" << ret << '"' << std::endl;
-          cxxtools::atomicIncrement(_requestsFailed);
+          ++_requestsFailed;
         }
       }
     }
@@ -168,7 +168,7 @@ void BenchClient::exec()
         std::cerr << "request failed with error message \"" << e.what() << '"' << std::endl;
       }
 
-      cxxtools::atomicIncrement(_requestsFailed);
+      ++_requestsFailed;
     }
   }
 }

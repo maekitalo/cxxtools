@@ -42,7 +42,8 @@
 #include <cxxtools/clock.h>
 #include <cxxtools/timespan.h>
 #include <cxxtools/eventloop.h>
-#include <cxxtools/atomicity.h>
+
+#include <atomic>
 
 #include "color.h"
 
@@ -256,14 +257,14 @@ class BenchClient : public cxxtools::Connectable
     static unsigned _numRequests;
     static unsigned _vectorSize;
     static unsigned _objectsSize;
-    static cxxtools::atomic_t _requestsStarted;
-    static cxxtools::atomic_t _requestsFinished;
-    static cxxtools::atomic_t _requestsFailed;
+    static std::atomic<unsigned> _requestsStarted;
+    static std::atomic<unsigned> _requestsFinished;
+    static std::atomic<unsigned> _requestsFailed;
 
     void onFinished(RemoteExecutor* e)
     {
-      cxxtools::atomicIncrement(_requestsFinished);
-      if (static_cast<unsigned>(cxxtools::atomicIncrement(_requestsStarted)) <= _numRequests)
+      ++_requestsFinished;
+      if (++_requestsStarted <= _numRequests)
         e->begin();
       else
       {
@@ -276,7 +277,7 @@ class BenchClient : public cxxtools::Connectable
 
     void onFailed(RemoteExecutor* /*e*/)
     {
-      cxxtools::atomicIncrement(_requestsFailed);
+      ++_requestsFailed;
     }
 
   public:
@@ -300,7 +301,7 @@ class BenchClient : public cxxtools::Connectable
         cxxtools::connect(executor->finished, *this, &BenchClient::onFinished);
         cxxtools::connect(executor->failed, *this, &BenchClient::onFailed);
 
-        cxxtools::atomicIncrement(_requestsStarted);
+        ++_requestsStarted;
         executor->begin();
 
         executors.insert(executor);
@@ -334,13 +335,13 @@ class BenchClient : public cxxtools::Connectable
     { _objectsSize = n; }
 
     static unsigned requestsStarted()
-    { return static_cast<unsigned>(cxxtools::atomicGet(_requestsStarted)); }
+    { return _requestsStarted; }
 
     static unsigned requestsFinished()
-    { return static_cast<unsigned>(cxxtools::atomicGet(_requestsFinished)); }
+    { return _requestsFinished; }
 
     static unsigned requestsFailed()
-    { return static_cast<unsigned>(cxxtools::atomicGet(_requestsFailed)); }
+    { return _requestsFailed; }
 
     void start()
     { thread.start(); }
@@ -349,9 +350,9 @@ class BenchClient : public cxxtools::Connectable
     { thread.join(); }
 };
 
-cxxtools::atomic_t BenchClient::_requestsStarted(0);
-cxxtools::atomic_t BenchClient::_requestsFinished(0);
-cxxtools::atomic_t BenchClient::_requestsFailed(0);
+std::atomic<unsigned> BenchClient::_requestsStarted(0);
+std::atomic<unsigned> BenchClient::_requestsFinished(0);
+std::atomic<unsigned> BenchClient::_requestsFailed(0);
 unsigned BenchClient::_numRequests = 0;
 unsigned BenchClient::_vectorSize = 0;
 unsigned BenchClient::_objectsSize = 0;

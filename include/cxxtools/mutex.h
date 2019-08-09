@@ -28,7 +28,7 @@
 #ifndef cxxtools_Mutex_h
 #define cxxtools_Mutex_h
 
-#include <cxxtools/atomicity.h>
+#include <atomic>
 #include <cxxtools/thread.h>
 
 namespace cxxtools {
@@ -42,13 +42,8 @@ namespace cxxtools {
 */
 class Mutex
 {
-#if __cplusplus >= 201103L
         Mutex(const Mutex&) = delete;
         Mutex& operator=(const Mutex&) = delete;
-#else
-        Mutex(const Mutex&) { }
-        Mutex& operator=(const Mutex&) { return *this; }
-#endif
 
         class MutexImpl* _impl;
 
@@ -457,127 +452,6 @@ class WriteLock
         bool _locked;
 };
 
-
-/** @brief Spinmutex class.
-
-   The most lightweight synchronisation object is the Spinlock. It is
-   usually implemented with a status variable that can be set to Locked
-   and Unlocked and atomic operations to change and inspect the status.
-   When Spinlock::lock is called, the status is changed to Locked.
-   Subsequent calls of Spinlock::lock from other threads will block until
-   the first thread has called Spinlock::unlock and the state of
-   the Spinlock has changed to Unlocked. Note that Spinlocks are not recursive.
-   When a Spinlock::lock blocks a busy-wait happens, therefore a Spinlock is only
-   usable in cases where resources need to be locked for a very short time, but in
-   these cases a higher performance can be achieved.
-*/
-class SpinMutex
-{
-#if __cplusplus >= 201103L
-        SpinMutex(const SpinMutex&) = delete;
-        SpinMutex& operator=(const SpinMutex&) = delete;
-#else
-        SpinMutex(const SpinMutex&) { }
-        SpinMutex& operator=(const SpinMutex&) { return *this; }
-#endif
-
-    public:
-        //! @brief Default Constructor.
-        SpinMutex()
-        : _count(0)
-        {}
-
-        //! @brief Destructor.
-        ~SpinMutex()
-        {}
-
-
-        /** @brief Lock.
-
-            Locks the Spinlock. If the Spinlock is currently locked
-            by another thread, the calling thread suspends until no
-            other thread holds a lock on it. This happens
-            performing a  busy-wait. Spinlocks are not recursive
-            locking it multiple times before unlocking it is undefined.
-        */
-        inline void lock()
-        {
-            // busy loop until unlock
-            while( atomicCompareExchange(_count, 1, 0) )
-            {
-                Thread::yield();
-            }
-        }
-
-        bool tryLock()
-        {
-           return ! atomicCompareExchange(_count, 1, 0);
-        }
-
-        //! @brief Unlocks the Spinlock.
-        void unlock()
-        {
-            // set unlocked
-            atomicExchange(_count, 0);
-        }
-
-        //! @internal for unit test only
-        bool testIsLocked() const
-        { return _count != 0; }
-
-private:
-    volatile cxxtools::atomic_t _count;
-};
-
-
-class SpinLock
-{
-#if __cplusplus >= 201103L
-        SpinLock(const SpinLock&) = delete;
-        SpinLock& operator=(const SpinLock&) = delete;
-#else
-        SpinLock(const SpinLock&);
-        SpinLock& operator=(const SpinLock&);
-#endif
-
-    public:
-        explicit SpinLock(SpinMutex& m, bool doLock = true, bool isLocked = false)
-        : _mutex(m)
-        , _locked(isLocked)
-        {
-            if (doLock)
-                this->lock();
-        }
-
-        ~SpinLock()
-        {
-            if (_locked)
-                this->unlock();
-        }
-
-        void lock()
-        {
-            if ( ! _locked )
-            {
-                _mutex.lock();
-                _locked = true;
-            }
-        }
-
-        void unlock()
-        {
-            if ( _locked)
-            {
-                _mutex.unlock();
-                _locked = false;
-            }
-        }
-
-    private:
-        SpinMutex& _mutex;
-        bool _locked;
-};
-
-} // !namespace cxxtools
+}
 
 #endif
