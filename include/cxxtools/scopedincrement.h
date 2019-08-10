@@ -53,7 +53,6 @@ class ScopedIncrement
         }
 };
 
-template <>
 template <typename T>
 class ScopedIncrement<std::atomic<T>>
 {
