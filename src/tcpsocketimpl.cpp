@@ -203,7 +203,7 @@ void TcpSocketImpl::checkSslOperation(int ret, const char* fn, pollfd* pfd)
             {
                 close();
                 _socket.closed(_socket);
-                //throw IOError("lost connection to peer");
+                throw IOError("lost connection to peer in ssl operation");
             }
             else
             {
@@ -339,6 +339,12 @@ void TcpSocketImpl::close()
 #ifdef WITH_SSL
     _peerCertificate.clear();
     _peerCertificateLoaded = false;
+    if (_ssl)
+    {
+        log_debug("SSL_free");
+        SSL_free(_ssl);
+        _ssl = 0;
+    }
 #endif
 }
 
