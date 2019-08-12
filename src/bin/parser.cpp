@@ -30,6 +30,7 @@
 #include <cxxtools/bin/serializer.h>
 #include <cxxtools/bin/deserializer.h>
 #include <cxxtools/serializationerror.h>
+#include <cxxtools/utf8codec.h>
 #include <cxxtools/log.h>
 
 #include <streambuf>
@@ -705,7 +706,7 @@ bool Parser::advance(std::streambuf& in, bool atLeastOne)
                     if (ch == '\0')
                     {
                         if (_deserializer)
-                            _deserializer->setValue(_token);
+                            _deserializer->setValue(Utf8Codec::decode(_token));
                         _token.clear();
                         _state = state_end;
                         break;

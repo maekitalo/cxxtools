@@ -77,6 +77,14 @@ namespace
                                  "                " // d0-df
                                  "                " // e0-ef
                                  "                "; // f0-ff
+
+    inline bool isAscii(const std::string& s)
+    {
+        for (std::string::const_iterator it = s.begin(); it != s.end(); ++it)
+            if (*it > '\x7f' || *it < '\1')
+                return false;
+        return true;
+    }
 }
 
 Formatter::Formatter()
@@ -302,7 +310,7 @@ void Formatter::addValueStdString(const std::string& name, const std::string& ty
 
         sb->sputc((isTrue(value) ? '\1' : '\0'));
     }
-    else if (value.find('\0') != std::string::npos)
+    else if (!isAscii(value))
     {
         uint32_t v = value.size();
         if (v <= 0xffff)
