@@ -110,6 +110,7 @@ class JsonSerializerTest : public cxxtools::unit::TestSuite
             registerMethod("testArray", *this, &JsonSerializerTest::testArray);
             registerMethod("testEmptyArrays", *this, &JsonSerializerTest::testEmptyArrays);
             registerMethod("testString", *this, &JsonSerializerTest::testString);
+            registerMethod("testStringHighSurrogate", *this, &JsonSerializerTest::testStringHighSurrogate);
             registerMethod("testPlainInt", *this, &JsonSerializerTest::testPlainInt);
             registerMethod("testPlainObject", *this, &JsonSerializerTest::testPlainObject);
             registerMethod("testPlainArray", *this, &JsonSerializerTest::testPlainArray);
@@ -189,7 +190,18 @@ class JsonSerializerTest : public cxxtools::unit::TestSuite
             serializer.serialize(data, "str").finish();
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(out.str(), "{\"str\":\"hi\\uc3a4\\uc3b6\\uc3bc\"}");
+        }
 
+        void testStringHighSurrogate()
+        {
+            cxxtools::String data;
+            data = L"\x1d11e";
+
+            std::ostringstream out;
+            cxxtools::JsonSerializer serializer(out);
+            serializer.serialize(data, "str").finish();
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(out.str(), "{\"str\":\"\\ud834\\udd1e\"}");
         }
 
         void testPlainInt()

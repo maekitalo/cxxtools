@@ -438,6 +438,8 @@ void JsonFormatter::stringOut(const std::string& str)
 
 void JsonFormatter::stringOut(const cxxtools::String& str)
 {
+    static const char hex[] = "0123456789abcdef";
+
     for (cxxtools::String::const_iterator it = str.begin(); it != str.end(); ++it)
     {
         if (*it == L'"')
@@ -454,15 +456,25 @@ void JsonFormatter::stringOut(const cxxtools::String& str)
             *_os << "\\r";
         else if (*it == L'\t')
             *_os << "\\t";
+        else if (it->value() >= 0x10000)
+        {
+            uint32_t v = it->value() - 0x10000;
+            uint32_t hi = (v >> 10) | 0xd800;
+            uint32_t lo = (v & 0x3ff) | 0xdc00;
+
+            *_os << "\\u";
+            for (uint32_t s = 16; s > 0; s -= 4)
+                *_os << (hex[(hi >> (s - 4)) & 0xf]);
+            *_os << "\\u";
+            for (uint32_t s = 16; s > 0; s -= 4)
+                *_os << (hex[(lo >> (s - 4)) & 0xf]);
+        }
         else if (it->value() >= 0x80 || it->value() < 0x20)
         {
             *_os << "\\u";
-            static const char hex[] = "0123456789abcdef";
             uint32_t v = it->value();
             for (uint32_t s = 16; s > 0; s -= 4)
-            {
                 *_os << (hex[(v >> (s - 4)) & 0xf]);
-            }
         }
         else
             *_os << *it;

@@ -39,6 +39,10 @@ log_define("cxxtools.json.parser")
 
 namespace cxxtools
 {
+inline Char fromUtf16(uint32_t lo, uint32_t hi)
+{
+    return Char((((hi & 0x3ff) << 10) | (lo & 0x3ff)) + 0x10000);
+}
 
 const char* JsonParserError::what() const throw()
 {
@@ -108,6 +112,8 @@ bool JsonParser::JsonStringParser::advance(Char ch)
             break;
 
         case state_hex:
+        case state_highsurrogate_hex:
+        case state_lowsurrogate_hex:
             if (ch >= '0' && ch <= '9')
                 _value = (_value << 4) | (ch.value() - '0');
             else if (ch >= 'a' && ch <= 'f')
@@ -119,12 +125,63 @@ bool JsonParser::JsonStringParser::advance(Char ch)
 
             if (--_count == 0)
             {
-                _str += Char(static_cast<wchar_t>(_value));
-                _state = state_0;
+                switch (_state)
+                {
+                    case state_hex:
+                        // check for surrogate
+                        if ((_value & 0xfc00) == 0xd800)
+                        {
+                            _state = state_lowsurrogate0;
+                            _surrogateValue = _value;
+                        }
+                        else if ((_value & 0xfc00) == 0xdc00)
+                        {
+                            _state = state_highsurrogate0;
+                            _surrogateValue = _value;
+                        }
+                        else
+                        {
+                            _str += Char(static_cast<int32_t>(_value));
+                            _state = state_0;
+                        }
+                        break;
+
+                    case state_highsurrogate_hex:
+                        if ((_value & 0xfc00) != 0xd800)
+                            _jsonParser->doThrow("expecting surrogate value \\ud8xx " + std::to_string(_value));
+
+                        _str += fromUtf16(_surrogateValue, _value);
+                        _state = state_0;
+                        break;
+
+                    case state_lowsurrogate_hex:
+                        if ((_value & 0xfc00) != 0xdc00)
+                            _jsonParser->doThrow("expecting surrogate value \\uddxx " + std::to_string(_value));
+
+                        _str += fromUtf16(_value, _surrogateValue);
+                        _state = state_0;
+                        break;
+                }
             }
 
             break;
 
+        case state_highsurrogate0:
+        case state_lowsurrogate0:
+            if (ch != '\\')
+                _jsonParser->doThrow("expecting start of surrogate pair");
+            _state = (_state == state_highsurrogate0 ? state_highsurrogate_esc : state_lowsurrogate_esc);
+            break;
+
+        case state_highsurrogate_esc:
+        case state_lowsurrogate_esc:
+            if (ch != 'u')
+                _jsonParser->doThrow("expecting unicode mark \\u");
+
+            _value = 0;
+            _count = 4;
+            _state = (_state == state_highsurrogate_esc ? state_highsurrogate_hex : state_lowsurrogate_hex);
+            break;
     }
 
     return false;

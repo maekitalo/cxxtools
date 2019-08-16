@@ -62,12 +62,19 @@ namespace cxxtools
                     String _str;
                     unsigned _count;
                     unsigned short _value;
+                    unsigned short _surrogateValue;
 
                     enum
                     {
                         state_0,
                         state_esc,
-                        state_hex
+                        state_hex,
+                        state_highsurrogate0,
+                        state_lowsurrogate0,
+                        state_highsurrogate_esc,
+                        state_lowsurrogate_esc,
+                        state_highsurrogate_hex,
+                        state_lowsurrogate_hex
                     } _state;
 
                 public:

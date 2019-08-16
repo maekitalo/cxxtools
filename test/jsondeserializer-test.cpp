@@ -105,6 +105,7 @@ class JsonDeserializerTest : public cxxtools::unit::TestSuite
             registerMethod("testEmptyArrays", *this, &JsonDeserializerTest::testEmptyArrays);
             registerMethod("testStrings", *this, &JsonDeserializerTest::testStrings);
             registerMethod("testUnicodeString", *this, &JsonDeserializerTest::testUnicodeString);
+            registerMethod("testUnicodeHighSurrogate", *this, &JsonDeserializerTest::testUnicodeHighSurrogate);
             registerMethod("testComplexObject", *this, &JsonDeserializerTest::testComplexObject);
             registerMethod("testCommentLine", *this, &JsonDeserializerTest::testCommentLine);
             registerMethod("testCommentMultiline", *this, &JsonDeserializerTest::testCommentMultiline);
@@ -236,6 +237,33 @@ class JsonDeserializerTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 9);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[1].value(), 0xe4);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[8].value(), 0x10900);
+        }
+
+        void testUnicodeHighSurrogate()
+        {
+            {
+                cxxtools::String data;
+                std::istringstream in("\"\\ud834\\udd1e\"");
+
+                cxxtools::JsonDeserializer deserializer(in);
+                deserializer.deserialize(data);
+
+                CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 1);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(data[0].value(), 0x1d11e);
+            }
+
+            {
+                // autodetection of byte order
+
+                cxxtools::String data;
+                std::istringstream in("\"\\udd1e\\ud834\"");
+
+                cxxtools::JsonDeserializer deserializer(in);
+                deserializer.deserialize(data);
+
+                CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 1);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(data[0].value(), 0x1d11e);
+            }
         }
 
         void testComplexObject()
