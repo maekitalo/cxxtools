@@ -219,7 +219,7 @@ void CsvParser::advance(Char ch)
             _column = 0;
             log_debug("new row");
             _deserializer->beginMember(std::string(),
-                std::string(), SerializationInfo::Array);
+                std::string(), SerializationInfo::Object);
             _state = state_datastart;
             // no break
 
