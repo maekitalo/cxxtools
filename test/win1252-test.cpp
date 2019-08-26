@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013 Tommi Maekitalo
+ * Copyright (C) 2019 Tommi Maekitalo
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,36 +26,36 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "cxxtools/iso8859_15codec.h"
+#include "cxxtools/win1252codec.h"
 #include "cxxtools/unit/testsuite.h"
 #include "cxxtools/unit/registertest.h"
 #include "cxxtools/string.h"
 
-class Iso8859_15Test : public cxxtools::unit::TestSuite
+class Win1252Test : public cxxtools::unit::TestSuite
 {
 
   public:
-    Iso8859_15Test()
-    : cxxtools::unit::TestSuite("iso8859_15")
+    Win1252Test()
+    : cxxtools::unit::TestSuite("win1252")
     {
-      registerMethod("encode", *this, &Iso8859_15Test::encodeTest);
-      registerMethod("decode", *this, &Iso8859_15Test::decodeTest);
+      registerMethod("encode", *this, &Win1252Test::encodeTest);
+      registerMethod("decode", *this, &Win1252Test::decodeTest);
     }
 
     void encodeTest()
     {
       cxxtools::String ustr(L"Hi \xe4 there, 5 \u20ac");
-      std::string bstr = cxxtools::Iso8859_15Codec::encode(ustr);
-      CXXTOOLS_UNIT_ASSERT_EQUALS(bstr, "Hi \xe4 there, 5 \xa4");
+      std::string bstr = cxxtools::Win1252Codec::encode(ustr);
+      CXXTOOLS_UNIT_ASSERT_EQUALS(bstr, "Hi \xe4 there, 5 \x80");
     }
 
     void decodeTest()
     {
-      std::string bstr("Hi \xe4 there, 5 \xa4");
-      cxxtools::String ustr = cxxtools::Iso8859_15Codec::decode(bstr);
-      CXXTOOLS_UNIT_ASSERT(ustr == L"Hi \xe4 there, 5 \u20ac");
+      std::string bstr("\xe4\xf6\xfc\xdf\x80");
+      cxxtools::String ustr = cxxtools::Win1252Codec::decode(bstr);
+      CXXTOOLS_UNIT_ASSERT(ustr == L"\xe4\xf6\xfc\xdf\u20ac");
     }
 
 };
 
-cxxtools::unit::RegisterTest<Iso8859_15Test> register_Iso8859_15Test;
+cxxtools::unit::RegisterTest<Win1252Test> register_Win1252Test;

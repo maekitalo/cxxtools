@@ -121,6 +121,7 @@ libcxxtools_la_SOURCES = \
 	tz.cpp \
 	udp.cpp \
 	udpstream.cpp \
+	win1252codec.cpp \
 	xml/characters.cpp \
 	xml/endelement.cpp \
 	xml/entityresolver.cpp \

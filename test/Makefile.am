@@ -62,6 +62,7 @@ alltests_SOURCES = \
     tz-test.cpp \
     utf8-test.cpp \
     uri-test.cpp \
+    win1252-test.cpp \
     xmlreader-test.cpp \
     xmlrpc-test.cpp \
     xmlrpccallback-test.cpp \
