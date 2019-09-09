@@ -267,9 +267,9 @@ void Tz::Impl::dump(std::ostream& out) const
     for (unsigned i = 0; i < head.timecnt; ++i)
     {
         const TtInfo& ttinfo = ttInfos[transitions[i].ttIndex];
-        out << cxxtools::DateTime::fromMSecsSinceEpoch(cxxtools::Seconds(transitions[i].transitionTime)).toString() << " UTC = "
+        out << i << ' ' << cxxtools::DateTime::fromMSecsSinceEpoch(cxxtools::Seconds(transitions[i].transitionTime)).toString() << " UTC =\t"
                   << cxxtools::DateTime::fromMSecsSinceEpoch(cxxtools::Seconds(transitions[i].transitionTime + ttinfo.gmtoff)).toString()
-                  << " " << abbreviation(ttinfo.abbreviationIndex) << " isdst=" << (ttinfo.isdst ? '1' : '0') << " gmtoff=" << ttinfo.gmtoff << '\n';
+                  << " " << abbreviation(ttinfo.abbreviationIndex) << "\tisdst=" << (ttinfo.isdst ? '1' : '0') << " gmtoff=" << ttinfo.gmtoff << '\n';
     }
 
     for (unsigned i = 0; i < leapInfos.size(); ++i)
@@ -281,7 +281,12 @@ void Tz::Impl::dump(std::ostream& out) const
 ////////////////////////////////////////////////////////////////////////
 // class Tz
 //
-const char tz_dir[] = "/usr/share/zoneinfo";
+static const char* tzDir()
+{
+    static const char* tz_dir = "/usr/share/zoneinfo";
+    const char* TZDIR = ::getenv("TZDIR");
+    return TZDIR ? TZDIR : tz_dir;
+}
 
 Tz::Impl::TimeZones Tz::Impl::timeZones;
 cxxtools::Mutex Tz::Impl::mutex;
@@ -303,8 +308,7 @@ Tz::Tz(const std::string& timeZone)
     }
     else
     {
-        const char* TZDIR = ::getenv("TZDIR");
-        std::string fname = TZDIR ? TZDIR : tz_dir;
+        std::string fname = tzDir();
         fname += '/';
         fname += timeZone2;
         std::ifstream in(fname);
@@ -543,9 +547,9 @@ std::string Tz::currentZone()
         else
             throw SystemError("realpath");
 
-        const size_t pos = result.find(tz_dir);
+        const size_t pos = result.find(tzDir());
         if (pos != result.npos)
-            result.erase(0, strlen(tz_dir)+pos);
+            result.erase(0, strlen(tzDir())+1+pos);
         return result;
     }
     {
@@ -588,6 +592,9 @@ std::string Tz::currentZone()
 static void addTimezones(std::vector<std::string>& result, const std::string& basepath)
 {
     cxxtools::Directory dir(basepath);
+
+    static unsigned tzDirLen = strlen(tzDir());
+
     for (auto d = dir.begin(); d != dir.end(); ++d)
     {
         cxxtools::FileInfo fi(d.path());
@@ -604,7 +611,7 @@ static void addTimezones(std::vector<std::string>& result, const std::string& ba
         {
             try
             {
-                auto name = d.path().substr(sizeof(tz_dir));
+                auto name = d.path().substr(tzDirLen + 1);
                 log_debug("candidate \"" << name << '"');
                 Tz tz(name);
                 log_debug("found timezone \"" << name << '"');
@@ -627,7 +634,7 @@ const std::vector<std::string>& Tz::getTimeZones()
 
     if (ret.empty())
     {
-        addTimezones(ret, tz_dir);
+        addTimezones(ret, tzDir());
         std::sort(ret.begin(), ret.end());
     }
 
