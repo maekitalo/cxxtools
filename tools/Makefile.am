@@ -1,7 +1,9 @@
 bin_PROGRAMS = \
-	siconvert
+	siconvert \
+	cxxtz
 
 siconvert_SOURCES = siconvert.cpp
+cxxtz_SOURCES = cxxtz.cpp
 
 BASE_LIBS = $(top_builddir)/src/libcxxtools.la
 HTTP_LIBS = $(BASE_LIBS) $(top_builddir)/src/http/libcxxtools-http.la
@@ -13,3 +15,4 @@ AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/include -I$(top_srcdir)/incl
 LDADD = $(top_builddir)/src/libcxxtools.la
 
 siconvert_LDADD = $(BIN_LIBS)
+cxxtz_LDADD = $(BASE_LIBS)

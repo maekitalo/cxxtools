@@ -29,6 +29,7 @@
 
 #include <cxxtools/log.h>
 #include <cxxtools/datetime.h>
+#include <cxxtools/directory.h>
 #include <cxxtools/mutex.h>
 #include <cxxtools/smartptr.h>
 #include <cxxtools/systemerror.h>
@@ -37,6 +38,7 @@
 #include <fstream>
 #include <vector>
 #include <map>
+#include <algorithm>
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -265,9 +267,9 @@ void Tz::Impl::dump(std::ostream& out) const
     for (unsigned i = 0; i < head.timecnt; ++i)
     {
         const TtInfo& ttinfo = ttInfos[transitions[i].ttIndex];
-        out << i << ' ' << cxxtools::DateTime::fromMSecsSinceEpoch(cxxtools::Seconds(transitions[i].transitionTime)).toString() << " UTC =\t"
+        out << cxxtools::DateTime::fromMSecsSinceEpoch(cxxtools::Seconds(transitions[i].transitionTime)).toString() << " UTC = "
                   << cxxtools::DateTime::fromMSecsSinceEpoch(cxxtools::Seconds(transitions[i].transitionTime + ttinfo.gmtoff)).toString()
-                  << " " << abbreviation(ttinfo.abbreviationIndex) << "\tisdst=" << (ttinfo.isdst ? '1' : '0') << " gmtoff=" << ttinfo.gmtoff << '\n';
+                  << " " << abbreviation(ttinfo.abbreviationIndex) << " isdst=" << (ttinfo.isdst ? '1' : '0') << " gmtoff=" << ttinfo.gmtoff << '\n';
     }
 
     for (unsigned i = 0; i < leapInfos.size(); ++i)
@@ -279,7 +281,7 @@ void Tz::Impl::dump(std::ostream& out) const
 ////////////////////////////////////////////////////////////////////////
 // class Tz
 //
-const char* tz_dir = "/usr/share/zoneinfo";
+const char tz_dir[] = "/usr/share/zoneinfo";
 
 Tz::Impl::TimeZones Tz::Impl::timeZones;
 cxxtools::Mutex Tz::Impl::mutex;
@@ -581,6 +583,55 @@ std::string Tz::currentZone()
         // Fall through to try other means.
     }
     throw std::runtime_error("Could not get current timezone");
+}
+
+static void addTimezones(std::vector<std::string>& result, const std::string& basepath)
+{
+    cxxtools::Directory dir(basepath);
+    for (auto d = dir.begin(); d != dir.end(); ++d)
+    {
+        cxxtools::FileInfo fi(d.path());
+        if (*d == "." || *d == ".." || *d == "right" || *d == "posix")
+        {
+            log_debug("skip " << d.path());
+        }
+        else if (fi.isDirectory())
+        {
+            log_debug("recurse into directory " << d.path());
+            addTimezones(result, d.path());
+        }
+        else
+        {
+            try
+            {
+                auto name = d.path().substr(sizeof(tz_dir));
+                log_debug("candidate \"" << name << '"');
+                Tz tz(name);
+                log_debug("found timezone \"" << name << '"');
+                result.emplace_back(name);
+            }
+            catch (const TzInvalidTimeZoneFile&)
+            {
+                log_debug("no time zone file");
+            }
+        }
+    }
+}
+
+const std::vector<std::string>& Tz::getTimeZones()
+{
+    static std::vector<std::string> ret;
+    static cxxtools::Mutex mutex;
+
+    cxxtools::MutexLock lock(mutex);
+
+    if (ret.empty())
+    {
+        addTimezones(ret, tz_dir);
+        std::sort(ret.begin(), ret.end());
+    }
+
+    return ret;
 }
 
 }

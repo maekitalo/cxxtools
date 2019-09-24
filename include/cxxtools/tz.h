@@ -32,6 +32,7 @@
 #include <stdexcept>
 #include <string>
 #include <iosfwd>
+#include <vector>
 
 namespace cxxtools
 {
@@ -107,6 +108,9 @@ class Tz
 public:
     /// Returns the current time zone of the system.
     static std::string currentZone();
+
+    /// Returns the list of valid time zones
+    static const std::vector<std::string>& getTimeZones();
 
     /// Instantiates a time zone object.
     /// The time zone data is read from the file system and cached.
