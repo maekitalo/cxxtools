@@ -25,7 +25,11 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
+
 #include <cxxtools/serializationerror.h>
+#include <cxxtools/serializationinfo.h>
+#include <cxxtools/convert.h>
+#include <sstream>
 
 namespace cxxtools
 {
@@ -39,10 +43,88 @@ void SerializationError::doThrow(const std::string& msg)
     throw SerializationError(msg);
 }
 
+static void addNodeInfo(std::string& message, const SerializationInfo& si)
+{
+    if (!si.name().empty())
+    {
+        message += " in node \"";
+        message += si.name();
+        message += '"';
+    }
+
+    if (!si.typeName().empty())
+    {
+        message += " of type \"";
+        message += si.typeName();
+        message += '"';
+    }
+}
+
+static std::string buildMemberNotFoundMessage(const SerializationInfo& si, const std::string& member)
+{
+    std::string message;
+    message = "Member \"";
+    message += member;
+    message += "\" not found";
+
+    addNodeInfo(message, si);
+
+    return message;
+}
+
+static std::string buildMemberNotFoundMessage(const SerializationInfo& si, unsigned idx)
+{
+    std::ostringstream msg;
+    msg << "requested member index " << idx << " exceeds number of members " << si.memberCount();
+    std::string message = msg.str();
+
+    addNodeInfo(message, si);
+
+    return msg.str();
+}
+
+static std::string buildConversionErrorMessage(const SerializationInfo& si, const std::string& typefrom, const std::string& typeto, const std::string& valuefrom)
+{
+    std::string message = "conversion from type ";
+    message += typefrom;
+
+    if (!valuefrom.empty())
+    {
+        message += " (\"";
+        message += valuefrom;
+        message += "\")";
+    }
+
+    message += " to type ";
+    message += typeto;
+    message += " failed";
+
+    addNodeInfo(message, si);
+
+    return message;
+}
+
 SerializationMemberNotFound::SerializationMemberNotFound(const std::string& member)
     : SerializationError("Missing info for '" + member + "'"),
       _member(member)
 {
+}
+
+SerializationMemberNotFound::SerializationMemberNotFound(const SerializationInfo& si, const std::string& member)
+    : SerializationError(buildMemberNotFoundMessage(si, member)),
+      _member(member)
+{
+}
+
+SerializationMemberNotFound::SerializationMemberNotFound(const SerializationInfo& si, unsigned idx)
+    : SerializationError(buildMemberNotFoundMessage(si, idx)),
+      _member(cxxtools::convert<std::string>(idx))
+{
+}
+
+void SerializationConversionError::doThrow(const SerializationInfo& si, const std::string& typefrom, const std::string& typeto, const std::string& value)
+{
+    throw SerializationConversionError(buildConversionErrorMessage(si, typefrom, typeto, value));
 }
 
 } // namespace cxxtools

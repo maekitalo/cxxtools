@@ -33,6 +33,7 @@
 
 namespace cxxtools
 {
+class SerializationInfo;
 
 /** @brief Error during serialization of a type
 
@@ -57,13 +58,25 @@ class SerializationMemberNotFound : public SerializationError
         std::string _member;
 
     public:
-        SerializationMemberNotFound(const std::string& member);
+        explicit SerializationMemberNotFound(const std::string& member);
+        SerializationMemberNotFound(const SerializationInfo& si, const std::string& member);
+        SerializationMemberNotFound(const SerializationInfo& si, unsigned idx);
         ~SerializationMemberNotFound() throw()
         { }
 
         const std::string& member() const
         { return _member; }
 
+};
+
+class SerializationConversionError : public SerializationError
+{
+    public:
+        explicit SerializationConversionError(const std::string& msg)
+            : SerializationError(msg)
+            { }
+
+        static void doThrow(const SerializationInfo& si, const std::string& typefrom, const std::string& typeto, const std::string& value = std::string());
 };
 
 } // namespace cxxtools

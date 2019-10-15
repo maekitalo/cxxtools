@@ -78,8 +78,11 @@ namespace cxxtools
             {
                 const SerializationInfo* p;
 
-                if (current() == 0 || (p = current()->findMember(name)) == 0)
-                    throw SerializationMemberNotFound(name);
+                if (current() == 0)
+                    throw SerializationError("no data was processed");
+
+                if ((p = current()->findMember(name)) == 0)
+                    throw SerializationMemberNotFound(*current(), name);
 
                 *p >>= type;
             }

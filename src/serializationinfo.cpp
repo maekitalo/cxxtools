@@ -29,7 +29,6 @@
 
 #include <cxxtools/serializationinfo.h>
 #include <cxxtools/serializationerror.h>
-#include <cxxtools/conversionerror.h>
 #include <cxxtools/convert.h>
 #include <cxxtools/log.h>
 
@@ -182,7 +181,7 @@ const SerializationInfo& SerializationInfo::getMember(const std::string& name) c
             return *it;
     }
 
-    throw SerializationMemberNotFound(name);
+    throw SerializationMemberNotFound(*this, name);
 }
 
 
@@ -193,11 +192,7 @@ const SerializationInfo& SerializationInfo::getMember(unsigned idx) const
     const Nodes& n = nodes();
 
     if (idx >= n.size())
-    {
-        std::ostringstream msg;
-        msg << "requested member index " << idx << " exceeds number of members " << n.size();
-        throw std::range_error(msg.str());
-    }
+        throw SerializationMemberNotFound(*this, idx);
 
     return n[idx];
 }
@@ -677,7 +672,7 @@ SerializationInfo::int_type SerializationInfo::_getInt(const char* type, int_typ
                         }
                         catch (const ConversionError&)
                         {
-                            ConversionError::doThrow(type, "String", _String().narrow().c_str());
+                            SerializationConversionError::doThrow(*this, type, "String", _String().narrow());
                         }
                         break;
 
@@ -687,7 +682,7 @@ SerializationInfo::int_type SerializationInfo::_getInt(const char* type, int_typ
                         }
                         catch (const ConversionError&)
                         {
-                            ConversionError::doThrow(type, "string", _String8().c_str());
+                            SerializationConversionError::doThrow(*this, type, "string", _String8());
                         }
                         break;
 
@@ -730,7 +725,7 @@ SerializationInfo::unsigned_type SerializationInfo::_getUInt(const char* type, u
                         }
                         catch (const ConversionError&)
                         {
-                            ConversionError::doThrow(type, "String", _String().narrow().c_str());
+                            SerializationConversionError::doThrow(*this, type, "String", _String().narrow());
                         }
                         break;
 
@@ -740,7 +735,7 @@ SerializationInfo::unsigned_type SerializationInfo::_getUInt(const char* type, u
                         }
                         catch (const ConversionError&)
                         {
-                            ConversionError::doThrow(type, "string", _String8().c_str());
+                            SerializationConversionError::doThrow(*this, type, "string", _String8());
                         }
                         break;
 
@@ -780,7 +775,7 @@ float SerializationInfo::_getFloat() const
                         }
                         catch (const ConversionError&)
                         {
-                            ConversionError::doThrow("float", "String", _String().narrow().c_str());
+                            SerializationConversionError::doThrow(*this, "float", "String", _String().narrow());
                         }
                         break;
 
@@ -790,7 +785,7 @@ float SerializationInfo::_getFloat() const
                         }
                         catch (const ConversionError&)
                         {
-                            ConversionError::doThrow("float", "string", _String8().c_str());
+                            SerializationConversionError::doThrow(*this, "float", "string", _String8());
                         }
                         break;
 
@@ -854,7 +849,7 @@ double SerializationInfo::_getDouble() const
                         }
                         catch (const ConversionError&)
                         {
-                            ConversionError::doThrow("double", "String", _String().narrow().c_str());
+                            SerializationConversionError::doThrow(*this, "double", "String", _String().narrow());
                         }
                         break;
 
@@ -864,7 +859,7 @@ double SerializationInfo::_getDouble() const
                         }
                         catch (const ConversionError&)
                         {
-                            ConversionError::doThrow("double", "string", _String8().c_str());
+                            SerializationConversionError::doThrow(*this, "double", "string", _String8());
                         }
                         break;
 
@@ -911,7 +906,7 @@ long double SerializationInfo::_getLongDouble() const
                         }
                         catch (const ConversionError&)
                         {
-                            ConversionError::doThrow("long double", "String", _String().narrow().c_str());
+                            SerializationConversionError::doThrow(*this, "long double", "String", _String().narrow());
                         }
                         break;
 
@@ -921,7 +916,7 @@ long double SerializationInfo::_getLongDouble() const
                         }
                         catch (const ConversionError&)
                         {
-                            ConversionError::doThrow("long double", "string", _String8().c_str());
+                            SerializationConversionError::doThrow(*this, "long double", "string", _String8());
                         }
                         break;
 
