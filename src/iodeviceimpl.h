@@ -34,6 +34,7 @@
 #include <cxxtools/timespan.h>
 #include <string>
 #include <iostream>
+#include <exception>
 
 struct pollfd;
 
@@ -141,6 +142,18 @@ namespace cxxtools {
             pollfd* _pfd;
             DestructionSentry* _sentry;
             bool _errorPending;
+            std::exception_ptr _exception;
+
+            void checkPendingException()
+            {
+                if (_exception)
+                {
+                    std::exception_ptr exception;
+                    _exception.swap(exception);
+                    _errorPending = false;
+                    std::rethrow_exception(exception);
+                }
+            }
     };
 
 } //namespace cxxtools

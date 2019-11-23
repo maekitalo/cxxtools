@@ -852,7 +852,14 @@ size_t TcpSocketImpl::beginWrite(const char* buffer, size_t n)
         if (ret > 0)
             return ret;
 
-        checkSslOperation(ret, "SSL_write", _pfd);
+        try
+        {
+            checkSslOperation(ret, "SSL_write", _pfd);
+        }
+        catch (const std::exception&)
+        {
+            _exception = std::current_exception();
+        }
     }
 #endif
     else
@@ -1118,7 +1125,15 @@ bool TcpSocketImpl::beginSslConnect()
         return true;
     }
 
-    checkSslOperation(ret, "SSL_connect", _pfd);
+    try
+    {
+        checkSslOperation(ret, "SSL_connect", _pfd);
+    }
+    catch (const std::exception&)
+    {
+        _exception = std::current_exception();
+    }
+
     return false;
 }
 
@@ -1131,6 +1146,8 @@ void TcpSocketImpl::endSslConnect()
 
     if (_state == THROWING)
         throw;
+
+    checkPendingException();
 
     if (_state == SSLCONNECTED)
     {
@@ -1193,7 +1210,15 @@ bool TcpSocketImpl::beginSslAccept()
         return true;
     }
 
-    checkSslOperation(ret, "SSL_accept", _pfd);
+    try
+    {
+        checkSslOperation(ret, "SSL_accept", _pfd);
+    }
+    catch (const std::exception&)
+    {
+        _exception = std::current_exception();
+    }
+
     return false;
 }
 
@@ -1206,6 +1231,8 @@ void TcpSocketImpl::endSslAccept()
 
     if (_state == THROWING)
         throw;
+
+    checkPendingException();
 
     if (_state == SSLCONNECTED)
     {
@@ -1259,7 +1286,15 @@ bool TcpSocketImpl::beginSslShutdown()
         return true;
     }
 
-    checkSslOperation(ret, "SSL_shutdown", _pfd);
+    try
+    {
+        checkSslOperation(ret, "SSL_shutdown", _pfd);
+    }
+    catch (const std::exception&)
+    {
+        _exception = std::current_exception();
+    }
+
     return false;
 }
 
@@ -1284,6 +1319,8 @@ void TcpSocketImpl::endSslShutdown()
         log_error_to(ssl, "Device not in ssl shutdown mode when trying to finish ssl shutdown; state=" << _state);
         throw std::logic_error("Device not in ssl shutdown mode when trying to finish ssl shutdown");
     }
+
+    checkPendingException();
 
     while (true)
     {

@@ -37,6 +37,7 @@
 #include <sys/poll.h>
 #include <cxxtools/log.h>
 #include <cxxtools/hexdump.h>
+#include <cxxtools/resetter.h>
 
 log_define("cxxtools.iodevice.impl")
 
@@ -178,6 +179,8 @@ size_t IODeviceImpl::endRead(bool& eof)
         _pfd->events &= ~POLLIN;
     }
 
+    checkPendingException();
+
     if (_errorPending)
     {
         _errorPending = false;
@@ -240,18 +243,25 @@ size_t IODeviceImpl::beginWrite(const char* buffer, size_t n)
     log_debug("::write(" << _fd << ", buffer, " << n << ')');
     log_finer(hexDump(buffer, n));
 
-    ssize_t ret = ::write(_fd, (const void*)buffer, n);
-    int e = errno;
+    try
+    {
+        ssize_t ret = ::write(_fd, (const void*)buffer, n);
+        int e = errno;
 
-    log_debug("write returned " << ret);
-    if (ret > 0)
-        return static_cast<size_t>(ret);
+        log_debug("write returned " << ret);
+        if (ret > 0)
+            return static_cast<size_t>(ret);
 
-    if (ret == 0 || e == ECONNRESET || e == EPIPE)
-        throw IOError("lost connection to peer");
+        if (ret == 0 || e == ECONNRESET || e == EPIPE)
+            throw IOError("lost connection to peer");
 
-    if (_pfd)
-        _pfd->events |= POLLOUT;
+        if (_pfd)
+            _pfd->events |= POLLOUT;
+    }
+    catch (const std::exception&)
+    {
+        _exception = std::current_exception();
+    }
 
     return 0;
 }
@@ -263,6 +273,8 @@ size_t IODeviceImpl::endWrite()
     {
         _pfd->events &= ~POLLOUT;
     }
+
+    checkPendingException();
 
     if (_errorPending)
     {
@@ -453,41 +465,34 @@ bool IODeviceImpl::checkPollEvent(pollfd& pfd)
     {
         _errorPending = true;
 
-        try
+        Resetter<bool> resetErrorPending(_errorPending, false);
+
+        bool reading = _device.reading();
+        bool writing = _device.writing();
+
+        if (reading)
         {
-            bool reading = _device.reading();
-            bool writing = _device.writing();
-
-            if (reading)
-            {
-                avail = true;
-                _device.inputReady(_device);
-            }
-
-            if( ! _sentry )
-                return avail;
-
-            if (writing)
-            {
-                avail = true;
-                _device.outputReady(_device);
-            }
-
-            if( ! _sentry )
-                return avail;
-
-            if (!reading && !writing)
-            {
-                avail = true;
-                _device.close();
-            }
+            avail = true;
+            _device.inputReady(_device);
         }
-        catch (...)
+
+        if( ! _sentry )
+            return avail;
+
+        if (writing)
         {
-            _errorPending = false;
-            throw;
+            avail = true;
+            _device.outputReady(_device);
         }
-        _errorPending = false;
+
+        if( ! _sentry )
+            return avail;
+
+        if (!reading && !writing)
+        {
+            avail = true;
+            _device.close();
+        }
 
         return avail;
     }
