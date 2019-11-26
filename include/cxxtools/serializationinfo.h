@@ -1244,7 +1244,7 @@ EnumClassSerializer<ENUM> EnumClass(const ENUM& e)
         Foo foo(Foo::FOO);
 
         cxxtools::SerializationInfo si;
-        si <<= cxxtools::EnumClass(foo);
+        si >>= cxxtools::EnumClass(foo);
     @endcode
 
  */
