@@ -99,9 +99,6 @@ namespace cxxtools
                 return Char(0);
             }
 
-            Char& operator=(const Char& ch)
-            { _value = ch._value; return *this; }
-
             /**
              * @brief Returns the internal value (unsigned 32 bits) of this character.
              * @return The 32-bit-value of this character.
