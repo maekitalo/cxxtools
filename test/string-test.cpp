@@ -257,6 +257,9 @@ void StringTest::testAssign()
     s.assign(z + 1, 0, 3);
     CXXTOOLS_UNIT_ASSERT(s == L"bcd");
 
+    s.assign(z + 1, 0, 10);
+    CXXTOOLS_UNIT_ASSERT(s == L"bcde");
+
     s.assign(3, 'x');
     CXXTOOLS_UNIT_ASSERT(s == L"xxx");
 
@@ -577,9 +580,10 @@ void StringTest::testSubstr()
 {
     cxxtools::String s(L"abcdefg");
 
-    CXXTOOLS_UNIT_ASSERT(s.substr()     == L"abcdefg");
-    CXXTOOLS_UNIT_ASSERT(s.substr(2)    == L"cdefg");
-    CXXTOOLS_UNIT_ASSERT(s.substr(2, 3) == L"cde");
+    CXXTOOLS_UNIT_ASSERT(s.substr()      == L"abcdefg");
+    CXXTOOLS_UNIT_ASSERT(s.substr(2)     == L"cdefg");
+    CXXTOOLS_UNIT_ASSERT(s.substr(2, 3)  == L"cde");
+    CXXTOOLS_UNIT_ASSERT(s.substr(0, 32) == L"abcdefg");
 }
 
 void StringTest::testSwap()

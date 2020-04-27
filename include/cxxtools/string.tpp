@@ -144,7 +144,12 @@ inline basic_string<cxxtools::Char>::~basic_string()
 
 inline basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::assign(const basic_string<cxxtools::Char>& str, size_type pos, size_type n)
 {
-    return this->assign( str.data() + pos, n );   
+    size_type len = str.length();
+    if (len <= pos)
+        this->clear();
+    else
+        this->assign( str.data() + pos, pos + n > len ? len - pos : n );
+    return *this;
 }
 
 
