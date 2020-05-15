@@ -220,8 +220,7 @@ Utf8Codec::result Utf8Codec::do_in(MBState& s, const char* fromBegin, const char
         const size_t extraBytesToRead = trailingBytesForUTF8[*fnext];
         if (fnext + extraBytesToRead >= fend)
         {
-            retstat = partial;
-            break;
+            continue;
         }
 
         if( !isLegalUTF8( fnext, extraBytesToRead + 1 ) )
