@@ -163,7 +163,6 @@ namespace
 Utf8Codec::result Utf8Codec::do_in(MBState& s, const char* fromBegin, const char* fromEnd, const char*& fromNext,
                                    Char* toBegin, Char* toEnd, Char*& toNext) const
 {
-    Utf8Codec::result retstat = ok;
     fromNext = fromBegin;
     toNext = toBegin;
 
@@ -201,6 +200,7 @@ Utf8Codec::result Utf8Codec::do_in(MBState& s, const char* fromBegin, const char
         }
     }
 
+    Utf8Codec::result retstat = ok;
     while (fromNext < fromEnd)
     {
         if (toNext >= toEnd)
@@ -220,6 +220,7 @@ Utf8Codec::result Utf8Codec::do_in(MBState& s, const char* fromBegin, const char
         const size_t extraBytesToRead = trailingBytesForUTF8[*fnext];
         if (fnext + extraBytesToRead >= fend)
         {
+            retstat = partial;
             continue;
         }
 
@@ -255,6 +256,7 @@ Utf8Codec::result Utf8Codec::do_in(MBState& s, const char* fromBegin, const char
 
         s.n = 0;
         ++toNext;
+        retstat = ok;
     }
 
     return retstat;

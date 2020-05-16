@@ -32,6 +32,8 @@
 #include "cxxtools/unit/registertest.h"
 #include "cxxtools/string.h"
 
+#define SIZEOF(a)  (sizeof(a) / sizeof(a[0]))
+
 class Utf8Test : public cxxtools::unit::TestSuite
 {
 
@@ -44,6 +46,9 @@ class Utf8Test : public cxxtools::unit::TestSuite
       registerMethod("byteordermark", *this, &Utf8Test::byteordermarkTest);
       registerMethod("incompleteBom", *this, &Utf8Test::incompleteBomTest);
       registerMethod("partialBom", *this, &Utf8Test::partialBomTest);
+      registerMethod("consumeInput", *this, &Utf8Test::consumeInput);
+      registerMethod("fillOutput", *this, &Utf8Test::fillOutput);
+      registerMethod("partialDecode", *this, &Utf8Test::partialDecode);
     }
 
     void encodeTest()
@@ -107,6 +112,92 @@ class Utf8Test : public cxxtools::unit::TestSuite
       CXXTOOLS_UNIT_ASSERT_EQUALS(to[0].narrow(), 'A');   // now output
     }
 
+    void consumeInput()
+    {
+      const char utf8Input[] = "Hello \xc3\xa4\xe2\x80\x93 end";
+      cxxtools::Char unicodeOutput[32];
+
+      cxxtools::Utf8Codec codec;
+      cxxtools::MBState mbstate;
+      const char* fromBegin = utf8Input;
+      const char* fromNext = utf8Input;
+      const char* fromEnd = utf8Input + sizeof(utf8Input) - 1;
+      cxxtools::Char* toNext = unicodeOutput;
+      cxxtools::Char* toEnd = unicodeOutput + SIZEOF(unicodeOutput);
+
+      codec.in(mbstate, fromBegin, fromEnd, fromNext, unicodeOutput, toEnd, toNext);
+
+      // is input completely consumed
+      CXXTOOLS_UNIT_ASSERT_EQUALS(fromNext, fromBegin + sizeof(utf8Input) - 1);
+
+      // is output completely converted
+      CXXTOOLS_UNIT_ASSERT_EQUALS(toNext - unicodeOutput, 12);
+
+      // check some values
+      CXXTOOLS_UNIT_ASSERT_EQUALS(unicodeOutput[4].value(), 0x6f);
+      CXXTOOLS_UNIT_ASSERT_EQUALS(unicodeOutput[6].value(), 0xe4);
+      CXXTOOLS_UNIT_ASSERT_EQUALS(unicodeOutput[7].value(), 0x2013);
+    }
+
+    void fillOutput()
+    {
+      const char utf8Input[] = "Hello \xc3\xa4\xe2\x80\x93 end";
+      cxxtools::Char unicodeOutput[8];
+
+      cxxtools::Utf8Codec codec;
+      cxxtools::MBState mbstate;
+      const char* fromBegin = utf8Input;
+      const char* fromNext = utf8Input;
+      const char* fromEnd = utf8Input + sizeof(utf8Input) - 1;
+      cxxtools::Char* toNext = unicodeOutput;
+      cxxtools::Char* toEnd = unicodeOutput + SIZEOF(unicodeOutput);
+
+      codec.in(mbstate, fromBegin, fromEnd, fromNext, unicodeOutput, toEnd, toNext);
+
+      // is output filled
+      CXXTOOLS_UNIT_ASSERT_EQUALS(toNext - unicodeOutput, 8);
+
+      // check some values
+      CXXTOOLS_UNIT_ASSERT_EQUALS(unicodeOutput[4].value(), 0x6f);
+      CXXTOOLS_UNIT_ASSERT_EQUALS(unicodeOutput[6].value(), 0xe4);
+
+      // continue
+      fromBegin = fromNext;
+      toNext = unicodeOutput;
+      codec.in(mbstate, fromBegin, fromEnd, fromNext, unicodeOutput, unicodeOutput + SIZEOF(unicodeOutput), toNext);
+
+      // got the rest?
+      CXXTOOLS_UNIT_ASSERT_EQUALS(toNext - unicodeOutput, 4);
+
+      // input consumed?
+      CXXTOOLS_UNIT_ASSERT_EQUALS(fromNext, fromEnd);
+    }
+
+    void partialDecode()
+    {
+      const char utf8Input[] = "Hello \xc3\xa4\xe2\x80\x93 end";
+      cxxtools::Char unicodeOutput[32];
+
+      cxxtools::Utf8Codec codec;
+      cxxtools::MBState mbstate;
+      const char* fromBegin = utf8Input;
+      const char* fromNext = utf8Input;
+      const char* fromEnd = utf8Input + sizeof(utf8Input) - 1;
+      cxxtools::Char* toNext = unicodeOutput;
+      cxxtools::Char* toEnd = unicodeOutput + SIZEOF(unicodeOutput);
+
+      cxxtools::Utf8Codec::result result = codec.in(mbstate, fromBegin, fromBegin + 7, fromNext, unicodeOutput, toEnd, toNext);
+      CXXTOOLS_UNIT_ASSERT_EQUALS(result, std::codecvt_base::partial);
+
+      result = codec.in(mbstate, fromNext, fromEnd, fromNext, toNext, toEnd, toNext);
+      CXXTOOLS_UNIT_ASSERT_EQUALS(result, std::codecvt_base::ok);
+
+      CXXTOOLS_UNIT_ASSERT_EQUALS(fromNext, fromEnd);
+      CXXTOOLS_UNIT_ASSERT_EQUALS(toNext - unicodeOutput, 12);
+      CXXTOOLS_UNIT_ASSERT_EQUALS(unicodeOutput[4].value(), 0x6f);
+      CXXTOOLS_UNIT_ASSERT_EQUALS(unicodeOutput[6].value(), 0xe4);
+      CXXTOOLS_UNIT_ASSERT_EQUALS(unicodeOutput[7].value(), 0x2013);
+    }
 };
 
 cxxtools::unit::RegisterTest<Utf8Test> register_Utf8Test;
