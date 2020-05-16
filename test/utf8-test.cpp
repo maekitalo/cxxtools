@@ -28,9 +28,12 @@
 
 #include "cxxtools/utf8codec.h"
 #include "cxxtools/utf8.h"
+#include "cxxtools/textstream.h"
 #include "cxxtools/unit/testsuite.h"
 #include "cxxtools/unit/registertest.h"
 #include "cxxtools/string.h"
+#include <sstream>
+#include <iomanip>
 
 #define SIZEOF(a)  (sizeof(a) / sizeof(a[0]))
 
@@ -49,6 +52,8 @@ class Utf8Test : public cxxtools::unit::TestSuite
       registerMethod("consumeInput", *this, &Utf8Test::consumeInput);
       registerMethod("fillOutput", *this, &Utf8Test::fillOutput);
       registerMethod("partialDecode", *this, &Utf8Test::partialDecode);
+      registerMethod("istream", *this, &Utf8Test::istream);
+      registerMethod("ostream", *this, &Utf8Test::ostream);
     }
 
     void encodeTest()
@@ -197,6 +202,29 @@ class Utf8Test : public cxxtools::unit::TestSuite
       CXXTOOLS_UNIT_ASSERT_EQUALS(unicodeOutput[4].value(), 0x6f);
       CXXTOOLS_UNIT_ASSERT_EQUALS(unicodeOutput[6].value(), 0xe4);
       CXXTOOLS_UNIT_ASSERT_EQUALS(unicodeOutput[7].value(), 0x2013);
+    }
+
+    void istream()
+    {
+      std::istringstream in("Hello \xc3\xa4\xe2\x80\x93 end");
+      cxxtools::TextIStream tin(in, new cxxtools::Utf8Codec());
+      cxxtools::String s;
+      std::getline(tin, s);
+
+      CXXTOOLS_UNIT_ASSERT_EQUALS(s.size(), 12);
+      CXXTOOLS_UNIT_ASSERT_EQUALS(s[4].value(), 0x6f);
+      CXXTOOLS_UNIT_ASSERT_EQUALS(s[6].value(), 0xe4);
+      CXXTOOLS_UNIT_ASSERT_EQUALS(s[7].value(), 0x2013);
+    }
+
+    void ostream()
+    {
+      std::ostringstream out;
+      cxxtools::TextOStream tout(out, new cxxtools::Utf8Codec());
+      tout << L"Hello \x00e4\x2013 end" << std::flush;
+      std::string s = out.str();
+      CXXTOOLS_UNIT_ASSERT_EQUALS(s.size(), 15);
+      CXXTOOLS_UNIT_ASSERT_EQUALS(s, "Hello \xc3\xa4\xe2\x80\x93 end");
     }
 };
 
