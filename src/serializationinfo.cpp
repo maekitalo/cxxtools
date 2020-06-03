@@ -185,11 +185,40 @@ const SerializationInfo& SerializationInfo::getMember(const std::string& name) c
 }
 
 
+SerializationInfo& SerializationInfo::getMember(const std::string& name)
+{
+    log_debug("getMember(\"" << name << "\")");
+
+    Nodes& n = nodes();
+
+    for (Nodes::iterator it = n.begin(); it != n.end(); ++it)
+    {
+        if( it->name() == name )
+            return *it;
+    }
+
+    throw SerializationMemberNotFound(*this, name);
+}
+
+
 const SerializationInfo& SerializationInfo::getMember(unsigned idx) const
 {
     log_debug("getMember(" << idx << ')');
 
     const Nodes& n = nodes();
+
+    if (idx >= n.size())
+        throw SerializationMemberNotFound(*this, idx);
+
+    return n[idx];
+}
+
+
+SerializationInfo& SerializationInfo::getMember(unsigned idx)
+{
+    log_debug("getMember(" << idx << ')');
+
+    Nodes& n = nodes();
 
     if (idx >= n.size())
         throw SerializationMemberNotFound(*this, idx);

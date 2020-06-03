@@ -283,12 +283,14 @@ class SerializationInfo
             @throws SerializationError when member is not found.
         */
         const SerializationInfo& getMember(const std::string& name) const;
+        SerializationInfo& getMember(const std::string& name);
 
         /** @brief Deserialization of member data
 
             @throws std::range_error when index is too large
         */
         const SerializationInfo& getMember(unsigned idx) const;
+        SerializationInfo& getMember(unsigned idx);
 
         /** @brief Deserialization of member data.
 
