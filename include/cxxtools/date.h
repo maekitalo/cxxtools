@@ -300,6 +300,8 @@ class Date
 
         friend inline Date operator+(const Date& d, int days);
 
+        friend inline Date operator-(const Date& d, int days);
+
         friend inline Date operator+(int days, const Date& d);
 
         friend inline Days operator-(const Date& a, const Date& b);
@@ -443,6 +445,9 @@ inline bool Date::leapYear() const
 
 inline Date operator+(const Date& d, int days)
 { return Date(d._julian + days); }
+
+inline Date operator-(const Date& d, int days)
+{ return Date(d._julian - days); }
 
 
 inline Date operator+(int days, const Date& d)
