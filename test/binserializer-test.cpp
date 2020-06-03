@@ -30,6 +30,7 @@
 #include "cxxtools/unit/registertest.h"
 #include "cxxtools/serializationinfo.h"
 #include "cxxtools/bin/bin.h"
+#include "cxxtools/bin/formatter.h"
 #include "cxxtools/log.h"
 #include "cxxtools/date.h"
 #include "cxxtools/time.h"
@@ -157,6 +158,7 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
             registerMethod("testTime", *this, &BinSerializerTest::testTime);
             registerMethod("testDatetime", *this, &BinSerializerTest::testDatetime);
             registerMethod("testTimespan", *this, &BinSerializerTest::testTimespan);
+            registerMethod("testRawString", *this, &BinSerializerTest::testRawString);
         }
 
         void testScalar()
@@ -516,6 +518,33 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
             testTs(cxxtools::Seconds(3456));
             testTs(cxxtools::Minutes(18));
             testTs(cxxtools::Hours(67));
+        }
+
+        void testRawString()
+        {
+            {
+                std::string str = "FOObar";
+                std::stringstream ss;
+                ss << cxxtools::bin::Bin(str);
+
+                std::string binData = ss.str();
+
+                std::string raw = cxxtools::bin::Formatter::rawString(str);
+                CXXTOOLS_UNIT_ASSERT(binData.find(str) != std::string::npos);
+                CXXTOOLS_UNIT_ASSERT(binData.find(raw) != std::string::npos);
+            }
+            
+            {
+                std::string str = "123:45.";
+                std::stringstream ss;
+                ss << cxxtools::bin::Bin(str);
+
+                std::string binData = ss.str();
+
+                std::string raw = cxxtools::bin::Formatter::rawString(str);
+                CXXTOOLS_UNIT_ASSERT(binData.find(str) == std::string::npos);
+                CXXTOOLS_UNIT_ASSERT(binData.find(raw) != std::string::npos);
+            }
         }
 };
 

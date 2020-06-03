@@ -89,6 +89,9 @@ namespace cxxtools
 
                 virtual void finishObject();
 
+                // function returns string as it is stored in binary data stream
+                static std::string rawString(const std::string& value);
+
             private:
                 void printUInt(uint64_t v, const std::string& name);
                 void printInt(int64_t v, const std::string& name);

@@ -936,5 +936,33 @@ void Formatter::outputString(const std::string& value)
     sb->sputc('\0');
 }
 
+std::string Formatter::rawString(const std::string& value)
+{
+    if (value.find_first_not_of("0123456789+-.: ") != std::string::npos)
+        return value;
+
+    bool high = true;
+    char ch;
+    std::string ret;
+    for (std::string::const_iterator it = value.begin(); it != value.end(); ++it)
+    {
+        int v = (*it);
+        if (high)
+            ch = bcd[v] << 4;
+        else
+        {
+            ch |= bcd[v];
+            ret += ch;
+        }
+        high = !high;
+    }
+
+    if (!high)
+        ret += static_cast<char>(ch | '\xf');
+
+    return ret;
 }
+
+}
+
 }
