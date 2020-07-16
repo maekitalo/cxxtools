@@ -129,7 +129,16 @@ class RemoteProcedureBase : public IRemoteProcedure
         R& end(Milliseconds msecs = RemoteClient::WaitInfinite)
 #endif
         {
-            _result.client().wait(msecs);
+            try
+            {
+                _result.client().wait(msecs);
+            }
+            catch (const std::exception&)
+            {
+                _result.client().endCall();
+                throw;
+            }
+
             return _result.get();
         }
 
