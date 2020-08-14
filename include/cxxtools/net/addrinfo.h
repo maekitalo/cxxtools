@@ -79,7 +79,7 @@ namespace net
     class AddrInfoError : public SystemError
     {
         public:
-            explicit AddrInfoError(int ret);
+            explicit AddrInfoError(int ret, const std::string& host, unsigned short port);
     };
 
 } // namespace net

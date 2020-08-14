@@ -43,19 +43,19 @@ namespace net
 {
   namespace
   {
-      std::string getAddrInfoError(int ret)
+      std::string getAddrInfoError(int ret, const std::string& host, unsigned short port)
       {
           if (ret == EAI_SYSTEM)
               return getErrnoString("getaddrinfo");
 
           std::ostringstream msg;
-          msg << "error " << ret << " in function getaddrinfo: " << ::gai_strerror(ret);
+          msg << "error " << ret << " in function getaddrinfo while searching for <" << host << ':' << port << ">: " << ::gai_strerror(ret);
           return msg.str();
       }
   }
 
-  AddrInfoError::AddrInfoError(int ret)
-    : SystemError(getAddrInfoError(ret))
+  AddrInfoError::AddrInfoError(int ret, const std::string& host, unsigned short port)
+    : SystemError(getAddrInfoError(ret, host, port))
   {
   }
 
@@ -95,7 +95,7 @@ namespace net
       if (ret == EAI_AGAIN)
         continue;
 
-      throw AddrInfoError(ret);
+      throw AddrInfoError(ret, host, port);
     }
 
     if (_ai == 0)
