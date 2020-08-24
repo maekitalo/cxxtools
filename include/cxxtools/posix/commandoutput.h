@@ -85,6 +85,8 @@ namespace cxxtools
         void close()
         { streambuf.closeReadFd(); }
 
+        pid_t pid() const
+        { return _fork.getPid(); }
     };
 
   }
