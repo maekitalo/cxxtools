@@ -55,6 +55,7 @@ class TcpServerImpl : public SelectableImpl
         struct Listener
         {
             int _fd;
+            unsigned short int _port;
             struct sockaddr_storage _servaddr;
         };
 

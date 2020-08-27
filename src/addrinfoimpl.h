@@ -34,6 +34,7 @@
 #include <iterator>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/un.h>
 #include <netdb.h>
 
 namespace cxxtools {
@@ -45,6 +46,8 @@ namespace net {
       std::string _host;
       unsigned short _port;
       struct addrinfo* _ai;
+      struct addrinfo _unix;
+      struct sockaddr_un _unix_sockaddr;
 
     public:
       void init(const std::string& host, unsigned short port);

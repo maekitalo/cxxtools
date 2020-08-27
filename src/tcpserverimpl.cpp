@@ -107,6 +107,13 @@ void TcpServerImpl::close()
         {
             log_debug("close socket " << it->_fd);
             ::close(it->_fd);
+
+            if (it->_port == 0)
+            {
+                auto sockaddr = (struct sockaddr_un*)&it->_servaddr;
+                log_debug("unlink \"" << sockaddr->sun_path << '"');
+                ::unlink(sockaddr->sun_path);
+            }
         }
     }
 
@@ -170,6 +177,7 @@ void TcpServerImpl::listen(const std::string& ipaddr, unsigned short int port, i
 
             _listeners.push_back(Listener());
             _listeners.back()._fd = fd;
+            _listeners.back()._port = port;
 
             if (flags & TcpServer::REUSEADDR)
             {
@@ -262,7 +270,8 @@ void TcpServerImpl::deferAccept(bool sw)
         it != _listeners.end(); ++it)
     {
         if (::setsockopt(it->_fd, SOL_TCP, TCP_DEFER_ACCEPT,
-            &deferSecs, sizeof(deferSecs)) < 0)
+            &deferSecs, sizeof(deferSecs)) < 0
+            && errno != EOPNOTSUPP)
         {
             throwSystemError("setsockopt(TCP_DEFER_ACCEPT)");
         }

@@ -47,6 +47,9 @@ namespace net
                 : _impl(0)
                 { }
             explicit AddrInfo(AddrInfoImpl* impl);
+
+            /// creates a AddrInfo class
+            /// setting port to 0 creates a AddrInfo for unix domain sockets where host is used as a path name
             AddrInfo(const std::string& host, unsigned short port, bool listen = false);
             AddrInfo(const AddrInfo& src);
             ~AddrInfo();

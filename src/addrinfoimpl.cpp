@@ -31,10 +31,16 @@
 
 #include <cxxtools/net/addrinfo.h>
 #include <cxxtools/systemerror.h>
+#include <cxxtools/log.h>
 
 #include <string>
 #include <sstream>
 #include <string.h>
+
+#include <sys/socket.h>
+#include <sys/un.h>
+
+log_define("cxxtools.net.addrinfo.impl")
 
 namespace cxxtools
 {
@@ -74,7 +80,9 @@ namespace net
   void AddrInfoImpl::init(const std::string& host, unsigned short port,
     const addrinfo& hints)
   {
-    if (_ai)
+    log_debug("init(\"" << host << "\", " << port << ')');
+
+    if (_ai && _ai != &_unix)
     {
       freeaddrinfo(_ai);
       _ai = 0;
@@ -82,6 +90,25 @@ namespace net
 
     _host = host;
     _port = port;
+
+    if (_port == 0)
+    {
+      log_debug("initialize unix domain socket to <" << host << '>');
+
+      if (host.size() >= sizeof(_unix_sockaddr.sun_path))
+        throw std::runtime_error("unix path \"" + host + "\" too long in addrinfo");
+
+      memset(&_unix, 0, sizeof(_unix));
+      memset(&_unix_sockaddr, 0, sizeof(_unix_sockaddr));
+      _unix.ai_family = AF_UNIX;
+      _unix.ai_socktype = hints.ai_socktype;
+      _unix.ai_addr = (sockaddr*)&_unix_sockaddr;
+      _unix.ai_addrlen = sizeof(sockaddr);
+      _unix_sockaddr.sun_family = AF_UNIX;
+      strcpy(_unix_sockaddr.sun_path, host.c_str());
+      _ai = &_unix;
+      return;
+    }
 
     std::ostringstream p;
     p << port;
@@ -104,7 +131,7 @@ namespace net
 
   AddrInfoImpl::~AddrInfoImpl()
   {
-    if (_ai)
+    if (_ai && _ai != &_unix)
       freeaddrinfo(_ai);
   }
 

@@ -439,7 +439,8 @@ std::string TcpSocketImpl::tryConnect()
         if (::setsockopt(fd, SOL_SOCKET, SO_NOSIGPIPE, &on, sizeof(on)) < 0)
             throw SystemError("setsockopt(SO_NOSIGPIPE)");
 #endif
-        if (::setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &on, sizeof(on)) < 0)
+        if (::setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &on, sizeof(on)) < 0
+            && errno != EOPNOTSUPP)
             throw SystemError("setsockopt(TCP_NODELAY)");
 
         IODeviceImpl::open(fd, true, false);
@@ -581,7 +582,8 @@ void TcpSocketImpl::accept(const TcpServer& server, unsigned flags)
     //TODO ECONNABORTED EINTR EPERM
 
     static const int on = 1;
-    if (::setsockopt(_fd, IPPROTO_TCP, TCP_NODELAY, &on, sizeof(on)) < 0)
+    if (::setsockopt(_fd, IPPROTO_TCP, TCP_NODELAY, &on, sizeof(on)) < 0
+        && errno != EOPNOTSUPP)
         throw SystemError("setsockopt(TCP_NODELAY)");
 
     _state = CONNECTED;
