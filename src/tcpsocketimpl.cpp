@@ -101,14 +101,16 @@ void formatIp(const Sockaddr& sa, std::string& str)
       switch(sa.sa_in.sin_family)
       {
             case AF_INET:
-                  p = inet_ntop(AF_INET, &sa.sa_in.sin_addr, strbuf, sizeof(strbuf));
-                  break;
+                p = inet_ntop(AF_INET, &sa.sa_in.sin_addr, strbuf, sizeof(strbuf));
+                break;
 #  ifdef HAVE_IPV6
             case AF_INET6:
-                  p = inet_ntop(AF_INET6, &sa.sa_in6.sin6_addr,
-                        strbuf, sizeof(strbuf));
-                  break;
+                p = inet_ntop(AF_INET6, &sa.sa_in6.sin6_addr, strbuf, sizeof(strbuf));
+                break;
 #  endif
+            case AF_UNIX:
+                str = sa.sa_un.sun_path;
+                return;
       }
 
       str = (p == 0 ? "-" : strbuf);

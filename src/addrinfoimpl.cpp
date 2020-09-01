@@ -103,7 +103,7 @@ namespace net
       _unix.ai_family = AF_UNIX;
       _unix.ai_socktype = hints.ai_socktype;
       _unix.ai_addr = (sockaddr*)&_unix_sockaddr;
-      _unix.ai_addrlen = sizeof(sockaddr);
+      _unix.ai_addrlen = sizeof(sockaddr_un);
       _unix_sockaddr.sun_family = AF_UNIX;
       strcpy(_unix_sockaddr.sun_path, host.c_str());
       _ai = &_unix;

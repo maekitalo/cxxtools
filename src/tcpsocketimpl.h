@@ -67,6 +67,7 @@ union Sockaddr
 #ifdef HAVE_IPV6
     struct sockaddr_in6     sa_in6;
 #endif
+    struct sockaddr_un      sa_un;
 };
 
 void formatIp(const Sockaddr& addr, std::string& str);
