@@ -147,7 +147,11 @@ void TcpServerImpl::listen(const std::string& ipaddr, unsigned short int port, i
             int fd;
             try
             {
+#ifdef SOCK_CLOEXEC
+                fd = create(it->ai_family, inherit ? SOCK_STREAM : (SOCK_STREAM|SOCK_CLOEXEC), 0);
+#else
                 fd = create(it->ai_family, SOCK_STREAM, 0);
+#endif
             }
             catch (const SystemError& e)
             {
@@ -217,6 +221,7 @@ void TcpServerImpl::listen(const std::string& ipaddr, unsigned short int port, i
             // save our information
             std::memmove(&_listeners.back()._servaddr, it->ai_addr, it->ai_addrlen);
 
+#ifndef SOCK_CLOEXEC
             if (!inherit)
             {
                 int flags = ::fcntl(fd, F_GETFD);
@@ -226,6 +231,7 @@ void TcpServerImpl::listen(const std::string& ipaddr, unsigned short int port, i
                 if (ret == -1)
                     throwSystemError("fcntl(FD_CLOEXEC)");
             }
+#endif
         }
 
 #ifdef HAVE_TCP_DEFER_ACCEPT
