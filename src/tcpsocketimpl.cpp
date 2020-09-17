@@ -465,6 +465,8 @@ std::string TcpSocketImpl::tryConnect()
             break;
         }
 
+        _connectFailedMessages.push_back(connectFailedMessage(_addrInfoPtr, errno));
+
         close();
         AddrInfoImpl::const_iterator aip = _addrInfoPtr;
         if (++_addrInfoPtr == _addrInfo.impl()->end())
@@ -486,8 +488,7 @@ bool TcpSocketImpl::beginConnect(const AddrInfo& addrInfo)
     _addrInfoPtr = _addrInfo.impl()->begin();
     _state = CONNECTING;
     _connectResult = tryConnect();
-    checkPendingError();
-    return _state == CONNECTED;
+    return _state == CONNECTED || !_connectResult.empty();
 }
 
 
