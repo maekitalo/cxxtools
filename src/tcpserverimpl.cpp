@@ -38,6 +38,7 @@
 #include <cxxtools/log.h>
 #include <cxxtools/ioerror.h>
 #include <cxxtools/resetter.h>
+#include <cxxtools/fileinfo.h>
 #include <cerrno>
 #include <cassert>
 #include <cstring>
@@ -185,11 +186,27 @@ void TcpServerImpl::listen(const std::string& ipaddr, unsigned short int port, i
 
             if (flags & TcpServer::REUSEADDR)
             {
-                log_debug("setsockopt SO_REUSEADDR");
-                if (::setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)) < 0)
+                if (port == 0)
                 {
-                    log_debug("could not set socket option SO_REUSEADDR " << fd << ": " << getErrnoString());
-                    throwSystemError("setsockopt");
+                    // UNIX domain socket
+                    // check file type
+                    FileInfo fileInfo(ipaddr);
+                    if (fileInfo.type() == FileInfo::Socket)
+                    {
+                        log_debug("remove existing unix domain socket \"" << ipaddr << '"');
+                        fileInfo.remove();
+                    }
+                    else if (fileInfo.type() != FileInfo::Invalid)
+                        throw AccessFailed(ipaddr);
+                }
+                else
+                {
+                    log_debug("setsockopt SO_REUSEADDR");
+                    if (::setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &on, sizeof(on)) < 0)
+                    {
+                        log_debug("could not set socket option SO_REUSEADDR " << fd << ": " << getErrnoString());
+                        throwSystemError("setsockopt");
+                    }
                 }
             }
 
