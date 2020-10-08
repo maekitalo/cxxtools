@@ -26,11 +26,11 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <cxxtools/net/addrinfo.h>
 #include "tcpserverimpl.h"
 #include "tcpsocketimpl.h"
 #include "addrinfoimpl.h"
 #include "error.h"
+#include <cxxtools/net/addrinfo.h>
 #include <cxxtools/net/tcpserver.h>
 #include <cxxtools/net/tcpsocket.h>
 #include <cxxtools/net/net.h>
@@ -75,6 +75,9 @@ TcpServerImpl::TcpServerImpl(TcpServer& server)
   _pfd(0)
 #ifdef HAVE_TCP_DEFER_ACCEPT
   , _deferAccept(false)
+#endif
+#ifdef WITH_SSL
+  , _sslCtx(false)
 #endif
 {
     int ret = ::pipe(_wakePipe);
@@ -300,6 +303,14 @@ void TcpServerImpl::deferAccept(bool sw)
         }
     }
 }
+#endif
+
+#ifdef WITH_SSL
+void TcpServerImpl::loadSslCertificateFile(const std::string& certFile, const std::string& privateKeyFile)
+{
+    _sslCtx.loadSslCertificateFile(certFile, privateKeyFile);
+}
+
 #endif
 
 bool TcpServerImpl::wait(Timespan timeout)

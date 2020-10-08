@@ -149,10 +149,13 @@ void ServerImpl::listen(const std::string& ip, unsigned short int port, const st
         net::TcpServer::DEFER_ACCEPT|net::TcpServer::REUSEADDR);
     Socket* socket = 0;
 
+    if (!certificateFile.empty())
+        listener->loadSslCertificateFile(certificateFile, privateKeyFile);
+
     try
     {
         _listener.push_back(listener);
-        socket = new Socket(*this, *listener, certificateFile, privateKeyFile, sslVerifyLevel, sslCa);
+        socket = new Socket(*this, *listener, !certificateFile.empty(), sslVerifyLevel, sslCa);
         _queue.put(socket);
     }
     catch (...)

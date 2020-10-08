@@ -175,5 +175,6 @@ libcxxtools_la_LDFLAGS = -version-info @sonumber@ @SHARED_LIB_FLAG@
 if MAKE_OPENSSL
 libcxxtools_la_LDFLAGS += -lssl
 libcxxtools_la_SOURCES += \
-	sslcertificateimpl.cpp
+	sslcertificateimpl.cpp \
+	sslctx.cpp
 endif

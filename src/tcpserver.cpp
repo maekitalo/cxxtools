@@ -30,9 +30,13 @@
 #include <cxxtools/net/tcpserver.h>
 #include <sstream>
 
-namespace cxxtools {
+#include "config.h"
 
-namespace net {
+namespace cxxtools
+{
+
+namespace net
+{
 
 namespace
 {
@@ -93,6 +97,14 @@ void TcpServer::listen(const std::string& ipaddr, unsigned short int port, int b
     this->setEnabled(true);
 }
 
+void TcpServer::loadSslCertificateFile(const std::string& certFile, const std::string& privateKeyFile)
+{
+#ifdef WITH_SSL
+    _impl->loadSslCertificateFile(certFile, privateKeyFile);
+#else
+    log_warn("can't load certificate file since ssl is disabled");
+#endif
+}
 
 void TcpServer::terminateAccept()
 {

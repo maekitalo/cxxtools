@@ -37,12 +37,11 @@ namespace cxxtools
 namespace bin
 {
 
-Socket::Socket(RpcServerImpl& rpcServerImpl, net::TcpServer& tcpServer, const std::string& certificateFile, const std::string& privateKeyFile, int sslVerifyLevel, const std::string& sslCa)
+Socket::Socket(RpcServerImpl& rpcServerImpl, net::TcpServer& tcpServer, bool ssl, int sslVerifyLevel, const std::string& sslCa)
     : inputSlot(slot(*this, &Socket::onInput)),
       _rpcServerImpl(rpcServerImpl),
       _tcpServer(tcpServer),
-      _certificateFile(certificateFile),
-      _privateKeyFile(privateKeyFile),
+      _ssl(ssl),
       _responder(rpcServerImpl._serviceRegistry),
       _sslVerifyLevel(sslVerifyLevel),
       _sslCa(sslCa),
@@ -60,8 +59,7 @@ Socket::Socket(Socket& socket)
       inputSlot(slot(*this, &Socket::onInput)),
       _rpcServerImpl(socket._rpcServerImpl),
       _tcpServer(socket._tcpServer),
-      _certificateFile(socket._certificateFile),
-      _privateKeyFile(socket._privateKeyFile),
+      _ssl(socket._ssl),
       _responder(_rpcServerImpl._serviceRegistry),
       _sslVerifyLevel(socket._sslVerifyLevel),
       _sslCa(socket._sslCa),
@@ -78,9 +76,8 @@ void Socket::accept()
     log_debug("accept");
     net::TcpSocket::accept(_tcpServer);
 
-    if (!_certificateFile.empty())
+    if (_ssl)
     {
-        loadSslCertificateFile(_certificateFile, _privateKeyFile);
         setSslVerify(_sslVerifyLevel, _sslCa);
         beginSslAccept();
     }
@@ -89,7 +86,7 @@ void Socket::accept()
 void Socket::postAccept()
 {
     log_trace("post accept");
-    if (!_certificateFile.empty())
+    if (_ssl)
     {
         cxxtools::Timespan t = getTimeout();
         setTimeout(cxxtools::Seconds(10));

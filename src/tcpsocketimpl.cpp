@@ -238,67 +238,19 @@ void TcpSocketImpl::waitSslOperation(int ret, cxxtools::Timespan timeout)
         throw IOTimeout();
     }
 }
-static cxxtools::Mutex *openssl_mutex;
-
-static unsigned long pthreads_thread_id()
-    { return (unsigned long)pthread_self(); }
-
-static void pthreads_locking_callback(int mode, int n, const char* /* file */, int /* line */)
-{
-    if (mode & CRYPTO_LOCK)
-        openssl_mutex[n].lock();
-    else
-        openssl_mutex[n].unlock();
-}
-
-static void thread_setup()
-{
-    openssl_mutex = new cxxtools::Mutex[CRYPTO_num_locks()];
-
-    CRYPTO_set_id_callback(pthreads_thread_id);
-    CRYPTO_set_locking_callback(pthreads_locking_callback);
-}
 
 void TcpSocketImpl::initSsl()
 {
     if (_ssl)
         return;
 
-    {
-        MutexLock lock(_sslMutex);
-        if (!_sslCtx)
-        {
-            if (!_sslInitialized)
-            {
-                log_debug_to(ssl, "SSL_library_init");
-                SSL_library_init();
+    _sslCtx.create();
 
-                SslError::checkSslError();
+    _ssl = SSL_new(_sslCtx.ctx());
+    SslError::checkSslError();
 
-                thread_setup();
-
-                _sslInitialized = true;
-            }
-
-#ifdef HAVE_TLS_METHOD
-            log_debug_to(ssl, "SSL_CTX_new(TLS_method())");
-            _sslCtx = SSL_CTX_new(TLS_method());
-#else
-            log_debug_to(ssl, "SSL_CTX_new(SSLv23_method())");
-            _sslCtx = SSL_CTX_new(SSLv23_method());
-#endif
-            SslError::checkSslError();
-        }
-    }
-
-    if (!_ssl)
-    {
-        _ssl = SSL_new(_sslCtx);
-        SslError::checkSslError();
-
-        log_debug_to(ssl, "SSL_set_fd(" << _ssl << ", " << _fd << ')');
-        SSL_set_fd(_ssl, _fd);
-    }
+    log_debug_to(ssl, "SSL_set_fd(" << _ssl << ", " << _fd << ')');
+    SSL_set_fd(_ssl, _fd);
 }
 #endif // WITH_SSL
 
@@ -309,7 +261,7 @@ TcpSocketImpl::TcpSocketImpl(TcpSocket& socket)
   _sentry(0)
 #ifdef WITH_SSL
   ,
-  _sslCtx(0),
+  _sslCtx(false),
   _ssl(0),
   _peerCertificateLoaded(false)
 #endif
@@ -324,8 +276,6 @@ TcpSocketImpl::~TcpSocketImpl()
 #ifdef WITH_SSL
     if (_ssl)
         SSL_free(_ssl);
-    if (_sslCtx)
-        SSL_CTX_free(_sslCtx);
 #endif
 
     if (_sentry)
@@ -573,6 +523,9 @@ void TcpSocketImpl::accept(const TcpServer& server, unsigned flags)
 
     if (_fd < 0)
         throw SystemError("accept");
+
+    if (!_sslCtx.ctx())
+        _sslCtx = server.impl().sslCtx();
 
 #ifdef HAVE_ACCEPT4
     // Pass inherit flag as "true" since this is the default.
@@ -1039,9 +992,6 @@ size_t TcpSocketImpl::read(char* buffer, size_t count, bool& eof)
 
 #ifdef WITH_SSL
 
-Mutex TcpSocketImpl::_sslMutex;
-bool TcpSocketImpl::_sslInitialized = false;
-
 void TcpSocketImpl::loadSslCertificateFile(const std::string& certFile, const std::string& privateKeyFile)
 {
     log_debug("load ssl certificate file \"" << certFile << '"');
@@ -1073,7 +1023,7 @@ void TcpSocketImpl::setSslVerify(int level, const std::string& ca)
     log_debug("SSL_load_client_CA_file => " << names << " (" << sk_X509_NAME_num(names) << ')');
 
     log_debug("SSL_CTX_set_client_CA_list");
-    SSL_CTX_set_client_CA_list(_sslCtx, names);
+    SSL_CTX_set_client_CA_list(_sslCtx.ctx(), names);
 
     log_debug("set ssl verify level " << level);
     SSL_set_verify(
@@ -1087,7 +1037,7 @@ void TcpSocketImpl::setSslVerify(int level, const std::string& ca)
     {
         log_debug_if(fileInfo.isFile(), "load verify locations file \"" << ca << '"');
         log_debug_if(fileInfo.isDirectory(), "load verify locations directory \"" << ca << '"');
-        int ret = SSL_CTX_load_verify_locations(_sslCtx,
+        int ret = SSL_CTX_load_verify_locations(_sslCtx.ctx(),
             fileInfo.isFile()      ? ca.c_str() : 0,
             fileInfo.isDirectory() ? ca.c_str() : 0);
 

@@ -64,7 +64,7 @@ class Socket : public net::TcpSocket, public Connectable
         };
 
     public:
-        Socket(ServerImpl& server, net::TcpServer& tcpServer, const std::string& certificateFile, const std::string& privateKeyFile, int sslVerifyLevel, const std::string& sslCa);
+        Socket(ServerImpl& server, net::TcpServer& tcpServer, bool ssl, int sslVerifyLevel, const std::string& sslCa);
         explicit Socket(Socket& socket);
         ~Socket();
 
@@ -101,8 +101,7 @@ class Socket : public net::TcpSocket, public Connectable
 
     private:
         net::TcpServer& _tcpServer;
-        std::string _certificateFile;
-        std::string _privateKeyFile;
+        bool _ssl;
         ServerImpl& _server;
 
         ParseEvent _parseEvent;

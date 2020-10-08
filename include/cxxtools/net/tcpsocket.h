@@ -132,7 +132,7 @@ class TcpSocket : public IODevice
          *
          *  In any case the delegate `acceptSslCertificate` is called if
          *  connected.  If the delegate returns false, the ssl connection is
-         *  denied. A excepciton of type `cxxtools::SslCertificateNotAccepted`
+         *  denied. A exception of type `cxxtools::SslCertificateNotAccepted`
          *  is thrown.
          */
         void setSslVerify(int level, const std::string& ca = std::string());

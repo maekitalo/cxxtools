@@ -45,7 +45,7 @@ class RpcServerImpl;
 class Socket : public net::TcpSocket, public Connectable
 {
     public:
-        Socket(RpcServerImpl& rpcServerImpl, net::TcpServer& tcpServer, const std::string& certificateFile, const std::string& privateKeyFile, int sslVerifyLevel, const std::string& sslCa);
+        Socket(RpcServerImpl& rpcServerImpl, net::TcpServer& tcpServer, bool ssl, int sslVerifyLevel, const std::string& sslCa);
         explicit Socket(Socket& socket);
 
         void accept();
@@ -72,8 +72,7 @@ class Socket : public net::TcpSocket, public Connectable
     private:
         RpcServerImpl& _rpcServerImpl;
         net::TcpServer& _tcpServer;
-        std::string _certificateFile;
-        std::string _privateKeyFile;
+        bool _ssl;
 
         Responder _responder;
         IOStream _stream;

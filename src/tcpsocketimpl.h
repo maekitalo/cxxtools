@@ -36,7 +36,10 @@
 #include "addrinfoimpl.h"
 #include "config.h"
 
+#ifdef WITH_SSL
 #include <openssl/ssl.h>
+#include "sslctx.h"
+#endif
 
 #include <string>
 #include <vector>
@@ -110,9 +113,7 @@ class TcpSocketImpl : public IODeviceImpl
 
 #ifdef WITH_SSL
         // SSL
-        static Mutex _sslMutex;
-        static bool _sslInitialized;
-        SSL_CTX* _sslCtx;
+        SslCtx _sslCtx;
         SSL* _ssl;
         mutable bool _peerCertificateLoaded;
         mutable SslCertificate _peerCertificate;

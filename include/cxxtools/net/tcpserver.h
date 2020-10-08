@@ -75,6 +75,8 @@ namespace net
 
       void listen(const std::string& ipaddr, unsigned short int port, int backlog = 5, unsigned flags = REUSEADDR);
 
+      void loadSslCertificateFile(const std::string& certFile, const std::string& privateKeyFile = std::string());
+
       // inherit doc
       virtual SelectableImpl& simpl();
 
