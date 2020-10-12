@@ -30,6 +30,7 @@
 #define CXXTOOLS_SSLCTX_H
 
 #include <cxxtools/mutex.h>
+#include <cxxtools/smartptr.h>
 #include <openssl/ssl.h>
 
 namespace cxxtools
@@ -37,18 +38,26 @@ namespace cxxtools
 
 class SslCtx
 {
+    template <typename SslCtx>
+    class SslCtxFree
+    {
+    public:
+        static void destroy(SslCtx* ctx)
+        { SSL_CTX_free(ctx); }
+    };
 
-    SSL_CTX* _ctx;
+    SmartPtr<SSL_CTX, ExternalAtomicRefCounted, SslCtxFree> _ctx;
 
 public:
-    explicit SslCtx(bool create = true);
-    SslCtx(const SslCtx& ctx);
-    SslCtx& operator= (const SslCtx& ctx);
-    ~SslCtx();
+    explicit SslCtx(bool create = true)
+    {
+        if (create)
+            this->create();
+    }
 
     void create();
 
-    SSL_CTX* ctx() const  { return _ctx; }
+    SSL_CTX* ctx()        { return _ctx.getPointer(); }
 
     void loadSslCertificateFile(const std::string& certFile, const std::string& privateKeyFile);
 };

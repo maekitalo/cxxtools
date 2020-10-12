@@ -86,53 +86,9 @@ void SslCtx::create()
     log_debug("SSL_CTX_new(SSLv23_method())");
     _ctx = SSL_CTX_new(SSLv23_method());
 #endif
-    log_debug("ctx=" << static_cast<void*>(_ctx));
+
+    log_debug("ctx=" << static_cast<void*>(ctx()));
     SslError::checkSslError();
-}
-
-SslCtx::SslCtx(bool create_)
-    : _ctx(nullptr)
-{
-    if (create_)
-        create();
-}
-
-SslCtx::SslCtx(const SslCtx& ctx)
-    : _ctx(ctx._ctx)
-{
-    if (_ctx)
-    {
-        log_debug("SSL_CTX_up_ref(" << static_cast<void*>(_ctx) << ')');
-        SSL_CTX_up_ref(_ctx);
-    }
-}
-
-SslCtx& SslCtx::operator= (const SslCtx& ctx)
-{
-    if (_ctx)
-    {
-        log_debug("SSL_CTX_free(" << static_cast<void*>(_ctx) << ')');
-        SSL_CTX_free(_ctx);
-    }
-
-    _ctx = ctx._ctx;
-
-    if (_ctx)
-    {
-        log_debug("SSL_CTX_up_ref(" << static_cast<void*>(_ctx) << ')');
-        SSL_CTX_up_ref(_ctx);
-    }
-
-    return *this;
-}
-
-SslCtx::~SslCtx()
-{
-    if (_ctx)
-    {
-        log_debug("SSL_CTX_free(" << static_cast<void*>(_ctx) << ')');
-        SSL_CTX_free(_ctx);
-    }
 }
 
 void SslCtx::loadSslCertificateFile(const std::string& certFile, const std::string& privateKeyFile)
@@ -140,18 +96,18 @@ void SslCtx::loadSslCertificateFile(const std::string& certFile, const std::stri
     create();
 
     log_debug("load ssl certificate file \"" << certFile << '"');
-    int ret = SSL_CTX_use_certificate_chain_file(_ctx, certFile.c_str());
+    int ret = SSL_CTX_use_certificate_chain_file(ctx(), certFile.c_str());
     if (ret != 1)
         SslError::checkSslError();
 
     std::string key = privateKeyFile.empty() ? certFile : privateKeyFile;
     log_debug("load ssl private key file \"" << key << '"');
-    ret = SSL_CTX_use_PrivateKey_file(_ctx, key.c_str(), SSL_FILETYPE_PEM);
+    ret = SSL_CTX_use_PrivateKey_file(ctx(), key.c_str(), SSL_FILETYPE_PEM);
     if (ret != 1)
         SslError::checkSslError();
 
     log_debug("check private key");
-    if (!SSL_CTX_check_private_key(_ctx))
+    if (!SSL_CTX_check_private_key(ctx()))
         throw SslError("private key does not match the certificate public key", 0);
 
     log_debug("private key ok");
