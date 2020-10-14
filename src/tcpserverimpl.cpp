@@ -308,6 +308,7 @@ void TcpServerImpl::deferAccept(bool sw)
 #ifdef WITH_SSL
 void TcpServerImpl::loadSslCertificateFile(const std::string& certFile, const std::string& privateKeyFile)
 {
+    _sslCtx.create();
     _sslCtx.loadSslCertificateFile(certFile, privateKeyFile);
 }
 
