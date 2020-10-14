@@ -157,6 +157,7 @@ noinst_HEADERS = \
 	settingsreader.h \
 	settingswriter.h \
 	sslcertificateimpl.h \
+	sslctx.h \
 	tcpserverimpl.h \
 	tcpsocketimpl.h \
 	threadimpl.h \
