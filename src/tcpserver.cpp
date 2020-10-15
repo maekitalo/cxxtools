@@ -106,6 +106,15 @@ void TcpServer::loadSslCertificateFile(const std::string& certFile, const std::s
 #endif
 }
 
+void TcpServer::setSslVerify(int level, const std::string& ca)
+{
+#ifdef WITH_SSL
+    _impl->setSslVerify(level, ca);
+#else
+    log_warn("can't set ssl verify level since ssl is disabled");
+#endif
+}
+
 void TcpServer::terminateAccept()
 {
     _impl->terminateAccept();

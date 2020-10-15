@@ -134,8 +134,20 @@ class TcpSocket : public IODevice
          *  connected.  If the delegate returns false, the ssl connection is
          *  denied. A exception of type `cxxtools::SslCertificateNotAccepted`
          *  is thrown.
+         *
+         *  @deprecated
+         *  Use the method cxxtools::net::TcpServer::setSslVerify for server
+         *  or setSslVerify without level in tcp clients.
          */
         void setSslVerify(int level, const std::string& ca = std::string());
+
+        /** Enables ssl peer certificate check.
+         *
+         *  This method is for tcp clients to check the certificate against
+         *  a CA. It must not be used in server mode (sockets accepted from
+         *  a tcp server class)
+         */
+        void setSslVerify(const std::string& ca);
 
         bool hasSslPeerCertificate() const;
         const SslCertificate& getSslPeerCertificate() const;

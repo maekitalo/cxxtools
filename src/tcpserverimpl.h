@@ -100,6 +100,8 @@ class TcpServerImpl : public SelectableImpl
 
 #ifdef WITH_SSL
         void loadSslCertificateFile(const std::string& certFile, const std::string& privateKeyFile);
+        void setSslVerify(int level, const std::string& ca)
+        { _sslCtx.setSslVerify(level, ca); }
 
         const SslCtx& sslCtx() const { return _sslCtx; }
 #endif

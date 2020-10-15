@@ -213,6 +213,15 @@ void TcpSocket::setSslVerify(int level, const std::string& ca)
 #endif
 }
 
+void TcpSocket::setSslVerify(const std::string& ca)
+{
+#ifdef WITH_SSL
+    _impl->setSslVerify(2, ca);
+#else
+    log_warn("can't set ssl verify level since ssl is disabled");
+#endif
+}
+
 bool TcpSocket::hasSslPeerCertificate() const
 {
 #ifdef WITH_SSL

@@ -28,9 +28,14 @@
 
 #include "sslctx.h"
 #include <cxxtools/systemerror.h>
+#include <cxxtools/fileinfo.h>
 #include <cxxtools/log.h>
 
 #include <openssl/ssl.h>
+
+#include <cstring>
+#include <stdlib.h>
+
 #include "config.h"
 
 log_define("cxxtools.sslctx")
@@ -91,6 +96,13 @@ void SslCtx::create()
     SslError::checkSslError();
 }
 
+template <typename SslCtxType>
+void SslCtx::SslCtxFree<SslCtxType>::destroy(SslCtxType* ctx)
+{
+    log_debug("SSL_CTX_free(" << static_cast<void*>(ctx) << ')');
+    SSL_CTX_free(ctx);
+}
+
 void SslCtx::loadSslCertificateFile(const std::string& certFile, const std::string& privateKeyFile)
 {
     create();
@@ -111,6 +123,44 @@ void SslCtx::loadSslCertificateFile(const std::string& certFile, const std::stri
         throw SslError("private key does not match the certificate public key", 0);
 
     log_debug("private key ok");
+}
+
+void SslCtx::setSslVerify(int level, const std::string& ca)
+{
+    cxxtools::FileInfo fileInfo(ca);
+
+    STACK_OF(X509_NAME)* names = SSL_load_client_CA_file(ca.c_str());
+    log_debug("SSL_load_client_CA_file => " << names << " (" << sk_X509_NAME_num(names) << ')');
+
+    log_debug("SSL_CTX_set_client_CA_list");
+    SSL_CTX_set_client_CA_list(ctx(), names);
+
+    log_debug("set ssl verify level " << level);
+    SSL_CTX_set_verify(
+        ctx(),
+        level == 0 ? SSL_VERIFY_NONE :
+        level == 1 ? (SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE) :
+                     (SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT | SSL_VERIFY_CLIENT_ONCE),
+        0);
+
+    if (level > 0)
+    {
+        log_debug_if(fileInfo.isFile(), "load verify locations file \"" << ca << '"');
+        log_debug_if(fileInfo.isDirectory(), "load verify locations directory \"" << ca << '"');
+        int ret = SSL_CTX_load_verify_locations(ctx(),
+            fileInfo.isFile()      ? ca.c_str() : 0,
+            fileInfo.isDirectory() ? ca.c_str() : 0);
+
+        if (ret == 0)
+            SslError::checkSslError();
+
+        char hostname[HOST_NAME_MAX];
+        ::gethostname(hostname, sizeof(hostname));
+        log_debug("SSL_CTX_set_session_id_context(" << static_cast<void*>(ctx()) << ", " << hostname << ')');
+        ret = SSL_CTX_set_session_id_context(ctx(), reinterpret_cast<const unsigned char*>(hostname), std::max(static_cast<size_t>(SSL_MAX_SSL_SESSION_ID_LENGTH), std::strlen(hostname)));
+        if (ret == 0)
+            SslError::checkSslError();
+    }
 }
 
 }

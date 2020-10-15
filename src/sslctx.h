@@ -38,12 +38,11 @@ namespace cxxtools
 
 class SslCtx
 {
-    template <typename SslCtx>
+    template <typename SslCtxType>
     class SslCtxFree
     {
     public:
-        static void destroy(SslCtx* ctx)
-        { SSL_CTX_free(ctx); }
+        static void destroy(SslCtxType* ctx);
     };
 
     SmartPtr<SSL_CTX, ExternalAtomicRefCounted, SslCtxFree> _ctx;
@@ -60,6 +59,7 @@ public:
     SSL_CTX* ctx()        { return _ctx.getPointer(); }
 
     void loadSslCertificateFile(const std::string& certFile, const std::string& privateKeyFile);
+    void setSslVerify(int level, const std::string& ca);
 };
 
 }
