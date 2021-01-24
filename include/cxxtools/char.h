@@ -68,9 +68,7 @@ namespace cxxtools
             typedef int32_t value_type;
 
             //! Constructs a character with a value of 0.
-            Char()
-            : _value(0)
-            {}
+            Char() = default;
 
             //! Constructs a character using the given value as base for the character value.
             Char(value_type ch)
