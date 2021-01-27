@@ -17,6 +17,7 @@ alltests_SOURCES = \
     binrpc-test.cpp \
     binserializer-test.cpp \
     cache-test.cpp \
+    char-test.cpp \
     clock-test.cpp \
     csvdeserializer-test.cpp \
     csvserializer-test.cpp \
