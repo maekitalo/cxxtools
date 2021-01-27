@@ -225,7 +225,7 @@ namespace std {
     struct char_traits<cxxtools::Char>
     {
         typedef cxxtools::Char char_type;
-        typedef long int_type;
+        typedef int64_t int_type;
         typedef std::streamoff off_type;
         typedef std::streampos pos_type;
         typedef cxxtools::MBState state_type;
