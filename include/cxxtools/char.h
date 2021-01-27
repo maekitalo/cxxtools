@@ -32,6 +32,7 @@
 #include <string>
 #include <cstring>
 #include <ios>
+#include <limits>
 #include <stdint.h>
 
 namespace cxxtools
@@ -65,7 +66,7 @@ namespace cxxtools
     class Char
     {
         public:
-            typedef int32_t value_type;
+            typedef uint32_t value_type;
 
             //! Constructs a character with a value of 0.
             Char() = default;
@@ -224,7 +225,7 @@ namespace std {
     struct char_traits<cxxtools::Char>
     {
         typedef cxxtools::Char char_type;
-        typedef cxxtools::Char::value_type int_type;
+        typedef long int_type;
         typedef std::streamoff off_type;
         typedef std::streampos pos_type;
         typedef cxxtools::MBState state_type;
@@ -363,7 +364,7 @@ namespace std {
 
     inline char_traits<cxxtools::Char>::int_type char_traits<cxxtools::Char>::eof()
     {
-        return static_cast<char_traits<cxxtools::Char>::int_type>( cxxtools::Char::value_type(-1) );
+        return std::numeric_limits<int_type>::max();
     }
 
 

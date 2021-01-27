@@ -139,7 +139,7 @@ ctype<cxxtools::Char>::do_tolower(cxxtools::Char* begin, const cxxtools::Char* e
 
 cxxtools::Char ctype<cxxtools::Char>::do_widen(char ch) const
 {
-    return cxxtools::Char(ch);
+    return cxxtools::Char(static_cast<unsigned char>(ch));
 }
 
 

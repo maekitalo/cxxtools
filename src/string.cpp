@@ -731,7 +731,7 @@ basic_string<cxxtools::Char> basic_string<cxxtools::Char>::widen(const char* str
     ret.privreserve(len);
 
     for (size_type n = 0; n < len; ++n)
-        ret += cxxtools::Char( str[n] );
+        ret += cxxtools::Char( static_cast<unsigned char>(str[n]) );
 
     return ret;
 }
@@ -745,7 +745,7 @@ basic_string<cxxtools::Char> basic_string<cxxtools::Char>::widen(const std::stri
     ret.privreserve(len);
 
     for (size_type n = 0; n < len; ++n)
-        ret += cxxtools::Char( str[n] );
+        ret += cxxtools::Char( static_cast<unsigned char>(str[n]) );
 
     return ret;
 }
