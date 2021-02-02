@@ -52,6 +52,8 @@ log_define("cxxtools.tz")
 namespace cxxtools
 {
 
+typedef int64_t TimeValue;
+
 class Tz::Impl : public RefCounted
 {
     friend class Tz;
@@ -81,13 +83,13 @@ class Tz::Impl : public RefCounted
 
     struct LeapInfo
     {
-        time_t transitionTime;
+        TimeValue transitionTime;
         int32_t corrections;
     };
 
     struct Transition
     {
-        time_t transitionTime;
+        TimeValue transitionTime;
         uint8_t ttIndex;
     };
 
@@ -337,7 +339,7 @@ const std::string& Tz::name() const
 
 TzDateTime Tz::toLocal(const UtcDateTime& dt) const
 {
-    time_t t = static_cast<time_t>(dt.msecsSinceEpoch().totalSeconds());
+    TimeValue t = static_cast<TimeValue>(dt.msecsSinceEpoch().totalSeconds());
 
     uint8_t ttIndex = 0;
     for (unsigned i = 0; i < _impl->transitions.size(); ++i)
@@ -365,7 +367,7 @@ TzDateTime Tz::toLocal(const UtcDateTime& dt) const
     return TzDateTime(dt + gmtoff, tzName, gmtoff, isdst, leapSeconds);
 }
 
-static std::string timeT2s(time_t t)
+static std::string timeT2s(TimeValue t)
 {
     return cxxtools::DateTime::fromMSecsSinceEpoch(cxxtools::Seconds(t)).toString();
 }
@@ -377,7 +379,7 @@ UtcDateTime Tz::toUtc(const LocalDateTime& dt) const
     if (_impl->transitions.empty())
         return UtcDateTime(dt);
 
-    time_t t = static_cast<time_t>(dt.msecsSinceEpoch().totalSeconds());
+    TimeValue t = static_cast<TimeValue>(dt.msecsSinceEpoch().totalSeconds());
     unsigned i;
     for (i = 0; i < _impl->transitions.size() - 1; ++i)
     {
@@ -417,7 +419,7 @@ UtcDateTime Tz::toUtc(const LocalDateTime& dt, bool early) const
     if (_impl->transitions.empty())
         return UtcDateTime(dt);
 
-    time_t t = static_cast<time_t>(dt.msecsSinceEpoch().totalSeconds());
+    TimeValue t = static_cast<TimeValue>(dt.msecsSinceEpoch().totalSeconds());
     unsigned i;
     for (i = 0; i < _impl->transitions.size() - 1; ++i)
     {
@@ -464,7 +466,7 @@ UtcDateTime Tz::previousChange(const cxxtools::DateTime& dt, bool local) const
 
     if (!_impl->transitions.empty())
     {
-        time_t t = static_cast<time_t>(dt.msecsSinceEpoch().totalSeconds());
+        TimeValue t = static_cast<TimeValue>(dt.msecsSinceEpoch().totalSeconds());
         for (unsigned i = 0; i < _impl->transitions.size() - 1; ++i)
         {
             if (_impl->transitions[i + 1].transitionTime > t)
@@ -484,7 +486,7 @@ UtcDateTime Tz::nextChange(const cxxtools::DateTime& dt, bool local) const
 
     if (!_impl->transitions.empty())
     {
-        time_t t = static_cast<time_t>(dt.msecsSinceEpoch().totalSeconds());
+        TimeValue t = static_cast<TimeValue>(dt.msecsSinceEpoch().totalSeconds());
         for (unsigned i = 0; i < _impl->transitions.size() - 1; ++i)
         {
             if (_impl->transitions[i + 1].transitionTime > t)
@@ -500,7 +502,7 @@ UtcDateTime Tz::nextChange(const cxxtools::DateTime& dt, bool local) const
 
 cxxtools::Timespan Tz::offset(const UtcDateTime& gmtDt) const
 {
-    time_t t = static_cast<time_t>(gmtDt.msecsSinceEpoch().totalSeconds());
+    TimeValue t = static_cast<TimeValue>(gmtDt.msecsSinceEpoch().totalSeconds());
 
     uint8_t ttIndex = 0;
     for (unsigned i = 0; i < _impl->transitions.size(); ++i)
