@@ -307,7 +307,6 @@ namespace cxxtools
     void operator <<=(SerializationInfo& si, const Seconds& timespan)
     {
         si <<= timespan.totalSeconds();
-        si <<= toString(timespan.totalUSecs(), 6);
         si.setTypeName("seconds");
     }
 
