@@ -60,6 +60,7 @@ class Siconvert
         bool outputXml;
         bool outputXmlCompact;
         bool outputJson;
+        bool outputJsongrep;
         bool outputIni;
         bool outputCsv;
         bool outputProperties;
@@ -91,6 +92,7 @@ Siconvert::Siconvert(int& argc, char* argv[])
       outputXml(cxxtools::Arg<bool>(argc, argv, 'X')),
       outputXmlCompact(cxxtools::Arg<bool>(argc, argv, 'Y')),
       outputJson(cxxtools::Arg<bool>(argc, argv, 'J')),
+      outputJsongrep(cxxtools::Arg<bool>(argc, argv, 'G')),
       outputIni(cxxtools::Arg<bool>(argc, argv, 'I')),
       outputCsv(cxxtools::Arg<bool>(argc, argv, 'C')),
       outputProperties(cxxtools::Arg<bool>(argc, argv, 'P')),
@@ -133,6 +135,8 @@ Siconvert::Siconvert(int& argc, char* argv[])
     if (outputXmlCompact)
         ++c;
     if (outputJson)
+        ++c;
+    if (outputJsongrep)
         ++c;
     if (outputIni)
         ++c;
@@ -187,6 +191,8 @@ void Siconvert::convert(std::istream& in, std::ostream& out)
             out << cxxtools::xml::Xml(si, "root").beautify(beautify).useAttributes(false);
         else if (outputJson)
             out << cxxtools::Json(si).beautify(beautify);
+        else if (outputJsongrep)
+            out << cxxtools::Json(si).beautify(beautify) << '\n';
         else if (outputIni)
             out << cxxtools::Ini(si);
         else if (outputCsv)
@@ -267,6 +273,7 @@ int main(int argc, char* argv[])
                      " -X         output xml data\n"
                      " -Y         output xml data without attributes\n"
                      " -J         output json data\n"
+                     " -G         output grep friendly json (unformatted but newline after each message)\n"
                      " -I         output ini data\n"
                      " -C         output csv data\n"
                      " -P         output properties data\n"
