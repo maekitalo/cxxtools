@@ -70,7 +70,6 @@ class SerializationInfoTest : public cxxtools::unit::TestSuite
             registerMethod("testMove", *this, &SerializationInfoTest::testMove);
 #endif
             registerMethod("testStringToBool", *this, &SerializationInfoTest::testStringToBool);
-            registerMethod("testRangeCheck", *this, &SerializationInfoTest::testRangeCheck);
             registerMethod("testMember", *this, &SerializationInfoTest::testMember);
         }
 
@@ -541,49 +540,6 @@ class SerializationInfoTest : public cxxtools::unit::TestSuite
 
             si.setValue("78");
             CXXTOOLS_UNIT_ASSERT(siValue<bool>(si));
-        }
-
-        void testRangeCheck()
-        {
-            cxxtools::SerializationInfo si;
-            si.setValue(-1);
-            CXXTOOLS_UNIT_ASSERT_THROW(siValue<unsigned short>(si), std::range_error);
-            CXXTOOLS_UNIT_ASSERT_THROW(siValue<unsigned>(si), std::range_error);
-            CXXTOOLS_UNIT_ASSERT_THROW(siValue<unsigned long>(si), std::range_error);
-
-            si.setValue(static_cast<long>(std::numeric_limits<short>::max()) + 1);
-            CXXTOOLS_UNIT_ASSERT_THROW(siValue<short>(si), std::range_error);
-            CXXTOOLS_UNIT_ASSERT_NOTHROW(siValue<long>(si));
-
-            if (std::numeric_limits<long double>::max() > static_cast<long double>(std::numeric_limits<double>::max()))
-            {
-                si.setValue(static_cast<long double>(std::numeric_limits<double>::max()) * 1.01);
-                CXXTOOLS_UNIT_ASSERT_THROW(siValue<double>(si), std::range_error);
-                CXXTOOLS_UNIT_ASSERT_NOTHROW(siValue<long double>(si));
-
-                si.setValue(static_cast<long double>(-std::numeric_limits<double>::max()) * 1.01);
-                CXXTOOLS_UNIT_ASSERT_THROW(siValue<double>(si), std::range_error);
-                CXXTOOLS_UNIT_ASSERT_NOTHROW(siValue<long double>(si));
-            }
-            else
-            {
-                log_info("range error for double skipped since long double is not larger than double");
-            }
-
-            if (std::numeric_limits<long double>::max() > static_cast<long double>(std::numeric_limits<float>::max()))
-            {
-                si.setValue(static_cast<long double>(std::numeric_limits<float>::max()) * 1.01);
-                CXXTOOLS_UNIT_ASSERT_THROW(siValue<float>(si), std::range_error);
-                CXXTOOLS_UNIT_ASSERT_NOTHROW(siValue<double>(si));
-
-                si.setValue(static_cast<long double>(-std::numeric_limits<float>::max()) * 1.01);
-                CXXTOOLS_UNIT_ASSERT_THROW(siValue<float>(si), std::range_error);
-                CXXTOOLS_UNIT_ASSERT_NOTHROW(siValue<double>(si));
-            }
-            else
-            {
-                log_info("range error for float skipped since long double is not larger than double");
-            }
         }
 
         void testMember()
