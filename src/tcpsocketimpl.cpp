@@ -527,8 +527,10 @@ void TcpSocketImpl::accept(const TcpServer& server, unsigned flags)
     if (_fd < 0)
         throw SystemError("accept");
 
+#ifdef WITH_SSL
     if (!_sslCtx.ctx())
         _sslCtx = server.impl().sslCtx();
+#endif
 
 #ifdef HAVE_ACCEPT4
     // Pass inherit flag as "true" since this is the default.

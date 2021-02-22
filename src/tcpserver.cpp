@@ -28,9 +28,12 @@
 
 #include "tcpserverimpl.h"
 #include <cxxtools/net/tcpserver.h>
+#include <cxxtools/log.h>
 #include <sstream>
 
 #include "config.h"
+
+log_define("cxxtools.net.tcpserver")
 
 namespace cxxtools
 {
