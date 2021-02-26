@@ -1110,7 +1110,7 @@ void TcpSocketImpl::endSslConnect()
             return;
         }
 
-        waitSslOperation(ret, cxxtools::Seconds(-1));
+        waitSslOperation(ret, timeout());
     }
 }
 
@@ -1191,7 +1191,7 @@ void TcpSocketImpl::endSslAccept()
             return;
         }
 
-        waitSslOperation(ret, cxxtools::Seconds(-1));
+        waitSslOperation(ret, timeout());
     }
 }
 
@@ -1263,7 +1263,7 @@ void TcpSocketImpl::endSslShutdown()
             return;
         }
 
-        waitSslOperation(ret, cxxtools::Seconds(-1));
+        waitSslOperation(ret, timeout());
     }
 }
 
