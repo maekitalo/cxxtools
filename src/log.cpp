@@ -64,6 +64,20 @@ log_define("cxxtools.log")
 
 namespace cxxtools
 {
+  void operator>>= (const SerializationInfo& si, LogFormat& logFormat)
+  {
+    if (!si.getMember("utc", logFormat._utc))
+      logFormat._utc = false;
+    if (!si.getMember("threadIdHex", logFormat._threadIdHex))
+      logFormat._threadIdHex = false;
+  }
+
+  void operator<<= (SerializationInfo& si, const LogFormat& logFormat)
+  {
+    si.addMember("utc") <<= logFormat._utc;
+    si.addMember("threadIdHex") <<= logFormat._threadIdHex;
+  }
+
   typedef std::atomic<unsigned> atomic_t;
 
   namespace
@@ -151,7 +165,7 @@ namespace cxxtools
         }
     };
 
-    void logentry(std::string& entry, const char* level, const std::string& category)
+    void logentry(std::string& entry, const char* level, const std::string& category, const LogFormat& logFormat)
     {
       struct timeval t;
       gettimeofday(&t, 0);
@@ -163,7 +177,10 @@ namespace cxxtools
       if (sec != psec)
       {
         struct tm tt;
-        localtime_r(&sec, &tt);
+        if (logFormat.utc())
+            gmtime_r(&sec, &tt);
+        else
+            localtime_r(&sec, &tt);
         int year = 1900 + tt.tm_year;
         int mon = tt.tm_mon + 1;
         date[0] = static_cast<char>('0' + year / 1000 % 10);
@@ -203,7 +220,20 @@ namespace cxxtools
       char* p = putInt(str, getpid());
       entry.append(str, p - str);
       entry += '.';
-      p = putInt(str, (unsigned long)pthread_self());
+      if (logFormat.threadIdHex())
+      {
+        static const char hexdigit[] = "0123456789abcdef";
+
+        pthread_t tid = pthread_self();
+        unsigned short sw = (sizeof(pthread_t) << 3) - 4;
+        for (unsigned short n = 0; n < sizeof(pthread_t) * 2; ++n, sw -= 4)
+            entry += hexdigit[(tid >> sw) & 0xf];
+      }
+      else
+      {
+        p = putInt(str, (unsigned long)pthread_self());
+      }
+
       entry.append(str, p - str);
       entry += "] ";
       entry += level;
@@ -479,6 +509,7 @@ namespace cxxtools
     {
         unsigned _maxfilesize;
         unsigned _maxbackupindex;
+        const LogFormat& _logFormat;
 
         unsigned _fsize;
 
@@ -486,14 +517,15 @@ namespace cxxtools
         std::string mkfilename(unsigned idx) const;
 
       public:
-        RollingFileAppender(const std::string& fname, unsigned maxfilesize, unsigned maxbackupindex);
+        RollingFileAppender(const std::string& fname, unsigned maxfilesize, unsigned maxbackupindex, const LogFormat& logFormat);
         virtual void putMessage(const std::string& msg);
     };
 
-    RollingFileAppender::RollingFileAppender(const std::string& fname, unsigned maxfilesize, unsigned maxbackupindex)
+    RollingFileAppender::RollingFileAppender(const std::string& fname, unsigned maxfilesize, unsigned maxbackupindex, const LogFormat& logFormat)
       : FileAppender(fname),
         _maxfilesize(maxfilesize),
         _maxbackupindex(maxbackupindex),
+        _logFormat(logFormat),
         _fsize(0)
     {
       try
@@ -510,7 +542,7 @@ namespace cxxtools
       if (log_info_enabled())
       {
         std::string msg;
-        logentry(msg, "INFO", "cxxtools.log");
+        logentry(msg, "INFO", "cxxtools.log", _logFormat);
         msg += "rotate file";
         FileAppender::putMessage(msg);
         finish(true);
@@ -782,6 +814,7 @@ namespace cxxtools
       unsigned short _logport;
       bool _broadcast;
       bool _tostdout;  // flag for console output: true=stdout, false=stderr
+      LogFormat _logFormat;
 
       int _rootFlags;
       LogFlags _logFlags;
@@ -805,6 +838,7 @@ namespace cxxtools
       unsigned short logport() const            { return _logport; }
       bool broadcast() const                    { return _broadcast; }
       bool tostdout() const                     { return _tostdout; }
+      const LogFormat& logFormat() const        { return _logFormat; }
 
       int rootFlags() const                     { return _rootFlags; }
       int logFlags(const std::string& category) const;
@@ -861,6 +895,8 @@ namespace cxxtools
         _tostdout = false;
       }
 
+      void setLogFormat(const LogFormat& logFormat)
+      { _logFormat = logFormat; }
   };
 
   int LogConfiguration::Impl::logFlags(const std::string& category) const
@@ -935,6 +971,8 @@ namespace cxxtools
       if (!si.getMember("stdout", impl._tostdout))
         impl._tostdout = false;
     }
+
+    si.getMember("logFormat", impl._logFormat);
 
     std::string rootFlags;
     if (!si.getMember("rootlogger", rootFlags))
@@ -1019,6 +1057,7 @@ namespace cxxtools
     if (impl._tostdout)
       si.addMember("tostdout") <<= true;
 
+    si.addMember("logFormat") <<= impl._logFormat;
   }
 
   //////////////////////////////////////////////////////////////////////
@@ -1109,6 +1148,11 @@ namespace cxxtools
     _impl->setStderr();
   }
 
+  void LogConfiguration::setLogFormat(const LogFormat& logFormat)
+  {
+    _impl->setLogFormat(logFormat);
+  }
+
   void operator>>= (const SerializationInfo& si, LogConfiguration& logConfiguration)
   {
     si >>= *logConfiguration.impl();
@@ -1171,7 +1215,7 @@ namespace cxxtools
     }
     else
     {
-      _appender = new RollingFileAppender(config.impl()->fname(), config.impl()->maxfilesize(), config.impl()->maxbackupindex());
+      _appender = new RollingFileAppender(config.impl()->fname(), config.impl()->maxfilesize(), config.impl()->maxbackupindex(), config.impl()->logFormat());
     }
 
     _config = config;
@@ -1199,7 +1243,7 @@ namespace cxxtools
     }
     else
     {
-      _appender = new RollingFileAppender(config.impl()->fname(), config.impl()->maxfilesize(), config.impl()->maxbackupindex());
+      _appender = new RollingFileAppender(config.impl()->fname(), config.impl()->maxfilesize(), config.impl()->maxbackupindex(), config.impl()->logFormat());
     }
 
     _config = config;
@@ -1354,7 +1398,7 @@ namespace cxxtools
     if (it != _loggers.end())
       return it->second;
 
-    Logger* ret = new Logger(category, logFlags(category));
+    Logger* ret = new Logger(category, logFlags(category), _config.impl()->logFormat());
     _loggers[category] = ret;
 
     return ret;
@@ -1443,7 +1487,7 @@ namespace cxxtools
       ScopedAtomicIncrementer inc(mutexWaitCount);
       MutexLock lock(logMutex);
 
-      logentry(_buffer, _level, _logger->getCategory());
+      logentry(_buffer, _level, _logger->getCategory(), _logger->logFormat());
       _buffer += _msg.str();
 
       LogAppender& appender = LogManager::getInstance().impl()->appender();
@@ -1549,7 +1593,7 @@ namespace cxxtools
       MutexLock lock(logMutex);
 
       std::string msg;
-      logentry(msg, "TRACE", _logger->getCategory());
+      logentry(msg, "TRACE", _logger->getCategory(), _logger->logFormat());
       msg += state;
       msg += _msg.str();
 

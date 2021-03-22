@@ -149,6 +149,28 @@ namespace cxxtools
 
   //////////////////////////////////////////////////////////////////////
   //
+  class LogFormat
+  {
+      friend void operator>>= (const SerializationInfo& si, LogFormat& logFormat);
+      friend void operator<<= (SerializationInfo& si, const LogFormat& logFormat);
+      bool _utc;
+      bool _threadIdHex;
+
+    public:
+      LogFormat()
+        : _utc(false),
+          _threadIdHex(false)
+          { }
+
+      void setUtc(bool enabled)             { _utc = enabled; }
+      void setThreadIdHex(bool enabled)     { _threadIdHex = enabled; }
+
+      bool utc() const                      { return _utc; }
+      bool threadIdHex() const              { return _threadIdHex; }
+  };
+
+  //////////////////////////////////////////////////////////////////////
+  //
   class Logger
   {
       Logger(const Logger&);
@@ -182,15 +204,18 @@ namespace cxxtools
     private:
       std::string category;
       int flags;
+      LogFormat _logFormat;
 
     public:
       /// Initalizes a new logger.
-      Logger(const std::string& c, int f)
-        : category(c), flags(f)
+      Logger(const std::string& c, int f, const LogFormat& logFormat)
+        : category(c), flags(f), _logFormat(logFormat)
         { }
 
       const std::string& getCategory() const
         { return category; }
+      const LogFormat& logFormat() const
+        { return _logFormat; }
       bool isEnabled(log_flag_type l) const
         { return (flags & l) != 0; }
       log_level_type getLogLevel() const
@@ -280,6 +305,7 @@ namespace cxxtools
       void setLoghost(const std::string& host, unsigned short port, bool broadcast = false);
       void setStdout();
       void setStderr();
+      void setLogFormat(const LogFormat& logFormat);
   };
 
   void operator>>= (const SerializationInfo& si, LogConfiguration& logConfiguration);

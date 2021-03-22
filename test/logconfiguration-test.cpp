@@ -75,12 +75,12 @@ void LogconfigurationTest::logLevelTest()
   cxxtools::LogConfiguration config;
   properties >> cxxtools::Properties(config);
 
-  cxxtools::Logger rootLogger("", config.rootFlags());
+  cxxtools::Logger rootLogger("", config.rootFlags(), cxxtools::LogFormat());
   CXXTOOLS_UNIT_ASSERT(rootLogger.isEnabled(cxxtools::Logger::LOG_WARN));
   CXXTOOLS_UNIT_ASSERT(rootLogger.isEnabled(cxxtools::Logger::LOG_ERROR));
   CXXTOOLS_UNIT_ASSERT(!rootLogger.isEnabled(cxxtools::Logger::LOG_INFO));
 
-  cxxtools::Logger fatalLogger("fatal", config.logFlags("fatal"));
+  cxxtools::Logger fatalLogger("fatal", config.logFlags("fatal"), cxxtools::LogFormat());
   CXXTOOLS_UNIT_ASSERT(fatalLogger.isEnabled(cxxtools::Logger::LOG_FATAL));
   CXXTOOLS_UNIT_ASSERT(!fatalLogger.isEnabled(cxxtools::Logger::LOG_ERROR));
 
@@ -174,8 +174,8 @@ void LogconfigurationTest::rootLevelTest()
   cxxtools::LogConfiguration config;
   properties >> cxxtools::Properties(config);
 
-  cxxtools::Logger cat1("cat1", config.logFlags("cat1"));
-  cxxtools::Logger cat2("cat2", config.logFlags("cat2"));
+  cxxtools::Logger cat1("cat1", config.logFlags("cat1"), cxxtools::LogFormat());
+  cxxtools::Logger cat2("cat2", config.logFlags("cat2"), cxxtools::LogFormat());
 
   CXXTOOLS_UNIT_ASSERT(cat1.isEnabled(cxxtools::Logger::LOG_WARN));
   CXXTOOLS_UNIT_ASSERT(cat1.isEnabled(cxxtools::Logger::LOG_INFO));
@@ -197,11 +197,11 @@ void LogconfigurationTest::hierachicalTest()
   cxxtools::LogConfiguration config;
   properties >> cxxtools::Properties(config);
 
-  cxxtools::Logger cat1("cat1", config.logFlags("cat1"));
-  cxxtools::Logger cat2("cat2", config.logFlags("cat2"));
-  cxxtools::Logger sub1("sub1", config.logFlags("cat1.sub1"));
-  cxxtools::Logger sub2("sub2", config.logFlags("cat1.sub2"));
-  cxxtools::Logger sub3("sub3", config.logFlags("cat2.sub3"));
+  cxxtools::Logger cat1("cat1", config.logFlags("cat1"), cxxtools::LogFormat());
+  cxxtools::Logger cat2("cat2", config.logFlags("cat2"), cxxtools::LogFormat());
+  cxxtools::Logger sub1("sub1", config.logFlags("cat1.sub1"), cxxtools::LogFormat());
+  cxxtools::Logger sub2("sub2", config.logFlags("cat1.sub2"), cxxtools::LogFormat());
+  cxxtools::Logger sub3("sub3", config.logFlags("cat2.sub3"), cxxtools::LogFormat());
 
   CXXTOOLS_UNIT_ASSERT(cat1.isEnabled(cxxtools::Logger::LOG_WARN));
   CXXTOOLS_UNIT_ASSERT(cat1.isEnabled(cxxtools::Logger::LOG_INFO));
