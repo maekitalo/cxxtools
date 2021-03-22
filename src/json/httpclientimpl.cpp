@@ -33,6 +33,7 @@
 #include "cxxtools/selectable.h"
 #include "cxxtools/ioerror.h"
 #include "cxxtools/clock.h"
+#include "cxxtools/resetter.h"
 #include "cxxtools/log.h"
 
 #include <stdexcept>
@@ -82,6 +83,8 @@ void HttpClientImpl::beginCall(IComposer& r, IRemoteProcedure& method, IDecompos
         cancel();
 
         _exceptionPending = true;
+        Resetter<bool> exceptionPending(_exceptionPending, false);
+
         proc->onFinished();
 
         if (_exceptionPending)
@@ -203,6 +206,8 @@ std::size_t HttpClientImpl::onReplyBody(http::Client& client)
             {
                 log_warn("exception occured in finalizeReply");
                 _exceptionPending = true;
+                Resetter<bool> exceptionPending(_exceptionPending, false);
+
                 _proc->onFinished();
             }
 
@@ -230,6 +235,7 @@ void HttpClientImpl::onReplyFinished(http::Client& /*client*/)
             throw;
 
         _exceptionPending = true;
+        Resetter<bool> exceptionPending(_exceptionPending, false);
 
         IRemoteProcedure* proc = _proc;
         _proc = 0;

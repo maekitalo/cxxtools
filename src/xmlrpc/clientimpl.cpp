@@ -38,6 +38,7 @@
 #include "cxxtools/utf8codec.h"
 #include "cxxtools/xmlrpc/errorcodes.h"
 #include "cxxtools/serializationerror.h"
+#include "cxxtools/resetter.h"
 #include "cxxtools/log.h"
 #include <stdexcept>
 
@@ -84,7 +85,7 @@ ClientImpl::ClientImpl()
 , _timeout(Selectable::WaitInfinite)
 , _connectTimeoutSet(false)
 , _connectTimeout(Selectable::WaitInfinite)
-, _errorPending(false)
+, _exceptionPending(false)
 {
     _writer.useIndent(false);
     _writer.useEndl(false);
@@ -116,10 +117,12 @@ void ClientImpl::beginCall(IComposer& r, IRemoteProcedure& method, IDecomposer**
         IRemoteProcedure* method = _method;
         cancel();
 
-        _errorPending = true;
+        _exceptionPending = true;
+        Resetter<bool> exceptionPending(_exceptionPending, false);
+
         method->onFinished();
 
-        if (_errorPending)
+        if (_exceptionPending)
             throw;
     }
 
@@ -191,7 +194,7 @@ std::size_t ClientImpl::onReadReply()
 
     try
     {
-        _errorPending = false;
+        _exceptionPending = false;
 
         while(true)
         {
@@ -225,7 +228,9 @@ std::size_t ClientImpl::onReadReply()
     }
     catch(const std::exception& error)
     {
-        _errorPending = true;
+        _exceptionPending = true;
+        Resetter<bool> exceptionPending(_exceptionPending, false);
+
         _method->onFinished();
     }
 
@@ -239,7 +244,7 @@ void ClientImpl::onReplyFinished()
 
     try
     {
-        _errorPending = false;
+        _exceptionPending = false;
         endExecute();
     }
     catch (const std::exception& e)
@@ -247,16 +252,15 @@ void ClientImpl::onReplyFinished()
         if (!_method)
             throw;
 
-        _errorPending = true;
+        _exceptionPending = true;
+        Resetter<bool> exceptionPending(_exceptionPending, false);
 
         IRemoteProcedure* method = _method;
         _method = 0;
         method->onFinished();
-        if (_errorPending)
-        {
-            _errorPending = false;
+        if (_exceptionPending)
             throw;
-        }
+
         return;
     }
 

@@ -87,9 +87,9 @@ void HttpClientImpl::beginExecute()
 
 void HttpClientImpl::endExecute()
 {
-    if (_errorPending)
+    if (_exceptionPending)
     {
-        _errorPending = false;
+        _exceptionPending = false;
         throw;
     }
 

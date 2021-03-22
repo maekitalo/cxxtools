@@ -102,7 +102,7 @@ class ClientImpl : public RefCounted, public Connectable
         bool _readHeader;
         bool _chunkedEncoding;
         bool _reconnectOnError;
-        bool _errorPending;
+        bool _exceptionPending;
 
         void sendRequest(const Request& request);
         void processHeaderAvailable(StreamBuffer& sb);

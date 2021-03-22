@@ -118,10 +118,10 @@ class ClientImpl : public cxxtools::Connectable
         RemoteException _fault;
         Composer<RemoteException> _fh;
         Milliseconds _timeout;
-        bool _connectTimeoutSet;  // indicates if connectTimeout is explicitely set
+        bool _connectTimeoutSet;  // indicates if connectTimeout is explicitly set
                                   // when not, it follows the setting of _timeout
         Milliseconds _connectTimeout;
-        bool _errorPending;
+        bool _exceptionPending;
 };
 
 }

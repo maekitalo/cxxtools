@@ -32,6 +32,7 @@
 #include <cxxtools/jsonformatter.h>
 #include <cxxtools/ioerror.h>
 #include <cxxtools/clock.h>
+#include <cxxtools/resetter.h>
 #include <stdexcept>
 
 log_define("cxxtools.json.rpcclient.impl")
@@ -115,6 +116,8 @@ void RpcClientImpl::beginCall(IComposer& r, IRemoteProcedure& method, IDecompose
         cancel();
 
         _exceptionPending = true;
+        Resetter<bool> exceptionPending(_exceptionPending, false);
+
         proc->onFinished();
 
         if (_exceptionPending)
@@ -223,6 +226,7 @@ void RpcClientImpl::cancel()
     _stream.clear();
     _stream.buffer().discard();
     _proc = 0;
+    _exceptionPending = false;
 }
 
 void RpcClientImpl::wait(Timespan timeout)
@@ -305,6 +309,8 @@ void RpcClientImpl::onConnect(net::TcpSocket& socket)
             throw;
 
         _exceptionPending = true;
+        Resetter<bool> exceptionPending(_exceptionPending, false);
+
         proc->onFinished();
 
         if (_exceptionPending)
@@ -332,6 +338,8 @@ void RpcClientImpl::onSslConnect(net::TcpSocket& socket)
             throw;
 
         _exceptionPending = true;
+        Resetter<bool> exceptionPending(_exceptionPending, false);
+
         proc->onFinished();
 
         if (_exceptionPending)
@@ -359,6 +367,8 @@ void RpcClientImpl::onOutput(StreamBuffer& sb)
             throw;
 
         _exceptionPending = true;
+        Resetter<bool> exceptionPending(_exceptionPending, false);
+
         proc->onFinished();
 
         if (_exceptionPending)
@@ -406,6 +416,8 @@ void RpcClientImpl::onInput(StreamBuffer& sb)
             throw;
 
         _exceptionPending = true;
+        Resetter<bool> exceptionPending(_exceptionPending, false);
+
         proc->onFinished();
 
         if (_exceptionPending)

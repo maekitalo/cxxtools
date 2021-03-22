@@ -33,6 +33,7 @@
 #include <cxxtools/ioerror.h>
 #include <cxxtools/textstream.h>
 #include <cxxtools/base64codec.h>
+#include <cxxtools/resetter.h>
 #include <sstream>
 #include <algorithm>
 #include "config.h"
@@ -64,7 +65,7 @@ ClientImpl::ClientImpl(Client* client)
   _readHeader(true),
   _chunkedEncoding(false),
   _reconnectOnError(false),
-  _errorPending(false)
+  _exceptionPending(false)
 {
     _stream.attachDevice(_socket);
     cxxtools::connect(_socket.connected, *this, &ClientImpl::onConnect);
@@ -285,7 +286,7 @@ void ClientImpl::beginExecute(const Request& request)
 
     log_trace("beginExecute");
 
-    _errorPending = false;
+    _exceptionPending = false;
     _request = &request;
     _reply.clear();
     if (_socket.isConnected())
@@ -318,9 +319,9 @@ void ClientImpl::beginExecute(const Request& request)
 
 void ClientImpl::endExecute()
 {
-    if (_errorPending)
+    if (_exceptionPending)
     {
-        _errorPending = false;
+        _exceptionPending = false;
         throw;
     }
 }
@@ -420,7 +421,7 @@ void ClientImpl::onConnect(net::TcpSocket& socket)
     {
         log_trace("onConnect");
 
-        _errorPending = false;
+        _exceptionPending = false;
         socket.endConnect();
 #ifdef WITH_SSL
         if (_ssl)
@@ -440,10 +441,12 @@ void ClientImpl::onConnect(net::TcpSocket& socket)
     }
     catch (const std::exception& )
     {
-        _errorPending = true;
+        _exceptionPending = true;
+        Resetter<bool> exceptionPending(_exceptionPending, false);
+
         _client->replyFinished(*_client);
 
-        if (_errorPending)
+        if (_exceptionPending)
             throw;
     }
 }
@@ -455,7 +458,7 @@ void ClientImpl::onSslConnect(net::TcpSocket& socket)
     {
         log_trace("onSslConnect");
 
-        _errorPending = false;
+        _exceptionPending = false;
         socket.endSslConnect();
         sendRequest(*_request);
 
@@ -464,10 +467,12 @@ void ClientImpl::onSslConnect(net::TcpSocket& socket)
     }
     catch (const std::exception& )
     {
-        _errorPending = true;
+        _exceptionPending = true;
+        Resetter<bool> exceptionPending(_exceptionPending, false);
+
         _client->replyFinished(*_client);
 
-        if (_errorPending)
+        if (_exceptionPending)
             throw;
     }
 }
@@ -481,7 +486,7 @@ void ClientImpl::onOutput(StreamBuffer& sb)
     {
         try
         {
-            _errorPending = false;
+            _exceptionPending = false;
 
             sb.endWrite();
 
@@ -515,11 +520,12 @@ void ClientImpl::onOutput(StreamBuffer& sb)
     {
         log_warn("error of type " << typeid(e).name() << " occured: " << e.what());
 
-        _errorPending = true;
+        _exceptionPending = true;
+        Resetter<bool> exceptionPending(_exceptionPending, false);
 
         _client->replyFinished(*_client);
 
-        if (_errorPending)
+        if (_exceptionPending)
             throw;
     }
 }
@@ -532,7 +538,7 @@ void ClientImpl::onInput(StreamBuffer& sb)
         {
             log_trace("ClientImpl::onInput; readHeader=" << _readHeader);
 
-            _errorPending = false;
+            _exceptionPending = false;
 
             sb.endRead();
 
@@ -569,10 +575,12 @@ void ClientImpl::onInput(StreamBuffer& sb)
     }
     catch (const std::exception& e)
     {
-        _errorPending = true;
+        _exceptionPending = true;
+        Resetter<bool> exceptionPending(_exceptionPending, false);
+
         _client->replyFinished(*_client);
 
-        if (_errorPending)
+        if (_exceptionPending)
             throw;
     }
 }
