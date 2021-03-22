@@ -32,10 +32,13 @@
 #include <cxxtools/http/responder.h>
 #include <cxxtools/eventloop.h>
 #include <cxxtools/regex.h>
+#include <cxxtools/timer.h>
 #include <cxxtools/log.h>
 #include <cxxtools/arg.h>
 
 log_define("cxxtools.demo.httpserver")
+
+static cxxtools::EventLoop loop;
 
 // HelloResponder
 //
@@ -65,9 +68,45 @@ void HelloResponder::reply(std::ostream& out, cxxtools::http::Request& request, 
 
 }
 
+// ExitResponder
+//
+class ExitResponder : public cxxtools::http::Responder
+{
+    cxxtools::Timer _exitTimer;
+
+  public:
+    explicit ExitResponder(cxxtools::http::Service& service)
+      : cxxtools::http::Responder(service),
+        _exitTimer(&loop)
+    {
+      cxxtools::connect(_exitTimer.timeout, loop, &cxxtools::EventLoop::exit);
+    }
+
+    virtual void reply(std::ostream&, cxxtools::http::Request& request, cxxtools::http::Reply& reply);
+};
+
+void ExitResponder::reply(std::ostream& out, cxxtools::http::Request& request, cxxtools::http::Reply& reply)
+{
+  log_debug("exit server");
+
+  reply.addHeader("Content-Type", "text/html");
+  out << "<html>\n"
+         " <head>\n"
+         "  <title>Hello World-application</title>\n"
+         " </head>\n"
+         " <body bgcolor=\"#FFFFFF\">\n"
+         "  <h1>Exit server</h1>\n"
+         " </body>\n"
+         "</html>\n";
+
+    log_info("stop server in 1 second");
+    _exitTimer.after(cxxtools::Seconds(1));
+}
+
 // HelloService
 //
 typedef cxxtools::http::CachedService<HelloResponder> HelloService;
+typedef cxxtools::http::CachedService<ExitResponder> ExitService;
 
 // implement authenticator
 //
@@ -100,7 +139,6 @@ int main(int argc, char* argv[])
 
     cxxtools::Arg<bool> auth(argc, argv, 'a');
 
-    cxxtools::EventLoop loop;
     cxxtools::http::Server server(loop, listenIp, listenPort);
 
     cxxtools::Arg<unsigned> minThreads(argc, argv, 't', server.minThreads());
@@ -119,14 +157,15 @@ int main(int argc, char* argv[])
         server.listen(listenIp, listenPort);
     }
 
-    HelloService service;
+    HelloService helloService;
+    ExitService exitService;
 
     MyAuthenticator authenticator;
     if (auth)
-      service.addAuthenticator(&authenticator);
+      helloService.addAuthenticator(&authenticator);
 
-    server.addService(cxxtools::Regex("ll"), service);
-    //server.addService("/hello", service);
+    server.addService(cxxtools::Regex("ll"), helloService);
+    server.addService(cxxtools::Regex("exit"), exitService);
     loop.run();
   }
   catch (const std::exception& e)
