@@ -31,6 +31,9 @@
 #include "cxxtools/log.h"
 #include "cxxtools/file.h"
 #include "cxxtools/fileinfo.h"
+#include "cxxtools/ioerror.h"
+#include "cxxtools/datetime.h"
+#include "cxxtools/timespan.h"
 #include <fstream>
 
 log_define("cxxtools.test.file")
@@ -63,6 +66,7 @@ class FileTest : public cxxtools::unit::TestSuite
             registerMethod("testCopyFile", *this, &FileTest::testCopyFile);
             registerMethod("testFilesize", *this, &FileTest::testFilesize);
             registerMethod("testCopyBigFile", *this, &FileTest::testCopyBigFile);
+            registerMethod("testMTime", *this, &FileTest::testMTime);
         }
 
         void setUp()
@@ -180,6 +184,23 @@ class FileTest : public cxxtools::unit::TestSuite
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(s.str().size(), 0x10003);
             CXXTOOLS_UNIT_ASSERT(s.str() == data);
+        }
+
+        void testMTime()
+        {
+            std::ofstream f(tmpFileName.c_str());
+            f.close();
+
+            cxxtools::File fi(tmpFileName);
+
+            cxxtools::UtcDateTime mtime = fi.mtime();
+            cxxtools::UtcDateTime ctime = fi.ctime();
+            cxxtools::UtcDateTime now = cxxtools::DateTime::gmtime();
+
+            CXXTOOLS_UNIT_ASSERT(mtime <= now);
+            CXXTOOLS_UNIT_ASSERT(mtime >= now - cxxtools::Minutes(1));
+            CXXTOOLS_UNIT_ASSERT(ctime <= now);
+            CXXTOOLS_UNIT_ASSERT(ctime >= now - cxxtools::Minutes(1));
         }
 
 };

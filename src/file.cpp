@@ -26,10 +26,12 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 #include "fileimpl.h"
-#include "cxxtools/file.h"
-#include "cxxtools/directory.h"
+#include <cxxtools/file.h>
+#include <cxxtools/directory.h>
+#include <cxxtools/datetime.h>
 
-namespace cxxtools {
+namespace cxxtools
+{
 
 File::File()
 {
@@ -52,27 +54,29 @@ File::File(const FileInfo& fi)
 }
 
 
-File::File(const File& file)
-: _path( file.path() )
-{
-}
-
-
-File::~File()
-{
-}
-
-
-File& File::operator=(const File& file)
-{
-    _path = file.path();
-    return *this;
-}
-
-
 std::size_t File::size() const
 {
     return FileImpl::size( path() );
+}
+
+UtcDateTime File::mtime() const
+{
+    return FileInfo::mtime(path());
+}
+
+UtcDateTime File::ctime() const
+{
+    return FileInfo::ctime(path());
+}
+
+bool File::isReadingAllowed() const
+{
+    return FileInfo::isReadingAllowed(path());
+}
+
+bool File::isWritingAllowed() const
+{
+    return FileInfo::isWritingAllowed(path());
 }
 
 
@@ -189,8 +193,9 @@ File File::create(const std::string& path)
 
 bool File::exists(const std::string& path)
 {
-    return FileInfo::getType( path ) == FileInfo::File
-        || FileInfo::getType( path ) == FileInfo::Symlink;
+    FileInfo::Type type = FileInfo::getType(path);
+    return type == FileInfo::File
+        || type == FileInfo::Symlink;
 }
 
 } // namespace cxxtools

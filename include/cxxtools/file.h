@@ -29,7 +29,6 @@
 #define CXXTOOLS_FILE_H
 
 #include <cxxtools/fileinfo.h>
-#include <cxxtools/ioerror.h>
 #include <string>
 
 namespace cxxtools
@@ -54,15 +53,6 @@ class File
         */
         explicit File(const FileInfo& fi);
 
-        //! @brief Copy constructor
-        File(const File& file);
-
-        //! @brief Destrctor
-        ~File();
-
-        //! @brief Assignment operator
-        File& operator=(const File& file);
-
         /** @brief Returns the full path of file in the file-system
 
             This method may return a relative path, or a fully qualified one
@@ -73,6 +63,18 @@ class File
 
         //! @brief Returns the size of the file in bytes
         std::size_t size() const;
+
+        //! @brief Returns the time of modification of the file in bytes
+        UtcDateTime mtime() const;
+
+        //! @brief Returns the time of creation of the file in bytes
+        UtcDateTime ctime() const;
+
+        //! @brief Returns true if the user has read access
+        bool isReadingAllowed() const;
+
+        //! @brief Returns true if the user has write access
+        bool isWritingAllowed() const;
 
         /** @brief Returns the parent directory path
 

@@ -105,11 +105,7 @@ class DateTime
             DateTime. And accordingly a "GMT" millisecond value will lead
             to a "GMT" DateTime.
         */
-        static DateTime fromMSecsSinceEpoch(cxxtools::Milliseconds sinceEpoch)
-        {
-            static const DateTime dt(1970, 1, 1, 0, 0, 0);
-            return dt + sinceEpoch;
-        }
+        static UtcDateTime fromMSecsSinceEpoch(cxxtools::Milliseconds sinceEpoch);
 
         /// Returns the GMT time
         static UtcDateTime gmtime();

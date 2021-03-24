@@ -43,10 +43,8 @@ DirectoryIterator::DirectoryIterator(const std::string& path, bool skipHidden)
 
 
 DirectoryIterator::DirectoryIterator(const DirectoryIterator& it)
-: _impl(0)
+: _impl(it._impl)
 {
-    _impl = it._impl;
-
     if (_impl)
         _impl->ref();
 }

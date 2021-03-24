@@ -207,6 +207,12 @@ DateTime::DateTime(const std::string& str, const std::string& fmt)
   }
 }
 
+UtcDateTime DateTime::fromMSecsSinceEpoch(cxxtools::Milliseconds sinceEpoch)
+{
+    static const LocalDateTime dt(1970, 1, 1, 0, 0, 0);
+    return UtcDateTime(dt + sinceEpoch);
+}
+
 UtcDateTime DateTime::gmtime()
 {
     return Clock::getSystemTime();

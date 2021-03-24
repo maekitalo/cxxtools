@@ -34,6 +34,7 @@ namespace cxxtools
 {
 
 class DirectoryIterator;
+class UtcDateTime;
 
 /** @brief Provides information about a node in the file-system.
 */
@@ -58,29 +59,24 @@ class FileInfo
         FileInfo();
 
         /** @brief Constructs a %FileInfo object from the path \a path
-        */
+         *
+         *  If path do not exist type is Type::Invalid.
+         */
         explicit FileInfo(const std::string& path);
 
         explicit FileInfo(const DirectoryIterator& it);
 
-        //! @brief Copy constructor
-        FileInfo(const FileInfo& fi);
+        /** @brief Returns the type of the file node
+         *
+         *  The type is set on construction of the object and does not change
+         */
+        Type type() const                   { return _type; }
 
-        //! @brief Destructor
-        ~FileInfo();
+        /** @brief Returns the path of node in the file-system as passed in ctor
+        */
+        const std::string& path() const     { return _path; }
 
-        //! @brief Assignment operator
-        FileInfo& operator=(const FileInfo& fi);
-
-        //! @brief Returns the type of the file node
-        Type type() const;
-
-        const std::string& path() const;
-
-        /** @brief Returns the full path of node in the file-system
-
-            This method may return a relative path, or a fully qualified one
-            depending on how this object was constructed.
+        /** @brief Returns the name part of node in the file-system
         */
         std::string name() const;
 
@@ -109,9 +105,19 @@ class FileInfo
             return _type == FileInfo::File;
         }
 
-        /** @brief Removes the file node.
+        //! @brief Returns the modification time of the file
+        UtcDateTime mtime() const;
 
-            This object will be invalid after calling this method.
+        //! @brief Returns the create time of the file
+        UtcDateTime ctime() const;
+
+        //! @brief Returns true if the user has read access
+        bool isReadingAllowed() const;
+
+        //! @brief Returns true if the user has write access
+        bool isWritingAllowed() const;
+
+        /** @brief Removes the file node.
         */
         void remove();
 
@@ -128,6 +134,18 @@ class FileInfo
 
         //! @brief Returns the type of file at \a path
         static Type getType(const std::string& path);
+
+        //! @brief Returns the modification time of the file at \a path
+        static UtcDateTime mtime(const std::string& path);
+
+        //! @brief Returns the create time of the file at \a path
+        static UtcDateTime ctime(const std::string& path);
+
+        //! @brief Returns true if the user has read access to \a path
+        static bool isReadingAllowed(const std::string& path);
+
+        //! @brief Returns true if the user has write access to \a path
+        static bool isWritingAllowed(const std::string& path);
 
     private:
         //! @internal

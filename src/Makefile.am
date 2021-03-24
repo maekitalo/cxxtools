@@ -145,7 +145,6 @@ noinst_HEADERS = \
 	facets.cpp \
 	fileimpl.h \
 	filedeviceimpl.h \
-	fileinfoimpl.h \
 	iodeviceimpl.h \
 	libraryimpl.h \
 	md5.h \
