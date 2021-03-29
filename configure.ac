@@ -92,7 +92,7 @@ AS_IF([test "$ac_cv_type_unsigned_long_long_int" = yes],
 AC_SUBST(HAVE_UNSIGNED_LONG_LONG, "$HAVE_UNSIGNED_LONG_LONG")
 
 AC_ARG_WITH([iconvstream],
-    AS_HELP_STRING([--with-iconvstream=yes|no], [compile iconv stream (default: no)]),
+    [AS_HELP_STRING([--with-iconvstream=yes|no], [compile iconv stream (default: no)])],
     [with_iconvstream=$withval],
     [with_iconvstream=no])
 
@@ -119,14 +119,11 @@ CXXTOOLS_LDFLAGS='-L${libdir} -lcxxtools'
 AC_SUBST(CXXTOOLS_CXXFLAGS)
 AC_SUBST(CXXTOOLS_LDFLAGS)
 
-case "${host_cpu}-${host_os}" in
-*-aix*)
-    SHARED_LIB_FLAG=-qmkshrobj
-    ;;
-*)  
-    SHARED_LIB_FLAG=
-    ;;
-esac
+AS_CASE(["${host_cpu}-${host_os}"],
+    [*-aix*], [SHARED_LIB_FLAG=-qmkshrobj],
+    [*-darwin*], [SHARED_LIB_FLAG=-dynamiclib],
+    [SHARED_LIB_FLAG=-shared]
+)
 AC_SUBST(SHARED_LIB_FLAG)
 
 #
@@ -200,15 +197,15 @@ AC_COMPILE_IFELSE(
    #include <cxxabi.h>
    void foo() { try {} catch (const abi::__forced_unwind&) {} }
   ])],
-  AC_DEFINE(HAVE_ABI_FORCED_UNWIND, 1, [defined if exception abi::__forced_unwind exists]))
+  [AC_DEFINE(HAVE_ABI_FORCED_UNWIND, 1, [defined if exception abi::__forced_unwind exists])])
 
 #
 # SSL
 #
 AC_ARG_WITH([ssl],
-    AS_HELP_STRING([--with-ssl=yes|no], [build with SSL support]),
-  [ssl_option=$withval],
-  [ssl_option=yes])
+    [AS_HELP_STRING([--with-ssl=yes|no], [build with SSL support])],
+    [ssl_option=$withval],
+    [ssl_option=yes])
 
 AS_IF([test $ssl_option = yes],
 [
@@ -233,14 +230,14 @@ AS_IF([test $ssl_option = yes],
 AM_CONDITIONAL(MAKE_OPENSSL, test $ssl_option = yes)
 
 AC_ARG_ENABLE([demos],
-  AS_HELP_STRING([--disable-demos], [disable building demos]),
+  [AS_HELP_STRING([--disable-demos], [disable building demos])],
   [enable_demos=$enableval],
   [enable_demos=enable_demos])
 
 AM_CONDITIONAL(MAKE_DEMOS, test "$enable_demos" = "enable_demos")
 
 AC_ARG_ENABLE([unittest],
-  AS_HELP_STRING([--disable-unittest], [disable building unittest]),
+  [AS_HELP_STRING([--disable-unittest], [disable building unittest])],
   [enable_unittest=$enableval],
   [enable_unittest=enable_unittest])
 
