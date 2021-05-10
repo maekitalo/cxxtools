@@ -93,13 +93,13 @@ namespace cxxtools {
             void setSelector(SelectorBase& s)
             { setSelector(&s); }
 
-            /** @brief Returs true if timer is active
+            /** @brief Returns true if timer is active
             */
             bool active() const;
 
             /** @brief Returns the current timer interval
 
-                Returns the current interval of the timer in milliseconds.
+                Returns the current interval of the timer.
             */
             const Timespan& interval() const;
 
