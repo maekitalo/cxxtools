@@ -93,7 +93,7 @@ class StreamBuffer : public BasicStreamBuffer<char>,
          *  The call to endRead reads at least one byte from the underlying I/O device
          *  to the buffer. When no data is available, the call will block.
          */
-        void endRead();
+        size_t endRead();
 
         /** Sets the stream buffer in writing mode if data is available in output buffer.
          *

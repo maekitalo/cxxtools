@@ -136,13 +136,15 @@ void StreamBuffer::onRead(IODevice& /*dev*/)
 }
 
 
-void StreamBuffer::endRead()
+size_t StreamBuffer::endRead()
 {
     size_t readSize = _ioDevice->endRead();
 
     setg(eback(), // start of get area
          gptr(),  // gptr position
          egptr() + readSize); // end of get area
+
+    return readSize;
 }
 
 
