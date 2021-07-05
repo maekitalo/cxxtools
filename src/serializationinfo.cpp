@@ -701,7 +701,7 @@ SerializationInfo::int_type SerializationInfo::_getInt(const char* type, int_typ
                         }
                         catch (const ConversionError&)
                         {
-                            SerializationConversionError::doThrow(*this, type, "String", _String().narrow());
+                            SerializationConversionError::doThrow(*this, "String", type, _String().narrow());
                         }
                         break;
 
@@ -711,7 +711,7 @@ SerializationInfo::int_type SerializationInfo::_getInt(const char* type, int_typ
                         }
                         catch (const ConversionError&)
                         {
-                            SerializationConversionError::doThrow(*this, type, "string", _String8());
+                            SerializationConversionError::doThrow(*this, "string", type, _String8());
                         }
                         break;
 
@@ -754,7 +754,7 @@ SerializationInfo::unsigned_type SerializationInfo::_getUInt(const char* type, u
                         }
                         catch (const ConversionError&)
                         {
-                            SerializationConversionError::doThrow(*this, type, "String", _String().narrow());
+                            SerializationConversionError::doThrow(*this, "String", type, _String().narrow());
                         }
                         break;
 
@@ -764,7 +764,7 @@ SerializationInfo::unsigned_type SerializationInfo::_getUInt(const char* type, u
                         }
                         catch (const ConversionError&)
                         {
-                            SerializationConversionError::doThrow(*this, type, "string", _String8());
+                            SerializationConversionError::doThrow(*this, "string", type, _String8());
                         }
                         break;
 
@@ -804,7 +804,7 @@ float SerializationInfo::_getFloat() const
                         }
                         catch (const ConversionError&)
                         {
-                            SerializationConversionError::doThrow(*this, "float", "String", _String().narrow());
+                            SerializationConversionError::doThrow(*this, "String", "float", _String().narrow());
                         }
                         break;
 
@@ -814,7 +814,7 @@ float SerializationInfo::_getFloat() const
                         }
                         catch (const ConversionError&)
                         {
-                            SerializationConversionError::doThrow(*this, "float", "string", _String8());
+                            SerializationConversionError::doThrow(*this, "string", "float", _String8());
                         }
                         break;
 
@@ -878,7 +878,7 @@ double SerializationInfo::_getDouble() const
                         }
                         catch (const ConversionError&)
                         {
-                            SerializationConversionError::doThrow(*this, "double", "String", _String().narrow());
+                            SerializationConversionError::doThrow(*this, "String", "double", _String().narrow());
                         }
                         break;
 
@@ -888,7 +888,7 @@ double SerializationInfo::_getDouble() const
                         }
                         catch (const ConversionError&)
                         {
-                            SerializationConversionError::doThrow(*this, "double", "string", _String8());
+                            SerializationConversionError::doThrow(*this, "string", "double", _String8());
                         }
                         break;
 
@@ -935,7 +935,7 @@ long double SerializationInfo::_getLongDouble() const
                         }
                         catch (const ConversionError&)
                         {
-                            SerializationConversionError::doThrow(*this, "long double", "String", _String().narrow());
+                            SerializationConversionError::doThrow(*this, "String", "long double", _String().narrow());
                         }
                         break;
 
@@ -945,7 +945,7 @@ long double SerializationInfo::_getLongDouble() const
                         }
                         catch (const ConversionError&)
                         {
-                            SerializationConversionError::doThrow(*this, "long double", "string", _String8());
+                            SerializationConversionError::doThrow(*this, "string", "long double", _String8());
                         }
                         break;
 
