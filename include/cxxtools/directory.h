@@ -181,7 +181,7 @@ class Directory
 
     public:
         //! @brief Creates a new directory at the path given by \a path
-        static Directory create(const std::string& path);
+        static Directory create(const std::string& path, bool fullPath = false, mode_t mode = 0755);
 
         //! @brief Returns true if a directory exists at \a path, or false otherwise
         static bool exists(const std::string& path);
@@ -214,7 +214,7 @@ class Directory
         static std::string tmpdir();
 
         //! @brief Returns the string representng the separator in path names
-        static std::string sep();
+        static char sep();
 
     private:
         //! @internal

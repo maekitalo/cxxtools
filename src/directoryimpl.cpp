@@ -147,12 +147,28 @@ bool DirectoryIteratorImpl::advance()
 
 
 
-void DirectoryImpl::create(const std::string& path)
+void DirectoryImpl::create(const std::string& path, bool fullPath, mode_t mode)
 {
-    if( -1 == ::mkdir(path.c_str(), 0777) )
+    if (fullPath)
     {
-        throw SystemError("mkdir", "Could not create directory '" + path + "'");
+        if (exists(path))
+            return;
+
+        if (::mkdir(path.c_str(), mode) == 0)
+            return;
+
+        if (errno != ENOENT)
+            throw SystemError("mkdir", "Could not create directory '" + path + "'");
+
+        std::string::size_type p = path.find_last_of(sep());
+        if (p == std::string::npos)
+            throw SystemError("mkdir", "Could not create directory '" + path + "'");
+
+        create(path.substr(0, p), true, mode);
+        create(path, false, mode);
     }
+    else if( -1 == ::mkdir(path.c_str(), mode) )
+        throw SystemError("mkdir", "Could not create directory '" + path + "'");
 }
 
 bool DirectoryImpl::exists(const std::string& path)
@@ -162,7 +178,7 @@ bool DirectoryImpl::exists(const std::string& path)
 
     if (err == -1 )
     {
-        if (errno == ENOENT || errno == ENOTDIR)
+        if (errno == ENOENT || errno == ENOTDIR || !S_ISDIR(buff.st_mode))
         {
             return false;
         }
@@ -253,9 +269,9 @@ std::string DirectoryImpl::tmpdir()
 }
 
 
-std::string DirectoryImpl::sep()
+char DirectoryImpl::sep()
 {
-    return "/";
+    return '/';
 }
 
 } // namespace cxxtools

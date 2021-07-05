@@ -72,6 +72,8 @@ class FileInfo
          */
         Type type() const                   { return _type; }
 
+        bool exists() const                 { return _type != FileInfo::Invalid; }
+
         /** @brief Returns the path of node in the file-system as passed in ctor
         */
         const std::string& path() const     { return _path; }
@@ -128,6 +130,10 @@ class FileInfo
         */
         void move(const std::string& to);
 
+        FileInfo& operator+= (const FileInfo& path);
+        FileInfo& operator+= (const std::string& path)
+            { return operator+=(FileInfo(path)); }
+
     public:
         //! @brief Returns true if a file or directory exists at \a path
         static bool exists(const std::string& path);
@@ -168,6 +174,21 @@ inline bool operator==(const FileInfo& a, const FileInfo& b)
 inline bool operator!=(const FileInfo& a, const FileInfo& b)
 {
     return !(a == b);
+}
+
+
+inline FileInfo operator+ (const FileInfo& l, const FileInfo& r)
+{
+    FileInfo result(l);
+    result += r;
+    return result;
+}
+
+inline FileInfo operator+ (const FileInfo& l, const std::string& r)
+{
+    FileInfo result(l);
+    result += r;
+    return result;
 }
 
 } // namespace cxxtools

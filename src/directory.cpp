@@ -212,9 +212,9 @@ std::string Directory::name() const
 }
 
 
-Directory Directory::create(const std::string& path)
+Directory Directory::create(const std::string& path, bool fullPath, mode_t mode)
 {
-    DirectoryImpl::create( path );
+    DirectoryImpl::create(path, fullPath, mode);
     return Directory(path);
 }
 
@@ -261,7 +261,7 @@ std::string tmpdir()
 }
 
 
-std::string Directory::sep()
+char Directory::sep()
 {
     return DirectoryImpl::sep();
 }

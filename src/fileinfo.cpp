@@ -44,7 +44,7 @@ static FileInfo::Type doGetType(const std::string& path)
     struct stat st;
     if( 0 != ::lstat(path.c_str(), &st) )
     {
-        if (errno == ENOENT)
+        if (errno == ENOENT || errno == ENOTDIR)
             return FileInfo::Invalid;
         else
             throw SystemError(("lstat(" + path + ')').c_str());
@@ -193,6 +193,29 @@ void FileInfo::move(const std::string& to)
         return FileImpl::move(_path, to);
 }
 
+FileInfo& FileInfo::operator+= (const FileInfo& path)
+{
+    if (_path.empty())
+        _path = path.path();
+    else if (path.path().empty())
+        ;
+    else if (_path.back() == DirectoryImpl::sep())
+    {
+        if (path.path().front() == DirectoryImpl::sep())
+            _path += path.path().substr(1);
+        else
+            _path += path.path();
+    }
+    else if (path.path().front() == DirectoryImpl::sep())
+        _path += path.path();
+    else
+    {
+        _path += DirectoryImpl::sep();
+        _path += path.path();
+    }
+
+    return *this;
+}
 
 bool FileInfo::exists(const std::string& path)
 {

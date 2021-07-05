@@ -63,7 +63,7 @@ class DirectoryIteratorImpl
 class DirectoryImpl
 {
     public:
-        static void create(const std::string& path);
+        static void create(const std::string& path, bool fullPath, mode_t mode);
 
         static void remove(const std::string& path);
 
@@ -83,7 +83,7 @@ class DirectoryImpl
 
         static std::string tmpdir();
 
-        static std::string sep();
+        static char sep();
 };
 
 } // namespace cxxtools

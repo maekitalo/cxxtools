@@ -24,9 +24,11 @@ alltests_SOURCES = \
     convert-test.cpp \
     date-test.cpp \
     datetime-test.cpp \
+    directory-test.cpp \
     envsubst-test.cpp \
     eventloop-test.cpp \
     file-test.cpp \
+    fileinfo-test.cpp \
     inifile-test.cpp \
     iniparser-test.cpp \
     iniserialization-test.cpp \
