@@ -72,6 +72,8 @@ class Siconvert
         unsigned num;
         unsigned count;
 
+        std::string xmlRootNodeName;
+
     public:
         Siconvert(int& argc, char* argv[]);
         void convert(std::istream& in, std::ostream& out);
@@ -101,7 +103,8 @@ Siconvert::Siconvert(int& argc, char* argv[])
       beautify(cxxtools::Arg<bool>(argc, argv, 'd')),
       skip(cxxtools::Arg<unsigned>(argc, argv, "--skip")),
       num(cxxtools::Arg<unsigned>(argc, argv, "--num", std::numeric_limits<unsigned>::max())),
-      count(0)
+      count(0),
+      xmlRootNodeName(cxxtools::Arg<std::string>(argc, argv, 'R', "root"))
 {
     unsigned c;
 
@@ -186,9 +189,9 @@ void Siconvert::convert(std::istream& in, std::ostream& out)
         if (outputBin)
             out << cxxtools::bin::Bin(si);
         else if (outputXml)
-            out << cxxtools::xml::Xml(si, "root").beautify(beautify);
+            out << cxxtools::xml::Xml(si, xmlRootNodeName).beautify(beautify);
         else if (outputXmlCompact)
-            out << cxxtools::xml::Xml(si, "root").beautify(beautify).useAttributes(false);
+            out << cxxtools::xml::Xml(si, xmlRootNodeName).beautify(beautify).useAttributes(false);
         else if (outputJson)
             out << cxxtools::Json(si).beautify(beautify);
         else if (outputJsongrep)
@@ -279,6 +282,7 @@ int main(int argc, char* argv[])
                      " -P         output properties data\n"
                      " -N         output number of objects\n"
                      " -d         beautify output (xml, json)\n"
+                     " -R <name>  name for root node in xml format (default <root>\n"
                      "\n"
                      "Other options:\n"
                      " --skip <n> skip <n> objects\n"
