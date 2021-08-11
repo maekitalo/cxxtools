@@ -55,6 +55,8 @@ class TimespanTest : public cxxtools::unit::TestSuite
             registerMethod("istream", *this, &TimespanTest::istream);
             registerMethod("istreamunits", *this, &TimespanTest::istreamunits);
             registerMethod("ceil", *this, &TimespanTest::ceil);
+            registerMethod("parts", *this, &TimespanTest::parts);
+            registerMethod("toString", *this, &TimespanTest::toString);
         }
 
         void compare()
@@ -534,6 +536,33 @@ class TimespanTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::Milliseconds(-11.1).ceil(), -11);
         }
 
+        void parts()
+        {
+            cxxtools::Timespan ts = cxxtools::Hours(822)
+                                  + cxxtools::Minutes(17)
+                                  + cxxtools::Seconds(42)
+                                  + cxxtools::Milliseconds(453)
+                                  + cxxtools::Microseconds(85);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(ts.hours(), 822);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(ts.minutes(), 17);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(ts.seconds(), 42);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(ts.milliseconds(), 453);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(ts.microseconds(), 453085);
+        }
+
+        void toString()
+        {
+            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::Milliseconds(4).toString(), "0.004");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::Hours(22).toString(), "22:00:00");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::Milliseconds(1200).toString(), "1.2");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::Microseconds(140).toString(), "0.00014");
+            cxxtools::Timespan ts = cxxtools::Hours(823)
+                                  + cxxtools::Minutes(17)
+                                  + cxxtools::Seconds(42)
+                                  + cxxtools::Milliseconds(453)
+                                  + cxxtools::Microseconds(850);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(ts.toString(), "823:17:42.45385");
+        }
 };
 
 cxxtools::unit::RegisterTest<TimespanTest> register_TimespanTest;

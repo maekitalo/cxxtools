@@ -28,6 +28,7 @@
 
 #include <stdint.h>
 #include <iosfwd>
+#include <string>
 #include <cxxtools/config.h>
 
 namespace cxxtools {
@@ -118,6 +119,33 @@ class Timespan
         //! @brief Returns the total number of microseconds.
         int64_t totalUSecs() const
         { return _span; }
+
+        //! @brief Returns the total number of hours without sub hours.
+        unsigned hours() const
+        { return static_cast<unsigned>(_span / 1000 / 1000 / 60 / 60); }
+
+        //! @brief Returns the number of minutes without hours or sub minutes.
+        unsigned minutes() const
+        { return static_cast<unsigned>(_span / 1000 / 1000 / 60 % 60); }
+
+        //! @brief Returns the number of seconds without minutes or sub seconds.
+        unsigned seconds() const
+        { return static_cast<unsigned>(_span / 1000 / 1000 % 60); }
+
+        //! @brief Returns the number of milliseconds part without seconds.
+        unsigned milliseconds() const
+        { return static_cast<unsigned>(_span / 1000 % 1000); }
+
+        //! @brief Returns the number of microseconds part without seconds.
+        unsigned microseconds() const
+        { return static_cast<unsigned>(_span % 1000000); }
+
+        /** Returns the time span in format hh:mm:ss.mmmmmm.
+         *
+         * Hours are omitted when 0.
+         * Minutes are omitted when hours and minutes are 0.
+         */
+        std::string toString() const;
 
         //! @brief returns the current time as a timespan value.
         static Timespan gettimeofday();

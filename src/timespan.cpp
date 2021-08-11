@@ -31,14 +31,60 @@
 #include <cxxtools/serializationerror.h>
 #include <cxxtools/convert.h>
 
+#include "dateutils.h"
+
 #include <sys/time.h>
 #include <time.h>
 #include <stdio.h>
 
 #include <iostream>
+#include <iterator>
 
 namespace cxxtools
 {
+    std::string Timespan::toString() const
+    {
+        std::string ret;
+
+        unsigned h = hours();
+        unsigned m = minutes();
+        unsigned s = seconds();
+        unsigned mm = microseconds();
+        if (h > 0)
+        {
+            putInt(std::back_inserter(ret), h);
+            ret += ':';
+            appendDn(ret, 2, m);
+            ret += ':';
+            appendDn(ret, 2, s);
+        }
+        else if (m > 0)
+        {
+            appendDn(ret, m < 10 ? 1 : 2, m);
+            ret += ':';
+            appendDn(ret, 2, s);
+        }
+        else
+        {
+            appendDn(ret, s < 10 ? 1 : 2, s);
+        }
+
+        if (mm > 0)
+        {
+            ret += '.';
+            for (unsigned p = 6; p > 0; --p, mm /= 10)
+            {
+                if (mm % 10 != 0)
+                {
+                    appendDn(ret, p, mm);
+                    break;
+                }
+            }
+        }
+
+        return ret;
+    }
+
     Timespan Timespan::gettimeofday()
     {
         timeval tv;
