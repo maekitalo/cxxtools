@@ -28,15 +28,12 @@
 
 #include "cxxtools/unit/testsuite.h"
 #include "cxxtools/unit/registertest.h"
-#include "cxxtools/log.h"
 #include "cxxtools/file.h"
 #include "cxxtools/fileinfo.h"
 #include "cxxtools/ioerror.h"
 #include "cxxtools/datetime.h"
 #include "cxxtools/timespan.h"
 #include <fstream>
-
-log_define("cxxtools.test.file")
 
 const std::string tmpFileName = "file-test.tmp";
 const std::string tmpFileName2 = "file-test-2.tmp";
