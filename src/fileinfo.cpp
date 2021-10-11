@@ -252,14 +252,14 @@ UtcDateTime FileInfo::ctime(const std::string& path)
 bool FileInfo::isReadingAllowed(const std::string& path)
 {
     struct stat st = doStat(path);
-    return (st.st_mode | S_IRUSR) != 0;
+    return (st.st_mode & S_IRUSR) != 0;
 }
 
 
 bool FileInfo::isWritingAllowed(const std::string& path)
 {
     struct stat st = doStat(path);
-    return (st.st_mode | S_IWUSR) != 0;
+    return (st.st_mode & S_IWUSR) != 0;
 }
 
 
