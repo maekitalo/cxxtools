@@ -77,8 +77,6 @@ DirectoryIteratorImpl::DirectoryIteratorImpl(const char* path, bool skipHidden)
     // directory entry name easily
     if( ! _path.empty() && _path[_path.size()-1] != '/')
         _path += '/';
-
-    this->advance();
 }
 
 

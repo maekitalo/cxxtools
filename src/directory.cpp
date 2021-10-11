@@ -37,8 +37,13 @@ DirectoryIterator::DirectoryIterator()
 
 
 DirectoryIterator::DirectoryIterator(const std::string& path, bool skipHidden)
+: _impl(new DirectoryIteratorImpl( path.c_str(), skipHidden ))
 {
-    _impl = new DirectoryIteratorImpl( path.c_str(), skipHidden );
+    if (!_impl->advance())
+    {
+        delete _impl;
+        _impl = 0;
+    }
 }
 
 
