@@ -27,6 +27,9 @@
  */
 #include "directoryimpl.h"
 #include "cxxtools/systemerror.h"
+#include "cxxtools/ioerror.h"
+#include "cxxtools/log.h"
+#include "error.h"
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <dirent.h>
@@ -35,6 +38,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <vector>
+
+log_define("cxxtools.directory.impl")
 
 namespace cxxtools {
 
@@ -56,6 +61,7 @@ DirectoryIteratorImpl::DirectoryIteratorImpl(const char* path, bool skipHidden)
   _dirty(true),
   _skipHidden(skipHidden)
 {
+    log_debug("opendir(" << path << ')');
     _handle = ::opendir( path );
 
     // EACCES Permission denied.
@@ -66,12 +72,9 @@ DirectoryIteratorImpl::DirectoryIteratorImpl(const char* path, bool skipHidden)
     // ENOTDIR name is not a directory.
 
     if( !_handle )
-    {
-        std::string fn = "opendir(\"";
-        fn += path;
-        fn += "\")";
-        throw SystemError(fn.c_str());
-    }
+        throwCurrentErrno("opendir", path);
+
+    log_debug("directory \"" << path << "\" => " << static_cast<void*>(_handle));
 
     // append a trailing slash if not empty, so we can add the
     // directory entry name easily
@@ -83,7 +86,10 @@ DirectoryIteratorImpl::DirectoryIteratorImpl(const char* path, bool skipHidden)
 DirectoryIteratorImpl::~DirectoryIteratorImpl()
 {
     if(_handle)
+    {
+        log_debug("closedir(" << static_cast<void*>(_handle) << ')');
         ::closedir(_handle);
+    }
 }
 
 
@@ -115,13 +121,44 @@ const std::string& DirectoryIteratorImpl::path() const
 }
 
 
-int DirectoryIteratorImpl::ref()
+FileInfo::Type DirectoryIteratorImpl::type() const
+{
+    switch (_current->d_type)
+    {
+        case DT_BLK:
+            return FileInfo::Blockdev;
+
+        case DT_CHR:
+            return FileInfo::Chardev;
+
+        case DT_DIR:
+            return FileInfo::Directory;
+
+        case DT_FIFO:
+            return FileInfo::Fifo;
+
+        case DT_LNK:
+            return FileInfo::Symlink;
+
+        case DT_REG:
+            return FileInfo::File;
+
+        case DT_SOCK:
+            return FileInfo::Socket;
+
+        default:
+            return FileInfo::getType(_path);
+    }
+}
+
+
+unsigned int DirectoryIteratorImpl::ref()
 {
     return ++_refs;
 }
 
 
-int DirectoryIteratorImpl::deref()
+unsigned int DirectoryIteratorImpl::deref()
 {
     return --_refs;
 }
@@ -134,11 +171,16 @@ bool DirectoryIteratorImpl::advance()
     // _current == 0 means end
     do
     {
-      _current = ::readdir( _handle );
-      if(_current)
-          _name = _current->d_name;
+        log_debug("readdir(" << static_cast<void*>(_handle) << ')');
+        _current = ::readdir( _handle );
+        if(_current)
+        {
+            _name = _current->d_name;
+            log_debug("name=\"" << _name << '"');
+        }
     } while (_skipHidden && _current && _current->d_name[0] == '.');
 
+    log_debug("advance returns " << (_current != 0));
     return _current != 0;
 }
 
@@ -156,7 +198,7 @@ void DirectoryImpl::create(const std::string& path, bool fullPath, mode_t mode)
             return;
 
         if (errno != ENOENT)
-            throw SystemError("mkdir", "Could not create directory '" + path + "'");
+            throwCurrentErrno("mkdir", path);
 
         std::string::size_type p = path.find_last_of(sep());
         if (p == std::string::npos)
@@ -166,7 +208,7 @@ void DirectoryImpl::create(const std::string& path, bool fullPath, mode_t mode)
         create(path, false, mode);
     }
     else if( -1 == ::mkdir(path.c_str(), mode) )
-        throw SystemError("mkdir", "Could not create directory '" + path + "'");
+        throwCurrentErrno("mkdir", path);
 }
 
 bool DirectoryImpl::exists(const std::string& path)
@@ -181,7 +223,7 @@ bool DirectoryImpl::exists(const std::string& path)
             return false;
         }
 
-        throw SystemError("stat", "Could not stat file '" + path + "'");
+        throwCurrentErrno("stat", path);
     }
 
     return true;
@@ -192,7 +234,7 @@ void DirectoryImpl::remove(const std::string& path)
 {
     if( -1 == ::rmdir(path.c_str()) )
     {
-        throw SystemError("rmdir", "Could not remove directory '" + path + "'");
+        throwCurrentErrno("rmdir", path);
     }
 }
 
@@ -201,7 +243,7 @@ void DirectoryImpl::move(const std::string& oldName, const std::string& newName)
 {
     if (0 != ::rename(oldName.c_str(), newName.c_str()))
     {
-        throw SystemError("rename", "Could not move directory '" + oldName + "' to '" + newName + "'");
+        throwCurrentErrno("rename", oldName + ", " + newName);
     }
 }
 
@@ -210,7 +252,7 @@ void DirectoryImpl::chdir(const std::string& path)
 {
     if( -1 == ::chdir(path.c_str()) )
     {
-        throw SystemError("chdir", "Could not change working directory to '" + path + "'");
+        throwCurrentErrno("chdir", path);
     }
 }
 

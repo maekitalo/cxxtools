@@ -27,6 +27,7 @@
  */
 #include <string>
 #include <dirent.h>
+#include <cxxtools/fileinfo.h>
 
 namespace cxxtools {
 
@@ -43,9 +44,11 @@ class DirectoryIteratorImpl
 
         const std::string& path() const;
 
-        int ref();
+        FileInfo::Type type() const;
 
-        int deref();
+        unsigned int ref();
+
+        unsigned int deref();
 
         bool advance();
 

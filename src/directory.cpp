@@ -114,6 +114,12 @@ const std::string* DirectoryIterator::operator->() const
 }
 
 
+FileInfo::Type DirectoryIterator::type() const
+{
+    return _impl->type();
+}
+
+
 Directory::Directory()
 {
 }

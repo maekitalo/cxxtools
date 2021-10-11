@@ -82,8 +82,17 @@ class DirectoryIterator
 
         //! @brief Returns the name of the file the iterator points at
         const std::string& operator*() const;
+        const std::string& name() const { return operator*(); }
 
         const std::string* operator->() const;
+
+        FileInfo::Type type() const;
+
+        bool isDirectory() const
+        { return type() == FileInfo::Directory; }
+
+        bool isFile() const
+        { return type() == FileInfo::File; }
 
     private:
         //! @internal

@@ -28,6 +28,8 @@
  */
 
 #include "error.h"
+#include <cxxtools/ioerror.h>
+#include <cxxtools/systemerror.h>
 #include <sstream>
 #include <vector>
 #include <string.h>
@@ -114,5 +116,60 @@ std::string getErrnoString(int errnum, const char* fn)
         return "unknown error";
     }
 }
+
+// EACCES Permission denied.
+// EMFILE Too many file descriptors in use by process.
+// ENOENT Directory does not exist, or name is an empty string.
+// ENOTDIR name is not a directory.
+// EBUSY  pathname is currently in use by the system or some process that prevents its  removal.
+// EFAULT pathname points outside your accessible address space.
+// EINVAL pathname has .  as last component.
+// ELOOP  Too many symbolic links were encountered in resolving pathname.
+// ENAMETOOLONG pathname was too long.
+// ENOMEM Insufficient kernel memory was available.
+// ENOTEMPTY pathname contains entries other than . and .. ; or, pathname has ..  as its final component.
+// EPERM  The directory containing pathname has the sticky bit (S_ISVTX) set
+// EPERM  The filesystem containing pathname does not support the removal of directories.
+// EROFS  pathname refers to a file on a read-only filesystem.
+void throwCurrentErrno(const char* fn, const std::string& path)
+{
+    if(errno == EEXIST)
+        throw AccessFailed(path);
+
+    switch(errno)
+    {
+        case EIO:
+        case EBADF:
+        case EBUSY:
+        case ENOSPC:
+        case EMLINK:
+        case ENOTEMPTY:
+        case EXDEV:
+            throw IOError(getErrnoString(errno));
+
+        case EACCES:
+        case EPERM:
+        case EROFS:
+        case ENXIO:
+            throw PermissionDenied(path);
+
+        case ELOOP:
+        case ENAMETOOLONG:
+        case ENOENT:
+        case ENOTDIR:
+        case EISDIR:
+            throw FileNotFound(path);
+
+        case ENODEV:
+            throw DeviceNotFound(path);
+
+       case ENOMEM:
+           throw std::bad_alloc();
+
+        default: // EFAULT EMFILE EOVERFLOW
+            throw SystemError(fn);
+    }
+}
+
 
 }

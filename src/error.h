@@ -38,6 +38,7 @@ namespace cxxtools
 {
     std::string getErrnoString(int err, const char* fn);
     std::string getErrnoString(int err);
+    void throwCurrentErrno(const char* fn, const std::string& path);
 
     inline std::string getErrnoString(const char* fn)
     {

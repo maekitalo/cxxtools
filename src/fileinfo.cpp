@@ -108,7 +108,7 @@ FileInfo::FileInfo(const std::string& path)
 FileInfo::FileInfo(const DirectoryIterator& it)
 : _path(it.path())
 {
-    _type = doGetType( _path );
+    _type = it.type();
 }
 
 
