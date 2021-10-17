@@ -111,7 +111,7 @@ namespace http {
 
     void HeaderParser::MessageHeaderEvent::onKey(const std::string& key)
     {
-        strncpy(_key, key.c_str(), MessageHeader::MAXHEADERSIZE);
+        strncpy(_key, key.c_str(), MessageHeader::MAXHEADERSIZE - 1);
     }
 
     void HeaderParser::MessageHeaderEvent::onValue(const std::string& value)
