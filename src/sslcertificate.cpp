@@ -163,6 +163,7 @@ SslCertificate::SslCertificate(const SslCertificate& s)
 
 SslCertificate& SslCertificate::operator=(const SslCertificate& s)
 {
+    return *this;
 }
 
 SslCertificate::~SslCertificate()
