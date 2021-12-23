@@ -1001,7 +1001,7 @@ void TcpSocketImpl::loadSslCertificateFile(const std::string& certFile, const st
 {
     log_debug("load ssl certificate file \"" << certFile << '"');
     initSsl();
-    int ret = SSL_use_certificate_chain_file(_ssl, certFile.c_str(), SSL_FILETYPE_PEM);
+    int ret = SSL_use_certificate_chain_file(_ssl, certFile.c_str());
     if (ret != 1)
         checkSslOperation(ret, "SSL_use_certificate_chain_file", _pfd);
 
