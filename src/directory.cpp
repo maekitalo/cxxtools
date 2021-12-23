@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2006-2008 Marc Boris Duerner
+ * Copyright (C) 2021 Tommi Mäkitalo
  * 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -189,7 +190,6 @@ void Directory::move(const std::string& to)
     _path = to;
 }
 
-
 std::string Directory::dirName() const
 {
     // Find last slash. This separates the last path segment from the rest of the path
@@ -222,6 +222,19 @@ std::string Directory::name() const
     }
 }
 
+bool Directory::isRoot() const
+{
+    return _path == DirectoryImpl::rootdir();
+}
+
+Directory Directory::updir() const
+{
+    std::string::size_type separatorPos = _path.find_last_of(sep());
+    if (separatorPos == std::string::npos || separatorPos == 0)
+        return rootdir();
+
+    return Directory(std::string(_path, 0, separatorPos));
+}
 
 Directory Directory::create(const std::string& path, bool fullPath, mode_t mode)
 {
@@ -242,31 +255,19 @@ void Directory::chdir(const std::string& path)
 }
 
 
-std::string Directory::cwd()
+Directory Directory::cwd()
 {
-    return DirectoryImpl::cwd();
+    return Directory(DirectoryImpl::cwd());
 }
 
 
-std::string Directory::curdir()
+Directory Directory::rootdir()
 {
-    return DirectoryImpl::curdir();
+    return Directory(DirectoryImpl::rootdir());
 }
 
 
-std::string Directory::updir()
-{
-    return DirectoryImpl::updir();
-}
-
-
-std::string rootdir()
-{
-    return DirectoryImpl::rootdir();
-}
-
-
-std::string tmpdir()
+std::string Directory::tmpdir()
 {
     return DirectoryImpl::tmpdir();
 }

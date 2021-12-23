@@ -272,18 +272,6 @@ std::string DirectoryImpl::cwd()
 }
 
 
-std::string DirectoryImpl::curdir()
-{
-    return ".";
-}
-
-
-std::string DirectoryImpl::updir()
-{;
-    return "..";
-}
-
-
 std::string DirectoryImpl::rootdir()
 {
     return "/";
@@ -305,7 +293,7 @@ std::string DirectoryImpl::tmpdir()
         return tmpdir;
     }
 
-    return DirectoryImpl::exists("/tmp") ? "/tmp" : curdir();
+    return DirectoryImpl::exists("/tmp") ? "/tmp" : ".";
 }
 
 

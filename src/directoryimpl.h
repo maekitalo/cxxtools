@@ -78,10 +78,6 @@ class DirectoryImpl
 
         static std::string cwd();
 
-        static std::string curdir();
-
-        static std::string updir();
-
         static std::string rootdir();
 
         static std::string tmpdir();

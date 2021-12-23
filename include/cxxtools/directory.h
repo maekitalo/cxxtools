@@ -182,13 +182,19 @@ class Directory
         */
         void move(const std::string& to);
 
+        //! @brief Returns true, if the directory is the root directory
+        bool isRoot() const;
+
+        //! @brief Returns the upper directory.
+        //! Throws DirectoryNotFound on already the root directory.
+        Directory updir() const;
+
         //! @brief Returns an iterator to the first entry in the directory.
         const_iterator begin(bool skipHiden = false) const;
 
         //! @brief Returns an iterator to the end of the directory entries.
         const_iterator end() const;
 
-    public:
         //! @brief Creates a new directory at the path given by \a path
         static Directory create(const std::string& path, bool fullPath = false, mode_t mode = 0755);
 
@@ -199,19 +205,13 @@ class Directory
         static void chdir(const std::string& path);
 
         //! @brief Returns the current directory
-        static std::string cwd();
-
-        //! @brief Returns the string representng the current directory in path names
-        static std::string curdir();
-
-        //! @brief Returns the string representng the upper directory in path names
-        static std::string updir();
+        static Directory cwd();
 
         /** @brief Returns the system root path
 
             Returns "/" (root) on Linux, "c:\" on Windows
         */
-        static std::string rootdir();
+        static Directory rootdir();
 
         /** @brief Returns the systems tmp directory.
 

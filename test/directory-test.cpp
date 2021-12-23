@@ -9,6 +9,7 @@ public:
     : cxxtools::unit::TestSuite("directory")
     {
         registerMethod("createDirectory", *this, &DirectoryTest::createDirectory);
+        registerMethod("updir", *this, &DirectoryTest::updir);
     }
 
     void createDirectory()
@@ -28,6 +29,20 @@ public:
 
         cxxtools::Directory("foo").remove();
         CXXTOOLS_UNIT_ASSERT(!cxxtools::Directory::exists("foo"));
+    }
+
+    void updir()
+    {
+        cxxtools::Directory libdir("/usr/lib");
+
+        cxxtools::Directory usrdir = libdir.updir();
+
+        CXXTOOLS_UNIT_ASSERT(!usrdir.isRoot());
+        CXXTOOLS_UNIT_ASSERT_EQUALS(usrdir.path(), "/usr");
+
+        cxxtools::Directory rootdir = usrdir.updir();
+        CXXTOOLS_UNIT_ASSERT(rootdir.isRoot());
+        CXXTOOLS_UNIT_ASSERT_EQUALS(rootdir.path(), "/");
     }
 };
 
