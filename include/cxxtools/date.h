@@ -243,11 +243,6 @@ class Date
         */
         bool leapYear() const;
 
-        /** @brief Assignment operator
-        */
-        Date& operator=(const Date& date)
-        { _julian = date._julian; return *this; }
-
         /** @brief Add days to the date
         */
         Date& operator+=(int days)

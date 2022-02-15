@@ -225,11 +225,6 @@ class Time
          */
         std::string toString(const std::string& fmt = "%H:%M:%S%j") const;
 
-        /** @brief Assignment operator
-        */
-        Time& operator=(const Time& other)
-        { _usecs=other._usecs; return *this; }
-
         /** @brief Equal comparison operator
         */
         bool operator==(const Time& other) const
