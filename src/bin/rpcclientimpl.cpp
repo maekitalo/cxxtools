@@ -164,10 +164,11 @@ void RpcClientImpl::call(IComposer& r, IRemoteProcedure& method, IDecomposer** a
                     _socket.close();
                 }
             }
-            catch (const std::exception& e)
+            catch (const IOTimeout& e)
             {
-                log_debug("request failed: " << e.what());
+                log_debug("request timed out");
                 _socket.close();
+                throw;
             }
         }
 
