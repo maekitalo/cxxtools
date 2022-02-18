@@ -97,6 +97,7 @@ cxxtools-config
 **/demo/ssl/rpcxecho
 **/demo/ssl/rpcxserver
 **/tools/siconvert
+**/tools/cxxtz
 
 *.l[ao]
 *.o
