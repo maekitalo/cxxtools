@@ -381,7 +381,7 @@ namespace cxxtools
 
       case state_unicode:
         if (_unicodeCount == 0)
-          throw PropertiesParserError("invalid unicode sequence at end of json", _lineNo);
+          throw PropertiesParserError("invalid unicode sequence at end of properties", _lineNo);
 
         _value += Char(_unicode);
         _event.onValue(_value);
