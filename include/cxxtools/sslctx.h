@@ -33,6 +33,20 @@
 
 namespace cxxtools
 {
+/** Specifies ssl connection parameters.
+
+    The class is used in network connections where ssl is supported. It
+    specifies the parameters used for the connection.
+
+    The state can be enabled or disabled. When disabled no ssl is used even when
+    a SslCtx is passed to the network classes.
+
+    The actual context is reference counted so that after copying the object
+    both instances point to the same context. This can be used to change the ssl
+    state even after using network classes. Note that ssl cannot be enabled
+    later that way since a disabled state do not reference anything.
+
+ */
 class SslCtx
 {
 public:
@@ -47,6 +61,7 @@ public:
         TLSv13
     };
 
+    /** Creates a empty disabled SslCtx */
     SslCtx()
         : _impl(nullptr)
         { }
@@ -55,10 +70,17 @@ public:
     SslCtx& operator= (const SslCtx& sslCtx);
     ~SslCtx();
 
+    /** returns true if ssl is enabled in this class */
     bool enabled() const   { return _impl != nullptr; }
+    /** enables ssl with standard parameters or disables it */
     SslCtx&  enable(bool sw = true);
+    /** disables ssl */
     void disable() { enable(false); }
 
+    /** Read certificate and key.
+
+        When no key is passed it expects to find the key in the cert file.
+     */
     SslCtx& loadCertificateFile(const std::string& certFile, const std::string& privateKeyFile = "");
 
     /** Enables ssl peer certificate check.
@@ -94,10 +116,12 @@ public:
      */
     SslCtx& setVerify(const std::string& ca);
 
+    /** Sets allowed protocol versions. */
     SslCtx& setProtocolVersion(PROTOCOL_VERSION min_version, PROTOCOL_VERSION max_version = PROTOCOL_VERSION::TLSv13);
+    /** Sets allowed ciphers. See openssl documentation for syntax. */
     SslCtx& setCiphers(const std::string& ciphers);
 
-    /** return standard ctx */
+    /** return standard ctx with low security */
     static SslCtx standard() { return SslCtx().enable(); }
 
     /** return ctx which is considered to be secure */
