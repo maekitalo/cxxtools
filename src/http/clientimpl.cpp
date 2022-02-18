@@ -56,9 +56,6 @@ ClientImpl::ClientImpl(Client* client)
   _request(0),
   _parseEvent(_reply.header()),
   _parser(_parseEvent, true),
-#ifdef WITH_SSL
-  _ssl(false),
-#endif
   _stream(8192, true),
   _chunkedIStream(_stream.rdbuf()),
   _bodyStream(_stream.rdbuf()),
@@ -77,22 +74,16 @@ ClientImpl::ClientImpl(Client* client)
 }
 
 
-void ClientImpl::prepareConnect(const net::AddrInfo& addrinfo, const std::string& sslCertificate)
+void ClientImpl::prepareConnect(const net::AddrInfo& addrinfo, const SslCtx& sslCtx)
 {
-#ifdef WITH_SSL
-    if (addrinfo != _addrInfo || sslCertificate != _sslCertificate || _ssl != _sslCertificate.empty())
-    {
-        _addrInfo = addrinfo;
-        _sslCertificate = sslCertificate;
-        _ssl = !sslCertificate.empty();
-        _socket.close();
-    }
-#else
     if (addrinfo != _addrInfo)
     {
         _addrInfo = addrinfo;
         _socket.close();
     }
+
+#ifdef WITH_SSL
+    _sslCtx = sslCtx;
 #endif
 }
 
@@ -105,13 +96,8 @@ void ClientImpl::reexecute(const Request& request)
 
     _socket.connect(_addrInfo);
 #ifdef WITH_SSL
-    if (_ssl)
-    {
-        if (!_sslCertificate.empty())
-            _socket.loadSslCertificateFile(_sslCertificate);
-        _socket.setSslVerify(_sslVerifyLevel, _sslCa);
-        _socket.sslConnect();
-    }
+    if (_sslCtx.enabled())
+        _socket.sslConnect(_sslCtx);
 #endif
 
     sendRequest(request);
@@ -166,13 +152,10 @@ const ReplyHeader& ClientImpl::execute(const Request& request, Timespan timeout,
         _socket.connect(_addrInfo);
 
 #ifdef WITH_SSL
-        if (_ssl)
+        if (_sslCtx.enabled())
         {
             log_debug("ssl connect");
-            if (!_sslCertificate.empty())
-                _socket.loadSslCertificateFile(_sslCertificate);
-            _socket.setSslVerify(_sslVerifyLevel, _sslCa);
-            _socket.sslConnect();
+            _socket.sslConnect(_sslCtx);
         }
 #endif
     }
@@ -424,12 +407,9 @@ void ClientImpl::onConnect(net::TcpSocket& socket)
         _exceptionPending = false;
         socket.endConnect();
 #ifdef WITH_SSL
-        if (_ssl)
+        if (_sslCtx.enabled())
         {
-            if (!_sslCertificate.empty())
-                socket.loadSslCertificateFile(_sslCertificate);
-            socket.setSslVerify(_sslVerifyLevel, _sslCa);
-            socket.beginSslConnect();
+            socket.beginSslConnect(_sslCtx);
             return;
         }
 #endif

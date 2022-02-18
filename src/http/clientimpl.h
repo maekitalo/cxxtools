@@ -37,6 +37,7 @@
 
 #include <cxxtools/net/tcpserver.h>
 #include <cxxtools/net/tcpsocket.h>
+#include <cxxtools/sslctx.h>
 
 #include <cxxtools/selectable.h>
 #include <cxxtools/iostream.h>
@@ -87,10 +88,7 @@ class ClientImpl : public RefCounted, public Connectable
 
         net::AddrInfo _addrInfo;
 #ifdef WITH_SSL
-        bool _ssl;
-        std::string _sslCertificate;
-        int _sslVerifyLevel;
-        std::string _sslCa;
+        SslCtx _sslCtx;
 #endif
         net::TcpSocket _socket;
         IOStream _stream;
@@ -130,16 +128,12 @@ class ClientImpl : public RefCounted, public Connectable
         net::TcpSocket& socket()    { return _socket; }
 
         // Sets the server and port. No actual network connect is done.
-        void prepareConnect(const net::AddrInfo& addrinfo, const std::string& sslCertificate);
+        void prepareConnect(const net::AddrInfo& addrinfo, const SslCtx& sslCtx);
 
-        void ssl(bool sw)
+        void ssl(const SslCtx& sslCtx)
         {
 #ifdef WITH_SSL
-            if (_ssl != sw)
-            {
-                _ssl = sw;
-                close();
-            }
+            _sslCtx = sslCtx;
 #endif
         }
 
@@ -148,22 +142,14 @@ class ClientImpl : public RefCounted, public Connectable
             _socket.close();
             _socket.connect(_addrInfo);
 #ifdef WITH_SSL
-            if (_ssl)
-                _socket.sslConnect();
+            if (_sslCtx.enabled())
+                _socket.sslConnect(_sslCtx);
 #endif
         }
 
         void close()
         {
             _socket.close();
-        }
-
-        void setSslVerify(int level, const std::string& ca)
-        {
-#ifdef WITH_SSL
-            _sslVerifyLevel = level;
-            _sslCa = ca;
-#endif
         }
 
         // Sends the passed request to the server and parses the headers.

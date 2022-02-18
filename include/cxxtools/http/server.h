@@ -39,6 +39,7 @@ namespace cxxtools
 
 class EventLoopBase;
 class SslCertificate;
+class SslCtx;
 class Regex;
 
 namespace http
@@ -64,21 +65,21 @@ class Server
             : _impl(newImpl(eventLoop))
             { }
 
-        Server(EventLoopBase& eventLoop, const std::string& ip, unsigned short int port, const std::string& certificateFile = std::string(), const std::string& privateKeyFile = std::string(), int sslVerifyLevel = 0, const std::string& sslCa = std::string())
+        Server(EventLoopBase& eventLoop, const std::string& ip, unsigned short int port)
             : _impl(newImpl(eventLoop))
-            { listen(ip, port, certificateFile, privateKeyFile, sslVerifyLevel, sslCa); }
+            { listen(ip, port); }
 
-        Server(EventLoopBase& eventLoop, const std::string& ip, unsigned short int port, const std::string& certificateFile, int sslVerifyLevel, const std::string& sslCa = std::string())
+        Server(EventLoopBase& eventLoop, const std::string& ip, unsigned short int port, const SslCtx& sslCtx)
             : _impl(newImpl(eventLoop))
-            { listen(ip, port, certificateFile, certificateFile, sslVerifyLevel, sslCa); }
+            { listen(ip, port, sslCtx); }
 
-        Server(EventLoopBase& eventLoop, unsigned short int port, const std::string& certificateFile = std::string(), const std::string& privateKeyFile = std::string(), int sslVerifyLevel = 0, const std::string& sslCa = std::string())
+        Server(EventLoopBase& eventLoop, unsigned short int port)
             : _impl(newImpl(eventLoop))
-            { listen(port, certificateFile, privateKeyFile, sslVerifyLevel, sslCa); }
+            { listen(port); }
 
-        Server(EventLoopBase& eventLoop, unsigned short int port, const std::string& certificateFile, int sslVerifyLevel, const std::string& sslCa = std::string())
+        Server(EventLoopBase& eventLoop, unsigned short int port, const SslCtx& sslCtx)
             : _impl(newImpl(eventLoop))
-            { listen(port, certificateFile, certificateFile, sslVerifyLevel, sslCa); }
+            { listen(port, sslCtx); }
 
         ~Server();
 
@@ -89,9 +90,10 @@ class Server
          *
          *  Multiple listen calls can be made to listen on multiple interfaces or different settings.
          */
-        void listen(const std::string& ip, unsigned short int port, const std::string& certificateFile = std::string(), const std::string& privateKeyFile = std::string(), int sslVerifyLevel = 0, const std::string& sslCa = std::string());
-        void listen(unsigned short int port, const std::string& certificateFile = std::string(), const std::string& privateKeyFile = std::string(), int sslVerifyLevel = 0, const std::string& sslCa = std::string())
-            { listen(std::string(), port, certificateFile, privateKeyFile, sslVerifyLevel, sslCa); }
+        void listen(const std::string& ip, unsigned short int port);
+        void listen(const std::string& ip, unsigned short int port, const SslCtx& sslCtx);
+        void listen(unsigned short int port)                       { listen(std::string(), port); }
+        void listen(unsigned short int port, const SslCtx& sslCtx) { listen(std::string(), port, sslCtx); }
 
         void addService(const std::string& url, Service& service);
         void addService(const Regex& url, Service& service);

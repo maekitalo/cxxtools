@@ -37,14 +37,12 @@ namespace cxxtools
 namespace json
 {
 
-Socket::Socket(RpcServerImpl& rpcServerImpl, net::TcpServer& tcpServer, bool ssl, int sslVerifyLevel, const std::string& sslCa)
+Socket::Socket(RpcServerImpl& rpcServerImpl, net::TcpServer& tcpServer, const SslCtx& sslCtx)
     : inputSlot(slot(*this, &Socket::onInput)),
       _rpcServerImpl(rpcServerImpl),
       _tcpServer(tcpServer),
-      _ssl(ssl),
+      _sslCtx(sslCtx),
       _responder(rpcServerImpl._serviceRegistry),
-      _sslVerifyLevel(sslVerifyLevel),
-      _sslCa(sslCa),
       _accepted(false)
 {
     _stream.attachDevice(*this);
@@ -60,10 +58,8 @@ Socket::Socket(Socket& socket)
       inputSlot(slot(*this, &Socket::onInput)),
       _rpcServerImpl(socket._rpcServerImpl),
       _tcpServer(socket._tcpServer),
-      _ssl(socket._ssl),
+      _sslCtx(socket._sslCtx),
       _responder(_rpcServerImpl._serviceRegistry),
-      _sslVerifyLevel(socket._sslVerifyLevel),
-      _sslCa(socket._sslCa),
       _accepted(false)
 {
     _stream.attachDevice(*this);
@@ -78,17 +74,14 @@ void Socket::accept()
     log_debug("accept");
     net::TcpSocket::accept(_tcpServer);
 
-    if (_ssl)
-    {
-        setSslVerify(_sslVerifyLevel, _sslCa);
-        beginSslAccept();
-    }
+    if (_sslCtx.enabled())
+        beginSslAccept(_sslCtx);
 }
 
 void Socket::postAccept()
 {
     log_trace("post accept");
-    if (_ssl)
+    if (_sslCtx.enabled())
     {
         cxxtools::Timespan t = getTimeout();
         setTimeout(cxxtools::Seconds(10));

@@ -55,16 +55,14 @@ void Socket::ParseEvent::onUrlParam(const std::string& q)
     _request.qparams(q);
 }
 
-Socket::Socket(ServerImpl& server, net::TcpServer& tcpServer, bool ssl, int sslVerifyLevel, const std::string& sslCa)
+Socket::Socket(ServerImpl& server, net::TcpServer& tcpServer, const SslCtx& sslCtx)
     : inputSlot(slot(*this, &Socket::onInput)),
       _tcpServer(tcpServer),
-      _ssl(ssl),
+      _sslCtx(sslCtx),
       _server(server),
       _parseEvent(_request),
       _parser(_parseEvent, false),
       _responder(0),
-      _sslVerifyLevel(sslVerifyLevel),
-      _sslCa(sslCa),
       _accepted(false)
 {
     _stream.attachDevice(*this);
@@ -79,13 +77,11 @@ Socket::Socket(Socket& socket)
       Connectable(*this),
       inputSlot(slot(*this, &Socket::onInput)),
       _tcpServer(socket._tcpServer),
-      _ssl(socket._ssl),
+      _sslCtx(socket._sslCtx),
       _server(socket._server),
       _parseEvent(_request),
       _parser(_parseEvent, false),
       _responder(0),
-      _sslVerifyLevel(socket._sslVerifyLevel),
-      _sslCa(socket._sslCa),
       _accepted(false)
 {
     _stream.attachDevice(*this);
@@ -105,17 +101,14 @@ void Socket::accept()
 {
     net::TcpSocket::accept(_tcpServer, net::TcpSocket::DEFER_ACCEPT);
 
-    if (_ssl)
-    {
-        setSslVerify(_sslVerifyLevel, _sslCa);
-        beginSslAccept();
-    }
+    if (_sslCtx.enabled())
+        beginSslAccept(_sslCtx);
 }
 
 void Socket::postAccept()
 {
     log_trace("post accept");
-    if (_ssl)
+    if (_sslCtx.enabled())
     {
         cxxtools::Timespan t = getTimeout();
         setTimeout(cxxtools::Seconds(10));

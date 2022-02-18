@@ -142,20 +142,17 @@ ServerImpl::~ServerImpl()
     }
 }
 
-void ServerImpl::listen(const std::string& ip, unsigned short int port, const std::string& certificateFile, const std::string& privateKeyFile, int sslVerifyLevel, const std::string& sslCa)
+void ServerImpl::listen(const std::string& ip, unsigned short int port, const SslCtx& sslCtx)
 {
-    log_debug("listen on " << ip << " port " << port << " certificate \"" << certificateFile << "\" private key \"" << privateKeyFile << '"');
+    log_debug("listen on ip <" << ip << "> port " << port << " ssl " << sslCtx.enabled());
     net::TcpServer* listener = new net::TcpServer(ip, port, 64,
         net::TcpServer::DEFER_ACCEPT|net::TcpServer::REUSEADDR);
     Socket* socket = 0;
 
-    if (!certificateFile.empty())
-        listener->loadSslCertificateFile(certificateFile, privateKeyFile);
-
     try
     {
         _listener.push_back(listener);
-        socket = new Socket(*this, *listener, !certificateFile.empty(), sslVerifyLevel, sslCa);
+        socket = new Socket(*this, *listener, sslCtx);
         _queue.put(socket);
     }
     catch (...)

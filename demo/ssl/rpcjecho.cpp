@@ -3,6 +3,7 @@
 #include <cxxtools/log.h>
 #include <cxxtools/remoteprocedure.h>
 #include <cxxtools/json/rpcclient.h>
+#include <cxxtools/sslctx.h>
 
 ////////////////////////////////////////////////////////////////////////
 // main
@@ -18,10 +19,15 @@ int main(int argc, char* argv[])
     cxxtools::Arg<std::string> cert(argc, argv, 'c');
     cxxtools::Arg<std::string> ca(argc, argv, 'C');
 
-    cxxtools::json::RpcClient client(ip, port, cert);
+    cxxtools::SslCtx sslCtx;
+
+    if (cert.isSet())
+        sslCtx.loadCertificateFile(cert);
 
     if (ca.isSet())
-        client.setSslVerify(2, ca);
+        sslCtx.setVerify(2, ca);
+
+    cxxtools::json::RpcClient client(ip, port, sslCtx);
 
     cxxtools::RemoteProcedure<std::string, std::string> echo(client, "echo");
 

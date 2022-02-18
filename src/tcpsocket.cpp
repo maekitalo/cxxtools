@@ -195,33 +195,6 @@ int TcpSocket::getFd() const
 }
 
 
-void TcpSocket::loadSslCertificateFile(const std::string& certFile, const std::string& privateKeyFile)
-{
-#ifdef WITH_SSL
-    _impl->loadSslCertificateFile(certFile, privateKeyFile);
-#else
-    log_warn("can't load certificate file since ssl is disabled");
-#endif
-}
-
-void TcpSocket::setSslVerify(int level, const std::string& ca)
-{
-#ifdef WITH_SSL
-    _impl->setSslVerify(level, ca);
-#else
-    log_warn("can't set ssl verify level since ssl is disabled");
-#endif
-}
-
-void TcpSocket::setSslVerify(const std::string& ca)
-{
-#ifdef WITH_SSL
-    _impl->setSslVerify(2, ca);
-#else
-    log_warn("can't set ssl verify level since ssl is disabled");
-#endif
-}
-
 bool TcpSocket::hasSslPeerCertificate() const
 {
 #ifdef WITH_SSL
@@ -242,10 +215,10 @@ const SslCertificate& TcpSocket::getSslPeerCertificate() const
 #endif
 }
 
-void TcpSocket::beginSslConnect()
+void TcpSocket::beginSslConnect(const SslCtx& ctx)
 {
 #ifdef WITH_SSL
-    if (_impl->beginSslConnect())
+    if (_impl->beginSslConnect(ctx))
         sslConnected(*this);
 #else
     log_warn("can't connect ssl since ssl is disabled");
@@ -260,10 +233,10 @@ void TcpSocket::endSslConnect()
 #endif
 }
 
-void TcpSocket::sslConnect()
+void TcpSocket::sslConnect(const SslCtx& ctx)
 {
 #ifdef WITH_SSL
-    _impl->beginSslConnect();
+    _impl->beginSslConnect(ctx);
     _impl->endSslConnect();
 #else
     log_warn("can't connect ssl since ssl is disabled");
@@ -271,10 +244,10 @@ void TcpSocket::sslConnect()
 #endif
 }
 
-void TcpSocket::beginSslAccept()
+void TcpSocket::beginSslAccept(const SslCtx& ctx)
 {
 #ifdef WITH_SSL
-    if (_impl->beginSslAccept())
+    if (_impl->beginSslAccept(ctx))
         sslAccepted(*this);
 #else
     log_warn("can't accept ssl connection since ssl is disabled");
@@ -289,10 +262,10 @@ void TcpSocket::endSslAccept()
 #endif
 }
 
-void TcpSocket::sslAccept()
+void TcpSocket::sslAccept(const SslCtx& ctx)
 {
 #ifdef WITH_SSL
-    _impl->beginSslAccept();
+    _impl->beginSslAccept(ctx);
     _impl->endSslAccept();
 #else
     log_warn("can't accept ssl connection since ssl is disabled");

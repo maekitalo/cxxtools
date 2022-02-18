@@ -28,12 +28,9 @@
 
 #include "tcpserverimpl.h"
 #include <cxxtools/net/tcpserver.h>
-#include <cxxtools/log.h>
 #include <sstream>
 
 #include "config.h"
-
-log_define("cxxtools.net.tcpserver")
 
 namespace cxxtools
 {
@@ -98,24 +95,6 @@ void TcpServer::listen(const std::string& ipaddr, unsigned short int port, int b
     this->close();
     _impl->listen(ipaddr, port, backlog, flags);
     this->setEnabled(true);
-}
-
-void TcpServer::loadSslCertificateFile(const std::string& certFile, const std::string& privateKeyFile)
-{
-#ifdef WITH_SSL
-    _impl->loadSslCertificateFile(certFile, privateKeyFile);
-#else
-    log_warn("can't load certificate file since ssl is disabled");
-#endif
-}
-
-void TcpServer::setSslVerify(int level, const std::string& ca)
-{
-#ifdef WITH_SSL
-    _impl->setSslVerify(level, ca);
-#else
-    log_warn("can't set ssl verify level since ssl is disabled");
-#endif
 }
 
 void TcpServer::terminateAccept()

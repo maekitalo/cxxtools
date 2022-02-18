@@ -34,6 +34,7 @@
 #include <cxxtools/connectable.h>
 #include <cxxtools/signal.h>
 #include <cxxtools/method.h>
+#include <cxxtools/sslctx.h>
 #include "responder.h"
 
 namespace cxxtools
@@ -45,7 +46,7 @@ class RpcServerImpl;
 class Socket : public net::TcpSocket, public Connectable
 {
     public:
-        Socket(RpcServerImpl& rpcServerImpl, net::TcpServer& tcpServer, bool ssl, int sslVerifyLevel, const std::string& sslCa);
+        Socket(RpcServerImpl& rpcServerImpl, net::TcpServer& tcpServer, const SslCtx& sslCtx);
         explicit Socket(Socket& socket);
 
         void accept();
@@ -72,7 +73,7 @@ class Socket : public net::TcpSocket, public Connectable
     private:
         RpcServerImpl& _rpcServerImpl;
         net::TcpServer& _tcpServer;
-        bool _ssl;
+        SslCtx _sslCtx;
 
         Responder _responder;
         IOStream _stream;

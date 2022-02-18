@@ -34,6 +34,7 @@
 #include <cxxtools/bin/rpcclient.h>
 #include <cxxtools/json/rpcclient.h>
 #include <cxxtools/json/httpclient.h>
+#include <cxxtools/sslctx.h>
 #include <cxxtools/thread.h>
 #include <cxxtools/mutex.h>
 #include <cxxtools/clock.h>
@@ -219,27 +220,30 @@ int main(int argc, char* argv[])
 
     BenchClients clients;
 
+    cxxtools::SslCtx sslCtx;
+    sslCtx.enable(ssl);  // enable if ssl option is set
+
     while (clients.size() < threads)
     {
       cxxtools::RemoteClient* client;
       if (binary)
       {
-        cxxtools::bin::RpcClient* c = new cxxtools::bin::RpcClient(ip, port, ssl);
+        cxxtools::bin::RpcClient* c = new cxxtools::bin::RpcClient(ip, port, sslCtx);
         client = c;
       }
       else if (json)
       {
-        cxxtools::json::RpcClient* c = new cxxtools::json::RpcClient(ip, port, ssl);
+        cxxtools::json::RpcClient* c = new cxxtools::json::RpcClient(ip, port, sslCtx);
         client = c;
       }
       else if (jsonhttp)
       {
-        cxxtools::json::HttpClient* c = new cxxtools::json::HttpClient(ip, port, "/jsonrpc", ssl);
+        cxxtools::json::HttpClient* c = new cxxtools::json::HttpClient(ip, port, "/jsonrpc", sslCtx);
         client = c;
       }
       else // if (xmlrpc)
       {
-        cxxtools::xmlrpc::HttpClient* c = new cxxtools::xmlrpc::HttpClient(ip, port, "/xmlrpc", ssl);
+        cxxtools::xmlrpc::HttpClient* c = new cxxtools::xmlrpc::HttpClient(ip, port, "/xmlrpc", sslCtx);
         client = c;
       }
 

@@ -7,6 +7,7 @@
 #include <cxxtools/bin/rpcserver.h>
 #include <cxxtools/sslcertificate.h>
 #include <cxxtools/eventloop.h>
+#include <cxxtools/sslctx.h>
 #include <cxxtools/arg.h>
 #include <cxxtools/log.h>
 
@@ -46,7 +47,14 @@ int main(int argc, char* argv[])
 
         cxxtools::EventLoop loop;
 
-        cxxtools::bin::RpcServer server(loop, ip, port, cert, 2, ca);
+        cxxtools::SslCtx sslCtx;
+
+        if (cert.isSet())
+            sslCtx.loadCertificateFile(cert);
+
+        sslCtx.setVerify(2, ca);
+
+        cxxtools::bin::RpcServer server(loop, ip, port, sslCtx);
         server.registerFunction("echo", echo);
         server.registerFunction("add", add);
 

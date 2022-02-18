@@ -37,6 +37,7 @@ namespace cxxtools
 {
 
 class SslCertificate;
+class SslCtx;
 class SelectorBase;
 
 namespace net
@@ -68,83 +69,81 @@ class RpcClient : public RemoteClient
             : _impl(0)
             { setSelector(selector); }
 
-        explicit RpcClient(const net::AddrInfo& addr, bool ssl = false)
+        explicit RpcClient(const net::AddrInfo& addr)
             : _impl(0)
-            { prepareConnect(addr, ssl); }
-        RpcClient(const net::AddrInfo& addr, const std::string& sslCertificate)
+            { prepareConnect(addr); }
+        RpcClient(const net::AddrInfo& addr, const SslCtx& sslCtx)
             : _impl(0)
-            { prepareConnect(addr, sslCertificate); }
-        RpcClient(const std::string& addr, unsigned short port, bool ssl = false)
+            { prepareConnect(addr, sslCtx); }
+        RpcClient(const std::string& addr, unsigned short port)
             : _impl(0)
-            { prepareConnect(addr, port, ssl); }
-        RpcClient(const std::string& addr, unsigned short port, const std::string& sslCertificate)
+            { prepareConnect(addr, port); }
+        RpcClient(const std::string& addr, unsigned short port, const SslCtx& sslCtx)
             : _impl(0)
-            { prepareConnect(addr, port, sslCertificate); }
+            { prepareConnect(addr, port, sslCtx); }
         explicit RpcClient(const net::Uri& uri)
             : _impl(0)
             { prepareConnect(uri); }
-        RpcClient(const net::Uri& uri, const std::string& sslCertificate)
+        RpcClient(const net::Uri& uri, const SslCtx& sslCtx)
             : _impl(0)
-            { prepareConnect(uri, sslCertificate); }
+            { prepareConnect(uri, sslCtx); }
 
-        RpcClient(SelectorBase& selector, const net::AddrInfo& addr, bool ssl = false)
+        RpcClient(SelectorBase& selector, const net::AddrInfo& addr)
             : _impl(0)
-            { setSelector(selector); prepareConnect(addr, ssl); }
-        RpcClient(SelectorBase& selector, const net::AddrInfo& addr, const std::string& sslCertificate)
+            { setSelector(selector); prepareConnect(addr); }
+        RpcClient(SelectorBase& selector, const net::AddrInfo& addr, const SslCtx& sslCtx)
             : _impl(0)
-            { setSelector(selector); prepareConnect(addr, sslCertificate); }
-        RpcClient(SelectorBase& selector, const std::string& addr, unsigned short port, bool ssl = false)
+            { setSelector(selector); prepareConnect(addr, sslCtx); }
+        RpcClient(SelectorBase& selector, const std::string& addr, unsigned short port)
             : _impl(0)
-            { setSelector(selector); prepareConnect(addr, port, ssl); }
-        RpcClient(SelectorBase& selector, const std::string& addr, unsigned short port, const std::string& sslCertificate)
+            { setSelector(selector); prepareConnect(addr, port); }
+        RpcClient(SelectorBase& selector, const std::string& addr, unsigned short port, const SslCtx& sslCtx)
             : _impl(0)
-            { setSelector(selector); prepareConnect(addr, port, sslCertificate); }
+            { setSelector(selector); prepareConnect(addr, port, sslCtx); }
         RpcClient(SelectorBase& selector, const net::Uri& uri)
             : _impl(0)
             { setSelector(selector); prepareConnect(uri); }
-        RpcClient(SelectorBase& selector, const net::Uri& uri, const std::string& sslCertificate)
+        RpcClient(SelectorBase& selector, const net::Uri& uri, const SslCtx& sslCtx)
             : _impl(0)
-            { setSelector(selector); prepareConnect(uri, sslCertificate); }
+            { setSelector(selector); prepareConnect(uri, sslCtx); }
 
         RpcClient(const RpcClient&);
         RpcClient& operator= (const RpcClient&);
 
         virtual ~RpcClient();
 
-        void prepareConnect(const net::AddrInfo& addr, bool ssl = false);
-        void prepareConnect(const net::AddrInfo& addr, const std::string& sslCertificate);
-        void prepareConnect(const std::string& host, unsigned short port, bool ssl = false);
-        void prepareConnect(const std::string& host, unsigned short port, const std::string& sslCertificate);
+        void prepareConnect(const net::AddrInfo& addr);
+        void prepareConnect(const net::AddrInfo& addr, const SslCtx& sslCtx);
+        void prepareConnect(const std::string& host, unsigned short port);
+        void prepareConnect(const std::string& host, unsigned short port, const SslCtx& sslCtx);
         void prepareConnect(const net::Uri& uri);
-        void prepareConnect(const net::Uri& uri, const std::string& sslCertificate);
+        void prepareConnect(const net::Uri& uri, const SslCtx& sslCtx);
 
-        void connect(const net::AddrInfo& addrinfo, bool ssl_ = false)
-            { prepareConnect(addrinfo, ssl_); connect(); }
+        void connect(const net::AddrInfo& addrinfo)
+            { prepareConnect(addrinfo); connect(); }
 
-        void connect(const net::AddrInfo& addrinfo, const std::string& sslCertificate)
-            { prepareConnect(addrinfo, sslCertificate); connect(); }
+        void connect(const net::AddrInfo& addrinfo, const SslCtx& sslCtx)
+            { prepareConnect(addrinfo, sslCtx); connect(); }
 
-        void connect(const std::string& host, unsigned short int port, bool ssl_ = false)
-            { prepareConnect(host, port, ssl_); connect(); }
+        void connect(const std::string& host, unsigned short int port)
+            { prepareConnect(host, port); connect(); }
 
-        void connect(const std::string& host, unsigned short int port, const std::string& sslCertificate)
-            { prepareConnect(host, port, sslCertificate); connect(); }
+        void connect(const std::string& host, unsigned short int port, const SslCtx& sslCtx)
+            { prepareConnect(host, port, sslCtx); connect(); }
 
         void connect(const net::Uri& uri)
             { prepareConnect(uri); connect(); }
 
-        void connect(const net::Uri& uri, const std::string& sslCertificate)
-            { prepareConnect(uri, sslCertificate); connect(); }
+        void connect(const net::Uri& uri, const SslCtx& sslCtx)
+            { prepareConnect(uri, sslCtx); connect(); }
 
         void connect();
 
         void close();
 
         void setSelector(SelectorBase* selector);
-        void setSelector(SelectorBase& selector)  { setSelector(&selector); }
 
-        /// @see cxxtools::net::TcpSocket::setSslVerify
-        void setSslVerify(int level, const std::string& ca = std::string());
+        void setSelector(SelectorBase& selector)  { setSelector(&selector); }
 
         void beginCall(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc);
 

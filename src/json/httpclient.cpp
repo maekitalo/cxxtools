@@ -26,9 +26,10 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "cxxtools/json/httpclient.h"
-#include "cxxtools/net/uri.h"
-#include "cxxtools/net/addrinfo.h"
+#include <cxxtools/json/httpclient.h>
+#include <cxxtools/net/uri.h>
+#include <cxxtools/net/addrinfo.h>
+#include <cxxtools/sslctx.h>
 #include "httpclientimpl.h"
 #include <stdexcept>
 
@@ -78,48 +79,56 @@ HttpClient::~HttpClient()
         delete _impl;
 }
 
-void HttpClient::prepareConnect(const net::AddrInfo& addrinfo, const std::string& url, bool ssl)
+void HttpClient::prepareConnect(const net::AddrInfo& addrinfo, const std::string& url)
 {
-    getImpl()->prepareConnect(addrinfo, url, ssl);
+    SslCtx sslCtx;
+    getImpl()->prepareConnect(addrinfo, url);
 }
 
-void HttpClient::prepareConnect(const net::AddrInfo& addrinfo, const std::string& url, const std::string& sslCertificate)
+void HttpClient::prepareConnect(const net::AddrInfo& addrinfo, const std::string& url, const SslCtx& sslCtx)
 {
-    getImpl()->prepareConnect(addrinfo, url, sslCertificate);
+    getImpl()->prepareConnect(addrinfo, url, sslCtx);
 }
 
-void HttpClient::prepareConnect(const std::string& host, unsigned short int port, const std::string& url, bool ssl)
+void HttpClient::prepareConnect(const std::string& host, unsigned short int port, const std::string& url)
 {
-    prepareConnect(net::AddrInfo(host, port), url, ssl);
+    prepareConnect(net::AddrInfo(host, port), url);
 }
 
-void HttpClient::prepareConnect(const std::string& host, unsigned short int port, const std::string& url, const std::string& sslCertificate)
+void HttpClient::prepareConnect(const std::string& host, unsigned short int port, const std::string& url, const SslCtx& sslCtx)
 {
-    prepareConnect(net::AddrInfo(host, port), url, sslCertificate);
+    prepareConnect(net::AddrInfo(host, port), url, sslCtx);
 }
 
 void HttpClient::prepareConnect(const net::Uri& uri)
 {
 #ifdef WITH_SSL
     if (uri.protocol() != "http" && uri.protocol() != "https")
-        throw std::runtime_error("only protocols \"http\" and \"https\" are supported by http json rpc client");
-    prepareConnect(net::AddrInfo(uri.host(), uri.port()), uri.protocol() == "https", uri.path());
+        throw std::runtime_error("only protocols http and https are supported by http json rpc client");
+    SslCtx sslCtx;
+    if (uri.protocol() == "https")
+        sslCtx.enable();
+    prepareConnect(net::AddrInfo(uri.host(), uri.port()), uri.path(), sslCtx);
 #else
     if (uri.protocol() != "http")
-        throw std::runtime_error("only protocol \"http\" is supported by http json rpc client");
+        throw std::runtime_error("only protocol http is supported by http json rpc client");
     prepareConnect(net::AddrInfo(uri.host(), uri.port()), uri.path());
 #endif
 }
 
-void HttpClient::prepareConnect(const net::Uri& uri, const std::string& sslCertificate)
+void HttpClient::prepareConnect(const net::Uri& uri, const SslCtx& sslCtx)
 {
 #ifdef WITH_SSL
     if (uri.protocol() != "http" && uri.protocol() != "https")
         throw std::runtime_error("only protocols http and https are supported by http json client");
-    prepareConnect(net::AddrInfo(uri.host(), uri.port()), uri.path(), sslCertificate);
+    if (uri.protocol() == "http" && sslCtx.enabled())
+        throw std::runtime_error("ssl must not be enabled in http protocol");
+    if (uri.protocol() == "https" && !sslCtx.enabled())
+        throw std::runtime_error("ssl must be enabled in https protocol");
+    prepareConnect(net::AddrInfo(uri.host(), uri.port()), uri.path(), sslCtx);
 #else
     if (uri.protocol() != "http")
-        throw std::runtime_error("only protocol \"http\" is supported by json http client");
+        throw std::runtime_error("only protocol http is supported by json http client");
     prepareConnect(net::AddrInfo(uri.host(), uri.port()), uri.path());
 #endif
 }
@@ -147,11 +156,6 @@ void HttpClient::clearAuth()
 void HttpClient::setSelector(SelectorBase* selector)
 {
     getImpl()->setSelector(selector);
-}
-
-void HttpClient::setSslVerify(int level, const std::string& ca)
-{
-    getImpl()->setSslVerify(level, ca);
 }
 
 void HttpClient::beginCall(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc)

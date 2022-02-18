@@ -40,6 +40,7 @@
 #include <cxxtools/log.h>
 #include <cxxtools/remoteprocedure.h>
 #include <cxxtools/bin/rpcclient.h>
+#include <cxxtools/sslctx.h>
 #include <cxxtools/selector.h>
 #include <cxxtools/smartptr.h>
 
@@ -81,11 +82,13 @@ int main(int argc, char* argv[])
     // The selector is a abstraction of the poll system call. This manages the
     // asynchronous event processing.
     cxxtools::Selector selector;
+    cxxtools::SslCtx sslCtx;
+    sslCtx.enable(ssl);
 
     for (unsigned n = 0; n < count; ++n)
     {
       // We instantiate a remote client and pass the selector to him
-      clients.push_back(cxxtools::bin::RpcClient(selector, ip, port, ssl));
+      clients.push_back(cxxtools::bin::RpcClient(selector, ip, port, sslCtx));
 
       // ... and a remote procedure object.
       echo.push_back(Echo(clients.back(), "echo"));

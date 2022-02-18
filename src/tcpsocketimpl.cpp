@@ -47,8 +47,8 @@
 #include <cxxtools/log.h>
 #include <cxxtools/join.h>
 #include <cxxtools/hexdump.h>
-#include "cxxtools/mutex.h"
-#include "cxxtools/resetter.h"
+#include <cxxtools/mutex.h>
+#include <cxxtools/resetter.h>
 
 #include "config.h"
 #include "error.h"
@@ -61,8 +61,12 @@
 #include <sstream>
 #include <vector>
 
+#ifdef WITH_SSL
 #include <openssl/err.h>
 #include <openssl/ssl.h>
+#include <cxxtools/sslctx.h>
+#include "sslctximpl.h"
+#endif
 
 #include <unistd.h>
 #include <cstring>
@@ -241,15 +245,13 @@ void TcpSocketImpl::waitSslOperation(int ret, cxxtools::Timespan timeout)
     }
 }
 
-void TcpSocketImpl::initSsl()
+void TcpSocketImpl::initSsl(const SslCtx& sslCtx)
 {
     if (_ssl)
         return;
 
-    _sslCtx.create();
-
-    log_debug_to(ssl, "SSL_new(" << static_cast<void*>(_sslCtx.ctx()) << ')');
-    _ssl = SSL_new(_sslCtx.ctx());
+    log_debug_to(ssl, "SSL_new(" << static_cast<void*>(sslCtx.impl()->ctx()) << ')');
+    _ssl = SSL_new(sslCtx.impl()->ctx());
     SslError::checkSslError();
 
     log_debug_to(ssl, "SSL_set_fd(" << _ssl << ", " << _fd << ')');
@@ -264,7 +266,6 @@ TcpSocketImpl::TcpSocketImpl(TcpSocket& socket)
   _sentry(0)
 #ifdef WITH_SSL
   ,
-  _sslCtx(false),
   _ssl(0),
   _peerCertificateLoaded(false)
 #endif
@@ -526,11 +527,6 @@ void TcpSocketImpl::accept(const TcpServer& server, unsigned flags)
 
     if (_fd < 0)
         throw SystemError("accept");
-
-#ifdef WITH_SSL
-    if (!_sslCtx.ctx())
-        _sslCtx = server.impl().sslCtx();
-#endif
 
 #ifdef HAVE_ACCEPT4
     // Pass inherit flag as "true" since this is the default.
@@ -897,12 +893,12 @@ void TcpSocketImpl::inputReady()
 
 #ifdef WITH_SSL
         case SSLACCEPTING:
-            if (beginSslAccept())
+            if (continueSslAccept())
                 _socket.sslAccepted(_socket);
             break;
 
         case SSLCONNECTING:
-            if (beginSslConnect())
+            if (continueSslConnect())
                 _socket.sslConnected(_socket);
             break;
 
@@ -931,12 +927,12 @@ void TcpSocketImpl::outputReady()
 
 #ifdef WITH_SSL
         case SSLACCEPTING:
-            if (beginSslAccept())
+            if (continueSslAccept())
                 _socket.sslAccepted(_socket);
             break;
 
         case SSLCONNECTING:
-            if (beginSslConnect())
+            if (continueSslConnect())
                 _socket.sslConnected(_socket);
             break;
 
@@ -997,27 +993,6 @@ size_t TcpSocketImpl::read(char* buffer, size_t count, bool& eof)
 
 #ifdef WITH_SSL
 
-void TcpSocketImpl::loadSslCertificateFile(const std::string& certFile, const std::string& privateKeyFile)
-{
-    log_debug("load ssl certificate file \"" << certFile << '"');
-    initSsl();
-    int ret = SSL_use_certificate_chain_file(_ssl, certFile.c_str());
-    if (ret != 1)
-        checkSslOperation(ret, "SSL_use_certificate_chain_file", _pfd);
-
-    std::string key = privateKeyFile.empty() ? certFile : privateKeyFile;
-    log_debug("load ssl private key file \"" << key << '"');
-    ret = SSL_use_PrivateKey_file(_ssl, key.c_str(), SSL_FILETYPE_PEM);
-    if (ret != 1)
-        checkSslOperation(ret, "SSL_use_PrivateKey_file", _pfd);
-
-    log_debug("check private key");
-    if (!SSL_check_private_key(_ssl))
-        throw SslError("private key does not match the certificate public key", 0);
-
-    log_debug("private key ok");
-}
-
 const SslCertificate& TcpSocketImpl::getSslPeerCertificate() const
 {
     if (_ssl && !_peerCertificateLoaded)
@@ -1030,7 +1005,7 @@ const SslCertificate& TcpSocketImpl::getSslPeerCertificate() const
     return _peerCertificate;
 }
 
-bool TcpSocketImpl::beginSslConnect()
+bool TcpSocketImpl::beginSslConnect(const SslCtx& ctx)
 {
     log_trace("beginSslConnect; state=" << static_cast<int>(_state));
 
@@ -1041,8 +1016,13 @@ bool TcpSocketImpl::beginSslConnect()
     }
 
     _state = SSLCONNECTING;
-    initSsl();
+    initSsl(ctx);
 
+    return continueSslConnect();
+}
+
+bool TcpSocketImpl::continueSslConnect()
+{
     log_debug("SSL_connect");
     int ret = SSL_connect(_ssl);
     if (ret == 1)
@@ -1114,7 +1094,7 @@ void TcpSocketImpl::endSslConnect()
     }
 }
 
-bool TcpSocketImpl::beginSslAccept()
+bool TcpSocketImpl::beginSslAccept(const SslCtx& ctx)
 {
     log_trace("begin ssl accept");
 
@@ -1125,8 +1105,13 @@ bool TcpSocketImpl::beginSslAccept()
     }
 
     _state = SSLACCEPTING;
-    initSsl();
+    initSsl(ctx);
 
+    return continueSslAccept();
+}
+
+bool TcpSocketImpl::continueSslAccept()
+{
     log_debug_to(ssl, "SSL_accept " << _fd);
     int ret = SSL_accept(_ssl);
     if (ret == 1)

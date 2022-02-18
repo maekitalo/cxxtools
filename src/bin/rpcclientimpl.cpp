@@ -44,8 +44,6 @@ namespace bin
 
 RpcClientImpl::RpcClientImpl()
     : _stream(_socket, 8192, true),
-      _ssl(false),
-      _sslVerifyLevel(0),
       _exceptionPending(false),
       _proc(0),
       _timeout(Selectable::WaitInfinite),
@@ -63,13 +61,8 @@ void RpcClientImpl::connect()
     _socket.setTimeout(_connectTimeout);
     _socket.close();
     _socket.connect(_addrInfo);
-    if (_ssl)
-    {
-        if (!_sslCertificate.empty())
-            _socket.loadSslCertificateFile(_sslCertificate);
-        _socket.setSslVerify(_sslVerifyLevel, _sslCa);
-        _socket.sslConnect();
-    }
+    if (_sslCtx.enabled())
+        _socket.sslConnect(_sslCtx);
 }
 
 void RpcClientImpl::close()
@@ -177,13 +170,8 @@ void RpcClientImpl::call(IComposer& r, IRemoteProcedure& method, IDecomposer** a
             log_debug("socket is not connected");
             _socket.setTimeout(_connectTimeout);
             _socket.connect(_addrInfo);
-            if (_ssl)
-            {
-                if (!_sslCertificate.empty())
-                    _socket.loadSslCertificateFile(_sslCertificate);
-                _socket.setSslVerify(_sslVerifyLevel, _sslCa);
-                _socket.sslConnect();
-            }
+            if (_sslCtx.enabled())
+                _socket.sslConnect(_sslCtx);
 
             prepareRequest(_proc->name(), argv, argc);
             _socket.setTimeout(timeout());
@@ -279,12 +267,9 @@ void RpcClientImpl::onConnect(net::TcpSocket& socket)
         socket.endConnect();
 
         _exceptionPending = false;
-        if (_ssl)
+        if (_sslCtx.enabled())
         {
-            if (!_sslCertificate.empty())
-                _socket.loadSslCertificateFile(_sslCertificate);
-            _socket.setSslVerify(_sslVerifyLevel, _sslCa);
-            socket.beginSslConnect();
+            socket.beginSslConnect(_sslCtx);
             return;
         }
 

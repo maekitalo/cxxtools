@@ -27,6 +27,7 @@
  */
 
 #include <cxxtools/http/server.h>
+#include <cxxtools/sslctx.h>
 #include <cxxtools/eventloop.h>
 #include <cxxtools/log.h>
 #include "serverimpl.h"
@@ -53,11 +54,15 @@ Server::~Server()
     delete _impl;
 }
 
-void Server::listen(const std::string& ip, unsigned short int port, const std::string& certificateFile, const std::string& privateKeyFile, int sslVerifyLevel, const std::string& sslCa)
+void Server::listen(const std::string& ip, unsigned short int port)
 {
-    log_info_if(certificateFile.empty(), "listen ip=" << ip << " port=" << port);
-    log_info_if(!certificateFile.empty(), "listen ip=" << ip << " port=" << port << " certificate: \"" << certificateFile << "\" private key: \"" << privateKeyFile << '"');
-    _impl->listen(ip, port, certificateFile, privateKeyFile, sslVerifyLevel, sslCa);
+    listen(ip, port, SslCtx());
+}
+
+void Server::listen(const std::string& ip, unsigned short int port, const SslCtx& sslCtx)
+{
+    log_info("listen ip <" << ip << "> port " << port << " ssl " << sslCtx.enabled());
+    _impl->listen(ip, port, sslCtx);
 }
 
 void Server::addService(const std::string& url, Service& service)

@@ -37,10 +37,6 @@
 #include <sys/socket.h>
 #include "config.h"
 
-#ifdef WITH_SSL
-#include "sslctx.h"
-#endif
-
 namespace cxxtools
 {
 
@@ -77,10 +73,6 @@ class TcpServerImpl : public SelectableImpl
         bool _deferAccept;
 #endif
 
-#ifdef WITH_SSL
-        SslCtx _sslCtx;
-#endif
-
         int create(int domain, int type, int protocol);
 
       public:
@@ -96,14 +88,6 @@ class TcpServerImpl : public SelectableImpl
 
 #ifdef HAVE_TCP_DEFER_ACCEPT
         void deferAccept(bool sw);
-#endif
-
-#ifdef WITH_SSL
-        void loadSslCertificateFile(const std::string& certFile, const std::string& privateKeyFile);
-        void setSslVerify(int level, const std::string& ca)
-        { _sslCtx.setSslVerify(level, ca); }
-
-        const SslCtx& sslCtx() const { return _sslCtx; }
 #endif
 
         bool wait(Timespan timeout);

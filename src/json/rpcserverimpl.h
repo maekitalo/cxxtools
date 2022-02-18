@@ -45,6 +45,7 @@ namespace cxxtools
 {
     class EventLoopBase;
     class ServiceProcedure;
+    class SslCtx;
 
     namespace net
     {
@@ -77,7 +78,7 @@ namespace cxxtools
 
                 ~RpcServerImpl();
 
-                void listen(const std::string& ip, unsigned short int port, const std::string& certificateFile, const std::string& privateKeyFile, int sslVerifyLevel, const std::string& sslCa);
+                void listen(const std::string& ip, unsigned short int port, const SslCtx& sslCtx);
 
                 unsigned minThreads() const
                 { return _minThreads; }

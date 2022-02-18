@@ -76,9 +76,6 @@ TcpServerImpl::TcpServerImpl(TcpServer& server)
 #ifdef HAVE_TCP_DEFER_ACCEPT
   , _deferAccept(false)
 #endif
-#ifdef WITH_SSL
-  , _sslCtx(false)
-#endif
 {
     int ret = ::pipe(_wakePipe);
     if (ret == 1)
@@ -303,15 +300,6 @@ void TcpServerImpl::deferAccept(bool sw)
         }
     }
 }
-#endif
-
-#ifdef WITH_SSL
-void TcpServerImpl::loadSslCertificateFile(const std::string& certFile, const std::string& privateKeyFile)
-{
-    _sslCtx.create();
-    _sslCtx.loadSslCertificateFile(certFile, privateKeyFile);
-}
-
 #endif
 
 bool TcpServerImpl::wait(Timespan timeout)

@@ -32,6 +32,7 @@
 #include <cxxtools/net/tcpsocket.h>
 #include <cxxtools/http/request.h>
 #include <cxxtools/http/reply.h>
+#include <cxxtools/sslctx.h>
 #include <cxxtools/iostream.h>
 #include <cxxtools/timer.h>
 #include <cxxtools/connectable.h>
@@ -64,7 +65,7 @@ class Socket : public net::TcpSocket, public Connectable
         };
 
     public:
-        Socket(ServerImpl& server, net::TcpServer& tcpServer, bool ssl, int sslVerifyLevel, const std::string& sslCa);
+        Socket(ServerImpl& server, net::TcpServer& tcpServer, const SslCtx& sslCtx);
         explicit Socket(Socket& socket);
         ~Socket();
 
@@ -101,7 +102,7 @@ class Socket : public net::TcpSocket, public Connectable
 
     private:
         net::TcpServer& _tcpServer;
-        bool _ssl;
+        SslCtx _sslCtx;
         ServerImpl& _server;
 
         ParseEvent _parseEvent;

@@ -30,15 +30,14 @@
 #define CXXTOOLS_NET_TcpSocketImpl_H
 
 #include "iodeviceimpl.h"
-#include "cxxtools/net/addrinfo.h"
-#include "cxxtools/mutex.h"
-#include "cxxtools/sslcertificate.h"
+#include <cxxtools/net/addrinfo.h>
+#include <cxxtools/mutex.h>
+#include <cxxtools/sslcertificate.h>
 #include "addrinfoimpl.h"
 #include "config.h"
 
 #ifdef WITH_SSL
 #include <openssl/ssl.h>
-#include "sslctx.h"
 #endif
 
 #include <string>
@@ -55,6 +54,7 @@ namespace cxxtools
 
 class SelectorBase;
 class Timespan;
+class SslCtx;
 
 namespace net
 {
@@ -112,8 +112,6 @@ class TcpSocketImpl : public IODeviceImpl
         DestructionSentry* _sentry;
 
 #ifdef WITH_SSL
-        // SSL
-        SslCtx _sslCtx;
         SSL* _ssl;
         mutable bool _peerCertificateLoaded;
         mutable SslCertificate _peerCertificate;
@@ -130,7 +128,7 @@ class TcpSocketImpl : public IODeviceImpl
         void checkSslOperation(int ret, const char* fn, pollfd* pfd);
         void waitSslOperation(int ret, cxxtools::Timespan timeout);
 
-        void initSsl();
+        void initSsl(const SslCtx& sslCtx);
 #endif
 
     public:
@@ -184,18 +182,16 @@ class TcpSocketImpl : public IODeviceImpl
         virtual void outputReady();
 
 #ifdef WITH_SSL
-        void loadSslCertificateFile(const std::string& certFile, const std::string& privateKeyFile);
-        void setSslVerify(int level, const std::string& ca)
-        { _sslCtx.setSslVerify(level, ca); }
-
         const SslCertificate& getSslPeerCertificate() const;
 
         // initiates a ssl connection on the socket
-        bool beginSslConnect();
+        bool beginSslConnect(const SslCtx& ctx);
+        bool continueSslConnect();
         void endSslConnect();
 
         // accept a ssl connection from the peer
-        bool beginSslAccept();
+        bool beginSslAccept(const SslCtx& ctx);
+        bool continueSslAccept();
         void endSslAccept();
 
         // terminates ssl

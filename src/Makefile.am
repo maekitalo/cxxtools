@@ -156,7 +156,7 @@ noinst_HEADERS = \
 	settingsreader.h \
 	settingswriter.h \
 	sslcertificateimpl.h \
-	sslctx.h \
+	sslctximpl.h \
 	tcpserverimpl.h \
 	tcpsocketimpl.h \
 	threadimpl.h \
@@ -176,5 +176,6 @@ if MAKE_OPENSSL
 libcxxtools_la_LDFLAGS += -lssl
 libcxxtools_la_SOURCES += \
 	sslcertificateimpl.cpp \
-	sslctx.cpp
+	sslctx.cpp \
+	sslctximpl.cpp
 endif

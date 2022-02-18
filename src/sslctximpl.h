@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 Tommi Maekitalo
+ * Copyright (C) 2022 Tommi Maekitalo
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,42 +26,33 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef CXXTOOLS_SSLCTX_H
-#define CXXTOOLS_SSLCTX_H
+#ifndef CXXTOOLS_SSLCTXIMPL_H
+#define CXXTOOLS_SSLCTXIMPL_H
 
-#include <cxxtools/mutex.h>
-#include <cxxtools/smartptr.h>
+#include <cxxtools/sslctx.h>
+#include <cxxtools/refcounted.h>
+
 #include <openssl/ssl.h>
 
 namespace cxxtools
 {
-
-class SslCtx
+class SslCtx::Impl : public cxxtools::AtomicRefCounted
 {
-    template <typename SslCtxType>
-    class SslCtxFree
-    {
-    public:
-        static void destroy(SslCtxType* ctx);
-    };
-
-    SmartPtr<SSL_CTX, ExternalAtomicRefCounted, SslCtxFree> _ctx;
+    SSL_CTX* _ctx;
 
 public:
-    explicit SslCtx(bool create = true)
-    {
-        if (create)
-            this->create();
-    }
+    Impl();
+    Impl(const Impl&) = delete;
+    Impl& operator=(const Impl&) = delete;
+    ~Impl();
 
-    void create();
+    SSL_CTX* ctx() const        { return _ctx; }
 
-    SSL_CTX* ctx()        { return _ctx.getPointer(); }
-
-    void loadSslCertificateFile(const std::string& certFile, const std::string& privateKeyFile);
-    void setSslVerify(int level, const std::string& ca);
+    void loadCertificateFile(const std::string& certFile, const std::string& privateKeyFile);
+    void setVerify(int level, const std::string& ca);
+    void setProtocolVersion(PROTOCOL_VERSION min, PROTOCOL_VERSION max);
+    void setCiphers(const std::string& ciphers);
 };
-
 }
 
 #endif

@@ -26,9 +26,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "cxxtools/xmlrpc/httpclient.h"
-#include "cxxtools/net/uri.h"
-#include "cxxtools/net/addrinfo.h"
+#include <cxxtools/xmlrpc/httpclient.h>
+#include <cxxtools/net/uri.h>
+#include <cxxtools/net/addrinfo.h>
 #include "httpclientimpl.h"
 #include <stdexcept>
 
@@ -85,24 +85,24 @@ HttpClient::~HttpClient()
         delete _impl;
 }
 
-void HttpClient::prepareConnect(const net::AddrInfo& addrinfo, const std::string& url, bool ssl)
+void HttpClient::prepareConnect(const net::AddrInfo& addrinfo, const std::string& url)
 {
-    getImpl()->prepareConnect(addrinfo, url, ssl);
+    getImpl()->prepareConnect(addrinfo, url);
 }
 
-void HttpClient::prepareConnect(const net::AddrInfo& addrinfo, const std::string& url, const std::string& sslCertificate)
+void HttpClient::prepareConnect(const net::AddrInfo& addrinfo, const std::string& url, const SslCtx& sslCtx)
 {
-    getImpl()->prepareConnect(addrinfo, url, sslCertificate);
+    getImpl()->prepareConnect(addrinfo, url, sslCtx);
 }
 
-void HttpClient::prepareConnect(const std::string& host, unsigned short int port, const std::string& url, bool ssl)
+void HttpClient::prepareConnect(const std::string& host, unsigned short int port, const std::string& url)
 {
-    prepareConnect(net::AddrInfo(host, port), url, ssl);
+    prepareConnect(net::AddrInfo(host, port), url);
 }
 
-void HttpClient::prepareConnect(const std::string& host, unsigned short int port, const std::string& url, const std::string& sslCertificate)
+void HttpClient::prepareConnect(const std::string& host, unsigned short int port, const std::string& url, const SslCtx& sslCtx)
 {
-    prepareConnect(net::AddrInfo(host, port), url, sslCertificate);
+    prepareConnect(net::AddrInfo(host, port), url, sslCtx);
 }
 
 void HttpClient::prepareConnect(const net::Uri& uri)
@@ -119,12 +119,12 @@ void HttpClient::prepareConnect(const net::Uri& uri)
     auth(uri.user(), uri.password());
 }
 
-void HttpClient::prepareConnect(const net::Uri& uri, const std::string& sslCertificate)
+void HttpClient::prepareConnect(const net::Uri& uri, const SslCtx& sslCtx)
 {
 #ifdef WITH_SSL
     if (uri.protocol() != "http" && uri.protocol() != "https")
         throw std::runtime_error("only protocols \"http\" and \"https\" are supported by xmlrpc client");
-    prepareConnect(net::AddrInfo(uri.host(), uri.port()), uri.path(), sslCertificate);
+    prepareConnect(net::AddrInfo(uri.host(), uri.port()), uri.path(), sslCtx);
 #else
     if (uri.protocol() != "http")
         throw std::runtime_error("only protocol \"http\" is supported by xmlrpc client");
@@ -156,11 +156,6 @@ void HttpClient::clearAuth()
 void HttpClient::setSelector(SelectorBase* selector)
 {
     getImpl()->setSelector(selector);
-}
-
-void HttpClient::setSslVerify(int level, const std::string& ca)
-{
-    getImpl()->setSslVerify(level, ca);
 }
 
 void HttpClient::wait(Milliseconds msecs)

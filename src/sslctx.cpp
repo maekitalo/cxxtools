@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 Tommi Maekitalo
+ * Copyright (C) 2022 Tommi Maekitalo
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,141 +26,115 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "sslctx.h"
-#include <cxxtools/systemerror.h>
-#include <cxxtools/fileinfo.h>
+#include <cxxtools/sslctx.h>
 #include <cxxtools/log.h>
-
-#include <openssl/ssl.h>
-
-#include <cstring>
-#include <stdlib.h>
-
-#include "config.h"
+#include "sslctximpl.h"
 
 log_define("cxxtools.sslctx")
 
 namespace cxxtools
 {
 
-static Mutex *openssl_mutex = nullptr;
-static Mutex sslMutex;
-static bool sslInitialized = false;
-
-static unsigned long pthreads_thread_id()
-    { return (unsigned long)pthread_self(); }
-
-static void pthreads_locking_callback(int mode, int n, const char* /* file */, int /* line */)
+static void release(SslCtx::Impl* impl)
 {
-    if (mode & CRYPTO_LOCK)
-        openssl_mutex[n].lock();
+    if (impl && impl->release() == 0)
+        delete impl;
+}
+
+SslCtx::SslCtx(const SslCtx& sslCtx)
+    : _impl(sslCtx._impl)
+{
+    if (_impl)
+        _impl->addRef();
+}
+
+SslCtx& SslCtx::operator= (const SslCtx& sslCtx)
+{
+    if (_impl != sslCtx._impl)
+    {
+        release(_impl);
+        _impl = sslCtx._impl;
+        if (_impl)
+            _impl->addRef();
+    }
+
+    return *this;
+}
+
+SslCtx::~SslCtx()
+{
+    release(_impl);
+}
+
+SslCtx& SslCtx::enable(bool sw)
+{
+    if (sw)
+    {
+        impl();
+    }
     else
-        openssl_mutex[n].unlock();
-}
-
-static void thread_setup()
-{
-    openssl_mutex = new Mutex[CRYPTO_num_locks()];
-
-    CRYPTO_set_id_callback(pthreads_thread_id);
-    CRYPTO_set_locking_callback(pthreads_locking_callback);
-}
-
-void SslCtx::create()
-{
-    if (_ctx)
-        return;
-
-    MutexLock lock(sslMutex);
-    if (!sslInitialized)
     {
-        log_debug("SSL_library_init");
-        SSL_library_init();
-
-        SslError::checkSslError();
-
-        thread_setup();
-
-        sslInitialized = true;
+        release(_impl);
+        _impl = nullptr;
     }
 
-#ifdef HAVE_TLS_METHOD
-    log_debug("SSL_CTX_new(TLS_method())");
-    _ctx = SSL_CTX_new(TLS_method());
-#else
-    log_debug("SSL_CTX_new(SSLv23_method())");
-    _ctx = SSL_CTX_new(SSLv23_method());
-#endif
-
-    log_debug("ctx=" << static_cast<void*>(ctx()));
-    SslError::checkSslError();
+    return *this;
 }
 
-template <typename SslCtxType>
-void SslCtx::SslCtxFree<SslCtxType>::destroy(SslCtxType* ctx)
+SslCtx& SslCtx::loadCertificateFile(const std::string& certFile, const std::string& privateKeyFile)
 {
-    log_debug("SSL_CTX_free(" << static_cast<void*>(ctx) << ')');
-    SSL_CTX_free(ctx);
+    impl()->loadCertificateFile(certFile, privateKeyFile);
+    return *this;
 }
 
-void SslCtx::loadSslCertificateFile(const std::string& certFile, const std::string& privateKeyFile)
+SslCtx& SslCtx::setVerify(int level, const std::string& ca)
 {
-    create();
-
-    log_debug("load ssl certificate file \"" << certFile << '"');
-    int ret = SSL_CTX_use_certificate_chain_file(ctx(), certFile.c_str());
-    if (ret != 1)
-        SslError::checkSslError();
-
-    std::string key = privateKeyFile.empty() ? certFile : privateKeyFile;
-    log_debug("load ssl private key file \"" << key << '"');
-    ret = SSL_CTX_use_PrivateKey_file(ctx(), key.c_str(), SSL_FILETYPE_PEM);
-    if (ret != 1)
-        SslError::checkSslError();
-
-    log_debug("check private key");
-    if (!SSL_CTX_check_private_key(ctx()))
-        throw SslError("private key does not match the certificate public key", 0);
-
-    log_debug("private key ok");
+    impl()->setVerify(level, ca);
+    return *this;
 }
 
-void SslCtx::setSslVerify(int level, const std::string& ca)
+SslCtx& SslCtx::setVerify(const std::string& ca)
 {
-    cxxtools::FileInfo fileInfo(ca);
+    impl()->setVerify(2, ca);
+    return *this;
+}
 
-    STACK_OF(X509_NAME)* names = SSL_load_client_CA_file(ca.c_str());
-    log_debug("SSL_load_client_CA_file => " << names << " (" << sk_X509_NAME_num(names) << ')');
+SslCtx& SslCtx::setProtocolVersion(PROTOCOL_VERSION min_version, PROTOCOL_VERSION max_version)
+{
+    impl()->setProtocolVersion(min_version, max_version);
+    return *this;
+}
 
-    log_debug("SSL_CTX_set_client_CA_list");
-    SSL_CTX_set_client_CA_list(ctx(), names);
+SslCtx& SslCtx::setCiphers(const std::string& ciphers)
+{
+    impl()->setCiphers(ciphers);
+    return *this;
+}
 
-    log_debug("set ssl verify level " << level);
-    SSL_CTX_set_verify(
-        ctx(),
-        level == 0 ? SSL_VERIFY_NONE :
-        level == 1 ? (SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE) :
-                     (SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT | SSL_VERIFY_CLIENT_ONCE),
-        0);
+SslCtx SslCtx::secure()
+{
+    log_debug("SslCtx SslCtx::secure()");
+    SslCtx result;
+    result.setProtocolVersion(PROTOCOL_VERSION::TLSv12, PROTOCOL_VERSION::TLSv13);
+    result.setCiphers("ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256");
+    return result;
+}
 
-    if (level > 0)
+
+SslCtx::Impl* SslCtx::impl()
+{
+    if (!_impl)
     {
-        log_debug_if(fileInfo.isFile(), "load verify locations file \"" << ca << '"');
-        log_debug_if(fileInfo.isDirectory(), "load verify locations directory \"" << ca << '"');
-        int ret = SSL_CTX_load_verify_locations(ctx(),
-            fileInfo.isFile()      ? ca.c_str() : 0,
-            fileInfo.isDirectory() ? ca.c_str() : 0);
-
-        if (ret == 0)
-            SslError::checkSslError();
-
-        char hostname[HOST_NAME_MAX];
-        ::gethostname(hostname, sizeof(hostname));
-        log_debug("SSL_CTX_set_session_id_context(" << static_cast<void*>(ctx()) << ", " << hostname << ')');
-        ret = SSL_CTX_set_session_id_context(ctx(), reinterpret_cast<const unsigned char*>(hostname), std::max(static_cast<size_t>(SSL_MAX_SSL_SESSION_ID_LENGTH), std::strlen(hostname)));
-        if (ret == 0)
-            SslError::checkSslError();
+        _impl = new SslCtx::Impl();
+        _impl->addRef();
     }
+
+    return _impl;
+}
+
+const SslCtx::Impl* SslCtx::impl() const
+{
+    return const_cast<SslCtx*>(this)->impl();
 }
 
 }

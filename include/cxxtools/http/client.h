@@ -41,6 +41,7 @@ namespace cxxtools
 
 class SslCertificate;
 class SelectorBase;
+class SslCtx;
 
 namespace net
 {
@@ -102,43 +103,43 @@ class Client
               cxxtools::http::Client client("http://localhost:8000/");
             \endcode
          */
-        explicit Client(const net::AddrInfo& addr, bool ssl = false)
+        explicit Client(const net::AddrInfo& addr)
             : _impl(0)
-            { prepareConnect(addr, ssl); }
-        Client(const net::AddrInfo& addr, const std::string& sslCertificate)
+            { prepareConnect(addr); }
+        Client(const net::AddrInfo& addr, const SslCtx& sslCtx)
             : _impl(0)
-            { prepareConnect(addr, sslCertificate); }
-        Client(const std::string& addr, unsigned short port, bool ssl = false)
+            { prepareConnect(addr, sslCtx); }
+        Client(const std::string& addr, unsigned short port)
             : _impl(0)
-            { prepareConnect(addr, port, ssl); }
-        Client(const std::string& addr, unsigned short port, const std::string& sslCertificate)
+            { prepareConnect(addr, port); }
+        Client(const std::string& addr, unsigned short port, const SslCtx& sslCtx)
             : _impl(0)
-            { prepareConnect(addr, port, sslCertificate); }
+            { prepareConnect(addr, port, sslCtx); }
         explicit Client(const net::Uri& uri)
             : _impl(0)
             { prepareConnect(uri); }
-        Client(const net::Uri& uri, const std::string& sslCertificate)
+        Client(const net::Uri& uri, const SslCtx& sslCtx)
             : _impl(0)
-            { prepareConnect(uri, sslCertificate); }
+            { prepareConnect(uri, sslCtx); }
 
-        Client(SelectorBase& selector, const net::AddrInfo& addr, bool ssl = false)
+        Client(SelectorBase& selector, const net::AddrInfo& addr)
             : _impl(0)
-            { setSelector(selector); prepareConnect(addr, ssl); }
-        Client(SelectorBase& selector, const net::AddrInfo& addr, const std::string& sslCertificate)
+            { setSelector(selector); prepareConnect(addr); }
+        Client(SelectorBase& selector, const net::AddrInfo& addr, const SslCtx& sslCtx)
             : _impl(0)
-            { setSelector(selector); prepareConnect(addr, sslCertificate); }
-        Client(SelectorBase& selector, const std::string& addr, unsigned short port, bool ssl = false)
+            { setSelector(selector); prepareConnect(addr); }
+        Client(SelectorBase& selector, const std::string& addr, unsigned short port)
             : _impl(0)
-            { setSelector(selector); prepareConnect(addr, port, ssl); }
-        Client(SelectorBase& selector, const std::string& addr, unsigned short port, const std::string& sslCertificate)
+            { setSelector(selector); prepareConnect(addr, port); }
+        Client(SelectorBase& selector, const std::string& addr, unsigned short port, const SslCtx& sslCtx)
             : _impl(0)
-            { setSelector(selector); prepareConnect(addr, port, sslCertificate); }
+            { setSelector(selector); prepareConnect(addr, port, sslCtx); }
         Client(SelectorBase& selector, const net::Uri& uri)
             : _impl(0)
             { setSelector(selector); prepareConnect(uri); }
-        Client(SelectorBase& selector, const net::Uri& uri, const std::string& sslCertificate)
+        Client(SelectorBase& selector, const net::Uri& uri, const SslCtx& sslCtx)
             : _impl(0)
-            { setSelector(selector); prepareConnect(uri, sslCertificate); }
+            { setSelector(selector); prepareConnect(uri, sslCtx); }
         ///@}
 
         /** Copy and assignment.
@@ -160,12 +161,12 @@ class Client
            \see
              \ref connection
          */
-        void prepareConnect(const net::AddrInfo& addr, bool ssl = false);
-        void prepareConnect(const net::AddrInfo& addr, const std::string& sslCertificate);
-        void prepareConnect(const std::string& host, unsigned short port, bool ssl = false);
-        void prepareConnect(const std::string& host, unsigned short port, const std::string& sslCertificate);
+        void prepareConnect(const net::AddrInfo& addr);
+        void prepareConnect(const net::AddrInfo& addr, const SslCtx& sslCtx);
+        void prepareConnect(const std::string& host, unsigned short port);
+        void prepareConnect(const std::string& host, unsigned short port, const SslCtx& sslCtx);
         void prepareConnect(const net::Uri& uri);
-        void prepareConnect(const net::Uri& uri, const std::string& sslCertificate);
+        void prepareConnect(const net::Uri& uri, const SslCtx& sslCtx);
 
         /** Connects to the client specified by prepareConnect or passed by teh constructor.
 
@@ -182,23 +183,18 @@ class Client
         void close();
 
         ///@{ `connect` Sets the network parameters and connects the socket.
-        void connect(const net::AddrInfo& addrinfo, bool ssl_ = false)
-            { prepareConnect(addrinfo, ssl_); connect(); }
-
-        void connect(const net::AddrInfo& addrinfo, const std::string& sslCertificate)
-            { prepareConnect(addrinfo, sslCertificate); connect(); }
-
-        void connect(const std::string& host, unsigned short int port, bool ssl_ = false)
-            { prepareConnect(host, port, ssl_); connect(); }
-
-        void connect(const std::string& host, unsigned short int port, const std::string& sslCertificate)
-            { prepareConnect(host, port, sslCertificate); connect(); }
-
+        void connect(const net::AddrInfo& addrinfo)
+            { prepareConnect(addrinfo); connect(); }
+        void connect(const net::AddrInfo& addrinfo, const SslCtx& sslCtx)
+            { prepareConnect(addrinfo, sslCtx); connect(); }
+        void connect(const std::string& host, unsigned short int port)
+            { prepareConnect(host, port); connect(); }
+        void connect(const std::string& host, unsigned short int port, const SslCtx& sslCtx)
+            { prepareConnect(host, port, sslCtx); connect(); }
         void connect(const net::Uri& uri)
             { prepareConnect(uri); connect(); }
-
-        void connect(const net::Uri& uri, const std::string& sslCertificate)
-            { prepareConnect(uri, sslCertificate); connect(); }
+        void connect(const net::Uri& uri, const SslCtx& sslCtx)
+            { prepareConnect(uri, sslCtx); connect(); }
         ///@}
 
 
@@ -302,9 +298,6 @@ class Client
         /// Sets the selector for asyncronous event processing.
         void setSelector(SelectorBase* selector);
         void setSelector(SelectorBase& selector);
-
-        /// @see cxxtools::net::TcpSocket::setSslVerify
-        void setSslVerify(int level, const std::string& ca = std::string());
 
         /// Returns the selector for asyncronous event processing.
         SelectorBase* selector();

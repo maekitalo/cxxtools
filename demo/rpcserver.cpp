@@ -55,6 +55,7 @@
 #include <cxxtools/bin/rpcserver.h>
 #include <cxxtools/json/rpcserver.h>
 #include <cxxtools/json/httpservice.h>
+#include <cxxtools/sslctx.h>
 #include <cxxtools/eventloop.h>
 #include <cxxtools/posix/daemonize.h>
 
@@ -112,6 +113,8 @@ int main(int argc, char* argv[])
     cxxtools::Arg<std::string> pidfile(argc, argv, "--pidfile");
 
     cxxtools::Arg<std::string> sslCert(argc, argv, 'c');
+    cxxtools::Arg<bool> secureSsl(argc, argv, 'S');
+    cxxtools::Arg<std::string> ciphers(argc, argv, 'C');
 
     std::cout << "run rpcecho server\n"
               << "http protocol on port "<< port.getValue() << "\n"
@@ -121,9 +124,20 @@ int main(int argc, char* argv[])
     // create an event loop
     cxxtools::EventLoop loop;
 
+    // initialize ssl when needed
+    cxxtools::SslCtx sslCtx;   // creates a empty ssl context
+    if (secureSsl)
+        sslCtx = cxxtools::SslCtx::secure();
+
+    if (ciphers.isSet())
+        sslCtx.setCiphers(ciphers);
+
+    if (sslCert.isSet())
+        sslCtx.loadCertificateFile(sslCert);  // loading the certificate enables ssl
+
     // the http server is instantiated with an ip address and a port number
     // It will be used for xmlrpc and json over http on different urls.
-    cxxtools::http::Server httpServer(loop, ip, port, sslCert);
+    cxxtools::http::Server httpServer(loop, ip, port, sslCtx);
 
     ////////////////////////////////////////////////////////////////////////
     // Xmlrpc
@@ -142,7 +156,7 @@ int main(int argc, char* argv[])
     // Binary rpc
 
     // for the binary rpc server we define a binary server
-    cxxtools::bin::RpcServer binServer(loop, ip, bport, sslCert);
+    cxxtools::bin::RpcServer binServer(loop, ip, bport, sslCtx);
 
     // and register the functions in the server
     binServer.registerFunction("echo", echo);
@@ -152,7 +166,7 @@ int main(int argc, char* argv[])
     // Json rpc
 
     // for the json rpc server we define a json server
-    cxxtools::json::RpcServer jsonServer(loop, ip, jport, sslCert);
+    cxxtools::json::RpcServer jsonServer(loop, ip, jport, sslCtx);
 
     // and register the functions in the server
     jsonServer.registerFunction("echo", echo);

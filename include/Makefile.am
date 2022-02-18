@@ -170,6 +170,7 @@ nobase_include_HEADERS = \
         cxxtools/smartptr.h \
         cxxtools/sourceinfo.h \
         cxxtools/sslcertificate.h \
+        cxxtools/sslctx.h \
         cxxtools/stddevice.h \
         cxxtools/stdstream.h \
         cxxtools/streambuffer.h \

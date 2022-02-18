@@ -36,6 +36,7 @@
 #include <cxxtools/bin/rpcserver.h>
 #include <cxxtools/json/rpcserver.h>
 #include <cxxtools/json/httpservice.h>
+#include <cxxtools/sslctx.h>
 
 #include "color.h"
 
@@ -93,7 +94,11 @@ int main(int argc, char* argv[])
 
     cxxtools::EventLoop loop;
 
-    cxxtools::http::Server server(loop, ip, port, sslCert);
+    cxxtools::SslCtx sslCtx;
+    if (sslCert.isSet())
+        sslCtx.loadCertificateFile(sslCert);
+
+    cxxtools::http::Server server(loop, ip, port, sslCtx);
     server.minThreads(threads);
     server.maxThreads(maxThreads);
     cxxtools::xmlrpc::Service service;
@@ -102,12 +107,12 @@ int main(int argc, char* argv[])
     service.registerFunction("objects", objects);
     server.addService("/xmlrpc", service);
 
-    cxxtools::bin::RpcServer binServer(loop, ip, bport, sslCert);
+    cxxtools::bin::RpcServer binServer(loop, ip, bport, sslCtx);
     binServer.minThreads(threads);
     binServer.maxThreads(maxThreads);
     binServer.addService(service);
 
-    cxxtools::json::RpcServer jsonServer(loop, ip, jport, sslCert);
+    cxxtools::json::RpcServer jsonServer(loop, ip, jport, sslCtx);
     jsonServer.minThreads(threads);
     jsonServer.maxThreads(maxThreads);
     jsonServer.addService("", service);

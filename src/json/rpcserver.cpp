@@ -27,6 +27,7 @@
  */
 
 #include <cxxtools/json/rpcserver.h>
+#include <cxxtools/sslctx.h>
 #include "rpcserverimpl.h"
 
 namespace cxxtools
@@ -43,9 +44,14 @@ RpcServer::~RpcServer()
     delete _impl;
 }
 
-void RpcServer::listen(const std::string& ip, unsigned short int port, const std::string& certificateFile, const std::string& privateKeyFile, int sslVerifyLevel, const std::string& sslCa)
+void RpcServer::listen(const std::string& ip, unsigned short int port)
 {
-    _impl->listen(ip, port, certificateFile, privateKeyFile, sslVerifyLevel, sslCa);
+    _impl->listen(ip, port, SslCtx());
+}
+
+void RpcServer::listen(const std::string& ip, unsigned short int port, const SslCtx& sslCtx)
+{
+    _impl->listen(ip, port, sslCtx);
 }
 
 void RpcServer::addService(const std::string& prefix, const ServiceRegistry& service)

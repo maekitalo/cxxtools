@@ -127,19 +127,16 @@ RpcServerImpl::~RpcServerImpl()
 
 }
 
-void RpcServerImpl::listen(const std::string& ip, unsigned short int port, const std::string& certificateFile, const std::string& privateKeyFile, int sslVerifyLevel, const std::string& sslCa)
+void RpcServerImpl::listen(const std::string& ip, unsigned short int port, const SslCtx& sslCtx)
 {
-    log_info("listen on " << ip << " port " << port);
+    log_info("listen on ip <" << ip << "> port " << port << " ssl " << sslCtx.enabled());
     net::TcpServer* listener = new net::TcpServer(ip, port, 64,
         net::TcpServer::DEFER_ACCEPT|net::TcpServer::REUSEADDR);
-
-    if (!certificateFile.empty())
-        listener->loadSslCertificateFile(certificateFile, privateKeyFile);
 
     try
     {
         _listener.push_back(listener);
-        _queue.put(new Socket(*this, *listener, !certificateFile.empty(), sslVerifyLevel, sslCa));
+        _queue.put(new Socket(*this, *listener, sslCtx));
     }
     catch (...)
     {

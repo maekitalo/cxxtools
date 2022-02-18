@@ -27,6 +27,7 @@
  */
 
 #include <cxxtools/net/tcpstream.h>
+#include <cxxtools/sslctx.h>
 #include <cxxtools/arg.h>
 #include <cxxtools/log.h>
 
@@ -36,77 +37,79 @@
 
 int main(int argc, char* argv[])
 {
-  try
-  {
-    log_init();
-
-    cxxtools::Arg<std::string> ip(argc, argv, 'i');
-    cxxtools::Arg<unsigned short> port(argc, argv, 'p', 1234);
-    cxxtools::Arg<unsigned> bufsize(argc, argv, 'b', 8192);
-    cxxtools::Arg<bool> listen(argc, argv, 'l');
-    cxxtools::Arg<bool> read_reply(argc, argv, 'r');
-    cxxtools::Arg<bool> ssl(argc, argv, 's');
-    cxxtools::Arg<std::string> cert(argc, argv, "--cert");
-    cxxtools::Arg<std::string> ca(argc, argv, "--CA");
-
-    if (listen)
+    try
     {
-      // I'm a server
+        log_init();
 
-      // listen to a port
-      cxxtools::net::TcpServer server(ip.getValue(), port);
+        cxxtools::Arg<std::string> ip(argc, argv, 'i');
+        cxxtools::Arg<unsigned short> port(argc, argv, 'p', 1234);
+        cxxtools::Arg<unsigned> bufsize(argc, argv, 'b', 8192);
+        cxxtools::Arg<bool> listen(argc, argv, 'l');
+        cxxtools::Arg<bool> read_reply(argc, argv, 'r');
+        cxxtools::Arg<bool> ssl(argc, argv, 's');
+        cxxtools::Arg<std::string> cert(argc, argv, "--cert");
+        cxxtools::Arg<std::string> ca(argc, argv, "--CA");
 
-      // accept a connetion
-      cxxtools::net::TcpStream worker(server, bufsize);
+        if (listen)
+        {
+            // I'm a server
 
-      if (ssl)
-      {
-          if (cert.isSet())
-              worker.loadSslCertificateFile(cert);
-          if (ca.isSet())
-              worker.setSslVerify(2, ca);
-          worker.sslAccept();
-      }
+            // listen to a port
+            cxxtools::net::TcpServer server(ip.getValue(), port);
 
-      // copy to stdout
-      std::cout << worker.rdbuf();
+            // accept a connetion
+            cxxtools::net::TcpStream worker(server, bufsize);
+
+            if (ssl)
+            {
+                cxxtools::SslCtx sslCtx = sslCtx.standard();
+
+                if (cert.isSet())
+                    sslCtx.loadCertificateFile(cert);
+                if (ca.isSet())
+                    sslCtx.setVerify(2, ca);
+                worker.sslAccept(sslCtx);
+            }
+
+            // copy to stdout
+            std::cout << worker.rdbuf();
+        }
+        else
+        {
+            // I'm a client
+
+            // connect to server
+            cxxtools::net::TcpStream peer(ip, port, bufsize);
+
+            if (ssl)
+            {
+                cxxtools::SslCtx sslCtx = sslCtx.standard();
+                if (cert.isSet())
+                    sslCtx.loadCertificateFile(cert);
+                peer.sslConnect(sslCtx);
+            }
+
+            if (argc > 1)
+            {
+                for (int a = 1; a < argc; ++a)
+                {
+                    std::ifstream in(argv[a]);
+                    peer << in.rdbuf() << std::flush;
+                }
+            }
+            else
+            {
+                // copy stdin to server
+                peer << std::cin.rdbuf() << std::flush;
+            }
+
+            if (read_reply)
+                // copy answer to stdout
+                std::cout << peer.rdbuf() << std::flush;
+        }
     }
-    else
+    catch (const std::exception& e)
     {
-      // I'm a client
-
-      // connect to server
-      cxxtools::net::TcpStream peer(ip, port, bufsize);
-
-      if (ssl)
-      {
-          if (cert.isSet())
-              peer.loadSslCertificateFile(cert);
-          peer.sslConnect();
-      }
-
-      if (argc > 1)
-      {
-          for (int a = 1; a < argc; ++a)
-          {
-              std::ifstream in(argv[a]);
-              peer << in.rdbuf() << std::flush;
-          }
-      }
-      else
-      {
-          // copy stdin to server
-          peer << std::cin.rdbuf() << std::flush;
-      }
-
-      if (read_reply)
-        // copy answer to stdout
-        std::cout << peer.rdbuf() << std::flush;
+        std::cerr << e.what() << std::endl;
     }
-  }
-  catch (const std::exception& e)
-  {
-    std::cerr << e.what() << std::endl;
-  }
 }
-

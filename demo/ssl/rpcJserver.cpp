@@ -8,6 +8,7 @@
 #include <cxxtools/json/httpservice.h>
 #include <cxxtools/sslcertificate.h>
 #include <cxxtools/eventloop.h>
+#include <cxxtools/sslctx.h>
 #include <cxxtools/arg.h>
 #include <cxxtools/log.h>
 
@@ -47,7 +48,14 @@ int main(int argc, char* argv[])
 
         cxxtools::EventLoop loop;
 
-        cxxtools::http::Server server(loop, ip, port, cert, 2, ca);
+        cxxtools::SslCtx sslCtx;
+
+        if (cert.isSet())
+            sslCtx.loadCertificateFile(cert);
+
+        sslCtx.setVerify(2, ca);
+
+        cxxtools::http::Server server(loop, ip, port, sslCtx);
 
         cxxtools::json::HttpService service;
         service.registerFunction("echo", echo);

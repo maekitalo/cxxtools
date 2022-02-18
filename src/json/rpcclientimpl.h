@@ -38,6 +38,7 @@
 #include <cxxtools/connectable.h>
 #include <cxxtools/selector.h>
 #include <cxxtools/refcounted.h>
+#include <cxxtools/sslctx.h>
 #include <string>
 #include "scanner.h"
 
@@ -66,28 +67,16 @@ class RpcClientImpl : public RefCounted, public Connectable
             _socket.setSelector(selector);
         }
 
-        void prepareConnect(const net::AddrInfo& addrinfo, const std::string& sslCertificate)
+        void prepareConnect(const net::AddrInfo& addrinfo, const SslCtx& sslCtx)
         {
             _addrInfo = addrinfo;
             _socket.close();
-            _sslCertificate = sslCertificate;
-            _ssl = !sslCertificate.empty();
-        }
-
-        void ssl(bool sw)
-        {
-            _ssl = sw;
+            _sslCtx = sslCtx;
         }
 
         void connect();
 
         void close();
-
-        void setSslVerify(int level, const std::string& ca)
-        {
-            _sslVerifyLevel = level;
-            _sslCa = ca;
-        }
 
         void beginCall(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc);
 
@@ -126,10 +115,7 @@ class RpcClientImpl : public RefCounted, public Connectable
         IOStream _stream;
 
         net::AddrInfo _addrInfo;
-        bool _ssl;
-        std::string _sslCertificate;
-        int _sslVerifyLevel;
-        std::string _sslCa;
+        SslCtx _sslCtx;
         std::string _prefix;
 
         // serialization

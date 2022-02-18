@@ -34,6 +34,7 @@
 #include <cxxtools/bin/rpcclient.h>
 #include <cxxtools/json/rpcclient.h>
 #include <cxxtools/json/httpclient.h>
+#include <cxxtools/sslctx.h>
 
 ////////////////////////////////////////////////////////////////////////
 // main
@@ -52,19 +53,29 @@ int main(int argc, char* argv[])
                                                       : json   ? 7004
                                                       :          7002);
     cxxtools::Arg<bool> ssl(argc, argv, 's');
+    cxxtools::Arg<bool> secureSsl(argc, argv, 'S');
+    cxxtools::Arg<std::string> ciphers(argc, argv, 'C');
 
     // optionally read -t <timeout> or -T <connectTimeout> (in ms)
     cxxtools::Arg<cxxtools::Milliseconds> timeout(argc, argv, 't');
     cxxtools::Arg<cxxtools::Milliseconds> connectTimeout(argc, argv, 'T');
 
+    cxxtools::SslCtx sslCtx;
+    if (secureSsl)
+        sslCtx = cxxtools::SslCtx::secure();
+    else if (ssl)
+        sslCtx = cxxtools::SslCtx::standard();
+
+    if (ciphers.isSet())
+        sslCtx.setCiphers(ciphers);
     // define a xmlrpc client
-    cxxtools::xmlrpc::HttpClient xmlrpcClient(ip, port, "/xmlrpc", ssl);
+    cxxtools::xmlrpc::HttpClient xmlrpcClient(ip, port, "/xmlrpc", sslCtx);
     // and a binary rpc client
-    cxxtools::bin::RpcClient binaryClient(ip, port, ssl);
+    cxxtools::bin::RpcClient binaryClient(ip, port, sslCtx);
     // and a json rpc client
-    cxxtools::json::RpcClient jsonClient(ip, port, ssl);
+    cxxtools::json::RpcClient jsonClient(ip, port, sslCtx);
     // and a json rpc http client
-    cxxtools::json::HttpClient jsonHttpClient(ip, port, "/jsonrpc", ssl);
+    cxxtools::json::HttpClient jsonHttpClient(ip, port, "/jsonrpc", sslCtx);
 
     cxxtools::RemoteClient& client = 
         binary   ? static_cast<cxxtools::RemoteClient&>(binaryClient) :

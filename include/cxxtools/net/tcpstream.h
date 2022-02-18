@@ -38,6 +38,8 @@
 namespace cxxtools
 {
 
+class SslCtx;
+
 namespace net
 {
     /** A buffered TCP/IP stream which supports asyncronous communication.
@@ -143,12 +145,6 @@ namespace net
             int getFd() const
             { return _socket.getFd(); }
 
-            void loadSslCertificateFile(const std::string& certFile, const std::string& privateKeyFile = std::string())
-            { _socket.loadSslCertificateFile(certFile, privateKeyFile); }
-
-            void setSslVerify(int level, const std::string& ca = std::string())
-            { _socket.setSslVerify(level, ca); }
-
             bool hasSslPeerCertificate() const
             { return _socket.hasSslPeerCertificate(); }
 
@@ -156,18 +152,18 @@ namespace net
             { return _socket.getSslPeerCertificate(); }
 
             // initiates a ssl connection on the socket
-            void sslConnect()
-            { _socket.sslConnect(); }
-            void beginSslConnect()
-            { _socket.beginSslConnect(); }
+            void sslConnect(const SslCtx& ctx)
+            { _socket.sslConnect(ctx); }
+            void beginSslConnect(const SslCtx& ctx)
+            { _socket.beginSslConnect(ctx); }
             void endSslConnect()
             { _socket.endSslConnect(); }
 
             // accept a ssl connection from the peer
-            void sslAccept()
-            { _socket.sslAccept(); }
-            void beginSslAccept()
-            { _socket.beginSslAccept(); }
+            void sslAccept(const SslCtx& ctx)
+            { _socket.sslAccept(ctx); }
+            void beginSslAccept(const SslCtx& ctx)
+            { _socket.beginSslAccept(ctx); }
             void endSslAccept()
             { _socket.endSslAccept(); }
 

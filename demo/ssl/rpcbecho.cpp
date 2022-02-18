@@ -1,15 +1,9 @@
 #include <iostream>
 #include <cxxtools/arg.h>
 #include <cxxtools/log.h>
-#include <cxxtools/sslcertificate.h>
 #include <cxxtools/remoteprocedure.h>
 #include <cxxtools/bin/rpcclient.h>
-
-bool noAccept(const cxxtools::SslCertificate& cert)
-{
-    std::cout << "cert \"" << cert.getSubject() << "\" not accepted" << std::endl;
-    return false;
-}
+#include <cxxtools/sslctx.h>
 
 ////////////////////////////////////////////////////////////////////////
 // main
@@ -25,10 +19,15 @@ int main(int argc, char* argv[])
     cxxtools::Arg<std::string> cert(argc, argv, 'c');
     cxxtools::Arg<std::string> ca(argc, argv, 'C');
 
-    cxxtools::bin::RpcClient client(ip, port, cert);
+    cxxtools::SslCtx sslCtx;
+
+    if (cert.isSet())
+        sslCtx.loadCertificateFile(cert);
 
     if (ca.isSet())
-        client.setSslVerify(2, ca);
+        sslCtx.setVerify(2, ca);
+
+    cxxtools::bin::RpcClient client(ip, port, sslCtx);
 
     cxxtools::RemoteProcedure<std::string, std::string> echo(client, "echo");
 
@@ -43,4 +42,3 @@ int main(int argc, char* argv[])
     std::cerr << e.what() << std::endl;
   }
 }
-

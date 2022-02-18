@@ -39,6 +39,7 @@
 
 namespace cxxtools {
 
+class SslCtx;
 class SslCertificate;
 class SslCertificateNotAccepted : public std::runtime_error
 {
@@ -114,57 +115,22 @@ class TcpSocket : public IODevice
 
         short poll(short events) const;
 
-        void loadSslCertificateFile(const std::string& certFile, const std::string& privateKeyFile = std::string());
-
-        /** Enables ssl peer certificate check.
-         *
-         *  Level 0: Disables peer certificate checking, which is the default.
-         *
-         *  Level 1: In server mode sends a client certificate request.  Verify
-         *  peer certificate and fail if not valid.  In server mode accept if
-         *  client sends no certificate.
-         *
-         *  Level 2: As level 1 but in server mode do not accept ssl connection
-         *  without client certificate.
-         *
-         *  A `ca` must be given if `level` > 0. It specifies the certification
-         *  authority file or directory.
-         *
-         *  In any case the delegate `acceptSslCertificate` is called if
-         *  connected.  If the delegate returns false, the ssl connection is
-         *  denied. A exception of type `cxxtools::SslCertificateNotAccepted`
-         *  is thrown.
-         *
-         *  @deprecated
-         *  Use the method cxxtools::net::TcpServer::setSslVerify for server
-         *  or setSslVerify without level in tcp clients.
-         */
-        void setSslVerify(int level, const std::string& ca = std::string());
-
-        /** Enables ssl peer certificate check.
-         *
-         *  This method is for tcp clients to check the certificate against
-         *  a CA. It must not be used in server mode (sockets accepted from
-         *  a tcp server class)
-         */
-        void setSslVerify(const std::string& ca);
-
         bool hasSslPeerCertificate() const;
         const SslCertificate& getSslPeerCertificate() const;
 
         /// initiates a ssl connection on the socket
-        void beginSslConnect();
+        void beginSslConnect(const SslCtx& ctx);
         void endSslConnect();
 
         /// blocking call for initiating ssl
-        void sslConnect();
+        void sslConnect(const SslCtx& ctx);
 
         /// accept a ssl connection from the peer
-        void beginSslAccept();
+        void beginSslAccept(const SslCtx& ctx);
         void endSslAccept();
 
         /// blocking call to accept a ssl connection from the peer
-        void sslAccept();
+        void sslAccept(const SslCtx& ctx);
 
         /// terminates ssl
         void beginSslShutdown();
