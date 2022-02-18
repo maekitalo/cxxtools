@@ -112,6 +112,8 @@ class JsonDeserializerTest : public cxxtools::unit::TestSuite
             registerMethod("testMultipleObjectsT", *this, &JsonDeserializerTest::testMultipleObjectsT);
             registerMethod("testMultipleObjectsI", *this, &JsonDeserializerTest::testMultipleObjectsI);
             registerMethod("testTrailingComma", *this, &JsonDeserializerTest::testTrailingComma);
+            registerMethod("testIStreamEof", *this, &JsonDeserializerTest::testIStreamEof);
+            registerMethod("testIStreamFail", *this, &JsonDeserializerTest::testIStreamFail);
         }
 
         void testInt()
@@ -406,6 +408,30 @@ class JsonDeserializerTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 2);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[0], 2);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[1], 3);
+        }
+
+        void testIStreamEof()
+        {
+            std::istringstream in("{}");
+            cxxtools::SerializationInfo si;
+
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(in >> cxxtools::Json(si));
+            CXXTOOLS_UNIT_ASSERT(!in.eof());
+
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(in >> cxxtools::Json(si));
+            CXXTOOLS_UNIT_ASSERT(in.eof());
+        }
+
+        void testIStreamFail()
+        {
+            std::istringstream in("{}{");
+            cxxtools::SerializationInfo si;
+
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(in >> cxxtools::Json(si));
+            CXXTOOLS_UNIT_ASSERT(!in.eof());
+
+            CXXTOOLS_UNIT_ASSERT_NOTHROW(in >> cxxtools::Json(si));
+            CXXTOOLS_UNIT_ASSERT(in.fail());
         }
 };
 

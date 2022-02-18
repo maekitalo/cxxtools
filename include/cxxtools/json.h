@@ -162,11 +162,25 @@ namespace cxxtools
         JsonDeserializer deserializer(in);
         deserializer.deserialize(object.object());
       }
-      catch (const std::exception&)
+      catch (const JsonNoData&)
       {
-        in.setstate(std::ios::failbit);
-        throw;
+        in.setstate(std::ios::eofbit);
       }
+      catch (const JsonParserError& e)
+      {
+        bool thrown = false;
+        try
+        {
+          in.setstate(std::ios::failbit);
+        }
+        catch (const std::exception&)
+        {
+          thrown = true;
+        }
+        if (thrown)
+          throw;
+      }
+
       return in;
     }
 

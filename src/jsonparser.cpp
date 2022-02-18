@@ -210,6 +210,13 @@ int JsonParser::advance(Char ch)
     {
         switch (_state)
         {
+            case state_beforestart:
+                if (std::isspace(ch.value()))
+                    break;
+
+                _state = state_0;
+                // fallthrough
+
             case state_0:
                 if (ch == '{')
                 {
@@ -600,6 +607,10 @@ void JsonParser::finish()
 
     switch (_state)
     {
+        case state_beforestart:
+            log_warn("no json data found");
+            throw JsonNoData(_lineNo);
+
         case state_0:
         case state_object:
         case state_object_plainname:

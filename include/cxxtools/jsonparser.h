@@ -54,6 +54,14 @@ namespace cxxtools
             const char* what() const throw();
     };
 
+    class JsonNoData : public JsonParserError
+    {
+        public:
+            explicit JsonNoData(unsigned lineNo)
+                : JsonParserError("no json data found", lineNo)
+            { }
+    };
+
     class JsonParser
     {
             class JsonStringParser
@@ -105,7 +113,7 @@ namespace cxxtools
 
             void begin(JsonDeserializer& handler)
             {
-                _state = state_0;
+                _state = state_beforestart;
                 _token.clear();
                 _deserializer = &handler;
             }
@@ -116,6 +124,7 @@ namespace cxxtools
         private:
             enum
             {
+                state_beforestart,
                 state_0,
                 state_object,
                 state_object_plainname,
