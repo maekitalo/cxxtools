@@ -166,7 +166,7 @@ static long openSslProtocolVersion(SslCtx::PROTOCOL_VERSION v)
     {
         case SslCtx::PROTOCOL_VERSION::SSLv2: return SSL2_VERSION;
         case SslCtx::PROTOCOL_VERSION::SSLv3: return SSL3_VERSION;
-        case SslCtx::PROTOCOL_VERSION::TLSv10: return TLS1_VERSION;
+        case SslCtx::PROTOCOL_VERSION::TLSv1: return TLS1_VERSION;
         case SslCtx::PROTOCOL_VERSION::TLSv11: return TLS1_1_VERSION;
         case SslCtx::PROTOCOL_VERSION::TLSv12: return TLS1_2_VERSION;
         case SslCtx::PROTOCOL_VERSION::TLSv13: return TLS1_3_VERSION;
@@ -178,6 +178,8 @@ static long openSslProtocolVersion(SslCtx::PROTOCOL_VERSION v)
 
 void SslCtx::Impl::setProtocolVersion(PROTOCOL_VERSION min_version, PROTOCOL_VERSION max_version)
 {
+    log_debug("setProtocolVersion(" << static_cast<unsigned short>(min_version) << ", " << static_cast<unsigned short>(max_version) << ')');
+
 #ifdef SSL_CTX_set_min_proto_version
     if (min_version > PROTOCOL_VERSION::SSLv2)
     {
@@ -197,19 +199,34 @@ void SslCtx::Impl::setProtocolVersion(PROTOCOL_VERSION min_version, PROTOCOL_VER
     long options = 0;
 
     if (min_version > PROTOCOL_VERSION::SSLv2)
-        options |= SSL_OP_NO_SSL_v2;
-    if (min_version > SSLv3 || max_version < SSLv3)
-        options |= SSL_OP_NO_SSL_v3;
-    if (min_version > TLSv10 || max_version < TLSv10)
-        options |= SSL_OP_NO_TLSv1
-    if (min_version > TLSv11 || max_version < TLSv11)
-        options |= SSL_OP_NO_TLSv1_1
-    if (min_version > TLSv12 || max_version < TLSv12)
-        options |= SSL_OP_NO_TLSv1_2
+    {
+        log_debug("deactivate SSLv2 " << std::hex << SSL_OP_NO_SSLv2);
+        options |= SSL_OP_NO_SSLv2;
+    }
+    if (min_version > PROTOCOL_VERSION::SSLv3 || max_version < PROTOCOL_VERSION::SSLv3)
+    {
+        log_debug("deactivate SSLv3 " << std::hex << SSL_OP_NO_SSLv3);
+        options |= SSL_OP_NO_SSLv3;
+    }
+    if (min_version > PROTOCOL_VERSION::TLSv1 || max_version < PROTOCOL_VERSION::TLSv1)
+    {
+        log_debug("deactivate TLSv1 " << std::hex << SSL_OP_NO_TLSv1);
+        options |= SSL_OP_NO_TLSv1;
+    }
+    if (min_version > PROTOCOL_VERSION::TLSv11 || max_version < PROTOCOL_VERSION::TLSv11)
+    {
+        log_debug("deactivate TLSv1_1 " << std::hex << SSL_OP_NO_TLSv1_1);
+        options |= SSL_OP_NO_TLSv1_1;
+    }
+    if (min_version > PROTOCOL_VERSION::TLSv12 || max_version < PROTOCOL_VERSION::TLSv12)
+    {
+        log_debug("deactivate TLSv1_2 " << std::hex << SSL_OP_NO_TLSv1_2);
+        options |= SSL_OP_NO_TLSv1_2;
+    }
 
     log_debug("SSL_CTX_set_options(ctx, " << options << ')');
-    if (SSL_CTX_set_options(_ctx, options) != 0)
-        throw cxxtools::SslError("failed to set accepted protocol version", 0);
+    long newOptions = SSL_CTX_set_options(_ctx, options);
+    log_debug("new options=" << std::hex << newOptions);
 #endif
 }
 

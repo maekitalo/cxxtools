@@ -55,7 +55,7 @@ public:
     enum class PROTOCOL_VERSION : unsigned short {
         SSLv2,
         SSLv3,
-        TLSv10,
+        TLSv1,
         TLSv11,
         TLSv12,
         TLSv13
