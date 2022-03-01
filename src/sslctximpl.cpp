@@ -123,13 +123,24 @@ void SslCtx::Impl::loadCertificateFile(const std::string& certFile, const std::s
 
 void SslCtx::Impl::setVerify(int level, const std::string& ca)
 {
-    cxxtools::FileInfo fileInfo(ca);
+    if (level > 0)
+    {
+        cxxtools::FileInfo fileInfo(ca);
+        STACK_OF(X509_NAME)* names = SSL_load_client_CA_file(ca.c_str());
+        log_debug("SSL_load_client_CA_file => " << names << " (" << sk_X509_NAME_num(names) << ')');
 
-    STACK_OF(X509_NAME)* names = SSL_load_client_CA_file(ca.c_str());
-    log_debug("SSL_load_client_CA_file => " << names << " (" << sk_X509_NAME_num(names) << ')');
+        log_debug("SSL_CTX_set_client_CA_list");
+        SSL_CTX_set_client_CA_list(ctx(), names);
 
-    log_debug("SSL_CTX_set_client_CA_list");
-    SSL_CTX_set_client_CA_list(ctx(), names);
+        log_debug_if(fileInfo.isFile(), "load verify locations file \"" << ca << '"');
+        log_debug_if(fileInfo.isDirectory(), "load verify locations directory \"" << ca << '"');
+        int ret = SSL_CTX_load_verify_locations(ctx(),
+            fileInfo.isFile()      ? ca.c_str() : 0,
+            fileInfo.isDirectory() ? ca.c_str() : 0);
+
+        if (ret == 0)
+            SslError::checkSslError();
+    }
 
     log_debug("set ssl verify level " << level);
     SSL_CTX_set_verify(
@@ -139,24 +150,12 @@ void SslCtx::Impl::setVerify(int level, const std::string& ca)
                      (SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT | SSL_VERIFY_CLIENT_ONCE),
         0);
 
-    if (level > 0)
-    {
-        log_debug_if(fileInfo.isFile(), "load verify locations file \"" << ca << '"');
-        log_debug_if(fileInfo.isDirectory(), "load verify locations directory \"" << ca << '"');
-        int ret = SSL_CTX_load_verify_locations(ctx(),
-            fileInfo.isFile()      ? ca.c_str() : 0,
-            fileInfo.isDirectory() ? ca.c_str() : 0);
-
-        if (ret == 0)
-            SslError::checkSslError();
-
-        char hostname[HOST_NAME_MAX];
-        ::gethostname(hostname, sizeof(hostname));
-        log_debug("SSL_CTX_set_session_id_context(" << static_cast<void*>(ctx()) << ", " << hostname << ')');
-        ret = SSL_CTX_set_session_id_context(ctx(), reinterpret_cast<const unsigned char*>(hostname), std::max(static_cast<size_t>(SSL_MAX_SSL_SESSION_ID_LENGTH), std::strlen(hostname)));
-        if (ret == 0)
-            SslError::checkSslError();
-    }
+    char hostname[HOST_NAME_MAX];
+    ::gethostname(hostname, sizeof(hostname));
+    log_debug("SSL_CTX_set_session_id_context(" << static_cast<void*>(ctx()) << ", " << hostname << ')');
+    int ret = SSL_CTX_set_session_id_context(ctx(), reinterpret_cast<const unsigned char*>(hostname), std::max(static_cast<size_t>(SSL_MAX_SSL_SESSION_ID_LENGTH), std::strlen(hostname)));
+    if (ret == 0)
+        SslError::checkSslError();
 }
 
 #ifdef SSL_CTX_set_min_proto_version
@@ -224,9 +223,12 @@ void SslCtx::Impl::setProtocolVersion(PROTOCOL_VERSION min_version, PROTOCOL_VER
         options |= SSL_OP_NO_TLSv1_2;
     }
 
-    log_debug("SSL_CTX_set_options(ctx, " << options << ')');
-    long newOptions = SSL_CTX_set_options(_ctx, options);
-    log_debug("new options=" << std::hex << newOptions);
+    if (options != 0)
+    {
+        log_debug("SSL_CTX_set_options(ctx, " << options << ')');
+        long newOptions = SSL_CTX_set_options(_ctx, options);
+        log_debug("new options=" << std::hex << newOptions);
+    }
 #endif
 }
 
