@@ -61,8 +61,11 @@ public:
         { }
     ~Impl();
 
-    bool eventQueueEmpty()
+    bool eventQueueEmpty() const
     { return _eventQueue.empty() && _priorityEventQueue.empty() && _activeEventQueue.empty(); }
+
+    unsigned pendingEvents() const
+    { return _eventQueue.size() + _priorityEventQueue.size() + _activeEventQueue.size(); }
 
     Event* front()
     {
@@ -137,6 +140,11 @@ EventLoop::~EventLoop()
 unsigned EventLoop::eventsPerLoop()
 {
     return _impl->_eventsPerLoop;
+}
+
+unsigned EventLoop::pendingEvents() const
+{
+    return _impl->pendingEvents();
 }
 
 void EventLoop::eventsPerLoop(unsigned n)

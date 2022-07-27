@@ -163,6 +163,10 @@ namespace cxxtools
              */
             void eventsPerLoop(unsigned n);
 
+            /** Returns the current number of events in the queue, which are not yet processed.
+             */
+            unsigned pendingEvents() const;
+
         protected:
             virtual void onAdd( Selectable& s );
 
