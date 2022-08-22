@@ -44,6 +44,7 @@
 
 #include "color.h"
 
+log_define("rpcbenchclient")
 
 class BenchClient
 {
@@ -126,11 +127,13 @@ void BenchClient::exec()
   cxxtools::RemoteProcedure<std::vector<int>, int, int> seq(*client, "seq");
   cxxtools::RemoteProcedure<std::vector<Color>, unsigned> objects(*client, "objects");
 
-  while (_requestsStarted <= _numRequests
+  while (_requestsStarted < _numRequests
       && cxxtools::DateTime::gmtime() < _until)
   {
+    ++_requestsStarted;
     try
     {
+      log_debug("exec " << _requestsStarted);
       if (_vectorSize > 0)
       {
         std::vector<int> ret = seq(1, _vectorSize);
