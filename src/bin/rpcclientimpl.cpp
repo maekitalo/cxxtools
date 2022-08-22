@@ -244,7 +244,7 @@ void RpcClientImpl::wait(Timespan timeout)
 
 void RpcClientImpl::prepareRequest(const String& name, IDecomposer** argv, unsigned argc)
 {
-    _formatter.begin(_stream);
+    _formatter.begin(_stream.buffer());
     if (_domain.empty())
         _stream << '\xc0' << name << '\0';
     else

@@ -118,16 +118,9 @@ namespace cxxtools
                 {
                 }
 
-                explicit Serializer(std::ostream& out)
-                {
-                    _formatter.begin(out);
-                }
+                explicit Serializer(std::ostream& out);
 
-                Serializer& begin(std::ostream& out)
-                {
-                    _formatter.begin(out);
-                    return *this;
-                }
+                Serializer& begin(std::ostream& out);
 
                 template <typename T>
                 Serializer& serialize(const T& v, const std::string& name)

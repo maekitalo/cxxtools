@@ -88,28 +88,24 @@ namespace
 }
 
 Formatter::Formatter()
-    : _out(0),
-      _ts(new Utf8Codec())
+    : _out(0)
 {
 }
 
-Formatter::Formatter(std::ostream& out)
-    : _out(0),
-      _ts(new Utf8Codec())
+Formatter::Formatter(std::streambuf& out)
+    : _out(0)
 {
     begin(out);
 }
 
-void Formatter::begin(std::ostream& out)
+void Formatter::begin(std::streambuf& out)
 {
     _out = &out;
-    _ts.attach(out);
     _dictionary.clear();
 }
 
 void Formatter::finish()
 {
-    _ts.detach();
     _dictionary.clear();
     _out = 0;
 }
@@ -120,7 +116,6 @@ void Formatter::addValueString(const std::string& name, const std::string& type,
     log_trace("addValueString(\"" << name << "\", \"" << type << "\", \"" << value << "\")");
 
     bool plain = name.empty();
-    std::streambuf* sb = _out->rdbuf();
 
     if (type == "int"
      || type == "long")
@@ -140,7 +135,7 @@ void Formatter::addValueString(const std::string& name, const std::string& type,
         || value == L"nan" || value == L"inf" || value == L"-inf")
     {
         bool isDouble = (type == "double");
-        sb->sputc(static_cast<char>(isDouble ? plain ? Serializer::TypePlainBcdFloat : Serializer::TypeBcdFloat
+        _out->sputc(static_cast<char>(isDouble ? plain ? Serializer::TypePlainBcdFloat : Serializer::TypeBcdFloat
                                              : plain ? Serializer::TypePlainBcd : Serializer::TypeBcd));
         if (!isDouble)
             outputString(type);
@@ -150,15 +145,15 @@ void Formatter::addValueString(const std::string& name, const std::string& type,
 
         if (value == L"nan")
         {
-            sb->sputc('\xf0');
+            _out->sputc('\xf0');
         }
         else if (value == L"inf")
         {
-            sb->sputc('\xf1');
+            _out->sputc('\xf1');
         }
         else if (value == L"-inf")
         {
-            sb->sputc('\xf2');
+            _out->sputc('\xf2');
         }
         else
         {
@@ -172,25 +167,25 @@ void Formatter::addValueString(const std::string& name, const std::string& type,
                 else
                 {
                     ch |= bcd[v];
-                    sb->sputc(ch);
+                    _out->sputc(ch);
                 }
                 high = !high;
             }
 
             if (!high)
-                sb->sputc(static_cast<char>(ch | '\xf'));
+                _out->sputc(static_cast<char>(ch | '\xf'));
         }
 
-        sb->sputc('\xff');
+        _out->sputc('\xff');
     }
     else if (type == "bool")
     {
-        sb->sputc(static_cast<char>(plain ? Serializer::TypePlainBool : Serializer::TypeBool));
+        _out->sputc(static_cast<char>(plain ? Serializer::TypePlainBool : Serializer::TypeBool));
 
         if (!plain)
             outputString(name);
 
-        sb->sputc((isTrue(value) ? '\1' : '\0'));
+        _out->sputc((isTrue(value) ? '\1' : '\0'));
     }
     else if (value.find(L'\0') != cxxtools::String::npos)
     {
@@ -198,25 +193,25 @@ void Formatter::addValueString(const std::string& name, const std::string& type,
         uint32_t v = svalue.size();
         if (v <= 0xffff)
         {
-            sb->sputc(static_cast<char>(plain ? Serializer::TypePlainBinary2 : Serializer::TypeBinary2));
+            _out->sputc(static_cast<char>(plain ? Serializer::TypePlainBinary2 : Serializer::TypeBinary2));
 
             if (!plain)
                 outputString(name);
         }
         else
         {
-            sb->sputc(static_cast<char>(plain ? Serializer::TypePlainBinary4 : Serializer::TypeBinary4));
+            _out->sputc(static_cast<char>(plain ? Serializer::TypePlainBinary4 : Serializer::TypeBinary4));
 
             if (!plain)
                 outputString(name);
 
-            sb->sputc(static_cast<char>(v >> 24));
-            sb->sputc(static_cast<char>(v >> 16));
+            _out->sputc(static_cast<char>(v >> 24));
+            _out->sputc(static_cast<char>(v >> 16));
         }
 
-        sb->sputc(static_cast<char>(v >> 8));
-        sb->sputc(static_cast<char>(v));
-        *_out << svalue;
+        _out->sputc(static_cast<char>(v >> 8));
+        _out->sputc(static_cast<char>(v));
+        _out->sputn(svalue.data(), svalue.size());
     }
     else
     {
@@ -225,9 +220,9 @@ void Formatter::addValueString(const std::string& name, const std::string& type,
         if (!plain)
             outputString(name);
 
-        _ts << value;
-        _ts.flush();
-        sb->sputn("\0\xff", 2);
+        std::string svalue = Utf8Codec::encode(value);
+        _out->sputn(svalue.data(), svalue.size());
+        _out->sputn("\0\xff", 2);
     }
 
 }
@@ -237,7 +232,6 @@ void Formatter::addValueStdString(const std::string& name, const std::string& ty
     log_trace("addValueStdString(\"" << name << "\", \"" << type << "\", \"" << value << "\")");
 
     bool plain = name.empty();
-    std::streambuf* sb = _out->rdbuf();
 
     if (type == "int"
      || type == "long")
@@ -257,7 +251,7 @@ void Formatter::addValueStdString(const std::string& name, const std::string& ty
         || value == "nan" || value == "inf" || value == "-inf")
     {
         bool isDouble = (type == "double");
-        sb->sputc(static_cast<char>(isDouble ? plain ? Serializer::TypePlainBcdFloat : Serializer::TypeBcdFloat
+        _out->sputc(static_cast<char>(isDouble ? plain ? Serializer::TypePlainBcdFloat : Serializer::TypeBcdFloat
                                              : plain ? Serializer::TypePlainBcd : Serializer::TypeBcd));
         if (!isDouble)
             outputString(type);
@@ -267,15 +261,15 @@ void Formatter::addValueStdString(const std::string& name, const std::string& ty
 
         if (value == "nan")
         {
-            sb->sputc('\xf0');
+            _out->sputc('\xf0');
         }
         else if (value == "inf")
         {
-            sb->sputc('\xf1');
+            _out->sputc('\xf1');
         }
         else if (value == "-inf")
         {
-            sb->sputc('\xf2');
+            _out->sputc('\xf2');
         }
         else
         {
@@ -289,51 +283,51 @@ void Formatter::addValueStdString(const std::string& name, const std::string& ty
                 else
                 {
                     ch |= bcd[v];
-                    sb->sputc(ch);
+                    _out->sputc(ch);
                 }
                 high = !high;
             }
 
             if (!high)
-                sb->sputc(static_cast<char>(ch | '\xf'));
+                _out->sputc(static_cast<char>(ch | '\xf'));
         }
 
-        sb->sputc('\xff');
+        _out->sputc('\xff');
 
     }
     else if (type == "bool")
     {
-        sb->sputc(static_cast<char>(plain ? Serializer::TypePlainBool : Serializer::TypeBool));
+        _out->sputc(static_cast<char>(plain ? Serializer::TypePlainBool : Serializer::TypeBool));
 
         if (!plain)
             outputString(name);
 
-        sb->sputc((isTrue(value) ? '\1' : '\0'));
+        _out->sputc((isTrue(value) ? '\1' : '\0'));
     }
     else if (!isAscii(value))
     {
         uint32_t v = value.size();
         if (v <= 0xffff)
         {
-            sb->sputc(static_cast<char>(plain ? Serializer::TypePlainBinary2 : Serializer::TypeBinary2));
+            _out->sputc(static_cast<char>(plain ? Serializer::TypePlainBinary2 : Serializer::TypeBinary2));
 
             if (!plain)
                 outputString(name);
         }
         else
         {
-            sb->sputc(static_cast<char>(plain ? Serializer::TypePlainBinary4 : Serializer::TypeBinary4));
+            _out->sputc(static_cast<char>(plain ? Serializer::TypePlainBinary4 : Serializer::TypeBinary4));
 
             if (!plain)
                 outputString(name);
 
-            sb->sputc(static_cast<char>(v >> 24));
-            sb->sputc(static_cast<char>(v >> 16));
+            _out->sputc(static_cast<char>(v >> 24));
+            _out->sputc(static_cast<char>(v >> 16));
         }
 
-        sb->sputc(static_cast<char>(v >> 8));
-        sb->sputc(static_cast<char>(v));
-        *_out << value;
+        _out->sputc(static_cast<char>(v >> 8));
+        _out->sputc(static_cast<char>(v));
+        _out->sputn(value.data(), value.size());
     }
     else
     {
@@ -342,8 +336,8 @@ void Formatter::addValueStdString(const std::string& name, const std::string& ty
         if (!plain)
             outputString(name);
 
-        *_out << value.c_str();
-        sb->sputn("\0\xff", 2);
+        _out->sputn(value.data(), value.size());
+        _out->sputn("\0\xff", 2);
     }
 
 }
@@ -354,14 +348,13 @@ void Formatter::addValueChar(const std::string& name, const std::string& type,
     log_trace("addValueChar(\"" << name << "\", \"" << type << "\", " << value << ')');
 
     bool plain = name.empty();
-    std::streambuf* sb = _out->rdbuf();
 
-    sb->sputc(static_cast<char>(plain ? Serializer::TypePlainChar : Serializer::TypeChar));
+    _out->sputc(static_cast<char>(plain ? Serializer::TypePlainChar : Serializer::TypeChar));
 
     if (!plain)
         outputString(name);
 
-    sb->sputc(value);
+    _out->sputc(value);
 }
 void Formatter::addValueBool(const std::string& name, const std::string& type,
                          bool value)
@@ -369,14 +362,13 @@ void Formatter::addValueBool(const std::string& name, const std::string& type,
     log_trace("addValueBool(\"" << name << "\", \"" << type << "\", " << value << ')');
 
     bool plain = name.empty();
-    std::streambuf* sb = _out->rdbuf();
 
-    sb->sputc(static_cast<char>(plain ? Serializer::TypePlainBool : Serializer::TypeBool));
+    _out->sputc(static_cast<char>(plain ? Serializer::TypePlainBool : Serializer::TypeBool));
 
     if (!plain)
         outputString(name);
 
-    sb->sputc((value ? '\1' : '\0'));
+    _out->sputc((value ? '\1' : '\0'));
 }
 
 void Formatter::addValueInt(const std::string& name, const std::string& type,
@@ -398,37 +390,35 @@ void Formatter::addValueFloat(const std::string& name, const std::string& type,
 {
     log_trace("addValueFloat(\"" << name << "\", \"" << type << "\", " << value << ')');
 
-    std::streambuf* sb = _out->rdbuf();
-
     if (value != value)
     {
         // NaN
-        sb->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainShortFloat : Serializer::TypeShortFloat));
+        _out->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainShortFloat : Serializer::TypeShortFloat));
         if (!name.empty())
             outputString(name);
-        sb->sputn("\x7f\x1\0", 3);
+        _out->sputn("\x7f\x1\0", 3);
     }
     else if (value == std::numeric_limits<float>::infinity())
     {
-        sb->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainShortFloat : Serializer::TypeShortFloat));
+        _out->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainShortFloat : Serializer::TypeShortFloat));
         if (!name.empty())
             outputString(name);
-        sb->sputn("\x7f\0\0", 3);
+        _out->sputn("\x7f\0\0", 3);
     }
     else if (value == -std::numeric_limits<float>::infinity())
     {
-        sb->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainShortFloat : Serializer::TypeShortFloat));
+        _out->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainShortFloat : Serializer::TypeShortFloat));
         if (!name.empty())
             outputString(name);
-        sb->sputn("\xff\0\0", 3);
+        _out->sputn("\xff\0\0", 3);
     }
     else if (value == 0.0)
     {
         log_debug("value is zero");
-        sb->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainShortFloat : Serializer::TypeShortFloat));
+        _out->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainShortFloat : Serializer::TypeShortFloat));
         if (!name.empty())
             outputString(name);
-        sb->sputn("\0\0\0", 3);
+        _out->sputn("\0\0\0", 3);
     }
     else
     {
@@ -451,19 +441,19 @@ void Formatter::addValueFloat(const std::string& name, const std::string& type,
             uint16_t e = exp + 16383;
             if (isNeg)
                 e |= 0x8000;
-            sb->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainLongFloat : Serializer::TypeLongFloat));
+            _out->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainLongFloat : Serializer::TypeLongFloat));
             if (!name.empty())
                 outputString(name);
-            sb->sputc(static_cast<char>(e >> 8));
-            sb->sputc(static_cast<char>(e));
-            sb->sputc(static_cast<char>(m >> 56));
-            sb->sputc(static_cast<char>(m >> 48));
-            sb->sputc(static_cast<char>(m >> 40));
-            sb->sputc(static_cast<char>(m >> 32));
-            sb->sputc(static_cast<char>(m >> 24));
-            sb->sputc(static_cast<char>(m >> 16));
-            sb->sputc(static_cast<char>(m >> 8));
-            sb->sputc(static_cast<char>(m));
+            _out->sputc(static_cast<char>(e >> 8));
+            _out->sputc(static_cast<char>(e));
+            _out->sputc(static_cast<char>(m >> 56));
+            _out->sputc(static_cast<char>(m >> 48));
+            _out->sputc(static_cast<char>(m >> 40));
+            _out->sputc(static_cast<char>(m >> 32));
+            _out->sputc(static_cast<char>(m >> 24));
+            _out->sputc(static_cast<char>(m >> 16));
+            _out->sputc(static_cast<char>(m >> 8));
+            _out->sputc(static_cast<char>(m));
         }
         else if (areLowerBitsSet(m, 48))
         {
@@ -472,14 +462,14 @@ void Formatter::addValueFloat(const std::string& name, const std::string& type,
             uint16_t e = exp + 63;
             if (isNeg)
                 e |= 0x80;
-            sb->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainMediumFloat : Serializer::TypeMediumFloat));
+            _out->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainMediumFloat : Serializer::TypeMediumFloat));
             if (!name.empty())
                 outputString(name);
-            sb->sputc(static_cast<char>(e));
-            sb->sputc(static_cast<char>(m >> 56));
-            sb->sputc(static_cast<char>(m >> 48));
-            sb->sputc(static_cast<char>(m >> 40));
-            sb->sputc(static_cast<char>(m >> 32));
+            _out->sputc(static_cast<char>(e));
+            _out->sputc(static_cast<char>(m >> 56));
+            _out->sputc(static_cast<char>(m >> 48));
+            _out->sputc(static_cast<char>(m >> 40));
+            _out->sputc(static_cast<char>(m >> 32));
         }
         else
         {
@@ -488,12 +478,12 @@ void Formatter::addValueFloat(const std::string& name, const std::string& type,
             uint8_t e = exp + 63;
             if (isNeg)
                 e |= 0x80;
-            sb->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainShortFloat : Serializer::TypeShortFloat));
+            _out->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainShortFloat : Serializer::TypeShortFloat));
             if (!name.empty())
                 outputString(name);
-            sb->sputc(static_cast<char>(e));
-            sb->sputc(static_cast<char>(m >> 56));
-            sb->sputc(static_cast<char>(m >> 48));
+            _out->sputc(static_cast<char>(e));
+            _out->sputc(static_cast<char>(m >> 56));
+            _out->sputc(static_cast<char>(m >> 48));
         }
     }
 }
@@ -503,37 +493,35 @@ void Formatter::addValueDouble(const std::string& name, const std::string& type,
 {
     log_trace("addValueDouble(\"" << name << "\", \"" << type << "\", " << value << ')');
 
-    std::streambuf* sb = _out->rdbuf();
-
     if (value != value)
     {
         // NaN
-        sb->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainShortFloat : Serializer::TypeShortFloat));
+        _out->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainShortFloat : Serializer::TypeShortFloat));
         if (!name.empty())
             outputString(name);
-        sb->sputn("\x7f\x1\0", 3);
+        _out->sputn("\x7f\x1\0", 3);
     }
     else if (value == std::numeric_limits<double>::infinity())
     {
-        sb->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainShortFloat : Serializer::TypeShortFloat));
+        _out->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainShortFloat : Serializer::TypeShortFloat));
         if (!name.empty())
             outputString(name);
-        sb->sputn("\x7f\0\0", 3);
+        _out->sputn("\x7f\0\0", 3);
     }
     else if (value == -std::numeric_limits<double>::infinity())
     {
-        sb->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainShortFloat : Serializer::TypeShortFloat));
+        _out->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainShortFloat : Serializer::TypeShortFloat));
         if (!name.empty())
             outputString(name);
-        sb->sputn("\xff\0\0", 3);
+        _out->sputn("\xff\0\0", 3);
     }
     else if (value == 0.0)
     {
         log_debug("value is zero");
-        sb->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainShortFloat : Serializer::TypeShortFloat));
+        _out->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainShortFloat : Serializer::TypeShortFloat));
         if (!name.empty())
             outputString(name);
-        sb->sputn("\0\0\0", 3);
+        _out->sputn("\0\0\0", 3);
     }
     else
     {
@@ -556,19 +544,19 @@ void Formatter::addValueDouble(const std::string& name, const std::string& type,
             uint16_t e = exp + 16383;
             if (isNeg)
                 e |= 0x8000;
-            sb->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainLongFloat : Serializer::TypeLongFloat));
+            _out->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainLongFloat : Serializer::TypeLongFloat));
             if (!name.empty())
                 outputString(name);
-            sb->sputc(static_cast<char>(e >> 8));
-            sb->sputc(static_cast<char>(e));
-            sb->sputc(static_cast<char>(m >> 56));
-            sb->sputc(static_cast<char>(m >> 48));
-            sb->sputc(static_cast<char>(m >> 40));
-            sb->sputc(static_cast<char>(m >> 32));
-            sb->sputc(static_cast<char>(m >> 24));
-            sb->sputc(static_cast<char>(m >> 16));
-            sb->sputc(static_cast<char>(m >> 8));
-            sb->sputc(static_cast<char>(m));
+            _out->sputc(static_cast<char>(e >> 8));
+            _out->sputc(static_cast<char>(e));
+            _out->sputc(static_cast<char>(m >> 56));
+            _out->sputc(static_cast<char>(m >> 48));
+            _out->sputc(static_cast<char>(m >> 40));
+            _out->sputc(static_cast<char>(m >> 32));
+            _out->sputc(static_cast<char>(m >> 24));
+            _out->sputc(static_cast<char>(m >> 16));
+            _out->sputc(static_cast<char>(m >> 8));
+            _out->sputc(static_cast<char>(m));
         }
         else if (areLowerBitsSet(m, 48))
         {
@@ -577,14 +565,14 @@ void Formatter::addValueDouble(const std::string& name, const std::string& type,
             uint16_t e = exp + 63;
             if (isNeg)
                 e |= 0x80;
-            sb->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainMediumFloat : Serializer::TypeMediumFloat));
+            _out->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainMediumFloat : Serializer::TypeMediumFloat));
             if (!name.empty())
                 outputString(name);
-            sb->sputc(static_cast<char>(e));
-            sb->sputc(static_cast<char>(m >> 56));
-            sb->sputc(static_cast<char>(m >> 48));
-            sb->sputc(static_cast<char>(m >> 40));
-            sb->sputc(static_cast<char>(m >> 32));
+            _out->sputc(static_cast<char>(e));
+            _out->sputc(static_cast<char>(m >> 56));
+            _out->sputc(static_cast<char>(m >> 48));
+            _out->sputc(static_cast<char>(m >> 40));
+            _out->sputc(static_cast<char>(m >> 32));
         }
         else
         {
@@ -593,12 +581,12 @@ void Formatter::addValueDouble(const std::string& name, const std::string& type,
             uint8_t e = exp + 63;
             if (isNeg)
                 e |= 0x80;
-            sb->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainShortFloat : Serializer::TypeShortFloat));
+            _out->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainShortFloat : Serializer::TypeShortFloat));
             if (!name.empty())
                 outputString(name);
-            sb->sputc(static_cast<char>(e));
-            sb->sputc(static_cast<char>(m >> 56));
-            sb->sputc(static_cast<char>(m >> 48));
+            _out->sputc(static_cast<char>(e));
+            _out->sputc(static_cast<char>(m >> 56));
+            _out->sputc(static_cast<char>(m >> 48));
         }
     }
 }
@@ -608,37 +596,35 @@ void Formatter::addValueLongDouble(const std::string& name, const std::string& t
 {
     log_trace("addValueLongDouble(\"" << name << "\", \"" << type << "\", " << value << ')');
 
-    std::streambuf* sb = _out->rdbuf();
-
     if (value != value)
     {
         // NaN
-        sb->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainShortFloat : Serializer::TypeShortFloat));
+        _out->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainShortFloat : Serializer::TypeShortFloat));
         if (!name.empty())
             outputString(name);
-        sb->sputn("\x7f\x1\0", 3);
+        _out->sputn("\x7f\x1\0", 3);
     }
     else if (value == std::numeric_limits<long double>::infinity())
     {
-        sb->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainShortFloat : Serializer::TypeShortFloat));
+        _out->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainShortFloat : Serializer::TypeShortFloat));
         if (!name.empty())
             outputString(name);
-        sb->sputn("\x7f\0\0", 3);
+        _out->sputn("\x7f\0\0", 3);
     }
     else if (value == -std::numeric_limits<long double>::infinity())
     {
-        sb->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainShortFloat : Serializer::TypeShortFloat));
+        _out->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainShortFloat : Serializer::TypeShortFloat));
         if (!name.empty())
             outputString(name);
-        sb->sputn("\xff\0\0", 3);
+        _out->sputn("\xff\0\0", 3);
     }
     else if (value == 0.0)
     {
         log_debug("value is zero");
-        sb->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainShortFloat : Serializer::TypeShortFloat));
+        _out->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainShortFloat : Serializer::TypeShortFloat));
         if (!name.empty())
             outputString(name);
-        sb->sputn("\0\0\0", 3);
+        _out->sputn("\0\0\0", 3);
     }
     else
     {
@@ -661,19 +647,19 @@ void Formatter::addValueLongDouble(const std::string& name, const std::string& t
             uint16_t e = exp + 16383;
             if (isNeg)
                 e |= 0x8000;
-            sb->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainLongFloat : Serializer::TypeLongFloat));
+            _out->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainLongFloat : Serializer::TypeLongFloat));
             if (!name.empty())
                 outputString(name);
-            sb->sputc(static_cast<char>(e >> 8));
-            sb->sputc(static_cast<char>(e));
-            sb->sputc(static_cast<char>(m >> 56));
-            sb->sputc(static_cast<char>(m >> 48));
-            sb->sputc(static_cast<char>(m >> 40));
-            sb->sputc(static_cast<char>(m >> 32));
-            sb->sputc(static_cast<char>(m >> 24));
-            sb->sputc(static_cast<char>(m >> 16));
-            sb->sputc(static_cast<char>(m >> 8));
-            sb->sputc(static_cast<char>(m));
+            _out->sputc(static_cast<char>(e >> 8));
+            _out->sputc(static_cast<char>(e));
+            _out->sputc(static_cast<char>(m >> 56));
+            _out->sputc(static_cast<char>(m >> 48));
+            _out->sputc(static_cast<char>(m >> 40));
+            _out->sputc(static_cast<char>(m >> 32));
+            _out->sputc(static_cast<char>(m >> 24));
+            _out->sputc(static_cast<char>(m >> 16));
+            _out->sputc(static_cast<char>(m >> 8));
+            _out->sputc(static_cast<char>(m));
         }
         else if (areLowerBitsSet(m, 48))
         {
@@ -682,14 +668,14 @@ void Formatter::addValueLongDouble(const std::string& name, const std::string& t
             uint16_t e = exp + 63;
             if (isNeg)
                 e |= 0x80;
-            sb->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainMediumFloat : Serializer::TypeMediumFloat));
+            _out->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainMediumFloat : Serializer::TypeMediumFloat));
             if (!name.empty())
                 outputString(name);
-            sb->sputc(static_cast<char>(e));
-            sb->sputc(static_cast<char>(m >> 56));
-            sb->sputc(static_cast<char>(m >> 48));
-            sb->sputc(static_cast<char>(m >> 40));
-            sb->sputc(static_cast<char>(m >> 32));
+            _out->sputc(static_cast<char>(e));
+            _out->sputc(static_cast<char>(m >> 56));
+            _out->sputc(static_cast<char>(m >> 48));
+            _out->sputc(static_cast<char>(m >> 40));
+            _out->sputc(static_cast<char>(m >> 32));
         }
         else
         {
@@ -698,12 +684,12 @@ void Formatter::addValueLongDouble(const std::string& name, const std::string& t
             uint8_t e = exp + 63;
             if (isNeg)
                 e |= 0x80;
-            sb->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainShortFloat : Serializer::TypeShortFloat));
+            _out->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainShortFloat : Serializer::TypeShortFloat));
             if (!name.empty())
                 outputString(name);
-            sb->sputc(static_cast<char>(e));
-            sb->sputc(static_cast<char>(m >> 56));
-            sb->sputc(static_cast<char>(m >> 48));
+            _out->sputc(static_cast<char>(e));
+            _out->sputc(static_cast<char>(m >> 56));
+            _out->sputc(static_cast<char>(m >> 48));
         }
     }
 }
@@ -712,23 +698,19 @@ void Formatter::addNull(const std::string& name, const std::string& type)
 {
     log_trace("addNull(\"" << name << "\", \"" << type << "\")");
 
-    std::streambuf* sb = _out->rdbuf();
-
-    sb->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainEmpty : Serializer::TypeEmpty));
+    _out->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainEmpty : Serializer::TypeEmpty));
 
     if (!name.empty())
         outputString(name);
 
-    sb->sputc('\xff');
+    _out->sputc('\xff');
 }
 
 void Formatter::beginArray(const std::string& name, const std::string& type)
 {
     log_trace("beginArray(\"" << name << "\", \"" << type << "\")");
 
-    std::streambuf* sb = _out->rdbuf();
-
-    sb->sputc(static_cast<char>(Serializer::CategoryArray));
+    _out->sputc(static_cast<char>(Serializer::CategoryArray));
     outputString(name);
     printTypeCode(type, true);
 }
@@ -737,18 +719,14 @@ void Formatter::finishArray()
 {
     log_trace("finishArray()");
 
-    std::streambuf* sb = _out->rdbuf();
-
-    sb->sputc('\xff');
+    _out->sputc('\xff');
 }
 
 void Formatter::beginObject(const std::string& name, const std::string& type)
 {
     log_trace("beginObject(\"" << name << "\", \"" << type << "\")");
 
-    std::streambuf* sb = _out->rdbuf();
-
-    sb->sputc(static_cast<char>(Serializer::CategoryObject));
+    _out->sputc(static_cast<char>(Serializer::CategoryObject));
     outputString(name);
     printTypeCode(type, false);
 }
@@ -767,149 +745,139 @@ void Formatter::finishObject()
 {
     log_trace("finishObject()");
 
-    std::streambuf* sb = _out->rdbuf();
-
-    sb->sputc('\xff');
+    _out->sputc('\xff');
 }
 
 void Formatter::printTypeCode(const std::string& type, bool plain)
 {
-    std::streambuf* sb = _out->rdbuf();
-
     if (type == "bool")
-        sb->sputc(static_cast<char>(plain ? Serializer::TypePlainBool : Serializer::TypeBool));
+        _out->sputc(static_cast<char>(plain ? Serializer::TypePlainBool : Serializer::TypeBool));
     else if (type == "char")
-        sb->sputc(static_cast<char>(plain ? Serializer::TypePlainChar : Serializer::TypeChar));
+        _out->sputc(static_cast<char>(plain ? Serializer::TypePlainChar : Serializer::TypeChar));
     else if (type == "string")
-        sb->sputc(static_cast<char>(plain ? Serializer::TypePlainString : Serializer::TypeString));
+        _out->sputc(static_cast<char>(plain ? Serializer::TypePlainString : Serializer::TypeString));
     else if (type == "int")
-        sb->sputc(static_cast<char>(plain ? Serializer::TypePlainInt : Serializer::TypeInt));
+        _out->sputc(static_cast<char>(plain ? Serializer::TypePlainInt : Serializer::TypeInt));
     else if (type == "double")
-        sb->sputc(static_cast<char>(plain ? Serializer::TypePlainBcdFloat : Serializer::TypeBcdFloat));
+        _out->sputc(static_cast<char>(plain ? Serializer::TypePlainBcdFloat : Serializer::TypeBcdFloat));
     else if (type == "pair")
-        sb->sputc(static_cast<char>(plain ? Serializer::TypePlainPair : Serializer::TypePair));
+        _out->sputc(static_cast<char>(plain ? Serializer::TypePlainPair : Serializer::TypePair));
     else if (type == "array")
-        sb->sputc(static_cast<char>(plain ? Serializer::TypePlainArray : Serializer::TypeArray));
+        _out->sputc(static_cast<char>(plain ? Serializer::TypePlainArray : Serializer::TypeArray));
     else if (type == "list")
-        sb->sputc(static_cast<char>(plain ? Serializer::TypePlainList : Serializer::TypeList));
+        _out->sputc(static_cast<char>(plain ? Serializer::TypePlainList : Serializer::TypeList));
     else if (type == "deque")
-        sb->sputc(static_cast<char>(plain ? Serializer::TypePlainDeque : Serializer::TypeDeque));
+        _out->sputc(static_cast<char>(plain ? Serializer::TypePlainDeque : Serializer::TypeDeque));
     else if (type == "set")
-        sb->sputc(static_cast<char>(plain ? Serializer::TypePlainSet : Serializer::TypeSet));
+        _out->sputc(static_cast<char>(plain ? Serializer::TypePlainSet : Serializer::TypeSet));
     else if (type == "multiset")
-        sb->sputc(static_cast<char>(plain ? Serializer::TypePlainMultiset : Serializer::TypeMultiset));
+        _out->sputc(static_cast<char>(plain ? Serializer::TypePlainMultiset : Serializer::TypeMultiset));
     else if (type == "map")
-        sb->sputc(static_cast<char>(plain ? Serializer::TypePlainMap : Serializer::TypeMap));
+        _out->sputc(static_cast<char>(plain ? Serializer::TypePlainMap : Serializer::TypeMap));
     else if (type == "multimap")
-        sb->sputc(static_cast<char>(plain ? Serializer::TypePlainMultimap : Serializer::TypeMultimap));
+        _out->sputc(static_cast<char>(plain ? Serializer::TypePlainMultimap : Serializer::TypeMultimap));
     else
     {
-        sb->sputc(static_cast<char>(plain ? Serializer::TypePlainOther : Serializer::TypeOther));
+        _out->sputc(static_cast<char>(plain ? Serializer::TypePlainOther : Serializer::TypeOther));
         outputString(type);
     }
 }
 
 void Formatter::printUInt(uint64_t v, const std::string& name)
 {
-    std::streambuf* sb = _out->rdbuf();
-
     if (v <= std::numeric_limits<uint8_t>::max())
     {
-        sb->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainUInt8 : Serializer::TypeUInt8));
+        _out->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainUInt8 : Serializer::TypeUInt8));
         if (!name.empty())
             outputString(name);
-        sb->sputc(static_cast<char>(v));
+        _out->sputc(static_cast<char>(v));
     }
     else if (v <= std::numeric_limits<uint16_t>::max())
     {
-        sb->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainUInt16 : Serializer::TypeUInt16));
+        _out->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainUInt16 : Serializer::TypeUInt16));
         if (!name.empty())
             outputString(name);
-        sb->sputc(static_cast<char>(v >> 8));
-        sb->sputc(static_cast<char>(v));
+        _out->sputc(static_cast<char>(v >> 8));
+        _out->sputc(static_cast<char>(v));
     }
     else if (v <= std::numeric_limits<uint32_t>::max())
     {
-        sb->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainUInt32 : Serializer::TypeUInt32));
+        _out->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainUInt32 : Serializer::TypeUInt32));
         if (!name.empty())
             outputString(name);
-        sb->sputc(static_cast<char>(v >> 24));
-        sb->sputc(static_cast<char>(v >> 16));
-        sb->sputc(static_cast<char>(v >> 8));
-        sb->sputc(static_cast<char>(v));
+        _out->sputc(static_cast<char>(v >> 24));
+        _out->sputc(static_cast<char>(v >> 16));
+        _out->sputc(static_cast<char>(v >> 8));
+        _out->sputc(static_cast<char>(v));
     }
     else
     {
-        sb->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainUInt64 : Serializer::TypeUInt64));
+        _out->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainUInt64 : Serializer::TypeUInt64));
         if (!name.empty())
             outputString(name);
-        sb->sputc(static_cast<char>(v >> 56));
-        sb->sputc(static_cast<char>(v >> 48));
-        sb->sputc(static_cast<char>(v >> 40));
-        sb->sputc(static_cast<char>(v >> 32));
-        sb->sputc(static_cast<char>(v >> 24));
-        sb->sputc(static_cast<char>(v >> 16));
-        sb->sputc(static_cast<char>(v >> 8));
-        sb->sputc(static_cast<char>(v));
+        _out->sputc(static_cast<char>(v >> 56));
+        _out->sputc(static_cast<char>(v >> 48));
+        _out->sputc(static_cast<char>(v >> 40));
+        _out->sputc(static_cast<char>(v >> 32));
+        _out->sputc(static_cast<char>(v >> 24));
+        _out->sputc(static_cast<char>(v >> 16));
+        _out->sputc(static_cast<char>(v >> 8));
+        _out->sputc(static_cast<char>(v));
     }
 }
 
 void Formatter::printInt(int64_t v, const std::string& name)
 {
-    std::streambuf* sb = _out->rdbuf();
-
     if (v >= 0)
     {
         printUInt(v, name);
     }
     else if (v >= std::numeric_limits<int8_t>::min() && v <= std::numeric_limits<int8_t>::max())
     {
-        sb->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainInt8 : Serializer::TypeInt8));
+        _out->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainInt8 : Serializer::TypeInt8));
         if (!name.empty())
             outputString(name);
-        sb->sputc(static_cast<char>(v));
+        _out->sputc(static_cast<char>(v));
     }
     else if (v >= std::numeric_limits<int16_t>::min() && v <= std::numeric_limits<int16_t>::max())
     {
-        sb->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainInt16 : Serializer::TypeInt16));
+        _out->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainInt16 : Serializer::TypeInt16));
         if (!name.empty())
             outputString(name);
-        sb->sputc(static_cast<char>(v >> 8));
-        sb->sputc(static_cast<char>(v));
+        _out->sputc(static_cast<char>(v >> 8));
+        _out->sputc(static_cast<char>(v));
     }
     else if (v >= std::numeric_limits<int32_t>::min() && v <= std::numeric_limits<int32_t>::max())
     {
-        sb->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainInt32 : Serializer::TypeInt32));
+        _out->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainInt32 : Serializer::TypeInt32));
         if (!name.empty())
             outputString(name);
-        sb->sputc(static_cast<char>(v >> 24));
-        sb->sputc(static_cast<char>(v >> 16));
-        sb->sputc(static_cast<char>(v >> 8));
-        sb->sputc(static_cast<char>(v));
+        _out->sputc(static_cast<char>(v >> 24));
+        _out->sputc(static_cast<char>(v >> 16));
+        _out->sputc(static_cast<char>(v >> 8));
+        _out->sputc(static_cast<char>(v));
     }
     else
     {
-        sb->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainInt64 : Serializer::TypeInt64));
+        _out->sputc(static_cast<char>(name.empty() ? Serializer::TypePlainInt64 : Serializer::TypeInt64));
         if (!name.empty())
             outputString(name);
-        sb->sputc(static_cast<char>(v >> 56));
-        sb->sputc(static_cast<char>(v >> 48));
-        sb->sputc(static_cast<char>(v >> 40));
-        sb->sputc(static_cast<char>(v >> 32));
-        sb->sputc(static_cast<char>(v >> 24));
-        sb->sputc(static_cast<char>(v >> 16));
-        sb->sputc(static_cast<char>(v >> 8));
-        sb->sputc(static_cast<char>(v));
+        _out->sputc(static_cast<char>(v >> 56));
+        _out->sputc(static_cast<char>(v >> 48));
+        _out->sputc(static_cast<char>(v >> 40));
+        _out->sputc(static_cast<char>(v >> 32));
+        _out->sputc(static_cast<char>(v >> 24));
+        _out->sputc(static_cast<char>(v >> 16));
+        _out->sputc(static_cast<char>(v >> 8));
+        _out->sputc(static_cast<char>(v));
     }
 }
 
 void Formatter::outputString(const std::string& value)
 {
-    std::streambuf* sb = _out->rdbuf();
-
     if (value.empty())
     {
-        sb->sputc('\0');
+        _out->sputc('\0');
         return;
     }
 
@@ -919,9 +887,9 @@ void Formatter::outputString(const std::string& value)
         if (_dictionary[idx] == value)
         {
             log_debug("use dictionary value \"" << value << "\" idx=" << idx);
-            sb->sputc('\1');
-            sb->sputc(static_cast<char>(idx >> 8));
-            sb->sputc(static_cast<char>(idx));
+            _out->sputc('\1');
+            _out->sputc(static_cast<char>(idx >> 8));
+            _out->sputc(static_cast<char>(idx));
             return;
         }
     }
@@ -932,8 +900,8 @@ void Formatter::outputString(const std::string& value)
         _dictionary.push_back(value);
     }
 
-    *_out << value;
-    sb->sputc('\0');
+    _out->sputn(value.data(), value.size());
+    _out->sputc('\0');
 }
 
 std::string Formatter::rawString(const std::string& value)

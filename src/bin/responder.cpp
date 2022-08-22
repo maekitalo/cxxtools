@@ -50,7 +50,7 @@ void Responder::reply(IOStream& out)
     log_info("send reply");
 
     out << '\xc1';
-    _formatter.begin(out);
+    _formatter.begin(out.buffer());
     _result->format(_formatter);
     _formatter.finish();
     out << '\xff';

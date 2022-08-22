@@ -30,7 +30,7 @@
 #define CXXTOOLS_BIN_FORMATTER_H
 
 #include <cxxtools/formatter.h>
-#include <cxxtools/textstream.h>
+#include <streambuf>
 #include <vector>
 
 namespace cxxtools
@@ -42,9 +42,9 @@ namespace cxxtools
             public:
                 Formatter();
 
-                explicit Formatter(std::ostream& out);
+                explicit Formatter(std::streambuf& out);
 
-                void begin(std::ostream& out);
+                void begin(std::streambuf& out);
 
                 void finish();
 
@@ -98,8 +98,7 @@ namespace cxxtools
                 void printTypeCode(const std::string& type, bool plain);
                 void outputString(const std::string& value);
 
-                std::ostream* _out;
-                TextOStream _ts;
+                std::streambuf* _out;
                 std::vector<std::string> _dictionary;
         };
 

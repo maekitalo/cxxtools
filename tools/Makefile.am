@@ -1,9 +1,11 @@
 bin_PROGRAMS = \
 	siconvert \
-	cxxtz
+	cxxtz \
+	filecount
 
 siconvert_SOURCES = siconvert.cpp
 cxxtz_SOURCES = cxxtz.cpp
+filecount_SOURCES = filecount.cpp
 
 BASE_LIBS = $(top_builddir)/src/libcxxtools.la
 HTTP_LIBS = $(BASE_LIBS) $(top_builddir)/src/http/libcxxtools-http.la
@@ -16,3 +18,4 @@ LDADD = $(top_builddir)/src/libcxxtools.la
 
 siconvert_LDADD = $(BIN_LIBS)
 cxxtz_LDADD = $(BASE_LIBS)
+filecount_LDADD = $(BASE_LIBS)

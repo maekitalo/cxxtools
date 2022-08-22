@@ -19,6 +19,7 @@ libcxxtools_bin_la_SOURCES = \
 	rpcclientimpl.cpp \
 	rpcserver.cpp \
 	rpcserverimpl.cpp \
+	serializer.cpp \
 	scanner.cpp \
 	parser.cpp \
 	worker.cpp
