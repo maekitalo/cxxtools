@@ -28,6 +28,7 @@
 #include "cxxtools/selector.h"
 #include "cxxtools/datetime.h"
 #include <stdexcept>
+#include <time.h>
 
 namespace cxxtools
 {
