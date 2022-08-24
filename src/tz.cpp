@@ -516,7 +516,7 @@ cxxtools::Timespan Tz::offset(const UtcDateTime& gmtDt) const
     return cxxtools::Seconds(tt.gmtoff);
 }
 
-std::string Tz::currentZone()
+static std::string readCurrentTimeZone()
 {
     const char* TZ = ::getenv("TZ");
     if (TZ)
@@ -589,6 +589,16 @@ std::string Tz::currentZone()
         // Fall through to try other means.
     }
     throw std::runtime_error("Could not get current timezone");
+}
+
+std::string Tz::currentZone()
+{
+    static cxxtools::Mutex mutex;
+    static std::string myZone;
+    cxxtools::MutexLock lock(mutex);
+    if (myZone.empty())
+        myZone = readCurrentTimeZone();
+    return myZone;
 }
 
 static void addTimezones(std::vector<std::string>& result, const std::string& basepath)
