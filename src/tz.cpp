@@ -59,7 +59,7 @@ class Tz::Impl : public RefCounted
     friend class Tz;
     friend class TzDateTime;
 
-    typedef std::map<std::string, cxxtools::SmartPtr<Impl> > TimeZones;
+    typedef std::vector<std::pair<std::string, cxxtools::SmartPtr<Impl> > > TimeZones;
     static TimeZones timeZones;
     static cxxtools::Mutex mutex;
 
@@ -302,29 +302,28 @@ Tz::Tz(const std::string& timeZone)
     if (timeZone2.empty())
         timeZone2 = currentZone();
 
-    auto it = Impl::timeZones.find(timeZone2);
-    if (it != Impl::timeZones.end())
+    for (auto it = Impl::timeZones.begin(); it != Impl::timeZones.end(); ++it)
     {
-        log_debug("take cached");
-        _impl = it->second.getPointer();
+        if (it->first == timeZone2)
+        {
+            log_debug("take cached");
+            _impl = it->second.getPointer();
+            return;
+        }
     }
-    else
-    {
-        std::string fname = tzDir();
-        fname += '/';
-        fname += timeZone2;
-        std::ifstream in(fname);
 
-        if (!in)
-            throw TzInvalidTimeZoneFile("failed to open timezone file \"" + fname + '"');
+    std::string fname = tzDir();
+    fname += '/';
+    fname += timeZone2;
+    std::ifstream in(fname);
 
-        cxxtools::SmartPtr<Impl> impl(new Impl(in, timeZone2));
-        _impl = impl.getPointer();
+    if (!in)
+        throw TzInvalidTimeZoneFile("failed to open timezone file \"" + fname + '"');
 
-        Impl::timeZones.insert(
-            Impl::TimeZones::value_type(timeZone2,
-                                        std::move(impl)));
-    }
+    cxxtools::SmartPtr<Impl> impl(new Impl(in, timeZone2));
+    _impl = impl.getPointer();
+
+    Impl::timeZones.emplace_back(timeZone2, std::move(impl));
 }
 
 void Tz::dump(std::ostream& out) const
