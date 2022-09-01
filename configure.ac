@@ -1,10 +1,10 @@
-AC_INIT([cxxtools],[3.1],[Tommi Maekitalo <tommi@tntnet.org>])
+AC_INIT(cxxtools, 3.1, [Tommi Maekitalo <tommi@tntnet.org>])
 AM_INIT_AUTOMAKE
 AC_USE_SYSTEM_EXTENSIONS
 
 LT_INIT([disable-static])
 
-AC_PREREQ([2.71])
+AC_PREREQ([2.5.9])
 
 abi_current=11
 abi_revision=0
@@ -129,7 +129,7 @@ AC_SUBST(SHARED_LIB_FLAG)
 #
 # checking existence of suseconds_t, needed by hirestime.h
 #
-AS_MESSAGE([checking for suseconds_t...])
+AC_CHECKING(for suseconds_t)
 
 AC_CHECK_TYPE(
   suseconds_t,
