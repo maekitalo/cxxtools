@@ -43,13 +43,55 @@ class Deserializer;
 
 class Parser
 {
-#if __cplusplus >= 201103L
+    public:
+        class StringBuffer
+        {
+            friend std::ostream& operator << (std::ostream& out, const StringBuffer& s);
+
+            char _staticBuffer[32];
+            char* _dynBuffer;
+            char* _buffer;
+            unsigned _size;
+            unsigned _capacity;
+
+            void extend();
+
+        public:
+            StringBuffer(const StringBuffer&) = delete;
+            StringBuffer& operator=(const StringBuffer&) = delete;
+
+            StringBuffer()
+                : _dynBuffer(nullptr),
+                  _buffer(_staticBuffer),
+                  _size(0),
+                  _capacity(sizeof(_staticBuffer))
+                  { }
+            ~StringBuffer()
+                { delete[] _dynBuffer; }
+
+            unsigned size() const           { return size(); }
+            const char* data() const        { return _buffer; }
+            void clear()                    { _size = 0; }
+            bool empty() const              { return _size == 0; }
+            void operator+= (char ch)
+            {
+                if (_capacity <= _size)
+                    extend();
+                _buffer[_size++] = ch;
+            }
+
+            operator std::string() const
+            {
+                if (_size == 0)
+                    return std::string();
+                else
+                    return std::string(_buffer, _size);
+            }
+        };
+
+    private:
         Parser(const Parser&) = delete;
         Parser& operator= (const Parser&) = delete;
-#else
-        Parser(const Parser&) { }
-        Parser& operator= (const Parser&) { return *this; }
-#endif
 
         explicit Parser(std::vector<std::string>* dictionary)
             : _deserializer(0),
@@ -126,7 +168,7 @@ class Parser
             state_end
         } _state, _nextstate;
 
-        std::string _token;
+        StringBuffer _token;
         unsigned _count;
         uint64_t _int;
         int _exp;
