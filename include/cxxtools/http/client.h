@@ -127,7 +127,7 @@ class Client
             { setSelector(selector); prepareConnect(addr); }
         Client(SelectorBase& selector, const net::AddrInfo& addr, const SslCtx& sslCtx)
             : _impl(0)
-            { setSelector(selector); prepareConnect(addr); }
+            { setSelector(selector); prepareConnect(addr, sslCtx); }
         Client(SelectorBase& selector, const std::string& addr, unsigned short port)
             : _impl(0)
             { setSelector(selector); prepareConnect(addr, port); }

@@ -1058,5 +1058,24 @@ void Parser::dict(const std::string& value)
     _dictionary->push_back(value);
 }
 
+std::ostream& operator << (std::ostream& out, const Parser::StringBuffer& s)
+{
+    if (s._size > 0)
+        out.write(s._buffer, s._size);
+    return out;
+}
+
+void Parser::StringBuffer::extend()
+{
+    // allocate new
+    unsigned newcapacity = _capacity * 2;
+    char* newbuffer = new char[newcapacity];
+    std::memcpy(newbuffer, _buffer, _size);
+    delete[] _dynBuffer;
+    _dynBuffer = newbuffer;
+    _buffer = _dynBuffer;
+    _capacity = newcapacity;
+}
+
 }
 }
