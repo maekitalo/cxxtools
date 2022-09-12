@@ -1068,7 +1068,10 @@ std::ostream& operator << (std::ostream& out, const Parser::StringBuffer& s)
 void Parser::StringBuffer::extend()
 {
     // allocate new
-    unsigned newcapacity = _capacity * 2;
+    auto newcapacity = _capacity * 2;
+    if (newcapacity < _size)
+        throw std::runtime_error("failed to extend buffer above " + std::to_string(_capacity) + " bytes");
+
     char* newbuffer = new char[newcapacity];
     std::memcpy(newbuffer, _buffer, _size);
     delete[] _dynBuffer;

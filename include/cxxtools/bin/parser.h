@@ -51,8 +51,8 @@ class Parser
             char _staticBuffer[32];
             char* _dynBuffer;
             char* _buffer;
-            unsigned _size;
-            unsigned _capacity;
+            unsigned long _size;
+            unsigned long _capacity;
 
             void extend();
 
@@ -69,7 +69,7 @@ class Parser
             ~StringBuffer()
                 { delete[] _dynBuffer; }
 
-            unsigned size() const           { return size(); }
+            unsigned long size() const      { return size(); }
             const char* data() const        { return _buffer; }
             void clear()                    { _size = 0; }
             bool empty() const              { return _size == 0; }
@@ -81,12 +81,7 @@ class Parser
             }
 
             operator std::string() const
-            {
-                if (_size == 0)
-                    return std::string();
-                else
-                    return std::string(_buffer, _size);
-            }
+            { return std::string(_buffer, _size); }
         };
 
     private:
