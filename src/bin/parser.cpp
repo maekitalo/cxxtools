@@ -1065,6 +1065,22 @@ std::ostream& operator << (std::ostream& out, const Parser::StringBuffer& s)
     return out;
 }
 
+Parser::StringBuffer::~StringBuffer()
+{
+    log_debug_if(_dynBuffer, "release " << static_cast<void*>(_dynBuffer));
+    delete[] _dynBuffer;
+}
+
+void Parser::StringBuffer::clear()
+{
+    log_debug_if(_dynBuffer, "release " << static_cast<void*>(_dynBuffer));
+    delete[] _dynBuffer;
+    _dynBuffer = nullptr;
+    _size = 0;
+    _capacity = sizeof(_staticBuffer);
+    _buffer = _staticBuffer;
+}
+
 void Parser::StringBuffer::extend()
 {
     // allocate new
@@ -1074,6 +1090,9 @@ void Parser::StringBuffer::extend()
 
     char* newbuffer = new char[newcapacity];
     std::memcpy(newbuffer, _buffer, _size);
+
+    log_debug("extend capacity " << _capacity << "=>" << newcapacity << " " << static_cast<void*>(_dynBuffer) << " => " << static_cast<void*>(_buffer));
+
     delete[] _dynBuffer;
     _dynBuffer = newbuffer;
     _buffer = _dynBuffer;

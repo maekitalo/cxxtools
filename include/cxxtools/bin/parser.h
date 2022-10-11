@@ -66,12 +66,11 @@ class Parser
                   _size(0),
                   _capacity(sizeof(_staticBuffer))
                   { }
-            ~StringBuffer()
-                { delete[] _dynBuffer; }
+            ~StringBuffer();
 
             unsigned long size() const      { return size(); }
             const char* data() const        { return _buffer; }
-            void clear()                    { _size = 0; }
+            void clear();
             bool empty() const              { return _size == 0; }
             void operator+= (char ch)
             {
