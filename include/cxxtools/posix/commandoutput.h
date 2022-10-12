@@ -32,6 +32,7 @@
 #include <cxxtools/posix/exec.h>
 #include <cxxtools/posix/pipestream.h>
 #include <cxxtools/posix/fork.h>
+#include <cxxtools/signal.h>
 
 namespace cxxtools
 {
@@ -87,6 +88,9 @@ namespace cxxtools
 
         pid_t pid() const
         { return _fork.getPid(); }
+
+        // signal is sent from child process before exec
+        Signal<> child;
     };
 
   }

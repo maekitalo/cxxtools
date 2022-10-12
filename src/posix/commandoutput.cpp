@@ -44,6 +44,9 @@ namespace cxxtools
           streambuf.redirectStderr(false);
 
         streambuf.closeReadFd();
+
+        child();
+
         try
         {
           _exec.exec();

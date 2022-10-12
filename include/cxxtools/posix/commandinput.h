@@ -84,6 +84,9 @@ namespace cxxtools
 
         pid_t pid() const
         { return _fork.getPid(); }
+
+        // signal is sent from child process before exec
+        Signal<> child;
     };
 
   }

@@ -41,6 +41,9 @@ namespace cxxtools
       {
         streambuf.redirectStdin();
         streambuf.closeWriteFd();
+
+        child();
+
         try
         {
           _exec.exec();
