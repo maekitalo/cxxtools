@@ -465,10 +465,11 @@ bool Parser::advance(std::streambuf& in, bool atLeastOne)
                     if (ch == '\0')
                     {
                         log_debug("name=" << _token);
+                        std::string token = _token;
                         if (_deserializer)
-                            _deserializer->setName(_token);
+                            _deserializer->setName(token);
 
-                        dict(_token);
+                        dict(token);
                         _token.clear();
                         _state = _nextstate;
                         break;
@@ -509,10 +510,11 @@ bool Parser::advance(std::streambuf& in, bool atLeastOne)
                 if (ch == '\0')
                 {
                     log_debug("typename=" << _token);
+                    std::string token = _token;
                     if (_deserializer)
-                        _deserializer->setTypeName(_token);
+                        _deserializer->setTypeName(token);
 
-                    dict(_token);
+                    dict(token);
                     _token.clear();
                     State nextstate = (_state == state_value_type_bcd ? state_value_bcd : state_value_value);
                     _state = _nextstate;
@@ -800,9 +802,10 @@ bool Parser::advance(std::streambuf& in, bool atLeastOne)
             case state_object_type_other:
                 if (ch == '\0')
                 {
+                    std::string token = _token;
                     if (_deserializer)
-                        _deserializer->setTypeName(_token);
-                    dict(_token);
+                        _deserializer->setTypeName(token);
+                    dict(token);
                     _token.clear();
                     _state = state_object_member;
                 }
@@ -892,9 +895,10 @@ bool Parser::advance(std::streambuf& in, bool atLeastOne)
             case state_array_type_other:
                 if (ch == '\0')
                 {
+                    std::string token = _token;
                     if (_deserializer)
-                        _deserializer->setTypeName(_token);
-                    dict(_token);
+                        _deserializer->setTypeName(token);
+                    dict(token);
                     _token.clear();
                     _state = state_array_member;
                 }
