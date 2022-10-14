@@ -485,13 +485,13 @@ bool Parser::advance(std::streambuf& in, bool atLeastOne)
                 break;
 
             case state_name_idx0:
-                _dictidx = static_cast<unsigned>(ch) << 8;
+                _dictidx = static_cast<unsigned>(static_cast<unsigned char>(ch)) << 8;
                 _state = state_name_idx1;
                 in.sbumpc();
                 break;
 
             case state_name_idx1:
-                _dictidx |= static_cast<unsigned>(ch);
+                _dictidx |= static_cast<unsigned char>(ch);
                 if (_dictidx >= _dictionary->size())
                 {
                     log_error("invalid dictionary index " << _dictidx);
