@@ -71,6 +71,11 @@ size_t FileDevice::size() const
     return _impl->size();
 }
 
+void FileDevice::resize(off_type size)
+{
+    _impl->resize(size);
+}
+
 FileDevice::pos_type FileDevice::onSeek(off_type offset, std::ios::seekdir sd)
 {
     return _impl->seek(offset, sd);

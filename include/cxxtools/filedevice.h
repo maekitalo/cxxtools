@@ -55,6 +55,8 @@ class FileDevice : public IODevice
 
         size_t size() const;
 
+        void resize(off_type size);
+
     protected:
         bool onSeekable() const
         { return true; }
