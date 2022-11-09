@@ -55,6 +55,13 @@ IODevice* IStream::attachDevice(IODevice& device)
     return ret;
 }
 
+IODevice* IStream::detachDevice()
+{
+    IODevice* ret = attachedDevice();
+    _buffer.detach();
+    return ret;
+}
+
 void IStream::endRead()
 {
     buffer().endRead();
@@ -91,6 +98,13 @@ IODevice* OStream::attachDevice(IODevice& device)
 {
     IODevice* ret = attachedDevice();
     _buffer.attach(device);
+    return ret;
+}
+
+IODevice* OStream::detachDevice()
+{
+    IODevice* ret = attachedDevice();
+    _buffer.detach();
     return ret;
 }
 
@@ -135,6 +149,13 @@ IODevice* IOStream::attachDevice(IODevice& device)
 {
     IODevice* ret = attachedDevice();
     _buffer.attach(device);
+    return ret;
+}
+
+IODevice* IOStream::detachDevice()
+{
+    IODevice* ret = attachedDevice();
+    _buffer.detach();
     return ret;
 }
 

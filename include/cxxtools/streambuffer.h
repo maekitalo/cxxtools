@@ -77,6 +77,8 @@ class StreamBuffer : public BasicStreamBuffer<char>,
 
         void attach(IODevice& ioDevice);
 
+        void detach();
+
         IODevice* device()
             { return _ioDevice; }
 

@@ -78,20 +78,24 @@ void StreamBuffer::attach(IODevice& ioDevice)
     if (ioDevice.busy())
         throw IOPending("IODevice in use");
 
-    if (_ioDevice)
-    {
-        if (_ioDevice->busy())
-            throw IOPending("IODevice in use");
-
-        disconnect(ioDevice.inputReady, *this, &StreamBuffer::onRead);
-        disconnect(ioDevice.outputReady, *this, &StreamBuffer::onWrite);
-    }
-
+    detach();
     _ioDevice = &ioDevice;
     connect(ioDevice.inputReady, *this, &StreamBuffer::onRead);
     connect(ioDevice.outputReady, *this, &StreamBuffer::onWrite);
 }
 
+void StreamBuffer::detach()
+{
+    if (_ioDevice)
+    {
+        if (_ioDevice->busy())
+            throw IOPending("IODevice in use");
+
+        disconnect(_ioDevice->inputReady, *this, &StreamBuffer::onRead);
+        disconnect(_ioDevice->outputReady, *this, &StreamBuffer::onWrite);
+        _ioDevice = nullptr;
+    }
+}
 
 void StreamBuffer::beginRead()
 {

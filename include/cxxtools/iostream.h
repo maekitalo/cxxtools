@@ -218,6 +218,8 @@ class IStream : public BasicIStream<char>, public Connectable
 
         IODevice* attachDevice(IODevice& device);
 
+        IODevice* detachDevice();
+
         IODevice* attachedDevice()
         { return _buffer.device(); }
 
@@ -263,6 +265,8 @@ class OStream : public BasicOStream<char>, public Connectable
         { return buffer().out_avail(); }
 
         IODevice* attachDevice(IODevice& device);
+
+        IODevice* detachDevice();
 
         IODevice* attachedDevice()
         { return _buffer.device(); }
@@ -312,6 +316,8 @@ class IOStream : public BasicIOStream<char>, public Connectable
         { return buffer().out_avail(); }
 
         IODevice* attachDevice(IODevice& device);
+
+        IODevice* detachDevice();
 
         IODevice* attachedDevice()
         { return _buffer.device(); }
