@@ -47,6 +47,7 @@ enum IOS_OpenMode
     IOS_AtEnd       = 1L << 3,
     IOS_Append      = 1L << 4,
     IOS_Trunc       = 1L << 5,
+    IOS_Create      = 1L << 6,
     IOS_OpenModeEnd = 1L << 16
 };
 
@@ -104,6 +105,7 @@ class IODevice : public Selectable
         static const OpenMode AtEnd  = IOS_AtEnd;
         static const OpenMode Append = IOS_Append;
         static const OpenMode Trunc  = IOS_Trunc;
+        static const OpenMode Create = IOS_Create;
 
     public:
         //! @brief Destructor

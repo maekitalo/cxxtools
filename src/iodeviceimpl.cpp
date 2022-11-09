@@ -90,9 +90,12 @@ void IODeviceImpl::open(const std::string& path, IODevice::OpenMode mode, bool i
     if(mode & IODevice::Trunc)
         flags |= O_TRUNC;
 
+    if(mode & IODevice::Create)
+        flags |= O_CREAT;
+
     flags |=  O_NOCTTY;
 
-    _fd = ::open( path.c_str(), flags );
+    _fd = ::open(path.c_str(), flags, 0666);
     if(_fd == -1)
         throw AccessFailed(getErrnoString("open"));
 
