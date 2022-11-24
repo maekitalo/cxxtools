@@ -87,8 +87,8 @@ namespace cxxtools {
                  *
                  * @return The content of this Character object.
                  */
-                String& content()
-                { return _content; }
+                String&& content()
+                { return std::move(_content); }
 
                 /**
                  * @brief Returns the content of this Character object.

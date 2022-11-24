@@ -80,7 +80,7 @@ class XmlRpcResponder : public http::Responder
         void reply(std::ostream& os, http::Request& request, http::Reply& reply);
 
     protected:
-        void advance(const cxxtools::xml::Node& node);
+        void advance(cxxtools::xml::Node& node);
 
     private:
         State _state;

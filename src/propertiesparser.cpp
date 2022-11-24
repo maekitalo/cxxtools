@@ -188,7 +188,7 @@ namespace cxxtools
       case state_value0:
         if (ch == '\n')
         {
-          ret = _event.onValue(_value);
+          ret = _event.onValue(std::move(_value));
           _value.clear();
           _state = state_0;
         }
@@ -204,7 +204,7 @@ namespace cxxtools
       case state_value:
         if (ch == '\n')
         {
-          ret = _event.onValue(_value);
+          ret = _event.onValue(std::move(_value));
           _value.clear();
           _state = state_0;
         }
@@ -255,7 +255,7 @@ namespace cxxtools
       case state_value_cont:
         if (ch == '\n')
         {
-          ret = _event.onValue(_value);
+          ret = _event.onValue(std::move(_value));
           _value.clear();
           _state = state_0;
         }
@@ -271,7 +271,7 @@ namespace cxxtools
       case state_value_space:
         if (ch == '\n')
         {
-          ret = _event.onValue(_value);
+          ret = _event.onValue(std::move(_value));
           _value.clear();
           _state = state_0;
         }
@@ -364,7 +364,7 @@ namespace cxxtools
       case state_value_cont:
       case state_value_esc:
       case state_key_sp:
-        _event.onValue(_value);
+        _event.onValue(std::move(_value));
         _value.clear();
         break;
 
@@ -384,7 +384,7 @@ namespace cxxtools
           throw PropertiesParserError("invalid unicode sequence at end of properties", _lineNo);
 
         _value += Char(_unicode);
-        _event.onValue(_value);
+        _event.onValue(std::move(_value));
         _value.clear();
         break;
 

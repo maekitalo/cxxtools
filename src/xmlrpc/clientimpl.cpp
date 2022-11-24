@@ -152,8 +152,7 @@ void ClientImpl::call(IComposer& r, IRemoteProcedure& method, IDecomposer** argv
 
     while( _reader.get().type() !=  cxxtools::xml::Node::EndDocument )
     {
-        const cxxtools::xml::Node& node = _reader.get();
-        advance(node);
+        advance(_reader.get());
         _reader.next();
     }
 
@@ -206,8 +205,7 @@ std::size_t ClientImpl::onReadReply()
 
             while( _reader.advance() ) // xml::ParseError
             {
-                const cxxtools::xml::Node& node = _reader.get();
-                advance(node); // SerializationError, ConversionError
+                advance(_reader.get()); // SerializationError, ConversionError
             }
         }
     }
@@ -290,7 +288,7 @@ void ClientImpl::prepareRequest(const String& name, IDecomposer** argv, unsigned
 }
 
 
-void ClientImpl::advance(const cxxtools::xml::Node& node)
+void ClientImpl::advance(cxxtools::xml::Node& node)
 {
     switch(_state)
     {

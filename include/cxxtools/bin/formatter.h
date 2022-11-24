@@ -49,10 +49,10 @@ namespace cxxtools
                 void finish();
 
                 virtual void addValueString(const std::string& name, const std::string& type,
-                                      const cxxtools::String& value);
+                                      cxxtools::String&& value);
 
                 virtual void addValueStdString(const std::string& name, const std::string& type,
-                                      const std::string& value);
+                                      std::string&& value);
 
                 virtual void addValueChar(const std::string& name, const std::string& type,
                                       char value);

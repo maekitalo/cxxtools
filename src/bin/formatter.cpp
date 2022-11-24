@@ -111,7 +111,7 @@ void Formatter::finish()
 }
 
 void Formatter::addValueString(const std::string& name, const std::string& type,
-                      const cxxtools::String& value)
+                      cxxtools::String&& value)
 {
     log_trace("addValueString(\"" << name << "\", \"" << type << "\", \"" << value << "\")");
 
@@ -227,7 +227,7 @@ void Formatter::addValueString(const std::string& name, const std::string& type,
 
 }
 
-void Formatter::addValueStdString(const std::string& name, const std::string& type, const std::string& value)
+void Formatter::addValueStdString(const std::string& name, const std::string& type, std::string&& value)
 {
     log_trace("addValueStdString(\"" << name << "\", \"" << type << "\", \"" << value << "\")");
 

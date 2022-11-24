@@ -47,7 +47,7 @@ namespace cxxtools
           // return true, if parser should stop
           virtual bool onKeyPart(const String& key) = 0;
           virtual bool onKey(const String& key) = 0;
-          virtual bool onValue(const String& value) = 0;
+          virtual bool onValue(String&& value) = 0;
       };
 
     private:

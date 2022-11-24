@@ -43,9 +43,9 @@ namespace cxxtools
         PropertiesEvent(PropertiesFile& properties_)
           : properties(properties_)
           { }
-        bool onKeyPart(const String& key);
-        bool onKey(const String& key);
-        bool onValue(const String& value);
+        bool onKeyPart(const String& key) override;
+        bool onKey(const String& key) override;
+        bool onValue(String&& value) override;
     };
 
     bool PropertiesEvent::onKeyPart(const String&)
@@ -59,9 +59,9 @@ namespace cxxtools
       return false;
     }
 
-    bool PropertiesEvent::onValue(const String& value)
+    bool PropertiesEvent::onValue(String&& value)
     {
-      properties.setValue(key, value);
+      properties.setValue(key, std::move(value));
       return false;
     }
 

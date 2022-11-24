@@ -1667,7 +1667,7 @@ class XmlReaderImpl
         return _line;
     }
 
-    const Node& get()
+    Node& get()
     {
         if( ! _current )
         {
@@ -1677,7 +1677,7 @@ class XmlReaderImpl
         return *_current;
     }
 
-    const Node& next()
+    Node& next()
     {
         _current = 0;
         do
@@ -1729,7 +1729,7 @@ class XmlReaderImpl
 
     void appendContent(cxxtools::Char c)
     {
-        String& content = _chars.content();
+        String&& content = _chars.content();
         if (content.capacity() <= content.size() + 20)
         {
             if (content.capacity() < 16)
@@ -1848,13 +1848,13 @@ std::size_t XmlReader::line() const
 }
 
 
-const Node& XmlReader::get()
+Node& XmlReader::get()
 {
     return _impl->get();
 }
 
 
-const Node& XmlReader::next()
+Node& XmlReader::next()
 {
     return _impl->next();
 }

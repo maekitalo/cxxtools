@@ -136,7 +136,7 @@ namespace cxxtools
     }
 
     void CsvFormatter::addValueString(const std::string& /*name*/, const std::string& type,
-                          const String& value)
+                          String&& value)
     {
         if (_memberName.empty())
         {

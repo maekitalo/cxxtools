@@ -81,9 +81,9 @@ namespace cxxtools
                 : _deserializer(deserializer)
                 { }
 
-            virtual bool onKeyPart(const String& key);
-            virtual bool onKey(const String& key);
-            virtual bool onValue(const String& value);
+            bool onKeyPart(const String& key) override;
+            bool onKey(const String& key) override;
+            bool onValue(String&& value) override;
     };
 
     bool PropertiesDeserializer::Ev::onKeyPart(const String& key)
@@ -101,24 +101,24 @@ namespace cxxtools
 
     namespace
     {
-        void addValue(SerializationInfo& si, const std::string& key, const std::vector<std::string>& keys, unsigned idx, const String& value)
+        void addValue(SerializationInfo& si, const std::string& key, const std::vector<std::string>& keys, unsigned idx, String&& value)
         {
             log_trace("val key=" << key << " keys.size=" << keys.size() << " idx=" << idx << " value=" << value);
 
             std::string k = join(keys.begin() + idx, keys.end(), '.');
             log_debug("key " << k << " value " << value);
-            si.getAddMember(k).setValue(value);
+            si.getAddMember(k).setValue(String(value));
 
             SerializationInfo& sia = si.getAddMember(key);
 
             for (unsigned n = idx + 1; n < keys.size(); ++n)
             {
-                addValue(sia, join(keys.begin() + idx + 1, keys.begin() + n + 1, '.'), keys, n, value);
-                addValue(si, join(keys.begin(), keys.begin() + n + 1, '.'), keys, n, value);
+                addValue(sia, join(keys.begin() + idx + 1, keys.begin() + n + 1, '.'), keys, n, String(value));
+                addValue(si, join(keys.begin(), keys.begin() + n + 1, '.'), keys, n, std::move(value));
             }
         }
 
-        void addValue(SerializationInfo& si, const std::vector<std::string>& keys, const String& value)
+        void addValue(SerializationInfo& si, const std::vector<std::string>& keys, String&& value)
         {
             if (keys.empty())
                 return;
@@ -128,24 +128,23 @@ namespace cxxtools
             if (keys.size() == 1)
             {
                 log_debug("key " << keys[0] << " value " << value << "(1)");
-                sia.setValue(value);
+                sia.setValue(std::move(value));
             }
             else if (keys.size() > 1)
-                addValue(si, keys[0], keys, 0, value);
+                addValue(si, keys[0], keys, 0, std::move(value));
         }
     }
 
-    bool PropertiesDeserializer::Ev::onValue(const String& value)
+    bool PropertiesDeserializer::Ev::onValue(String&& value)
     {
         log_finer("onValue(" << value << ')');
 
-        String v = value;
         if (_deserializer._envSubst)
         {
-            v = Utf8Codec::decode(cxxtools::envSubst(Utf8Codec::encode(v)));
+            value = Utf8Codec::decode(cxxtools::envSubst(Utf8Codec::encode(value)));
         }
 
-        addValue(*_deserializer.current(), _keys, v);
+        addValue(*_deserializer.current(), _keys, std::move(value));
 
         _keys.clear();
 

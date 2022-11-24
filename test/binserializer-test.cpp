@@ -159,6 +159,7 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
             registerMethod("testDatetime", *this, &BinSerializerTest::testDatetime);
             registerMethod("testTimespan", *this, &BinSerializerTest::testTimespan);
             registerMethod("testRawString", *this, &BinSerializerTest::testRawString);
+            //registerMethod("testBigString", *this, &BinSerializerTest::testBigString);
         }
 
         void testScalar()
@@ -545,6 +546,21 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
                 CXXTOOLS_UNIT_ASSERT(binData.find(str) == std::string::npos);
                 CXXTOOLS_UNIT_ASSERT(binData.find(raw) != std::string::npos);
             }
+        }
+
+        void testBigString()
+        {
+            std::stringstream ss;
+            unsigned long size = std::numeric_limits<int>::max();
+            size += size/2;
+
+            ss << cxxtools::bin::Bin(std::string(size, 'a'));
+
+            std::string s;
+
+            ss >> cxxtools::bin::Bin(s);
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(s.size(), size);
         }
 };
 

@@ -77,8 +77,6 @@ SerializationInfo& SerializationInfo::operator=(const SerializationInfo& si)
 }
 
 
-#if __cplusplus >= 201103L
-
 SerializationInfo::SerializationInfo(SerializationInfo&& si) noexcept
     : _category(si._category),
       _name(std::move(si._name)),
@@ -117,7 +115,7 @@ SerializationInfo& SerializationInfo::operator=(SerializationInfo&& si)
             _t = t_string;
         }
 
-        _String().swap(si._String());
+        _String().swap(si._StringRef());
     }
     else if (si._t == t_string8)
     {
@@ -128,7 +126,7 @@ SerializationInfo& SerializationInfo::operator=(SerializationInfo&& si)
             _t = t_string8;
         }
 
-        _String8().swap(si._String8());
+        _String8().swap(si._String8Ref());
     }
     else
     {
@@ -140,8 +138,6 @@ SerializationInfo& SerializationInfo::operator=(SerializationInfo&& si)
     return *this;
 }
 
-
-#endif
 
 SerializationInfo::~SerializationInfo()
 {
@@ -281,7 +277,7 @@ void SerializationInfo::swap(SerializationInfo& si)
         if (si._t == t_string)
         {
             // this: String, other: String
-            _String().swap(si._String());
+            _String().swap(si._StringRef());
         }
         else if (si._t == t_string8)
         {
@@ -289,8 +285,8 @@ void SerializationInfo::swap(SerializationInfo& si)
             std::string s;
             si._String8().swap(s);
             si.setValue(String());
-            si._String().swap(_String());
-            setValue(s);
+            si._String().swap(_StringRef());
+            setValue(std::move(s));
         }
         else
         {
@@ -298,7 +294,7 @@ void SerializationInfo::swap(SerializationInfo& si)
             U u = si._u;
             T t = si._t;
             si.setValue(String());
-            _String().swap(si._String());
+            _String().swap(si._StringRef());
             _releaseValue();
             _u = u;
             _t = t;
@@ -312,13 +308,13 @@ void SerializationInfo::swap(SerializationInfo& si)
             String s;
             si._String().swap(s);
             si.setValue(std::string());
-            _String8().swap(si._String8());
-            setValue(s);
+            _String8().swap(si._String8Ref());
+            setValue(std::move(s));
         }
         else if (si._t == t_string8)
         {
             // this: std::string, other: std::string
-            _String8().swap(si._String8());
+            _String8().swap(si._String8Ref());
         }
         else
         {
@@ -442,33 +438,33 @@ void SerializationInfo::setNull()
     _category = Value;
 }
 
-void SerializationInfo::_setString(const String& value)
+void SerializationInfo::_setString(String&& value)
 {
     if (_t != t_string)
     {
         _releaseValue();
-        new (_StringPtr()) String(value);
+        new (_StringPtr()) String(std::move(value));
         _t = t_string;
     }
     else
     {
-        _String().assign(value);
+        _String().assign(std::move(value));
     }
 
     _category = Value;
 }
 
-void SerializationInfo::_setString8(const std::string& value)
+void SerializationInfo::_setString8(std::string&& value)
 {
     if (_t != t_string8)
     {
         _releaseValue();
-        new (_String8Ptr()) std::string(value);
+        new (_String8Ptr()) std::string(std::move(value));
         _t = t_string8;
     }
     else
     {
-        _String8().assign(value);
+        _String8().assign(std::move(value));
     }
 
     _category = Value;
@@ -990,9 +986,9 @@ void SerializationInfo::assignData(const SerializationInfo& si)
         _nodes = new Nodes(*si._nodes);
 
     if (si._t == t_string)
-        _setString( si._String() );
+        _setString( String(si._String()) );
     else if (si._t == t_string8)
-        _setString8( si._String8() );
+        _setString8( std::string(si._String8()) );
     else
     {
         _releaseValue();

@@ -52,7 +52,7 @@ class Formatter : public cxxtools::Formatter
         { _writer = &writer; }
 
         void addValueString(const std::string& name, const std::string& type,
-                      const cxxtools::String& value);
+                      cxxtools::String&& value);
 
         void beginArray(const std::string& name, const std::string& type);
 

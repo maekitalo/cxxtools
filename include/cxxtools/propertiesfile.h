@@ -50,6 +50,11 @@ namespace cxxtools
         values[key] = value;
       }
 
+      void setValue(const String& key, String&& value)
+      {
+        values[key] = std::move(value);
+      }
+
       void removeValue(const String& key)
       {
         values.erase(key);

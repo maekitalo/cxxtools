@@ -79,7 +79,7 @@ void Responder::finalize(std::ostream& out)
     {
         formatter.beginObject("error", std::string());
         formatter.addValueInt("code", "int", _errorCode);
-        formatter.addValueStdString("error", std::string(), _errorMessage);
+        formatter.addValueStdString("error", std::string(), std::move(_errorMessage));
     }
     else
     {

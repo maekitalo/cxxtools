@@ -79,7 +79,7 @@ void IDecomposer::formatEach(const SerializationInfo& si, Formatter& formatter)
         {
             std::string value;
             si.getValue(value);
-            formatter.addValueStdString( si.name(), si.typeName(), value );
+            formatter.addValueStdString( si.name(), si.typeName(), std::move(value) );
         }
         else if (si.isChar())
         {
@@ -91,7 +91,7 @@ void IDecomposer::formatEach(const SerializationInfo& si, Formatter& formatter)
         {
             String value;
             si.getValue(value);
-            formatter.addValueString( si.name(), si.typeName(), value );
+            formatter.addValueString( si.name(), si.typeName(), std::move(value) );
         }
     }
     else if(si.category() == SerializationInfo::Object)

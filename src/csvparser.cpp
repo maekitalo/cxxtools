@@ -269,7 +269,7 @@ void CsvParser::advance(Char ch)
             if (ch == L'\n' || ch == L'\r')
             {
                 log_debug("value \"" << _value << '"');
-                _deserializer->setValue(_value);
+                _deserializer->setValue(std::move(_value));
                 _value.clear();
                 checkNoColumns(_column, _noColumns, _lineNo);
                 _deserializer->leaveMember();  // leave data item
@@ -279,7 +279,7 @@ void CsvParser::advance(Char ch)
             else if (ch == _delimiter)
             {
                 log_debug("value \"" << _value << '"');
-                _deserializer->setValue(_value);
+                _deserializer->setValue(std::move(_value));
                 _value.clear();
                 _deserializer->leaveMember();  // leave data item
                 ++_column;
@@ -319,7 +319,7 @@ void CsvParser::advance(Char ch)
 
             //it is not a double _quote. End the _value
             log_debug("value \"" << _value << '"');
-            _deserializer->setValue(_value);
+            _deserializer->setValue(std::move(_value));
             _value.clear();
             _deserializer->leaveMember();  // leave data item
 
@@ -360,7 +360,7 @@ void CsvParser::finish()
         case state_data0:
         case state_data:
             checkNoColumns(_column, _noColumns, _lineNo);
-            _deserializer->setValue(_value);
+            _deserializer->setValue(std::move(_value));
             _deserializer->leaveMember();  // leave data item
             _deserializer->leaveMember();  // leave row
             break;
@@ -375,7 +375,7 @@ void CsvParser::finish()
 
         case state_qdata_end:
             log_debug("value \"" << _value << '"');
-            _deserializer->setValue(_value);
+            _deserializer->setValue(std::move(_value));
             _value.clear();
             _deserializer->leaveMember();  // leave data item
             _deserializer->leaveMember();  // leave row

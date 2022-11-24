@@ -148,7 +148,7 @@ void SettingsReader::leaveMember()
 
 void SettingsReader::pushValue()
 {
-    current()->setValue(_token);
+    current()->setValue(std::move(_token));
     _token.clear();
 }
 

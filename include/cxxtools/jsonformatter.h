@@ -61,10 +61,10 @@ namespace cxxtools
             void finish();
 
             virtual void addValueString(const std::string& name, const std::string& type,
-                                  const String& value);
+                                  String&& value);
 
             virtual void addValueStdString(const std::string& name, const std::string& type,
-                                  const std::string& value);
+                                  std::string&& value);
 
             virtual void addValueBool(const std::string& name, const std::string& type,
                                   bool value);

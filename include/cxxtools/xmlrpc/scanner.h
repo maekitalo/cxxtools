@@ -85,7 +85,7 @@ class Scanner
 
         void begin(Deserializer& handler, IComposer& composer);
 
-        bool advance(const xml::Node& node);
+        bool advance(xml::Node& node);
 
     private:
         State _state;

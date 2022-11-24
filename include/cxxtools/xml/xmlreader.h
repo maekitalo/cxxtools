@@ -174,10 +174,10 @@ class XmlReader
         }
 
         //! @brief Get current element
-        const Node& get();
+        Node& get();
 
         //! @brief Get next element from stream
-        const Node& next();
+        Node& next();
 
         bool advance();
 

@@ -116,7 +116,7 @@ void XmlDeserializer::parse(XmlReader& reader)
 
 void XmlDeserializer::beginDocument(XmlReader& reader)
 {
-    const Node& node = reader.get();
+    Node& node = reader.get();
 
     log_debug("beginDocument; node type=" << node.type());
 
@@ -124,7 +124,7 @@ void XmlDeserializer::beginDocument(XmlReader& reader)
     {
         case Node::StartElement:
         {
-            const StartElement& se =  static_cast<const StartElement&>(node);
+            StartElement& se =  static_cast<StartElement&>(node);
 
             _nodeName = se.name();
             _nodeType = se.attribute(L"type");
@@ -149,7 +149,7 @@ void XmlDeserializer::beginDocument(XmlReader& reader)
 
 void XmlDeserializer::onRootElement(XmlReader& reader)
 {
-    const Node& node = reader.get();
+    Node& node = reader.get();
 
     log_debug("onRootElement; node type=" << node.type());
 
@@ -157,7 +157,7 @@ void XmlDeserializer::onRootElement(XmlReader& reader)
     {
         case Node::Characters:
         {
-            const Characters& chars = static_cast<const cxxtools::xml::Characters&>(node);
+            Characters& chars = static_cast<cxxtools::xml::Characters&>(node);
             if(cxxtools::String::npos != chars.content().find_first_not_of(L" \t\n\r") )
             {
                 setValue( chars.content() );
@@ -198,7 +198,7 @@ void XmlDeserializer::onRootElement(XmlReader& reader)
 
 void XmlDeserializer::onStartElement(XmlReader& reader)
 {
-    const Node& node = reader.get();
+    Node& node = reader.get();
 
     log_debug("onStartElement; node type=" << node.type());
 
@@ -206,7 +206,7 @@ void XmlDeserializer::onStartElement(XmlReader& reader)
     {
         case Node::Characters:
         {
-            const Characters& chars = static_cast<const cxxtools::xml::Characters&>(node);
+            Characters& chars = static_cast<cxxtools::xml::Characters&>(node);
             if(cxxtools::String::npos != chars.content().find_first_not_of(L" \t\n\r") )
             {
                 std::string nodeName = _nodeName.narrow();
@@ -405,7 +405,7 @@ void XmlDeserializer::processAttributes(const Attributes& attributes)
     for (Attributes::const_iterator it = attributes.begin(); it != attributes.end(); ++it)
     {
         SerializationInfo& m = si.addMember(cxxtools::encode<Utf8Codec>(_attributePrefix + it->name()));
-        m.setValue(it->value());
+        m.setValue(String(it->value()));
         m.setTypeName("attribute");
     }
 }

@@ -36,19 +36,15 @@
 #include <list>
 #include <deque>
 #include <limits>
-#include <iosfwd>
-#include <cxxtools/config.h>
-
-#if __cplusplus >= 201103L
-
 #include <forward_list>
 #include <unordered_set>
 #include <unordered_map>
 #include <tuple>
 #include <array>
 #include <type_traits>
+#include <iosfwd>
 
-#endif
+#include <cxxtools/config.h>
 
 namespace cxxtools
 {
@@ -147,13 +143,9 @@ class SerializationInfo
 
         SerializationInfo& operator =(const SerializationInfo& si);
 
-#if __cplusplus >= 201103L
-
         SerializationInfo(SerializationInfo&& si) noexcept;
 
         SerializationInfo& operator=(SerializationInfo&& si);
-
-#endif
 
         Category category() const
         {
@@ -177,6 +169,13 @@ class SerializationInfo
                 _category = Object;
         }
 
+        void setTypeName(std::string&& type)
+        {
+            _type = std::move(type);
+            if (_category == Void)
+                _category = Object;
+        }
+
         const std::string& name() const
         {
             return _name;
@@ -187,10 +186,15 @@ class SerializationInfo
             _name = name;
         }
 
+        void setName(std::string&& name)
+        {
+            _name = std::move(name);
+        }
+
         /** @brief Serialization of flat data-types
         */
-        void setValue(const String& value)       { _setString(value); }
-        void setValue(const std::string& value)  { _setString8(value); }
+        void setValue(String&& value)            { _setString(std::move(value)); }
+        void setValue(std::string&& value)       { _setString8(std::move(value)); }
         void setValue(const char* value)         { _setString8(value); }
         void setValue(Char value)                { _setString(String(1, value)); }
         void setValue(wchar_t value)             { _setString(String(1, value)); }
@@ -369,8 +373,8 @@ class SerializationInfo
         std::string _type;
 
         void _releaseValue();
-        void _setString(const String& value);
-        void _setString8(const std::string& value);
+        void _setString(String&& value);
+        void _setString8(std::string&& value);
         void _setString8(const char* value);
         void _setChar(char value);
         void _setBool(bool value);
@@ -406,11 +410,13 @@ class SerializationInfo
         } _u;
 
         String* _StringPtr()                    { return reinterpret_cast<String*>(&_u); }
-        String& _String()                       { return *_StringPtr(); }
+        String& _StringRef()                    { return *_StringPtr(); }
+        String&& _String()                      { return std::move(*_StringPtr()); }
         const String* _StringPtr() const        { return reinterpret_cast<const String*>(&_u); }
         const String& _String() const           { return *_StringPtr(); }
         std::string* _String8Ptr()              { return reinterpret_cast<std::string*>(&_u); }
-        std::string& _String8()                 { return *_String8Ptr(); }
+        std::string& _String8Ref()              { return *_String8Ptr(); }
+        std::string&& _String8()                { return std::move(*_String8Ptr()); }
         const std::string* _String8Ptr() const  { return reinterpret_cast<const std::string*>(&_u); }
         const std::string& _String8() const     { return *_String8Ptr(); }
 
@@ -659,7 +665,7 @@ inline void operator >>=(const SerializationInfo& si, std::string& n)
 
 inline void operator <<=(SerializationInfo& si, const std::string& n)
 {
-    si.setValue(n);
+    si.setValue(std::string(n));
     si.setTypeName("string");
 }
 
@@ -679,7 +685,7 @@ inline void operator >>=(const SerializationInfo& si, String& n)
 
 inline void operator <<=(SerializationInfo& si, const String& n)
 {
-    si.setValue(n);
+    si.setValue(String(n));
     si.setTypeName("string");
 }
 
@@ -946,8 +952,6 @@ void operator <<=(SerializationInfo& si, const T (&v)[N])
     si.setTypeName("array");
     si.setCategory(SerializationInfo::Array);
 }
-
-#if __cplusplus >= 201103L
 
 template <typename T, typename A>
 inline void operator >>=(const SerializationInfo& si, std::forward_list<T, A>& list)
@@ -1253,8 +1257,6 @@ EnumClassSerializer<ENUM> EnumClass(const ENUM& e)
 template <typename ENUM>
 EnumClassDeserializer<ENUM> EnumClass(ENUM& e)
 { return EnumClassDeserializer<ENUM>(e); }
-
-#endif // __cplusplus >= 201103L
 
 inline std::ostream& operator<< (std::ostream& out, const SerializationInfo& si)
 {

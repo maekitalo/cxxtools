@@ -57,7 +57,7 @@ void Scanner::begin(Deserializer& handler, IComposer& composer)
     _deserializer->begin();
 }
 
-bool Scanner::advance(const cxxtools::xml::Node& node)
+bool Scanner::advance(cxxtools::xml::Node& node)
 {
     switch(_state)
     {
@@ -116,7 +116,7 @@ bool Scanner::advance(const cxxtools::xml::Node& node)
                     throwSerializationError();
 
                 // is always type string
-                _deserializer->setValue( _value );
+                _deserializer->setValue(std::move(_value));
                 _value.clear();
 
                 _state = OnValueEnd;
@@ -291,7 +291,7 @@ bool Scanner::advance(const cxxtools::xml::Node& node)
         {
             if(node.type() == xml::Node::Characters)
             {
-                const xml::Characters& chars = static_cast<const xml::Characters&>(node);
+                xml::Characters& chars = static_cast<xml::Characters&>(node);
                 _state = OnScalar;
 
                 _deserializer->setValue( chars.content() );

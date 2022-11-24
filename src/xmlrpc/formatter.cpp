@@ -36,7 +36,7 @@ namespace xmlrpc
 {
 
 void Formatter::addValueString(const std::string& /*name*/, const std::string& type,
-                         const cxxtools::String& value)
+                         cxxtools::String&& value)
 {
     _writer->writeStartElement( L"value" );
 

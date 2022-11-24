@@ -95,8 +95,7 @@ std::size_t XmlRpcResponder::readBody(std::istream& /*is*/)
 
             while( _reader.advance() )
             {
-                const xml::Node& node = _reader.get();
-                this->advance(node);
+                this->advance(_reader.get());
             }
         }
     }
@@ -209,7 +208,7 @@ void XmlRpcResponder::reply(std::ostream& os, http::Request& request, http::Repl
 }
 
 
-void XmlRpcResponder::advance(const cxxtools::xml::Node& node)
+void XmlRpcResponder::advance(cxxtools::xml::Node& node)
 {
     switch(_state)
     {

@@ -53,10 +53,10 @@ class Formatter
         { }
 
         virtual void addValueString(const std::string& name, const std::string& type,
-                              const cxxtools::String& value) = 0;
+                              cxxtools::String&& value) = 0;
 
         virtual void addValueStdString(const std::string& name, const std::string& type,
-                              const std::string& value);
+                              std::string&& value);
 
         virtual void addValueChar(const std::string& name, const std::string& type,
                               char value);

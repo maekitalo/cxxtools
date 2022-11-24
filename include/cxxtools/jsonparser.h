@@ -99,13 +99,15 @@ namespace cxxtools
                     const String& str() const
                     { return _str; }
 
-                    void str(const String& s)
-                    { _str = s; }
+                    String&& str()
+                    { return std::move(_str); }
+
+                    void str(String&& s)
+                    { _str = std::move(s); }
             };
 
-            // make non copyable:
-            JsonParser(const JsonParser&);
-            JsonParser& operator=(const JsonParser&);
+            JsonParser(const JsonParser&) = delete;
+            JsonParser& operator=(const JsonParser&) = delete;
 
         public:
             JsonParser();

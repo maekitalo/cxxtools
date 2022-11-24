@@ -32,7 +32,7 @@
 namespace cxxtools
 {
 void Formatter::addValueStdString(const std::string& name, const std::string& type,
-                         const std::string& value)
+                         std::string&& value)
 {
     addValueString(name, type, String::widen(value));
 }

@@ -281,12 +281,12 @@ int JsonParser::advance(Char ch)
                     _token += ch;
                 else if (std::isspace(ch.value()))
                 {
-                    _stringParser.str(_token);
+                    _stringParser.str(std::move(_token));
                     _state = state_object_after_name;
                 }
                 else if (ch == ':')
                 {
-                    _stringParser.str(_token);
+                    _stringParser.str(std::move(_token));
                     if (_next == 0)
                         _next = new JsonParser();
                     log_debug("begin object member " << _stringParser.str());
@@ -483,7 +483,7 @@ int JsonParser::advance(Char ch)
                 if (std::isspace(ch.value()))
                 {
                     log_debug("set int value \"" << _token << '"');
-                    _deserializer->setValue(_token);
+                    _deserializer->setValue(std::move(_token));
                     _deserializer->setTypeName("int");
                     _token.clear();
                     return 1;
@@ -500,7 +500,7 @@ int JsonParser::advance(Char ch)
                 else
                 {
                     log_debug("set int value \"" << _token << '"');
-                    _deserializer->setValue(_token);
+                    _deserializer->setValue(std::move(_token));
                     _deserializer->setTypeName("int");
                     _token.clear();
                     return -1;
@@ -511,7 +511,7 @@ int JsonParser::advance(Char ch)
                 if (std::isspace(ch.value()))
                 {
                     log_debug("set double value \"" << _token << '"');
-                    _deserializer->setValue(_token);
+                    _deserializer->setValue(std::move(_token));
                     _deserializer->setTypeName("double");
                     _token.clear();
                     return 1;
@@ -522,7 +522,7 @@ int JsonParser::advance(Char ch)
                 else
                 {
                     log_debug("set double value \"" << _token << '"');
-                    _deserializer->setValue(_token);
+                    _deserializer->setValue(std::move(_token));
                     _deserializer->setTypeName("double");
                     _token.clear();
                     return -1;
@@ -537,7 +537,7 @@ int JsonParser::advance(Char ch)
                     if (_token == "true" || _token == "false")
                     {
                         log_debug("set bool value \"" << _token << '"');
-                        _deserializer->setValue(_token);
+                        _deserializer->setValue(std::move(_token));
                         _deserializer->setTypeName("bool");
                         _token.clear();
                     }
@@ -633,13 +633,13 @@ void JsonParser::finish()
             doThrow("unexpected end of json");
 
         case state_number:
-            _deserializer->setValue(_token);
+            _deserializer->setValue(std::move(_token));
             _deserializer->setTypeName("int");
             _token.clear();
             break;
 
         case state_float:
-            _deserializer->setValue(_token);
+            _deserializer->setValue(std::move(_token));
             _deserializer->setTypeName("double");
             _token.clear();
             break;
@@ -647,7 +647,7 @@ void JsonParser::finish()
         case state_token:
             if (_token == "true" || _token == "false")
             {
-                _deserializer->setValue(_token);
+                _deserializer->setValue(std::move(_token));
                 _deserializer->setTypeName("bool");
                 _token.clear();
             }

@@ -109,14 +109,20 @@ namespace cxxtools
             void setName(const std::string& name)
             { current()->setName(name); }
 
+            void setName(std::string&& name)
+            { current()->setName(std::move(name)); }
+
             void setTypeName(const std::string& type)
             { current()->setTypeName(type); }
 
-            void setValue(const String& value)
-            { current()->setValue(value); }
+            void setTypeName(std::string&& type)
+            { current()->setTypeName(std::move(type)); }
 
-            void setValue(const std::string& value)
-            { current()->setValue(value); }
+            void setValue(String&& value)
+            { current()->setValue(std::move(value)); }
+
+            void setValue(std::string&& value)
+            { current()->setValue(std::move(value)); }
 
             void setValue(const char* value)
             { current()->setValue(value); }

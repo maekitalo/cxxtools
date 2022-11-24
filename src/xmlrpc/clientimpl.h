@@ -105,7 +105,7 @@ class ClientImpl : public cxxtools::Connectable
     protected:
         void prepareRequest(const String& name, IDecomposer** argv, unsigned argc);
 
-        void advance(const xml::Node& node);
+        void advance(xml::Node& node);
 
         State _state;
         TextIStream _ts;

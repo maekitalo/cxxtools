@@ -76,7 +76,7 @@ void JsonFormatter::finish()
 }
 
 void JsonFormatter::addValueString(const std::string& name, const std::string& type,
-                      const String& value)
+                      String&& value)
 {
     log_trace("addValueString name=\"" << name << "\", type=\"" << type << "\", value=\"" << value << '"');
 
@@ -123,7 +123,7 @@ void JsonFormatter::addValueString(const std::string& name, const std::string& t
 }
 
 void JsonFormatter::addValueStdString(const std::string& name, const std::string& type,
-                      const std::string& value)
+                      std::string&& value)
 {
     log_trace("addValueStdString name=\"" << name << "\", type=\"" << type << "\", \" value=\"" << value << '"');
 

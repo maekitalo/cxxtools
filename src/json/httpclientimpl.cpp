@@ -161,7 +161,7 @@ void HttpClientImpl::prepareRequest(const String& name, IDecomposer** argv, unsi
     formatter.beginObject(std::string(), std::string());
 
     formatter.addValueStdString("jsonrpc", std::string(), "2.0");
-    formatter.addValueString("method", std::string(), name);
+    formatter.addValueString("method", std::string(), String(name));
     formatter.addValueInt("id", "int", ++_count);
 
     formatter.beginArray("params", std::string());
