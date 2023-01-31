@@ -27,8 +27,6 @@
  */
 
 #include <cxxtools/log.h>
-#include <cxxtools/smartptr.h>
-#include <cxxtools/refcounted.h>
 #include <iostream>
 #include <vector>
 #include <stdexcept>
@@ -36,12 +34,13 @@
 #include <cxxtools/thread.h>
 #include <sys/time.h>
 #include <iomanip>
+#include <memory>
 
 namespace bench
 {
   log_define("bench")
 
-  class Logtester : public cxxtools::RefCounted
+  class Logtester
   {
       cxxtools::AttachedThread thread;
       unsigned long count;
@@ -134,10 +133,10 @@ int main(int argc, char* argv[])
     unsigned long count = 1;
     double T;
 
-    typedef std::vector<cxxtools::SmartPtr<bench::Logtester> > Threads;
+    typedef std::vector<std::unique_ptr<bench::Logtester> > Threads;
     Threads threads;
     for (unsigned t = 0; t < numthreads; ++t)
-      threads.push_back(new bench::Logtester(count, loops.getValue() / numthreads.getValue(), enable));
+      threads.emplace_back(new bench::Logtester(count, loops.getValue() / numthreads.getValue(), enable));
 
     while (count > 0)
     {

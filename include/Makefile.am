@@ -167,7 +167,6 @@ nobase_include_HEADERS = \
         cxxtools/singleton.h \
         cxxtools/slot.h \
         cxxtools/slot.tpp \
-        cxxtools/smartptr.h \
         cxxtools/sourceinfo.h \
         cxxtools/sslcertificate.h \
         cxxtools/sslctx.h \

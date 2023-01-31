@@ -55,7 +55,6 @@ alltests_SOURCES = \
     scopedincrement-test.cpp \
     serialization-test.cpp \
     serializationinfo-test.cpp \
-    smartptr-test.cpp \
     split-test.cpp \
     string-test.cpp \
     test-main.cpp \

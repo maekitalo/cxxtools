@@ -96,7 +96,7 @@ class Server
         void listen(unsigned short int port, const SslCtx& sslCtx) { listen(std::string(), port, sslCtx); }
 
         void addService(const std::string& url, Service& service);
-        void addService(const Regex& url, Service& service);
+        void addService(Regex&& url, Service& service);
         void removeService(Service& service);
 
         Milliseconds readTimeout() const;

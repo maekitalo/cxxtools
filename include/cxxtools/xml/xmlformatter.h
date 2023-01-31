@@ -30,7 +30,7 @@
 
 #include <cxxtools/formatter.h>
 #include <cxxtools/xml/xmlwriter.h>
-#include <cxxtools/smartptr.h>
+#include <memory>
 
 namespace cxxtools
 {
@@ -158,7 +158,7 @@ class XmlFormatter : public cxxtools::Formatter
         XmlWriter* _writer;
 
         //! @internal
-        cxxtools::SmartPtr<XmlWriter, cxxtools::ExternalRefCounted> _deleter;
+        std::unique_ptr<XmlWriter> _deleter;
 
         bool _useAttributes;
 };

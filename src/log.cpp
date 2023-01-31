@@ -28,7 +28,6 @@
 
 #include <cxxtools/log/cxxtools.h>
 #include <cxxtools/refcounted.h>
-#include <cxxtools/smartptr.h>
 #include <cxxtools/convert.h>
 #include <cxxtools/mutex.h>
 #include <cxxtools/serializationinfo.h>
@@ -43,6 +42,7 @@
 
 #include "dateutils.h"
 
+#include <memory>
 #include <atomic>
 #include <iterator>
 #include <vector>
@@ -1169,13 +1169,13 @@ namespace cxxtools
 
   class LogManager::Impl
   {
-      SmartPtr<LogAppender> _appender;
+      std::unique_ptr<LogAppender> _appender;
       LogConfiguration _config;
       typedef std::map<std::string, Logger*> Loggers;  // map category => logger
       Loggers _loggers;
 
-      Impl(const Impl&);
-      Impl& operator=(const Impl&);
+      Impl(const Impl&) = delete;
+      Impl& operator=(const Impl&) = delete;
 
     public:
       explicit Impl(const LogConfiguration& config);
@@ -1202,20 +1202,20 @@ namespace cxxtools
     {
       if (config.impl()->logport() != 0)
       {
-        _appender = new UdpAppender(config.impl()->loghost(), config.impl()->logport(), config.impl()->broadcast());
+        _appender.reset(new UdpAppender(config.impl()->loghost(), config.impl()->logport(), config.impl()->broadcast()));
       }
       else
       {
-        _appender = new FdAppender(config.impl()->tostdout() ? STDOUT_FILENO : STDERR_FILENO);
+        _appender.reset(new FdAppender(config.impl()->tostdout() ? STDOUT_FILENO : STDERR_FILENO));
       }
     }
     else if (config.impl()->maxfilesize() == 0)
     {
-      _appender = new FileAppender(config.impl()->fname());
+      _appender.reset(new FileAppender(config.impl()->fname()));
     }
     else
     {
-      _appender = new RollingFileAppender(config.impl()->fname(), config.impl()->maxfilesize(), config.impl()->maxbackupindex(), config.impl()->logFormat());
+      _appender.reset(new RollingFileAppender(config.impl()->fname(), config.impl()->maxfilesize(), config.impl()->maxbackupindex(), config.impl()->logFormat()));
     }
 
     _config = config;
@@ -1230,20 +1230,20 @@ namespace cxxtools
     {
       if (config.impl()->logport() != 0)
       {
-        _appender = new UdpAppender(config.impl()->loghost(), config.impl()->logport(), config.impl()->broadcast());
+        _appender.reset(new UdpAppender(config.impl()->loghost(), config.impl()->logport(), config.impl()->broadcast()));
       }
       else
       {
-        _appender = new FdAppender(config.impl()->tostdout() ? STDOUT_FILENO : STDERR_FILENO);
+        _appender.reset(new FdAppender(config.impl()->tostdout() ? STDOUT_FILENO : STDERR_FILENO));
       }
     }
     else if (config.impl()->maxfilesize() == 0)
     {
-      _appender = new FileAppender(config.impl()->fname());
+      _appender.reset(new FileAppender(config.impl()->fname()));
     }
     else
     {
-      _appender = new RollingFileAppender(config.impl()->fname(), config.impl()->maxfilesize(), config.impl()->maxbackupindex(), config.impl()->logFormat());
+      _appender.reset(new RollingFileAppender(config.impl()->fname(), config.impl()->maxfilesize(), config.impl()->maxbackupindex(), config.impl()->logFormat()));
     }
 
     _config = config;

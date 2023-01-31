@@ -70,8 +70,8 @@ class ServerImplBase
 
         void addService(const std::string& url, Service& service)
         { _mapper.addService(url, service); }
-        void addService(const Regex& url, Service& service)
-        { _mapper.addService(url, service); }
+        void addService(Regex&& url, Service& service)
+        { _mapper.addService(std::move(url), service); }
         void removeService(Service& service)
         { _mapper.removeService(service); }
 

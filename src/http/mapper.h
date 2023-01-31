@@ -43,7 +43,7 @@ class Mapper
 {
     public:
         void addService(const std::string& url, Service& service);
-        void addService(const Regex& url, Service& service);
+        void addService(Regex&& url, Service& service);
         void removeService(Service& service);
 
         Responder* getResponder(const Request& request);
@@ -56,8 +56,8 @@ class Mapper
           Regex regex;
           std::string url;
           Key() { }
-          Key(const Regex& regex_)
-            : regex(regex_)
+          Key(Regex&& regex_)
+            : regex(std::move(regex_))
           { }
           Key(const std::string& url_)
             : url(url_)

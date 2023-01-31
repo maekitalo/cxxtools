@@ -46,12 +46,12 @@ void Mapper::addService(const std::string& url, Service& service)
     _services.push_back(ServicesType::value_type(url, &service));
 }
 
-void Mapper::addService(const Regex& url, Service& service)
+void Mapper::addService(Regex&& url, Service& service)
 {
     log_debug("add service for regex");
 
     WriteLock serviceLock(_serviceMutex);
-    _services.push_back(ServicesType::value_type(url, &service));
+    _services.push_back(ServicesType::value_type(std::move(url), &service));
 }
 
 void Mapper::removeService(Service& service)
