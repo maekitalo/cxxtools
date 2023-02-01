@@ -34,6 +34,12 @@
 #include <map>
 #include <cxxtools/regex.h>
 
+#if __cplusplus >= 201703L
+#include <shared_mutex>
+#else
+#include <mutex>
+#endif
+
 namespace cxxtools
 {
 namespace http
@@ -67,7 +73,17 @@ class Mapper
                                  : regex.match(u); }
         };
         typedef std::vector<std::pair<Key, Service*> > ServicesType;
-        ReadWriteMutex _serviceMutex;
+#if __cplusplus >= 201703L
+        typedef std::shared_mutex MutexType;
+        typedef std::shared_lock<std::shared_mutex> ReadLockType;
+        typedef std::unique_lock<std::shared_mutex> WriteLockType;
+#else
+        typedef std::mutex MutexType;
+        typedef std::unique_lock<std::mutex> ReadLockType;
+        typedef std::unique_lock<std::mutex> WriteLockType;
+#endif
+        MutexType _serviceMutex;
+
         ServicesType _services;
         NotFoundService _defaultService;
         NotAuthenticatedService _noAuthService;

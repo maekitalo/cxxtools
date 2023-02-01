@@ -61,7 +61,6 @@ class SerializationTest : public cxxtools::unit::TestSuite
             registerMethod("testMap", *this, &SerializationTest::testMap);
             registerMethod("testMultimap", *this, &SerializationTest::testMultimap);
             registerMethod("testCArray", *this, &SerializationTest::testCArray);
-#if __cplusplus >= 201103L
             registerMethod("testForwardList", *this, &SerializationTest::testForwardList);
             registerMethod("testUnorderedSet", *this, &SerializationTest::testUnorderedSet);
             registerMethod("testUnorderedMultiset", *this, &SerializationTest::testUnorderedMultiset);
@@ -71,7 +70,6 @@ class SerializationTest : public cxxtools::unit::TestSuite
             registerMethod("testArray", *this, &SerializationTest::testArray);
             registerMethod("testEnum", *this, &SerializationTest::testEnum);
             registerMethod("testCast", *this, &SerializationTest::testCast);
-#endif
         }
 
         void testBool()
@@ -407,8 +405,6 @@ class SerializationTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(vv[2], 42);
         }
 
-#if __cplusplus >= 201103L
-
         void testForwardList()
         {
             cxxtools::SerializationInfo si;
@@ -560,7 +556,6 @@ class SerializationTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(bar[0], 42);
             CXXTOOLS_UNIT_ASSERT_EQUALS(bar[1], 56);
         }
-#endif
 
 };
 

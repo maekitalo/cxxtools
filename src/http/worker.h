@@ -29,7 +29,7 @@
 #ifndef CXXTOOLS_HTTP_WORKER_H
 #define CXXTOOLS_HTTP_WORKER_H
 
-#include <cxxtools/thread.h>
+#include <thread>
 
 namespace cxxtools
 {
@@ -38,19 +38,18 @@ namespace http
 
 class ServerImpl;
 
-class Worker : public AttachedThread
+class Worker
 {
     public:
-        explicit Worker(ServerImpl& server)
-            : AttachedThread(callable(*this, &Worker::run)),
-              _server(server)
-        {
-        }
+        explicit Worker(ServerImpl& server);
 
-        void run();
+        void join()         { _thread.join(); }
 
     private:
+        void run();
+
         ServerImpl& _server;
+        std::thread _thread;
 };
 
 }

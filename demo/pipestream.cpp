@@ -33,55 +33,55 @@
 #include <cxxtools/pipe.h>
 #include <cxxtools/posix/pipestream.h>
 #include <cxxtools/posix/fork.h>
-#include <cxxtools/thread.h>
+#include <thread>
 
 int main(int argc, char* argv[])
 {
-  try
-  {
-    // create pipe, where child signals, that he is initialized
-    cxxtools::posix::Pipe pipe;
-
-    cxxtools::posix::Pipestream pstream;
-
-    // fork child-process
-    cxxtools::posix::Fork fork;
-
-    if (fork.parent())
+    try
     {
-      pipe.closeWriteFd();
-      pstream.closeWriteFd();
+        // create pipe, where child signals, that he is initialized
+        cxxtools::posix::Pipe pipe;
 
-      std::cout << "waiting for child to become ready" << std::endl;
+        cxxtools::posix::Pipestream pstream;
 
-      char ch = pipe.read();
-      std::cout << "child is ready - he sent '" << ch << '\'' << std::endl;
+        // fork child-process
+        cxxtools::posix::Fork fork;
 
-      // now we copy everything, the child sends through the stream
-      std::cout << pstream.rdbuf() << std::flush;
+        if (fork.parent())
+        {
+            pipe.closeWriteFd();
+            pstream.closeWriteFd();
 
-      fork.wait();
+            std::cout << "waiting for child to become ready" << std::endl;
 
-      std::cout << "child terminated normally" << std::endl;
+            char ch = pipe.read();
+            std::cout << "child is ready - he sent '" << ch << '\'' << std::endl;
+
+            // now we copy everything, the child sends through the stream
+            std::cout << pstream.rdbuf() << std::flush;
+
+            fork.wait();
+
+            std::cout << "child terminated normally" << std::endl;
+        }
+        else // child
+        {
+            pipe.closeReadFd();
+            pstream.closeReadFd();
+
+            // we simulate some long initialization:
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+
+            pipe.write('a');
+
+            // make another break
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+
+            pstream << "Hello World!" << std::endl;
+        }
     }
-    else // child
+    catch (const std::exception& e)
     {
-      pipe.closeReadFd();
-      pstream.closeReadFd();
-
-      // we simulate some long initialization:
-      cxxtools::Thread::sleep(cxxtools::Seconds(1));
-
-      pipe.write('a');
-
-      // make another break
-      cxxtools::Thread::sleep(cxxtools::Seconds(1));
-
-      pstream << "Hello World!" << std::endl;
+        std::cerr << e.what() << std::endl;
     }
-  }
-  catch (const std::exception& e)
-  {
-    std::cerr << e.what() << std::endl;
-  }
 }

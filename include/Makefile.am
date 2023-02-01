@@ -26,7 +26,6 @@ nobase_include_HEADERS = \
         cxxtools/charmapcodec.h \
         cxxtools/cgi.h \
         cxxtools/clock.h \
-        cxxtools/condition.h \
         cxxtools/connectable.h \
         cxxtools/connection.h \
         cxxtools/constmethod.h \
@@ -115,7 +114,6 @@ nobase_include_HEADERS = \
         cxxtools/method.tpp \
         cxxtools/mime.h \
         cxxtools/multifstream.h \
-        cxxtools/mutex.h \
         cxxtools/net/addrinfo.h \
         cxxtools/net/net.h \
         cxxtools/net/tcpserver.h \
@@ -124,7 +122,6 @@ nobase_include_HEADERS = \
         cxxtools/net/udp.h \
         cxxtools/net/udpstream.h \
         cxxtools/net/uri.h \
-        cxxtools/noncopyable.h \
         cxxtools/pipe.h \
         cxxtools/pool.h \
         cxxtools/posix/commandinput.h \
@@ -150,6 +147,7 @@ nobase_include_HEADERS = \
         cxxtools/remoteclient.h \
         cxxtools/remoteexception.h \
         cxxtools/remoteprocedure.h \
+        cxxtools/remoteprocedure.tpp \
         cxxtools/remoteresult.h \
         cxxtools/resetter.h \
         cxxtools/scopedincrement.h \
@@ -182,8 +180,6 @@ nobase_include_HEADERS = \
         cxxtools/textbuffer.h \
         cxxtools/textcodec.h \
         cxxtools/textstream.h \
-        cxxtools/thread.h \
-        cxxtools/threadpool.h \
         cxxtools/time.h \
         cxxtools/timer.h \
         cxxtools/timespan.h \

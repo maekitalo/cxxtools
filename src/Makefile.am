@@ -16,8 +16,6 @@ libcxxtools_la_SOURCES = \
 	charmapcodec.cpp \
 	clock.cpp \
 	clockimpl.cpp \
-	condition.cpp \
-	conditionimpl.cpp \
 	connectable.cpp \
 	connection.cpp \
 	cgi.cpp \
@@ -62,8 +60,6 @@ libcxxtools_la_SOURCES = \
 	md5stream.cpp \
 	mime.cpp \
 	multifstream.cpp \
-	mutex.cpp \
-	muteximpl.cpp \
 	pipe.cpp \
 	pipeimpl.cpp \
 	posix/commandinput.cpp \
@@ -102,10 +98,6 @@ libcxxtools_la_SOURCES = \
 	textbuffer.cpp \
 	textcodec.cpp \
 	textstream.cpp \
-	thread.cpp \
-	threadimpl.cpp \
-	threadpool.cpp \
-	threadpoolimpl.cpp \
 	time.cpp \
 	timer.cpp \
 	timespan.cpp \
@@ -138,7 +130,6 @@ noinst_HEADERS = \
 	addrinfoimpl.h \
 	applicationimpl.h \
 	clockimpl.h \
-	conditionimpl.h \
 	dateutils.h \
 	directoryimpl.h \
 	error.h \
@@ -148,7 +139,6 @@ noinst_HEADERS = \
 	iodeviceimpl.h \
 	libraryimpl.h \
 	md5.h \
-	muteximpl.h \
 	pipeimpl.h \
 	selectableimpl.h \
 	selectorimpl.h \
@@ -159,8 +149,6 @@ noinst_HEADERS = \
 	sslctximpl.h \
 	tcpserverimpl.h \
 	tcpsocketimpl.h \
-	threadimpl.h \
-	threadpoolimpl.h \
 	unicode.h
 
 if MAKE_ICONVSTREAM

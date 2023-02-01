@@ -26,163 +26,155 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
+#include <cxxtools/arg.h>
+#include <cxxtools/timespan.h>
+#include <cxxtools/clock.h>
 #include <cxxtools/log.h>
+
 #include <iostream>
 #include <vector>
 #include <stdexcept>
-#include <cxxtools/arg.h>
-#include <cxxtools/thread.h>
-#include <sys/time.h>
 #include <iomanip>
 #include <memory>
+#include <thread>
+
+#include <sys/time.h>
 
 namespace bench
 {
-  log_define("bench")
+    log_define("bench")
 
-  class Logtester
-  {
-      cxxtools::AttachedThread thread;
-      unsigned long count;
-      unsigned long loops;
-      unsigned long enabled;
-
-    public:
-      Logtester(unsigned long count_,
-                unsigned long loops_,
-                unsigned long enabled_)
-        : thread( cxxtools::callable(*this, &Logtester::run) ),
-          count(count_),
-          loops(loops_),
-          enabled(enabled_)
-          { }
-
-      void start()
-      { thread.start(); }
-
-      void join()
-      { thread.join(); }
-
-      void setCount(unsigned long count_)   { count = count_; }
-      void setLoops(unsigned long loops_)   { loops = loops_; }
-      void setEnabled(bool sw = true)       { enabled = sw; }
-
-      void run();
-  };
-
-  void Logtester::run()
-  {
-    for (unsigned long l = 0; l < loops; ++l)
+    class Logtester
     {
-      if (enabled)
-        for (unsigned long i = 0; i < count; ++i)
-          log_info("info message");
-      else
-        for (unsigned long i = 0; i < count; ++i)
-          log_debug("debug message");
+            std::thread _thread;
+            unsigned long _count;
+            unsigned long _loops;
+            bool _enabled;
+
+        public:
+            Logtester(unsigned long count,
+                                unsigned long loops,
+                                unsigned long enabled)
+                : _thread(&Logtester::run, this),
+                  _count(count),
+                  _loops(loops),
+                  _enabled(enabled)
+                  { }
+
+            void join()
+            { _thread.join(); }
+
+            void setCount(unsigned long count)     { _count = count; }
+            void setLoops(unsigned long loops)     { _loops = loops; }
+            void setEnabled(bool sw = true)         { _enabled = sw; }
+
+            void run();
+    };
+
+    void Logtester::run()
+    {
+        for (unsigned long l = 0; l < _loops; ++l)
+        {
+            if (_enabled)
+                for (unsigned long i = 0; i < _count; ++i)
+                    log_info("info message");
+            else
+                for (unsigned long i = 0; i < _count; ++i)
+                    log_debug("debug message");
+        }
     }
-  }
 }
 
 int main(int argc, char* argv[])
 {
-  try
-  {
-    cxxtools::Arg<double> total(argc, argv, 'T', 5.0); // minimum runtime
-    cxxtools::Arg<long> loops(argc, argv, 'l', 1000);
-    cxxtools::Arg<unsigned> numthreads(argc, argv, 't', 1);
-
-    cxxtools::Arg<bool> enable(argc, argv, 'e');
-    cxxtools::Arg<bool> consolelog(argc, argv, 'c');
-    cxxtools::Arg<unsigned short> udpport(argc, argv, 'u');
-    cxxtools::Arg<std::string> logfile(argc, argv, 'f', "/dev/null");
-    cxxtools::Arg<bool> norollingfile(argc, argv, 'r');
-
-    cxxtools::LogConfiguration logConfiguration;
-    logConfiguration.setRootLevel(cxxtools::Logger::LOG_LEVEL_INFO);
-
-    unsigned settingCount = 0;
-    if (consolelog)
-      ++settingCount;
-
-    if (logfile.isSet())
-      ++settingCount;
-
-    if (udpport.isSet())
+    try
     {
-      ++settingCount;
-      logConfiguration.setLoghost("", udpport);
-    }
+        cxxtools::Arg<cxxtools::Seconds> total(argc, argv, 'T', 5.0); // minimum runtime
+        cxxtools::Arg<long> loops(argc, argv, 'l', 1000);
+        cxxtools::Arg<unsigned> numthreads(argc, argv, 't', 1);
 
-    if (settingCount > 1)
+        cxxtools::Arg<bool> enable(argc, argv, 'e');
+        cxxtools::Arg<bool> consolelog(argc, argv, 'c');
+        cxxtools::Arg<unsigned short> udpport(argc, argv, 'u');
+        cxxtools::Arg<std::string> logfile(argc, argv, 'f', "/dev/null");
+        cxxtools::Arg<bool> norollingfile(argc, argv, 'r');
+
+        cxxtools::LogConfiguration logConfiguration;
+        logConfiguration.setRootLevel(cxxtools::Logger::LOG_LEVEL_INFO);
+
+        unsigned settingCount = 0;
+        if (consolelog)
+            ++settingCount;
+
+        if (logfile.isSet())
+            ++settingCount;
+
+        if (udpport.isSet())
+        {
+            ++settingCount;
+            logConfiguration.setLoghost("", udpport);
+        }
+
+        if (settingCount > 1)
+        {
+            std::cerr << "only one of -c, -u or -f must be specified" << std::endl;
+            return -1;
+        }
+
+        if (logfile.isSet() || settingCount == 0)
+        {
+            if (norollingfile || !logfile.isSet())
+                logConfiguration.setFile(logfile);
+            else
+                logConfiguration.setFile(logfile, 1024*1024, 0);
+        }
+
+        log_init(logConfiguration);
+
+        unsigned long count = 1;
+
+        typedef std::vector<std::unique_ptr<bench::Logtester> > Threads;
+        Threads threads;
+        for (unsigned t = 0; t < numthreads; ++t)
+            threads.emplace_back(new bench::Logtester(count, loops.getValue() / numthreads.getValue(), enable));
+
+        while (count > 0)
+        {
+            std::cout << "count=" << (count * loops) << '\t' << std::flush;
+
+            for (Threads::iterator it = threads.begin(); it != threads.end(); ++it)
+                (*it)->setCount(count);
+
+            cxxtools::Clock cl;
+            cl.start();
+
+            if (threads.size() == 1)
+            {
+                (*threads.begin())->run();
+            }
+            else
+            {
+                for (Threads::iterator it = threads.begin(); it != threads.end(); ++it)
+                    (*it)->join();
+            }
+
+            cxxtools::Seconds T = cl.stop();
+
+            std::cout.precision(6);
+            std::cout << " T=" << T << '\t' << std::setprecision(12) << (count / T * loops)
+                << " msg/s" << std::endl;
+
+            if (T >= total)
+                break;
+
+            count <<= 1;
+        }
+
+    }
+    catch (const std::exception& e)
     {
-      std::cerr << "only one of -c, -u or -f must be specified" << std::endl;
-      return -1;
+        std::cerr << e.what() << std::endl;
+        return -1;
     }
-
-    if (logfile.isSet() || settingCount == 0)
-    {
-      if (norollingfile || !logfile.isSet())
-        logConfiguration.setFile(logfile);
-      else
-        logConfiguration.setFile(logfile, 1024*1024, 0);
-    }
-
-    log_init(logConfiguration);
-
-    unsigned long count = 1;
-    double T;
-
-    typedef std::vector<std::unique_ptr<bench::Logtester> > Threads;
-    Threads threads;
-    for (unsigned t = 0; t < numthreads; ++t)
-      threads.emplace_back(new bench::Logtester(count, loops.getValue() / numthreads.getValue(), enable));
-
-    while (count > 0)
-    {
-      std::cout << "count=" << (count * loops) << '\t' << std::flush;
-
-      for (Threads::iterator it = threads.begin(); it != threads.end(); ++it)
-        (*it)->setCount(count);
-
-      struct timeval tv0;
-      struct timeval tv1;
-
-      gettimeofday(&tv0, 0);
-
-      if (threads.size() == 1)
-      {
-        (*threads.begin())->run();
-      }
-      else
-      {
-        for (Threads::iterator it = threads.begin(); it != threads.end(); ++it)
-          (*it)->start();
-        for (Threads::iterator it = threads.begin(); it != threads.end(); ++it)
-          (*it)->join();
-      }
-
-      gettimeofday(&tv1, 0);
-
-      double t0 = tv0.tv_sec + tv0.tv_usec / 1e6;
-      double t1 = tv1.tv_sec + tv1.tv_usec / 1e6;
-      T = t1 - t0;
-
-      std::cout.precision(6);
-      std::cout << " T=" << T << '\t' << std::setprecision(12) << (count / T * loops)
-        << " msg/s" << std::endl;
-
-      if (T >= total)
-        break;
-
-      count <<= 1;
-    }
-
-  }
-  catch (const std::exception& e)
-  {
-    std::cerr << e.what() << std::endl;
-    return -1;
-  }
 }
 

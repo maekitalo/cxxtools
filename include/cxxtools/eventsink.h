@@ -30,23 +30,19 @@
 #define CXXTOOLS_EVENTSINK_H
 
 #include <cxxtools/event.h>
-#include <cxxtools/mutex.h>
+#include <mutex>
 #include <list>
 
-namespace cxxtools {
+namespace cxxtools
+{
 
     class EventSource;
 
     class EventSink
     {
-#if __cplusplus >= 201103L
             EventSink(const EventSink&) = delete;
             EventSink& operator=(const EventSink&) = delete;
-#else
-            EventSink(const EventSink&) { }
-            EventSink& operator=(const EventSink&) { return *this; }
-#endif
-        friend class EventSource;
+            friend class EventSource;
 
         public:
             EventSink();
@@ -77,7 +73,7 @@ namespace cxxtools {
             void onUnsubscribe(EventSource& source);
 
         private:
-            mutable RecursiveMutex _mutex;
+            mutable std::recursive_mutex _mutex;
             std::list<EventSource*> _sources;
     };
 

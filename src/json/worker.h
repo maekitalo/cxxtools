@@ -29,7 +29,7 @@
 #ifndef CXXTOOLS_JSON_WORKER_H
 #define CXXTOOLS_JSON_WORKER_H
 
-#include <cxxtools/thread.h>
+#include <thread>
 
 namespace cxxtools
 {
@@ -38,18 +38,19 @@ namespace json
 
 class RpcServerImpl;
 
-class Worker : public AttachedThread
+class Worker
 {
     public:
-        explicit Worker(RpcServerImpl& server)
-            : AttachedThread(callable(*this, &Worker::run)),
-              _server(server)
-        {
-        }
+        explicit Worker(RpcServerImpl& server);
+        ~Worker();
+
+        void join()         { _thread.join(); }
 
     private:
         void run();
+
         RpcServerImpl& _server;
+        std::thread _thread;
 };
 
 }

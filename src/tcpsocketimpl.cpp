@@ -47,7 +47,6 @@
 #include <cxxtools/log.h>
 #include <cxxtools/join.h>
 #include <cxxtools/hexdump.h>
-#include <cxxtools/mutex.h>
 #include <cxxtools/resetter.h>
 
 #include "config.h"

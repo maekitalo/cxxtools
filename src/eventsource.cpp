@@ -25,12 +25,14 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-#include "cxxtools/eventsource.h"
-#include "cxxtools/eventsink.h"
+#include <cxxtools/eventsource.h>
+#include <cxxtools/eventsink.h>
+#include <thread>
 
-namespace cxxtools {
+namespace cxxtools
+{
 
-RecursiveMutex dmx;
+std::recursive_mutex dmx;
 
 struct EventSource::Sentry
 {
@@ -88,11 +90,11 @@ EventSource::EventSource()
 
 EventSource::~EventSource()
 {
-    RecursiveLock dlock(*_dmutex);
+    std::unique_lock<std::recursive_mutex> dlock(*_dmutex);
 
     while( true )
     {
-        RecursiveLock lock( _mutex );
+        std::unique_lock<std::recursive_mutex> lock( _mutex );
 
         if(_sentry)
             _sentry->detach();
@@ -105,7 +107,7 @@ EventSource::~EventSource()
         if( ! this->tryDisconnect(*sink) )
         {
             lock.unlock();
-            Thread::yield();
+            std::this_thread::yield();
         }
     }
 }
@@ -113,7 +115,7 @@ EventSource::~EventSource()
 
 void EventSource::connect(EventSink& sink)
 {
-    RecursiveLock lock( _mutex );
+    std::lock_guard<std::recursive_mutex> lock( _mutex );
 
     sink.onConnect(*this);
 
@@ -126,7 +128,7 @@ void EventSource::connect(EventSink& sink)
 
 void EventSource::disconnect(EventSink& sink)
 {
-    RecursiveLock lock( _mutex );
+    std::lock_guard<std::recursive_mutex> lock( _mutex );
 
     sink.onDisconnect(*this);
 
@@ -154,7 +156,7 @@ void EventSource::disconnect(EventSink& sink)
 
 bool EventSource::tryDisconnect(EventSink& sink)
 {
-    if( _dmutex->tryLock() )
+    if( _dmutex->try_lock() )
     {
         this->disconnect(sink);
         _dmutex->unlock();
@@ -167,7 +169,7 @@ bool EventSource::tryDisconnect(EventSink& sink)
 
 void EventSource::subscribe(EventSink& sink, const std::type_info& ti)
 {
-    RecursiveLock lock( _mutex );
+    std::lock_guard<std::recursive_mutex> lock( _mutex );
 
     sink.onConnect(*this);
 
@@ -180,7 +182,7 @@ void EventSource::subscribe(EventSink& sink, const std::type_info& ti)
 
 void EventSource::unsubscribe(EventSink& sink, const std::type_info& ti)
 {
-    RecursiveLock lock( _mutex );
+    std::lock_guard<std::recursive_mutex> lock( _mutex );
 
     sink.onUnsubscribe(*this);
 
@@ -208,7 +210,7 @@ void EventSource::unsubscribe(EventSink& sink, const std::type_info& ti)
 
 void EventSource::send(const cxxtools::Event& ev)
 {
-    RecursiveLock lock(_mutex);
+    std::lock_guard<std::recursive_mutex> lock(_mutex);
     EventSource::Sentry sentry(this);
 
     SinkMap::iterator it;

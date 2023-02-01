@@ -26,10 +26,14 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <iostream>
-#include <cxxtools/thread.h>
 #include <cxxtools/pool.h>
+#include <cxxtools/timespan.h>
 #include <cxxtools/log.h>
+
+#include <thread>
+#include <iostream>
+#include <functional>
+
 #include <unistd.h>
 
 log_define("pooldemo")
@@ -37,41 +41,41 @@ log_define("pooldemo")
 // define a dummy dbconnection-object
 class Connection
 {
-    std::string db;
-  public:
-    Connection()
-    {
-      log_info("create connection");
-    }
+        std::string db;
+    public:
+        Connection()
+        {
+            log_info("create connection");
+        }
 
-    explicit Connection(const std::string& db_)
-      : db(db_)
-    {
-      log_info("create connection to \"" << db << '"');
-    }
+        explicit Connection(const std::string& db_)
+            : db(db_)
+        {
+            log_info("create connection to \"" << db << '"');
+        }
 
-    ~Connection()
-    {
-      log_info("destroy connection");
-    }
+        ~Connection()
+        {
+            log_info("destroy connection");
+        }
 
-    void doSomething()
-    {
-      sleep(1);
-    }
+        void doSomething()
+        {
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+        }
 };
 
 // define a custom connector for passing the connection string
 class Connector
 {
-    std::string db;
+        std::string db;
 
-  public:
-    explicit Connector(const std::string& db_)
-      : db(db_)
-      { }
-    Connection* operator() ()
-      { return new Connection(db); }
+    public:
+        explicit Connector(const std::string& db_)
+            : db(db_)
+            { }
+        Connection* operator() ()
+            { return new Connection(db); }
 };
 
 // define a connection-pool-type
@@ -81,92 +85,82 @@ typedef cxxtools::Pool<Connection, Connector> ConnectionPoolType;
 // and does something
 class MyThread
 {
-    cxxtools::AttachedThread thread;
-    ConnectionPoolType& pool;
-    unsigned threadNum;
-    unsigned sec;
+        std::thread _thread;
+        ConnectionPoolType& _pool;
+        unsigned _threadNum;
+        cxxtools::Seconds _sec;
 
-  public:
-    explicit MyThread (ConnectionPoolType& pool_, unsigned threadNum_, unsigned sec_ = 1)
-      : thread( cxxtools::callable(*this, &MyThread::run) ),
-        pool(pool_),
-        threadNum(threadNum_),
-        sec(sec_)
-      { }
+    public:
+        explicit MyThread (ConnectionPoolType& pool_, unsigned threadNum_, cxxtools::Seconds sec = 1)
+            : _thread(std::bind(&MyThread::run, this)),
+                _pool(pool_),
+                _threadNum(threadNum_),
+                _sec(sec)
+            { }
 
-      void create()
-      { thread.start(); }
+            void join()
+            { _thread.join(); }
 
-      void join()
-      { thread.join(); }
+        void run()
+        {
+            log_info("start thread " << _threadNum);
 
-    void run()
-    {
-      log_info("start thread " << threadNum);
+            std::this_thread::sleep_for(std::chrono::milliseconds(cxxtools::Milliseconds(_sec)));
 
-      sleep(sec);
+            // We fetch a object from the pool, and call a method pool.get() does
+            // not return a connection, but a proxy object, so we have to take
+            // care not to assign the object to a Connection, but use that proxy
+            // directy.
+            //
+            // This would be wrong:
+            //     Connection conn = *pool.get(); // convert the proxy-object
+            //     conn.doSomething(threadNum);    // the connection is back in the pool here :-(
+            //
+            // The reason is, that the proxy object is destroyed too early.
+            // The proxy object puts the connection back to the free-list of the
+            // pool, before we use the connection.
+            //
+            log_info("doSomething in thread " << _threadNum);
+            _pool.get()->doSomething();
+            log_info("doSomething ends in thread " << _threadNum);
 
-      // We fetch a object from the pool, and call a method pool.get() does
-      // not return a connection, but a proxy object, so we have to take
-      // care not to assign the object to a Connection, but use that proxy
-      // directy.
-      //
-      // This would be wrong:
-      //   Connection conn = *pool.get(); // convert the proxy-object
-      //   conn.doSomething(threadNum);  // the connection is back in the pool here :-(
-      //
-      // The reason is, that the proxy object is destroyed too early.
-      // The proxy object puts the connection back to the free-list of the
-      // pool, before we use the connection.
-      //
-      log_info("doSomething in thread " << threadNum);
-      pool.get()->doSomething();
-      log_info("doSomething ends in thread " << threadNum);
-
-      log_info("thread ready " << threadNum);
-    }
+            log_info("thread ready " << _threadNum);
+        }
 };
 
 int main(int argc, char* argv[])
 {
-  try
-  {
-    log_init();
+    try
+    {
+        log_init();
 
-    ConnectionPoolType connectionPool(3, Connector("mydb"));
+        ConnectionPoolType connectionPool(3, Connector("mydb"));
 
-    MyThread th1(connectionPool, 1, 2);
-    MyThread th2(connectionPool, 2);
-    MyThread th3(connectionPool, 3, 3);
-    MyThread th4(connectionPool, 4, 3);
-    MyThread th5(connectionPool, 5, 4);
+        MyThread th1(connectionPool, 1, 2);
+        MyThread th2(connectionPool, 2);
+        MyThread th3(connectionPool, 3, 3);
+        MyThread th4(connectionPool, 4, 3);
+        MyThread th5(connectionPool, 5, 4);
 
-    th1.create();
-    th2.create();
-    th3.create();
-    th4.create();
-    th5.create();
+        log_info("threads created");
 
-    log_info("threads created");
+        th1.join();
 
-    th1.join();
+        // Thread 1 is ready and the connection is put back into the pool.
+        // We release all free connections here. At least one connection
+        // from thread 1 is released.
+        log_info("pool drop");
+        connectionPool.drop();
 
-    // Thread 1 is ready and the connection is put back into the pool.
-    // We release all free connections here. At least one connection
-    // from thread 1 is released.
-    log_info("pool drop");
-    connectionPool.drop();
+        th2.join();
+        th4.join();
+        th3.join();
+        th5.join();
 
-    th2.join();
-    th4.join();
-    th3.join();
-    th5.join();
-
-    log_info("threads joined");
-  }
-  catch (const std::exception& e)
-  {
-    std::cerr << e.what() << std::endl;
-  }
+        log_info("threads joined");
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << e.what() << std::endl;
+    }
 }
-

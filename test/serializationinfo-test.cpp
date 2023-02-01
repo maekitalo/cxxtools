@@ -33,11 +33,9 @@
 #include "cxxtools/convert.h"
 #include "cxxtools/log.h"
 
-log_define("cxxtools.unit.serializationinfo")
-
-#if __cplusplus >= 201103L
 #include <utility>
-#endif
+
+log_define("cxxtools.unit.serializationinfo")
 
 template <typename T>
 T siValue(const cxxtools::SerializationInfo& si)
@@ -66,9 +64,7 @@ class SerializationInfoTest : public cxxtools::unit::TestSuite
             registerMethod("testSiAssign", *this, &SerializationInfoTest::testSiAssign);
             registerMethod("testSiCopy", *this, &SerializationInfoTest::testSiCopy);
             registerMethod("testSiSwap", *this, &SerializationInfoTest::testSiSwap);
-#if __cplusplus >= 201103L
             registerMethod("testMove", *this, &SerializationInfoTest::testMove);
-#endif
             registerMethod("testStringToBool", *this, &SerializationInfoTest::testStringToBool);
             registerMethod("testMember", *this, &SerializationInfoTest::testMember);
         }
@@ -368,7 +364,6 @@ class SerializationInfoTest : public cxxtools::unit::TestSuite
 
         }
 
-#if __cplusplus >= 201103L
         void testMove()
         {
             {
@@ -408,8 +403,6 @@ class SerializationInfoTest : public cxxtools::unit::TestSuite
             }
 
         }
-
-#endif
 
         void testSiSwap()
         {

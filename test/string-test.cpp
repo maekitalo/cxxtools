@@ -32,10 +32,7 @@
 #include "cxxtools/string.h"
 #include <vector>
 #include <sstream>
-
-#if __cplusplus >= 201103L
 #include <utility>
-#endif
 
 
 class StringTest : public cxxtools::unit::TestSuite
@@ -68,9 +65,7 @@ class StringTest : public cxxtools::unit::TestSuite
             cxxtools::unit::TestSuite::registerMethod( "testReserve", *this, &StringTest::testReserve );
             cxxtools::unit::TestSuite::registerMethod( "testReserveEmpty", *this, &StringTest::testReserveEmpty );
             cxxtools::unit::TestSuite::registerMethod( "testLengthAndSize", *this, &StringTest::testLengthAndSize );
-#if __cplusplus >= 201103L
             cxxtools::unit::TestSuite::registerMethod( "testMove", *this, &StringTest::testMove );
-#endif
         }
 
     protected:
@@ -99,9 +94,7 @@ class StringTest : public cxxtools::unit::TestSuite
         void testReserve();
         void testReserveEmpty();
         void testLengthAndSize();
-#if __cplusplus >= 201103L
         void testMove();
-#endif
 };
 
 cxxtools::unit::RegisterTest<StringTest> register_StringTest;
@@ -717,7 +710,6 @@ void StringTest::testLengthAndSize()
     CXXTOOLS_UNIT_ASSERT_EQUALS(s3.size()   , 4);
 }
 
-#if __cplusplus >= 201103L
 void StringTest::testMove()
 {
     {
@@ -742,5 +734,3 @@ void StringTest::testMove()
         CXXTOOLS_UNIT_ASSERT(s1 != str);  // this is true since s1 is a long string and moving is moving the data from s1 to s2
     }
 }
-
-#endif

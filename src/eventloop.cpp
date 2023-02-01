@@ -28,9 +28,9 @@
  */
 #include "selectorimpl.h"
 #include "cxxtools/eventloop.h"
-#include "cxxtools/mutex.h"
 #include "cxxtools/log.h"
 #include <deque>
+#include <mutex>
 
 log_define("cxxtools.eventloop")
 
@@ -89,7 +89,7 @@ public:
     std::deque<Event*> _priorityEventQueue;
     std::deque<Event*> _activeEventQueue;
     bool _activeEventQueueIsPriority;
-    Mutex _queueMutex;
+    std::mutex _queueMutex;
     unsigned _eventsPerLoop;
 };
 
@@ -182,7 +182,7 @@ void EventLoop::onRun()
 
     while (true)
     {
-        MutexLock lock(_impl->_queueMutex);
+        std::unique_lock<std::mutex> lock(_impl->_queueMutex);
 
         if (_impl->_exitLoop)
         {
@@ -191,14 +191,12 @@ void EventLoop::onRun()
         }
 
         bool eventQueueEmpty = _impl->eventQueueEmpty();
+        lock.unlock();
         if (!eventQueueEmpty)
         {
-            lock.unlock();
             processEvents(_impl->_eventsPerLoop);
             eventQueueEmpty = _impl->eventQueueEmpty();
         }
-
-        lock.unlock();
 
         if (eventQueueEmpty)
         {
@@ -223,7 +221,7 @@ bool EventLoop::onWaitUntil(Timespan timeout)
 {
     if (_impl->_selector->waitUntil(timeout))
     {
-        MutexLock lock(_impl->_queueMutex);
+        std::unique_lock<std::mutex> lock(_impl->_queueMutex);
 
         if (!_impl->eventQueueEmpty())
         {
@@ -249,7 +247,7 @@ void EventLoop::onExit()
     log_debug("exit loop");
 
     {
-        MutexLock lock(_impl->_queueMutex);
+        std::lock_guard<std::mutex> lock(_impl->_queueMutex);
         _impl->_exitLoop = true;
     }
 
@@ -260,7 +258,7 @@ void EventLoop::onQueueEvent(const Event& ev, bool priority)
 {
     log_debug("queue event");
 
-    MutexLock lock( _impl->_queueMutex );
+    std::lock_guard<std::mutex> lock( _impl->_queueMutex );
 
     EvPtr cloned(ev.clone());
 
@@ -289,13 +287,13 @@ void EventLoop::onProcessEvents(unsigned max)
     std::deque<Event*>& priorityEventQueue = _impl->_priorityEventQueue;
     std::deque<Event*>& activeEventQueue = _impl->_activeEventQueue;
     bool& activeEventQueueIsPriority = _impl->_activeEventQueueIsPriority;
-    Mutex& queueMutex = _impl->_queueMutex;
+    auto& queueMutex = _impl->_queueMutex;
 
     log_debug("processEvents(max:" << max << ") normal/priority/active(priority): " << eventQueue.size() << '/' << priorityEventQueue.size() << '/' << activeEventQueue.size() << '(' << activeEventQueueIsPriority << ')');
 
     if (!activeEventQueue.empty() && !activeEventQueueIsPriority)
     {
-        MutexLock lock(queueMutex);
+        std::lock_guard<std::mutex> lock(queueMutex);
         if (!priorityEventQueue.empty())
         {
             log_debug("priority events bypass active events");
@@ -319,7 +317,7 @@ void EventLoop::onProcessEvents(unsigned max)
     {
         if (activeEventQueue.empty())
         {
-            MutexLock lock(queueMutex);
+            std::lock_guard<std::mutex> lock(queueMutex);
             if (!priorityEventQueue.empty())
             {
                 log_debug("move " << priorityEventQueue.size() << " priority events to active event queue");

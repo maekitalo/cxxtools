@@ -31,7 +31,6 @@
 
 #include "iodeviceimpl.h"
 #include <cxxtools/net/addrinfo.h>
-#include <cxxtools/mutex.h>
 #include <cxxtools/sslcertificate.h>
 #include "addrinfoimpl.h"
 #include "config.h"
