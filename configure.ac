@@ -1,4 +1,4 @@
-AC_INIT(cxxtools, 3.1, [Tommi Maekitalo <tommi@tntnet.org>])
+AC_INIT(cxxtools, 4.0, [Tommi Maekitalo <tommi@tntnet.org>])
 AM_INIT_AUTOMAKE
 AC_USE_SYSTEM_EXTENSIONS
 
@@ -6,7 +6,7 @@ LT_INIT([disable-static])
 
 AC_PREREQ([2.5.9])
 
-abi_current=11
+abi_current=12
 abi_revision=0
 abi_age=0
 sonumber=${abi_current}:${abi_revision}:${abi_age}
