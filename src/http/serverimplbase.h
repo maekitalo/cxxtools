@@ -44,13 +44,8 @@ namespace http
 
 class ServerImplBase
 {
-#if __cplusplus >= 201103L
         ServerImplBase(const ServerImplBase&) = delete;
         ServerImplBase& operator=(const ServerImplBase&) = delete;
-#else
-        ServerImplBase(const ServerImplBase&);
-        ServerImplBase& operator=(const ServerImplBase&);
-#endif
 
     public:
         ServerImplBase(EventLoopBase& eventLoop, Signal<Server::Runmode>& runmodeChanged)
