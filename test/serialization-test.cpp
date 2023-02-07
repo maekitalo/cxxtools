@@ -68,6 +68,9 @@ class SerializationTest : public cxxtools::unit::TestSuite
             registerMethod("testUnorderedMultimap", *this, &SerializationTest::testUnorderedMultimap);
             registerMethod("testTuple", *this, &SerializationTest::testTuple);
             registerMethod("testArray", *this, &SerializationTest::testArray);
+#if __cplusplus >= 201703L
+            registerMethod("testOptional", *this, &SerializationTest::testOptional);
+#endif
             registerMethod("testEnum", *this, &SerializationTest::testEnum);
             registerMethod("testCast", *this, &SerializationTest::testCast);
         }
@@ -514,6 +517,36 @@ class SerializationTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(vv[1], -4);
             CXXTOOLS_UNIT_ASSERT_EQUALS(vv[2], 42);
         }
+
+#if __cplusplus >= 201703L
+        void testOptional()
+        {
+            {
+                cxxtools::SerializationInfo si;
+                std::optional<int> nullValue;
+                std::optional<int> value;
+
+                si <<= nullValue;
+                CXXTOOLS_UNIT_ASSERT(si.isNull());
+
+                si >>= value;
+                CXXTOOLS_UNIT_ASSERT(!value);
+            }
+
+            {
+                cxxtools::SerializationInfo si;
+                std::optional<int> aValue(42);
+                std::optional<int> value;
+
+                si <<= aValue;
+                CXXTOOLS_UNIT_ASSERT(!si.isNull());
+
+                si >>= value;
+                CXXTOOLS_UNIT_ASSERT(value);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(*value, 42);
+            }
+        }
+#endif
 
         void testEnum()
         {

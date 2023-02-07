@@ -46,6 +46,10 @@
 
 #include <cxxtools/config.h>
 
+#if __cplusplus >= 201703L
+#include <optional>
+#endif
+
 namespace cxxtools
 {
 
@@ -1164,6 +1168,27 @@ void operator <<=(SerializationInfo& si, const std::array<T, N>& array)
     si.setTypeName("array");
     si.setCategory(SerializationInfo::Array);
 }
+
+#if __cplusplus >= 201703L
+
+template <typename T>
+inline void operator >>=(const SerializationInfo& si, std::optional<T>& value)
+{
+    if (!si.isNull())
+    {
+        value = T();
+        si >>= *value;
+    }
+}
+
+template <typename T>
+inline void operator <<=(SerializationInfo& si, const std::optional<T>& value)
+{
+    if (value)
+        si <<= *value;
+}
+
+#endif
 
 /// @internal
 template <typename ENUM>
