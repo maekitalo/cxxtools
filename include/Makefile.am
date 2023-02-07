@@ -153,7 +153,6 @@ nobase_include_HEADERS = \
         cxxtools/scopedincrement.h \
         cxxtools/selector.h \
         cxxtools/selectable.h \
-        cxxtools/semaphore.h \
         cxxtools/serializationerror.h \
         cxxtools/serializationinfo.h \
         cxxtools/serviceprocedure.h \

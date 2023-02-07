@@ -79,8 +79,6 @@ libcxxtools_la_SOURCES = \
 	selectable.cpp \
 	selector.cpp \
 	selectorimpl.cpp \
-	semaphore.cpp \
-	semaphoreimpl.cpp \
 	serviceregistry.cpp \
 	settings.cpp \
 	settingsreader.cpp \
@@ -142,7 +140,6 @@ noinst_HEADERS = \
 	pipeimpl.h \
 	selectableimpl.h \
 	selectorimpl.h \
-	semaphoreimpl.h \
 	settingsreader.h \
 	settingswriter.h \
 	sslcertificateimpl.h \
