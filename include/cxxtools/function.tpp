@@ -15,8 +15,7 @@ class Function : public Callable<R, A1,A2,A3,A4,A5,A6,A7,A8,A9,A10>
         : _funcPtr(func) { }
 
         /** Deeply copies f. */
-        Function(const Function& f)
-        { this->operator=(f); }
+        Function(const Function& f) = default;
 
         /** Call the wrapped function, passing it the arguments as-is and returning
         its return value. */
@@ -107,8 +106,7 @@ class Function<R, A1,A2,A3,A4,A5,A6,A7,A8,A9,Void> : public Callable<R, A1,A2,A3
         : _funcPtr(func) { }
 
         /** Deeply copies f. */
-        Function(const Function& f)
-        { this->operator=(f); }
+        Function(const Function& f) = default;
 
         /** Call the wrapped function, passing it the arguments as-is and returning
         its return value. */
@@ -165,8 +163,7 @@ class Function<R, A1,A2,A3,A4,A5,A6,A7,A8,Void,Void> : public Callable<R, A1,A2,
         : _funcPtr(func) { }
 
         /** Deeply copies f. */
-        Function(const Function& f)
-        { this->operator=(f); }
+        Function(const Function& f) = default;
 
         /** Call the wrapped function, passing it the arguments as-is and returning
         its return value. */
@@ -223,8 +220,7 @@ class Function<R, A1,A2,A3,A4,A5,A6,A7,Void,Void,Void> : public Callable<R, A1,A
         : _funcPtr(func) { }
 
         /** Deeply copies f. */
-        Function(const Function& f)
-        { this->operator=(f); }
+        Function(const Function& f) = default;
 
         /** Call the wrapped function, passing it the arguments as-is and returning
         its return value. */
@@ -281,8 +277,7 @@ class Function<R, A1,A2,A3,A4,A5,A6,Void,Void,Void,Void> : public Callable<R, A1
         : _funcPtr(func) { }
 
         /** Deeply copies f. */
-        Function(const Function& f)
-        { this->operator=(f); }
+        Function(const Function& f) = default;
 
         /** Call the wrapped function, passing it the arguments as-is and returning
         its return value. */
@@ -339,8 +334,7 @@ class Function<R, A1,A2,A3,A4,A5,Void,Void,Void,Void,Void> : public Callable<R, 
         : _funcPtr(func) { }
 
         /** Deeply copies f. */
-        Function(const Function& f)
-        { this->operator=(f); }
+        Function(const Function& f) = default;
 
         /** Call the wrapped function, passing it the arguments as-is and returning
         its return value. */
@@ -397,8 +391,7 @@ class Function<R, A1,A2,A3,A4,Void,Void,Void,Void,Void,Void> : public Callable<R
         : _funcPtr(func) { }
 
         /** Deeply copies f. */
-        Function(const Function& f)
-        { this->operator=(f); }
+        Function(const Function& f) = default;
 
         /** Call the wrapped function, passing it the arguments as-is and returning
         its return value. */
@@ -455,8 +448,7 @@ class Function<R, A1,A2,A3,Void,Void,Void,Void,Void,Void,Void> : public Callable
         : _funcPtr(func) { }
 
         /** Deeply copies f. */
-        Function(const Function& f)
-        { this->operator=(f); }
+        Function(const Function& f) = default;
 
         /** Call the wrapped function, passing it the arguments as-is and returning
         its return value. */
@@ -513,8 +505,7 @@ class Function<R, A1,A2,Void,Void,Void,Void,Void,Void,Void,Void> : public Callab
         : _funcPtr(func) { }
 
         /** Deeply copies f. */
-        Function(const Function& f)
-        { this->operator=(f); }
+        Function(const Function& f) = default;
 
         /** Call the wrapped function, passing it the arguments as-is and returning
         its return value. */
@@ -571,8 +562,7 @@ class Function<R, A1,Void,Void,Void,Void,Void,Void,Void,Void,Void> : public Call
         : _funcPtr(func) { }
 
         /** Deeply copies f. */
-        Function(const Function& f)
-        { this->operator=(f); }
+        Function(const Function& f) = default;
 
         /** Call the wrapped function, passing it the arguments as-is and returning
         its return value. */
@@ -629,8 +619,7 @@ class Function<R, Void,Void,Void,Void,Void,Void,Void,Void,Void,Void> : public Ca
         : _funcPtr(func) { }
 
         /** Deeply copies f. */
-        Function(const Function& f)
-        { this->operator=(f); }
+        Function(const Function& f) = default;
 
         /** Call the wrapped function, passing it the arguments as-is and returning
         its return value. */

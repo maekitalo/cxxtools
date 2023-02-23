@@ -10,16 +10,6 @@
             typedef Invokable<A1,A2,A3,A4,A5,A6,A7,A8,A9,A10> InvokableT;
 
         public:
-            /** Does nothing. */
-            Signal()
-            { }
-
-            /** Deeply copies rhs. */
-            Signal(const Signal& rhs)
-            {
-                operator=(rhs);
-            }
-
             /**
             Connects slot to this signal, such that firing this signal
             will invoke slot.
@@ -225,16 +215,6 @@
             typedef Invokable<A1,A2,A3,A4,A5,A6,A7,A8,A9,Void> InvokableT;
 
         public:
-            /** Does nothing. */
-            Signal()
-            { }
-
-            /** Deeply copies rhs. */
-            Signal(const Signal& rhs)
-            {
-                operator=(rhs);
-            }
-
             /**
             Connects slot to this signal, such that firing this signal
             will invoke slot.
@@ -370,16 +350,6 @@
             typedef Invokable<A1,A2,A3,A4,A5,A6,A7,A8,Void,Void> InvokableT;
 
         public:
-            /** Does nothing. */
-            Signal()
-            { }
-
-            /** Deeply copies rhs. */
-            Signal(const Signal& rhs)
-            {
-                operator=(rhs);
-            }
-
             /**
             Connects slot to this signal, such that firing this signal
             will invoke slot.
@@ -515,16 +485,6 @@
             typedef Invokable<A1,A2,A3,A4,A5,A6,A7,Void,Void,Void> InvokableT;
 
         public:
-            /** Does nothing. */
-            Signal()
-            { }
-
-            /** Deeply copies rhs. */
-            Signal(const Signal& rhs)
-            {
-                operator=(rhs);
-            }
-
             /**
             Connects slot to this signal, such that firing this signal
             will invoke slot.
@@ -660,16 +620,6 @@
             typedef Invokable<A1,A2,A3,A4,A5,A6,Void,Void,Void,Void> InvokableT;
 
         public:
-            /** Does nothing. */
-            Signal()
-            { }
-
-            /** Deeply copies rhs. */
-            Signal(const Signal& rhs)
-            {
-                operator=(rhs);
-            }
-
             /**
             Connects slot to this signal, such that firing this signal
             will invoke slot.
@@ -805,16 +755,6 @@
             typedef Invokable<A1,A2,A3,A4,A5,Void,Void,Void,Void,Void> InvokableT;
 
         public:
-            /** Does nothing. */
-            Signal()
-            { }
-
-            /** Deeply copies rhs. */
-            Signal(const Signal& rhs)
-            {
-                operator=(rhs);
-            }
-
             /**
             Connects slot to this signal, such that firing this signal
             will invoke slot.
@@ -950,16 +890,6 @@
             typedef Invokable<A1,A2,A3,A4,Void,Void,Void,Void,Void,Void> InvokableT;
 
         public:
-            /** Does nothing. */
-            Signal()
-            { }
-
-            /** Deeply copies rhs. */
-            Signal(const Signal& rhs)
-            {
-                operator=(rhs);
-            }
-
             /**
             Connects slot to this signal, such that firing this signal
             will invoke slot.
@@ -1095,16 +1025,6 @@
             typedef Invokable<A1,A2,A3,Void,Void,Void,Void,Void,Void,Void> InvokableT;
 
         public:
-            /** Does nothing. */
-            Signal()
-            { }
-
-            /** Deeply copies rhs. */
-            Signal(const Signal& rhs)
-            {
-                operator=(rhs);
-            }
-
             /**
             Connects slot to this signal, such that firing this signal
             will invoke slot.
@@ -1240,16 +1160,6 @@
             typedef Invokable<A1,A2,Void,Void,Void,Void,Void,Void,Void,Void> InvokableT;
 
         public:
-            /** Does nothing. */
-            Signal()
-            { }
-
-            /** Deeply copies rhs. */
-            Signal(const Signal& rhs)
-            {
-                operator=(rhs);
-            }
-
             /**
             Connects slot to this signal, such that firing this signal
             will invoke slot.
@@ -1385,16 +1295,6 @@
             typedef Invokable<A1,Void,Void,Void,Void,Void,Void,Void,Void,Void> InvokableT;
 
         public:
-            /** Does nothing. */
-            Signal()
-            { }
-
-            /** Deeply copies rhs. */
-            Signal(const Signal& rhs)
-            {
-                operator=(rhs);
-            }
-
             /**
             Connects slot to this signal, such that firing this signal
             will invoke slot.
@@ -1530,16 +1430,6 @@
             typedef Invokable<Void,Void,Void,Void,Void,Void,Void,Void,Void,Void> InvokableT;
 
         public:
-            /** Does nothing. */
-            Signal()
-            { }
-
-            /** Deeply copies rhs. */
-            Signal(const Signal& rhs)
-            {
-                operator=(rhs);
-            }
-
             /**
             Connects slot to this signal, such that firing this signal
             will invoke slot.
