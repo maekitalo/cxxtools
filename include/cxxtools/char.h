@@ -66,7 +66,7 @@ namespace cxxtools
     class Char
     {
         public:
-            typedef uint32_t value_type;
+            typedef char32_t value_type;
 
             //! Constructs a character with a value of 0.
             Char() = default;
