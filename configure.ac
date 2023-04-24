@@ -25,12 +25,9 @@ AC_PROG_CXX
 AC_LANG(C++)
 AX_CXX_COMPILE_STDCXX_11(noext, mandatory)
 
-AX_COMPILER_VENDOR
-AS_IF([test "$ax_cv_cxx_compiler_vendor" = "ibm"],
-      [CPPFLAGS="$CPPFLAGS -qrtti -qlanglvl=newexcp -D__NOLOCK_ON_INPUT -D__NOLOCK_ON_OUTPUT"],
-      AX_CHECK_COMPILE_FLAG([-Wno-long-long], [CPPFLAGS="$CPPFLAGS -Wno-long-long"])
-      AX_CHECK_COMPILE_FLAG([-Wall], [CPPFLAGS="$CPPFLAGS -Wall"])
-      AX_CHECK_COMPILE_FLAG([-pedantic], [CPPFLAGS="$CPPFLAGS -pedantic"]))
+AX_CHECK_COMPILE_FLAG([-Wno-long-long], [CPPFLAGS="$CPPFLAGS -Wno-long-long"])
+AX_CHECK_COMPILE_FLAG([-Wall], [CPPFLAGS="$CPPFLAGS -Wall"])
+AX_CHECK_COMPILE_FLAG([-pedantic], [CPPFLAGS="$CPPFLAGS -pedantic"])
 
 AC_CHECK_HEADERS(sys/filio.h)
 AC_CHECK_HEADERS(csignal)
@@ -38,7 +35,6 @@ AC_CHECK_HEADERS([sys/sendfile.h])
 
 AC_CHECK_LIB(nsl, setsockopt)
 AC_CHECK_LIB(socket, accept)
-AC_CHECK_LIB(rt, sem_destroy)
 AC_SEARCH_LIBS(dlopen, dl, , AC_MSG_ERROR([dlopen not found]))
 AC_SEARCH_LIBS(inet_ntop, nsl socket resolv)
 AC_SEARCH_LIBS(clock_gettime, rt)
