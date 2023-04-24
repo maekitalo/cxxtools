@@ -92,25 +92,6 @@ class multi_ifstream : public std::istream
 
     void add_pattern(const std::string& pattern, int flags = 0)
       { buffer.add_pattern(pattern, flags); }
-
-    /// stl-compatible inserter
-    class pattern_inserter
-    {
-        multi_ifstream& m;
-      public:
-        pattern_inserter(multi_ifstream& m_)
-          : m(m_) { }
-        pattern_inserter& operator= (const std::string& p)
-          { m.add_pattern(p); return *this; }
-        pattern_inserter& operator* ()
-          { return *this; }
-        pattern_inserter& operator++ ()
-          { return *this; }
-        pattern_inserter& operator++ (int)
-          { return *this; }
-    };
-    pattern_inserter back_inserter()
-      { return pattern_inserter(*this); }
 };
 
 }
