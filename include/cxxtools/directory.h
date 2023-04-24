@@ -48,7 +48,6 @@ namespace cxxtools {
     \endcode
 */
 class DirectoryIterator
-    : public std::iterator<std::forward_iterator_tag, std::string>
 {
     public:
         //! @brief Default constructor

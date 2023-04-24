@@ -54,7 +54,6 @@ class MessageHeader
     public:
         typedef std::pair<const char*, const char*> value_type;
         class const_iterator
-            : public std::iterator<std::forward_iterator_tag, value_type>
         {
             friend class MessageHeader;
 

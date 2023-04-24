@@ -66,7 +66,7 @@ namespace net {
         { init(host, port, hints); }
       ~AddrInfoImpl();
 
-      class const_iterator : public std::iterator<std::forward_iterator_tag, addrinfo>
+      class const_iterator
       {
           struct addrinfo* current;
 
@@ -86,9 +86,9 @@ namespace net {
               current = current->ai_next;
               return ret;
             }
-          reference operator* () const
+          addrinfo& operator* () const
             { return *current; }
-          pointer operator-> () const
+          addrinfo* operator-> () const
             { return current; }
       };
 

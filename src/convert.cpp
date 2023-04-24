@@ -42,7 +42,7 @@ void _skipws(IterT& it, IterT end)
 }
 
 template<typename T>
-class nullterm_array_iterator : public std::iterator<std::input_iterator_tag, T>
+class nullterm_array_iterator
 {
     public:
         nullterm_array_iterator()
