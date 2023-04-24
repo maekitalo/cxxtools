@@ -4,7 +4,7 @@ AC_USE_SYSTEM_EXTENSIONS
 
 LT_INIT([disable-static])
 
-AC_PREREQ([2.71])
+AC_PREREQ([2.69])
 
 abi_current=12
 abi_revision=0
