@@ -71,11 +71,6 @@ alltests_SOURCES = \
     xmldeserializer-test.cpp \
     xmlserializer-test.cpp
 
-if MAKE_ICONVSTREAM
-alltests_SOURCES += \
-	iconvstream-test.cpp
-endif
-
 logbench_SOURCES = logbench.cpp
 
 logbench_LDADD = $(top_builddir)/src/libcxxtools.la

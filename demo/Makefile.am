@@ -97,11 +97,6 @@ xmlmsgclient_SOURCES = xmlmsgclient.cpp
 xmlmsgserver_SOURCES = xmlmsgserver.cpp
 xmlreader_SOURCES = xmlreader.cpp
 
-if MAKE_ICONVSTREAM
-noinst_PROGRAMS += iconv
-iconv_SOURCES = iconv.cpp
-endif
-
 BASE_LIBS = $(top_builddir)/src/libcxxtools.la
 HTTP_LIBS = $(BASE_LIBS) $(top_builddir)/src/http/libcxxtools-http.la
 XMLRPC_LIBS = $(HTTP_LIBS) $(top_builddir)/src/xmlrpc/libcxxtools-xmlrpc.la

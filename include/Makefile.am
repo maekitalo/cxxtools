@@ -233,10 +233,3 @@ nobase_include_HEADERS = \
 
 nobase_nodist_include_HEADERS = \
         cxxtools/config.h
-
-if MAKE_ICONVSTREAM
-nobase_include_HEADERS += \
-        cxxtools/iconverter.h \
-        cxxtools/iconvstream.h \
-        cxxtools/iconvwrap.h
-endif

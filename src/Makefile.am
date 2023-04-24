@@ -148,13 +148,6 @@ noinst_HEADERS = \
 	tcpsocketimpl.h \
 	unicode.h
 
-if MAKE_ICONVSTREAM
-libcxxtools_la_SOURCES += \
-	iconvwrap.cpp \
-	iconvstream.cpp
-endif
-
-libcxxtools_la_LIBADD = $(LIBICONV)
 libcxxtools_la_LDFLAGS = -version-info @sonumber@ @SHARED_LIB_FLAG@
 
 if MAKE_OPENSSL

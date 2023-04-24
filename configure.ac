@@ -96,15 +96,6 @@ AC_ARG_WITH([iconvstream],
     [with_iconvstream=$withval],
     [with_iconvstream=no])
 
-AS_IF([test "$with_iconvstream" = yes],
-[
-  AM_ICONV
-  AS_IF([test "$am_cv_func_iconv" !=  yes],
-    AC_MSG_ERROR(iconv not found))
-])
-
-AM_CONDITIONAL(MAKE_ICONVSTREAM, test $with_iconvstream = yes)
-
 ACX_PTHREAD
 
 CC="$PTHREAD_CC"
