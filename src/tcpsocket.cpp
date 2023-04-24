@@ -36,8 +36,6 @@
 #include <stdexcept>
 #include <errno.h>
 
-#include "config.h"
-
 log_define("cxxtools.net.tcpsocket")
 
 namespace cxxtools {
@@ -181,11 +179,7 @@ bool TcpSocket::isConnected() const
 
 bool TcpSocket::isSslConnected() const
 {
-#ifdef WITH_SSL
     return _impl->isSslConnected();
-#else
-    return false;
-#endif
 }
 
 
@@ -197,107 +191,63 @@ int TcpSocket::getFd() const
 
 bool TcpSocket::hasSslPeerCertificate() const
 {
-#ifdef WITH_SSL
     return getSslPeerCertificate();
-#else
-    return false;
-#endif
 }
 
 const SslCertificate& TcpSocket::getSslPeerCertificate() const
 {
-#ifdef WITH_SSL
     return _impl->getSslPeerCertificate();
-#else
-    log_warn("can't get ssl peer certificate since ssl is disabled");
-    static SslCertificate cert;
-    return cert;
-#endif
 }
 
 void TcpSocket::beginSslConnect(const SslCtx& ctx)
 {
-#ifdef WITH_SSL
     if (_impl->beginSslConnect(ctx))
         sslConnected(*this);
-#else
-    log_warn("can't connect ssl since ssl is disabled");
-    sslConnected(*this);
-#endif
 }
 
 void TcpSocket::endSslConnect()
 {
-#ifdef WITH_SSL
     _impl->endSslConnect();
-#endif
 }
 
 void TcpSocket::sslConnect(const SslCtx& ctx)
 {
-#ifdef WITH_SSL
     _impl->beginSslConnect(ctx);
     _impl->endSslConnect();
-#else
-    log_warn("can't connect ssl since ssl is disabled");
-    sslConnected(*this);
-#endif
 }
 
 void TcpSocket::beginSslAccept(const SslCtx& ctx)
 {
-#ifdef WITH_SSL
     if (_impl->beginSslAccept(ctx))
         sslAccepted(*this);
-#else
-    log_warn("can't accept ssl connection since ssl is disabled");
-    sslAccepted(*this);
-#endif
 }
 
 void TcpSocket::endSslAccept()
 {
-#ifdef WITH_SSL
     _impl->endSslAccept();
-#endif
 }
 
 void TcpSocket::sslAccept(const SslCtx& ctx)
 {
-#ifdef WITH_SSL
     _impl->beginSslAccept(ctx);
     _impl->endSslAccept();
-#else
-    log_warn("can't accept ssl connection since ssl is disabled");
-#endif
 }
 
 void TcpSocket::beginSslShutdown()
 {
-#ifdef WITH_SSL
     if (_impl->beginSslShutdown())
         sslClosed(*this);
-#else
-    log_warn("can't shutdown ssl connection since ssl is disabled");
-    sslClosed(*this);
-#endif
 }
 
 void TcpSocket::endSslShutdown()
 {
-#ifdef WITH_SSL
     _impl->endSslShutdown();
-#endif
 }
 
 void TcpSocket::sslShutdown()
 {
-#ifdef WITH_SSL
     _impl->beginSslShutdown();
     _impl->endSslShutdown();
-#else
-    log_warn("can't shutdown ssl connection since ssl is disabled");
-#endif
 }
 
 void TcpSocket::accept(const TcpServer& server, unsigned flags)

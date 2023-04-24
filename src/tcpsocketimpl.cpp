@@ -60,12 +60,10 @@
 #include <sstream>
 #include <vector>
 
-#ifdef WITH_SSL
 #include <openssl/err.h>
 #include <openssl/ssl.h>
 #include <cxxtools/sslctx.h>
 #include "sslctximpl.h"
-#endif
 
 #include <unistd.h>
 #include <cstring>
@@ -161,7 +159,6 @@ std::string TcpSocketImpl::connectFailedMessages()
     return msg.str();
 }
 
-#ifdef WITH_SSL
 void TcpSocketImpl::checkSslOperation(int ret, const char* fn, pollfd* pfd)
 {
     int err = SSL_get_error(_ssl, ret);
@@ -256,18 +253,14 @@ void TcpSocketImpl::initSsl(const SslCtx& sslCtx)
     log_debug_to(ssl, "SSL_set_fd(" << _ssl << ", " << _fd << ')');
     SSL_set_fd(_ssl, _fd);
 }
-#endif // WITH_SSL
 
 TcpSocketImpl::TcpSocketImpl(TcpSocket& socket)
 : IODeviceImpl(socket),
   _socket(socket),
   _state(IDLE),
-  _sentry(0)
-#ifdef WITH_SSL
-  ,
+  _sentry(0),
   _ssl(0),
   _peerCertificateLoaded(false)
-#endif
 {
 }
 
@@ -276,10 +269,8 @@ TcpSocketImpl::~TcpSocketImpl()
 {
     assert(_pfd == 0);
 
-#ifdef WITH_SSL
     if (_ssl)
         SSL_free(_ssl);
-#endif
 
     if (_sentry)
         _sentry->detach();
@@ -291,7 +282,6 @@ void TcpSocketImpl::close()
     log_debug("close socket " << _fd);
     IODeviceImpl::close();
     _state = IDLE;
-#ifdef WITH_SSL
     _peerCertificate.clear();
     _peerCertificateLoaded = false;
     if (_ssl)
@@ -300,7 +290,6 @@ void TcpSocketImpl::close()
         SSL_free(_ssl);
         _ssl = 0;
     }
-#endif
 }
 
 
@@ -580,7 +569,6 @@ bool TcpSocketImpl::checkPollEvent(pollfd& pfd)
             return true;
         }
 
-#ifdef WITH_SSL
         if (_state == SSLCONNECTING)
         {
             log_debug_to(ssl, "SSL_connect");
@@ -631,7 +619,6 @@ bool TcpSocketImpl::checkPollEvent(pollfd& pfd)
 
             return true;
         }
-#endif
 
         bool avail = IODeviceImpl::checkPollEvent(pfd);
 
@@ -799,7 +786,6 @@ size_t TcpSocketImpl::beginWrite(const char* buffer, size_t n)
         if (_pfd)
             _pfd->events |= POLLOUT;
     }
-#ifdef WITH_SSL
     else if (_state == SSLCONNECTED)
     {
         log_debug("SSL_write(" << _fd << ", buffer, " << n << ')');
@@ -819,7 +805,6 @@ size_t TcpSocketImpl::beginWrite(const char* buffer, size_t n)
             _exception = std::current_exception();
         }
     }
-#endif
     else
     {
         log_error("Device not connected when trying to write; state=" << _state);
@@ -853,7 +838,6 @@ size_t TcpSocketImpl::write(const char* buffer, size_t n)
             if (!wait(_timeout, pfd))
                 throw IOTimeout();
         }
-#ifdef WITH_SSL
         else if (_state == SSLCONNECTED)
         {
             log_debug("SSL_write");
@@ -862,7 +846,6 @@ size_t TcpSocketImpl::write(const char* buffer, size_t n)
                 break;
             waitSslOperation(ret, timeout());
         }
-#endif
         else
         {
             log_error("Device not connected when trying to write; state=" << _state);
@@ -884,13 +867,10 @@ void TcpSocketImpl::inputReady()
             break;
 
         case CONNECTED:
-#ifdef WITH_SSL
         case SSLCONNECTED:
-#endif
             IODeviceImpl::inputReady();
             break;
 
-#ifdef WITH_SSL
         case SSLACCEPTING:
             if (continueSslAccept())
                 _socket.sslAccepted(_socket);
@@ -905,7 +885,6 @@ void TcpSocketImpl::inputReady()
             if (beginSslShutdown())
                 _socket.sslClosed(_socket);
             break;
-#endif
     }
 }
 
@@ -918,13 +897,10 @@ void TcpSocketImpl::outputReady()
             break;
 
         case CONNECTED:
-#ifdef WITH_SSL
         case SSLCONNECTED:
-#endif
             IODeviceImpl::outputReady();
             break;
 
-#ifdef WITH_SSL
         case SSLACCEPTING:
             if (continueSslAccept())
                 _socket.sslAccepted(_socket);
@@ -939,7 +915,6 @@ void TcpSocketImpl::outputReady()
             if (beginSslShutdown())
                 _socket.sslClosed(_socket);
             break;
-#endif
     }
 }
 
@@ -949,7 +924,6 @@ size_t TcpSocketImpl::read(char* buffer, size_t count, bool& eof)
     {
         return IODeviceImpl::read(buffer, count, eof);
     }
-#ifdef WITH_SSL
     else if (_state == SSLCONNECTED)
     {
         while (true)
@@ -982,15 +956,12 @@ size_t TcpSocketImpl::read(char* buffer, size_t count, bool& eof)
                 throw IOTimeout();
         }
     }
-#endif
     else
     {
         log_warn("socket not connected when trying to read; state=" << _state);
         throw IOError("socket not connected when trying to read");
     }
 }
-
-#ifdef WITH_SSL
 
 const SslCertificate& TcpSocketImpl::getSslPeerCertificate() const
 {
@@ -1260,8 +1231,6 @@ void TcpSocketImpl::verifySslCertificate()
         throw SslCertificateNotAccepted();
     }
 }
-
-#endif // WITH_SSL
 
 } // namespace net
 

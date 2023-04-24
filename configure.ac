@@ -193,34 +193,22 @@ AC_COMPILE_IFELSE(
 #
 # SSL
 #
-AC_ARG_WITH([ssl],
-    [AS_HELP_STRING([--with-ssl=yes|no], [build with SSL support])],
-    [ssl_option=$withval],
-    [ssl_option=yes])
+AC_CHECK_HEADER([openssl/ssl.h],
+  [
+    AC_SEARCH_LIBS(SSL_CTX_new, ssl)
 
-AS_IF([test $ssl_option = yes],
-[
-  AC_CHECK_HEADER([openssl/ssl.h],
-      [
-        AC_MSG_RESULT([building with ssl support])
-        AC_DEFINE(WITH_SSL, [], [Define to build with openssl])
-        AC_SEARCH_LIBS(SSL_CTX_new, ssl)
-
-        AC_COMPILE_IFELSE(
-            [AC_LANG_SOURCE([
-                #include <openssl/asn1.h>
-                void foo() { ASN1_TIME_diff(0, 0, 0, 0); }
-            ])],
-            [AC_DEFINE(HAVE_ASN1_TIME_diff, [], [Defined when openssl supports ASN1_TIME_diff (openssl 1.0.2)])],
-            []
-        )
-        AC_CHECK_FUNC(TLS_method, [AC_DEFINE(HAVE_TLS_METHOD, [], [Defined when TLS_method is found in openssl library])])
-      ],
-      AC_MSG_ERROR([header for openssl not found; install openssl developent package or use --without-ssl])
-      )
-])
-
-AM_CONDITIONAL(MAKE_OPENSSL, test $ssl_option = yes)
+    AC_COMPILE_IFELSE(
+        [AC_LANG_SOURCE([
+            #include <openssl/asn1.h>
+            void foo() { ASN1_TIME_diff(0, 0, 0, 0); }
+        ])],
+        [AC_DEFINE(HAVE_ASN1_TIME_diff, [], [Defined when openssl supports ASN1_TIME_diff (openssl 1.0.2)])],
+        []
+    )
+    AC_CHECK_FUNC(TLS_method, [AC_DEFINE(HAVE_TLS_METHOD, [], [Defined when TLS_method is found in openssl library])])
+  ],
+  AC_MSG_ERROR([header for openssl not found; install openssl developent package or use --without-ssl])
+  )
 
 AC_ARG_ENABLE([demos],
   [AS_HELP_STRING([--disable-demos], [disable building demos])],

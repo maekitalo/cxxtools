@@ -102,23 +102,16 @@ void HttpClient::prepareConnect(const std::string& host, unsigned short int port
 
 void HttpClient::prepareConnect(const net::Uri& uri)
 {
-#ifdef WITH_SSL
     if (uri.protocol() != "http" && uri.protocol() != "https")
         throw std::runtime_error("only protocols http and https are supported by http json rpc client");
     SslCtx sslCtx;
     if (uri.protocol() == "https")
         sslCtx.enable();
     prepareConnect(net::AddrInfo(uri.host(), uri.port()), uri.path(), sslCtx);
-#else
-    if (uri.protocol() != "http")
-        throw std::runtime_error("only protocol http is supported by http json rpc client");
-    prepareConnect(net::AddrInfo(uri.host(), uri.port()), uri.path());
-#endif
 }
 
 void HttpClient::prepareConnect(const net::Uri& uri, const SslCtx& sslCtx)
 {
-#ifdef WITH_SSL
     if (uri.protocol() != "http" && uri.protocol() != "https")
         throw std::runtime_error("only protocols http and https are supported by http json client");
     if (uri.protocol() == "http" && sslCtx.enabled())
@@ -126,11 +119,6 @@ void HttpClient::prepareConnect(const net::Uri& uri, const SslCtx& sslCtx)
     if (uri.protocol() == "https" && !sslCtx.enabled())
         throw std::runtime_error("ssl must be enabled in https protocol");
     prepareConnect(net::AddrInfo(uri.host(), uri.port()), uri.path(), sslCtx);
-#else
-    if (uri.protocol() != "http")
-        throw std::runtime_error("only protocol http is supported by json http client");
-    prepareConnect(net::AddrInfo(uri.host(), uri.port()), uri.path());
-#endif
 }
 
 void HttpClient::connect()

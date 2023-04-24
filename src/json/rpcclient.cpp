@@ -31,8 +31,6 @@
 #include <cxxtools/net/uri.h>
 #include "rpcclientimpl.h"
 
-#include "config.h"
-
 namespace cxxtools
 {
 namespace json
@@ -100,30 +98,18 @@ void RpcClient::prepareConnect(const std::string& host, unsigned short int port,
 
 void RpcClient::prepareConnect(const net::Uri& uri)
 {
-#ifdef WITH_SSL
     if (uri.protocol() != "json" && uri.protocol() != "jsons")
-        throw std::runtime_error("only protocols \"bin\" and \"bins\" is supported by binary rpc client");
+        throw std::runtime_error("only protocols \"json\" and \"jsons\" is supported by json rpc client");
     SslCtx sslCtx;
-    sslCtx.enable(uri.protocol() == "bins");
+    sslCtx.enable(uri.protocol() == "jsons");
     prepareConnect(net::AddrInfo(uri.host(), uri.port()), sslCtx);
-#else
-    if (uri.protocol() != "bin")
-        throw std::runtime_error("only protocol \"bin\" is supported by binary rpc client");
-    prepareConnect(net::AddrInfo(uri.host(), uri.port()));
-#endif
 }
 
 void RpcClient::prepareConnect(const net::Uri& uri, const SslCtx& sslCtx)
 {
-#ifdef WITH_SSL
-    if (uri.protocol() != "bins" && sslCtx.enabled())
-        throw std::runtime_error("only protocol \"bins\" is supported when ssl certificate is set");
+    if (uri.protocol() != "jsons" && sslCtx.enabled())
+        throw std::runtime_error("only protocol \"jsons\" is supported when ssl certificate is set");
     prepareConnect(net::AddrInfo(uri.host(), uri.port()), sslCtx);
-#else
-    if (uri.protocol() != "bin")
-        throw std::runtime_error("only protocol \"bin\" is supported by binary rpc client");
-    prepareConnect(net::AddrInfo(uri.host(), uri.port()));
-#endif
 }
 
 void RpcClient::connect()

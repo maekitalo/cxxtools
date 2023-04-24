@@ -33,11 +33,8 @@
 #include <cxxtools/net/addrinfo.h>
 #include <cxxtools/sslcertificate.h>
 #include "addrinfoimpl.h"
-#include "config.h"
 
-#ifdef WITH_SSL
 #include <openssl/ssl.h>
-#endif
 
 #include <string>
 #include <vector>
@@ -90,17 +87,13 @@ class TcpSocketImpl : public IODeviceImpl
         enum State {
             IDLE,
             CONNECTING,
-            CONNECTED
-
-#ifdef WITH_SSL
-            ,
+            CONNECTED,
             SSLACCEPTING,
             SSLCONNECTING,
             SSLSHUTTINGDOWN,
 
             SSLCONNECTED,
             THROWING
-#endif
         } _state;
 
         struct sockaddr_storage _peeraddr;
@@ -109,12 +102,9 @@ class TcpSocketImpl : public IODeviceImpl
         std::string _connectResult;
         std::vector<std::string> _connectFailedMessages;
         DestructionSentry* _sentry;
-
-#ifdef WITH_SSL
         SSL* _ssl;
         mutable bool _peerCertificateLoaded;
         mutable SslCertificate _peerCertificate;
-#endif
 
         // methods
         int checkConnect();
@@ -123,12 +113,10 @@ class TcpSocketImpl : public IODeviceImpl
         std::string tryConnect();
         std::string connectFailedMessages();
 
-#ifdef WITH_SSL
         void checkSslOperation(int ret, const char* fn, pollfd* pfd);
         void waitSslOperation(int ret, cxxtools::Timespan timeout);
 
         void initSsl(const SslCtx& sslCtx);
-#endif
 
     public:
         explicit TcpSocketImpl(TcpSocket& socket);
@@ -145,11 +133,7 @@ class TcpSocketImpl : public IODeviceImpl
         { return _state >= CONNECTED; }
 
         bool isSslConnected() const
-#ifdef WITH_SSL
         { return _state == SSLCONNECTED; }
-#else
-        { return false; }
-#endif
 
         bool beginConnect(const AddrInfo& addrinfo);
 
@@ -180,7 +164,6 @@ class TcpSocketImpl : public IODeviceImpl
         // override for ssl
         virtual void outputReady();
 
-#ifdef WITH_SSL
         const SslCertificate& getSslPeerCertificate() const;
 
         // initiates a ssl connection on the socket
@@ -198,7 +181,6 @@ class TcpSocketImpl : public IODeviceImpl
         void endSslShutdown();
 
         void verifySslCertificate();
-#endif
 };
 
 } // namespace net

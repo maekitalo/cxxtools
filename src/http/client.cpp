@@ -89,24 +89,17 @@ void Client::prepareConnect(const std::string& host, unsigned short int port, co
 
 void Client::prepareConnect(const net::Uri& uri)
 {
-#ifdef WITH_SSL
     if (uri.protocol() != "http" && uri.protocol() != "https")
         throw std::runtime_error("only protocols http and https are supported by http client");
     SslCtx sslCtx;
     if (uri.protocol() == "https")
         sslCtx.enable();
     prepareConnect(net::AddrInfo(uri.host(), uri.port()), sslCtx);
-#else
-    if (uri.protocol() != "http")
-        throw std::runtime_error("only protocol http is supported by http client");
-    prepareConnect(net::AddrInfo(uri.host(), uri.port()));
-#endif
     auth(uri.user(), uri.password());
 }
 
 void Client::prepareConnect(const net::Uri& uri, const SslCtx& sslCtx)
 {
-#ifdef WITH_SSL
     if (uri.protocol() != "http" && uri.protocol() != "https")
         throw std::runtime_error("only protocols http and https are supported by http client");
     if (uri.protocol() == "http" && sslCtx.enabled())
@@ -114,11 +107,6 @@ void Client::prepareConnect(const net::Uri& uri, const SslCtx& sslCtx)
     if (uri.protocol() == "https" && !sslCtx.enabled())
         throw std::runtime_error("ssl must be enabled in https protocol");
     prepareConnect(net::AddrInfo(uri.host(), uri.port()), sslCtx);
-#else
-    if (uri.protocol() != "http")
-        throw std::runtime_error("only protocol http is supported by http client");
-    prepareConnect(net::AddrInfo(uri.host(), uri.port()));
-#endif
     auth(uri.user(), uri.password());
 }
 

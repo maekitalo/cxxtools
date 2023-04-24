@@ -51,8 +51,6 @@
 #include <sstream>
 #include <cstddef>
 
-#include "config.h"
-
 namespace cxxtools
 {
 
@@ -87,9 +85,7 @@ class ClientImpl : public RefCounted, public Connectable
         HeaderParser _parser;
 
         net::AddrInfo _addrInfo;
-#ifdef WITH_SSL
         SslCtx _sslCtx;
-#endif
         net::TcpSocket _socket;
         IOStream _stream;
         ChunkedIStream _chunkedIStream;
@@ -116,9 +112,7 @@ class ClientImpl : public RefCounted, public Connectable
 
     protected:
         void onConnect(net::TcpSocket& socket);
-#ifdef WITH_SSL
         void onSslConnect(net::TcpSocket& socket);
-#endif
         void onOutput(StreamBuffer& sb);
         void onInput(StreamBuffer& sb);
 
@@ -132,19 +126,15 @@ class ClientImpl : public RefCounted, public Connectable
 
         void ssl(const SslCtx& sslCtx)
         {
-#ifdef WITH_SSL
             _sslCtx = sslCtx;
-#endif
         }
 
         void connect()
         {
             _socket.close();
             _socket.connect(_addrInfo);
-#ifdef WITH_SSL
             if (_sslCtx.enabled())
                 _socket.sslConnect(_sslCtx);
-#endif
         }
 
         void close()
