@@ -86,10 +86,10 @@ class CsvDeserializerTest : public cxxtools::unit::TestSuite
 
             in >> cxxtools::Csv(data);
 
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 3);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0].size(), 3);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data[1].size(), 3);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data[2].size(), 3);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 3u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0].size(), 3u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[1].size(), 3u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[2].size(), 3u);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[0][0], "Hello");
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[0][1], "World");
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[1][0], "34");
@@ -110,10 +110,10 @@ class CsvDeserializerTest : public cxxtools::unit::TestSuite
 
             in >> cxxtools::Csv(data).readTitle(false).delimiter('|');
 
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 3);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0].size(), 3);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data[1].size(), 3);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data[2].size(), 3);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 3u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0].size(), 3u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[1].size(), 3u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[2].size(), 3u);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[0][0], "Hello");
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[0][1], "World");
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[1][0], "34");
@@ -136,9 +136,9 @@ class CsvDeserializerTest : public cxxtools::unit::TestSuite
             deserializer.read(in);
             deserializer.deserialize(data);
 
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 2);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0].size(), 3);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data[1].size(), 3);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 2u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0].size(), 3u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[1].size(), 3u);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[0][0], 12);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[0][1], 23);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[0][2], 0);
@@ -159,7 +159,7 @@ class CsvDeserializerTest : public cxxtools::unit::TestSuite
             deserializer.read(in);
             deserializer.deserialize(data);
 
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 2);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 2u);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[0].intValue, 17);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[0].stringValue, "Hi");
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[0].doubleValue, 2.5);
@@ -205,10 +205,10 @@ class CsvDeserializerTest : public cxxtools::unit::TestSuite
             deserializer.read(in);
             deserializer.deserialize(data);
 
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 3);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0].size(), 3);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data[1].size(), 3);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data[2].size(), 3);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 3u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0].size(), 3u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[1].size(), 3u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[2].size(), 3u);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[0][0], "Hello");
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[0][1], "World");
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[1][0], "34");
@@ -231,9 +231,9 @@ class CsvDeserializerTest : public cxxtools::unit::TestSuite
             deserializer.read(in);
             deserializer.deserialize(data);
 
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 2);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0].size(), 3);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data[1].size(), 3);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 2u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0].size(), 3u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[1].size(), 3u);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[0][0], "");
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[0][1], "");
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[0][2], "");
@@ -255,10 +255,10 @@ class CsvDeserializerTest : public cxxtools::unit::TestSuite
             deserializer.read(in);
             deserializer.deserialize(data);
 
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 3);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0].size(), 1);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data[1].size(), 1);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data[2].size(), 1);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 3u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0].size(), 1u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[1].size(), 1u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[2].size(), 1u);
         }
 
         void testSetDelimiter()
@@ -274,9 +274,9 @@ class CsvDeserializerTest : public cxxtools::unit::TestSuite
             deserializer.read(in);
             deserializer.deserialize(data);
 
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 2);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0].size(), 3);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data[1].size(), 3);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 2u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0].size(), 3u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[1].size(), 3u);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[0][0], 12);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[0][1], 23);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[0][2], 0);
@@ -297,7 +297,7 @@ class CsvDeserializerTest : public cxxtools::unit::TestSuite
             deserializer.read(in);
             deserializer.deserialize(data);
 
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 2);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 2u);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[0].intValue, 17);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[0].stringValue, "Hi");
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[0].doubleValue, 2.5);
@@ -316,9 +316,9 @@ class CsvDeserializerTest : public cxxtools::unit::TestSuite
 
             in >> cxxtools::Csv(data);
 
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 2);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0].size(), 2);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data[1].size(), 2);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 2u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0].size(), 2u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[1].size(), 2u);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[0][0], "He'llo");
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[0][1], "Wor'ld'");
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[1][0], "He\"llo");
@@ -335,9 +335,9 @@ class CsvDeserializerTest : public cxxtools::unit::TestSuite
 
             in >> cxxtools::Csv(data);
 
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 2);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0].size(), 2);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data[1].size(), 2);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 2u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0].size(), 2u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[1].size(), 2u);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[0][0], "Hello");
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[0][1], "\"World\"");
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[1][0], "He\"llo");
@@ -366,9 +366,9 @@ class CsvDeserializerTest : public cxxtools::unit::TestSuite
             deserializer.read(in);
             deserializer.deserialize(data);
 
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 2);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0].size(), 2);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data[1].size(), 2);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 2u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0].size(), 2u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[1].size(), 2u);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[0][0], "Hello");
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[0][1], "World");
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[1][0], "foo\nbar");
@@ -387,10 +387,10 @@ class CsvDeserializerTest : public cxxtools::unit::TestSuite
             deserializer.read(in);
             deserializer.deserialize(data);
 
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 1);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0].size(), 2);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0][0], L"M\xe4kitalo");
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0][1], L"42");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 1u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0].size(), 2u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0][0], cxxtools::String(L"M\xe4kitalo"));
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[0][1], cxxtools::String(L"42"));
         }
 };
 

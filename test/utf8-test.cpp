@@ -139,9 +139,9 @@ class Utf8Test : public cxxtools::unit::TestSuite
       CXXTOOLS_UNIT_ASSERT_EQUALS(toNext - unicodeOutput, 12);
 
       // check some values
-      CXXTOOLS_UNIT_ASSERT_EQUALS(unicodeOutput[4].value(), 0x6f);
-      CXXTOOLS_UNIT_ASSERT_EQUALS(unicodeOutput[6].value(), 0xe4);
-      CXXTOOLS_UNIT_ASSERT_EQUALS(unicodeOutput[7].value(), 0x2013);
+      CXXTOOLS_UNIT_ASSERT_EQUALS(static_cast<int32_t>(unicodeOutput[4].value()), 0x6f);
+      CXXTOOLS_UNIT_ASSERT_EQUALS(static_cast<int32_t>(unicodeOutput[6].value()), 0xe4);
+      CXXTOOLS_UNIT_ASSERT_EQUALS(static_cast<int32_t>(unicodeOutput[7].value()), 0x2013);
     }
 
     void fillOutput()
@@ -163,8 +163,8 @@ class Utf8Test : public cxxtools::unit::TestSuite
       CXXTOOLS_UNIT_ASSERT_EQUALS(toNext - unicodeOutput, 8);
 
       // check some values
-      CXXTOOLS_UNIT_ASSERT_EQUALS(unicodeOutput[4].value(), 0x6f);
-      CXXTOOLS_UNIT_ASSERT_EQUALS(unicodeOutput[6].value(), 0xe4);
+      CXXTOOLS_UNIT_ASSERT_EQUALS(static_cast<int32_t>(unicodeOutput[4].value()), 0x6f);
+      CXXTOOLS_UNIT_ASSERT_EQUALS(static_cast<int32_t>(unicodeOutput[6].value()), 0xe4);
 
       // continue
       fromBegin = fromNext;
@@ -199,9 +199,9 @@ class Utf8Test : public cxxtools::unit::TestSuite
 
       CXXTOOLS_UNIT_ASSERT_EQUALS(fromNext, fromEnd);
       CXXTOOLS_UNIT_ASSERT_EQUALS(toNext - unicodeOutput, 12);
-      CXXTOOLS_UNIT_ASSERT_EQUALS(unicodeOutput[4].value(), 0x6f);
-      CXXTOOLS_UNIT_ASSERT_EQUALS(unicodeOutput[6].value(), 0xe4);
-      CXXTOOLS_UNIT_ASSERT_EQUALS(unicodeOutput[7].value(), 0x2013);
+      CXXTOOLS_UNIT_ASSERT_EQUALS(static_cast<int32_t>(unicodeOutput[4].value()), 0x6f);
+      CXXTOOLS_UNIT_ASSERT_EQUALS(static_cast<int32_t>(unicodeOutput[6].value()), 0xe4);
+      CXXTOOLS_UNIT_ASSERT_EQUALS(static_cast<int32_t>(unicodeOutput[7].value()), 0x2013);
     }
 
     void istream()
@@ -211,10 +211,10 @@ class Utf8Test : public cxxtools::unit::TestSuite
       cxxtools::String s;
       std::getline(tin, s);
 
-      CXXTOOLS_UNIT_ASSERT_EQUALS(s.size(), 12);
-      CXXTOOLS_UNIT_ASSERT_EQUALS(s[4].value(), 0x6f);
-      CXXTOOLS_UNIT_ASSERT_EQUALS(s[6].value(), 0xe4);
-      CXXTOOLS_UNIT_ASSERT_EQUALS(s[7].value(), 0x2013);
+      CXXTOOLS_UNIT_ASSERT_EQUALS(s.size(), 12u);
+      CXXTOOLS_UNIT_ASSERT_EQUALS(static_cast<int32_t>(s[4].value()), 0x6f);
+      CXXTOOLS_UNIT_ASSERT_EQUALS(static_cast<int32_t>(s[6].value()), 0xe4);
+      CXXTOOLS_UNIT_ASSERT_EQUALS(static_cast<int32_t>(s[7].value()), 0x2013);
     }
 
     void ostream()
@@ -223,7 +223,7 @@ class Utf8Test : public cxxtools::unit::TestSuite
       cxxtools::TextOStream tout(out, new cxxtools::Utf8Codec());
       tout << L"Hello \x00e4\x2013 end" << std::flush;
       std::string s = out.str();
-      CXXTOOLS_UNIT_ASSERT_EQUALS(s.size(), 15);
+      CXXTOOLS_UNIT_ASSERT_EQUALS(s.size(), 15u);
       CXXTOOLS_UNIT_ASSERT_EQUALS(s, "Hello \xc3\xa4\xe2\x80\x93 end");
     }
 };

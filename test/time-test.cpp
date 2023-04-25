@@ -51,18 +51,18 @@ class TimeTest : public cxxtools::unit::TestSuite
         void access()
         {
             cxxtools::Time t(17, 1, 14, 300);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(t.hour(), 17);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(t.minute(), 1);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(t.second(), 14);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(t.msec(), 300);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(t.usec(), 300000);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(t.hour(), 17u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(t.minute(), 1u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(t.second(), 14u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(t.msec(), 300u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(t.usec(), 300000u);
 
             t.set(19, 55, 49, 345);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(t.hour(), 19);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(t.minute(), 55);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(t.second(), 49);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(t.msec(), 345);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(t.usec(), 345000);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(t.hour(), 19u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(t.minute(), 55u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(t.second(), 49u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(t.msec(), 345u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(t.usec(), 345000u);
         }
 
         void diff()
@@ -89,47 +89,47 @@ class TimeTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_NOTHROW(dt = cxxtools::Time("17:01:14.3428"));
 
             dt.get(hours, minutes, seconds, milliseconds, microseconds);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(hours, 17);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(minutes, 1);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(seconds, 14);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(milliseconds, 342);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(microseconds, 342800);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(hours, 17u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(minutes, 1u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(seconds, 14u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(milliseconds, 342u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(microseconds, 342800u);
 
             dt = cxxtools::Time("17 1 14.3", "%H %M %S%J");
 
             dt.get(hours, minutes, seconds, milliseconds, microseconds);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(hours, 17);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(minutes, 1);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(seconds, 14);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(milliseconds, 300);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(microseconds, 300000);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(hours, 17u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(minutes, 1u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(seconds, 14u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(milliseconds, 300u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(microseconds, 300000u);
 
             dt = cxxtools::Time("17 1 14", "%H %M %S%J");
 
             dt.get(hours, minutes, seconds, milliseconds, microseconds);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(hours, 17);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(minutes, 1);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(seconds, 14);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(milliseconds, 0);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(microseconds, 0);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(hours, 17u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(minutes, 1u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(seconds, 14u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(milliseconds, 0u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(microseconds, 0u);
 
             dt = cxxtools::Time("5:01:14 pm", "%H:%M:%S %p");
 
             dt.get(hours, minutes, seconds, milliseconds, microseconds);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(hours, 17);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(minutes, 1);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(seconds, 14);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(milliseconds, 0);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(microseconds, 0);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(hours, 17u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(minutes, 1u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(seconds, 14u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(milliseconds, 0u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(microseconds, 0u);
 
             dt = cxxtools::Time("9    13 b 54  xx  ", "%H*%M*%S*");
 
             dt.get(hours, minutes, seconds, milliseconds, microseconds);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(hours, 9);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(minutes, 13);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(seconds, 54);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(milliseconds, 0);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(microseconds, 0);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(hours, 9u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(minutes, 13u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(seconds, 54u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(milliseconds, 0u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(microseconds, 0u);
 
         }
 

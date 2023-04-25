@@ -166,23 +166,23 @@ class TrimTest : public cxxtools::unit::TestSuite
 
             s = L"foo bar";
             cxxtools::trimi(s);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(s, L"foo bar");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(s, cxxtools::String(L"foo bar"));
 
             s = L" \t foo bar ";
             cxxtools::trimi(s);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(s, L"foo bar");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(s, cxxtools::String(L"foo bar"));
 
             s = L" \t\n foo bar \n ";
             cxxtools::trimi(s);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(s, L"foo bar");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(s, cxxtools::String(L"foo bar"));
 
             s = L" \t\n foo bar \n ";
             cxxtools::trimi(s, wsu);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(s, L"\n foo bar \n");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(s, cxxtools::String(L"\n foo bar \n"));
 
             s = L" \t ";
             cxxtools::trimi(s);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(s, L"");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(s, cxxtools::String(L""));
         }
 
 };

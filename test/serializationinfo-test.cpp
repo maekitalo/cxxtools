@@ -31,11 +31,8 @@
 #include "cxxtools/unit/testsuite.h"
 #include "cxxtools/unit/registertest.h"
 #include "cxxtools/convert.h"
-#include "cxxtools/log.h"
 
 #include <utility>
-
-log_define("cxxtools.unit.serializationinfo")
 
 template <typename T>
 T siValue(const cxxtools::SerializationInfo& si)
@@ -77,7 +74,7 @@ class SerializationInfoTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT(si.isUInt());
             CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<std::string>(si), "42");
             CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<cxxtools::String>(si), cxxtools::String(L"42"));
-            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<unsigned>(si), 42);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<unsigned>(si), 42u);
             CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<short>(si), 42);
 
             si.setValue("Hello");
@@ -100,7 +97,7 @@ class SerializationInfoTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT(si.isDouble());
             CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::convert<double>(siValue<std::string>(si)), 0);
             CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::convert<double>(siValue<cxxtools::String>(si)), 0);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<unsigned>(si), 0);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<unsigned>(si), 0u);
             CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<short>(si), 0);
             CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<double>(si), 0);
         }
@@ -299,7 +296,7 @@ class SerializationInfoTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT(si2.isUInt());
             CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<std::string>(si2), "42");
             CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<cxxtools::String>(si2), cxxtools::String(L"42"));
-            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<unsigned>(si2), 42);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<unsigned>(si2), 42u);
             CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<short>(si2), 42);
 
             si.setValue("Hello");
@@ -333,7 +330,7 @@ class SerializationInfoTest : public cxxtools::unit::TestSuite
                 CXXTOOLS_UNIT_ASSERT(si2.isUInt());
                 CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<std::string>(si2), "42");
                 CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<cxxtools::String>(si2), cxxtools::String(L"42"));
-                CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<unsigned>(si2), 42);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<unsigned>(si2), 42u);
                 CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<short>(si2), 42);
             }
 
@@ -375,9 +372,9 @@ class SerializationInfoTest : public cxxtools::unit::TestSuite
                 cxxtools::SerializationInfo si2(std::move(si));
 
                 CXXTOOLS_UNIT_ASSERT(si2.isUInt());
-                CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<unsigned>(si2), 42);
-                CXXTOOLS_UNIT_ASSERT_EQUALS(si.memberCount(), 0);
-                CXXTOOLS_UNIT_ASSERT_EQUALS(si2.memberCount(), 2);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<unsigned>(si2), 42u);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(si.memberCount(), 0u);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(si2.memberCount(), 2u);
             }
 
             {
@@ -499,7 +496,7 @@ class SerializationInfoTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT(si2.isUInt());
             CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<std::string>(si2), "42");
             CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<cxxtools::String>(si2), cxxtools::String(L"42"));
-            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<unsigned>(si2), 42);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<unsigned>(si2), 42u);
             CXXTOOLS_UNIT_ASSERT_EQUALS(siValue<short>(si2), 42);
 
             si.setValue("Hello");
@@ -543,7 +540,7 @@ class SerializationInfoTest : public cxxtools::unit::TestSuite
             si.addMember("baz");
             si.addMember("foo");
 
-            CXXTOOLS_UNIT_ASSERT_EQUALS(si.memberCount(), 4);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(si.memberCount(), 4u);
             CXXTOOLS_UNIT_ASSERT_NOTHROW(si.getMember("foo"));
             CXXTOOLS_UNIT_ASSERT_THROW(si.getMember("fooo"), cxxtools::SerializationError);
             CXXTOOLS_UNIT_ASSERT_EQUALS(si.getMember(0).name(), "foo");

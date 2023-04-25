@@ -118,22 +118,22 @@ class PropertiesTest : public cxxtools::unit::TestSuite
             cxxtools::String c;
             CXXTOOLS_UNIT_ASSERT_NOTHROW(deserializer.deserialize(c, "c"));
 
-            CXXTOOLS_UNIT_ASSERT(c.size() >= 1);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(c[0].value(), 0xabc);
+            CXXTOOLS_UNIT_ASSERT(c.size() >= 1u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(static_cast<int32_t>(c[0].value()), 0xabc);
 
-            CXXTOOLS_UNIT_ASSERT(c.size() >= 2);
+            CXXTOOLS_UNIT_ASSERT(c.size() >= 2u);
             CXXTOOLS_UNIT_ASSERT_EQUALS(c[1], '5');
 
-            CXXTOOLS_UNIT_ASSERT(c.size() >= 3);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(c[2].value(), 0xabcd);
+            CXXTOOLS_UNIT_ASSERT(c.size() >= 3u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(static_cast<int32_t>(c[2].value()), 0xabcd);
 
-            CXXTOOLS_UNIT_ASSERT(c.size() >= 4);
+            CXXTOOLS_UNIT_ASSERT(c.size() >= 4u);
             CXXTOOLS_UNIT_ASSERT_EQUALS(c[3], '1');
 
-            CXXTOOLS_UNIT_ASSERT(c.size() >= 5);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(c[4].value(), 0x1234);
+            CXXTOOLS_UNIT_ASSERT(c.size() >= 5u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(static_cast<int32_t>(c[4].value()), 0x1234);
 
-            CXXTOOLS_UNIT_ASSERT_EQUALS(c.size(), 5);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(c.size(), 5u);
 
             cxxtools::String l;
             CXXTOOLS_UNIT_ASSERT_NOTHROW(deserializer.deserialize(l, "l"));
@@ -204,7 +204,7 @@ class PropertiesTest : public cxxtools::unit::TestSuite
 
             deserializer.deserialize(v, "myvector");
 
-            CXXTOOLS_UNIT_ASSERT_EQUALS(v.size(), 3);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v.size(), 3u);
             CXXTOOLS_UNIT_ASSERT_EQUALS(v[0], "4");
             CXXTOOLS_UNIT_ASSERT_EQUALS(v[1], "Hi");
             CXXTOOLS_UNIT_ASSERT_EQUALS(v[2], "foo");
@@ -353,11 +353,11 @@ class PropertiesTest : public cxxtools::unit::TestSuite
 
             cxxtools::Char v;
             CXXTOOLS_UNIT_ASSERT_NOTHROW(deserializer.deserialize(v, "a"));
-            CXXTOOLS_UNIT_ASSERT_EQUALS(v, L'\t');
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v, cxxtools::Char(L'\t'));
 
             v = L' ';
             CXXTOOLS_UNIT_ASSERT_NOTHROW(deserializer.deserialize(v, "b"));
-            CXXTOOLS_UNIT_ASSERT_EQUALS(v, L'\t');
+            CXXTOOLS_UNIT_ASSERT_EQUALS(static_cast<int32_t>(v), static_cast<int32_t>(L'\t'));
 
         }
 

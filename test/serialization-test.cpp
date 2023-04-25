@@ -354,7 +354,7 @@ class SerializationTest : public cxxtools::unit::TestSuite
 
             si <<= v;
             si >>= vv;
-            CXXTOOLS_UNIT_ASSERT_EQUALS(vv.size(), 3);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(vv.size(), 3u);
             CXXTOOLS_UNIT_ASSERT(vv == v);
         }
 
@@ -387,7 +387,7 @@ class SerializationTest : public cxxtools::unit::TestSuite
 
             si <<= v;
             si >>= vv;
-            CXXTOOLS_UNIT_ASSERT_EQUALS(vv.size(), 3);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(vv.size(), 3u);
             CXXTOOLS_UNIT_ASSERT(vv == v);
         }
 
@@ -451,7 +451,7 @@ class SerializationTest : public cxxtools::unit::TestSuite
 
             si <<= v;
             si >>= vv;
-            CXXTOOLS_UNIT_ASSERT_EQUALS(vv.size(), 3);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(vv.size(), 3u);
             CXXTOOLS_UNIT_ASSERT(vv == v);
         }
 
@@ -484,7 +484,7 @@ class SerializationTest : public cxxtools::unit::TestSuite
 
             si <<= v;
             si >>= vv;
-            CXXTOOLS_UNIT_ASSERT_EQUALS(vv.size(), 3);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(vv.size(), 3u);
             CXXTOOLS_UNIT_ASSERT(vv == v);
         }
 
@@ -585,7 +585,7 @@ class SerializationTest : public cxxtools::unit::TestSuite
             foo.insert(56);
             foo.insert(42);
             std::vector<long> bar = cxxtools::serialization_cast<std::vector<long> >(foo);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(bar.size(), 2);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(bar.size(), 2u);
             CXXTOOLS_UNIT_ASSERT_EQUALS(bar[0], 42);
             CXXTOOLS_UNIT_ASSERT_EQUALS(bar[1], 56);
         }

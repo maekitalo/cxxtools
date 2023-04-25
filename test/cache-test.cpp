@@ -97,12 +97,12 @@ class CacheTest : public cxxtools::unit::TestSuite
           cache.put(10, 100);
 
           cache.erase(2);
-          CXXTOOLS_UNIT_ASSERT_EQUALS(cache.size(), 5);
-          CXXTOOLS_UNIT_ASSERT_EQUALS(cache.winners(), 3);
+          CXXTOOLS_UNIT_ASSERT_EQUALS(cache.size(), 5u);
+          CXXTOOLS_UNIT_ASSERT_EQUALS(cache.winners(), 3u);
 
           cache.erase(9);
-          CXXTOOLS_UNIT_ASSERT_EQUALS(cache.size(), 4);
-          CXXTOOLS_UNIT_ASSERT_EQUALS(cache.winners(), 3);
+          CXXTOOLS_UNIT_ASSERT_EQUALS(cache.size(), 4u);
+          CXXTOOLS_UNIT_ASSERT_EQUALS(cache.winners(), 3u);
 
         }
 
@@ -122,23 +122,23 @@ class CacheTest : public cxxtools::unit::TestSuite
           cache.put(9, 90);
           cache.put(10, 100);
 
-          CXXTOOLS_UNIT_ASSERT_EQUALS(cache.size(), 6);
-          CXXTOOLS_UNIT_ASSERT_EQUALS(cache.winners(), 3);
+          CXXTOOLS_UNIT_ASSERT_EQUALS(cache.size(), 6u);
+          CXXTOOLS_UNIT_ASSERT_EQUALS(cache.winners(), 3u);
 
           cache.setMaxElements(8);
 
-          CXXTOOLS_UNIT_ASSERT_EQUALS(cache.size(), 6);
-          CXXTOOLS_UNIT_ASSERT_EQUALS(cache.winners(), 4);
+          CXXTOOLS_UNIT_ASSERT_EQUALS(cache.size(), 6u);
+          CXXTOOLS_UNIT_ASSERT_EQUALS(cache.winners(), 4u);
 
           cache.setMaxElements(4);
 
-          CXXTOOLS_UNIT_ASSERT_EQUALS(cache.size(), 4);
-          CXXTOOLS_UNIT_ASSERT_EQUALS(cache.winners(), 2);
+          CXXTOOLS_UNIT_ASSERT_EQUALS(cache.size(), 4u);
+          CXXTOOLS_UNIT_ASSERT_EQUALS(cache.winners(), 2u);
 
           cache.setMaxElements(8);
 
-          CXXTOOLS_UNIT_ASSERT_EQUALS(cache.size(), 4);
-          CXXTOOLS_UNIT_ASSERT_EQUALS(cache.winners(), 4);
+          CXXTOOLS_UNIT_ASSERT_EQUALS(cache.size(), 4u);
+          CXXTOOLS_UNIT_ASSERT_EQUALS(cache.winners(), 4u);
 
           cache.put(1, 10);
           cache.put(2, 20);
@@ -153,8 +153,8 @@ class CacheTest : public cxxtools::unit::TestSuite
 
           cache.setMaxElements(4);
 
-          CXXTOOLS_UNIT_ASSERT_EQUALS(cache.size(), 4);
-          CXXTOOLS_UNIT_ASSERT_EQUALS(cache.winners(), 2);
+          CXXTOOLS_UNIT_ASSERT_EQUALS(cache.size(), 4u);
+          CXXTOOLS_UNIT_ASSERT_EQUALS(cache.winners(), 2u);
 
         }
 
@@ -172,8 +172,8 @@ class CacheTest : public cxxtools::unit::TestSuite
           cache.getx(2);
           cache.getx(8);
 
-          CXXTOOLS_UNIT_ASSERT_EQUALS(cache.getHits(), 2);
-          CXXTOOLS_UNIT_ASSERT_EQUALS(cache.getMisses(), 1);
+          CXXTOOLS_UNIT_ASSERT_EQUALS(cache.getHits(), 2u);
+          CXXTOOLS_UNIT_ASSERT_EQUALS(cache.getMisses(), 1u);
         }
 
 };

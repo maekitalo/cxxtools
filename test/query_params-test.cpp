@@ -30,11 +30,8 @@
 #include "cxxtools/unit/registertest.h"
 #include "cxxtools/query_params.h"
 #include "cxxtools/serializationinfo.h"
-#include "cxxtools/log.h"
 #include <vector>
 #include <iterator>
-
-log_define("cxxtools.test.queryparams")
 
 class QueryParamsTest : public cxxtools::unit::TestSuite
 {
@@ -123,9 +120,9 @@ class QueryParamsTest : public cxxtools::unit::TestSuite
             q.add("p2", "value3");
             q.add("value4");
             q.add("value5");
-            CXXTOOLS_UNIT_ASSERT_EQUALS(q.paramcount(), 2);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(q.paramcount("p1"), 1);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(q.paramcount("p2"), 2);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(q.paramcount(), 2u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(q.paramcount("p1"), 1u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(q.paramcount("p2"), 2u);
         }
 
         void testCombine()
@@ -221,7 +218,7 @@ class QueryParamsTest : public cxxtools::unit::TestSuite
 
             std::vector<std::string> names;
             q.getNames(std::back_inserter(names));
-            CXXTOOLS_UNIT_ASSERT_EQUALS(names.size(), 3);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(names.size(), 3u);
             CXXTOOLS_UNIT_ASSERT_EQUALS(names[0], "p1");
             CXXTOOLS_UNIT_ASSERT_EQUALS(names[1], "p2");
             CXXTOOLS_UNIT_ASSERT_EQUALS(names[2], "");
@@ -278,7 +275,7 @@ void QueryParamsTest::testDeserialization()
 
     cxxtools::SerializationInfo si;
     si <<= qp;
-    CXXTOOLS_UNIT_ASSERT_EQUALS(si.memberCount(), 3);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(si.memberCount(), 3u);
     CXXTOOLS_UNIT_ASSERT(si.findMember("draw") != 0);
     CXXTOOLS_UNIT_ASSERT(si.findMember("columns") != 0);
     CXXTOOLS_UNIT_ASSERT(si.findMember("start") != 0);
@@ -286,10 +283,10 @@ void QueryParamsTest::testDeserialization()
     TableQuery query;
     si >>= query;
     CXXTOOLS_UNIT_ASSERT(query.draw);
-    CXXTOOLS_UNIT_ASSERT_EQUALS(query.columns.size(), 2);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(query.columns.size(), 2u);
     CXXTOOLS_UNIT_ASSERT_EQUALS(query.columns[0].name, "somename");
     CXXTOOLS_UNIT_ASSERT_EQUALS(query.columns[0].value, "somevalue");
     CXXTOOLS_UNIT_ASSERT_EQUALS(query.columns[1].name, "othername");
     CXXTOOLS_UNIT_ASSERT_EQUALS(query.columns[1].value, "othervalue");
-    CXXTOOLS_UNIT_ASSERT_EQUALS(query.start, 42);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(query.start, 42u);
 }

@@ -113,7 +113,7 @@ class MimeTest : public cxxtools::unit::TestSuite
             cxxtools::MimeMultipart mp;
             mp.addObject();
             mp.addObject();
-            CXXTOOLS_UNIT_ASSERT_EQUALS(mp.size(), 2);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(mp.size(), 2u);
         }
 
         void serializeMultipartMessage()
@@ -132,7 +132,7 @@ class MimeTest : public cxxtools::unit::TestSuite
                 cxxtools::MimeMultipart mp;
                 si >>= mp;
 
-                CXXTOOLS_UNIT_ASSERT_EQUALS(mp.size(), 2);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(mp.size(), 2u);
             }
         }
 
@@ -151,7 +151,7 @@ class MimeTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT(me.isMultipart());
 
             cxxtools::MimeMultipart mp2(me);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(mp2.size(), 2);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(mp2.size(), 2u);
         }
 
 };

@@ -59,36 +59,36 @@ class DateTest : public cxxtools::unit::TestSuite
 
             dt.get(year, month, day);
             CXXTOOLS_UNIT_ASSERT_EQUALS(year, 2013);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(month, 5);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(day, 3);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(month, 5u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(day, 3u);
 
             dt = cxxtools::Date("2013 5 3", "%Y %m %d");
 
             dt.get(year, month, day);
             CXXTOOLS_UNIT_ASSERT_EQUALS(year, 2013);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(month, 5);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(day, 3);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(month, 5u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(day, 3u);
 
             dt = cxxtools::Date("20140802", "%Y%m%d");
 
             dt.get(year, month, day);
             CXXTOOLS_UNIT_ASSERT_EQUALS(year, 2014);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(month, 8);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(day, 2);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(month, 8u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(day, 2u);
 
             dt = cxxtools::Date("1975H11#12", "%Y?%m?%d");
 
             dt.get(year, month, day);
             CXXTOOLS_UNIT_ASSERT_EQUALS(year, 1975);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(month, 11);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(day, 12);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(month, 11u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(day, 12u);
 
             dt = cxxtools::Date("1893 foobar 10 hi there 30", "%Y*%m*%d");
 
             dt.get(year, month, day);
             CXXTOOLS_UNIT_ASSERT_EQUALS(year, 1893);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(month, 10);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(day, 30);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(month, 10u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(day, 30u);
 
         }
 
@@ -102,8 +102,8 @@ class DateTest : public cxxtools::unit::TestSuite
             dt.get(year, month, day);
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(year, 2018);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(month, 4);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(day, 11);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(month, 4u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(day, 11u);
 
             static const char* monthnames[12] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
             for (unsigned m = 0; m < 12; ++m)

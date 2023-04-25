@@ -468,13 +468,13 @@ void StringTest::testFind()
     cxxtools::String t(L"bc");
     cxxtools::Char   abcd[] = { 'a', 'b', 'c', 'd', '\0' };
 
-    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find(t)          , 1);
-    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find(t, 2)       , 5);
-    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find(L"bc")      , 1);
-    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find(L"bc", 2)   , 5);
-    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find(abcd, 2, 3) , 4);
-    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find('b')        , 1);
-    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find('b', 2)     , 5);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find(t)          , 1u);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find(t, 2)       , 5u);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find(L"bc")      , 1u);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find(L"bc", 2)   , 5u);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find(abcd, 2, 3) , 4u);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find('b')        , 1u);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find('b', 2)     , 5u);
 }
 
 void StringTest::testRFind()
@@ -483,13 +483,13 @@ void StringTest::testRFind()
     cxxtools::String t(L"bc");
     cxxtools::Char   abcd[] = { 'a', 'b', 'c', 'd', '\0' };
 
-    CXXTOOLS_UNIT_ASSERT_EQUALS(s.rfind(t)          , 5);
-    CXXTOOLS_UNIT_ASSERT_EQUALS(s.rfind(t, 2)       , 1);
-    CXXTOOLS_UNIT_ASSERT_EQUALS(s.rfind(L"bc")      , 5);
-    CXXTOOLS_UNIT_ASSERT_EQUALS(s.rfind(L"bc", 2)   , 1);
-    CXXTOOLS_UNIT_ASSERT_EQUALS(s.rfind(abcd, 2, 3) , 0);
-    CXXTOOLS_UNIT_ASSERT_EQUALS(s.rfind('b')        , 5);
-    CXXTOOLS_UNIT_ASSERT_EQUALS(s.rfind('b', 2)     , 1);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.rfind(t)          , 5u);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.rfind(t, 2)       , 1u);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.rfind(L"bc")      , 5u);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.rfind(L"bc", 2)   , 1u);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.rfind(abcd, 2, 3) , 0u);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.rfind('b')        , 5u);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.rfind('b', 2)     , 1u);
 }
 
 void StringTest::testFindFirstOf()
@@ -498,13 +498,13 @@ void StringTest::testFindFirstOf()
     cxxtools::String t(L"a-x");
     cxxtools::Char   abcd[] = { 'a', 'b', 'c', 'd', '\0' };
 
-    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_first_of(t)          , 0);
-    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_first_of(t, 2)       , 3);
-    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_first_of(L"bc")      , 1);
-    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_first_of(L"bc", 2)   , 2);
-    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_first_of(abcd, 2, 3) , 2);
-    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_first_of('b')        , 1);
-    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_first_of('b', 2)     , 5);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_first_of(t)          , 0u);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_first_of(t, 2)       , 3u);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_first_of(L"bc")      , 1u);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_first_of(L"bc", 2)   , 2u);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_first_of(abcd, 2, 3) , 2u);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_first_of('b')        , 1u);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_first_of('b', 2)     , 5u);
 }
 
 void StringTest::testFindLastOf()
@@ -513,13 +513,13 @@ void StringTest::testFindLastOf()
     cxxtools::String t(L"a-x");
     cxxtools::Char   abcd[] = { 'a', 'b', 'c', 'd', '\0' };
 
-    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_last_of(t)          , 4);
-    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_last_of(t, 2)       , 0);
-    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_last_of(L"bc")      , 6);
-    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_last_of(L"bc", 2)   , 2);
-    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_last_of(abcd, 2, 3) , 2);
-    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_last_of('b')        , 5);
-    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_last_of('b', 2)     , 1);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_last_of(t)          , 4u);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_last_of(t, 2)       , 0u);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_last_of(L"bc")      , 6u);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_last_of(L"bc", 2)   , 2u);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_last_of(abcd, 2, 3) , 2u);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_last_of('b')        , 5u);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_last_of('b', 2)     , 1u);
 }
 
 void StringTest::testFindFirstNotOf()
@@ -528,13 +528,13 @@ void StringTest::testFindFirstNotOf()
     cxxtools::String t(L"a-x");
     cxxtools::Char   abcd[] = { 'a', 'b', 'c', 'd', '\0' };
 
-    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_first_not_of(t)          , 1);
-    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_first_not_of(t, 2)       , 2);
-    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_first_not_of(L"bc")      , 0);
-    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_first_not_of(L"bc", 2)   , 3);
-    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_first_not_of(abcd, 2, 3) , 3);
-    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_first_not_of('b')        , 0);
-    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_first_not_of('b', 2)     , 2);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_first_not_of(t)          , 1u);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_first_not_of(t, 2)       , 2u);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_first_not_of(L"bc")      , 0u);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_first_not_of(L"bc", 2)   , 3u);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_first_not_of(abcd, 2, 3) , 3u);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_first_not_of('b')        , 0u);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_first_not_of('b', 2)     , 2u);
 }
 
 void StringTest::testFindLastNotOf()
@@ -543,13 +543,13 @@ void StringTest::testFindLastNotOf()
     cxxtools::String t(L"a-x");
     cxxtools::Char   abcd[] = { 'a', 'b', 'c', 'd', '\0' };
 
-    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_last_not_of(t)          , 6);
-    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_last_not_of(t, 2)       , 2);
-    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_last_not_of(L"bc")      , 4);
-    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_last_not_of(L"bc", 2)   , 0);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_last_not_of(t)          , 6u);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_last_not_of(t, 2)       , 2u);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_last_not_of(L"bc")      , 4u);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_last_not_of(L"bc", 2)   , 0u);
     CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_last_not_of(abcd, 2, 3) , cxxtools::String::npos);
-    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_last_not_of('b')        , 6);
-    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_last_not_of('b', 2)     , 2);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_last_not_of('b')        , 6u);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s.find_last_not_of('b', 2)     , 2u);
 }
 
 void StringTest::testCStr()
@@ -667,11 +667,11 @@ void StringTest::testReserve()
     s2.reserve(10);
 
     CXXTOOLS_UNIT_ASSERT( s2.capacity() >= 10 );
-    CXXTOOLS_UNIT_ASSERT( s2.size() == 4 );
+    CXXTOOLS_UNIT_ASSERT_EQUALS( s2.size(), 4u );
     CXXTOOLS_UNIT_ASSERT_EQUALS( std::char_traits<cxxtools::Char>::compare(s2.c_str(), c1, 4) , 0 );
 
-    CXXTOOLS_UNIT_ASSERT( s.capacity() >= 4 );
-    CXXTOOLS_UNIT_ASSERT_EQUALS( s.size(), 4 );
+    CXXTOOLS_UNIT_ASSERT( s.capacity() >= 4u );
+    CXXTOOLS_UNIT_ASSERT_EQUALS( s.size(), 4u );
     CXXTOOLS_UNIT_ASSERT_EQUALS( std::char_traits<cxxtools::Char>::compare(s.c_str(), c1, 4) , 0 );
 }
 
@@ -680,34 +680,34 @@ void StringTest::testReserveEmpty()
 {
     cxxtools::String s;
     s.reserve(0);
-    CXXTOOLS_UNIT_ASSERT_EQUALS( s.size() , 0 );
+    CXXTOOLS_UNIT_ASSERT_EQUALS( s.size() , 0u );
 }
 
 
 void StringTest::testLengthAndSize()
 {
     cxxtools::String s1;
-    CXXTOOLS_UNIT_ASSERT_EQUALS(s1.length() , 0);
-    CXXTOOLS_UNIT_ASSERT_EQUALS(s1.size()   , 0);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s1.length() , 0u);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s1.size()   , 0u);
 
     cxxtools::String s2(L"ab");
-    CXXTOOLS_UNIT_ASSERT_EQUALS(s2.length() , 2);
-    CXXTOOLS_UNIT_ASSERT_EQUALS(s2.size()   , 2);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s2.length() , 2u);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s2.size()   , 2u);
 
     s2 += L"cd";
-    CXXTOOLS_UNIT_ASSERT_EQUALS(s2.length() , 4);
-    CXXTOOLS_UNIT_ASSERT_EQUALS(s2.size()   , 4);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s2.length() , 4u);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s2.size()   , 4u);
 
 
     cxxtools::Char ab[] = { 'a', 'b', '\0' };
     cxxtools::String s3(ab);
-    CXXTOOLS_UNIT_ASSERT_EQUALS(s3.length() , 2);
-    CXXTOOLS_UNIT_ASSERT_EQUALS(s3.size()   , 2);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s3.length() , 2u);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s3.size()   , 2u);
 
     cxxtools::Char cd[] = { 'c', 'd', '\0' };
     s3 += cd;
-    CXXTOOLS_UNIT_ASSERT_EQUALS(s3.length() , 4);
-    CXXTOOLS_UNIT_ASSERT_EQUALS(s3.size()   , 4);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s3.length() , 4u);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(s3.size()   , 4u);
 }
 
 void StringTest::testMove()

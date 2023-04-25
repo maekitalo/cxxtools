@@ -127,10 +127,10 @@ class XmlReaderTest : public cxxtools::unit::TestSuite
             cxxtools::xml::StartElement root = xr.nextElement();
             cxxtools::xml::StartElement foo = xr.nextElement();
 
-            CXXTOOLS_UNIT_ASSERT_EQUALS(root.attributes().size(), 2);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(root.attributes().size(), 2u);
             CXXTOOLS_UNIT_ASSERT_EQUALS(root.attribute(L"attr1").narrow(), "one");
             CXXTOOLS_UNIT_ASSERT_EQUALS(root.attribute(L"attr2").narrow(), "two");
-            CXXTOOLS_UNIT_ASSERT_EQUALS(foo.attributes().size(), 1);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(foo.attributes().size(), 1u);
             CXXTOOLS_UNIT_ASSERT_EQUALS(foo.attribute(L"fooattr").narrow(), "bar");
         }
 
@@ -142,7 +142,7 @@ class XmlReaderTest : public cxxtools::unit::TestSuite
 
             cxxtools::xml::StartElement root = xr.nextElement();
 
-            CXXTOOLS_UNIT_ASSERT_EQUALS(root.attributes().size(), 2);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(root.attributes().size(), 2u);
             CXXTOOLS_UNIT_ASSERT_EQUALS(root.attribute(L"attr1").narrow(), "one");
             CXXTOOLS_UNIT_ASSERT_EQUALS(root.attribute(L"attr2").narrow(), "two");
         }
@@ -206,12 +206,12 @@ class XmlReaderTest : public cxxtools::unit::TestSuite
                     cxxtools::String rr = resolver.resolveEntity(r.substr(1, r.size() - 2));
                     CXXTOOLS_UNIT_ASSERT_MSG(
                         rr == cxxtools::String(1, cxxtools::Char(n)),
-                        "resolving char code " << n << " failed; entity \"" << r.narrow() << '"');
+                        "resolving char code " << static_cast<int32_t>(n) << " failed; entity \"" << r.narrow() << '"');
                 }
                 else
                 {
                     CXXTOOLS_UNIT_ASSERT_MSG(r[0] == cxxtools::Char(n),
-                        "resolving char code " << n << " failed");
+                        "resolving char code " << static_cast<int32_t>(n) << " failed");
                 }
             }
         }
