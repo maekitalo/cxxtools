@@ -71,6 +71,11 @@ namespace net {
           struct addrinfo* current;
 
         public:
+          using iterator_category = std::forward_iterator_tag;
+          using value_type = addrinfo;
+          using pointer = addrinfo*;
+          using reference = addrinfo&;
+
           explicit const_iterator(struct addrinfo* ai = 0)
             : current(ai)
             { }
@@ -86,9 +91,9 @@ namespace net {
               current = current->ai_next;
               return ret;
             }
-          addrinfo& operator* () const
+          reference operator* () const
             { return *current; }
-          addrinfo* operator-> () const
+          pointer operator-> () const
             { return current; }
       };
 

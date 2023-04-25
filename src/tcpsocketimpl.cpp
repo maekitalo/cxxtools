@@ -49,7 +49,6 @@
 #include <cxxtools/hexdump.h>
 #include <cxxtools/resetter.h>
 
-#include "config.h"
 #include "error.h"
 #include <cerrno>
 #include <cstring>

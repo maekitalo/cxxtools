@@ -98,6 +98,14 @@ class QueryParams
         }
 
       public:
+        using iterator_category = std::bidirectional_iterator_tag;
+        using value_type = std::string;
+        using difference_type = int;
+        using pointer = std::string*;
+        using reference = std::string&;
+        using const_pointer = const std::string*;
+        using const_reference = const std::string&;
+
         /// initialize generic end-iterator
         const_iterator()
           : params(0),
@@ -157,13 +165,13 @@ class QueryParams
           return it;
         }
 
-        const std::string& operator*() const
+        const_reference operator*() const
         {
           return name.empty() ? params->param(pos)
                               : params->param(name, pos);
         }
 
-        const std::string* operator->() const
+        const_pointer operator->() const
         {
           return &(operator*());
         }
