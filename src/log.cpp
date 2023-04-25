@@ -653,7 +653,7 @@ namespace
     Logger::log_level_type logFlag2logLevel(Logger::log_flag_type flag)
     {
         if (flag == Logger::LOG_TRACE)
-            return static_cast<Logger::log_level_type>(Logger::LOG_LEVEL_DEBUG | Logger::LOG_TRACE);
+            return static_cast<Logger::log_level_type>(Logger::LOG_LEVEL_DEBUG | static_cast<Logger::log_level_type>(Logger::LOG_TRACE));
         return static_cast<Logger::log_level_type>((flag << 1) - 1);
     }
 
@@ -765,9 +765,9 @@ namespace
         {
             Logger::log_flag_type r = str2logflag(level.c_str() + 1);
             if (r == 0)
-                return Logger::LOG_LEVEL_DEBUG | Logger::LOG_TRACE;
+                return Logger::LOG_LEVEL_DEBUG | static_cast<Logger::log_level_type>(Logger::LOG_TRACE);
 
-            return logFlag2logLevel(r) | Logger::LOG_TRACE;
+            return logFlag2logLevel(r) | static_cast<Logger::log_level_type>(Logger::LOG_TRACE);
         }
 
         // case "everything below level":

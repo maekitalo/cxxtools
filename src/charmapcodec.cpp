@@ -82,7 +82,7 @@ CharMapCodec::result CharMapCodec::do_out(MBState& /*s*/, const Char* fromBegin,
     while (fromNext < fromEnd && toNext < toEnd)
     {
         *toNext = toChar(_charMap, *fromNext);
-        log_debug(fromNext->value() << " => " << static_cast<unsigned>(static_cast<unsigned char>(*toNext)));
+        log_debug(static_cast<unsigned>(fromNext->value()) << " => " << static_cast<unsigned>(static_cast<unsigned char>(*toNext)));
         ++fromNext;
         ++toNext;
     }
