@@ -268,7 +268,7 @@ class SerializationInfo
         SerializationInfo& addValue(const std::string& name, const T& value)
         {
             SerializationInfo& info = this->addMember(name);
-            info.setValue(value);
+            info.setValue(T(value));
             return info;
         }
 

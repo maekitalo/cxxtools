@@ -116,6 +116,21 @@ void SslCtx::Impl::loadCertificateFile(const std::string& certFile, const std::s
     log_debug("private key ok");
 }
 
+static int verify_callback(int ok, X509_STORE_CTX* ctx)
+{
+    if (!ok)
+    {
+        int cert_error = X509_STORE_CTX_get_error(ctx);
+        if (cert_error == X509_V_ERR_INVALID_PURPOSE)
+        {
+            // I have not found a good way to handle this error, so we ignore it
+            log_warn("error X509_V_ERR_INVALID_PURPOSE ignored");
+            ok = 1;
+        }
+    }
+    return ok;
+}
+
 void SslCtx::Impl::setVerify(int level, const std::string& ca)
 {
     if (level > 0)
@@ -143,7 +158,7 @@ void SslCtx::Impl::setVerify(int level, const std::string& ca)
         level == 0 ? SSL_VERIFY_NONE :
         level == 1 ? (SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE) :
                      (SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT | SSL_VERIFY_CLIENT_ONCE),
-        0);
+        verify_callback);
 
     char hostname[HOST_NAME_MAX];
     ::gethostname(hostname, sizeof(hostname));
