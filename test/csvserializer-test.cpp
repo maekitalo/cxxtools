@@ -53,6 +53,19 @@ namespace
         si.setTypeName("TestObject");
     }
 
+    struct ComplexObject
+    {
+        int intValue;
+        TestObject object;
+    };
+
+    void operator<<= (cxxtools::SerializationInfo& si, const ComplexObject& obj)
+    {
+        si.addMember("intValue") <<= obj.intValue;
+        si.addMember("object") <<= obj.object;
+        si.setTypeName("ComplexObject");
+    }
+
 }
 
 class CsvSerializerTest : public cxxtools::unit::TestSuite
@@ -63,13 +76,19 @@ class CsvSerializerTest : public cxxtools::unit::TestSuite
         {
             registerMethod("testVectorVector", *this, &CsvSerializerTest::testVectorVector);
             registerMethod("testObjectVector", *this, &CsvSerializerTest::testObjectVector);
+            registerMethod("testComplexObject", *this, &CsvSerializerTest::testComplexObject);
             registerMethod("testPartialObject", *this, &CsvSerializerTest::testPartialObject);
+            registerMethod("testPartialComplexObject", *this, &CsvSerializerTest::testPartialComplexObject);
             registerMethod("testCustomTitles", *this, &CsvSerializerTest::testCustomTitles);
             registerMethod("testEmptyCsvWithTitles", *this, &CsvSerializerTest::testEmptyCsvWithTitles);
             registerMethod("testCustomChars", *this, &CsvSerializerTest::testCustomChars);
             registerMethod("testMultichar", *this, &CsvSerializerTest::testMultichar);
             registerMethod("testOStream", *this, &CsvSerializerTest::testOStream);
             registerMethod("testLinefeeddata", *this, &CsvSerializerTest::testLinefeeddata);
+            registerMethod("testSingleValue", *this, &CsvSerializerTest::testSingleValue);
+            registerMethod("testSingleObject", *this, &CsvSerializerTest::testSingleObject);
+            registerMethod("testPartialSingleObject", *this, &CsvSerializerTest::testSingleObject);
+            registerMethod("testPartialSingleComplexObject", *this, &CsvSerializerTest::testPartialSingleComplexObject);
         }
 
         void testVectorVector()
@@ -114,6 +133,28 @@ class CsvSerializerTest : public cxxtools::unit::TestSuite
                 "-2,Foo,-8,false\n");
         }
 
+        void testComplexObject()
+        {
+            std::vector<ComplexObject> data(2);
+            data[0].intValue = 17;
+            data[0].object.intValue = 42;
+            data[0].object.doubleValue = 5;
+            data[0].object.boolValue = true;
+            data[1].intValue = 18;
+            data[1].object.intValue = 55;
+            data[1].object.doubleValue = -1;
+            data[1].object.boolValue = false;
+
+            std::ostringstream out;
+            cxxtools::CsvSerializer serializer(out);
+            serializer.serialize(data);
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(out.str(),
+                "intValue,object.intValue,object.stringValue,object.doubleValue,object.boolValue\n"
+                "17,42,,5,true\n"
+                "18,55,,-1,false\n");
+        }
+
         void testPartialObject()
         {
             std::vector<TestObject> data;
@@ -140,6 +181,30 @@ class CsvSerializerTest : public cxxtools::unit::TestSuite
                 "Foo,-2\n");
         }
 
+        void testPartialComplexObject()
+        {
+            std::vector<ComplexObject> data(2);
+            data[0].intValue = 17;
+            data[0].object.intValue = 42;
+            data[0].object.doubleValue = 5;
+            data[0].object.boolValue = true;
+            data[1].intValue = 18;
+            data[1].object.intValue = 55;
+            data[1].object.doubleValue = -1;
+            data[1].object.boolValue = false;
+
+            std::ostringstream out;
+            cxxtools::CsvSerializer serializer(out);
+            serializer.selectColumn("object.doubleValue");
+            serializer.selectColumn("intValue");
+            serializer.serialize(data);
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(out.str(),
+                "object.doubleValue,intValue\n"
+                "5,17\n"
+                "-1,18\n");
+        }
+
         void testCustomTitles()
         {
             std::vector<TestObject> data;
@@ -156,10 +221,10 @@ class CsvSerializerTest : public cxxtools::unit::TestSuite
 
             std::ostringstream out;
             cxxtools::CsvSerializer serializer(out);
-            serializer.selectColumn("stringValue", "col1");
-            serializer.selectColumn("intValue", "col2");
-            serializer.selectColumn("doubleValue", "col3");
-            serializer.selectColumn("boolValue", "col4");
+            serializer.selectColumn("stringValue", L"col1");
+            serializer.selectColumn("intValue", L"col2");
+            serializer.selectColumn("doubleValue", L"col3");
+            serializer.selectColumn("boolValue", L"col4");
             serializer.serialize(data);
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(out.str(),
@@ -174,10 +239,10 @@ class CsvSerializerTest : public cxxtools::unit::TestSuite
 
             std::ostringstream out;
             cxxtools::CsvSerializer serializer(out);
-            serializer.selectColumn("stringValue", "col1");
-            serializer.selectColumn("intValue", "col2");
-            serializer.selectColumn("doubleValue", "col3");
-            serializer.selectColumn("boolValue", "col4");
+            serializer.selectColumn("stringValue", L"col1");
+            serializer.selectColumn("intValue", L"col2");
+            serializer.selectColumn("doubleValue", L"col3");
+            serializer.selectColumn("boolValue", L"col4");
             serializer.serialize(data);
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(out.str(),
@@ -259,6 +324,70 @@ class CsvSerializerTest : public cxxtools::unit::TestSuite
                 "\"foo\nbar\",blub\n");
         }
 
+        void testSingleValue()
+        {
+            std::ostringstream out;
+            cxxtools::CsvSerializer serializer(out);
+            serializer.serialize("Hello,World");
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(out.str(),
+                "\"Hello,World\"");
+        }
+
+        void testSingleObject()
+        {
+            TestObject data;
+
+            data.intValue = 17;
+            data.stringValue = "Hi";
+            data.doubleValue = 7.5;
+            data.boolValue = true;
+
+            std::ostringstream out;
+            cxxtools::CsvSerializer serializer(out);
+            serializer.serialize(data);
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(out.str(),
+                "intValue,stringValue,doubleValue,boolValue\n"
+                "17,Hi,7.5,true\n");
+        }
+
+        void testPartialSingleObject()
+        {
+            TestObject data;
+
+            data.intValue = 17;
+            data.stringValue = "Hi";
+            data.doubleValue = 7.5;
+            data.boolValue = true;
+
+            std::ostringstream out;
+            cxxtools::CsvSerializer serializer(out);
+            serializer.selectColumn("stringValue", L"foo");
+            serializer.serialize(data);
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(out.str(),
+                "foo\n"
+                "Hi\n");
+        }
+
+        void testPartialSingleComplexObject()
+        {
+            ComplexObject data;
+            data.intValue = 17;
+            data.object.intValue = 42;
+            data.object.doubleValue = 5;
+            data.object.boolValue = true;
+
+            std::ostringstream out;
+            cxxtools::CsvSerializer serializer(out);
+            serializer.selectColumn("object.doubleValue", L"foo");
+            serializer.serialize(data);
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(out.str(),
+                "foo\n"
+                "5\n");
+        }
 };
 
 cxxtools::unit::RegisterTest<CsvSerializerTest> register_CsvSerializerTest;

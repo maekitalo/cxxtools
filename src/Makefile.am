@@ -10,8 +10,8 @@ libcxxtools_la_SOURCES = \
 	applicationimpl.cpp \
 	base64codec.cpp \
 	csvdeserializer.cpp \
-	csvformatter.cpp \
 	csvparser.cpp \
+	csvserializer.cpp \
 	char.cpp \
 	charmapcodec.cpp \
 	clock.cpp \
