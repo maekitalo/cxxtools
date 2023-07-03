@@ -25,7 +25,7 @@ int main(int argc, char* argv[])
         sslCtx.loadCertificateFile(cert);
 
     if (ca.isSet())
-        sslCtx.setVerify(2, ca);
+        sslCtx.setVerify(cxxtools::SslCtx::VERIFY_LEVEL::REQUIRE, ca);
 
     cxxtools::json::HttpClient client(ip, port, "/jsonrpc", sslCtx);
 

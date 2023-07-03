@@ -67,7 +67,7 @@ int main(int argc, char* argv[])
                 if (cert.isSet())
                     sslCtx.loadCertificateFile(cert);
                 if (ca.isSet())
-                    sslCtx.setVerify(2, ca);
+                    sslCtx.setVerify(cxxtools::SslCtx::VERIFY_LEVEL::REQUIRE, ca);
                 worker.sslAccept(sslCtx);
             }
 

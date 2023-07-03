@@ -19,8 +19,8 @@ libcxxtools_la_SOURCES = \
 	conversionerror.cpp \
 	convert.cpp \
 	csvdeserializer.cpp \
-	csvformatter.cpp \
 	csvparser.cpp \
+	csvserializer.cpp \
 	date.cpp \
 	datetime.cpp \
 	dateutils.cpp \

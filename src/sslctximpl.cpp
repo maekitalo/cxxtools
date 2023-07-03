@@ -131,9 +131,9 @@ static int verify_callback(int ok, X509_STORE_CTX* ctx)
     return ok;
 }
 
-void SslCtx::Impl::setVerify(int level, const std::string& ca)
+void SslCtx::Impl::setVerify(SslCtx::VERIFY_LEVEL level, const std::string& ca)
 {
-    if (level > 0)
+    if (level > SslCtx::VERIFY_LEVEL::NONE)
     {
         cxxtools::FileInfo fileInfo(ca);
         STACK_OF(X509_NAME)* names = SSL_load_client_CA_file(ca.c_str());
@@ -152,11 +152,11 @@ void SslCtx::Impl::setVerify(int level, const std::string& ca)
             SslError::checkSslError();
     }
 
-    log_debug("set ssl verify level " << level);
+    log_debug("set ssl verify level " << static_cast<unsigned short>(level));
     SSL_CTX_set_verify(
         ctx(),
-        level == 0 ? SSL_VERIFY_NONE :
-        level == 1 ? (SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE) :
+        level == SslCtx::VERIFY_LEVEL::NONE     ? SSL_VERIFY_NONE :
+        level == SslCtx::VERIFY_LEVEL::OPTIONAL ? (SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE) :
                      (SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT | SSL_VERIFY_CLIENT_ONCE),
         verify_callback);
 
