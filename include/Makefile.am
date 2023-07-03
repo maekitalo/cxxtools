@@ -19,7 +19,6 @@ nobase_include_HEADERS = \
         cxxtools/composer.h \
         cxxtools/csv.h \
         cxxtools/csvdeserializer.h \
-        cxxtools/csvformatter.h \
         cxxtools/csvparser.h \
         cxxtools/csvserializer.h \
         cxxtools/char.h \
