@@ -36,7 +36,7 @@ log_define("cxxtools.csv.serializer")
 
 namespace cxxtools
 {
-static void collectTitles(std::vector<CsvSerializer::Title>& titles, const cxxtools::SerializationInfo& si, const std::string& prefix)
+static void collectTitles(std::vector<CsvSerializer::Title>& titles, const SerializationInfo& si, const std::string& prefix)
 {
     for (const auto& ssi: si)
     {
@@ -63,7 +63,7 @@ static void collectTitles(std::vector<CsvSerializer::Title>& titles, const cxxto
     }
 }
 
-static void collectData(std::map<std::string, String>& data, const cxxtools::SerializationInfo& si, const std::string& prefix)
+static void collectData(std::map<std::string, String>& data, const SerializationInfo& si, const std::string& prefix)
 {
     for (const auto& ssi: si)
     {
@@ -91,14 +91,6 @@ static void collectData(std::map<std::string, String>& data, const cxxtools::Ser
         }
     }
 }
-
-    /*
-    void operator<<= (SerializationInfo& si, const CsvSerializer::Title& t)
-    {
-        si.addMember("memberName") <<= t._memberName;
-        si.addMember("title") <<= t._title;
-    }
-    */
 
 CsvSerializer::CsvSerializer(std::ostream& os, TextCodec<Char, char>* codec)
     : _delimiter(L","),
