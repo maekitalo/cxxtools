@@ -239,6 +239,8 @@ class Date
         */
         unsigned dayOfYear() const;
 
+        unsigned weeknumber(unsigned startDay = 4) const;
+
         /** @brief Returns true if the date is in a leap year
         */
         bool leapYear() const;
@@ -428,7 +430,6 @@ inline unsigned Date::dayOfYear() const
     greg2jul(jd,y,1,1);
     return _julian-jd+1;
 }
-
 
 inline bool Date::leapYear() const
 {

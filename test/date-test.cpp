@@ -46,6 +46,7 @@ class DateTest : public cxxtools::unit::TestSuite
             registerMethod("names", *this, &DateTest::names);
             registerMethod("serialization", *this, &DateTest::serialization);
             registerMethod("isValid", *this, &DateTest::isValid);
+            registerMethod("weeknumber", *this, &DateTest::weeknumber);
         }
 
         void fromString()
@@ -188,6 +189,16 @@ class DateTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT(!cxxtools::Date::isValid(1900, 2, 29));
         }
 
+        void weeknumber()
+        {
+            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::Date(2020, 1, 1).weeknumber(), 1);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::Date(2020, 1, 4).weeknumber(), 1);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::Date(2020, 1, 5).weeknumber(), 2);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::Date(2020, 2, 1).weeknumber(), 5);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::Date(2020, 12, 31).weeknumber(), 53);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::Date(2019, 1, 5).weeknumber(), 1);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::Date(2019, 1, 6).weeknumber(), 2);
+        }
 };
 
 cxxtools::unit::RegisterTest<DateTest> register_DateTest;
