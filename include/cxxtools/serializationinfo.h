@@ -1174,7 +1174,11 @@ void operator <<=(SerializationInfo& si, const std::array<T, N>& array)
 template <typename T>
 inline void operator >>=(const SerializationInfo& si, std::optional<T>& value)
 {
-    if (!si.isNull())
+    if (si.isNull())
+    {
+        value = std::nullopt;
+    }
+    else
     {
         value = T();
         si >>= *value;
@@ -1186,6 +1190,8 @@ inline void operator <<=(SerializationInfo& si, const std::optional<T>& value)
 {
     if (value)
         si <<= *value;
+    else
+        si.setNull();
 }
 
 #endif
