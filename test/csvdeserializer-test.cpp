@@ -32,7 +32,9 @@
 #include "cxxtools/csv.h"
 #include "cxxtools/log.h"
 
-//log_define("cxxtools.test.csvdeserializer")
+#if __cplusplus >= 201703L
+#include <optional>
+#endif
 
 namespace
 {
@@ -49,6 +51,24 @@ namespace
         si.getMember("stringValue") >>= obj.stringValue;
         si.getMember("doubleValue") >>= obj.doubleValue;
     }
+
+#if __cplusplus >= 201703L
+
+    struct TestObjectOptional
+    {
+        std::optional<int> intValue;
+        std::optional<double> doubleValue;
+        std::optional<char> charValue;
+    };
+
+    void operator>>= (const cxxtools::SerializationInfo& si, TestObjectOptional& obj)
+    {
+        si.getMember("intValue") >>= obj.intValue;
+        si.getMember("doubleValue") >>= obj.doubleValue;
+        si.getMember("charValue") >>= obj.charValue;
+    }
+
+#endif
 
 }
 
@@ -73,6 +93,9 @@ class CsvDeserializerTest : public cxxtools::unit::TestSuite
             registerMethod("testFailDecoding", *this, &CsvDeserializerTest::testFailDecoding);
             registerMethod("testLinefeed", *this, &CsvDeserializerTest::testLinefeed);
             registerMethod("testUnicode", *this, &CsvDeserializerTest::testUnicode);
+#if __cplusplus >= 201703L
+            registerMethod("testOptional", *this, &CsvDeserializerTest::testOptional);
+#endif
         }
 
         void testVectorVector()
@@ -392,6 +415,34 @@ class CsvDeserializerTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[0][0], cxxtools::String(L"M\xe4kitalo"));
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[0][1], cxxtools::String(L"42"));
         }
+
+#if __cplusplus >= 201703L
+        void testOptional()
+        {
+            std::vector<TestObjectOptional> data;
+
+            std::istringstream in(
+                "intValue,doubleValue,charValue\n"
+                "45,,u\n"
+                ",5.5,\n");
+
+            cxxtools::CsvDeserializer deserializer;
+            deserializer.read(in);
+            deserializer.deserialize(data);
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 2u);
+            CXXTOOLS_UNIT_ASSERT(data[0].intValue);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(*data[0].intValue, 45);
+            CXXTOOLS_UNIT_ASSERT(!data[0].doubleValue);
+            CXXTOOLS_UNIT_ASSERT(data[0].charValue);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(*data[0].charValue, 'u');
+
+            CXXTOOLS_UNIT_ASSERT(!data[1].intValue);
+            CXXTOOLS_UNIT_ASSERT(data[1].doubleValue);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(*data[1].doubleValue, 5.5);
+            CXXTOOLS_UNIT_ASSERT(!data[1].charValue);
+        }
+#endif
 };
 
 cxxtools::unit::RegisterTest<CsvDeserializerTest> register_CsvDeserializerTest;

@@ -33,6 +33,10 @@
 #include <vector>
 #include <iterator>
 
+#if __cplusplus >= 201703L
+#include <optional>
+#endif
+
 class QueryParamsTest : public cxxtools::unit::TestSuite
 {
     public:
@@ -51,6 +55,9 @@ class QueryParamsTest : public cxxtools::unit::TestSuite
             registerMethod("testGetUrl", *this, &QueryParamsTest::testGetUrl);
             registerMethod("testGetNames", *this, &QueryParamsTest::testGetNames);
             registerMethod("testDeserialization", *this, &QueryParamsTest::testDeserialization);
+#if __cplusplus >= 201703L
+            registerMethod("testOptional", *this, &QueryParamsTest::testOptional);
+#endif
         }
 
         void testQueryParams()
@@ -225,6 +232,9 @@ class QueryParamsTest : public cxxtools::unit::TestSuite
         }
 
         void testDeserialization();
+#if __cplusplus >= 201703L
+        void testOptional();
+#endif
 };
 
 cxxtools::unit::RegisterTest<QueryParamsTest> register_QueryParamsTest;
@@ -261,6 +271,24 @@ namespace
         si.getMember("start") >>= query.start;
     }
 
+#if __cplusplus >= 201703L
+
+    struct TestObjectOptional
+    {
+        std::optional<int> intValue;
+        std::optional<double> doubleValue;
+        std::optional<char> charValue;
+    };
+
+    void operator>>= (const cxxtools::SerializationInfo& si, TestObjectOptional& obj)
+    {
+        si.getMember("intValue") >>= obj.intValue;
+        si.getMember("doubleValue") >>= obj.doubleValue;
+        si.getMember("charValue") >>= obj.charValue;
+    }
+
+#endif
+
 }
 
 void QueryParamsTest::testDeserialization()
@@ -290,3 +318,46 @@ void QueryParamsTest::testDeserialization()
     CXXTOOLS_UNIT_ASSERT_EQUALS(query.columns[1].value, "othervalue");
     CXXTOOLS_UNIT_ASSERT_EQUALS(query.start, 42u);
 }
+
+#if __cplusplus >= 201703L
+
+void QueryParamsTest::testOptional()
+{
+    {
+        cxxtools::QueryParams qp;
+        qp.add("intValue", "45");
+        qp.add("doubleValue", "");
+        qp.add("charValue", "u");
+
+        cxxtools::SerializationInfo si;
+        si <<= qp;
+
+        TestObjectOptional obj;
+        si >>= obj;
+        CXXTOOLS_UNIT_ASSERT(obj.intValue);
+        CXXTOOLS_UNIT_ASSERT_EQUALS(*obj.intValue, 45);
+        CXXTOOLS_UNIT_ASSERT(!obj.doubleValue);
+        CXXTOOLS_UNIT_ASSERT(obj.charValue);
+        CXXTOOLS_UNIT_ASSERT_EQUALS(*obj.charValue, 'u');
+    }
+    
+    {
+        cxxtools::QueryParams qp;
+        qp.add("intValue", "");
+        qp.add("doubleValue", "5.5");
+        qp.add("charValue", "");
+
+        cxxtools::SerializationInfo si;
+        si <<= qp;
+
+        TestObjectOptional obj;
+        si >>= obj;
+        CXXTOOLS_UNIT_ASSERT(!obj.intValue);
+        CXXTOOLS_UNIT_ASSERT(obj.doubleValue);
+        CXXTOOLS_UNIT_ASSERT_EQUALS(*obj.doubleValue, 5.5);
+        CXXTOOLS_UNIT_ASSERT(!obj.charValue);
+    }
+
+}
+
+#endif
