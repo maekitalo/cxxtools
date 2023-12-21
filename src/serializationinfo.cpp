@@ -360,6 +360,172 @@ void SerializationInfo::swap(SerializationInfo& si)
     std::swap(_nodes, si._nodes);
 }
 
+SerializationInfo SerializationInfo::path(const std::string& path) const
+{
+    log_debug("sipath <" << path << '>');
+
+    enum {
+        state_root,
+        state_0,
+        state_arrayIdx,
+        state_memberName,
+        state_meta0,
+        state_meta,
+    } state = state_root;
+
+    const cxxtools::SerializationInfo* current = this;
+
+    std::string memberName;
+    unsigned idx;
+    for (auto ch: path)
+    {
+        log_debug("character '" << ch << "'");
+        switch (state)
+        {
+            case state_root:
+                if (ch == '$')
+                {
+                    log_debug("root detected");
+                    state = state_0;
+                }
+                else if (ch == '[')
+                {
+                    idx = 0;
+                    state = state_arrayIdx;
+                }
+                else if (ch == '.')
+                {
+                    state = state_memberName;
+                }
+                else if (ch == ':')
+                {
+                    state = state_meta0;
+                }
+                else
+                {
+                    memberName = ch;
+                    state = state_memberName;
+                }
+                break;
+
+            case state_0:
+                if (ch == '[')
+                {
+                    log_debug("array index");
+                    idx = 0;
+                    state = state_arrayIdx;
+                }
+                else if (ch == '.')
+                {
+                    log_debug("member");
+                    memberName.clear();
+                    state = state_memberName;
+                }
+                else if (ch == ':')
+                {
+                    state = state_meta0;
+                }
+                else
+                {
+                    throw SiPathError(std::string("unexpected character '") + ch + "' in sipath <" + path + '>');
+                }
+                break;
+
+            case state_arrayIdx:
+                if (ch == ']')
+                {
+                    log_debug("array index " << idx);
+                    current = &(current->getMember(idx));
+                    state = state_0;
+                }
+                else if (ch >= '0' && ch <= '9')
+                {
+                    idx = idx * 10 + (ch - '0');
+                }
+                else
+                {
+                    throw SiPathError("invalid array index in sipath <" + path + '>');
+                }
+                break;
+
+            case state_memberName:
+                if (ch == '[')
+                {
+                    log_debug("member <" << memberName << '>');
+                    current = &(current->getMember(memberName));
+                    idx = 0;
+                    state = state_arrayIdx;
+                }
+                else if (ch == '.')
+                {
+                    log_debug("member <" << memberName << '>');
+                    current = &(current->getMember(memberName));
+                    memberName.clear();
+                }
+                else if (ch == ':')
+                {
+                    log_debug("member <" << memberName << '>');
+                    current = &(current->getMember(memberName));
+                    memberName.clear();
+                    state = state_meta0;
+                }
+                else
+                {
+                    memberName += ch;
+                }
+                break;
+
+            case state_meta0:
+                if (ch == ':')
+                    state = state_meta;
+                else
+                    throw SiPathError(std::string("unexpected character '") + ch + "' in sipath <" + path + '>');
+                break;
+
+            case state_meta:
+                memberName += ch;
+                break;
+        }
+
+    }
+
+    switch (state)
+    {
+        case state_root:
+        case state_0:
+            break;
+
+        case state_arrayIdx:
+            throw SiPathError("missing closing bracket ']' in sipath <" + path + '>');
+
+        case state_memberName:
+            log_debug("member <" << memberName << '>');
+            current = &(current->getMember(memberName));
+
+        case state_meta:
+            if (memberName == "size")
+            {
+                SerializationInfo si;
+                si <<= current->memberCount();
+                return si;
+            }
+            else if (memberName == "type")
+            {
+                SerializationInfo si;
+                si <<= current->typeName();
+                return si;
+            }
+            else if (memberName == "isnull")
+            {
+                SerializationInfo si;
+                si <<= current->isNull();
+                return si;
+            }
+    }
+
+    return *current;
+}
+
 void SerializationInfo::dump(std::ostream& out, const std::string& prefix) const
 {
     if (!_name.empty())

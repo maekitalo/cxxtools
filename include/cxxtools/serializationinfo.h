@@ -369,6 +369,29 @@ class SerializationInfo
         bool isDouble() const     { return _t == t_double; }
         bool isLongDouble() const { return _t == t_ldouble; }
 
+        /** fetch part of SerializationInfo using a path notation
+
+                $           root element
+                .member     access member
+                [n]         array index
+                ::size      size
+                ::type      typename
+                ::isnull    true if null, false otherwise
+
+                Root element can be omitted. Also the starting '.'
+
+                `$.store.book` can be written as `store.book`
+                `$[2]` can be written as `[2]`
+
+            examples
+
+                $.store.book::size
+                $.store.book[2].title
+                $.store.book[2].price
+                $::size
+         */
+        SerializationInfo path(const std::string& path) const;
+
         void dump(std::ostream& out, const std::string& prefix = std::string()) const;
 
     private:
