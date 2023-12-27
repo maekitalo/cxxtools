@@ -77,9 +77,15 @@ public:
             auto si = exampleStore.path("$.store");
             CXXTOOLS_UNIT_ASSERT(si.findMember("book"));
         }
+
         {
             auto si = exampleStore.path("store.bicycle");
             CXXTOOLS_UNIT_ASSERT(si.findMember("color"));
+        }
+
+        {
+            auto si = exampleStore.path("\"store\".'bicycle'");
+            CXXTOOLS_UNIT_ASSERT(si.findMember("price"));
         }
     }
 

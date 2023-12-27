@@ -383,11 +383,14 @@ class SerializationInfo
                 `$.store.book` can be written as `store.book`
                 `$[2]` can be written as `[2]`
 
+                Member names can be enclosed in single or double quotes.
+
             examples
 
                 $.store.book::size
                 $.store.book[2].title
                 $.store.book[2].price
+                $.store.'book'[3]."price"
                 $::size
          */
         SerializationInfo path(const std::string& path) const;

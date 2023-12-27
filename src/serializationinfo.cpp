@@ -368,7 +368,9 @@ SerializationInfo SerializationInfo::path(const std::string& path) const
         state_root,
         state_0,
         state_arrayIdx,
+        state_memberName0,
         state_memberName,
+        state_memberNameQ,
         state_meta0,
         state_meta,
     } state = state_root;
@@ -377,6 +379,7 @@ SerializationInfo SerializationInfo::path(const std::string& path) const
 
     std::string memberName;
     unsigned idx;
+    char quote;
     for (auto ch: path)
     {
         log_debug("character '" << ch << "'");
@@ -395,16 +398,21 @@ SerializationInfo SerializationInfo::path(const std::string& path) const
                 }
                 else if (ch == '.')
                 {
-                    state = state_memberName;
+                    state = state_memberName0;
                 }
                 else if (ch == ':')
                 {
                     state = state_meta0;
                 }
+                else if (ch == '"' || ch == '\'')
+                {
+                    quote = ch;
+                    state = state_memberNameQ;
+                }
                 else
                 {
                     memberName = ch;
-                    state = state_memberName;
+                    state = state_memberName0;
                 }
                 break;
 
@@ -419,7 +427,14 @@ SerializationInfo SerializationInfo::path(const std::string& path) const
                 {
                     log_debug("member");
                     memberName.clear();
-                    state = state_memberName;
+                    state = state_memberName0;
+                }
+                else if (ch == '"' || ch == '\'')
+                {
+                    log_debug("member");
+                    quote = ch;
+                    memberName.clear();
+                    state = state_memberNameQ;
                 }
                 else if (ch == ':')
                 {
@@ -448,6 +463,16 @@ SerializationInfo SerializationInfo::path(const std::string& path) const
                 }
                 break;
 
+            case state_memberName0:
+                if (ch == '"' || ch == '\'')
+                {
+                    quote = ch;
+                    state = state_memberNameQ;
+                    continue;
+                }
+
+                // fallthrough
+
             case state_memberName:
                 if (ch == '[')
                 {
@@ -461,6 +486,7 @@ SerializationInfo SerializationInfo::path(const std::string& path) const
                     log_debug("member <" << memberName << '>');
                     current = &(current->getMember(memberName));
                     memberName.clear();
+                    state = state_memberName0;
                 }
                 else if (ch == ':')
                 {
@@ -468,6 +494,19 @@ SerializationInfo SerializationInfo::path(const std::string& path) const
                     current = &(current->getMember(memberName));
                     memberName.clear();
                     state = state_meta0;
+                }
+                else
+                {
+                    memberName += ch;
+                }
+                break;
+
+            case state_memberNameQ:
+                if (ch == quote)
+                {
+                    log_debug("member <" << memberName << '>');
+                    current = &(current->getMember(memberName));
+                    state = state_0;
                 }
                 else
                 {
@@ -498,10 +537,14 @@ SerializationInfo SerializationInfo::path(const std::string& path) const
         case state_arrayIdx:
             throw SiPathError("missing closing bracket ']' in sipath <" + path + '>');
 
+        case state_memberName0:
         case state_memberName:
             log_debug("member <" << memberName << '>');
             current = &(current->getMember(memberName));
             break;
+
+        case state_memberNameQ:
+            throw SiPathError("missing closing \" in sipath <" + path + '>');
 
         case state_meta:
             if (memberName == "size")
