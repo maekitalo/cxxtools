@@ -501,6 +501,7 @@ SerializationInfo SerializationInfo::path(const std::string& path) const
         case state_memberName:
             log_debug("member <" << memberName << '>');
             current = &(current->getMember(memberName));
+            break;
 
         case state_meta:
             if (memberName == "size")
@@ -521,6 +522,8 @@ SerializationInfo SerializationInfo::path(const std::string& path) const
                 si <<= current->isNull();
                 return si;
             }
+            else
+                throw SiPathError("unknown meta token ::" + memberName);
     }
 
     return *current;
