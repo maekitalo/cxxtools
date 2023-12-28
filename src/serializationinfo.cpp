@@ -438,6 +438,7 @@ SerializationInfo SerializationInfo::path(const std::string& path) const
                 }
                 else if (ch == ':')
                 {
+                    memberName.clear();
                     state = state_meta0;
                 }
                 else

@@ -105,6 +105,10 @@ public:
         unsigned size = 0;
         exampleStore.path("store.book::size") >>= size;
         CXXTOOLS_UNIT_ASSERT_EQUALS(size, 4);
+
+        size = 2;
+        exampleStore.path("store.book[0]::size") >>= size;
+        CXXTOOLS_UNIT_ASSERT_EQUALS(size, 4);
     }
 
     void type()
