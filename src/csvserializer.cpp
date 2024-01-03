@@ -189,15 +189,14 @@ const CsvSerializer& CsvSerializer::serialize(const SerializationInfo& si) const
                 bool first = true;
                 for (const auto& title: titles)
                 {
+                    if (first)
+                        first = false;
+                    else
+                        _os << _delimiter;
+
                     auto it = data.find(title.memberName());
                     if (it != data.end())
-                    {
-                        if (first)
-                            first = false;
-                        else
-                            _os << _delimiter;
                         csvOut(it->second);
-                    }
                 }
             }
 
@@ -249,15 +248,14 @@ const CsvSerializer& CsvSerializer::serialize(const SerializationInfo& si) const
                     bool first = true;
                     for (const auto& title: titles)
                     {
+                        if (first)
+                            first = false;
+                        else
+                            _os << _delimiter;
+
                         auto it = data.find(title.memberName());
                         if (it != data.end())
-                        {
-                            if (first)
-                                first = false;
-                            else
-                                _os << _delimiter;
                             csvOut(it->second);
-                        }
                     }
                 }
 

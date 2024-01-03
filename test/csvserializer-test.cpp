@@ -66,6 +66,27 @@ namespace
         si.setTypeName("ComplexObject");
     }
 
+    struct TestObjectWithOptionals
+    {
+        std::optional<int> intValue;
+        std::optional<std::string> stringValue;
+        std::optional<double> doubleValue;
+        std::optional<bool> boolValue;
+    };
+
+    void operator<<= (cxxtools::SerializationInfo& si, const TestObjectWithOptionals& obj)
+    {
+        if (obj.intValue)
+            si.addMember("intValue") <<= obj.intValue;
+        if (obj.stringValue)
+            si.addMember("stringValue") <<= obj.stringValue;
+        if (obj.doubleValue)
+            si.addMember("doubleValue") <<= obj.doubleValue;
+        if (obj.boolValue)
+            si.addMember("boolValue") <<= obj.boolValue;
+        si.setTypeName("TestObject");
+    }
+
 }
 
 class CsvSerializerTest : public cxxtools::unit::TestSuite
@@ -76,6 +97,7 @@ class CsvSerializerTest : public cxxtools::unit::TestSuite
         {
             registerMethod("testVectorVector", *this, &CsvSerializerTest::testVectorVector);
             registerMethod("testObjectVector", *this, &CsvSerializerTest::testObjectVector);
+            registerMethod("testObjectVectorWithOptionals", *this, &CsvSerializerTest::testObjectVectorWithOptionals);
             registerMethod("testComplexObject", *this, &CsvSerializerTest::testComplexObject);
             registerMethod("testPartialObject", *this, &CsvSerializerTest::testPartialObject);
             registerMethod("testPartialComplexObject", *this, &CsvSerializerTest::testPartialComplexObject);
@@ -131,6 +153,28 @@ class CsvSerializerTest : public cxxtools::unit::TestSuite
                 "intValue,stringValue,doubleValue,boolValue\n"
                 "17,Hi,7.5,true\n"
                 "-2,Foo,-8,false\n");
+        }
+
+        void testObjectVectorWithOptionals()
+        {
+            std::vector<TestObjectWithOptionals> data;
+
+            data.resize(2);
+            data[0].intValue = 17;
+            data[0].stringValue = "Hi";
+            data[0].doubleValue = 7.5;
+            data[0].boolValue = true;
+            data[1].intValue = -2;
+            data[1].stringValue = "Foo";
+
+            std::ostringstream out;
+            cxxtools::CsvSerializer serializer(out);
+            serializer.serialize(data);
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(out.str(),
+                "intValue,stringValue,doubleValue,boolValue\n"
+                "17,Hi,7.5,true\n"
+                "-2,Foo,,\n");
         }
 
         void testComplexObject()
