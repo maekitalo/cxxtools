@@ -368,6 +368,8 @@ const char* IniParser::expected() const
         case state_valueqend:
         case state_comment:     return "end of line";
     }
+
+    return "unknown";
 }
 
 }
