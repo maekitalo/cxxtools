@@ -102,7 +102,7 @@ void IniParser::parse(std::basic_istream<Char>& in)
     }
 
     if (in.rdstate() & std::ios::badbit)
-        SerializationError::doThrow("reading ini file failed in line " + std::to_string(_linenumber) + " expected: " + expected());
+        SerializationError::doThrow("parsing ini failed in line " + std::to_string(_linenumber) + " expected: " + expected());
 
     end();
 }
@@ -110,8 +110,7 @@ void IniParser::parse(std::basic_istream<Char>& in)
 bool IniParser::parse(Char ch)
 {
     bool ret = false;
-    if (ch == L'\n')
-        ++_linenumber;
+    log_finest("line " << _linenumber << " parse('" << ch << "') state " << static_cast<int>(_state));
     switch (_state)
     {
         case state_0:
@@ -273,6 +272,8 @@ bool IniParser::parse(Char ch)
             }
             else if (ch == '\\')
                 _state = state_valuedqesc;
+            else if (ch == '\n')
+                ret = _event.onError();
             else
                 _data += ch;
             break;
@@ -307,6 +308,9 @@ bool IniParser::parse(Char ch)
                 _state = state_0;
             break;
     }
+
+    if (ch == L'\n')
+        ++_linenumber;
 
     return ret;
 }
