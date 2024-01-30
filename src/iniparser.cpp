@@ -82,6 +82,7 @@ bool IniParser::Event::onValue(const std::string& value)
 
 void IniParser::parse(std::istream& in, TextCodec<Char, char>* codec)
 {
+    _linenumber = 1;
     TextIStream tin(in, codec);
     parse(tin);
 }
@@ -90,6 +91,7 @@ void IniParser::parse(std::basic_istream<Char>& in)
 {
     Char ch;
     int ret;
+    _linenumber = 1;
     while (in.get(ch))
     {
         ret = parse(ch);
@@ -100,7 +102,7 @@ void IniParser::parse(std::basic_istream<Char>& in)
     }
 
     if (in.rdstate() & std::ios::badbit)
-        SerializationError::doThrow("parsing ini file failed");
+        SerializationError::doThrow("reading ini file failed in line " + std::to_string(_linenumber) + " expected: " + expected());
 
     end();
 }
@@ -108,67 +110,69 @@ void IniParser::parse(std::basic_istream<Char>& in)
 bool IniParser::parse(Char ch)
 {
     bool ret = false;
-    switch (state)
+    if (ch == L'\n')
+        ++_linenumber;
+    switch (_state)
     {
         case state_0:
             if (ch == L'[')
-                state = state_section;
+                _state = state_section;
             else if (std::isalnum(ch))
             {
-                data = ch;
-                state = state_key;
+                _data = ch;
+                _state = state_key;
             }
             else if (ch == L'#' || ch == L';')
             {
-                state = state_comment;
+                _state = state_comment;
             }
             else if (std::isspace(ch))
                 ;
             else
             {
                 log_debug("onError");
-                ret = event.onError();
+                ret = _event.onError();
             }
             break;
 
         case state_section:
             if (ch == L']')
             {
-                log_debug("onSection(" << data << ')');
-                ret = event.onSection(data);
-                data.clear();
-                state = state_0;
+                log_debug("onSection(" << _data << ')');
+                ret = _event.onSection(_data);
+                _data.clear();
+                _state = state_0;
             }
             else
-                data += ch;
+                _data += ch;
             break;
 
         case state_key:
             if (ch == L'=')
             {
-                log_debug("onKey(" << data << ')');
-                ret = event.onKey(data);
-                data.clear();
-                state = state_value0;
+                log_debug("onKey(" << _data << ')');
+                ret = _event.onKey(_data);
+                _data.clear();
+                _state = state_value0;
             }
             else if (std::isspace(ch))
             {
-                log_debug("onKey(" << data << ')');
-                ret = event.onKey(data);
-                data.clear();
-                state = state_key_sp;
+                log_debug("onKey(" << _data << ')');
+                ret = _event.onKey(_data);
+                _data.clear();
+                _state = state_key_sp;
             }
             else
-                data += ch;
+                _data += ch;
             break;
 
         case state_key_sp:
             if (ch == L'=')
-                state = state_value0;
+                _state = state_value0;
             else if (!std::isspace(ch))
             {
                 log_debug("onError");
-                ret = event.onError();
+                ret = _event.onError();
             }
             break;
 
@@ -176,131 +180,131 @@ bool IniParser::parse(Char ch)
             if (ch == '\n')
             {
                 log_debug("onValue(\"\")");
-                ret = event.onValue(String());
-                state = state_0;
+                ret = _event.onValue(String());
+                _state = state_0;
             }
             else if (ch == '\'')
             {
-                data.clear();
-                state = state_valuesq;
+                _data.clear();
+                _state = state_valuesq;
             }
             else if (ch == '"')
             {
-                data.clear();
-                state = state_valuedq;
+                _data.clear();
+                _state = state_valuedq;
             }
             else if (ch == '\\')
-                state = state_valueesc;
+                _state = state_valueesc;
             else if (!std::isspace(ch))
             {
-                data = ch;
-                state = state_value;
+                _data = ch;
+                _state = state_value;
             }
             break;
 
         case state_value:
             if (ch == '\n')
             {
-                log_debug("onValue(" << data << ')');
-                rtrimi(data);
-                ret = event.onValue(data);
-                data.clear();
-                state = state_0;
+                log_debug("onValue(" << _data << ')');
+                rtrimi(_data);
+                ret = _event.onValue(_data);
+                _data.clear();
+                _state = state_0;
             }
             else if (ch == '\\')
-                state = state_valueesc;
+                _state = state_valueesc;
             else
-                data += ch;
+                _data += ch;
             break;
 
         case state_valueesc:
             if (ch == 'b')
-                data += '\b';
+                _data += '\b';
             else if (ch == 'f')
-                data += '\f';
+                _data += '\f';
             else if (ch == 'n')
-                data += '\n';
+                _data += '\n';
             else if (ch == 'r')
-                data += '\r';
+                _data += '\r';
             else if (ch == 't')
-                data += '\t';
+                _data += '\t';
             else
-                data += ch;
-            state = state_value;
+                _data += ch;
+            _state = state_value;
             break;
 
         case state_valuesq:
             if (ch == '\'')
             {
-                log_debug("onValue(" << data << ')');
-                ret = event.onValue(data);
-                data.clear();
-                state = state_valueqend;
+                log_debug("onValue(" << _data << ')');
+                ret = _event.onValue(_data);
+                _data.clear();
+                _state = state_valueqend;
             }
             else if (ch == '\\')
-                state = state_valuesqesc;
+                _state = state_valuesqesc;
             else
-                data += ch;
+                _data += ch;
             break;
 
         case state_valuesqesc:
             if (ch == 'b')
-                data += '\b';
+                _data += '\b';
             else if (ch == 'f')
-                data += '\f';
+                _data += '\f';
             else if (ch == 'n')
-                data += '\n';
+                _data += '\n';
             else if (ch == 'r')
-                data += '\r';
+                _data += '\r';
             else if (ch == 't')
-                data += '\t';
+                _data += '\t';
             else
-                data += ch;
-            state = state_valuesq;
+                _data += ch;
+            _state = state_valuesq;
             break;
 
         case state_valuedq:
             if (ch == '"')
             {
-                log_debug("onValue(" << data << ')');
-                ret = event.onValue(data);
-                data.clear();
-                state = state_valueqend;
+                log_debug("onValue(" << _data << ')');
+                ret = _event.onValue(_data);
+                _data.clear();
+                _state = state_valueqend;
             }
             else if (ch == '\\')
-                state = state_valuedqesc;
+                _state = state_valuedqesc;
             else
-                data += ch;
+                _data += ch;
             break;
 
         case state_valuedqesc:
             if (ch == 'b')
-                data += '\b';
+                _data += '\b';
             else if (ch == 'f')
-                data += '\f';
+                _data += '\f';
             else if (ch == 'n')
-                data += '\n';
+                _data += '\n';
             else if (ch == 'r')
-                data += '\r';
+                _data += '\r';
             else if (ch == 't')
-                data += '\t';
+                _data += '\t';
             else
-                data += ch;
-            state = state_valuedq;
+                _data += ch;
+            _state = state_valuedq;
             break;
 
         case state_valueqend:
             if (ch == '\n')
-                state = state_0;
+                _state = state_0;
             else if (ch == L'#' || ch == L';')
-                state = state_comment;
+                _state = state_comment;
             else if (!std::isspace(ch))
-                ret = event.onError();
+                ret = _event.onError();
             break;
 
         case state_comment:
             if (ch == '\n')
-                state = state_0;
+                _state = state_0;
             break;
     }
 
@@ -309,7 +313,7 @@ bool IniParser::parse(Char ch)
 
 void IniParser::end()
 {
-    switch (state)
+    switch (_state)
     {
         case state_0:
         case state_valueqend:
@@ -325,20 +329,40 @@ void IniParser::end()
         case state_valuedq:
         case state_valuedqesc:
             log_debug("onError");
-            event.onError();
+            _event.onError();
             break;
 
         case state_value0:
             log_debug("onValue(\"\")");
-            event.onValue(String());
-            data.clear();
+            _event.onValue(String());
+            _data.clear();
             break;
 
         case state_value:
-            log_debug("onValue(" << data << ')');
-            event.onValue(data);
-            data.clear();
+            log_debug("onValue(" << _data << ')');
+            _event.onValue(_data);
+            _data.clear();
             break;
+    }
+}
+
+const char* IniParser::expected() const
+{
+    switch (_state)
+    {
+        case state_0:           return "section start";
+        case state_section:     return "]";
+        case state_key:         return "=";
+        case state_key_sp:
+        case state_value0:
+        case state_value:       return "value";
+        case state_valueesc:    return "character";
+        case state_valuesq:     return "single quote";
+        case state_valuesqesc:  return "character";
+        case state_valuedq:     return "double quote";
+        case state_valuedqesc:  return "character";
+        case state_valueqend:
+        case state_comment:     return "end of line";
     }
 }
 

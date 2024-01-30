@@ -61,8 +61,8 @@ namespace cxxtools
             };
 
         private:
-            Event& event;
-            String data;
+            Event& _event;
+            String _data;
             enum
             {
                 state_0,
@@ -79,18 +79,23 @@ namespace cxxtools
                 state_valueqend,
                 state_comment
 
-            } state;
+            } _state;
+            unsigned _linenumber;
 
         public:
-            IniParser(Event& event_)
-                : event(event_),
-                    state(state_0)
+            IniParser(Event& event)
+                : _event(event),
+                  _state(state_0),
+                  _linenumber(1)
                 { }
 
             bool parse(Char ch);
             void end();
             void parse(std::istream& in, TextCodec<Char, char>* codec = new Utf8Codec());
             void parse(std::basic_istream<Char>& in);
+
+            const char* expected() const;
+            unsigned linenumber() const     { return _linenumber; }
     };
 }
 
