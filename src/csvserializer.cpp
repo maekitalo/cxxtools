@@ -49,7 +49,7 @@ static void collectTitles(std::vector<CsvSerializer::Title>& titles, const Seria
                 namePrefix = prefix + namePrefix;
             collectTitles(titles, ssi, namePrefix);
         }
-        else if (ssi.category() == SerializationInfo::Value)
+        else
         {
             auto name = ssi.name();
             if (!name.empty())
