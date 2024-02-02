@@ -547,6 +547,9 @@ SerializationInfo SerializationInfo::path(const std::string& path) const
         case state_memberNameQ:
             throw SiPathError("missing closing \" in sipath <" + path + '>');
 
+        case state_meta0:
+            throw SiPathError("missing ':' in sipath <" + path + '>');
+
         case state_meta:
             if (memberName == "size")
             {
@@ -931,6 +934,8 @@ SerializationInfo::int_type SerializationInfo::_getInt(const char* type, int_typ
                         {
                             std::ostringstream msg;
                             msg << "value " << ret << " does not fit into " << type;
+                            if (!_name.empty())
+                                msg << " in node " << _name;
                             throw std::range_error(msg.str());
                         }
                         ret = _u._u; break;
@@ -943,6 +948,8 @@ SerializationInfo::int_type SerializationInfo::_getInt(const char* type, int_typ
     {
         std::ostringstream msg;
         msg << "value " << ret << " does not fit into " << type;
+        if (!_name.empty())
+            msg << " in node " << _name;
         throw std::range_error(msg.str());
     }
 
@@ -993,6 +1000,8 @@ SerializationInfo::unsigned_type SerializationInfo::_getUInt(const char* type, u
     {
         std::ostringstream msg;
         msg << "value " << ret << " does not fit into " << type;
+        if (!_name.empty())
+            msg << " in node " << _name;
         throw std::range_error(msg.str());
     }
 
@@ -1045,6 +1054,8 @@ float SerializationInfo::_getFloat() const
             {
                 std::ostringstream msg;
                 msg << "value " << _u._d << " does not fit into float";
+                if (!_name.empty())
+                    msg << " in node " << _name;
                 throw std::range_error(msg.str());
             }
             else
@@ -1063,6 +1074,8 @@ float SerializationInfo::_getFloat() const
             {
                 std::ostringstream msg;
                 msg << "value " << _u._ld << " does not fit into float";
+                if (!_name.empty())
+                    msg << " in node " << _name;
                 throw std::range_error(msg.str());
             }
             else
@@ -1120,6 +1133,8 @@ double SerializationInfo::_getDouble() const
             {
                 std::ostringstream msg;
                 msg << "value " << _u._ld << " does not fit into double";
+                if (!_name.empty())
+                    msg << " in node " << _name;
                 throw std::range_error(msg.str());
             }
             else
