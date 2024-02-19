@@ -43,8 +43,8 @@ namespace cxxtools
 
            BinOObject is a little wrapper which makes it easy to output serializable
            objects into s ostream. For this the BinOObject expects a reference to the
-           wrapped object and has a output operator for a std::ostream, or actually
-           a std::basic_ostream, which prints the object in cxxtools binary format.
+           wrapped object and has a output operator for a std::ostream which prints
+           the object in cxxtools binary format.
 
            Example:
            \code
@@ -71,8 +71,8 @@ namespace cxxtools
         };
 
         /// The output operator for BinOObject. It does the actual work.
-        template <typename CharType, typename ObjectType>
-        std::basic_ostream<CharType>& operator<< (std::basic_ostream<CharType>& out, const BinOObject<ObjectType>& object)
+        template <typename ObjectType>
+        std::ostream& operator<< (std::ostream& out, const BinOObject<ObjectType>& object)
         {
           try
           {
@@ -114,8 +114,8 @@ namespace cxxtools
         };
 
         /// The input operator for BinIOObject. It does the actual work.
-        template <typename CharType, typename ObjectType>
-        std::basic_istream<CharType>& operator>> (std::basic_istream<CharType>& in, BinIOObject<ObjectType> object)
+        template <typename ObjectType>
+        std::istream& operator>> (std::istream& in, BinIOObject<ObjectType> object)
         {
           try
           {
