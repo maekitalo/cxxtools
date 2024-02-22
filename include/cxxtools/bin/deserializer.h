@@ -43,7 +43,7 @@ namespace bin
     class Deserializer : public cxxtools::Deserializer
     {
         public:
-            typedef bin::Serializer::TypeCode TypeCode;
+            typedef bin::Serializer::Type TypeCode;
 
             /// Default construct binary deserializer.
             Deserializer()
@@ -52,11 +52,14 @@ namespace bin
             /// Creates a binary deserializer and processes all input from passed stream.
             explicit Deserializer(std::istream& in)
             { read(in); }
+            explicit Deserializer(std::streambuf& in)
+            { read(in); }
 
             Deserializer(const char* data, size_t size);
 
             /// Processes all input from passed stream.
             void read(std::istream& in);
+            void read(std::streambuf& in);
 
             /// Initialize the binary deserializer to receive data.
             void begin(bool resetDictionary = true);
