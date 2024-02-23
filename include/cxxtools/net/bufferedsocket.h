@@ -110,16 +110,23 @@ public:
         care, that all data from the output buffer is written.
      */
     BufferedSocket& write(const char* buffer, size_t n, bool begin = true);
+
     /** Adds data to the output buffer and starts writing when requested.
      */
     BufferedSocket& write(const std::string& buffer, bool begin = true)    { return write(buffer.data(), buffer.size(), begin); }
+
+    /** Returns a output buffer, where user can add data to.
+
+        This gives direct access to the buffer, which may reduce copy operations.
+     */
+    std::vector<char>& outputBuffer() { return writing() ? _outputBufferNext : _outputBuffer; }
+
     /** Adds a single character to the output buffer.
 
         Writing is not started but if a pending write operation finishes, writing
         resumes. All data put with one of the write calls including putc are then
         written.
      */
-
     BufferedSocket& putc(char ch);
 
     /** Initiates write operation if not already pending.
