@@ -27,6 +27,9 @@
  */
 
 #include <cxxtools/net/bufferedsocket.h>
+#include <cxxtools/log.h>
+
+log_define("cxxtools.net.bufferedsocket")
 
 namespace cxxtools
 {
@@ -41,7 +44,6 @@ BufferedSocket::BufferedSocket(SelectorBase& selector)
     setSelector(&selector);
     cxxtools::connect(IODevice::inputReady, *this, &BufferedSocket::onInput);
     cxxtools::connect(IODevice::outputReady, *this, &BufferedSocket::onOutput);
-    beginRead();
 }
 
 BufferedSocket::BufferedSocket(SelectorBase& selector, const TcpServer& server, unsigned flags)
@@ -51,7 +53,6 @@ BufferedSocket::BufferedSocket(SelectorBase& selector, const TcpServer& server, 
     setSelector(&selector);
     cxxtools::connect(IODevice::inputReady, *this, &BufferedSocket::onInput);
     cxxtools::connect(IODevice::outputReady, *this, &BufferedSocket::onOutput);
-    beginRead();
 }
 
 BufferedSocket::BufferedSocket(SelectorBase& selector, const AddrInfo& addrinfo)
@@ -61,7 +62,6 @@ BufferedSocket::BufferedSocket(SelectorBase& selector, const AddrInfo& addrinfo)
     setSelector(&selector);
     cxxtools::connect(IODevice::inputReady, *this, &BufferedSocket::onInput);
     cxxtools::connect(IODevice::outputReady, *this, &BufferedSocket::onOutput);
-    beginRead();
 }
 
 BufferedSocket::BufferedSocket(SelectorBase& selector, const std::string& ipaddr, unsigned short int port)
@@ -74,28 +74,29 @@ BufferedSocket::~BufferedSocket()
         _sentry->detach();
 }
 
+size_t BufferedSocket::onEndRead(bool& eof)
+{
+    auto count = IODevice::onEndRead(eof);
+
+    log_debug("onEndRead; " << count << " bytes received");
+    if (_inputBuffer.empty())
+    {
+        _inputBuffer.swap(_inputBufferCurrent);
+        _inputBuffer.resize(count);
+    }
+    else
+    {
+        _inputBuffer.insert(_inputBuffer.end(), _inputBufferCurrent.begin(), _inputBufferCurrent.begin() + count);
+    }
+
+    log_debug(_inputBuffer.size() << " bytes available");
+
+    return count;
+}
+
 void BufferedSocket::onInput(IODevice&)
 {
-    try
-    {
-        auto count = endRead();
-        if (_inputBuffer.empty())
-        {
-            _inputBuffer.swap(_inputBufferCurrent);
-            _inputBuffer.resize(count);
-        }
-        else
-        {
-            _inputBuffer.insert(_inputBuffer.end(), _inputBufferCurrent.begin(), _inputBufferCurrent.begin() + count);
-        }
-
-        inputReady(*this);
-        beginRead();
-    }
-    catch (const std::exception& e)
-    {
-        _inputException = std::current_exception();
-    }
+    inputReady(*this);
 }
 
 void BufferedSocket::beginRead()
@@ -104,20 +105,10 @@ void BufferedSocket::beginRead()
     if (_inputBufferCurrent.capacity() < _bufferSize && _inputBuffer.empty() && _inputBuffer.capacity() >= _bufferSize)
         _inputBufferCurrent.swap(_inputBuffer);
 
-    _inputBuffer.resize(_bufferSize);
+    _inputBufferCurrent.resize(_bufferSize);
+
+    log_debug("beginRead " << _inputBufferCurrent.size());
     TcpSocket::beginRead(_inputBufferCurrent.data(), _inputBufferCurrent.size());
-}
-
-std::vector<char>& BufferedSocket::inputBuffer()
-{
-    if (_inputException)
-    {
-        std::exception_ptr exception;
-        _inputException.swap(exception);
-        std::rethrow_exception(exception);
-    }
-
-    return _inputBuffer;
 }
 
 void BufferedSocket::onOutput(IODevice&)
@@ -192,7 +183,6 @@ void BufferedSocket::cancel()
     _inputBuffer.clear();
     _outputBuffer.clear();
     _outputBufferNext.clear();
-    beginRead();
 }
 
 }

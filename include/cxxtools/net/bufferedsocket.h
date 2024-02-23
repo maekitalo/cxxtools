@@ -59,9 +59,6 @@ namespace net
     Note that the bufferes are not discarded when the socket is disconnected.
     After connecting the write operation is not resumed but must be manually
     restarted if desired.
-
-    Note that the BufferedSocket is always waiting for incoming data. There
-    is no beginRead to initiate reading.
  */
 class BufferedSocket : public TcpSocket, public Connectable
 {
@@ -75,9 +72,9 @@ class BufferedSocket : public TcpSocket, public Connectable
     std::exception_ptr _inputException;
 
     void onInput(IODevice&);
+    size_t onEndRead(bool& eof) override;
     void onOutput(IODevice&);
 
-    void beginRead();
 
 public:
     /// Constructor; creates a BufferedSocket, which is not connected.
@@ -141,6 +138,10 @@ public:
      */
     BufferedSocket& beginWrite();
 
+    /** Initiates write operation if not already pending.
+     */
+    void beginRead();
+
     /// Cancels reading and writing operations and discards buffers.
     void cancel();
 
@@ -156,10 +157,8 @@ public:
         When the input buffer is not explicitly emptied, the data is kept and
         new data is appended to the buffer. The user can even remove just a
         part of the input buffer when needed.
-
-        When reading failed with a exception, this method throws the exception.
      */
-    std::vector<char>& inputBuffer();
+    std::vector<char>& inputBuffer()    { return _inputBuffer; }
 
     /// Signals, that the input buffer is filled with new data.
     Signal<BufferedSocket&> inputReady;
