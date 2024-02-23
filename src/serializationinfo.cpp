@@ -103,6 +103,7 @@ SerializationInfo& SerializationInfo::operator=(SerializationInfo&& si)
     _category = si._category;
     _name = std::move(si._name);
     _type = std::move(si._type);
+    delete _nodes;
     _nodes = si._nodes;
     si._nodes = 0;
 
@@ -259,7 +260,8 @@ void SerializationInfo::clear()
     _category = Void;
     _name.clear();
     _type.clear();
-    nodes().clear();
+    if (_nodes)
+        _nodes->clear();
     _releaseValue();
 }
 
