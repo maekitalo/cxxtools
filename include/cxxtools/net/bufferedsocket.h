@@ -33,6 +33,7 @@
 #include <cxxtools/connectable.h>
 #include <cxxtools/destructionsentry.h>
 #include <vector>
+#include <exception>
 
 namespace cxxtools
 {
@@ -71,6 +72,7 @@ class BufferedSocket : public TcpSocket, public Connectable
     std::vector<char> _outputBuffer;
     std::vector<char> _outputBufferNext;
     DestructionSentry* _sentry = nullptr;
+    std::exception_ptr _inputException;
 
     void onInput(IODevice&);
     void onOutput(IODevice&);
@@ -126,6 +128,9 @@ public:
         operation and call beginWrite when the output buffer is filled.
         Calling beginWrite while a write operation is already running
         does nothing.
+
+        When writing fails, the signal outpuFailed is issued from within the
+        catch block.
      */
     BufferedSocket& beginWrite();
 
@@ -144,14 +149,23 @@ public:
         When the input buffer is not explicitly emptied, the data is kept and
         new data is appended to the buffer. The user can even remove just a
         part of the input buffer when needed.
+
+        When reading failed with a exception, this method throws the exception.
      */
-    std::vector<char>& inputBuffer()    { return _inputBuffer; }
+    std::vector<char>& inputBuffer();
 
     /// Signals, that the input buffer is filled with new data.
     Signal<BufferedSocket&> inputReady;
 
     /// Signals, that all data from the output buffer is written.
     Signal<BufferedSocket&> outputBufferEmpty;
+
+    /** Signals, that output failed with a exception
+
+        The signal is issued from within the catch block so the user
+        may rethrow the exception when desired.
+     */
+    Signal<BufferedSocket&, const std::exception&> outputFailed;
 };
 }
 }

@@ -76,19 +76,26 @@ BufferedSocket::~BufferedSocket()
 
 void BufferedSocket::onInput(IODevice&)
 {
-    auto count = endRead();
-    if (_inputBuffer.empty())
+    try
     {
-        _inputBuffer.swap(_inputBufferCurrent);
-        _inputBuffer.resize(count);
-    }
-    else
-    {
-        _inputBuffer.insert(_inputBuffer.end(), _inputBufferCurrent.begin(), _inputBufferCurrent.begin() + count);
-    }
+        auto count = endRead();
+        if (_inputBuffer.empty())
+        {
+            _inputBuffer.swap(_inputBufferCurrent);
+            _inputBuffer.resize(count);
+        }
+        else
+        {
+            _inputBuffer.insert(_inputBuffer.end(), _inputBufferCurrent.begin(), _inputBufferCurrent.begin() + count);
+        }
 
-    inputReady(*this);
-    beginRead();
+        inputReady(*this);
+        beginRead();
+    }
+    catch (const std::exception& e)
+    {
+        _inputException = std::current_exception();
+    }
 }
 
 void BufferedSocket::beginRead()
@@ -101,28 +108,48 @@ void BufferedSocket::beginRead()
     TcpSocket::beginRead(_inputBufferCurrent.data(), _inputBufferCurrent.size());
 }
 
+std::vector<char>& BufferedSocket::inputBuffer()
+{
+    if (_inputException)
+    {
+        std::exception_ptr exception;
+        _inputException.swap(exception);
+        std::rethrow_exception(exception);
+    }
+
+    return _inputBuffer;
+}
+
 void BufferedSocket::onOutput(IODevice&)
 {
     DestructionSentry sentry(_sentry);
 
-    auto count = endWrite();
-    _outputBuffer.erase(_outputBuffer.begin(), _outputBuffer.begin() + count);
-
-    if (_outputBuffer.empty())
+    try
     {
-        if (_outputBufferNext.empty())
-            outputBufferEmpty(*this);
-        else
-            _outputBuffer.swap(_outputBufferNext);
-    }
-    else if (!_outputBufferNext.empty())
-    {
-        _outputBuffer.insert(_outputBuffer.end(), _outputBufferNext.begin(), _outputBufferNext.end());
-        _outputBufferNext.clear();
-    }
+        auto count = endWrite();
+        _outputBuffer.erase(_outputBuffer.begin(), _outputBuffer.begin() + count);
 
-    if (!sentry.deleted() && !writing() && !_outputBuffer.empty())
-        beginWrite();
+        if (_outputBuffer.empty())
+        {
+            if (_outputBufferNext.empty())
+                outputBufferEmpty(*this);
+            else
+                _outputBuffer.swap(_outputBufferNext);
+        }
+        else if (!_outputBufferNext.empty())
+        {
+            _outputBuffer.insert(_outputBuffer.end(), _outputBufferNext.begin(), _outputBufferNext.end());
+            _outputBufferNext.clear();
+        }
+
+        if (!sentry.deleted() && !writing() && !_outputBuffer.empty())
+            beginWrite();
+    }
+    catch (const std::exception& e)
+    {
+        if (!sentry.deleted())
+            outputFailed(*this, e);
+    }
 }
 
 BufferedSocket& BufferedSocket::write(const char* buffer, size_t n, bool begin)
