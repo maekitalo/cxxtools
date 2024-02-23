@@ -37,6 +37,7 @@ nobase_include_HEADERS = \
         cxxtools/delegate.h \
         cxxtools/delegate.tpp \
         cxxtools/deserializer.h \
+        cxxtools/destructionsentry.h \
         cxxtools/dir.h \
         cxxtools/directory.h \
         cxxtools/dlloader.h \
@@ -114,6 +115,7 @@ nobase_include_HEADERS = \
         cxxtools/mime.h \
         cxxtools/multifstream.h \
         cxxtools/net/addrinfo.h \
+        cxxtools/net/bufferedsocket.h \
         cxxtools/net/net.h \
         cxxtools/net/tcpserver.h \
         cxxtools/net/tcpsocket.h \

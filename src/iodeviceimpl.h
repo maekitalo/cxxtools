@@ -32,42 +32,15 @@
 #include "selectableimpl.h"
 #include <cxxtools/iodevice.h>
 #include <cxxtools/timespan.h>
+#include <cxxtools/destructionsentry.h>
 #include <string>
 #include <iostream>
 #include <exception>
 
 struct pollfd;
 
-namespace cxxtools {
-
-    struct DestructionSentry
-    {
-        DestructionSentry(DestructionSentry*& sentry)
-        : _deleted(false)
-        , _sentry(sentry)
-        {
-           sentry = this;
-        }
-
-        ~DestructionSentry()
-        {
-            if( ! _deleted )
-                this->detach();
-        }
-
-        bool operator!() const
-        { return _deleted; }
-
-        void detach()
-        {
-            _sentry = 0;
-            _deleted = true;
-        }
-
-        bool _deleted;
-        DestructionSentry*& _sentry;
-    };
-
+namespace cxxtools
+{
     class IODeviceImpl : public SelectableImpl
     {
         public:
