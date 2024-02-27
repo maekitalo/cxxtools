@@ -636,7 +636,7 @@ bool TcpSocketImpl::checkPollEvent(pollfd& pfd)
 
         bool avail = IODeviceImpl::checkPollEvent(pfd);
 
-        if (!_sentry)
+        if (!sentry)
             return avail;
 
         if ( !_device.reading() && !_device.writing() && !_socket.enabled())
