@@ -452,7 +452,7 @@ bool IODeviceImpl::checkPollEvent(pollfd& pfd)
         avail = true;
     }
 
-    if( ! _sentry )
+    if( !sentry )
         return avail;
 
     if( pfd.revents & POLLIN_MASK )
@@ -461,7 +461,7 @@ bool IODeviceImpl::checkPollEvent(pollfd& pfd)
         avail = true;
     }
 
-    if( ! _sentry )
+    if( ! sentry )
         return avail;
 
     if (pfd.revents & POLLERR_MASK)
