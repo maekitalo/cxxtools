@@ -37,13 +37,8 @@ namespace cxxtools
 
 class Pipe
 {
-#if __cplusplus >= 201103L
         Pipe(const Pipe&) = delete;
         Pipe& operator=(const Pipe&) = delete;
-#else
-        Pipe(const Pipe&) { }
-        Pipe& operator=(const Pipe&) { return *this; }
-#endif
         class PipeImpl* _impl;
 
     protected:

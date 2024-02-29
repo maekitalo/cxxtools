@@ -543,11 +543,11 @@ class TimespanTest : public cxxtools::unit::TestSuite
                                   + cxxtools::Seconds(42)
                                   + cxxtools::Milliseconds(453)
                                   + cxxtools::Microseconds(85);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(ts.hours(), 822);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(ts.minutes(), 17);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(ts.seconds(), 42);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(ts.milliseconds(), 453);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(ts.microseconds(), 453085);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(ts.hours(), 822u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(ts.minutes(), 17u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(ts.seconds(), 42u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(ts.milliseconds(), 453u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(ts.microseconds(), 453085u);
         }
 
         void toString()

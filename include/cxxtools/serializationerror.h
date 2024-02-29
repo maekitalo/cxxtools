@@ -79,6 +79,14 @@ class SerializationConversionError : public SerializationError
         static void doThrow(const SerializationInfo& si, const std::string& typefrom, const std::string& typeto, const std::string& value = std::string());
 };
 
+class SiPathError : public SerializationError
+{
+public:
+    explicit SiPathError(const std::string& msg)
+        : SerializationError(msg)
+        { }
+};
+
 } // namespace cxxtools
 
 

@@ -50,7 +50,7 @@ class SplitTest : public cxxtools::unit::TestSuite
       std::vector<std::string> d;
       std::string t = "Hello:World:!";
       cxxtools::split(':', t, std::back_inserter(d));
-      CXXTOOLS_UNIT_ASSERT_EQUALS(d.size(), 3);
+      CXXTOOLS_UNIT_ASSERT_EQUALS(d.size(), 3u);
       CXXTOOLS_UNIT_ASSERT_EQUALS(d[0], "Hello");
       CXXTOOLS_UNIT_ASSERT_EQUALS(d[1], "World");
       CXXTOOLS_UNIT_ASSERT_EQUALS(d[2], "!");
@@ -61,7 +61,7 @@ class SplitTest : public cxxtools::unit::TestSuite
       std::vector<std::string> d;
       std::string t;
       cxxtools::split(':', t, std::back_inserter(d));
-      CXXTOOLS_UNIT_ASSERT_EQUALS(d.size(), 0);
+      CXXTOOLS_UNIT_ASSERT_EQUALS(d.size(), 0u);
     }
 
     void lastEmpty()
@@ -69,7 +69,7 @@ class SplitTest : public cxxtools::unit::TestSuite
       std::vector<std::string> d;
       std::string t = "Hello:World:";
       cxxtools::split(':', t, std::back_inserter(d));
-      CXXTOOLS_UNIT_ASSERT_EQUALS(d.size(), 3);
+      CXXTOOLS_UNIT_ASSERT_EQUALS(d.size(), 3u);
       CXXTOOLS_UNIT_ASSERT_EQUALS(d[0], "Hello");
       CXXTOOLS_UNIT_ASSERT_EQUALS(d[1], "World");
       CXXTOOLS_UNIT_ASSERT_EQUALS(d[2], "");
@@ -80,7 +80,7 @@ class SplitTest : public cxxtools::unit::TestSuite
       std::vector<std::string> d;
       std::string t = "Hello:World;!";
       cxxtools::split(";:,.", t, std::back_inserter(d));
-      CXXTOOLS_UNIT_ASSERT_EQUALS(d.size(), 3);
+      CXXTOOLS_UNIT_ASSERT_EQUALS(d.size(), 3u);
       CXXTOOLS_UNIT_ASSERT_EQUALS(d[0], "Hello");
       CXXTOOLS_UNIT_ASSERT_EQUALS(d[1], "World");
       CXXTOOLS_UNIT_ASSERT_EQUALS(d[2], "!");
@@ -91,7 +91,7 @@ class SplitTest : public cxxtools::unit::TestSuite
       std::vector<std::string> d;
       std::string t = "Hello:World)!";
       cxxtools::split(cxxtools::Regex("[:)]"), t, std::back_inserter(d));
-      CXXTOOLS_UNIT_ASSERT_EQUALS(d.size(), 3);
+      CXXTOOLS_UNIT_ASSERT_EQUALS(d.size(), 3u);
       CXXTOOLS_UNIT_ASSERT_EQUALS(d[0], "Hello");
       CXXTOOLS_UNIT_ASSERT_EQUALS(d[1], "World");
       CXXTOOLS_UNIT_ASSERT_EQUALS(d[2], "!");
@@ -102,7 +102,7 @@ class SplitTest : public cxxtools::unit::TestSuite
       std::vector<std::string> d;
       std::string t;
       cxxtools::split(cxxtools::Regex("[:)]"), t, std::back_inserter(d));
-      CXXTOOLS_UNIT_ASSERT_EQUALS(d.size(), 0);
+      CXXTOOLS_UNIT_ASSERT_EQUALS(d.size(), 0u);
     }
 
 };

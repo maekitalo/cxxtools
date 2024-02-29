@@ -334,7 +334,7 @@ class JsonTest : public cxxtools::unit::TestSuite
             std::vector<TestObject> obj2;
             data >> cxxtools::Json(obj2);
 
-            CXXTOOLS_UNIT_ASSERT_EQUALS(obj2.size(), 2);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(obj2.size(), 2u);
             CXXTOOLS_UNIT_ASSERT_EQUALS(obj[0].intValue, obj2[0].intValue);
             CXXTOOLS_UNIT_ASSERT_EQUALS(obj[0].stringValue, obj2[0].stringValue);
             CXXTOOLS_UNIT_ASSERT_EQUALS(obj[0].doubleValue, obj2[0].doubleValue);
@@ -362,7 +362,7 @@ class JsonTest : public cxxtools::unit::TestSuite
             std::string v2;
             data >> cxxtools::Json(v2);
 
-            CXXTOOLS_UNIT_ASSERT_EQUALS(v2.size(), 1024);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v2.size(), 1024u);
             CXXTOOLS_UNIT_ASSERT(v == v2);
 
             data.str(std::string());
@@ -375,7 +375,7 @@ class JsonTest : public cxxtools::unit::TestSuite
 
             data >> cxxtools::Json(v2);
 
-            CXXTOOLS_UNIT_ASSERT_EQUALS(v2.size(), 0xffff + 1024);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v2.size(), 0xffffu + 1024u);
             CXXTOOLS_UNIT_ASSERT(v == v2);
 
         }

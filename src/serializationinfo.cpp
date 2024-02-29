@@ -103,6 +103,7 @@ SerializationInfo& SerializationInfo::operator=(SerializationInfo&& si)
     _category = si._category;
     _name = std::move(si._name);
     _type = std::move(si._type);
+    delete _nodes;
     _nodes = si._nodes;
     si._nodes = 0;
 
@@ -259,7 +260,8 @@ void SerializationInfo::clear()
     _category = Void;
     _name.clear();
     _type.clear();
-    nodes().clear();
+    if (_nodes)
+        _nodes->clear();
     _releaseValue();
 }
 
@@ -358,6 +360,222 @@ void SerializationInfo::swap(SerializationInfo& si)
     }
 
     std::swap(_nodes, si._nodes);
+}
+
+SerializationInfo SerializationInfo::path(const std::string& path) const
+{
+    log_debug("sipath <" << path << '>');
+
+    enum {
+        state_root,
+        state_0,
+        state_arrayIdx,
+        state_memberName0,
+        state_memberName,
+        state_memberNameQ,
+        state_meta0,
+        state_meta,
+    } state = state_root;
+
+    const cxxtools::SerializationInfo* current = this;
+
+    std::string memberName;
+    unsigned idx;
+    char quote;
+    for (auto ch: path)
+    {
+        log_debug("character '" << ch << "'");
+        switch (state)
+        {
+            case state_root:
+                if (ch == '$')
+                {
+                    log_debug("root detected");
+                    state = state_0;
+                }
+                else if (ch == '[')
+                {
+                    idx = 0;
+                    state = state_arrayIdx;
+                }
+                else if (ch == '.')
+                {
+                    state = state_memberName0;
+                }
+                else if (ch == ':')
+                {
+                    state = state_meta0;
+                }
+                else if (ch == '"' || ch == '\'')
+                {
+                    quote = ch;
+                    state = state_memberNameQ;
+                }
+                else
+                {
+                    memberName = ch;
+                    state = state_memberName0;
+                }
+                break;
+
+            case state_0:
+                if (ch == '[')
+                {
+                    log_debug("array index");
+                    idx = 0;
+                    state = state_arrayIdx;
+                }
+                else if (ch == '.')
+                {
+                    log_debug("member");
+                    memberName.clear();
+                    state = state_memberName0;
+                }
+                else if (ch == '"' || ch == '\'')
+                {
+                    log_debug("member");
+                    quote = ch;
+                    memberName.clear();
+                    state = state_memberNameQ;
+                }
+                else if (ch == ':')
+                {
+                    memberName.clear();
+                    state = state_meta0;
+                }
+                else
+                {
+                    throw SiPathError(std::string("unexpected character '") + ch + "' in sipath <" + path + '>');
+                }
+                break;
+
+            case state_arrayIdx:
+                if (ch == ']')
+                {
+                    log_debug("array index " << idx);
+                    current = &(current->getMember(idx));
+                    state = state_0;
+                }
+                else if (ch >= '0' && ch <= '9')
+                {
+                    idx = idx * 10 + (ch - '0');
+                }
+                else
+                {
+                    throw SiPathError("invalid array index in sipath <" + path + '>');
+                }
+                break;
+
+            case state_memberName0:
+                if (ch == '"' || ch == '\'')
+                {
+                    quote = ch;
+                    state = state_memberNameQ;
+                    continue;
+                }
+
+                // fallthrough
+
+            case state_memberName:
+                if (ch == '[')
+                {
+                    log_debug("member <" << memberName << '>');
+                    current = &(current->getMember(memberName));
+                    idx = 0;
+                    state = state_arrayIdx;
+                }
+                else if (ch == '.')
+                {
+                    log_debug("member <" << memberName << '>');
+                    current = &(current->getMember(memberName));
+                    memberName.clear();
+                    state = state_memberName0;
+                }
+                else if (ch == ':')
+                {
+                    log_debug("member <" << memberName << '>');
+                    current = &(current->getMember(memberName));
+                    memberName.clear();
+                    state = state_meta0;
+                }
+                else
+                {
+                    memberName += ch;
+                }
+                break;
+
+            case state_memberNameQ:
+                if (ch == quote)
+                {
+                    log_debug("member <" << memberName << '>');
+                    current = &(current->getMember(memberName));
+                    state = state_0;
+                }
+                else
+                {
+                    memberName += ch;
+                }
+                break;
+
+            case state_meta0:
+                if (ch == ':')
+                    state = state_meta;
+                else
+                    throw SiPathError(std::string("unexpected character '") + ch + "' in sipath <" + path + '>');
+                break;
+
+            case state_meta:
+                memberName += ch;
+                break;
+        }
+
+    }
+
+    switch (state)
+    {
+        case state_root:
+        case state_0:
+            break;
+
+        case state_arrayIdx:
+            throw SiPathError("missing closing bracket ']' in sipath <" + path + '>');
+
+        case state_memberName0:
+        case state_memberName:
+            log_debug("member <" << memberName << '>');
+            current = &(current->getMember(memberName));
+            break;
+
+        case state_memberNameQ:
+            throw SiPathError("missing closing \" in sipath <" + path + '>');
+
+        case state_meta0:
+            throw SiPathError("missing ':' in sipath <" + path + '>');
+
+        case state_meta:
+            if (memberName == "size")
+            {
+                SerializationInfo si;
+                si <<= current->memberCount();
+                return si;
+            }
+            else if (memberName == "type")
+            {
+                SerializationInfo si;
+                si <<= current->typeName();
+                return si;
+            }
+            else if (memberName == "isnull")
+            {
+                SerializationInfo si;
+                si <<= current->isNull();
+                return si;
+            }
+            else
+                throw SiPathError("unknown meta token ::" + memberName);
+    }
+
+    return *current;
 }
 
 void SerializationInfo::dump(std::ostream& out, const std::string& prefix) const
@@ -718,6 +936,8 @@ SerializationInfo::int_type SerializationInfo::_getInt(const char* type, int_typ
                         {
                             std::ostringstream msg;
                             msg << "value " << ret << " does not fit into " << type;
+                            if (!_name.empty())
+                                msg << " in node " << _name;
                             throw std::range_error(msg.str());
                         }
                         ret = _u._u; break;
@@ -730,6 +950,8 @@ SerializationInfo::int_type SerializationInfo::_getInt(const char* type, int_typ
     {
         std::ostringstream msg;
         msg << "value " << ret << " does not fit into " << type;
+        if (!_name.empty())
+            msg << " in node " << _name;
         throw std::range_error(msg.str());
     }
 
@@ -780,6 +1002,8 @@ SerializationInfo::unsigned_type SerializationInfo::_getUInt(const char* type, u
     {
         std::ostringstream msg;
         msg << "value " << ret << " does not fit into " << type;
+        if (!_name.empty())
+            msg << " in node " << _name;
         throw std::range_error(msg.str());
     }
 
@@ -832,6 +1056,8 @@ float SerializationInfo::_getFloat() const
             {
                 std::ostringstream msg;
                 msg << "value " << _u._d << " does not fit into float";
+                if (!_name.empty())
+                    msg << " in node " << _name;
                 throw std::range_error(msg.str());
             }
             else
@@ -850,6 +1076,8 @@ float SerializationInfo::_getFloat() const
             {
                 std::ostringstream msg;
                 msg << "value " << _u._ld << " does not fit into float";
+                if (!_name.empty())
+                    msg << " in node " << _name;
                 throw std::range_error(msg.str());
             }
             else
@@ -907,6 +1135,8 @@ double SerializationInfo::_getDouble() const
             {
                 std::ostringstream msg;
                 msg << "value " << _u._ld << " does not fit into double";
+                if (!_name.empty())
+                    msg << " in node " << _name;
                 throw std::range_error(msg.str());
             }
             else

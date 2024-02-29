@@ -58,7 +58,7 @@ class RegexTest : public cxxtools::unit::TestSuite
             cxxtools::Regex r("([0-9]+)\\.([0-9]+)");
             cxxtools::RegexSMatch s;
             CXXTOOLS_UNIT_ASSERT(r.match("hello 6.7 world", s));
-            CXXTOOLS_UNIT_ASSERT_EQUALS(s.size(), 3);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(s.size(), 3u);
             CXXTOOLS_UNIT_ASSERT_EQUALS(s[0], "6.7");
             CXXTOOLS_UNIT_ASSERT_EQUALS(s[1], "6");
             CXXTOOLS_UNIT_ASSERT_EQUALS(s[2], "7");

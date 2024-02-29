@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022 Tommi Maekitalo
+ * Copyright (C) 2022,2024 Tommi Maekitalo
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -27,22 +27,42 @@
  */
 
 #include <cxxtools/bin/serializer.h>
+#include <cxxtools/bin/formatter.h>
 #include <iostream>
+#include <sstream>
 
 namespace cxxtools
 {
 namespace bin
 {
-
 Serializer::Serializer(std::ostream& out)
-{
-    _formatter.begin(*out.rdbuf());
-}
+    : _streambuf(out.rdbuf())
+{ }
 
 Serializer& Serializer::begin(std::ostream& out)
 {
-    _formatter.begin(*out.rdbuf());
+    _streambuf = out.rdbuf();
     return *this;
+}
+
+void Serializer::serialize(std::streambuf& out, const SerializationInfo& si)
+{
+    Formatter formatter(out);
+    formatter.format(si);
+}
+
+void Serializer::serialize(std::ostream& out, const SerializationInfo& si)
+{
+    Formatter formatter(*out.rdbuf());
+    formatter.format(si);
+}
+
+std::string Serializer::toString(const SerializationInfo& si)
+{
+    std::stringbuf s;
+    Formatter formatter(s);
+    formatter.format(si);
+    return s.str();
 }
 
 }

@@ -156,7 +156,7 @@ class FileTest : public cxxtools::unit::TestSuite
             f.close();
 
             cxxtools::FileInfo fi(tmpFileName);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(fi.size(), 0x10003);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(fi.size(), 0x10003u);
         }
 
         void testCopyBigFile()
@@ -173,13 +173,13 @@ class FileTest : public cxxtools::unit::TestSuite
             f.copy(tmpFileName2);
 
             cxxtools::FileInfo fi2(tmpFileName2);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(fi2.size(), 0x10003);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(fi2.size(), 0x10003u);
 
             std::ostringstream s;
             std::ifstream ifs(tmpFileName.c_str());
             s << ifs.rdbuf();
 
-            CXXTOOLS_UNIT_ASSERT_EQUALS(s.str().size(), 0x10003);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(s.str().size(), 0x10003u);
             CXXTOOLS_UNIT_ASSERT(s.str() == data);
         }
 

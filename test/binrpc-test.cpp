@@ -156,7 +156,7 @@ class BinRpcTest : public cxxtools::unit::TestSuite
 
             _count = 0;
             CXXTOOLS_UNIT_ASSERT_THROW(_loop.run(), std::runtime_error);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(_count, 1);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(_count, 1u);
         }
 
         void onExceptionCallback(cxxtools::RemoteResult<bool>& /*r*/)
@@ -313,7 +313,7 @@ class BinRpcTest : public cxxtools::unit::TestSuite
 
             multiply.begin(vec, vec);
             std::vector<int> r = multiply.end(2000);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(r.size(), 2);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(r.size(), 2u);
             CXXTOOLS_UNIT_ASSERT_EQUALS(r.at(0), 100);
             CXXTOOLS_UNIT_ASSERT_EQUALS(r.at(1), 400);
         }
@@ -342,7 +342,7 @@ class BinRpcTest : public cxxtools::unit::TestSuite
 
             std::vector<int> vec;
             multiply.begin(vec, vec);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(multiply.end(2000).size(), 0);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(multiply.end(2000).size(), 0u);
         }
 
         ////////////////////////////////////////////////////////////
@@ -399,7 +399,7 @@ class BinRpcTest : public cxxtools::unit::TestSuite
 
             multiply.begin(myset, 2);
             const IntSet& v = multiply.end(2000);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(v.size(), 3);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v.size(), 3u);
             CXXTOOLS_UNIT_ASSERT(v.find(8) != v.end());
             CXXTOOLS_UNIT_ASSERT(v.find(10) != v.end());
             CXXTOOLS_UNIT_ASSERT(v.find(22) != v.end());
@@ -431,10 +431,10 @@ class BinRpcTest : public cxxtools::unit::TestSuite
 
             multiply.begin(myset, 2);
             const IntMultiset& v = multiply.end(2000);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(v.size(), 4);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(v.count(8), 1);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(v.count(10), 2);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(v.count(22), 1);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v.size(), 4u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v.count(8), 1u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v.count(10), 2u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v.count(22), 1u);
         }
 
         IntMultiset multiplyMultiset(const IntMultiset& s, int f)
@@ -463,7 +463,7 @@ class BinRpcTest : public cxxtools::unit::TestSuite
             multiply.begin(mymap, 2);
             const IntMap& v = multiply.end(2000);
 
-            CXXTOOLS_UNIT_ASSERT_EQUALS(v.size(), 3);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v.size(), 3u);
             CXXTOOLS_UNIT_ASSERT(v.find(2) != v.end());
             CXXTOOLS_UNIT_ASSERT_EQUALS(v.find(2)->second, 8);
             CXXTOOLS_UNIT_ASSERT(v.find(7) != v.end());
@@ -502,7 +502,7 @@ class BinRpcTest : public cxxtools::unit::TestSuite
             multiply.begin(mymap, 2);
             const IntMultimap& v = multiply.end(200);
 
-            CXXTOOLS_UNIT_ASSERT_EQUALS(v.size(), 4);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v.size(), 4u);
             CXXTOOLS_UNIT_ASSERT(v.lower_bound(2) != v.end());
             CXXTOOLS_UNIT_ASSERT_EQUALS(v.lower_bound(2)->second, 8);
             CXXTOOLS_UNIT_ASSERT(v.lower_bound(7) != v.end());

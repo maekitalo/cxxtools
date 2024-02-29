@@ -1,12 +1,12 @@
-AC_INIT(cxxtools, 3.1, [Tommi Maekitalo <tommi@tntnet.org>])
+AC_INIT([cxxtools], [4.0], [Tommi Maekitalo <tommi@tntnet.org>])
 AM_INIT_AUTOMAKE
 AC_USE_SYSTEM_EXTENSIONS
 
 LT_INIT([disable-static])
 
-AC_PREREQ([2.5.9])
+AC_PREREQ([2.69])
 
-abi_current=11
+abi_current=12
 abi_revision=0
 abi_age=0
 sonumber=${abi_current}:${abi_revision}:${abi_age}
@@ -25,12 +25,9 @@ AC_PROG_CXX
 AC_LANG(C++)
 AX_CXX_COMPILE_STDCXX_11(noext, mandatory)
 
-AX_COMPILER_VENDOR
-AS_IF([test "$ax_cv_cxx_compiler_vendor" = "ibm"],
-      [CPPFLAGS="$CPPFLAGS -qrtti -qlanglvl=newexcp -D__NOLOCK_ON_INPUT -D__NOLOCK_ON_OUTPUT"],
-      AX_CHECK_COMPILE_FLAG([-Wno-long-long], [CPPFLAGS="$CPPFLAGS -Wno-long-long"])
-      AX_CHECK_COMPILE_FLAG([-Wall], [CPPFLAGS="$CPPFLAGS -Wall"])
-      AX_CHECK_COMPILE_FLAG([-pedantic], [CPPFLAGS="$CPPFLAGS -pedantic"]))
+AX_CHECK_COMPILE_FLAG([-Wno-long-long], [CPPFLAGS="$CPPFLAGS -Wno-long-long"])
+AX_CHECK_COMPILE_FLAG([-Wall], [CPPFLAGS="$CPPFLAGS -Wall"])
+AX_CHECK_COMPILE_FLAG([-pedantic], [CPPFLAGS="$CPPFLAGS -pedantic"])
 
 AC_CHECK_HEADERS(sys/filio.h)
 AC_CHECK_HEADERS(csignal)
@@ -38,7 +35,6 @@ AC_CHECK_HEADERS([sys/sendfile.h])
 
 AC_CHECK_LIB(nsl, setsockopt)
 AC_CHECK_LIB(socket, accept)
-AC_CHECK_LIB(rt, sem_destroy)
 AC_SEARCH_LIBS(dlopen, dl, , AC_MSG_ERROR([dlopen not found]))
 AC_SEARCH_LIBS(inet_ntop, nsl socket resolv)
 AC_SEARCH_LIBS(clock_gettime, rt)
@@ -96,15 +92,6 @@ AC_ARG_WITH([iconvstream],
     [with_iconvstream=$withval],
     [with_iconvstream=no])
 
-AS_IF([test "$with_iconvstream" = yes],
-[
-  AM_ICONV
-  AS_IF([test "$am_cv_func_iconv" !=  yes],
-    AC_MSG_ERROR(iconv not found))
-])
-
-AM_CONDITIONAL(MAKE_ICONVSTREAM, test $with_iconvstream = yes)
-
 ACX_PTHREAD
 
 CC="$PTHREAD_CC"
@@ -129,7 +116,7 @@ AC_SUBST(SHARED_LIB_FLAG)
 #
 # checking existence of suseconds_t, needed by hirestime.h
 #
-AC_CHECKING(for suseconds_t)
+AS_MESSAGE([checking for suseconds_t...])
 
 AC_CHECK_TYPE(
   suseconds_t,
@@ -202,34 +189,22 @@ AC_COMPILE_IFELSE(
 #
 # SSL
 #
-AC_ARG_WITH([ssl],
-    [AS_HELP_STRING([--with-ssl=yes|no], [build with SSL support])],
-    [ssl_option=$withval],
-    [ssl_option=yes])
+AC_CHECK_HEADER([openssl/ssl.h],
+  [
+    AC_SEARCH_LIBS(SSL_CTX_new, ssl)
 
-AS_IF([test $ssl_option = yes],
-[
-  AC_CHECK_HEADER([openssl/ssl.h],
-      [
-        AC_MSG_RESULT([building with ssl support])
-        AC_DEFINE(WITH_SSL, [], [Define to build with openssl])
-        AC_SEARCH_LIBS(SSL_CTX_new, ssl)
-
-        AC_COMPILE_IFELSE(
-            [AC_LANG_SOURCE([
-                #include <openssl/asn1.h>
-                void foo() { ASN1_TIME_diff(0, 0, 0, 0); }
-            ])],
-            [AC_DEFINE(HAVE_ASN1_TIME_diff, [], [Defined when openssl supports ASN1_TIME_diff (openssl 1.0.2)])],
-            []
-        )
-        AC_CHECK_FUNC(TLS_method, [AC_DEFINE(HAVE_TLS_METHOD, [], [Defined when TLS_method is found in openssl library])])
-      ],
-      AC_MSG_ERROR([header for openssl not found; install openssl developent package or use --without-ssl])
-      )
-])
-
-AM_CONDITIONAL(MAKE_OPENSSL, test $ssl_option = yes)
+    AC_COMPILE_IFELSE(
+        [AC_LANG_SOURCE([
+            #include <openssl/asn1.h>
+            void foo() { ASN1_TIME_diff(0, 0, 0, 0); }
+        ])],
+        [AC_DEFINE(HAVE_ASN1_TIME_diff, [], [Defined when openssl supports ASN1_TIME_diff (openssl 1.0.2)])],
+        []
+    )
+    AC_CHECK_FUNC(TLS_method, [AC_DEFINE(HAVE_TLS_METHOD, [], [Defined when TLS_method is found in openssl library])])
+  ],
+  AC_MSG_ERROR([header for openssl not found; install openssl developent package or use --without-ssl])
+  )
 
 AC_ARG_ENABLE([demos],
   [AS_HELP_STRING([--disable-demos], [disable building demos])],

@@ -32,6 +32,7 @@
 #include <string>
 #include <cstring>
 #include <utility>
+#include <iterator>
 
 namespace cxxtools
 {
@@ -52,9 +53,9 @@ class MessageHeader
         unsigned _httpVersionMinor;
 
     public:
-        typedef std::pair<const char*, const char*> value_type;
+        using value_type = std::pair<const char*, const char*>;
+
         class const_iterator
-            : public std::iterator<std::forward_iterator_tag, value_type>
         {
             friend class MessageHeader;
 
@@ -75,6 +76,12 @@ class MessageHeader
             }
 
           public:
+            using iterator_category = std::forward_iterator_tag;
+            using pointer = value_type*;
+            using reference = value_type&;
+            using const_pointer = const value_type*;
+            using const_reference = const value_type&;
+
             const_iterator()
                 : current_value(0, 0)
             { }

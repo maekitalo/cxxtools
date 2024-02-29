@@ -108,11 +108,7 @@ EOF
             this->client().beginCall(this->_r, *this, argv, $N);
         }
 
-#if __cplusplus >= 201103L
         R&& call($constRef)
-#else
-        R& call($constRef)
-#endif
         {
             this->_result.clearFault();
 
@@ -127,11 +123,7 @@ EOF
             return this->_result.get();
         }
 
-#if __cplusplus >= 201103L
         R&& operator()($constRef)
-#else
-        R& operator()($constRef)
-#endif
         {
             return this->call($params);
         }
@@ -212,11 +204,7 @@ EOF
             this->client().beginCall(this->_r, *this, argv, $nn);
         }
 
-#if __cplusplus >= 201103L
         R&& call($constRef)
-#else
-        R& call($constRef)
-#endif
         {
             this->_result.clearFault();
 
@@ -231,11 +219,7 @@ EOF
             return this->_result.get();
         }
 
-#if __cplusplus >= 201103L
         R&& operator()($constRef)
-#else
-        R& operator()($constRef)
-#endif
         {
             return this->call($params);
         }
@@ -291,11 +275,7 @@ EOF
             this->client().beginCall(this->_r, *this, argv, 0);
         }
 
-#if __cplusplus >= 201103L
         R&& call()
-#else
-        R& call()
-#endif
         {
             this->_result.clearFault();
 
@@ -306,11 +286,7 @@ EOF
             return this->_result.get();
         }
 
-#if __cplusplus >= 201103L
         R&& operator()()
-#else
-        R& operator()()
-#endif
         {
             return this->call();
         }

@@ -26,29 +26,30 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-#include "cxxtools/eventsink.h"
-#include "cxxtools/eventsource.h"
+#include <cxxtools/eventsink.h>
+#include <cxxtools/eventsource.h>
+#include <thread>
 
-namespace cxxtools {
+namespace cxxtools
+{
 
 EventSink::EventSink()
 { }
 
-
 EventSink::~EventSink()
 {
-    while( true )
+    while (true)
     {
-        RecursiveLock lock( _mutex );
+        std::unique_lock<std::recursive_mutex> lock( _mutex );
 
-        if( _sources.empty() )
+        if (_sources.empty())
             return;
 
         EventSource* source = _sources.front();
-        if( ! source->tryDisconnect(*this) )
+        if (!source->tryDisconnect(*this))
         {
             lock.unlock();
-            Thread::yield();
+            std::this_thread::yield();
         }
     }
 }
@@ -80,7 +81,7 @@ void EventSink::commitPriorityEvent(const Event& event)
 
 void EventSink::onConnect(EventSource& source)
 {
-    RecursiveLock lock1( _mutex );
+    std::lock_guard<std::recursive_mutex> lock1( _mutex );
 
     _sources.push_back(&source);
 }
@@ -88,7 +89,7 @@ void EventSink::onConnect(EventSource& source)
 
 void EventSink::onDisconnect(EventSource& source)
 {
-    RecursiveLock lock1( _mutex );
+    std::lock_guard<std::recursive_mutex> lock1( _mutex );
 
     _sources.remove(&source);
 }
@@ -96,7 +97,7 @@ void EventSink::onDisconnect(EventSource& source)
 
 void EventSink::onUnsubscribe(EventSource& source)
 {
-    RecursiveLock lock1( _mutex );
+    std::lock_guard<std::recursive_mutex> lock1( _mutex );
 
     std::list<EventSource*>::iterator it;
     for(it = _sources.begin(); it != _sources.end(); ++it)

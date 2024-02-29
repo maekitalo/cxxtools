@@ -31,6 +31,7 @@
 #include <cxxtools/fileinfo.h>
 #include <cxxtools/ioerror.h>
 #include <string>
+#include <iterator>
 
 namespace cxxtools {
 
@@ -48,9 +49,15 @@ namespace cxxtools {
     \endcode
 */
 class DirectoryIterator
-    : public std::iterator<std::forward_iterator_tag, std::string>
 {
     public:
+        using iterator_category = std::forward_iterator_tag;
+        using value_type = std::string;
+        using pointer = std::string*;
+        using reference = std::string&;
+        using const_pointer = const std::string*;
+        using const_reference = const std::string&;
+
         //! @brief Default constructor
         DirectoryIterator();
 

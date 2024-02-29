@@ -33,6 +33,8 @@
 
 namespace cxxtools
 {
+class SerializationInfo;
+
 /** Specifies ssl connection parameters.
 
     The class is used in network connections where ssl is supported. It
@@ -59,6 +61,12 @@ public:
         TLSv11,
         TLSv12,
         TLSv13
+    };
+
+    enum class VERIFY_LEVEL : unsigned short {
+        NONE        = 0,
+        OPTIONAL    = 1,
+        REQUIRE     = 2
     };
 
     /** Creates a empty disabled SslCtx */
@@ -106,7 +114,7 @@ public:
      *  Use the method cxxtools::net::TcpServer::setSslVerify for server
      *  or setSslVerify without level in tcp clients.
      */
-    SslCtx& setVerify(int level, const std::string& ca = std::string());
+    SslCtx& setVerify(VERIFY_LEVEL level, const std::string& ca = std::string());
 
     /** Enables ssl peer certificate check.
      *
@@ -134,6 +142,13 @@ public:
 private:
     Impl* _impl;
 };
+
+void operator<<= (cxxtools::SerializationInfo& si, const SslCtx::PROTOCOL_VERSION& protocolVersion);
+void operator>>= (const cxxtools::SerializationInfo& si, SslCtx::PROTOCOL_VERSION& protocolVersion);
+
+void operator<<= (cxxtools::SerializationInfo& si, const SslCtx::VERIFY_LEVEL& verifyLevel);
+void operator>>= (const cxxtools::SerializationInfo& si, SslCtx::VERIFY_LEVEL& verifyLevel);
+
 }
 
 #endif

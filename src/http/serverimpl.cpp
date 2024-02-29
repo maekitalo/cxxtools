@@ -168,12 +168,11 @@ void ServerImpl::start()
     log_trace("start server");
     runmode(Server::Starting);
 
-    MutexLock lock(_threadMutex);
+    std::lock_guard<std::mutex> lock(_threadMutex);
     while (_threads.size() < minThreads())
     {
         Worker* worker = new Worker(*this);
         _threads.insert(worker);
-        worker->start();
     }
 
     runmode(Server::Running);
@@ -185,7 +184,7 @@ void ServerImpl::terminate()
 
     _eventLoop.processEvents();
 
-    MutexLock lock(_threadMutex);
+    std::unique_lock<std::mutex> lock(_threadMutex);
 
     runmode(Server::Terminating);
 
@@ -238,14 +237,14 @@ void ServerImpl::terminate()
 
 void ServerImpl::noWaitingThreads()
 {
-    MutexLock lock(_threadMutex);
+    std::lock_guard<std::mutex> lock(_threadMutex);
     if (runmode() == Server::Running)
         _eventLoop.commitEvent(NoWaitingThreadsEvent());
 }
 
 void ServerImpl::threadTerminated(Worker* worker)
 {
-    MutexLock lock(_threadMutex);
+    std::lock_guard<std::mutex> lock(_threadMutex);
 
     _threads.erase(worker);
     if (runmode() == Server::Running)
@@ -255,7 +254,7 @@ void ServerImpl::threadTerminated(Worker* worker)
     else
     {
         _terminatedThreads.insert(worker);
-        _threadTerminated.signal();
+        _threadTerminated.notify_one();
     }
 }
 
@@ -293,7 +292,7 @@ void ServerImpl::onActiveSocket(const ActiveSocketEvent& event)
 
 void ServerImpl::onNoWaitingThreads(const NoWaitingThreadsEvent& /*event*/)
 {
-    MutexLock lock(_threadMutex);
+    std::lock_guard<std::mutex> lock(_threadMutex);
 
     if (_threads.size() >= maxThreads())
     {
@@ -303,11 +302,11 @@ void ServerImpl::onNoWaitingThreads(const NoWaitingThreadsEvent& /*event*/)
 
     try
     {
-        Worker* worker = new Worker(*this);
+        Worker* worker = nullptr;
         try
         {
+            worker = new Worker(*this);
             log_debug("create thread " << static_cast<void*>(worker) << "; running threads=" << _threads.size());
-            worker->start();
             _threads.insert(worker);
 
             log_debug(_threads.size() << " threads running");
@@ -326,7 +325,7 @@ void ServerImpl::onNoWaitingThreads(const NoWaitingThreadsEvent& /*event*/)
 
 void ServerImpl::onThreadTerminated(const ThreadTerminatedEvent& event)
 {
-    MutexLock lock(_threadMutex);
+    std::lock_guard<std::mutex> lock(_threadMutex);
     log_debug("thread terminated (" << static_cast<void*>(event.worker()) << ") " << _threads.size() << " threads left");
     try
     {

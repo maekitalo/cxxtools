@@ -31,12 +31,14 @@
 
 #include <cxxtools/event.h>
 #include <cxxtools/signal.h>
-#include <cxxtools/mutex.h>
 #include <cxxtools/eventsink.h>
+
+#include <mutex>
 #include <map>
 #include <typeinfo>
 
-namespace cxxtools {
+namespace cxxtools
+{
 
 class EventSink;
 
@@ -51,13 +53,8 @@ class EventSink;
 */
 class EventSource
 {
-#if __cplusplus >= 201103L
         EventSource(const EventSource&) = delete;
         EventSource& operator=(const EventSource&) = delete;
-#else
-        EventSource(const EventSource&) { }
-        EventSource& operator=(const EventSource&) { return *this; }
-#endif
         friend class EventSink;
 
     public:
@@ -97,8 +94,8 @@ class EventSource
                                EventSink*,
                                CompareEventTypeInfo > SinkMap;
 
-        mutable RecursiveMutex _mutex;
-        mutable RecursiveMutex* _dmutex;
+        mutable std::recursive_mutex _mutex;
+        mutable std::recursive_mutex* _dmutex;
         mutable SinkMap _sinks;
         mutable Sentry* _sentry;
         mutable bool _dirty;

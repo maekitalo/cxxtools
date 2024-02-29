@@ -32,8 +32,6 @@
 #include <sstream>
 #include <cxxtools/properties.h>
 
-log_define("cxxtools.test.logconfiguration")
-
 class LogconfigurationTest : public cxxtools::unit::TestSuite
 {
   public:

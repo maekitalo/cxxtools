@@ -61,7 +61,6 @@ class SerializationTest : public cxxtools::unit::TestSuite
             registerMethod("testMap", *this, &SerializationTest::testMap);
             registerMethod("testMultimap", *this, &SerializationTest::testMultimap);
             registerMethod("testCArray", *this, &SerializationTest::testCArray);
-#if __cplusplus >= 201103L
             registerMethod("testForwardList", *this, &SerializationTest::testForwardList);
             registerMethod("testUnorderedSet", *this, &SerializationTest::testUnorderedSet);
             registerMethod("testUnorderedMultiset", *this, &SerializationTest::testUnorderedMultiset);
@@ -69,9 +68,11 @@ class SerializationTest : public cxxtools::unit::TestSuite
             registerMethod("testUnorderedMultimap", *this, &SerializationTest::testUnorderedMultimap);
             registerMethod("testTuple", *this, &SerializationTest::testTuple);
             registerMethod("testArray", *this, &SerializationTest::testArray);
+#if __cplusplus >= 201703L
+            registerMethod("testOptional", *this, &SerializationTest::testOptional);
+#endif
             registerMethod("testEnum", *this, &SerializationTest::testEnum);
             registerMethod("testCast", *this, &SerializationTest::testCast);
-#endif
         }
 
         void testBool()
@@ -353,7 +354,7 @@ class SerializationTest : public cxxtools::unit::TestSuite
 
             si <<= v;
             si >>= vv;
-            CXXTOOLS_UNIT_ASSERT_EQUALS(vv.size(), 3);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(vv.size(), 3u);
             CXXTOOLS_UNIT_ASSERT(vv == v);
         }
 
@@ -386,7 +387,7 @@ class SerializationTest : public cxxtools::unit::TestSuite
 
             si <<= v;
             si >>= vv;
-            CXXTOOLS_UNIT_ASSERT_EQUALS(vv.size(), 3);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(vv.size(), 3u);
             CXXTOOLS_UNIT_ASSERT(vv == v);
         }
 
@@ -406,8 +407,6 @@ class SerializationTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(vv[1], -4);
             CXXTOOLS_UNIT_ASSERT_EQUALS(vv[2], 42);
         }
-
-#if __cplusplus >= 201103L
 
         void testForwardList()
         {
@@ -452,7 +451,7 @@ class SerializationTest : public cxxtools::unit::TestSuite
 
             si <<= v;
             si >>= vv;
-            CXXTOOLS_UNIT_ASSERT_EQUALS(vv.size(), 3);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(vv.size(), 3u);
             CXXTOOLS_UNIT_ASSERT(vv == v);
         }
 
@@ -485,7 +484,7 @@ class SerializationTest : public cxxtools::unit::TestSuite
 
             si <<= v;
             si >>= vv;
-            CXXTOOLS_UNIT_ASSERT_EQUALS(vv.size(), 3);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(vv.size(), 3u);
             CXXTOOLS_UNIT_ASSERT(vv == v);
         }
 
@@ -518,6 +517,36 @@ class SerializationTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(vv[1], -4);
             CXXTOOLS_UNIT_ASSERT_EQUALS(vv[2], 42);
         }
+
+#if __cplusplus >= 201703L
+        void testOptional()
+        {
+            {
+                cxxtools::SerializationInfo si;
+                std::optional<int> nullValue;
+                std::optional<int> value;
+
+                si <<= nullValue;
+                CXXTOOLS_UNIT_ASSERT(si.isNull());
+
+                si >>= value;
+                CXXTOOLS_UNIT_ASSERT(!value);
+            }
+
+            {
+                cxxtools::SerializationInfo si;
+                std::optional<int> aValue(42);
+                std::optional<int> value;
+
+                si <<= aValue;
+                CXXTOOLS_UNIT_ASSERT(!si.isNull());
+
+                si >>= value;
+                CXXTOOLS_UNIT_ASSERT(value);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(*value, 42);
+            }
+        }
+#endif
 
         void testEnum()
         {
@@ -556,11 +585,10 @@ class SerializationTest : public cxxtools::unit::TestSuite
             foo.insert(56);
             foo.insert(42);
             std::vector<long> bar = cxxtools::serialization_cast<std::vector<long> >(foo);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(bar.size(), 2);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(bar.size(), 2u);
             CXXTOOLS_UNIT_ASSERT_EQUALS(bar[0], 42);
             CXXTOOLS_UNIT_ASSERT_EQUALS(bar[1], 56);
         }
-#endif
 
 };
 

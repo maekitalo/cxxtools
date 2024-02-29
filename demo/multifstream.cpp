@@ -29,16 +29,14 @@
 
 #include <cxxtools/multifstream.h>
 #include <iostream>
-#include <algorithm>
 
 int main(int argc, char* argv[])
 {
   try
   {
     cxxtools::multi_ifstream in;
-    std::copy(argv + 1,
-              argv + argc,
-              in.back_inserter());
+    for (int a = 1; a < argc; ++a)
+        in.add_pattern(argv[a]);
 
     std::cout << in.rdbuf();
   }

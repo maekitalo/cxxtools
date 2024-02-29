@@ -49,13 +49,8 @@ namespace unit {
     */
     class Test : public Connectable
     {
-#if __cplusplus >= 201103L
             Test(const Test&) = delete;
             Test& operator=(const Test&) = delete;
-#else
-            Test(const Test&) { }
-            Test& operator=(const Test&) { return *this; }
-#endif
 
         public:
             /** @brief Destructor

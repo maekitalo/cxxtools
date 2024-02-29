@@ -36,13 +36,8 @@ namespace cxxtools
 {
     class PropertiesSerializer
     {
-#if __cplusplus >= 201103L
             PropertiesSerializer(const PropertiesSerializer&) = delete;
             PropertiesSerializer& operator=(const PropertiesSerializer&) = delete;
-#else
-            PropertiesSerializer(const PropertiesSerializer&) { }
-            PropertiesSerializer& operator=(const PropertiesSerializer&) { return *this; }
-#endif
 
         public:
             PropertiesSerializer()

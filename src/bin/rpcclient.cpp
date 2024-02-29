@@ -31,8 +31,6 @@
 #include <cxxtools/net/uri.h>
 #include "rpcclientimpl.h"
 
-#include "config.h"
-
 namespace cxxtools
 {
 namespace bin
@@ -100,30 +98,18 @@ void RpcClient::prepareConnect(const std::string& host, unsigned short int port,
 
 void RpcClient::prepareConnect(const net::Uri& uri)
 {
-#ifdef WITH_SSL
     if (uri.protocol() != "bin" && uri.protocol() != "bins")
         throw std::runtime_error("only protocols \"bin\" and \"bins\" is supported by binary rpc client");
     SslCtx sslCtx;
     sslCtx.enable(uri.protocol() == "bins");
     prepareConnect(net::AddrInfo(uri.host(), uri.port()), sslCtx);
-#else
-    if (uri.protocol() != "bin")
-        throw std::runtime_error("only protocol \"bin\" is supported by binary rpc client");
-    prepareConnect(net::AddrInfo(uri.host(), uri.port()));
-#endif
 }
 
 void RpcClient::prepareConnect(const net::Uri& uri, const SslCtx& sslCtx)
 {
-#ifdef WITH_SSL
     if (uri.protocol() != "bins" && sslCtx.enabled())
         throw std::runtime_error("only protocol \"bins\" is supported when ssl certificate is set");
     prepareConnect(net::AddrInfo(uri.host(), uri.port()), sslCtx);
-#else
-    if (uri.protocol() != "bin")
-        throw std::runtime_error("only protocol \"bin\" is supported by binary rpc client");
-    prepareConnect(net::AddrInfo(uri.host(), uri.port()));
-#endif
 }
 
 void RpcClient::connect()

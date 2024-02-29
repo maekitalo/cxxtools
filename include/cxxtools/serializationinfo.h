@@ -46,6 +46,10 @@
 
 #include <cxxtools/config.h>
 
+#if __cplusplus >= 201703L
+#include <optional>
+#endif
+
 namespace cxxtools
 {
 
@@ -364,6 +368,32 @@ class SerializationInfo
         bool isFloat() const      { return _t == t_float; }
         bool isDouble() const     { return _t == t_double; }
         bool isLongDouble() const { return _t == t_ldouble; }
+
+        /** fetch part of SerializationInfo using a path notation
+
+                $           root element
+                .member     access member
+                [n]         array index
+                ::size      size
+                ::type      typename
+                ::isnull    true if null, false otherwise
+
+                Root element can be omitted. Also the starting '.'
+
+                `$.store.book` can be written as `store.book`
+                `$[2]` can be written as `[2]`
+
+                Member names can be enclosed in single or double quotes.
+
+            examples
+
+                $.store.book::size
+                $.store.book[2].title
+                $.store.book[2].price
+                $.store.'book'[3]."price"
+                $::size
+         */
+        SerializationInfo path(const std::string& path) const;
 
         void dump(std::ostream& out, const std::string& prefix = std::string()) const;
 
@@ -1164,6 +1194,33 @@ void operator <<=(SerializationInfo& si, const std::array<T, N>& array)
     si.setTypeName("array");
     si.setCategory(SerializationInfo::Array);
 }
+
+#if __cplusplus >= 201703L
+
+template <typename T>
+inline void operator >>=(const SerializationInfo& si, std::optional<T>& value)
+{
+    if (si.isNull())
+    {
+        value = std::nullopt;
+    }
+    else
+    {
+        value = T();
+        si >>= *value;
+    }
+}
+
+template <typename T>
+inline void operator <<=(SerializationInfo& si, const std::optional<T>& value)
+{
+    if (value)
+        si <<= *value;
+    else
+        si.setNull();
+}
+
+#endif
 
 /// @internal
 template <typename ENUM>

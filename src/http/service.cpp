@@ -37,22 +37,22 @@ namespace http
 
 Responder* Service::doCreateResponder(const Request& request)
 {
-    MutexLock lock(_mutex);
+    std::lock_guard<std::mutex> lock(_mutex);
     ++_responderCount;
     return createResponder(request);
 }
 
 void Service::doReleaseResponder(Responder* responder)
 {
-    MutexLock lock(_mutex);
+    std::lock_guard<std::mutex> lock(_mutex);
     releaseResponder(responder);
     if (--_responderCount <= 0)
-        _isIdle.signal();
+        _isIdle.notify_one();
 }
 
 void Service::waitIdle()
 {
-    MutexLock lock(_mutex);
+    std::unique_lock<std::mutex> lock(_mutex);
     while (_responderCount > 0)
         _isIdle.wait(lock);
 }

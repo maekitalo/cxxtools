@@ -264,6 +264,17 @@ bool Date::isValid(int y, int m, int d)
     return true;
 }
 
+unsigned Date::weeknumber(unsigned startDay) const
+{
+    Date d0(year(), 1, 1);
+    unsigned w0 = d0.dayOfWeek();
+    unsigned daysOfYear = _julian - d0._julian;
+    unsigned wn = (daysOfYear + w0) / 7 + 1;
+    if (w0 > startDay)
+        --wn;
+    return wn;
+}
+
 
 void operator>>=(const SerializationInfo& si, Date& date)
 {

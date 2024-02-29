@@ -66,6 +66,8 @@ namespace cxxtools
             void finish();
 
         private:
+            void setValue();
+
             enum
             {
                 state_detectDelim,

@@ -29,72 +29,90 @@
 #ifndef CXXTOOLS_CSVSERIALIZER_H
 #define CXXTOOLS_CSVSERIALIZER_H
 
-#include <cxxtools/csvformatter.h>
-#include <cxxtools/decomposer.h>
+#include <cxxtools/textstream.h>
+#include <cxxtools/utf8codec.h>
+#include <cxxtools/utf8.h>
+#include <cxxtools/string.h>
+#include <cxxtools/char.h>
+#include <cxxtools/serializationinfo.h>
+#include <vector>
+#include <memory>
 
 namespace cxxtools
 {
-    class CsvSerializer
+class CsvSerializer
+{
+    CsvSerializer(const CsvSerializer&);
+    CsvSerializer& operator= (const CsvSerializer&);
+
+public:
+    explicit CsvSerializer(std::ostream& os, TextCodec<Char, char>* codec = new Utf8Codec());
+
+    explicit CsvSerializer(TextOStream& os);
+
+    void selectColumn(const std::string& title)
+        { _titles.emplace_back(title); }
+    void selectColumn(const std::string& memberName, const String& title)
+        { _titles.emplace_back(memberName, title); }
+
+    void delimiter(String delimiter)    { _delimiter = delimiter; }
+    void delimiter(Char delimiter)      { _delimiter = delimiter; }
+    void quote(Char quote)              { _quote = quote; }
+    void lineEnding(const String& le)   { _lineEnding = le; }
+
+    const CsvSerializer& serialize(const SerializationInfo& si) const;
+
+    template <typename T>
+    const CsvSerializer& serialize(const T& v) const
     {
-            CsvSerializer(const CsvSerializer&);
-            CsvSerializer& operator= (const CsvSerializer&);
+        SerializationInfo si;
+        si <<= v;
+        serialize(si);
+        return *this;
+    }
 
-        public:
-            explicit CsvSerializer(std::ostream& os, TextCodec<Char, char>* codec = new Utf8Codec())
-                : _formatter(new CsvFormatter(os, codec))
+    // titles and member names
+    class Title
+    {
+    public:
+        Title(const std::string& memberName, const String& title)
+            : _memberName(memberName),
+              _title(title)
+            { }
+        explicit Title(const std::string& memberName)
+            : _memberName(memberName),
+              _title(Utf8(memberName))
             { }
 
-            explicit CsvSerializer(TextOStream& os)
-                : _formatter(new CsvFormatter(os))
-            { }
+        const std::string& memberName() const   { return _memberName; }
+        const String& title() const             { return _title; }
 
-            ~CsvSerializer()
-            {
-                delete _formatter;
-            }
+        bool operator== (const std::string& memberName) const
+            { return _memberName == memberName; }
 
-            void selectColumn(const std::string& title)
-            {
-                _formatter->selectColumn(title);
-            }
+    private:
+        std::string _memberName;
+        String _title;
 
-            void selectColumn(const std::string& memberName, const std::string& title)
-            {
-                _formatter->selectColumn(memberName, title);
-            }
-
-            void delimiter(String delimiter)
-            {
-                _formatter->delimiter(delimiter);
-            }
-
-            void delimiter(Char delimiter)
-            {
-                _formatter->delimiter(String(1, delimiter));
-            }
-
-            void quote(Char quote)
-            {
-                _formatter->quote(quote);
-            }
-
-            void lineEnding(const String& le)
-            {
-                _formatter->lineEnding(le);
-            }
-
-            template <typename T>
-            void serialize(const T& type)
-            {
-                Decomposer<T> decomposer;
-                decomposer.begin(type);
-                decomposer.format(*_formatter);
-                _formatter->finish();
-            }
-
-        private:
-            CsvFormatter* _formatter;
     };
+
+private:
+    void csvOut(const String& value) const;
+
+    void dataOut();
+    std::string memberName() const;
+
+    String _delimiter;
+    Char _quote;
+    String _lineEnding;
+
+    std::vector<Title> _titles;
+
+    std::vector<String> _data;
+    std::vector<std::string> _memberNames;
+    std::unique_ptr<TextOStream> _ts;
+    TextOStream& _os;
+};
 }
 
 #endif // CXXTOOLS_CSVSERIALIZER_H

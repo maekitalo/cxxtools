@@ -66,11 +66,16 @@ namespace net {
         { init(host, port, hints); }
       ~AddrInfoImpl();
 
-      class const_iterator : public std::iterator<std::forward_iterator_tag, addrinfo>
+      class const_iterator
       {
           struct addrinfo* current;
 
         public:
+          using iterator_category = std::forward_iterator_tag;
+          using value_type = addrinfo;
+          using pointer = addrinfo*;
+          using reference = addrinfo&;
+
           explicit const_iterator(struct addrinfo* ai = 0)
             : current(ai)
             { }

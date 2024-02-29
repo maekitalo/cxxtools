@@ -47,62 +47,62 @@ namespace
 {
     const char* typeName(unsigned char typeCode)
     {
-        switch (typeCode)
+        switch (static_cast<Serializer::Type>(typeCode))
         {
-            case Serializer::TypeEmpty:
-            case Serializer::TypePlainEmpty: return "";
-            case Serializer::TypeBool:
-            case Serializer::TypePlainBool: return "bool";
-            case Serializer::TypeChar:
-            case Serializer::TypePlainChar: return "char";
-            case Serializer::TypeString:
-            case Serializer::TypePlainString: return "string";
-            case Serializer::TypeInt:
-            case Serializer::TypePlainInt:
-            case Serializer::TypeInt8:
-            case Serializer::TypePlainInt8:
-            case Serializer::TypeInt16:
-            case Serializer::TypePlainInt16:
-            case Serializer::TypeInt32:
-            case Serializer::TypePlainInt32:
-            case Serializer::TypeInt64:
-            case Serializer::TypePlainInt64:
-            case Serializer::TypeUInt8:
-            case Serializer::TypePlainUInt8:
-            case Serializer::TypeUInt16:
-            case Serializer::TypePlainUInt16:
-            case Serializer::TypeUInt32:
-            case Serializer::TypePlainUInt32:
-            case Serializer::TypeUInt64:
-            case Serializer::TypePlainUInt64: return "int";
-            case Serializer::TypeBinary2:
-            case Serializer::TypePlainBinary2:
-            case Serializer::TypeBinary4:
-            case Serializer::TypePlainBinary4: return "binary";
-            case Serializer::TypeShortFloat:
-            case Serializer::TypePlainShortFloat:
-            case Serializer::TypeMediumFloat:
-            case Serializer::TypePlainMediumFloat:
-            case Serializer::TypeLongFloat:
-            case Serializer::TypePlainLongFloat:
-            case Serializer::TypeBcdFloat:
-            case Serializer::TypePlainBcdFloat: return "double";
-            case Serializer::TypePair:
-            case Serializer::TypePlainPair: return "pair";
-            case Serializer::TypeArray:
-            case Serializer::TypePlainArray: return "array";
-            case Serializer::TypeList:
-            case Serializer::TypePlainList: return "list";
-            case Serializer::TypeDeque:
-            case Serializer::TypePlainDeque: return "deque";
-            case Serializer::TypeSet:
-            case Serializer::TypePlainSet: return "set";
-            case Serializer::TypeMultiset:
-            case Serializer::TypePlainMultiset: return "multiset";
-            case Serializer::TypeMap:
-            case Serializer::TypePlainMap: return "map";
-            case Serializer::TypeMultimap:
-            case Serializer::TypePlainMultimap: return "multimap";
+            case Serializer::Type::Empty:
+            case Serializer::Type::PlainEmpty: return "";
+            case Serializer::Type::Bool:
+            case Serializer::Type::PlainBool: return "bool";
+            case Serializer::Type::Char:
+            case Serializer::Type::PlainChar: return "char";
+            case Serializer::Type::String:
+            case Serializer::Type::PlainString: return "string";
+            case Serializer::Type::Int:
+            case Serializer::Type::PlainInt:
+            case Serializer::Type::Int8:
+            case Serializer::Type::PlainInt8:
+            case Serializer::Type::Int16:
+            case Serializer::Type::PlainInt16:
+            case Serializer::Type::Int32:
+            case Serializer::Type::PlainInt32:
+            case Serializer::Type::Int64:
+            case Serializer::Type::PlainInt64:
+            case Serializer::Type::UInt8:
+            case Serializer::Type::PlainUInt8:
+            case Serializer::Type::UInt16:
+            case Serializer::Type::PlainUInt16:
+            case Serializer::Type::UInt32:
+            case Serializer::Type::PlainUInt32:
+            case Serializer::Type::UInt64:
+            case Serializer::Type::PlainUInt64: return "int";
+            case Serializer::Type::Binary2:
+            case Serializer::Type::PlainBinary2:
+            case Serializer::Type::Binary4:
+            case Serializer::Type::PlainBinary4: return "binary";
+            case Serializer::Type::ShortFloat:
+            case Serializer::Type::PlainShortFloat:
+            case Serializer::Type::MediumFloat:
+            case Serializer::Type::PlainMediumFloat:
+            case Serializer::Type::LongFloat:
+            case Serializer::Type::PlainLongFloat:
+            case Serializer::Type::BcdFloat:
+            case Serializer::Type::PlainBcdFloat: return "double";
+            case Serializer::Type::Pair:
+            case Serializer::Type::PlainPair: return "pair";
+            case Serializer::Type::Array:
+            case Serializer::Type::PlainArray: return "array";
+            case Serializer::Type::List:
+            case Serializer::Type::PlainList: return "list";
+            case Serializer::Type::Deque:
+            case Serializer::Type::PlainDeque: return "deque";
+            case Serializer::Type::Set:
+            case Serializer::Type::PlainSet: return "set";
+            case Serializer::Type::Multiset:
+            case Serializer::Type::PlainMultiset: return "multiset";
+            case Serializer::Type::Map:
+            case Serializer::Type::PlainMap: return "map";
+            case Serializer::Type::Multimap:
+            case Serializer::Type::PlainMultimap: return "multimap";
             default:
             {
                 std::ostringstream msg;
@@ -160,40 +160,40 @@ bool Parser::advance(std::streambuf& in, bool atLeastOne)
         {
             case state_type:
                 {
-                    Serializer::TypeCode tc = static_cast<Serializer::TypeCode>(static_cast<unsigned char>(ch));
-                    if (tc == Serializer::CategoryObject)
+                    Serializer::Type tc = static_cast<Serializer::Type>(static_cast<unsigned char>(ch));
+                    if (tc == Serializer::Type::CategoryObject)
                     {
                         _nextstate = state_object_type;
                         _state = state_name;
                         if (_deserializer)
                             _deserializer->setCategory(SerializationInfo::Object);
                     }
-                    else if (tc == Serializer::CategoryArray)
+                    else if (tc == Serializer::Type::CategoryArray)
                     {
                         _nextstate = state_array_type;
                         _state = state_name;
                         if (_deserializer)
                             _deserializer->setCategory(SerializationInfo::Array);
                     }
-                    else if (tc == Serializer::TypeOther)
+                    else if (tc == Serializer::Type::Other)
                     {
                         log_debug("type other");
                         _nextstate = state_name;
                         _state = state_value_type_other;
                     }
-                    else if (tc == Serializer::TypePlainOther)
+                    else if (tc == Serializer::Type::PlainOther)
                     {
                         log_debug("type plain other");
                         _nextstate = state_value_value;
                         _state = state_value_type_other;
                     }
-                    else if (tc == Serializer::TypeBcd)
+                    else if (tc == Serializer::Type::Bcd)
                     {
                         log_debug("type bcd");
                         _nextstate = state_name;
                         _state = state_value_type_bcd;
                     }
-                    else if (tc == Serializer::TypePlainBcd)
+                    else if (tc == Serializer::Type::PlainBcd)
                     {
                         log_debug("type plain bcd");
                         _nextstate = state_value_bcd0;
@@ -201,7 +201,7 @@ bool Parser::advance(std::streambuf& in, bool atLeastOne)
                     }
                     else
                     {
-                        log_debug("type code " << std::hex << tc << " => type " << typeName(ch));
+                        log_debug("type code " << std::hex << static_cast<uint8_t>(tc) << " => type " << typeName(ch));
                         if (_deserializer)
                         {
                             _deserializer->setTypeName(typeName(ch));
@@ -210,235 +210,235 @@ bool Parser::advance(std::streambuf& in, bool atLeastOne)
 
                         switch (tc)
                         {
-                            case Serializer::TypeEmpty:
+                            case Serializer::Type::Empty:
                                 if (_deserializer)
                                     _deserializer->setNull();
                                 _nextstate = state_end;
                                 _state = state_name;
                                 break;
 
-                            case Serializer::TypeChar:
+                            case Serializer::Type::Char:
                                 _nextstate = state_value_char;
                                 _state = state_name;
                                 break;
 
-                            case Serializer::TypeString:
-                            case Serializer::TypeInt:
+                            case Serializer::Type::String:
+                            case Serializer::Type::Int:
                                 _nextstate = state_value_value;
                                 _state = state_name;
                                 break;
 
-                            case Serializer::TypeBool:
+                            case Serializer::Type::Bool:
                                 _nextstate = state_value_bool;
                                 _state = state_name;
                                 break;
 
-                            case Serializer::TypeBinary2:
+                            case Serializer::Type::Binary2:
                                 _count = 2;
                                 _nextstate = state_value_binary_length;
                                 _state = state_name;
                                 break;
 
-                            case Serializer::TypeBinary4:
+                            case Serializer::Type::Binary4:
                                 _count = 4;
                                 _nextstate = state_value_binary_length;
                                 _state = state_name;
                                 break;
 
-                            case Serializer::TypeInt8:
+                            case Serializer::Type::Int8:
                                 _count = 1;
                                 _nextstate = state_value_intsign;
                                 _state = state_name;
                                 break;
 
-                            case Serializer::TypeInt16:
+                            case Serializer::Type::Int16:
                                 _count = 2;
                                 _nextstate = state_value_intsign;
                                 _state = state_name;
                                 break;
 
-                            case Serializer::TypeInt32:
+                            case Serializer::Type::Int32:
                                 _count = 4;
                                 _nextstate = state_value_intsign;
                                 _state = state_name;
                                 break;
 
-                            case Serializer::TypeInt64:
+                            case Serializer::Type::Int64:
                                 _count = 8;
                                 _nextstate = state_value_intsign;
                                 _state = state_name;
                                 break;
 
-                            case Serializer::TypeUInt8:
+                            case Serializer::Type::UInt8:
                                 _count = 1;
                                 _nextstate = state_value_uint;
                                 _state = state_name;
                                 break;
 
-                            case Serializer::TypeUInt16:
+                            case Serializer::Type::UInt16:
                                 _count = 2;
                                 _nextstate = state_value_uint;
                                 _state = state_name;
                                 break;
 
-                            case Serializer::TypeUInt32:
+                            case Serializer::Type::UInt32:
                                 _count = 4;
                                 _nextstate = state_value_uint;
                                 _state = state_name;
                                 break;
 
-                            case Serializer::TypeUInt64:
+                            case Serializer::Type::UInt64:
                                 _count = 8;
                                 _nextstate = state_value_uint;
                                 _state = state_name;
                                 break;
 
-                            case Serializer::TypeShortFloat:
+                            case Serializer::Type::ShortFloat:
                                 _nextstate = state_sfloat_exp;
                                 _count = 1;
                                 _state = state_name;
                                 break;
 
-                            case Serializer::TypeMediumFloat:
+                            case Serializer::Type::MediumFloat:
                                 _nextstate = state_mfloat_exp;
                                 _count = 1;
                                 _state = state_name;
                                 break;
 
-                            case Serializer::TypeLongFloat:
+                            case Serializer::Type::LongFloat:
                                 _nextstate = state_lfloat_exp;
                                 _count = 2;
                                 _state = state_name;
                                 break;
 
-                            case Serializer::TypeBcdFloat:
+                            case Serializer::Type::BcdFloat:
                                 _nextstate = state_value_bcd0;
                                 _state = state_name;
                                 break;
 
-                            case Serializer::TypeArray:
-                            case Serializer::TypeVector:
-                            case Serializer::TypeList:
-                            case Serializer::TypeDeque:
-                            case Serializer::TypeSet:
-                            case Serializer::TypeMultiset:
+                            case Serializer::Type::Array:
+                            case Serializer::Type::Vector:
+                            case Serializer::Type::List:
+                            case Serializer::Type::Deque:
+                            case Serializer::Type::Set:
+                            case Serializer::Type::Multiset:
                                 _state = state_name;
                                 _nextstate = state_array_member;
                                 if (_deserializer)
                                     _deserializer->setCategory(SerializationInfo::Array);
                                 break;
 
-                            case Serializer::TypePair:
-                            case Serializer::TypeMap:
-                            case Serializer::TypeMultimap:
+                            case Serializer::Type::Pair:
+                            case Serializer::Type::Map:
+                            case Serializer::Type::Multimap:
                                 _nextstate = state_object_member;
                                 _state = state_name;
                                 if (_deserializer)
                                     _deserializer->setCategory(SerializationInfo::Object);
                                 break;
 
-                            case Serializer::TypePlainEmpty:
+                            case Serializer::Type::PlainEmpty:
                                 if (_deserializer)
                                     _deserializer->setNull();
                                 _state = state_end;
                                 break;
 
-                            case Serializer::TypePlainChar:
+                            case Serializer::Type::PlainChar:
                                 _state = state_value_char;
                                 break;
 
-                            case Serializer::TypePlainString:
-                            case Serializer::TypePlainInt:
+                            case Serializer::Type::PlainString:
+                            case Serializer::Type::PlainInt:
                                 _state = state_value_value;
                                 break;
 
-                            case Serializer::TypePlainBool:
+                            case Serializer::Type::PlainBool:
                                 _state = state_value_bool;
                                 break;
 
-                            case Serializer::TypePlainBcdFloat:
+                            case Serializer::Type::PlainBcdFloat:
                                 _state = state_value_bcd0;
                                 break;
 
-                            case Serializer::TypePlainBinary2:
+                            case Serializer::Type::PlainBinary2:
                                 _count = 2;
                                 _state = state_value_binary_length;
                                 break;
 
-                            case Serializer::TypePlainBinary4:
+                            case Serializer::Type::PlainBinary4:
                                 _count = 4;
                                 _state = state_value_binary_length;
                                 break;
 
-                            case Serializer::TypePlainInt8:
+                            case Serializer::Type::PlainInt8:
                                 _count = 1;
                                 _state = state_value_intsign;
                                 break;
 
-                            case Serializer::TypePlainInt16:
+                            case Serializer::Type::PlainInt16:
                                 _count = 2;
                                 _state = state_value_intsign;
                                 break;
 
-                            case Serializer::TypePlainInt32:
+                            case Serializer::Type::PlainInt32:
                                 _count = 4;
                                 _state = state_value_intsign;
                                 break;
 
-                            case Serializer::TypePlainInt64:
+                            case Serializer::Type::PlainInt64:
                                 _count = 8;
                                 _state = state_value_intsign;
                                 break;
 
-                            case Serializer::TypePlainUInt8:
+                            case Serializer::Type::PlainUInt8:
                                 _count = 1;
                                 _state = state_value_uint;
                                 break;
 
-                            case Serializer::TypePlainUInt16:
+                            case Serializer::Type::PlainUInt16:
                                 _count = 2;
                                 _state = state_value_uint;
                                 break;
 
-                            case Serializer::TypePlainUInt32:
+                            case Serializer::Type::PlainUInt32:
                                 _count = 4;
                                 _state = state_value_uint;
                                 break;
 
-                            case Serializer::TypePlainUInt64:
+                            case Serializer::Type::PlainUInt64:
                                 _count = 8;
                                 _state = state_value_uint;
                                 break;
 
-                            case Serializer::TypePlainShortFloat:
+                            case Serializer::Type::PlainShortFloat:
                                 _state = state_sfloat_exp;
                                 _count = 1;
                                 break;
 
-                            case Serializer::TypePlainMediumFloat:
+                            case Serializer::Type::PlainMediumFloat:
                                 _state = state_mfloat_exp;
                                 _count = 1;
                                 break;
 
-                            case Serializer::TypePlainLongFloat:
+                            case Serializer::Type::PlainLongFloat:
                                 _state = state_lfloat_exp;
                                 _count = 2;
                                 break;
 
-                            case Serializer::TypePlainArray:
-                            case Serializer::TypePlainVector:
-                            case Serializer::TypePlainList:
-                            case Serializer::TypePlainDeque:
-                            case Serializer::TypePlainSet:
-                            case Serializer::TypePlainMultiset:
+                            case Serializer::Type::PlainArray:
+                            case Serializer::Type::PlainVector:
+                            case Serializer::Type::PlainList:
+                            case Serializer::Type::PlainDeque:
+                            case Serializer::Type::PlainSet:
+                            case Serializer::Type::PlainMultiset:
                                 _state = state_array_type;
                                 if (_deserializer)
                                     _deserializer->setCategory(SerializationInfo::Array);
                                 break;
 
-                            case Serializer::TypePlainPair:
-                            case Serializer::TypePlainMap:
-                            case Serializer::TypePlainMultimap:
+                            case Serializer::Type::PlainPair:
+                            case Serializer::Type::PlainMap:
+                            case Serializer::Type::PlainMultimap:
                                 _state = state_object_type;
                                 if (_deserializer)
                                     _deserializer->setCategory(SerializationInfo::Object);
@@ -447,7 +447,7 @@ bool Parser::advance(std::streambuf& in, bool atLeastOne)
                             default:
                                 {
                                     std::ostringstream msg;
-                                    msg << "invalid type code <0x" << std::hex << tc << '>';
+                                    msg << "invalid type code <0x" << std::hex << static_cast<uint8_t>(tc) << '>';
                                     SerializationError::doThrow(msg.str());
                                 }
                         }
@@ -787,8 +787,8 @@ bool Parser::advance(std::streambuf& in, bool atLeastOne)
                 break;
 
             case state_object_type:
-                if (static_cast<Serializer::TypeCode>(ch) == Serializer::TypePlainOther
-                    || static_cast<Serializer::TypeCode>(ch) == Serializer::TypeOther)
+                if (static_cast<Serializer::Type>(ch) == Serializer::Type::PlainOther
+                    || static_cast<Serializer::Type>(ch) == Serializer::Type::Other)
                     _state = state_object_type_other;
                 else
                 {
@@ -871,13 +871,13 @@ bool Parser::advance(std::streambuf& in, bool atLeastOne)
 
             case state_array_type:
                 {
-                    Serializer::TypeCode tc = static_cast<Serializer::TypeCode>(static_cast<unsigned char>(ch));
-                    if (tc == Serializer::TypeOther)
+                    Serializer::Type tc = static_cast<Serializer::Type>(static_cast<unsigned char>(ch));
+                    if (tc == Serializer::Type::Other)
                     {
                         _state = state_name;
                         _nextstate = state_array_type_other;
                     }
-                    else if (tc == Serializer::TypePlainOther)
+                    else if (tc == Serializer::Type::PlainOther)
                     {
                         _state = state_array_type_other;
                     }

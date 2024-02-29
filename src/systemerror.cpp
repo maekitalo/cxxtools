@@ -26,16 +26,14 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
-#include "cxxtools/systemerror.h"
-#include "cxxtools/mutex.h"
-#include "cxxtools/log.h"
+#include <cxxtools/systemerror.h>
+#include <cxxtools/log.h>
 
-#include "config.h"
+#include <mutex>
+#include <condition_variable>
 
-#ifdef WITH_SSL
 #include <openssl/err.h>
 #include <openssl/ssl.h>
-#endif
 
 #include <errno.h>
 #include "error.h"
@@ -104,8 +102,7 @@ SymbolNotFound::SymbolNotFound(const std::string& sym)
 
 void SslError::checkSslError()
 {
-#ifdef WITH_SSL
-    static Mutex mutex;
+    static std::mutex mutex;
     static bool errorStringsLoaded = false;
 
     unsigned long code = ERR_get_error();
@@ -113,7 +110,7 @@ void SslError::checkSslError()
     {
         if (!errorStringsLoaded)
         {
-            MutexLock lock(mutex);
+            std::lock_guard<std::mutex> lock(mutex);
             if (!errorStringsLoaded)
             {
                 log_debug("SSL_load_error_strings");
@@ -134,7 +131,6 @@ void SslError::checkSslError()
             throw SslError("unknown SSL-Error", code);
         }
     }
-#endif
 }
 
 } // namespace cxxtools

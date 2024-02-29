@@ -54,12 +54,12 @@ void CharTest::testConstructor()
 {
     {
         cxxtools::Char ch(L'a');
-        CXXTOOLS_UNIT_ASSERT_EQUALS(ch.value(), static_cast<cxxtools::Char::value_type>(L'a'));
+        CXXTOOLS_UNIT_ASSERT_EQUALS(static_cast<int32_t>(ch.value()), static_cast<int32_t>(L'a'));
     }
 
     {
         cxxtools::Char ch(0x2764u);
-        CXXTOOLS_UNIT_ASSERT_EQUALS(ch.value(), 0x2764u);
+        CXXTOOLS_UNIT_ASSERT_EQUALS(static_cast<uint32_t>(ch.value()), 0x2764u);
     }
 }
 

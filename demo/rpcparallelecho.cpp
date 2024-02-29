@@ -42,7 +42,7 @@
 #include <cxxtools/bin/rpcclient.h>
 #include <cxxtools/sslctx.h>
 #include <cxxtools/selector.h>
-#include <cxxtools/smartptr.h>
+#include <memory>
 
 ////////////////////////////////////////////////////////////////////////
 // main

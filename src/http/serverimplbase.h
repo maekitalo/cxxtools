@@ -44,13 +44,8 @@ namespace http
 
 class ServerImplBase
 {
-#if __cplusplus >= 201103L
         ServerImplBase(const ServerImplBase&) = delete;
         ServerImplBase& operator=(const ServerImplBase&) = delete;
-#else
-        ServerImplBase(const ServerImplBase&);
-        ServerImplBase& operator=(const ServerImplBase&);
-#endif
 
     public:
         ServerImplBase(EventLoopBase& eventLoop, Signal<Server::Runmode>& runmodeChanged)
@@ -70,8 +65,8 @@ class ServerImplBase
 
         void addService(const std::string& url, Service& service)
         { _mapper.addService(url, service); }
-        void addService(const Regex& url, Service& service)
-        { _mapper.addService(url, service); }
+        void addService(Regex&& url, Service& service)
+        { _mapper.addService(std::move(url), service); }
         void removeService(Service& service)
         { _mapper.removeService(service); }
 

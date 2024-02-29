@@ -26,7 +26,6 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <iostream>
 #include <cxxtools/log.h>
 #include <cxxtools/arg.h>
 #include <cxxtools/remoteprocedure.h>
@@ -35,12 +34,15 @@
 #include <cxxtools/json/rpcclient.h>
 #include <cxxtools/json/httpclient.h>
 #include <cxxtools/sslctx.h>
-#include <cxxtools/thread.h>
-#include <cxxtools/mutex.h>
 #include <cxxtools/clock.h>
 #include <cxxtools/timespan.h>
 #include <cxxtools/datetime.h>
+
+#include <iostream>
 #include <atomic>
+#include <thread>
+#include <mutex>
+#include <memory>
 
 #include "color.h"
 
@@ -50,8 +52,8 @@ class BenchClient
 {
     void exec();
 
-    cxxtools::RemoteClient* client;
-    cxxtools::AttachedThread thread;
+    std::unique_ptr<cxxtools::RemoteClient> _client;
+    std::thread _thread;
 
     static unsigned _numRequests;
     static cxxtools::DateTime _until;
@@ -61,14 +63,11 @@ class BenchClient
     static std::atomic<unsigned> _requestsFinished;
     static std::atomic<unsigned> _requestsFailed;
 
-  public:
-    explicit BenchClient(cxxtools::RemoteClient* client_)
-      : client(client_),
-        thread(cxxtools::callable(*this, &BenchClient::exec))
+public:
+    explicit BenchClient(std::unique_ptr<cxxtools::RemoteClient>&& client)
+        : _client(std::move(client)),
+          _thread(&BenchClient::exec, this)
     { }
-
-    ~BenchClient()
-    { delete client; }
 
     static unsigned numRequests()
     { return _numRequests; }
@@ -103,11 +102,8 @@ class BenchClient
     static unsigned requestsFailed()
     { return _requestsFailed; }
 
-    void start()
-    { thread.start(); }
-
     void join()
-    { thread.join(); }
+    { _thread.join(); }
 };
 
 std::atomic<unsigned> BenchClient::_requestsStarted(0);
@@ -119,160 +115,153 @@ unsigned BenchClient::_vectorSize = 0;
 unsigned BenchClient::_objectsSize = 0;
 typedef std::vector<BenchClient*> BenchClients;
 
-static cxxtools::Mutex mutex;
+static std::mutex mutex;
 
 void BenchClient::exec()
 {
-  cxxtools::RemoteProcedure<std::string, std::string> echo(*client, "echo");
-  cxxtools::RemoteProcedure<std::vector<int>, int, int> seq(*client, "seq");
-  cxxtools::RemoteProcedure<std::vector<Color>, unsigned> objects(*client, "objects");
+    cxxtools::RemoteProcedure<std::string, std::string> echo(*_client, "echo");
+    cxxtools::RemoteProcedure<std::vector<int>, int, int> seq(*_client, "seq");
+    cxxtools::RemoteProcedure<std::vector<Color>, unsigned> objects(*_client, "objects");
 
-  while (_requestsStarted < _numRequests
-      && cxxtools::DateTime::gmtime() < _until)
-  {
-    ++_requestsStarted;
-    try
+    while (_requestsStarted < _numRequests
+            && cxxtools::DateTime::gmtime() < _until)
     {
-      log_debug("exec " << _requestsStarted);
-      if (_vectorSize > 0)
-      {
-        std::vector<int> ret = seq(1, _vectorSize);
-        ++_requestsFinished;
-        if (ret.size() != _vectorSize)
+        ++_requestsStarted;
+        try
         {
-          std::cerr << "wrong response result size " << ret.size() << std::endl;
-          ++_requestsFailed;
+            log_debug("exec " << _requestsStarted);
+            if (_vectorSize > 0)
+            {
+                std::vector<int> ret = seq(1, _vectorSize);
+                ++_requestsFinished;
+                if (ret.size() != _vectorSize)
+                {
+                    std::cerr << "wrong response result size " << ret.size() << std::endl;
+                    ++_requestsFailed;
+                }
+            }
+            else if (_objectsSize > 0)
+            {
+                std::vector<Color> ret = objects(_objectsSize);
+                ++_requestsFinished;
+                if (ret.size() != _objectsSize)
+                {
+                    std::cerr << "wrong response result size " << ret.size() << std::endl;
+                    ++_requestsFailed;
+                }
+            }
+            else
+            {
+                std::string ret = echo("hi");
+                ++_requestsFinished;
+                if (ret != "hi")
+                {
+                    std::cerr << "wrong response result \"" << ret << '"' << std::endl;
+                    ++_requestsFailed;
+                }
+            }
         }
-      }
-      else if (_objectsSize > 0)
-      {
-        std::vector<Color> ret = objects(_objectsSize);
-        ++_requestsFinished;
-        if (ret.size() != _objectsSize)
+        catch (const std::exception& e)
         {
-          std::cerr << "wrong response result size " << ret.size() << std::endl;
-          ++_requestsFailed;
-        }
-      }
-      else
-      {
-        std::string ret = echo("hi");
-        ++_requestsFinished;
-        if (ret != "hi")
-        {
-          std::cerr << "wrong response result \"" << ret << '"' << std::endl;
-          ++_requestsFailed;
-        }
-      }
-    }
-    catch (const std::exception& e)
-    {
-      {
-        cxxtools::MutexLock lock(mutex);
-        std::cerr << "request failed with error message \"" << e.what() << '"' << std::endl;
-      }
+            {
+                std::lock_guard<std::mutex> lock(mutex);
+                std::cerr << "request failed with error message \"" << e.what() << '"' << std::endl;
+            }
 
-      ++_requestsFailed;
+            ++_requestsFailed;
+        }
     }
-  }
 }
 
 int main(int argc, char* argv[])
 {
-  try
-  {
-    log_init("rpcbenchclient.properties");
-
-    cxxtools::Arg<std::string> ip(argc, argv, 'i');
-    cxxtools::Arg<unsigned> threads(argc, argv, 't', 4);
-    cxxtools::Arg<bool> xmlrpc(argc, argv, 'x');
-    cxxtools::Arg<bool> binary(argc, argv, 'b');
-    cxxtools::Arg<bool> json(argc, argv, 'j');
-    cxxtools::Arg<bool> jsonhttp(argc, argv, 'J');
-    cxxtools::Arg<unsigned short> port(argc, argv, 'p', binary ? 7003 : json ? 7004 : 7002);
-    cxxtools::Arg<bool> ssl(argc, argv, 's');
-    cxxtools::Arg<cxxtools::Seconds> maxtime(argc, argv, 'T');
-
-    BenchClient::numRequests(cxxtools::Arg<unsigned>(argc, argv, 'n', 10000));
-    BenchClient::vectorSize(cxxtools::Arg<unsigned>(argc, argv, 'v', 0));
-    BenchClient::objectsSize(cxxtools::Arg<unsigned>(argc, argv, 'o', 0));
-
-    if (maxtime.isSet())
-        BenchClient::until(cxxtools::DateTime::gmtime() + maxtime);
-
-    if (!xmlrpc && !binary && !json && !jsonhttp)
+    try
     {
-        std::cerr << "usage: " << argv[0] << " [options]\n"
-                     "options:\n"
-                     "   -l ip      set ip address of server (default: localhost)\n"
-                     "   -p number  set port number of server (default: 7002 for http, 7003 for binary and 7004 for json)\n"
-                     "   -x         use xmlrpc protocol\n"
-                     "   -b         use binary rpc protocol\n"
-                     "   -j         use json rpc protocol\n"
-                     "   -J         use json rpc over http protocol\n"
-                     "   -s         enable ssl\n"
-                     "   -t number  set number of threads (default: 4)\n"
-                     "   -n number  set number of requests (default: 10000)\n"
-                     "   -T seconds set maximum runtime after which the test stops\n"
-                     "   -v number  test int vector with <number> of elements\n"
-                     "   -o number  test vector of objects\n"
-                     "one protocol must be selected\n"
-                  << std::endl;
-        return -1;
+        log_init("rpcbenchclient.properties");
+
+        cxxtools::Arg<std::string> ip(argc, argv, 'i');
+        cxxtools::Arg<unsigned> threads(argc, argv, 't', 4);
+        cxxtools::Arg<bool> xmlrpc(argc, argv, 'x');
+        cxxtools::Arg<bool> binary(argc, argv, 'b');
+        cxxtools::Arg<bool> json(argc, argv, 'j');
+        cxxtools::Arg<bool> jsonhttp(argc, argv, 'J');
+        cxxtools::Arg<unsigned short> port(argc, argv, 'p', binary ? 7003 : json ? 7004 : 7002);
+        cxxtools::Arg<bool> ssl(argc, argv, 's');
+        cxxtools::Arg<cxxtools::Seconds> maxtime(argc, argv, 'T');
+
+        BenchClient::numRequests(cxxtools::Arg<unsigned>(argc, argv, 'n', 10000));
+        BenchClient::vectorSize(cxxtools::Arg<unsigned>(argc, argv, 'v', 0));
+        BenchClient::objectsSize(cxxtools::Arg<unsigned>(argc, argv, 'o', 0));
+
+        if (maxtime.isSet())
+                BenchClient::until(cxxtools::DateTime::gmtime() + maxtime);
+
+        if (!xmlrpc && !binary && !json && !jsonhttp)
+        {
+                std::cerr << "usage: " << argv[0] << " [options]\n"
+                                         "options:\n"
+                                         "     -l ip            set ip address of server (default: localhost)\n"
+                                         "     -p number    set port number of server (default: 7002 for http, 7003 for binary and 7004 for json)\n"
+                                         "     -x                 use xmlrpc protocol\n"
+                                         "     -b                 use binary rpc protocol\n"
+                                         "     -j                 use json rpc protocol\n"
+                                         "     -J                 use json rpc over http protocol\n"
+                                         "     -s                 enable ssl\n"
+                                         "     -t number    set number of threads (default: 4)\n"
+                                         "     -n number    set number of requests (default: 10000)\n"
+                                         "     -T seconds set maximum runtime after which the test stops\n"
+                                         "     -v number    test int vector with <number> of elements\n"
+                                         "     -o number    test vector of objects\n"
+                                         "one protocol must be selected\n"
+                                    << std::endl;
+                return -1;
+        }
+
+        BenchClients clients;
+
+        cxxtools::SslCtx sslCtx;
+        sslCtx.enable(ssl);    // enable if ssl option is set
+
+        cxxtools::Clock cl;
+        cl.start();
+
+        while (clients.size() < threads)
+        {
+            std::unique_ptr<cxxtools::RemoteClient> client;
+            if (binary)
+            {
+                client.reset(new cxxtools::bin::RpcClient(ip, port, sslCtx));
+            }
+            else if (json)
+            {
+                client.reset(new cxxtools::json::RpcClient(ip, port, sslCtx));
+            }
+            else if (jsonhttp)
+            {
+                client.reset(new cxxtools::json::HttpClient(ip, port, "/jsonrpc", sslCtx));
+            }
+            else // if (xmlrpc)
+            {
+                client.reset(new cxxtools::xmlrpc::HttpClient(ip, port, "/xmlrpc", sslCtx));
+            }
+
+            clients.emplace_back(new BenchClient(std::move(client)));
+        }
+
+        for (BenchClients::iterator it = clients.begin(); it != clients.end(); ++it)
+            (*it)->join();
+
+        cxxtools::Timespan t = cl.stop();
+
+        std::cout << BenchClient::requestsStarted() << " requests in " << t.totalMSecs()/1e3 << " s => " << (BenchClient::requestsStarted() / (t.totalMSecs()/1e3)) << "#/s\n"
+                            << BenchClient::requestsFinished() << " finished " << BenchClient::requestsFailed() << " failed" << std::endl;
+
+        for (BenchClients::iterator it = clients.begin(); it != clients.end(); ++it)
+            delete *it;
     }
-
-    BenchClients clients;
-
-    cxxtools::SslCtx sslCtx;
-    sslCtx.enable(ssl);  // enable if ssl option is set
-
-    while (clients.size() < threads)
+    catch (const std::exception& e)
     {
-      cxxtools::RemoteClient* client;
-      if (binary)
-      {
-        cxxtools::bin::RpcClient* c = new cxxtools::bin::RpcClient(ip, port, sslCtx);
-        client = c;
-      }
-      else if (json)
-      {
-        cxxtools::json::RpcClient* c = new cxxtools::json::RpcClient(ip, port, sslCtx);
-        client = c;
-      }
-      else if (jsonhttp)
-      {
-        cxxtools::json::HttpClient* c = new cxxtools::json::HttpClient(ip, port, "/jsonrpc", sslCtx);
-        client = c;
-      }
-      else // if (xmlrpc)
-      {
-        cxxtools::xmlrpc::HttpClient* c = new cxxtools::xmlrpc::HttpClient(ip, port, "/xmlrpc", sslCtx);
-        client = c;
-      }
-
-      clients.push_back(new BenchClient(client));
+        std::cerr << e.what() << std::endl;
     }
-
-    cxxtools::Clock cl;
-    cl.start();
-
-    for (BenchClients::iterator it = clients.begin(); it != clients.end(); ++it)
-      (*it)->start();
-
-    for (BenchClients::iterator it = clients.begin(); it != clients.end(); ++it)
-      (*it)->join();
-
-    cxxtools::Timespan t = cl.stop();
-
-    std::cout << BenchClient::requestsStarted() << " requests in " << t.totalMSecs()/1e3 << " s => " << (BenchClient::requestsStarted() / (t.totalMSecs()/1e3)) << "#/s\n"
-              << BenchClient::requestsFinished() << " finished " << BenchClient::requestsFailed() << " failed" << std::endl;
-
-    for (BenchClients::iterator it = clients.begin(); it != clients.end(); ++it)
-      delete *it;
-  }
-  catch (const std::exception& e)
-  {
-    std::cerr << e.what() << std::endl;
-  }
 }
 

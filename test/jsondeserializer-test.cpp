@@ -189,7 +189,7 @@ class JsonDeserializerTest : public cxxtools::unit::TestSuite
             cxxtools::JsonDeserializer deserializer(in);
             deserializer.deserialize(data);
 
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 3);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 3u);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[0], 3);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[1], 4);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[2], -3);
@@ -204,7 +204,7 @@ class JsonDeserializerTest : public cxxtools::unit::TestSuite
             cxxtools::JsonDeserializer deserializer(in);
             deserializer.deserialize(data);
 
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 2);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 2u);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[0], 0);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[1], 0);
         }
@@ -218,12 +218,12 @@ class JsonDeserializerTest : public cxxtools::unit::TestSuite
             cxxtools::JsonDeserializer deserializer(in);
             deserializer.deserialize(data);
 
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 4);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 4u);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[0], "3");
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[1], "\t\b");
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[2], "");
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data[3].size(), 2);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data[3][0].value(), 0x1e04);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data[3].size(), 2u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(static_cast<int32_t>(data[3][0].value()), 0x1e04);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[3][1], '4');
         }
 
@@ -236,9 +236,9 @@ class JsonDeserializerTest : public cxxtools::unit::TestSuite
             cxxtools::JsonDeserializer deserializer(in);
             deserializer.deserialize(data);
 
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 9);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data[1].value(), 0xe4);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data[8].value(), 0x10900);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 9u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(static_cast<int32_t>(data[1].value()), 0xe4);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(static_cast<int32_t>(data[8].value()), 0x10900);
         }
 
         void testUnicodeHighSurrogate()
@@ -250,8 +250,8 @@ class JsonDeserializerTest : public cxxtools::unit::TestSuite
                 cxxtools::JsonDeserializer deserializer(in);
                 deserializer.deserialize(data);
 
-                CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 1);
-                CXXTOOLS_UNIT_ASSERT_EQUALS(data[0].value(), 0x1d11e);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 1u);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(static_cast<int32_t>(data[0].value()), 0x1d11e);
             }
 
             {
@@ -263,8 +263,8 @@ class JsonDeserializerTest : public cxxtools::unit::TestSuite
                 cxxtools::JsonDeserializer deserializer(in);
                 deserializer.deserialize(data);
 
-                CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 1);
-                CXXTOOLS_UNIT_ASSERT_EQUALS(data[0].value(), 0x1d11e);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 1u);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(static_cast<int32_t>(data[0].value()), 0x1d11e);
             }
         }
 
@@ -290,11 +290,11 @@ class JsonDeserializerTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(data.doubleValue, 1000.0);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data.boolValue, true);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data.nullValue, true);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data.setValue.size(), 3);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.setValue.size(), 3u);
             CXXTOOLS_UNIT_ASSERT(data.setValue.find(5) != data.setValue.end());
             CXXTOOLS_UNIT_ASSERT(data.setValue.find(7) != data.setValue.end());
             CXXTOOLS_UNIT_ASSERT(data.setValue.find(8) != data.setValue.end());
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data.structValue.n, 3);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.structValue.n, 3u);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data.structValue.s, "sss");
         }
 
@@ -359,15 +359,15 @@ class JsonDeserializerTest : public cxxtools::unit::TestSuite
             cxxtools::TextIStream tin(in, new cxxtools::Utf8Codec());
 
             tin >> cxxtools::Json(data);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 1);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 1u);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[0], 3);
 
             tin >> cxxtools::Json(data);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 1);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 1u);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[0], 4);
 
             tin >> cxxtools::Json(data);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 1);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 1u);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[0], 5);
 
         }
@@ -378,15 +378,15 @@ class JsonDeserializerTest : public cxxtools::unit::TestSuite
             std::istringstream in("[3][4] [5]");
 
             in >> cxxtools::Json(data);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 1);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 1u);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[0], 3);
 
             in >> cxxtools::Json(data);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 1);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 1u);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[0], 4);
 
             in >> cxxtools::Json(data);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 1);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 1u);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[0], 5);
 
         }
@@ -405,7 +405,7 @@ class JsonDeserializerTest : public cxxtools::unit::TestSuite
 
             std::vector<int> data;
             si.getMember("b") >>= data;
-            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 2);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 2u);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[0], 2);
             CXXTOOLS_UNIT_ASSERT_EQUALS(data[1], 3);
         }

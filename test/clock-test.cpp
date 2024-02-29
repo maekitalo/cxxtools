@@ -31,7 +31,8 @@
 #include "cxxtools/log.h"
 #include "cxxtools/clock.h"
 #include "cxxtools/timespan.h"
-#include "cxxtools/thread.h"
+
+#include <thread>
 
 log_define("cxxtools.test.clock")
 
@@ -50,7 +51,7 @@ class ClockTest : public cxxtools::unit::TestSuite
         {
             cxxtools::Clock cl;
             cl.start();
-            cxxtools::Thread::sleep(1);
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
             cxxtools::Timespan t = cl.stop();
             log_debug("timespan=" << t.totalMSecs() << "ms");
             CXXTOOLS_UNIT_ASSERT(t.totalMSecs() >= 1);
@@ -63,7 +64,7 @@ class ClockTest : public cxxtools::unit::TestSuite
         {
             cxxtools::Clock cl;
             cl.start();
-            cxxtools::Thread::sleep(1001);
+            std::this_thread::sleep_for(std::chrono::milliseconds(1001));
             cxxtools::Timespan t = cl.stop();
             log_debug("timespan=" << t.totalMSecs() << "ms");
             CXXTOOLS_UNIT_ASSERT(t.totalMSecs() > 1000);

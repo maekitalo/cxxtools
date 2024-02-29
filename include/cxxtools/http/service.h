@@ -26,17 +26,19 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#ifndef cxxtools_Http_Service_h
-#define cxxtools_Http_Service_h
+#ifndef CXXTOOLS_HTTP_SERVICE_H
+#define CXXTOOLS_HTTP_SERVICE_H
 
-#include <cxxtools/mutex.h>
-#include <cxxtools/condition.h>
+#include <mutex>
+#include <condition_variable>
 #include <vector>
 #include <string>
 
-namespace cxxtools {
+namespace cxxtools
+{
 
-namespace http {
+namespace http
+{
 
 class Responder;
 class Request;
@@ -57,8 +59,8 @@ class Service
         std::string _authContent;
 
         unsigned _responderCount;
-        Mutex _mutex;
-        Condition _isIdle;
+        std::mutex _mutex;
+        std::condition_variable _isIdle;
 
     public:
         Service()

@@ -33,6 +33,7 @@
 #include <glob.h>
 #include <string>
 #include <queue>
+#include <iterator>
 
 namespace cxxtools
 {
@@ -95,10 +96,14 @@ class multi_ifstream : public std::istream
 
     /// stl-compatible inserter
     class pattern_inserter
-      : public std::iterator<std::output_iterator_tag, const std::string>
     {
         multi_ifstream& m;
       public:
+        using iterator_category = std::output_iterator_tag;
+        using value_type = std::string;
+        using pointer = std::string*;
+        using reference = std::string&;
+
         pattern_inserter(multi_ifstream& m_)
           : m(m_) { }
         pattern_inserter& operator= (const std::string& p)

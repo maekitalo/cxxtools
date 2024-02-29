@@ -26,195 +26,197 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include <iostream>
-#include <fstream>
 #include <cxxtools/log.h>
 #include <cxxtools/arg.h>
 #include <cxxtools/json.h>
 #include <cxxtools/serializationinfo.h>
-#include <cxxtools/thread.h>
 #include <cxxtools/http/server.h>
 #include <cxxtools/http/service.h>
 #include <cxxtools/http/responder.h>
 #include <cxxtools/http/reply.h>
 #include <cxxtools/eventloop.h>
 
+#include <thread>
+#include <mutex>
+#include <iostream>
+#include <fstream>
+
 struct ProcStat
 {
-  ProcStat()
-    : user(0),
-      nice(0),
-      system(0),
-      idle(0),
-      iowait(0),
-      irq(0),
-      softirq(0)
-      { }
+    ProcStat()
+        : user(0),
+            nice(0),
+            system(0),
+            idle(0),
+            iowait(0),
+            irq(0),
+            softirq(0)
+            { }
 
-  std::string cpu;
-  unsigned user;
-  unsigned nice;
-  unsigned system;
-  unsigned idle;
-  unsigned iowait;
-  unsigned irq;
-  unsigned softirq;
+    std::string cpu;
+    unsigned user;
+    unsigned nice;
+    unsigned system;
+    unsigned idle;
+    unsigned iowait;
+    unsigned irq;
+    unsigned softirq;
 };
 
 std::istream& operator>> (std::istream& in, ProcStat& p)
 {
-  in >> p.cpu >> p.user >> p.nice >> p.system >> p.idle >> p.iowait >> p.irq >> p.softirq;
-  return in;
+    in >> p.cpu >> p.user >> p.nice >> p.system >> p.idle >> p.iowait >> p.irq >> p.softirq;
+    return in;
 }
 
 std::ostream& operator<< (std::ostream& out, ProcStat& p)
 {
-  out << p.cpu << ' ' << p.user << ' ' << p.nice << ' ' << p.system << ' ' << p.idle << ' ' << p.iowait << ' ' << p.irq << ' ' << p.softirq;
-  return out;
+    out << p.cpu << ' ' << p.user << ' ' << p.nice << ' ' << p.system << ' ' << p.idle << ' ' << p.iowait << ' ' << p.irq << ' ' << p.softirq;
+    return out;
 }
 
 void operator<<= (cxxtools::SerializationInfo& si, const ProcStat& p)
 {
-  si.addMember("cpu") <<= p.cpu;
-  si.addMember("user") <<= p.user;
-  si.addMember("nice") <<= p.nice;
-  si.addMember("system") <<= p.system;
-  si.addMember("idle") <<= p.idle;
-  si.addMember("iowait") <<= p.iowait;
-  si.addMember("irq") <<= p.irq;
-  si.addMember("softirq") <<= p.softirq;
+    si.addMember("cpu") <<= p.cpu;
+    si.addMember("user") <<= p.user;
+    si.addMember("nice") <<= p.nice;
+    si.addMember("system") <<= p.system;
+    si.addMember("idle") <<= p.idle;
+    si.addMember("iowait") <<= p.iowait;
+    si.addMember("irq") <<= p.irq;
+    si.addMember("softirq") <<= p.softirq;
 }
 
 ProcStat operator- (const ProcStat& p1, const ProcStat& p2)
 {
-  ProcStat p;
-  p.cpu       = p1.cpu;
-  p.user      = p1.user    - p2.user;
-  p.nice      = p1.nice    - p2.nice;
-  p.system    = p1.system  - p2.system;
-  p.idle      = p1.idle    - p2.idle;
-  p.iowait    = p1.iowait  - p2.iowait;
-  p.irq       = p1.irq     - p2.irq;
-  p.softirq   = p1.softirq - p2.softirq;
-  return p;
+    ProcStat p;
+    p.cpu             = p1.cpu;
+    p.user            = p1.user        - p2.user;
+    p.nice            = p1.nice        - p2.nice;
+    p.system        = p1.system    - p2.system;
+    p.idle            = p1.idle        - p2.idle;
+    p.iowait        = p1.iowait    - p2.iowait;
+    p.irq             = p1.irq         - p2.irq;
+    p.softirq     = p1.softirq - p2.softirq;
+    return p;
 }
 
 ProcStat currentStat;
-cxxtools::Mutex statMutex;
+std::mutex statMutex;
 
 void statThread()
 {
-  ProcStat p0;
-  {
-    std::ifstream f("/proc/stat");
-    f >> p0;
-  }
+    ProcStat p0;
+    {
+        std::ifstream f("/proc/stat");
+        f >> p0;
+    }
 
-  while (true)
-  {
-    cxxtools::Thread::sleep(1000);
-    std::ifstream f("/proc/stat");
-    ProcStat p1;
-    f >> p1;
-    cxxtools::MutexLock lock(statMutex);
-    currentStat = p1 - p0;
-    p0 = p1;
-  }
+    while (true)
+    {
+        std::this_thread::sleep_for(std::chrono::seconds(1));
+        std::ifstream f("/proc/stat");
+        ProcStat p1;
+        f >> p1;
+        std::lock_guard<std::mutex> lock(statMutex);
+        currentStat = p1 - p0;
+        p0 = p1;
+    }
 }
 
 class MainResponder : public cxxtools::http::Responder
 {
-  public:
-    explicit MainResponder(cxxtools::http::Service& service)
-      : cxxtools::http::Responder(service)
-      { }
+    public:
+        explicit MainResponder(cxxtools::http::Service& service)
+            : cxxtools::http::Responder(service)
+            { }
 
-    virtual void reply(std::ostream&, cxxtools::http::Request& request, cxxtools::http::Reply& reply);
+        virtual void reply(std::ostream&, cxxtools::http::Request& request, cxxtools::http::Reply& reply);
 };
 
 void MainResponder::reply(std::ostream& out, cxxtools::http::Request& request, cxxtools::http::Reply& reply)
 {
-  reply.addHeader("Content-Type", "text/html");
-  out << "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">\n"
-         "<html>\n"
-         " <head>\n"
-         "  <script type='text/javascript'>\n"
-         "    function getRequest()\n"
-         "    {\n"
-         "      try { return new XMLHttpRequest();                   } catch (e) { }\n"
-         "      try { return new ActiveXObject(\"Msxml2.XMLHttp\");    } catch (e) { }\n"
-         "      try { return new ActiveXObject(\"Microsoft.XMLHTTP\"); } catch (e) { }\n"
-         "      return null;\n"
-         "    }\n"
-         "\n"
-         "    function ajaxGet(url, fn)\n"
-         "    {\n"
-         "      request = getRequest();\n"
-         "      request.open('GET', url);\n"
-         "      request.onreadystatechange = function () {\n"
-         "          if (request.readyState == 4)\n"
-         "          {\n"
-         "            if (request.status == 200)\n"
-         "              fn(request);\n"
-         "          }\n"
-         "        }\n"
-         "      request.send(null);\n"
-         "    }\n"
-         "\n"
-         "    function updateStat()\n"
-         "    {\n"
-         "      ajaxGet('/stat',\n"
-         "        function(request)\n"
-         "        {\n"
-         "          var r = eval('(' + request.responseText + ')');\n"
-         "          document.getElementById('cpu').innerHTML = r.cpu;\n"
-         "          document.getElementById('user').innerHTML = r.user;\n"
-         "          document.getElementById('nice').innerHTML = r.nice;\n"
-         "          document.getElementById('system').innerHTML = r.system;\n"
-         "          document.getElementById('idle').innerHTML = r.idle;\n"
-         "          document.getElementById('iowait').innerHTML = r.iowait;\n"
-         "          document.getElementById('irq').innerHTML = r.irq;\n"
-         "          document.getElementById('softirq').innerHTML = r.softirq;\n"
-         "          document.getElementById('user').innerHTML = r.user;\n"
-         "        });\n"
-         "    }\n"
-         "\n"
-         "    window.setInterval('updateStat()', 1000);\n"
-         "   </script>\n"
-         " </head>\n"
-         "\n"
-         " <body bgcolor='#FFFFFF'>\n"
-         "\n"
-         "  <table>\n"
-         "   <tr><th>cpu</th><td id='cpu'></td></tr>\n"
-         "   <tr><th>user</th><td id='user'></td></tr>\n"
-         "   <tr><th>nice</th><td id='nice'></td></tr>\n"
-         "   <tr><th>system</th><td id='system'></td></tr>\n"
-         "   <tr><th>idle</th><td id='idle'></td></tr>\n"
-         "   <tr><th>iowait</th><td id='iowait'></td></tr>\n"
-         "   <tr><th>irq</th><td id='irq'></td></tr>\n"
-         "   <tr><th>softirq</th><td id='softirq'></td></tr>\n"
-         "  </table>\n"
-         "\n"
-         " </body>\n"
-         "</html>\n";
+    reply.addHeader("Content-Type", "text/html");
+    out << "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">\n"
+                 "<html>\n"
+                 " <head>\n"
+                 "    <script type='text/javascript'>\n"
+                 "        function getRequest()\n"
+                 "        {\n"
+                 "            try { return new XMLHttpRequest();                                     } catch (e) { }\n"
+                 "            try { return new ActiveXObject(\"Msxml2.XMLHttp\");        } catch (e) { }\n"
+                 "            try { return new ActiveXObject(\"Microsoft.XMLHTTP\"); } catch (e) { }\n"
+                 "            return null;\n"
+                 "        }\n"
+                 "\n"
+                 "        function ajaxGet(url, fn)\n"
+                 "        {\n"
+                 "            request = getRequest();\n"
+                 "            request.open('GET', url);\n"
+                 "            request.onreadystatechange = function () {\n"
+                 "                    if (request.readyState == 4)\n"
+                 "                    {\n"
+                 "                        if (request.status == 200)\n"
+                 "                            fn(request);\n"
+                 "                    }\n"
+                 "                }\n"
+                 "            request.send(null);\n"
+                 "        }\n"
+                 "\n"
+                 "        function updateStat()\n"
+                 "        {\n"
+                 "            ajaxGet('/stat',\n"
+                 "                function(request)\n"
+                 "                {\n"
+                 "                    var r = eval('(' + request.responseText + ')');\n"
+                 "                    document.getElementById('cpu').innerHTML = r.cpu;\n"
+                 "                    document.getElementById('user').innerHTML = r.user;\n"
+                 "                    document.getElementById('nice').innerHTML = r.nice;\n"
+                 "                    document.getElementById('system').innerHTML = r.system;\n"
+                 "                    document.getElementById('idle').innerHTML = r.idle;\n"
+                 "                    document.getElementById('iowait').innerHTML = r.iowait;\n"
+                 "                    document.getElementById('irq').innerHTML = r.irq;\n"
+                 "                    document.getElementById('softirq').innerHTML = r.softirq;\n"
+                 "                    document.getElementById('user').innerHTML = r.user;\n"
+                 "                });\n"
+                 "        }\n"
+                 "\n"
+                 "        window.setInterval('updateStat()', 1000);\n"
+                 "     </script>\n"
+                 " </head>\n"
+                 "\n"
+                 " <body bgcolor='#FFFFFF'>\n"
+                 "\n"
+                 "    <table>\n"
+                 "     <tr><th>cpu</th><td id='cpu'></td></tr>\n"
+                 "     <tr><th>user</th><td id='user'></td></tr>\n"
+                 "     <tr><th>nice</th><td id='nice'></td></tr>\n"
+                 "     <tr><th>system</th><td id='system'></td></tr>\n"
+                 "     <tr><th>idle</th><td id='idle'></td></tr>\n"
+                 "     <tr><th>iowait</th><td id='iowait'></td></tr>\n"
+                 "     <tr><th>irq</th><td id='irq'></td></tr>\n"
+                 "     <tr><th>softirq</th><td id='softirq'></td></tr>\n"
+                 "    </table>\n"
+                 "\n"
+                 " </body>\n"
+                 "</html>\n";
 }
 
 class StatResponder : public cxxtools::http::Responder
 {
-  public:
-    explicit StatResponder(cxxtools::http::Service& service)
-      : cxxtools::http::Responder(service)
-      { }
+    public:
+        explicit StatResponder(cxxtools::http::Service& service)
+            : cxxtools::http::Responder(service)
+            { }
 
-    virtual void reply(std::ostream&, cxxtools::http::Request& request, cxxtools::http::Reply& reply);
+        virtual void reply(std::ostream&, cxxtools::http::Request& request, cxxtools::http::Reply& reply);
 };
 
 void StatResponder::reply(std::ostream& out, cxxtools::http::Request& request, cxxtools::http::Reply& reply)
 {
-  cxxtools::MutexLock lock(statMutex);
-  reply.addHeader("Content-Type", "application/json");
-  out << cxxtools::Json(currentStat);
+    std::lock_guard<std::mutex> lock(statMutex);
+    reply.addHeader("Content-Type", "application/json");
+    out << cxxtools::Json(currentStat);
 }
 
 typedef cxxtools::http::CachedService<StatResponder> StatService;
@@ -222,30 +224,29 @@ typedef cxxtools::http::CachedService<MainResponder> MainService;
 
 int main(int argc, char* argv[])
 {
-  try
-  {
-    log_init();
+    try
+    {
+        log_init();
 
-    cxxtools::Arg<std::string> listenIp(argc, argv, 'l');
-    cxxtools::Arg<unsigned short int> listenPort(argc, argv, 'p', 8001);
+        cxxtools::Arg<std::string> listenIp(argc, argv, 'l');
+        cxxtools::Arg<unsigned short int> listenPort(argc, argv, 'p', 8001);
 
-    cxxtools::EventLoop loop;
-    cxxtools::http::Server server(loop, listenIp, listenPort);
+        cxxtools::EventLoop loop;
+        cxxtools::http::Server server(loop, listenIp, listenPort);
 
-    MainService mainService;
-    StatService statService;
-    server.addService("/", mainService);
-    server.addService("/stat", statService);
+        MainService mainService;
+        StatService statService;
+        server.addService("/", mainService);
+        server.addService("/stat", statService);
 
-    std::cout << "http server running on port " << listenPort.getValue() << std::endl;
+        std::cout << "http server running on port " << listenPort.getValue() << std::endl;
 
-    cxxtools::AttachedThread thread(cxxtools::callable(statThread));
-    thread.start();
-    loop.run();
-  }
-  catch (const std::exception& e)
-  {
-    std::cerr << e.what() << std::endl;
-  }
+        std::thread thread(statThread);
+        loop.run();
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << e.what() << std::endl;
+    }
 }
 

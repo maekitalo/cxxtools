@@ -53,7 +53,7 @@ int main(int argc, char* argv[])
         if (cert.isSet())
             sslCtx.loadCertificateFile(cert);
 
-        sslCtx.setVerify(2, ca);
+        sslCtx.setVerify(cxxtools::SslCtx::VERIFY_LEVEL::REQUIRE, ca);
 
         cxxtools::http::Server server(loop, ip, port, sslCtx);
 

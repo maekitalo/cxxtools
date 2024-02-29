@@ -111,22 +111,6 @@ RpcServerImpl::RpcServerImpl(EventLoopBase& eventLoop, Signal<RpcServer::Runmode
     _eventLoop.commitEvent(ServerStartEvent(this));
 }
 
-RpcServerImpl::~RpcServerImpl()
-{
-    if (runmode() == RpcServer::Running)
-    {
-        try
-        {
-            terminate();
-        }
-        catch (const std::exception& e)
-        {
-            log_fatal("failed to terminate rpc server: " << e.what());
-        }
-    }
-
-}
-
 void RpcServerImpl::listen(const std::string& ip, unsigned short int port, const SslCtx& sslCtx)
 {
     log_info("listen on ip <" << ip << "> port " << port << " ssl " << sslCtx.enabled());
@@ -151,12 +135,12 @@ void RpcServerImpl::start()
     log_trace("start server");
     runmode(RpcServer::Starting);
 
-    MutexLock lock(_threadMutex);
+    std::lock_guard<std::mutex> lock(_threadMutex);
     while (_threads.size() < minThreads())
     {
         Worker* worker = new Worker(*this);
+        log_debug(static_cast<void*>(this) << " worker " << static_cast<void*>(worker) << " created");
         _threads.insert(worker);
-        worker->start();
     }
 
     runmode(RpcServer::Running);
@@ -165,9 +149,11 @@ void RpcServerImpl::start()
 
 void RpcServerImpl::terminate()
 {
+    log_debug("terminate");
+
     _eventLoop.processEvents();
 
-    MutexLock lock(_threadMutex);
+    std::unique_lock<std::mutex> lock(_threadMutex);
 
     runmode(RpcServer::Terminating);
 
@@ -182,13 +168,25 @@ void RpcServerImpl::terminate()
         {
             if (!_threads.empty())
             {
+                log_debug("wait for " << _threads.size() << " threads to terminate");
                 _threadTerminated.wait(lock);
             }
 
-            for (Threads::iterator it = _terminatedThreads.begin(); it != _terminatedThreads.end(); ++it)
-                delete *it;
+            log_debug(_terminatedThreads.size() << " threads terminated");
+            for (auto& th: _terminatedThreads)
+            {
+                th->join();
+                delete th;
+            }
 
             _terminatedThreads.clear();
+        }
+
+        log_debug(_terminatedThreads.size() << " threads terminated left");
+        for (auto& th: _terminatedThreads)
+        {
+            th->join();
+            delete th;
         }
 
         for (unsigned n = 0; n < _listener.size(); ++n)
@@ -220,7 +218,7 @@ void RpcServerImpl::noWaitingThreads()
 
 void RpcServerImpl::threadTerminated(Worker* worker)
 {
-    MutexLock lock(_threadMutex);
+    std::lock_guard<std::mutex> lock(_threadMutex);
 
     _threads.erase(worker);
     if (runmode() == RpcServer::Running)
@@ -230,7 +228,7 @@ void RpcServerImpl::threadTerminated(Worker* worker)
     else
     {
         _terminatedThreads.insert(worker);
-        _threadTerminated.signal();
+        _threadTerminated.notify_one();
     }
 }
 
@@ -262,7 +260,7 @@ void RpcServerImpl::onIdleSocket(const IdleSocketEvent& event)
 
 void RpcServerImpl::onNoWaitingThreads(const NoWaitingThreadsEvent& /*event*/)
 {
-    MutexLock lock(_threadMutex);
+    std::lock_guard<std::mutex> lock(_threadMutex);
 
     if (_threads.size() >= maxThreads())
     {
@@ -272,11 +270,11 @@ void RpcServerImpl::onNoWaitingThreads(const NoWaitingThreadsEvent& /*event*/)
 
     try
     {
-        Worker* worker = new Worker(*this);
+        Worker* worker = nullptr;
         try
         {
-            log_debug("create thread " << static_cast<void*>(worker) << "; running threads=" << _threads.size());
-            worker->start();
+            worker = new Worker(*this);
+            log_debug(static_cast<void*>(this) << " worker " << static_cast<void*>(worker) << " created; running threads=" << _threads.size());
             _threads.insert(worker);
 
             log_debug(_threads.size() << " threads running");
@@ -295,7 +293,7 @@ void RpcServerImpl::onNoWaitingThreads(const NoWaitingThreadsEvent& /*event*/)
 
 void RpcServerImpl::onThreadTerminated(const ThreadTerminatedEvent& event)
 {
-    MutexLock lock(_threadMutex);
+    std::lock_guard<std::mutex> lock(_threadMutex);
     log_debug("thread terminated (" << static_cast<void*>(event.worker()) << ") " << _threads.size() << " threads left");
     try
     {
