@@ -20,18 +20,18 @@ Documentation
 
 Short howtos can be found here:
 
- * (parsing command line arguments) [argument-parsing-howto.markdown]
- * (using binary rpc) [binaryrpc-howto.markdown]
- * (details about handling connection in rpc clients) [connection.md]
- * (reading and writing CSV) [csv-howto.markdown]
- * (reading and writing JSON) [json-howto.markdown]
- * (using json rpc) [jsonrpc-howto.markdown]
- * (longging with cxxtools) [logging-howto.markdown]
- * (reading properties files) [propertiesquick-howto.markdown]
- * (rpc client and server) [rpc-howto.markdown]
- * (serialization framework) [serialization-howto.markdown]
- * (timezone) [timezone-howto.markdown]
- * (xmlrpc) [xmlrpc-howto.markdown]
+ * [parsing command line arguments](doc/argument-parsing-howto.markdown)
+ * [using binary rpc](doc/binaryrpc-howto.markdown)
+ * [details about handling connection in rpc clients](doc/connection.md)
+ * [reading and writing CSV](doc/csv-howto.markdown)
+ * [reading and writing JSON](doc/json-howto.markdown)
+ * [using json rpc](doc/jsonrpc-howto.markdown)
+ * [longging with cxxtools](doc/logging-howto.markdown)
+ * [reading properties files](doc/propertiesquick-howto.markdown)
+ * [rpc client and server](doc/rpc-howto.markdown)
+ * [serialization framework](doc/serialization-howto.markdown)
+ * [timezone](doc/timezone-howto.markdown)
+ * [xmlrpc](doc/xmlrpc-howto.markdown)
 
 There are also some useful demo applications, which shows examples how to
 use various stuff from cxxtools. They can be found in the demo directory.
