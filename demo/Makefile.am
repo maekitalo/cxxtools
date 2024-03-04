@@ -43,6 +43,7 @@ noinst_PROGRAMS = \
 	signals \
 	splitter \
 	sslshowcert \
+	tcpsocket \
 	timer \
 	uuencode \
 	xmlmsgclient \
@@ -91,6 +92,7 @@ serialization_SOURCES = serialization.cpp
 signals_SOURCES = signals.cpp
 splitter_SOURCES = splitter.cpp
 sslshowcert_SOURCES = sslshowcert.cpp
+tcpsocket_SOURCES = tcpsocket.cpp
 timer_SOURCES = timer.cpp
 uuencode_SOURCES = uuencode.cpp
 xmlmsgclient_SOURCES = xmlmsgclient.cpp

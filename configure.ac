@@ -236,6 +236,7 @@ AC_CONFIG_FILES([
   demo/async/Makefile
   demo/ssl/Makefile
   test/Makefile
+  doc/Makefile
   ])
 
 AC_CONFIG_FILES([

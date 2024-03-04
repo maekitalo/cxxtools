@@ -1,9 +1,6 @@
 JSON quick howto
 ================
 
-Note: This HOWTO does not work with cxxtools <= 2.2. With 2.2 it is slightly
-more complicated. See the last section here, how to do it with version 2.2.
-
 Introduction
 ------------
 
@@ -165,43 +162,3 @@ The operator `<<=` for `cxxtools::SerializationInfo` is overloadable as well:
     output << cxxtools::Json(configuration).beautify(true);  // same as above
 
 For a full example, the header `<cxxtools/json.h>` must be included.
-
-Using cxxtools 2.2
-------------------
-
-The class cxxtools::Json is new in cxxtools and currenty only available in the
-git repository. But the json serializer and deserializer are available and hence
-with a small change the examples work with cxxtools 2.2 as well.
-
-For deserialization (reading json), a explicit instance of the JsonSerializer
-must be instantiated:
-
-    std::ifstream input("myconfiguration.json");
-    cxxtools::SerializationInfo si;
-    cxxtools::JsonDeseriailzer deserializer(input);
-    deserializer.deserialize(si);  // parse json into a cxxtools::SerializationInfo
-
-Or using our overloaded operator `>>=`:
-
-    cxxtools::JsonDeseriailzer deserializer(input);
-    deseriailzer.deserialize(configuration);  // parse json and put result into the configuration object
-
-Writing JSON needs a cxxtools::JsonSerializer:
-
-    std::ofstream output("myconfiguration.json");
-    cxxtools::JsonSeriailzer serializer(output);
-    output.serialize(si);
-
-For beautification a attribute must be set:
-
-    cxxtools::JsonSeriailzer serializer(output);
-    serializer.beautify(true);
-    output.serialize(si);
-
-Again our overloaded operator `<<=` can be used also:
-
-    cxxtools::JsonSeriailzer serializer(output);
-    output.serialize(configuration);
-
-For reading we need the header `<cxxtools/jsondeserializer.h>` and for writing
-`<cxxtools/jsonserializer.h>`.

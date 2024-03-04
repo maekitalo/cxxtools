@@ -16,9 +16,8 @@ SUBDIRS = src \
     src/json \
     include \
     tools \
+    doc \
     $(DEMO_DIR) $(UNITTEST_DIR)
-
-bin_SCRIPTS = cxxtools-config
 
 pkgconfigdir = $(libdir)/pkgconfig/
 

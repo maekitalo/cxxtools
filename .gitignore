@@ -80,8 +80,7 @@ cxxtools-config
 **/demo/signals
 **/demo/splitter
 **/demo/sslshowcert
-**/demo/threadpool
-**/demo/thread
+**/demo/tcpsocket
 **/demo/timer
 **/demo/uuencode
 **/demo/xmlmsgclient
