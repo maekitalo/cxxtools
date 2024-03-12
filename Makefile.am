@@ -27,3 +27,5 @@ pkgconfig_DATA = pkgconfig/cxxtools-bin.pc \
 	pkgconfig/cxxtools.pc \
 	pkgconfig/cxxtools-unit.pc \
 	pkgconfig/cxxtools-xmlrpc.pc
+
+EXTRA_DIST = README.md
