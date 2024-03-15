@@ -66,6 +66,7 @@ namespace
         si.setTypeName("ComplexObject");
     }
 
+#if __cplusplus >= 201703L
     struct TestObjectWithOptionals
     {
         std::optional<int> intValue;
@@ -86,6 +87,7 @@ namespace
             si.addMember("boolValue") <<= obj.boolValue;
         si.setTypeName("TestObject");
     }
+#endif
 
 }
 
@@ -97,7 +99,9 @@ class CsvSerializerTest : public cxxtools::unit::TestSuite
         {
             registerMethod("testVectorVector", *this, &CsvSerializerTest::testVectorVector);
             registerMethod("testObjectVector", *this, &CsvSerializerTest::testObjectVector);
+#if __cplusplus >= 201703L
             registerMethod("testObjectVectorWithOptionals", *this, &CsvSerializerTest::testObjectVectorWithOptionals);
+#endif
             registerMethod("testComplexObject", *this, &CsvSerializerTest::testComplexObject);
             registerMethod("testPartialObject", *this, &CsvSerializerTest::testPartialObject);
             registerMethod("testPartialComplexObject", *this, &CsvSerializerTest::testPartialComplexObject);
@@ -155,6 +159,7 @@ class CsvSerializerTest : public cxxtools::unit::TestSuite
                 "-2,Foo,-8,false\n");
         }
 
+#if __cplusplus >= 201703L
         void testObjectVectorWithOptionals()
         {
             std::vector<TestObjectWithOptionals> data;
@@ -176,6 +181,7 @@ class CsvSerializerTest : public cxxtools::unit::TestSuite
                 "17,Hi,7.5,true\n"
                 "-2,Foo,,\n");
         }
+#endif
 
         void testComplexObject()
         {

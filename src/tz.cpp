@@ -320,7 +320,7 @@ Tz::Tz(const std::string& timeZone)
     if (!in)
         throw TzInvalidTimeZoneFile("failed to open timezone file \"" + fname + '"');
 
-    Impl::_timeZones.emplace_back(timeZone2, new Impl(in, timeZone2));
+    Impl::_timeZones.emplace_back(timeZone2, std::unique_ptr<Impl>(new Impl(in, timeZone2)));
     _impl = Impl::_timeZones.back().second.get();
 }
 
