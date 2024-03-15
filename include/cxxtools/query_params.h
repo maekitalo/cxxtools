@@ -76,7 +76,6 @@ class QueryParams
      Iterator for named and unnamed parameters in QueryParams.
      */
     class const_iterator
-      : public std::iterator<std::bidirectional_iterator_tag, const std::string>
     {
         const QueryParams* params;
         std::string name;
@@ -99,6 +98,14 @@ class QueryParams
         }
 
       public:
+        using iterator_category = std::bidirectional_iterator_tag;
+        using value_type = std::string;
+        using difference_type = int;
+        using pointer = std::string*;
+        using reference = std::string&;
+        using const_pointer = const std::string*;
+        using const_reference = const std::string&;
+
         /// initialize generic end-iterator
         const_iterator()
           : params(0),
@@ -158,13 +165,13 @@ class QueryParams
           return it;
         }
 
-        reference operator*() const
+        const_reference operator*() const
         {
           return name.empty() ? params->param(pos)
                               : params->param(name, pos);
         }
 
-        pointer operator->() const
+        const_pointer operator->() const
         {
           return &(operator*());
         }

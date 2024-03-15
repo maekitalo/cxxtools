@@ -29,11 +29,13 @@
 #ifndef CXXTOOLS_QUEUE_H
 #define CXXTOOLS_QUEUE_H
 
-#include <queue>
-#include <cxxtools/mutex.h>
-#include <cxxtools/condition.h>
 #include <cxxtools/timespan.h>
 #include <cxxtools/scopedincrement.h>
+
+#include <queue>
+#include <chrono>
+#include <mutex>
+#include <condition_variable>
 
 namespace cxxtools
 {
@@ -54,9 +56,9 @@ namespace cxxtools
             typedef typename std::deque<T>::const_reference const_reference;
 
         private:
-            mutable Mutex _mutex;
-            mutable Condition _notEmpty;
-            mutable Condition _notFull;
+            mutable std::mutex _mutex;
+            mutable std::condition_variable _notEmpty;
+            mutable std::condition_variable _notFull;
             std::deque<value_type> _queue;
             size_type _maxSize;
             size_type _numWaiting;
@@ -117,7 +119,7 @@ namespace cxxtools
             /// @brief Returns true, if the queue is empty.
             bool empty() const
             {
-                MutexLock lock(_mutex);
+                std::lock_guard<std::mutex> lock(_mutex);
                 return _queue.empty();
             }
 
@@ -126,14 +128,14 @@ namespace cxxtools
             /// when queue is not empty.
             bool waitEmpty(Milliseconds timeout = -1) const
             {
-                MutexLock lock(_mutex);
+                std::unique_lock<std::mutex> lock(_mutex);
+
                 if (timeout >= Milliseconds(0))
                 {
-                    Timespan until = Timespan::gettimeofday() + timeout;
-                    Timespan remaining;
+                    auto until = std::chrono::steady_clock::now() + std::chrono::milliseconds(timeout);
                     while (!_queue.empty()
-                      && (remaining = until - Timespan::gettimeofday()) > Timespan(0))
-                        _notEmpty.wait(_mutex, remaining);
+                      && _notEmpty.wait_until(lock, until) != std::cv_status::timeout)
+                        ;
                 }
                 else
                 {
@@ -147,7 +149,7 @@ namespace cxxtools
             /// @brief Returns the number of elements currently in queue.
             size_type size() const
             {
-                MutexLock lock(_mutex);
+                std::lock_guard<std::mutex> lock(_mutex);
                 return _queue.size();
             }
 
@@ -162,14 +164,14 @@ namespace cxxtools
             /// @brief returns the maximum size of the queue.
             size_type maxSize() const
             {
-                MutexLock lock(_mutex);
+                std::lock_guard<std::mutex> lock(_mutex);
                 return _maxSize;
             }
 
             /// @brief returns the number of threads blocked in the get method.
             size_type numWaiting() const
             {
-                MutexLock lock(_mutex);
+                std::lock_guard<std::mutex> lock(_mutex);
                 return _numWaiting;
             }
     };
@@ -177,7 +179,7 @@ namespace cxxtools
     template <typename T>
     typename Queue<T>::value_type Queue<T>::get()
     {
-        MutexLock lock(_mutex);
+        std::unique_lock<std::mutex> lock(_mutex);
 
         ScopedIncrement<size_type> inc(_numWaiting);
         while (_queue.empty())
@@ -187,9 +189,9 @@ namespace cxxtools
         _queue.pop_front();
 
         if (!_queue.empty())
-            _notEmpty.signal();
+            _notEmpty.notify_one();
 
-        _notFull.signal();
+        _notFull.notify_one();
 
         return element;
     }
@@ -200,12 +202,12 @@ namespace cxxtools
         typedef typename Queue<T>::value_type value_type;
         typedef typename std::pair<value_type, bool> return_type;
 
-        MutexLock lock(_mutex);
+        std::unique_lock<std::mutex> lock(_mutex);
 
         ScopedIncrement<size_type> inc(_numWaiting);
         if (_queue.empty())
         {
-            if (_notEmpty.wait(lock, timeout) == false)
+            if (_notEmpty.wait_for(lock, std::chrono::milliseconds(timeout)) == std::cv_status::timeout)
             {
                 return return_type(value_type(), false);
             }
@@ -215,9 +217,9 @@ namespace cxxtools
         _queue.pop_front();
 
         if (!_queue.empty())
-            _notEmpty.signal();
+            _notEmpty.notify_one();
 
-        _notFull.signal();
+        _notFull.notify_one();
 
         return return_type(element, true);
     }
@@ -228,7 +230,7 @@ namespace cxxtools
         typedef typename Queue<T>::value_type value_type;
         typedef typename std::pair<value_type, bool> return_type;
 
-        MutexLock lock(_mutex);
+        std::lock_guard<std::mutex> lock(_mutex);
 
         if (_queue.empty())
             return return_type(value_type(), false);
@@ -237,9 +239,9 @@ namespace cxxtools
         _queue.pop_front();
 
         if (!_queue.empty())
-            _notEmpty.signal();
+            _notEmpty.notify_one();
 
-        _notFull.signal();
+        _notFull.notify_one();
 
         return return_type(element, true);
     }
@@ -247,23 +249,23 @@ namespace cxxtools
     template <typename T>
     void Queue<T>::put(typename Queue<T>::const_reference element, bool force)
     {
-        MutexLock lock(_mutex);
+        std::unique_lock<std::mutex> lock(_mutex);
 
         if (!force)
             while (_maxSize > 0 && _queue.size() >= _maxSize)
                 _notFull.wait(lock);
 
         _queue.push_back(element);
-        _notEmpty.signal();
+        _notEmpty.notify_one();
 
         if (_maxSize > 0 && _queue.size() < _maxSize)
-            _notFull.signal();
+            _notFull.notify_one();
     }
 
     template <typename T>
     bool Queue<T>::remove(const_reference element)
     {
-        MutexLock lock(_mutex);
+        std::lock_guard<std::mutex> lock(_mutex);
         for (typename std::deque<T>::iterator it = _queue.begin(); it != _queue.end(); ++it)
             if (*it == element)
                 return true;
@@ -274,9 +276,9 @@ namespace cxxtools
     void Queue<T>::maxSize(size_type m)
     {
         _maxSize = m;
-        MutexLock lock(_mutex);
+        std::lock_guard<std::mutex> lock(_mutex);
         if (_queue.size() < _maxSize)
-            _notFull.signal();
+            _notFull.notify_one();
     }
 }
 

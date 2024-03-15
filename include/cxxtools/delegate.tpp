@@ -9,16 +9,6 @@ class Delegate : public DelegateBase
             typedef Callable<R,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10> CallableT;
 
         public:
-            /** Does nothing. */
-            Delegate()
-            { }
-
-            /** Deeply copies rhs. */
-            Delegate(const Delegate& rhs)
-            {
-                DelegateBase::operator=(rhs);
-            }
-
             /** Connects this object to the given slot and returns that Connection. */
             Connection connect(const BasicSlot<R,A1,A2,A3,A4,A5,A6,A7,A8,A9,A10>& slot)
             {
@@ -154,16 +144,6 @@ class Delegate<R, A1,A2,A3,A4,A5,A6,A7,A8,A9,Void> : public DelegateBase
             typedef Callable<R,A1,A2,A3,A4,A5,A6,A7,A8,A9> CallableT;
 
         public:
-            /** Does nothing. */
-            Delegate()
-            { }
-
-            /** Deeply copies rhs. */
-            Delegate(const Delegate& rhs)
-            {
-                DelegateBase::operator=(rhs);
-            }
-
             /** Connects this object to the given slot and returns that Connection. */
             Connection connect(const BasicSlot<R,A1,A2,A3,A4,A5,A6,A7,A8,A9>& slot)
             {
@@ -252,16 +232,6 @@ class Delegate<R, A1,A2,A3,A4,A5,A6,A7,A8,Void,Void> : public DelegateBase
             typedef Callable<R,A1,A2,A3,A4,A5,A6,A7,A8> CallableT;
 
         public:
-            /** Does nothing. */
-            Delegate()
-            { }
-
-            /** Deeply copies rhs. */
-            Delegate(const Delegate& rhs)
-            {
-                DelegateBase::operator=(rhs);
-            }
-
             /** Connects this object to the given slot and returns that Connection. */
             Connection connect(const BasicSlot<R,A1,A2,A3,A4,A5,A6,A7,A8>& slot)
             {
@@ -350,16 +320,6 @@ class Delegate<R, A1,A2,A3,A4,A5,A6,A7,Void,Void,Void> : public DelegateBase
             typedef Callable<R,A1,A2,A3,A4,A5,A6,A7> CallableT;
 
         public:
-            /** Does nothing. */
-            Delegate()
-            { }
-
-            /** Deeply copies rhs. */
-            Delegate(const Delegate& rhs)
-            {
-                DelegateBase::operator=(rhs);
-            }
-
             /** Connects this object to the given slot and returns that Connection. */
             Connection connect(const BasicSlot<R,A1,A2,A3,A4,A5,A6,A7>& slot)
             {
@@ -448,16 +408,6 @@ class Delegate<R, A1,A2,A3,A4,A5,A6,Void,Void,Void,Void> : public DelegateBase
             typedef Callable<R,A1,A2,A3,A4,A5,A6> CallableT;
 
         public:
-            /** Does nothing. */
-            Delegate()
-            { }
-
-            /** Deeply copies rhs. */
-            Delegate(const Delegate& rhs)
-            {
-                DelegateBase::operator=(rhs);
-            }
-
             /** Connects this object to the given slot and returns that Connection. */
             Connection connect(const BasicSlot<R,A1,A2,A3,A4,A5,A6>& slot)
             {
@@ -546,16 +496,6 @@ class Delegate<R, A1,A2,A3,A4,A5,Void,Void,Void,Void,Void> : public DelegateBase
             typedef Callable<R,A1,A2,A3,A4,A5> CallableT;
 
         public:
-            /** Does nothing. */
-            Delegate()
-            { }
-
-            /** Deeply copies rhs. */
-            Delegate(const Delegate& rhs)
-            {
-                DelegateBase::operator=(rhs);
-            }
-
             /** Connects this object to the given slot and returns that Connection. */
             Connection connect(const BasicSlot<R,A1,A2,A3,A4,A5>& slot)
             {
@@ -644,16 +584,6 @@ class Delegate<R, A1,A2,A3,A4,Void,Void,Void,Void,Void,Void> : public DelegateBa
             typedef Callable<R,A1,A2,A3,A4> CallableT;
 
         public:
-            /** Does nothing. */
-            Delegate()
-            { }
-
-            /** Deeply copies rhs. */
-            Delegate(const Delegate& rhs)
-            {
-                DelegateBase::operator=(rhs);
-            }
-
             /** Connects this object to the given slot and returns that Connection. */
             Connection connect(const BasicSlot<R,A1,A2,A3,A4>& slot)
             {
@@ -742,16 +672,6 @@ class Delegate<R, A1,A2,A3,Void,Void,Void,Void,Void,Void,Void> : public Delegate
             typedef Callable<R,A1,A2,A3> CallableT;
 
         public:
-            /** Does nothing. */
-            Delegate()
-            { }
-
-            /** Deeply copies rhs. */
-            Delegate(const Delegate& rhs)
-            {
-                DelegateBase::operator=(rhs);
-            }
-
             /** Connects this object to the given slot and returns that Connection. */
             Connection connect(const BasicSlot<R,A1,A2,A3>& slot)
             {
@@ -840,16 +760,6 @@ class Delegate<R, A1,A2,Void,Void,Void,Void,Void,Void,Void,Void> : public Delega
             typedef Callable<R,A1,A2> CallableT;
 
         public:
-            /** Does nothing. */
-            Delegate()
-            { }
-
-            /** Deeply copies rhs. */
-            Delegate(const Delegate& rhs)
-            {
-                DelegateBase::operator=(rhs);
-            }
-
             /** Connects this object to the given slot and returns that Connection. */
             Connection connect(const BasicSlot<R,A1,A2>& slot)
             {
@@ -938,16 +848,6 @@ class Delegate<R, A1,Void,Void,Void,Void,Void,Void,Void,Void,Void> : public Dele
             typedef Callable<R,A1> CallableT;
 
         public:
-            /** Does nothing. */
-            Delegate()
-            { }
-
-            /** Deeply copies rhs. */
-            Delegate(const Delegate& rhs)
-            {
-                DelegateBase::operator=(rhs);
-            }
-
             /** Connects this object to the given slot and returns that Connection. */
             Connection connect(const BasicSlot<R,A1>& slot)
             {
@@ -1036,16 +936,6 @@ class Delegate<R, Void,Void,Void,Void,Void,Void,Void,Void,Void,Void> : public De
             typedef Callable<R> CallableT;
 
         public:
-            /** Does nothing. */
-            Delegate()
-            { }
-
-            /** Deeply copies rhs. */
-            Delegate(const Delegate& rhs)
-            {
-                DelegateBase::operator=(rhs);
-            }
-
             /** Connects this object to the given slot and returns that Connection. */
             Connection connect(const BasicSlot<R>& slot)
             {

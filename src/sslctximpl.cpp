@@ -29,13 +29,17 @@
 #include "sslctximpl.h"
 #include <cxxtools/systemerror.h>
 #include <cxxtools/fileinfo.h>
-#include <cxxtools/mutex.h>
 #include <cxxtools/log.h>
+
+#include <mutex>
+#include <memory>
+#include <vector>
 
 #include <openssl/ssl.h>
 
 #include <cstring>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "config.h"
 
@@ -44,9 +48,7 @@ log_define("cxxtools.sslctx.impl")
 namespace cxxtools
 {
 
-static Mutex *openssl_mutex = nullptr;
-static Mutex sslMutex;
-static bool sslInitialized = false;
+static std::unique_ptr<std::mutex[]> openssl_mutex = nullptr;
 
 static unsigned long pthreads_thread_id()
     { return (unsigned long)pthread_self(); }
@@ -59,28 +61,21 @@ static void pthreads_locking_callback(int mode, int n, const char* /* file */, i
         openssl_mutex[n].unlock();
 }
 
-static void thread_setup()
-{
-    openssl_mutex = new Mutex[CRYPTO_num_locks()];
-
-    CRYPTO_set_id_callback(pthreads_thread_id);
-    CRYPTO_set_locking_callback(pthreads_locking_callback);
-}
-
 SslCtx::Impl::Impl()
 {
-    MutexLock lock(sslMutex);
-    if (!sslInitialized)
+    static std::once_flag initOnce;
+    std::call_once(initOnce, []()
     {
         log_debug("SSL_library_init");
         SSL_library_init();
 
         SslError::checkSslError();
 
-        thread_setup();
+        openssl_mutex.reset(new std::mutex[CRYPTO_num_locks()]);
 
-        sslInitialized = true;
-    }
+        CRYPTO_set_id_callback(pthreads_thread_id);
+        CRYPTO_set_locking_callback(pthreads_locking_callback);
+    });
 
 #ifdef HAVE_TLS_METHOD
     log_debug("SSL_CTX_new(TLS_method())");
@@ -136,9 +131,9 @@ static int verify_callback(int ok, X509_STORE_CTX* ctx)
     return ok;
 }
 
-void SslCtx::Impl::setVerify(int level, const std::string& ca)
+void SslCtx::Impl::setVerify(SslCtx::VERIFY_LEVEL level, const std::string& ca)
 {
-    if (level > 0)
+    if (level > SslCtx::VERIFY_LEVEL::NONE)
     {
         cxxtools::FileInfo fileInfo(ca);
         STACK_OF(X509_NAME)* names = SSL_load_client_CA_file(ca.c_str());
@@ -157,11 +152,11 @@ void SslCtx::Impl::setVerify(int level, const std::string& ca)
             SslError::checkSslError();
     }
 
-    log_debug("set ssl verify level " << level);
+    log_debug("set ssl verify level " << static_cast<unsigned short>(level));
     SSL_CTX_set_verify(
         ctx(),
-        level == 0 ? SSL_VERIFY_NONE :
-        level == 1 ? (SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE) :
+        level == SslCtx::VERIFY_LEVEL::NONE     ? SSL_VERIFY_NONE :
+        level == SslCtx::VERIFY_LEVEL::OPTIONAL ? (SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE) :
                      (SSL_VERIFY_PEER | SSL_VERIFY_FAIL_IF_NO_PEER_CERT | SSL_VERIFY_CLIENT_ONCE),
         verify_callback);
 

@@ -28,7 +28,10 @@
 
 #include <cxxtools/bin/rpcserver.h>
 #include <cxxtools/sslctx.h>
+#include <cxxtools/log.h>
 #include "rpcserverimpl.h"
+
+log_define("cxxtools.bin.rpcserver")
 
 namespace cxxtools
 {
@@ -41,6 +44,18 @@ RpcServerImpl* RpcServer::newImpl(EventLoopBase& eventLoop)
 
 RpcServer::~RpcServer()
 {
+    if (_impl->runmode() == RpcServer::Running)
+    {
+        try
+        {
+            _impl->terminate();
+        }
+        catch (const std::exception& e)
+        {
+            log_fatal("failed to terminate rpc server: " << e.what());
+        }
+    }
+
     delete _impl;
 }
 

@@ -25,7 +25,6 @@ nobase_include_HEADERS = \
         cxxtools/charmapcodec.h \
         cxxtools/cgi.h \
         cxxtools/clock.h \
-        cxxtools/condition.h \
         cxxtools/connectable.h \
         cxxtools/connection.h \
         cxxtools/constmethod.h \
@@ -38,6 +37,7 @@ nobase_include_HEADERS = \
         cxxtools/delegate.h \
         cxxtools/delegate.tpp \
         cxxtools/deserializer.h \
+        cxxtools/destructionsentry.h \
         cxxtools/dir.h \
         cxxtools/directory.h \
         cxxtools/dlloader.h \
@@ -114,8 +114,8 @@ nobase_include_HEADERS = \
         cxxtools/method.tpp \
         cxxtools/mime.h \
         cxxtools/multifstream.h \
-        cxxtools/mutex.h \
         cxxtools/net/addrinfo.h \
+        cxxtools/net/bufferedsocket.h \
         cxxtools/net/net.h \
         cxxtools/net/tcpserver.h \
         cxxtools/net/tcpsocket.h \
@@ -123,7 +123,6 @@ nobase_include_HEADERS = \
         cxxtools/net/udp.h \
         cxxtools/net/udpstream.h \
         cxxtools/net/uri.h \
-        cxxtools/noncopyable.h \
         cxxtools/pipe.h \
         cxxtools/pool.h \
         cxxtools/posix/commandinput.h \
@@ -149,12 +148,12 @@ nobase_include_HEADERS = \
         cxxtools/remoteclient.h \
         cxxtools/remoteexception.h \
         cxxtools/remoteprocedure.h \
+        cxxtools/remoteprocedure.tpp \
         cxxtools/remoteresult.h \
         cxxtools/resetter.h \
         cxxtools/scopedincrement.h \
         cxxtools/selector.h \
         cxxtools/selectable.h \
-        cxxtools/semaphore.h \
         cxxtools/serializationerror.h \
         cxxtools/serializationinfo.h \
         cxxtools/serviceprocedure.h \
@@ -166,7 +165,6 @@ nobase_include_HEADERS = \
         cxxtools/singleton.h \
         cxxtools/slot.h \
         cxxtools/slot.tpp \
-        cxxtools/smartptr.h \
         cxxtools/sourceinfo.h \
         cxxtools/sslcertificate.h \
         cxxtools/sslctx.h \
@@ -182,8 +180,6 @@ nobase_include_HEADERS = \
         cxxtools/textbuffer.h \
         cxxtools/textcodec.h \
         cxxtools/textstream.h \
-        cxxtools/thread.h \
-        cxxtools/threadpool.h \
         cxxtools/time.h \
         cxxtools/timer.h \
         cxxtools/timespan.h \
@@ -238,10 +234,3 @@ nobase_include_HEADERS = \
 
 nobase_nodist_include_HEADERS = \
         cxxtools/config.h
-
-if MAKE_ICONVSTREAM
-nobase_include_HEADERS += \
-        cxxtools/iconverter.h \
-        cxxtools/iconvstream.h \
-        cxxtools/iconvwrap.h
-endif

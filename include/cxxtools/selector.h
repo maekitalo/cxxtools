@@ -80,13 +80,8 @@ namespace cxxtools {
             friend class Selectable;
             friend class Timer;
 
-#if __cplusplus >= 201103L
             SelectorBase(SelectorBase&) = delete;
             SelectorBase& operator=(SelectorBase&) = delete;
-#else
-            SelectorBase(SelectorBase&) { }
-            SelectorBase& operator=(SelectorBase&) { return *this; }
-#endif
 
         public:
             static const int WaitInfinite = -1;

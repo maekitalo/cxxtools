@@ -73,6 +73,7 @@ class Siconvert
         unsigned count;
 
         std::string xmlRootNodeName;
+        std::string path;
 
     public:
         Siconvert(int& argc, char* argv[]);
@@ -104,7 +105,8 @@ Siconvert::Siconvert(int& argc, char* argv[])
       skip(cxxtools::Arg<unsigned>(argc, argv, "--skip")),
       num(cxxtools::Arg<unsigned>(argc, argv, "--num", std::numeric_limits<unsigned>::max())),
       count(0),
-      xmlRootNodeName(cxxtools::Arg<std::string>(argc, argv, 'R', "root"))
+      xmlRootNodeName(cxxtools::Arg<std::string>(argc, argv, 'R', "root")),
+      path(cxxtools::Arg<std::string>(argc, argv, "--path"))
 {
     unsigned c;
 
@@ -126,7 +128,7 @@ Siconvert::Siconvert(int& argc, char* argv[])
 
     if (c != 1)
     {
-        std::cerr << "one input format must be specified" << std::endl;
+        std::cerr << "One input format must be specified." << std::endl;
         throw Usage();
     }
 
@@ -152,7 +154,7 @@ Siconvert::Siconvert(int& argc, char* argv[])
 
     if (c != 1)
     {
-        std::cerr << "one output format must be specified" << std::endl;
+        std::cerr << "One output format must be specified." << std::endl;
         throw Usage();
     }
 }
@@ -183,6 +185,9 @@ void Siconvert::convert(std::istream& in, std::ostream& out)
         settings.load(tin);
         si = settings;
     }
+
+    if (!path.empty())
+        si = si.path(path);
 
     if (skip == 0)
     {
@@ -258,37 +263,61 @@ int main(int argc, char* argv[])
     }
     catch (Usage)
     {
-        std::cerr << "Usage: " << argv[0] << " {options} [inputfiles...]\n\n"
-                     "Description:\n"
-                     "  Converts data using cxxtools serialization from one format to another.\n"
-                     "  When no inputfile is given, data is read from stdin.\n\n"
-                     "Options for input format:\n"
-                     " -b         read binary data\n"
-                     " -x         read xml data\n"
-                     " -j         read json data\n"
-                     " -i         read ini data\n"
-                     " -c         read csv data\n"
-                     " -q         read url query string\n"
-                     " -s         read settings data\n"
-                     "\n"
-                     "Options for output format:\n"
-                     " -B         output binary data\n"
-                     " -X         output xml data\n"
-                     " -Y         output xml data without attributes\n"
-                     " -J         output json data\n"
-                     " -G         output grep friendly json (unformatted but newline after each message)\n"
-                     " -I         output ini data\n"
-                     " -C         output csv data\n"
-                     " -P         output properties data\n"
-                     " -N         output number of objects\n"
-                     " -d         beautify output (xml, json)\n"
-                     " -R <name>  name for root node in xml format (default <root>\n"
-                     "\n"
-                     "Other options:\n"
-                     " --skip <n> skip <n> objects\n"
-                     " --num <n>  read <n> objects (default unlimited)\n"
-                     " -v         verbose - output filename to stderr when processing\n"
-                     " -o <file>  output to file\n";
+        std::cerr << R"USAGE(
+Usage: siconvert {options} [inputfiles...]
+
+Description:
+
+    Converts data using cxxtools serialization from one format to another.
+    When no inputfile is given, data is read from stdin.\n
+
+Options for input format:
+
+    -b              read binary data
+    -x              read xml data
+    -j              read json data
+    -i              read ini data
+    -c              read csv data
+    -q              read url query string
+    -s              read settings data
+
+Options for output format:
+
+    -B              output binary data
+    -X              output xml data
+    -Y              output xml data without attributes
+    -J              output json data
+    -G              output grep friendly json (unformatted but newline after each message)
+    -I              output ini data
+    -C              output csv data
+    -P              output properties data
+    -N              output number of objects
+    -d              beautify output (xml, json)
+    -R <name>       name for root node in xml format (default <root>
+
+Other options:
+
+    --skip <n>      skip <n> objects
+    --num <n>       read <n> objects (default unlimited)
+    --path <path>   select node from input
+    -v              verbose - output filename to stderr when processing
+    -o <file>       output to file
+
+Path:
+
+    $           root element
+    .member     access member
+    [n]         array index
+    ::size      size
+    ::type      typename
+    ::isnull    true if null, false otherwise
+
+    Root element can be omitted. Also the starting '.'
+
+    `$.store.book` can be written as `store.book`
+    `$[2]` can be written as `[2]`
+
+)USAGE";
     }
     catch (const std::exception& e)
     {

@@ -55,7 +55,7 @@ class LimitStreamTest : public cxxtools::unit::TestSuite
             lis.clear();
             lis >> s;
             CXXTOOLS_UNIT_ASSERT(lis.eof());
-            CXXTOOLS_UNIT_ASSERT_EQUALS(lis.icount(), 2);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(lis.icount(), 2u);
             CXXTOOLS_UNIT_ASSERT_EQUALS(s, "bar");
         }
 
@@ -66,18 +66,18 @@ class LimitStreamTest : public cxxtools::unit::TestSuite
 
             los << "foobar";
             CXXTOOLS_UNIT_ASSERT_EQUALS(os.str(), "foo");
-            CXXTOOLS_UNIT_ASSERT_EQUALS(los.ocount(), 0);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(los.ocount(), 0u);
 
             los.ocount(5);
             los.clear();
 
             los << "bar";
             CXXTOOLS_UNIT_ASSERT_EQUALS(os.str(), "foobar");
-            CXXTOOLS_UNIT_ASSERT_EQUALS(los.ocount(), 2);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(los.ocount(), 2u);
 
             los << "baz";
             CXXTOOLS_UNIT_ASSERT_EQUALS(os.str(), "foobarba");
-            CXXTOOLS_UNIT_ASSERT_EQUALS(los.ocount(), 0);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(los.ocount(), 0u);
         }
 };
 

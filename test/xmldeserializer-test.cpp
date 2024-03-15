@@ -110,7 +110,7 @@ class XmlDeserializerTest : public cxxtools::unit::TestSuite
             std::vector<TestObject> t;
             d.deserialize(t);
 
-            CXXTOOLS_UNIT_ASSERT_EQUALS(t.size(), 2);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(t.size(), 2u);
             CXXTOOLS_UNIT_ASSERT_EQUALS(t[0].intValue, 42);
             CXXTOOLS_UNIT_ASSERT_EQUALS(t[0].stringValue, "Hi");
             CXXTOOLS_UNIT_ASSERT_EQUALS(t[0].doubleValue, 2.25);

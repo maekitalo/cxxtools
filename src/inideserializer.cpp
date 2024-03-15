@@ -59,7 +59,9 @@ namespace
               _section(&_si)
             { }
 
+        void parser(const IniParser& p) { _iniParser = &p; }
     private:
+        const IniParser* _iniParser;
         SerializationInfo& _si;
         SerializationInfo* _section;
         String _key;
@@ -90,7 +92,7 @@ namespace
 
     bool Ev::onError()
     {
-        SerializationError::doThrow("ini deserialization failed");
+        SerializationError::doThrow("parsing ini failed in line " + std::to_string(_iniParser->linenumber()) + " expected: " + _iniParser->expected());
         return true;
     }
 
@@ -100,6 +102,7 @@ IniDeserializer::IniDeserializer(std::istream& in, TextCodec<Char, char>* codec)
 {
     Ev ev(si());
     IniParser parser(ev);
+    ev.parser(parser);
 
     CodecReleaser r(codec);
 
@@ -147,7 +150,7 @@ IniDeserializer::IniDeserializer(std::istream& in, TextCodec<Char, char>* codec)
     }
 
     if (in.rdstate() & std::ios::badbit)
-        SerializationError::doThrow("ini deserialization failed");
+        SerializationError::doThrow("parsing ini failed in line " + std::to_string(parser.linenumber()) + " expected: " + parser.expected());
 
     parser.end();
 }
@@ -156,6 +159,7 @@ IniDeserializer::IniDeserializer(std::basic_istream<Char>& in)
 {
     Ev ev(si());
     IniParser parser(ev);
+    ev.parser(parser);
 
     begin();
     Char ch;
@@ -170,7 +174,7 @@ IniDeserializer::IniDeserializer(std::basic_istream<Char>& in)
     }
 
     if (in.rdstate() & std::ios::badbit)
-        SerializationError::doThrow("ini deserialization failed");
+        SerializationError::doThrow("parsing ini failed in line " + std::to_string(parser.linenumber()) + " expected: " + parser.expected());
 
     parser.end();
 }

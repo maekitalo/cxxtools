@@ -30,11 +30,14 @@
 #define CXXTOOLS_HTTP_SERVERIMPL_H
 
 #include "serverimplbase.h"
-#include <set>
-#include <vector>
 #include <cxxtools/queue.h>
 #include <cxxtools/event.h>
 #include <cxxtools/http/server.h>
+
+#include <mutex>
+#include <condition_variable>
+#include <set>
+#include <vector>
 
 namespace cxxtools
 {
@@ -106,8 +109,8 @@ class ServerImpl : public ServerImplBase, public Connectable
         typedef std::set<Worker*> Threads;
         Threads _threads;
         Threads _terminatedThreads;
-        Mutex _threadMutex;
-        Condition _threadTerminated;
+        std::mutex _threadMutex;
+        std::condition_variable _threadTerminated;
         void threadTerminated(Worker* worker);
 };
 
@@ -115,4 +118,3 @@ class ServerImpl : public ServerImplBase, public Connectable
 }
 
 #endif // CXXTOOLS_HTTP_SERVERIMPL_H
-

@@ -123,7 +123,7 @@ class IniSerializationTest : public cxxtools::unit::TestSuite
             std::vector<TestObject> v;
             in >> cxxtools::Ini(v);
 
-            CXXTOOLS_UNIT_ASSERT_EQUALS(v.size(), 2);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v.size(), 2u);
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(v[0].intValue, 42);
             CXXTOOLS_UNIT_ASSERT_EQUALS(v[0].stringValue, "foobar");

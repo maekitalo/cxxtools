@@ -31,124 +31,118 @@
 
 #include <cxxtools/json/rpcserver.h>
 #include <cxxtools/event.h>
-#include <cxxtools/mutex.h>
-#include <cxxtools/condition.h>
 #include <cxxtools/queue.h>
 #include <cxxtools/signal.h>
 #include <cxxtools/delegate.h>
 #include <cxxtools/connectable.h>
 
+#include <mutex>
+#include <condition_variable>
 #include <set>
 #include <vector>
 
 namespace cxxtools
 {
-    class EventLoopBase;
-    class ServiceProcedure;
-    class SslCtx;
 
-    namespace net
+class EventLoopBase;
+class ServiceProcedure;
+class SslCtx;
+
+namespace net
+{
+    class TcpServer;
+}
+
+namespace json
+{
+    class RpcServerImpl;
+    class Worker;
+    class Socket;
+    class IdleSocketEvent;
+    class ServerStartEvent;
+    class NoWaitingThreadsEvent;
+    class ThreadTerminatedEvent;
+    class ActiveSocketEvent;
+
+    class RpcServerImpl : public Connectable
     {
-        class TcpServer;
-    }
+            RpcServerImpl(const RpcServerImpl&) = delete;
+            RpcServerImpl& operator=(const RpcServerImpl&) = delete;
 
-    namespace json
-    {
-        class RpcServerImpl;
-        class Worker;
-        class Socket;
-        class IdleSocketEvent;
-        class ServerStartEvent;
-        class NoWaitingThreadsEvent;
-        class ThreadTerminatedEvent;
-        class ActiveSocketEvent;
+        public:
+            RpcServerImpl(EventLoopBase& eventLoop, Signal<RpcServer::Runmode>& runmodeChanged, ServiceRegistry& serviceRegistry);
 
-        class RpcServerImpl : public Connectable
-        {
-#if __cplusplus >= 201103L
-                RpcServerImpl(const RpcServerImpl&) = delete;
-                RpcServerImpl& operator=(const RpcServerImpl&) = delete;
-#else
-                RpcServerImpl(const RpcServerImpl&);
-                RpcServerImpl& operator=(const RpcServerImpl&);
-#endif
+            void listen(const std::string& ip, unsigned short int port, const SslCtx& sslCtx);
 
-            public:
-                RpcServerImpl(EventLoopBase& eventLoop, Signal<RpcServer::Runmode>& runmodeChanged, ServiceRegistry& serviceRegistry);
+            unsigned minThreads() const
+            { return _minThreads; }
 
-                ~RpcServerImpl();
+            void minThreads(unsigned m)
+            { _minThreads = m; }
 
-                void listen(const std::string& ip, unsigned short int port, const SslCtx& sslCtx);
+            unsigned maxThreads() const
+            { return _maxThreads; }
 
-                unsigned minThreads() const
-                { return _minThreads; }
+            void maxThreads(unsigned m)
+            { _maxThreads = m; }
 
-                void minThreads(unsigned m)
-                { _minThreads = m; }
+            void terminate();
 
-                unsigned maxThreads() const
-                { return _maxThreads; }
+            RpcServer::Runmode runmode() const
+            { return _runmode; }
 
-                void maxThreads(unsigned m)
-                { _maxThreads = m; }
+            Delegate<bool, const SslCertificate&> acceptSslCertificate;
 
-                void terminate();
+        private:
+            void runmode(RpcServer::Runmode runmode)
+            {
+                _runmode = runmode;
+                _runmodeChanged(runmode);
+            }
 
-                RpcServer::Runmode runmode() const
-                { return _runmode; }
+            RpcServer::Runmode _runmode;
+            Signal<RpcServer::Runmode>& _runmodeChanged;
 
-                Delegate<bool, const SslCertificate&> acceptSslCertificate;
+            EventLoopBase& _eventLoop;
 
-            private:
-                void runmode(RpcServer::Runmode runmode)
-                {
-                    _runmode = runmode;
-                    _runmodeChanged(runmode);
-                }
+            void noWaitingThreads();
+            void onInput(Socket& _socket);
 
-                RpcServer::Runmode _runmode;
-                Signal<RpcServer::Runmode>& _runmodeChanged;
+            void addIdleSocket(Socket* socket);
+            void onIdleSocket(const IdleSocketEvent& event);
+            void onActiveSocket(const ActiveSocketEvent& event);
+            void onNoWaitingThreads(const NoWaitingThreadsEvent& event);
+            void onThreadTerminated(const ThreadTerminatedEvent& event);
+            void onServerStart(const ServerStartEvent& event);
+            void start();
 
-                EventLoopBase& _eventLoop;
+            friend class Worker;
+            friend class Socket;
 
-                void noWaitingThreads();
-                void onInput(Socket& _socket);
+            ////////////////////////////////////////////////////
 
-                void addIdleSocket(Socket* socket);
-                void onIdleSocket(const IdleSocketEvent& event);
-                void onActiveSocket(const ActiveSocketEvent& event);
-                void onNoWaitingThreads(const NoWaitingThreadsEvent& event);
-                void onThreadTerminated(const ThreadTerminatedEvent& event);
-                void onServerStart(const ServerStartEvent& event);
-                void start();
+            MethodSlot<void, RpcServerImpl, Socket&> inputSlot;
 
-                friend class Worker;
-                friend class Socket;
+            ServiceRegistry& _serviceRegistry;
+            unsigned _minThreads;
+            unsigned _maxThreads;
 
-                ////////////////////////////////////////////////////
+            std::vector<net::TcpServer*> _listener;
+            Queue<Socket*> _queue;
 
-                MethodSlot<void, RpcServerImpl, Socket&> inputSlot;
+            typedef std::set<Socket*> IdleSocket;
+            IdleSocket _idleSocket;
 
-                ServiceRegistry& _serviceRegistry;
-                unsigned _minThreads;
-                unsigned _maxThreads;
+            std::mutex _threadMutex;
+            std::condition_variable _threadTerminated;
+            typedef std::set<Worker*> Threads;
+            Threads _threads;
+            Threads _terminatedThreads;
+            void threadTerminated(Worker* worker);
 
-                std::vector<net::TcpServer*> _listener;
-                Queue<Socket*> _queue;
-
-                typedef std::set<Socket*> IdleSocket;
-                IdleSocket _idleSocket;
-
-                Mutex _threadMutex;
-                Condition _threadTerminated;
-                typedef std::set<Worker*> Threads;
-                Threads _threads;
-                Threads _terminatedThreads;
-                void threadTerminated(Worker* worker);
-
-                bool isTerminating() const
-                { return runmode() == RpcServer::Terminating; }
-        };
-    }
+            bool isTerminating() const
+            { return runmode() == RpcServer::Terminating; }
+    };
+}
 }
 #endif // CXXTOOLS_JSON_RPCSERVERIMPL_H

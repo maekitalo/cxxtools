@@ -9,20 +9,19 @@ libcxxtools_la_SOURCES = \
 	application.cpp \
 	applicationimpl.cpp \
 	base64codec.cpp \
-	csvdeserializer.cpp \
-	csvparser.cpp \
-	csvserializer.cpp \
+	bufferedsocket.cpp \
+	cgi.cpp \
 	char.cpp \
 	charmapcodec.cpp \
 	clock.cpp \
 	clockimpl.cpp \
-	condition.cpp \
-	conditionimpl.cpp \
 	connectable.cpp \
 	connection.cpp \
-	cgi.cpp \
 	conversionerror.cpp \
 	convert.cpp \
+	csvdeserializer.cpp \
+	csvparser.cpp \
+	csvserializer.cpp \
 	date.cpp \
 	datetime.cpp \
 	dateutils.cpp \
@@ -62,8 +61,7 @@ libcxxtools_la_SOURCES = \
 	md5stream.cpp \
 	mime.cpp \
 	multifstream.cpp \
-	mutex.cpp \
-	muteximpl.cpp \
+	net.cpp \
 	pipe.cpp \
 	pipeimpl.cpp \
 	posix/commandinput.cpp \
@@ -72,9 +70,9 @@ libcxxtools_la_SOURCES = \
 	posix/fork.cpp \
 	posix/pipestream.cpp \
 	posix/posixpipe.cpp \
+	propertiesdeserializer.cpp \
 	propertiesfile.cpp \
 	propertiesparser.cpp \
-	propertiesdeserializer.cpp \
 	propertiesserializer.cpp \
 	query_params.cpp \
 	quotedprintablecodec.cpp \
@@ -83,44 +81,40 @@ libcxxtools_la_SOURCES = \
 	selectable.cpp \
 	selector.cpp \
 	selectorimpl.cpp \
-	semaphore.cpp \
-	semaphoreimpl.cpp \
+	serializationerror.cpp \
+	serializationinfo.cpp \
 	serviceregistry.cpp \
 	settings.cpp \
 	settingsreader.cpp \
 	settingswriter.cpp \
-	serializationerror.cpp \
-	serializationinfo.cpp \
 	signal.cpp \
 	sslcertificate.cpp \
+	sslcertificateimpl.cpp \
+	sslctx.cpp \
+	sslctximpl.cpp \
 	stddevice.cpp \
 	streambuffer.cpp \
 	string.cpp \
 	stringstream.cpp \
 	systemerror.cpp \
+	tcpserver.cpp \
+	tcpserverimpl.cpp \
+	tcpsocket.cpp \
+	tcpsocketimpl.cpp \
+	tcpstream.cpp \
 	tee.cpp \
 	textbuffer.cpp \
 	textcodec.cpp \
 	textstream.cpp \
-	thread.cpp \
-	threadimpl.cpp \
-	threadpool.cpp \
-	threadpoolimpl.cpp \
 	time.cpp \
 	timer.cpp \
 	timespan.cpp \
-	uri.cpp \
-	utf8codec.cpp \
-	uuencode.cpp \
-	net.cpp \
-	tcpserverimpl.cpp \
-	tcpserver.cpp \
-	tcpsocket.cpp \
-	tcpsocketimpl.cpp \
-	tcpstream.cpp \
 	tz.cpp \
 	udp.cpp \
 	udpstream.cpp \
+	uri.cpp \
+	utf8codec.cpp \
+	uuencode.cpp \
 	win1252codec.cpp \
 	xml/characters.cpp \
 	xml/endelement.cpp \
@@ -138,7 +132,6 @@ noinst_HEADERS = \
 	addrinfoimpl.h \
 	applicationimpl.h \
 	clockimpl.h \
-	conditionimpl.h \
 	dateutils.h \
 	directoryimpl.h \
 	error.h \
@@ -148,34 +141,15 @@ noinst_HEADERS = \
 	iodeviceimpl.h \
 	libraryimpl.h \
 	md5.h \
-	muteximpl.h \
 	pipeimpl.h \
 	selectableimpl.h \
 	selectorimpl.h \
-	semaphoreimpl.h \
 	settingsreader.h \
 	settingswriter.h \
 	sslcertificateimpl.h \
 	sslctximpl.h \
 	tcpserverimpl.h \
 	tcpsocketimpl.h \
-	threadimpl.h \
-	threadpoolimpl.h \
 	unicode.h
 
-if MAKE_ICONVSTREAM
-libcxxtools_la_SOURCES += \
-	iconvwrap.cpp \
-	iconvstream.cpp
-endif
-
-libcxxtools_la_LIBADD = $(LIBICONV)
-libcxxtools_la_LDFLAGS = -version-info @sonumber@ @SHARED_LIB_FLAG@
-
-if MAKE_OPENSSL
-libcxxtools_la_LDFLAGS += -lssl
-libcxxtools_la_SOURCES += \
-	sslcertificateimpl.cpp \
-	sslctx.cpp \
-	sslctximpl.cpp
-endif
+libcxxtools_la_LDFLAGS = -version-info @sonumber@ @SHARED_LIB_FLAG@ -lssl

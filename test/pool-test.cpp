@@ -65,22 +65,22 @@ class PoolTest : public cxxtools::unit::TestSuite
 
         {
           PoolType::Ptr p = pool.get();
-          CXXTOOLS_UNIT_ASSERT_EQUALS(pool.size(), 0);
-          CXXTOOLS_UNIT_ASSERT_EQUALS(Object::ctorCount, 1);
+          CXXTOOLS_UNIT_ASSERT_EQUALS(pool.size(), 0u);
+          CXXTOOLS_UNIT_ASSERT_EQUALS(Object::ctorCount, 1u);
         }
 
-        CXXTOOLS_UNIT_ASSERT_EQUALS(pool.size(), 1);
+        CXXTOOLS_UNIT_ASSERT_EQUALS(pool.size(), 1u);
 
         {
           PoolType::Ptr p = pool.get();
-          CXXTOOLS_UNIT_ASSERT_EQUALS(pool.size(), 0);
+          CXXTOOLS_UNIT_ASSERT_EQUALS(pool.size(), 0u);
         }
 
-        CXXTOOLS_UNIT_ASSERT_EQUALS(pool.size(), 1);
-        CXXTOOLS_UNIT_ASSERT_EQUALS(Object::ctorCount, 1);
+        CXXTOOLS_UNIT_ASSERT_EQUALS(pool.size(), 1u);
+        CXXTOOLS_UNIT_ASSERT_EQUALS(Object::ctorCount, 1u);
       }
 
-      CXXTOOLS_UNIT_ASSERT_EQUALS(Object::instCount, 0);
+      CXXTOOLS_UNIT_ASSERT_EQUALS(Object::instCount, 0u);
     }
 
     void maxspareTest()
@@ -92,30 +92,30 @@ class PoolTest : public cxxtools::unit::TestSuite
         std::vector<PoolType::Ptr> p;
         while (p.size() < 10)
           p.push_back(pool.get());
-        CXXTOOLS_UNIT_ASSERT_EQUALS(pool.size(), 0);
-        CXXTOOLS_UNIT_ASSERT_EQUALS(Object::ctorCount, 10);
+        CXXTOOLS_UNIT_ASSERT_EQUALS(pool.size(), 0u);
+        CXXTOOLS_UNIT_ASSERT_EQUALS(Object::ctorCount, 10u);
         p.pop_back();
-        CXXTOOLS_UNIT_ASSERT_EQUALS(pool.size(), 1);
+        CXXTOOLS_UNIT_ASSERT_EQUALS(pool.size(), 1u);
         p.pop_back();
-        CXXTOOLS_UNIT_ASSERT_EQUALS(pool.size(), 2);
+        CXXTOOLS_UNIT_ASSERT_EQUALS(pool.size(), 2u);
       }
 
-      CXXTOOLS_UNIT_ASSERT_EQUALS(pool.size(), 3);
+      CXXTOOLS_UNIT_ASSERT_EQUALS(pool.size(), 3u);
 
       {
         PoolType::Ptr b = pool.get();
-        CXXTOOLS_UNIT_ASSERT_EQUALS(pool.size(), 2);
+        CXXTOOLS_UNIT_ASSERT_EQUALS(pool.size(), 2u);
       }
-      CXXTOOLS_UNIT_ASSERT_EQUALS(pool.size(), 3);
+      CXXTOOLS_UNIT_ASSERT_EQUALS(pool.size(), 3u);
 
-      CXXTOOLS_UNIT_ASSERT_EQUALS(Object::ctorCount, 10);
+      CXXTOOLS_UNIT_ASSERT_EQUALS(Object::ctorCount, 10u);
 
       pool.drop(1);
-      CXXTOOLS_UNIT_ASSERT_EQUALS(pool.size(), 1);
+      CXXTOOLS_UNIT_ASSERT_EQUALS(pool.size(), 1u);
       pool.drop();
-      CXXTOOLS_UNIT_ASSERT_EQUALS(pool.size(), 0);
+      CXXTOOLS_UNIT_ASSERT_EQUALS(pool.size(), 0u);
 
-      CXXTOOLS_UNIT_ASSERT_EQUALS(Object::instCount, 0);
+      CXXTOOLS_UNIT_ASSERT_EQUALS(Object::instCount, 0u);
     }
 };
 

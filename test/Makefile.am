@@ -55,7 +55,7 @@ alltests_SOURCES = \
     scopedincrement-test.cpp \
     serialization-test.cpp \
     serializationinfo-test.cpp \
-    smartptr-test.cpp \
+    sipath-test.cpp \
     split-test.cpp \
     string-test.cpp \
     test-main.cpp \
@@ -71,11 +71,6 @@ alltests_SOURCES = \
     xmlrpccallback-test.cpp \
     xmldeserializer-test.cpp \
     xmlserializer-test.cpp
-
-if MAKE_ICONVSTREAM
-alltests_SOURCES += \
-	iconvstream-test.cpp
-endif
 
 logbench_SOURCES = logbench.cpp
 

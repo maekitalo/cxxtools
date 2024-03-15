@@ -36,70 +36,65 @@ namespace cxxtools
 
 namespace net
 {
-  //////////////////////////////////////////////////////////////////////
-  /**
-   * Wrapper for BSD sockets.
-   */
-  class Socket
-  {
-#if __cplusplus >= 201103L
-      Socket(const Socket&) = delete;
-      Socket& operator=(const Socket&) = delete;
-#else
-      Socket(const Socket&) { }
-      Socket& operator=(const Socket&) { return *this; }
-#endif
+//////////////////////////////////////////////////////////////////////
+/**
+ * Wrapper for BSD sockets.
+ */
+class Socket
+{
+    Socket(const Socket&) = delete;
+    Socket& operator=(const Socket&) = delete;
 
-    public:
-      /// A socket is created. On error a net::Exception is thrown.
-      Socket(int domain, int type, int protocol);
+public:
+    /// A socket is created. On error a net::Exception is thrown.
+    Socket(int domain, int type, int protocol);
 
-      /// A socket is initialized with a existing socket descriptor.
-      /// Ownership is transfered to this class.
-      explicit Socket(int fd = -1)
-        : m_sockFd(fd),
-          m_timeout(-1)
-        { }
+    /// A socket is initialized with a existing socket descriptor.
+    /// Ownership is transfered to this class.
+    explicit Socket(int fd = -1)
+      : m_sockFd(fd),
+        m_timeout(-1)
+      { }
 
-      /// The socket is released.
-      /// Errors are printed on stderr.
-      virtual ~Socket();
+    /// The socket is released.
+    /// Errors are printed on stderr.
+    virtual ~Socket();
 
-      /// Returns true, if a socket is held.
-      bool good() const     { return m_sockFd >= 0; }
-      /// Returns true, if no socket is held.
-      bool bad() const      { return m_sockFd <  0; }
-      /// Returns true, if a socket is held.
-      operator bool() const { return m_sockFd >= 0; }
+    /// Returns true, if a socket is held.
+    bool good() const     { return m_sockFd >= 0; }
+    /// Returns true, if no socket is held.
+    bool bad() const      { return m_sockFd <  0; }
+    /// Returns true, if a socket is held.
+    operator bool() const { return m_sockFd >= 0; }
 
-      /// Creates a new socket. If a socket is already associated with this
-      /// class, it is closed.
-      void create(int domain, int type, int protocol);
-      /// Closes the socket, if a socket is held.
-      void close();
+    /// Creates a new socket. If a socket is already associated with this
+    /// class, it is closed.
+    void create(int domain, int type, int protocol);
+    /// Closes the socket, if a socket is held.
+    void close();
 
-      /// Returns the socket handle.
-      int getFd() const     { return m_sockFd; }
+    /// Returns the socket handle.
+    int getFd() const     { return m_sockFd; }
 
-      /// wrapper around getsockname(2)
-      std::string getSockAddr() const;
+    /// wrapper around getsockname(2)
+    std::string getSockAddr() const;
 
-      /// Set timeout in milliseconds.
-      void setTimeout(int t);
-      /// Returns timeout in milliseconds.
-      int getTimeout() const  { return m_timeout; }
+    /// Set timeout in milliseconds.
+    void setTimeout(int t);
+    /// Returns timeout in milliseconds.
+    int getTimeout() const  { return m_timeout; }
 
-      /// execute poll(2) - throws Timeout-exception, when no data available
-      /// after timeout
-      short poll(short events) const;
+    /// execute poll(2) - throws Timeout-exception, when no data available
+    /// after timeout
+    short poll(short events) const;
 
-    protected:
-      void setFd(int sockFd);
+protected:
+    void setFd(int sockFd);
 
-    private:
-      int m_sockFd;
-      int m_timeout;
-  };
+private:
+    int m_sockFd;
+    int m_timeout;
+};
 
 } // namespace net
 

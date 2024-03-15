@@ -10,7 +10,6 @@ noinst_PROGRAMS = \
 	dir \
 	dlloader \
 	execLs \
-	future \
 	getini hd \
 	httpclient \
 	httprequest \
@@ -44,8 +43,7 @@ noinst_PROGRAMS = \
 	signals \
 	splitter \
 	sslshowcert \
-	thread \
-	threadpool \
+	tcpsocket \
 	timer \
 	uuencode \
 	xmlmsgclient \
@@ -60,7 +58,6 @@ deserialization_SOURCES = deserialization.cpp
 dir_SOURCES = dir.cpp
 dlloader_SOURCES = dlloader.cpp
 execLs_SOURCES = execLs.cpp
-future_SOURCES = future.cpp
 getini_SOURCES = getini.cpp
 hd_SOURCES = hd.cpp
 httpclient_SOURCES = httpclient.cpp
@@ -95,18 +92,12 @@ serialization_SOURCES = serialization.cpp
 signals_SOURCES = signals.cpp
 splitter_SOURCES = splitter.cpp
 sslshowcert_SOURCES = sslshowcert.cpp
-threadpool_SOURCES = threadpool.cpp
-thread_SOURCES = thread.cpp
+tcpsocket_SOURCES = tcpsocket.cpp
 timer_SOURCES = timer.cpp
 uuencode_SOURCES = uuencode.cpp
 xmlmsgclient_SOURCES = xmlmsgclient.cpp
 xmlmsgserver_SOURCES = xmlmsgserver.cpp
 xmlreader_SOURCES = xmlreader.cpp
-
-if MAKE_ICONVSTREAM
-noinst_PROGRAMS += iconv
-iconv_SOURCES = iconv.cpp
-endif
 
 BASE_LIBS = $(top_builddir)/src/libcxxtools.la
 HTTP_LIBS = $(BASE_LIBS) $(top_builddir)/src/http/libcxxtools-http.la

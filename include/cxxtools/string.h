@@ -51,10 +51,10 @@ class basic_string< cxxtools::Char > {
         typedef char_traits< cxxtools::Char > traits_type;
         typedef std::allocator<cxxtools::Char> allocator_type;
         typedef allocator_type::difference_type difference_type;
-        typedef allocator_type::reference reference;
-        typedef allocator_type::const_reference const_reference;
-        typedef allocator_type::pointer pointer;
-        typedef allocator_type::const_pointer const_pointer;
+        typedef value_type& reference;
+        typedef const value_type& const_reference;
+        typedef value_type* pointer;
+        typedef const value_type* const_pointer;
         typedef value_type* iterator;
         typedef const value_type* const_iterator;
 
@@ -102,13 +102,9 @@ class basic_string< cxxtools::Char > {
         template <typename InputIterator>
         basic_string(InputIterator begin, InputIterator end, const allocator_type& a = allocator_type());
 
-#if __cplusplus >= 201103L
-
         basic_string(basic_string&& str) noexcept;
 
         basic_string& operator=(basic_string&& str);
-
-#endif
 
         ~basic_string();
 

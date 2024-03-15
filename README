@@ -1,16 +1,1 @@
-Cxxtools
-========
-
-cxxtools is my toolbox with reusable c++-components
-
-see INSTALL for installation-instructions
-
-
-Installation from GIT
-=====================
-
-In the GIT-repository there is no configure-script, but configure.ac,
-which is the source for configure. You need autoconf and automake to
-create configure. 
-
-Run `autoreconf -i` to generate a configure script.
+see README.md

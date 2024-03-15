@@ -56,22 +56,32 @@ Deserializer::Deserializer(const char* data, size_t size)
 
 void Deserializer::read(std::istream& in)
 {
+    try
+    {
+        read(*in.rdbuf());
+    }
+    catch (const cxxtools::SerializationError& e)
+    {
+        in.setstate(std::ios::eofbit);
+        SerializationError::doThrow("binary deserialization failed - unexpected eof");
+    }
+}
+
+void Deserializer::read(std::streambuf& in)
+{
     log_trace("read from input stream");
 
     begin();
 
-    while (in.rdbuf()->sgetc() != std::streambuf::traits_type::eof())
+    while (in.sgetc() != std::streambuf::traits_type::eof())
     {
-        log_debug("call advance - in_avail=" << in.rdbuf()->in_avail() << " ch=" << in.rdbuf()->sgetc());
-        if (_parser.advance(*in.rdbuf(), true))
+        log_debug("call advance - in_avail=" << in.in_avail() << " ch=" << in.sgetc());
+        if (_parser.advance(in, true))
         {
             _parser.finish();
             return;
         }
     }
-
-    in.setstate(std::ios::eofbit);
-    SerializationError::doThrow("binary deserialization failed - unexpected eof");
 }
 
 void Deserializer::begin(bool resetDictionary)

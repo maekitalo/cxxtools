@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2012 Jiří Pinkava - Seznam.cz a. s.
- * 
+ * Copyright (C) 2024 by Tommi Maekitalo
+ *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
  * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
- * 
+ *
  * As a special exception, you may use this file as part of a free
  * software library without restriction. Specifically, if other files
  * instantiate templates or use macros or inline functions from this
@@ -15,68 +15,55 @@
  * License. This exception does not however invalidate any other
  * reasons why the executable file might be covered by the GNU Library
  * General Public License.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-#include "cxxtools/iconvwrap.h"
+#ifndef CXXTOOLS_DESTRUCTIONSENTRY_H
+#define CXXTOOLS_DESTRUCTIONSENTRY_H
 
 namespace cxxtools
 {
-
-iconvwrap::iconvwrap()
-  : cd(iconv_t(-1))
+class DestructionSentry
 {
-}
+public:
+    explicit DestructionSentry(DestructionSentry*& sentry)
+    : _deleted(false)
+    , _sentry(sentry)
+    {
+       sentry = this;
+    }
 
-iconvwrap::iconvwrap(const char *tocode, const char *fromcode)
-{
-  open(tocode, fromcode);
-}
+    ~DestructionSentry()
+    {
+        if( ! _deleted )
+            this->detach();
+    }
 
-bool iconvwrap::close()
-{
-  if (cd != iconv_t(-1)) {
-    int ret;
+    bool operator!() const
+    { return _deleted; }
 
-    ret = ::iconv_close(cd);
-    cd = iconv_t(-1);
+    bool deleted() const
+    { return _deleted; }
 
-    return (ret != -1);
-  }
+    void detach()
+    {
+        _sentry = 0;
+        _deleted = true;
+    }
 
-  return true;
-}
-
-bool iconvwrap::convert(char **inbuf, size_t *inbytesleft,
-    char **outbuf, size_t *outbytesleft)
-{
-  return (iconv(cd, inbuf, inbytesleft, outbuf, outbytesleft) != size_t(-1));
-}
-
-bool iconvwrap::is_open()
-{
-  return (cd != iconv_t(-1));
-}
-
-bool iconvwrap::open(const char *tocode, const char *fromcode)
-{
-  close();
-  cd = ::iconv_open(tocode, fromcode);
-
-  return (cd != iconv_t(-1));
-}
-
-iconvwrap::~iconvwrap()
-{
-  close();
-}
+private:
+    bool _deleted;
+    DestructionSentry*& _sentry;
+};
 
 }
+
+#endif

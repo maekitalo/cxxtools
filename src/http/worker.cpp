@@ -28,9 +28,12 @@
 
 #include "worker.h"
 #include "serverimpl.h"
+#include "socket.h"
+
 #include <cxxtools/net/tcpserver.h>
 #include <cxxtools/log.h>
-#include "socket.h"
+
+#include <functional>
 
 log_define("cxxtools.http.worker")
 
@@ -38,6 +41,11 @@ namespace cxxtools
 {
 namespace http
 {
+
+Worker::Worker(ServerImpl& server)
+    : _server(server),
+      _thread(&Worker::run, this)
+{ }
 
 void Worker::run()
 {

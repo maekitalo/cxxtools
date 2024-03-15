@@ -27,6 +27,8 @@
  */
 
 #include <cxxtools/sslctx.h>
+#include <cxxtools/serializationinfo.h>
+#include <cxxtools/serializationerror.h>
 #include <cxxtools/log.h>
 #include "sslctximpl.h"
 
@@ -87,7 +89,7 @@ SslCtx& SslCtx::loadCertificateFile(const std::string& certFile, const std::stri
     return *this;
 }
 
-SslCtx& SslCtx::setVerify(int level, const std::string& ca)
+SslCtx& SslCtx::setVerify(VERIFY_LEVEL level, const std::string& ca)
 {
     impl()->setVerify(level, ca);
     return *this;
@@ -95,7 +97,7 @@ SslCtx& SslCtx::setVerify(int level, const std::string& ca)
 
 SslCtx& SslCtx::setVerify(const std::string& ca)
 {
-    impl()->setVerify(2, ca);
+    impl()->setVerify(VERIFY_LEVEL::REQUIRE, ca);
     return *this;
 }
 
@@ -137,4 +139,60 @@ const SslCtx::Impl* SslCtx::impl() const
     return const_cast<SslCtx*>(this)->impl();
 }
 
+void operator<<= (cxxtools::SerializationInfo& si, const SslCtx::PROTOCOL_VERSION& protocolVersion)
+{
+    switch (protocolVersion)
+    {
+        case SslCtx::PROTOCOL_VERSION::SSLv2: si <<= "SSLv2"; break;
+        case SslCtx::PROTOCOL_VERSION::SSLv3: si <<= "SSLv3"; break;
+        case SslCtx::PROTOCOL_VERSION::TLSv1: si <<= "TLSv1"; break;
+        case SslCtx::PROTOCOL_VERSION::TLSv11: si <<= "TLSv11"; break;
+        case SslCtx::PROTOCOL_VERSION::TLSv12: si <<= "TLSv12"; break;
+        case SslCtx::PROTOCOL_VERSION::TLSv13: si <<= "TLSv13"; break;
+    }
+}
+
+void operator>>= (const cxxtools::SerializationInfo& si, SslCtx::PROTOCOL_VERSION& protocolVersion)
+{
+    std::string value;
+    si >>= value;
+    if (value == "SSLv2")
+        protocolVersion = cxxtools::SslCtx::PROTOCOL_VERSION::SSLv2;
+    else if (value == "SSLv3")
+        protocolVersion = cxxtools::SslCtx::PROTOCOL_VERSION::SSLv3;
+    else if (value == "TLSv1")
+        protocolVersion = cxxtools::SslCtx::PROTOCOL_VERSION::TLSv1;
+    else if (value == "TLSv11")
+        protocolVersion = cxxtools::SslCtx::PROTOCOL_VERSION::TLSv11;
+    else if (value == "TLSv12")
+        protocolVersion = cxxtools::SslCtx::PROTOCOL_VERSION::TLSv12;
+    else if (value == "TLSv13")
+        protocolVersion = cxxtools::SslCtx::PROTOCOL_VERSION::TLSv13;
+    else if (!value.empty())
+        throw SerializationError("invalid protocol version <" + value + '>');
+}
+
+void operator<<= (cxxtools::SerializationInfo& si, const SslCtx::VERIFY_LEVEL& verifyLevel)
+{
+    switch (verifyLevel)
+    {
+        case SslCtx::VERIFY_LEVEL::NONE:        si <<= "NONE";      break;
+        case SslCtx::VERIFY_LEVEL::OPTIONAL:    si <<= "OPTIONAL";  break;
+        case SslCtx::VERIFY_LEVEL::REQUIRE:     si <<= "REQUIRE";   break;
+    }
+}
+
+void operator>>= (const cxxtools::SerializationInfo& si, SslCtx::VERIFY_LEVEL& verifyLevel)
+{
+    std::string value;
+    si >>= value;
+    if (value == "NONE" || value == "none" || value == "0")
+        verifyLevel = cxxtools::SslCtx::VERIFY_LEVEL::NONE;
+    else if (value == "OPTIONAL" || value == "optional" || value == "1")
+        verifyLevel = cxxtools::SslCtx::VERIFY_LEVEL::OPTIONAL;
+    else if (value == "REQUIRE" || value == "require" || value == "2")
+        verifyLevel = cxxtools::SslCtx::VERIFY_LEVEL::REQUIRE;
+    else
+        throw SerializationError("invalid verify level <" + value + '>');
+}
 }

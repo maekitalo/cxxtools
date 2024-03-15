@@ -33,57 +33,44 @@
 #include <string>
 #include <sys/types.h>
 #include <regex.h>
-#include <cxxtools/smartptr.h>
+#include <memory>
 
 namespace cxxtools
 {
   class RegexSMatch;
 
-  template <typename objectType>
-  class RegexDestroyPolicy;
-
-  template <>
-  class RegexDestroyPolicy<regex_t>
-  {
-    protected:
-      void destroy(regex_t* expr)
-      {
-        ::regfree(expr);
-        delete expr;
-      }
-  };
-
   /// regex(3)-wrapper.
   class Regex
   {
-      SmartPtr<regex_t, ExternalRefCounted, RegexDestroyPolicy> expr;
+      std::unique_ptr<regex_t, decltype(&regfree)> expr;
 
       void checkerr(int ret) const;
 
     public:
       /// create a uninitialized regex object.
       Regex()
+        : expr(0, ::regfree)
       { }
 
       /// create a regex object with a const char*.
       explicit Regex(const char* ex, int cflags = REG_EXTENDED)
-        : expr(0)
+        : expr(0, ::regfree)
       {
         if (ex && ex[0])
         {
-          expr = new regex_t();
-          checkerr(::regcomp(expr.getPointer(), ex, cflags));
+          expr.reset(new regex_t());
+          checkerr(::regcomp(expr.get(), ex, cflags));
         }
       }
 
       /// create a regex object with std::string.
       explicit Regex(const std::string& ex, int cflags = REG_EXTENDED)
-        : expr(0)
+        : expr(0, ::regfree)
       {
         if (!ex.empty())
         {
-          expr = new regex_t();
-          checkerr(::regcomp(expr.getPointer(), ex.c_str(), cflags));
+          expr.reset(new regex_t());
+          checkerr(::regcomp(expr.get(), ex.c_str(), cflags));
         }
       }
 
@@ -109,7 +96,7 @@ namespace cxxtools
       void free()  { expr = 0; }
 
       /// Returns true, if the object does not have a valid regular expression.
-      bool empty() const    { return expr.getPointer() == 0; }
+      bool empty() const    { return !expr; }
   };
 
   /// collects matches in a regex

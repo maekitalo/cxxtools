@@ -66,9 +66,7 @@ ClientImpl::ClientImpl(Client* client)
 {
     _stream.attachDevice(_socket);
     cxxtools::connect(_socket.connected, *this, &ClientImpl::onConnect);
-#ifdef WITH_SSL
     cxxtools::connect(_socket.sslConnected, *this, &ClientImpl::onSslConnect);
-#endif
     cxxtools::connect(_stream.buffer().outputReady, *this, &ClientImpl::onOutput);
     cxxtools::connect(_stream.buffer().inputReady, *this, &ClientImpl::onInput);
 }
@@ -82,9 +80,7 @@ void ClientImpl::prepareConnect(const net::AddrInfo& addrinfo, const SslCtx& ssl
         _socket.close();
     }
 
-#ifdef WITH_SSL
     _sslCtx = sslCtx;
-#endif
 }
 
 void ClientImpl::reexecute(const Request& request)
@@ -95,10 +91,8 @@ void ClientImpl::reexecute(const Request& request)
     _stream.buffer().discard();
 
     _socket.connect(_addrInfo);
-#ifdef WITH_SSL
     if (_sslCtx.enabled())
         _socket.sslConnect(_sslCtx);
-#endif
 
     sendRequest(request);
     _stream.flush();
@@ -151,13 +145,11 @@ const ReplyHeader& ClientImpl::execute(const Request& request, Timespan timeout,
         log_debug("connect");
         _socket.connect(_addrInfo);
 
-#ifdef WITH_SSL
         if (_sslCtx.enabled())
         {
             log_debug("ssl connect");
             _socket.sslConnect(_sslCtx);
         }
-#endif
     }
 
     _socket.setTimeout(timeout);
@@ -406,13 +398,11 @@ void ClientImpl::onConnect(net::TcpSocket& socket)
 
         _exceptionPending = false;
         socket.endConnect();
-#ifdef WITH_SSL
         if (_sslCtx.enabled())
         {
             socket.beginSslConnect(_sslCtx);
             return;
         }
-#endif
 
         sendRequest(*_request);
 
@@ -431,7 +421,6 @@ void ClientImpl::onConnect(net::TcpSocket& socket)
     }
 }
 
-#ifdef WITH_SSL
 void ClientImpl::onSslConnect(net::TcpSocket& socket)
 {
     try
@@ -456,7 +445,6 @@ void ClientImpl::onSslConnect(net::TcpSocket& socket)
             throw;
     }
 }
-#endif
 
 void ClientImpl::onOutput(StreamBuffer& sb)
 {

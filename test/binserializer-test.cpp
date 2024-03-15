@@ -417,7 +417,7 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
             std::vector<TestObject> obj2;
             data >> cxxtools::bin::Bin(obj2);
 
-            CXXTOOLS_UNIT_ASSERT_EQUALS(obj2.size(), 2);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(obj2.size(), 2u);
             CXXTOOLS_UNIT_ASSERT_EQUALS(obj[0].intValue, obj2[0].intValue);
             CXXTOOLS_UNIT_ASSERT_EQUALS(obj[0].stringValue, obj2[0].stringValue);
             CXXTOOLS_UNIT_ASSERT_EQUALS(obj[0].doubleValue, obj2[0].doubleValue);
@@ -444,7 +444,7 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
             std::string v2;
             data >> cxxtools::bin::Bin(v2);
 
-            CXXTOOLS_UNIT_ASSERT_EQUALS(v2.size(), 1024);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v2.size(), 1024u);
             CXXTOOLS_UNIT_ASSERT(v == v2);
 
             for (unsigned n = 0; n < 0xffff; ++n)
@@ -453,8 +453,8 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
             data << cxxtools::bin::Bin(v);
             data >> cxxtools::bin::Bin(v2);
 
-            CXXTOOLS_UNIT_ASSERT_EQUALS(v.size(), 0xffff + 1024);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(v2.size(), 0xffff + 1024);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v.size(), 0xffffu + 1024u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(v2.size(), 0xffffu + 1024u);
             CXXTOOLS_UNIT_ASSERT(v == v2);
 
         }
@@ -580,7 +580,7 @@ void BinSerializerTest::testReuse()
         d.deserialize(si2);
 
         std::string bar;
-        CXXTOOLS_UNIT_ASSERT_EQUALS(si2.memberCount(), 1);
+        CXXTOOLS_UNIT_ASSERT_EQUALS(si2.memberCount(), 1u);
         CXXTOOLS_UNIT_ASSERT_NOTHROW(si2.getMember("foo") >>= bar);
         CXXTOOLS_UNIT_ASSERT_EQUALS(bar, "bar");
     }
@@ -597,7 +597,7 @@ void BinSerializerTest::testReuse()
         d.deserialize(si2);
 
         int bar;
-        CXXTOOLS_UNIT_ASSERT_EQUALS(si2.memberCount(), 1);
+        CXXTOOLS_UNIT_ASSERT_EQUALS(si2.memberCount(), 1u);
         CXXTOOLS_UNIT_ASSERT_NOTHROW(si2.getMember("bar").getMember("bar") >>= bar);
         CXXTOOLS_UNIT_ASSERT_EQUALS(bar, 42);
     }
@@ -646,7 +646,7 @@ void BinSerializerTest::testNamedVector()
     cxxtools::bin::Deserializer d(data);
     d.deserialize(f2);
 
-    CXXTOOLS_UNIT_ASSERT_EQUALS(f2.data.size(), 2);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(f2.data.size(), 2u);
     CXXTOOLS_UNIT_ASSERT_EQUALS(f2.data[0], 42);
     CXXTOOLS_UNIT_ASSERT_EQUALS(f2.data[1], 12);
 }

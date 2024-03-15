@@ -60,7 +60,7 @@ class IniFileTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT(inifile.exists(L"s1", L"k1"));
             CXXTOOLS_UNIT_ASSERT(!inifile.exists(L"s1", L"k3"));
 
-            CXXTOOLS_UNIT_ASSERT_EQUALS(inifile.getValue(L"s1", L"k1"), L"v1");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(inifile.getValue(L"s1", L"k1"), cxxtools::String(L"v1"));
             CXXTOOLS_UNIT_ASSERT_EQUALS(inifile.getValueT(L"s1", L"k1", 42), 42);
             CXXTOOLS_UNIT_ASSERT_EQUALS(inifile.getValueT(L"s2", L"k1", 42), 17);
             CXXTOOLS_UNIT_ASSERT_EQUALS(inifile.getValueT(L"s2", L"k2", 42.25), 1.5);
@@ -79,7 +79,7 @@ class IniFileTest : public cxxtools::unit::TestSuite
             cxxtools::IniFile inifile;
             st >> inifile;
 
-            CXXTOOLS_UNIT_ASSERT_EQUALS(inifile.getValue(L"s1", L"k1"), L"v1");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(inifile.getValue(L"s1", L"k1"), cxxtools::String(L"v1"));
             CXXTOOLS_UNIT_ASSERT_EQUALS(inifile.getValueT(L"s2", L"k1", 42), 17);
         }
 

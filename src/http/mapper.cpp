@@ -42,21 +42,21 @@ void Mapper::addService(const std::string& url, Service& service)
 {
     log_debug("add service for url <" << url << '>');
 
-    WriteLock serviceLock(_serviceMutex);
+    WriteLockType serviceLock(_serviceMutex);
     _services.push_back(ServicesType::value_type(url, &service));
 }
 
-void Mapper::addService(const Regex& url, Service& service)
+void Mapper::addService(Regex&& url, Service& service)
 {
     log_debug("add service for regex");
 
-    WriteLock serviceLock(_serviceMutex);
-    _services.push_back(ServicesType::value_type(url, &service));
+    WriteLockType serviceLock(_serviceMutex);
+    _services.push_back(ServicesType::value_type(std::move(url), &service));
 }
 
 void Mapper::removeService(Service& service)
 {
-    WriteLock serviceLock(_serviceMutex);
+    WriteLockType serviceLock(_serviceMutex);
     service.waitIdle();
 
     ServicesType::size_type n = 0;
@@ -77,7 +77,7 @@ Responder* Mapper::getResponder(const Request& request)
 {
     log_debug("get responder for url <" << request.url() << '>');
 
-    ReadLock serviceLock(_serviceMutex);
+    ReadLockType serviceLock(_serviceMutex);
 
     for (ServicesType::const_iterator it = _services.begin();
          it != _services.end(); ++it)

@@ -34,6 +34,12 @@
 #include <map>
 #include <cxxtools/regex.h>
 
+#if __cplusplus >= 201703L
+#include <shared_mutex>
+#else
+#include <mutex>
+#endif
+
 namespace cxxtools
 {
 namespace http
@@ -43,7 +49,7 @@ class Mapper
 {
     public:
         void addService(const std::string& url, Service& service);
-        void addService(const Regex& url, Service& service);
+        void addService(Regex&& url, Service& service);
         void removeService(Service& service);
 
         Responder* getResponder(const Request& request);
@@ -56,8 +62,8 @@ class Mapper
           Regex regex;
           std::string url;
           Key() { }
-          Key(const Regex& regex_)
-            : regex(regex_)
+          Key(Regex&& regex_)
+            : regex(std::move(regex_))
           { }
           Key(const std::string& url_)
             : url(url_)
@@ -67,7 +73,17 @@ class Mapper
                                  : regex.match(u); }
         };
         typedef std::vector<std::pair<Key, Service*> > ServicesType;
-        ReadWriteMutex _serviceMutex;
+#if __cplusplus >= 201703L
+        typedef std::shared_mutex MutexType;
+        typedef std::shared_lock<std::shared_mutex> ReadLockType;
+        typedef std::unique_lock<std::shared_mutex> WriteLockType;
+#else
+        typedef std::mutex MutexType;
+        typedef std::unique_lock<std::mutex> ReadLockType;
+        typedef std::unique_lock<std::mutex> WriteLockType;
+#endif
+        MutexType _serviceMutex;
+
         ServicesType _services;
         NotFoundService _defaultService;
         NotAuthenticatedService _noAuthService;

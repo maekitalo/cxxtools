@@ -166,8 +166,12 @@ namespace cxxtools
       case state_var1:
         return ret + '$';
 
+      case state_brace:
+        return ret + "${";
+
       case state_1:
-        return ret;
+      case state_brace_end:
+        break;
     }
 
     return ret;
@@ -178,7 +182,7 @@ namespace cxxtools
     if (ret != 0)
     {
       char errbuf[256];
-      regerror(ret, expr.getPointer(), errbuf, sizeof(errbuf));
+      regerror(ret, expr.get(), errbuf, sizeof(errbuf));
       throw std::runtime_error(errbuf);
     }
   }
@@ -191,14 +195,14 @@ namespace cxxtools
 
   bool Regex::matchp(const std::string& str_, std::string::size_type p, RegexSMatch& smatch, int eflags) const
   {
-    if (expr.getPointer() == 0)
+    if (!expr)
     {
       smatch.matchbuf[0].rm_so = 0;
       return true;
     }
 
     smatch.str = str_;
-    int ret = regexec(expr.getPointer(), str_.c_str() + p,
+    int ret = regexec(expr.get(), str_.c_str() + p,
         sizeof(smatch.matchbuf) / sizeof(regmatch_t), smatch.matchbuf, eflags);
 
     if (ret == REG_NOMATCH)

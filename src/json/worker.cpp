@@ -28,9 +28,11 @@
 
 #include "worker.h"
 #include "rpcserverimpl.h"
+#include "socket.h"
 #include <cxxtools/net/tcpserver.h>
 #include <cxxtools/log.h>
-#include "socket.h"
+
+#include <functional>
 
 log_define("cxxtools.json.worker")
 
@@ -39,9 +41,22 @@ namespace cxxtools
 namespace json
 {
 
+Worker::Worker(RpcServerImpl& server)
+    : _server(server),
+      _thread(&Worker::run, this)
+{
+    log_debug(static_cast<void*>(this) << " worker created; server=" << static_cast<void*>(&_server));
+}
+
+Worker::~Worker()
+{
+    log_debug(static_cast<void*>(this) << " worker destroyed; server=" << static_cast<void*>(&_server));
+}
+
 void Worker::run()
 {
     log_info("new thread running");
+    log_debug(static_cast<void*>(this) << " server=" << static_cast<void*>(&_server));
     while (!_server.isTerminating() && _server._queue.numWaiting() < _server.minThreads())
     {
         Socket* socket = _server._queue.get();
@@ -135,7 +150,6 @@ void Worker::run()
     log_info("thread terminated");
     _server.threadTerminated(this);
 }
-
 
 }
 }

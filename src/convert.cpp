@@ -30,6 +30,7 @@
 #include <iomanip>
 #include <limits>
 #include <cctype>
+#include <iterator>
 
 namespace cxxtools
 {
@@ -42,9 +43,17 @@ void _skipws(IterT& it, IterT end)
 }
 
 template<typename T>
-class nullterm_array_iterator : public std::iterator<std::input_iterator_tag, T>
+class nullterm_array_iterator
 {
     public:
+        using iterator_category = std::input_iterator_tag;
+        using value_type = T;
+        using difference_type = int;
+        using pointer = T*;
+        using reference = T&;
+        using const_pointer = const T*;
+        using const_reference = const T&;
+
         nullterm_array_iterator()
         : _ptr(0)
         { }

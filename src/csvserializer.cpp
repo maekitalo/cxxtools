@@ -36,7 +36,7 @@ log_define("cxxtools.csv.serializer")
 
 namespace cxxtools
 {
-static void collectTitles(std::vector<CsvSerializer::Title>& titles, const cxxtools::SerializationInfo& si, const std::string& prefix)
+static void collectTitles(std::vector<CsvSerializer::Title>& titles, const SerializationInfo& si, const std::string& prefix)
 {
     for (const auto& ssi: si)
     {
@@ -49,7 +49,7 @@ static void collectTitles(std::vector<CsvSerializer::Title>& titles, const cxxto
                 namePrefix = prefix + namePrefix;
             collectTitles(titles, ssi, namePrefix);
         }
-        else if (ssi.category() == SerializationInfo::Value)
+        else
         {
             auto name = ssi.name();
             if (!name.empty())
@@ -63,7 +63,7 @@ static void collectTitles(std::vector<CsvSerializer::Title>& titles, const cxxto
     }
 }
 
-static void collectData(std::map<std::string, String>& data, const cxxtools::SerializationInfo& si, const std::string& prefix)
+static void collectData(std::map<std::string, String>& data, const SerializationInfo& si, const std::string& prefix)
 {
     for (const auto& ssi: si)
     {
@@ -91,14 +91,6 @@ static void collectData(std::map<std::string, String>& data, const cxxtools::Ser
         }
     }
 }
-
-    /*
-    void operator<<= (SerializationInfo& si, const CsvSerializer::Title& t)
-    {
-        si.addMember("memberName") <<= t._memberName;
-        si.addMember("title") <<= t._title;
-    }
-    */
 
 CsvSerializer::CsvSerializer(std::ostream& os, TextCodec<Char, char>* codec)
     : _delimiter(L","),
@@ -197,15 +189,14 @@ const CsvSerializer& CsvSerializer::serialize(const SerializationInfo& si) const
                 bool first = true;
                 for (const auto& title: titles)
                 {
+                    if (first)
+                        first = false;
+                    else
+                        _os << _delimiter;
+
                     auto it = data.find(title.memberName());
                     if (it != data.end())
-                    {
-                        if (first)
-                            first = false;
-                        else
-                            _os << _delimiter;
                         csvOut(it->second);
-                    }
                 }
             }
 
@@ -257,15 +248,14 @@ const CsvSerializer& CsvSerializer::serialize(const SerializationInfo& si) const
                     bool first = true;
                     for (const auto& title: titles)
                     {
+                        if (first)
+                            first = false;
+                        else
+                            _os << _delimiter;
+
                         auto it = data.find(title.memberName());
                         if (it != data.end())
-                        {
-                            if (first)
-                                first = false;
-                            else
-                                _os << _delimiter;
                             csvOut(it->second);
-                        }
                     }
                 }
 

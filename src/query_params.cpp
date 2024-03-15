@@ -465,7 +465,9 @@ void operator<<= (cxxtools::SerializationInfo& si, const QueryParams& q)
             }
         }
 
-        current->addMember(nodename) <<= Utf8Codec::decode(it->value);
+        auto& m = current->addMember(nodename);
+        if (!it->value.empty())
+            m <<= Utf8Codec::decode(it->value);
     }
 }
 

@@ -84,6 +84,11 @@ namespace cxxtools
         return Utf8OString(str);
     }
 
+    inline Utf8OString Utf8(const Char& ch)
+    {
+        return Utf8OString(String(1, ch));
+    }
+
     inline Utf8OString Utf8(const std::string& str)
     {
         return Utf8OString(decode<Utf8Codec>(str));

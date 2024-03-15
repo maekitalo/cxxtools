@@ -30,8 +30,6 @@
 #include <cxxtools/log.h>
 #include <cxxtools/datetime.h>
 #include <cxxtools/directory.h>
-#include <cxxtools/mutex.h>
-#include <cxxtools/smartptr.h>
 #include <cxxtools/systemerror.h>
 
 #include <iostream>
@@ -39,6 +37,8 @@
 #include <vector>
 #include <map>
 #include <algorithm>
+#include <memory>
+#include <mutex>
 
 #include <stdint.h>
 #include <stdlib.h>
@@ -54,14 +54,14 @@ namespace cxxtools
 
 typedef int64_t TimeValue;
 
-class Tz::Impl : public RefCounted
+class Tz::Impl
 {
     friend class Tz;
     friend class TzDateTime;
 
-    typedef std::vector<std::pair<std::string, cxxtools::SmartPtr<Impl> > > TimeZones;
-    static TimeZones timeZones;
-    static cxxtools::Mutex mutex;
+    typedef std::vector<std::pair<std::string, std::unique_ptr<Impl> > > TimeZones;
+    static TimeZones _timeZones;
+    static std::mutex _mutex;
 
     struct TzHead
     {
@@ -290,24 +290,24 @@ static const char* tzDir()
     return TZDIR ? TZDIR : tz_dir;
 }
 
-Tz::Impl::TimeZones Tz::Impl::timeZones;
-cxxtools::Mutex Tz::Impl::mutex;
+Tz::Impl::TimeZones Tz::Impl::_timeZones;
+std::mutex Tz::Impl::_mutex;
 
 Tz::Tz(const std::string& timeZone)
     : _impl(0)
 {
-    cxxtools::MutexLock lock(Impl::mutex);
+    std::lock_guard<std::mutex> lock(Impl::_mutex);
 
     std::string timeZone2 = timeZone;
     if (timeZone2.empty())
         timeZone2 = currentZone();
 
-    for (auto it = Impl::timeZones.begin(); it != Impl::timeZones.end(); ++it)
+    for (auto it = Impl::_timeZones.begin(); it != Impl::_timeZones.end(); ++it)
     {
         if (it->first == timeZone2)
         {
             log_debug("take cached");
-            _impl = it->second.getPointer();
+            _impl = it->second.get();
             return;
         }
     }
@@ -320,10 +320,8 @@ Tz::Tz(const std::string& timeZone)
     if (!in)
         throw TzInvalidTimeZoneFile("failed to open timezone file \"" + fname + '"');
 
-    cxxtools::SmartPtr<Impl> impl(new Impl(in, timeZone2));
-    _impl = impl.getPointer();
-
-    Impl::timeZones.emplace_back(timeZone2, std::move(impl));
+    Impl::_timeZones.emplace_back(timeZone2, new Impl(in, timeZone2));
+    _impl = Impl::_timeZones.back().second.get();
 }
 
 void Tz::dump(std::ostream& out) const
@@ -592,9 +590,9 @@ static std::string readCurrentTimeZone()
 
 std::string Tz::currentZone()
 {
-    static cxxtools::Mutex mutex;
+    static std::mutex _mutex;
     static std::string myZone;
-    cxxtools::MutexLock lock(mutex);
+    std::lock_guard<std::mutex> lock(_mutex);
     if (myZone.empty())
         myZone = readCurrentTimeZone();
     return myZone;
@@ -639,9 +637,9 @@ static void addTimezones(std::vector<std::string>& result, const std::string& ba
 const std::vector<std::string>& Tz::getTimeZones()
 {
     static std::vector<std::string> ret;
-    static cxxtools::Mutex mutex;
+    static std::mutex mutex;
 
-    cxxtools::MutexLock lock(mutex);
+    std::lock_guard<std::mutex> lock(mutex);
 
     if (ret.empty())
     {

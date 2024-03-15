@@ -96,70 +96,70 @@ class DateTimeTest : public cxxtools::unit::TestSuite
 
             dt.get(year, month, day, hours, minutes, seconds, milliseconds, microseconds);
             CXXTOOLS_UNIT_ASSERT_EQUALS(year, 2013);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(month, 5);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(day, 3);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(hours, 17);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(minutes, 1);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(seconds, 14);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(milliseconds, 342);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(microseconds, 342800);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(month, 5u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(day, 3u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(hours, 17u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(minutes, 1u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(seconds, 14u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(milliseconds, 342u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(microseconds, 342800u);
 
             dt = cxxtools::DateTime("2013 5 3 17 1 14.3", "%Y %m %d %H %M %S%J");
 
             dt.get(year, month, day, hours, minutes, seconds, milliseconds, microseconds);
             CXXTOOLS_UNIT_ASSERT_EQUALS(year, 2013);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(month, 5);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(day, 3);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(hours, 17);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(minutes, 1);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(seconds, 14);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(milliseconds, 300);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(microseconds, 300000);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(month, 5u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(day, 3u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(hours, 17u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(minutes, 1u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(seconds, 14u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(milliseconds, 300u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(microseconds, 300000u);
 
             dt = cxxtools::DateTime("2013 5 3 17 1 14", "%Y %m %d %H %M %S%J");
 
             dt.get(year, month, day, hours, minutes, seconds, milliseconds, microseconds);
             CXXTOOLS_UNIT_ASSERT_EQUALS(year, 2013);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(month, 5);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(day, 3);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(hours, 17);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(minutes, 1);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(seconds, 14);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(milliseconds, 0);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(microseconds, 0);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(month, 5u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(day, 3u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(hours, 17u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(minutes, 1u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(seconds, 14u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(milliseconds, 0u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(microseconds, 0u);
 
             dt = cxxtools::DateTime("2013-5-3 5:01:14 pm", "%Y-%m-%d %H:%M:%S %p");
 
             dt.get(year, month, day, hours, minutes, seconds, milliseconds, microseconds);
             CXXTOOLS_UNIT_ASSERT_EQUALS(year, 2013);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(month, 5);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(day, 3);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(hours, 17);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(minutes, 1);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(seconds, 14);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(milliseconds, 0);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(microseconds, 0);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(month, 5u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(day, 3u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(hours, 17u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(minutes, 1u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(seconds, 14u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(milliseconds, 0u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(microseconds, 0u);
 
             dt = cxxtools::DateTime("2013 foo 5 bar 3 5   01     14 pm", "%Y*%m*%d*%H*%M*%S %p");
 
             dt.get(year, month, day, hours, minutes, seconds, milliseconds, microseconds);
             CXXTOOLS_UNIT_ASSERT_EQUALS(year, 2013);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(month, 5);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(day, 3);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(hours, 17);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(minutes, 1);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(seconds, 14);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(milliseconds, 0);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(microseconds, 0);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(month, 5u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(day, 3u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(hours, 17u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(minutes, 1u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(seconds, 14u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(milliseconds, 0u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(microseconds, 0u);
 
             CXXTOOLS_UNIT_ASSERT_NOTHROW(dt = cxxtools::DateTime("5 3 9 1 6", "%m %d %H %M %S"));
 
             dt.get(year, month, day, hours, minutes, seconds, milliseconds, microseconds);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(month, 5);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(day, 3);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(hours, 9);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(minutes, 1);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(seconds, 6);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(month, 5u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(day, 3u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(hours, 9u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(minutes, 1u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(seconds, 6u);
 
         }
 
@@ -173,12 +173,12 @@ class DateTimeTest : public cxxtools::unit::TestSuite
             dt.get(year, month, day, hours, minutes, seconds, milliseconds, microseconds);
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(year, 2018);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(month, 4);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(day, 11);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(hours, 14);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(minutes, 24);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(seconds, 14);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(microseconds, 0);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(month, 4u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(day, 11u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(hours, 14u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(minutes, 24u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(seconds, 14u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(microseconds, 0u);
 
             static const char* monthnames[12] = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
             for (unsigned m = 0; m < 12; ++m)
