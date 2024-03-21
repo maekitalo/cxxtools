@@ -1285,25 +1285,16 @@ LogManager& LogManager::getInstance()
 
 void LogManager::logInit()
 {
-    std::string logXml = "log.xml";
+    static const std::string logProperties = "log.properties";
+    static const std::string logJson = "log.json";
+    static const std::string logXml = "log.xml";
 
-    if (FileInfo::exists(logXml))
-    {
+    if (FileInfo::exists(logProperties))
+        logInit(logProperties);
+    else if (FileInfo::exists(logXml))
         logInit(logXml);
-    }
-    else
-    {
-        std::string logProperties = "log.properties";
-        if (FileInfo::exists(logProperties))
-            logInit(logProperties);
-
-        else
-        {
-            std::string logJson = "log.json";
-            if (FileInfo::exists(logJson))
-                logInit(logJson);
-        }
-    }
+    else if (FileInfo::exists(logJson))
+        logInit(logJson);
 }
 
 void LogManager::logInit(const std::string& fname)
@@ -1327,7 +1318,7 @@ void LogManager::logInit(const std::string& fname)
                 d.deserialize(config);
                 getInstance().configure(config);
             }
-            else
+            else if (fname.size() >= 4 && fname.compare(fname.size() - 4, 4, ".xml") == 0)
             {
                 xml::XmlDeserializer d(in, true);
                 LogConfiguration config;
