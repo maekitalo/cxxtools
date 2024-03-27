@@ -170,13 +170,9 @@ const SerializationInfo& SerializationInfo::getMember(const std::string& name) c
 {
     log_debug("getMember(\"" << name << "\")");
 
-    const Nodes& n = nodes();
-
-    for (Nodes::const_iterator it = n.begin(); it != n.end(); ++it)
-    {
-        if( it->name() == name )
-            return *it;
-    }
+    for (const auto& n: nodes())
+        if (n.name() == name)
+            return n;
 
     throw SerializationMemberNotFound(*this, name);
 }
@@ -186,12 +182,47 @@ SerializationInfo& SerializationInfo::getMember(const std::string& name)
 {
     log_debug("getMember(\"" << name << "\")");
 
-    Nodes& n = nodes();
+    if (_nodes)
+        for (auto& n: *_nodes)
+            if (n.name() == name)
+                return n;
 
-    for (Nodes::iterator it = n.begin(); it != n.end(); ++it)
+    throw SerializationMemberNotFound(*this, name);
+}
+
+
+SerializationInfo& SerializationInfo::getNthMember(const std::string& name, unsigned nth)
+{
+    log_debug("getNthMember(\"" << name << "\", " << nth << ')');
+
+    unsigned n = 0;
+    for (auto& node: nodes())
     {
-        if( it->name() == name )
-            return *it;
+        if (node.name() == name)
+        {
+            if (n == nth)
+                return node;
+            ++n;
+        }
+    }
+
+    throw SerializationMemberNotFound(*this, name);
+}
+
+
+const SerializationInfo& SerializationInfo::getNthMember(const std::string& name, unsigned nth) const
+{
+    log_debug("getNthMember(\"" << name << "\", " << nth << ')');
+
+    unsigned n = 0;
+    for (auto& node: nodes())
+    {
+        if (node.name() == name)
+        {
+            if (n == nth)
+                return node;
+            ++n;
+        }
     }
 
     throw SerializationMemberNotFound(*this, name);
@@ -215,7 +246,10 @@ SerializationInfo& SerializationInfo::getMember(unsigned idx)
 {
     log_debug("getMember(" << idx << ')');
 
-    Nodes& n = nodes();
+    if (!_nodes)
+        throw SerializationMemberNotFound(*this, idx);
+
+    Nodes& n = *_nodes;
 
     if (idx >= n.size())
         throw SerializationMemberNotFound(*this, idx);
@@ -239,6 +273,16 @@ const SerializationInfo* SerializationInfo::findMember(const std::string& name) 
     return 0;
 }
 
+size_t SerializationInfo::memberCount(const std::string& name) const
+{
+    log_debug("memberCount(\"" << name << "\"); " << nodes().size() << " nodes");
+
+    size_t result = 0;
+    for (const auto& n: nodes())
+        if (n.name() == name)
+            ++result;
+    return result;
+}
 
 SerializationInfo* SerializationInfo::findMember(const std::string& name)
 {
@@ -373,13 +417,19 @@ SerializationInfo SerializationInfo::path(const std::string& path) const
         state_memberName0,
         state_memberName,
         state_memberNameQ,
+        state_memberNameQesc,
+        state_nth0,
+        state_nth,
         state_meta0,
         state_meta,
     } state = state_root;
 
+    cxxtools::SerializationInfo si;
     const cxxtools::SerializationInfo* current = this;
+    const cxxtools::SerializationInfo* parent = this;
 
     std::string memberName;
+    std::string metaName;
     unsigned idx;
     char quote;
     for (auto ch: path)
@@ -440,8 +490,11 @@ SerializationInfo SerializationInfo::path(const std::string& path) const
                 }
                 else if (ch == ':')
                 {
-                    memberName.clear();
                     state = state_meta0;
+                }
+                else if (ch == '{')
+                {
+                    state = state_nth0;
                 }
                 else
                 {
@@ -453,6 +506,7 @@ SerializationInfo SerializationInfo::path(const std::string& path) const
                 if (ch == ']')
                 {
                     log_debug("array index " << idx);
+                    parent = current;
                     current = &(current->getMember(idx));
                     state = state_0;
                 }
@@ -480,6 +534,7 @@ SerializationInfo SerializationInfo::path(const std::string& path) const
                 if (ch == '[')
                 {
                     log_debug("member <" << memberName << '>');
+                    parent = current;
                     current = &(current->getMember(memberName));
                     idx = 0;
                     state = state_arrayIdx;
@@ -487,6 +542,7 @@ SerializationInfo SerializationInfo::path(const std::string& path) const
                 else if (ch == '.')
                 {
                     log_debug("member <" << memberName << '>');
+                    parent = current;
                     current = &(current->getMember(memberName));
                     memberName.clear();
                     state = state_memberName0;
@@ -494,9 +550,15 @@ SerializationInfo SerializationInfo::path(const std::string& path) const
                 else if (ch == ':')
                 {
                     log_debug("member <" << memberName << '>');
+                    parent = current;
                     current = &(current->getMember(memberName));
-                    memberName.clear();
                     state = state_meta0;
+                }
+                else if (ch == '{')
+                {
+                    parent = current;
+                    current = &(current->getMember(memberName));
+                    state = state_nth0;
                 }
                 else
                 {
@@ -508,13 +570,54 @@ SerializationInfo SerializationInfo::path(const std::string& path) const
                 if (ch == quote)
                 {
                     log_debug("member <" << memberName << '>');
+                    parent = current;
                     current = &(current->getMember(memberName));
                     state = state_0;
                 }
+                else if (ch == '\\')
+                    state = state_memberNameQesc;
                 else
-                {
                     memberName += ch;
+                break;
+
+            case state_memberNameQesc:
+                memberName += ch;
+                state = state_memberNameQ;
+                break;
+
+            case state_nth0:
+                if (ch >= '0' && ch <= '9')
+                {
+                    idx = (ch - '0');
+                    state = state_nth;
                 }
+                else if (ch == '}')
+                {
+                    SerializationInfo ssi;
+                    ssi.setTypeName("array");
+                    for (auto& n: parent->nodes())
+                        if (n.name() == memberName)
+                            ssi.addMember() = n;
+
+                    ssi.swap(si);
+                    log_debug(memberName << "{} => " << si);
+                    current = &si;
+                    state = state_0;
+                }
+                else
+                    throw SiPathError(std::string("unexpected character '") + ch + "' in sipath <" + path + '>');
+                break;
+
+            case state_nth:
+                if (ch == '}')
+                {
+                    current = &(parent->getNthMember(memberName, idx));
+                    state = state_0;
+                }
+                else if (ch >= '0' && ch <= '9')
+                    idx = idx * 10 + (ch - '0');
+                else
+                    throw SiPathError(std::string("unexpected character '") + ch + "' in sipath <" + path + '>');
                 break;
 
             case state_meta0:
@@ -525,7 +628,7 @@ SerializationInfo SerializationInfo::path(const std::string& path) const
                 break;
 
             case state_meta:
-                memberName += ch;
+                metaName += ch;
                 break;
         }
 
@@ -547,32 +650,39 @@ SerializationInfo SerializationInfo::path(const std::string& path) const
             break;
 
         case state_memberNameQ:
-            throw SiPathError("missing closing \" in sipath <" + path + '>');
+        case state_memberNameQesc:
+            throw SiPathError(std::string("missing closing ") + quote + " in sipath <" + path + '>');
+
+        case state_nth0:
+        case state_nth:
+            throw SiPathError("missing closing bracket '}' in sipath <" + path + '>');
 
         case state_meta0:
             throw SiPathError("missing ':' in sipath <" + path + '>');
 
         case state_meta:
-            if (memberName == "size")
+            if (metaName == "size")
             {
-                SerializationInfo si;
                 si <<= current->memberCount();
                 return si;
             }
-            else if (memberName == "type")
+            else if (metaName == "count")
             {
-                SerializationInfo si;
+                si <<= parent->memberCount(memberName);
+                return si;
+            }
+            else if (metaName == "type")
+            {
                 si <<= current->typeName();
                 return si;
             }
-            else if (memberName == "isnull")
+            else if (metaName == "isnull")
             {
-                SerializationInfo si;
                 si <<= current->isNull();
                 return si;
             }
             else
-                throw SiPathError("unknown meta token ::" + memberName);
+                throw SiPathError("unknown meta token ::" + metaName);
     }
 
     return *current;

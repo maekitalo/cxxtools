@@ -35,7 +35,9 @@ namespace
             ],
             "bicycle": {
               "color": "red",
-              "price": 19.95
+              "addon": "rack",
+              "addon": "light",
+              "price": 719.95
             }
           }
         }
@@ -57,8 +59,11 @@ public:
     {
         registerMethod("root", *this, &SiPathTest::root);
         registerMethod("member", *this, &SiPathTest::member);
+        registerMethod("memberN", *this, &SiPathTest::memberN);
+        registerMethod("allMembers", *this, &SiPathTest::allMembers);
         registerMethod("array", *this, &SiPathTest::array);
         registerMethod("size", *this, &SiPathTest::size);
+        registerMethod("count", *this, &SiPathTest::count);
         registerMethod("type", *this, &SiPathTest::type);
         registerMethod("isnull", *this, &SiPathTest::isnull);
     }
@@ -89,6 +94,27 @@ public:
         }
     }
 
+    void memberN()
+    {
+        std::string addon;
+
+        exampleStore.path("store.bicycle.addon{0}") >>= addon;
+        CXXTOOLS_UNIT_ASSERT_EQUALS(addon, "rack");
+
+        exampleStore.path("store.bicycle.addon{1}") >>= addon;
+        CXXTOOLS_UNIT_ASSERT_EQUALS(addon, "light");
+    }
+
+    void allMembers()
+    {
+        std::vector<std::string> addons;
+
+        exampleStore.path("store.bicycle.addon{}") >>= addons;
+        CXXTOOLS_UNIT_ASSERT_EQUALS(addons.size(), 2);
+        CXXTOOLS_UNIT_ASSERT_EQUALS(addons[0], "rack");
+        CXXTOOLS_UNIT_ASSERT_EQUALS(addons[1], "light");
+    }
+
     void array()
     {
         std::string title;
@@ -96,8 +122,8 @@ public:
         CXXTOOLS_UNIT_ASSERT_EQUALS(title, "Moby Dick");
 
         double price;
-        exampleStore.path("[0][1][1]") >>= price;
-        CXXTOOLS_UNIT_ASSERT_EQUALS(price, 19.95);
+        exampleStore.path("[0][1][3]") >>= price;
+        CXXTOOLS_UNIT_ASSERT_EQUALS(price, 719.95);
     }
 
     void size()
@@ -109,6 +135,17 @@ public:
         size = 2;
         exampleStore.path("store.book[0]::size") >>= size;
         CXXTOOLS_UNIT_ASSERT_EQUALS(size, 4);
+    }
+
+    void count()
+    {
+        unsigned count = 0;
+        exampleStore.path("store.bicycle.addon::count") >>= count;
+        CXXTOOLS_UNIT_ASSERT_EQUALS(count, 2);
+
+        count = 0;
+        exampleStore.path("store.bicycle.color::count") >>= count;
+        CXXTOOLS_UNIT_ASSERT_EQUALS(count, 1);
     }
 
     void type()

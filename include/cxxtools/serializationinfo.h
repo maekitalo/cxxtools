@@ -293,6 +293,9 @@ class SerializationInfo
         const SerializationInfo& getMember(const std::string& name) const;
         SerializationInfo& getMember(const std::string& name);
 
+        SerializationInfo& getNthMember(const std::string& name, int unsigned);
+        const SerializationInfo& getNthMember(const std::string& name, int unsigned) const;
+
         /** @brief Deserialization of member data
 
             @throws std::range_error when index is too large
@@ -334,6 +337,8 @@ class SerializationInfo
             return nodes().size();
         }
 
+        size_t memberCount(const std::string& name) const;
+
         Iterator begin()
         {
             return nodes().begin();
@@ -374,7 +379,10 @@ class SerializationInfo
                 $           root element
                 .member     access member
                 [n]         array index
+                {n}         nth occurence of member
+                member{}    all occurences as array
                 ::size      size
+                ::count     count
                 ::type      typename
                 ::isnull    true if null, false otherwise
 
@@ -388,6 +396,7 @@ class SerializationInfo
             examples
 
                 $.store.book::size
+                $.store.book::count
                 $.store.book[2].title
                 $.store.book[2].price
                 $.store.'book'[3]."price"
