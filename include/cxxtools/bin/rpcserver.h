@@ -80,9 +80,12 @@ class RpcServer : public ServiceRegistry
          *
          *  Multiple listen calls can be made to listen on multiple interfaces or different settings.
          *
-         *  \see cxxtools::net::TcpSocket::setSslVerify for settings of `sslVerifyLevel` and `sslCa`
          */
         void listen(const std::string& ip, unsigned short int port);
+
+        /** Listen to the specified ip and port with optionally ssl enabled.
+         *
+         */
         void listen(const std::string& ip, unsigned short int port, const SslCtx& sslCtx);
 
         void listen(unsigned short int port)

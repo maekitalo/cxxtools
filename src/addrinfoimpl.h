@@ -37,72 +37,74 @@
 #include <sys/un.h>
 #include <netdb.h>
 
-namespace cxxtools {
+namespace cxxtools
+{
 
-namespace net {
+namespace net
+{
 
-  class AddrInfoImpl : public cxxtools::RefCounted
-  {
-      std::string _host;
-      unsigned short _port;
-      struct addrinfo* _ai;
-      struct addrinfo _unix;
-      struct sockaddr_un _unix_sockaddr;
+class AddrInfoImpl : public cxxtools::RefCounted
+{
+    std::string _host;
+    unsigned short _port;
+    struct addrinfo* _ai;
+    struct addrinfo _unix;
+    struct sockaddr_un _unix_sockaddr;
 
-    public:
-      void init(const std::string& host, unsigned short port);
-      void init(const std::string& host, unsigned short port,
-                const addrinfo& hints);
+public:
+    void init(const std::string& host, unsigned short port);
+    void init(const std::string& host, unsigned short port,
+              const addrinfo& hints);
 
-      AddrInfoImpl()
-        : _ai(0)
-        { }
-      AddrInfoImpl(const std::string& host, unsigned short port)
-        : _ai(0)
-        { init(host, port); }
-      AddrInfoImpl(const std::string& host, unsigned short port,
-               const addrinfo& hints)
-        : _ai(0)
-        { init(host, port, hints); }
-      ~AddrInfoImpl();
+    AddrInfoImpl()
+      : _ai(0)
+      { }
+    AddrInfoImpl(const std::string& host, unsigned short port)
+      : _ai(0)
+      { init(host, port); }
+    AddrInfoImpl(const std::string& host, unsigned short port,
+             const addrinfo& hints)
+      : _ai(0)
+      { init(host, port, hints); }
+    ~AddrInfoImpl();
 
-      class const_iterator
-      {
-          struct addrinfo* current;
+    class const_iterator
+    {
+        struct addrinfo* current;
 
-        public:
-          using iterator_category = std::forward_iterator_tag;
-          using value_type = addrinfo;
-          using pointer = addrinfo*;
-          using reference = addrinfo&;
+      public:
+        using iterator_category = std::forward_iterator_tag;
+        using value_type = addrinfo;
+        using pointer = addrinfo*;
+        using reference = addrinfo&;
 
-          explicit const_iterator(struct addrinfo* ai = 0)
-            : current(ai)
-            { }
-          bool operator== (const const_iterator& it) const
-            { return current == it.current; }
-          bool operator!= (const const_iterator& it) const
-            { return current != it.current; }
-          const_iterator& operator++ ()
-            { current = current->ai_next; return *this; }
-          const_iterator operator++ (int)
-            {
-              const_iterator ret(current);
-              current = current->ai_next;
-              return ret;
-            }
-          reference operator* () const
-            { return *current; }
-          pointer operator-> () const
-            { return current; }
-      };
+        explicit const_iterator(struct addrinfo* ai = 0)
+          : current(ai)
+          { }
+        bool operator== (const const_iterator& it) const
+          { return current == it.current; }
+        bool operator!= (const const_iterator& it) const
+          { return current != it.current; }
+        const_iterator& operator++ ()
+          { current = current->ai_next; return *this; }
+        const_iterator operator++ (int)
+          {
+            const_iterator ret(current);
+            current = current->ai_next;
+            return ret;
+          }
+        reference operator* () const
+          { return *current; }
+        pointer operator-> () const
+          { return current; }
+    };
 
-      const std::string& host() const;
-      unsigned short port() const;
+    const std::string& host() const;
+    unsigned short port() const;
 
-      const_iterator begin() const  { return const_iterator(_ai); }
-      const_iterator end() const    { return const_iterator(); }
-  };
+    const_iterator begin() const  { return const_iterator(_ai); }
+    const_iterator end() const    { return const_iterator(); }
+};
 
 } // namespace net
 

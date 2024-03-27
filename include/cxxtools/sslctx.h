@@ -69,7 +69,7 @@ public:
         REQUIRE     = 2
     };
 
-    /** Creates a empty disabled SslCtx */
+    /** Creates a disabled SslCtx */
     SslCtx()
         : _impl(nullptr)
         { }

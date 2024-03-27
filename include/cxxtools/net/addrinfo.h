@@ -38,52 +38,52 @@ namespace cxxtools
 namespace net
 {
 
-    class AddrInfoImpl;
+class AddrInfoImpl;
 
-    class AddrInfo
-    {
-        public:
-            AddrInfo()
-                : _impl(0)
-                { }
-            explicit AddrInfo(AddrInfoImpl* impl);
+class AddrInfo
+{
+public:
+    AddrInfo()
+        : _impl(0)
+        { }
+    explicit AddrInfo(AddrInfoImpl* impl);
 
-            /// creates a AddrInfo class
-            /// setting port to 0 creates a AddrInfo for unix domain sockets where host is used as a path name
-            AddrInfo(const std::string& host, unsigned short port, bool listen = false);
-            AddrInfo(const AddrInfo& src);
-            ~AddrInfo();
+    /// creates a AddrInfo class
+    /// setting port to 0 creates a AddrInfo for unix domain sockets where host is used as a path name
+    AddrInfo(const std::string& host, unsigned short port, bool listen = false);
+    AddrInfo(const AddrInfo& src);
+    ~AddrInfo();
 
-            AddrInfo& operator= (const AddrInfo& src);
+    AddrInfo& operator= (const AddrInfo& src);
 
-            const std::string& host() const;
-            unsigned short port() const;
+    const std::string& host() const;
+    unsigned short port() const;
 
-            AddrInfoImpl* impl()               { return _impl; }
-            const AddrInfoImpl* impl() const   { return _impl; }
+    AddrInfoImpl* impl()               { return _impl; }
+    const AddrInfoImpl* impl() const   { return _impl; }
 
-        private:
-            AddrInfoImpl* _impl;
-    };
+private:
+    AddrInfoImpl* _impl;
+};
 
-    inline bool operator== (const AddrInfo& a1, const AddrInfo& a2)
-    {
-        return a1.impl() == a2.impl()
-            || (a1.impl() != 0 && a2.impl() != 0
-                && a1.host() == a2.host()
-                && a1.port() == a2.port());
-    }
+inline bool operator== (const AddrInfo& a1, const AddrInfo& a2)
+{
+    return a1.impl() == a2.impl()
+        || (a1.impl() != 0 && a2.impl() != 0
+            && a1.host() == a2.host()
+            && a1.port() == a2.port());
+}
 
-    inline bool operator!= (const AddrInfo& a1, const AddrInfo& a2)
-    {
-        return !(a1 == a2);
-    }
+inline bool operator!= (const AddrInfo& a1, const AddrInfo& a2)
+{
+    return !(a1 == a2);
+}
 
-    class AddrInfoError : public SystemError
-    {
-        public:
-            explicit AddrInfoError(int ret, const std::string& host, unsigned short port);
-    };
+class AddrInfoError : public SystemError
+{
+    public:
+        explicit AddrInfoError(int ret, const std::string& host, unsigned short port);
+};
 
 } // namespace net
 
