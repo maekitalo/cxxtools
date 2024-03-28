@@ -382,7 +382,7 @@ class SerializationInfo
                 {n}         nth occurence of member
                 member{}    all occurences as array
                 ::size      size
-                ::count     count
+                ::count     count of members
                 ::type      typename
                 ::isnull    true if null, false otherwise
 
