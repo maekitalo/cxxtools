@@ -64,6 +64,9 @@ void FileDevice::open( const std::string& path, IODevice::OpenMode mode, bool in
     close();
     _impl->open(path, mode, inherit);
     _path = path;
+    setEnabled(true);
+    setAsync(false);
+    setEof(false);
 }
 
 size_t FileDevice::size() const
