@@ -304,8 +304,8 @@ void SerializationInfo::clear()
     _category = Void;
     _name.clear();
     _type.clear();
-    if (_nodes)
-        _nodes->clear();
+    delete _nodes;
+    _nodes = nullptr;
     _releaseValue();
 }
 
@@ -757,13 +757,6 @@ void SerializationInfo::_releaseValue()
             ;
     }
     _t = t_none;
-}
-
-void SerializationInfo::setNull()
-{
-    _releaseValue();
-    _t = t_none;
-    _category = Value;
 }
 
 void SerializationInfo::_setString(String&& value)
