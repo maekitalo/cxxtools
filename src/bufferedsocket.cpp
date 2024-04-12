@@ -28,6 +28,7 @@
 
 #include <cxxtools/net/bufferedsocket.h>
 #include <cxxtools/log.h>
+#include <cstring>
 
 log_define("cxxtools.net.bufferedsocket")
 
@@ -157,6 +158,11 @@ BufferedSocket& BufferedSocket::write(const char* buffer, size_t n, bool begin)
     }
 
     return *this;
+}
+
+BufferedSocket& BufferedSocket::write(const char* str, bool begin)
+{
+    return write(str, std::strlen(str), begin);
 }
 
 BufferedSocket& BufferedSocket::putc(char ch)

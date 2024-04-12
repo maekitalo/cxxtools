@@ -108,6 +108,10 @@ public:
      */
     BufferedSocket& write(const char* buffer, size_t n, bool begin = true);
 
+    /** Adds a null terminated string to the output buffer and starts writing when requested.
+     */
+    BufferedSocket& write(const char* str, bool begin = true);
+
     /** Adds data to the output buffer and starts writing when requested.
      */
     BufferedSocket& write(const std::string& buffer, bool begin = true)    { return write(buffer.data(), buffer.size(), begin); }
