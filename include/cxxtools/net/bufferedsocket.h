@@ -77,6 +77,8 @@ class BufferedSocket : public TcpSocket, public Connectable
 
 
 public:
+    BufferedSocket();
+
     /// Constructor; creates a BufferedSocket, which is not connected.
     explicit BufferedSocket(SelectorBase& selector);
 
@@ -146,8 +148,13 @@ public:
      */
     void beginRead();
 
+    unsigned read();
+
     /// Cancels reading and writing operations and discards buffers.
     void cancel();
+
+    /// write output buffer with possibly blocking
+    BufferedSocket& flush();
 
     /// Returns the number of bytes in the output buffer, which are not yet written
     unsigned outputSize() const         { return _outputBuffer.size() + _outputBufferNext.size(); }

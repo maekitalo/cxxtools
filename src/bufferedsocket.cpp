@@ -27,6 +27,7 @@
  */
 
 #include <cxxtools/net/bufferedsocket.h>
+#include <cxxtools/hexdump.h>
 #include <cxxtools/log.h>
 #include <cstring>
 
@@ -38,6 +39,10 @@ namespace net
 {
 
 static const unsigned defaultBufferSize = 8192;
+
+BufferedSocket::BufferedSocket()
+    : _bufferSize(defaultBufferSize)
+{ }
 
 BufferedSocket::BufferedSocket(SelectorBase& selector)
     : _bufferSize(defaultBufferSize)
@@ -112,6 +117,18 @@ void BufferedSocket::beginRead()
     TcpSocket::beginRead(_inputBufferCurrent.data(), _inputBufferCurrent.size());
 }
 
+unsigned BufferedSocket::read()
+{
+    // try to reuse capacity
+    if (_inputBufferCurrent.capacity() < _bufferSize && _inputBuffer.empty() && _inputBuffer.capacity() >= _bufferSize)
+        _inputBufferCurrent.swap(_inputBuffer);
+
+    _inputBufferCurrent.resize(_bufferSize);
+
+    log_debug("beginRead " << _inputBufferCurrent.size());
+    return TcpSocket::read(_inputBufferCurrent.data(), _inputBufferCurrent.size());
+}
+
 void BufferedSocket::onOutput(IODevice&)
 {
     DestructionSentry sentry(_sentry);
@@ -119,6 +136,7 @@ void BufferedSocket::onOutput(IODevice&)
     try
     {
         auto count = endWrite();
+        log_finer("written\n" << cxxtools::hexDump(_outputBuffer.begin(), _outputBuffer.begin() + count));
         _outputBuffer.erase(_outputBuffer.begin(), _outputBuffer.begin() + count);
 
         if (_outputBuffer.empty())
@@ -179,6 +197,34 @@ BufferedSocket& BufferedSocket::beginWrite()
 {
     if (!writing() && !_outputBuffer.empty())
         TcpSocket::beginWrite(_outputBuffer.data(), _outputBuffer.size());
+
+    return *this;
+}
+
+BufferedSocket& BufferedSocket::flush()
+{
+    log_debug("flush " << _outputBuffer.size() << '+' << _outputBufferNext.size());
+
+    if (writing())
+        endWrite();
+
+    while (!_outputBuffer.empty())
+    {
+        beginWrite();
+        auto count = endWrite();
+        log_finer("written\n" << cxxtools::hexDump(_outputBuffer.begin(), _outputBuffer.begin() + count));
+        _outputBuffer.erase(_outputBuffer.begin(), _outputBuffer.begin() + count);
+    }
+
+    _outputBuffer.swap(_outputBufferNext);
+
+    while (!_outputBuffer.empty())
+    {
+        beginWrite();
+        auto count = endWrite();
+        log_finer("written\n" << cxxtools::hexDump(_outputBuffer.begin(), _outputBuffer.begin() + count));
+        _outputBuffer.erase(_outputBuffer.begin(), _outputBuffer.begin() + count);
+    }
 
     return *this;
 }
