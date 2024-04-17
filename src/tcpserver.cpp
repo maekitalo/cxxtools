@@ -30,8 +30,6 @@
 #include <cxxtools/net/tcpserver.h>
 #include <sstream>
 
-#include "config.h"
-
 namespace cxxtools
 {
 
