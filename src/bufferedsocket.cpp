@@ -85,6 +85,7 @@ size_t BufferedSocket::onEndRead(bool& eof)
     auto count = IODevice::onEndRead(eof);
 
     log_debug("onEndRead; " << count << " bytes received");
+    log_finer("read\n" << cxxtools::hexDump(_inputBufferCurrent.begin(), _inputBufferCurrent.begin() + count));
     if (_inputBuffer.empty())
     {
         _inputBuffer.swap(_inputBufferCurrent);
@@ -136,6 +137,7 @@ void BufferedSocket::onOutput(IODevice&)
     try
     {
         auto count = endWrite();
+        log_debug(count << " bytes written");
         log_finer("written\n" << cxxtools::hexDump(_outputBuffer.begin(), _outputBuffer.begin() + count));
         _outputBuffer.erase(_outputBuffer.begin(), _outputBuffer.begin() + count);
 
@@ -206,12 +208,16 @@ BufferedSocket& BufferedSocket::flush()
     log_debug("flush " << _outputBuffer.size() << '+' << _outputBufferNext.size());
 
     if (writing())
-        endWrite();
+    {
+        auto count = endWrite();
+        log_debug(count << " bytes written");
+    }
 
     while (!_outputBuffer.empty())
     {
         beginWrite();
         auto count = endWrite();
+        log_debug(count << " bytes written");
         log_finer("written\n" << cxxtools::hexDump(_outputBuffer.begin(), _outputBuffer.begin() + count));
         _outputBuffer.erase(_outputBuffer.begin(), _outputBuffer.begin() + count);
     }
@@ -222,6 +228,7 @@ BufferedSocket& BufferedSocket::flush()
     {
         beginWrite();
         auto count = endWrite();
+        log_debug(count << " bytes written");
         log_finer("written\n" << cxxtools::hexDump(_outputBuffer.begin(), _outputBuffer.begin() + count));
         _outputBuffer.erase(_outputBuffer.begin(), _outputBuffer.begin() + count);
     }

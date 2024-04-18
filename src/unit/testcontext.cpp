@@ -72,27 +72,32 @@ void TestContext::run()
 {
     try
     {
-        log_debug("run test " << _test.name());
+        log_info("run test " << _test.name());
         _test.reportStart(*this);
         _fixture.setUp();
         _setUp = true;
         this->exec();
+        log_info("success");
         _test.reportSuccess(*this);
     }
     catch(const Assertion& assertion)
     {
+        log_info("failed: " << assertion.what());
         _test.reportAssertion(*this, assertion);
     }
     catch(const Skip& skip)
     {
+        log_info("skip");
         _test.reportSkip(*this);
     }
     catch(const std::exception& ex)
     {
+        log_info("exception: " << ex.what());
         _test.reportException(*this, ex);
     }
     catch(...)
     {
+        log_info("other failure");
         _test.reportError(*this);
     }
 }
