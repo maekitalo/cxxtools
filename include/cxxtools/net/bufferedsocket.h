@@ -99,38 +99,57 @@ public:
     /// sets the current input buffer size.
     void bufferSize(unsigned b)         { _bufferSize = b; }
 
-    /** Adds data to the output buffer and starts writing when requested.
+    /** Adds data to the output buffer.
+        
+        Calling this method adds data to the output buffer.  Writing is not
+        started. In asynchronous mode the user needs to call beginWrite to
+        trigger writing. In synchronous mode flush writes the data to the
+        socket.
 
-        Calling this method adds data to the output buffer. When begin
-        is set, it starts writing if not already pending.
-        When a write operation is finished and data is left in the output buffer
-        writing continues until the write buffer is empty.
-        The user may always add more data to the output buffer. The class takes
-        care, that all data from the output buffer is written.
      */
-    BufferedSocket& write(const char* buffer, size_t n, bool begin = true);
+    BufferedSocket& put(const char* buffer, size_t n);
 
-    /** Adds a null terminated string to the output buffer and starts writing when requested.
+    /** Adds a null terminated string to the output buffer.
      */
-    BufferedSocket& write(const char* str, bool begin = true);
+    BufferedSocket& put(const char* str);
 
-    /** Adds data to the output buffer and starts writing when requested.
+    /** Adds data to the output buffer.
      */
-    BufferedSocket& write(const std::string& buffer, bool begin = true)    { return write(buffer.data(), buffer.size(), begin); }
+    BufferedSocket& put(const std::string& buffer);
+
+    /** Adds a single character to the output buffer.
+     */
+    BufferedSocket& put(char ch)
+        { outputBuffer().push_back(ch); return *this; }
+
+    /** Adds data to the output buffer and starts writing.
+
+        Calling this method adds data to the output buffer and starts writing
+        if not already pending.  When a write operation is finished and data is
+        left in the output buffer writing continues until the write buffer
+        is empty.  The user may always add more data to the output buffer.
+        The class takes care, that all data from the output buffer is
+        written.
+
+     */
+    BufferedSocket& write(const char* buffer, size_t n)
+        { put(buffer, n); beginWrite(); return *this; }
+
+    /** Adds a null terminated string to the output buffer and starts writing.
+     */
+    BufferedSocket& write(const char* str)
+        { put(str); beginWrite(); return *this; }
+
+    /** Adds data to the output buffer and starts writing.
+     */
+    BufferedSocket& write(const std::string& str)
+        { put(str); beginWrite(); return *this; }
 
     /** Returns a output buffer, where user can add data to.
 
         This gives direct access to the buffer, which may reduce copy operations.
      */
     std::vector<char>& outputBuffer() { return writing() ? _outputBufferNext : _outputBuffer; }
-
-    /** Adds a single character to the output buffer.
-
-        Writing is not started but if a pending write operation finishes, writing
-        resumes. All data put with one of the write calls including putc are then
-        written.
-     */
-    BufferedSocket& putc(char ch);
 
     /** Initiates write operation if not already pending.
 

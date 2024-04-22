@@ -164,34 +164,22 @@ void BufferedSocket::onOutput(IODevice&)
     }
 }
 
-BufferedSocket& BufferedSocket::write(const char* buffer, size_t n, bool begin)
+BufferedSocket& BufferedSocket::put(const char* buffer, size_t n)
 {
-    if (writing())
-    {
-        _outputBufferNext.insert(_outputBufferNext.end(), buffer, buffer + n);
-    }
-    else
-    {
-        _outputBuffer.insert(_outputBuffer.end(), buffer, buffer + n);
-        if (begin)
-            beginWrite();
-    }
-
+    auto& ob = outputBuffer();
+    ob.insert(ob.end(), buffer, buffer + n);
     return *this;
 }
 
-BufferedSocket& BufferedSocket::write(const char* str, bool begin)
+BufferedSocket& BufferedSocket::put(const char* str)
 {
-    return write(str, std::strlen(str), begin);
+    return put(str, std::strlen(str));
 }
 
-BufferedSocket& BufferedSocket::putc(char ch)
+BufferedSocket& BufferedSocket::put(const std::string& buffer)
 {
-    if (writing())
-        _outputBufferNext.push_back(ch);
-    else
-        _outputBuffer.push_back(ch);
-
+    auto& ob = outputBuffer();
+    ob.insert(ob.end(), buffer.begin(), buffer.end());
     return *this;
 }
 
