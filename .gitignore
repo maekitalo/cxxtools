@@ -12,6 +12,7 @@
 /ltmain.sh
 /missing
 /build
+/.vscode
 
 /m4/*.m4
 !/m4/acx_pthread.m4
