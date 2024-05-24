@@ -759,6 +759,15 @@ void SerializationInfo::_releaseValue()
     _t = t_none;
 }
 
+void SerializationInfo::setNull()
+{
+    _releaseValue();
+    _t = t_none;
+    _category = Value;
+    delete _nodes;
+    _nodes = nullptr;
+}
+
 void SerializationInfo::_setString(String&& value)
 {
     if (_t != t_string)

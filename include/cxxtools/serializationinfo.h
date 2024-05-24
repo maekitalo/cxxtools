@@ -221,7 +221,7 @@ class SerializationInfo
         void setValue(float value)               { _setFloat(value); }
         void setValue(double value)              { _setDouble(value); }
         void setValue(long double value)         { _setLongDouble(value); }
-        void setNull()                           { clear(); }
+        void setNull();
 
         /** @brief Deserialization of flat data-types
         */
