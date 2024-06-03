@@ -147,6 +147,13 @@
         return connect( signal, slot(func) );
     }
 
+    //! Connects a Signal to a std::function.
+    template <typename R, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, class A9, class A10>
+    Connection connect(Signal<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>& signal, std::function<R(A1, A2, A3, A4, A5, A6, A7, A8, A9, A10)>& func)
+    {
+        return connect( signal, slot(func) );
+    }
+
     //! Connects a Signal to a member function.
     template <typename R, class BaseT, typename ClassT, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, class A9, class A10>
     Connection connect(Signal<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>& signal, BaseT& object, R(ClassT::*memFunc)(A1, A2, A3, A4, A5, A6, A7, A8, A9, A10))
@@ -288,6 +295,13 @@
         return connect( signal, slot(func) );
     }
 
+    //! Connects a Signal to a std::function.
+    template <typename R, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, class A9>
+    Connection connect(Signal<A1, A2, A3, A4, A5, A6, A7, A8, A9>& signal, const std::function<R(A1, A2, A3, A4, A5, A6, A7, A8, A9)>& func)
+    {
+        return connect( signal, slot(func) );
+    }
+
     //! Connects a Signal to a member function.
     template <typename R, class BaseT, typename ClassT, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, class A9>
     Connection connect(Signal<A1, A2, A3, A4, A5, A6, A7, A8, A9>& signal, BaseT& object, R(ClassT::*memFunc)(A1, A2, A3, A4, A5, A6, A7, A8, A9))
@@ -419,6 +433,13 @@
     //! Connects a Signal to a function.
     template <typename R, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8>
     Connection connect(Signal<A1, A2, A3, A4, A5, A6, A7, A8>& signal, R(*func)(A1, A2, A3, A4, A5, A6, A7, A8))
+    {
+        return connect( signal, slot(func) );
+    }
+
+    //! Connects a Signal to a std::function.
+    template <typename R, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8>
+    Connection connect(Signal<A1, A2, A3, A4, A5, A6, A7, A8>& signal, const std::function<R(A1, A2, A3, A4, A5, A6, A7, A8)>& func)
     {
         return connect( signal, slot(func) );
     }
@@ -558,6 +579,13 @@
         return connect( signal, slot(func) );
     }
 
+    //! Connects a Signal to a std::function.
+    template <typename R, class A1, class A2, class A3, class A4, class A5, class A6, class A7>
+    Connection connect(Signal<A1, A2, A3, A4, A5, A6, A7>& signal, const std::function<R(A1, A2, A3, A4, A5, A6, A7)>& func)
+    {
+        return connect( signal, slot(func) );
+    }
+
     //! Connects a Signal to a member function.
     template <typename R, class BaseT, typename ClassT, class A1, class A2, class A3, class A4, class A5, class A6, class A7>
     Connection connect(Signal<A1, A2, A3, A4, A5, A6, A7>& signal, BaseT& object, R(ClassT::*memFunc)(A1, A2, A3, A4, A5, A6, A7))
@@ -689,6 +717,13 @@
     //! Connects a Signal to a function.
     template <typename R, class A1, class A2, class A3, class A4, class A5, class A6>
     Connection connect(Signal<A1, A2, A3, A4, A5, A6>& signal, R(*func)(A1, A2, A3, A4, A5, A6))
+    {
+        return connect( signal, slot(func) );
+    }
+
+    //! Connects a Signal to a std::function.
+    template <typename R, class A1, class A2, class A3, class A4, class A5, class A6>
+    Connection connect(Signal<A1, A2, A3, A4, A5, A6>& signal, const std::function<R(A1, A2, A3, A4, A5, A6)>& func)
     {
         return connect( signal, slot(func) );
     }
@@ -828,6 +863,13 @@
         return connect( signal, slot(func) );
     }
 
+    //! Connects a Signal to a std::function.
+    template <typename R, class A1, class A2, class A3, class A4, class A5>
+    Connection connect(Signal<A1, A2, A3, A4, A5>& signal, const std::function<R(A1, A2, A3, A4, A5)>& func)
+    {
+        return connect( signal, slot(func) );
+    }
+
     //! Connects a Signal to a member function.
     template <typename R, class BaseT, typename ClassT, class A1, class A2, class A3, class A4, class A5>
     Connection connect(Signal<A1, A2, A3, A4, A5>& signal, BaseT& object, R(ClassT::*memFunc)(A1, A2, A3, A4, A5))
@@ -959,6 +1001,13 @@
     //! Connects a Signal to a function.
     template <typename R, class A1, class A2, class A3, class A4>
     Connection connect(Signal<A1, A2, A3, A4>& signal, R(*func)(A1, A2, A3, A4))
+    {
+        return connect( signal, slot(func) );
+    }
+
+    //! Connects a Signal to a std::function.
+    template <typename R, class A1, class A2, class A3, class A4>
+    Connection connect(Signal<A1, A2, A3, A4>& signal, const std::function<R(A1, A2, A3, A4)>& func)
     {
         return connect( signal, slot(func) );
     }
@@ -1098,6 +1147,13 @@
         return connect( signal, slot(func) );
     }
 
+    //! Connects a Signal to a std::function.
+    template <typename R, class A1, class A2, class A3>
+    Connection connect(Signal<A1, A2, A3>& signal, const std::function<R(A1, A2, A3)>& func)
+    {
+        return connect( signal, slot(func) );
+    }
+
     //! Connects a Signal to a member function.
     template <typename R, class BaseT, typename ClassT, class A1, class A2, class A3>
     Connection connect(Signal<A1, A2, A3>& signal, BaseT& object, R(ClassT::*memFunc)(A1, A2, A3))
@@ -1229,6 +1285,13 @@
     //! Connects a Signal to a function.
     template <typename R, class A1, class A2>
     Connection connect(Signal<A1, A2>& signal, R(*func)(A1, A2))
+    {
+        return connect( signal, slot(func) );
+    }
+
+    //! Connects a Signal to a std::function.
+    template <typename R, class A1, class A2>
+    Connection connect(Signal<A1, A2>& signal, const std::function<R(A1, A2)>& func)
     {
         return connect( signal, slot(func) );
     }
@@ -1368,6 +1431,13 @@
         return connect( signal, slot(func) );
     }
 
+    //! Connects a Signal to a std::function.
+    template <typename R, class A1>
+    Connection connect(Signal<A1>& signal, const std::function<R(A1)>& func)
+    {
+        return connect( signal, slot(func) );
+    }
+
     //! Connects a Signal to a member function.
     template <typename R, class BaseT, typename ClassT, class A1>
     Connection connect(Signal<A1>& signal, BaseT& object, R(ClassT::*memFunc)(A1))
@@ -1499,6 +1569,13 @@
     //! Connects a Signal to a function.
     template <typename R>
     Connection connect(Signal<>& signal, R(*func)())
+    {
+        return connect( signal, slot(func) );
+    }
+
+    //! Connects a Signal to a std::function.
+    template <typename R>
+    Connection connect(Signal<>& signal, const std::function<R()>& func)
     {
         return connect( signal, slot(func) );
     }

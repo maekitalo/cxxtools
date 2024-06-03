@@ -91,6 +91,11 @@ template <typename R, class A1, class A2, class A3, class A4, class A5, class A6
 FunctionSlot<R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10> slot( R (*func)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9, A10 a10) )
 { return FunctionSlot<R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>( callable(func) ); }
 
+/** Creates and returns a FunctionSlot object for the given std::function. */
+template <typename R, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, class A9, class A10>
+FunctionSlot<R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10> slot( const std::function<R(A1, A2, A3, A4, A5, A6, A7, A8, A9, A10)>& func )
+{ return FunctionSlot<R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>( func ); }
+
 // END_Function 10
 // BEGIN_Function 9
 template <typename R, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, class A9>
@@ -135,6 +140,11 @@ Function<R, A1, A2, A3, A4, A5, A6, A7, A8, A9> callable(R (*func)(A1 a1, A2 a2,
 template <typename R, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, class A9>
 FunctionSlot<R, A1, A2, A3, A4, A5, A6, A7, A8, A9> slot( R (*func)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8, A9 a9) )
 { return FunctionSlot<R, A1, A2, A3, A4, A5, A6, A7, A8, A9>( callable(func) ); }
+
+/** Creates and returns a FunctionSlot object for the given std::function. */
+template <typename R, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, class A9>
+FunctionSlot<R, A1, A2, A3, A4, A5, A6, A7, A8, A9> slot( const std::function<R(A1, A2, A3, A4, A5, A6, A7, A8, A9)>& func )
+{ return FunctionSlot<R, A1, A2, A3, A4, A5, A6, A7, A8, A9>( func ); }
 
 // END_Function 9
 // BEGIN_Function 8
@@ -181,6 +191,11 @@ template <typename R, class A1, class A2, class A3, class A4, class A5, class A6
 FunctionSlot<R, A1, A2, A3, A4, A5, A6, A7, A8> slot( R (*func)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7, A8 a8) )
 { return FunctionSlot<R, A1, A2, A3, A4, A5, A6, A7, A8>( callable(func) ); }
 
+/** Creates and returns a FunctionSlot object for the given std::function. */
+template <typename R, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8>
+FunctionSlot<R, A1, A2, A3, A4, A5, A6, A7, A8> slot( const std::function<R(A1, A2, A3, A4, A5, A6, A7, A8)>& func )
+{ return FunctionSlot<R, A1, A2, A3, A4, A5, A6, A7, A8>( func ); }
+
 // END_Function 8
 // BEGIN_Function 7
 template <typename R, class A1, class A2, class A3, class A4, class A5, class A6, class A7>
@@ -225,6 +240,11 @@ Function<R, A1, A2, A3, A4, A5, A6, A7> callable(R (*func)(A1 a1, A2 a2, A3 a3, 
 template <typename R, class A1, class A2, class A3, class A4, class A5, class A6, class A7>
 FunctionSlot<R, A1, A2, A3, A4, A5, A6, A7> slot( R (*func)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6, A7 a7) )
 { return FunctionSlot<R, A1, A2, A3, A4, A5, A6, A7>( callable(func) ); }
+
+/** Creates and returns a FunctionSlot object for the given std::function. */
+template <typename R, class A1, class A2, class A3, class A4, class A5, class A6, class A7>
+FunctionSlot<R, A1, A2, A3, A4, A5, A6, A7> slot( const std::function<R(A1, A2, A3, A4, A5, A6, A7)>& func )
+{ return FunctionSlot<R, A1, A2, A3, A4, A5, A6, A7>( func ); }
 
 // END_Function 7
 // BEGIN_Function 6
@@ -271,6 +291,11 @@ template <typename R, class A1, class A2, class A3, class A4, class A5, class A6
 FunctionSlot<R, A1, A2, A3, A4, A5, A6> slot( R (*func)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5, A6 a6) )
 { return FunctionSlot<R, A1, A2, A3, A4, A5, A6>( callable(func) ); }
 
+/** Creates and returns a FunctionSlot object for the given std::function. */
+template <typename R, class A1, class A2, class A3, class A4, class A5, class A6>
+FunctionSlot<R, A1, A2, A3, A4, A5, A6> slot( const std::function<R(A1, A2, A3, A4, A5, A6)>& func )
+{ return FunctionSlot<R, A1, A2, A3, A4, A5, A6>( func ); }
+
 // END_Function 6
 // BEGIN_Function 5
 template <typename R, class A1, class A2, class A3, class A4, class A5>
@@ -315,6 +340,11 @@ Function<R, A1, A2, A3, A4, A5> callable(R (*func)(A1 a1, A2 a2, A3 a3, A4 a4, A
 template <typename R, class A1, class A2, class A3, class A4, class A5>
 FunctionSlot<R, A1, A2, A3, A4, A5> slot( R (*func)(A1 a1, A2 a2, A3 a3, A4 a4, A5 a5) )
 { return FunctionSlot<R, A1, A2, A3, A4, A5>( callable(func) ); }
+
+/** Creates and returns a FunctionSlot object for the given std::function. */
+template <typename R, class A1, class A2, class A3, class A4, class A5>
+FunctionSlot<R, A1, A2, A3, A4, A5> slot( const std::function<R(A1, A2, A3, A4, A5)>& func )
+{ return FunctionSlot<R, A1, A2, A3, A4, A5>( func ); }
 
 // END_Function 5
 // BEGIN_Function 4
@@ -361,6 +391,11 @@ template <typename R, class A1, class A2, class A3, class A4>
 FunctionSlot<R, A1, A2, A3, A4> slot( R (*func)(A1 a1, A2 a2, A3 a3, A4 a4) )
 { return FunctionSlot<R, A1, A2, A3, A4>( callable(func) ); }
 
+/** Creates and returns a FunctionSlot object for the given std::function. */
+template <typename R, class A1, class A2, class A3, class A4>
+FunctionSlot<R, A1, A2, A3, A4> slot( const std::function<R(A1, A2, A3, A4)>& func )
+{ return FunctionSlot<R, A1, A2, A3, A4>( func ); }
+
 // END_Function 4
 // BEGIN_Function 3
 template <typename R, class A1, class A2, class A3>
@@ -405,6 +440,11 @@ Function<R, A1, A2, A3> callable(R (*func)(A1 a1, A2 a2, A3 a3))
 template <typename R, class A1, class A2, class A3>
 FunctionSlot<R, A1, A2, A3> slot( R (*func)(A1 a1, A2 a2, A3 a3) )
 { return FunctionSlot<R, A1, A2, A3>( callable(func) ); }
+
+/** Creates and returns a FunctionSlot object for the given std::function. */
+template <typename R, class A1, class A2, class A3>
+FunctionSlot<R, A1, A2, A3> slot( const std::function<R(A1, A2, A3)>& func )
+{ return FunctionSlot<R, A1, A2, A3>( func ); }
 
 // END_Function 3
 // BEGIN_Function 2
@@ -451,6 +491,11 @@ template <typename R, class A1, class A2>
 FunctionSlot<R, A1, A2> slot( R (*func)(A1 a1, A2 a2) )
 { return FunctionSlot<R, A1, A2>( callable(func) ); }
 
+/** Creates and returns a FunctionSlot object for the given std::function. */
+template <typename R, class A1, class A2>
+FunctionSlot<R, A1, A2> slot( const std::function<R(A1, A2)>& func )
+{ return FunctionSlot<R, A1, A2>( func ); }
+
 // END_Function 2
 // BEGIN_Function 1
 template <typename R, class A1>
@@ -496,6 +541,11 @@ template <typename R, class A1>
 FunctionSlot<R, A1> slot( R (*func)(A1 a1) )
 { return FunctionSlot<R, A1>( callable(func) ); }
 
+/** Creates and returns a FunctionSlot object for the given std::function. */
+template <typename R, class A1>
+FunctionSlot<R, A1> slot( const std::function<R(A1)>& func )
+{ return FunctionSlot<R, A1>( func ); }
+
 // END_Function 1
 // BEGIN_Function 0
 template <typename R>
@@ -540,5 +590,10 @@ Function<R> callable(R (*func)())
 template <typename R>
 FunctionSlot<R> slot( R (*func)() )
 { return FunctionSlot<R>( callable(func) ); }
+
+/** Creates and returns a FunctionSlot object for the given std::function. */
+template <typename R>
+FunctionSlot<R> slot( const std::function<R()>& func )
+{ return FunctionSlot<R>( func ); }
 
 // END_Function 0

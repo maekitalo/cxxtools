@@ -265,6 +265,11 @@ template <typename R$commaArgumentClasses>
 FunctionSlot<R$commaArgumentTypes> slot( R (*func)($arguments) )
 { return FunctionSlot<R$commaArgumentTypes>( callable(func) ); }
 
+/** Creates and returns a FunctionSlot object for the given std::function. */
+template <typename R$commaArgumentClasses>
+FunctionSlot<R$commaArgumentTypes> slot( const std::function<R($argumentTypes)>& func )
+{ return FunctionSlot<R$commaArgumentTypes>( func ); }
+
 // END_Function $n
 EOF
 }

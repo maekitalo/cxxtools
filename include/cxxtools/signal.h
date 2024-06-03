@@ -38,6 +38,7 @@
 #include <cxxtools/connectable.h>
 #include <list>
 #include <map>
+#include <functional>
 
 
 namespace cxxtools {
