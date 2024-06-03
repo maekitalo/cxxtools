@@ -31,6 +31,7 @@
 #include <cxxtools/callable.h>
 #include <cxxtools/connectable.h>
 #include <cxxtools/slot.h>
+#include <functional>
 
 namespace cxxtools {
 
