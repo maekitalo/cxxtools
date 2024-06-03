@@ -257,28 +257,28 @@ print <<EOF;
     template <typename R, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, class A9, class A10>
     Connection connect(Signal<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>& signal, R(*func)(A1, A2, A3, A4, A5, A6, A7, A8, A9, A10))
     {
-        return connect( signal, slot(func) );
+        return signal.connect(slot(func));
     }
 
     //! Connects a Signal to a std::function.
     template <typename R, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, class A9, class A10>
     Connection connect(Signal<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>& signal, std::function<R(A1, A2, A3, A4, A5, A6, A7, A8, A9, A10)>& func)
     {
-        return connect( signal, slot(func) );
+        return signal.connect(slot(func));
     }
 
     //! Connects a Signal to a member function.
     template <typename R, class BaseT, typename ClassT, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, class A9, class A10>
     Connection connect(Signal<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>& signal, BaseT& object, R(ClassT::*memFunc)(A1, A2, A3, A4, A5, A6, A7, A8, A9, A10))
     {
-        return connect( signal, slot(object, memFunc) );
+        return signal.connect(slot(object, memFunc));
     }
 
     //! Connects a Signal to a const member function.
     template <typename R, class BaseT, typename ClassT, class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, class A9, class A10>
     Connection connect(Signal<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>& signal, BaseT& object, R(ClassT::*memFunc)(A1, A2, A3, A4, A5, A6, A7, A8, A9, A10) const)
     {
-        return connect( signal, slot(object, memFunc) );
+        return signal.connect(slot(object, memFunc));
     }
 
     /// Connects a Signal to another Signal
@@ -286,7 +286,7 @@ print <<EOF;
     template <class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, class A9, class A10>
     Connection connect(Signal<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>& sender, Signal<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>& receiver)
     {
-        return connect( sender, slot(receiver) );
+        return sender.connect(slot(receiver));
     }
 */
 
@@ -324,7 +324,7 @@ print <<EOF;
     template <class A1, class A2, class A3, class A4, class A5, class A6, class A7, class A8, class A9, class A10>
     Connection connect(Signal<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>& sender, Signal<A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>& receiver)
     {
-        return connect( sender, slot(receiver) );
+        return sender.connect(slot(receiver));
     }
 // END_SignalSlot 10
 EOF
@@ -415,31 +415,24 @@ for (my $n = $N - 1; $n > 0; --$n)
 // BEGIN_SignalSlot $n
 
     //! Connects a Signal to a function.
-    template <typename R, $argumentClasses>
-    Connection connect(Signal<$argumentTypes>& signal, R(*func)($argumentTypes))
+    template <typename F, $argumentClasses>
+    Connection connect(Signal<$argumentTypes>& signal, F&& func)
     {
-        return connect( signal, slot(func) );
-    }
-
-    //! Connects a Signal to a std::function.
-    template <typename R, $argumentClasses>
-    Connection connect(Signal<$argumentTypes>& signal, const std::function<R($argumentTypes)>& func)
-    {
-        return connect( signal, slot(func) );
+        return signal.connect(FunctionSlot<void, $argumentTypes>(std::function<void($argumentTypes)>(func)));
     }
 
     //! Connects a Signal to a member function.
     template <typename R, class BaseT, typename ClassT, $argumentClasses>
     Connection connect(Signal<$argumentTypes>& signal, BaseT& object, R(ClassT::*memFunc)($argumentTypes))
     {
-        return connect( signal, slot(object, memFunc) );
+        return signal.connect(slot(object, memFunc));
     }
 
     //! Connects a Signal to a const member function.
     template <typename R, class BaseT, typename ClassT, $argumentClasses>
     Connection connect(Signal<$argumentTypes>& signal, BaseT& object, R(ClassT::*memFunc)($argumentTypes) const)
     {
-        return connect( signal, slot(object, memFunc) );
+        return signal.connect(slot(object, memFunc));
     }
 
     /// Connects a Signal to another Signal
@@ -447,7 +440,7 @@ for (my $n = $N - 1; $n > 0; --$n)
     template <$argumentClasses>
     Connection connect(Signal<$argumentTypes>& sender, Signal<$argumentTypes>& receiver)
     {
-        return connect( sender, slot(receiver) );
+        return sender.connect(slot(receiver));
     }
 */
 
@@ -479,7 +472,7 @@ for (my $n = $N - 1; $n > 0; --$n)
     template <$argumentClasses>
     Connection connect(Signal<$argumentTypes>& sender, Signal<$argumentTypes>& receiver)
     {
-        return connect( sender, slot(receiver) );
+        return sender.connect(slot(receiver));
     }
 // END_SignalSlot $n
 EOF
@@ -561,31 +554,23 @@ print <<EOF
 // BEGIN_SignalSlot 0
 
     //! Connects a Signal to a function.
-    template <typename R>
-    Connection connect(Signal<>& signal, R(*func)())
+    template <typename F>
+    Connection connect(Signal<>& signal, F&& func)
     {
-        return connect( signal, slot(func) );
+        return signal.connect(FunctionSlot<void>(std::function<void()>(func)));
     }
 
-    //! Connects a Signal to a std::function.
-    template <typename R>
-    Connection connect(Signal<>& signal, const std::function<R()>& func)
-    {
-        return connect( signal, slot(func) );
-    }
-
-    //! Connects a Signal to a member function.
     template <typename R, class BaseT, typename ClassT>
     Connection connect(Signal<>& signal, BaseT& object, R(ClassT::*memFunc)())
     {
-        return connect( signal, slot(object, memFunc) );
+        return signal.connect(slot(object, memFunc));
     }
 
     //! Connects a Signal to a const member function.
     template <typename R, class BaseT, typename ClassT>
     Connection connect(Signal<>& signal, BaseT& object, R(ClassT::*memFunc)() const)
     {
-        return connect( signal, slot(object, memFunc) );
+        return signal.connect(slot(object, memFunc));
     }
 
     template <typename R>
@@ -615,7 +600,7 @@ print <<EOF
     /** Connects a Signal to another Signal. */
     inline Connection connect(Signal<>& sender, Signal<>& receiver)
     {
-        return connect( sender, slot(receiver) );
+        return sender.connect(slot(receiver));
     }
 // END_SignalSlot 0
 EOF

@@ -281,8 +281,8 @@ void ServerImpl::onIdleSocket(const IdleSocketEvent& event)
 
     _idleSockets.insert(socket);
     socket->setSelector(&_eventLoop);
-    socket->inputConnection = connect(socket->inputReady, inputSlot);
-    socket->timeoutConnection = connect(socket->timeout, timeoutSlot);
+    socket->inputConnection = socket->inputReady.connect(inputSlot);
+    socket->timeoutConnection = socket->timeout.connect(timeoutSlot);
 }
 
 void ServerImpl::onActiveSocket(const ActiveSocketEvent& event)

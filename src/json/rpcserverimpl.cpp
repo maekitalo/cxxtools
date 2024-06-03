@@ -255,7 +255,7 @@ void RpcServerImpl::onIdleSocket(const IdleSocketEvent& event)
 
     _idleSocket.insert(socket);
     socket->setSelector(&_eventLoop);
-    socket->inputConnection = connect(socket->inputReady, inputSlot);
+    socket->inputConnection = socket->inputReady.connect(inputSlot);
 }
 
 void RpcServerImpl::onNoWaitingThreads(const NoWaitingThreadsEvent& /*event*/)
