@@ -251,8 +251,8 @@ class BenchClient : public cxxtools::Connectable
 {
     std::set<cxxtools::RemoteClient*> _clients;
     std::set<RemoteExecutor*> executors;
-    std::thread _thread;
     cxxtools::EventLoop _loop;
+    std::thread _thread;
 
     static unsigned _numRequests;
     static unsigned _vectorSize;
