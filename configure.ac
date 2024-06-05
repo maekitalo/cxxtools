@@ -220,8 +220,6 @@ AC_ARG_ENABLE([unittest],
 
 AM_CONDITIONAL(MAKE_UNITTEST, test "$enable_unittest" = "enable_unittest")
 
-AC_CONFIG_FILES([cxxtools-config], [chmod +x cxxtools-config])
-
 AC_CONFIG_FILES([
   Makefile
   src/Makefile
