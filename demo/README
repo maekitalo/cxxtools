@@ -177,3 +177,13 @@ convert a csv file to json:
 convert a xml file to json
 
     siconvert -xJ data.xml
+
+timer
+=====
+
+Demonstrates various timers, which run in the cxxtools::EventLoop
+
+timer-lambda
+============
+
+Same as timer but instead of using callback functions we use lambdas.

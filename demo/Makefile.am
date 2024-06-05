@@ -45,6 +45,7 @@ noinst_PROGRAMS = \
 	sslshowcert \
 	tcpsocket \
 	timer \
+	timer-lambda \
 	uuencode \
 	xmlmsgclient \
 	xmlmsgserver \
@@ -94,6 +95,7 @@ splitter_SOURCES = splitter.cpp
 sslshowcert_SOURCES = sslshowcert.cpp
 tcpsocket_SOURCES = tcpsocket.cpp
 timer_SOURCES = timer.cpp
+timer_lambda_SOURCES = timer-lambda.cpp
 uuencode_SOURCES = uuencode.cpp
 xmlmsgclient_SOURCES = xmlmsgclient.cpp
 xmlmsgserver_SOURCES = xmlmsgserver.cpp
