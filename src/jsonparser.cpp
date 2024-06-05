@@ -161,6 +161,9 @@ bool JsonParser::JsonStringParser::advance(Char ch)
                         _str += fromUtf16(_value, _surrogateValue);
                         _state = state_0;
                         break;
+
+                    default: // cannot happen - make compiler happy
+                        break;
                 }
             }
 

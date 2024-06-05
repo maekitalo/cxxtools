@@ -191,13 +191,13 @@ class DateTest : public cxxtools::unit::TestSuite
 
         void weeknumber()
         {
-            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::Date(2020, 1, 1).weeknumber(), 1);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::Date(2020, 1, 4).weeknumber(), 1);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::Date(2020, 1, 5).weeknumber(), 2);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::Date(2020, 2, 1).weeknumber(), 5);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::Date(2020, 12, 31).weeknumber(), 53);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::Date(2019, 1, 5).weeknumber(), 1);
-            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::Date(2019, 1, 6).weeknumber(), 2);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::Date(2020, 1, 1).weeknumber(), 1u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::Date(2020, 1, 4).weeknumber(), 1u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::Date(2020, 1, 5).weeknumber(), 2u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::Date(2020, 2, 1).weeknumber(), 5u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::Date(2020, 12, 31).weeknumber(), 53u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::Date(2019, 1, 5).weeknumber(), 1u);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(cxxtools::Date(2019, 1, 6).weeknumber(), 2u);
         }
 };
 

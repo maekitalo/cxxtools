@@ -144,25 +144,25 @@ class TcpSocketImpl : public IODeviceImpl
         void terminateAccept();
 
         // implementation using poll
-        void initWait(pollfd& pfd);
+        void initWait(pollfd& pfd) override;
 
         // implementation using poll
-        bool checkPollEvent(pollfd& pfd);
+        bool checkPollEvent(pollfd& pfd) override;
 
         // override beginWrite to use send(2) instead of write(2)
-        virtual size_t beginWrite(const char* buffer, size_t n);
+        size_t beginWrite(const char* buffer, size_t n) override;
 
         // override write to use send(2) instead of write(2)
-        virtual size_t write(const char* buffer, size_t count);
+        size_t write(const char* buffer, size_t count) override;
 
         // override for ssl
-        virtual size_t read(char* buffer, size_t count, bool& eof);
+        size_t read(char* buffer, size_t count, bool& eof) override;
 
         // override for ssl
-        virtual void inputReady();
+        void inputReady() override;
 
         // override for ssl
-        virtual void outputReady();
+        void outputReady() override;
 
         const SslCertificate& getSslPeerCertificate() const;
 

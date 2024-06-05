@@ -884,6 +884,10 @@ void TcpSocketImpl::inputReady()
             if (beginSslShutdown())
                 _socket.sslClosed(_socket);
             break;
+
+        case THROWING:
+            // won't happen
+            throw;
     }
 }
 
@@ -914,6 +918,10 @@ void TcpSocketImpl::outputReady()
             if (beginSslShutdown())
                 _socket.sslClosed(_socket);
             break;
+
+        case THROWING:
+            // won't happen
+            throw;
     }
 }
 
