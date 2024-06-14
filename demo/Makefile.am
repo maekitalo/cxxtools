@@ -125,9 +125,4 @@ msgserver_LDADD = $(BIN_LIBS)
 xmlmsgclient_LDADD = $(XMLRPC_LIBS)
 xmlmsgserver_LDADD = $(XMLRPC_LIBS)
 
-log.xml:
-	$(AM_V_GEN)$(SHELL) $(top_builddir)/cxxtools-config --logxml cxxtools >$@
-
-noinst_DATA = log.xml
-CLEANFILES = log.xml
 EXTRA_DIST = README

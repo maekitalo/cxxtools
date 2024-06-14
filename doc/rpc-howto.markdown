@@ -258,7 +258,7 @@ We should see the results of the calculations.
 
 Helpful is to enable some log output. Run the command:
 
-    cxxtools-config --logxml xmlrpc >log.xml
+    echo 'rootlogger=I' >log.properties
 
 To create a basic configuration for logging. If you run the server, you will see
 some log output and also each request from the client.

@@ -33,7 +33,7 @@ It uses a configurationfile log.xml or log.properties to determine the amount of
 logging.
 
 A sample configuration file log.xml can be created with the command
-`cxxtools-config --logxml cxxtools >log.xml`.
+`echo 'rootlogger=I' >log.properties`
 
 md5sum
 ======
