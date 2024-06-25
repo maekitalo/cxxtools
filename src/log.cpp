@@ -1297,6 +1297,23 @@ void LogManager::logInit()
         logInit(logJson);
 }
 
+void LogManager::logInit(int argc, char* argv[])
+{
+    std::string procname = argv[0];
+
+    for (auto ext: {".properties", ".json", ".xml"})
+    {
+        std::string logname = procname + ext;
+        if (FileInfo::exists(logname))
+        {
+            logInit(logname);
+            return;
+        }
+    }
+
+    logInit();
+}
+
 void LogManager::logInit(const std::string& fname)
 {
     std::ifstream in(fname.c_str());

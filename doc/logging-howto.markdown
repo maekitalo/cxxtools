@@ -53,9 +53,8 @@ Each log statement has a level. The levels are in descending severity _fatal_,
 _error_, _warn_, _info_ and _debug_. Additionally there is a special level
 _trace_, which is even below _debug_ and works a little different.
 
-Starting with cxxtools 2.3 we have additional levels _fine_, _finer_ and
-_finest_, where debug output can be controlled more granular. While _fine_ is
-actually the same as _debug_.
+Even less fine levels are _fine_, _finer_ and _finest_, where debug output can
+be controlled more granular. While _fine_ is actually the same as _debug_.
 
 But lets look first, how we can produce log output.
 
@@ -92,28 +91,31 @@ in a application is to call the macro `log_init()`. Typically this is done as
 the first statement in the `main` function of a application.
 
 This macro looks for different variants of configuration files. The
-configuration file format may be xml, properties or in the future (cxxtools
-version > 2.2) json. First it looks for a file named _log.xml_. If found,
-configuration is done by reading that xml file. If not, it looks for a file
-_log.properties_. This was the only variant in cxxtools version below 2.2. In
-cxxtools version > 2.2 it will look for a file _log.json_ in json format. If
-nothing is found, the logging is not configured and no output is produced.
+configuration file format may be properties, json or xml. First it looks for a
+file named _log.properties_. If found, configuration is done by reading that
+properties file. If not, it looks for a file _log.json_ or _log.xml_.
 
-There are 3 additional variants. `log_init()` takes optionally a parameter. It
-is either a file name or a object of type `cxxtools::LogConfiguration`.
+There are 4 additional variants. `log_init()` takes optionally one or 2
+parameter. It is either a file name or a object of type
+`cxxtools::LogConfiguration`.
 
-If the file extension is `.properties`, properties format is used. If the
-file extension is `.json` (for cxxtools version > 2.2), json format is used.
-Otherwise xml is assumed.
+With 2 parameters it expects the argc/argv from main to find the configuration
+file. It searches then for a file which is named like the process with the
+extension _.properties_, _.json_ or _.xml_ whichever is find first. If none is
+found, the `log_init` without parameters is called.
+
+If the file extension is `.properties`, properties format is used. If the file
+extension is `.json`, json format is used. If the file extension is `.xml`, xml
+format is used. Otherwise a error message is written to stderr.
 
 A object of type `cxxtools::LogConfiguration` can be used to read the logging
 configuration from your own file using a proper deserializer or to build a
 configuration manually.
 
 The currently active configuration can be read using
-`cxxtools::LogManager::getInstance().getLogConfiguratoin()`. A copy is returned.
-Starting with cxxtools 2.3 `log_init` can be called multiple times to change the
-current log configuration at runtime.
+`cxxtools::LogManager::getInstance().getLogConfiguratoin()`. A copy is
+returned. `log_init` can be called multiple times to change the current log
+configuration at runtime.
 
 ### Format: xml
 
@@ -128,14 +130,9 @@ So lets look at a typical xml configuration file:
           <level>DEBUG</level>
         </logger>
         <logger>
-          <category>myapp.TheCar</category>
-          <level>DEBUG</level>
-        </logger>
-      </loggers>
-      <file>debug.log</file>
-      <maxfilesize>1MB</maxfilesize>
-      <maxbackupindex>2</maxbackupindex>
-    </logging>
+          <category>myapp.TheCar</category> <level>DEBUG</level> </logger>
+          </loggers> <file>debug.log</file> <maxfilesize>1MB</maxfilesize>
+          <maxbackupindex>2</maxbackupindex> </logging>
 
 The rootlogger node defined the log level for all categories, which are not
 specified explicitly. In this case log output for levels _fatal_, _error_,
@@ -151,13 +148,12 @@ The level may be _FATAL_, _ERROR_, _WARN_, _INFO_, _DEBUG_ or _TRACE_.  Actually
 only the first character is significant and even that is not case sensitive, so
 you can write as well `<level>d</level>` to define _debug_ level.
 
-With cxxtools 2.3 there are new features available. There new levels _FINE_,
-_FINER_ and _FINEST_. Also each level can be enabled separately. There are
+In addition there are levels _FINE_, _FINER_ and _FINEST_, which are not
+enabled in _TRACE_. Also each level can be enabled separately. There are
 actually 4 different possibilities to specify the desired logging levels.
 
-The most simple is just to specify the log level as in 2.2. As a special
-exception _TRACE_ do not enable _FINER_ and _FINEST_. As such it acts like in
-2.2, where those log levels were not available at all.
+The most simple is just to specify the log level. As a special
+exception _TRACE_ do not enable _FINER_ and _FINEST_.
 
 The log level can be prefixed by _T_ to add trace output to a selected log
 level. E.g. _TINFO_ logs all output above _INFO_ and additionally the _TRACE_
@@ -170,9 +166,9 @@ _DEBUG_, _FINE_, _FINER_ or _FINEST_.
 To enable just one single level the first character must be '|'. So to enable
 just _ERROR_ the setting must be |_ERROR_.
 
-The _file_ entry enabled logging to a file. I guess you guessed it already. With
-cxxtools 2.3 the setting may contain environ variables e.g.
-"/home/$USER/log/foo.log". See the class _cxxtools::EnvSubst_ for details.
+The _file_ entry enabled logging to a file. The file name may contain
+environment variables e.g. "/home/$USER/log/foo.log". See the class
+_cxxtools::EnvSubst_ for details.
 
 When a file is defined and both _maxfilesize_ and _maxbackupindex_ the file is
 automatically rotated.
@@ -208,9 +204,9 @@ udp port.
 
 ### Format: properties
 
-The properties file format was the only format supported by cxxtools prior 2.2.
-It is easier to write and read but less standard than xml and also more
-difficult to process automatically.
+The properties file format is the default format. It is easier to write and
+read but less standard than xml and also more difficult to process
+automatically.
 
 Here is the same configuration as above in properties format:
 
@@ -228,9 +224,8 @@ number separated by ':' as in xml.
 
 ### Format: json
 
-The json format is supported for cxxtools version later than 2.2. Since it is so
-similar to xml, just the same configuration is shown in json here without
-explanation:
+The json format is similar to xml, just simpler to write. Here we show the same
+configuration like above without further explanation:
 
     {
       rootlogger: "INFO",

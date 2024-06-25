@@ -335,6 +335,7 @@ namespace cxxtools
 
       static LogManager& getInstance();
       static void logInit();
+      static void logInit(int argc, char* argv[]);
       static void logInit(const std::string& fname);
       static void logInit(const SerializationInfo& si);
       static void logInit(const LogConfiguration& config);
