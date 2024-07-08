@@ -27,7 +27,6 @@
  */
 
 #include <cxxtools/log/cxxtools.h>
-#include <cxxtools/refcounted.h>
 #include <cxxtools/convert.h>
 #include <cxxtools/serializationinfo.h>
 #include <cxxtools/xml/xmldeserializer.h>
@@ -35,6 +34,7 @@
 #include <cxxtools/jsondeserializer.h>
 #include <cxxtools/net/udp.h>
 #include <cxxtools/fileinfo.h>
+#include <cxxtools/file.h>
 #include <cxxtools/split.h>
 #include <cxxtools/envsubst.h>
 #include <cxxtools/datetime.h>
@@ -242,7 +242,7 @@ namespace
         entry += " - ";
     }
 
-    class LogAppender : public RefCounted
+    class LogAppender
     {
     public:
         virtual ~LogAppender() { }
@@ -1301,6 +1301,17 @@ void LogManager::logInit(int argc, char* argv[])
 {
     std::string procname = argv[0];
 
+    for (auto ext: {".properties", ".json", ".xml"})
+    {
+        std::string logname = procname + ext;
+        if (FileInfo::exists(logname))
+        {
+            logInit(logname);
+            return;
+        }
+    }
+
+    procname = File::name(procname);
     for (auto ext: {".properties", ".json", ".xml"})
     {
         std::string logname = procname + ext;

@@ -114,7 +114,7 @@ int main(int argc, char* argv[])
 {
     try
     {
-        log_init();
+        log_init(argc, argv);
 
         cxxtools::Arg<std::string> user(argc, argv, 'u'); // passed as "username:password"
         cxxtools::Arg<std::string> server(argc, argv, 's');

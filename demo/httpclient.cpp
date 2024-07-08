@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
 {
   try
   {
-    log_init();
+    log_init(argc, argv);
 
     // We default construct a http client
     cxxtools::http::Client client;

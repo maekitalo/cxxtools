@@ -16,7 +16,7 @@ int main(int argc, char* argv[])
     cxxtools::Arg<bool> debug(argc, argv, 'd');
 
     // with -l <filename> we may pass a own logging configuration
-    // the configuration may be xml or properties format
+    // the configuration may be properties, json or xml format
     cxxtools::Arg<std::string> logfile(argc, argv, 'l');
 
     // initialize logging

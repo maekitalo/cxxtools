@@ -74,7 +74,7 @@ int main(int argc, char* argv[])
 {
   try
   {
-    log_init();
+    log_init(argc, argv);
 
     cxxtools::Arg<unsigned> threads(argc, argv, 't', 5);
     cxxtools::Arg<unsigned> tasks(argc, argv, 'n', 17);

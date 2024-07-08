@@ -48,7 +48,7 @@ int main(int argc, char* argv[])
   try
   {
     // initialize logging - this reads the file log.xml from the current directory
-    log_init();
+    log_init(argc, argv);
 
     // read the command line options
     cxxtools::Arg<std::string> ip(argc, argv, 'i');  // option -i <ip-addres> defines the address where to find the server

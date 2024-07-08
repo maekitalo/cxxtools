@@ -71,7 +71,7 @@ int main(int argc, char* argv[])
 {
   try
   {
-    log_init("rpcbenchserver.properties");
+    log_init(argc, argv);
 
     cxxtools::Arg<std::string> ip(argc, argv, 'i');
     cxxtools::Arg<unsigned short> port(argc, argv, 'p', 7002);

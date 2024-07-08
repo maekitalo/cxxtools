@@ -68,7 +68,7 @@ int main(int argc, char* argv[])
 {
   try
   {
-    log_init();
+    log_init(argc, argv);
 
     // this is logged at category "global"
     log_fatal("fatal message " << 1);

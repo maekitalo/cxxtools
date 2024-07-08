@@ -155,11 +155,9 @@ int main(int argc, char* argv[])
         cxxtools::Arg<std::string> ip(argc, argv, 'l');
         cxxtools::Arg<unsigned short> port(argc, argv, 'p', 7000);
 
-        // This initializes logging by reading a file 'log.xml' or
-        // 'log.properties' in the local directory. Optionally a file name or a
-        // object of type cxxtools::LogConfiguration could be passed to
-        // log_init().
-        log_init();
+        // This initializes logging by reading a file `server.properties` or
+        // `server.json` in the local directory.
+        log_init(argc, argv);
 
         // We need a event loop, which handles I/O events
         cxxtools::EventLoop loop;

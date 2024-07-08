@@ -68,7 +68,7 @@ processed. In the main function we have these important lines:
     {
       try
       {
-        log_init();
+        log_init(argc, argv);
         cxxtools::EventLoop eventLoop;
         cxxtools::http::Server server(eventLoop, 7001);
 
@@ -149,7 +149,7 @@ XML-RPC server with 4 functions. We look at the whole code:
     {
       try
       {
-        log_init();
+        log_init(argc, argv);
         cxxtools::EventLoop eventLoop;
         cxxtools::http::Server server(eventLoop, 7001);
 
@@ -223,7 +223,7 @@ I added the rest of our functions to our example. Here is the complete code:
     {
       try
       {
-        log_init();
+        log_init(argc, argv);
         cxxtools::xmlrpc::HttpClient client("", 7001, "/xmlrpc");
         cxxtools::RemoteProcedure<double, double, double> add(client, "add");
         cxxtools::RemoteProcedure<double, double, double> sub(client, "sub");
@@ -415,7 +415,7 @@ Here is our full server which talks jsonrpc over http:
     {
       try
       {
-        log_init();
+        log_init(argc, argv);
         cxxtools::EventLoop eventLoop;
         cxxtools::http::Server server(eventLoop, 7001);
 
@@ -476,7 +476,7 @@ above examples. Here is just the main function of our jsonrpc server:
     {
       try
       {
-        log_init();
+        log_init(argc, argv);
         cxxtools::EventLoop eventLoop;
         cxxtools::json::RpcServer server(eventLoop, 7001);
 

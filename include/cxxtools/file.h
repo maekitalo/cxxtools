@@ -87,13 +87,16 @@ class File
         std::string dirName() const;
 
         //! @brief Returns the file name including an extension
-        std::string name() const;
+        std::string name() const        { return name(_path); }
+        static std::string name(const std::string& path);
 
         //! @brief Returns the file name without the extension
-        std::string baseName() const;
+        std::string baseName() const    { return baseName(name()); }
+        static std::string baseName(const std::string& path);
 
         //! @brief Returns the file name extension or an empty string if not present
-        std::string extension() const;
+        std::string extension() const    { return extension(name()); }
+        static std::string extension(const std::string& path);
 
         //! @brief Resizes the file to a new size of \a n bytes
         void resize(std::size_t n);

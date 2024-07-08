@@ -103,7 +103,7 @@ int main(int argc, char* argv[])
     try
     {
         // Initialize logging - reads log.xml or log.properties
-        log_init();
+        log_init(argc, argv);
 
         // Define std::istream for input data
         // This reads data either from a file passed as argument or stdin

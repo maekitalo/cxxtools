@@ -51,7 +51,7 @@ int main(int argc, char* argv[])
 {
   try
   {
-    log_init();
+    log_init(argc, argv);
 
     // Switch -i <ip> specifies the ip address of the server; empty means localhost.
     cxxtools::Arg<std::string> ip(argc, argv, 'i');

@@ -198,7 +198,7 @@ int main(int argc, char* argv[])
 {
     try
     {
-        log_init();
+        log_init(argc, argv);
         Insrv app(argc, argv);
         app.run();
     }

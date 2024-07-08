@@ -38,7 +38,7 @@ int main(int argc, char* argv[])
 {
     try
     {
-        log_init();
+        log_init(argc, argv);
         cxxtools::Arg<std::string> ip(argc, argv, 'i');
         cxxtools::Arg<unsigned short> port(argc, argv, 'j', 7002);
         cxxtools::Arg<std::string> cert(argc, argv, 'c');

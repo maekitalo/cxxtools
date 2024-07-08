@@ -49,7 +49,7 @@ int main(int argc, char* argv[])
     try
     {
         // initialize logging - reads log.xml or log.properties
-        log_init();
+        log_init(argc, argv);
 
         // read file to a stringstream
         std::ostringstream m;

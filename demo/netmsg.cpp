@@ -65,7 +65,7 @@ int main(int argc, char* argv[])
     cxxtools::Arg<bool> nonewline(argc, argv, 'n');
     cxxtools::Arg<int> timeout(argc, argv, 't', 0);
 
-    log_init();
+    log_init(argc, argv);
 
     if (receive)
     {

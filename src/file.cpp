@@ -135,24 +135,24 @@ std::string File::dirName() const
 }
 
 
-std::string File::name() const
+std::string File::name(const std::string& path)
 {
-    std::string::size_type separatorPos = path().rfind( Directory::sep() );
+    std::string::size_type separatorPos = path.rfind( Directory::sep() );
 
     if (separatorPos != std::string::npos)
     {
-        return path().substr(separatorPos + 1);
+        return path.substr(separatorPos + 1);
     }
     else
     {
-        return path();
+        return path;
     }
 }
 
 
-std::string File::baseName() const
+std::string File::baseName(const std::string& path)
 {
-    std::string fileName = this->name();
+    std::string fileName = name(path);
 
     std::string::size_type extensionPointPos = fileName.rfind('.');
 
@@ -167,9 +167,9 @@ std::string File::baseName() const
 }
 
 
-std::string File::extension() const
+std::string File::extension(const std::string& path)
 {
-    std::string fileName = this->name();
+    std::string fileName = name(path);
 
     std::string::size_type extensionPointPos = fileName.rfind('.');
 

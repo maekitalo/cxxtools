@@ -51,7 +51,7 @@ int main(int argc, char* argv[])
 {
   try
   {
-    log_init();
+    log_init(argc, argv);
 
     cxxtools::Arg<const char*> from(argc, argv, 'f', "UTF8");
     cxxtools::Arg<const char*> to(argc, argv, 't', "LATIN1");

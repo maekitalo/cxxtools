@@ -229,7 +229,7 @@ int main(int argc, char* argv[])
 {
     try
     {
-        log_init();
+        log_init(argc, argv);
 
         cxxtools::ArgOut out(argc, argv, 'o');
         cxxtools::Arg<bool> verbose(argc, argv, 'v');

@@ -226,7 +226,7 @@ int main(int argc, char* argv[])
 {
     try
     {
-        log_init();
+        log_init(argc, argv);
 
         cxxtools::Arg<std::string> listenIp(argc, argv, 'l');
         cxxtools::Arg<unsigned short int> listenPort(argc, argv, 'p', 8001);
