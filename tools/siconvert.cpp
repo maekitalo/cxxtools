@@ -293,7 +293,7 @@ Options for output format:
     -P              output properties data
     -N              output number of objects
     -d              beautify output (xml, json)
-    -R <name>       name for root node in xml format (default <root>
+    -R <name>       name for root node in xml format (default <root>)
 
 Other options:
 
