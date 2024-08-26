@@ -249,4 +249,18 @@ void SslCtx::Impl::setCiphers(const std::string& ciphers)
         SslError::checkSslError();
 }
 
+void SslCtx::Impl::setCipherServerPreference()
+{
+    log_debug("SSL_CTX_set_options(SSL_OP_CIPHER_SERVER_PREFERENCE)");
+    if (SSL_CTX_set_options(_ctx, SSL_OP_CIPHER_SERVER_PREFERENCE) == 0)
+        SslError::checkSslError();
+}
+
+void SslCtx::Impl::clearCipherServerPreference()
+{
+    log_debug("SSL_CTX_set_options(SSL_OP_CIPHER_SERVER_PREFERENCE)");
+    if (SSL_CTX_clear_options(_ctx, SSL_OP_CIPHER_SERVER_PREFERENCE) == 0)
+        SslError::checkSslError();
+}
+
 }

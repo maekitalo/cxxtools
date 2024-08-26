@@ -113,6 +113,15 @@ SslCtx& SslCtx::setCiphers(const std::string& ciphers)
     return *this;
 }
 
+SslCtx& SslCtx::setCipherServerPreference(bool sw)
+{
+    if (sw)
+        impl()->setCipherServerPreference();
+    else
+        impl()->clearCipherServerPreference();
+    return *this;
+}
+
 SslCtx SslCtx::secure()
 {
     log_debug("SslCtx SslCtx::secure()");

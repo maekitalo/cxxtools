@@ -52,6 +52,8 @@ public:
     void setVerify(SslCtx::VERIFY_LEVEL level, const std::string& ca);
     void setProtocolVersion(PROTOCOL_VERSION min, PROTOCOL_VERSION max);
     void setCiphers(const std::string& ciphers);
+    void setCipherServerPreference();
+    void clearCipherServerPreference();
 };
 }
 

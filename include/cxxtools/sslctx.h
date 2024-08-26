@@ -129,6 +129,8 @@ public:
     /** Sets allowed ciphers. See openssl documentation for syntax. */
     SslCtx& setCiphers(const std::string& ciphers);
 
+    SslCtx& setCipherServerPreference(bool sw = true);
+
     /** return standard ctx with low security */
     static SslCtx standard() { return SslCtx().enable(); }
 
