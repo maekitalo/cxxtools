@@ -58,6 +58,7 @@ void Deserializer::read(std::istream& in)
 {
     try
     {
+        in.peek();  // this triggers eof when no data is found
         read(*in.rdbuf());
     }
     catch (const cxxtools::SerializationError& e)
