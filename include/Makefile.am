@@ -38,7 +38,6 @@ nobase_include_HEADERS = \
         cxxtools/delegate.tpp \
         cxxtools/deserializer.h \
         cxxtools/destructionsentry.h \
-        cxxtools/dir.h \
         cxxtools/directory.h \
         cxxtools/dlloader.h \
         cxxtools/envsubst.h \
@@ -162,7 +161,6 @@ nobase_include_HEADERS = \
         cxxtools/split.h \
         cxxtools/signal.h \
         cxxtools/signal.tpp \
-        cxxtools/singleton.h \
         cxxtools/slot.h \
         cxxtools/slot.tpp \
         cxxtools/sourceinfo.h \
