@@ -26,6 +26,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 #include <cxxtools/unit/application.h>
+#include <cxxtools/regex.h>
 
 namespace cxxtools {
 
@@ -153,7 +154,7 @@ void Application::attachReporter(Reporter& r, const std::string& testname)
 }
 
 
-void Application::run(const std::string& testName)
+void Application::run(const Regex& testName)
 {
     SuccessCounter ec;
     this->attachReporter(ec);
@@ -161,7 +162,7 @@ void Application::run(const std::string& testName)
     std::list<Test*>::iterator it;
     for(it = Application::tests().begin(); it != Application::tests().end(); ++it)
     {
-        if(testName == "" || (*it)->name() == testName)
+        if (testName.match((*it)->name()))
             (*it)->run();
     }
 

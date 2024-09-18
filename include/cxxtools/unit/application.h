@@ -35,6 +35,8 @@
 
 namespace cxxtools {
 
+class Regex;
+
 namespace unit {
 
     /** @brief Run registered tests
@@ -96,9 +98,9 @@ namespace unit {
                 This method will run a previously registered test. Use the
                 RegisterTest<T> template to register a test to the application.
 
-                @param testName name of the test to be run
+                @param regular expression to match against test name of the test to be run
             */
-            void run(const std::string& testName);
+            void run(const Regex& testName);
 
             /** @brief Run all tests
 

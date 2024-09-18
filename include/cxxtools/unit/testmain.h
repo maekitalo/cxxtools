@@ -34,6 +34,7 @@
 #include <cxxtools/unit/jsonreporter.h>
 #include <cxxtools/unit/application.h>
 #include <cxxtools/json.h>
+#include <cxxtools/regex.h>
 #include <cxxtools/log.h>
 #include <fstream>
 
@@ -96,7 +97,7 @@ int main(int argc, char** argv)
         {
             for (int a = 1; a < argc; ++a)
             {
-                std::string testName = argv[a];
+                cxxtools::Regex testName(argv[a]);
                 app.run(testName);
             }
         }
