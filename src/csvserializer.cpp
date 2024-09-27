@@ -111,7 +111,9 @@ void CsvSerializer::csvOut(const String& value) const
 {
     if (value.find(Char(_quote)) == String::npos
             && value.find(_delimiter) == String::npos
-            && value.find(_lineEnding) == String::npos)
+            && value.find(_lineEnding) == String::npos
+            && value.find(L"\r") == String::npos
+            && value.find(L"\n") == String::npos)
     {
         _os << value;
     }
