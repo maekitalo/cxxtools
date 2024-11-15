@@ -351,6 +351,7 @@ void Formatter::addValueChar(const std::string& name, const std::string& type,
 
     _out->sputc(value);
 }
+
 void Formatter::addValueBool(const std::string& name, const std::string& type,
                          bool value)
 {

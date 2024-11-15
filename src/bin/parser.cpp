@@ -161,7 +161,12 @@ bool Parser::advance(std::streambuf& in, bool atLeastOne)
             case state_type:
                 {
                     Serializer::Type tc = static_cast<Serializer::Type>(static_cast<unsigned char>(ch));
-                    if (tc == Serializer::Type::CategoryObject)
+                    if (tc == Serializer::Type::PlainEmpty)
+                    {
+                        log_debug("type plain");
+                        _state = state_end;
+                    }
+                    else if (tc == Serializer::Type::CategoryObject)
                     {
                         _nextstate = state_object_type;
                         _state = state_name;

@@ -147,6 +147,7 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
             registerMethod("testString", *this, &BinSerializerTest::testString);
             registerMethod("testString_0", *this, &BinSerializerTest::testString_0);
             registerMethod("testDouble", *this, &BinSerializerTest::testDouble);
+            registerMethod("testOptional", *this, &BinSerializerTest::testOptional);
             registerMethod("testArray", *this, &BinSerializerTest::testArray);
             registerMethod("testObject", *this, &BinSerializerTest::testObject);
             registerMethod("testComplexObject", *this, &BinSerializerTest::testComplexObject);
@@ -160,6 +161,7 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
             registerMethod("testTimespan", *this, &BinSerializerTest::testTimespan);
             registerMethod("testRawString", *this, &BinSerializerTest::testRawString);
             //registerMethod("testBigString", *this, &BinSerializerTest::testBigString);
+            registerMethod("testNullSi", *this, &BinSerializerTest::testNullSi);
         }
 
         void testScalar()
@@ -315,6 +317,26 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
 
             CXXTOOLS_UNIT_ASSERT(result != result); 
 
+        }
+
+        void testOptional()
+        {
+            {
+                std::stringstream data;
+                data << cxxtools::bin::Bin(std::optional<int>(5));
+                std::optional<int> result;
+                data >> cxxtools::bin::Bin(result);
+                CXXTOOLS_UNIT_ASSERT(result);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(*result, 5);
+            }
+
+            {
+                std::stringstream data;
+                data << cxxtools::bin::Bin(std::optional<int>());
+                std::optional<int> result = 42;
+                data >> cxxtools::bin::Bin(result);
+                CXXTOOLS_UNIT_ASSERT(!result);
+            }
         }
 
         void testArray()
@@ -561,6 +583,19 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
             ss >> cxxtools::bin::Bin(s);
 
             CXXTOOLS_UNIT_ASSERT_EQUALS(s.size(), size);
+        }
+
+        void testNullSi()
+        {
+            std::stringstream ss;
+
+            cxxtools::SerializationInfo si;
+            ss << cxxtools::bin::Bin(si);
+
+            cxxtools::SerializationInfo ssi;
+            ss >> cxxtools::bin::Bin(ssi);
+
+            CXXTOOLS_UNIT_ASSERT_EQUALS(si.category(), ssi.category());
         }
 };
 
