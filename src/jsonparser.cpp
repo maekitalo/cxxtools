@@ -551,6 +551,8 @@ int JsonParser::advance(Char ch)
                         _deserializer->setNull();
                         _token.clear();
                     }
+                    else
+                        doThrow("unknown token \"" + _token.narrow() + '"');
 
                     return -1;
                 }
