@@ -87,6 +87,9 @@ void IODeviceImpl::open(const std::string& path, IODevice::OpenMode mode, bool i
     if(mode & IODevice::Async)
         flags |= O_NONBLOCK;
 
+    if(mode & IODevice::Append)
+        flags |= O_APPEND;
+
     if(mode & IODevice::Trunc)
         flags |= O_TRUNC;
 
