@@ -74,12 +74,6 @@ BufferedSocket::BufferedSocket(SelectorBase& selector, const std::string& ipaddr
     : BufferedSocket(selector, AddrInfo(ipaddr, port))
 { }
 
-BufferedSocket::~BufferedSocket()
-{
-    if (_sentry)
-        _sentry->detach();
-}
-
 size_t BufferedSocket::onEndRead(bool& eof)
 {
     auto count = IODevice::onEndRead(eof);
@@ -132,7 +126,7 @@ unsigned BufferedSocket::read()
 
 void BufferedSocket::onOutput(IODevice&)
 {
-    DestructionSentry sentry(_sentry);
+    DestructionSentry sentry(_sentryPtr);
 
     try
     {

@@ -31,15 +31,33 @@
 
 namespace cxxtools
 {
+class DestructionSentryPtr;
+
+/* A destruction sentry monitors deletion of a object.
+ *
+ * When a member function results in a deletion of the object then the function
+ * must not access member data any more. Sometimes the deletion is a result of
+ * a callback and hence hidden. This desctruction sentry helps detecting, that
+ * the object is deleted.
+ *
+ * To use it:
+ *  * a DestructionSentryPtr must be a member of the object
+ *  * In the function, which needs to check deletion create a DescrutionSentry
+ *    on the stack and pass the DestructionSentryPtr to the constructor.
+ *  * use the member function `deleted()`from the sentry object after
+ *    a possible deletion before accessing member data.
+ */
 class DestructionSentry
 {
 public:
     explicit DestructionSentry(DestructionSentry*& sentry)
-    : _deleted(false)
-    , _sentry(sentry)
+        : _deleted(false),
+          _sentry(sentry)
     {
        sentry = this;
     }
+
+    explicit DestructionSentry(DestructionSentryPtr& ptr);
 
     ~DestructionSentry()
     {
@@ -63,6 +81,27 @@ private:
     bool _deleted;
     DestructionSentry*& _sentry;
 };
+
+class DestructionSentryPtr
+{
+    friend class DestructionSentry;
+    DestructionSentry* _ptr = nullptr;
+
+public:
+    DestructionSentryPtr() = default;
+    ~DestructionSentryPtr()
+    {
+        if (_ptr)
+            _ptr->detach();
+    }
+};
+
+inline DestructionSentry::DestructionSentry(DestructionSentryPtr& ptr)
+    : _deleted(false),
+      _sentry(ptr._ptr)
+{
+    ptr._ptr = this;
+}
 
 }
 

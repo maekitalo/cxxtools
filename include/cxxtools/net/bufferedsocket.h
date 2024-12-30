@@ -68,7 +68,7 @@ class BufferedSocket : public TcpSocket, public Connectable
     std::vector<char> _inputBuffer;
     std::vector<char> _outputBuffer;
     std::vector<char> _outputBufferNext;
-    DestructionSentry* _sentry = nullptr;
+    DestructionSentryPtr _sentryPtr;
     std::exception_ptr _inputException;
 
     void onInput(IODevice&);
@@ -90,9 +90,6 @@ public:
 
     /// Connects to a peer.
     BufferedSocket(SelectorBase& selector, const std::string& ipaddr, unsigned short int port);
-
-    /// Destructor
-    ~BufferedSocket();
 
     /// returns the current input buffer size.
     unsigned bufferSize() const         { return _bufferSize; }
