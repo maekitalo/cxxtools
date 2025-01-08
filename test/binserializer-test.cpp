@@ -147,7 +147,9 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
             registerMethod("testString", *this, &BinSerializerTest::testString);
             registerMethod("testString_0", *this, &BinSerializerTest::testString_0);
             registerMethod("testDouble", *this, &BinSerializerTest::testDouble);
+#if __cplusplus >= 201703L
             registerMethod("testOptional", *this, &BinSerializerTest::testOptional);
+#endif
             registerMethod("testArray", *this, &BinSerializerTest::testArray);
             registerMethod("testObject", *this, &BinSerializerTest::testObject);
             registerMethod("testComplexObject", *this, &BinSerializerTest::testComplexObject);
@@ -319,6 +321,7 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
 
         }
 
+#if __cplusplus >= 201703L
         void testOptional()
         {
             {
@@ -338,6 +341,7 @@ class BinSerializerTest : public cxxtools::unit::TestSuite
                 CXXTOOLS_UNIT_ASSERT(!result);
             }
         }
+#endif
 
         void testArray()
         {
