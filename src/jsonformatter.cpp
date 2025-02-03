@@ -51,7 +51,7 @@ namespace
             return false;
 
         for (std::string::size_type n = 1; n < str.size(); ++n)
-            if (!std::isalnum(str[n]))
+            if (!std::isalnum(str[n]) && str[n] != '_')
                 return false;
 
         return true;
