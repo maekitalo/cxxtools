@@ -777,13 +777,20 @@ size_t TcpSocketImpl::beginWrite(const char* buffer, size_t n)
 {
     if (_state == CONNECTED)
     {
-        size_t ret = callSend(buffer, n);
+        try
+        {
+            size_t ret = callSend(buffer, n);
 
-        if (ret > 0)
-            return ret;
+            if (ret > 0)
+                return ret;
 
-        if (_pfd)
-            _pfd->events |= POLLOUT;
+            if (_pfd)
+                _pfd->events |= POLLOUT;
+        }
+        catch (const std::exception&)
+        {
+            _exception = std::current_exception();
+        }
     }
     else if (_state == SSLCONNECTED)
     {
