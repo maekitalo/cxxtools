@@ -96,6 +96,8 @@ class CsvDeserializerTest : public cxxtools::unit::TestSuite
 #if __cplusplus >= 201703L
             registerMethod("testOptional", *this, &CsvDeserializerTest::testOptional);
 #endif
+            registerMethod("testSkipEmptyLines", *this, &CsvDeserializerTest::testSkipEmptyLines);
+            registerMethod("testNoSkipEmptyLines", *this, &CsvDeserializerTest::testNoSkipEmptyLines);
         }
 
         void testVectorVector()
@@ -443,6 +445,39 @@ class CsvDeserializerTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT(!data[1].charValue);
         }
 #endif
+
+        void testSkipEmptyLines()
+        {
+            std::vector<std::vector<std::string> > data;
+            std::istringstream in(
+                "A|B|C\n"
+                "\n"
+                "Hello|World|\n"
+                "\n"
+                "34|67|\"23\"\n"
+                "col1|'col2'|col3\n"
+                "\n");
+
+            in >> cxxtools::Csv(data).skipEmptyLines(true);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(data.size(), 3u);
+        }
+
+        void testNoSkipEmptyLines()
+        {
+            std::vector<std::vector<std::string> > data;
+            std::istringstream in(
+                "A|B|C\n"
+                "\n"
+                "Hello|World|\n"
+                "\n"
+                "34|67|\"23\"\n"
+                "col1|'col2'|col3\n"
+                "\n");
+
+            cxxtools::CsvDeserializer deserializer;
+            deserializer.skipEmptyLines(false);
+            CXXTOOLS_UNIT_ASSERT_THROW(deserializer.read(in), std::exception);
+        }
 };
 
 cxxtools::unit::RegisterTest<CsvDeserializerTest> register_CsvDeserializerTest;

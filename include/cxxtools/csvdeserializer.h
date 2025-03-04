@@ -55,6 +55,12 @@ namespace cxxtools
             void readTitle(bool sw)
             { _parser.readTitle(sw); }
 
+            bool skipEmptyLines() const
+            { return _parser.skipEmptyLines(); }
+
+            void skipEmptyLines(bool sw)
+            { _parser.skipEmptyLines(sw); }
+
             static const Char autoDelimiter;
 
             void begin();

@@ -133,12 +133,14 @@ namespace cxxtools
     {
         ObjectType& _object;
         bool _readTitle;
+        bool _skipEmptyLines;
 
       public:
         explicit CsvIOObject(ObjectType& object)
           : CsvOObject<ObjectType>(object),
             _object(object),
-            _readTitle(true)
+            _readTitle(true),
+            _skipEmptyLines(false)
         { }
 
         CsvIOObject& delimiter(Char delimiter)
@@ -147,11 +149,17 @@ namespace cxxtools
         CsvIOObject& readTitle(bool sw)
         { _readTitle = sw; return *this; }
 
+        CsvIOObject& skipEmptyLines(bool sw)
+        { _skipEmptyLines = sw; return *this; }
+
         Char delimiter() const
         { return CsvOObject<ObjectType>::delimiter(); }
 
         bool readTitle() const
         { return _readTitle; }
+
+        bool skipEmptyLines() const
+        { return _skipEmptyLines; }
 
         ObjectType& object()
         { return _object; }
@@ -167,6 +175,7 @@ namespace cxxtools
         if (object.delimiter() != CsvParser::autoDelimiter)
           deserializer.delimiter(object.delimiter());
         deserializer.readTitle(object.readTitle());
+        deserializer.skipEmptyLines(object.skipEmptyLines());
 
         deserializer.read(in);
 

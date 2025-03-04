@@ -43,6 +43,7 @@ namespace cxxtools
                 : _deserializer(0),
                   _delimiter(autoDelimiter),
                   _readTitle(true),
+                  _skipEmptyLines(false),
                   _noColumns(0),
                   _lineNo(0)
             { }
@@ -58,6 +59,12 @@ namespace cxxtools
 
             void readTitle(bool sw)
             { _readTitle = sw; }
+
+            bool skipEmptyLines() const
+            { return _skipEmptyLines; }
+
+            void skipEmptyLines(bool sw)
+            { _skipEmptyLines = sw; }
 
             static const Char autoDelimiter;
 
@@ -88,6 +95,7 @@ namespace cxxtools
             CsvDeserializer* _deserializer;
             Char _delimiter;
             bool _readTitle;
+            bool _skipEmptyLines;
 
             typedef std::vector<std::string> rowType;
             rowType _titles;

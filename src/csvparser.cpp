@@ -217,10 +217,18 @@ void CsvParser::advance(Char ch)
 
         case state_rowstart:
             _column = 0;
+            if (_skipEmptyLines && (ch == L'\n' || ch == L'\r'))
+            {
+                if (ch == L'\r')
+                    _state = state_cr;
+                break;
+            }
+
             log_debug("new row");
             _deserializer->beginMember(std::string(),
                 std::string(), SerializationInfo::Object);
             _state = state_datastart;
+
             // no break
 
         case state_datastart:
