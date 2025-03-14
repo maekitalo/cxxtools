@@ -153,9 +153,9 @@ class XmlRpcTest : public cxxtools::unit::TestSuite
         {
             cxxtools::xmlrpc::Service service;
             service.registerMethod("multiply", *this, &XmlRpcTest::multiplyNothing);
-            _server->addService("/rpc", service);
+            _server->addService("rpc", service);
 
-            cxxtools::xmlrpc::HttpClient client(_loop, _listen, _port, "/rpc");
+            cxxtools::xmlrpc::HttpClient client(_loop, _listen, _port, "rpc");
             cxxtools::RemoteProcedure<bool> multiply(client, "multiply");
 
             multiply.begin();

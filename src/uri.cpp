@@ -124,7 +124,7 @@ namespace net
           {
             _host = _user;
             _user.clear();
-            _path = ch;
+            _path.clear();
             state = state_path;
           }
           else if (ch == '@')
@@ -144,7 +144,7 @@ namespace net
             _host = _user;
             _user.clear();
             _password.clear();
-            _path = ch;
+            _path.clear();
             state = state_path;
           }
           else if (std::isdigit(ch))
@@ -172,7 +172,7 @@ namespace net
         case state_host:
           if (ch == '/')
           {
-            _path = ch;
+            _path.clear();
             state = state_path;
           }
           else if (ch == ':')
@@ -220,7 +220,7 @@ namespace net
           }
           else if (ch == '/')
           {
-            _path = ch;
+            _path.clear();
             state = state_path;
           }
           else
@@ -230,7 +230,7 @@ namespace net
         case state_port:
           if (ch == '/')
           {
-            _path = ch;
+            _path.clear();
             state = state_path;
           }
           else if (std::isdigit(ch))
@@ -316,7 +316,7 @@ namespace net
        || (_protocol == "ftp"   && _port == 21)))
       s << ':' << _port;
 
-    s << _path;
+    s << '/' << _path;
     if (!_query.empty())
       s << '?' << _query;
     if (!_fragment.empty())

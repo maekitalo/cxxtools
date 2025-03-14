@@ -325,7 +325,7 @@ void ClientImpl::sendRequest(const Request& request)
     static const char* authorization = "Authorization";
     static const char* userAgent = "User-Agent";
 
-    _stream << request.method() << ' '
+    _stream << request.method() << " /"
             << request.url();
 
     if (!request.qparams().empty() && request.method() == "GET")

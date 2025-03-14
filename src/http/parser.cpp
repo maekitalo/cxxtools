@@ -181,27 +181,29 @@ namespace http {
     {
         if (ch == ' ' || ch == '\t')
         {
-            return;
         }
-        else if (ch == '/' || ch == '*')
+        else if (ch == '/')
+        {
+            token.reserve(32);
+            token.clear();
+            state = &HeaderParser::state_url;
+        }
+        else if (ch == '*')
         {
             token.reserve(32);
             token = ch;
             state = &HeaderParser::state_url;
-            return;
         }
         else if (std::isalpha(ch))
         {
             token.reserve(32);
             token = ch;
             state = &HeaderParser::state_uri_protocol;
-            return;
         }
         else
         {
-            log_warn("invalid character " << chartoprint(ch) << " in url");
+            log_warn("invalid character " << chartoprint(ch) << " in url (1)");
             state = &HeaderParser::state_error;
-            return;
         }
     }
 
@@ -217,7 +219,7 @@ namespace http {
         }
         else
         {
-            log_warn("invalid character " << chartoprint(ch) << " in url");
+            log_warn("invalid character " << chartoprint(ch) << " in url (2)");
             state = &HeaderParser::state_error;
         }
     }
@@ -235,7 +237,7 @@ namespace http {
         }
         else
         {
-            log_warn("invalid character " << chartoprint(ch) << " in url");
+            log_warn("invalid character " << chartoprint(ch) << " in url (3)");
             state = &HeaderParser::state_error;
         }
     }
@@ -252,7 +254,7 @@ namespace http {
         }
         else
         {
-            log_warn("invalid character " << chartoprint(ch) << " in url");
+            log_warn("invalid character " << chartoprint(ch) << " in url (4)");
             state = &HeaderParser::state_error;
         }
     }
@@ -295,7 +297,7 @@ namespace http {
         }
         else
         {
-            log_warn("invalid character " << chartoprint(ch) << " in url");
+            log_warn("invalid character " << chartoprint(ch) << " in url (5)");
             state = &HeaderParser::state_error;
             return;
         }

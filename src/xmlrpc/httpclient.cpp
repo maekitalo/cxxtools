@@ -113,7 +113,7 @@ void HttpClient::prepareConnect(const net::Uri& uri)
     SslCtx sslCtx;
     if (uri.protocol() == "https")
         sslCtx.enable();
-    prepareConnect(net::AddrInfo(uri.host(), uri.port()), uri.path(), sslCtx);
+    prepareConnect(net::AddrInfo(uri.host(), uri.port()), '/' + uri.path(), sslCtx);
     auth(uri.user(), uri.password());
 }
 
@@ -121,7 +121,7 @@ void HttpClient::prepareConnect(const net::Uri& uri, const SslCtx& sslCtx)
 {
     if (uri.protocol() != "http" && uri.protocol() != "https")
         throw std::runtime_error("only protocols \"http\" and \"https\" are supported by xmlrpc client");
-    prepareConnect(net::AddrInfo(uri.host(), uri.port()), uri.path(), sslCtx);
+    prepareConnect(net::AddrInfo(uri.host(), uri.port()), '/' + uri.path(), sslCtx);
     auth(uri.user(), uri.password());
 }
 

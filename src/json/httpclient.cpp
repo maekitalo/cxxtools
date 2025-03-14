@@ -107,7 +107,7 @@ void HttpClient::prepareConnect(const net::Uri& uri)
     SslCtx sslCtx;
     if (uri.protocol() == "https")
         sslCtx.enable();
-    prepareConnect(net::AddrInfo(uri.host(), uri.port()), uri.path(), sslCtx);
+    prepareConnect(net::AddrInfo(uri.host(), uri.port()), '/' + uri.path(), sslCtx);
 }
 
 void HttpClient::prepareConnect(const net::Uri& uri, const SslCtx& sslCtx)
@@ -118,7 +118,7 @@ void HttpClient::prepareConnect(const net::Uri& uri, const SslCtx& sslCtx)
         throw std::runtime_error("ssl must not be enabled in http protocol");
     if (uri.protocol() == "https" && !sslCtx.enabled())
         throw std::runtime_error("ssl must be enabled in https protocol");
-    prepareConnect(net::AddrInfo(uri.host(), uri.port()), uri.path(), sslCtx);
+    prepareConnect(net::AddrInfo(uri.host(), uri.port()), '/' + uri.path(), sslCtx);
 }
 
 void HttpClient::connect()
