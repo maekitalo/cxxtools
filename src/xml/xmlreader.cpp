@@ -1730,13 +1730,6 @@ class XmlReaderImpl
     void appendContent(cxxtools::Char c)
     {
         String&& content = _chars.content();
-        if (content.capacity() <= content.size() + 20)
-        {
-            if (content.capacity() < 16)
-                content.reserve(16);
-            else
-                content.reserve(content.capacity() + content.capacity() / 2);
-        }
         content += c;
     }
 

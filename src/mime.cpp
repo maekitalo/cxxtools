@@ -126,7 +126,6 @@ void HeaderParser::state_h0(char ch)
     }
     else if (ch > 32 && ch < 127)
     {
-        key.reserve(32);
         key = ch;
         state = &HeaderParser::state_hfieldname;
     }
@@ -205,7 +204,6 @@ void HeaderParser::state_hfieldbody0(char ch)
     }
     else if (!std::isspace(ch))
     {
-        value.reserve(32);
         value = ch;
         state = &HeaderParser::state_hfieldbody;
     }
@@ -263,7 +261,6 @@ void HeaderParser::state_hfieldbody_crlf(char ch)
         }
         else if (ch > 32 && ch < 127)
         {
-            key.reserve(32);
             key = ch;
             state = &HeaderParser::state_hfieldname;
         }

@@ -137,7 +137,6 @@ namespace http {
     {
         if (istokenchar(ch))
         {
-            token.reserve(32);
             token = ch;
             state = &HeaderParser::state_cmd;
             return;
@@ -184,19 +183,16 @@ namespace http {
         }
         else if (ch == '/')
         {
-            token.reserve(32);
             token.clear();
             state = &HeaderParser::state_url;
         }
         else if (ch == '*')
         {
-            token.reserve(32);
             token = ch;
             state = &HeaderParser::state_url;
         }
         else if (std::isalpha(ch))
         {
-            token.reserve(32);
             token = ch;
             state = &HeaderParser::state_uri_protocol;
         }
@@ -266,7 +262,6 @@ namespace http {
             log_debug("url=" << token);
             ev.onUrl(token);
             token.clear();
-            token.reserve(32);
             state = &HeaderParser::state_qparam;
             return;
         }
@@ -275,7 +270,6 @@ namespace http {
             log_debug("url=" << token);
             ev.onUrl(token);
             token.clear();
-            token.reserve(32);
             state = &HeaderParser::state_protocol0;
             return;
         }
@@ -343,7 +337,6 @@ namespace http {
             log_debug("queryString=" << token);
             ev.onUrlParam(token);
             token.clear();
-            token.reserve(32);
             state = &HeaderParser::state_protocol0;
             return;
         }
@@ -362,7 +355,6 @@ namespace http {
         }
         else if (std::isalpha(ch))
         {
-            token.reserve(32);
             token = ch;
             state = &HeaderParser::state_protocol;
             return;
@@ -509,7 +501,6 @@ namespace http {
         }
         else if (ch > 32 && ch < 127)
         {
-            token.reserve(32);
             token = ch;
             state = &HeaderParser::state_hfieldname;
             return;
@@ -613,7 +604,6 @@ namespace http {
         }
         else if (!std::isspace(ch))
         {
-            token.reserve(32);
             token = ch;
             state = &HeaderParser::state_hfieldbody;
             return;
@@ -679,7 +669,6 @@ namespace http {
         else if (ch > 32 && ch < 127)
         {
             ev.onValue(token);
-            token.reserve(32);
             token = ch;
             state = &HeaderParser::state_hfieldname;
             return;
@@ -716,7 +705,6 @@ namespace http {
         }
         else if (std::isalpha(ch))
         {
-            token.reserve(32);
             token = ch;
             state = &HeaderParser::state_cl_protocol;
             return;
@@ -866,7 +854,6 @@ namespace http {
         else if (ch == ' ' || ch == '\t')
         {
             token.clear();
-            token.reserve(32);
             state = &HeaderParser::state_cl_httpresulttext;
         }
     }
