@@ -147,6 +147,7 @@ nobase_include_HEADERS = \
         cxxtools/remoteclient.h \
         cxxtools/remoteexception.h \
         cxxtools/remoteprocedure.h \
+        cxxtools/remoteprocedureva.h \
         cxxtools/remoteprocedure.tpp \
         cxxtools/remoteresult.h \
         cxxtools/resetter.h \

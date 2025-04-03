@@ -31,6 +31,7 @@
 #include "cxxtools/bin/rpcserver.h"
 #include "cxxtools/remoteexception.h"
 #include "cxxtools/remoteprocedure.h"
+#include "cxxtools/remoteprocedureva.h"
 #include "cxxtools/eventloop.h"
 #include "cxxtools/log.h"
 #include "cxxtools/ioerror.h"
@@ -89,6 +90,8 @@ class BinRpcTest : public cxxtools::unit::TestSuite
             registerMethod("PrepareConnect", *this, &BinRpcTest::PrepareConnect);
             registerMethod("Connect", *this, &BinRpcTest::Connect);
             registerMethod("Multiple", *this, &BinRpcTest::Multiple);
+            registerMethod("VaArg", *this, &BinRpcTest::VaArg);
+            registerMethod("VaProc", *this, &BinRpcTest::VaProc);
 
             char* PORT = getenv("UTEST_PORT");
             if (PORT)
@@ -803,6 +806,43 @@ class BinRpcTest : public cxxtools::unit::TestSuite
             }
 
         }
+
+        ////////////////////////////////////////////////////////////
+        // call with variable number of arguments
+        //
+        void VaArg()
+        {
+            _server->registerMethod("concat", *this, &BinRpcTest::concat);
+
+            cxxtools::bin::RpcClient client(_loop, _listen, _port);
+            cxxtools::RemoteProcedureVa<std::string> concat(client, "concat");
+
+            cxxtools::SerializationInfo param;
+            param.addMember() <<= "foo";
+            param.addMember() <<= 42;
+            concat.begin(param);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(concat.end(2000), "foo42");
+        }
+
+        std::string concat(const std::string& v, int i)
+        {
+            return v + std::to_string(i);
+        }
+
+        void VaProc()
+        {
+            _server->registerMethod("concat", *this, &BinRpcTest::concat);
+
+            cxxtools::bin::RpcClient client(_loop, _listen, _port);
+            cxxtools::RemoteProcedureVa<std::string> concat(client, "concat");
+
+            concat.begin("foo", 42);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(concat.end(2000), "foo42");
+
+            concat.begin("foo", 42, 65);
+            CXXTOOLS_UNIT_ASSERT_THROW(concat.end(2000), cxxtools::RemoteException);
+        }
+
 
 };
 
