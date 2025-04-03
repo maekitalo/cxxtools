@@ -102,10 +102,11 @@ bool Responder::onInput(IOStream& ios)
             _proc = 0;
             _args = 0;
             _result = 0;
-            _state = state_0;
+            _state = State::header;
             _failed = false;
             _errorMessage.clear();
             _deserializer.begin();
+            _headerParser.reset();
 
             return true;
         }
@@ -122,57 +123,31 @@ bool Responder::advance(std::streambuf& in)
         char ch = std::streambuf::traits_type::to_char_type(chi);
         switch (_state)
         {
-            case state_0:
-                log_debug("new rpc request");
-
-                if (ch == '\xc0')
-                    _state = state_method;
-                else if (ch == '\xc3')
-                    _state = state_domain;
-                else
-                    throw std::runtime_error("domain or method name expected");
-                in.sbumpc();
-                break;
-
-            case state_domain:
-                if (ch == '\0')
+            case State::header:
+                if (_headerParser.advance(in))
                 {
-                    log_info_if(!_domain.empty(), "rpc method domain \"" << _domain << '"');
-                    _state = state_method;
-                }
-                else
-                    _domain += ch;
-                in.sbumpc();
-                break;
+                    log_info("rpc method \"" << _headerParser.method() << '"');
 
-            case state_method:
-                if (ch == '\0')
-                {
-                    log_info("rpc method \"" << _methodName << '"');
-
-                    _proc = _serviceRegistry.getProcedure(_domain.empty() ? _methodName : _domain + '\0' + _methodName);
+                    _proc = _serviceRegistry.getProcedure(
+                            _headerParser.domain().empty()
+                                ? _headerParser.method()
+                                : _headerParser.domain() + '\0' + _headerParser.method());
 
                     if (_proc)
                     {
                         _args = _proc->beginCall();
-                        _state = state_params;
+                        _state = State::params;
                     }
                     else
                     {
                         _failed = true;
-                        _errorMessage = "unknown method \"" + _methodName + '"';
-                        _state = state_params_skip;
+                        _errorMessage = "unknown method \"" + _headerParser.method() + '"';
+                        _state = State::params_skip;
                     }
-
-                    _methodName.clear();
-                    _domain.clear();
                 }
-                else
-                    _methodName += ch;
-                in.sbumpc();
                 break;
 
-            case state_params:
+            case State::params:
                 if (ch == '\xff')
                 {
                     if (_args && *_args)
@@ -190,17 +165,17 @@ bool Responder::advance(std::streambuf& in)
                     {
                         _failed = true;
                         _errorMessage = "too many arguments";
-                        _state = state_params_skip;
+                        _state = State::params_skip;
                     }
                     else
                     {
                         _deserializer.begin(false);
-                        _state = state_param;
+                        _state = State::param;
                     }
                 }
                 break;
 
-            case state_params_skip:
+            case State::params_skip:
                 if (ch == '\xff')
                 {
                     in.sbumpc();
@@ -209,32 +184,32 @@ bool Responder::advance(std::streambuf& in)
                 else
                 {
                     _deserializer.skip();
-                    _state = state_param_skip;
+                    _state = State::param_skip;
                 }
 
                 break;
 
-            case state_param:
+            case State::param:
                 if (_deserializer.advance(in))
                 {
                     try
                     {
                         (*_args)->fixup(_deserializer.si());
                         ++_args;
-                        _state = state_params;
+                        _state = State::params;
                     }
                     catch (const std::exception& e)
                     {
                         _failed = true;
                         _errorMessage = e.what();
-                        _state = state_params_skip;
+                        _state = State::params_skip;
                     }
                 }
                 break;
 
-            case state_param_skip:
+            case State::param_skip:
                 if (_deserializer.advance(in))
-                    _state = state_params_skip;
+                    _state = State::params_skip;
 
                 break;
         }

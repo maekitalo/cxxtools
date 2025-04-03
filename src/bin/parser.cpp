@@ -1108,5 +1108,54 @@ void Parser::StringBuffer::extend()
     _capacity = newcapacity;
 }
 
+bool RequestHeaderParser::advance(std::streambuf& in)
+{
+    std::streambuf::int_type chi;
+    while ((chi = in.sgetc()) != std::streambuf::traits_type::eof())
+    {
+        char ch = std::streambuf::traits_type::to_char_type(chi);
+        switch (_state)
+        {
+            case State::null:
+                log_debug("new rpc request");
+
+                _method.clear();
+                _domain.clear();
+
+                if (ch == '\xc0')
+                    _state = State::method;
+                else if (ch == '\xc3')
+                    _state = State::domain;
+                else
+                    throw std::runtime_error("domain or method name expected");
+                break;
+
+            case State::domain:
+                if (ch == '\0')
+                {
+                    log_info_if(!_domain.empty(), "rpc method domain \"" << _domain << '"');
+                    _state = State::method;
+                }
+                else
+                    _domain += ch;
+                break;
+
+            case State::method:
+                if (ch == '\0')
+                {
+                    _state = State::null;
+                    in.sbumpc();
+                    return true;
+                }
+                else
+                    _method += ch;
+                break;
+        }
+
+        in.sbumpc();
+    }
+
+    return false;
+}
 }
 }

@@ -52,21 +52,19 @@ class Responder
 {
         friend class Socket;
 
-        enum State
+        enum class State
         {
-            state_0,
-            state_domain,
-            state_method,
-            state_params,
-            state_params_skip,
-            state_param,
-            state_param_skip
+            header,
+            params,
+            params_skip,
+            param,
+            param_skip
         };
 
     public:
         explicit Responder(ServiceRegistry& serviceRegistry)
             : _serviceRegistry(serviceRegistry),
-              _state(state_0),
+              _state(State::header),
               _proc(0),
               _args(0),
               _result(0),
@@ -84,8 +82,7 @@ class Responder
     private:
         ServiceRegistry& _serviceRegistry;
         State _state;
-        std::string _domain;
-        std::string _methodName;
+        RequestHeaderParser _headerParser;
         Deserializer _deserializer;
 
         ServiceProcedure* _proc;

@@ -173,6 +173,30 @@ class Parser
         std::vector<std::string> _mydictionary;
         std::vector<std::string>* _dictionary;
 };
+
+class RequestHeaderParser
+{
+        enum class State
+        {
+            null,
+            domain,
+            method
+        } _state;
+
+        std::string _method;
+        std::string _domain;
+
+    public:
+        RequestHeaderParser()
+            : _state(State::null)
+            { }
+
+        bool advance(std::streambuf& in); // returns true, if request header is complete
+        void reset()                            { _state = State::null; _method.clear(); _domain.clear(); }
+        const std::string& method() const       { return _method; }
+        const std::string& domain() const       { return _domain; }
+};
+
 }
 }
 
