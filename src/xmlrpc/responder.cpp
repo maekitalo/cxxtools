@@ -169,15 +169,11 @@ void XmlRpcResponder::reply(std::ostream& os, http::Request& request, http::Repl
             throw _fault;
         }
 
-        if( _args )
+        if (_args && _args->needMore())
         {
-            ++_args;
-            if( * _args )
-            {
-                _fault.rc(5);
-                _fault.text("invalid XML-RPC, missing arguments");
-                throw _fault;
-            }
+            _fault.rc(5);
+            _fault.text("invalid XML-RPC, missing arguments");
+            throw _fault;
         }
 
         IDecomposer* rh = _proc->endCall();
@@ -302,18 +298,15 @@ void XmlRpcResponder::advance(cxxtools::xml::Node& node)
                 {
                     //std::cerr << "-> begin call" << std::endl;
                     _args = _proc->beginCall();
-                    if( ! *_args)
-                        throw std::runtime_error("too many arguments");
                 }
                 else
                 {
                     //std::cerr << "-> next argument" << std::endl;
-                    ++_args;
-                    if( ! *_args)
+                    if(!_args->needMore())
                         throw std::runtime_error("too many arguments");
                 }
 
-                _scanner.begin(_deserializer, **_args);
+                _scanner.begin(_deserializer, *_args->get());
                 _state = OnParam;
                 break;
             }

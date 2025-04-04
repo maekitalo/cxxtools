@@ -58,9 +58,10 @@ print <<EOF;
 class BasicServiceProcedure : public ServiceProcedure
 {
     public:
-        BasicServiceProcedure( const Callable<R, $tparams>& cb )
-        : ServiceProcedure()
-        , _cb(0)
+        explicit BasicServiceProcedure(const Callable<R, $tparams>& cb)
+        : ServiceProcedure(),
+          _cb(0),
+          _composers(_args, $N)
         {
             _cb = cb.clone();
 
@@ -73,7 +74,6 @@ print <<EOF;
 EOF
 }
 print <<EOF;
-            _args[$N] = 0;
         }
 
         ~BasicServiceProcedure()
@@ -86,7 +86,7 @@ print <<EOF;
             return new BasicServiceProcedure(*_cb);
         }
 
-        IComposer** beginCall()
+        IComposers* beginCall()
         {
 EOF
 for (my $i = 1; $i <= $N; ++$i)
@@ -98,7 +98,7 @@ EOF
 my $vars = join (', ', map { "_v$_" } (1..$N));
 print <<EOF;
 
-            return _args;
+            return &_composers;
         }
 
         IDecomposer* endCall()
@@ -128,10 +128,10 @@ print <<EOF;
         V$i _v$i;
 EOF
 }
-my $np = $N + 1;
 print <<EOF;
 
-        IComposer* _args[$np];
+        IComposer* _args[$N];
+        Composers _composers;
 EOF
 for (my $i = 1; $i <= $N; ++$i)
 {
@@ -170,9 +170,10 @@ class BasicServiceProcedure<R, $tparams,
                             $voids> : public ServiceProcedure
 {
     public:
-        BasicServiceProcedure( const Callable<R, $tparams>& cb )
-        : ServiceProcedure()
-        , _cb(0)
+        explicit BasicServiceProcedure(const Callable<R, $tparams>& cb)
+        : ServiceProcedure(),
+          _cb(0),
+          _composers(_args, $nn)
         {
             _cb = cb.clone();
 
@@ -185,7 +186,6 @@ print <<EOF;
 EOF
 }
 print <<EOF;
-            _args[$nn] = 0;
         }
 
         ~BasicServiceProcedure()
@@ -198,7 +198,7 @@ print <<EOF;
             return new BasicServiceProcedure(*_cb);
         }
 
-        IComposer** beginCall()
+        IComposers* beginCall()
         {
 EOF
 for (my $i = 1; $i <= $nn; ++$i)
@@ -210,7 +210,7 @@ EOF
 my $vars = join (', ', map { "_v$_" } (1..$nn));
 print <<EOF;
 
-            return _args;
+            return &_composers;
         }
 
         IDecomposer* endCall()
@@ -240,10 +240,10 @@ print <<EOF;
         V$i _v$i;
 EOF
 }
-my $np = $nn + 1;
 print <<EOF;
 
-        IComposer* _args[$np];
+        IComposer* _args[$nn];
+        Composers _composers;
 EOF
 for (my $i = 1; $i <= $nn; ++$i)
 {
@@ -269,13 +269,12 @@ class BasicServiceProcedure<R,
                             Void, Void, Void, Void, Void, Void, Void, Void, Void, Void> : public ServiceProcedure
 {
     public:
-        BasicServiceProcedure( const Callable<R>& cb )
-        : ServiceProcedure()
-        , _cb(0)
+        explicit BasicServiceProcedure(const Callable<R>& cb)
+        : ServiceProcedure(),
+          _cb(0),
+          _composers(nullptr, 0)
         {
             _cb = cb.clone();
-
-            _args[0] = 0;
         }
 
         ~BasicServiceProcedure()
@@ -288,10 +287,10 @@ class BasicServiceProcedure<R,
             return new BasicServiceProcedure(*_cb);
         }
 
-        IComposer** beginCall()
+        IComposers* beginCall()
         {
 
-            return _args;
+            return &_composers;
         }
 
         IDecomposer* endCall()
@@ -307,7 +306,7 @@ class BasicServiceProcedure<R,
         Callable<R>* _cb;
         RV _rv;
 
-        IComposer* _args[1];
+        Composers _composers;
         Decomposer<RV> _r;
 };
 

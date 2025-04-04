@@ -36,11 +36,8 @@ namespace cxxtools
 class IComposer
 {
     public:
-        IComposer()
-        {}
-
-        virtual ~IComposer()
-        {}
+        IComposer() = default;
+        virtual ~IComposer() = default;
 
         virtual void fixup(const SerializationInfo& si) = 0;
 };
@@ -68,6 +65,30 @@ class Composer : public IComposer
         T* _type;
 };
 
+class IComposers
+{
+    public:
+        virtual ~IComposers() = default;
+        virtual bool needMore() = 0;
+        virtual IComposer* get() = 0;   // get next composer
+};
+
+class Composers : public IComposers
+{
+        IComposer** _composers;
+        unsigned _count;
+        unsigned _current;
+
+    public:
+        Composers(IComposer** composers, unsigned count)
+            : _composers(composers),
+              _count(count),
+              _current(0)
+        { }
+
+        bool needMore() override        { return _current < _count; }
+        IComposer* get() override       { return _composers[_current++]; }
+};
 
 } // namespace cxxtools
 

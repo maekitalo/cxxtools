@@ -15,9 +15,10 @@ template <typename R,
 class BasicServiceProcedure : public ServiceProcedure
 {
     public:
-        BasicServiceProcedure( const Callable<R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>& cb )
-        : ServiceProcedure()
-        , _cb(0)
+        explicit BasicServiceProcedure(const Callable<R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>& cb)
+        : ServiceProcedure(),
+          _cb(0),
+          _composers(_args, 10)
         {
             _cb = cb.clone();
 
@@ -31,7 +32,6 @@ class BasicServiceProcedure : public ServiceProcedure
             _args[7] = &_a8;
             _args[8] = &_a9;
             _args[9] = &_a10;
-            _args[10] = 0;
         }
 
         ~BasicServiceProcedure()
@@ -44,7 +44,7 @@ class BasicServiceProcedure : public ServiceProcedure
             return new BasicServiceProcedure(*_cb);
         }
 
-        IComposer** beginCall()
+        IComposers* beginCall()
         {
             _a1.begin(_v1);
             _a2.begin(_v2);
@@ -57,7 +57,7 @@ class BasicServiceProcedure : public ServiceProcedure
             _a9.begin(_v9);
             _a10.begin(_v10);
 
-            return _args;
+            return &_composers;
         }
 
         IDecomposer* endCall()
@@ -93,7 +93,8 @@ class BasicServiceProcedure : public ServiceProcedure
         V9 _v9;
         V10 _v10;
 
-        IComposer* _args[11];
+        IComposer* _args[10];
+        Composers _composers;
         Composer<V1> _a1;
         Composer<V2> _a2;
         Composer<V3> _a3;
@@ -123,9 +124,10 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8, A9,
                             Void> : public ServiceProcedure
 {
     public:
-        BasicServiceProcedure( const Callable<R, A1, A2, A3, A4, A5, A6, A7, A8, A9>& cb )
-        : ServiceProcedure()
-        , _cb(0)
+        explicit BasicServiceProcedure(const Callable<R, A1, A2, A3, A4, A5, A6, A7, A8, A9>& cb)
+        : ServiceProcedure(),
+          _cb(0),
+          _composers(_args, 9)
         {
             _cb = cb.clone();
 
@@ -138,7 +140,6 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8, A9,
             _args[6] = &_a7;
             _args[7] = &_a8;
             _args[8] = &_a9;
-            _args[9] = 0;
         }
 
         ~BasicServiceProcedure()
@@ -151,7 +152,7 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8, A9,
             return new BasicServiceProcedure(*_cb);
         }
 
-        IComposer** beginCall()
+        IComposers* beginCall()
         {
             _a1.begin(_v1);
             _a2.begin(_v2);
@@ -163,7 +164,7 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8, A9,
             _a8.begin(_v8);
             _a9.begin(_v9);
 
-            return _args;
+            return &_composers;
         }
 
         IDecomposer* endCall()
@@ -197,7 +198,8 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8, A9,
         V8 _v8;
         V9 _v9;
 
-        IComposer* _args[10];
+        IComposer* _args[9];
+        Composers _composers;
         Composer<V1> _a1;
         Composer<V2> _a2;
         Composer<V3> _a3;
@@ -225,9 +227,10 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8,
                             Void, Void> : public ServiceProcedure
 {
     public:
-        BasicServiceProcedure( const Callable<R, A1, A2, A3, A4, A5, A6, A7, A8>& cb )
-        : ServiceProcedure()
-        , _cb(0)
+        explicit BasicServiceProcedure(const Callable<R, A1, A2, A3, A4, A5, A6, A7, A8>& cb)
+        : ServiceProcedure(),
+          _cb(0),
+          _composers(_args, 8)
         {
             _cb = cb.clone();
 
@@ -239,7 +242,6 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8,
             _args[5] = &_a6;
             _args[6] = &_a7;
             _args[7] = &_a8;
-            _args[8] = 0;
         }
 
         ~BasicServiceProcedure()
@@ -252,7 +254,7 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8,
             return new BasicServiceProcedure(*_cb);
         }
 
-        IComposer** beginCall()
+        IComposers* beginCall()
         {
             _a1.begin(_v1);
             _a2.begin(_v2);
@@ -263,7 +265,7 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8,
             _a7.begin(_v7);
             _a8.begin(_v8);
 
-            return _args;
+            return &_composers;
         }
 
         IDecomposer* endCall()
@@ -295,7 +297,8 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8,
         V7 _v7;
         V8 _v8;
 
-        IComposer* _args[9];
+        IComposer* _args[8];
+        Composers _composers;
         Composer<V1> _a1;
         Composer<V2> _a2;
         Composer<V3> _a3;
@@ -321,9 +324,10 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7,
                             Void, Void, Void> : public ServiceProcedure
 {
     public:
-        BasicServiceProcedure( const Callable<R, A1, A2, A3, A4, A5, A6, A7>& cb )
-        : ServiceProcedure()
-        , _cb(0)
+        explicit BasicServiceProcedure(const Callable<R, A1, A2, A3, A4, A5, A6, A7>& cb)
+        : ServiceProcedure(),
+          _cb(0),
+          _composers(_args, 7)
         {
             _cb = cb.clone();
 
@@ -334,7 +338,6 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7,
             _args[4] = &_a5;
             _args[5] = &_a6;
             _args[6] = &_a7;
-            _args[7] = 0;
         }
 
         ~BasicServiceProcedure()
@@ -347,7 +350,7 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7,
             return new BasicServiceProcedure(*_cb);
         }
 
-        IComposer** beginCall()
+        IComposers* beginCall()
         {
             _a1.begin(_v1);
             _a2.begin(_v2);
@@ -357,7 +360,7 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7,
             _a6.begin(_v6);
             _a7.begin(_v7);
 
-            return _args;
+            return &_composers;
         }
 
         IDecomposer* endCall()
@@ -387,7 +390,8 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7,
         V6 _v6;
         V7 _v7;
 
-        IComposer* _args[8];
+        IComposer* _args[7];
+        Composers _composers;
         Composer<V1> _a1;
         Composer<V2> _a2;
         Composer<V3> _a3;
@@ -411,9 +415,10 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6,
                             Void, Void, Void, Void> : public ServiceProcedure
 {
     public:
-        BasicServiceProcedure( const Callable<R, A1, A2, A3, A4, A5, A6>& cb )
-        : ServiceProcedure()
-        , _cb(0)
+        explicit BasicServiceProcedure(const Callable<R, A1, A2, A3, A4, A5, A6>& cb)
+        : ServiceProcedure(),
+          _cb(0),
+          _composers(_args, 6)
         {
             _cb = cb.clone();
 
@@ -423,7 +428,6 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6,
             _args[3] = &_a4;
             _args[4] = &_a5;
             _args[5] = &_a6;
-            _args[6] = 0;
         }
 
         ~BasicServiceProcedure()
@@ -436,7 +440,7 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6,
             return new BasicServiceProcedure(*_cb);
         }
 
-        IComposer** beginCall()
+        IComposers* beginCall()
         {
             _a1.begin(_v1);
             _a2.begin(_v2);
@@ -445,7 +449,7 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6,
             _a5.begin(_v5);
             _a6.begin(_v6);
 
-            return _args;
+            return &_composers;
         }
 
         IDecomposer* endCall()
@@ -473,7 +477,8 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6,
         V5 _v5;
         V6 _v6;
 
-        IComposer* _args[7];
+        IComposer* _args[6];
+        Composers _composers;
         Composer<V1> _a1;
         Composer<V2> _a2;
         Composer<V3> _a3;
@@ -495,9 +500,10 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5,
                             Void, Void, Void, Void, Void> : public ServiceProcedure
 {
     public:
-        BasicServiceProcedure( const Callable<R, A1, A2, A3, A4, A5>& cb )
-        : ServiceProcedure()
-        , _cb(0)
+        explicit BasicServiceProcedure(const Callable<R, A1, A2, A3, A4, A5>& cb)
+        : ServiceProcedure(),
+          _cb(0),
+          _composers(_args, 5)
         {
             _cb = cb.clone();
 
@@ -506,7 +512,6 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5,
             _args[2] = &_a3;
             _args[3] = &_a4;
             _args[4] = &_a5;
-            _args[5] = 0;
         }
 
         ~BasicServiceProcedure()
@@ -519,7 +524,7 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5,
             return new BasicServiceProcedure(*_cb);
         }
 
-        IComposer** beginCall()
+        IComposers* beginCall()
         {
             _a1.begin(_v1);
             _a2.begin(_v2);
@@ -527,7 +532,7 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5,
             _a4.begin(_v4);
             _a5.begin(_v5);
 
-            return _args;
+            return &_composers;
         }
 
         IDecomposer* endCall()
@@ -553,7 +558,8 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5,
         V4 _v4;
         V5 _v5;
 
-        IComposer* _args[6];
+        IComposer* _args[5];
+        Composers _composers;
         Composer<V1> _a1;
         Composer<V2> _a2;
         Composer<V3> _a3;
@@ -573,9 +579,10 @@ class BasicServiceProcedure<R, A1, A2, A3, A4,
                             Void, Void, Void, Void, Void, Void> : public ServiceProcedure
 {
     public:
-        BasicServiceProcedure( const Callable<R, A1, A2, A3, A4>& cb )
-        : ServiceProcedure()
-        , _cb(0)
+        explicit BasicServiceProcedure(const Callable<R, A1, A2, A3, A4>& cb)
+        : ServiceProcedure(),
+          _cb(0),
+          _composers(_args, 4)
         {
             _cb = cb.clone();
 
@@ -583,7 +590,6 @@ class BasicServiceProcedure<R, A1, A2, A3, A4,
             _args[1] = &_a2;
             _args[2] = &_a3;
             _args[3] = &_a4;
-            _args[4] = 0;
         }
 
         ~BasicServiceProcedure()
@@ -596,14 +602,14 @@ class BasicServiceProcedure<R, A1, A2, A3, A4,
             return new BasicServiceProcedure(*_cb);
         }
 
-        IComposer** beginCall()
+        IComposers* beginCall()
         {
             _a1.begin(_v1);
             _a2.begin(_v2);
             _a3.begin(_v3);
             _a4.begin(_v4);
 
-            return _args;
+            return &_composers;
         }
 
         IDecomposer* endCall()
@@ -627,7 +633,8 @@ class BasicServiceProcedure<R, A1, A2, A3, A4,
         V3 _v3;
         V4 _v4;
 
-        IComposer* _args[5];
+        IComposer* _args[4];
+        Composers _composers;
         Composer<V1> _a1;
         Composer<V2> _a2;
         Composer<V3> _a3;
@@ -645,16 +652,16 @@ class BasicServiceProcedure<R, A1, A2, A3,
                             Void, Void, Void, Void, Void, Void, Void> : public ServiceProcedure
 {
     public:
-        BasicServiceProcedure( const Callable<R, A1, A2, A3>& cb )
-        : ServiceProcedure()
-        , _cb(0)
+        explicit BasicServiceProcedure(const Callable<R, A1, A2, A3>& cb)
+        : ServiceProcedure(),
+          _cb(0),
+          _composers(_args, 3)
         {
             _cb = cb.clone();
 
             _args[0] = &_a1;
             _args[1] = &_a2;
             _args[2] = &_a3;
-            _args[3] = 0;
         }
 
         ~BasicServiceProcedure()
@@ -667,13 +674,13 @@ class BasicServiceProcedure<R, A1, A2, A3,
             return new BasicServiceProcedure(*_cb);
         }
 
-        IComposer** beginCall()
+        IComposers* beginCall()
         {
             _a1.begin(_v1);
             _a2.begin(_v2);
             _a3.begin(_v3);
 
-            return _args;
+            return &_composers;
         }
 
         IDecomposer* endCall()
@@ -695,7 +702,8 @@ class BasicServiceProcedure<R, A1, A2, A3,
         V2 _v2;
         V3 _v3;
 
-        IComposer* _args[4];
+        IComposer* _args[3];
+        Composers _composers;
         Composer<V1> _a1;
         Composer<V2> _a2;
         Composer<V3> _a3;
@@ -711,15 +719,15 @@ class BasicServiceProcedure<R, A1, A2,
                             Void, Void, Void, Void, Void, Void, Void, Void> : public ServiceProcedure
 {
     public:
-        BasicServiceProcedure( const Callable<R, A1, A2>& cb )
-        : ServiceProcedure()
-        , _cb(0)
+        explicit BasicServiceProcedure(const Callable<R, A1, A2>& cb)
+        : ServiceProcedure(),
+          _cb(0),
+          _composers(_args, 2)
         {
             _cb = cb.clone();
 
             _args[0] = &_a1;
             _args[1] = &_a2;
-            _args[2] = 0;
         }
 
         ~BasicServiceProcedure()
@@ -732,12 +740,12 @@ class BasicServiceProcedure<R, A1, A2,
             return new BasicServiceProcedure(*_cb);
         }
 
-        IComposer** beginCall()
+        IComposers* beginCall()
         {
             _a1.begin(_v1);
             _a2.begin(_v2);
 
-            return _args;
+            return &_composers;
         }
 
         IDecomposer* endCall()
@@ -757,7 +765,8 @@ class BasicServiceProcedure<R, A1, A2,
         V1 _v1;
         V2 _v2;
 
-        IComposer* _args[3];
+        IComposer* _args[2];
+        Composers _composers;
         Composer<V1> _a1;
         Composer<V2> _a2;
         Decomposer<RV> _r;
@@ -771,14 +780,14 @@ class BasicServiceProcedure<R, A1,
                             Void, Void, Void, Void, Void, Void, Void, Void, Void> : public ServiceProcedure
 {
     public:
-        BasicServiceProcedure( const Callable<R, A1>& cb )
-        : ServiceProcedure()
-        , _cb(0)
+        explicit BasicServiceProcedure(const Callable<R, A1>& cb)
+        : ServiceProcedure(),
+          _cb(0),
+          _composers(_args, 1)
         {
             _cb = cb.clone();
 
             _args[0] = &_a1;
-            _args[1] = 0;
         }
 
         ~BasicServiceProcedure()
@@ -791,11 +800,11 @@ class BasicServiceProcedure<R, A1,
             return new BasicServiceProcedure(*_cb);
         }
 
-        IComposer** beginCall()
+        IComposers* beginCall()
         {
             _a1.begin(_v1);
 
-            return _args;
+            return &_composers;
         }
 
         IDecomposer* endCall()
@@ -813,7 +822,8 @@ class BasicServiceProcedure<R, A1,
         RV _rv;
         V1 _v1;
 
-        IComposer* _args[2];
+        IComposer* _args[1];
+        Composers _composers;
         Composer<V1> _a1;
         Decomposer<RV> _r;
 };
@@ -825,13 +835,12 @@ class BasicServiceProcedure<R,
                             Void, Void, Void, Void, Void, Void, Void, Void, Void, Void> : public ServiceProcedure
 {
     public:
-        BasicServiceProcedure( const Callable<R>& cb )
-        : ServiceProcedure()
-        , _cb(0)
+        explicit BasicServiceProcedure(const Callable<R>& cb)
+        : ServiceProcedure(),
+          _cb(0),
+          _composers(nullptr, 0)
         {
             _cb = cb.clone();
-
-            _args[0] = 0;
         }
 
         ~BasicServiceProcedure()
@@ -844,10 +853,10 @@ class BasicServiceProcedure<R,
             return new BasicServiceProcedure(*_cb);
         }
 
-        IComposer** beginCall()
+        IComposers* beginCall()
         {
 
-            return _args;
+            return &_composers;
         }
 
         IDecomposer* endCall()
@@ -863,7 +872,7 @@ class BasicServiceProcedure<R,
         Callable<R>* _cb;
         RV _rv;
 
-        IComposer* _args[1];
+        Composers _composers;
         Decomposer<RV> _r;
 };
 

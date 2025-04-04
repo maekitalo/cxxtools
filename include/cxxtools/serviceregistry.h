@@ -41,13 +41,13 @@ namespace cxxtools
 {
     class ServiceRegistry
     {
-            ServiceRegistry(const ServiceRegistry&) { }
-            ServiceRegistry& operator=(const ServiceRegistry&) { return *this; }
+            ServiceRegistry(const ServiceRegistry&) = delete;
+            ServiceRegistry(ServiceRegistry&&) = delete;
+            ServiceRegistry& operator=(const ServiceRegistry&)= delete;
+            ServiceRegistry& operator=(ServiceRegistry&&)= delete;
 
         public:
-            ServiceRegistry()
-            { }
-
+            ServiceRegistry() = default;
             ~ServiceRegistry();
 
             template <typename R>

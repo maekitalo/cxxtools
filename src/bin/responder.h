@@ -86,7 +86,7 @@ class Responder
         Deserializer _deserializer;
 
         ServiceProcedure* _proc;
-        IComposer** _args;
+        IComposers* _args;
         IDecomposer* _result;
         Formatter _formatter;
 

@@ -150,7 +150,7 @@ bool Responder::advance(std::streambuf& in)
             case State::params:
                 if (ch == '\xff')
                 {
-                    if (_args && *_args)
+                    if (_args && _args->needMore())
                     {
                         _failed = true;
                         _errorMessage = "argument expected";
@@ -161,7 +161,7 @@ bool Responder::advance(std::streambuf& in)
                 }
                 else
                 {
-                    if (_args == 0 || *_args == 0)
+                    if (_args == 0 || !_args->needMore())
                     {
                         _failed = true;
                         _errorMessage = "too many arguments";
@@ -194,8 +194,7 @@ bool Responder::advance(std::streambuf& in)
                 {
                     try
                     {
-                        (*_args)->fixup(_deserializer.si());
-                        ++_args;
+                        _args->get()->fixup(_deserializer.si());
                         _state = State::params;
                     }
                     catch (const std::exception& e)

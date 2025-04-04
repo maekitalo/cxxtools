@@ -41,15 +41,16 @@ namespace cxxtools
 class ServiceProcedure
 {
     public:
-        ServiceProcedure()
-        {}
-
-        virtual ~ServiceProcedure()
-        {}
+        ServiceProcedure() = default;
+        virtual ~ServiceProcedure() = default;
+        ServiceProcedure(const ServiceProcedure&) = delete;
+        ServiceProcedure& operator=(const ServiceProcedure&) = delete;
+        ServiceProcedure(ServiceProcedure&&) = delete;
+        ServiceProcedure& operator=(ServiceProcedure&&) = delete;
 
         virtual ServiceProcedure* clone() const = 0;
 
-        virtual IComposer** beginCall() = 0;
+        virtual IComposers* beginCall() = 0;
 
         virtual IDecomposer* endCall() = 0;
 };

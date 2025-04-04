@@ -353,10 +353,10 @@ class BinRpcTest : public cxxtools::unit::TestSuite
         //
         void Struct()
         {
-            _server->registerMethod("multiply", *this, &BinRpcTest::multiplyColor);
+            _server->registerMethod("multiplyColor", *this, &BinRpcTest::multiplyColor);
 
             cxxtools::bin::RpcClient client(_loop, _listen, _port);
-            cxxtools::RemoteProcedure< Color, Color, Color > multiply(client, "multiply");
+            cxxtools::RemoteProcedure< Color, Color, Color > multiplyColor(client, "multiplyColor");
 
             Color a;
             a.red = 2;
@@ -368,8 +368,8 @@ class BinRpcTest : public cxxtools::unit::TestSuite
             b.green = 4;
             b.blue = 5;
 
-            multiply.begin(a, b);
-            Color r = multiply.end(2000);
+            multiplyColor.begin(a, b);
+            Color r = multiplyColor.end(2000);
             CXXTOOLS_UNIT_ASSERT_EQUALS(r.red, 6);
             CXXTOOLS_UNIT_ASSERT_EQUALS(r.green, 12);
             CXXTOOLS_UNIT_ASSERT_EQUALS(r.blue, 20);

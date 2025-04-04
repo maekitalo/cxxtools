@@ -94,7 +94,7 @@ void Responder::finalize(std::ostream& out)
                 throw RemoteException("Method \"" + methodName + "\" not found", MethodNotFound);
 
             // compose arguments
-            IComposer** args = proc->beginCall();
+            IComposers* args = proc->beginCall();
 
             // process args
             const SerializationInfo* paramsPtr = _deserializer.si().findMember("params");
@@ -107,11 +107,12 @@ void Responder::finalize(std::ostream& out)
             SerializationInfo::ConstIterator it = params.begin();
             if (args)
             {
-                for (int a = 0; args[a]; ++a)
+                while (it != params.end())
                 {
-                    if (it == params.end())
+                    auto composer = args->get();
+                    if (!composer)
                         throw RemoteException("missing parameters", InvalidParams);
-                    args[a]->fixup(*it);
+                    composer->fixup(*it);
                     ++it;
                 }
             }

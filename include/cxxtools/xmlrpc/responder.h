@@ -92,7 +92,7 @@ class XmlRpcResponder : public http::Responder
         Deserializer _deserializer;
         Service* _service;
         ServiceProcedure* _proc;
-        IComposer** _args;
+        IComposers* _args;
         RemoteException _fault;
 };
 
