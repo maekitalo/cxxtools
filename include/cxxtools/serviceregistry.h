@@ -248,9 +248,12 @@ namespace cxxtools
             std::vector<std::string> getProcedureNames() const;
 
             void registerProcedure(const std::string& name, std::unique_ptr<ServiceProcedure> proc);
+            void registerDefaultProcedure(std::unique_ptr<ServiceProcedure> proc)
+                { _defaultProcedure = proc->clone(); }
 
         private:
             typedef std::map<std::string, std::unique_ptr<ServiceProcedure>> ProcedureMap;
+            std::unique_ptr<ServiceProcedure> _defaultProcedure;
             ProcedureMap _procedures;
     };
 

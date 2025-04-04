@@ -34,12 +34,11 @@ namespace cxxtools
 std::unique_ptr<ServiceProcedure> ServiceRegistry::getProcedure(const std::string& name) const
 {
     ProcedureMap::const_iterator it = _procedures.find( name );
-    if( it == _procedures.end() )
-    {
-        return 0;
-    }
-
-    return it->second->clone();
+    if (it != _procedures.end())
+        return it->second->clone();
+    if (_defaultProcedure)
+        return _defaultProcedure->clone();
+    return nullptr;
 }
 
 
