@@ -32,6 +32,7 @@
 #include <cxxtools/serviceregistry.h>
 #include <cxxtools/remoteexception.h>
 #include <cxxtools/log.h>
+#include <memory>
 
 log_define("cxxtools.json.responder")
 
@@ -66,7 +67,7 @@ void Responder::finalize(std::ostream& out)
     log_trace("finalize");
 
     std::string methodName;
-    ServiceProcedure* proc = 0;
+    std::unique_ptr<ServiceProcedure> proc;
 
     JsonFormatter formatter;
 
@@ -162,9 +163,6 @@ void Responder::finalize(std::ostream& out)
     }
 
     formatter.finishObject();
-
-    if (proc)
-        _serviceRegistry.releaseProcedure(proc);
 }
 
 bool Responder::advance(char ch)

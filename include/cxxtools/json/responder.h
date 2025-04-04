@@ -37,10 +37,6 @@
 namespace cxxtools
 {
 
-class ServiceProcedure;
-class IComposer;
-class IDecomposer;
-
 namespace json
 {
 
@@ -65,13 +61,7 @@ class Responder : public http::Responder
 
     private:
         ServiceRegistry& _serviceRegistry;
-
         JsonDeserializer _deserializer;
-
-        ServiceProcedure* _proc;
-        IComposer** _args;
-        IDecomposer* _result;
-        RemoteException _fault;
 };
 
 }

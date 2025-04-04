@@ -35,6 +35,7 @@
 #include <cxxtools/serviceregistry.h>
 
 #include <iosfwd>
+#include <memory>
 
 namespace cxxtools
 {
@@ -65,13 +66,10 @@ class Responder
         explicit Responder(ServiceRegistry& serviceRegistry)
             : _serviceRegistry(serviceRegistry),
               _state(State::header),
-              _proc(0),
               _args(0),
               _result(0),
               _failed(false)
         { }
-
-        ~Responder();
 
         // returns true, if request is ready and reply is put to the socket
         bool onInput(IOStream& ios);
@@ -85,7 +83,7 @@ class Responder
         RequestHeaderParser _headerParser;
         Deserializer _deserializer;
 
-        ServiceProcedure* _proc;
+        std::unique_ptr<ServiceProcedure> _proc;
         IComposers* _args;
         IDecomposer* _result;
         Formatter _formatter;

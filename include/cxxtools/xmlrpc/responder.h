@@ -37,6 +37,7 @@
 #include <cxxtools/http/responder.h>
 #include <cxxtools/deserializer.h>
 #include <cxxtools/textstream.h>
+#include <memory>
 
 namespace cxxtools
 {
@@ -68,8 +69,6 @@ class XmlRpcResponder : public http::Responder
     public:
         explicit XmlRpcResponder(Service& service);
 
-        ~XmlRpcResponder();
-
         void beginRequest(net::TcpSocket& socket, std::istream& in, http::Request& request);
 
         std::size_t readBody(std::istream& is);
@@ -91,7 +90,7 @@ class XmlRpcResponder : public http::Responder
         Formatter _formatter;
         Deserializer _deserializer;
         Service* _service;
-        ServiceProcedure* _proc;
+        std::unique_ptr<ServiceProcedure> _proc;
         IComposers* _args;
         RemoteException _fault;
 };

@@ -39,12 +39,6 @@ namespace cxxtools
 {
 namespace bin
 {
-Responder::~Responder()
-{
-    if (_proc)
-        _serviceRegistry.releaseProcedure(_proc);
-}
-
 void Responder::reply(IOStream& out)
 {
     log_info("send reply");
@@ -98,7 +92,6 @@ bool Responder::onInput(IOStream& ios)
                 }
             }
 
-            _serviceRegistry.releaseProcedure(_proc);
             _proc = 0;
             _args = 0;
             _result = 0;

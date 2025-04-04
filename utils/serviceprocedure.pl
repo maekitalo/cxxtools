@@ -81,12 +81,12 @@ print <<EOF;
             delete _cb;
         }
 
-        ServiceProcedure* clone() const
+        std::unique_ptr<ServiceProcedure> clone() const override
         {
-            return new BasicServiceProcedure(*_cb);
+            return std::unique_ptr<ServiceProcedure>(new BasicServiceProcedure(*_cb));
         }
 
-        IComposers* beginCall()
+        IComposers* beginCall() override
         {
 EOF
 for (my $i = 1; $i <= $N; ++$i)
@@ -101,7 +101,7 @@ print <<EOF;
             return &_composers;
         }
 
-        IDecomposer* endCall()
+        IDecomposer* endCall() override
         {
             _rv = _cb->call($vars);
             _r.begin(_rv);
@@ -193,12 +193,12 @@ print <<EOF;
             delete _cb;
         }
 
-        ServiceProcedure* clone() const
+        std::unique_ptr<ServiceProcedure> clone() const override
         {
-            return new BasicServiceProcedure(*_cb);
+            return std::unique_ptr<ServiceProcedure>(new BasicServiceProcedure(*_cb));
         }
 
-        IComposers* beginCall()
+        IComposers* beginCall() override
         {
 EOF
 for (my $i = 1; $i <= $nn; ++$i)
@@ -213,7 +213,7 @@ print <<EOF;
             return &_composers;
         }
 
-        IDecomposer* endCall()
+        IDecomposer* endCall() override
         {
             _rv = _cb->call($vars);
             _r.begin(_rv);
@@ -282,18 +282,18 @@ class BasicServiceProcedure<R,
             delete _cb;
         }
 
-        ServiceProcedure* clone() const
+        std::unique_ptr<ServiceProcedure> clone() const override
         {
-            return new BasicServiceProcedure(*_cb);
+            return std::unique_ptr<ServiceProcedure>(new BasicServiceProcedure(*_cb));
         }
 
-        IComposers* beginCall()
+        IComposers* beginCall() override
         {
 
             return &_composers;
         }
 
-        IDecomposer* endCall()
+        IDecomposer* endCall() override
         {
             _rv = _cb->call();
             _r.begin(_rv);

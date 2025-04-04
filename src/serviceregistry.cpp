@@ -31,16 +31,7 @@
 namespace cxxtools
 {
 
-ServiceRegistry::~ServiceRegistry()
-{
-    ProcedureMap::iterator it;
-    for(it = _procedures.begin(); it != _procedures.end(); ++it)
-    {
-        delete it->second;
-    }
-}
-
-ServiceProcedure* ServiceRegistry::getProcedure(const std::string& name) const
+std::unique_ptr<ServiceProcedure> ServiceRegistry::getProcedure(const std::string& name) const
 {
     ProcedureMap::const_iterator it = _procedures.find( name );
     if( it == _procedures.end() )
@@ -49,12 +40,6 @@ ServiceProcedure* ServiceRegistry::getProcedure(const std::string& name) const
     }
 
     return it->second->clone();
-}
-
-
-void ServiceRegistry::releaseProcedure(ServiceProcedure* proc) const
-{
-    delete proc;
 }
 
 
@@ -71,19 +56,9 @@ std::vector<std::string> ServiceRegistry::getProcedureNames() const
 }
 
 
-void ServiceRegistry::registerProcedure(const std::string& name, ServiceProcedure* proc)
+void ServiceRegistry::registerProcedure(const std::string& name, std::unique_ptr<ServiceProcedure> proc)
 {
-    ProcedureMap::iterator it = _procedures.find(name);
-    if (it == _procedures.end())
-    {
-        std::pair<const std::string, ServiceProcedure*> p( name, proc );
-        _procedures.insert( p );
-    }
-    else
-    {
-        delete it->second;
-        it->second = proc;
-    }
+    _procedures[name] = std::move(proc);
 }
 
 

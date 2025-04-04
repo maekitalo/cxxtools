@@ -53,20 +53,12 @@ XmlRpcResponder::XmlRpcResponder(Service& service)
 , _reader(_ts)
 , _formatter(_writer)
 , _service(&service)
-, _proc(0)
 , _args(0)
 {
     _writer.useIndent(false);
     _writer.useEndl(false);
 
     _formatter.addAlias("bool", "boolean");
-}
-
-
-XmlRpcResponder::~XmlRpcResponder()
-{
-    if(_proc)
-        _service->releaseProcedure(_proc);
 }
 
 

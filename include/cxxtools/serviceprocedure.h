@@ -48,7 +48,7 @@ class ServiceProcedure
         ServiceProcedure(ServiceProcedure&&) = delete;
         ServiceProcedure& operator=(ServiceProcedure&&) = delete;
 
-        virtual ServiceProcedure* clone() const = 0;
+        virtual std::unique_ptr<ServiceProcedure> clone() const = 0;
 
         virtual IComposers* beginCall() = 0;
 
