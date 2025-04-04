@@ -39,7 +39,7 @@ class IComposer
         IComposer() = default;
         virtual ~IComposer() = default;
 
-        virtual void fixup(const SerializationInfo& si) = 0;
+        virtual void fixup(SerializationInfo& si) = 0;
 };
 
 
@@ -56,7 +56,7 @@ class Composer : public IComposer
             _type = &type;
         }
 
-        virtual void fixup(const SerializationInfo& si)
+        void fixup(SerializationInfo& si) override
         {
             si >>= *_type;
         }

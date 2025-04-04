@@ -98,14 +98,14 @@ void Responder::finalize(std::ostream& out)
             IComposers* args = proc->beginCall();
 
             // process args
-            const SerializationInfo* paramsPtr = _deserializer.si().findMember("params");
+            SerializationInfo* paramsPtr = _deserializer.si().findMember("params");
 
             // params may be ommited in request
             SerializationInfo emptyParams;
 
-            const SerializationInfo& params = paramsPtr ? *paramsPtr : emptyParams;
+            SerializationInfo& params = paramsPtr ? *paramsPtr : emptyParams;
 
-            SerializationInfo::ConstIterator it = params.begin();
+            SerializationInfo::Iterator it = params.begin();
             if (args)
             {
                 while (it != params.end())
