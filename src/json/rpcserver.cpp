@@ -75,7 +75,7 @@ void RpcServer::addService(const std::string& prefix, const ServiceRegistry& ser
 
     for (std::vector<std::string>::const_iterator it = procs.begin(); it != procs.end(); ++it)
     {
-        registerProcedure(prefix + *it, service.getProcedure(*it));
+        registerProcedure(prefix + *it, *service.getProcedure(*it));
     }
 }
 

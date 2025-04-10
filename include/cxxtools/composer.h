@@ -87,7 +87,7 @@ class Composers : public IComposers
         { }
 
         bool needMore() override        { return _current < _count; }
-        IComposer* get() override       { return _composers[_current++]; }
+        IComposer* get() override       { return _current < _count ? _composers[_current++] : nullptr; }
 };
 
 } // namespace cxxtools

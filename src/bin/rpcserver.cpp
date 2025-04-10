@@ -75,7 +75,7 @@ void RpcServer::addService(const ServiceRegistry& service)
 
     for (std::vector<std::string>::const_iterator it = procs.begin(); it != procs.end(); ++it)
     {
-        registerProcedure(*it, service.getProcedure(*it));
+        registerProcedure(*it, *service.getProcedure(*it));
     }
 }
 
@@ -85,7 +85,7 @@ void RpcServer::addService(const std::string& domain, const ServiceRegistry& ser
 
     for (std::vector<std::string>::const_iterator it = procs.begin(); it != procs.end(); ++it)
     {
-        registerProcedure(domain.empty() ? *it : (domain + '\0' + *it), service.getProcedure(*it));
+        registerProcedure(domain.empty() ? *it : (*it + '\0' + domain), *service.getProcedure(*it));
     }
 }
 

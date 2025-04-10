@@ -85,6 +85,7 @@ class Responder
 
         std::unique_ptr<ServiceProcedure> _proc;
         IComposers* _args;
+        IComposer* _arg;
         IDecomposer* _result;
         Formatter _formatter;
 

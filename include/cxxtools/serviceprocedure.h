@@ -34,6 +34,7 @@
 #include <cxxtools/void.h>
 #include <cxxtools/typetraits.h>
 #include <cxxtools/callable.h>
+#include <memory>
 
 namespace cxxtools
 {
@@ -48,9 +49,9 @@ class ServiceProcedure
         ServiceProcedure(ServiceProcedure&&) = delete;
         ServiceProcedure& operator=(ServiceProcedure&&) = delete;
 
-        virtual std::unique_ptr<ServiceProcedure> clone() const = 0;
+        virtual ServiceProcedure* clone() const = 0;
 
-        virtual IComposers* beginCall() = 0;
+        virtual IComposers* beginCall(const std::string& function) = 0;
 
         virtual IDecomposer* endCall() = 0;
 };

@@ -81,12 +81,12 @@ print <<EOF;
             delete _cb;
         }
 
-        std::unique_ptr<ServiceProcedure> clone() const override
+        ServiceProcedure* clone() const override
         {
-            return std::unique_ptr<ServiceProcedure>(new BasicServiceProcedure(*_cb));
+            return new BasicServiceProcedure(*_cb);
         }
 
-        IComposers* beginCall() override
+        IComposers* beginCall(const std::string&) override
         {
 EOF
 for (my $i = 1; $i <= $N; ++$i)
@@ -193,12 +193,12 @@ print <<EOF;
             delete _cb;
         }
 
-        std::unique_ptr<ServiceProcedure> clone() const override
+        ServiceProcedure* clone() const override
         {
-            return std::unique_ptr<ServiceProcedure>(new BasicServiceProcedure(*_cb));
+            return new BasicServiceProcedure(*_cb);
         }
 
-        IComposers* beginCall() override
+        IComposers* beginCall(const std::string&) override
         {
 EOF
 for (my $i = 1; $i <= $nn; ++$i)
@@ -282,12 +282,12 @@ class BasicServiceProcedure<R,
             delete _cb;
         }
 
-        std::unique_ptr<ServiceProcedure> clone() const override
+        ServiceProcedure* clone() const override
         {
-            return std::unique_ptr<ServiceProcedure>(new BasicServiceProcedure(*_cb));
+            return new BasicServiceProcedure(*_cb);
         }
 
-        IComposers* beginCall() override
+        IComposers* beginCall(const std::string&) override
         {
 
             return &_composers;

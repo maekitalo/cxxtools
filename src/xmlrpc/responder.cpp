@@ -230,9 +230,10 @@ void XmlRpcResponder::advance(cxxtools::xml::Node& node)
                 const xml::Characters& chars = static_cast<const xml::Characters&>(node);
 
                 log_info("xmlrpc method <" << chars.content().narrow() << '>');
-                _proc = _service->getProcedure( chars.content().narrow() );
+                _procName = chars.content().narrow();
+                _proc = _service->getProcedure(_procName);
                 if( ! _proc )
-                    throw std::runtime_error("no such procedure \"" + chars.content().narrow() + '"');
+                    throw std::runtime_error("no such procedure \"" + _procName + '"');
 
                 //std::cerr << "-> Found Procedure: " << chars.content().narrow() << std::endl;
 
@@ -289,16 +290,23 @@ void XmlRpcResponder::advance(cxxtools::xml::Node& node)
                 if( ! _args )
                 {
                     //std::cerr << "-> begin call" << std::endl;
-                    _args = _proc->beginCall();
-                }
-                else
-                {
-                    //std::cerr << "-> next argument" << std::endl;
-                    if(!_args->needMore())
+                    _args = _proc->beginCall(_procName);
+                    if ( ! _args->needMore())
                         throw std::runtime_error("too many arguments");
                 }
 
-                _scanner.begin(_deserializer, *_args->get());
+                IComposer* arg = nullptr;
+
+                if(_args && !_args->needMore())
+                    throw std::runtime_error("too many arguments");
+
+                if (_args)
+                    arg = _args->get();
+
+                if (!arg)
+                    throw std::runtime_error("invalid XML-RPC, too many arguments");
+
+                _scanner.begin(_deserializer, *arg);
                 _state = OnParam;
                 break;
             }

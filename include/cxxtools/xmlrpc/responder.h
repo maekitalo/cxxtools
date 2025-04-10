@@ -91,6 +91,7 @@ class XmlRpcResponder : public http::Responder
         Deserializer _deserializer;
         Service* _service;
         std::unique_ptr<ServiceProcedure> _proc;
+        std::string _procName;
         IComposers* _args;
         RemoteException _fault;
 };

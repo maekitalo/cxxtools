@@ -95,12 +95,12 @@ void Responder::finalize(std::ostream& out)
                 throw RemoteException("Method \"" + methodName + "\" not found", MethodNotFound);
 
             // compose arguments
-            IComposers* args = proc->beginCall();
+            IComposers* args = proc->beginCall(methodName);
 
             // process args
             SerializationInfo* paramsPtr = _deserializer.si().findMember("params");
 
-            // params may be ommited in request
+            // params may be omited in request
             SerializationInfo emptyParams;
 
             SerializationInfo& params = paramsPtr ? *paramsPtr : emptyParams;
@@ -112,14 +112,14 @@ void Responder::finalize(std::ostream& out)
                 {
                     auto composer = args->get();
                     if (!composer)
-                        throw RemoteException("missing parameters", InvalidParams);
+                        throw RemoteException("too many parameters", InvalidParams);
                     composer->fixup(*it);
                     ++it;
                 }
             }
 
-            if (it != params.end())
-                throw RemoteException("too many parameters", InvalidParams);
+            if (args->needMore())
+                throw RemoteException("missing parameters", InvalidParams);
 
             IDecomposer::formatEach(_deserializer.si().getMember("id"), formatter);
 

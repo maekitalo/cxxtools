@@ -121,14 +121,14 @@ bool Responder::advance(std::streambuf& in)
                 {
                     log_info("rpc method \"" << _headerParser.method() << '"');
 
-                    _proc = _serviceRegistry.getProcedure(
-                            _headerParser.domain().empty()
+                    auto procName = _headerParser.domain().empty()
                                 ? _headerParser.method()
-                                : _headerParser.domain() + '\0' + _headerParser.method());
+                                : _headerParser.method() + '\0' + _headerParser.domain();
+                    _proc = _serviceRegistry.getProcedure(procName);
 
                     if (_proc)
                     {
-                        _args = _proc->beginCall();
+                        _args = _proc->beginCall(procName);
                         _state = State::params;
                     }
                     else
@@ -154,7 +154,8 @@ bool Responder::advance(std::streambuf& in)
                 }
                 else
                 {
-                    if (_args == 0 || !_args->needMore())
+                    _arg = _args->get();
+                    if (!_arg)
                     {
                         _failed = true;
                         _errorMessage = "too many arguments";
@@ -187,7 +188,7 @@ bool Responder::advance(std::streambuf& in)
                 {
                     try
                     {
-                        _args->get()->fixup(_deserializer.si());
+                        _arg->fixup(_deserializer.si());
                         _state = State::params;
                     }
                     catch (const std::exception& e)

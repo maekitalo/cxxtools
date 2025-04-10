@@ -87,7 +87,7 @@ int main(int argc, char* argv[])
 {
   try
   {
-    // initialize logging - this reads the file log.xml from the current directory
+    // initialize logging - this reads the file prcserver.properties from the current directory
     log_init(argc, argv);
 
     // read the command line options

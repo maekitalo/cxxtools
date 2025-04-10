@@ -55,3 +55,6 @@ ssl/rpcbecho
 ssl/rpcjecho
 ssl/rpcJecho
 ssl/rpcxecho
+async/server
+dynamicrpc
+dynamiccall

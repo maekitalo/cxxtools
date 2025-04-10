@@ -39,12 +39,12 @@ class BasicServiceProcedure : public ServiceProcedure
             delete _cb;
         }
 
-        std::unique_ptr<ServiceProcedure> clone() const override
+        ServiceProcedure* clone() const override
         {
-            return std::unique_ptr<ServiceProcedure>(new BasicServiceProcedure(*_cb));
+            return new BasicServiceProcedure(*_cb);
         }
 
-        IComposers* beginCall() override
+        IComposers* beginCall(const std::string&) override
         {
             _a1.begin(_v1);
             _a2.begin(_v2);
@@ -147,12 +147,12 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8, A9,
             delete _cb;
         }
 
-        std::unique_ptr<ServiceProcedure> clone() const override
+        ServiceProcedure* clone() const override
         {
-            return std::unique_ptr<ServiceProcedure>(new BasicServiceProcedure(*_cb));
+            return new BasicServiceProcedure(*_cb);
         }
 
-        IComposers* beginCall() override
+        IComposers* beginCall(const std::string&) override
         {
             _a1.begin(_v1);
             _a2.begin(_v2);
@@ -249,12 +249,12 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8,
             delete _cb;
         }
 
-        std::unique_ptr<ServiceProcedure> clone() const override
+        ServiceProcedure* clone() const override
         {
-            return std::unique_ptr<ServiceProcedure>(new BasicServiceProcedure(*_cb));
+            return new BasicServiceProcedure(*_cb);
         }
 
-        IComposers* beginCall() override
+        IComposers* beginCall(const std::string&) override
         {
             _a1.begin(_v1);
             _a2.begin(_v2);
@@ -345,12 +345,12 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7,
             delete _cb;
         }
 
-        std::unique_ptr<ServiceProcedure> clone() const override
+        ServiceProcedure* clone() const override
         {
-            return std::unique_ptr<ServiceProcedure>(new BasicServiceProcedure(*_cb));
+            return new BasicServiceProcedure(*_cb);
         }
 
-        IComposers* beginCall() override
+        IComposers* beginCall(const std::string&) override
         {
             _a1.begin(_v1);
             _a2.begin(_v2);
@@ -435,12 +435,12 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6,
             delete _cb;
         }
 
-        std::unique_ptr<ServiceProcedure> clone() const override
+        ServiceProcedure* clone() const override
         {
-            return std::unique_ptr<ServiceProcedure>(new BasicServiceProcedure(*_cb));
+            return new BasicServiceProcedure(*_cb);
         }
 
-        IComposers* beginCall() override
+        IComposers* beginCall(const std::string&) override
         {
             _a1.begin(_v1);
             _a2.begin(_v2);
@@ -519,12 +519,12 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5,
             delete _cb;
         }
 
-        std::unique_ptr<ServiceProcedure> clone() const override
+        ServiceProcedure* clone() const override
         {
-            return std::unique_ptr<ServiceProcedure>(new BasicServiceProcedure(*_cb));
+            return new BasicServiceProcedure(*_cb);
         }
 
-        IComposers* beginCall() override
+        IComposers* beginCall(const std::string&) override
         {
             _a1.begin(_v1);
             _a2.begin(_v2);
@@ -597,12 +597,12 @@ class BasicServiceProcedure<R, A1, A2, A3, A4,
             delete _cb;
         }
 
-        std::unique_ptr<ServiceProcedure> clone() const override
+        ServiceProcedure* clone() const override
         {
-            return std::unique_ptr<ServiceProcedure>(new BasicServiceProcedure(*_cb));
+            return new BasicServiceProcedure(*_cb);
         }
 
-        IComposers* beginCall() override
+        IComposers* beginCall(const std::string&) override
         {
             _a1.begin(_v1);
             _a2.begin(_v2);
@@ -669,12 +669,12 @@ class BasicServiceProcedure<R, A1, A2, A3,
             delete _cb;
         }
 
-        std::unique_ptr<ServiceProcedure> clone() const override
+        ServiceProcedure* clone() const override
         {
-            return std::unique_ptr<ServiceProcedure>(new BasicServiceProcedure(*_cb));
+            return new BasicServiceProcedure(*_cb);
         }
 
-        IComposers* beginCall() override
+        IComposers* beginCall(const std::string&) override
         {
             _a1.begin(_v1);
             _a2.begin(_v2);
@@ -735,12 +735,12 @@ class BasicServiceProcedure<R, A1, A2,
             delete _cb;
         }
 
-        std::unique_ptr<ServiceProcedure> clone() const override
+        ServiceProcedure* clone() const override
         {
-            return std::unique_ptr<ServiceProcedure>(new BasicServiceProcedure(*_cb));
+            return new BasicServiceProcedure(*_cb);
         }
 
-        IComposers* beginCall() override
+        IComposers* beginCall(const std::string&) override
         {
             _a1.begin(_v1);
             _a2.begin(_v2);
@@ -795,12 +795,12 @@ class BasicServiceProcedure<R, A1,
             delete _cb;
         }
 
-        std::unique_ptr<ServiceProcedure> clone() const override
+        ServiceProcedure* clone() const override
         {
-            return std::unique_ptr<ServiceProcedure>(new BasicServiceProcedure(*_cb));
+            return new BasicServiceProcedure(*_cb);
         }
 
-        IComposers* beginCall() override
+        IComposers* beginCall(const std::string&) override
         {
             _a1.begin(_v1);
 
@@ -848,12 +848,12 @@ class BasicServiceProcedure<R,
             delete _cb;
         }
 
-        std::unique_ptr<ServiceProcedure> clone() const override
+        ServiceProcedure* clone() const override
         {
-            return std::unique_ptr<ServiceProcedure>(new BasicServiceProcedure(*_cb));
+            return new BasicServiceProcedure(*_cb);
         }
 
-        IComposers* beginCall() override
+        IComposers* beginCall(const std::string&) override
         {
 
             return &_composers;

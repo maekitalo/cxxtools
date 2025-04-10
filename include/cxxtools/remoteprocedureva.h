@@ -98,7 +98,8 @@ class RemoteProcedureVa : public RemoteProcedureBase<R>
                 args[n].begin(si.getMember(n));
                 argi[n] = &args[n];
             }
-            this->_r.call(this->_result.value());
+            this->_r.begin(this->_result.value());
+            this->client().call(this->_r, *this, argi.data(), argi.size());
             return this->_result.get();
         }
 
@@ -127,6 +128,18 @@ class RemoteProcedureVa : public RemoteProcedureBase<R>
             SerializationInfo si;
             si <<= tuple;
             return call(si);
+        }
+
+        R&& operator()()
+        {
+            return call(SerializationInfo());
+        }
+
+        template <typename... Args>
+            R&& operator()(Args... args)
+        {
+            SerializationInfo si;
+            return call(SerializationInfo(), args...);
         }
 
 };
