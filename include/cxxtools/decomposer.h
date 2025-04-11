@@ -68,6 +68,12 @@ class Decomposer : public IDecomposer
             _si <<= type;
         }
 
+        void begin(T&& type)
+        {
+            _si.clear();
+            _si <<= std::move(type);
+        }
+
         virtual void setName(const std::string& name)
         {
             _si.setName(name);

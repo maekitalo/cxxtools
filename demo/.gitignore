@@ -58,3 +58,4 @@ ssl/rpcxecho
 async/server
 dynamicrpc
 dynamiccall
+rpcproxy

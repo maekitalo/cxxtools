@@ -47,6 +47,20 @@ class RemoteProcedureVa : public RemoteProcedureBase<R>
         : RemoteProcedureBase<R>(client, String(name))
         { }
 
+        void begin(const std::vector<SerializationInfo>& params)
+        {
+            this->_result.clearFault();
+            std::vector<Decomposer<SerializationInfo>> args(params.size());
+            std::vector<IDecomposer*> argi(params.size());
+            for (unsigned n = 0; n < params.size(); ++n)
+            {
+                args[n].begin(params[n]);
+                argi[n] = &args[n];
+            }
+            this->_r.begin(this->_result.value());
+            this->client().beginCall(this->_r, *this, argi.data(), argi.size());
+        }
+
         void begin(const SerializationInfo& si)
         {
             this->_result.clearFault();
@@ -58,7 +72,7 @@ class RemoteProcedureVa : public RemoteProcedureBase<R>
                 argi[n] = &args[n];
             }
             this->_r.begin(this->_result.value());
-            this->client().beginCall(this->_r, *this, argi.data(), si.memberCount());
+            this->client().beginCall(this->_r, *this, argi.data(), argi.size());
         }
 
         void begin()
@@ -86,6 +100,21 @@ class RemoteProcedureVa : public RemoteProcedureBase<R>
             SerializationInfo si;
             si <<= tuple;
             begin(si);
+        }
+
+        R&& call(const std::vector<SerializationInfo>& param)
+        {
+            this->_result.clearFault();
+            std::vector<Decomposer<SerializationInfo>> args(param.size());
+            std::vector<IDecomposer*> argi(param.size());
+            for (unsigned n = 0; n < param.size(); ++n)
+            {
+                args[n].begin(param[n]);
+                argi[n] = &args[n];
+            }
+            this->_r.begin(this->_result.value());
+            this->client().call(this->_r, *this, argi.data(), argi.size());
+            return this->_result.get();
         }
 
         R&& call(const SerializationInfo& si)
