@@ -114,5 +114,29 @@ Delegate<bool, const SslCertificate&>& RpcServer::acceptSslCertificate()
     return _impl->acceptSslCertificate;
 }
 
+std::string RpcServer::function(const std::string& domain, const std::string& fn)
+{
+    return domain.empty() ? fn
+                          : fn + '\0' + domain;
+}
+
+std::string RpcServer::domain(const std::string& fn)
+{
+    auto p = fn.find('\0');
+    if (p == std::string::npos)
+        return "";
+    else
+        return fn.substr(p + 1);
+}
+
+std::string RpcServer::function(const std::string& fn)
+{
+    auto p = fn.find('\0');
+    if (p == std::string::npos)
+        return fn;
+    else
+        return fn.substr(0, p);
+}
+
 }
 }

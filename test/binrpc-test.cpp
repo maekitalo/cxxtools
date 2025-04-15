@@ -92,6 +92,7 @@ class BinRpcTest : public cxxtools::unit::TestSuite
             registerMethod("Multiple", *this, &BinRpcTest::Multiple);
             registerMethod("VaArg", *this, &BinRpcTest::VaArg);
             registerMethod("VaProc", *this, &BinRpcTest::VaProc);
+            registerMethod("FunctionName", *this, &BinRpcTest::FunctionName);
 
             char* PORT = getenv("UTEST_PORT");
             if (PORT)
@@ -843,7 +844,14 @@ class BinRpcTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_THROW(concat.end(2000), cxxtools::RemoteException);
         }
 
-
+        void FunctionName()
+        {
+            auto proc = cxxtools::bin::RpcServer::function("myDomain", "func");
+            auto fn = cxxtools::bin::RpcServer::function(proc);
+            auto domain = cxxtools::bin::RpcServer::domain(proc);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(fn, "func");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(domain, "myDomain");
+        }
 };
 
 cxxtools::unit::RegisterTest<BinRpcTest> register_BinRpcTest;

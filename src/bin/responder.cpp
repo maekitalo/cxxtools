@@ -121,9 +121,7 @@ bool Responder::advance(std::streambuf& in)
                 {
                     log_info("rpc method \"" << _headerParser.method() << '"');
 
-                    auto procName = _headerParser.domain().empty()
-                                ? _headerParser.method()
-                                : _headerParser.method() + '\0' + _headerParser.domain();
+                    auto procName = RpcServer::function(_headerParser.domain(), _headerParser.method());
                     _proc = _serviceRegistry.getProcedure(procName);
 
                     if (_proc)
