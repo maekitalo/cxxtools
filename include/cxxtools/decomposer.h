@@ -68,10 +68,45 @@ class Decomposer : public IDecomposer
             _si <<= type;
         }
 
-        void begin(T&& type)
+        virtual void setName(const std::string& name)
+        {
+            _si.setName(name);
+        }
+
+        virtual void format(Formatter& formatter)
+        {
+            formatEach( _si, formatter );
+        }
+
+    private:
+        SerializationInfo _si;
+        SerializationInfo* _current;
+};
+
+
+template <>
+class Decomposer<SerializationInfo> : public IDecomposer
+{
+    public:
+        Decomposer()
+        : _current(&_si)
+        { }
+
+        void begin(const SerializationInfo& type)
         {
             _si.clear();
-            _si <<= std::move(type);
+            _si <<= type;
+        }
+
+        void begin(SerializationInfo& type)
+        {
+            _si.clear();
+            _si.swap(type);
+        }
+
+        void begin(SerializationInfo&& type)
+        {
+            _si = std::move(type);
         }
 
         virtual void setName(const std::string& name)
