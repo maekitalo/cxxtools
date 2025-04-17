@@ -35,7 +35,7 @@
 namespace cxxtools
 {
 
-template <typename R>
+template <typename R = SerializationInfo>
 class RemoteProcedureVa : public RemoteProcedureBase<R>
 {
     public:

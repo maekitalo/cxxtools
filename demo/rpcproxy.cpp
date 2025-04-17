@@ -68,7 +68,7 @@ cxxtools::IComposers* ProxyServiceProcedure::beginCall(const std::string& functi
 cxxtools::IDecomposer* ProxyServiceProcedure::endCall()
 {
     std::lock_guard<std::mutex> lock(clientMutex);
-    cxxtools::RemoteProcedureVa<cxxtools::SerializationInfo> func(_client, _function);
+    cxxtools::RemoteProcedureVa func(_client, _function);
     std::cout << "call function <" << _function << '>' << std::endl;
     _r.begin(func.call(_composers.parameters()));
     return &_r;
