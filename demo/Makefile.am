@@ -9,6 +9,8 @@ noinst_PROGRAMS = \
 	deserialization \
 	dir \
 	dlloader \
+	dynamiccall \
+	dynamicrpc \
 	execLs \
 	getini hd \
 	httpclient \
@@ -36,7 +38,9 @@ noinst_PROGRAMS = \
 	rpcaddclient \
 	rpcasyncaddclient \
 	rpcechoclient \
+	rpcgenericclient \
 	rpcparallelecho \
+	rpcproxy
 	rpcserver \
 	saml2 \
 	serialization \
@@ -49,10 +53,7 @@ noinst_PROGRAMS = \
 	uuencode \
 	xmlmsgclient \
 	xmlmsgserver \
-	xmlreader \
-	dynamicrpc \
-	dynamiccall \
-	rpcproxy
+	xmlreader
 
 arg_set_SOURCES = arg-set.cpp
 arg_SOURCES = arg.cpp
@@ -61,6 +62,8 @@ cxxlog_SOURCES = cxxlog.cpp
 deserialization_SOURCES = deserialization.cpp
 dir_SOURCES = dir.cpp
 dlloader_SOURCES = dlloader.cpp
+dynamiccall_SOURCES = dynamiccall.cpp
+dynamicrpc_SOURCES = dynamicrpc.cpp
 execLs_SOURCES = execLs.cpp
 getini_SOURCES = getini.cpp
 hd_SOURCES = hd.cpp
@@ -89,7 +92,9 @@ regex_SOURCES = regex.cpp
 rpcaddclient_SOURCES = rpcaddclient.cpp
 rpcasyncaddclient_SOURCES = rpcasyncaddclient.cpp
 rpcechoclient_SOURCES = rpcechoclient.cpp
+rpcgenericclient_SOURCES = rpcgenericclient.cpp
 rpcparallelecho_SOURCES = rpcparallelecho.cpp
+rpcproxy_SOURCES = rpcproxy.cpp
 rpcserver_SOURCES = rpcserver.cpp
 saml2_SOURCES = saml2.cpp
 serialization_SOURCES = serialization.cpp
@@ -97,15 +102,12 @@ signals_SOURCES = signals.cpp
 splitter_SOURCES = splitter.cpp
 sslshowcert_SOURCES = sslshowcert.cpp
 tcpsocket_SOURCES = tcpsocket.cpp
-timer_SOURCES = timer.cpp
 timer_lambda_SOURCES = timer-lambda.cpp
+timer_SOURCES = timer.cpp
 uuencode_SOURCES = uuencode.cpp
 xmlmsgclient_SOURCES = xmlmsgclient.cpp
 xmlmsgserver_SOURCES = xmlmsgserver.cpp
 xmlreader_SOURCES = xmlreader.cpp
-dynamicrpc_SOURCES = dynamicrpc.cpp
-dynamiccall_SOURCES = dynamiccall.cpp
-rpcproxy_SOURCES = rpcproxy.cpp
 
 BASE_LIBS = $(top_builddir)/src/libcxxtools.la
 HTTP_LIBS = $(BASE_LIBS) $(top_builddir)/src/http/libcxxtools-http.la
@@ -116,22 +118,23 @@ JSON_LIBS = $(HTTP_LIBS) $(top_builddir)/src/json/libcxxtools-json.la
 AM_CPPFLAGS = -I$(top_srcdir)/src -I$(top_builddir)/include -I$(top_srcdir)/include
 LDADD = $(top_builddir)/src/libcxxtools.la
 
+dynamiccall_LDADD = $(BIN_LIBS)
+dynamicrpc_LDADD = $(BIN_LIBS)
 httpclient_LDADD =  $(HTTP_LIBS)
 httprequest_LDADD = $(HTTP_LIBS)
 httpserver_LDADD =  $(HTTP_LIBS)
-rpcserver_LDADD = $(XMLRPC_LIBS) $(BIN_LIBS) $(JSON_LIBS)
-rpcechoclient_LDADD = $(XMLRPC_LIBS) $(BIN_LIBS) $(JSON_LIBS)
-rpcaddclient_LDADD = $(XMLRPC_LIBS) $(BIN_LIBS) $(JSON_LIBS)
-json_LDADD = $(HTTP_LIBS)
 jsonbeautify_LDADD = $(HTTP_LIBS)
-rpcasyncaddclient_LDADD = $(XMLRPC_LIBS) $(BIN_LIBS) $(JSON_LIBS)
-rpcparallelecho_LDADD = $(BIN_LIBS)
+json_LDADD = $(HTTP_LIBS)
 msgclient_LDADD = $(BIN_LIBS)
 msgserver_LDADD = $(BIN_LIBS)
+rpcaddclient_LDADD = $(XMLRPC_LIBS) $(BIN_LIBS) $(JSON_LIBS)
+rpcasyncaddclient_LDADD = $(XMLRPC_LIBS) $(BIN_LIBS) $(JSON_LIBS)
+rpcechoclient_LDADD = $(XMLRPC_LIBS) $(BIN_LIBS) $(JSON_LIBS)
+rpcgenericclient_LDADD = $(BIN_LIBS)
+rpcparallelecho_LDADD = $(BIN_LIBS)
+rpcproxy_LDADD = $(BIN_LIBS)
+rpcserver_LDADD = $(XMLRPC_LIBS) $(BIN_LIBS) $(JSON_LIBS)
 xmlmsgclient_LDADD = $(XMLRPC_LIBS)
 xmlmsgserver_LDADD = $(XMLRPC_LIBS)
-dynamicrpc_LDADD = $(BIN_LIBS)
-dynamiccall_LDADD = $(BIN_LIBS)
-rpcproxy_LDADD = $(BIN_LIBS)
 
 EXTRA_DIST = README
