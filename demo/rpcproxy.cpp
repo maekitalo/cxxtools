@@ -10,8 +10,6 @@
 #include <iostream>
 #include <mutex>
 
-log_define("rpcproxy")
-
 static std::mutex clientMutex;
 
 class DynamicComposers : public cxxtools::IComposers

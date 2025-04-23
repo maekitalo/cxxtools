@@ -77,13 +77,12 @@ class RemoteProcedureVa : public RemoteProcedureBase<R>
 
         void begin()
         {
-            begin(SerializationInfo());
+            begin(std::vector<SerializationInfo>());
         }
 
         template <typename... Args>
             void begin(Args... args)
         {
-            SerializationInfo si;
             begin(SerializationInfo(), args...);
         }
 
@@ -134,7 +133,7 @@ class RemoteProcedureVa : public RemoteProcedureBase<R>
 
         R&& call()
         {
-            return call(SerializationInfo());
+            return call(std::vector<SerializationInfo>());
         }
 
         template <typename Arg, typename... Args>
@@ -147,7 +146,6 @@ class RemoteProcedureVa : public RemoteProcedureBase<R>
         template <typename... Args>
             R&& call(Args... args)
         {
-            SerializationInfo si;
             return call(SerializationInfo(), args...);
         }
 
@@ -167,10 +165,8 @@ class RemoteProcedureVa : public RemoteProcedureBase<R>
         template <typename... Args>
             R&& operator()(Args... args)
         {
-            SerializationInfo si;
-            return call(SerializationInfo(), args...);
+            return call(args...);
         }
-
 };
 
 }
