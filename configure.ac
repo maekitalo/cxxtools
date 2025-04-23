@@ -1,4 +1,4 @@
-AC_INIT([cxxtools], [4.1], [Tommi Maekitalo <tommi@tntnet.org>])
+AC_INIT([cxxtools], [4.2], [Tommi Maekitalo <tommi@tntnet.org>])
 AM_INIT_AUTOMAKE
 AC_USE_SYSTEM_EXTENSIONS
 
