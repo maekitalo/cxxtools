@@ -111,6 +111,10 @@ RpcServerImpl::RpcServerImpl(EventLoopBase& eventLoop, Signal<RpcServer::Runmode
     _eventLoop.commitEvent(ServerStartEvent(this));
 }
 
+RpcServerImpl::~RpcServerImpl()
+{
+}
+
 void RpcServerImpl::listen(const std::string& ip, unsigned short int port, const SslCtx& sslCtx)
 {
     log_info("listen on ip <" << ip << "> port " << port << " ssl " << sslCtx.enabled());
@@ -119,7 +123,7 @@ void RpcServerImpl::listen(const std::string& ip, unsigned short int port, const
 
     try
     {
-        _listener.push_back(listener);
+        _listener.emplace_back(listener);
         _queue.put(new Socket(*this, *listener, sslCtx));
     }
     catch (...)
@@ -189,8 +193,6 @@ void RpcServerImpl::terminate()
             delete th;
         }
 
-        for (unsigned n = 0; n < _listener.size(); ++n)
-            delete _listener[n];
         _listener.clear();
 
         while (!_queue.empty())

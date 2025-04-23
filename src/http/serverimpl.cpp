@@ -151,7 +151,7 @@ void ServerImpl::listen(const std::string& ip, unsigned short int port, const Ss
 
     try
     {
-        _listener.push_back(listener);
+        _listener.emplace_back(listener);
         socket = new Socket(*this, *listener, sslCtx);
         _queue.put(socket);
     }
@@ -216,8 +216,6 @@ void ServerImpl::terminate()
         }
 
         log_debug("delete " << _listener.size() << " listeners");
-        for (ServerImpl::ListenerType::iterator it = _listener.begin(); it != _listener.end(); ++it)
-            delete *it;
         _listener.clear();
 
         while (!_queue.empty())

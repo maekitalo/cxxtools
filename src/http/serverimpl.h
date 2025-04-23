@@ -38,6 +38,7 @@
 #include <condition_variable>
 #include <set>
 #include <vector>
+#include <memory>
 
 namespace cxxtools
 {
@@ -102,7 +103,7 @@ class ServerImpl : public ServerImplBase, public Connectable
         std::set<Socket*> _idleSockets;
 
         ////////////////////////////////////////////////////
-        typedef std::vector<net::TcpServer*> ListenerType;
+        typedef std::vector<std::unique_ptr<net::TcpServer>> ListenerType;
         ListenerType _listener;
 
         ////////////////////////////////////////////////////

@@ -40,6 +40,7 @@
 #include <condition_variable>
 #include <set>
 #include <vector>
+#include <memory>
 
 namespace cxxtools
 {
@@ -71,6 +72,7 @@ namespace json
 
         public:
             RpcServerImpl(EventLoopBase& eventLoop, Signal<RpcServer::Runmode>& runmodeChanged, ServiceRegistry& serviceRegistry);
+            ~RpcServerImpl();
 
             void listen(const std::string& ip, unsigned short int port, const SslCtx& sslCtx);
 
@@ -127,7 +129,7 @@ namespace json
             unsigned _minThreads;
             unsigned _maxThreads;
 
-            std::vector<net::TcpServer*> _listener;
+            std::vector<std::unique_ptr<net::TcpServer>> _listener;
             Queue<Socket*> _queue;
 
             typedef std::set<Socket*> IdleSocket;
