@@ -40,7 +40,7 @@ noinst_PROGRAMS = \
 	rpcechoclient \
 	rpcgenericclient \
 	rpcparallelecho \
-	rpcproxy
+	rpcproxy \
 	rpcserver \
 	saml2 \
 	serialization \
