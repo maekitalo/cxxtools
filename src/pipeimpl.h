@@ -51,7 +51,7 @@ class PipeIODevice : public IODevice
         void redirect(int fd, bool close, bool inherit);
 
     protected:
-        void open(int fd, bool isAsync);
+        void open(int fd, bool isAsync, bool inherit = true);
 
         void onClose()
         { cancel(); _impl.close(); }
@@ -70,7 +70,7 @@ class PipeIODevice : public IODevice
 class PipeImpl
 {
     public:
-        PipeImpl(bool isAsync);
+        PipeImpl(bool isAsync, bool inherit);
 
         PipeIODevice& in();
 

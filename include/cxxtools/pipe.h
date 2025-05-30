@@ -56,7 +56,7 @@ class Pipe
             The default constructor will create the pipe and the appropriate
             IODevices to read and write to the pipe.
         */
-        explicit Pipe(OpenMode mode = Sync);
+        explicit Pipe(OpenMode mode = Sync, bool inherit = true);
 
         /** @brief Destructor
 

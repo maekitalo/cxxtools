@@ -51,13 +51,10 @@
 
 #include "error.h"
 #include <cerrno>
-#include <cstring>
 #include <cassert>
-#include <fcntl.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <sstream>
-#include <vector>
 
 #include <openssl/err.h>
 #include <openssl/ssl.h>

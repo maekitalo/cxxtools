@@ -44,8 +44,8 @@ class Pipe : public cxxtools::Pipe
             The default constructor will create the pipe and the appropriate
             IODevices to read and write to the pipe.
         */
-        explicit Pipe(OpenMode mode = Sync)
-            : cxxtools::Pipe(mode)
+        explicit Pipe(OpenMode mode = Sync, bool inherit = true)
+            : cxxtools::Pipe(mode, inherit)
             { }
 
         /** @brief Endpoint of the pipe to read from

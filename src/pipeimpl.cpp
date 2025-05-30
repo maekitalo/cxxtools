@@ -31,6 +31,7 @@
 #include "cxxtools/systemerror.h"
 #include <unistd.h>
 #include <fcntl.h>
+#include "config.h"
 
 namespace cxxtools {
 
@@ -63,23 +64,37 @@ void PipeIODevice::redirect(int newFd, bool close, bool inherit)
     }
 }
 
-void PipeIODevice::open(int fd, bool isAsync)
+void PipeIODevice::open(int fd, bool isAsync, bool inherit)
 {
-    _impl.open(fd, isAsync, true);
+    _impl.open(fd, isAsync, inherit);
     this->setEnabled(true);
     this->setAsync(isAsync);
     this->setEof(false);
 }
 
 
-PipeImpl::PipeImpl(bool isAsync)
+PipeImpl::PipeImpl(bool isAsync, bool inherit)
 {
     int fds[2];
+#ifdef HAVE_PIPE2
+    int flags = 0;
+    if (isAsync)
+        flags |= O_NONBLOCK;
+    if (!inherit)
+        flags |= O_CLOEXEC;
+
+    if( ::pipe2(fds, flags) )
+        throwSystemError("pipe2");
+
+    _out.open(fds[0], isAsync, false);
+    _in.open(fds[1], isAsync, false);
+#else
     if(-1 == ::pipe(fds) )
         throw SystemError("pipe");
 
-    _out.open( fds[0], isAsync );
-    _in.open( fds[1], isAsync );
+    _out.open(fds[0], isAsync, inherit);
+    _in.open(fds[1], isAsync, inherit);
+#endif
 }
 
 
