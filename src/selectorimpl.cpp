@@ -48,31 +48,45 @@ namespace cxxtools
 
 const short SelectorImpl::POLL_ERROR_MASK= POLLERR | POLLHUP | POLLNVAL;
 
+#ifndef HAVE_PIPE2
+static void fSetFd(int fd, int flags)
+{
+    int oflags = fcntl(fd, F_GETFD);
+    oflags |= flags ;
+    int ret = fcntl(fd, F_SETFD, oflags);
+    if(-1 == ret)
+        throwSystemError("fcntl(F_SETFD)");
+}
+
+static void fSetFl(int fd, int flags)
+{
+    int oflags = fcntl(fd, F_GETFL);
+    oflags |= flags ;
+    int ret = fcntl(fd, F_SETFL, oflags);
+    if(-1 == ret)
+        throwSystemError("fcntl(F_SETFL)");
+}
+#endif
+
 SelectorImpl::SelectorImpl()
 : _isDirty(true)
 {
     _current = _devices.end();
 
     //Open a pipe to send wake up message.
+
+#ifdef HAVE_PIPE2
+    if( ::pipe2( _wakePipe, O_CLOEXEC|O_NONBLOCK ) )
+        throwSystemError("pipe2");
+#else
     if( ::pipe( _wakePipe ) )
         throwSystemError("pipe");
 
-    int flags = ::fcntl(_wakePipe[0], F_GETFL);
-    if(-1 == flags)
-        throwSystemError("fcntl");
-
-    int ret = ::fcntl(_wakePipe[0], F_SETFL, flags|O_NONBLOCK);
-    if(-1 == ret)
-        throwSystemError("fcntl");
-
-    flags = ::fcntl(_wakePipe[1], F_GETFL);
-    if(-1 == flags)
-        throwSystemError("fcntl");
-
-    ret = ::fcntl(_wakePipe[1], F_SETFL, flags|O_NONBLOCK);
-    if(-1 == ret)
-        throwSystemError("fcntl");
-
+    fSetFd(_wakePipe[0], FD_CLOEXEC);
+    fSetFd(_wakePipe[1], FD_CLOEXEC);
+    fSetFl(_wakePipe[0], O_NONBLOCK);
+    fSetFl(_wakePipe[1], O_NONBLOCK);
+#endif
 }
 
 
