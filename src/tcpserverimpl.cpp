@@ -77,9 +77,19 @@ TcpServerImpl::TcpServerImpl(TcpServer& server)
   , _deferAccept(false)
 #endif
 {
-    int ret = ::pipe(_wakePipe);
-    if (ret == 1)
+#ifdef HAVE_PIPE2
+    if (::pipe2(_wakePipe, O_CLOEXEC|O_NONBLOCK))
+        throwSystemError("pipe2");
+#else
+    if (::pipe(_wakePipe))
         throwSystemError("pipe");
+
+    if (::fcntl(_wakePipe[0], O_CLOEXEC|O_NONBLOCK))
+        throwSystemError("fcntl(wakePipe)");
+    if (::fcntl(_wakePipe[1], O_CLOEXEC|O_NONBLOCK))
+        throwSystemError("fcntl(wakePipe)");
+#endif
+
     log_debug("wake pipe read fd=" << _wakePipe[0] << " write fd=" << _wakePipe[1]);
 }
 
