@@ -1143,6 +1143,7 @@ bool RequestHeaderParser::advance(std::streambuf& in)
             case State::method:
                 if (ch == '\0')
                 {
+                    log_info("rpc method \"" << _method << '"');
                     _state = State::null;
                     in.sbumpc();
                     return true;

@@ -119,8 +119,6 @@ bool Responder::advance(std::streambuf& in)
             case State::header:
                 if (_headerParser.advance(in))
                 {
-                    log_info("rpc method \"" << _headerParser.method() << '"');
-
                     auto procName = RpcServer::function(_headerParser.domain(), _headerParser.method());
                     _proc = _serviceRegistry.getProcedure(procName);
 
