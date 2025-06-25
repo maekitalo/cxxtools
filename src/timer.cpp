@@ -27,8 +27,11 @@
 #include "cxxtools/clock.h"
 #include "cxxtools/selector.h"
 #include "cxxtools/datetime.h"
+#include "cxxtools/log.h"
 #include <stdexcept>
 #include <time.h>
+
+log_define("cxxtools.Timer")
 
 namespace cxxtools
 {
@@ -116,6 +119,8 @@ void Timer::start(const Milliseconds& interval)
 
     if (_selector)
         _selector->onTimerChanged(*this);
+    else
+        log_warn("selector not set in timer when starting (interval: " << interval << ')');
 }
 
 
@@ -157,6 +162,8 @@ void Timer::start(const DateTime& startTime, const Milliseconds& interval, bool 
 
     if (_selector)
         _selector->onTimerChanged(*this);
+    else
+        log_warn("selector not set in timer when starting (start time: " << startTime.toString() << ", interval: " << interval << ')');
 }
 
 void Timer::after(const Milliseconds& interval)
@@ -181,6 +188,8 @@ void Timer::at(const DateTime& tickTime, bool localtime)
 
         if (_selector)
             _selector->onTimerChanged(*this);
+        else
+            log_warn("selector not set in timer when starting (at: " << tickTime.toString() << ')');
     }
 }
 
@@ -192,11 +201,16 @@ void Timer::at(const UtcDateTime& tickTime)
 
 void Timer::stop()
 {
+    if (!_active)
+        return;
+
     _active = false;
     _finished = Timespan(0);
 
     if(_selector)
         _selector->onTimerChanged(*this);
+    else
+        log_warn("selector not set in timer when stopping");
 }
 
 
