@@ -948,6 +948,15 @@ size_t TcpSocketImpl::read(char* buffer, size_t count, bool& eof)
                 return ret;
             }
 
+            auto sslError = ERR_peek_error();
+            if (ERR_GET_LIB(sslError) == ERR_LIB_SSL
+                    && ERR_GET_REASON(sslError) == SSL_R_UNEXPECTED_EOF_WHILE_READING)
+            {
+                log_debug("SSL_R_UNEXPECTED_EOF_WHILE_READING detected");
+                eof = true;
+                return 0;
+            }
+
             pollfd pfd;
             pfd.fd = _fd;
             pfd.revents = 0;
