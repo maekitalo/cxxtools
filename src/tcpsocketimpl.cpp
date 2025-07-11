@@ -953,6 +953,7 @@ size_t TcpSocketImpl::read(char* buffer, size_t count, bool& eof)
                     && ERR_GET_REASON(sslError) == SSL_R_UNEXPECTED_EOF_WHILE_READING)
             {
                 log_debug("SSL_R_UNEXPECTED_EOF_WHILE_READING detected");
+                ERR_get_error();    // remove error from list when processed
                 eof = true;
                 return 0;
             }
