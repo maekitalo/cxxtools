@@ -123,13 +123,31 @@ void SslError::checkSslError()
         if (ERR_error_string(code, buffer))
         {
             log_debug("SSL-Error " << code << ": \"" << buffer << '"');
+            ignorePendingSslErrors();
             throw SslError(buffer, code);
         }
         else
         {
             log_debug("unknown SSL-Error " << code);
+            ignorePendingSslErrors();
             throw SslError("unknown SSL-Error", code);
         }
+    }
+}
+
+void SslError::ignorePendingSslErrors()
+{
+    char buffer[120];
+    while (true)
+    {
+        auto code = ERR_get_error();
+        if (code == 0)
+            return;
+
+        if (ERR_error_string(code, buffer))
+            log_warn("ssl error " << code << " detected: \"" << buffer << "\" - ignored");
+        else
+            log_warn("unknown ssl error " << code << " detected - ignored");
     }
 }
 

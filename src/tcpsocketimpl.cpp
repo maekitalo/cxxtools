@@ -243,6 +243,7 @@ void TcpSocketImpl::initSsl(const SslCtx& sslCtx)
         return;
 
     log_debug_to(ssl, "SSL_new(" << static_cast<void*>(sslCtx.impl()->ctx()) << ')');
+    ERR_clear_error();
     _ssl = SSL_new(sslCtx.impl()->ctx());
     SslError::checkSslError();
 
@@ -568,6 +569,7 @@ bool TcpSocketImpl::checkPollEvent(pollfd& pfd)
         if (_state == SSLCONNECTING)
         {
             log_debug_to(ssl, "SSL_connect");
+            ERR_clear_error();
             int ret = SSL_connect(_ssl);
             if (ret == 1)
             {
@@ -593,6 +595,7 @@ bool TcpSocketImpl::checkPollEvent(pollfd& pfd)
         else if (_state == SSLACCEPTING)
         {
             log_debug_to(ssl, "SSL_accept " << _fd);
+            ERR_clear_error();
             int ret = SSL_accept(_ssl);
             if (ret == 1)
             {
@@ -794,6 +797,7 @@ size_t TcpSocketImpl::beginWrite(const char* buffer, size_t n)
         log_debug("SSL_write(" << _fd << ", buffer, " << n << ')');
         log_finer(hexDump(buffer, n));
 
+        ERR_clear_error();
         int ret = SSL_write(_ssl, buffer, n);
         log_debug("SSL_write returned " << ret);
         if (ret > 0)
@@ -844,6 +848,7 @@ size_t TcpSocketImpl::write(const char* buffer, size_t n)
         else if (_state == SSLCONNECTED)
         {
             log_debug("SSL_write");
+            ERR_clear_error();
             ret = SSL_write(_ssl, buffer, n);
             if (ret > 0)
                 break;
@@ -940,6 +945,7 @@ size_t TcpSocketImpl::read(char* buffer, size_t count, bool& eof)
         while (true)
         {
             log_debug("SSL_read");
+            ERR_clear_error();
             int ret = SSL_read(_ssl, buffer, count);
             log_debug("SSL_read(" << _fd << ", " << count << ") returned " << ret);
             if (ret > 0)
@@ -948,12 +954,12 @@ size_t TcpSocketImpl::read(char* buffer, size_t count, bool& eof)
                 return ret;
             }
 
-            auto sslError = ERR_peek_error();
+            int sslError = SSL_get_error(_ssl, ret);
             if (ERR_GET_LIB(sslError) == ERR_LIB_SSL
                     && ERR_GET_REASON(sslError) == SSL_R_UNEXPECTED_EOF_WHILE_READING)
             {
                 log_debug("SSL_R_UNEXPECTED_EOF_WHILE_READING detected");
-                ERR_get_error();    // remove error from list when processed
+                SslError::ignorePendingSslErrors();
                 eof = true;
                 return 0;
             }
@@ -1015,6 +1021,7 @@ bool TcpSocketImpl::beginSslConnect(const SslCtx& ctx)
 bool TcpSocketImpl::continueSslConnect()
 {
     log_debug("SSL_connect");
+    ERR_clear_error();
     int ret = SSL_connect(_ssl);
     if (ret == 1)
     {
@@ -1068,6 +1075,7 @@ void TcpSocketImpl::endSslConnect()
     while (true)
     {
         log_debug("SSL_connect");
+        ERR_clear_error();
         int ret = SSL_connect(_ssl);
         if (ret == 1)
         {
@@ -1104,6 +1112,7 @@ bool TcpSocketImpl::beginSslAccept(const SslCtx& ctx)
 bool TcpSocketImpl::continueSslAccept()
 {
     log_debug_to(ssl, "SSL_accept " << _fd);
+    ERR_clear_error();
     int ret = SSL_accept(_ssl);
     if (ret == 1)
     {
@@ -1158,6 +1167,7 @@ void TcpSocketImpl::endSslAccept()
     while (true)
     {
         log_debug_to(ssl, "SSL_accept " << _fd);
+        ERR_clear_error();
         int ret = SSL_accept(_ssl);
         if (ret == 1)
         {
@@ -1182,6 +1192,7 @@ bool TcpSocketImpl::beginSslShutdown()
     _state = SSLSHUTTINGDOWN;
 
     log_debug_to(ssl, "SSL_shutdown");
+    ERR_clear_error();
     int ret = SSL_shutdown(_ssl);
     if (ret == 1)
     {
@@ -1228,6 +1239,7 @@ void TcpSocketImpl::endSslShutdown()
     while (true)
     {
         log_debug_to(ssl, "SSL_shutdown");
+        ERR_clear_error();
         int ret = SSL_shutdown(_ssl);
         if (ret == 1)
         {

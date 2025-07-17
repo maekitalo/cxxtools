@@ -111,6 +111,8 @@ class SslError : public SystemError
 
         /// \internal
         static void checkSslError();
+        /// \internal
+        static void ignorePendingSslErrors();
     private:
         unsigned long _sslError;
 };
