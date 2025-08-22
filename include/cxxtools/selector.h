@@ -64,7 +64,7 @@ namespace cxxtools {
             connect(timer.timeout, ontimer);
 
             Selector selector;
-            selector.addTimer(timer);
+            selector.add(timer);
             selector wait();
 
             return 0;
