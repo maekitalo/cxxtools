@@ -202,6 +202,15 @@ AC_CHECK_HEADER([openssl/ssl.h],
         [AC_DEFINE(HAVE_ASN1_TIME_diff, [], [Defined when openssl supports ASN1_TIME_diff (openssl 1.0.2)])],
         []
     )
+
+    AC_COMPILE_IFELSE(
+        [AC_LANG_SOURCE([
+            #include <openssl/sslerr.h>
+            void foo() { int err = SSL_R_UNEXPECTED_EOF_WHILE_READING; }
+        ])],
+        [AC_DEFINE(HAVE_SSL_R_UNEXPECTED_EOF_WHILE_READING, [], [Defined when openssl has error code HAVE_SSL_R_UNEXPECTED_EOF_WHILE_READING (openssl 3)])],
+        []
+    )
     AC_CHECK_FUNC(TLS_method, [AC_DEFINE(HAVE_TLS_METHOD, [], [Defined when TLS_method is found in openssl library])])
   ],
   AC_MSG_ERROR([header for openssl not found; install openssl developent package or use --without-ssl])
