@@ -1,0 +1,40 @@
+#cmakedefine HAVE_ACCEPT4 @HAVE_ACCEPT4@
+
+/* Defined when openssl supports ASN1_TIME_diff (openssl 1.0.2) */
+#cmakedefine HAVE_ASN1_TIME_diff @HAVE_ASN1_TIME_diff@
+
+/* Define to 1 if you have the 'clock_gettime' function. */
+#cmakedefine HAVE_CLOCK_GETTIME @HAVE_CLOCK_GETTIME@
+
+/* Define to 1 if you have the 'inet_ntop' function. */
+#cmakedefine HAVE_INET_NTOP @HAVE_INET_NTOP@
+
+/* defined if IPV6 is supported */
+#cmakedefine HAVE_IPV6 @HAVE_IPV6@
+
+/* defined if MSG_NOSIGNAL is defined */
+#cmakedefine HAVE_MSG_NOSIGNAL @HAVE_MSG_NOSIGNAL@
+
+/* Define to 1 if you have the 'ppoll' function. */
+#cmakedefine HAVE_PPOLL @HAVE_PPOLL@
+
+/* defined if socket option SO_NOSIGPIPE is supported */
+#cmakedefine HAVE_SO_NOSIGPIPE @HAVE_SO_NOSIGPIPE@
+
+/* Define to 1 if you have the <sys/sendfile.h> header file. */
+#cmakedefine HAVE_SYS_SENDFILE_H @HAVE_SYS_SENDFILE_H@
+
+/* defined if TCP_DEFER_ACCEPT is defined */
+#cmakedefine HAVE_TCP_DEFER_ACCEPT @HAVE_TCP_DEFER_ACCEPT@
+
+/* Defined when TLS_method is found in openssl library */
+#cmakedefine HAVE_TLS_METHOD @HAVE_TLS_METHOD@
+
+/* Define to the full name of this package. */
+#cmakedefine PACKAGE_NAME @PACKAGE_NAME@
+
+/* Define to the full name and version of this package. */
+#cmakedefine PACKAGE_STRING "@PACKAGE_STRING@"
+
+/* Define to the version of this package. */
+#cmakedefine PACKAGE_VERSION "@PACKAGE_VERSION@"

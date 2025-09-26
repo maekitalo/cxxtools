@@ -1,0 +1,55 @@
+cmake_minimum_required(VERSION 3.12)
+project(cxxtools
+    VERSION 4.2
+    DESCRIPTION "collection of reusable C++ classes")
+
+add_compile_definitions(_GNU_SOURCE)
+include_directories(${CMAKE_BINARY_DIR}/src)
+option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
+
+include(CheckSymbolExists)
+include(CheckFunctionExists)
+include(CheckIncludeFile)
+
+find_package(OpenSSL COMPONENTS SSL)
+list(APPEND CMAKE_REQUIRED_LIBRARIES ${OPENSSL_LIBRARIES})
+
+check_function_exists(ASN1_TIME_diff HAVE_ASN1_TIME_diff)
+
+list(APPEND CMAKE_REQUIRED_DEFINITIONS -D_GNU_SOURCE)
+check_function_exists(accept4 HAVE_ACCEPT4)
+check_function_exists(clock_gettime HAVE_CLOCK_GETTIME)
+check_function_exists(inet_ntop HAVE_INET_NTOP)
+check_symbol_exists(IPPROTO_IPV6 netinet/in.h HAVE_IPV6)
+check_symbol_exists(MSG_NOSIGNAL sys/socket.h HAVE_MSG_NOSIGNAL)
+check_symbol_exists(SO_NOSIGPIPE sys/socket.h HAVE_SO_NOSIGPIPE)
+check_symbol_exists(TCP_DEFER_ACCEPT netinet/tcp.h HAVE_TCP_DEFER_ACCEPT)
+check_function_exists(ppoll HAVE_PPOLL)
+check_function_exists(TLS_method HAVE_TLS_METHOD)
+check_include_file(sys/sendfile.h HAVE_SYS_SENDFILE_H)
+
+set(PACKAGE_NAME ${CMAKE_PROJECT_NAME})
+set(PACKAGE_STRING "${CMAKE_PROJECT_NAME} ${CMAKE_PROJECT_VERSION}")
+set(PACKAGE_VERSION ${CMAKE_PROJECT_VERSION})
+set(prefix ${CMAKE_INSTALL_PREFIX})
+set(exec_prefix "${CMAKE_INSTALL_PREFIX}/bin")
+set(libdir "${CMAKE_INSTALL_PREFIX}/lib")
+set(includedir "${CMAKE_INSTALL_PREFIX}/include")
+
+configure_file(src/config.cmake.in src/config.h)
+configure_file(pkgconfig/cxxtools.pc.in pkgconfig/cxxtools.pc)
+configure_file(pkgconfig/cxxtools-http.pc.in pkgconfig/cxxtools-http.pc)
+configure_file(pkgconfig/cxxtools-json.pc.in pkgconfig/cxxtools-json.pc)
+configure_file(pkgconfig/cxxtools-unit.pc.in pkgconfig/cxxtools-unit.pc)
+configure_file(pkgconfig/cxxtools-xmlrpc.pc.in pkgconfig/cxxtools-xmlrpc.pc)
+configure_file(pkgconfig/cxxtools-bin.pc.in pkgconfig/cxxtools-bin.pc)
+
+add_subdirectory(src)
+add_subdirectory(src/http)
+add_subdirectory(src/xmlrpc)
+add_subdirectory(src/bin)
+add_subdirectory(src/json)
+add_subdirectory(src/unit)
+add_subdirectory(tools)
+add_subdirectory(demo)
+add_subdirectory(test)
