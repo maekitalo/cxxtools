@@ -29,7 +29,6 @@
 #include <stdint.h>
 #include <iosfwd>
 #include <string>
-#include <cxxtools/config.h>
 
 namespace cxxtools {
 
@@ -195,17 +194,13 @@ class WeakTimespan : public Timespan
             : Timespan(units * Resolution)
         { }
 
-#ifdef HAVE_LONG_LONG
         WeakTimespan(long long units)
             : Timespan(units * Resolution)
         { }
-#endif
 
-#ifdef HAVE_UNSIGNED_LONG_LONG
         WeakTimespan(unsigned long long units)
             : Timespan(units * Resolution)
         { }
-#endif
 
         WeakTimespan(float units)
             : Timespan(units * Resolution)
@@ -279,17 +274,13 @@ class WeakTimespan<1> : public Timespan
             : Timespan(units)
         { }
 
-#ifdef HAVE_LONG_LONG
         WeakTimespan(long long units)
             : Timespan(units)
         { }
-#endif
 
-#ifdef HAVE_UNSIGNED_LONG_LONG
         WeakTimespan(unsigned long long units)
             : Timespan(units)
         { }
-#endif
 
         WeakTimespan(float units)
             : Timespan(units)

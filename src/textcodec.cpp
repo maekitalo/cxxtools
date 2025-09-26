@@ -27,8 +27,6 @@
  */
 #include "cxxtools/textcodec.h"
 
-#ifdef CXXTOOLS_WITH_STD_LOCALE
-
 namespace std {
 
 //
@@ -60,5 +58,3 @@ codecvt<char, char, cxxtools::MBState>::~codecvt()
 {}
 
 } // namespace std
-
-#endif

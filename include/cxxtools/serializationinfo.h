@@ -44,8 +44,6 @@
 #include <type_traits>
 #include <iosfwd>
 
-#include <cxxtools/config.h>
-
 #if __cplusplus >= 201703L
 #include <optional>
 #endif
@@ -127,16 +125,8 @@ class SerializationInfo
         /// const iterator over subnodes, std style name.
         typedef Nodes::const_iterator const_iterator;
 
-#ifdef HAVE_LONG_LONG
         typedef long long int_type;
-#else
-        typedef long int_type;
-#endif
-#ifdef HAVE_UNSIGNED_LONG_LONG
         typedef unsigned long long unsigned_type;
-#else
-        typedef unsigned long unsigned_type;
-#endif
 
     public:
         SerializationInfo();
@@ -211,12 +201,8 @@ class SerializationInfo
         void setValue(unsigned int value)        { _setUInt(value) ; }
         void setValue(long value)                { _setInt(value) ; }
         void setValue(unsigned long value)       { _setUInt(value) ; }
-#ifdef HAVE_LONG_LONG
         void setValue(long long value)           { _setInt(value) ; }
-#endif
-#ifdef HAVE_UNSIGNED_LONG_LONG
         void setValue(unsigned long long value)  { _setUInt(value) ; }
-#endif
 
         void setValue(float value)               { _setFloat(value); }
         void setValue(double value)              { _setDouble(value); }
@@ -247,14 +233,10 @@ class SerializationInfo
             { value = static_cast<long>(_getInt("long", std::numeric_limits<long>::min(), std::numeric_limits<long>::max())); }
         void getValue(unsigned long& value) const
             { value = static_cast<unsigned long>(_getUInt("unsigned long", std::numeric_limits<unsigned long>::max())); }
-#ifdef HAVE_LONG_LONG
         void getValue(long long& value) const
             { value = static_cast<long long>(_getInt("long long", std::numeric_limits<long long>::min(), std::numeric_limits<long long>::max())); }
-#endif
-#ifdef HAVE_UNSIGNED_LONG_LONG
         void getValue(unsigned long long& value) const
             { value = static_cast<unsigned long long>(_getUInt("unsigned long long", std::numeric_limits<unsigned long long>::max())); }
-#endif
         void getValue(float& value) const
             { value = _getFloat(); }
         void getValue(double& value) const
@@ -623,8 +605,6 @@ inline void operator <<=(SerializationInfo& si, unsigned long n)
 }
 
 
-#ifdef HAVE_LONG_LONG
-
 inline void operator >>=(const SerializationInfo& si, long long& n)
 {
     si.getValue(n);
@@ -637,10 +617,6 @@ inline void operator <<=(SerializationInfo& si, long long n)
     si.setTypeName("int");
 }
 
-#endif
-
-
-#ifdef HAVE_UNSIGNED_LONG_LONG
 
 inline void operator >>=(const SerializationInfo& si, unsigned long long& n)
 {
@@ -653,8 +629,6 @@ inline void operator <<=(SerializationInfo& si, unsigned long long n)
     si.setValue(n);
     si.setTypeName("int");
 }
-
-#endif
 
 
 inline void operator >>=(const SerializationInfo& si, float& n)

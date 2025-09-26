@@ -116,8 +116,8 @@ void formatIp(const Sockaddr& sa, std::string& str)
 
 #else // HAVE_INET_NTOP
 
-      static Mutex monitor;
-      MutexLock lock(monitor);
+      static std::mutex monitor;
+      std::lock_guard<std::mutex> lock(monitor);
 
       const char* p = inet_ntoa(sa.sa_in.sin_addr);
       if (p)

@@ -14,7 +14,6 @@ AC_SUBST(sonumber)
 
 AC_CONFIG_MACRO_DIR([m4])
 AC_CONFIG_HEADERS([src/config.h ])
-AC_CONFIG_FILES([include/cxxtools/config.h])
 AC_CONFIG_SRCDIR([src/log.cpp])
 
 AC_HEADER_DIRENT
@@ -40,72 +39,9 @@ AC_SEARCH_LIBS(inet_ntop, nsl socket resolv)
 AC_SEARCH_LIBS(clock_gettime, rt)
 AC_CHECK_FUNCS(inet_ntop accept4)
 AC_CHECK_FUNCS(clock_gettime)
-AC_CHECK_FUNCS(nanosleep)
 AC_CHECK_FUNCS(sendfile)
 AC_CHECK_FUNCS(ppoll)
 AC_CHECK_FUNCS(pipe2)
-AC_TYPE_LONG_LONG_INT
-AC_TYPE_UNSIGNED_LONG_LONG_INT
-
-AS_IF([test "$ac_cv_type_long_long_int" = yes],
-[
-    HAVE_LONG_LONG=HAVE_LONG_LONG
-
-    AC_COMPILE_IFELSE(
-      [AC_LANG_SOURCE([
-        #include <stdint.h>
-        void f(short);
-        void f(int);
-        void f(long);
-        void f(long long);
-        void f() { int64_t v = 1; f(v); }
-        ])],
-      [AC_DEFINE(INT64_IS_BASETYPE, 1, [defined if int64_t is one of the base types])])
-], [
-    AC_MSG_WARN([long long not found]);
-    HAVE_LONG_LONG=NO_LONG_LONG
-
-    AC_COMPILE_IFELSE(
-      [AC_LANG_SOURCE([
-        #include <stdint.h>
-        void f(short);
-        void f(int);
-        void f(long);
-        void f() { int64_t v = 1; f(v); }
-        ])],
-      [AC_DEFINE(INT64_IS_BASETYPE, 1, [defined if int64_t is one of the base types])])
-])
-
-AC_SUBST(HAVE_LONG_LONG, "$HAVE_LONG_LONG")
-
-AS_IF([test "$ac_cv_type_unsigned_long_long_int" = yes],
-[
-    HAVE_UNSIGNED_LONG_LONG=HAVE_UNSIGNED_LONG_LONG
-], [
-    AC_MSG_WARN([unsigned long long not found ($ac_cv_type_unsigned_long_long_int)]);
-    HAVE_UNSIGNED_LONG_LONG=NO_UNSIGNED_LONG_LONG
-])
-
-AC_SUBST(HAVE_UNSIGNED_LONG_LONG, "$HAVE_UNSIGNED_LONG_LONG")
-
-AC_ARG_WITH([iconvstream],
-    [AS_HELP_STRING([--with-iconvstream=yes|no], [compile iconv stream (default: no)])],
-    [with_iconvstream=$withval],
-    [with_iconvstream=no])
-
-ACX_PTHREAD
-
-CC="$PTHREAD_CC"
-CXX="$PTHREAD_CXX"
-CFLAGS="$CFLAGS $PTHREAD_CFLAGS"
-CXXFLAGS="$CXXFLAGS $PTHREAD_CXXFLAGS"
-LIBS="$LIBS $PTHREAD_LIBS"
-
-CXXTOOLS_CXXFLAGS='-I${includedir}'
-CXXTOOLS_LDFLAGS='-L${libdir} -lcxxtools'
-
-AC_SUBST(CXXTOOLS_CXXFLAGS)
-AC_SUBST(CXXTOOLS_LDFLAGS)
 
 AS_CASE(["${host_cpu}-${host_os}"],
     [*-aix*], [SHARED_LIB_FLAG=-qmkshrobj],
@@ -113,28 +49,6 @@ AS_CASE(["${host_cpu}-${host_os}"],
     [SHARED_LIB_FLAG=-shared]
 )
 AC_SUBST(SHARED_LIB_FLAG)
-
-#
-# checking existence of suseconds_t, needed by hirestime.h
-#
-AS_MESSAGE([checking for suseconds_t...])
-
-AC_CHECK_TYPE(
-  suseconds_t,
-  [CXXTOOLS_SUSECONDS=CXXTOOLS_SUSECONDS_T],
-  [CXXTOOLS_SUSECONDS=CXXTOOLS_SUSECONDS_TIME_T],
-  [#include <sys/time.h>])
-
-AC_SUBST(CXXTOOLS_SUSECONDS)
-
-AC_COMPILE_IFELSE(
-  [AC_LANG_SOURCE([#include <locale>
-    void foo() { std::numpunct<char>* np; }
-  ])],
-  [CXXTOOLS_STD_LOCALE=CXXTOOLS_WITH_STD_LOCALE],
-  [CXXTOOLS_STD_LOCALE=CXXTOOLS_WITHOUT_STD_LOCALE])
-
-AC_SUBST(CXXTOOLS_STD_LOCALE)
 
 AC_COMPILE_IFELSE(
   [AC_LANG_SOURCE([#include <netinet/tcp.h>
@@ -170,22 +84,6 @@ AC_COMPILE_IFELSE(
    std::reverse_iterator<char*> r;])],
   [HAVE_REVERSE_ITERATOR=HAVE_REVERSE_ITERATOR],
   [HAVE_REVERSE_ITERATOR=NO_REVERSE_ITERATOR])
-
-AC_COMPILE_IFELSE(
-  [AC_LANG_SOURCE([#include <iterator>
-   std::reverse_iterator<char*, int, char, char*, char&> r;])],
-  [HAVE_REVERSE_ITERATOR_4=HAVE_REVERSE_ITERATOR_4],
-  [HAVE_REVERSE_ITERATOR_4=NO_REVERSE_ITERATOR_4])
-
-AC_SUBST(HAVE_REVERSE_ITERATOR, "$HAVE_REVERSE_ITERATOR")
-AC_SUBST(HAVE_REVERSE_ITERATOR_4, "$HAVE_REVERSE_ITERATOR_4")
-
-AC_COMPILE_IFELSE(
-  [AC_LANG_SOURCE([
-   #include <cxxabi.h>
-   void foo() { try {} catch (const abi::__forced_unwind&) {} }
-  ])],
-  [AC_DEFINE(HAVE_ABI_FORCED_UNWIND, 1, [defined if exception abi::__forced_unwind exists])])
 
 #
 # SSL
@@ -250,7 +148,6 @@ AC_CONFIG_FILES([
 AC_CONFIG_FILES([
   pkgconfig/cxxtools-bin.pc 
   pkgconfig/cxxtools-http.pc 
-  pkgconfig/cxxtools-json.pc 
   pkgconfig/cxxtools.pc
   pkgconfig/cxxtools-unit.pc
   pkgconfig/cxxtools-xmlrpc.pc

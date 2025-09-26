@@ -30,7 +30,6 @@
 #ifndef CXXTOOLS_CONVERT_H
 #define CXXTOOLS_CONVERT_H
 
-#include <cxxtools/config.h>
 #include <cxxtools/string.h>
 #include <cxxtools/stringstream.h>
 #include <cxxtools/conversionerror.h>
@@ -42,8 +41,6 @@
 #include <iterator>
 #include <cctype>
 #include <cmath>
-
-#include <cxxtools/config.h>
 
 namespace cxxtools
 {
@@ -73,12 +70,8 @@ void convert(String& s, int value);
 void convert(String& s, unsigned int value);
 void convert(String& s, long value);
 void convert(String& s, unsigned long value);
-#ifdef HAVE_LONG_LONG
 void convert(String& s, long long value);
-#endif
-#ifdef HAVE_UNSIGNED_LONG_LONG
 void convert(String& s, unsigned long long value);
-#endif
 
 void convert(String& s, float value);
 void convert(String& s, double value);
@@ -110,12 +103,8 @@ void convert(int& n, const String& str);
 void convert(unsigned int& n, const String& str);
 void convert(long& n, const String& str);
 void convert(unsigned long& n, const String& str);
-#ifdef HAVE_LONG_LONG
 void convert(long long& n, const String& str);
-#endif
-#ifdef HAVE_UNSIGNED_LONG_LONG
 void convert(unsigned long long& n, const String& str);
-#endif
 
 void convert(float& n, const String& str);
 void convert(double& n, const String& str);
@@ -154,12 +143,8 @@ void convert(std::string& s, int value);
 void convert(std::string& s, unsigned int value);
 void convert(std::string& s, long value);
 void convert(std::string& s, unsigned long value);
-#ifdef HAVE_LONG_LONG
 void convert(std::string& s, long long value);
-#endif
-#ifdef HAVE_UNSIGNED_LONG_LONG
 void convert(std::string& s, unsigned long long value);
-#endif
 
 void convert(std::string& s, float value);
 void convert(std::string& s, double value);
@@ -189,12 +174,8 @@ void convert(int& n, const std::string& str);
 void convert(unsigned int& n, const std::string& str);
 void convert(long& n, const std::string& str);
 void convert(unsigned long& n, const std::string& str);
-#ifdef HAVE_LONG_LONG
 void convert(long long& n, const std::string& str);
-#endif
-#ifdef HAVE_UNSIGNED_LONG_LONG
 void convert(unsigned long long& n, const std::string& str);
-#endif
 
 void convert(float& n, const std::string& str);
 void convert(double& n, const std::string& str);
@@ -226,12 +207,8 @@ void convert(int& n, const char* str);
 void convert(unsigned int& n, const char* str);
 void convert(long& n, const char* str);
 void convert(unsigned long& n, const char* str);
-#ifdef HAVE_LONG_LONG
 void convert(long long& n, const char* str);
-#endif
-#ifdef HAVE_UNSIGNED_LONG_LONG
 void convert(unsigned long long& n, const char* str);
-#endif
 
 void convert(float& n, const char* str);
 void convert(double& n, const char* str);
@@ -544,7 +521,6 @@ inline unsigned long formatAbs(unsigned long i, bool& isNeg)
     return i;
 }
 
-#ifdef HAVE_LONG_LONG
 //! @internal @brief Returns the absolute value of \a i
 inline unsigned long long formatAbs(long long i, bool& isNeg)
 {
@@ -552,16 +528,13 @@ inline unsigned long long formatAbs(long long i, bool& isNeg)
     unsigned long long u = isNeg ? -i : static_cast<unsigned long long>(i);
     return u;
 }
-#endif
 
-#ifdef HAVE_UNSIGNED_LONG_LONG
 //! @internal @brief Returns the absolute value of \a i
 inline unsigned long long formatAbs(unsigned long long i, bool& isNeg)
 {
     isNeg = false;
     return i;
 }
-#endif
 
 /** @brief Formats an integer in a given format.
  */

@@ -22,7 +22,6 @@
 
 **/src/config.h
 **/src/config.h.in
-**/include/cxxtools/config.h
 
 Makefile.in
 Makefile

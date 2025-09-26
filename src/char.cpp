@@ -30,26 +30,15 @@
 #include "cxxtools/utf8codec.h"
 #include <ostream>
 
-#ifdef CXXTOOLS_WITH_STD_LOCALE
 #include "facets.cpp"
 
 namespace std {
 
 std::locale::id ctype<cxxtools::Char>::id;
 
-#if (defined _MSC_VER || defined __QNX__ || defined __xlC__)
-
-ctype<cxxtools::Char>::ctype(size_t refs)
-: ctype_base(refs)
-{ }
-
-#else
-
 ctype<cxxtools::Char>::ctype(size_t refs)
 : locale::facet(refs)
 { }
-
-#endif
 
 
 ctype<cxxtools::Char>::~ctype()
@@ -172,8 +161,6 @@ ctype<cxxtools::Char>::do_narrow(const cxxtools::Char* begin, const cxxtools::Ch
 }
 
 } // namespace std
-
-#endif
 
 namespace cxxtools {
 

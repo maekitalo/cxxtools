@@ -30,7 +30,6 @@
 
 #include <cxxtools/string.h>
 #include <string>
-#include <cxxtools/config.h>
 
 namespace cxxtools
 {
@@ -38,16 +37,8 @@ namespace cxxtools
 class Formatter
 {
     public:
-#ifdef HAVE_LONG_LONG
         typedef long long int_type;
-#else
-        typedef long int_type;
-#endif
-#ifdef HAVE_UNSIGNED_LONG_LONG
         typedef unsigned long long unsigned_type;
-#else
-        typedef unsigned long unsigned_type;
-#endif
 
         virtual ~Formatter()
         { }

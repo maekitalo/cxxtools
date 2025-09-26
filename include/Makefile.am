@@ -231,6 +231,3 @@ nobase_include_HEADERS = \
         cxxtools/xmlrpc/responder.h \
         cxxtools/xmlrpc/scanner.h \
         cxxtools/xmlrpc/service.h
-
-nobase_nodist_include_HEADERS = \
-        cxxtools/config.h

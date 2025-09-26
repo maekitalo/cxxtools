@@ -32,8 +32,6 @@
 #include <cxxtools/conversionerror.h>
 #include <string>
 
-#ifdef CXXTOOLS_WITH_STD_LOCALE
-
 namespace std {
 
 template<>
@@ -203,100 +201,6 @@ class codecvt<char, char, cxxtools::MBState> : public codecvt_base, public local
 }; 
 
 }
-
-#else // no CXXTOOLS_WITH_STD_LOCALE
-
-namespace std {
-
-class codecvt_base
-{
-    public:
-        enum { ok, partial, error, noconv };
-        typedef int result;
-
-        virtual ~codecvt_base()
-        { }
-};
-
-template <typename I, typename E, typename S>
-class codecvt : public std::codecvt_base
-{
-    public:
-        typedef I InternT;
-        typedef E ExternT;
-        typedef S StateT; 
-
-    public: 
-        explicit codecvt(size_t ref = 0)
-        {}
-
-        virtual ~codecvt()
-        { }
-
-        codecvt_base::result out(StateT& state, 
-                                 const InternT* from,
-                                 const InternT* from_end, 
-                                 const InternT*& from_next,
-                                 ExternT* to, 
-                                 ExternT* to_end, 
-                                 ExternT*& to_next) const
-        { return this->do_out(state, from, from_end, from_next, to, to_end, to_next); }
-
-        codecvt_base::result unshift(StateT& state, 
-                                     ExternT* to, 
-                                     ExternT* to_end,
-                                     ExternT*& to_next) const
-        { return this->do_unshift(state, to, to_end, to_next); }
-
-        codecvt_base::result in(StateT& state, 
-                                const ExternT* from,
-                                const ExternT* from_end, 
-                                const ExternT*& from_next,
-                                InternT* to, 
-                                InternT* to_end, 
-                                InternT*& to_next) const
-        { return this->do_in(state, from, from_end, from_next, to, to_end, to_next); }
-
-        int encoding() const
-        { return this->do_encoding(); }
-
-        bool always_noconv() const
-        { return this->do_always_noconv(); }
-
-        int length(StateT& state, const ExternT* from,
-                   const ExternT* end, size_t max) const
-        { return this->do_length(state, from, end, max); }
-
-        int max_length() const
-        { return this->do_max_length(); }
-
-    protected:
-        virtual result do_in(StateT& s, const ExternT* fromBegin,
-                             const ExternT* fromEnd, const ExternT*& fromNext,
-                             InternT* toBegin, InternT* toEnd, InternT*& toNext) const = 0;
-
-        virtual result do_out(StateT& s, const InternT* fromBegin,
-                              const InternT* fromEnd, const InternT*& fromNext,
-                              ExternT* toBegin, ExternT* toEnd, ExternT*& toNext) const = 0;
-
-        virtual bool do_always_noconv() const = 0;
-
-        virtual int do_length(StateT& s, const ExternT* fromBegin, 
-                              const ExternT* fromEnd, size_t max) const = 0;
-
-        virtual int do_max_length() const = 0;
-
-        virtual std::codecvt_base::result do_unshift(StateT&, 
-                                                     ExternT*, 
-                                                     ExternT*, 
-                                                     ExternT*&) const = 0;
-
-        virtual int do_encoding() const = 0;
-};
-
-}
-
-#endif // CXXTOOLS_WITH_STD_LOCALE
 
 namespace cxxtools {
 

@@ -28,7 +28,6 @@
 #ifndef CXXTOOLS_CHAR_H
 #define CXXTOOLS_CHAR_H
 
-#include <cxxtools/config.h>
 #include <string>
 #include <cstring>
 #include <ios>
@@ -393,28 +392,15 @@ namespace cxxtools {
     }
 } // namespace cxxtools
 
-#ifdef CXXTOOLS_WITH_STD_LOCALE
-
 #include <locale>
 
 namespace std {
 
-#if (defined _MSC_VER || defined __QNX__ || defined __xlC__)
-
-    /** @brief Ctype localization facet
-        @ingroup Unicode
-    */
-    template <>
-    class ctype< cxxtools::Char > : public ctype_base {
-
-#else
     /** @brief Ctype localization facet
         @ingroup Unicode
     */
     template <>
     class ctype<cxxtools::Char> : public ctype_base, public locale::facet {
-
-#endif
 
     public:
         typedef ctype_base::mask mask;
@@ -497,37 +483,6 @@ namespace std {
 
 } // namespace std
 
-#else
-
-namespace std {
-
-class ctype_base
-{
-    public:
-        enum {
-            alpha  = 1 << 5,
-            cntrl  = 1 << 2,
-            digit  = 1 << 6,
-            lower  = 1 << 4,
-            print  = 1 << 1,
-            punct  = 1 << 7,
-            space  = 1 << 0,
-            upper  = 1 << 3,
-            xdigit = 1 << 8,
-            alnum  = alpha | digit,
-            graph  = alnum | punct
-        };
-
-        typedef unsigned short mask;
-
-        ctype_base(size_t _refs = 0)
-        { }
-};
-
-}
-
-#endif
-
 namespace cxxtools {
 
 std::ctype_base::mask ctypeMask(const Char& ch);
@@ -593,8 +548,6 @@ Char toupper(const Char& ch);
 
 } // namespace cxxtools
 
-#ifdef CXXTOOLS_WITH_STD_LOCALE
 #include <cxxtools/facets.h>
-#endif
 
 #endif

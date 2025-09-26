@@ -31,7 +31,6 @@
 
 #include <cxxtools/serializationerror.h>
 #include <cxxtools/composer.h>
-#include <cxxtools/config.h>
 #include <stack>
 
 namespace cxxtools
@@ -42,16 +41,8 @@ namespace cxxtools
     class Deserializer
     {
         public:
-#ifdef HAVE_LONG_LONG
             typedef long long int_type;
-#else
-            typedef long int_type;
-#endif
-#ifdef HAVE_UNSIGNED_LONG_LONG
             typedef unsigned long long unsigned_type;
-#else
-            typedef unsigned long unsigned_type;
-#endif
 
             Deserializer()
             { }
