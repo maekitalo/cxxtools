@@ -83,10 +83,10 @@ class PipeImpl
         void redirect(int fd, bool close, bool inherit);
 
         int getReadFd() const
-            { return out().fd(); }
+            { return in().fd(); }
 
         int getWriteFd() const
-            { return in().fd(); }
+            { return out().fd(); }
 
         /// Redirect write-end to stdout.
         /// When the close argument is set, closes the original filedescriptor

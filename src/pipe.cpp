@@ -31,6 +31,10 @@
 
 namespace cxxtools
 {
+
+const int Pipe::Sync;
+const int Pipe::Async;
+
 Pipe::Pipe(OpenMode mode, bool inherit)
 {
     _impl = new PipeImpl(mode & IODevice::Async, inherit);

@@ -86,14 +86,14 @@ PipeImpl::PipeImpl(bool isAsync, bool inherit)
     if( ::pipe2(fds, flags) )
         throwSystemError("pipe2");
 
-    _out.open(fds[0], isAsync, false);
-    _in.open(fds[1], isAsync, false);
+    _in.open(fds[0], isAsync, false);
+    _out.open(fds[1], isAsync, false);
 #else
     if(-1 == ::pipe(fds) )
         throw SystemError("pipe");
 
-    _out.open(fds[0], isAsync, inherit);
-    _in.open(fds[1], isAsync, inherit);
+    _in.open(fds[0], isAsync, inherit);
+    _out.open(fds[1], isAsync, inherit);
 #endif
 }
 
