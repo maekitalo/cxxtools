@@ -15,13 +15,11 @@ template <typename R,
 class BasicServiceProcedure : public ServiceProcedure
 {
     public:
-        explicit BasicServiceProcedure(const Callable<R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>& cb)
+        explicit BasicServiceProcedure(std::function<R(A1, A2, A3, A4, A5, A6, A7, A8, A9, A10)>& cb)
         : ServiceProcedure(),
-          _cb(0),
+          _cb(cb),
           _composers(_args, 10)
         {
-            _cb = cb.clone();
-
             _args[0] = &_a1;
             _args[1] = &_a2;
             _args[2] = &_a3;
@@ -34,14 +32,9 @@ class BasicServiceProcedure : public ServiceProcedure
             _args[9] = &_a10;
         }
 
-        ~BasicServiceProcedure()
-        {
-            delete _cb;
-        }
-
         ServiceProcedure* clone() const override
         {
-            return new BasicServiceProcedure(*_cb);
+            return new BasicServiceProcedure(_cb);
         }
 
         IComposers* beginCall(const std::string&) override
@@ -62,7 +55,7 @@ class BasicServiceProcedure : public ServiceProcedure
 
         IDecomposer* endCall() override
         {
-            _rv = _cb->call(_v1, _v2, _v3, _v4, _v5, _v6, _v7, _v8, _v9, _v10);
+            _rv = _cb(_v1, _v2, _v3, _v4, _v5, _v6, _v7, _v8, _v9, _v10);
             _r.begin(_rv);
             return &_r;
         }
@@ -80,7 +73,7 @@ class BasicServiceProcedure : public ServiceProcedure
         typedef typename TypeTraits<A10>::Value V10;
         typedef typename TypeTraits<R>::Value RV;
 
-        Callable<R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>* _cb;
+        std::function<R(A1, A2, A3, A4, A5, A6, A7, A8, A9, A10)> _cb;
         RV _rv;
         V1 _v1;
         V2 _v2;
@@ -124,13 +117,11 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8, A9,
                             Void> : public ServiceProcedure
 {
     public:
-        explicit BasicServiceProcedure(const Callable<R, A1, A2, A3, A4, A5, A6, A7, A8, A9>& cb)
+        explicit BasicServiceProcedure(const std::function<R(A1, A2, A3, A4, A5, A6, A7, A8, A9)>& cb)
         : ServiceProcedure(),
-          _cb(0),
+          _cb(cb),
           _composers(_args, 9)
         {
-            _cb = cb.clone();
-
             _args[0] = &_a1;
             _args[1] = &_a2;
             _args[2] = &_a3;
@@ -142,14 +133,9 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8, A9,
             _args[8] = &_a9;
         }
 
-        ~BasicServiceProcedure()
-        {
-            delete _cb;
-        }
-
         ServiceProcedure* clone() const override
         {
-            return new BasicServiceProcedure(*_cb);
+            return new BasicServiceProcedure(_cb);
         }
 
         IComposers* beginCall(const std::string&) override
@@ -169,7 +155,7 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8, A9,
 
         IDecomposer* endCall() override
         {
-            _rv = _cb->call(_v1, _v2, _v3, _v4, _v5, _v6, _v7, _v8, _v9);
+            _rv = _cb(_v1, _v2, _v3, _v4, _v5, _v6, _v7, _v8, _v9);
             _r.begin(_rv);
             return &_r;
         }
@@ -186,7 +172,7 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8, A9,
         typedef typename TypeTraits<A9>::Value V9;
         typedef typename TypeTraits<R>::Value RV;
 
-        Callable<R, A1, A2, A3, A4, A5, A6, A7, A8, A9>* _cb;
+        std::function<R(A1, A2, A3, A4, A5, A6, A7, A8, A9)> _cb;
         RV _rv;
         V1 _v1;
         V2 _v2;
@@ -227,13 +213,11 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8,
                             Void, Void> : public ServiceProcedure
 {
     public:
-        explicit BasicServiceProcedure(const Callable<R, A1, A2, A3, A4, A5, A6, A7, A8>& cb)
+        explicit BasicServiceProcedure(const std::function<R(A1, A2, A3, A4, A5, A6, A7, A8)>& cb)
         : ServiceProcedure(),
-          _cb(0),
+          _cb(cb),
           _composers(_args, 8)
         {
-            _cb = cb.clone();
-
             _args[0] = &_a1;
             _args[1] = &_a2;
             _args[2] = &_a3;
@@ -244,14 +228,9 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8,
             _args[7] = &_a8;
         }
 
-        ~BasicServiceProcedure()
-        {
-            delete _cb;
-        }
-
         ServiceProcedure* clone() const override
         {
-            return new BasicServiceProcedure(*_cb);
+            return new BasicServiceProcedure(_cb);
         }
 
         IComposers* beginCall(const std::string&) override
@@ -270,7 +249,7 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8,
 
         IDecomposer* endCall() override
         {
-            _rv = _cb->call(_v1, _v2, _v3, _v4, _v5, _v6, _v7, _v8);
+            _rv = _cb(_v1, _v2, _v3, _v4, _v5, _v6, _v7, _v8);
             _r.begin(_rv);
             return &_r;
         }
@@ -286,7 +265,7 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8,
         typedef typename TypeTraits<A8>::Value V8;
         typedef typename TypeTraits<R>::Value RV;
 
-        Callable<R, A1, A2, A3, A4, A5, A6, A7, A8>* _cb;
+        std::function<R(A1, A2, A3, A4, A5, A6, A7, A8)> _cb;
         RV _rv;
         V1 _v1;
         V2 _v2;
@@ -324,13 +303,11 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7,
                             Void, Void, Void> : public ServiceProcedure
 {
     public:
-        explicit BasicServiceProcedure(const Callable<R, A1, A2, A3, A4, A5, A6, A7>& cb)
+        explicit BasicServiceProcedure(const std::function<R(A1, A2, A3, A4, A5, A6, A7)>& cb)
         : ServiceProcedure(),
-          _cb(0),
+          _cb(cb),
           _composers(_args, 7)
         {
-            _cb = cb.clone();
-
             _args[0] = &_a1;
             _args[1] = &_a2;
             _args[2] = &_a3;
@@ -340,14 +317,9 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7,
             _args[6] = &_a7;
         }
 
-        ~BasicServiceProcedure()
-        {
-            delete _cb;
-        }
-
         ServiceProcedure* clone() const override
         {
-            return new BasicServiceProcedure(*_cb);
+            return new BasicServiceProcedure(_cb);
         }
 
         IComposers* beginCall(const std::string&) override
@@ -365,7 +337,7 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7,
 
         IDecomposer* endCall() override
         {
-            _rv = _cb->call(_v1, _v2, _v3, _v4, _v5, _v6, _v7);
+            _rv = _cb(_v1, _v2, _v3, _v4, _v5, _v6, _v7);
             _r.begin(_rv);
             return &_r;
         }
@@ -380,7 +352,7 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7,
         typedef typename TypeTraits<A7>::Value V7;
         typedef typename TypeTraits<R>::Value RV;
 
-        Callable<R, A1, A2, A3, A4, A5, A6, A7>* _cb;
+        std::function<R(A1, A2, A3, A4, A5, A6, A7)> _cb;
         RV _rv;
         V1 _v1;
         V2 _v2;
@@ -415,13 +387,11 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6,
                             Void, Void, Void, Void> : public ServiceProcedure
 {
     public:
-        explicit BasicServiceProcedure(const Callable<R, A1, A2, A3, A4, A5, A6>& cb)
+        explicit BasicServiceProcedure(const std::function<R(A1, A2, A3, A4, A5, A6)>& cb)
         : ServiceProcedure(),
-          _cb(0),
+          _cb(cb),
           _composers(_args, 6)
         {
-            _cb = cb.clone();
-
             _args[0] = &_a1;
             _args[1] = &_a2;
             _args[2] = &_a3;
@@ -430,14 +400,9 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6,
             _args[5] = &_a6;
         }
 
-        ~BasicServiceProcedure()
-        {
-            delete _cb;
-        }
-
         ServiceProcedure* clone() const override
         {
-            return new BasicServiceProcedure(*_cb);
+            return new BasicServiceProcedure(_cb);
         }
 
         IComposers* beginCall(const std::string&) override
@@ -454,7 +419,7 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6,
 
         IDecomposer* endCall() override
         {
-            _rv = _cb->call(_v1, _v2, _v3, _v4, _v5, _v6);
+            _rv = _cb(_v1, _v2, _v3, _v4, _v5, _v6);
             _r.begin(_rv);
             return &_r;
         }
@@ -468,7 +433,7 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6,
         typedef typename TypeTraits<A6>::Value V6;
         typedef typename TypeTraits<R>::Value RV;
 
-        Callable<R, A1, A2, A3, A4, A5, A6>* _cb;
+        std::function<R(A1, A2, A3, A4, A5, A6)> _cb;
         RV _rv;
         V1 _v1;
         V2 _v2;
@@ -500,13 +465,11 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5,
                             Void, Void, Void, Void, Void> : public ServiceProcedure
 {
     public:
-        explicit BasicServiceProcedure(const Callable<R, A1, A2, A3, A4, A5>& cb)
+        explicit BasicServiceProcedure(const std::function<R(A1, A2, A3, A4, A5)>& cb)
         : ServiceProcedure(),
-          _cb(0),
+          _cb(cb),
           _composers(_args, 5)
         {
-            _cb = cb.clone();
-
             _args[0] = &_a1;
             _args[1] = &_a2;
             _args[2] = &_a3;
@@ -514,14 +477,9 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5,
             _args[4] = &_a5;
         }
 
-        ~BasicServiceProcedure()
-        {
-            delete _cb;
-        }
-
         ServiceProcedure* clone() const override
         {
-            return new BasicServiceProcedure(*_cb);
+            return new BasicServiceProcedure(_cb);
         }
 
         IComposers* beginCall(const std::string&) override
@@ -537,7 +495,7 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5,
 
         IDecomposer* endCall() override
         {
-            _rv = _cb->call(_v1, _v2, _v3, _v4, _v5);
+            _rv = _cb(_v1, _v2, _v3, _v4, _v5);
             _r.begin(_rv);
             return &_r;
         }
@@ -550,7 +508,7 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5,
         typedef typename TypeTraits<A5>::Value V5;
         typedef typename TypeTraits<R>::Value RV;
 
-        Callable<R, A1, A2, A3, A4, A5>* _cb;
+        std::function<R(A1, A2, A3, A4, A5)> _cb;
         RV _rv;
         V1 _v1;
         V2 _v2;
@@ -579,27 +537,20 @@ class BasicServiceProcedure<R, A1, A2, A3, A4,
                             Void, Void, Void, Void, Void, Void> : public ServiceProcedure
 {
     public:
-        explicit BasicServiceProcedure(const Callable<R, A1, A2, A3, A4>& cb)
+        explicit BasicServiceProcedure(const std::function<R(A1, A2, A3, A4)>& cb)
         : ServiceProcedure(),
-          _cb(0),
+          _cb(cb),
           _composers(_args, 4)
         {
-            _cb = cb.clone();
-
             _args[0] = &_a1;
             _args[1] = &_a2;
             _args[2] = &_a3;
             _args[3] = &_a4;
         }
 
-        ~BasicServiceProcedure()
-        {
-            delete _cb;
-        }
-
         ServiceProcedure* clone() const override
         {
-            return new BasicServiceProcedure(*_cb);
+            return new BasicServiceProcedure(_cb);
         }
 
         IComposers* beginCall(const std::string&) override
@@ -614,7 +565,7 @@ class BasicServiceProcedure<R, A1, A2, A3, A4,
 
         IDecomposer* endCall() override
         {
-            _rv = _cb->call(_v1, _v2, _v3, _v4);
+            _rv = _cb(_v1, _v2, _v3, _v4);
             _r.begin(_rv);
             return &_r;
         }
@@ -626,7 +577,7 @@ class BasicServiceProcedure<R, A1, A2, A3, A4,
         typedef typename TypeTraits<A4>::Value V4;
         typedef typename TypeTraits<R>::Value RV;
 
-        Callable<R, A1, A2, A3, A4>* _cb;
+        std::function<R(A1, A2, A3, A4)> _cb;
         RV _rv;
         V1 _v1;
         V2 _v2;
@@ -652,26 +603,19 @@ class BasicServiceProcedure<R, A1, A2, A3,
                             Void, Void, Void, Void, Void, Void, Void> : public ServiceProcedure
 {
     public:
-        explicit BasicServiceProcedure(const Callable<R, A1, A2, A3>& cb)
+        explicit BasicServiceProcedure(const std::function<R(A1, A2, A3)>& cb)
         : ServiceProcedure(),
-          _cb(0),
+          _cb(cb),
           _composers(_args, 3)
         {
-            _cb = cb.clone();
-
             _args[0] = &_a1;
             _args[1] = &_a2;
             _args[2] = &_a3;
         }
 
-        ~BasicServiceProcedure()
-        {
-            delete _cb;
-        }
-
         ServiceProcedure* clone() const override
         {
-            return new BasicServiceProcedure(*_cb);
+            return new BasicServiceProcedure(_cb);
         }
 
         IComposers* beginCall(const std::string&) override
@@ -685,7 +629,7 @@ class BasicServiceProcedure<R, A1, A2, A3,
 
         IDecomposer* endCall() override
         {
-            _rv = _cb->call(_v1, _v2, _v3);
+            _rv = _cb(_v1, _v2, _v3);
             _r.begin(_rv);
             return &_r;
         }
@@ -696,7 +640,7 @@ class BasicServiceProcedure<R, A1, A2, A3,
         typedef typename TypeTraits<A3>::Value V3;
         typedef typename TypeTraits<R>::Value RV;
 
-        Callable<R, A1, A2, A3>* _cb;
+        std::function<R(A1, A2, A3)> _cb;
         RV _rv;
         V1 _v1;
         V2 _v2;
@@ -719,25 +663,18 @@ class BasicServiceProcedure<R, A1, A2,
                             Void, Void, Void, Void, Void, Void, Void, Void> : public ServiceProcedure
 {
     public:
-        explicit BasicServiceProcedure(const Callable<R, A1, A2>& cb)
+        explicit BasicServiceProcedure(const std::function<R(A1, A2)>& cb)
         : ServiceProcedure(),
-          _cb(0),
+          _cb(cb),
           _composers(_args, 2)
         {
-            _cb = cb.clone();
-
             _args[0] = &_a1;
             _args[1] = &_a2;
         }
 
-        ~BasicServiceProcedure()
-        {
-            delete _cb;
-        }
-
         ServiceProcedure* clone() const override
         {
-            return new BasicServiceProcedure(*_cb);
+            return new BasicServiceProcedure(_cb);
         }
 
         IComposers* beginCall(const std::string&) override
@@ -750,7 +687,7 @@ class BasicServiceProcedure<R, A1, A2,
 
         IDecomposer* endCall() override
         {
-            _rv = _cb->call(_v1, _v2);
+            _rv = _cb(_v1, _v2);
             _r.begin(_rv);
             return &_r;
         }
@@ -760,7 +697,7 @@ class BasicServiceProcedure<R, A1, A2,
         typedef typename TypeTraits<A2>::Value V2;
         typedef typename TypeTraits<R>::Value RV;
 
-        Callable<R, A1, A2>* _cb;
+        std::function<R(A1, A2)> _cb;
         RV _rv;
         V1 _v1;
         V2 _v2;
@@ -780,24 +717,17 @@ class BasicServiceProcedure<R, A1,
                             Void, Void, Void, Void, Void, Void, Void, Void, Void> : public ServiceProcedure
 {
     public:
-        explicit BasicServiceProcedure(const Callable<R, A1>& cb)
+        explicit BasicServiceProcedure(const std::function<R(A1)>& cb)
         : ServiceProcedure(),
-          _cb(0),
+          _cb(cb),
           _composers(_args, 1)
         {
-            _cb = cb.clone();
-
             _args[0] = &_a1;
-        }
-
-        ~BasicServiceProcedure()
-        {
-            delete _cb;
         }
 
         ServiceProcedure* clone() const override
         {
-            return new BasicServiceProcedure(*_cb);
+            return new BasicServiceProcedure(_cb);
         }
 
         IComposers* beginCall(const std::string&) override
@@ -809,7 +739,7 @@ class BasicServiceProcedure<R, A1,
 
         IDecomposer* endCall() override
         {
-            _rv = _cb->call(_v1);
+            _rv = _cb(_v1);
             _r.begin(_rv);
             return &_r;
         }
@@ -818,7 +748,7 @@ class BasicServiceProcedure<R, A1,
         typedef typename TypeTraits<A1>::Value V1;
         typedef typename TypeTraits<R>::Value RV;
 
-        Callable<R, A1>* _cb;
+        std::function<R(A1)> _cb;
         RV _rv;
         V1 _v1;
 
@@ -835,33 +765,26 @@ class BasicServiceProcedure<R,
                             Void, Void, Void, Void, Void, Void, Void, Void, Void, Void> : public ServiceProcedure
 {
     public:
-        explicit BasicServiceProcedure(const Callable<R>& cb)
+        explicit BasicServiceProcedure(const std::function<R()>& cb)
         : ServiceProcedure(),
-          _cb(0),
+          _cb(cb),
           _composers(nullptr, 0)
         {
-            _cb = cb.clone();
-        }
-
-        ~BasicServiceProcedure()
-        {
-            delete _cb;
         }
 
         ServiceProcedure* clone() const override
         {
-            return new BasicServiceProcedure(*_cb);
+            return new BasicServiceProcedure(_cb);
         }
 
         IComposers* beginCall(const std::string&) override
         {
-
             return &_composers;
         }
 
         IDecomposer* endCall() override
         {
-            _rv = _cb->call();
+            _rv = _cb();
             _r.begin(_rv);
             return &_r;
         }
@@ -869,7 +792,7 @@ class BasicServiceProcedure<R,
     private:
         typedef typename TypeTraits<R>::Value RV;
 
-        Callable<R>* _cb;
+        std::function<R()> _cb;
         RV _rv;
 
         Composers _composers;

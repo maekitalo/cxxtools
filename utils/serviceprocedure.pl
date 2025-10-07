@@ -58,13 +58,11 @@ print <<EOF;
 class BasicServiceProcedure : public ServiceProcedure
 {
     public:
-        explicit BasicServiceProcedure(const Callable<R, $tparams>& cb)
+        explicit BasicServiceProcedure(std::function<R($tparams)>& cb)
         : ServiceProcedure(),
-          _cb(0),
+          _cb(cb),
           _composers(_args, $N)
         {
-            _cb = cb.clone();
-
 EOF
 for (my $i = 0; $i < $N; ++$i)
 {
@@ -76,14 +74,9 @@ EOF
 print <<EOF;
         }
 
-        ~BasicServiceProcedure()
-        {
-            delete _cb;
-        }
-
         ServiceProcedure* clone() const override
         {
-            return new BasicServiceProcedure(*_cb);
+            return new BasicServiceProcedure(_cb);
         }
 
         IComposers* beginCall(const std::string&) override
@@ -103,7 +96,7 @@ print <<EOF;
 
         IDecomposer* endCall() override
         {
-            _rv = _cb->call($vars);
+            _rv = _cb($vars);
             _r.begin(_rv);
             return &_r;
         }
@@ -119,7 +112,7 @@ EOF
 print <<EOF;
         typedef typename TypeTraits<R>::Value RV;
 
-        Callable<R, $tparams>* _cb;
+        std::function<R($tparams)> _cb;
         RV _rv;
 EOF
 for (my $i = 1; $i <= $N; ++$i)
@@ -170,13 +163,11 @@ class BasicServiceProcedure<R, $tparams,
                             $voids> : public ServiceProcedure
 {
     public:
-        explicit BasicServiceProcedure(const Callable<R, $tparams>& cb)
+        explicit BasicServiceProcedure(const std::function<R($tparams)>& cb)
         : ServiceProcedure(),
-          _cb(0),
+          _cb(cb),
           _composers(_args, $nn)
         {
-            _cb = cb.clone();
-
 EOF
 for (my $i = 0; $i < $nn; ++$i)
 {
@@ -188,14 +179,9 @@ EOF
 print <<EOF;
         }
 
-        ~BasicServiceProcedure()
-        {
-            delete _cb;
-        }
-
         ServiceProcedure* clone() const override
         {
-            return new BasicServiceProcedure(*_cb);
+            return new BasicServiceProcedure(_cb);
         }
 
         IComposers* beginCall(const std::string&) override
@@ -215,7 +201,7 @@ print <<EOF;
 
         IDecomposer* endCall() override
         {
-            _rv = _cb->call($vars);
+            _rv = _cb($vars);
             _r.begin(_rv);
             return &_r;
         }
@@ -231,7 +217,7 @@ EOF
 print <<EOF;
         typedef typename TypeTraits<R>::Value RV;
 
-        Callable<R, $tparams>* _cb;
+        std::function<R($tparams)> _cb;
         RV _rv;
 EOF
 for (my $i = 1; $i <= $nn; ++$i)
@@ -269,33 +255,26 @@ class BasicServiceProcedure<R,
                             Void, Void, Void, Void, Void, Void, Void, Void, Void, Void> : public ServiceProcedure
 {
     public:
-        explicit BasicServiceProcedure(const Callable<R>& cb)
+        explicit BasicServiceProcedure(const std::function<R()>& cb)
         : ServiceProcedure(),
-          _cb(0),
+          _cb(cb),
           _composers(nullptr, 0)
         {
-            _cb = cb.clone();
-        }
-
-        ~BasicServiceProcedure()
-        {
-            delete _cb;
         }
 
         ServiceProcedure* clone() const override
         {
-            return new BasicServiceProcedure(*_cb);
+            return new BasicServiceProcedure(_cb);
         }
 
         IComposers* beginCall(const std::string&) override
         {
-
             return &_composers;
         }
 
         IDecomposer* endCall() override
         {
-            _rv = _cb->call();
+            _rv = _cb();
             _r.begin(_rv);
             return &_r;
         }
@@ -303,7 +282,7 @@ class BasicServiceProcedure<R,
     private:
         typedef typename TypeTraits<R>::Value RV;
 
-        Callable<R>* _cb;
+        std::function<R()> _cb;
         RV _rv;
 
         Composers _composers;

@@ -33,8 +33,8 @@
 #include <cxxtools/decomposer.h>
 #include <cxxtools/void.h>
 #include <cxxtools/typetraits.h>
-#include <cxxtools/callable.h>
-#include <memory>
+#include <functional>
+
 
 namespace cxxtools
 {

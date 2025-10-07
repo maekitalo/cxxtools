@@ -93,6 +93,7 @@ class BinRpcTest : public cxxtools::unit::TestSuite
             registerMethod("VaArg", *this, &BinRpcTest::VaArg);
             registerMethod("VaProc", *this, &BinRpcTest::VaProc);
             registerMethod("FunctionName", *this, &BinRpcTest::FunctionName);
+            registerMethod("Lambda", *this, &BinRpcTest::Lambda);
 
             char* PORT = getenv("UTEST_PORT");
             if (PORT)
@@ -851,6 +852,21 @@ class BinRpcTest : public cxxtools::unit::TestSuite
             auto domain = cxxtools::bin::RpcServer::domain(proc);
             CXXTOOLS_UNIT_ASSERT_EQUALS(fn, "func");
             CXXTOOLS_UNIT_ASSERT_EQUALS(domain, "myDomain");
+        }
+
+        void Lambda()
+        {
+            std::function<int(int, int)> add(
+                [](int a, int b) -> int
+                {
+                    return a + b;
+                });
+            _server->registerFunction("add", add);
+
+            cxxtools::bin::RpcClient client(_loop, _listen, _port);
+            cxxtools::RemoteProcedure<int, int, int> echo(client, "add");
+            echo.begin(3, 5);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(echo.end(2000), 8);
         }
 };
 
