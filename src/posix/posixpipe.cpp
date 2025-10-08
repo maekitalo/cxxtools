@@ -36,31 +36,31 @@ namespace posix
 
 int Pipe::getReadFd() const
 {
-    return impl()->out().fd();
+    return impl()->in().fd();
 }
 
 int Pipe::getWriteFd() const
 {
-    return impl()->in().fd();
+    return impl()->out().fd();
 }
 
 /// Redirect read-end to stdin.
 /// When the close argument is set, closes the original filedescriptor
 void Pipe::redirectStdin(bool close, bool inherit)
 {
-    impl()->out().redirect(0, close, inherit);
+    impl()->in().redirect(0, close, inherit);
 }
 
 void Pipe::redirectStdout(bool close, bool inherit)
 {
-    impl()->in().redirect(1, close, inherit);
+    impl()->out().redirect(1, close, inherit);
 }
 
 /// Redirect write-end to stdout.
 /// When the close argument is set, closes the original filedescriptor
 void Pipe::redirectStderr(bool close, bool inherit)
 {
-    impl()->in().redirect(2, close, inherit);
+    impl()->out().redirect(2, close, inherit);
 }
 
 }

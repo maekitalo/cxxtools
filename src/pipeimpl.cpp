@@ -86,8 +86,8 @@ PipeImpl::PipeImpl(bool isAsync, bool inherit)
     if( ::pipe2(fds, flags) )
         throwSystemError("pipe2");
 
-    _in.open(fds[0], isAsync, false);
-    _out.open(fds[1], isAsync, false);
+    _in.open(fds[0], isAsync, true);
+    _out.open(fds[1], isAsync, true);
 #else
     if(-1 == ::pipe(fds) )
         throw SystemError("pipe");
@@ -120,17 +120,17 @@ const PipeIODevice& PipeImpl::in() const
 
 void PipeImpl::redirectStdin(bool close, bool inherit)
 {
-    out().redirect(0, close, inherit);
+    in().redirect(0, close, inherit);
 }
 
 void PipeImpl::redirectStdout(bool close, bool inherit)
 {
-    in().redirect(1, close, inherit);
+    out().redirect(1, close, inherit);
 }
 
 void PipeImpl::redirectStderr(bool close, bool inherit)
 {
-    in().redirect(2, close, inherit);
+    out().redirect(2, close, inherit);
 }
 
 }

@@ -57,10 +57,10 @@ class Pipe : public cxxtools::Pipe
         int getWriteFd() const;
 
         void closeReadFd()
-        { out().close(); }
+        { in().close(); }
 
         void closeWriteFd()
-        { in().close(); }
+        { out().close(); }
 
         /// Redirect write-end to stdout.
         /// When the close argument is set, closes the original filedescriptor

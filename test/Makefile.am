@@ -21,6 +21,7 @@ alltests_SOURCES = \
     clock-test.cpp \
     csvdeserializer-test.cpp \
     csvserializer-test.cpp \
+    commandoutput-test.cpp \
     convert-test.cpp \
     date-test.cpp \
     datetime-test.cpp \
