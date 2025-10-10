@@ -76,23 +76,23 @@ class Pipe : public cxxtools::Pipe
 
         size_t write(const char* buf, size_t count)
         {
-          return in().write(buf, count);
+          return out().write(buf, count);
         }
 
         void write(char ch)
         {
-          in().write(&ch, 1);
+          out().write(&ch, 1);
         }
 
         size_t read(char* buf, size_t count)
         {
-          return out().read(buf, count);
+          return in().read(buf, count);
         }
 
         char read()
         {
           char ch;
-          out().read(&ch, 1);
+          in().read(&ch, 1);
           return ch;
         }
 
