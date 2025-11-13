@@ -16,6 +16,7 @@ alltests_SOURCES = \
     base64-test.cpp \
     binrpc-test.cpp \
     binserializer-test.cpp \
+    bufferedreader-test.cpp \
     cache-test.cpp \
     char-test.cpp \
     clock-test.cpp \

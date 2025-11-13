@@ -35,8 +35,8 @@
 #include "cxxtools/timespan.h"
 #include <fstream>
 
-const std::string tmpFileName = "file-test.tmp";
-const std::string tmpFileName2 = "file-test-2.tmp";
+static const std::string tmpFileName = "file-test.tmp";
+static const std::string tmpFileName2 = "file-test-2.tmp";
 
 class FileTest : public cxxtools::unit::TestSuite
 {

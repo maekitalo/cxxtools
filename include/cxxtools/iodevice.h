@@ -259,6 +259,9 @@ class IODevice : public Selectable
         size_t wavail() const
         { return _wavail; }
 
+        //! @brief Sets or unsets the device to eof
+        void setEof(bool eof);
+
     protected:
         //! @brief Default Constructor
         IODevice();
@@ -303,9 +306,6 @@ class IODevice : public Selectable
         //! @brief Returns the size of the device
         virtual size_t onSize() const
         { return 0; }
-
-        //! @brief Sets or unsets the device to eof
-        void setEof(bool eof);
 
         //! @brief Sets or unsets the device to async
         void setAsync(bool async);

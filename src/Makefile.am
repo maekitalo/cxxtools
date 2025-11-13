@@ -9,6 +9,7 @@ libcxxtools_la_SOURCES = \
 	application.cpp \
 	applicationimpl.cpp \
 	base64codec.cpp \
+	bufferedreader.cpp \
 	bufferedsocket.cpp \
 	cgi.cpp \
 	char.cpp \
