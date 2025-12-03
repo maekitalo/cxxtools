@@ -449,24 +449,6 @@ bool IODeviceImpl::checkPollEvent(pollfd& pfd)
 
     DestructionSentry sentry(_sentry);
 
-    if( _device.wavail() > 0 || (pfd.revents & POLLOUT_MASK) )
-    {
-        outputReady();
-        avail = true;
-    }
-
-    if( !sentry )
-        return avail;
-
-    if( pfd.revents & POLLIN_MASK )
-    {
-        inputReady();
-        avail = true;
-    }
-
-    if( ! sentry )
-        return avail;
-
     if (pfd.revents & POLLERR_MASK)
     {
         _errorPending = true;
@@ -482,7 +464,7 @@ bool IODeviceImpl::checkPollEvent(pollfd& pfd)
             _device.inputReady(_device);
         }
 
-        if( ! _sentry )
+        if( ! _sentry || !(pfd.revents & POLLERR_MASK))
             return avail;
 
         if (writing)
@@ -502,6 +484,24 @@ bool IODeviceImpl::checkPollEvent(pollfd& pfd)
 
         return avail;
     }
+
+    if( pfd.revents & POLLIN_MASK )
+    {
+        inputReady();
+        avail = true;
+    }
+
+    if( ! sentry )
+        return avail;
+
+    if( _device.wavail() > 0 || (pfd.revents & POLLOUT_MASK) )
+    {
+        outputReady();
+        avail = true;
+    }
+
+    if( !sentry )
+        return avail;
 
     return avail;
 }
