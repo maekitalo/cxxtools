@@ -35,6 +35,9 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <fcntl.h>
+
+#include <config.h>
 
 namespace cxxtools
 {
@@ -77,6 +80,23 @@ static FileInfo::Type doGetType(const std::string& path)
 
     return FileInfo::File;
 }
+
+#ifdef HAVE_STATX
+static struct statx doStatX(const std::string& path)
+{
+    struct statx st;
+    int ret = statx(AT_FDCWD, path.c_str(), 0, STATX_SIZE|STATX_MTIME|STATX_BTIME, &st);
+    if (ret == -1)
+    {
+        if (errno == ENOENT)
+            throw FileNotFound(path);
+        else
+            throw SystemError(("statx(" + path + ')').c_str());
+    }
+
+    return st;
+}
+#endif
 
 static struct stat doStat(const std::string& path)
 {
@@ -231,21 +251,37 @@ FileInfo::Type FileInfo::getType(const std::string& path)
 
 UtcDateTime FileInfo::mtime(const std::string& path)
 {
+#ifdef HAVE_STATX
+    auto st = doStatX(path);
+
+    return DateTime::fromMSecsSinceEpoch(
+        Seconds(st.stx_mtime.tv_sec)
+            + Microseconds(st.stx_mtime.tv_nsec / 1000));
+#else
     struct stat st = doStat(path);
 
     return DateTime::fromMSecsSinceEpoch(
         Seconds(st.st_mtim.tv_sec)
             + Microseconds(st.st_mtim.tv_nsec / 1000));
+#endif
 }
 
 
 UtcDateTime FileInfo::ctime(const std::string& path)
 {
+#ifdef HAVE_STATX
+    auto st = doStatX(path);
+
+    return DateTime::fromMSecsSinceEpoch(
+        Seconds(st.stx_btime.tv_sec)
+            + Microseconds(st.stx_btime.tv_nsec / 1000));
+#else
     struct stat st = doStat(path);
 
     return DateTime::fromMSecsSinceEpoch(
         Seconds(st.st_ctim.tv_sec)
             + Microseconds(st.st_ctim.tv_nsec / 1000));
+#endif
 }
 
 

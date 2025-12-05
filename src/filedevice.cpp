@@ -28,6 +28,7 @@
  */
 #include <cxxtools/filedevice.h>
 #include "filedeviceimpl.h"
+#include <cxxtools/datetime.h>
 
 namespace cxxtools
 {
@@ -69,9 +70,9 @@ void FileDevice::open( const std::string& path, IODevice::OpenMode mode, bool in
     setEof(false);
 }
 
-size_t FileDevice::size() const
+FileDevice::Stat FileDevice::stat() const
 {
-    return _impl->size();
+    return _impl->stat();
 }
 
 void FileDevice::resize(off_type size)

@@ -42,6 +42,7 @@ AC_CHECK_FUNCS(clock_gettime)
 AC_CHECK_FUNCS(sendfile)
 AC_CHECK_FUNCS(ppoll)
 AC_CHECK_FUNCS(pipe2)
+AC_CHECK_FUNCS(statx)
 ACX_PTHREAD
 
 CC="$PTHREAD_CC"

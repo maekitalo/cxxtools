@@ -26,7 +26,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 #include "filedeviceimpl.h"
-#include "cxxtools/iodevice.h"
+#include <cxxtools/iodevice.h>
+#include <cxxtools/datetime.h>
 #include "error.h"
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -34,6 +35,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <errno.h>
+#include "config.h"
 
 namespace cxxtools
 {
@@ -100,16 +102,38 @@ void FileDeviceImpl::resize(off_type size)
 }
 
 
-size_t FileDeviceImpl::size() const
+FileDevice::Stat FileDeviceImpl::stat() const
 {
-    struct stat buff;
-    int ret = fstat(fd(), &buff);
+    FileDevice::Stat result;
+#ifdef HAVE_STATX
+    struct statx st;
+    int ret = statx(fd(), "", AT_EMPTY_PATH, STATX_SIZE|STATX_MTIME|STATX_BTIME, &st);
+    if(ret != 0)
+        throw IOError(getErrnoString("fstatx"));
+
+    result.size = st.stx_size;
+    result.mtime = DateTime::fromMSecsSinceEpoch(
+                    Seconds(st.stx_mtime.tv_sec)
+                        + Microseconds(st.stx_mtime.tv_nsec / 1000));
+    result.ctime = DateTime::fromMSecsSinceEpoch(
+                    Seconds(st.stx_btime.tv_sec)
+                        + Microseconds(st.stx_btime.tv_nsec / 1000));
+#else
+    struct stat st;
+    int ret = fstat(fd(), &st);
     if(ret != 0)
         throw IOError(getErrnoString("fstat"));
 
-    return buff.st_size;
+    result.size = st.st_size;
+    result.mtime = DateTime::fromMSecsSinceEpoch(
+                    Seconds(st.st_mtim.tv_sec)
+                        + Microseconds(st.st_mtim.tv_nsec / 1000));
+    result.ctime = DateTime::fromMSecsSinceEpoch(
+                    Seconds(st.st_ctim.tv_sec)
+                        + Microseconds(st.st_ctim.tv_nsec / 1000));
+#endif
+    return result;
 }
-
 
 size_t FileDeviceImpl::peek(char* buffer, size_t count)
 {

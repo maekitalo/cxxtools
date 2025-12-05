@@ -30,6 +30,7 @@
 #define cxxtools_System_FileDevice_h
 
 #include <cxxtools/iodevice.h>
+#include <cxxtools/datetime.h>
 
 namespace cxxtools
 {
@@ -53,7 +54,18 @@ class FileDevice : public IODevice
         const char* path() const
         { return _path.c_str(); }
 
-        size_t size() const;
+        struct Stat
+        {
+            size_t size;
+            UtcDateTime mtime;
+            UtcDateTime ctime;
+        };
+
+        Stat stat() const;
+
+        size_t size() const         { return stat().size; }
+        UtcDateTime mtime() const   { return stat().mtime; }
+        UtcDateTime ctime() const   { return stat().ctime; }
 
         void resize(off_type size);
 
