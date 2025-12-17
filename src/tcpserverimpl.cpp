@@ -392,7 +392,8 @@ std::size_t TcpServerImpl::initializePoll(pollfd* pfd, std::size_t pollSize)
 
 bool TcpServerImpl::checkPollEvent()
 {
-    assert(_pfd != 0);
+    if (_pfd == 0)
+        return false;
 
     bool ret = false;
     Resetter<int> resetter(_pendingAccept, noPendingAccept);
