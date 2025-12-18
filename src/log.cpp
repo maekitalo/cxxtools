@@ -68,14 +68,24 @@ void operator>>= (const SerializationInfo& si, LogFormat& logFormat)
 {
     if (!si.getMember("utc", logFormat._utc))
         logFormat._utc = false;
+
     if (!si.getMember("threadIdHex", logFormat._threadIdHex))
-        logFormat._threadIdHex = false;
+        logFormat._threadIdHex = true;
+
+    std::string threadIdFormat;
+    if (si.getMember("threadIdFormat", threadIdFormat) && threadIdFormat.size() > 0)
+    {
+        if (threadIdFormat[0] == 'h' || threadIdFormat[0] == 'H') // matches hex, HEX, Hex
+            logFormat._threadIdHex = true;
+        else if (threadIdFormat[0] == 'd' || threadIdFormat[0] == 'D') // matches dec, DEC, Dec
+            logFormat._threadIdHex = false;
+    }
 }
 
 void operator<<= (SerializationInfo& si, const LogFormat& logFormat)
 {
     si.addMember("utc") <<= logFormat._utc;
-    si.addMember("threadIdHex") <<= logFormat._threadIdHex;
+    si.addMember("threadIdFormat") <<= (logFormat._threadIdHex ? "HEX" : "DEC");
 }
 
 typedef std::atomic<unsigned> atomic_t;
@@ -226,8 +236,16 @@ namespace
 
             pthread_t tid = pthread_self();
             unsigned short sw = (sizeof(pthread_t) << 3) - 4;
+            bool nonzero = false;
             for (unsigned short n = 0; n < sizeof(pthread_t) * 2; ++n, sw -= 4)
-                entry += hexdigit[(tid >> sw) & 0xf];
+            {
+                auto d = (tid >> sw) & 0xf;
+                nonzero |= (d != 0);
+                if (nonzero)
+                    entry += hexdigit[(tid >> sw) & 0xf];
+            }
+            if (!nonzero)
+                entry += '0';
         }
         else
         {

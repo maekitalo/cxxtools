@@ -159,7 +159,7 @@ namespace cxxtools
     public:
       LogFormat()
         : _utc(false),
-          _threadIdHex(false)
+          _threadIdHex(true)
           { }
 
       void setUtc(bool enabled)             { _utc = enabled; }
