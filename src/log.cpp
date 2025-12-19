@@ -250,9 +250,9 @@ namespace
         else
         {
             p = putInt(str, (unsigned long)pthread_self());
+            entry.append(str, p - str);
         }
 
-        entry.append(str, p - str);
         entry += "] ";
         entry += level;
         entry += ' ';
