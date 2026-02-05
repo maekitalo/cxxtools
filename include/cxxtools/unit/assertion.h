@@ -32,6 +32,8 @@
 #include <stdexcept>
 #include <iostream>
 #include <sstream>
+#include <string>
+#include <cwchar>
 
 namespace cxxtools {
 
@@ -100,13 +102,53 @@ namespace unit {
         } while (false)
 
     //! @internal
+    // Helper to safely stream values to std::ostream (C++20+ compliant)
+    template <typename T>
+    inline void streamValue(std::ostream& os, const T& value)
+    {
+        os << value;
+    }
+
+    // wchar_t* overload: operator<< is deleted for std::ostream in C++20+
+    inline void streamValue(std::ostream& os, const wchar_t* value)
+    {
+        if (!value)
+        {
+            os << "(null)";
+            return;
+        }
+
+        // Best-effort conversion for test output
+        std::wstring ws(value);
+        std::string s(ws.begin(), ws.end());
+        os << s;
+    }
+
+    // wchar_t overload: operator<< is deleted for std::ostream in C++20+
+    inline void streamValue(std::ostream& os, wchar_t value)
+    {
+        // Represent single wide character as string for output
+        wchar_t buf[2];
+        buf[0] = value;
+        buf[1] = L'\0';
+
+        std::wstring ws(buf);
+        std::string s(ws.begin(), ws.end());
+        os << s;
+    }
+
+    //! @internal
     template <typename A, typename B>
     void assertEquals(const char* cond1, const A& value1, const char* cond2, const B& value2, const SourceInfo& si)
     {
         if ( ! (value1 == value2) )
         {
             std::ostringstream _cxxtools_msg;
-            _cxxtools_msg << "not equal:\n\tvalue1 (" << cond1 << ")=\n\t\t<" << value1 << ">\n\tvalue2 (" << cond2 << ")=\n\t\t<" << value2 << '>';
+            _cxxtools_msg << "not equal:\n\tvalue1 (" << cond1 << ")=\n\t\t<";
+            streamValue(_cxxtools_msg, value1);
+            _cxxtools_msg << ">\n\tvalue2 (" << cond2 << ")=\n\t\t<";
+            streamValue(_cxxtools_msg, value2);
+            _cxxtools_msg << '>';
             throw cxxtools::unit::Assertion(_cxxtools_msg.str(), si);
         }
     }
