@@ -134,8 +134,6 @@ namespace cxxtools
                 }
 
                 _formatter.finish();
-
-                _os->flush();
             }
 
             template <typename T>
@@ -164,7 +162,6 @@ namespace cxxtools
                 Decomposer<T> s;
                 s.begin(v);
                 s.format(_formatter);
-                _os->flush();
                 return *this;
             }
 
