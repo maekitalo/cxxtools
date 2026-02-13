@@ -696,6 +696,7 @@ MimeEntity& MimeMultipart::addObject(const MimeMultipart& mimeMultipart)
 
 std::ostream& operator<< (std::ostream& out, const MimeHeader& mimeHeaders)
 {
+    std::ostream::sentry sentry(out);
     out << "MIME-Version: 1.0\r\n";
     for (MimeEntity::HeadersType::const_iterator it = mimeHeaders.headers.begin();
              it != mimeHeaders.headers.end(); ++it)
@@ -716,6 +717,7 @@ std::ostream& operator<< (std::ostream& out, const MimeHeader& mimeHeaders)
 
 std::ostream& operator<< (std::ostream& out, const MimeEntity& mimePart)
 {
+    std::ostream::sentry sentry(out);
     // print headers
     out << static_cast<const MimeHeader&>(mimePart);
 
@@ -746,6 +748,8 @@ std::ostream& operator<< (std::ostream& out, const MimeEntity& mimePart)
 std::ostream& operator<< (std::ostream& out, const MimeMultipart& mime)
 {
     log_debug("output " << mime.parts.size() << " parts");
+
+    std::ostream::sentry sentry(out);
 
     // build string parts
     typedef std::vector<std::string> SpartsType;

@@ -62,6 +62,7 @@ inline HexDump hexDump(const char* p, unsigned n)
  */
 inline std::ostream& operator<< (std::ostream& out, const HexDump& hd)
 {
+  std::ostream::sentry sentry(out);
   Hdstreambuf buf(out.rdbuf());
   if (buf.sputn(hd._p, hd._n) == hd._n)
      buf.pubsync();

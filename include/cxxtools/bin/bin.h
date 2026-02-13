@@ -115,6 +115,7 @@ namespace bin
     template <typename ObjectType>
     std::istream& operator>> (std::istream& in, BinIOObject<ObjectType> object)
     {
+        std::istream::sentry sentry(in);
         try
         {
             Deserializer deserializer(in);

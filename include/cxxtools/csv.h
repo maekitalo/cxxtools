@@ -97,6 +97,7 @@ namespace cxxtools
     template <typename CharType, typename ObjectType>
     std::basic_ostream<CharType>& operator<< (std::basic_ostream<CharType>& out, const CsvOObject<ObjectType>& object)
     {
+      typename std::basic_ostream<CharType>::sentry sentry(out);
       try
       {
         CsvSerializer serializer(out);

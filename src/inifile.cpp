@@ -96,6 +96,7 @@ IniFile::IniFile(std::istream& in, TextCodec<Char, char>* codec)
 
 std::istream& operator >> (std::istream& in, IniFile& ini)
 {
+    std::istream::sentry sentry(in);
     ini.data.clear();
     IniFileEvent ev(ini);
     IniParser(ev).parse(in);
@@ -104,6 +105,7 @@ std::istream& operator >> (std::istream& in, IniFile& ini)
 
 std::ostream& operator << (std::ostream& out, const IniFile& ini)
 {
+    std::ostream::sentry sentry(out);
     for (IniFile::MapType::const_iterator si = ini.data.begin();
              si != ini.data.end(); ++si)
     {

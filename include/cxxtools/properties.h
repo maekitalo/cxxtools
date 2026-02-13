@@ -80,6 +80,7 @@ namespace cxxtools
     template <typename CharType, typename ObjectType>
     std::basic_ostream<CharType>& operator<< (std::basic_ostream<CharType>& out, const PropertiesOObject<ObjectType>& object)
     {
+      std::ostream::sentry sentry(out);
       try
       {
         PropertiesSerializer serializer(out);
@@ -148,6 +149,8 @@ namespace cxxtools
     template <typename CharType, typename ObjectType>
     std::basic_istream<CharType>& operator>> (std::basic_istream<CharType>& in, PropertiesIOObject<ObjectType> object)
     {
+      typename std::basic_istream<CharType>::sentry sentry(in);
+
       PropertiesDeserializer deserializer;
       deserializer.envSubst(object.envSubst());
       deserializer.trim(object.trim());

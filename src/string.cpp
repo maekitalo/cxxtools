@@ -750,6 +750,8 @@ basic_string<cxxtools::Char> basic_string<cxxtools::Char>::widen(const std::stri
 
 ostream& operator<< (ostream& out, const basic_string<cxxtools::Char>& str)
 {
+    std::ostream::sentry sentry(out);
+
     cxxtools::Utf8Codec codec;
     char to[64];
     cxxtools::MBState state;
@@ -758,7 +760,7 @@ ostream& operator<< (ostream& out, const basic_string<cxxtools::Char>& str)
     const cxxtools::Char* from = str.data();
     cxxtools::String::size_type size = str.size();
 
-    do{
+    do {
         const cxxtools::Char* from_next;
 
         char* to_next = to;

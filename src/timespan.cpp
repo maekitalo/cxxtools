@@ -94,42 +94,49 @@ namespace cxxtools
 
     std::ostream& operator<< (std::ostream& out, const Timespan& ts)
     {
+        std::ostream::sentry sentry(out);
         out << static_cast<double>(ts.totalSeconds()) << 's';
         return out;
     }
 
     std::ostream& operator<< (std::ostream& out, const Microseconds& ts)
     {
+        std::ostream::sentry sentry(out);
         out << ts.totalUSecs() << "us";
         return out;
     }
 
     std::ostream& operator<< (std::ostream& out, const Milliseconds& ts)
     {
+        std::ostream::sentry sentry(out);
         out << static_cast<double>(ts.totalMSecs()) << "ms";
         return out;
     }
 
     std::ostream& operator<< (std::ostream& out, const Seconds& ts)
     {
+        std::ostream::sentry sentry(out);
         out << static_cast<double>(ts.totalSeconds()) << 's';
         return out;
     }
 
     std::ostream& operator<< (std::ostream& out, const Minutes& ts)
     {
+        std::ostream::sentry sentry(out);
         out << static_cast<double>(ts.totalMinutes()) << "min";
         return out;
     }
 
     std::ostream& operator<< (std::ostream& out, const Hours& ts)
     {
+        std::ostream::sentry sentry(out);
         out << static_cast<double>(ts.totalHours()) << 'h';
         return out;
     }
 
     std::ostream& operator<< (std::ostream& out, const Days& ts)
     {
+        std::ostream::sentry sentry(out);
         out << static_cast<double>(ts.totalDays()) << 'd';
         return out;
     }
@@ -138,6 +145,7 @@ namespace cxxtools
     {
         void get(std::istream& in, Timespan& ts, uint64_t res)
         {
+            std::istream::sentry sentry(in);
             double value;
             in >> value;
             if (in)

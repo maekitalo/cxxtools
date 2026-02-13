@@ -95,6 +95,7 @@ namespace xml
     template <typename CharType, typename ObjectType>
     std::basic_ostream<CharType>& operator<< (std::basic_ostream<CharType>& out, const XmlOObject<ObjectType>& object)
     {
+      std::ostream::sentry sentry(out);
       try
       {
         XmlSerializer serializer(out);
@@ -183,6 +184,7 @@ namespace xml
     template <typename CharType, typename ObjectType>
     std::basic_istream<CharType>& operator>> (std::basic_istream<CharType>& in, XmlIObject<ObjectType> object)
     {
+      typename std::basic_istream<CharType>::sentry sentry(in);
       try
       {
         XmlDeserializer deserializer;

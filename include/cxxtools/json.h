@@ -91,6 +91,7 @@ namespace cxxtools
     template <typename ObjectType>
     std::ostream& operator<< (std::ostream& out, const JsonOObject<ObjectType>& object)
     {
+      std::ostream::sentry sentry(out);
       try
       {
         JsonSerializer serializer(out);
@@ -157,6 +158,7 @@ namespace cxxtools
     template <typename CharType, typename ObjectType>
     std::basic_istream<CharType>& operator>> (std::basic_istream<CharType>& in, JsonIOObject<ObjectType> object)
     {
+      typename std::basic_istream<CharType>::sentry sentry(in);
       try
       {
         JsonDeserializer deserializer(in);
