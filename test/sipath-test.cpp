@@ -63,6 +63,8 @@ public:
         registerMethod("allMembers", *this, &SiPathTest::allMembers);
         registerMethod("array", *this, &SiPathTest::array);
         registerMethod("size", *this, &SiPathTest::size);
+        registerMethod("name", *this, &SiPathTest::name);
+        registerMethod("keys", *this, &SiPathTest::keys);
         registerMethod("count", *this, &SiPathTest::count);
         registerMethod("type", *this, &SiPathTest::type);
         registerMethod("isnull", *this, &SiPathTest::isnull);
@@ -135,6 +137,24 @@ public:
         size = 2;
         exampleStore.path("store.book[0]::size") >>= size;
         CXXTOOLS_UNIT_ASSERT_EQUALS(size, 4);
+    }
+
+    void name()
+    {
+        std::string name;
+        exampleStore.path("store.book[1][0]::name") >>= name;
+        CXXTOOLS_UNIT_ASSERT_EQUALS(name, "category");
+    }
+
+    void keys()
+    {
+        std::vector<std::string> keys;
+        exampleStore.path("store.book[1]::keys") >>= keys;
+        CXXTOOLS_UNIT_ASSERT_EQUALS(keys.size(), 4u);
+        CXXTOOLS_UNIT_ASSERT_EQUALS(keys[0], "category");
+        CXXTOOLS_UNIT_ASSERT_EQUALS(keys[1], "author");
+        CXXTOOLS_UNIT_ASSERT_EQUALS(keys[2], "title");
+        CXXTOOLS_UNIT_ASSERT_EQUALS(keys[3], "price");
     }
 
     void count()

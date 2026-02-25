@@ -671,6 +671,11 @@ SerializationInfo SerializationInfo::path(const std::string& path) const
                 si <<= parent->memberCount(memberName);
                 return si;
             }
+            else if (metaName == "name")
+            {
+                si <<= current->name();
+                return si;
+            }
             else if (metaName == "type")
             {
                 si <<= current->typeName();
@@ -680,6 +685,14 @@ SerializationInfo SerializationInfo::path(const std::string& path) const
             {
                 si <<= current->isNull();
                 return si;
+            }
+            else if (metaName == "keys")
+            {
+                SerializationInfo ssi;
+                ssi.setTypeName("array");
+                for (auto& n: current->nodes())
+                    ssi.addMember() <<= n.name();
+                return ssi;
             }
             else
                 throw SiPathError("unknown meta token ::" + metaName);

@@ -364,9 +364,11 @@ class SerializationInfo
                 {n}         nth occurence of member
                 member{}    all occurences as array
                 ::size      size
+                ::name      name of node
                 ::count     count of members
                 ::type      typename
                 ::isnull    true if null, false otherwise
+                ::keys      keys of node
 
                 Root element can be omitted. Also the starting '.'
 
