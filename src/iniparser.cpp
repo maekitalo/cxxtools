@@ -115,7 +115,7 @@ bool IniParser::parse(Char ch)
     {
         case state_0:
             if (ch == L'[')
-                _state = state_section;
+                _state = state_section0;
             else if (std::isalnum(ch))
             {
                 _data = ch;
@@ -134,6 +134,21 @@ bool IniParser::parse(Char ch)
             }
             break;
 
+        case state_section0:
+            if (ch == L']')
+            {
+                log_debug("onSection(" << _data << ')');
+                ret = _event.onSection(_data);
+                _data.clear();
+                _state = state_0;
+            }
+            else if (!std::isspace(ch))
+            {
+                _data = ch;
+                _state = state_section;
+            }
+            break;
+
         case state_section:
             if (ch == L']')
             {
@@ -142,8 +157,32 @@ bool IniParser::parse(Char ch)
                 _data.clear();
                 _state = state_0;
             }
+            else if (std::isspace(ch))
+            {
+                _ws = ch;
+                _state = state_sectionsp;
+            }
             else
                 _data += ch;
+            break;
+
+        case state_sectionsp:
+            if (ch == L']')
+            {
+                log_debug("onSection(" << _data << ')');
+                ret = _event.onSection(_data);
+                _data.clear();
+                _state = state_0;
+            }
+            else if (std::isspace(ch))
+                _ws += ch;
+            else
+            {
+                _data += _ws;
+                _data += ch;
+                _state = state_section;
+            }
+
             break;
 
         case state_key:

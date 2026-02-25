@@ -63,10 +63,13 @@ namespace cxxtools
         private:
             Event& _event;
             String _data;
+            String _ws;
             enum
             {
                 state_0,
+                state_section0,
                 state_section,
+                state_sectionsp,
                 state_key,
                 state_key_sp,
                 state_value0,

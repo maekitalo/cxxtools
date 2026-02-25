@@ -101,6 +101,7 @@ class IniParserTest : public cxxtools::unit::TestSuite
             registerMethod("testSingleQuotedValue", *this, &IniParserTest::testSingleQuotedValue);
             registerMethod("testDoubleQuotedValue", *this, &IniParserTest::testDoubleQuotedValue);
             registerMethod("testEscapedValue", *this, &IniParserTest::testEscapedValue);
+            registerMethod("testSectionWithWhitespace", *this, &IniParserTest::testSectionWithWhitespace);
         }
 
         void testIniParser()
@@ -165,6 +166,19 @@ class IniParserTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(e.result(), "S(s1)K(k1)V( \r\t\n\"' )K(k2)V( \r\t\n\"' )K(k3)V(v\t\"')");
         }
 
+        void testSectionWithWhitespace()
+        {
+            std::istringstream inifile(
+                "[s1]\n"
+                "[ s2]\n"
+                "[s\t3 ]\n"
+            );
+
+            E e;
+            cxxtools::IniParser p(e);
+            p.parse(inifile);
+            CXXTOOLS_UNIT_ASSERT_EQUALS(e.result(), "S(s1)S(s2)S(s\t3)");
+        }
 };
 
 cxxtools::unit::RegisterTest<IniParserTest> register_IniParserTest;
