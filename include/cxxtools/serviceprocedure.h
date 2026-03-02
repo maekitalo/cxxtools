@@ -34,6 +34,7 @@
 #include <cxxtools/void.h>
 #include <cxxtools/typetraits.h>
 #include <functional>
+#include <utility>
 
 
 namespace cxxtools

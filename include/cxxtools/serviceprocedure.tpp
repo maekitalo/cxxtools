@@ -155,7 +155,7 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8, A9,
 
         IDecomposer* endCall() override
         {
-            _rv = _cb(_v1, _v2, _v3, _v4, _v5, _v6, _v7, _v8, _v9);
+            _rv = _cb(std::move(_v1), std::move(_v2), std::move(_v3), std::move(_v4), std::move(_v5), std::move(_v6), std::move(_v7), std::move(_v8), std::move(_v9));
             _r.begin(_rv);
             return &_r;
         }
@@ -249,7 +249,7 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8,
 
         IDecomposer* endCall() override
         {
-            _rv = _cb(_v1, _v2, _v3, _v4, _v5, _v6, _v7, _v8);
+            _rv = _cb(std::move(_v1), std::move(_v2), std::move(_v3), std::move(_v4), std::move(_v5), std::move(_v6), std::move(_v7), std::move(_v8));
             _r.begin(_rv);
             return &_r;
         }
@@ -337,7 +337,7 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7,
 
         IDecomposer* endCall() override
         {
-            _rv = _cb(_v1, _v2, _v3, _v4, _v5, _v6, _v7);
+            _rv = _cb(std::move(_v1), std::move(_v2), std::move(_v3), std::move(_v4), std::move(_v5), std::move(_v6), std::move(_v7));
             _r.begin(_rv);
             return &_r;
         }
@@ -419,7 +419,7 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6,
 
         IDecomposer* endCall() override
         {
-            _rv = _cb(_v1, _v2, _v3, _v4, _v5, _v6);
+            _rv = _cb(std::move(_v1), std::move(_v2), std::move(_v3), std::move(_v4), std::move(_v5), std::move(_v6));
             _r.begin(_rv);
             return &_r;
         }
@@ -495,7 +495,7 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5,
 
         IDecomposer* endCall() override
         {
-            _rv = _cb(_v1, _v2, _v3, _v4, _v5);
+            _rv = _cb(std::move(_v1), std::move(_v2), std::move(_v3), std::move(_v4), std::move(_v5));
             _r.begin(_rv);
             return &_r;
         }
@@ -565,7 +565,7 @@ class BasicServiceProcedure<R, A1, A2, A3, A4,
 
         IDecomposer* endCall() override
         {
-            _rv = _cb(_v1, _v2, _v3, _v4);
+            _rv = _cb(std::move(_v1), std::move(_v2), std::move(_v3), std::move(_v4));
             _r.begin(_rv);
             return &_r;
         }
@@ -629,7 +629,7 @@ class BasicServiceProcedure<R, A1, A2, A3,
 
         IDecomposer* endCall() override
         {
-            _rv = _cb(_v1, _v2, _v3);
+            _rv = _cb(std::move(_v1), std::move(_v2), std::move(_v3));
             _r.begin(_rv);
             return &_r;
         }
@@ -687,7 +687,7 @@ class BasicServiceProcedure<R, A1, A2,
 
         IDecomposer* endCall() override
         {
-            _rv = _cb(_v1, _v2);
+            _rv = _cb(std::move(_v1), std::move(_v2));
             _r.begin(_rv);
             return &_r;
         }
@@ -739,7 +739,7 @@ class BasicServiceProcedure<R, A1,
 
         IDecomposer* endCall() override
         {
-            _rv = _cb(_v1);
+            _rv = _cb(std::move(_v1));
             _r.begin(_rv);
             return &_r;
         }

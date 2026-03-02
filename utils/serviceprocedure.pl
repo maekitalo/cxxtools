@@ -193,7 +193,7 @@ print <<EOF;
             _a$i.begin(_v$i);
 EOF
 }
-my $vars = join (', ', map { "_v$_" } (1..$nn));
+my $vars = join (', ', map { "std::move(_v$_)" } (1..$nn));
 print <<EOF;
 
             return &_composers;
