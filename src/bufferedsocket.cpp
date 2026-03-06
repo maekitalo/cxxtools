@@ -134,6 +134,7 @@ void BufferedSocket::onOutput(IODevice&)
         log_debug(count << " bytes written");
         log_finer("written\n" << cxxtools::hexDump(_outputBuffer.begin(), _outputBuffer.begin() + count));
         _outputBuffer.erase(_outputBuffer.begin(), _outputBuffer.begin() + count);
+        written(*this, count);
 
         if (_outputBuffer.empty())
         {

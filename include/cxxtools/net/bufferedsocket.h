@@ -199,6 +199,10 @@ public:
         may rethrow the exception when desired.
      */
     Signal<BufferedSocket&, const std::exception&> outputFailed;
+
+    /** Signals a successful write operation
+     */
+    Signal<BufferedSocket&, unsigned> written;
 };
 }
 }
