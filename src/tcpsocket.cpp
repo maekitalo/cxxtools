@@ -315,6 +315,10 @@ short TcpSocket::poll(short events) const
     return fds.revents;
 }
 
+unsigned TcpSocket::owait()
+{
+    return _impl->owait();
+}
 
 } // namespace net
 

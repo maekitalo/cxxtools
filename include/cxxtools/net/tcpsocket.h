@@ -139,6 +139,9 @@ class TcpSocket : public IODevice
         /// blocking call to terminate ssl
         void sslShutdown();
 
+        /// returns the number of bytes waiting to be transmitted in the tcp queue
+        unsigned owait();
+
     protected:
         TcpSocket(TcpSocketImpl* impl)
         : _impl(impl)

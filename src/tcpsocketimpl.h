@@ -181,6 +181,8 @@ class TcpSocketImpl : public IODeviceImpl
         void endSslShutdown();
 
         void verifySslCertificate();
+
+        unsigned owait();
 };
 
 } // namespace net

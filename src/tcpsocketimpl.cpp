@@ -54,6 +54,14 @@
 #include <cassert>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <sys/ioctl.h>
+
+#if HAVE_SIOCOUTQ
+    #include <linux/sockios.h>
+#elif HAVE_FIONWRITE
+    #include <sys/types.h>
+#endif
+
 #include <sstream>
 
 #include <openssl/err.h>
@@ -1265,6 +1273,25 @@ void TcpSocketImpl::verifySslCertificate()
         _state = CONNECTED;
         throw SslCertificateNotAccepted();
     }
+}
+
+unsigned TcpSocketImpl::owait()
+{
+    unsigned pending_nsd;
+#if HAVE_SIOCOUTQ
+    int v = 0;
+    if (::ioctl(_fd, SIOCOUTQ, &v) < 0)
+        throw SystemError("ioctl(SIOCOUTQ)");
+    pending_nsd = static_cast<unsigned>(v);
+#elif HAVE_FIONWRITE
+    int v = 0;
+    if (ioctl(fd, FIONWRITE, &v) == -1)
+        throw SystemError("ioctl(FIONWRITE)");
+    pending_nsd = static_cast<unsigned>(v);
+#else
+    pending_nsd = 0;
+#endif
+    return pending_nsd;
 }
 
 } // namespace net

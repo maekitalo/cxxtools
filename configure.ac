@@ -94,6 +94,22 @@ AC_COMPILE_IFELSE(
   [HAVE_REVERSE_ITERATOR=HAVE_REVERSE_ITERATOR],
   [HAVE_REVERSE_ITERATOR=NO_REVERSE_ITERATOR])
 
+AC_COMPILE_IFELSE(
+  [AC_LANG_SOURCE([
+   #include <sys/ioctl.h>
+   #include <linux/sockios.h>
+   int i = SIOCOUTQ;
+  ])],
+  AC_DEFINE(HAVE_SIOCOUTQ, 1, [defined if SIOCOUTQ is defined]))
+
+AC_COMPILE_IFELSE(
+  [AC_LANG_SOURCE([
+   #include <sys/ioctl.h>
+   #include <sys/types.h>
+   int i = FIONWRITE;
+  ])],
+  AC_DEFINE(HAVE_FIONWRITE, 1, [defined if FIONWRITE is defined]))
+
 #
 # SSL
 #
