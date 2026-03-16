@@ -15,7 +15,7 @@ template <typename R,
 class BasicServiceProcedure : public ServiceProcedure
 {
     public:
-        explicit BasicServiceProcedure(std::function<R(A1, A2, A3, A4, A5, A6, A7, A8, A9, A10)>& cb)
+        explicit BasicServiceProcedure(const std::function<R(A1, A2, A3, A4, A5, A6, A7, A8, A9, A10)>& cb)
         : ServiceProcedure(),
           _cb(cb),
           _composers(_args, 10)

@@ -58,7 +58,7 @@ print <<EOF;
 class BasicServiceProcedure : public ServiceProcedure
 {
     public:
-        explicit BasicServiceProcedure(std::function<R($tparams)>& cb)
+        explicit BasicServiceProcedure(const std::function<R($tparams)>& cb)
         : ServiceProcedure(),
           _cb(cb),
           _composers(_args, $N)

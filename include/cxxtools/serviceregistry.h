@@ -30,7 +30,6 @@
 #define CXXTOOLS_SERVICEREGISTRY_H
 
 #include <cxxtools/serviceprocedure.h>
-#include <cxxtools/method.h>
 #include <string>
 #include <vector>
 #include <map>
@@ -68,7 +67,7 @@ namespace cxxtools
             }
 
             template <typename R, typename A1, typename A2>
-            void registerFunction(const std::string& name, R (fn)(A1, A2))
+            void registerFunction(const std::string& name, R (*fn)(A1, A2))
             {
                 this->registerProcedure(name, BasicServiceProcedure<R, A1, A2>(fn));
             }
@@ -241,8 +240,7 @@ namespace cxxtools
                 this->registerProcedure(name, BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8, A9, A10>(std::bind(method, &obj, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4, std::placeholders::_5, std::placeholders::_6, std::placeholders::_7, std::placeholders::_8, std::placeholders::_9, std::placeholders::_10)));
             }
 
-
-           std::unique_ptr<ServiceProcedure> getProcedure(const std::string& name) const;
+            std::unique_ptr<ServiceProcedure> getProcedure(const std::string& name) const;
 
             std::vector<std::string> getProcedureNames() const;
 

@@ -88,8 +88,8 @@ namespace cxxtools
                 this->registerProcedure(name, BasicServiceProcedure<R>(fn));
             }
 
-            template <typename F, typename R>
-            void registerFunction(const std::string& name, const F<R()>& fn)
+            template <typename R>
+            void registerFunction(const std::string& name, const std::function<R()>& fn)
             {
                 this->registerProcedure(name, BasicServiceProcedure<R>(fn));
             }
@@ -112,8 +112,8 @@ print <<EOF;
                 this->registerProcedure(name, BasicServiceProcedure<R, $tparams>(fn));
             }
 
-            template <typename F, typename R, $ttparams>
-            void registerFunction(const std::string& name, const F<R($tparams)>& fn)
+            template <typename R, $ttparams>
+            void registerFunction(const std::string& name, const std::function<R($tparams)>& fn)
             {
                 this->registerProcedure(name, BasicServiceProcedure<R, $tparams>(fn));
             }
@@ -153,8 +153,7 @@ EOF
 ## finalize
 ##
 print <<EOF;
-
-           std::unique_ptr<ServiceProcedure> getProcedure(const std::string& name) const;
+            std::unique_ptr<ServiceProcedure> getProcedure(const std::string& name) const;
 
             std::vector<std::string> getProcedureNames() const;
 
