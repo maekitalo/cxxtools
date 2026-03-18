@@ -127,7 +127,7 @@ It prints a SAML2 document to stdout.
 
 insrv
 =====
-The demo shows asyncronous I/O with cxxtools::IOStream and use of
+The demo shows asynchronous I/O with cxxtools::IOStream and use of
 `cxxtools::StdinDevice`, which implements a cxxtools::IODevice to `stdin`.
 
 The demo starts a tcp server using `cxxtools::net::TcpServer` and waits for

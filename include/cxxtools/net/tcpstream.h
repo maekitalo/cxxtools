@@ -42,7 +42,7 @@ class SslCtx;
 
 namespace net
 {
-    /** A buffered TCP/IP stream which supports asyncronous communication.
+    /** A buffered TCP/IP stream which supports asynchronous communication.
      *
      *  When a object is created a buffer size is passed. By default the buffer size
      *  is 0, which means, that the buffer is dynamically extended when needed so that

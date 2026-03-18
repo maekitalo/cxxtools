@@ -76,7 +76,7 @@ void RpcClientImpl::beginCall(IComposer& r, IRemoteProcedure& method, IDecompose
         throw std::logic_error("cannot run async rpc request without a selector");
 
     if (_proc)
-        throw std::logic_error("asyncronous request already running");
+        throw std::logic_error("asynchronous request already running");
 
     _proc = &method;
 

@@ -101,7 +101,7 @@ ClientImpl::~ClientImpl()
 void ClientImpl::beginCall(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc)
 {
     if (_method)
-        throw std::logic_error("asyncronous request already running");
+        throw std::logic_error("asynchronous request already running");
 
     _method = &method;
     _state = OnBegin;

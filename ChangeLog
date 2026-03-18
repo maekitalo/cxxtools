@@ -232,7 +232,7 @@
 
 	* include/cxxtools/net/tcpstream.h, src/tcpstream.cpp: TcpStream
 	class should use a extendable streambuffer. This is really a must if
-	asyncronous communication is used since writing otherwise may block.
+	asynchronous communication is used since writing otherwise may block.
 
 2017-01-19  Tommi Mäkitalo <tommi@tntnet.org>
 
@@ -1658,7 +1658,7 @@
 2014-10-19  Tommi Mäkitalo <tommi@tntnet.org>
 
 	* test/Makefile.am, test/rpcbenchasyncclient.cpp: add rpc benchmark
-	client which uses asyncronous requests
+	client which uses asynchronous requests
 
 2014-10-19  Tommi Mäkitalo <tommi@tntnet.org>
 
@@ -2322,13 +2322,13 @@
 
 	* doc/binaryrpc-howto.markdown, doc/jsonrpc-howto.markdown,
 	doc/xmlrpc-howto.markdown: add documentation about exceptions and a
-	simpler way to execute remote procedures asyncronously to binrpc
+	simpler way to execute remote procedures asynchronously to binrpc
 	howto and xmlrpc howto also
 
 2013-10-28  Tommi Mäkitalo <tommi@tntnet.org>
 
 	* doc/jsonrpc-howto.markdown: add documentation about exceptions and
-	a simpler way to execute remote procedures asyncronously into
+	a simpler way to execute remote procedures asynchronously into
 	jsonrpc howto
 
 2013-10-28  Tommi Mäkitalo <tommi@tntnet.org>
@@ -2469,7 +2469,7 @@
 
 2013-10-03  Tommi Mäkitalo <tommi@tntnet.org>
 
-	* doc/asyncronousIO.md, doc/connection.md,
+	* doc/asynchronousIO.md, doc/connection.md,
 	include/cxxtools/http/client.h, src/http/client.cpp: add
 	documentation for http client
 
@@ -5623,7 +5623,7 @@
 	cxxtools/src/bin/rpcserverimpl.cpp, cxxtools/src/bin/scanner.cpp,
 	cxxtools/src/bin/scanner.h, cxxtools/src/bin/worker.cpp,
 	cxxtools/test/Makefile.am, cxxtools/test/rpcbenchclient.cpp,
-	cxxtools/test/rpcbenchserver.cpp: add rpc binary client (asyncronous
+	cxxtools/test/rpcbenchserver.cpp: add rpc binary client (asynchronous
 	requests do not work yet) git-svn-id: svn://svn.code.sf.net/p/cxxtools/code/trunk@1331
 	15ae5fad-cc11-0410-8fac-bce609e504b0
 
@@ -9171,7 +9171,7 @@
 
 2009-04-24  maekitalo <maekitalo@15ae5fad-cc11-0410-8fac-bce609e504b0>
 
-	* cxxtools/src/tcpsocketimpl.cpp: fix asyncronous connect git-svn-id: svn://svn.code.sf.net/p/cxxtools/code/trunk@840
+	* cxxtools/src/tcpsocketimpl.cpp: fix asynchronous connect git-svn-id: svn://svn.code.sf.net/p/cxxtools/code/trunk@840
 	15ae5fad-cc11-0410-8fac-bce609e504b0
 
 2009-04-23  maekitalo <maekitalo@15ae5fad-cc11-0410-8fac-bce609e504b0>

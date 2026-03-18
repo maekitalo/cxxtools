@@ -284,7 +284,7 @@ StreamBuffer::int_type StreamBuffer::overflow(int_type ch)
     }
     else if (_oextend && !traits_type::eq_int_type( ch, traits_type::eof() ))
     {
-        // break asyncronous I/O if any active
+        // break asynchronous I/O if any active
         bool pendingWrite = _ioDevice->writing();
         bool pendingRead = false;
 
@@ -298,7 +298,7 @@ StreamBuffer::int_type StreamBuffer::overflow(int_type ch)
             else
             {
                 pendingRead = _ioDevice->reading();
-                log_debug("cancel asyncronous operations");
+                log_debug("cancel asynchronous operations");
                 _ioDevice->cancel();
             }
         }
@@ -321,7 +321,7 @@ StreamBuffer::int_type StreamBuffer::overflow(int_type ch)
             delete [] buf;
         }
 
-        // restart asyncronous I/O
+        // restart asynchronous I/O
         if (pendingWrite)
         {
             beginWrite();

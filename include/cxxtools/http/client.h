@@ -61,11 +61,11 @@ class Request;
 /**
  This class implements a http client.
 
- The class supports syncronous and asyncronous requests.
+ The class supports syncronous and asynchronous requests.
 
  For connection handling see \ref connection.
 
- For asyncronous I/O see \ref asyncronousIO.
+ For asynchronous I/O see \ref asynchronousIO.
 
  Example for a syncronous call:
 
@@ -295,11 +295,11 @@ class Client
          */
         void endExecute();
 
-        /// Sets the selector for asyncronous event processing.
+        /// Sets the selector for asynchronous event processing.
         void setSelector(SelectorBase* selector);
         void setSelector(SelectorBase& selector);
 
-        /// Returns the selector for asyncronous event processing.
+        /// Returns the selector for asynchronous event processing.
         SelectorBase* selector();
 
         /** Executes the underlying selector until a event occurs or the
