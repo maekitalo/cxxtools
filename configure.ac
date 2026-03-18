@@ -173,6 +173,7 @@ AC_CONFIG_FILES([
 AC_CONFIG_FILES([
   pkgconfig/cxxtools-bin.pc 
   pkgconfig/cxxtools-http.pc 
+  pkgconfig/cxxtools-json.pc
   pkgconfig/cxxtools.pc
   pkgconfig/cxxtools-unit.pc
   pkgconfig/cxxtools-xmlrpc.pc
