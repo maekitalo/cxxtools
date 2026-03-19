@@ -99,9 +99,10 @@ namespace cxxtools
         }
         else if (ch == '\r' || ch == '\n')
         {
-          ret = _event.onKeyPart(_keypart)
-             || _event.onKey(_key)
-             || _event.onValue(String());
+          if (!_key.empty())
+            ret = _event.onKeyPart(_keypart)
+               || _event.onKey(_key)
+               || _event.onValue(String());
           _keypart.clear();
           _key.clear();
         }
@@ -374,10 +375,11 @@ namespace cxxtools
         break;
 
       case state_key:
+        if (!_key.empty())
           _event.onKeyPart(_keypart)
              || _event.onKey(_key)
              || _event.onValue(String());
-          break;
+        break;
 
       case state_unicode:
         if (_unicodeCount == 0)
