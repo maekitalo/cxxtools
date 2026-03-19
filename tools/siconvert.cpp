@@ -53,6 +53,7 @@ class Siconvert
         bool inputJson;
         bool inputIni;
         bool inputCsv;
+        bool inputProperties;
         bool inputQparams;
         bool inputSettings;
 
@@ -88,6 +89,7 @@ Siconvert::Siconvert(int& argc, char* argv[])
       inputJson(cxxtools::Arg<bool>(argc, argv, 'j')),
       inputIni(cxxtools::Arg<bool>(argc, argv, 'i')),
       inputCsv(cxxtools::Arg<bool>(argc, argv, 'c')),
+      inputProperties(cxxtools::Arg<bool>(argc, argv, 'p')),
       inputQparams(cxxtools::Arg<bool>(argc, argv, 'q')),
       inputSettings(cxxtools::Arg<bool>(argc, argv, 's')),
 
@@ -120,6 +122,8 @@ Siconvert::Siconvert(int& argc, char* argv[])
     if (inputIni)
         ++c;
     if (inputCsv)
+        ++c;
+    if (inputProperties)
         ++c;
     if (inputQparams)
         ++c;
@@ -172,6 +176,8 @@ void Siconvert::convert(std::istream& in, std::ostream& out)
         in >> cxxtools::Ini(si);
     else if (inputCsv)
         in >> cxxtools::Csv(si);
+    else if (inputProperties)
+        in >> cxxtools::Properties(si);
     else if (inputQparams)
     {
         cxxtools::QueryParams q;
@@ -278,6 +284,7 @@ Options for input format:
     -j              read json data
     -i              read ini data
     -c              read csv data
+    -p              read properties data
     -q              read url query string
     -s              read settings data
 
