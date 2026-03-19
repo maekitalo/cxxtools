@@ -690,6 +690,7 @@ SerializationInfo SerializationInfo::path(const std::string& path) const
             {
                 SerializationInfo ssi;
                 ssi.setTypeName("array");
+                ssi.setCategory(Category::Array);
                 for (auto& n: current->nodes())
                     ssi.addMember() <<= n.name();
                 return ssi;
