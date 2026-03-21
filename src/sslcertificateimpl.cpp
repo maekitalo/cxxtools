@@ -37,7 +37,7 @@
 
 namespace cxxtools
 {
-static String str(X509_NAME* a)
+static String str(const X509_NAME* a)
 {
     class MemBIO
     {
