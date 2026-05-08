@@ -114,10 +114,10 @@ Delegate<bool, const SslCertificate&>& RpcServer::acceptSslCertificate()
     return _impl->acceptSslCertificate;
 }
 
-std::string RpcServer::function(const std::string& domain, const std::string& fn)
+std::string RpcServer::function(const std::string& domain, const std::string& fn, bool readable)
 {
     return domain.empty() ? fn
-                          : fn + '\0' + domain;
+                          : fn + (readable ? '.' : '\0') + domain;
 }
 
 std::string RpcServer::domain(const std::string& fn)

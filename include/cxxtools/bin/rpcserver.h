@@ -115,7 +115,7 @@ class RpcServer : public ServiceRegistry
         Delegate<bool, const SslCertificate&>& acceptSslCertificate();
 
         /// helper function to build a full function name from domain and function
-        static std::string function(const std::string& domain, const std::string& fn);
+        static std::string function(const std::string& domain, const std::string& fn, bool readable = false);
         /// extract domain from full function name
         static std::string domain(const std::string& fn);
         /// extract just function name from full function name

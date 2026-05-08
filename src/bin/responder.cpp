@@ -130,7 +130,7 @@ bool Responder::advance(std::streambuf& in)
                     else
                     {
                         _failed = true;
-                        _errorMessage = "unknown method \"" + _headerParser.method() + '"';
+                        _errorMessage = "unknown method \"" + RpcServer::function(_headerParser.domain(), _headerParser.method(), true) + '"';
                         _state = State::params_skip;
                     }
                 }
@@ -142,7 +142,7 @@ bool Responder::advance(std::streambuf& in)
                     if (_args && _args->needMore())
                     {
                         _failed = true;
-                        _errorMessage = "argument expected";
+                        _errorMessage = "more arguments expected in method " + RpcServer::function(_headerParser.domain(), _headerParser.method(), true);
                     }
 
                     in.sbumpc();
@@ -154,7 +154,7 @@ bool Responder::advance(std::streambuf& in)
                     if (!_arg)
                     {
                         _failed = true;
-                        _errorMessage = "too many arguments";
+                        _errorMessage = "too many arguments in method " + RpcServer::function(_headerParser.domain(), _headerParser.method(), true);
                         _state = State::params_skip;
                     }
                     else
