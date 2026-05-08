@@ -48,10 +48,10 @@ int main(int argc, char* argv[])
     try
     {
         // create a multipart/related object (the outer container)
-        cxxtools::MimeMultipart mm(cxxtools::MimeMultipart::typeRelated);
+        cxxtools::MimeMultipart mm(cxxtools::MimeMultipart::Type::Related);
 
         // create multipart/alternative object for text and html formats
-        cxxtools::MimeMultipart al(cxxtools::MimeMultipart::typeAlternative);
+        cxxtools::MimeMultipart al(cxxtools::MimeMultipart::Type::Alternative);
 
         // create message body in text format.
         cxxtools::MimeEntity& plain =

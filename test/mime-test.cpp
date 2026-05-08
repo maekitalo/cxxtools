@@ -82,7 +82,7 @@ class MimeTest : public cxxtools::unit::TestSuite
             std::ostringstream s;
             s << mime;
 
-            CXXTOOLS_UNIT_ASSERT_EQUALS(s.str(), "MIME-Version: 1.0\r\nhdr1: bar1\n blub\r\nhdr2: bar2\r\n\r\nsome body text");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(s.str(), "hdr1: bar1\n blub\r\nhdr2: bar2\r\n\r\nsome body text");
         }
 
         void serializeMessage()

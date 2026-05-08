@@ -83,7 +83,7 @@ class MimeEntity : public MimeHeader
         friend MimeEntity& operator<< (MimeEntity& me, const char* str);
 
     public:
-        enum ContentTransferEncoding {
+        enum class ContentTransferEncoding {
             none,
             quotedPrintable,
             base64
@@ -151,12 +151,12 @@ class MimeMultipart : public MimeHeader
     public:
         typedef MimeEntity::ContentTransferEncoding ContentTransferEncoding;
 
-        enum Type {
-                typeMixed,
-                typeAlternative,
-                typeDigest,
-                typeParallel,
-                typeRelated
+        enum class Type {
+                Mixed,
+                Alternative,
+                Digest,
+                Parallel,
+                Related
         };
 
     private:
@@ -181,7 +181,7 @@ class MimeMultipart : public MimeHeader
         MimeMultipart(const MimeEntity& mimeEntity);
 
         /// Creates a empty MimeMultipart object
-        explicit MimeMultipart(Type type_ = typeMixed)
+        explicit MimeMultipart(Type type_ = Type::Mixed)
             { setType(type_); }
 
         /// Returns the number of entities in this object.
@@ -220,18 +220,18 @@ class MimeMultipart : public MimeHeader
 
         /// Adds a entity to the mime entity. The data is passed as a std::string.
         MimeEntity& addObject(const std::string& data, const std::string& contentType = "text/plain; charset=UTF-8",
-            ContentTransferEncoding contentTransferEncoding = MimeEntity::quotedPrintable);
+            ContentTransferEncoding contentTransferEncoding = ContentTransferEncoding::none);
 
         /// Adds a entity to the mime entity. The data is read from a input stream.
         MimeEntity& addObject(std::istream& in, const std::string& contentType = "text/plain; charset=UTF-8",
-            ContentTransferEncoding contentTransferEncoding = MimeEntity::quotedPrintable);
+            ContentTransferEncoding contentTransferEncoding = ContentTransferEncoding::none);
 
         MimeEntity& addObject(const MimeMultipart& mimeMultipart);
 
         /// Adds a text file. The data is passed as a std::string.
         MimeEntity& attachTextFile(const std::string& data, const std::string& filename, const std::string& contentType = "text/plain; charset=UTF-8")
         {
-            MimeEntity& mimeEntity = addObject(data, contentType, MimeEntity::quotedPrintable);
+            MimeEntity& mimeEntity = addObject(data, contentType, ContentTransferEncoding::quotedPrintable);
             mimeEntity.addHeader("Content-Disposition", "attachment; filename=" + filename);
             return mimeEntity;
         }
@@ -239,7 +239,7 @@ class MimeMultipart : public MimeHeader
         /// Adds a text file. The data is read from a istream
         MimeEntity& attachTextFile(std::istream& in, const std::string& filename, const std::string& contentType = "text/plain; charset=UTF-8")
         {
-            MimeEntity& mimeEntity = addObject(in, contentType, MimeEntity::quotedPrintable);
+            MimeEntity& mimeEntity = addObject(in, contentType, ContentTransferEncoding::quotedPrintable);
             mimeEntity.addHeader("Content-Disposition", "attachment; filename=" + filename);
             return mimeEntity;
         }
@@ -247,7 +247,7 @@ class MimeMultipart : public MimeHeader
         /// Adds a binary file. The data is passed as a std::string.
         MimeEntity& attachBinaryFile(const std::string& data, const std::string& filename, const std::string& contentType = "application/x-binary")
         {
-            MimeEntity& mimeEntity = addObject(data, contentType, MimeEntity::base64);
+            MimeEntity& mimeEntity = addObject(data, contentType, ContentTransferEncoding::base64);
             mimeEntity.addHeader("Content-Disposition", "attachment; filename=" + filename);
             return mimeEntity;
         }
@@ -255,7 +255,7 @@ class MimeMultipart : public MimeHeader
         /// Adds a binary file. The data is read from a istream
         MimeEntity& attachBinaryFile(std::istream& in, const std::string& filename, const std::string& contentType = "application/x-binary")
         {
-            MimeEntity& mimeEntity = addObject(in, contentType, MimeEntity::base64);
+            MimeEntity& mimeEntity = addObject(in, contentType, ContentTransferEncoding::base64);
             mimeEntity.addHeader("Content-Disposition", "attachment; filename=" + filename);
             return mimeEntity;
         }
