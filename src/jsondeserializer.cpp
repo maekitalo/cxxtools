@@ -108,19 +108,26 @@ JsonDeserializer::JsonDeserializer(std::istream& in, TextCodec<Char, char>* code
 JsonDeserializer::JsonDeserializer(std::basic_istream<Char>& in)
 {
     begin();
-    Char ch;
-    int ret;
-    while (in.get(ch))
+
+    while (true)
     {
-        ret = advance(ch);
-        if (ret == -1)
-            in.putback(ch);
+        auto c = in.rdbuf()->sgetc();
+        if (!std::basic_streambuf<Char>::traits_type::not_eof(c))
+        {
+            in.setstate(std::ios::eofbit);
+            break;
+        }
+
+        auto ret = advance(std::basic_streambuf<Char>::traits_type::to_char_type(c));
+
+        if (ret >= 0)
+            in.rdbuf()->sbumpc();
         if (ret != 0)
             break;
     }
 
     if (in.rdstate() & std::ios::badbit)
-        SerializationError::doThrow("json deserialization failed");
+        SerializationError::doThrow("reading json data failed");
 
     finish();
 }

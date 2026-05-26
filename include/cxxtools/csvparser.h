@@ -45,7 +45,8 @@ namespace cxxtools
                   _readTitle(true),
                   _skipEmptyLines(false),
                   _noColumns(0),
-                  _lineNo(0)
+                  _lineNo(0),
+                  _colNo(0)
             { }
 
             Char delimiter() const
@@ -65,6 +66,12 @@ namespace cxxtools
 
             void skipEmptyLines(bool sw)
             { _skipEmptyLines = sw; }
+
+            unsigned lineNo() const
+            { return _lineNo; }
+
+            unsigned colNo() const
+            { return _colNo; }
 
             static const Char autoDelimiter;
 
@@ -103,6 +110,7 @@ namespace cxxtools
             rowType::size_type _column;
             unsigned _noColumns;
             unsigned _lineNo;
+            unsigned _colNo;
             Char _quote;
     };
 }

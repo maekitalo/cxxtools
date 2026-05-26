@@ -74,12 +74,18 @@ void CsvParser::begin(CsvDeserializer& handler)
     _titles.push_back(std::string());
     _noColumns = unknownNoColumns;
     _lineNo = 0;
+    _colNo = 0;
 }
 
 void CsvParser::advance(Char ch)
 {
     if (ch == L'\n')
+    {
         ++_lineNo;
+        _colNo = 0;
+    }
+    else
+        ++_colNo;
 
     switch (_state)
     {
