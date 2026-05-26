@@ -61,17 +61,17 @@ class BasicServiceProcedure : public ServiceProcedure
         }
 
     private:
-        typedef typename TypeTraits<A1>::Value V1;
-        typedef typename TypeTraits<A2>::Value V2;
-        typedef typename TypeTraits<A3>::Value V3;
-        typedef typename TypeTraits<A4>::Value V4;
-        typedef typename TypeTraits<A5>::Value V5;
-        typedef typename TypeTraits<A6>::Value V6;
-        typedef typename TypeTraits<A7>::Value V7;
-        typedef typename TypeTraits<A8>::Value V8;
-        typedef typename TypeTraits<A9>::Value V9;
-        typedef typename TypeTraits<A10>::Value V10;
-        typedef typename TypeTraits<R>::Value RV;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A1>> V1;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A2>> V2;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A3>> V3;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A4>> V4;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A5>> V5;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A6>> V6;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A7>> V7;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A8>> V8;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A9>> V9;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A10>> V10;
+        typedef typename std::remove_cv_t<std::remove_reference_t<R>> RV;
 
         std::function<R(A1, A2, A3, A4, A5, A6, A7, A8, A9, A10)> _cb;
         RV _rv;
@@ -161,16 +161,16 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8, A9,
         }
 
     private:
-        typedef typename TypeTraits<A1>::Value V1;
-        typedef typename TypeTraits<A2>::Value V2;
-        typedef typename TypeTraits<A3>::Value V3;
-        typedef typename TypeTraits<A4>::Value V4;
-        typedef typename TypeTraits<A5>::Value V5;
-        typedef typename TypeTraits<A6>::Value V6;
-        typedef typename TypeTraits<A7>::Value V7;
-        typedef typename TypeTraits<A8>::Value V8;
-        typedef typename TypeTraits<A9>::Value V9;
-        typedef typename TypeTraits<R>::Value RV;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A1>> V1;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A2>> V2;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A3>> V3;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A4>> V4;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A5>> V5;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A6>> V6;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A7>> V7;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A8>> V8;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A9>> V9;
+        typedef typename std::remove_cv_t<std::remove_reference_t<R>> RV;
 
         std::function<R(A1, A2, A3, A4, A5, A6, A7, A8, A9)> _cb;
         RV _rv;
@@ -255,15 +255,15 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7, A8,
         }
 
     private:
-        typedef typename TypeTraits<A1>::Value V1;
-        typedef typename TypeTraits<A2>::Value V2;
-        typedef typename TypeTraits<A3>::Value V3;
-        typedef typename TypeTraits<A4>::Value V4;
-        typedef typename TypeTraits<A5>::Value V5;
-        typedef typename TypeTraits<A6>::Value V6;
-        typedef typename TypeTraits<A7>::Value V7;
-        typedef typename TypeTraits<A8>::Value V8;
-        typedef typename TypeTraits<R>::Value RV;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A1>> V1;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A2>> V2;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A3>> V3;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A4>> V4;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A5>> V5;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A6>> V6;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A7>> V7;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A8>> V8;
+        typedef typename std::remove_cv_t<std::remove_reference_t<R>> RV;
 
         std::function<R(A1, A2, A3, A4, A5, A6, A7, A8)> _cb;
         RV _rv;
@@ -343,14 +343,14 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6, A7,
         }
 
     private:
-        typedef typename TypeTraits<A1>::Value V1;
-        typedef typename TypeTraits<A2>::Value V2;
-        typedef typename TypeTraits<A3>::Value V3;
-        typedef typename TypeTraits<A4>::Value V4;
-        typedef typename TypeTraits<A5>::Value V5;
-        typedef typename TypeTraits<A6>::Value V6;
-        typedef typename TypeTraits<A7>::Value V7;
-        typedef typename TypeTraits<R>::Value RV;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A1>> V1;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A2>> V2;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A3>> V3;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A4>> V4;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A5>> V5;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A6>> V6;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A7>> V7;
+        typedef typename std::remove_cv_t<std::remove_reference_t<R>> RV;
 
         std::function<R(A1, A2, A3, A4, A5, A6, A7)> _cb;
         RV _rv;
@@ -425,13 +425,13 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5, A6,
         }
 
     private:
-        typedef typename TypeTraits<A1>::Value V1;
-        typedef typename TypeTraits<A2>::Value V2;
-        typedef typename TypeTraits<A3>::Value V3;
-        typedef typename TypeTraits<A4>::Value V4;
-        typedef typename TypeTraits<A5>::Value V5;
-        typedef typename TypeTraits<A6>::Value V6;
-        typedef typename TypeTraits<R>::Value RV;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A1>> V1;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A2>> V2;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A3>> V3;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A4>> V4;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A5>> V5;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A6>> V6;
+        typedef typename std::remove_cv_t<std::remove_reference_t<R>> RV;
 
         std::function<R(A1, A2, A3, A4, A5, A6)> _cb;
         RV _rv;
@@ -501,12 +501,12 @@ class BasicServiceProcedure<R, A1, A2, A3, A4, A5,
         }
 
     private:
-        typedef typename TypeTraits<A1>::Value V1;
-        typedef typename TypeTraits<A2>::Value V2;
-        typedef typename TypeTraits<A3>::Value V3;
-        typedef typename TypeTraits<A4>::Value V4;
-        typedef typename TypeTraits<A5>::Value V5;
-        typedef typename TypeTraits<R>::Value RV;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A1>> V1;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A2>> V2;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A3>> V3;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A4>> V4;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A5>> V5;
+        typedef typename std::remove_cv_t<std::remove_reference_t<R>> RV;
 
         std::function<R(A1, A2, A3, A4, A5)> _cb;
         RV _rv;
@@ -571,11 +571,11 @@ class BasicServiceProcedure<R, A1, A2, A3, A4,
         }
 
     private:
-        typedef typename TypeTraits<A1>::Value V1;
-        typedef typename TypeTraits<A2>::Value V2;
-        typedef typename TypeTraits<A3>::Value V3;
-        typedef typename TypeTraits<A4>::Value V4;
-        typedef typename TypeTraits<R>::Value RV;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A1>> V1;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A2>> V2;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A3>> V3;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A4>> V4;
+        typedef typename std::remove_cv_t<std::remove_reference_t<R>> RV;
 
         std::function<R(A1, A2, A3, A4)> _cb;
         RV _rv;
@@ -635,10 +635,10 @@ class BasicServiceProcedure<R, A1, A2, A3,
         }
 
     private:
-        typedef typename TypeTraits<A1>::Value V1;
-        typedef typename TypeTraits<A2>::Value V2;
-        typedef typename TypeTraits<A3>::Value V3;
-        typedef typename TypeTraits<R>::Value RV;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A1>> V1;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A2>> V2;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A3>> V3;
+        typedef typename std::remove_cv_t<std::remove_reference_t<R>> RV;
 
         std::function<R(A1, A2, A3)> _cb;
         RV _rv;
@@ -693,9 +693,9 @@ class BasicServiceProcedure<R, A1, A2,
         }
 
     private:
-        typedef typename TypeTraits<A1>::Value V1;
-        typedef typename TypeTraits<A2>::Value V2;
-        typedef typename TypeTraits<R>::Value RV;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A1>> V1;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A2>> V2;
+        typedef typename std::remove_cv_t<std::remove_reference_t<R>> RV;
 
         std::function<R(A1, A2)> _cb;
         RV _rv;
@@ -745,8 +745,8 @@ class BasicServiceProcedure<R, A1,
         }
 
     private:
-        typedef typename TypeTraits<A1>::Value V1;
-        typedef typename TypeTraits<R>::Value RV;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A1>> V1;
+        typedef typename std::remove_cv_t<std::remove_reference_t<R>> RV;
 
         std::function<R(A1)> _cb;
         RV _rv;
@@ -790,7 +790,7 @@ class BasicServiceProcedure<R,
         }
 
     private:
-        typedef typename TypeTraits<R>::Value RV;
+        typedef typename std::remove_cv_t<std::remove_reference_t<R>> RV;
 
         std::function<R()> _cb;
         RV _rv;

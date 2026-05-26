@@ -106,11 +106,11 @@ EOF
 for (my $i = 1; $i <= $N; ++$i)
 {
 print <<EOF;
-        typedef typename TypeTraits<A$i>::Value V$i;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A$i>> V$i;
 EOF
 }
 print <<EOF;
-        typedef typename TypeTraits<R>::Value RV;
+        typedef typename std::remove_cv_t<std::remove_reference_t<R>> RV;
 
         std::function<R($tparams)> _cb;
         RV _rv;
@@ -211,11 +211,11 @@ EOF
 for (my $i = 1; $i <= $nn; ++$i)
 {
 print <<EOF;
-        typedef typename TypeTraits<A$i>::Value V$i;
+        typedef typename std::remove_cv_t<std::remove_reference_t<A$i>> V$i;
 EOF
 }
 print <<EOF;
-        typedef typename TypeTraits<R>::Value RV;
+        typedef typename std::remove_cv_t<std::remove_reference_t<R>> RV;
 
         std::function<R($tparams)> _cb;
         RV _rv;
@@ -280,7 +280,7 @@ class BasicServiceProcedure<R,
         }
 
     private:
-        typedef typename TypeTraits<R>::Value RV;
+        typedef typename std::remove_cv_t<std::remove_reference_t<R>> RV;
 
         std::function<R()> _cb;
         RV _rv;

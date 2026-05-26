@@ -32,9 +32,9 @@
 #include <cxxtools/composer.h>
 #include <cxxtools/decomposer.h>
 #include <cxxtools/void.h>
-#include <cxxtools/typetraits.h>
 #include <functional>
 #include <utility>
+#include <type_traits>
 
 
 namespace cxxtools

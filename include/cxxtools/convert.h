@@ -33,7 +33,7 @@
 #include <cxxtools/string.h>
 #include <cxxtools/stringstream.h>
 #include <cxxtools/conversionerror.h>
-#include <cxxtools/typetraits.h>
+#include <type_traits>
 #include <sstream>
 #include <string>
 #include <typeinfo>
@@ -541,7 +541,7 @@ inline unsigned long long formatAbs(unsigned long long i, bool& isNeg)
 template <typename CharT, typename T, typename FormatT>
 inline CharT* formatInt(CharT* buf, std::size_t buflen, T si, const FormatT& fmt)
 {
-    typedef typename IntTraits<T>::Unsigned UnsignedInt;
+    using UnsignedInt = std::make_unsigned_t<T>;
 
     CharT* end = buf + buflen;
     CharT* cur = end;
@@ -764,8 +764,8 @@ InIterT getSign(InIterT it, InIterT end, bool& pos, const FormatT& fmt)
 template <typename InIterT, typename T, typename FormatT>
 InIterT getInt(InIterT it, InIterT end, bool& ok, T& n, const FormatT& fmt)
 {
-    typedef typename IntTraits<T>::Unsigned UnsignedInt;
-    typedef typename IntTraits<T>::Signed SignedInt;
+    using UnsignedInt = std::make_unsigned_t<T>;
+    using SignedInt = std::make_signed_t<T>;
 
     n = 0;
     ok = false;
