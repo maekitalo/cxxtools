@@ -190,7 +190,7 @@ bool Responder::advance(std::streambuf& in)
                     catch (const std::exception& e)
                     {
                         _failed = true;
-                        _errorMessage = e.what();
+                        _errorMessage = "failed to read argument in method " + RpcServer::function(_headerParser.domain(), _headerParser.method(), true) + ": " + e.what();
                         _state = State::params_skip;
                     }
                 }
