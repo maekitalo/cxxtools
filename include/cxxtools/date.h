@@ -48,9 +48,9 @@ class InvalidDate : public std::invalid_argument
         {}
 };
 
-void greg2jul(unsigned& jd, int y, int m, int d);
+void greg2jul(uint32_t& jd, int y, int m, int d);
 
-void jul2greg(unsigned jd, int& y, int& m, int& d);
+void jul2greg(uint32_t jd, int& y, int& m, int& d);
 
 /*
   Notes:
@@ -187,18 +187,18 @@ class Date
 
         /** \brief Constructs a Date from a julian day
         */
-        explicit Date(unsigned julianDays)
+        explicit Date(uint32_t julianDays)
         : _julian(julianDays)
         {}
 
         /** @brief Sets the Date to a julian day
         */
-        void setJulian(unsigned d)
+        void setJulian(uint32_t d)
         { _julian=d; }
 
         /** @brief Returns the Date as a julian day
         */
-        unsigned julian() const
+        uint32_t julian() const
         { return _julian; }
 
         /** \brief Sets the date to a year, month and day
@@ -350,9 +350,12 @@ class Date
         */
         static bool leapYear(int year);
 
+        static Date min()   { return Date(0); }             // -4713-11-24
+        static Date max()   { return Date(536802342); }     // 5002-10-17
+
     private:
         //! @internal
-        unsigned _julian;
+        uint32_t _julian;
 };
 
 void operator >>=(const SerializationInfo& si, Date& date);
@@ -424,7 +427,7 @@ inline unsigned Date::daysInMonth() const
 inline unsigned Date::dayOfYear() const
 {
     int y,m,d;
-    unsigned jd;
+    uint32_t jd;
     jul2greg(_julian,y,m,d);
 
     greg2jul(jd,y,1,1);
