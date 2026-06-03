@@ -185,6 +185,23 @@ namespace unit {
             {} \
         } while (false)
 
+    #define CXXTOOLS_UNIT_ASSERT_THROW_MSG(cond, EX, msg) \
+        do { \
+            try \
+            { \
+                cond; \
+              \
+                std::ostringstream _cxxtools_msg; \
+                _cxxtools_msg << "exception of type " #EX " expected in " #cond; \
+                throw cxxtools::unit::Assertion(_cxxtools_msg.str(), CXXTOOLS_SOURCEINFO); \
+            } \
+            catch(const EX & e) \
+            { \
+                if (std::string(e.what()).find(msg) == std::string::npos) \
+                    throw cxxtools::unit::Assertion("error text (\"" + std::string(msg) + "\") not found in exception (\"" + e.what() + "\")", CXXTOOLS_SOURCEINFO); \
+            } \
+        } while (false)
+
     #define CXXTOOLS_UNIT_ASSERT_NOTHROW(cond) \
         do { \
             try { \

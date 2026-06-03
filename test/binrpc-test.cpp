@@ -94,6 +94,8 @@ class BinRpcTest : public cxxtools::unit::TestSuite
             registerMethod("VaProc", *this, &BinRpcTest::VaProc);
             registerMethod("FunctionName", *this, &BinRpcTest::FunctionName);
             registerMethod("Lambda", *this, &BinRpcTest::Lambda);
+            registerMethod("TooManyArguments", *this, &BinRpcTest::TooManyArguments);
+            registerMethod("MissingArguments", *this, &BinRpcTest::MissingArguments);
 
             char* PORT = getenv("UTEST_PORT");
             if (PORT)
@@ -867,6 +869,24 @@ class BinRpcTest : public cxxtools::unit::TestSuite
             cxxtools::RemoteProcedure<int, int, int> echo(client, "add");
             echo.begin(3, 5);
             CXXTOOLS_UNIT_ASSERT_EQUALS(echo.end(2000), 8);
+        }
+
+        void TooManyArguments()
+        {
+            _server->registerMethod("multiply", *this, &BinRpcTest::multiplyInt);
+            cxxtools::bin::RpcClient client(_loop, _listen, _port);
+            cxxtools::RemoteProcedure<int, int, int, int> multiply(client, "multiply");
+            multiply.begin(2, 3, 4);
+            CXXTOOLS_UNIT_ASSERT_THROW_MSG(_loop.run(), cxxtools::RemoteException, "too many");
+        }
+
+        void MissingArguments()
+        {
+            _server->registerMethod("multiply", *this, &BinRpcTest::multiplyInt);
+            cxxtools::bin::RpcClient client(_loop, _listen, _port);
+            cxxtools::RemoteProcedure<int, int> multiply(client, "multiply");
+            multiply.begin(2);
+            CXXTOOLS_UNIT_ASSERT_THROW_MSG(_loop.run(), cxxtools::RemoteException, "more arguments");
         }
 };
 
