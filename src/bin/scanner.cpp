@@ -100,7 +100,7 @@ bool Scanner::advance(std::streambuf& in)
             case state_errormessage:
                 if (ch == '\0')
                 {
-                    log_info_to(rpc, static_cast<void*>(this) << " call finished with error");
+                    log_info_to(rpc, static_cast<void*>(this) << " call finished with error: " << _errorMessage);
                     _state = state_end;
                 }
                 else
