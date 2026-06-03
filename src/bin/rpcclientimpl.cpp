@@ -28,14 +28,17 @@
 
 #include "rpcclientimpl.h"
 #include <cxxtools/log.h>
+#include <cxxtools/utf8.h>
 #include <cxxtools/remoteprocedure.h>
 #include <cxxtools/bin/rpcclient.h>
+#include <cxxtools/bin/rpcserver.h>
 #include <cxxtools/selector.h>
 #include <cxxtools/clock.h>
 #include <cxxtools/resetter.h>
 #include <stdexcept>
 
 log_define("cxxtools.bin.rpcclient.impl")
+log_define_instance(rpc, "cxxtools.bin.rpcclient")
 
 namespace cxxtools
 {
@@ -79,6 +82,8 @@ void RpcClientImpl::beginCall(IComposer& r, IRemoteProcedure& method, IDecompose
         throw std::logic_error("asynchronous request already running");
 
     _proc = &method;
+
+    log_info_to(rpc, static_cast<void*>(&_scanner) << " call <" << RpcServer::function(_domain, Utf8(method.name()).str(), true) << "> with " << argc << (argc == 1 ? " parameter" : " parameters") << " on " << _addrInfo.host() << ':' << _addrInfo.port());
 
     prepareRequest(method.name(), argv, argc);
 
@@ -133,6 +138,8 @@ void RpcClientImpl::endCall()
 
 void RpcClientImpl::call(IComposer& r, IRemoteProcedure& method, IDecomposer** argv, unsigned argc)
 {
+    log_info_to(rpc, static_cast<void*>(&_scanner) << " call <" << RpcServer::function(_domain, Utf8(method.name()).str(), true) << "> with " << argc << (argc == 1 ? " parameter" : " parameters") << " on " << _addrInfo.host() << ':' << _addrInfo.port());
+
     try
     {
         _proc = &method;

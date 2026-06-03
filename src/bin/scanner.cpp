@@ -34,6 +34,7 @@
 #include <streambuf>
 
 log_define("cxxtools.bin.scanner")
+log_define_instance(rpc, "cxxtools.bin.rpcclient")
 
 namespace cxxtools
 {
@@ -81,6 +82,7 @@ bool Scanner::advance(std::streambuf& in)
             case state_value:
                 if (_vp.advance(in))
                 {
+                    log_info_to(rpc, static_cast<void*>(this) << " call finished successfully");
                     log_debug(_deserializer->si());
                     _composer->fixup(_deserializer->si());
                     _deserializer->clear();
@@ -97,7 +99,10 @@ bool Scanner::advance(std::streambuf& in)
 
             case state_errormessage:
                 if (ch == '\0')
+                {
+                    log_info_to(rpc, static_cast<void*>(this) << " call finished with error");
                     _state = state_end;
+                }
                 else
                     _errorMessage += ch;
                 in.sbumpc();
