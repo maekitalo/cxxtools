@@ -55,26 +55,19 @@ void CsvDeserializer::doDeserialize(std::basic_istream<Char>& in)
 {
     begin();
 
-    try
+    while (true)
     {
-        while (true)
+        auto c = in.rdbuf()->sbumpc();
+        if (!std::basic_streambuf<Char>::traits_type::not_eof(c))
         {
-            auto c = in.rdbuf()->sbumpc();
-            if (!std::basic_streambuf<Char>::traits_type::not_eof(c))
-            {
-                in.setstate(std::ios::eofbit);
-                break;
-            }
-            advance(std::basic_streambuf<Char>::traits_type::to_char_type(c));
+            in.setstate(std::ios::eofbit);
+            break;
         }
-    }
-    catch (const std::exception& e)
-    {
-        SerializationError::doThrow("parsing csv data failed in line " + std::to_string(_parser.lineNo()) + " column " + std::to_string(_parser.colNo()) + ": " + e.what());
+        advance(std::basic_streambuf<Char>::traits_type::to_char_type(c));
     }
 
     if (in.rdstate() & std::ios::badbit)
-        SerializationError::doThrow("reading csv data failed in line " + std::to_string(_parser.lineNo()) + " column " + std::to_string(_parser.colNo()));
+        SerializationError::doThrow("reading csv data failed in line " + std::to_string(_parser.lineNo() + 1) + " column " + std::to_string(_parser.colNo() + 1));
 
     finish();
 }

@@ -52,7 +52,7 @@ namespace
         else if (column + 1 != noColumns)
         {
             std::ostringstream msg;
-            msg << "number of columns " << (column + 1) << " in line " << lineNo << " does not match expected number of columns " << noColumns << " in csv";
+            msg << "number of columns (" << (column + 1) << ") in line " << lineNo << " does not match expected number of columns (" << noColumns << ") in csv";
             SerializationError::doThrow(msg.str());
         }
     }
@@ -155,6 +155,7 @@ void CsvParser::advance(Char ch)
                 log_debug("title=\"" << _titles.back() << '"');
                 _state = (ch == L'\r' ? state_cr : state_rowstart);
                 _noColumns = _titles.size();
+                _lineNo = 0;
             }
             else if (ch == _delimiter)
             {
@@ -198,6 +199,7 @@ void CsvParser::advance(Char ch)
                 log_debug("title=\"" << _titles.back() << '"');
                 _state = (ch == L'\r' ? state_cr : state_rowstart);
                 _noColumns = _titles.size();
+                _lineNo = 0;
             }
             else if (ch == _delimiter)
             {

@@ -30,6 +30,7 @@
 #define cxxtools_SerializationInfo_h
 
 #include <cxxtools/string.h>
+#include <cxxtools/serializationerror.h>
 #include <vector>
 #include <set>
 #include <map>
@@ -726,7 +727,14 @@ inline void operator >>=(const SerializationInfo& si, std::vector<T, A>& vec)
     for(SerializationInfo::ConstIterator it = si.begin(); it != si.end(); ++it)
     {
         vec.resize( vec.size() + 1 );
-        *it >>= vec.back();
+        try
+        {
+            *it >>= vec.back();
+        }
+        catch (const SerializationError& e)
+        {
+            SerializationError::doThrow("Error in line " + std::to_string(vec.size()) + ": " + e.what());
+        }
     }
 }
 
@@ -768,7 +776,14 @@ inline void operator >>=(const SerializationInfo& si, std::list<T, A>& list)
     for(SerializationInfo::ConstIterator it = si.begin(); it != si.end(); ++it)
     {
         list.resize( list.size() + 1 );
-        *it >>= list.back();
+        try
+        {
+            *it >>= list.back();
+        }
+        catch (const SerializationError& e)
+        {
+            SerializationError::doThrow("Error in line " + std::to_string(list.size()) + ": " + e.what());
+        }
     }
 }
 
@@ -796,7 +811,14 @@ inline void operator >>=(const SerializationInfo& si, std::deque<T, A>& deque)
     for(SerializationInfo::ConstIterator it = si.begin(); it != si.end(); ++it)
     {
         deque.resize( deque.size() + 1 );
-        *it >>= deque.back();
+        try
+        {
+            *it >>= deque.back();
+        }
+        catch (const SerializationError& e)
+        {
+            SerializationError::doThrow("Error in line " + std::to_string(deque.size()) + ": " + e.what());
+        }
     }
 }
 
