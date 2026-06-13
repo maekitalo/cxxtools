@@ -128,3 +128,8 @@ target_compile_features(cxxtools PUBLIC cxx_std_11)
 target_include_directories(cxxtools PUBLIC ${CMAKE_SOURCE_DIR}/include)
 target_include_directories(cxxtools PRIVATE ${CMAKE_SOURCE_DIR}/src)
 target_link_libraries(cxxtools PRIVATE OpenSSL::SSL)
+
+install(TARGETS cxxtools
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)

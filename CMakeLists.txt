@@ -51,5 +51,29 @@ add_subdirectory(src/bin)
 add_subdirectory(src/json)
 add_subdirectory(src/unit)
 add_subdirectory(tools)
-add_subdirectory(demo)
-add_subdirectory(test)
+option(BUILD_DEMOS "Build demo programs" ON)
+if(BUILD_DEMOS)
+  add_subdirectory(demo)
+endif()
+option(BUILD_TESTS "Build test programs" ON)
+if(BUILD_TESTS)
+  add_subdirectory(test)
+endif()
+
+include(GNUInstallDirs)
+
+install(DIRECTORY include/cxxtools
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    PATTERN "*.orig" EXCLUDE
+    PATTERN "doxygen.cfg" EXCLUDE
+)
+
+install(FILES
+    ${CMAKE_CURRENT_BINARY_DIR}/pkgconfig/cxxtools.pc
+    ${CMAKE_CURRENT_BINARY_DIR}/pkgconfig/cxxtools-bin.pc
+    ${CMAKE_CURRENT_BINARY_DIR}/pkgconfig/cxxtools-http.pc
+    ${CMAKE_CURRENT_BINARY_DIR}/pkgconfig/cxxtools-json.pc
+    ${CMAKE_CURRENT_BINARY_DIR}/pkgconfig/cxxtools-unit.pc
+    ${CMAKE_CURRENT_BINARY_DIR}/pkgconfig/cxxtools-xmlrpc.pc
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/pkgconfig
+)
