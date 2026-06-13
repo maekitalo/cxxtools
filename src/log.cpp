@@ -297,7 +297,7 @@ namespace
         if (!flush && _msg.size() < 8192)
             return;
 
-        ::write(_fd, _msg.data(), _msg.size());
+        [[maybe_unused]] auto r = ::write(_fd, _msg.data(), _msg.size());
         _msg.clear();
     }
 

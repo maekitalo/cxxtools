@@ -189,7 +189,7 @@ bool SelectorImpl::waitUntil(Timespan until)
         {
             if( (*iter)->enabled() )
             {
-                const size_t availableSpace= &_pollfds.back() - pCurr + 1;
+                [[maybe_unused]] const size_t availableSpace= &_pollfds.back() - pCurr + 1;
                 size_t required = (*iter)->simpl().pollSize();
                 assert( required <= availableSpace);
                 pCurr+= (*iter)->simpl().initializePoll( pCurr, required);
@@ -316,7 +316,7 @@ bool SelectorImpl::waitUntil(Timespan until)
 
 void SelectorImpl::wake()
 {
-    ::write( _wakePipe[1], "W", 1);
+    [[maybe_unused]] auto r = ::write( _wakePipe[1], "W", 1);
 }
 
 } //namespace cxxtools
