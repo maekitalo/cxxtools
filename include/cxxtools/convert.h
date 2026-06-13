@@ -541,7 +541,7 @@ inline unsigned long long formatAbs(unsigned long long i, bool& isNeg)
 template <typename CharT, typename T, typename FormatT>
 inline CharT* formatInt(CharT* buf, std::size_t buflen, T si, const FormatT& fmt)
 {
-    using UnsignedInt = std::make_unsigned_t<T>;
+    using UnsignedInt = typename std::make_unsigned<T>::type;
 
     CharT* end = buf + buflen;
     CharT* cur = end;
@@ -764,8 +764,8 @@ InIterT getSign(InIterT it, InIterT end, bool& pos, const FormatT& fmt)
 template <typename InIterT, typename T, typename FormatT>
 InIterT getInt(InIterT it, InIterT end, bool& ok, T& n, const FormatT& fmt)
 {
-    using UnsignedInt = std::make_unsigned_t<T>;
-    using SignedInt = std::make_signed_t<T>;
+    using UnsignedInt = typename std::make_unsigned<T>::type;
+    using SignedInt = typename std::make_signed<T>::type;
 
     n = 0;
     ok = false;
