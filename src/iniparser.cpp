@@ -363,7 +363,9 @@ void IniParser::end()
         case state_comment:
             break;
 
+        case state_section0:
         case state_section:
+        case state_sectionsp:
         case state_key:
         case state_key_sp:
         case state_valueesc:
@@ -394,7 +396,9 @@ const char* IniParser::expected() const
     switch (_state)
     {
         case state_0:           return "section start";
-        case state_section:     return "]";
+        case state_section0:    return "section name";
+        case state_section:
+        case state_sectionsp:   return "]";
         case state_key:         return "=";
         case state_key_sp:
         case state_value0:
