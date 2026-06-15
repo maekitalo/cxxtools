@@ -55,7 +55,7 @@ namespace cxxtools
 /** @brief Represents arbitrary types during serialization.
 
     A SerializationInfo represent arbitrary types during serialization. It is
-    a flexible structure, which can hold all informations to reconstruct a
+    a flexible structure, which can hold all information to reconstruct an
     object.
 
     The types of informations are:
@@ -92,11 +92,11 @@ namespace cxxtools
     It must fetch the informations from SerializationInfo and fill the passed object
     to reconstruct it.
 
-    With those 2 operators a serializer is able to to convert the object to
+    With those 2 operators a serializer is able to convert the object to
     some format and the deserializers to convert it back to the object.
 
     Since for standard container types operators are defined using templates,
-    The operators above are also able to serializer and deserialize e.g. a
+    The operators above are also able to serialize and deserialize e.g. a
     `std::vector<YourType>`.
 
     The scalar value may have several types. When accessing the value it is
@@ -221,7 +221,7 @@ class SerializationInfo
         void getValue(signed char& value) const
             { value = static_cast<signed char>(_getInt("signed char", std::numeric_limits<signed char>::min(), std::numeric_limits<signed char>::max())); }
         void getValue(unsigned char& value) const
-            { value = static_cast<signed char>(_getUInt("unsigned char", std::numeric_limits<unsigned char>::max())); }
+            { value = static_cast<unsigned char>(_getUInt("unsigned char", std::numeric_limits<unsigned char>::max())); }
         void getValue(short& value) const
             { value = static_cast<short>(_getInt("short", std::numeric_limits<short>::min(), std::numeric_limits<short>::max())); }
         void getValue(unsigned short& value) const
@@ -251,7 +251,7 @@ class SerializationInfo
         SerializationInfo& addValue(const std::string& name, const T& value)
         {
             SerializationInfo& info = this->addMember(name);
-            info.setValue(T(value));
+            info <<= value;
             return info;
         }
 
@@ -276,8 +276,8 @@ class SerializationInfo
         const SerializationInfo& getMember(const std::string& name) const;
         SerializationInfo& getMember(const std::string& name);
 
-        SerializationInfo& getNthMember(const std::string& name, int unsigned);
-        const SerializationInfo& getNthMember(const std::string& name, int unsigned) const;
+        SerializationInfo& getNthMember(const std::string& name, unsigned int);
+        const SerializationInfo& getNthMember(const std::string& name, unsigned int) const;
 
         /** @brief Deserialization of member data
 
@@ -1275,7 +1275,9 @@ void operator <<=(SerializationInfo& si, EnumClassDeserializer<ENUM> e)
 template <typename ENUM>
 void operator >>=(const SerializationInfo& si, EnumClassDeserializer<ENUM> e)
 {
-    si >>= reinterpret_cast<typename std::underlying_type<ENUM>::type&>(e.value());
+    typename std::underlying_type<ENUM>::type underlying;
+    si >>= underlying;
+    e.value() = static_cast<ENUM>(underlying);
 }
 
 /** Helper for serializing strongly typed enums.

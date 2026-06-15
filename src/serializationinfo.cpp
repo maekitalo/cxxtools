@@ -1061,7 +1061,7 @@ SerializationInfo::int_type SerializationInfo::_getInt(const char* type, int_typ
         case t_uint:    if (_u._u > static_cast<unsigned_type>(std::numeric_limits<int_type>::max()))
                         {
                             std::ostringstream msg;
-                            msg << "value " << ret << " does not fit into " << type;
+                            msg << "value " << _u._u << " does not fit into " << type;
                             if (!_name.empty())
                                 msg << " in node " << _name;
                             throw std::range_error(msg.str());
