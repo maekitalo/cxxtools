@@ -33,6 +33,7 @@
 
 #include <stdexcept>
 #include <sstream>
+#include <limits>
 
 log_define("cxxtools.csv.parser")
 
@@ -47,7 +48,7 @@ namespace
     {
         if (noColumns == unknownNoColumns)
         {
-            column = noColumns;
+            noColumns = column + 1;
         }
         else if (column + 1 != noColumns)
         {
@@ -56,7 +57,6 @@ namespace
             SerializationError::doThrow(msg.str());
         }
     }
-
 }
 const Char CsvParser::autoDelimiter = L'\0';
 
@@ -65,13 +65,13 @@ void CsvParser::begin(CsvDeserializer& handler)
     if (_delimiter == autoDelimiter && !_readTitle)
         throw std::logic_error("can't read csv data with auto delimiter but without title");
 
-    _state = (_readTitle ? _delimiter == autoDelimiter ? state_detectDelim
-                                                       : state_title
-                         : state_rowstart);
+    _state = (_readTitle ? _delimiter == autoDelimiter ? State::detectDelim
+                                                       : State::title
+                         : State::rowstart);
 
     _deserializer = &handler;
     _titles.clear();
-    _titles.push_back(std::string());
+    _titles.emplace_back();
     _noColumns = unknownNoColumns;
     _lineNo = 0;
     _colNo = 0;
@@ -89,7 +89,7 @@ void CsvParser::advance(Char ch)
 
     switch (_state)
     {
-        case state_detectDelim:
+        case State::detectDelim:
             if (isalnum(ch) || ch == L'_' || ch == L' ')
             {
                 _titles.back() += ch.narrow();
@@ -98,27 +98,27 @@ void CsvParser::advance(Char ch)
             {
                 log_debug("title=\"" << _titles.back() << '"');
                 _noColumns = 1;
-                _state = (ch == L'\r' ? state_cr : state_rowstart);
+                _state = (ch == L'\r' ? State::cr : State::rowstart);
             }
             else if (ch == L'\'' || ch == L'"')
             {
                 _quote = ch;
-                _state = state_detectDelim_q;
+                _state = State::detectDelim_q;
             }
             else
             {
                 _delimiter = ch;
                 log_debug("delimiter=" << _delimiter.narrow());
                 log_debug("title=\"" << _titles.back() << '"');
-                _titles.push_back(std::string());
-                _state = state_title;
+                _titles.emplace_back();
+                _state = State::title;
             }
             break;
 
-        case state_detectDelim_q:
+        case State::detectDelim_q:
             if (ch == _quote)
             {
-                _state = state_detectDelim_postq;
+                _state = State::detectDelim_postq;
             }
             else
             {
@@ -126,7 +126,7 @@ void CsvParser::advance(Char ch)
             }
             break;
 
-        case state_detectDelim_postq:
+        case State::detectDelim_postq:
             if (isalnum(ch) || ch == L'_' || ch == L'\'' || ch == L'"' || ch == L' ')
             {
                 std::ostringstream msg;
@@ -137,37 +137,37 @@ void CsvParser::advance(Char ch)
             {
                 log_debug("title=\"" << _titles.back() << '"');
                 _noColumns = 1;
-                _state = (ch == L'\r' ? state_cr : state_rowstart);
+                _state = (ch == L'\r' ? State::cr : State::rowstart);
             }
             else
             {
                 _delimiter = ch;
                 log_debug("delimiter=" << _delimiter.narrow());
                 log_debug("title=\"" << _titles.back() << '"');
-                _titles.push_back(std::string());
-                _state = state_title;
+                _titles.emplace_back();
+                _state = State::title;
             }
             break;
 
-        case state_title:
+        case State::title:
             if (ch == L'\n' || ch == L'\r')
             {
                 log_debug("title=\"" << _titles.back() << '"');
-                _state = (ch == L'\r' ? state_cr : state_rowstart);
+                _state = (ch == L'\r' ? State::cr : State::rowstart);
                 _noColumns = _titles.size();
                 _lineNo = 0;
             }
             else if (ch == _delimiter)
             {
                 log_debug("title=\"" << _titles.back() << '"');
-                _titles.push_back(std::string());
+                _titles.emplace_back();
             }
             else if (ch == L'\'' || ch == L'\"')
             {
                 if (_titles.back().empty())
                 {
                     _quote = ch;
-                    _state = state_qtitle;
+                    _state = State::qtitle;
                 }
                 else
                 {
@@ -182,10 +182,10 @@ void CsvParser::advance(Char ch)
             }
             break;
 
-        case state_qtitle:
+        case State::qtitle:
             if (ch == _quote)
             {
-                _state = state_qtitlep;
+                _state = State::qtitlep;
             }
             else
             {
@@ -193,19 +193,19 @@ void CsvParser::advance(Char ch)
             }
             break;
 
-        case state_qtitlep:
+        case State::qtitlep:
             if (ch == L'\n' || ch == L'\r')
             {
                 log_debug("title=\"" << _titles.back() << '"');
-                _state = (ch == L'\r' ? state_cr : state_rowstart);
+                _state = (ch == L'\r' ? State::cr : State::rowstart);
                 _noColumns = _titles.size();
                 _lineNo = 0;
             }
             else if (ch == _delimiter)
             {
                 log_debug("title=\"" << _titles.back() << '"');
-                _titles.push_back(std::string());
-                _state = state_title;
+                _titles.emplace_back();
+                _state = State::title;
             }
             else
             {
@@ -215,35 +215,36 @@ void CsvParser::advance(Char ch)
             }
             break;
 
-        case state_cr:
-            _state = state_rowstart;
+        case State::cr:
+            _state = State::rowstart;
             if (ch == L'\n')
             {
                 break;
             }
-            // fallthrough
 
-        case state_rowstart:
+            [[fallthrough]];
+
+        case State::rowstart:
             _column = 0;
             if (_skipEmptyLines && (ch == L'\n' || ch == L'\r'))
             {
                 if (ch == L'\r')
-                    _state = state_cr;
+                    _state = State::cr;
                 break;
             }
 
             log_debug("new row");
             _deserializer->beginMember(std::string(),
                 std::string(), SerializationInfo::Object);
-            _state = state_datastart;
+            _state = State::datastart;
 
             // no break
 
-        case state_datastart:
+        case State::datastart:
             log_debug("member \""
-                << (_column < _titles.size() ? _titles[_column] : std::string()) << '"');
+                << titleFor(_column) << '"');
             _deserializer->beginMember(
-                _column < _titles.size() ? _titles[_column] : std::string(),
+                titleFor(_column),
                 std::string(), SerializationInfo::Value);
 
             if (ch == L'\n' || ch == L'\r')
@@ -251,12 +252,12 @@ void CsvParser::advance(Char ch)
                 _deserializer->leaveMember();
                 checkNoColumns(_column, _noColumns, _lineNo);
                 _deserializer->leaveMember();
-                _state = (ch == L'\r' ? state_cr : state_rowstart);
+                _state = (ch == L'\r' ? State::cr : State::rowstart);
             }
             else if (ch == L'"' || ch == L'\'')
             {
                 _quote = ch;
-                _state = state_qdata;
+                _state = State::qdata;
             }
             else if (ch == _delimiter)
             {
@@ -266,22 +267,22 @@ void CsvParser::advance(Char ch)
             else
             {
                 _value += ch;
-                _state = state_data;
+                _state = State::data;
             }
             break;
 
-        case state_data0:
+        case State::data0:
             if (ch == L'"' || ch == L'\'')
             {
                 _quote = ch;
-                _state = state_qdata;
+                _state = State::qdata;
                 break;
             }
 
-            _state = state_data;
-            // fallthrough
+            _state = State::data;
+            [[fallthrough]];
 
-        case state_data:
+        case State::data:
             if (ch == L'\n' || ch == L'\r')
             {
                 log_debug("value \"" << _value << '"');
@@ -289,7 +290,7 @@ void CsvParser::advance(Char ch)
                 checkNoColumns(_column, _noColumns, _lineNo);
                 _deserializer->leaveMember();  // leave data item
                 _deserializer->leaveMember();  // leave row
-                _state = (ch == L'\r' ? state_cr : state_rowstart);
+                _state = (ch == L'\r' ? State::cr : State::rowstart);
             }
             else if (ch == _delimiter)
             {
@@ -298,11 +299,11 @@ void CsvParser::advance(Char ch)
                 _deserializer->leaveMember();  // leave data item
                 ++_column;
                 log_debug("member \""
-                    << (_column < _titles.size() ? _titles[_column] : std::string()) << '"');
+                    << titleFor(_column) << '"');
                 _deserializer->beginMember(
-                    _column < _titles.size() ? _titles[_column] : std::string(),
+                    titleFor(_column),
                     std::string(), SerializationInfo::Value);
-                _state = state_data0;
+                _state = State::data0;
             }
             else
             {
@@ -310,11 +311,11 @@ void CsvParser::advance(Char ch)
             }
             break;
 
-        case state_qdata:
+        case State::qdata:
             if (ch == _quote)
             {
                 //it can be a double _quote, used to allow usage of _quote
-                _state = state_qdata_end;
+                _state = State::qdata_end;
             }
             else
             {
@@ -322,12 +323,12 @@ void CsvParser::advance(Char ch)
             }
             break;
 
-        case state_qdata_end:
+        case State::qdata_end:
             if (ch == _quote)
             {
                 //it is indeed a double_quote. Add one.
                 _value += ch;
-                _state = state_qdata;
+                _state = State::qdata;
                 break;
             }
 
@@ -340,7 +341,7 @@ void CsvParser::advance(Char ch)
             {
                 checkNoColumns(_column, _noColumns, _lineNo);
                 _deserializer->leaveMember();  // leave row
-                _state = (ch == L'\r' ? state_cr : state_rowstart);
+                _state = (ch == L'\r' ? State::cr : State::rowstart);
             }
             else if (ch == _delimiter)
             {
@@ -350,12 +351,12 @@ void CsvParser::advance(Char ch)
                 _deserializer->beginMember(
                     _column < _titles.size() ? _titles[_column] : std::string(),
                     std::string(), SerializationInfo::Value);
-                _state = state_data0;
+                _state = State::data0;
             }
             else
             {
                 _value = _quote + _value + ch;
-                _state = state_data;
+                _state = State::data;
             }
             break;
     }
@@ -366,19 +367,19 @@ void CsvParser::finish()
 {
     switch (_state)
     {
-        case state_datastart:
+        case State::datastart:
             _deserializer->leaveMember();  // leave row
             break;
 
-        case state_data0:
-        case state_data:
+        case State::data0:
+        case State::data:
             checkNoColumns(_column, _noColumns, _lineNo);
             setValue();
             _deserializer->leaveMember();  // leave data item
             _deserializer->leaveMember();  // leave row
             break;
 
-        case state_qdata:
+        case State::qdata:
             checkNoColumns(_column, _noColumns, _lineNo);
             log_debug("value \"" << _quote.narrow() << _value << '"');
             setValue();
@@ -386,7 +387,7 @@ void CsvParser::finish()
             _deserializer->leaveMember();  // leave row
             break;
 
-        case state_qdata_end:
+        case State::qdata_end:
             log_debug("value \"" << _value << '"');
             setValue();
             _deserializer->leaveMember();  // leave data item

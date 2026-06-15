@@ -40,13 +40,15 @@ namespace cxxtools
     {
         public:
             CsvParser()
-                : _deserializer(0),
+                : _deserializer(nullptr),
                   _delimiter(autoDelimiter),
                   _readTitle(true),
                   _skipEmptyLines(false),
+                  _column(0),
                   _noColumns(0),
                   _lineNo(0),
-                  _colNo(0)
+                  _colNo(0),
+                  _quote(L'\0')
             { }
 
             Char delimiter() const
@@ -80,23 +82,30 @@ namespace cxxtools
             void finish();
 
         private:
+
+            const std::string& titleFor(size_t col) const
+            {
+                static const std::string empty;
+                return col < _titles.size() ? _titles[col] : empty;
+            }
+
             void setValue();
 
-            enum
+            enum class State
             {
-                state_detectDelim,
-                state_detectDelim_q,
-                state_detectDelim_postq,
-                state_title,
-                state_qtitle,
-                state_qtitlep,
-                state_cr,
-                state_rowstart,
-                state_datastart,
-                state_data0,
-                state_data,
-                state_qdata,
-                state_qdata_end
+                detectDelim,
+                detectDelim_q,
+                detectDelim_postq,
+                title,
+                qtitle,
+                qtitlep,
+                cr,
+                rowstart,
+                datastart,
+                data0,
+                data,
+                qdata,
+                qdata_end
             } _state;
 
             CsvDeserializer* _deserializer;
