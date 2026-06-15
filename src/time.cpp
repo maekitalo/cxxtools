@@ -55,24 +55,23 @@ Time::Time(const std::string& str, const std::string& fmt)
   unsigned useconds = 0;
   bool am = true;
 
-  enum {
-    state_0,
-    state_fmt,
-    state_two
-  } state = state_0;
+  enum class State {
+    null,
+    format,
+    two
+  } state = State::null;
 
   std::string::const_iterator dit = str.begin();
   try
   {
-    std::string::const_iterator it;
-    for (it = fmt.begin(); it != fmt.end(); ++it)
+    for (auto it = fmt.begin(); it != fmt.end(); ++it)
     {
       char ch = *it;
       switch (state)
       {
-        case state_0:
+        case State::null:
           if (ch == '%')
-            state = state_fmt;
+            state = State::format;
           else
           {
             if (ch == '*')
@@ -86,8 +85,8 @@ Time::Time(const std::string& str, const std::string& fmt)
           }
           break;
 
-        case state_fmt:
-          state = state_0;
+        case State::format:
+          state = State::null;
           switch (ch)
           {
             case 'H':
@@ -152,7 +151,7 @@ Time::Time(const std::string& str, const std::string& fmt)
               break;
 
             case '2':
-              state = state_two;
+              state = State::two;
               break;
 
             default:
@@ -161,8 +160,8 @@ Time::Time(const std::string& str, const std::string& fmt)
 
           break;
 
-        case state_two:
-          state = state_0;
+        case State::two:
+          state = State::null;
           switch (ch)
           {
             case 'H':
@@ -176,10 +175,15 @@ Time::Time(const std::string& str, const std::string& fmt)
       }
     }
 
-    if (it != fmt.end() || dit != str.end())
+    if (state != State::null || dit != str.end())
       throwInvalidTime(str, dit, fmt);
 
-    set(am ? hours : hours + 12, minutes, seconds, 0, useconds);
+    unsigned normalized_hours = hours;
+    if (am && hours == 12)
+        normalized_hours = 0;       // 12 AM → midnight
+    else if (!am && hours != 12)
+        normalized_hours = hours + 12;  // 1–11 PM → 13–23
+    set(normalized_hours, minutes, seconds, 0, useconds);
   }
   catch (const std::invalid_argument&)
   {
@@ -195,26 +199,26 @@ std::string Time::toString(const std::string& fmt) const
 
   std::string str;
 
-  enum {
-    state_0,
-    state_fmt,
-    state_one
-  } state = state_0;
+  enum class State {
+    null,
+    format,
+    one
+  } state = State::null;
 
   for (std::string::const_iterator it = fmt.begin(); it != fmt.end(); ++it)
   {
     switch (state)
     {
-      case state_0:
+      case State::null:
         if (*it == '%')
-          state = state_fmt;
+          state = State::format;
         else
           str += *it;
         break;
 
-      case state_fmt:
+      case State::format:
         if (*it != '%')
-          state = state_0;
+          state = State::null;
 
         switch (*it)
         {
@@ -224,13 +228,14 @@ std::string Time::toString(const std::string& fmt) const
           case 'S': appendDn(str, 2, seconds); break;
           case 'j': if (useconds != 0)
                     {
+                      auto u = useconds;
                       str += '.';
-                      str += (useconds / 100000 + '0');
-                      useconds %= 100000;
-                      for (unsigned e = 10000; e > 0 && useconds > 0; e /= 10)
+                      str += (u / 100000 + '0');
+                      u %= 100000;
+                      for (unsigned e = 10000; e > 0 && u > 0; e /= 10)
                       {
-                        str += (useconds / e + '0');
-                        useconds %= e;
+                        str += (u / e + '0');
+                        u %= e;
                       }
                     }
                     break;
@@ -262,7 +267,7 @@ std::string Time::toString(const std::string& fmt) const
           case 'p': str += (hours < 12 ? "am" : "pm"); break;
           case 'P': str += (hours < 12 ? "AM" : "PM"); break;
 
-          case '1': state = state_one; break;
+          case '1': state = State::one; break;
 
           default:
             str += '%';
@@ -271,8 +276,8 @@ std::string Time::toString(const std::string& fmt) const
 
         break;
 
-      case state_one:
-        state = state_0;
+      case State::one:
+        state = State::null;
         switch (*it)
         {
           case 'H': appendDn(str, hours < 10 ? 1 : 2, hours); break;
@@ -283,7 +288,7 @@ std::string Time::toString(const std::string& fmt) const
           default:  str += "%1";
                     str += *it;
                     if (*it == '%')
-                      state = state_fmt;
+                      state = State::format;
                     break;
         }
 
@@ -291,7 +296,7 @@ std::string Time::toString(const std::string& fmt) const
     }
   }
 
-  if (state == state_fmt)
+  if (state == State::format)
     str += '%';
 
   return str;
@@ -299,7 +304,7 @@ std::string Time::toString(const std::string& fmt) const
 
 Time& Time::operator+=(const Timespan& ts)
 {
-    double microsecs = _usecs + Microseconds(ts);
+    auto microsecs = _usecs + ts.totalUSecs();
     if (microsecs < 0 || microsecs > USecsPerDay)
     {
         std::ostringstream s;
@@ -313,7 +318,7 @@ Time& Time::operator+=(const Timespan& ts)
 
 Time& Time::operator-=(const Timespan& ts)
 {
-    double microsecs = _usecs - Microseconds(ts);
+    auto microsecs = _usecs + ts.totalUSecs();
     if (microsecs < 0 || microsecs > USecsPerDay)
     {
         std::ostringstream s;
@@ -329,7 +334,7 @@ void operator >>=(const SerializationInfo& si, Time& time)
 {
     if (si.category() == cxxtools::SerializationInfo::Object)
     {
-        unsigned short hour, min, sec, msec;
+        unsigned short hour, min, sec, msec, usec;
 
         si.getMember("hour") >>= hour;
 
@@ -351,7 +356,13 @@ void operator >>=(const SerializationInfo& si, Time& time)
         else
             msec = 0;
 
-        time.set(hour, min, sec, msec);
+        if ((p = si.findMember("microssecond")) != 0
+            || (p = si.findMember("usec")) != 0)
+            *p >>= usec;
+        else
+            msec = 0;
+
+        time.set(hour, min, sec, msec, usec);
     }
     else
     {

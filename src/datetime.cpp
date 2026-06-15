@@ -53,24 +53,23 @@ DateTime::DateTime(const std::string& str, const std::string& fmt)
   unsigned useconds = 0;
   bool am = true;
 
-  enum {
-    state_0,
-    state_fmt,
-    state_two
-  } state = state_0;
+  enum class State {
+    null,
+    format,
+    two
+  } state = State::null;
 
   std::string::const_iterator dit = str.begin();
   try
   {
-    std::string::const_iterator it;
-    for (it = fmt.begin(); it != fmt.end(); ++it)
+    for (auto it = fmt.begin(); it != fmt.end(); ++it)
     {
       char ch = *it;
       switch (state)
       {
-        case state_0:
+        case State::null:
           if (ch == '%')
-            state = state_fmt;
+            state = State::format;
           else
           {
             if (ch == '*')
@@ -84,8 +83,8 @@ DateTime::DateTime(const std::string& str, const std::string& fmt)
           }
           break;
 
-        case state_fmt:
-          state = state_0;
+        case State::format:
+          state = State::null;
           switch (ch)
           {
             case 'Y':
@@ -171,7 +170,7 @@ DateTime::DateTime(const std::string& str, const std::string& fmt)
               break;
 
             case '2':
-              state = state_two;
+              state = State::two;
               break;
 
             default:
@@ -180,8 +179,8 @@ DateTime::DateTime(const std::string& str, const std::string& fmt)
 
           break;
 
-        case state_two:
-          state = state_0;
+        case State::two:
+          state = State::null;
           switch (ch)
           {
             case 'm': month = getUnsignedF(dit, str.end(), 2); break;
@@ -196,10 +195,15 @@ DateTime::DateTime(const std::string& str, const std::string& fmt)
       }
     }
 
-    if (it != fmt.end() || dit != str.end())
+    if (state != State::null || dit != str.end())
       throwInvalidDate(str, dit, fmt);
 
-    set(year, month, day, am ? hours : hours + 12, minutes, seconds, 0, useconds);
+    unsigned normalized_hours = hours;
+    if (am && hours == 12)
+        normalized_hours = 0;       // 12 AM → midnight
+    else if (!am && hours != 12)
+        normalized_hours = hours + 12;  // 1–11 PM → 13–23
+    set(year, month, day, normalized_hours, minutes, seconds, 0, useconds);
   }
   catch (const std::invalid_argument&)
   {
@@ -238,26 +242,26 @@ std::string DateTime::toString(const std::string& fmt) const
 
   std::string str;
 
-  enum {
-    state_0,
-    state_fmt,
-    state_one
-  } state = state_0;
+  enum class State {
+    null,
+    format,
+    one
+  } state = State::null;
 
   for (std::string::const_iterator it = fmt.begin(); it != fmt.end(); ++it)
   {
     switch (state)
     {
-      case state_0:
+      case State::null:
         if (*it == '%')
-          state = state_fmt;
+          state = State::format;
         else
           str += *it;
         break;
 
-      case state_fmt:
+      case State::format:
         if (*it != '%')
-          state = state_0;
+          state = State::null;
 
         switch (*it)
         {
@@ -313,7 +317,7 @@ std::string DateTime::toString(const std::string& fmt) const
           case 'p': str += (hours < 12 ? "am" : "pm"); break;
           case 'P': str += (hours < 12 ? "AM" : "PM"); break;
 
-          case '1': state = state_one; break;
+          case '1': state = State::one; break;
 
           default:
             str += '%';
@@ -322,8 +326,8 @@ std::string DateTime::toString(const std::string& fmt) const
 
         break;
 
-      case state_one:
-        state = state_0;
+      case State::one:
+        state = State::null;
         switch (*it)
         {
           case 'd': appendDn(str, day < 10 ? 1 : 2, day); break;
@@ -336,7 +340,7 @@ std::string DateTime::toString(const std::string& fmt) const
           default:  str += "%1";
                     str += *it;
                     if (*it == '%')
-                      state = state_fmt;
+                      state = State::format;
                     break;
         }
 
@@ -344,7 +348,7 @@ std::string DateTime::toString(const std::string& fmt) const
     }
   }
 
-  if (state == state_fmt)
+  if (state == State::format)
     str += '%';
 
   return str;

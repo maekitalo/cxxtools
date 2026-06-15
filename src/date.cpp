@@ -50,7 +50,7 @@ InvalidDate::InvalidDate(const std::string& what)
 }
 
 
-void greg2jul(unsigned& jd, int y, int m, int d)
+void Date::greg2jul(unsigned& jd, int y, int m, int d)
 {
     if( ! Date::isValid(y, m, d) )
     {
@@ -61,7 +61,7 @@ void greg2jul(unsigned& jd, int y, int m, int d)
 }
 
 
-void jul2greg(unsigned jd, int& y, int& m, int& d)
+void Date::jul2greg(unsigned jd, int& y, int& m, int& d)
 {
   int l,n,i,j;
   l=jd+68569;
@@ -84,11 +84,11 @@ Date::Date(const std::string& str, const std::string& fmt)
   unsigned month = 1;
   unsigned day = 1;
 
-  enum {
-    state_0,
-    state_fmt,
-    state_two
-  } state = state_0;
+  enum class State {
+    null,
+    format,
+    two
+  } state = State::null;
 
   std::string::const_iterator dit = str.begin();
   try
@@ -99,9 +99,9 @@ Date::Date(const std::string& str, const std::string& fmt)
       char ch = *it;
       switch (state)
       {
-        case state_0:
+        case State::null:
           if (ch == '%')
-            state = state_fmt;
+            state = State::format;
           else
           {
             if (ch == '*')
@@ -115,9 +115,9 @@ Date::Date(const std::string& str, const std::string& fmt)
           }
           break;
 
-        case state_fmt:
+        case State::format:
           if (*it != '%')
-            state = state_0;
+            state = State::null;
 
           switch (ch)
           {
@@ -143,7 +143,7 @@ Date::Date(const std::string& str, const std::string& fmt)
               break;
 
             case '2':
-              state = state_two;
+              state = State::two;
               break;
 
             default:
@@ -152,8 +152,8 @@ Date::Date(const std::string& str, const std::string& fmt)
 
           break;
 
-        case state_two:
-          state = state_0;
+          case State::two:
+          state = State::null;
           switch (ch)
           {
             case 'm': month = getUnsignedF(dit, str.end(), 2); break;
@@ -185,26 +185,26 @@ std::string Date::toString(const std::string& fmt) const
 
   std::string str;
 
-  enum {
-    state_0,
-    state_fmt,
-    state_one
-  } state = state_0;
+  enum State {
+    null,
+    format,
+    one
+  } state = State::null;
 
   for (std::string::const_iterator it = fmt.begin(); it != fmt.end(); ++it)
   {
     switch (state)
     {
-      case state_0:
+      case State::null:
         if (*it == '%')
-          state = state_fmt;
+          state = State::format;
         else
           str += *it;
         break;
 
-      case state_fmt:
+      case State::format:
         if (*it != '%')
-          state = state_0;
+          state = State::null;
 
         switch (*it)
         {
@@ -216,7 +216,7 @@ std::string Date::toString(const std::string& fmt) const
           case 'w': appendDn(str, 1, dayOfWeek()); break;
           case 'W': { int dow = dayOfWeek(); appendDn(str, 1, dow == 0 ? 7 : dow); } break;
           case 'N': str += weekdaynames[dayOfWeek()]; break;
-          case '1': state = state_one; break;
+          case '1': state = State::one; break;
 
           default:
             str += '%';
@@ -225,8 +225,8 @@ std::string Date::toString(const std::string& fmt) const
 
         break;
 
-      case state_one:
-        state = state_0;
+      case State::one:
+        state = State::null;
         switch (*it)
         {
           case 'd': appendDn(str, day < 10 ? 1 : 2, day); break;
@@ -234,7 +234,7 @@ std::string Date::toString(const std::string& fmt) const
           default:  str += "%1";
                     str += *it;
                     if (*it == '%')
-                      state = state_fmt;
+                      state = State::format;
                     break;
         }
 
@@ -242,7 +242,7 @@ std::string Date::toString(const std::string& fmt) const
     }
   }
 
-  if (state == state_fmt)
+  if (state == State::format)
     str += '%';
 
   return str;
@@ -250,7 +250,7 @@ std::string Date::toString(const std::string& fmt) const
 
 bool Date::isValid(int y, int m, int d)
 {
-    static const unsigned char monthDays[12]=
+    const unsigned char monthDays[12]=
     {
         31,28,31,30,31,30,31,31,30,31,30,31
     };

@@ -48,20 +48,19 @@ class InvalidDate : public std::invalid_argument
         {}
 };
 
-void greg2jul(uint32_t& jd, int y, int m, int d);
-
-void jul2greg(uint32_t jd, int& y, int& m, int& d);
-
-/*
-  Notes:
-  - Henry F. Fliegel and Thomas C. Van Flandern, "A Machine Algorithm for
-    Processing Calendar Dates". CACM, Vol. 11, No. 10, October 1968, pp 657.
-*/
 /** @brief %Date expressed in year, month, and day
     @ingroup DateTime
 */
 class Date
 {
+    /*
+      Notes:
+      - Henry F. Fliegel and Thomas C. Van Flandern, "A Machine Algorithm for
+        Processing Calendar Dates". CACM, Vol. 11, No. 10, October 1968, pp 657.
+    */
+        static void greg2jul(uint32_t& jd, int y, int m, int d);
+        static void jul2greg(uint32_t jd, int& y, int& m, int& d);
+
     public:
         enum Month
         {
