@@ -49,6 +49,9 @@ basic_string<cxxtools::Char>::basic_string(basic_string&& str) noexcept
 
 basic_string<cxxtools::Char>& basic_string<cxxtools::Char>::operator=(basic_string<cxxtools::Char>&& str)
 {
+    if (this == &str)
+        return *this;
+
     if (!isShortString())
     {
         _data.deallocate(longStringData(), longStringCapacity() + 1);
@@ -105,7 +108,7 @@ void basic_string<cxxtools::Char>::privreserve(size_t n)
 {
     if (capacity() < n)
     {
-        size_type nn = 16;
+        size_type nn = std::max<size_type>(capacity(), 16);
         while (nn < n)
             nn += (nn >> 1);
         reserve(nn);
@@ -413,7 +416,7 @@ int basic_string<cxxtools::Char>::compare(const basic_string& str) const
 
     // unlike real life, size only matters when the quality is equal
     if (result == 0) {
-        return static_cast<int>(size - osize);
+        return size > osize ? 1 : size < osize ? -1 : 0;
     }
 
     return result;
