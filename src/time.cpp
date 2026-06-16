@@ -360,7 +360,7 @@ void operator >>=(const SerializationInfo& si, Time& time)
             || (p = si.findMember("usec")) != 0)
             *p >>= usec;
         else
-            msec = 0;
+            usec = 0;
 
         time.set(hour, min, sec, msec, usec);
     }
