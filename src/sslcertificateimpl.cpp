@@ -37,7 +37,7 @@
 
 namespace cxxtools
 {
-static String str(X509_NAME* a)
+static String str(const X509_NAME* a)
 {
     class MemBIO
     {
@@ -64,7 +64,7 @@ static String str(X509_NAME* a)
     return Utf8Codec::decode(&buf[0], buf.size());
 }
 
-static std::string str(ASN1_INTEGER* a)
+static std::string str(const ASN1_INTEGER* a)
 {
     BIGNUM* bn = ASN1_INTEGER_to_BN(a, 0);
     if (bn == 0)
@@ -84,7 +84,7 @@ static std::string str(ASN1_INTEGER* a)
 }
 
 #ifdef HAVE_ASN1_TIME_diff
-static DateTime dt(ASN1_TIME* t)
+static DateTime dt(const ASN1_TIME* t)
 {
     class Asn1Time
     {
@@ -112,7 +112,7 @@ static DateTime dt(ASN1_TIME* t)
     return DateTime::fromMSecsSinceEpoch(Seconds(secs));
 }
 #else
-static DateTime dt(ASN1_TIME* time)
+static DateTime dt(const ASN1_TIME* time)
 {
     const char* str = (const char*) time->data;
     size_t i = 0;
