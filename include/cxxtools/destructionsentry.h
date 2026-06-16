@@ -54,7 +54,10 @@ public:
         : _deleted(false),
           _sentry(sentry)
     {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdangling-pointer"
        sentry = this;
+#pragma GCC diagnostic pop
     }
 
     explicit DestructionSentry(DestructionSentryPtr& ptr);
