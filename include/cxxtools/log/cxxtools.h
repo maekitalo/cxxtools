@@ -31,6 +31,7 @@
 
 #include <string>
 #include <iostream>
+#include <atomic>
 
 #define _cxxtools_log_enabled(impl, level)   \
   (getLogger ## impl() != 0 && getLogger ## impl()->isEnabled(::cxxtools::Logger::level))
@@ -322,7 +323,7 @@ namespace cxxtools
 
       Impl* _impl;
       LogManager();
-      static bool _enabled;
+      static std::atomic<bool> _enabled;
 
       LogManager(const LogManager&);
       LogManager& operator=(const LogManager&);

@@ -50,6 +50,7 @@
 #include <fstream>
 #include <sstream>
 #include <cctype>
+#include <string.h>
 
 #include <unistd.h>
 #include <stdio.h>
@@ -94,7 +95,6 @@ namespace
 {
     std::mutex loggersMutex;
     std::mutex logMutex;
-    std::mutex poolMutex;
     atomic_t mutexWaitCount(0);
 
     template <typename T, unsigned MaxPoolSize = 8>
@@ -126,7 +126,7 @@ namespace
             T* impl;
 
             {
-                std::lock_guard<std::mutex> lock(poolMutex);
+                std::lock_guard<std::mutex> lock(mutex);
                 if (pool.empty())
                     return new T();
 
@@ -139,7 +139,7 @@ namespace
 
         void releaseInstance(T* inst)
         {
-            std::lock_guard<std::mutex> lock(poolMutex);
+            std::lock_guard<std::mutex> lock(mutex);
 
             if (pool.size() < MaxPoolSize)
                 pool.push_back(inst);
@@ -637,35 +637,12 @@ namespace
     }
 
     //////////////////////////////////////////////////////////////////////
-    int throwInvalidLogLevel(const std::string& level, const std::string& category)
+    [[noreturn]] void throwInvalidLogLevel(const std::string& level, const std::string& category)
     {
         std::string msg = "unknown log level \"" + level + '\"';
         if (!category.empty())
             msg += " for category \"" + category + '"';
         throw std::runtime_error(msg);
-    }
-
-    int compareIgnoreCase(const char* s1, const char* s2)
-    {
-        const char* it1 = s1;
-        const char* it2 = s2;
-        while (*it1 && *it2)
-        {
-            if (*it1 != *it2)
-            {
-                char c1 = std::toupper(*it1);
-                char c2 = std::toupper(*it2);
-                if (c1 < c2)
-                    return -1;
-                else if (c2 < c1)
-                    return 1;
-            }
-            ++it1;
-            ++it2;
-        }
-
-        return *it1 ? 1
-                    : *it2 ? -1 : 0;
     }
 
     Logger::log_level_type logFlag2logLevel(Logger::log_flag_type flag)
@@ -680,28 +657,28 @@ namespace
         // Converts a log level string (FATAL, ERROR, ...) to log_level_type.
         // When the log level is not identified, 0 is returned.
 
-        if (compareIgnoreCase(level, "FATAL") == 0)
+        if (strcasecmp(level, "FATAL") == 0)
             return Logger::LOG_FATAL;
 
-        if (compareIgnoreCase(level, "ERROR") == 0)
+        if (strcasecmp(level, "ERROR") == 0)
             return Logger::LOG_ERROR;
 
-        if (compareIgnoreCase(level, "WARN") == 0)
+        if (strcasecmp(level, "WARN") == 0)
             return Logger::LOG_WARN;
 
-        if (compareIgnoreCase(level, "INFO") == 0)
+        if (strcasecmp(level, "INFO") == 0)
             return Logger::LOG_INFO;
 
-        if (compareIgnoreCase(level, "DEBUG") == 0)
+        if (strcasecmp(level, "DEBUG") == 0)
             return Logger::LOG_DEBUG;
 
-        if (compareIgnoreCase(level, "FINE") == 0)
+        if (strcasecmp(level, "FINE") == 0)
             return Logger::LOG_FINE;
 
-        if (compareIgnoreCase(level, "FINER") == 0)
+        if (strcasecmp(level, "FINER") == 0)
             return Logger::LOG_FINER;
 
-        if (compareIgnoreCase(level, "FINEST") == 0)
+        if (strcasecmp(level, "FINEST") == 0)
             return Logger::LOG_FINEST;
 
         switch (level[0])
@@ -800,8 +777,9 @@ namespace
     const char* logLevel2Charp(int level)
     {
         return level == Logger::LOG_LEVEL_TRACE ? "TRACE"
-             : level == Logger::LOG_LEVEL_DEBUG ? "FINEST"
-             : level == Logger::LOG_LEVEL_DEBUG ? "FINER"
+             : level == Logger::LOG_LEVEL_DEBUG ? "DEBUG"
+             : level == Logger::LOG_LEVEL_FINER ? "FINER"
+             : level == Logger::LOG_LEVEL_FINEST ? "FINEST"
              : level == Logger::LOG_LEVEL_INFO  ? "INFO"
              : level == Logger::LOG_LEVEL_WARN  ? "WARN"
              : level == Logger::LOG_LEVEL_ERROR ? "ERROR"
@@ -1052,7 +1030,7 @@ void operator<<= (SerializationInfo& si, const LogConfiguration::Impl& impl)
         cxxtools::SerializationInfo& llsi = lsi.addMember();
         llsi.setTypeName("logger");
         llsi.addMember("category") <<= it->first;
-        llsi.addMember("level") <<= logLevel2Charp(it->second == Logger::LOG_LEVEL_TRACE);
+        llsi.addMember("level") <<= logLevel2Charp(it->second);
     }
 
     if (!impl._fname.empty())
@@ -1281,7 +1259,7 @@ LogManager::Impl::~Impl()
 // LogManager
 //
 
-bool LogManager::_enabled = false;
+std::atomic<bool> LogManager::_enabled = false;
 
 LogManager::LogManager()
   : _impl(0)
@@ -1345,7 +1323,7 @@ void LogManager::logInit(int argc, char* argv[])
 
 void LogManager::logInit(const std::string& fname)
 {
-    std::ifstream in(fname.c_str());
+    std::ifstream in(fname);
     if (in)
     {
         try
