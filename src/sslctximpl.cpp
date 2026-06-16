@@ -48,6 +48,7 @@ log_define("cxxtools.sslctx.impl")
 namespace cxxtools
 {
 
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
 static std::unique_ptr<std::mutex[]> openssl_mutex = nullptr;
 
 static unsigned long pthreads_thread_id()
@@ -60,6 +61,7 @@ static void pthreads_locking_callback(int mode, int n, const char* /* file */, i
     else
         openssl_mutex[n].unlock();
 }
+#endif
 
 SslCtx::Impl::Impl()
 {
@@ -71,10 +73,12 @@ SslCtx::Impl::Impl()
 
         SslError::checkSslError();
 
+#if OPENSSL_VERSION_NUMBER < 0x10100000L
         openssl_mutex.reset(new std::mutex[CRYPTO_num_locks()]);
 
         CRYPTO_set_id_callback(pthreads_thread_id);
         CRYPTO_set_locking_callback(pthreads_locking_callback);
+#endif
     });
 
 #ifdef HAVE_TLS_METHOD
