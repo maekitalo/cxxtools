@@ -31,6 +31,7 @@
 
 #include <cxxtools/string.h>
 #include <cxxtools/serializationerror.h>
+#include <memory>
 
 namespace cxxtools
 {
@@ -69,32 +70,32 @@ namespace cxxtools
                     JsonParser* _jsonParser;
                     String _str;
                     unsigned _count;
-                    unsigned short _value;
-                    unsigned short _surrogateValue;
+                    uint32_t _value;
+                    uint32_t _surrogateValue;
 
-                    enum
+                    enum class State
                     {
-                        state_0,
-                        state_esc,
-                        state_hex,
-                        state_highsurrogate0,
-                        state_lowsurrogate0,
-                        state_highsurrogate_esc,
-                        state_lowsurrogate_esc,
-                        state_highsurrogate_hex,
-                        state_lowsurrogate_hex
+                        null,
+                        esc,
+                        hex,
+                        highsurrogate0,
+                        lowsurrogate0,
+                        highsurrogate_esc,
+                        lowsurrogate_esc,
+                        highsurrogate_hex,
+                        lowsurrogate_hex
                     } _state;
 
                 public:
                     explicit JsonStringParser(JsonParser* jsonParser)
                         : _jsonParser(jsonParser),
-                          _state(state_0)
+                          _state(State::null)
                         { }
 
                     bool advance(Char ch);
 
                     void clear()
-                    { _state = state_0; _str.clear(); }
+                    { _state = State::null; _str.clear(); }
 
                     const String& str() const
                     { return _str; }
@@ -115,7 +116,7 @@ namespace cxxtools
 
             void begin(JsonDeserializer& handler)
             {
-                _state = state_beforestart;
+                _state = State::beforestart;
                 _token.clear();
                 _deserializer = &handler;
             }
@@ -124,38 +125,38 @@ namespace cxxtools
             void finish();
 
         private:
-            enum
+            enum class State
             {
-                state_beforestart,
-                state_0,
-                state_object,
-                state_object_plainname,
-                state_object_name,
-                state_object_after_name,
-                state_object_value,
-                state_object_e,
-                state_object_next_member0,
-                state_object_next_member,
-                state_array,
-                state_array_value0,
-                state_array_value,
-                state_array_e,
-                state_string,
-                state_number,
-                state_float,
-                state_token,
-                state_comment0,
-                state_commentline,
-                state_comment,
-                state_comment_e,
-                state_end
+                beforestart,
+                null,
+                object,
+                object_plainname,
+                object_name,
+                object_after_name,
+                object_value,
+                object_e,
+                object_next_member0,
+                object_next_member,
+                array,
+                array_value0,
+                array_value,
+                array_e,
+                string,
+                number,
+                real,
+                token,
+                comment0,
+                commentline,
+                comment,
+                comment_e,
+                end
             } _state, _nextState;
 
             String _token;
 
             JsonDeserializer* _deserializer;
             JsonStringParser _stringParser;
-            JsonParser* _next;
+            std::unique_ptr<JsonParser> _next;
             unsigned _lineNo;
 
             void doThrow(const std::string& msg);
