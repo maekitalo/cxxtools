@@ -119,18 +119,18 @@ void BufferedReaderTest::read()
     {
         log_debug("read " << n << " in_avail " << reader.in_avail());
         count = reader.read(inpBuf, 27);
-        CXXTOOLS_UNIT_ASSERT_EQUALS(count, 27);
+        CXXTOOLS_UNIT_ASSERT_EQUALS(count, 27u);
         CXXTOOLS_UNIT_ASSERT_EQUALS(inpBuf[0], static_cast<char>('A' + n));
     }
 
     log_debug("read more" << " in_avail " << reader.in_avail());
     count = reader.read(inpBuf, 27);
     CXXTOOLS_UNIT_ASSERT(!reader.eof());
-    CXXTOOLS_UNIT_ASSERT_EQUALS(count, 4);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(count, 4u);
 
     count = reader.read(inpBuf, 27);
     CXXTOOLS_UNIT_ASSERT(reader.eof());
-    CXXTOOLS_UNIT_ASSERT_EQUALS(count, 0);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(count, 0u);
 
 }
 
