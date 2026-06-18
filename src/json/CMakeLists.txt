@@ -14,3 +14,8 @@ add_library(cxxtools-json
 )
 
 target_link_libraries(cxxtools-json cxxtools cxxtools-http)
+
+install(TARGETS cxxtools-json
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)

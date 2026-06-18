@@ -14,3 +14,8 @@ add_library(cxxtools-bin
 )
 
 target_link_libraries(cxxtools-bin cxxtools)
+
+install(TARGETS cxxtools-bin
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)
