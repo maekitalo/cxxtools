@@ -356,6 +356,10 @@ class SerializationInfo
         bool isFloat() const      { return _t == t_float; }
         bool isDouble() const     { return _t == t_double; }
         bool isLongDouble() const { return _t == t_ldouble; }
+        bool isVoid() const       { return _category == Category::Void; }
+        bool isValue() const      { return _category == Category::Value; }
+        bool isObject() const     { return _category == Category::Object; }
+        bool isArray() const      { return _category == Category::Array; }
 
         /** fetch part of SerializationInfo using a path notation
 
