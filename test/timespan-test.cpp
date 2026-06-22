@@ -51,6 +51,7 @@ class TimespanTest : public cxxtools::unit::TestSuite
             registerMethod("serializeunits", *this, &TimespanTest::serializeunits);
             registerMethod("deserializeunits", *this, &TimespanTest::deserializeunits);
             registerMethod("deserializeweaktimespan", *this, &TimespanTest::deserializeweaktimespan);
+            registerMethod("deserializeobject", *this, &TimespanTest::deserializeobject);
             registerMethod("ostream", *this, &TimespanTest::ostream);
             registerMethod("istream", *this, &TimespanTest::istream);
             registerMethod("istreamunits", *this, &TimespanTest::istreamunits);
@@ -375,6 +376,97 @@ class TimespanTest : public cxxtools::unit::TestSuite
 
         }
 
+        void deserializeobject()
+        {
+            {
+                cxxtools::SerializationInfo si;
+                si.addMember("days") <<= 42;
+                cxxtools::Timespan t;
+                si >>= t;
+                CXXTOOLS_UNIT_ASSERT_EQUALS(t, cxxtools::Days(42));
+            }
+            {
+                cxxtools::SerializationInfo si;
+                si.addMember("hours") <<= 42;
+                cxxtools::Timespan t;
+                si >>= t;
+                CXXTOOLS_UNIT_ASSERT_EQUALS(t, cxxtools::Hours(42));
+            }
+            {
+                cxxtools::SerializationInfo si;
+                si.addMember("minutes") <<= 42;
+                cxxtools::Timespan t;
+                si >>= t;
+                CXXTOOLS_UNIT_ASSERT_EQUALS(t, cxxtools::Minutes(42));
+            }
+            {
+                cxxtools::SerializationInfo si;
+                si.addMember("mins") <<= 42;
+                cxxtools::Timespan t;
+                si >>= t;
+                CXXTOOLS_UNIT_ASSERT_EQUALS(t, cxxtools::Minutes(42));
+            }
+            {
+                cxxtools::SerializationInfo si;
+                si.addMember("seconds") <<= 42;
+                cxxtools::Timespan t;
+                si >>= t;
+                CXXTOOLS_UNIT_ASSERT_EQUALS(t, cxxtools::Seconds(42));
+            }
+            {
+                cxxtools::SerializationInfo si;
+                si.addMember("secs") <<= 42;
+                cxxtools::Timespan t;
+                si >>= t;
+                CXXTOOLS_UNIT_ASSERT_EQUALS(t, cxxtools::Seconds(42));
+            }
+            {
+                cxxtools::SerializationInfo si;
+                si.addMember("milliseconds") <<= 42;
+                cxxtools::Timespan t;
+                si >>= t;
+                CXXTOOLS_UNIT_ASSERT_EQUALS(t, cxxtools::Milliseconds(42));
+            }
+            {
+                cxxtools::SerializationInfo si;
+                si.addMember("msecs") <<= 42;
+                cxxtools::Timespan t;
+                si >>= t;
+                CXXTOOLS_UNIT_ASSERT_EQUALS(t, cxxtools::Milliseconds(42));
+            }
+            {
+                cxxtools::SerializationInfo si;
+                si.addMember("microseconds") <<= 42;
+                cxxtools::Timespan t;
+                si >>= t;
+                CXXTOOLS_UNIT_ASSERT_EQUALS(t, cxxtools::Microseconds(42));
+            }
+            {
+                cxxtools::SerializationInfo si;
+                si.addMember("usecs") <<= 42;
+                cxxtools::Timespan t;
+                si >>= t;
+                CXXTOOLS_UNIT_ASSERT_EQUALS(t, cxxtools::Microseconds(42));
+            }
+            {
+                cxxtools::SerializationInfo si;
+                si.addMember("days") <<= 42;
+                si.addMember("hours") <<= 42;
+                si.addMember("minutes") <<= 42;
+                si.addMember("seconds") <<= 42;
+                si.addMember("milliseconds") <<= 42;
+                si.addMember("microseconds") <<= 42;
+                cxxtools::Timespan t;
+                si >>= t;
+                CXXTOOLS_UNIT_ASSERT_EQUALS(t,
+                          cxxtools::Days(42)
+                        + cxxtools::Hours(42)
+                        + cxxtools::Minutes(42)
+                        + cxxtools::Seconds(42)
+                        + cxxtools::Milliseconds(42)
+                        + cxxtools::Microseconds(42));
+            }
+        }
 
         void ostream()
         {

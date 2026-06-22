@@ -252,6 +252,29 @@ namespace cxxtools
                 si >>= value;
                 timespan = Timespan(value * factor(si, res));
             }
+            else if (si.isObject())
+            {
+                long day = 0l;
+                int hour = 0, min = 0, sec = 0, msec = 0, usec = 0;
+                const cxxtools::SerializationInfo* pi;
+                if ((pi = si.findMember("days")) != nullptr)
+                    *pi >>= day;
+                if ((pi = si.findMember("hours")) != nullptr)
+                    *pi >>= hour;
+                if ((pi = si.findMember("minutes")) != nullptr
+                 || (pi = si.findMember("mins")) != nullptr)
+                    *pi >>= min;
+                if ((pi = si.findMember("seconds")) != nullptr
+                 || (pi = si.findMember("secs")) != nullptr)
+                    *pi >>= sec;
+                if ((pi = si.findMember("milliseconds")) != nullptr
+                 || (pi = si.findMember("msecs")) != nullptr)
+                    *pi >>= msec;
+                if ((pi = si.findMember("microseconds")) != nullptr
+                 || (pi = si.findMember("usecs")) != nullptr)
+                    *pi >>= usec;
+                timespan = Timespan(((((day * 24l + hour) * 60 + min) * 60 + sec) * 1000 + msec) * 1000 + usec);
+            }
             else
             {
                 std::string stringValue;
