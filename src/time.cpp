@@ -356,7 +356,7 @@ void operator >>=(const SerializationInfo& si, Time& time)
         else
             msec = 0;
 
-        if ((p = si.findMember("microssecond")) != 0
+        if ((p = si.findMember("microsecond")) != 0
             || (p = si.findMember("usec")) != 0)
             *p >>= usec;
         else

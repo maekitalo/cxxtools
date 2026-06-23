@@ -45,6 +45,7 @@ class TimeTest : public cxxtools::unit::TestSuite
             registerMethod("fixDigit", *this, &TimeTest::fixDigit);
             registerMethod("toString", *this, &TimeTest::toString);
             registerMethod("serialization", *this, &TimeTest::serialization);
+            registerMethod("deserializeunits", *this, &TimeTest::deserializeunits);
             registerMethod("getSetTotal", *this, &TimeTest::getSetTotal);
         }
 
@@ -186,6 +187,40 @@ class TimeTest : public cxxtools::unit::TestSuite
             si >>= t2;
 
             CXXTOOLS_UNIT_ASSERT(t1 == t2);
+        }
+
+        void deserializeunits()
+        {
+            {
+                cxxtools::SerializationInfo si;
+                si.addMember("hour") <<= 15;
+                si.addMember("min") <<= 16;
+                si.addMember("sec") <<= 17;
+                si.addMember("msec") <<= 18;
+                si.addMember("usec") <<= 19;
+                cxxtools::Time t;
+                si >>= t;
+                CXXTOOLS_UNIT_ASSERT_EQUALS(t.hour(), 15u);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(t.minute(), 16u);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(t.second(), 17u);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(t.msec(), 18u);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(t.usec(), 18019u);
+            }
+            {
+                cxxtools::SerializationInfo si;
+                si.addMember("hour") <<= 20;
+                si.addMember("minute") <<= 21;
+                si.addMember("second") <<= 22;
+                si.addMember("millisecond") <<= 23;
+                si.addMember("microsecond") <<= 24;
+                cxxtools::Time t;
+                si >>= t;
+                CXXTOOLS_UNIT_ASSERT_EQUALS(t.hour(), 20u);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(t.minute(), 21u);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(t.second(), 22u);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(t.msec(), 23u);
+                CXXTOOLS_UNIT_ASSERT_EQUALS(t.usec(), 23024u);
+            }
         }
 
         void getSetTotal()
