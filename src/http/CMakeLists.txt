@@ -19,3 +19,8 @@ add_library(cxxtools-http
 )
 
 target_link_libraries(cxxtools-http cxxtools)
+
+install(TARGETS cxxtools-http
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)
