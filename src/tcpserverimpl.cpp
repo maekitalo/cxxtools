@@ -69,6 +69,19 @@ namespace net
 
 static const int noPendingAccept = -1;
 
+#ifndef HAVE_PIPE2
+static void setWakePipeFlags(int fd)
+{
+    int flags = ::fcntl(fd, F_GETFL);
+    if (flags == -1 || (::fcntl(fd, F_SETFL, flags | O_NONBLOCK)) == -1)
+        throwSystemError("fcntl(F_SETFL wakePipe)");
+
+    flags = ::fcntl(fd, F_GETFD);
+    if (flags == -1 || (::fcntl(fd, F_SETFD, flags | FD_CLOEXEC)) == -1)
+        throwSystemError("fcntl(F_SETFD wakePipe)");
+}
+#endif
+
 TcpServerImpl::TcpServerImpl(TcpServer& server)
 : _server(server),
   _pendingAccept(noPendingAccept),
@@ -84,10 +97,8 @@ TcpServerImpl::TcpServerImpl(TcpServer& server)
     if (::pipe(_wakePipe))
         throwSystemError("pipe");
 
-    if (::fcntl(_wakePipe[0], O_CLOEXEC|O_NONBLOCK))
-        throwSystemError("fcntl(wakePipe)");
-    if (::fcntl(_wakePipe[1], O_CLOEXEC|O_NONBLOCK))
-        throwSystemError("fcntl(wakePipe)");
+    setWakePipeFlags(_wakePipe[0]);
+    setWakePipeFlags(_wakePipe[1]);
 #endif
 
     log_debug("wake pipe read fd=" << _wakePipe[0] << " write fd=" << _wakePipe[1]);
