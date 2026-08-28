@@ -101,7 +101,7 @@ parameter. It is either a file name or a object of type
 
 With 2 parameters it expects the argc/argv from main to find the configuration
 file. It searches then for a file which is named like the process with the
-extension _.properties_, _.json_ or _.xml_ whichever is find first. If none is
+extension _.properties_, _.json_ or _.xml_ whichever is found first. If none is
 found, the `log_init` without parameters is called.
 
 If the file extension is `.properties`, properties format is used. If the file
