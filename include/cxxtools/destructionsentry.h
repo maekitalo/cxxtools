@@ -54,10 +54,14 @@ public:
         : _deleted(false),
           _sentry(sentry)
     {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdangling-pointer"
+#if defined(__GNUC__) && (__GNUC__ >= 12)
+#  pragma GCC diagnostic push
+#  pragma GCC diagnostic ignored "-Wdangling-pointer"
+#endif
        sentry = this;
-#pragma GCC diagnostic pop
+#if defined(__GNUC__) && (__GNUC__ >= 12)
+#  pragma GCC diagnostic pop
+#endif
     }
 
     explicit DestructionSentry(DestructionSentryPtr& ptr);
