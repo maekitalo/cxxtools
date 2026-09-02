@@ -85,8 +85,8 @@ class Time
             Valid format codes are:
 
               %H   hours (0-23)
-              %I   hours (0-11)
-              %2I  hours (00-11)
+              %I   hours (0-12)
+              %2I  hours (00-12)
               %M   minutes (0-59)
               %2M  minutes (00-59)
               %S   seconds (0-59)

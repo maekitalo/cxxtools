@@ -44,9 +44,11 @@ class TimeTest : public cxxtools::unit::TestSuite
             registerMethod("fromString", *this, &TimeTest::fromString);
             registerMethod("fixDigit", *this, &TimeTest::fixDigit);
             registerMethod("toString", *this, &TimeTest::toString);
+            registerMethod("toStringAmPm", *this, &TimeTest::toStringAmPm);
             registerMethod("serialization", *this, &TimeTest::serialization);
             registerMethod("deserializeunits", *this, &TimeTest::deserializeunits);
             registerMethod("getSetTotal", *this, &TimeTest::getSetTotal);
+            registerMethod("ampm", *this, &TimeTest::ampm);
         }
 
         void access()
@@ -143,37 +145,55 @@ class TimeTest : public cxxtools::unit::TestSuite
 
         void toString()
         {
-          cxxtools::Time dt(17, 1, 14, 342, 800);
+            cxxtools::Time dt(17, 1, 14, 342, 800);
 
-          std::string str = dt.toString();
-          CXXTOOLS_UNIT_ASSERT_EQUALS(str, "17:01:14.3428");
+            std::string str = dt.toString();
+            CXXTOOLS_UNIT_ASSERT_EQUALS(str, "17:01:14.3428");
 
-          str = dt.toString("%H %M %S%J");
-          CXXTOOLS_UNIT_ASSERT_EQUALS(str, "17 01 14.3428");
+            str = dt.toString("%H %M %S%J");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(str, "17 01 14.3428");
 
-          dt = cxxtools::Time(17, 1, 14);
+            dt = cxxtools::Time(17, 1, 14);
 
-          str = dt.toString("%H %M %S%J");
-          CXXTOOLS_UNIT_ASSERT_EQUALS(str, "17 01 14.0");
+            str = dt.toString("%H %M %S%J");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(str, "17 01 14.0");
 
-          str = dt.toString("%H %M %S%K");
-          CXXTOOLS_UNIT_ASSERT_EQUALS(str, "17 01 14.000");
+            str = dt.toString("%H %M %S%K");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(str, "17 01 14.000");
 
-          str = dt.toString("%H %M %S %k");
-          CXXTOOLS_UNIT_ASSERT_EQUALS(str, "17 01 14 000");
+            str = dt.toString("%H %M %S %k");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(str, "17 01 14 000");
 
-          str = dt.toString("%H %M %S%U");
-          CXXTOOLS_UNIT_ASSERT_EQUALS(str, "17 01 14.000000");
+            str = dt.toString("%H %M %S%U");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(str, "17 01 14.000000");
 
-          str = dt.toString("%H %M %S %u");
-          CXXTOOLS_UNIT_ASSERT_EQUALS(str, "17 01 14 000000");
+            str = dt.toString("%H %M %S %u");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(str, "17 01 14 000000");
 
-          str = dt.toString("%H %M %S%j");
-          CXXTOOLS_UNIT_ASSERT_EQUALS(str, "17 01 14");
+            str = dt.toString("%H %M %S%j");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(str, "17 01 14");
 
-          str = dt.toString("%I %M %S%j %p");
-          CXXTOOLS_UNIT_ASSERT_EQUALS(str, "05 01 14 pm");
+            str = dt.toString("%I %M %S%j %p");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(str, "05 01 14 pm");
+        }
 
+        void toStringAmPm()
+        {
+            cxxtools::Time dt(17, 1, 14, 342, 800);
+
+            std::string str;
+
+            str = cxxtools::Time(17, 0, 0).toString("%1I%p");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(str, "5pm");
+
+            str = cxxtools::Time(0, 0, 0).toString("%I%p");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(str, "12am");
+
+            str = cxxtools::Time(12, 0, 0).toString("%I%p");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(str, "12pm");
+
+            str = cxxtools::Time(17, 0, 0).toString("%I%p");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(str, "05pm");
         }
 
         void serialization()
@@ -249,6 +269,21 @@ class TimeTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT_EQUALS(t1.usec(), t2.usec());
             CXXTOOLS_UNIT_ASSERT(t1 == t2);
 
+        }
+
+        void ampm()
+        {
+            cxxtools::Time t = cxxtools::Time("8am", "%H%p");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(t.hour(), 8u);
+
+            t = cxxtools::Time("12am", "%H%p");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(t.hour(), 0u);
+
+            t = cxxtools::Time("8pm", "%H%p");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(t.hour(), 20u);
+
+            t = cxxtools::Time("12pm", "%H%p");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(t.hour(), 12u);
         }
 };
 

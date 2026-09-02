@@ -47,6 +47,7 @@ class DateTimeTest : public cxxtools::unit::TestSuite
             registerMethod("toString", *this, &DateTimeTest::toString);
             registerMethod("names", *this, &DateTimeTest::names);
             registerMethod("serialization", *this, &DateTimeTest::serialization);
+            registerMethod("ampm", *this, &DateTimeTest::ampm);
         }
 
         void diff()
@@ -269,6 +270,21 @@ class DateTimeTest : public cxxtools::unit::TestSuite
 
                 CXXTOOLS_UNIT_ASSERT(dt1 == dt2);
             }
+        }
+
+        void ampm()
+        {
+            cxxtools::DateTime dt = cxxtools::DateTime("8am", "%H%p");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.hour(), 8u);
+
+            dt = cxxtools::DateTime("12am", "%H%p");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.hour(), 0u);
+
+            dt = cxxtools::DateTime("8pm", "%H%p");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.hour(), 20u);
+
+            dt = cxxtools::DateTime("12pm", "%H%p");
+            CXXTOOLS_UNIT_ASSERT_EQUALS(dt.hour(), 12u);
         }
 };
 

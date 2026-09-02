@@ -51,7 +51,7 @@ DateTime::DateTime(const std::string& str, const std::string& fmt)
   unsigned minutes = 0;
   unsigned seconds = 0;
   unsigned useconds = 0;
-  bool am = true;
+  std::optional<bool> am;
 
   enum class State {
     null,
@@ -199,10 +199,13 @@ DateTime::DateTime(const std::string& str, const std::string& fmt)
       throwInvalidDate(str, dit, fmt);
 
     unsigned normalized_hours = hours;
-    if (am && hours == 12)
-        normalized_hours = 0;       // 12 AM → midnight
-    else if (!am && hours != 12)
-        normalized_hours = hours + 12;  // 1–11 PM → 13–23
+    if (am)
+    {
+        if (*am && hours == 12)
+            normalized_hours = 0;       // 12 AM → midnight
+        else if (!*am && hours != 12)
+            normalized_hours = hours + 12;  // 1–11 PM → 13–23
+    }
     set(year, month, day, normalized_hours, minutes, seconds, 0, useconds);
   }
   catch (const std::invalid_argument&)
@@ -231,6 +234,12 @@ Milliseconds DateTime::msecsSinceEpoch() const
 {
     static const DateTime dt(1970, 1, 1, 0, 0, 0);
     return *this - dt;
+}
+
+inline static unsigned hoursampm(unsigned hours)
+{
+  return hours == 0 || hours == 12 ? 12
+                                   : hours %12;
 }
 
 std::string DateTime::toString(const std::string& fmt) const
@@ -274,7 +283,7 @@ std::string DateTime::toString(const std::string& fmt) const
           case 'W': { int dow = dayOfWeek(); appendDn(str, 1, dow == 0 ? 7 : dow); } break;
           case 'N': str += weekdaynames[dayOfWeek()]; break;
           case 'H': appendDn(str, 2, hours); break;
-          case 'I': appendDn(str, 2, hours % 12); break;
+          case 'I': appendDn(str, 2, hoursampm(hours)); break;
           case 'M': appendDn(str, 2, minutes); break;
           case 'S': appendDn(str, 2, seconds); break;
           case 'j': if (useconds != 0)
@@ -333,7 +342,7 @@ std::string DateTime::toString(const std::string& fmt) const
           case 'd': appendDn(str, day < 10 ? 1 : 2, day); break;
           case 'm': appendDn(str, month < 10 ? 1 : 2, month); break;
           case 'H': appendDn(str, hours < 10 ? 1 : 2, hours); break;
-          case 'I': appendDn(str, hours%12 < 10 ? 1 : 2, hours%12); break;
+          case 'I': { auto h = hoursampm(hours); appendDn(str, h < 10 ? 1 : 2, h); } break;
           case 'M': appendDn(str, minutes < 10 ? 1 : 2, minutes); break;
           case 'S': appendDn(str, seconds < 10 ? 1 : 2, seconds); break;
 
