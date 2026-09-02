@@ -30,6 +30,7 @@
 #include <cxxtools/datetime.h>
 #include "error.h"
 #include <sys/types.h>
+#include <sys/time.h>
 #include <sys/stat.h>
 #include <limits.h>
 #include <fcntl.h>
@@ -86,7 +87,7 @@ FileDeviceImpl::pos_type FileDeviceImpl::seek(off_type offset, std::ios::seekdir
     }
 
     off_t ret = lseek(fd(), offset, whence);
-    if( ret == (off_t)-1 )
+    if ( ret == (off_t)-1 )
         throw IOError(getErrnoString("lseek"));
 
     return ret;
@@ -96,11 +97,30 @@ FileDeviceImpl::pos_type FileDeviceImpl::seek(off_type offset, std::ios::seekdir
 void FileDeviceImpl::resize(off_type size)
 {
     int ret = ::ftruncate(fd(), size);
-    if(ret != 0)
+    if (ret != 0)
         throw IOError(getErrnoString("ftruncate"));
-
 }
 
+void FileDeviceImpl::touch(UtcDateTime ts)
+{
+#ifdef HAVE_FUTIMENS
+    struct timespec tss[2];
+    auto usec = ts.msecsSinceEpoch().totalUSecs();
+    tss[0].tv_sec = tss[1].tv_sec = usec / 1000000;
+    tss[0].tv_nsec = tss[1].tv_nsec = (usec % 1000000) * 1000;
+    auto ret = ::futimens(fd(), tss);
+    if (ret != 0)
+        throw IOError(getErrnoString("futimens"));
+#else
+    struct timeval tss[2];
+    auto usec = ts.msecsSinceEpoch().totalUSecs();
+    tss[0].tv_sec = tss[1].tv_sec = usec / 1000000;
+    tss[0].tv_usec = tss[1].tv_usec = usec % 1000000;
+    auto ret = ::futimes(fd(), tss);
+    if (ret != 0)
+        throw IOError(getErrnoString("futimes"));
+#endif
+}
 
 FileDevice::Stat FileDeviceImpl::stat() const
 {

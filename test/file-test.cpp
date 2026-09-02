@@ -29,11 +29,13 @@
 #include "cxxtools/unit/testsuite.h"
 #include "cxxtools/unit/registertest.h"
 #include "cxxtools/file.h"
+#include "cxxtools/filedevice.h"
 #include "cxxtools/fileinfo.h"
 #include "cxxtools/ioerror.h"
 #include "cxxtools/datetime.h"
 #include "cxxtools/timespan.h"
 #include <fstream>
+#include <thread>
 
 static const std::string tmpFileName = "file-test.tmp";
 static const std::string tmpFileName2 = "file-test-2.tmp";
@@ -64,6 +66,7 @@ class FileTest : public cxxtools::unit::TestSuite
             registerMethod("testFilesize", *this, &FileTest::testFilesize);
             registerMethod("testCopyBigFile", *this, &FileTest::testCopyBigFile);
             registerMethod("testMTime", *this, &FileTest::testMTime);
+            registerMethod("testTouch", *this, &FileTest::testTouch);
         }
 
         void setUp()
@@ -200,6 +203,25 @@ class FileTest : public cxxtools::unit::TestSuite
             CXXTOOLS_UNIT_ASSERT(ctime >= now - cxxtools::Minutes(1));
         }
 
+        void testTouch()
+        {
+            cxxtools::FileDevice f(tmpFileName, cxxtools::IOS_OpenMode::IOS_Create);
+            CXXTOOLS_UNIT_ASSERT(cxxtools::FileInfo::exists(tmpFileName));
+
+            auto st1 = f.stat();
+
+            f.touch();
+
+            auto st2 = f.stat();
+
+            if (st1.mtime == st2.mtime)
+            {
+                std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                st2 = f.stat();
+            }
+
+            CXXTOOLS_UNIT_ASSERT(st1.mtime < st2.mtime);
+        }
 };
 
 cxxtools::unit::RegisterTest<FileTest> register_FileTest;

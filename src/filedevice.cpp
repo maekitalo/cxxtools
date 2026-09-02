@@ -80,6 +80,11 @@ void FileDevice::resize(off_type size)
     _impl->resize(size);
 }
 
+void FileDevice::touch(UtcDateTime ts)
+{
+    _impl->touch(ts);
+}
+
 FileDevice::pos_type FileDevice::onSeek(off_type offset, std::ios::seekdir sd)
 {
     return _impl->seek(offset, sd);

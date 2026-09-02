@@ -69,6 +69,8 @@ class FileDevice : public IODevice
 
         void resize(off_type size);
 
+        void touch(UtcDateTime ts = DateTime::gmtime());
+
     protected:
         bool onSeekable() const
         { return true; }

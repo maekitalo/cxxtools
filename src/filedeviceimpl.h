@@ -52,6 +52,8 @@ class FileDeviceImpl : public IODeviceImpl
 
         void resize(off_type size);
 
+        void touch(UtcDateTime ts);
+
         FileDevice::Stat stat() const;
 
         size_t peek(char* buffer, size_t count);
