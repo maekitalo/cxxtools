@@ -336,6 +336,7 @@ inline std::istream& operator>> (std::istream& in, QueryParams& p)
 
 /// make QueryParams serializable
 void operator<<= (cxxtools::SerializationInfo& si, const QueryParams& p);
+void operator>>= (const cxxtools::SerializationInfo& si, QueryParams& p);
 
 }
 

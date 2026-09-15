@@ -30,6 +30,7 @@
 #include "cxxtools/unit/registertest.h"
 #include "cxxtools/query_params.h"
 #include "cxxtools/serializationinfo.h"
+#include "color.h"
 #include <vector>
 #include <iterator>
 
@@ -55,6 +56,8 @@ class QueryParamsTest : public cxxtools::unit::TestSuite
             registerMethod("testGetUrl", *this, &QueryParamsTest::testGetUrl);
             registerMethod("testGetNames", *this, &QueryParamsTest::testGetNames);
             registerMethod("testDeserialization", *this, &QueryParamsTest::testDeserialization);
+            registerMethod("testSerialization", *this, &QueryParamsTest::testSerialization);
+            registerMethod("testSerializationDeserialization", *this, &QueryParamsTest::testSerializationDeserialization);
 #if __cplusplus >= 201703L
             registerMethod("testOptional", *this, &QueryParamsTest::testOptional);
 #endif
@@ -232,6 +235,8 @@ class QueryParamsTest : public cxxtools::unit::TestSuite
         }
 
         void testDeserialization();
+        void testSerialization();
+        void testSerializationDeserialization();
 #if __cplusplus >= 201703L
         void testOptional();
 #endif
@@ -317,6 +322,50 @@ void QueryParamsTest::testDeserialization()
     CXXTOOLS_UNIT_ASSERT_EQUALS(query.columns[1].name, "othername");
     CXXTOOLS_UNIT_ASSERT_EQUALS(query.columns[1].value, "othervalue");
     CXXTOOLS_UNIT_ASSERT_EQUALS(query.start, 42u);
+}
+
+void QueryParamsTest::testSerialization()
+{
+    cxxtools::SerializationInfo si;
+    si.addMember("foo") <<= 34;
+    auto& ssi = si.addMember("struct");
+    ssi.addMember("v1") <<= "Hi";
+    ssi.addMember("v2") <<= "There";
+    auto& sssi = ssi.addMember("date");
+    sssi.addMember("year") <<= 2026;
+    sssi.addMember("month") <<= 9;
+    sssi.addMember("day") <<= 15;
+
+    cxxtools::QueryParams qp;
+    si >>= qp;
+    CXXTOOLS_UNIT_ASSERT_EQUALS(qp.getUrl(), "foo=34&struct[v1]=Hi&struct[v2]=There&struct[date][year]=2026&struct[date][month]=9&struct[date][day]=15");
+}
+
+void QueryParamsTest::testSerializationDeserialization()
+{
+    Color c;
+    c.red = 23;
+    c.green = 32;
+    c.blue = 1;
+
+    cxxtools::QueryParams qp;
+
+    {
+        cxxtools::SerializationInfo si;
+        si.addMember("color") <<= c;
+        si >>= qp;
+    }
+
+    Color c2;
+    {
+        cxxtools::SerializationInfo si;
+        si <<= qp;
+        si.getMember("color") >>= c2;
+    }
+
+    CXXTOOLS_UNIT_ASSERT_EQUALS(c.red, c2.red);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(c.green, c2.green);
+    CXXTOOLS_UNIT_ASSERT_EQUALS(c.blue, c2.blue);
 }
 
 #if __cplusplus >= 201703L

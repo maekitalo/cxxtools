@@ -471,4 +471,49 @@ void operator<<= (cxxtools::SerializationInfo& si, const QueryParams& q)
     }
 }
 
+static void fromSi(const cxxtools::SerializationInfo& si, QueryParams& params, const std::vector<std::string>& members)
+{
+    for (auto ssi: si)
+    {
+        if (ssi.category() == cxxtools::SerializationInfo::Value)
+        {
+            std::string value;
+            ssi >>= value;
+
+            std::string key;
+
+            if (members.empty())
+            {
+                key = ssi.name();
+            }
+            else
+            {
+                key = members[0];
+                for (unsigned n = 1; n < members.size(); ++n)
+                {
+                    key += '[';
+                    key += members[n];
+                    key += ']';
+                }
+                key += '[';
+                key += ssi.name();
+                key += ']';
+            }
+
+            params.add(key, value);
+        }
+        else
+        {
+            std::vector<std::string> m(members);
+            m.emplace_back(ssi.name());
+            fromSi(ssi, params, m);
+        }
+    }
+}
+
+void operator>>= (const cxxtools::SerializationInfo& si, QueryParams& p)
+{
+    fromSi(si, p, std::vector<std::string>());
+}
+
 }
