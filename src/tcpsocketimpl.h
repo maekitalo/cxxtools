@@ -44,6 +44,7 @@
 #include <sys/time.h>
 #include <netinet/in.h>
 #include <unistd.h>
+#include <exception>
 
 namespace cxxtools
 {
@@ -101,6 +102,7 @@ class TcpSocketImpl : public IODeviceImpl
         AddrInfoImpl::const_iterator _addrInfoPtr;
         std::string _connectResult;
         std::vector<std::string> _connectFailedMessages;
+        std::exception_ptr _pendingException;
         DestructionSentry* _sentry;
         SSL* _ssl;
         mutable bool _peerCertificateLoaded;
@@ -112,6 +114,7 @@ class TcpSocketImpl : public IODeviceImpl
         void checkPendingError();
         std::string tryConnect();
         std::string connectFailedMessages();
+        void clearError();
 
         void checkSslOperation(int ret, const char* fn, pollfd* pfd);
         void waitSslOperation(int ret, cxxtools::Timespan timeout);
@@ -136,6 +139,8 @@ class TcpSocketImpl : public IODeviceImpl
         { return _state == SSLCONNECTED; }
 
         bool beginConnect(const AddrInfo& addrinfo);
+
+        bool beginConnect(const std::string& ipaddr, unsigned short int port);
 
         void endConnect();
 

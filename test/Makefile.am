@@ -60,6 +60,7 @@ alltests_SOURCES = \
     sipath-test.cpp \
     split-test.cpp \
     string-test.cpp \
+    tcpsockettest.cpp \
     test-main.cpp \
     time-test.cpp \
     timespan-test.cpp \

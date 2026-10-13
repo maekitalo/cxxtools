@@ -163,6 +163,13 @@ std::string TcpSocketImpl::connectFailedMessages()
     return msg.str();
 }
 
+void TcpSocketImpl::clearError()
+{
+    _connectResult.clear();
+    _connectFailedMessages.clear();
+    _pendingException = nullptr;
+}
+
 void TcpSocketImpl::checkSslOperation(int ret, const char* fn, pollfd* pfd)
 {
     int err = SSL_get_error(_ssl, ret);
@@ -347,6 +354,14 @@ void TcpSocketImpl::checkPendingError()
         _connectResult.clear();
     }
 
+    if (_pendingException)
+    {
+        _connectFailedMessages.clear();
+        std::exception_ptr exception;
+        _pendingException.swap(exception);
+        std::rethrow_exception(exception);
+    }
+
     if (!_connectFailedMessages.empty())
         throw IOError(connectFailedMessages());
 }
@@ -424,17 +439,46 @@ std::string TcpSocketImpl::tryConnect()
 }
 
 
+bool TcpSocketImpl::beginConnect(const std::string& ipaddr, unsigned short int port)
+{
+    assert(_state == IDLE);
+
+    clearError();
+
+    AddrInfo addrInfo;
+    try
+    {
+        addrInfo = AddrInfo(ipaddr, port);
+    }
+    catch (const std::exception& e)
+    {
+        _pendingException = std::current_exception();
+        return true;
+    }
+
+    return beginConnect(AddrInfo(ipaddr, port));
+}
+
 bool TcpSocketImpl::beginConnect(const AddrInfo& addrInfo)
 {
     log_trace("begin connect");
 
     assert(_state == IDLE);
 
-    _connectFailedMessages.clear();
+    clearError();
     _addrInfo = addrInfo;
     _addrInfoPtr = _addrInfo.impl()->begin();
     _state = CONNECTING;
-    _connectResult = tryConnect();
+    try
+    {
+        _connectResult = tryConnect();
+    }
+    catch (const std::exception& e)
+    {
+        _pendingException = std::current_exception();
+        return true;
+    }
+
     return _state == CONNECTED || !_connectResult.empty();
 }
 
@@ -471,7 +515,7 @@ void TcpSocketImpl::endConnect()
                 int sockerr = checkConnect();
                 if (_state == CONNECTED)
                 {
-                    _connectFailedMessages.clear();
+                    clearError();
                     return;
                 }
 
@@ -495,8 +539,7 @@ void TcpSocketImpl::endConnect()
             _connectResult = tryConnect();
             if (_state == CONNECTED)
             {
-                _connectResult.clear();
-                _connectFailedMessages.clear();
+                clearError();
                 return;
             }
 

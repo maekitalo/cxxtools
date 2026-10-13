@@ -31,20 +31,21 @@
 #include "cxxtools/unit/registertest.h"
 #include "cxxtools/net/tcpserver.h"
 #include "cxxtools/net/tcpsocket.h"
+#include "cxxtools/log.h"
 #include <string>
+
+log_define("cxxtools.test.tcpsockettest")
 
 class TcpSocketTest : public cxxtools::unit::TestSuite
 {
     public:
         TcpSocketTest()
-        : cxxtools::unit::TestSuite("TcpSocket")
+        : cxxtools::unit::TestSuite("tcpsocket")
         {
-            this->registerMethod( "NonBlockingWithSelector", *this,
-                                  &TcpSocketTest::NonBlockingWithSelector);
-            this->registerMethod( "NonBlockingWithWait", *this,
-                                  &TcpSocketTest::NonBlockingWithWait);
-            this->registerMethod( "ConnectFailed", *this,
-                                  &TcpSocketTest::ConnectFailed);
+            registerMethod( "NonBlockingWithSelector", *this, &TcpSocketTest::NonBlockingWithSelector);
+            registerMethod( "NonBlockingWithWait", *this, &TcpSocketTest::NonBlockingWithWait);
+            registerMethod( "ConnectFailed", *this, &TcpSocketTest::ConnectFailed);
+            registerMethod( "GetAddrInfoFailed", *this, &TcpSocketTest::GetAddrInfoFailed);
         }
 
         void setUp()
@@ -62,21 +63,32 @@ class TcpSocketTest : public cxxtools::unit::TestSuite
             cxxtools::Selector selector;
 
             cxxtools::net::TcpSocket client;
-            connect(client.connected, *this, &TcpSocketTest::onConnectFailed);
+            connect(client.connected, [] (cxxtools::net::TcpSocket& socket) {
+                CXXTOOLS_UNIT_ASSERT_THROW(socket.endConnect(), cxxtools::IOError);
+            });
 
-            client.beginConnect("", 9000);
+            client.beginConnect("", 9999);
             selector.add(client);
             selector.wait(1000);
         }
 
-        void onConnectFailed(cxxtools::net::TcpSocket& socket)
+        void GetAddrInfoFailed()
         {
-            CXXTOOLS_UNIT_ASSERT_THROW(socket.endConnect(), cxxtools::IOError);
+            cxxtools::Selector selector;
+
+            cxxtools::net::TcpSocket client;
+            connect(client.connected, [] (cxxtools::net::TcpSocket& socket) {
+                CXXTOOLS_UNIT_ASSERT_THROW(socket.endConnect(), cxxtools::net::AddrInfoError);
+            });
+
+            client.beginConnect("<non-existing-addr>", 9999);
+            selector.add(client);
+            selector.wait(1000);
         }
 
         void NonBlockingWithWait()
         {
-            this->reportMessage("\nSTART");
+            log_debug("start");
 
             cxxtools::net::TcpServer server("", 8000);
             connect(server.connectionPending, *this, &TcpSocketTest::onAccept);
@@ -91,12 +103,12 @@ class TcpSocketTest : public cxxtools::unit::TestSuite
             server.wait(1000);
             client.wait(1000);
             _acceptor->wait(1000);
-            this->reportMessage("FINISHED");
+            log_debug("finished");
         }
 
         void NonBlockingWithSelector()
         {
-            this->reportMessage("\nSTART");
+            log_debug("start");
             cxxtools::Selector selector;
 
             cxxtools::net::TcpServer server("", 8000);
@@ -117,14 +129,13 @@ class TcpSocketTest : public cxxtools::unit::TestSuite
             selector.wait(1000);
             selector.wait(1000);
 
-            this->reportMessage("FINISHED");
+            log_debug("finished");
         }
 
         void onAccept(cxxtools::net::TcpServer& server)
         {
             _acceptor->accept(server);
-            this->reportMessage( "ACCEPTED IP: " + _acceptor->getSockAddr() +
-                                 " PEER: " + _acceptor->getPeerAddr() );
+            log_debug("accepted ip: " << _acceptor->getSockAddr() << " peer: " << _acceptor->getPeerAddr() );
 
             _acceptor->beginRead(input, 200);
         }
@@ -132,8 +143,7 @@ class TcpSocketTest : public cxxtools::unit::TestSuite
         void onConnect(cxxtools::net::TcpSocket& socket)
         {
             socket.endConnect();
-            this->reportMessage( "CONNECTED IP: " + socket.getSockAddr() +
-                                 " PEER: " + socket.getPeerAddr() );
+            log_debug("connected ip: " << socket.getSockAddr() << " peer: " << socket.getPeerAddr() );
 
             static const char buffer[] = "Hello World !!!";
             socket.beginWrite(buffer, sizeof(buffer));
@@ -142,16 +152,14 @@ class TcpSocketTest : public cxxtools::unit::TestSuite
         void onInput(cxxtools::IODevice& device)
         {
             std::size_t n = device.endRead();
-            std::string msg("INPUT RECEIVED: ");
-            msg.append(input, n);
-            this->reportMessage(msg);
+            log_debug("input received <" << std::string(input, n) << '>');
             CXXTOOLS_UNIT_ASSERT(n > 5);
         }
 
         void onOutput(cxxtools::IODevice& device)
         {
             std::size_t n = device.endWrite();
-            this->reportMessage("OUTPUT SENT");
+            log_debug("output sent");
             CXXTOOLS_UNIT_ASSERT(n > 5);
         }
 

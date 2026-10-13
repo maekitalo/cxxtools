@@ -156,6 +156,19 @@ bool TcpSocket::beginConnect(const AddrInfo& addrinfo)
     return ret;
 }
 
+bool TcpSocket::beginConnect(const std::string& ipaddr, unsigned short int port)
+{
+    close();
+    bool ret = _impl->beginConnect(ipaddr, port);
+    setEnabled(true);
+    setAsync(true);
+    setEof(false);
+
+    if (ret)
+        connected(*this);
+    return ret;
+}
+
 
 void TcpSocket::endConnect()
 {

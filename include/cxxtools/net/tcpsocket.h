@@ -93,8 +93,7 @@ class TcpSocket : public IODevice
 
         bool beginConnect(const AddrInfo& addrinfo);
 
-        bool beginConnect(const std::string& ipaddr, unsigned short int port)
-        { return beginConnect(AddrInfo(ipaddr, port)); }
+        bool beginConnect(const std::string& ipaddr, unsigned short int port);
 
         void endConnect();
 
