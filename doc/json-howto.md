@@ -20,6 +20,7 @@ JSON structure
 --------------
 
 JSON data is built from 3 entity types:
+
  * scalars like numbers and strings
  * collections of name value pairs
  * ordered list of values
@@ -38,6 +39,7 @@ defining special operators, which convert a user defined object into a
 Lets look at an example. We have defined a struct with the name `Configuration`
 and want to convert it into JSON and read it back. The struct looks like this:
 
+```cpp
     struct Configuration
     {
       std::string encoding;
@@ -48,9 +50,11 @@ and want to convert it into JSON and read it back. The struct looks like this:
         bool useSpace;
       } indent;
     };
+```
 
 We now define a serialization operator like that:
 
+```cpp
     void operator<<= (cxxtools::SerializationInfo& si, const Configuration& config)
     {
       si.addMember("encoding") <<= config.encoding;
@@ -59,9 +63,11 @@ We now define a serialization operator like that:
       sii.addMember("length") <<= config.indent.length;
       sii.addMember("use_space") <<= config.indent.useSpace;
     }
+```
 
 And a deserialization operator:
 
+```cpp
     void operator>>= (const cxxtools::SerializationInfo& si, Configuration& config)
     {
       si.getMember("encoding") >>= config.encoding;
@@ -70,10 +76,12 @@ And a deserialization operator:
       sii.getMember("length") >>= config.indent.length;
       sii.getMember("use_space") >>= config.indent.useSpace;
     }
+```
 
 Now we are ready to convert a C++ structure of that type into json. Lets try it
 out using this little program:
 
+```cpp
     int main(int argc, char* argv[])
     {
       try
@@ -97,12 +105,15 @@ out using this little program:
         std::cerr << e.what() << std::endl;
       }
     }
+```
 
 We need of course a bunch of includes for that:
 
+```cpp
     #include <iostream>
     #include <cxxtools/jsonserializer.h>
     #include <cxxtools/serializationinfo.h>
+```
 
 When we copy everything together and compile, link into jsonwrite and run the
 program, we get that output:
@@ -128,6 +139,7 @@ I used this command to compile it:
 
 To read the JSON structure back into C++ we use this little program:
 
+```cpp
     #include <cxxtools/jsondeserializer.h>
     #include <cxxtools/serializationinfo.h>
     #include "configuration.h"
@@ -157,6 +169,7 @@ To read the JSON structure back into C++ we use this little program:
         std::cerr << e.what() << std::endl;
       }
     }
+```
 
 I already added the needed includes here. I assume, the structure is defined in
 the header configuration.h.

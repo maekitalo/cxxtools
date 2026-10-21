@@ -1,15 +1,12 @@
 EXTRA_DIST = \
-    argument-parsing-howto.markdown \
-    binaryrpc-howto.markdown \
+    argument-parsing-howto.md \
     binserialization.txt \
     connection.md \
-    csv-howto.markdown \
-    json-howto.markdown \
-    jsonquick-howto.markdown \
-    jsonrpc-howto.markdown \
-    logging-howto.markdown \
-    propertiesquick-howto.markdown \
-    rpc-howto.markdown \
-    serialization-howto.markdown \
-    timezone-howto.markdown \
-    xmlrpc-howto.markdown
+    csv-howto.md \
+    json-howto.md \
+    jsonquick-howto.md \
+    logging-howto.md \
+    propertiesquick-howto.md \
+    rpc-howto.md \
+    serialization-howto.md \
+    timezone-howto.md

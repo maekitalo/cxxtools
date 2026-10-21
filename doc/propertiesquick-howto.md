@@ -1,30 +1,32 @@
-Properties quick howto
-======================
-
-Note: This HOWTO does not work with cxxtools <= 2.2.
+Properties quick how-to
+=======================
 
 Introduction
 ------------
 
-The properties format is a very simple file format which is suitable for simple
-configuration files. It is normally not more than a list of key value pairs. The
-keys and values can be separated by '=', ':' or just white space. Here is a
-simple example:
+The properties format is a very simple file format suitable for simple
+configuration files. It typically consists of a list of key-value pairs. Keys
+and values can be separated by `=`, `:`, or simply by white space.
 
-    encoding = UTF-8
-    plug-ins.0 = python
-    plug-ins.1 = c++
-    plug-ins.2 = ruby
-    indent.length: 3
-    indent.use_space true
+Here is a simple example:
+
+```properties
+encoding = UTF-8
+plug-ins.0 = python
+plug-ins.1 = c++
+plug-ins.2 = ruby
+indent.length: 3
+indent.use_space true
+```
 
 Code example
 ------------
 
-`cxxtools` has a serialization framework which can read properties files.  It
-has a intermediate data structure `cxxtools::SerializationInfo`, which can be
-used to read the properties file and access specific elements.
+cxxtools provides a serialization framework that can read properties files.
+Its intermediate data structure, `cxxtools::SerializationInfo`, can be used to
+represent the parsed properties and access individual elements.
 
+```cpp
     std::ifstream input("myconfiguration.properties");
     cxxtools::SerializationInfo si;
     input >> cxxtools::Properties(si);  // parse properties data into a cxxtools::SerializationInfo
@@ -37,28 +39,33 @@ used to read the properties file and access specific elements.
     bool use_space;
     si.getMember("indent.length") >>= length;
     si.getMember("indent.use_space") >>= use_space;
+
     // prints "length=3 use_space=true":
     std::cout << "length=" << length << " use_space=" << use_space << std::endl;
+```
 
-`cxxtools` uses the point in keys as a separator and so the `indent` data can be
-read hierarchically as well:
+cxxtools uses the dot in keys as a separator, so the `indent` data can also be
+read hierarchically:
 
+```cpp
     si.getMember("indent").getMember("length") >>= length;
     si.getMember("indent").getMember("use_space") >>= use_space;
+
     // prints "length=3 use_space=true":
     std::cout << "length=" << length << " use_space=" << use_space << std::endl;
+```
 
-This is fine, if you want to access single members. But the nice thing about
-operator overloading is, that you can easily add your own overloads. That is
-possible even for complex classes.
+This is fine if you only want to access individual members. The advantage of
+operator overloading, however, is that you can easily add your own overloads.
+This is possible even for complex classes.
 
-To read the above properties file we define the structure as a C++ `struct` and
-overload the operator `>>=` for that.
+To read the properties file above, we define a corresponding C++ struct and
+overload the `>>=` operator for it.
 
-Since the `operator(std::istream&, cxxtools::Properties)`, which we use to parse
-the properties structure uses the operator `>>=` also, we can read our structure
-easily from a `std::istream`.
+Since the operator used to parse the properties structure also uses the `>>=`
+operator, we can easily read our structure from a `std::istream`.
 
+```cpp
     // Configuration options
     struct Configuration
     {
@@ -69,7 +76,8 @@ easily from a `std::istream`.
         std::vector<std::string> plug_ins;
 
         // Tab indent size
-        struct {
+        struct
+        {
             unsigned length;
             bool use_space;
         } indent;
@@ -86,6 +94,7 @@ easily from a `std::istream`.
         //       c.encoding = "UTF-8";
 
         si.getMember("plug-ins") >>= c.plug_ins;
+
         const cxxtools::SerializationInfo& si_indent = si.getMember("indent");
         si_indent.getMember("length") >>= c.indent.length;
         si_indent.getMember("use_space") >>= c.indent.use_space;
@@ -102,12 +111,14 @@ easily from a `std::istream`.
     std::cout << configuration.encoding << "\n"
               << "length=" << configuration.indent.length << "\n"
               << "use_space=" << configuration.indent.use_space << std::endl;
+
     for (unsigned n = 0; n < configuration.plug_ins.size(); ++n)
         std::cout << "plugin[" << n << "]=" << configuration.plug_ins[n] << "\n";
+```
 
 Note that `cxxtools::SerializationInfo::getMember(string)` throws an exception
-of type `cxxtools::SerializationMemberNotFound`, if the member is not found.
-This makes error handling easy, since you can either catch the exception or just
-let it propagate to a higher level.
+of type `cxxtools::SerializationMemberNotFound` if the member is not found.
+This makes error handling straightforward because you can either catch the
+exception or let it propagate to a higher level.
 
-For a full example, the header `<cxxtools/properties.h>` must be included.
+For a complete example, the header `<cxxtools/properties.h>` must be included.

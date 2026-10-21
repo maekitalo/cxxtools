@@ -4,40 +4,37 @@ JSON quick howto
 Introduction
 ------------
 
-JSON (JavaScript Object Notation) is a lightweight data-interchange format. It is
-easy for humans to read and write.
+JSON (JavaScript Object Notation) is a lightweight data-interchange format that
+is easy for humans to read and write. Here is an example of JSON data:
 
-Here is an example of JSON data:
-
-    // Configuration options
+```json
     {
-        // Default encoding for text
         "encoding" : "UTF-8",
         
-        // Plug-ins loaded at start-up
         "plug-ins" : [
             "python",
             "c++",
             "ruby"
             ],
             
-        // Tab indent size
         "indent" : { "length" : 3, "use_space": true }
     }
+```
 
 Code example
 ------------
 
-`cxxtools` has a serialization framework which supports json. It has a
-intermediate data structure `cxxtools::SerializationInfo`, which can be used to
-read the json structure and access specific elements.
+cxxtools provides a serialization framework with JSON support. Its intermediate
+data structure, `cxxtools::SerializationInfo`, can be used to represent a parsed
+JSON structure and access individual elements.
 
-The operator `>>=` is overloaded for all standard types including std containers
-to convert a SerializationInfo into some value.
+The `operator >>=` is overloaded for all standard types, including standard
+containers, allowing values to be extracted from a `SerializationInfo` object.
 
+```cpp
     std::ifstream input("myconfiguration.json");
     cxxtools::SerializationInfo si;
-    input >> cxxtools::Json(si);  // parse json into a cxxtools::SerializationInfo
+    input >> cxxtools::Json(si);  // parse JSON into a cxxtools::SerializationInfo
 
     std::string encoding;
     si.getMember("encoding") >>= encoding;
@@ -49,18 +46,19 @@ to convert a SerializationInfo into some value.
     si.getMember("indent").getMember("use_space") >>= use_space;
     // prints "length=3 use_space=true":
     std::cout << "length=" << length << " use_space=" << use_space << std::endl;
+```
 
-This is fine, if you want to access single members. But the nice thing about
-operator overloading is, that you can easily add your own overloads. That is
-possible even for complex classes.
+This is fine if you only want to access individual members. The nice thing
+about operator overloading is that you can easily add your own overloads. This
+is possible even for complex classes.
 
-To read the above json structure we define the structure as a C++ `struct` and
-overload the operator `>>=` for that.
+To read the above JSON structure, we define a corresponding C++ struct and
+overload the `operator >>=` for it.
 
-Since the `operator(std::istream&, cxxtools::Json)`, which we use to parse the
-json structure uses the operator `>>=` also, we can read our structure easily
-from a `std::istream`.
+Since the operator used to parse the JSON structure also uses the `operator >>=`,
+we can easily read our structure from a `std::istream`.
 
+```cpp
     // Configuration options
     struct Configuration
     {
@@ -95,30 +93,32 @@ from a `std::istream`.
 
     ...
 
-    // read configuration from json file
+    // read configuration from JSON file
     std::ifstream input("myconfiguration.json");
     Configuration configuration;
-    input >> cxxtools::Json(configuration);  // parse json and put result into the configuration object
+    input >> cxxtools::Json(configuration);  // parse JSON and put result into the configuration object
 
     // print out the configuration structure
     std::cout << configuration.encoding << "\n"
               << "length=" << configuration.indent.length << "\n"
               << "use_space=" << configuration.indent.use_space << std::endl;
-    for (unsigned n = 0; n < configuration.plug_ins.size(); ++n)
+    for (std::size_t n = 0; n < configuration.plug_ins.size(); ++n)
         std::cout << "plugin[" << n << "]=" << configuration.plug_ins[n] << "\n";
+```
 
 Note that `cxxtools::SerializationInfo::getMember(string)` throws an exception
-of type `cxxtools::SerializationMemberNotFound`, if the member is not found.
-This makes error handling easy, since you can either catch the exception or just
-let it propagate to a higher level.
+of type `cxxtools::SerializationMemberNotFound` if the member is not found.
+This makes error handling easy, since you can either catch the exception or
+just let it propagate to a higher level.
 
 Writing JSON
 ------------
 
-Writing json is also easily possible. Like reading there are 2 variants. Lets
-look at the first exmple, which again uses `cxxtools::SerializationInfo`
-directly. This time we use the opposite operator `<<=`:
+Writing JSON is just as easy. As with reading, there are two variants.
+Let's look at the first example, which again uses `cxxtools::SerializationInfo`
+directly. This time we use the opposite `operator <<=`:
 
+```cpp
     cxxtools::SerializationInfo si;
     si.addMember("encoding") <<= "UTF-8";
     cxxtools::SerializationInfo& psi = si.addMember("plug-ins");
@@ -130,12 +130,20 @@ directly. This time we use the opposite operator `<<=`:
     isi.addMember("use_space") <<= true;
 
     std::ofstream output("myconfiguration.json");
-    output << cxxtools::Json(si);  // this prints unformatted and very compact json without any white space
-    output << cxxtools::Json(si, true);  // this adds indentatsion and line feeds to make it human readable
-    output << cxxtools::Json(si).beautify(true);  // same as above
 
-The operator `<<=` for `cxxtools::SerializationInfo` is overloadable as well:
+    // print unformatted and compact JSON without white space:
+    output << cxxtools::Json(si);
 
+    // print formatted, human-readable JSON:
+    output << cxxtools::Json(si, true);
+
+    // same as above:
+    output << cxxtools::Json(si).beautify(true);
+```
+
+The <<= operator can be overloaded for cxxtools::SerializationInfo as well:
+
+```cpp
     // overload the operator <<= for our struct Configuration
     void operator<<= (cxxtools::SerializationInfo& si, const Configuration& c)
     {
@@ -157,8 +165,15 @@ The operator `<<=` for `cxxtools::SerializationInfo` is overloadable as well:
     configuration.indent.use_space = true;
 
     std::ofstream output("myconfiguration.json");
-    output << cxxtools::Json(configuration);  // this prints unformatted and very compact json without any white space
-    output << cxxtools::Json(configuration, true);  // this prints unformatted and very compact json without any white space
-    output << cxxtools::Json(configuration).beautify(true);  // same as above
+
+    // print unformatted and compact JSON without white space:
+    output << cxxtools::Json(configuration);
+
+    // print formatted, human-readable JSON:
+    output << cxxtools::Json(configuration, true);
+
+    // same as above:
+    output << cxxtools::Json(configuration).beautify(true);
+```
 
 For a full example, the header `<cxxtools/json.h>` must be included.
