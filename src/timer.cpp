@@ -123,6 +123,11 @@ void Timer::start(const Milliseconds& interval)
         log_warn("selector not set in timer when starting (interval: " << interval << ')');
 }
 
+void Timer::start(const UtcDateTime& startTime, const Milliseconds& interval)
+{
+    start(static_cast<DateTime>(startTime), interval, false);
+}
+
 
 void Timer::start(const DateTime& startTime, const Milliseconds& interval, bool localtime)
 {

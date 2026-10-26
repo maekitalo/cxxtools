@@ -86,4 +86,7 @@ namespace cxxtools
 
 } // namespace cxxtools
 
+#define DEFINE_EVENT(className) \
+    class className : public cxxtools::BasicEvent<className>
+
 #endif

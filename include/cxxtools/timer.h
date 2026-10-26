@@ -78,6 +78,9 @@ namespace cxxtools {
                 which must be done anyway to run the timer.
             */
             explicit Timer(SelectorBase* selector = 0);
+            explicit Timer(SelectorBase& selector)
+                : Timer(&selector)
+            { }
 
             /** @brief Destructor
 
@@ -125,6 +128,8 @@ namespace cxxtools {
                 @param interval Timeout interval as a cxxtools::Timespan
             */
             void start(const DateTime& startTime, const Milliseconds& interval, bool localtime = true);
+
+            void start(const UtcDateTime& startTime, const Milliseconds& interval);
 
             /** @brief Starts the timer
 

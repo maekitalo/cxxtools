@@ -98,6 +98,10 @@ namespace cxxtools
             */
             Signal<> exited;
 
+            template <typename ClassT, typename MemFunc>
+                void subscribe(ClassT& obj, MemFunc memFunc)
+                { event.subscribe(slot(obj, memFunc)); }
+
         protected:
             /** @brief Constructs the EventLoop
             */

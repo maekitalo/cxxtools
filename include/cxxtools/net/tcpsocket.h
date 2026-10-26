@@ -65,7 +65,7 @@ class TcpSocket : public IODevice
 
         TcpSocket();
 
-        TcpSocket(const TcpServer& server, unsigned flags = 0);
+        explicit TcpSocket(const TcpServer& server, unsigned flags = 0);
 
         TcpSocket(const std::string& ipaddr, unsigned short int port);
 
