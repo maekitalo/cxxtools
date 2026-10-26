@@ -26,6 +26,8 @@ Documentation
 
 Various how-tos can be found here:
 
+ * [Eventloop](doc/eventloop-howto.md)
+ * [Asynchronous I/O](doc/asynchronous-howto.md)
  * [Argument parsing](doc/argument-parsing-howto.md)
  * [Network connections](doc/connection.md)
  * [CSV](doc/csv-howto.md)
