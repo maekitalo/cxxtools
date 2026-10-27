@@ -64,8 +64,8 @@ Let's define some functions that we want to call remotely:
 ```
 
 Since XML-RPC uses HTTP, we need an HTTP server. This is implemented by the
-class `cxxtools::http::Server`. It requires an event loop in which I/O events
-and other events are processed.
+class `cxxtools::http::Server`. It requires an [event loop](eventloop-howto.md)
+in which I/O events and other events are processed.
 
 The important lines in the `main` function are:
 
@@ -94,7 +94,9 @@ on multiple interfaces. The IP addresses may be IPv4 or IPv6 addresses. In our
 example, we simply use the default.
 
 The call to `log_init()` is optional. I usually add it. It looks for a file
-named `log.xml` in the current directory and initializes logging.
+named `$PROCESSNAME.properties`, `$PROCESSNAME.xml`, `log.properties` or
+`log.xml` in the current directory to initialize logging. See
+[logging](logging-howto.md) for details.
 
 With the proper includes, our HTTP server is already ready to run. However, we
 have not yet connected the HTTP server to our functions. We first have to
@@ -135,11 +137,11 @@ with four functions.
 Here is the complete code:
 
 ```cpp
-#include <iostream>
-#include <cxxtools/http/server.h>
-#include <cxxtools/xmlrpc/service.h>
-#include <cxxtools/eventloop.h>
-#include <cxxtools/log.h>
+    #include <iostream>
+    #include <cxxtools/http/server.h>
+    #include <cxxtools/xmlrpc/service.h>
+    #include <cxxtools/eventloop.h>
+    #include <cxxtools/log.h>
 
     double myAdd(double a, double b)
     {
@@ -312,8 +314,9 @@ transferred. The XML-RPC implementation in cxxtools therefore needs a way to
 convert C++ data to XML and back. This process is called serialization and
 deserialization.
 
-There is a separate document that describes serialization in detail, so we
-will concentrate on the minimum required here.
+There is a separate document that describes
+[serialization](serialization-howto.md) in detail, so we will concentrate on
+the minimum required here.
 
 cxxtools provides a data structure called `cxxtools::SerializationInfo`. This
 class stores the information needed to generate XML, and incoming XML is
@@ -592,9 +595,9 @@ the function name is simply a string, a prefix can be added to the function
 name. This is directly supported by the raw JSON-RPC server and client in
 cxxtools.
 
-Instead of registering functions directly with the JSON-RPC server, we can use
-a `cxxtools::ServiceRegistry` and register all functions from that registry
-with a prefix:
+Instead of registering functions directly with the JSON-RPC server, we use
+`cxxtools::ServiceRegistry` to group related functions and register them with a
+prefix:
 
 ```cpp
     cxxtools::json::RpcServer server(eventLoop, 7001);
@@ -714,7 +717,11 @@ returns it. When `add2.end()` is called, execution of `add2` has already
 started. It may even have completed if it was faster than `add1`. Again,
 `end()` blocks only until `add2` has completed, which may be immediately.
 
-More verbosely this can be written as:
+The previous example uses the convenience method `end()`. Internally, the same
+behavior can be implemented explicitly using `activeProcedure()`,
+`Selector::wait()`, and `result()`.
+
+More verbosely, this can be written as:
 
 ```cpp
     cxxtools::Selector selector;

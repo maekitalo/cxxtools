@@ -102,4 +102,89 @@ int main(int argc, char* argv[])
     cxxtools::Arg<bool> verbose(argc, argv, "--verbose");
 
     if (verbose)
-        std::cout << "verbose option is set" << std::
+        std::cout << "verbose option is set" << std::cout;
+```
+
+Standard input and standard output
+---------------------------------
+
+Many command-line tools read data from an input file and write results to an
+output file. It is common practice to make both optional. When no input file
+is specified, the tool reads from standard input. Likewise, when no output
+file is specified, the result is written to standard output.
+
+cxxtools provides two helper classes for this purpose: `cxxtools::ArgIn` and
+`cxxtools::ArgOut`.
+
+`cxxtools::ArgIn` is derived from `std::istream`. It looks for an input file
+name in the command-line arguments. If a file name is found, the file is
+opened and the corresponding argument is removed from `argc` and `argv`.
+Otherwise, the stream is connected to `std::cin`.
+
+This allows applications to handle file input and standard input in the same
+way:
+
+```cpp
+int main(int argc, const char* argv[])
+{
+    cxxtools::ArgIn in(argc, argv);
+
+    std::string line;
+    while (std::getline(in, line))
+        std::cout << line << std::endl;
+}
+```
+
+If the input file should be provided through a specific option, a short or
+long option can be specified:
+
+```cpp
+cxxtools::ArgIn in(argc, argv, 'i');
+```
+
+or
+
+```cpp
+cxxtools::ArgIn in(argc, argv, "--input");
+```
+
+`cxxtools::ArgOut` works in the same way. It is derived from `std::ostream`.
+When an output file is specified, it opens that file. Otherwise, it writes to
+`std::cout`.
+
+```cpp
+int main(int argc, const char* argv[])
+{
+    cxxtools::ArgOut out(argc, argv);
+
+    out << "Hello World" << std::endl;
+}
+```
+
+Again, the output file can optionally be specified through a short or long
+option:
+
+```cpp
+cxxtools::ArgOut out(argc, argv, 'o');
+```
+
+or
+
+```cpp
+cxxtools::ArgOut out(argc, argv, "--output");
+```
+
+A common pattern for command-line tools is therefore:
+
+```cpp
+int main(int argc, const char* argv[])
+{
+    cxxtools::ArgIn in(argc, argv);
+    cxxtools::ArgOut out(argc, argv);
+
+    // process data
+}
+```
+
+The application automatically reads from files when file names are provided
+and otherwise falls back to standard input and standard output.
