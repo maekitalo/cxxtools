@@ -11,5 +11,4 @@ EXTRA_DIST = \
     propertiesquick-howto.md \
     rpc-howto.md \
     serialization-howto.md \
-    timer-howto.md \
     timezone-howto.md
