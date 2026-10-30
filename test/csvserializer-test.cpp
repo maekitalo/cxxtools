@@ -77,14 +77,10 @@ namespace
 
     void operator<<= (cxxtools::SerializationInfo& si, const TestObjectWithOptionals& obj)
     {
-        if (obj.intValue)
-            si.addMember("intValue") <<= obj.intValue;
-        if (obj.stringValue)
-            si.addMember("stringValue") <<= obj.stringValue;
-        if (obj.doubleValue)
-            si.addMember("doubleValue") <<= obj.doubleValue;
-        if (obj.boolValue)
-            si.addMember("boolValue") <<= obj.boolValue;
+        si.addMember("intValue") <<= obj.intValue;
+        si.addMember("stringValue") <<= obj.stringValue;
+        si.addMember("doubleValue") <<= obj.doubleValue;
+        si.addMember("boolValue") <<= obj.boolValue;
         si.setTypeName("TestObject");
     }
 #endif
