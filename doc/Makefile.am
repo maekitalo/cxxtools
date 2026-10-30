@@ -1,10 +1,11 @@
-EXTRA_DIST = \
-    asynchronousIO-howto.md \
+dist_doc_DATA = \
     argument-parsing-howto.md \
+    asynchronousIO-howto.md \
     binserialization.txt \
-    eventloop-howto.md \
     connection.md \
     csv-howto.md \
+    eventloop-howto.md \
+    index.md \
     json-howto.md \
     jsonquick-howto.md \
     logging-howto.md \

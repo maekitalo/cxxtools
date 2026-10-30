@@ -24,20 +24,7 @@ to generate a configure script.
 Documentation
 =============
 
-Various how-tos can be found here:
-
- * [Eventloop](doc/eventloop-howto.md)
- * [Asynchronous I/O](doc/asynchronous-howto.md)
- * [Argument parsing](doc/argument-parsing-howto.md)
- * [Network connections](doc/connection.md)
- * [CSV](doc/csv-howto.md)
- * [JSON quick](doc/jsonquick-howto.md)
- * [JSON](doc/json-howto.md)
- * [Logging](doc/logging-howto.md)
- * [Properties](doc/propertiesquick-howto.md)
- * [RPC](doc/rpc-howto.md)
- * [Serialization](doc/serialization-howto.md)
- * [Time zones](doc/timezone-howto.md)
+[Documentation](doc/index.md)
 
 There are also some useful demo applications that show how to use various
 features of cxxtools.
