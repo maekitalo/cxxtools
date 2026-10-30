@@ -203,6 +203,60 @@ if (!si.getMember("stringMember", foo.stringMember))
 }
 ```
 
+### Verifying object types during deserialization
+
+The type name stored in a `cxxtools::SerializationInfo` is optional. In many
+cases, deserialization works correctly without checking it because the
+deserialization operator simply reads the members it requires.
+
+For simple applications this is often sufficient. However, in larger systems
+different object types may have similar structures. In such cases it is
+possible that an object is accidentally deserialized into the wrong type.
+
+To detect this situation, the deserialization operator can verify the type
+name and reject unexpected objects:
+
+```cpp
+inline void operator>>= (
+        const cxxtools::SerializationInfo& si,
+        Foo& msg)
+{
+    if (!si.typeName().empty() && si.typeName() != "Foo")
+        throw cxxtools::SerializationError("is no Foo");
+
+    si.getMember("text") >>= msg.text;
+    si.getMember("number") >>= msg.number;
+}
+```
+
+This approach is particularly useful when objects are received from external
+sources such as configuration files, network protocols, RPC interfaces, or
+publish-subscribe systems.
+
+The check is intentionally performed only when a type name is present. This
+allows the deserialization operator to continue working with formats or data
+sources that do not provide type information.
+
+Applications that rely on strict type safety often set a type name during
+serialization:
+
+```cpp
+inline void operator<<= (
+        cxxtools::SerializationInfo& si,
+        const Foo& msg)
+{
+    si.setTypeName("Foo");
+    si.addMember("text") <<= msg.text;
+    si.addMember("number") <<= msg.number;
+}
+```
+
+and verify that type name during deserialization.
+
+Whether such checks are necessary depends on the application. For small and
+well-controlled systems they are often omitted, while larger systems usually
+benefit from the additional validation.
+
 Common patterns for defining serialization and deserialization operators
 ------------------------------------------------------------------------
 
@@ -296,7 +350,8 @@ std::vector<double>& getValues()
 Then we can write the deserialization operator almost as before:
 
 ```cpp
-inline void operator>>= (const cxxtools::SerializationInfo& si, Foo& foo) {
+inline void operator>>= (const cxxtools::SerializationInfo& si, Foo& foo)
+{
     si.getMember("stringMember") >>= foo.getStringMember();
     si.getMember("intMember") >>= foo.getIntMember();
     si.getMember("values") >>= foo.getValues();
